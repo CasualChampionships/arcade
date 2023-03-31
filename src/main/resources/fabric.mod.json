@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "arcade",
+  "version": "${version}",
+  "name": "Arcade API",
+  "description": "",
+  "authors": [
+    "Sensei"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "net.casualuhc.arcade.Arcade"
+      }
+    ]
+  },
+  "mixins": [
+    "arcade.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.12",
+    "minecraft": "1.19.x",
+    "java": ">=17",
+    "fabric-language-kotlin": ">=1.9.0+kotlin.1.8.0"
+  }
+}

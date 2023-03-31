@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.casualuhc.arcade.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "advancement.AdvancementListMixin",
+    "advancement.ServerAdvancementManagerMixin",
+    "events.BlockItemMixin",
+    "events.ItemStackMixin",
+    "events.LivingEntityMixin",
+    "events.MinecraftServerMixin",
+    "events.PlayerListMixin",
+    "events.PlayerMixin",
+    "events.RandomizableContainerBlockEntityMixin",
+    "events.ServerGamePacketListenerImplMixin",
+    "events.ServerPlayerMixin",
+    "events.TntBlockMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
