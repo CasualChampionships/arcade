@@ -1,4 +1,4 @@
-package net.casualuhc.arcade.mixin.advancement;
+package net.casualuhc.arcade.mixin.advancements;
 
 import com.google.gson.JsonElement;
 import net.casualuhc.arcade.advancements.AdvancementHandler;

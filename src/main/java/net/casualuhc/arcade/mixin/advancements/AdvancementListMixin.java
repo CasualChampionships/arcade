@@ -1,4 +1,4 @@
-package net.casualuhc.arcade.mixin.advancement;
+package net.casualuhc.arcade.mixin.advancements;
 
 import net.casualuhc.arcade.advancements.MutableAdvancements;
 import net.minecraft.advancements.Advancement;

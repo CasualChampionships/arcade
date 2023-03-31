@@ -4,9 +4,10 @@
   "package": "net.casualuhc.arcade.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "advancement.AdvancementListMixin",
-    "advancement.ServerAdvancementManagerMixin",
+    "advancements.AdvancementListMixin",
+    "advancements.ServerAdvancementManagerMixin",
     "events.BlockItemMixin",
+    "events.CommandsMixin",
     "events.ItemStackMixin",
     "events.LivingEntityMixin",
     "events.MinecraftServerMixin",
@@ -15,7 +16,9 @@
     "events.RandomizableContainerBlockEntityMixin",
     "events.ServerGamePacketListenerImplMixin",
     "events.ServerPlayerMixin",
-    "events.TntBlockMixin"
+    "events.TntBlockMixin",
+    "recipes.ClientboundUpdateRecipesPacketMixin",
+    "recipes.RecipeManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

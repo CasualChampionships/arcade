@@ -11,6 +11,7 @@ object AdvancementHandler {
     fun register(advancement: Advancement) {
         val manager = Arcade.server.advancements as MutableAdvancements
         manager.addAdvancement(advancement)
+        this.customAdvancements.add(advancement)
     }
 
     @JvmStatic
