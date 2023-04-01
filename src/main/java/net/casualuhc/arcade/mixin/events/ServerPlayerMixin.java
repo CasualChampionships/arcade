@@ -29,7 +29,7 @@ public class ServerPlayerMixin {
 		at = @At("HEAD")
 	)
 	private void onDeath(DamageSource damageSource, CallbackInfo ci) {
-		PlayerDeathEvent event = new PlayerDeathEvent((ServerPlayer) (Object) this);
+		PlayerDeathEvent event = new PlayerDeathEvent((ServerPlayer) (Object) this, damageSource);
 		EventHandler.broadcast(event);
 	}
 
