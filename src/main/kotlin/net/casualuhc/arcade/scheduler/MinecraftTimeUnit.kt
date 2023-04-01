@@ -1,5 +1,6 @@
 package net.casualuhc.arcade.scheduler
 
+@Suppress("unused")
 enum class MinecraftTimeUnit(
     private val ticks: Int
 ) {

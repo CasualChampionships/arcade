@@ -6,6 +6,7 @@ import net.casualuhc.arcade.events.server.ServerTickEvent
 import java.util.*
 import java.util.function.IntFunction
 
+@Suppress("unused")
 object Scheduler: EventListener {
     private val tasks = Int2ObjectOpenHashMap<Queue<Task>>()
     private var ticks = 0
@@ -21,7 +22,7 @@ object Scheduler: EventListener {
     }
 
     @JvmStatic
-    fun schedule(time: Int, unit: MinecraftTimeUnit = MinecraftTimeUnit.Ticks, task: () -> Unit): Task {
+    fun schedule(time: Int, unit: MinecraftTimeUnit = MinecraftTimeUnit.Ticks, task: Runnable): Task {
         return this.schedule(time, unit, Task(task))
     }
 
@@ -33,7 +34,7 @@ object Scheduler: EventListener {
     }
 
     @JvmStatic
-    fun scheduleInLoop(delay: Int, interval: Int, duration: Int, unit: MinecraftTimeUnit = MinecraftTimeUnit.Ticks, block: () -> Unit) {
+    fun scheduleInLoop(delay: Int, interval: Int, duration: Int, unit: MinecraftTimeUnit = MinecraftTimeUnit.Ticks, block: Runnable): Task {
         require(delay >= 0 && interval > 0 && duration >= 0) { "Delay, interval or duration ticks cannot be negative" }
         val task = Task(block)
         var tick = delay
@@ -41,5 +42,6 @@ object Scheduler: EventListener {
             this.schedule(tick, unit, task)
             tick += interval
         }
+        return task
     }
 }

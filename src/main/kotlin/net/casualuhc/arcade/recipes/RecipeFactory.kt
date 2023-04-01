@@ -9,6 +9,7 @@ import net.minecraft.world.item.crafting.CustomRecipe
 import net.minecraft.world.item.crafting.RecipeSerializer
 import net.minecraft.world.level.Level
 
+@Suppress("unused")
 object RecipeFactory {
     fun createCrafting(
         id: ResourceLocation,

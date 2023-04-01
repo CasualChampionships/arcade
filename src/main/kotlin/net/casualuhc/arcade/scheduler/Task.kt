@@ -1,7 +1,7 @@
 package net.casualuhc.arcade.scheduler
 
 class Task(
-    private val task: () -> Unit
+    private val task: Runnable
 ) {
     private var cancelled = false
 
@@ -11,7 +11,7 @@ class Task(
 
     fun run() {
         if (!this.cancelled) {
-            this.task()
+            this.task.run()
         }
     }
 }

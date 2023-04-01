@@ -4,6 +4,7 @@ import net.casualuhc.arcade.Arcade
 import net.minecraft.world.item.crafting.Recipe
 import java.util.function.Consumer
 
+@Suppress("unused")
 object RecipeHandler {
     private val customRecipes = LinkedHashSet<Recipe<*>>()
 

@@ -27,7 +27,7 @@ public class ServerAdvancementManagerMixin implements MutableAdvancements {
 		at = @At("TAIL")
 	)
 	private void onAdvancements(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci) {
-		AdvancementHandler.INSTANCE.forEachCustom(this::addAdvancement);
+		AdvancementHandler.forEachCustom(this::addAdvancement);
 	}
 
 	@Override
