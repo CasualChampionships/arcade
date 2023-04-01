@@ -5,7 +5,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import net.casualuhc.arcade.events.EventHandler;
 import net.casualuhc.arcade.events.player.PlayerBorderDamageEvent;
-import net.casualuhc.arcade.events.player.PlayerFallEvent;
+import net.casualuhc.arcade.events.player.PlayerLandEvent;
 import net.casualuhc.arcade.events.player.PlayerVoidDamageEvent;
 import net.casualuhc.arcade.utils.CastUtils;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,7 +14,6 @@ import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
@@ -32,7 +31,7 @@ public class LivingEntityMixin {
 		if (player == null) {
 			return;
 		}
-		PlayerFallEvent event = new PlayerFallEvent(player, damage.get(), distance, multiplier, source);
+		PlayerLandEvent event = new PlayerLandEvent(player, damage.get(), distance, multiplier, source);
 		EventHandler.broadcast(event);
 		if (event.isCancelled()) {
 			damage.set(event.getNewDamage());

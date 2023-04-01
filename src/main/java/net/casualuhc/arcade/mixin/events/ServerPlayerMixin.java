@@ -59,4 +59,16 @@ public class ServerPlayerMixin {
 		PlayerDimensionChangeEvent event = new PlayerDimensionChangeEvent((ServerPlayer) (Object) this, destination);
 		EventHandler.broadcast(event);
 	}
+
+	@Inject(
+		method = "doCheckFallDamage",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/entity/player/Player;checkFallDamage(DZLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V"
+		)
+	)
+	private void onFall(double y, boolean onGround, CallbackInfo ci) {
+		PlayerFallEvent event = new PlayerFallEvent((ServerPlayer) (Object) this, y, onGround);
+		EventHandler.broadcast(event);
+	}
 }
