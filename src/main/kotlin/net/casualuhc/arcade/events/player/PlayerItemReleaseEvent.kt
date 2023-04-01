@@ -10,4 +10,8 @@ class PlayerItemReleaseEvent(
     val stack: ItemStack,
     val level: Level,
     val ticks: Int
-): CancellableEvent()
+): CancellableEvent() {
+    public override fun cancel() {
+        super.cancel()
+    }
+}

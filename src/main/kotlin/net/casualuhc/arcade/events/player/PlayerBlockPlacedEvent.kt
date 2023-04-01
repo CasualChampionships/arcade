@@ -9,4 +9,8 @@ class PlayerBlockPlacedEvent(
     val player: ServerPlayer,
     val state: BlockState,
     val context: BlockPlaceContext
-): CancellableEvent()
+): CancellableEvent() {
+    public override fun cancel() {
+        super.cancel()
+    }
+}
