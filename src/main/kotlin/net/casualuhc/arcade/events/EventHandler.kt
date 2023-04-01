@@ -5,13 +5,14 @@ import java.util.LinkedList
 import java.util.function.Consumer
 
 object EventHandler {
-    private val events = HashMap<Class<*>, LinkedList<Consumer<Event>>>()
+    private val events = HashMap<Class<*>, ArrayList<Consumer<Event>>>()
 
     @JvmStatic
     fun broadcast(event: Event) {
         val listeners = this.events[event::class.java] ?: return
-        for (listener in listeners) {
-            listener.accept(event)
+        var i = 0
+        while (i < listeners.size) {
+            listeners[i++].accept(event)
         }
     }
 
@@ -21,7 +22,7 @@ object EventHandler {
 
     @JvmStatic
     fun <T: Event> register(type: Class<T>, listener: Consumer<T>) {
-        val listeners = this.events.getOrPut(type) { LinkedList() }
+        val listeners = this.events.getOrPut(type) { ArrayList() }
         @Suppress("UNCHECKED_CAST")
         listeners.add(listener as Consumer<Event>)
     }
