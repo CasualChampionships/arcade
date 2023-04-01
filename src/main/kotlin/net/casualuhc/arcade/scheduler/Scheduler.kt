@@ -38,7 +38,7 @@ object Scheduler: EventListener {
         require(delay >= 0 && interval > 0 && duration >= 0) { "Delay, interval or duration ticks cannot be negative" }
         val task = Task(block)
         var tick = delay
-        while (tick < interval + delay) {
+        while (tick < duration + delay) {
             this.schedule(tick, unit, task)
             tick += interval
         }
