@@ -42,7 +42,7 @@ object Broadcaster {
                     message = this.messages.random()
                 }
                 PlayerUtils.forEveryPlayer { player ->
-                    player.sendSystemMessage(message)
+                    player.sendSystemMessage(this.formatter(message))
                 }
                 this.lastMessage = message
             }
