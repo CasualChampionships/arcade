@@ -7,6 +7,7 @@ import net.minecraft.world.Container
 import net.minecraft.world.item.crafting.Recipe
 import net.minecraft.world.item.crafting.RecipeSerializer
 
+@Deprecated("Rework needed")
 object ArcadeRecipeSerializer: RecipeSerializer<Recipe<Container>> {
     override fun fromJson(recipeId: ResourceLocation, serializedRecipe: JsonObject): Recipe<Container> {
         throw IllegalStateException()

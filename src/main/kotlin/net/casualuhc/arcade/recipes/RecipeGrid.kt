@@ -5,6 +5,7 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import java.util.function.Predicate
 
+@Deprecated("Rework needed")
 class RecipeGrid(
     val width: Int,
     val height: Int

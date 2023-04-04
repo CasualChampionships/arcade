@@ -9,7 +9,7 @@ import kotlin.math.ceil
 import kotlin.math.floor
 
 class StillBorderState(
-    private val border: CustomBorder,
+    private val border: ArcadeBorder,
     private var size: Double
 ): BorderState {
     private var minX: Double = 0.0

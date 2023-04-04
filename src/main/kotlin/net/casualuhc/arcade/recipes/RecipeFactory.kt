@@ -7,10 +7,12 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.crafting.CraftingBookCategory
 import net.minecraft.world.item.crafting.CustomRecipe
 import net.minecraft.world.item.crafting.RecipeSerializer
+import net.minecraft.world.item.crafting.ShapedRecipe
 import net.minecraft.world.level.Level
 
-@Suppress("unused")
+@Deprecated("Rework needed")
 object RecipeFactory {
+    @Deprecated("Rework needed")
     fun createCrafting(
         id: ResourceLocation,
         category: CraftingBookCategory,

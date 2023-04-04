@@ -1,19 +1,17 @@
 package net.casualuhc.arcade.mixin.advancements;
 
 import com.google.gson.JsonElement;
-import net.casualuhc.arcade.advancements.AdvancementHandler;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.casualuhc.arcade.advancements.MutableAdvancements;
+import net.casualuhc.arcade.events.EventHandler;
+import net.casualuhc.arcade.events.server.ServerAdvancementReloadEvent;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementList;
-import net.minecraft.advancements.TreeNodePosition;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.ServerAdvancementManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -21,38 +19,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Map;
 
 @Mixin(ServerAdvancementManager.class)
-public class ServerAdvancementManagerMixin implements MutableAdvancements {
-	@Shadow private AdvancementList advancements;
-
+public class ServerAdvancementManagerMixin {
 	@Inject(
 		method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/advancements/AdvancementList;getRoots()Ljava/lang/Iterable;",
-			shift = At.Shift.BEFORE
+			target = "Lnet/minecraft/advancements/AdvancementList;add(Ljava/util/Map;)V"
 		)
 	)
-	private void onAdvancements(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci) {
-		AdvancementHandler.forEachCustom(this::addAdvancement);
-	}
+	private void onReloadAdvancements(
+		Map<ResourceLocation, JsonElement> object,
+		ResourceManager resourceManager,
+		ProfilerFiller profiler,
+		CallbackInfo ci,
+		@Local AdvancementList advancements
+	) {
+		ServerAdvancementReloadEvent event = new ServerAdvancementReloadEvent((ServerAdvancementManager) (Object) this, resourceManager);
+		EventHandler.broadcast(event);
 
-	@Override
-	public void addAdvancement(@NotNull Advancement advancement) {
-		((MutableAdvancements) this.advancements).addAdvancement(advancement);
-
-		Advancement root = advancement.getRoot();
-		if (root.getDisplay() != null) {
-			TreeNodePosition.run(root);
-		}
-	}
-
-	@Override
-	public void removeAdvancement(@NotNull Advancement advancement) {
-		((MutableAdvancements) this.advancements).removeAdvancement(advancement);
-
-		Advancement root = advancement.getRoot();
-		if (root.getDisplay() != null) {
-			TreeNodePosition.run(root);
+		MutableAdvancements mutable = (MutableAdvancements) advancements;
+		for (Advancement advancement : event.getAdvancements()) {
+			mutable.addAdvancement(advancement);
 		}
 	}
 }

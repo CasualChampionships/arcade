@@ -1,29 +1,16 @@
 package net.casualuhc.arcade.border
 
-import net.casualuhc.arcade.events.EventHandler
-import net.casualuhc.arcade.events.border.CustomBorderStartEvent
-import net.casualuhc.arcade.events.border.CustomBorderFinishEvent
 import net.minecraft.world.level.border.BorderChangeListener
 import net.minecraft.world.level.border.BorderStatus
 import net.minecraft.world.level.border.WorldBorder
 
-class CustomBorder: WorldBorder() {
+open class ArcadeBorder: WorldBorder() {
     private var state: BorderState = StillBorderState(this, MAX_SIZE)
     private var centerX = 0.0
     private var centerZ = 0.0
 
     override fun tick() {
-
-    }
-
-    fun update() {
-        val previous = this.status
         this.state = this.state.update()
-
-        if (this.status != previous && previous == BorderStatus.STATIONARY) {
-            val event = CustomBorderFinishEvent(this, false)
-            EventHandler.broadcast(event)
-        }
     }
 
     override fun getStatus(): BorderStatus {
@@ -81,14 +68,7 @@ class CustomBorder: WorldBorder() {
     }
 
     override fun setSize(size: Double) {
-        val wasStationary = this.status == BorderStatus.STATIONARY
-
         this.state = StillBorderState(this, size)
-
-        if (!wasStationary) {
-            val event = CustomBorderFinishEvent(this, true)
-            EventHandler.broadcast(event)
-        }
     }
 
     override fun lerpSizeBetween(start: Double, end: Double, time: Long) {
@@ -97,17 +77,7 @@ class CustomBorder: WorldBorder() {
             return
         }
 
-        val wasStationary = this.status == BorderStatus.STATIONARY
-
         this.state = MovingBorderState(this, time, start, end)
-
-        if (!wasStationary) {
-            val event = CustomBorderFinishEvent(this, true)
-            EventHandler.broadcast(event)
-        }
-
-        val event = CustomBorderStartEvent(this, start, end, time)
-        EventHandler.broadcast(event)
 
         for (borderChangeListener in listeners) {
             borderChangeListener.onBorderSizeLerping(this, start, end, time)

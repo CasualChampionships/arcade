@@ -9,6 +9,10 @@ class PlayerBorderDamageEvent(
     val source: DamageSource,
     val amount: Float
 ): CancellableEvent() {
+    public override fun invoke(): Boolean {
+        return this.player.hurt(this.source, this.amount)
+    }
+
     public override fun cancel() {
         super.cancel()
     }

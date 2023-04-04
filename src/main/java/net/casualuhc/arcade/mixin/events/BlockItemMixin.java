@@ -22,7 +22,7 @@ public class BlockItemMixin {
 	)
 	private boolean onPlaceBlock(BlockItem instance, BlockPlaceContext context, BlockState state, Operation<Boolean> operation) {
 		if (context.getPlayer() instanceof ServerPlayer player) {
-			PlayerBlockPlacedEvent event = new PlayerBlockPlacedEvent(player, state, context);
+			PlayerBlockPlacedEvent event = new PlayerBlockPlacedEvent(player, instance, state, context);
 			EventHandler.broadcast(event);
 			if (event.isCancelled()) {
 				return false;

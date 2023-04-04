@@ -15,8 +15,12 @@ import java.util.function.BooleanSupplier;
 @Mixin(MinecraftServer.class)
 public class MinecraftServerMixin {
 	@Inject(
-		method = "loadLevel",
-		at = @At("HEAD")
+		method = "runServer",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/MinecraftServer;buildServerStatus()Lnet/minecraft/network/protocol/status/ServerStatus;",
+			shift = At.Shift.AFTER
+		)
 	)
 	private void onServerLoaded(CallbackInfo ci) {
 		ServerLoadedEvent event = new ServerLoadedEvent((MinecraftServer) (Object) this);

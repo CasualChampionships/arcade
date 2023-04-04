@@ -34,8 +34,16 @@ object Scheduler: EventListener {
     }
 
     @JvmStatic
-    fun scheduleInLoop(delay: Int, interval: Int, duration: Int, unit: MinecraftTimeUnit = MinecraftTimeUnit.Ticks, block: Runnable): Task {
-        require(delay >= 0 && interval > 0 && duration >= 0) { "Delay, interval or duration ticks cannot be negative" }
+    fun scheduleInLoop(
+        delay: Int,
+        interval: Int,
+        duration: Int,
+        unit: MinecraftTimeUnit = MinecraftTimeUnit.Ticks,
+        block: Runnable
+    ): Task {
+        require(delay >= 0 && interval > 0 && duration >= 0) {
+            "Delay, interval or duration ticks cannot be negative"
+        }
         val task = Task(block)
         var tick = delay
         while (tick < duration + delay) {

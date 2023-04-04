@@ -16,7 +16,15 @@ import net.minecraft.world.scores.Team
 import kotlin.math.sqrt
 
 internal object SpreadPlayers {
-    fun run(level: ServerLevel, center: Vec2, distance: Double, range: Double, height: Int, teams: Boolean, targets: Collection<Entity>) {
+    fun run(
+        level: ServerLevel,
+        center: Vec2,
+        distance: Double,
+        range: Double,
+        height: Int,
+        teams: Boolean,
+        targets: Collection<Entity>
+    ) {
         val random = RandomSource.create()
         val minX = center.x - range
         val minZ = center.y - range
