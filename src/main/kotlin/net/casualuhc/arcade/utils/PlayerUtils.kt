@@ -23,15 +23,27 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun clearPlayerInventory(player: ServerPlayer) {
-        player.inventory.clearContent()
-        player.inventoryMenu.clearCraftingContent()
-        player.inventoryMenu.carried = ItemStack.EMPTY
+    fun spread(
+        level: ServerLevel,
+        center: Vec2,
+        distance: Double,
+        range: Double,
+        teams: Boolean,
+        targets: Collection<ServerPlayer>
+    ) {
+        SpreadPlayers.run(level, center, distance, range, level.maxBuildHeight, teams, targets)
     }
 
     @JvmStatic
-    fun spread(level: ServerLevel, center: Vec2, distance: Double, range: Double, teams: Boolean, targets: Collection<ServerPlayer>) {
-        SpreadPlayers.run(level, center, distance, range, level.maxBuildHeight, teams, targets)
+    fun ServerPlayer.clearPlayerInventory() {
+        this.inventory.clearContent()
+        this.inventoryMenu.clearCraftingContent()
+        this.inventoryMenu.carried = ItemStack.EMPTY
+    }
+
+    @JvmStatic
+    fun ServerPlayer.isSurvival(): Boolean {
+        return this.isGameMode(GameType.SURVIVAL)
     }
 
     @JvmStatic
