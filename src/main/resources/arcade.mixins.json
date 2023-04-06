@@ -19,6 +19,10 @@
     "events.ServerPlayerGameModeMixin",
     "events.ServerPlayerMixin",
     "events.TntBlockMixin",
+    "extension.PlayerTeamMixin",
+    "extension.ScoreboardSaveDataMixin",
+    "extension.ServerLevelMixin",
+    "extension.ServerPlayerMixin",
     "recipes.ClientboundUpdateRecipesPacketMixin",
     "recipes.RecipeManagerMixin"
   ],
