@@ -106,7 +106,7 @@ public abstract class ServerLevelMixin extends Level implements ExtensionHolder 
 			tag.put(extension.getName(), extension.serialize());
 		}
 		try {
-			Files.createDirectories(this.arcade_savePath);
+			Files.createDirectories(this.arcade_savePath.getParent());
 			NbtIo.write(tag, this.arcade_savePath.toFile());
 		} catch (IOException e) {
 			Arcade.logger.error("Failed to save arcade extension data", e);

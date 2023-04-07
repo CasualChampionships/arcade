@@ -12,6 +12,7 @@ import net.minecraft.world.item.enchantment.Enchantment
 import net.minecraft.world.item.enchantment.EnchantmentHelper
 import net.minecraft.world.item.enchantment.EnchantmentInstance
 
+@Suppress("unused")
 object ItemUtils {
     @JvmStatic
     fun Item.literalNamed(name: String): ItemStack {
