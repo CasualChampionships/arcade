@@ -29,22 +29,6 @@ class Arcade: ModInitializer {
     }
 
     override fun onInitialize() {
-        EventHandler.register<LevelCreatedEvent> {
-            it.level.addExtension(PlayerExtension())
-        }
-    }
 
-    class PlayerExtension: Extension {
-        override fun getName(): String {
-            return "Testing"
-        }
-
-        override fun serialize(): Tag {
-            return CompoundTag()
-        }
-
-        override fun deserialize(element: Tag) {
-
-        }
     }
 }
