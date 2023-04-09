@@ -76,7 +76,7 @@ object ItemUtils {
     }
 
     @JvmStatic
-    fun generatePlayerHead(playerName: String, texture: String?): ItemStack {
+    fun generatePlayerHead(playerName: String, texture: String? = null): ItemStack {
         val compound = CompoundTag()
         compound.putString("id", "player_head")
         compound.putByte("Count", 1.toByte())
