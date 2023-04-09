@@ -6,12 +6,12 @@ import net.casualuhc.arcade.extensions.ExtensionHolder
 import net.casualuhc.arcade.utils.ExtensionUtils.addExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtensions
+import net.minecraft.advancements.Advancement
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.GameType
 import net.minecraft.world.phys.Vec2
-import net.minecraft.world.scores.PlayerTeam
 import java.util.function.Consumer
 
 @Suppress("unused")
@@ -55,6 +55,26 @@ object PlayerUtils {
     @JvmStatic
     fun ServerPlayer.isGameMode(mode: GameType): Boolean {
         return this.gameMode.gameModeForPlayer == mode
+    }
+
+    @JvmStatic
+    fun ServerPlayer.grantAdvancement(advancement: Advancement) {
+        val progress = this.advancements.getOrStartProgress(advancement)
+        if (!progress.isDone) {
+            for (string in progress.remainingCriteria) {
+                this.advancements.award(advancement, string)
+            }
+        }
+    }
+
+    @JvmStatic
+    fun ServerPlayer.revokeAdvancement(advancement: Advancement) {
+        val progress = this.advancements.getOrStartProgress(advancement)
+        if (!progress.isDone) {
+            for (string in progress.completedCriteria) {
+                this.advancements.revoke(advancement, string)
+            }
+        }
     }
 
     @JvmStatic
