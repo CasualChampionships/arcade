@@ -10,8 +10,12 @@ object ExtensionUtils {
     }
 
     @JvmStatic
-    fun <T: Extension> ExtensionHolder.getExtension(type: Class<T>): T? {
-        return this.getExtensionMap().getExtension(type)
+    fun <T: Extension> ExtensionHolder.getExtension(type: Class<T>): T {
+        val extension = this.getExtensionMap().getExtension(type)
+        if (extension === null) {
+            throw IllegalArgumentException("No such extension $type exists for $this")
+        }
+        return extension
     }
 
     @JvmStatic

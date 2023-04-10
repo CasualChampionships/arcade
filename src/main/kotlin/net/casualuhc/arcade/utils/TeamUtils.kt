@@ -8,6 +8,7 @@ import net.casualuhc.arcade.utils.ExtensionUtils.getExtensions
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Team
 
+@Suppress("unused")
 object TeamUtils {
     @JvmStatic
     fun Team.asPlayerTeam(): PlayerTeam {
@@ -20,7 +21,7 @@ object TeamUtils {
     }
 
     @JvmStatic
-    fun <T: Extension> PlayerTeam.getExtension(type: Class<T>): T? {
+    fun <T: Extension> PlayerTeam.getExtension(type: Class<T>): T {
         return (this as ExtensionHolder).getExtension(type)
     }
 

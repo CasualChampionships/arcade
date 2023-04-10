@@ -83,7 +83,7 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun <T: Extension> ServerPlayer.getExtension(type: Class<T>): T? {
+    fun <T: Extension> ServerPlayer.getExtension(type: Class<T>): T {
         return (this as ExtensionHolder).getExtension(type)
     }
 

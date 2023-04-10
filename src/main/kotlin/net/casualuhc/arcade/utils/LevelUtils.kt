@@ -7,6 +7,7 @@ import net.casualuhc.arcade.utils.ExtensionUtils.getExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtensions
 import net.minecraft.server.level.ServerLevel
 
+@Suppress("unused")
 object LevelUtils {
     @JvmStatic
     fun ServerLevel.addExtension(extension: Extension) {
@@ -14,7 +15,7 @@ object LevelUtils {
     }
 
     @JvmStatic
-    fun <T: Extension> ServerLevel.getExtension(type: Class<T>): T? {
+    fun <T: Extension> ServerLevel.getExtension(type: Class<T>): T {
         return (this as ExtensionHolder).getExtension(type)
     }
 
