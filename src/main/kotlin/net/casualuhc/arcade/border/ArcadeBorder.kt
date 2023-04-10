@@ -4,10 +4,11 @@ import net.minecraft.world.level.border.BorderChangeListener
 import net.minecraft.world.level.border.BorderStatus
 import net.minecraft.world.level.border.WorldBorder
 
-open class ArcadeBorder: WorldBorder() {
-    private var state: BorderState = StillBorderState(this, MAX_SIZE)
+abstract class ArcadeBorder: WorldBorder() {
     private var centerX = 0.0
     private var centerZ = 0.0
+
+    protected abstract var state: BorderState
 
     override fun tick() {
         this.state = this.state.update()
