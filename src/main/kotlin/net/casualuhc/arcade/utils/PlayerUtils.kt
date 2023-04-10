@@ -6,16 +6,25 @@ import net.casualuhc.arcade.extensions.ExtensionHolder
 import net.casualuhc.arcade.utils.ExtensionUtils.addExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtensions
+import net.casualuhc.arcade.utils.impl.Location
 import net.minecraft.advancements.Advancement
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.GameType
 import net.minecraft.world.phys.Vec2
+import net.minecraft.world.phys.Vec3
 import java.util.function.Consumer
 
 @Suppress("unused")
 object PlayerUtils {
+    @JvmStatic
+    val ServerPlayer.location
+        get() = Location(this.getLevel(), Vec3(this.x, this.y, this.z), Vec2(this.xRot, this.yRot))
+
+    @JvmStatic
+    val ServerPlayer.isSurvival get() = this.isGameMode(GameType.SURVIVAL)
+
     @JvmStatic
     fun players(): Collection<ServerPlayer> {
         return Arcade.server.playerList.players
@@ -48,11 +57,6 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun ServerPlayer.isSurvival(): Boolean {
-        return this.isGameMode(GameType.SURVIVAL)
-    }
-
-    @JvmStatic
     fun ServerPlayer.isGameMode(mode: GameType): Boolean {
         return this.gameMode.gameModeForPlayer == mode
     }
@@ -75,6 +79,11 @@ object PlayerUtils {
                 this.advancements.revoke(advancement, string)
             }
         }
+    }
+
+    @JvmStatic
+    fun ServerPlayer.teleportTo(location: Location) {
+        this.teleportTo(location.level, location.x, location.y, location.z, location.yaw, location.pitch)
     }
 
     @JvmStatic
