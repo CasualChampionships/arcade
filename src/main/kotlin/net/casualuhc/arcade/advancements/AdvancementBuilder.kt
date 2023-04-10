@@ -1,8 +1,12 @@
 package net.casualuhc.arcade.advancements
 
+import net.minecraft.advancements.Advancement
+import net.minecraft.advancements.AdvancementRewards
 import net.minecraft.advancements.Criterion
 import net.minecraft.advancements.CriterionTriggerInstance
+import net.minecraft.advancements.DisplayInfo
 import net.minecraft.advancements.FrameType
+import net.minecraft.advancements.RequirementsStrategy
 import net.minecraft.advancements.critereon.ImpossibleTrigger
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
@@ -13,15 +17,22 @@ import net.minecraft.world.level.ItemLike
 class AdvancementBuilder private constructor() {
     private val criterion = HashMap<String, Criterion>()
 
+    var parent: Advancement? = null
     var id: ResourceLocation? = null
     var display: ItemStack = ItemStack.EMPTY
     var title: Component = Component.empty()
     var description: Component = Component.empty()
     var background: ResourceLocation? = null
     var frame = FrameType.TASK
+    var requirements: RequirementsStrategy = RequirementsStrategy.AND
+    var rewards: AdvancementRewards = AdvancementRewards.EMPTY
     var toast = false
     var announce = false
     var hidden = false
+
+    fun parent(parent: Advancement) {
+        this.parent = parent
+    }
 
     fun id(id: ResourceLocation): AdvancementBuilder {
         this.id = id
@@ -58,6 +69,16 @@ class AdvancementBuilder private constructor() {
         return this
     }
 
+    fun requirements(requirements: RequirementsStrategy): AdvancementBuilder {
+        this.requirements = requirements
+        return this
+    }
+
+    fun rewards(rewards: AdvancementRewards): AdvancementBuilder {
+        this.rewards = rewards
+        return this
+    }
+
     fun toast(): AdvancementBuilder {
         this.toast = true
         return this
@@ -81,6 +102,29 @@ class AdvancementBuilder private constructor() {
     fun impossible(): AdvancementBuilder {
         this.criterion("impossible", ImpossibleTrigger.TriggerInstance())
         return this
+    }
+
+    fun build(): Advancement {
+        val id = this.id
+        requireNotNull(id)
+        val requirements = this.requirements.createRequirements(this.criterion.keys)
+        return Advancement(
+            id,
+            this.parent,
+            DisplayInfo(
+                this.display,
+                this.title,
+                this.description,
+                this.background,
+                this.frame,
+                this.toast,
+                this.announce,
+                this.hidden
+            ),
+            this.rewards,
+            this.criterion,
+            requirements
+        )
     }
 
     companion object {
