@@ -21,7 +21,7 @@ object CraftingRecipeBuilder {
     }
 
     class Shaped internal constructor() {
-        val ingredients = NonNullList.create<Ingredient>()
+        private val ingredients = NonNullList.create<Ingredient>()
         var id: ResourceLocation? = null
         var category: CraftingBookCategory = CraftingBookCategory.MISC
         var group: String = ""
@@ -73,7 +73,7 @@ object CraftingRecipeBuilder {
     }
 
     class Shapeless internal constructor() {
-        val ingredients = NonNullList.create<Ingredient>()
+        private val ingredients = NonNullList.create<Ingredient>()
         var id: ResourceLocation? = null
         var category: CraftingBookCategory = CraftingBookCategory.MISC
         var group: String = ""
