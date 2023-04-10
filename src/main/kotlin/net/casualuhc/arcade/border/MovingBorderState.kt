@@ -67,7 +67,7 @@ class MovingBorderState(
     }
 
     override fun update(): BorderState {
-        if (ticks++ % 20 == 0) {
+        if (this.ticks++ % 20 == 0) {
             // We need to update any listeners
             // Most importantly those that send updates to the client
             // This is because the client logic uses real time
