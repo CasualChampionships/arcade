@@ -16,6 +16,7 @@
     "events.PlayerMixin",
     "events.RandomizableContainerBlockEntityMixin",
     "events.ServerGamePacketListenerImplMixin",
+    "events.ServerLevelMixin",
     "events.ServerPlayerGameModeMixin",
     "events.ServerPlayerMixin",
     "events.TntBlockMixin",

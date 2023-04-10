@@ -2,6 +2,7 @@ package net.casualuhc.arcade.mixin.extension;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import net.casualuhc.arcade.extensions.Extension;
+import net.casualuhc.arcade.extensions.ExtensionHolder;
 import net.casualuhc.arcade.utils.ExtensionUtils;
 import net.casualuhc.arcade.utils.TeamUtils;
 import net.minecraft.nbt.CompoundTag;
@@ -32,12 +33,7 @@ public class ScoreboardSaveDataMixin {
 		@Local CompoundTag tag
 	) {
 		CompoundTag arcade = tag.getCompound("arcade");
-		for (Extension extension : TeamUtils.getExtensions(team)) {
-			Tag data = arcade.get(extension.getName());
-			if (data != null) {
-				extension.deserialize(data);
-			}
-		}
+		ExtensionUtils.deserialize((ExtensionHolder) team, arcade);
 	}
 
 	@Inject(
@@ -55,9 +51,7 @@ public class ScoreboardSaveDataMixin {
 		@Local CompoundTag tag
 	) {
 		CompoundTag arcade = new CompoundTag();
-		for (Extension extension : TeamUtils.getExtensions(team)) {
-			arcade.put(extension.getName(), extension.serialize());
-		}
+		ExtensionUtils.serialize((ExtensionHolder) team, arcade);
 		tag.put("arcade", arcade);
 	}
 }

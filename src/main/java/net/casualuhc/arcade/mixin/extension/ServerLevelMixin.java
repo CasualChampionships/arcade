@@ -82,14 +82,8 @@ public abstract class ServerLevelMixin extends Level implements ExtensionHolder 
 
 		try {
 			CompoundTag tag = NbtIo.read(this.arcade_savePath.toFile());
-			if (tag == null) {
-				return;
-			}
-			for (Extension extension : ExtensionUtils.getExtensions(this)) {
-				Tag data = tag.get(extension.getName());
-				if (data != null) {
-					extension.deserialize(data);
-				}
+			if (tag != null) {
+				ExtensionUtils.deserialize(this, tag);
 			}
 		} catch (IOException e) {
 			Arcade.logger.error("Failed to read arcade extension data", e);
@@ -102,9 +96,7 @@ public abstract class ServerLevelMixin extends Level implements ExtensionHolder 
 	)
 	private void onSaveLevel(CallbackInfo ci) {
 		CompoundTag tag = new CompoundTag();
-		for (Extension extension : ExtensionUtils.getExtensions(this)) {
-			tag.put(extension.getName(), extension.serialize());
-		}
+		ExtensionUtils.serialize(this, tag);
 		try {
 			Files.createDirectories(this.arcade_savePath.getParent());
 			NbtIo.write(tag, this.arcade_savePath.toFile());

@@ -3,6 +3,7 @@ package net.casualuhc.arcade.mixin.extension;
 import com.mojang.authlib.GameProfile;
 import net.casualuhc.arcade.events.EventHandler;
 import net.casualuhc.arcade.events.player.PlayerCreatedEvent;
+import net.casualuhc.arcade.extensions.DataExtension;
 import net.casualuhc.arcade.extensions.Extension;
 import net.casualuhc.arcade.extensions.ExtensionHolder;
 import net.casualuhc.arcade.extensions.ExtensionMap;
@@ -39,12 +40,7 @@ public class ServerPlayerMixin implements ExtensionHolder {
 	)
 	private void onLoadPlayer(CompoundTag compound, CallbackInfo ci) {
 		CompoundTag arcade = compound.getCompound("arcade");
-		for (Extension extension : ExtensionUtils.getExtensions(this)) {
-			Tag tag = arcade.get(extension.getName());
-			if (tag != null) {
-				extension.deserialize(tag);
-			}
-		}
+		ExtensionUtils.deserialize(this, arcade);
 	}
 
 	@Inject(
@@ -53,9 +49,7 @@ public class ServerPlayerMixin implements ExtensionHolder {
 	)
 	private void onSavePlayer(CompoundTag compound, CallbackInfo ci) {
 		CompoundTag arcade = new CompoundTag();
-		for (Extension extension : ExtensionUtils.getExtensions(this)) {
-			arcade.put(extension.getName(), extension.serialize());
-		}
+		ExtensionUtils.serialize(this, arcade);
 		compound.put("arcade", arcade);
 	}
 

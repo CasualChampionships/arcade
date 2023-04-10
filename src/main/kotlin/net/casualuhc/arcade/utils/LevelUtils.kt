@@ -8,9 +8,25 @@ import net.casualuhc.arcade.utils.ExtensionUtils.addExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtensions
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.Level
 
 @Suppress("unused")
 object LevelUtils {
+    @JvmStatic
+    fun overworld(): ServerLevel {
+        return Arcade.server.overworld()
+    }
+
+    @JvmStatic
+    fun nether(): ServerLevel {
+        return Arcade.server.getLevel(Level.NETHER)!!
+    }
+
+    @JvmStatic
+    fun end(): ServerLevel {
+        return Arcade.server.getLevel(Level.END)!!
+    }
+
     @JvmStatic
     fun levels(): Iterable<ServerLevel> {
         return Arcade.server.allLevels
