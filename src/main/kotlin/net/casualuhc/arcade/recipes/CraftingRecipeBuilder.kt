@@ -10,7 +10,7 @@ import net.minecraft.world.item.crafting.Ingredient
 import net.minecraft.world.item.crafting.ShapedRecipe
 import net.minecraft.world.item.crafting.ShapelessRecipe
 
-@Suppress("unused")
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 object CraftingRecipeBuilder {
     fun shaped(block: Shaped.() -> Unit): Shaped {
         return Shaped().apply(block)

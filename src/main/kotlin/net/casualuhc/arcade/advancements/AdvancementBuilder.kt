@@ -1,16 +1,24 @@
 package net.casualuhc.arcade.advancements
 
+import net.minecraft.advancements.Criterion
+import net.minecraft.advancements.CriterionTriggerInstance
+import net.minecraft.advancements.FrameType
+import net.minecraft.advancements.critereon.ImpossibleTrigger
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ItemLike
 
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 class AdvancementBuilder private constructor() {
+    private val criterion = HashMap<String, Criterion>()
+
     var id: ResourceLocation? = null
     var display: ItemStack = ItemStack.EMPTY
     var title: Component = Component.empty()
     var description: Component = Component.empty()
     var background: ResourceLocation? = null
+    var frame = FrameType.TASK
     var toast = false
     var announce = false
     var hidden = false
@@ -45,6 +53,11 @@ class AdvancementBuilder private constructor() {
         return this
     }
 
+    fun frame(frame: FrameType): AdvancementBuilder {
+        this.frame = frame
+        return this
+    }
+
     fun toast(): AdvancementBuilder {
         this.toast = true
         return this
@@ -57,6 +70,16 @@ class AdvancementBuilder private constructor() {
 
     fun hidden(): AdvancementBuilder {
         this.hidden = true
+        return this
+    }
+
+    fun criterion(name: String, trigger: CriterionTriggerInstance): AdvancementBuilder {
+        this.criterion[name] = Criterion(trigger)
+        return this
+    }
+
+    fun impossible(): AdvancementBuilder {
+        this.criterion("impossible", ImpossibleTrigger.TriggerInstance())
         return this
     }
 
