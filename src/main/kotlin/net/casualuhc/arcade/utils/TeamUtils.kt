@@ -7,6 +7,7 @@ import net.casualuhc.arcade.extensions.ExtensionHolder
 import net.casualuhc.arcade.utils.ExtensionUtils.addExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtensions
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Team
 
@@ -27,6 +28,19 @@ object TeamUtils {
     @JvmStatic
     fun Team.asPlayerTeam(): PlayerTeam {
         return this as PlayerTeam
+    }
+
+    @JvmStatic
+    fun Team.getServerPlayers(): List<ServerPlayer> {
+        val players = Arcade.server.playerList
+        val team = ArrayList<ServerPlayer>()
+        for (name in this.players) {
+            val player = players.getPlayerByName(name)
+            if (player != null) {
+                team.add(player)
+            }
+        }
+        return team
     }
 
     @JvmStatic
