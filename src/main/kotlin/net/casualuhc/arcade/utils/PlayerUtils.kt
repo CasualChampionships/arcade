@@ -8,6 +8,9 @@ import net.casualuhc.arcade.utils.ExtensionUtils.getExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtensions
 import net.casualuhc.arcade.utils.impl.Location
 import net.minecraft.advancements.Advancement
+import net.minecraft.network.chat.Component
+import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
@@ -84,6 +87,16 @@ object PlayerUtils {
     @JvmStatic
     fun ServerPlayer.teleportTo(location: Location) {
         this.teleportTo(location.level, location.x, location.y, location.z, location.yaw, location.pitch)
+    }
+
+    @JvmStatic
+    fun ServerPlayer.sendTitle(title: Component) {
+        this.connection.send(ClientboundSetTitleTextPacket(title))
+    }
+
+    @JvmStatic
+    fun ServerPlayer.sendSubtitle(subtitle: Component) {
+        this.connection.send(ClientboundSetSubtitleTextPacket(subtitle))
     }
 
     @JvmStatic
