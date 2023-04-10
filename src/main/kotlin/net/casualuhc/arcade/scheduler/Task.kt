@@ -1,8 +1,6 @@
 package net.casualuhc.arcade.scheduler
 
-class Task(
-    private val task: Runnable
-) {
+abstract class Task {
     private var cancelled = false
 
     fun cancel() {
@@ -11,7 +9,23 @@ class Task(
 
     fun run() {
         if (!this.cancelled) {
-            this.task.run()
+            this.invoke()
+        }
+    }
+
+    protected abstract fun invoke()
+
+    private class Impl(
+        val runnable: Runnable
+    ): Task() {
+        override fun invoke() {
+            this.runnable.run()
+        }
+    }
+
+    companion object {
+        fun of(runnable: Runnable): Task {
+            return Impl(runnable)
         }
     }
 }

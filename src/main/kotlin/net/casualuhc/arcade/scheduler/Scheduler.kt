@@ -23,7 +23,7 @@ object Scheduler: EventListener {
 
     @JvmStatic
     fun schedule(time: Int, unit: MinecraftTimeUnit = MinecraftTimeUnit.Ticks, task: Runnable): Task {
-        return this.schedule(time, unit, Task(task))
+        return this.schedule(time, unit, Task.of(task))
     }
 
     @JvmStatic
@@ -44,7 +44,7 @@ object Scheduler: EventListener {
         require(delay >= 0 && interval > 0 && duration >= 0) {
             "Delay, interval or duration ticks cannot be negative"
         }
-        val task = Task(block)
+        val task = Task.of(block)
         var tick = delay
         while (tick < duration + delay) {
             this.schedule(tick, unit, task)
