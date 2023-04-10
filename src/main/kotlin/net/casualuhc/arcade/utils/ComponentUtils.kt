@@ -1,10 +1,19 @@
 package net.casualuhc.arcade.utils
 
 import net.minecraft.ChatFormatting
+import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.MutableComponent
-import net.minecraft.network.chat.Style
 
+@Suppress("unused")
 object ComponentUtils {
+    fun MutableComponent.command(command: String): MutableComponent {
+        return this.withStyle { it.withClickEvent(ClickEvent(ClickEvent.Action.RUN_COMMAND, command)) }
+    }
+
+    fun MutableComponent.link(link: String): MutableComponent {
+        return this.withStyle { it.withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, link)) }
+    }
+
     fun MutableComponent.bold(): MutableComponent {
         return this.withStyle(ChatFormatting.BOLD)
     }

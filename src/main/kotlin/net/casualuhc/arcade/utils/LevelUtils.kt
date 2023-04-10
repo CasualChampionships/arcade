@@ -1,5 +1,7 @@
 package net.casualuhc.arcade.utils
 
+import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer
+import net.casualuhc.arcade.Arcade
 import net.casualuhc.arcade.extensions.Extension
 import net.casualuhc.arcade.extensions.ExtensionHolder
 import net.casualuhc.arcade.utils.ExtensionUtils.addExtension
@@ -9,6 +11,18 @@ import net.minecraft.server.level.ServerLevel
 
 @Suppress("unused")
 object LevelUtils {
+    @JvmStatic
+    fun levels(): Iterable<ServerLevel> {
+        return Arcade.server.allLevels
+    }
+
+    @JvmStatic
+    fun forEachLevel(consumer: Consumer<ServerLevel>) {
+        for (level in this.levels()) {
+            consumer.accept(level)
+        }
+    }
+
     @JvmStatic
     fun ServerLevel.addExtension(extension: Extension) {
         (this as ExtensionHolder).addExtension(extension)
