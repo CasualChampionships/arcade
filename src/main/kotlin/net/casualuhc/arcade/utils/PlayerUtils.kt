@@ -6,7 +6,7 @@ import net.casualuhc.arcade.extensions.ExtensionHolder
 import net.casualuhc.arcade.utils.ExtensionUtils.addExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtensions
-import net.casualuhc.arcade.utils.impl.Location
+import net.casualuhc.arcade.math.Location
 import net.minecraft.advancements.Advancement
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket
@@ -52,6 +52,11 @@ object PlayerUtils {
         targets: Collection<ServerPlayer>
     ) {
         SpreadPlayers.run(level, center, distance, range, level.maxBuildHeight, teams, targets)
+    }
+
+    @JvmStatic
+    fun player(name: String): ServerPlayer? {
+        return Arcade.server.playerList.getPlayerByName(name)
     }
 
     @JvmStatic
