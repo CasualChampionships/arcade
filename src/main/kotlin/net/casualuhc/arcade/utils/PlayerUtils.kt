@@ -13,6 +13,8 @@ import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.sounds.SoundEvent
+import net.minecraft.sounds.SoundSource
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.GameType
 import net.minecraft.world.phys.Vec2
@@ -97,6 +99,16 @@ object PlayerUtils {
     @JvmStatic
     fun ServerPlayer.sendSubtitle(subtitle: Component) {
         this.connection.send(ClientboundSetSubtitleTextPacket(subtitle))
+    }
+
+    @JvmStatic
+    fun ServerPlayer.sendSound(
+        sound: SoundEvent,
+        source: SoundSource = SoundSource.MASTER,
+        volume: Float = 1.0F,
+        pitch: Float = 1.0F
+    ) {
+        this.playNotifySound(sound, source, volume, pitch)
     }
 
     @JvmStatic
