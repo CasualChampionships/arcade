@@ -3,10 +3,10 @@ package net.casualuhc.arcade.utils
 import net.casualuhc.arcade.Arcade
 import net.casualuhc.arcade.extensions.Extension
 import net.casualuhc.arcade.extensions.ExtensionHolder
+import net.casualuhc.arcade.math.Location
 import net.casualuhc.arcade.utils.ExtensionUtils.addExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtensions
-import net.casualuhc.arcade.math.Location
 import net.casualuhc.arcade.utils.TeamUtils.asPlayerTeam
 import net.casualuhc.arcade.utils.TeamUtils.getServerPlayers
 import net.minecraft.advancements.Advancement
@@ -45,6 +45,23 @@ object PlayerUtils {
         for (player in this.players()) {
             consumer.accept(player)
         }
+    }
+
+    @JvmStatic
+    fun broadcast(message: Component) {
+        for (player in this.players()) {
+            player.sendSystemMessage(message)
+        }
+    }
+
+    @JvmStatic
+    fun broadcastToOps(message: Component) {
+        for (player in this.players()) {
+            if (player.hasPermissions(2)) {
+                player.sendSystemMessage(message)
+            }
+        }
+        Arcade.server.sendSystemMessage(message)
     }
 
     @JvmStatic
@@ -122,8 +139,18 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun ServerPlayer.teamMessage(message: Component) {
-        this.teamMessage(PlayerChatMessage.unsigned(this.uuid, message.string).withUnsignedContent(message))
+    fun ServerPlayer.message(message: Component) {
+        this.message(PlayerChatMessage.unsigned(this.uuid, message.string).withUnsignedContent(message))
+    }
+
+    @JvmStatic
+    fun ServerPlayer.message(message: PlayerChatMessage) {
+        this.server.playerList.broadcastChatMessage(message, this, ChatType.bind(ChatType.CHAT, this))
+    }
+
+    @JvmStatic
+    fun ServerPlayer.teamMessage(message: Component): Boolean {
+        return this.teamMessage(PlayerChatMessage.unsigned(this.uuid, message.string).withUnsignedContent(message))
     }
 
     @JvmStatic
