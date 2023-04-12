@@ -11,8 +11,4 @@ class PlayerBlockMinedEvent(
     val pos: BlockPos,
     val state: BlockState,
     val entity: BlockEntity?
-): CancellableEvent() {
-    public override fun cancel() {
-        super.cancel()
-    }
-}
+): CancellableEvent.Default()

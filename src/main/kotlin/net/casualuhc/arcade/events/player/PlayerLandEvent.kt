@@ -10,15 +10,4 @@ class PlayerLandEvent(
     val distance: Float,
     val multiplier: Float,
     val source: DamageSource
-): CancellableEvent() {
-    private var newDamage: Int? = null
-
-    fun cancel(damage: Int) {
-        this.newDamage = damage
-        super.cancel()
-    }
-
-    fun getNewDamage(): Int {
-        return this.newDamage!!
-    }
-}
+): CancellableEvent.Typed<Int>()

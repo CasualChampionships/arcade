@@ -14,14 +14,4 @@ class PlayerBlockInteractionEvent(
     val stack: ItemStack,
     val hand: InteractionHand,
     val result: BlockHitResult
-): CancellableEvent() {
-    private var interaction: InteractionResult? = null
-
-    fun cancel(interaction: InteractionResult) {
-        this.interaction = interaction
-    }
-
-    fun getNewInteraction(): InteractionResult {
-        return this.interaction!!
-    }
-}
+): CancellableEvent.Typed<InteractionResult>()

@@ -31,7 +31,7 @@ public class ItemStackMixin {
 			PlayerItemUseEvent event = new PlayerItemUseEvent(serverPlayer, (ItemStack) (Object) this, level, usedHand);
 			EventHandler.broadcast(event);
 			if (event.isCancelled()) {
-				cir.setReturnValue(event.getResult());
+				cir.setReturnValue(event.result());
 			}
 		}
 	}
@@ -46,7 +46,7 @@ public class ItemStackMixin {
 			PlayerItemUseOnEvent event = new PlayerItemUseOnEvent(player, (ItemStack) (Object) this, context);
 			EventHandler.broadcast(event);
 			if (event.isCancelled()) {
-				cir.setReturnValue(event.getResult());
+				cir.setReturnValue(event.result());
 			}
 		}
 	}
@@ -61,7 +61,7 @@ public class ItemStackMixin {
 			PlayerItemFinishEvent event = new PlayerItemFinishEvent(player, (ItemStack) (Object) this, level);
 			EventHandler.broadcast(event);
 			if (event.isCancelled()) {
-				cir.setReturnValue(event.getFinishedItem());
+				cir.setReturnValue(event.result());
 			}
 		}
 	}

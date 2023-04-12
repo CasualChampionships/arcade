@@ -9,14 +9,4 @@ class PlayerItemFinishEvent(
     val player: ServerPlayer,
     val stack: ItemStack,
     val level: Level
-): CancellableEvent() {
-    private var finishedItem: ItemStack? = null
-
-    fun cancel(item: ItemStack) {
-        this.finishedItem = item
-    }
-
-    fun getFinishedItem(): ItemStack {
-        return this.finishedItem!!
-    }
-}
+): CancellableEvent.Typed<ItemStack>()

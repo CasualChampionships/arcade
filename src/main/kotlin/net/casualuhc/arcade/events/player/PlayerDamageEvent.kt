@@ -8,15 +8,4 @@ class PlayerDamageEvent(
     val player: ServerPlayer,
     val amount: Float,
     val source: DamageSource
-): CancellableEvent() {
-    private var newAmount: Float? = null
-
-    fun cancel(amount: Float) {
-        this.newAmount = amount
-        this.cancel()
-    }
-
-    fun getNewAmount(): Float {
-        return this.newAmount!!
-    }
-}
+): CancellableEvent.Typed<Float>()

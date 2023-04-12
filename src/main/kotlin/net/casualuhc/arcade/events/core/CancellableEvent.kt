@@ -1,5 +1,7 @@
 package net.casualuhc.arcade.events.core
 
+import net.casualuhc.arcade.utils.Wrapper
+
 /**
  * This is an event that usually is fired before
  * any side effects occur and provides the ability
@@ -11,34 +13,17 @@ package net.casualuhc.arcade.events.core
  * to cancel a given event. This implementation however
  * should call the `super` [cancel] method.
  *
- * It is also possible for the event to implement the
- * [invoke] method which will call the method which
- * causes the side effects. If the listener then does
- * not cancel the event these side effects may happen again.
- *
  * It is possible for listeners to determine whether the
  * event has been cancelled by another listener though
  * the [isCancelled] event.
  *
  * @see Event
  */
-abstract class CancellableEvent: Event() {
+sealed class CancellableEvent: Event() {
     /**
      * Whether the event is cancelled.
      */
-    private var cancelled: Boolean = false
-
-    /**
-     * This method is intended to invoke
-     * the event that can be cancelled.
-     *
-     * This does **not** need to be implemented.
-     *
-     * @return The return value of the event.
-     */
-    protected open fun invoke(): Any {
-        return Unit
-    }
+    private var cancelled = false
 
     /**
      * This method should be implemented in
@@ -58,5 +43,69 @@ abstract class CancellableEvent: Event() {
      */
     fun isCancelled(): Boolean {
         return this.cancelled
+    }
+
+    /**
+     * Abstract class of [CancellableEvent] that
+     * make the [cancel] method accessible.
+     */
+    abstract class Default: CancellableEvent() {
+        /**
+         * Cancels the event.
+         */
+        public final override fun cancel() {
+            super.cancel()
+        }
+    }
+
+    /**
+     * Abstract class of [CancellableEvent] that allows
+     * for cancelling with a given result. This may be
+     * useful when the event is wrapped around an execution
+     * that has some result.
+     *
+     * @param T The type of the result. May be nullable.
+     * @see CancellableEvent
+     */
+    abstract class Typed<T>: CancellableEvent() {
+        /**
+         * The result of the event.
+         */
+        private var result: Wrapper<T>? = null
+
+        /**
+         * Cancels the event.
+         */
+        final override fun cancel() {
+            super.cancel()
+        }
+
+        /**
+         * This cancels the event with a given result.
+         * This will then be subsequently used instead
+         * of the result that would've been given by
+         * the event.
+         *
+         * @param result The result.
+         */
+        fun cancel(result: T) {
+            this.result = Wrapper(result)
+            this.cancel()
+        }
+
+        /**
+         * This tries to get the cancelled result
+         * of this event. If the user has not set
+         * the result this will throw an error.
+         *
+         * @return The result.
+         */
+        fun result(): T {
+            val result = this.result
+            if (result === null) {
+                throw IllegalStateException("Called result() when no result is present")
+            }
+            return result.value
+        }
     }
 }

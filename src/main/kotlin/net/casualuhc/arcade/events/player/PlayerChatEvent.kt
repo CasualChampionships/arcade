@@ -7,8 +7,4 @@ import net.minecraft.server.level.ServerPlayer
 class PlayerChatEvent(
     val player: ServerPlayer,
     val message: PlayerChatMessage
-): CancellableEvent() {
-    public override fun cancel() {
-        super.cancel()
-    }
-}
+): CancellableEvent.Default()

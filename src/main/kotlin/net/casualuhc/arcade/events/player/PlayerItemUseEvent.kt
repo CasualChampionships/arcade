@@ -12,15 +12,4 @@ class PlayerItemUseEvent(
     val stack: ItemStack,
     val level: Level,
     val hand: InteractionHand
-): CancellableEvent() {
-    private var result: InteractionResultHolder<ItemStack>? = null
-
-    fun cancel(result: InteractionResultHolder<ItemStack>) {
-        this.result = result
-        this.cancel()
-    }
-
-    fun getResult(): InteractionResultHolder<ItemStack> {
-        return this.result!!
-    }
-}
+): CancellableEvent.Typed<InteractionResultHolder<ItemStack>>()

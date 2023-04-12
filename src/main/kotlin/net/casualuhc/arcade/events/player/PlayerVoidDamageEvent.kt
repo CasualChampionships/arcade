@@ -5,8 +5,4 @@ import net.minecraft.server.level.ServerPlayer
 
 class PlayerVoidDamageEvent(
     val player: ServerPlayer
-): CancellableEvent() {
-    public override fun cancel() {
-        super.cancel()
-    }
-}
+): CancellableEvent.Default()

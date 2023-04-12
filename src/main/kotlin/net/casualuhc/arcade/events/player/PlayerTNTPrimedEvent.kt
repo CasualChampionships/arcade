@@ -9,8 +9,4 @@ class PlayerTNTPrimedEvent(
     val player: ServerPlayer,
     val level: Level,
     val pos: BlockPos
-): CancellableEvent() {
-    public override fun cancel() {
-        super.cancel()
-    }
-}
+): CancellableEvent.Default()

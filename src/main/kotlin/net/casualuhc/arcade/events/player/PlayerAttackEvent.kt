@@ -8,15 +8,4 @@ class PlayerAttackEvent(
     val player: ServerPlayer,
     val target: Entity,
     val damage: Float
-): CancellableEvent() {
-    private var newDamage: Float? = null
-
-    fun cancel(damage: Float) {
-        this.newDamage = damage
-        this.cancel()
-    }
-
-    fun getNewDamage(): Float {
-        return this.newDamage!!
-    }
-}
+): CancellableEvent.Typed<Float>()

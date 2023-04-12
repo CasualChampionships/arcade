@@ -8,5 +8,5 @@ class PlayerAdvancementEvent(
     val player: ServerPlayer,
     val advancement: Advancement
 ): Event() {
-    var announce: Boolean = this.advancement.display?.shouldAnnounceChat() ?: false
+    var announce = this.advancement.display?.shouldAnnounceChat() ?: false
 }

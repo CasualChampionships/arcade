@@ -35,7 +35,7 @@ public class LivingEntityMixin {
 		PlayerLandEvent event = new PlayerLandEvent(player, damage.get(), distance, multiplier, source);
 		EventHandler.broadcast(event);
 		if (event.isCancelled()) {
-			damage.set(event.getNewDamage());
+			damage.set(event.result());
 		}
 	}
 

@@ -45,7 +45,7 @@ public class ServerPlayerGameModeMixin {
 		PlayerBlockInteractionEvent event = new PlayerBlockInteractionEvent(player, level, stack, hand, hitResult);
 		EventHandler.broadcast(event);
 		if (event.isCancelled()) {
-			cir.setReturnValue(event.getNewInteraction());
+			cir.setReturnValue(event.result());
 		}
 	}
 

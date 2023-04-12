@@ -10,15 +10,4 @@ class PlayerItemUseOnEvent(
     val player: ServerPlayer,
     val stack: ItemStack,
     val context: UseOnContext
-): CancellableEvent() {
-    private var result: InteractionResult? = null
-
-    fun cancel(result: InteractionResult) {
-        this.result = result
-        this.cancel();
-    }
-
-    fun getResult(): InteractionResult {
-        return this.result!!
-    }
-}
+): CancellableEvent.Typed<InteractionResult>()

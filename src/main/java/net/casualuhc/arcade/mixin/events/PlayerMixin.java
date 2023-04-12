@@ -52,7 +52,7 @@ public class PlayerMixin {
 		PlayerDamageEvent event = new PlayerDamageEvent(player, damage.get(), source);
 		EventHandler.broadcast(event);
 		if (event.isCancelled()) {
-			damage.set(event.getNewAmount());
+			damage.set(event.result());
 		}
 	}
 }

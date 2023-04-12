@@ -11,8 +11,4 @@ class PlayerBlockPlacedEvent(
     val item: BlockItem,
     val state: BlockState,
     val context: BlockPlaceContext
-): CancellableEvent() {
-    public override fun cancel() {
-        super.cancel()
-    }
-}
+): CancellableEvent.Default()

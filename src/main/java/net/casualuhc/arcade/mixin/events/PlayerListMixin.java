@@ -20,7 +20,7 @@ public class PlayerListMixin {
 		PlayerJoinEvent event = new PlayerJoinEvent(player);
 		EventHandler.broadcast(event);
 		if (event.isCancelled()) {
-			connection.disconnect(event.getReason());
+			connection.disconnect(event.result());
 		}
 	}
 }

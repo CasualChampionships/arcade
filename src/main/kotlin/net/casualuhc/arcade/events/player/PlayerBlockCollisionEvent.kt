@@ -7,8 +7,4 @@ import net.minecraft.world.level.block.state.BlockState
 class PlayerBlockCollisionEvent(
     val entity: ServerPlayer,
     val state: BlockState
-): CancellableEvent() {
-    public override fun cancel() {
-        super.cancel()
-    }
-}
+): CancellableEvent.Default()
