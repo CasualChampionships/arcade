@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import net.casualuhc.arcade.events.EventHandler;
 import net.casualuhc.arcade.events.player.PlayerBorderDamageEvent;
+import net.casualuhc.arcade.events.player.PlayerDeathEvent;
 import net.casualuhc.arcade.events.player.PlayerLandEvent;
 import net.casualuhc.arcade.events.player.PlayerVoidDamageEvent;
 import net.casualuhc.arcade.utils.CastUtils;
@@ -69,6 +70,23 @@ public class LivingEntityMixin {
 			return true;
 		}
 		PlayerBorderDamageEvent event = new PlayerBorderDamageEvent(player, source, amount);
+		EventHandler.broadcast(event);
+		return !event.isCancelled();
+	}
+
+	@WrapWithCondition(
+		method = "hurt",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/entity/LivingEntity;die(Lnet/minecraft/world/damagesource/DamageSource;)V"
+		)
+	)
+	private boolean onDeath(DamageSource source, float amount) {
+		ServerPlayer player = CastUtils.tryCast(ServerPlayer.class, this);
+		if (player == null) {
+			return true;
+		}
+		PlayerDeathEvent event = new PlayerDeathEvent(player, source);
 		EventHandler.broadcast(event);
 		return !event.isCancelled();
 	}

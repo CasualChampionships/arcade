@@ -25,15 +25,6 @@ public class ServerPlayerMixin {
 	}
 
 	@Inject(
-		method = "die",
-		at = @At("HEAD")
-	)
-	private void onDeath(DamageSource damageSource, CallbackInfo ci) {
-		PlayerDeathEvent event = new PlayerDeathEvent((ServerPlayer) (Object) this, damageSource);
-		EventHandler.broadcast(event);
-	}
-
-	@Inject(
 		method = "disconnect",
 		at = @At("HEAD")
 	)
