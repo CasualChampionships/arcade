@@ -1,13 +1,10 @@
-package net.casualuhc.arcade.mixin.extension;
+package net.casualuhc.arcade.mixin.extensions;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import net.casualuhc.arcade.extensions.Extension;
 import net.casualuhc.arcade.extensions.ExtensionHolder;
 import net.casualuhc.arcade.utils.ExtensionUtils;
-import net.casualuhc.arcade.utils.TeamUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.ScoreboardSaveData;
 import org.spongepowered.asm.mixin.Mixin;

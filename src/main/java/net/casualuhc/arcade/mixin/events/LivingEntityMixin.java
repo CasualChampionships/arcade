@@ -81,7 +81,7 @@ public class LivingEntityMixin {
 			target = "Lnet/minecraft/world/entity/LivingEntity;die(Lnet/minecraft/world/damagesource/DamageSource;)V"
 		)
 	)
-	private boolean onDeath(DamageSource source, float amount) {
+	private boolean onDeath(LivingEntity instance, DamageSource source) {
 		ServerPlayer player = CastUtils.tryCast(ServerPlayer.class, this);
 		if (player == null) {
 			return true;

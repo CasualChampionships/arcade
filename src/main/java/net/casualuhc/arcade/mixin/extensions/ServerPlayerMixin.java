@@ -1,15 +1,12 @@
-package net.casualuhc.arcade.mixin.extension;
+package net.casualuhc.arcade.mixin.extensions;
 
 import com.mojang.authlib.GameProfile;
 import net.casualuhc.arcade.events.EventHandler;
 import net.casualuhc.arcade.events.player.PlayerCreatedEvent;
-import net.casualuhc.arcade.extensions.DataExtension;
-import net.casualuhc.arcade.extensions.Extension;
 import net.casualuhc.arcade.extensions.ExtensionHolder;
 import net.casualuhc.arcade.extensions.ExtensionMap;
 import net.casualuhc.arcade.utils.ExtensionUtils;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;

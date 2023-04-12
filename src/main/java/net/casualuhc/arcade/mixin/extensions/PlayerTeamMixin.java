@@ -1,4 +1,4 @@
-package net.casualuhc.arcade.mixin.extension;
+package net.casualuhc.arcade.mixin.extensions;
 
 import net.casualuhc.arcade.events.EventHandler;
 import net.casualuhc.arcade.events.team.TeamCreatedEvent;

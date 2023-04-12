@@ -1,9 +1,8 @@
-package net.casualuhc.arcade.mixin.extension;
+package net.casualuhc.arcade.mixin.extensions;
 
 import net.casualuhc.arcade.Arcade;
 import net.casualuhc.arcade.events.EventHandler;
 import net.casualuhc.arcade.events.level.LevelCreatedEvent;
-import net.casualuhc.arcade.extensions.Extension;
 import net.casualuhc.arcade.extensions.ExtensionHolder;
 import net.casualuhc.arcade.extensions.ExtensionMap;
 import net.casualuhc.arcade.utils.ExtensionUtils;
@@ -11,7 +10,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
