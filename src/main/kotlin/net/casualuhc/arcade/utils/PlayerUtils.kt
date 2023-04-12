@@ -7,8 +7,13 @@ import net.casualuhc.arcade.utils.ExtensionUtils.addExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtensions
 import net.casualuhc.arcade.math.Location
+import net.casualuhc.arcade.utils.TeamUtils.asPlayerTeam
+import net.casualuhc.arcade.utils.TeamUtils.getServerPlayers
 import net.minecraft.advancements.Advancement
+import net.minecraft.network.chat.ChatType
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.OutgoingChatMessage
+import net.minecraft.network.chat.PlayerChatMessage
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket
 import net.minecraft.server.level.ServerLevel
@@ -114,6 +119,29 @@ object PlayerUtils {
         pitch: Float = 1.0F
     ) {
         this.playNotifySound(sound, source, volume, pitch)
+    }
+
+    @JvmStatic
+    fun ServerPlayer.teamMessage(message: Component) {
+        this.teamMessage(PlayerChatMessage.unsigned(this.uuid, message.string).withUnsignedContent(message))
+    }
+
+    @JvmStatic
+    fun ServerPlayer.teamMessage(message: PlayerChatMessage): Boolean {
+        val team = this.team ?: return false
+
+        val teamDisplay = team.asPlayerTeam().displayName
+        val inbound = ChatType.bind(ChatType.TEAM_MSG_COMMAND_INCOMING, this).withTargetName(teamDisplay)
+        val outbound = ChatType.bind(ChatType.TEAM_MSG_COMMAND_OUTGOING, this).withTargetName(teamDisplay)
+
+        val outgoing = OutgoingChatMessage.create(message)
+
+        for (teammates in team.getServerPlayers()) {
+            val bound = if (teammates === this) outbound else inbound
+            val filter = this.shouldFilterMessageTo(teammates)
+            teammates.sendChatMessage(outgoing, filter, bound)
+        }
+        return true
     }
 
     @JvmStatic
