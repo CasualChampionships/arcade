@@ -4,9 +4,12 @@ import net.casualuhc.arcade.events.EventHandler;
 import net.casualuhc.arcade.events.level.LevelBlockChangedEvent;
 import net.casualuhc.arcade.events.level.LevelTickEvent;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -15,6 +18,8 @@ import java.util.function.BooleanSupplier;
 
 @Mixin(ServerLevel.class)
 public class ServerLevelMixin {
+	@Shadow @Final private MinecraftServer server;
+
 	@Inject(
 		method = "tick",
 		at = @At("HEAD")
@@ -30,6 +35,10 @@ public class ServerLevelMixin {
 	)
 	private void onBlockChanged(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo ci) {
 		LevelBlockChangedEvent event = new LevelBlockChangedEvent((ServerLevel) (Object) this, pos, oldState, newState);
-		EventHandler.broadcast(event);
+		if (this.server.isSameThread()) {
+			EventHandler.broadcast(event);
+		} else {
+			this.server.execute(() -> EventHandler.broadcast(event));
+		}
 	}
 }
