@@ -215,7 +215,7 @@ object PlayerUtils {
 
     @JvmStatic
     fun ServerPlayer.directionToNearestBorder(): Vec3 {
-        val distance = this.directionToBorders()
+        val distance = this.distanceToBorders()
         val direction = this.directionToBorders()
         return when {
             distance.x < 0 && distance.z < 0 -> direction
