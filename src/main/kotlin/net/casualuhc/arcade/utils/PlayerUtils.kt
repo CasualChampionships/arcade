@@ -26,7 +26,9 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.GameType
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
+import org.joml.Vector2d
 import java.util.function.Consumer
+import kotlin.math.abs
 
 @Suppress("unused")
 object PlayerUtils {
@@ -174,7 +176,7 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun ServerPlayer.distanceToWorldBorder(): Vec3 {
+    fun ServerPlayer.distanceToBorders(): Vec3 {
         val border = this.level.worldBorder
         val distanceToEast = this.x - border.minX
         val distanceToWest = border.maxX - this.x
@@ -183,6 +185,17 @@ object PlayerUtils {
         val distanceToX = distanceToNorth.coerceAtMost(distanceToSouth)
         val distanceToZ = distanceToEast.coerceAtMost(distanceToWest)
         return Vec3(distanceToX, 0.0, distanceToZ)
+    }
+
+    @JvmStatic
+    fun ServerPlayer.distanceToNearestBorder(): Vec3 {
+        val distance = this.distanceToBorders()
+        if (distance.x < 0 && distance.z < 0) {
+            return distance
+        }
+        val absX = abs(distance.x)
+        val absZ = abs(distance.z)
+        return if (absX < absZ) Vec3(distance.x, 0.0, 0.0) else Vec3(0.0, 0.0, distance.z)
     }
 
     @JvmStatic
