@@ -10,10 +10,12 @@ import net.casualuhc.arcade.utils.ExtensionUtils.getExtensions
 import net.casualuhc.arcade.utils.TeamUtils.asPlayerTeam
 import net.casualuhc.arcade.utils.TeamUtils.getServerPlayers
 import net.minecraft.advancements.Advancement
+import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.network.chat.ChatType
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.OutgoingChatMessage
 import net.minecraft.network.chat.PlayerChatMessage
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket
 import net.minecraft.server.level.ServerLevel
@@ -181,6 +183,22 @@ object PlayerUtils {
         val distanceToX = distanceToNorth.coerceAtMost(distanceToSouth)
         val distanceToZ = distanceToEast.coerceAtMost(distanceToWest)
         return Vec3(distanceToX, 0.0, distanceToZ)
+    }
+
+    @JvmStatic
+    fun <T: ParticleOptions> ServerPlayer.sendParticles(
+        options: T,
+        position: Vec3,
+        xDist: Float = 0.0F,
+        yDist: Float = 0.0F,
+        zDist: Float = 0.0F,
+        speed: Float = 0.0F,
+        count: Int = 1,
+        alwaysRender: Boolean = false
+    ) {
+        this.connection.send(ClientboundLevelParticlesPacket(
+            options, alwaysRender, position.x, position.y, position.z, xDist, yDist, zDist, speed, count
+        ))
     }
 
     @JvmStatic
