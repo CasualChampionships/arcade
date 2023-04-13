@@ -7,6 +7,8 @@ import net.casualuhc.arcade.math.Location
 import net.casualuhc.arcade.utils.ExtensionUtils.addExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtensions
+import net.casualuhc.arcade.utils.PlayerUtils.distanceToBorders
+import net.casualuhc.arcade.utils.PlayerUtils.distanceToNearestBorder
 import net.casualuhc.arcade.utils.TeamUtils.asPlayerTeam
 import net.casualuhc.arcade.utils.TeamUtils.getServerPlayers
 import net.minecraft.advancements.Advancement
@@ -196,6 +198,31 @@ object PlayerUtils {
             distance.z < 0 -> Vec3(0.0, 0.0, distance.z)
             distance.x < distance.z -> Vec3(distance.x, 0.0, 0.0)
             else -> Vec3(0.0, 0.0, distance.z)
+        }
+    }
+
+    @JvmStatic
+    fun ServerPlayer.directionToBorders(): Vec3 {
+        val border = this.level.worldBorder
+        val distanceToEast = this.x - border.minX
+        val distanceToWest = border.maxX - this.x
+        val distanceToNorth = this.z - border.minZ
+        val distanceToSouth = border.maxZ - this.z
+        val distanceToX = if (distanceToNorth < distanceToSouth) -distanceToNorth else distanceToSouth
+        val distanceToZ = if (distanceToEast < distanceToWest) -distanceToEast else distanceToWest
+        return Vec3(distanceToX, 0.0, distanceToZ)
+    }
+
+    @JvmStatic
+    fun ServerPlayer.directionToNearestBorder(): Vec3 {
+        val distance = this.directionToBorders()
+        val direction = this.directionToBorders()
+        return when {
+            distance.x < 0 && distance.z < 0 -> direction
+            distance.x < 0 -> Vec3(direction.x, 0.0, 0.0)
+            distance.z < 0 -> Vec3(0.0, 0.0, direction.z)
+            distance.x < distance.z -> Vec3(direction.x, 0.0, 0.0)
+            else -> Vec3(0.0, 0.0, direction.z)
         }
     }
 
