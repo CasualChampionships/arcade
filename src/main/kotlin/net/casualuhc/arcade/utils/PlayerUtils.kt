@@ -12,6 +12,7 @@ import net.casualuhc.arcade.utils.PlayerUtils.distanceToNearestBorder
 import net.casualuhc.arcade.utils.TeamUtils.asPlayerTeam
 import net.casualuhc.arcade.utils.TeamUtils.getServerPlayers
 import net.minecraft.advancements.Advancement
+import net.minecraft.core.Direction8
 import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.network.chat.ChatType
 import net.minecraft.network.chat.Component
@@ -202,7 +203,7 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun ServerPlayer.directionToBorders(): Vec3 {
+    fun ServerPlayer.directionVectorToBorders(): Vec3 {
         val border = this.level.worldBorder
         val distanceToEast = this.x - border.minX
         val distanceToWest = border.maxX - this.x
@@ -214,15 +215,41 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun ServerPlayer.directionToNearestBorder(): Vec3 {
+    fun ServerPlayer.directionVectorToNearestBorder(): Vec3 {
         val distance = this.distanceToBorders()
-        val direction = this.directionToBorders()
+        val direction = this.directionVectorToBorders()
         return when {
             distance.x < 0 && distance.z < 0 -> direction
             distance.x < 0 -> Vec3(direction.x, 0.0, 0.0)
             distance.z < 0 -> Vec3(0.0, 0.0, direction.z)
             distance.x < distance.z -> Vec3(direction.x, 0.0, 0.0)
             else -> Vec3(0.0, 0.0, direction.z)
+        }
+    }
+
+    @JvmStatic
+    fun ServerPlayer.directionToNearestBorder(): Direction8 {
+        val direction = this.directionVectorToBorders()
+        return if (direction.x < 0) {
+            if (direction.z < 0) {
+                Direction8.NORTH_WEST
+            } else if (direction.z > 0) {
+                Direction8.SOUTH_WEST
+            }
+            Direction8.WEST
+        } else if (direction.x > 0) {
+            if (direction.z < 0) {
+                Direction8.NORTH_EAST
+            } else if (direction.z > 0) {
+                Direction8.SOUTH_EAST
+            }
+            Direction8.EAST
+        } else {
+            if (direction.z < 0) {
+                Direction8.NORTH
+            } else {
+                Direction8.SOUTH
+            }
         }
     }
 
