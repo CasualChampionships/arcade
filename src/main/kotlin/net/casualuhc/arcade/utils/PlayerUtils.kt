@@ -172,6 +172,18 @@ object PlayerUtils {
     }
 
     @JvmStatic
+    fun ServerPlayer.distanceToWorldBorder(): Vec3 {
+        val border = this.level.worldBorder
+        val distanceToEast = this.x - border.minX
+        val distanceToWest = border.maxX - this.x
+        val distanceToNorth = this.z - border.minZ
+        val distanceToSouth = border.maxZ - this.z
+        val distanceToX = distanceToNorth.coerceAtMost(distanceToSouth)
+        val distanceToZ = distanceToEast.coerceAtMost(distanceToWest)
+        return Vec3(distanceToX, 0.0, distanceToZ)
+    }
+
+    @JvmStatic
     fun ServerPlayer.addExtension(extension: Extension) {
         (this as ExtensionHolder).addExtension(extension)
     }
