@@ -190,12 +190,13 @@ object PlayerUtils {
     @JvmStatic
     fun ServerPlayer.distanceToNearestBorder(): Vec3 {
         val distance = this.distanceToBorders()
-        if (distance.x < 0 && distance.z < 0) {
-            return distance
+        return when {
+            distance.x < 0 && distance.z < 0 -> distance
+            distance.x < 0 -> Vec3(distance.x, 0.0, 0.0)
+            distance.z < 0 -> Vec3(0.0, 0.0, distance.z)
+            distance.x < distance.z -> Vec3(distance.x, 0.0, 0.0)
+            else -> Vec3(0.0, 0.0, distance.z)
         }
-        val absX = abs(distance.x)
-        val absZ = abs(distance.z)
-        return if (absX < absZ) Vec3(distance.x, 0.0, 0.0) else Vec3(0.0, 0.0, distance.z)
     }
 
     @JvmStatic
