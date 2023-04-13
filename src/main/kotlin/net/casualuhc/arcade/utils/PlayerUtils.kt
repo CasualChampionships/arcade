@@ -229,21 +229,23 @@ object PlayerUtils {
 
     @JvmStatic
     fun ServerPlayer.directionToNearestBorder(): Direction8 {
-        val direction = this.directionVectorToBorders()
+        val direction = this.directionVectorToNearestBorder()
         return if (direction.x < 0) {
             if (direction.z < 0) {
                 Direction8.NORTH_WEST
             } else if (direction.z > 0) {
                 Direction8.SOUTH_WEST
+            } else {
+                Direction8.WEST
             }
-            Direction8.WEST
         } else if (direction.x > 0) {
             if (direction.z < 0) {
                 Direction8.NORTH_EAST
             } else if (direction.z > 0) {
                 Direction8.SOUTH_EAST
+            } else {
+                Direction8.EAST
             }
-            Direction8.EAST
         } else {
             if (direction.z < 0) {
                 Direction8.NORTH
