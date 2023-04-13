@@ -184,8 +184,8 @@ object PlayerUtils {
         val distanceToWest = border.maxX - this.x
         val distanceToNorth = this.z - border.minZ
         val distanceToSouth = border.maxZ - this.z
-        val distanceToX = distanceToNorth.coerceAtMost(distanceToSouth)
-        val distanceToZ = distanceToEast.coerceAtMost(distanceToWest)
+        val distanceToX = distanceToEast.coerceAtMost(distanceToWest)
+        val distanceToZ = distanceToNorth.coerceAtMost(distanceToSouth)
         return Vec3(distanceToX, 0.0, distanceToZ)
     }
 
@@ -208,8 +208,8 @@ object PlayerUtils {
         val distanceToWest = border.maxX - this.x
         val distanceToNorth = this.z - border.minZ
         val distanceToSouth = border.maxZ - this.z
-        val distanceToX = if (distanceToNorth < distanceToSouth) -distanceToNorth else distanceToSouth
-        val distanceToZ = if (distanceToEast < distanceToWest) -distanceToEast else distanceToWest
+        val distanceToX = if (distanceToEast < distanceToWest) -distanceToEast else distanceToWest
+        val distanceToZ = if (distanceToNorth < distanceToSouth) -distanceToNorth else distanceToSouth
         return Vec3(distanceToX, 0.0, distanceToZ)
     }
 
