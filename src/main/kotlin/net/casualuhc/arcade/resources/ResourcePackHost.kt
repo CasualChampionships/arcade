@@ -5,20 +5,15 @@ import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import com.sun.net.httpserver.HttpServer
 import org.slf4j.LoggerFactory
-import java.io.BufferedInputStream
-import java.io.FileInputStream
 import java.math.BigInteger
 import java.net.InetAddress
 import java.net.InetSocketAddress
-import java.nio.file.Path
 import java.security.MessageDigest
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.io.path.*
 import kotlin.random.Random
 
-open class ResourcePackHost(
-    private val packs: Path,
+abstract class ResourcePackHost(
     threads: Int = 3
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -51,27 +46,26 @@ open class ResourcePackHost(
                 }
 
                 val server = HttpServer.create(InetSocketAddress("0.0.0.0", hostPort), 0)
-                server.executor = threadPool
+                server.executor = this.threadPool
 
-                val packs = this.packs.listDirectoryEntries("*.zip")
-                for (pack in packs) {
-                    val sub = if (randomise) Random.nextInt(Int.MAX_VALUE).toString() else pack.fileName
+                for (pack in this.getPacks()) {
+                    val sub = if (randomise) Random.nextInt(Int.MAX_VALUE).toString() else pack.name
 
                     val url = "http://${ip}:${hostPort}/${sub}"
                     val hash = "%040x".format(
-                        BigInteger(1, MessageDigest.getInstance("SHA-1").digest(pack.readBytes()))
+                        BigInteger(1, MessageDigest.getInstance("SHA-1").digest(pack.stream().readBytes()))
                     )
                     val hosted = HostedPack(pack, url, hash)
-                    this.hosted[pack.name] = hosted
+                    val zipped = if (pack.name.endsWith(".zip")) pack.name else "${pack.name}.zip"
+                    this.hosted[zipped] = hosted
 
                     server.createContext("/$sub", Handler(hosted))
 
-                    this.logger.info("Hosting pack: ${pack.name}")
+                    this.logger.info("Hosting pack: ${pack.name}: $url")
                 }
 
                 server.start()
-                val hosting = hosted.values.joinToString("\n") { "${it.path.name}: ${it.url}" }
-                this.logger.info("ResourcePackHost successfully started, hosted:\n${hosting}")
+                this.logger.info("ResourcePackHost successfully started")
             } catch (e: Exception) {
                 this.logger.error("Failed to start the ResourcePackHost!", e)
             }
@@ -83,25 +77,24 @@ open class ResourcePackHost(
         this.threadPool.shutdownNow()
     }
 
-    class HostedPack(val path: Path, val url: String, val hash: String)
+    protected abstract fun getPacks(): Iterable<ReadablePack>
+
+    class HostedPack(val pack: ReadablePack, val url: String, val hash: String)
 
     private inner class Handler(val hosted: HostedPack): HttpHandler {
         override fun handle(exchange: HttpExchange) {
-            if ("GET" == exchange.requestMethod && this.hosted.path.exists()) {
+            if ("GET" == exchange.requestMethod && this.hosted.pack.readable()) {
                 val username = exchange.requestHeaders.getFirst("X-Minecraft-Username")
                 if (username != null) {
                     logger.info("Player $username requested pack")
                 } else {
                     logger.info("Non-player requested pack")
                 }
-                val file = this.hosted.path.toFile()
                 exchange.responseHeaders.add("User-Agent", "Java/ResourcePackHost")
-                exchange.sendResponseHeaders(200, file.length())
+                exchange.sendResponseHeaders(200, this.hosted.pack.length())
                 exchange.responseBody.use { response ->
-                    FileInputStream(file).use { fileStream ->
-                        BufferedInputStream(fileStream).use { buffered ->
-                            buffered.transferTo(response)
-                        }
+                    this.hosted.pack.stream().use { stream ->
+                        stream.transferTo(response)
                     }
                 }
             } else {
