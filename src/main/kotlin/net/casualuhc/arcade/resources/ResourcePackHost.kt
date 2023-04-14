@@ -64,6 +64,7 @@ abstract class ResourcePackHost(
                 }
 
                 server.start()
+                this.server = server
                 this.logger.info("ResourcePackHost successfully started")
             } catch (e: Exception) {
                 this.logger.error("Failed to start the ResourcePackHost!", e)
