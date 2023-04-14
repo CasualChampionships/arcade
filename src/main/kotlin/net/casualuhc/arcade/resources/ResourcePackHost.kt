@@ -17,7 +17,7 @@ import java.util.concurrent.Executors
 import kotlin.io.path.*
 import kotlin.random.Random
 
-class ResourcePackHost(
+open class ResourcePackHost(
     private val packs: Path,
     threads: Int = 3
 ) {
