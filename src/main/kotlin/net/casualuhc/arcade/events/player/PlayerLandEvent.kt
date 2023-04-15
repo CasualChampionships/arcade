@@ -4,7 +4,7 @@ import net.casualuhc.arcade.events.core.CancellableEvent
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.damagesource.DamageSource
 
-class PlayerLandEvent(
+data class PlayerLandEvent(
     val player: ServerPlayer,
     val damage: Int,
     val distance: Float,

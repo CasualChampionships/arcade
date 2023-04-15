@@ -10,6 +10,6 @@ import net.minecraft.server.MinecraftServer
  *
  * @param server The [MinecraftServer] instance that is loaded.
  */
-class ServerLoadedEvent(
+data class ServerLoadedEvent(
     val server: MinecraftServer
 ): Event()

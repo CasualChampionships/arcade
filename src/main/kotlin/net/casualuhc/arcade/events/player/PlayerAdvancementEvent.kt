@@ -4,7 +4,7 @@ import net.casualuhc.arcade.events.core.Event
 import net.minecraft.advancements.Advancement
 import net.minecraft.server.level.ServerPlayer
 
-class PlayerAdvancementEvent(
+data class PlayerAdvancementEvent(
     val player: ServerPlayer,
     val advancement: Advancement
 ): Event() {

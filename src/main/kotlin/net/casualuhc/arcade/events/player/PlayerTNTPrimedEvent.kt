@@ -5,7 +5,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.Level
 
-class PlayerTNTPrimedEvent(
+data class PlayerTNTPrimedEvent(
     val player: ServerPlayer,
     val level: Level,
     val pos: BlockPos

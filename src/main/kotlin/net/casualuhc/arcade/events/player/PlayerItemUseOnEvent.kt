@@ -6,7 +6,7 @@ import net.minecraft.world.InteractionResult
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.context.UseOnContext
 
-class PlayerItemUseOnEvent(
+data class PlayerItemUseOnEvent(
     val player: ServerPlayer,
     val stack: ItemStack,
     val context: UseOnContext

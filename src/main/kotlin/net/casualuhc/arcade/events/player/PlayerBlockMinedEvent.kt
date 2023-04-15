@@ -6,7 +6,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
 
-class PlayerBlockMinedEvent(
+data class PlayerBlockMinedEvent(
     val player: ServerPlayer,
     val pos: BlockPos,
     val state: BlockState,

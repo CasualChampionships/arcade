@@ -6,7 +6,7 @@ import net.minecraft.world.item.crafting.Recipe
 import net.minecraft.world.item.crafting.RecipeManager
 import java.util.LinkedList
 
-class ServerRecipeReloadEvent(
+data class ServerRecipeReloadEvent(
     val recipeManager: RecipeManager,
     val resourceManager: ResourceManager
 ): Event() {

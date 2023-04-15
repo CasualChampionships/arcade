@@ -13,6 +13,6 @@ import net.minecraft.server.MinecraftServer
  *
  * @param server The server that was instantiated.
  */
-class ServerCreatedEvent(
+data class ServerCreatedEvent(
     val server: MinecraftServer
 ): Event()

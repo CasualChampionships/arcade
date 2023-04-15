@@ -38,7 +38,7 @@ internal object SpreadPlayers {
     }
 
     private fun countTeams(entities: Collection<Entity>): Int {
-        val set: MutableSet<Team?> = Sets.newHashSet()
+        val set = HashSet<Team?>()
         for (entity in entities) {
             if (entity is Player) {
                 set.add(entity.getTeam())

@@ -4,7 +4,7 @@ import net.casualuhc.arcade.events.core.CancellableEvent
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.damagesource.DamageSource
 
-class PlayerDamageEvent(
+data class PlayerDamageEvent(
     val player: ServerPlayer,
     val amount: Float,
     val source: DamageSource

@@ -5,7 +5,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 
-class PlayerItemReleaseEvent(
+data class PlayerItemReleaseEvent(
     val player: ServerPlayer,
     val stack: ItemStack,
     val level: Level,

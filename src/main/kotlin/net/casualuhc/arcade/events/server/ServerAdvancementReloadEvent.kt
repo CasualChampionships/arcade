@@ -6,7 +6,7 @@ import net.minecraft.server.ServerAdvancementManager
 import net.minecraft.server.packs.resources.ResourceManager
 import java.util.LinkedList
 
-class ServerAdvancementReloadEvent(
+data class ServerAdvancementReloadEvent(
     val advancementManager: ServerAdvancementManager,
     val resourceManager: ResourceManager
 ): Event() {
