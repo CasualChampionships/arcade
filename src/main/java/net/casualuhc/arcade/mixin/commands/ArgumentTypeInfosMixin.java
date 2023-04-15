@@ -1,6 +1,7 @@
 package net.casualuhc.arcade.mixin.commands;
 
 import net.casualuhc.arcade.commands.EnumArgument;
+import net.casualuhc.arcade.commands.WordArgumentInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.Registry;
@@ -22,6 +23,6 @@ public abstract class ArgumentTypeInfosMixin {
 		at = @At("HEAD")
 	)
 	private static void onRegister(Registry<ArgumentTypeInfo<?, ?>> registry, CallbackInfoReturnable<ArgumentTypeInfo<?, ?>> cir) {
-		BY_CLASS.put(EnumArgument.class, new EnumArgument.Info());
+		BY_CLASS.put(EnumArgument.class, new WordArgumentInfo());
 	}
 }

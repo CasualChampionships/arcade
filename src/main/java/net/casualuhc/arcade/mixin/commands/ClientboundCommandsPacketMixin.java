@@ -2,7 +2,7 @@ package net.casualuhc.arcade.mixin.commands;
 
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
-import net.casualuhc.arcade.commands.EnumArgument;
+import net.casualuhc.arcade.commands.CustomArgumentType;
 import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.network.protocol.game.ClientboundCommandsPacket;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,8 +19,8 @@ public class ClientboundCommandsPacketMixin {
 		)
 	)
 	private static SuggestionProvider<?> getCustomSuggestions(ArgumentCommandNode<?, ?> instance) {
-		if (instance.getType() instanceof EnumArgument) {
-			return SuggestionProviders.ASK_SERVER;
+		if (instance.getType() instanceof CustomArgumentType custom) {
+			return custom.getSuggestionProvider();
 		}
 		return instance.getCustomSuggestions();
 	}

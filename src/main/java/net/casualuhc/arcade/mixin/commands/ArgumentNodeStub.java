@@ -4,6 +4,8 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
+import net.casualuhc.arcade.commands.CustomArgumentType;
+import net.casualuhc.arcade.commands.CustomArgumentTypeInfo;
 import net.casualuhc.arcade.commands.EnumArgument;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.SuggestionProviders;
@@ -25,8 +27,8 @@ public class ArgumentNodeStub {
 		)
 	)
 	private static SuggestionProvider<?> getCustomSuggestions(ArgumentCommandNode<?, ?> instance) {
-		if (instance.getType() instanceof EnumArgument) {
-			return SuggestionProviders.ASK_SERVER;
+		if (instance.getType() instanceof CustomArgumentType custom) {
+			return custom.getSuggestionProvider();
 		}
 		return instance.getCustomSuggestions();
 	}
@@ -42,9 +44,8 @@ public class ArgumentNodeStub {
 		T argumentInfoTemplate,
 		CallbackInfo ci
 	) {
-		if (argumentInfo instanceof EnumArgument.Info) {
-			ArgumentTypeInfo<?, ?> stringInfo = ArgumentTypeInfosAccessor.getClassMap().get(StringArgumentType.class);
-			buffer.writeVarInt(BuiltInRegistries.COMMAND_ARGUMENT_TYPE.getId(stringInfo));
+		if (argumentInfo instanceof CustomArgumentTypeInfo customInfo) {
+			buffer.writeVarInt(customInfo.getFacadeId(ArgumentTypeInfosAccessor.getClassMap()));
 			argumentInfo.serializeToNetwork(argumentInfoTemplate, buffer);
 			ci.cancel();
 		}
