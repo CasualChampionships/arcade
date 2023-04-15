@@ -57,14 +57,16 @@ object EventHandler {
 
         this.stack.push(DeferredEvent(type))
 
-        for (listener in listeners) {
-            listener.consumer.accept(event)
-        }
-
-        val deferred = this.stack.pop()
-        if (deferred.listeners.isInitialized()) {
-            for (listener in deferred.listeners.value) {
-                this.register(type, listener)
+        try {
+            for (listener in listeners) {
+                listener.consumer.accept(event)
+            }
+        } finally {
+            val deferred = this.stack.pop()
+            if (deferred.listeners.isInitialized()) {
+                for (listener in deferred.listeners.value) {
+                    this.register(type, listener)
+                }
             }
         }
     }
