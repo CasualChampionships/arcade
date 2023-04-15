@@ -3,6 +3,25 @@
 Arcade is a server-side Minecraft API written in Kotlin that
 provides many utilities to make server side modding much easier.
 
+## Getting Started
+
+To implement the API into your project you can simply add the
+following to your `build.gradle.kts`
+
+```kts
+repositories {
+    maven {
+        url = uri("https://jitpack.io")
+    }
+}
+
+dependencies {
+    // For the most recent version use the latest commit hash
+    val arcadeVersion = "979c9d7d4c"
+    modImplementation("com.github.CasualUHC:Arcade:$arcadeVersion")
+}
+```
+
 ## Events
 
 Arcade provides a simple way to listen to core game events as
