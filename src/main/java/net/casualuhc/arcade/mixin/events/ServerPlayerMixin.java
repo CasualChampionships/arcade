@@ -24,15 +24,6 @@ public class ServerPlayerMixin {
 	}
 
 	@Inject(
-		method = "disconnect",
-		at = @At("HEAD")
-	)
-	private void onDisconnect(CallbackInfo ci) {
-		PlayerLeaveEvent event = new PlayerLeaveEvent((ServerPlayer) (Object) this);
-		EventHandler.broadcast(event);
-	}
-
-	@Inject(
 		method = "onInsideBlock",
 		at = @At("HEAD")
 	)

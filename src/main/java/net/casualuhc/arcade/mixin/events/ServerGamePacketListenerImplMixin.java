@@ -3,6 +3,7 @@ package net.casualuhc.arcade.mixin.events;
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import net.casualuhc.arcade.events.EventHandler;
 import net.casualuhc.arcade.events.player.PlayerChatEvent;
+import net.casualuhc.arcade.events.player.PlayerLeaveEvent;
 import net.casualuhc.arcade.events.player.PlayerPackLoadEvent;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.PlayerChatMessage;
@@ -42,5 +43,14 @@ public class ServerGamePacketListenerImplMixin {
 		PlayerChatEvent event = new PlayerChatEvent(sender, message);
 		EventHandler.broadcast(event);
 		return !event.isCancelled();
+	}
+
+	@Inject(
+		method = "disconnect",
+		at = @At("HEAD")
+	)
+	private void onDisconnect(CallbackInfo ci) {
+		PlayerLeaveEvent event = new PlayerLeaveEvent(this.player);
+		EventHandler.broadcast(event);
 	}
 }

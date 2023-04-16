@@ -4,12 +4,17 @@ import net.casualuhc.arcade.events.EventHandler
 import net.casualuhc.arcade.events.player.PlayerChatEvent
 import net.casualuhc.arcade.events.player.PlayerJoinEvent
 import net.casualuhc.arcade.events.server.ServerCreatedEvent
-import net.casualuhc.arcade.scoreboards.SimpleSidebar
+import net.casualuhc.arcade.scoreboards.ArcadeSidebar
+import net.casualuhc.arcade.scoreboards.ConstantRow
+import net.casualuhc.arcade.scoreboards.SidebarRow
+import net.casualuhc.arcade.utils.ComponentUtils.bold
 import net.casualuhc.arcade.utils.ComponentUtils.gold
+import net.casualuhc.arcade.utils.SidebarUtils
 import net.fabricmc.api.ModInitializer
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.level.ServerPlayer
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import kotlin.random.Random
@@ -31,28 +36,6 @@ class Arcade: ModInitializer {
     }
 
     override fun onInitialize() {
-        var bar: SimpleSidebar? = null
-
-        EventHandler.register<PlayerJoinEvent> { (player) ->
-            bar = SimpleSidebar(player)
-        }
-        EventHandler.register<PlayerChatEvent> { (player, message) ->
-            val content = message.signedContent()
-            if (content == "show") {
-                bar!!.show()
-            } else if (content == "add") {
-                bar!!.addRow(Component.literal("Wow this actually works!").gold())
-            } else if (content == "space") {
-                bar!!.addRow(0, Component.empty())
-            } else if (content == "remove") {
-                bar!!.removeRow(Random.nextInt(bar!!.size()))
-            } else if (content == "hide") {
-                bar!!.hide()
-            } else if (content == "name") {
-                bar!!.setName(Component.literal("Poggers"))
-            } else if (content == "modify") {
-                bar!!.setRow(Random.nextInt(bar!!.size()), Component.literal("Modified").withStyle(ChatFormatting.OBFUSCATED))
-            }
-        }
+        SidebarUtils.registerEvents()
     }
 }
