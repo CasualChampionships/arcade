@@ -22,4 +22,28 @@ enum class MinecraftTimeUnit(
     fun toTicks(unitTime: Double): Int {
         return (this.ticksPerUnit * unitTime).roundToInt()
     }
+
+    fun toRedstoneTicks(unitTime: Double): Double {
+        return this.toTicks(unitTime) / RedstoneTicks.ticksPerUnit.toDouble()
+    }
+
+    fun toMinecraftDays(unitTime: Double): Double {
+        return this.toTicks(unitTime) / MinecraftDays.ticksPerUnit.toDouble()
+    }
+
+    fun toSeconds(unitTime: Double): Double {
+        return this.toTicks(unitTime) / Seconds.ticksPerUnit.toDouble()
+    }
+
+    fun toMinutes(unitTime: Double): Double {
+        return this.toTicks(unitTime) / Minutes.ticksPerUnit.toDouble()
+    }
+
+    fun toHours(unitTime: Double): Double {
+        return this.toTicks(unitTime) / Hours.ticksPerUnit.toDouble()
+    }
+
+    fun toDays(unitTime: Double): Double {
+        return this.toTicks(unitTime) / Days.ticksPerUnit.toDouble()
+    }
 }
