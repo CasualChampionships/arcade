@@ -37,7 +37,8 @@ class ArcadeSidebar(title: SidebarRow) {
     }
 
     fun addRow(row: SidebarRow) {
-        this.addRow(this.size(), row)
+        // Add to the bottom
+        this.addRow(0, row)
     }
 
     fun addRow(index: Int, row: SidebarRow) {
