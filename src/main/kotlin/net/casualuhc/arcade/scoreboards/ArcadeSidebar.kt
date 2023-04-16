@@ -3,6 +3,7 @@ package net.casualuhc.arcade.scoreboards
 import net.casualuhc.arcade.utils.SidebarUtils
 import net.casualuhc.arcade.utils.SidebarUtils.sidebar
 import net.minecraft.server.level.ServerPlayer
+import java.util.LinkedList
 
 class ArcadeSidebar(title: SidebarRow) {
     private val players = HashSet<ServerPlayer>()
@@ -80,6 +81,16 @@ class ArcadeSidebar(title: SidebarRow) {
         if (this.players.remove(player)) {
             player.sidebar.remove()
         }
+    }
+
+    fun clearPlayers() {
+        for (player in this.getPlayers()) {
+            this.removePlayer(player)
+        }
+    }
+
+    fun getPlayers(): List<ServerPlayer> {
+        return LinkedList(this.players)
     }
 
     private fun checkBounds(index: Int, upper: Int) {
