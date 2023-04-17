@@ -57,6 +57,7 @@ object GlobalEventHandler {
                 return
             }
         }
+        this.stack.push(type)
 
         for (handler in this.handlers) {
             @Suppress("UNCHECKED_CAST")
