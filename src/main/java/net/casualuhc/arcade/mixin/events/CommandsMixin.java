@@ -1,7 +1,7 @@
 package net.casualuhc.arcade.mixin.events;
 
 import com.mojang.brigadier.CommandDispatcher;
-import net.casualuhc.arcade.events.EventHandler;
+import net.casualuhc.arcade.events.GlobalEventHandler;
 import net.casualuhc.arcade.events.server.ServerRegisterCommandEvent;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -23,6 +23,6 @@ public class CommandsMixin {
 	)
 	private void onRegisterCommands(Commands.CommandSelection selection, CommandBuildContext context, CallbackInfo ci) {
 		ServerRegisterCommandEvent event = new ServerRegisterCommandEvent(this.dispatcher, context);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 	}
 }

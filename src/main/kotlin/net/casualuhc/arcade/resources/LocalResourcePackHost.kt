@@ -3,6 +3,7 @@ package net.casualuhc.arcade.resources
 import java.nio.file.Path
 import kotlin.io.path.listDirectoryEntries
 
+@Suppress("unused")
 class LocalResourcePackHost(
     private val packDirectory: Path,
     threads: Int = 3

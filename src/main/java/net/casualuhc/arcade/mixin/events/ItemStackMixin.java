@@ -1,7 +1,7 @@
 package net.casualuhc.arcade.mixin.events;
 
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
-import net.casualuhc.arcade.events.EventHandler;
+import net.casualuhc.arcade.events.GlobalEventHandler;
 import net.casualuhc.arcade.events.player.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -29,7 +29,7 @@ public class ItemStackMixin {
 	private void onUse(Level level, Player player, InteractionHand usedHand, CallbackInfoReturnable<InteractionResultHolder<ItemStack>> cir) {
 		if (player instanceof ServerPlayer serverPlayer) {
 			PlayerItemUseEvent event = new PlayerItemUseEvent(serverPlayer, (ItemStack) (Object) this, level, usedHand);
-			EventHandler.broadcast(event);
+			GlobalEventHandler.broadcast(event);
 			if (event.isCancelled()) {
 				cir.setReturnValue(event.result());
 			}
@@ -44,7 +44,7 @@ public class ItemStackMixin {
 	private void onUseOn(UseOnContext context, CallbackInfoReturnable<InteractionResult> cir) {
 		if (context.getPlayer() instanceof ServerPlayer player) {
 			PlayerItemUseOnEvent event = new PlayerItemUseOnEvent(player, (ItemStack) (Object) this, context);
-			EventHandler.broadcast(event);
+			GlobalEventHandler.broadcast(event);
 			if (event.isCancelled()) {
 				cir.setReturnValue(event.result());
 			}
@@ -59,7 +59,7 @@ public class ItemStackMixin {
 	private void onFinishUsing(Level level, LivingEntity livingEntity, CallbackInfoReturnable<ItemStack> cir) {
 		if (livingEntity instanceof ServerPlayer player) {
 			PlayerItemFinishEvent event = new PlayerItemFinishEvent(player, (ItemStack) (Object) this, level);
-			EventHandler.broadcast(event);
+			GlobalEventHandler.broadcast(event);
 			if (event.isCancelled()) {
 				cir.setReturnValue(event.result());
 			}
@@ -76,7 +76,7 @@ public class ItemStackMixin {
 	private boolean onReleaseUsing(Item instance, ItemStack stack, Level level, LivingEntity livingEntity, int timeCharged) {
 		if (livingEntity instanceof ServerPlayer player) {
 			PlayerItemReleaseEvent event = new PlayerItemReleaseEvent(player, stack, level, timeCharged);
-			EventHandler.broadcast(event);
+			GlobalEventHandler.broadcast(event);
 			return !event.isCancelled();
 		}
 		return true;
@@ -89,7 +89,7 @@ public class ItemStackMixin {
 	private void onCraft(Level level, Player player, int amount, CallbackInfo ci) {
 		if (player instanceof ServerPlayer serverPlayer) {
 			PlayerCraftEvent event = new PlayerCraftEvent(serverPlayer, (ItemStack) (Object) this);
-			EventHandler.broadcast(event);
+			GlobalEventHandler.broadcast(event);
 		}
 	}
 }

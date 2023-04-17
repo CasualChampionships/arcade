@@ -1,6 +1,6 @@
 package net.casualuhc.arcade.mixin.events;
 
-import net.casualuhc.arcade.events.EventHandler;
+import net.casualuhc.arcade.events.GlobalEventHandler;
 import net.casualuhc.arcade.events.player.PlayerAdvancementEvent;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.DisplayInfo;
@@ -24,7 +24,7 @@ public class PlayerAdvancementsMixin {
 	)
 	private DisplayInfo onAward(Advancement instance) {
 		PlayerAdvancementEvent event = new PlayerAdvancementEvent(this.player, instance);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 		return event.getAnnounce() ? instance.getDisplay() : null;
 	}
 }

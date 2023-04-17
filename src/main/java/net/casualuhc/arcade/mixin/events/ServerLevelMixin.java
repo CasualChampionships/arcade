@@ -1,6 +1,6 @@
 package net.casualuhc.arcade.mixin.events;
 
-import net.casualuhc.arcade.events.EventHandler;
+import net.casualuhc.arcade.events.GlobalEventHandler;
 import net.casualuhc.arcade.events.level.LevelBlockChangedEvent;
 import net.casualuhc.arcade.events.level.LevelTickEvent;
 import net.minecraft.core.BlockPos;
@@ -26,7 +26,7 @@ public class ServerLevelMixin {
 	)
 	private void onTick(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
 		LevelTickEvent event = new LevelTickEvent((ServerLevel) (Object) this);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 	}
 
 	@Inject(
@@ -36,9 +36,9 @@ public class ServerLevelMixin {
 	private void onBlockChanged(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo ci) {
 		LevelBlockChangedEvent event = new LevelBlockChangedEvent((ServerLevel) (Object) this, pos, oldState, newState);
 		if (this.server.isSameThread()) {
-			EventHandler.broadcast(event);
+			GlobalEventHandler.broadcast(event);
 		} else {
-			this.server.execute(() -> EventHandler.broadcast(event));
+			this.server.execute(() -> GlobalEventHandler.broadcast(event));
 		}
 	}
 }

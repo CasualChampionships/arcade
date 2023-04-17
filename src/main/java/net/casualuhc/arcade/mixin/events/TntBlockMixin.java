@@ -1,6 +1,6 @@
 package net.casualuhc.arcade.mixin.events;
 
-import net.casualuhc.arcade.events.EventHandler;
+import net.casualuhc.arcade.events.GlobalEventHandler;
 import net.casualuhc.arcade.events.player.PlayerTNTPrimedEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,7 +22,7 @@ public class TntBlockMixin {
 	private static void onPrime(Level level, BlockPos pos, LivingEntity entity, CallbackInfo ci) {
 		if (entity instanceof ServerPlayer player) {
 			PlayerTNTPrimedEvent event = new PlayerTNTPrimedEvent(player, level, pos);
-			EventHandler.broadcast(event);
+			GlobalEventHandler.broadcast(event);
 			if (event.isCancelled()) {
 				ci.cancel();
 			}

@@ -2,7 +2,7 @@ package net.casualuhc.arcade.mixin.events;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.casualuhc.arcade.events.EventHandler;
+import net.casualuhc.arcade.events.GlobalEventHandler;
 import net.casualuhc.arcade.events.player.PlayerBlockPlacedEvent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.BlockItem;
@@ -23,7 +23,7 @@ public class BlockItemMixin {
 	private boolean onPlaceBlock(BlockItem instance, BlockPlaceContext context, BlockState state, Operation<Boolean> operation) {
 		if (context.getPlayer() instanceof ServerPlayer player) {
 			PlayerBlockPlacedEvent event = new PlayerBlockPlacedEvent(player, instance, state, context);
-			EventHandler.broadcast(event);
+			GlobalEventHandler.broadcast(event);
 			if (event.isCancelled()) {
 				return false;
 			}

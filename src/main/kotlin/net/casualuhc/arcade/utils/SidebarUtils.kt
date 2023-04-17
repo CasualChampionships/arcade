@@ -1,13 +1,10 @@
 package net.casualuhc.arcade.utils
 
-import net.casualuhc.arcade.events.EventHandler
+import net.casualuhc.arcade.events.GlobalEventHandler
 import net.casualuhc.arcade.events.player.PlayerCreatedEvent
 import net.casualuhc.arcade.events.player.PlayerLeaveEvent
 import net.casualuhc.arcade.events.player.PlayerTickEvent
-import net.casualuhc.arcade.mixin.scoreboard.ClientboundSetDisplayObjectivePacketAccessor
-import net.casualuhc.arcade.mixin.scoreboard.ClientboundSetObjectivePacketAccessor
-import net.casualuhc.arcade.mixin.scoreboard.ParametersAccessor
-import net.casualuhc.arcade.scoreboards.PlayerSidebarExtension
+import net.casualuhc.arcade.gui.PlayerSidebarExtension
 import net.casualuhc.arcade.utils.PlayerUtils.addExtension
 import net.casualuhc.arcade.utils.PlayerUtils.getExtension
 import net.minecraft.ChatFormatting
@@ -21,14 +18,15 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.Objective
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Scoreboard
-import net.minecraft.world.scores.criteria.ObjectiveCriteria
+import net.minecraft.world.scores.criteria.ObjectiveCriteria.DUMMY
+import net.minecraft.world.scores.criteria.ObjectiveCriteria.RenderType.INTEGER
 
 object SidebarUtils {
     const val MAX_SIZE = 14
 
     private val scoreboard = Scoreboard()
     private val objectiveName = "\$DummyObjective"
-    private val objective = Objective(scoreboard, objectiveName, ObjectiveCriteria.DUMMY, Component.empty(), ObjectiveCriteria.RenderType.INTEGER)
+    private val objective = Objective(this.scoreboard, this.objectiveName, DUMMY, Component.empty(), INTEGER)
     private val teamName = "\$DummyTeam"
     private val teams = ArrayList<PlayerTeam>(16)
     private val players = ArrayList<String>(16)
@@ -48,11 +46,10 @@ object SidebarUtils {
     }
 
     internal fun sendSetObjectivePacket(player: ServerPlayer, method: Int, title: Component? = null) {
-        val packet = ClientboundSetObjectivePacket(this.objective, method)
         if (title !== null) {
-            @Suppress("KotlinConstantConditions")
-            (packet as ClientboundSetObjectivePacketAccessor).setDisplayName(title)
+            this.objective.displayName = title
         }
+        val packet = ClientboundSetObjectivePacket(this.objective, method)
         player.connection.send(packet)
     }
 
@@ -61,18 +58,13 @@ object SidebarUtils {
     }
 
     internal fun sendSetDisplayPacket(player: ServerPlayer, remove: Boolean) {
-        val packet = ClientboundSetDisplayObjectivePacket(Scoreboard.DISPLAY_SLOT_SIDEBAR, null)
-        if (!remove) {
-            @Suppress("KotlinConstantConditions")
-            (packet as ClientboundSetDisplayObjectivePacketAccessor).setObjectiveName(this.objectiveName)
-        }
-        player.connection.send(packet)
+        player.connection.send(ClientboundSetDisplayObjectivePacket(Scoreboard.DISPLAY_SLOT_SIDEBAR, if (remove) null else this.objective))
     }
 
     internal fun sendPlayerTeamUpdatePacket(player: ServerPlayer, index: Int, initial: Boolean, prefix: Component)  {
-        val packet = ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(this.teams[index], initial)
-        (packet.parameters.orElseThrow() as ParametersAccessor).setPrefix(prefix)
-        player.connection.send(packet)
+        val team = this.teams[index]
+        team.playerPrefix = prefix
+        player.connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, initial))
     }
 
     internal fun sendPlayerTeamRemovePacket(player: ServerPlayer, index: Int) {
@@ -80,13 +72,13 @@ object SidebarUtils {
     }
 
     internal fun registerEvents() {
-        EventHandler.register<PlayerCreatedEvent> { (player) ->
+        GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
             player.addExtension(PlayerSidebarExtension(player))
         }
-        EventHandler.register<PlayerLeaveEvent> { (player) ->
+        GlobalEventHandler.register<PlayerLeaveEvent> { (player) ->
             player.sidebar.disconnect()
         }
-        EventHandler.register<PlayerTickEvent> { (player) ->
+        GlobalEventHandler.register<PlayerTickEvent> { (player) ->
             player.sidebar.tick()
         }
     }

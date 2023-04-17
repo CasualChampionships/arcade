@@ -1,6 +1,6 @@
 package net.casualuhc.arcade.mixin.events;
 
-import net.casualuhc.arcade.events.EventHandler;
+import net.casualuhc.arcade.events.GlobalEventHandler;
 import net.casualuhc.arcade.events.player.PlayerJoinEvent;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,7 +18,7 @@ public class PlayerListMixin {
 	)
 	private void onPlayerJoin(Connection connection, ServerPlayer player, CallbackInfo ci) {
 		PlayerJoinEvent event = new PlayerJoinEvent(player);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 		if (event.isCancelled()) {
 			connection.disconnect(event.result());
 		}

@@ -3,7 +3,7 @@ package net.casualuhc.arcade.mixin.events;
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
-import net.casualuhc.arcade.events.EventHandler;
+import net.casualuhc.arcade.events.GlobalEventHandler;
 import net.casualuhc.arcade.events.player.PlayerBorderDamageEvent;
 import net.casualuhc.arcade.events.player.PlayerDeathEvent;
 import net.casualuhc.arcade.events.player.PlayerLandEvent;
@@ -33,7 +33,7 @@ public class LivingEntityMixin {
 			return;
 		}
 		PlayerLandEvent event = new PlayerLandEvent(player, damage.get(), distance, multiplier, source);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 		if (event.isCancelled()) {
 			damage.set(event.result());
 		}
@@ -52,7 +52,7 @@ public class LivingEntityMixin {
 			return true;
 		}
 		PlayerVoidDamageEvent event = new PlayerVoidDamageEvent(player);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 		return !event.isCancelled();
 	}
 
@@ -70,7 +70,7 @@ public class LivingEntityMixin {
 			return true;
 		}
 		PlayerBorderDamageEvent event = new PlayerBorderDamageEvent(player, source, amount);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 		return !event.isCancelled();
 	}
 
@@ -87,7 +87,7 @@ public class LivingEntityMixin {
 			return true;
 		}
 		PlayerDeathEvent event = new PlayerDeathEvent(player, source);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 		return !event.isCancelled();
 	}
 }

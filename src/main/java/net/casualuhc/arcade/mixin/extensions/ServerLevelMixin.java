@@ -1,7 +1,7 @@
 package net.casualuhc.arcade.mixin.extensions;
 
 import net.casualuhc.arcade.Arcade;
-import net.casualuhc.arcade.events.EventHandler;
+import net.casualuhc.arcade.events.GlobalEventHandler;
 import net.casualuhc.arcade.events.level.LevelCreatedEvent;
 import net.casualuhc.arcade.extensions.ExtensionHolder;
 import net.casualuhc.arcade.extensions.ExtensionMap;
@@ -76,7 +76,7 @@ public abstract class ServerLevelMixin extends Level implements ExtensionHolder 
 		this.arcade_savePath = levelStorageAccess.getDimensionPath(this.dimension()).resolve("arcade.nbt");
 
 		LevelCreatedEvent event = new LevelCreatedEvent((ServerLevel) (Object) this);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 
 		try {
 			CompoundTag tag = NbtIo.read(this.arcade_savePath.toFile());

@@ -1,15 +1,16 @@
-package net.casualuhc.arcade.scoreboards
+package net.casualuhc.arcade.gui
 
+import net.casualuhc.arcade.gui.suppliers.ComponentSupplier
 import net.casualuhc.arcade.utils.SidebarUtils
 import net.casualuhc.arcade.utils.SidebarUtils.sidebar
 import net.minecraft.server.level.ServerPlayer
 import java.util.LinkedList
 
-class ArcadeSidebar(title: SidebarRow) {
+class ArcadeSidebar(title: ComponentSupplier) {
     private val players = HashSet<ServerPlayer>()
-    private val rows = ArrayList<SidebarRow>(SidebarUtils.MAX_SIZE)
+    private val rows = ArrayList<ComponentSupplier>(SidebarUtils.MAX_SIZE)
 
-    var title: SidebarRow = title
+    var title: ComponentSupplier = title
         private set
 
     var interval = 1
@@ -19,7 +20,7 @@ class ArcadeSidebar(title: SidebarRow) {
         return this.rows.size
     }
 
-    fun setTitle(title: SidebarRow) {
+    fun setTitle(title: ComponentSupplier) {
         this.title = title
 
         for (player in this.players) {
@@ -31,17 +32,17 @@ class ArcadeSidebar(title: SidebarRow) {
         this.interval = interval.coerceAtLeast(1)
     }
 
-    fun getRow(index: Int): SidebarRow {
+    fun getRow(index: Int): ComponentSupplier {
         this.checkBounds(index, this.size() - 1)
         return this.rows[index]
     }
 
-    fun addRow(row: SidebarRow) {
+    fun addRow(row: ComponentSupplier) {
         // Add to the bottom
         this.addRow(0, row)
     }
 
-    fun addRow(index: Int, row: SidebarRow) {
+    fun addRow(index: Int, row: ComponentSupplier) {
         require(this.size() < SidebarUtils.MAX_SIZE) { "Cannot add more rows, already at max size: ${SidebarUtils.MAX_SIZE}" }
         this.checkBounds(index, this.size())
 
@@ -52,7 +53,7 @@ class ArcadeSidebar(title: SidebarRow) {
         }
     }
 
-    fun setRow(index: Int, row: SidebarRow) {
+    fun setRow(index: Int, row: ComponentSupplier) {
         this.checkBounds(index, this.size() - 1)
 
         this.rows[index] = row

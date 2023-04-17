@@ -6,7 +6,7 @@ import java.util.*
 import java.util.function.IntFunction
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
-class TaskScheduler {
+class TickedScheduler {
     val tasks: Int2ObjectMap<Queue<Task>> = Int2ObjectOpenHashMap()
     var tickCount = 0
 

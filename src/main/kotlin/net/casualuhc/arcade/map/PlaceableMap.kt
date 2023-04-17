@@ -1,4 +1,4 @@
-package net.casualuhc.arcade.area
+package net.casualuhc.arcade.map
 
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
@@ -11,7 +11,7 @@ import net.minecraft.world.phys.AABB
 import java.util.*
 import java.util.function.Predicate
 
-interface PlaceableArea {
+interface PlaceableMap {
     val level: ServerLevel
 
     fun place()

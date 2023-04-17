@@ -1,7 +1,7 @@
 package net.casualuhc.arcade.mixin.events;
 
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
-import net.casualuhc.arcade.events.EventHandler;
+import net.casualuhc.arcade.events.GlobalEventHandler;
 import net.casualuhc.arcade.events.player.PlayerChatEvent;
 import net.casualuhc.arcade.events.player.PlayerLeaveEvent;
 import net.casualuhc.arcade.events.player.PlayerPackLoadEvent;
@@ -28,7 +28,7 @@ public class ServerGamePacketListenerImplMixin {
 	private void onResourcePackStatus(ServerboundResourcePackPacket packet, CallbackInfo ci) {
 		if (packet.getAction() == ServerboundResourcePackPacket.Action.SUCCESSFULLY_LOADED) {
 			PlayerPackLoadEvent event = new PlayerPackLoadEvent(this.player);
-			EventHandler.broadcast(event);
+			GlobalEventHandler.broadcast(event);
 		}
 	}
 
@@ -41,7 +41,7 @@ public class ServerGamePacketListenerImplMixin {
 	)
 	private boolean onBroadcastMessage(PlayerList instance, PlayerChatMessage message, ServerPlayer sender, ChatType.Bound boundChatType) {
 		PlayerChatEvent event = new PlayerChatEvent(sender, message);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 		return !event.isCancelled();
 	}
 
@@ -51,6 +51,6 @@ public class ServerGamePacketListenerImplMixin {
 	)
 	private void onDisconnect(CallbackInfo ci) {
 		PlayerLeaveEvent event = new PlayerLeaveEvent(this.player);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 	}
 }

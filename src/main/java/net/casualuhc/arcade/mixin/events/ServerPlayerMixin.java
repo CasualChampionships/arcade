@@ -1,6 +1,6 @@
 package net.casualuhc.arcade.mixin.events;
 
-import net.casualuhc.arcade.events.EventHandler;
+import net.casualuhc.arcade.events.GlobalEventHandler;
 import net.casualuhc.arcade.events.player.*;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,7 +20,7 @@ public class ServerPlayerMixin {
 	)
 	private void onTick(CallbackInfo ci) {
 		PlayerTickEvent event = new PlayerTickEvent((ServerPlayer) (Object) this);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 	}
 
 	@Inject(
@@ -29,7 +29,7 @@ public class ServerPlayerMixin {
 	)
 	private void onBlockCollision(BlockState state, CallbackInfo ci) {
 		PlayerBlockCollisionEvent event = new PlayerBlockCollisionEvent((ServerPlayer) (Object) this, state);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 	}
 
 	@Inject(
@@ -38,7 +38,7 @@ public class ServerPlayerMixin {
 	)
 	private void onChangeDimension(ServerLevel destination, CallbackInfoReturnable<Entity> cir) {
 		PlayerDimensionChangeEvent event = new PlayerDimensionChangeEvent((ServerPlayer) (Object) this, destination);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 	}
 
 	@Inject(
@@ -50,6 +50,6 @@ public class ServerPlayerMixin {
 	)
 	private void onFall(double y, boolean onGround, CallbackInfo ci) {
 		PlayerFallEvent event = new PlayerFallEvent((ServerPlayer) (Object) this, y, onGround);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 	}
 }

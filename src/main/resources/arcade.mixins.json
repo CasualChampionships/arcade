@@ -29,10 +29,7 @@
     "extensions.ServerLevelMixin",
     "extensions.ServerPlayerMixin",
     "recipes.ClientboundUpdateRecipesPacketMixin",
-    "recipes.RecipeManagerMixin",
-    "scoreboard.ClientboundSetDisplayObjectivePacketAccessor",
-    "scoreboard.ClientboundSetObjectivePacketAccessor",
-    "scoreboard.ParametersAccessor"
+    "recipes.RecipeManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

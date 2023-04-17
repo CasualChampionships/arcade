@@ -1,6 +1,6 @@
 package net.casualuhc.arcade.mixin.events;
 
-import net.casualuhc.arcade.events.EventHandler;
+import net.casualuhc.arcade.events.GlobalEventHandler;
 import net.casualuhc.arcade.events.player.PlayerLootEvent;
 import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerPlayer;
@@ -28,7 +28,7 @@ public abstract class RandomizableContainerBlockEntityMixin {
 	private void afterLootGenerated(Player player, CallbackInfo ci) {
 		if (player instanceof ServerPlayer serverPlayer) {
 			PlayerLootEvent event = new PlayerLootEvent(serverPlayer, this.getItems(), (RandomizableContainerBlockEntity) (Object) this);
-			EventHandler.broadcast(event);
+			GlobalEventHandler.broadcast(event);
 		}
 	}
 }

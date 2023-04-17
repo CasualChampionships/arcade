@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.random.Random
 
+@Suppress("unused")
 abstract class ResourcePackHost(
     private val threads: Int = 3
 ) {

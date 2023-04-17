@@ -1,7 +1,7 @@
 package net.casualuhc.arcade.mixin.events;
 
 import com.mojang.datafixers.DataFixer;
-import net.casualuhc.arcade.events.EventHandler;
+import net.casualuhc.arcade.events.GlobalEventHandler;
 import net.casualuhc.arcade.events.server.ServerCreatedEvent;
 import net.casualuhc.arcade.events.server.ServerLoadedEvent;
 import net.casualuhc.arcade.events.server.ServerStoppedEvent;
@@ -38,7 +38,7 @@ public class MinecraftServerMixin {
 		CallbackInfo ci
 	) {
 		ServerCreatedEvent event = new ServerCreatedEvent((MinecraftServer) (Object) this);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 	}
 
 	@Inject(
@@ -51,7 +51,7 @@ public class MinecraftServerMixin {
 	)
 	private void onServerLoaded(CallbackInfo ci) {
 		ServerLoadedEvent event = new ServerLoadedEvent((MinecraftServer) (Object) this);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 	}
 
 	@Inject(
@@ -60,7 +60,7 @@ public class MinecraftServerMixin {
 	)
 	private void onTick(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
 		ServerTickEvent event = new ServerTickEvent((MinecraftServer) (Object) this);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 	}
 
 	@Inject(
@@ -69,6 +69,6 @@ public class MinecraftServerMixin {
 	)
 	private void onShutdown(CallbackInfo ci) {
 		ServerStoppedEvent event = new ServerStoppedEvent((MinecraftServer) (Object) this);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 	}
 }

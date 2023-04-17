@@ -3,7 +3,7 @@ package net.casualuhc.arcade.mixin.events;
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
-import net.casualuhc.arcade.events.EventHandler;
+import net.casualuhc.arcade.events.GlobalEventHandler;
 import net.casualuhc.arcade.events.player.PlayerAttackEvent;
 import net.casualuhc.arcade.events.player.PlayerDamageEvent;
 import net.casualuhc.arcade.utils.CastUtils;
@@ -31,7 +31,7 @@ public class PlayerMixin {
 			return false;
 		}
 		PlayerAttackEvent event = new PlayerAttackEvent(player, entity, amount);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 		return !event.isCancelled();
 	}
 
@@ -50,7 +50,7 @@ public class PlayerMixin {
 			return;
 		}
 		PlayerDamageEvent event = new PlayerDamageEvent(player, damage.get(), source);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 		if (event.isCancelled()) {
 			damage.set(event.result());
 		}

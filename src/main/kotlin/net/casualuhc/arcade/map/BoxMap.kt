@@ -1,4 +1,4 @@
-package net.casualuhc.arcade.area
+package net.casualuhc.arcade.map
 
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Vec3i
@@ -7,13 +7,13 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.levelgen.structure.BoundingBox
 
-class PlaceableBox(
+class BoxMap(
     val center: Vec3i,
     val radius: Int,
     val height: Int,
     override val level: ServerLevel,
     val block: Block = Blocks.BARRIER
-): PlaceableArea {
+): PlaceableMap {
     override fun getBoundingBox(): BoundingBox {
         return BoundingBox(
             this.center.x - this.radius,

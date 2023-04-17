@@ -3,7 +3,7 @@ package net.casualuhc.arcade.mixin.recipes;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.casualuhc.arcade.events.EventHandler;
+import net.casualuhc.arcade.events.GlobalEventHandler;
 import net.casualuhc.arcade.events.server.ServerRecipeReloadEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -39,7 +39,7 @@ public abstract class RecipeManagerMixin {
 		@Local ImmutableMap.Builder<ResourceLocation, Recipe<?>> recipesByName
 	) {
 		ServerRecipeReloadEvent event = new ServerRecipeReloadEvent((RecipeManager) (Object) this, resourceManager);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 
 		for (Recipe<?> recipe : event.getRecipes()) {
 			recipesByType.computeIfAbsent(recipe.getType(), recipeType -> ImmutableMap.builder()).put(recipe.getId(), recipe);

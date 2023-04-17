@@ -1,6 +1,6 @@
 package net.casualuhc.arcade.mixin.extensions;
 
-import net.casualuhc.arcade.events.EventHandler;
+import net.casualuhc.arcade.events.GlobalEventHandler;
 import net.casualuhc.arcade.events.team.TeamCreatedEvent;
 import net.casualuhc.arcade.extensions.ExtensionHolder;
 import net.casualuhc.arcade.extensions.ExtensionMap;
@@ -24,7 +24,7 @@ public class PlayerTeamMixin implements ExtensionHolder {
 	)
 	private void onCreateTeam(Scoreboard scoreboard, String string, CallbackInfo ci) {
 		TeamCreatedEvent event = new TeamCreatedEvent((PlayerTeam) (Object) this);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 	}
 
 	@Unique

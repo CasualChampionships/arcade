@@ -1,4 +1,4 @@
-package net.casualuhc.arcade.scoreboards
+package net.casualuhc.arcade.gui
 
 import net.casualuhc.arcade.extensions.Extension
 import net.casualuhc.arcade.utils.SidebarUtils

@@ -1,4 +1,4 @@
-package net.casualuhc.arcade.area
+package net.casualuhc.arcade.map
 
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Vec3i
@@ -8,11 +8,11 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate
 
-class PlaceableStructure(
+class StructureMap(
     val lobby: StructureTemplate,
     val centre: Vec3i,
     override val level: ServerLevel
-): PlaceableArea {
+): PlaceableMap {
     override fun getBoundingBox(): BoundingBox {
         val dimensions = this.lobby.size
         val halfX = dimensions.x / 2 + 1

@@ -1,7 +1,7 @@
 package net.casualuhc.arcade.mixin.events;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import net.casualuhc.arcade.events.EventHandler;
+import net.casualuhc.arcade.events.GlobalEventHandler;
 import net.casualuhc.arcade.events.player.PlayerBlockInteractionEvent;
 import net.casualuhc.arcade.events.player.PlayerBlockMinedEvent;
 import net.minecraft.core.BlockPos;
@@ -43,7 +43,7 @@ public class ServerPlayerGameModeMixin {
 		CallbackInfoReturnable<InteractionResult> cir
 	) {
 		PlayerBlockInteractionEvent event = new PlayerBlockInteractionEvent(player, level, stack, hand, hitResult);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 		if (event.isCancelled()) {
 			cir.setReturnValue(event.result());
 		}
@@ -65,7 +65,7 @@ public class ServerPlayerGameModeMixin {
 		@Local BlockEntity entity
 	) {
 		PlayerBlockMinedEvent event = new PlayerBlockMinedEvent(this.player, pos, state, entity);
-		EventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event);
 		if (event.isCancelled()) {
 			cir.setReturnValue(false);
 		}
