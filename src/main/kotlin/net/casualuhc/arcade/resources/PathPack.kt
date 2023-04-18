@@ -7,7 +7,7 @@ import kotlin.io.path.fileSize
 import kotlin.io.path.inputStream
 import kotlin.io.path.name
 
-class ReadablePathPack(val path: Path) : ReadablePack {
+class PathPack(val path: Path) : ReadablePack {
     override val name: String
         get() = this.path.name
 

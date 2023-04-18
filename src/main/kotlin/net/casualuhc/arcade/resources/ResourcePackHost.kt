@@ -14,16 +14,21 @@ import java.util.concurrent.Executors
 import kotlin.random.Random
 
 @Suppress("unused")
-abstract class ResourcePackHost(
+class ResourcePackHost(
     private val threads: Int = 3
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
     private val hosted = HashMap<String, HostedPack>()
     private val builder = ThreadFactoryBuilder().setNameFormat("Pack-Host-%d").build()
     private val executor = Executors.newSingleThreadExecutor(this.builder)
+    private val packs = ArrayList<PackSupplier>()
 
     private var server: HttpServer? = null
     private var pool: ExecutorService? = null
+
+    fun addPacks(pack: PackSupplier) {
+        this.packs.add(pack)
+    }
 
     fun getHostedPack(name: String): HostedPack? {
         val zipped = if (name.endsWith(".zip")) name else "$name.zip"
@@ -48,7 +53,7 @@ abstract class ResourcePackHost(
                 this.pool = Executors.newFixedThreadPool(this.threads, this.builder)
                 server.executor = this.pool
 
-                for (pack in this.getPacks()) {
+                for (pack in this.packs.flatMap { it.getPacks() }) {
                     val sub = if (randomise) Random.nextInt(Int.MAX_VALUE).toString() else pack.name
 
                     val url = "http://${ip}:${hostPort}/${sub}"
@@ -78,8 +83,6 @@ abstract class ResourcePackHost(
         this.pool?.shutdownNow()
         this.executor.shutdownNow()
     }
-
-    protected abstract fun getPacks(): Iterable<ReadablePack>
 
     class HostedPack(val pack: ReadablePack, val url: String, val hash: String)
 
