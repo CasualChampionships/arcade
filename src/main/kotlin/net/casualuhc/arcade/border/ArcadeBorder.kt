@@ -70,6 +70,10 @@ abstract class ArcadeBorder: WorldBorder() {
 
     override fun setSize(size: Double) {
         this.state = StillBorderState(this, size)
+
+        for (borderChangeListener in listeners) {
+            borderChangeListener.onBorderSizeSet(this, size)
+        }
     }
 
     override fun lerpSizeBetween(start: Double, end: Double, time: Long) {
