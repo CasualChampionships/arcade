@@ -92,7 +92,7 @@ class PlayerBossbarsExtension(
     }
 
     internal fun disconnect() {
-        for (bar in this.bossbars.keys) {
+        for (bar in LinkedList(this.bossbars.keys)) {
             bar.removePlayer(this.owner)
         }
     }
