@@ -113,7 +113,7 @@ object PlayerUtils {
     @JvmStatic
     fun ServerPlayer.revokeAdvancement(advancement: Advancement) {
         val progress = this.advancements.getOrStartProgress(advancement)
-        if (!progress.isDone) {
+        if (progress.hasProgress()) {
             for (string in progress.completedCriteria) {
                 this.advancements.revoke(advancement, string)
             }
@@ -131,8 +131,11 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun ServerPlayer.sendSubtitle(subtitle: Component) {
+    fun ServerPlayer.sendSubtitle(subtitle: Component, force: Boolean = false) {
         this.connection.send(ClientboundSetSubtitleTextPacket(subtitle))
+        if (force) {
+            this.sendTitle(Component.empty())
+        }
     }
 
     @JvmStatic
