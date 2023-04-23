@@ -3,6 +3,7 @@ package net.casualuhc.arcade
 import net.casualuhc.arcade.events.GlobalEventHandler
 import net.casualuhc.arcade.events.server.ServerCreatedEvent
 import net.casualuhc.arcade.utils.BossbarUtils
+import net.casualuhc.arcade.utils.NameDisplayUtils
 import net.casualuhc.arcade.utils.SidebarUtils
 import net.fabricmc.api.ModInitializer
 import net.minecraft.server.MinecraftServer
@@ -28,5 +29,6 @@ class Arcade: ModInitializer {
     override fun onInitialize() {
         SidebarUtils.registerEvents()
         BossbarUtils.registerEvents()
+        NameDisplayUtils.registerEvents()
     }
 }

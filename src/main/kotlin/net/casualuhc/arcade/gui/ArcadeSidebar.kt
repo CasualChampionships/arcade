@@ -4,10 +4,10 @@ import net.casualuhc.arcade.gui.suppliers.ComponentSupplier
 import net.casualuhc.arcade.utils.SidebarUtils
 import net.casualuhc.arcade.utils.SidebarUtils.sidebar
 import net.minecraft.server.level.ServerPlayer
-import java.util.LinkedList
+import net.minecraft.server.network.ServerGamePacketListenerImpl
 
 class ArcadeSidebar(title: ComponentSupplier) {
-    private val players = HashSet<ServerPlayer>()
+    private val connections = HashSet<ServerGamePacketListenerImpl>()
     private val rows = ArrayList<ComponentSupplier>(SidebarUtils.MAX_SIZE)
 
     var title: ComponentSupplier = title
@@ -23,7 +23,7 @@ class ArcadeSidebar(title: ComponentSupplier) {
     fun setTitle(title: ComponentSupplier) {
         this.title = title
 
-        for (player in this.players) {
+        for (player in this.getPlayers()) {
             player.sidebar.setTitle(title.getComponent(player))
         }
     }
@@ -48,7 +48,7 @@ class ArcadeSidebar(title: ComponentSupplier) {
 
         this.rows.add(index, row)
 
-        for (player in this.players) {
+        for (player in this.getPlayers()) {
             player.sidebar.addRow(index, row.getComponent(player))
         }
     }
@@ -58,7 +58,7 @@ class ArcadeSidebar(title: ComponentSupplier) {
 
         this.rows[index] = row
 
-        for (player in this.players) {
+        for (player in this.getPlayers()) {
             player.sidebar.setRow(index, row.getComponent(player))
         }
     }
@@ -68,19 +68,19 @@ class ArcadeSidebar(title: ComponentSupplier) {
 
         this.rows.removeAt(index)
 
-        for (player in this.players) {
+        for (player in this.getPlayers()) {
             player.sidebar.removeRow(index)
         }
     }
 
     fun addPlayer(player: ServerPlayer) {
-        if (this.players.add(player)) {
+        if (this.connections.add(player.connection)) {
             player.sidebar.set(this)
         }
     }
 
     fun removePlayer(player: ServerPlayer) {
-        if (this.players.remove(player)) {
+        if (this.connections.remove(player.connection)) {
             player.sidebar.remove()
         }
     }
@@ -92,7 +92,7 @@ class ArcadeSidebar(title: ComponentSupplier) {
     }
 
     fun getPlayers(): List<ServerPlayer> {
-        return LinkedList(this.players)
+        return this.connections.map { it.player }
     }
 
     private fun checkBounds(index: Int, upper: Int) {

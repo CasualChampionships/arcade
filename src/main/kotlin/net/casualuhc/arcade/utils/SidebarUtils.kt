@@ -15,18 +15,14 @@ import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket
 import net.minecraft.server.ServerScoreboard.Method
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.scores.Objective
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Scoreboard
-import net.minecraft.world.scores.criteria.ObjectiveCriteria.DUMMY
-import net.minecraft.world.scores.criteria.ObjectiveCriteria.RenderType.INTEGER
 
-object SidebarUtils {
+internal object SidebarUtils {
     const val MAX_SIZE = 14
 
-    private val scoreboard = Scoreboard()
     private val objectiveName = "\$DummyObjective"
-    private val objective = Objective(this.scoreboard, this.objectiveName, DUMMY, Component.empty(), INTEGER)
+    private val objective = ScoreboardUtils.dummyObjective(this.objectiveName)
     private val teamName = "\$DummyTeam"
     private val teams = ArrayList<PlayerTeam>(16)
     private val players = ArrayList<String>(16)
@@ -37,13 +33,14 @@ object SidebarUtils {
     init {
         for (i in 0..15) {
             val player = ChatFormatting.RESET.toString().repeat(i)
-            val team = PlayerTeam(this.scoreboard, this.teamName + i)
+            val team = ScoreboardUtils.dummyTeam(this.teamName + i)
 
             team.players.add(player)
             this.teams.add(team)
             this.players.add(player)
         }
     }
+
 
     internal fun sendSetObjectivePacket(player: ServerPlayer, method: Int, title: Component? = null) {
         if (title !== null) {
@@ -57,7 +54,7 @@ object SidebarUtils {
         player.connection.send(ClientboundSetScorePacket(method, this.objectiveName, this.players[index], index))
     }
 
-    internal fun sendSetDisplayPacket(player: ServerPlayer, remove: Boolean) {
+    internal fun sendSetSidebarDisplayPacket(player: ServerPlayer, remove: Boolean) {
         player.connection.send(ClientboundSetDisplayObjectivePacket(Scoreboard.DISPLAY_SLOT_SIDEBAR, if (remove) null else this.objective))
     }
 

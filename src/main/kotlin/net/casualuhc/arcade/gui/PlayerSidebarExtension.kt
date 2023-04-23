@@ -74,13 +74,12 @@ class PlayerSidebarExtension(
         val current = this.current
         if (current !== null) {
             current.removePlayer(this.owner)
-            this.remove()
         }
         this.current = sidebar
         this.ticks = 0
 
         SidebarUtils.sendSetObjectivePacket(this.owner, METHOD_ADD, sidebar.title.getComponent(this.owner))
-        SidebarUtils.sendSetDisplayPacket(this.owner, false)
+        SidebarUtils.sendSetSidebarDisplayPacket(this.owner, false)
         for (i in 0 until sidebar.size()) {
             this.addRow(i, sidebar.getRow(i).getComponent(this.owner))
         }
@@ -91,7 +90,7 @@ class PlayerSidebarExtension(
         this.previousTitle = null
         this.previousRows.clear()
         SidebarUtils.sendSetObjectivePacket(this.owner, METHOD_REMOVE)
-        SidebarUtils.sendSetDisplayPacket(this.owner, true)
+        SidebarUtils.sendSetSidebarDisplayPacket(this.owner, true)
     }
 
     internal fun disconnect() {

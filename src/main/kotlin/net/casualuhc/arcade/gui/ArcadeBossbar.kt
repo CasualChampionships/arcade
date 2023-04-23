@@ -3,6 +3,7 @@ package net.casualuhc.arcade.gui
 import net.casualuhc.arcade.gui.suppliers.*
 import net.casualuhc.arcade.utils.BossbarUtils.bossbars
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.util.Mth
 import java.util.*
 
@@ -12,7 +13,7 @@ class ArcadeBossbar(
     colour: ColourSupplier,
     style: OverlaySupplier
 ) {
-    private val players = HashSet<ServerPlayer>()
+    private val connections = HashSet<ServerGamePacketListenerImpl>()
     val uuid: UUID = Mth.createInsecureUUID()
 
     var title = title
@@ -36,7 +37,7 @@ class ArcadeBossbar(
     fun setTitle(title: ComponentSupplier) {
         this.title = title
 
-        for (player in this.players) {
+        for (player in this.getPlayers()) {
             player.bossbars.updateTitle(this)
         }
     }
@@ -44,7 +45,7 @@ class ArcadeBossbar(
     fun setProgress(progress: ProgressSupplier) {
         this.progress = progress
 
-        for (player in this.players) {
+        for (player in this.getPlayers()) {
             player.bossbars.updateProgress(this)
         }
     }
@@ -60,7 +61,7 @@ class ArcadeBossbar(
             this.overlay = overlay
         }
 
-        for (player in this.players) {
+        for (player in this.getPlayers()) {
             player.bossbars.updateStyle(this)
         }
     }
@@ -80,7 +81,7 @@ class ArcadeBossbar(
             this.fog = fog
         }
 
-        for (player in this.players) {
+        for (player in this.getPlayers()) {
             player.bossbars.updateProperties(this)
         }
     }
@@ -90,13 +91,13 @@ class ArcadeBossbar(
     }
 
     fun addPlayer(player: ServerPlayer) {
-        if (this.players.add(player)) {
+        if (this.connections.add(player.connection)) {
             player.bossbars.add(this)
         }
     }
 
     fun removePlayer(player: ServerPlayer) {
-        if (this.players.remove(player)) {
+        if (this.connections.remove(player.connection)) {
             player.bossbars.remove(this)
         }
     }
@@ -108,6 +109,6 @@ class ArcadeBossbar(
     }
 
     fun getPlayers(): List<ServerPlayer> {
-        return LinkedList(this.players)
+        return this.connections.map { it.player }
     }
 }
