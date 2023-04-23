@@ -1,7 +1,7 @@
 package net.casualuhc.arcade.mixin.commands;
 
-import net.casualuhc.arcade.commands.EnumArgument;
-import net.casualuhc.arcade.commands.WordArgumentInfo;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import net.casualuhc.arcade.commands.*;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.Registry;
@@ -23,6 +23,9 @@ public abstract class ArgumentTypeInfosMixin {
 		at = @At("HEAD")
 	)
 	private static void onRegister(Registry<ArgumentTypeInfo<?, ?>> registry, CallbackInfoReturnable<ArgumentTypeInfo<?, ?>> cir) {
-		BY_CLASS.put(EnumArgument.class, new WordArgumentInfo());
+		BY_CLASS.put(EnumArgument.class, new CustomStringArgumentInfo(StringArgumentType.StringType.SINGLE_WORD));
+		BY_CLASS.put(MappedArgument.class, new CustomStringArgumentInfo(StringArgumentType.StringType.SINGLE_WORD));
+		BY_CLASS.put(TimeArgument.class, new CustomStringArgumentInfo(StringArgumentType.StringType.QUOTABLE_PHRASE));
+		BY_CLASS.put(TimeZoneArgument.class, new CustomStringArgumentInfo(StringArgumentType.StringType.QUOTABLE_PHRASE));
 	}
 }

@@ -29,7 +29,7 @@ class EnumArgument<E: Enum<E>>(
             val constants = clazz.enumConstants
             val enums = HashMap<String, E>(constants.size)
             for (enumeration in constants) {
-                if (!WordArgumentInfo.isAllowedWord(enumeration.name)) {
+                if (!CustomStringArgumentInfo.isAllowedWord(enumeration.name)) {
                     throw IllegalArgumentException("Enumeration ${enumeration.name} has invalid characters")
                 }
                 enums[enumeration.name] = enumeration

@@ -4,14 +4,17 @@ import com.google.gson.JsonObject
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
+import com.mojang.brigadier.arguments.StringArgumentType.StringType
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.synchronization.ArgumentTypeInfo
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.FriendlyByteBuf
 
-class WordArgumentInfo: ArgumentTypeInfo<ArgumentType<Any>, WordArgumentInfo.Properties>, CustomArgumentTypeInfo {
+class CustomStringArgumentInfo(
+    private val type: StringType
+): ArgumentTypeInfo<ArgumentType<Any>, CustomStringArgumentInfo.Properties>, CustomArgumentTypeInfo {
     override fun serializeToNetwork(template: Properties, buffer: FriendlyByteBuf) {
-        buffer.writeEnum(StringArgumentType.StringType.SINGLE_WORD)
+        buffer.writeEnum(this.type)
     }
 
     override fun deserializeFromNetwork(buffer: FriendlyByteBuf): Properties? {
@@ -23,7 +26,11 @@ class WordArgumentInfo: ArgumentTypeInfo<ArgumentType<Any>, WordArgumentInfo.Pro
     }
 
     override fun serializeToJson(template: Properties, json: JsonObject) {
-        json.addProperty("type", "word")
+        json.addProperty("type", when (this.type) {
+            StringType.QUOTABLE_PHRASE -> "phrase"
+            StringType.GREEDY_PHRASE -> "greedy"
+            else -> "word"
+        })
     }
 
     override fun getFacadeId(existing: Map<Class<*>, ArgumentTypeInfo<*, *>>): Int {
@@ -36,7 +43,7 @@ class WordArgumentInfo: ArgumentTypeInfo<ArgumentType<Any>, WordArgumentInfo.Pro
         }
 
         override fun type(): ArgumentTypeInfo<ArgumentType<Any>, *> {
-            return this@WordArgumentInfo
+            return this@CustomStringArgumentInfo
         }
     }
 

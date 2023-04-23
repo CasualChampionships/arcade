@@ -16,7 +16,7 @@ open class MappedArgument<T>(
 ): ArgumentType<T>, CustomArgumentType {
     init {
         for (name in this.options.keys) {
-            if (!WordArgumentInfo.isAllowedWord(name)) {
+            if (!CustomStringArgumentInfo.isAllowedWord(name)) {
                 throw IllegalArgumentException("Mapped key $name has invalid characters")
             }
         }
