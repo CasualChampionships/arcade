@@ -1,6 +1,7 @@
-package net.casualuhc.arcade.gui
+package net.casualuhc.arcade.gui.extensions
 
 import net.casualuhc.arcade.extensions.Extension
+import net.casualuhc.arcade.gui.ArcadeBossbar
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket
 import net.minecraft.server.level.ServerPlayer

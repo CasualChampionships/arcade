@@ -1,6 +1,7 @@
-package net.casualuhc.arcade.gui
+package net.casualuhc.arcade.gui.extensions
 
 import net.casualuhc.arcade.extensions.Extension
+import net.casualuhc.arcade.gui.ArcadeNameDisplay
 import net.minecraft.server.level.ServerPlayer
 
 class PlayerNameScoreExtension(

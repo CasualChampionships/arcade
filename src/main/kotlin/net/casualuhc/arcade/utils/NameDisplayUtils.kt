@@ -3,7 +3,7 @@ package net.casualuhc.arcade.utils
 import net.casualuhc.arcade.events.GlobalEventHandler
 import net.casualuhc.arcade.events.player.PlayerCreatedEvent
 import net.casualuhc.arcade.events.player.PlayerLeaveEvent
-import net.casualuhc.arcade.gui.PlayerNameScoreExtension
+import net.casualuhc.arcade.gui.extensions.PlayerNameScoreExtension
 import net.casualuhc.arcade.utils.PlayerUtils.addExtension
 import net.casualuhc.arcade.utils.PlayerUtils.getExtension
 import net.minecraft.server.level.ServerPlayer
