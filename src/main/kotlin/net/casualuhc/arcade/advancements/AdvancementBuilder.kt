@@ -123,7 +123,8 @@ class AdvancementBuilder private constructor() {
             ),
             this.rewards,
             this.criterion,
-            requirements
+            requirements,
+            false
         )
     }
 

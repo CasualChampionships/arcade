@@ -48,8 +48,8 @@ public class ServerPlayerMixin {
 			target = "Lnet/minecraft/world/entity/player/Player;checkFallDamage(DZLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V"
 		)
 	)
-	private void onFall(double y, boolean onGround, CallbackInfo ci) {
-		PlayerFallEvent event = new PlayerFallEvent((ServerPlayer) (Object) this, y, onGround);
+	private void onFall(double movementX, double movementY, double movementZ, boolean onGround, CallbackInfo ci) {
+		PlayerFallEvent event = new PlayerFallEvent((ServerPlayer) (Object) this, movementY, onGround);
 		GlobalEventHandler.broadcast(event);
 	}
 }

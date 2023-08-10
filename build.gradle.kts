@@ -32,7 +32,7 @@ dependencies {
     })
     modImplementation("net.fabricmc:fabric-loader:${property("loader_version")}")
 
-    modImplementation("xyz.nucleoid:server-translations-api:${property("server_translations_api_version")}")
+    // modImplementation("xyz.nucleoid:server-translations-api:${property("server_translations_api_version")}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin_version")}")
 
     // include(modImplementation("eu.pb4:sgui:1.2.1+1.19.3")!!)

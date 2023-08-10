@@ -40,7 +40,7 @@ public class LivingEntityMixin {
 	}
 
 	@WrapWithCondition(
-		method = "outOfWorld",
+		method = "onBelowWorld",
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z"

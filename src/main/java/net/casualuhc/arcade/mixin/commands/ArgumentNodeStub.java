@@ -1,15 +1,11 @@
 package net.casualuhc.arcade.mixin.commands;
 
 import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
 import net.casualuhc.arcade.commands.CustomArgumentType;
 import net.casualuhc.arcade.commands.CustomArgumentTypeInfo;
-import net.casualuhc.arcade.commands.EnumArgument;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
-import net.minecraft.commands.synchronization.SuggestionProviders;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

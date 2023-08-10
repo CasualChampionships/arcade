@@ -21,7 +21,7 @@ public abstract class RandomizableContainerBlockEntityMixin {
 		method = "unpackLootTable",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/level/storage/loot/LootTable;fill(Lnet/minecraft/world/Container;Lnet/minecraft/world/level/storage/loot/LootContext;)V",
+			target = "Lnet/minecraft/world/level/storage/loot/LootTable;fill(Lnet/minecraft/world/Container;Lnet/minecraft/world/level/storage/loot/LootParams;J)V",
 			shift = At.Shift.AFTER
 		)
 	)

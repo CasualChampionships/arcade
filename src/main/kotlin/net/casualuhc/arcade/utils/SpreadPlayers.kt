@@ -4,12 +4,12 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.BlockPos.MutableBlockPos
 import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.tags.BlockTags
 import net.minecraft.util.Mth
 import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.BlockGetter
-import net.minecraft.world.level.material.Material
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.scores.Team
 import kotlin.math.sqrt
@@ -196,8 +196,7 @@ internal object SpreadPlayers {
         fun isSafe(level: BlockGetter, y: Int): Boolean {
             val blockPos = BlockPos.containing(x, (getSpawnY(level, y) - 1).toDouble(), z)
             val blockState = level.getBlockState(blockPos)
-            val material = blockState.material
-            return blockPos.y < y && !material.isLiquid && material != Material.FIRE
+            return blockPos.y < y && blockState.liquid() && blockState.`is`(BlockTags.FIRE)
         }
 
         fun randomize(random: RandomSource, minX: Double, minZ: Double, maxX: Double, maxZ: Double): Position {

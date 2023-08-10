@@ -37,7 +37,7 @@ import kotlin.math.abs
 object PlayerUtils {
     @JvmStatic
     val ServerPlayer.location
-        get() = Location(this.getLevel(), Vec3(this.x, this.y, this.z), Vec2(this.xRot, this.yRot))
+        get() = Location(this.serverLevel(), Vec3(this.x, this.y, this.z), Vec2(this.xRot, this.yRot))
 
     @JvmStatic
     val ServerPlayer.isSurvival get() = this.isGameMode(GameType.SURVIVAL)
@@ -183,7 +183,7 @@ object PlayerUtils {
 
     @JvmStatic
     fun ServerPlayer.distanceToBorders(): Vec3 {
-        val border = this.level.worldBorder
+        val border = this.level().worldBorder
         val distanceToEast = this.x - border.minX
         val distanceToWest = border.maxX - this.x
         val distanceToNorth = this.z - border.minZ
@@ -207,7 +207,7 @@ object PlayerUtils {
 
     @JvmStatic
     fun ServerPlayer.directionVectorToBorders(): Vec3 {
-        val border = this.level.worldBorder
+        val border = this.level().worldBorder
         val distanceToEast = this.x - border.minX
         val distanceToWest = border.maxX - this.x
         val distanceToNorth = this.z - border.minZ
