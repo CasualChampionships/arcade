@@ -9,6 +9,7 @@ import java.math.BigInteger
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.security.MessageDigest
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.random.Random
@@ -35,8 +36,8 @@ class ResourcePackHost(
         return this.hosted[zipped]
     }
 
-    fun start(hostIp: String? = null, hostPort: Int = 24464, randomise: Boolean = false) {
-        this.executor.execute {
+    fun start(hostIp: String? = null, hostPort: Int = 24464, randomise: Boolean = false): CompletableFuture<Void> {
+        return CompletableFuture.runAsync({
             val restart = this.server !== null
             this.hosted.clear()
             this.server?.stop(0)
@@ -75,7 +76,7 @@ class ResourcePackHost(
             } catch (e: Exception) {
                 this.logger.error("Failed to start the ResourcePackHost!", e)
             }
-        }
+        }, this.executor)
     }
 
     fun shutdown() {
