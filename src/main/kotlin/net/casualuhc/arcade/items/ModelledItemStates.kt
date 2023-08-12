@@ -24,7 +24,7 @@ class ModelledItemStates(
         this.client = this.polymer.getPolymerItem(this.polymer.defaultInstance, null)
     }
 
-    fun create(id: ResourceLocation): ResourceLocation {
+    fun createModel(id: ResourceLocation): ResourceLocation {
         this.states.add(id)
         // Load it for pack
         this.creator.requestModel(this.client, id)
