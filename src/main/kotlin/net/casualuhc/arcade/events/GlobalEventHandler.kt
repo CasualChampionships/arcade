@@ -57,14 +57,15 @@ object GlobalEventHandler {
                 return
             }
         }
-        this.stack.push(type)
-
-        for (handler in this.handlers) {
-            @Suppress("UNCHECKED_CAST")
-            listeners.addSorted(handler.getListenersFor(type) as List<EventListener<T>>)
-        }
 
         try {
+            this.stack.push(type)
+
+            for (handler in this.handlers) {
+                @Suppress("UNCHECKED_CAST")
+                listeners.addSorted(handler.getListenersFor(type) as List<EventListener<T>>)
+            }
+
             for (listener in listeners) {
                 listener.invoke(event)
             }
