@@ -1,9 +1,16 @@
 package net.casualuhc.arcade.utils
 
 import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.nbt.ByteTag
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.DoubleTag
+import net.minecraft.nbt.FloatTag
+import net.minecraft.nbt.IntTag
 import net.minecraft.nbt.ListTag
+import net.minecraft.nbt.LongTag
+import net.minecraft.nbt.ShortTag
 import net.minecraft.nbt.StringTag
+import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.*
 import net.minecraft.world.item.alchemy.Potion
@@ -41,6 +48,47 @@ object ItemUtils {
             list.add(StringTag.valueOf(Component.Serializer.toJson(component)))
         }
         this.addTagElement(ItemStack.TAG_LORE, list)
+    }
+
+    @JvmStatic
+    fun ItemStack.putElement(key: String, tag: Tag): ItemStack {
+        this.addTagElement(key, tag)
+        return this
+    }
+
+    @JvmStatic
+    fun ItemStack.putIntElement(key: String, int: Int): ItemStack {
+        return this.putElement(key, IntTag.valueOf(int))
+    }
+
+    @JvmStatic
+    fun ItemStack.putByteElement(key: String, byte: Byte): ItemStack {
+        return this.putElement(key, ByteTag.valueOf(byte))
+    }
+
+    @JvmStatic
+    fun ItemStack.putShortElement(key: String, short: Short): ItemStack {
+        return this.putElement(key, ShortTag.valueOf(short))
+    }
+
+    @JvmStatic
+    fun ItemStack.putLongElement(key: String, long: Long): ItemStack {
+        return this.putElement(key, LongTag.valueOf(long))
+    }
+
+    @JvmStatic
+    fun ItemStack.putFloatElement(key: String, float: Float): ItemStack {
+        return this.putElement(key, FloatTag.valueOf(float))
+    }
+
+    @JvmStatic
+    fun ItemStack.putDoubleElement(key: String, double: Double): ItemStack {
+        return this.putElement(key, DoubleTag.valueOf(double))
+    }
+
+    @JvmStatic
+    fun ItemStack.putStringElement(key: String, string: String): ItemStack {
+        return this.putElement(key, StringTag.valueOf(string))
     }
 
     @JvmStatic
