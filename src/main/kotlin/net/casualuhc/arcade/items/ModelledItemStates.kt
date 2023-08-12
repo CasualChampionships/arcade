@@ -57,7 +57,7 @@ class ModelledItemStates(
     }
 
     fun getServerItem(): Item {
-        return this.client
+        return this.server
     }
 
     fun getClientItem(): Item {
