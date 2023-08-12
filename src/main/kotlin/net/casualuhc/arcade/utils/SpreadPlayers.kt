@@ -196,7 +196,7 @@ internal object SpreadPlayers {
         fun isSafe(level: BlockGetter, y: Int): Boolean {
             val blockPos = BlockPos.containing(x, (getSpawnY(level, y) - 1).toDouble(), z)
             val blockState = level.getBlockState(blockPos)
-            return blockPos.y < y && blockState.liquid() && blockState.`is`(BlockTags.FIRE)
+            return blockPos.y < y && !blockState.liquid() && !blockState.`is`(BlockTags.FIRE)
         }
 
         fun randomize(random: RandomSource, minX: Double, minZ: Double, maxX: Double, maxZ: Double): Position {
