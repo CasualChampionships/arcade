@@ -31,7 +31,7 @@ public class PlayerListMixin {
 			target = "Lnet/minecraft/server/level/ServerLevel;getWorldBorder()Lnet/minecraft/world/level/border/WorldBorder;"
 		)
 	)
-	private WorldBorder onGetWorldBorder(ServerLevel instance, ServerPlayer player, ServerLevel level) {
-		return (BorderUtils.INSTANCE.getSynced() ? instance : level).getWorldBorder();
+	private WorldBorder onGetWorldBorder(WorldBorder border, ServerPlayer player, ServerLevel level) {
+		return BorderUtils.INSTANCE.getSynced() ? border : level.getWorldBorder();
 	}
 }
