@@ -33,11 +33,11 @@ public class ServerPlayerMixin {
 	}
 
 	@Inject(
-		method = "changeDimension",
-		at = @At("RETURN")
+		method = "setServerLevel",
+		at = @At("HEAD")
 	)
-	private void onChangeDimension(ServerLevel destination, CallbackInfoReturnable<Entity> cir) {
-		PlayerDimensionChangeEvent event = new PlayerDimensionChangeEvent((ServerPlayer) (Object) this, destination);
+	private void onChangeDimension(ServerLevel level, CallbackInfo ci) {
+		PlayerDimensionChangeEvent event = new PlayerDimensionChangeEvent((ServerPlayer) (Object) this, level);
 		GlobalEventHandler.broadcast(event);
 	}
 
