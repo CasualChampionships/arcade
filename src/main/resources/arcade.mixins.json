@@ -29,7 +29,9 @@
     "extensions.ServerLevelMixin",
     "extensions.ServerPlayerMixin",
     "recipes.ClientboundUpdateRecipesPacketMixin",
-    "recipes.RecipeManagerMixin"
+    "recipes.RecipeManagerMixin",
+    "worldborder.MinecraftServerMixin",
+    "worldborder.PlayerListMixin"
   ],
   "injectors": {
     "defaultRequire": 1
