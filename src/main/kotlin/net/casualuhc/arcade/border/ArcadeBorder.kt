@@ -96,4 +96,8 @@ abstract class ArcadeBorder: WorldBorder() {
     public override fun getListeners(): MutableList<BorderChangeListener> {
         return super.getListeners()
     }
+
+    fun isStationary(): Boolean {
+        return this.status === BorderStatus.STATIONARY
+    }
 }
