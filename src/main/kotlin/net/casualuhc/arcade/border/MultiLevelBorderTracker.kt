@@ -31,6 +31,10 @@ class MultiLevelBorderTracker {
         this.listeners.forEach { it.onInitialiseBorder(this.tracking) }
     }
 
+    fun getAllTracking(): Map<TrackedBorder, ServerLevel> {
+        return this.tracking
+    }
+
     internal fun onBorderComplete(border: TrackedBorder) {
         this.completed.add(border)
         this.listeners.forEach { it.onSingleBorderComplete(border, this.tracking[border]!!) }
