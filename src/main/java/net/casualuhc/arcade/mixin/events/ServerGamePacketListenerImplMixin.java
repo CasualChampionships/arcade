@@ -71,6 +71,7 @@ public class ServerGamePacketListenerImplMixin {
 	)
 	private Packet<?> onSendPacket(Packet<?> packet) {
 		PlayerClientboundPacketEvent event = new PlayerClientboundPacketEvent(this.player, packet);
+		GlobalEventHandler.broadcast(event);
 		if (event.isCancelled()) {
 			return event.result();
 		}
