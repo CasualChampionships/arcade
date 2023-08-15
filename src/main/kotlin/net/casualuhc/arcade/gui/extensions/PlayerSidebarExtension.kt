@@ -33,6 +33,7 @@ class PlayerSidebarExtension(
             if (previous == replacement) {
                 continue
             }
+            this.previousRows[index] = replacement
             SidebarUtils.sendPlayerTeamUpdatePacket(this.owner, index, false, replacement)
             SidebarUtils.sendSetScorePacket(this.owner, index, ServerScoreboard.Method.CHANGE)
         }
@@ -54,7 +55,7 @@ class PlayerSidebarExtension(
     internal fun setRow(index: Int, component: Component) {
         this.previousRows[index] = component
         for (i in index until this.previousRows.size) {
-            SidebarUtils.sendPlayerTeamUpdatePacket(this.owner, index, false, component)
+            SidebarUtils.sendPlayerTeamUpdatePacket(this.owner, index, false, this.previousRows[i])
             SidebarUtils.sendSetScorePacket(this.owner, index, ServerScoreboard.Method.CHANGE)
         }
     }
