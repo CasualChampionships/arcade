@@ -1,4 +1,4 @@
-package net.casualuhc.arcade.gui
+package net.casualuhc.arcade.gui.display
 
 import net.casualuhc.arcade.utils.NameDisplayUtils.nameDisplay
 import net.casualuhc.arcade.utils.ScoreboardUtils

@@ -1,38 +1,20 @@
-package net.casualuhc.arcade.gui
+package net.casualuhc.arcade.gui.bossbar
 
 import net.casualuhc.arcade.gui.suppliers.*
 import net.casualuhc.arcade.utils.BossbarUtils.bossbars
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.server.network.ServerGamePacketListenerImpl
-import net.minecraft.util.Mth
-import java.util.*
+import net.minecraft.world.BossEvent
 
 class ArcadeBossbar(
-    title: ComponentSupplier,
-    progress: ProgressSupplier,
-    colour: ColourSupplier,
-    style: OverlaySupplier
-) {
-    private val connections = HashSet<ServerGamePacketListenerImpl>()
-    val uuid: UUID = Mth.createInsecureUUID()
-
-    var title = title
-        private set
-    var progress = progress
-        private set
-    var colour = colour
-        private set
-    var overlay = style
-        private set
-    var dark = BooleanSupplier.alwaysFalse()
-        private set
-    var music = BooleanSupplier.alwaysFalse()
-        private set
-    var fog = BooleanSupplier.alwaysFalse()
-        private set
-
-    var interval = 1
-        private set
+    private var title: ComponentSupplier,
+    private var progress: ProgressSupplier,
+    private var colour: ColourSupplier,
+    private var overlay: OverlaySupplier
+): CustomBossBar() {
+    private var dark = BooleanSupplier.alwaysFalse()
+    private var music = BooleanSupplier.alwaysFalse()
+    private var fog = BooleanSupplier.alwaysFalse()
 
     fun setTitle(title: ComponentSupplier) {
         this.title = title
@@ -86,29 +68,31 @@ class ArcadeBossbar(
         }
     }
 
-    fun setInterval(interval: Int) {
-        this.interval = interval.coerceAtLeast(1)
+    override fun getTitle(player: ServerPlayer): Component {
+        return this.title.getComponent(player)
     }
 
-    fun addPlayer(player: ServerPlayer) {
-        if (this.connections.add(player.connection)) {
-            player.bossbars.add(this)
-        }
+    override fun getProgress(player: ServerPlayer): Float {
+        return this.progress.getProgress(player)
     }
 
-    fun removePlayer(player: ServerPlayer) {
-        if (this.connections.remove(player.connection)) {
-            player.bossbars.remove(this)
-        }
+    override fun getColour(player: ServerPlayer): BossEvent.BossBarColor {
+        return this.colour.getColour(player)
     }
 
-    fun clearPlayers() {
-        for (player in this.getPlayers()) {
-            this.removePlayer(player)
-        }
+    override fun getOverlay(player: ServerPlayer): BossEvent.BossBarOverlay {
+        return this.overlay.getOverlay(player)
     }
 
-    fun getPlayers(): List<ServerPlayer> {
-        return this.connections.map { it.player }
+    override fun isDark(player: ServerPlayer): Boolean {
+        return this.dark.get(player)
+    }
+
+    override fun hasMusic(player: ServerPlayer): Boolean {
+        return this.music.get(player)
+    }
+
+    override fun hasFog(player: ServerPlayer): Boolean {
+        return this.fog.get(player)
     }
 }

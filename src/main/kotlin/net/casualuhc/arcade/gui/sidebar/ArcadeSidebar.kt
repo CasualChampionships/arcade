@@ -1,4 +1,4 @@
-package net.casualuhc.arcade.gui
+package net.casualuhc.arcade.gui.sidebar
 
 import net.casualuhc.arcade.gui.suppliers.ComponentSupplier
 import net.casualuhc.arcade.utils.SidebarUtils
