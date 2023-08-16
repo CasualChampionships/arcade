@@ -5,4 +5,4 @@ import net.minecraft.server.MinecraftServer
 
 data class ServerTickEvent(
     val server: MinecraftServer
-): Event()
+): Event

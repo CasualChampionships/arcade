@@ -15,4 +15,4 @@ import net.minecraft.server.MinecraftServer
  */
 data class ServerCreatedEvent(
     val server: MinecraftServer
-): Event()
+): Event

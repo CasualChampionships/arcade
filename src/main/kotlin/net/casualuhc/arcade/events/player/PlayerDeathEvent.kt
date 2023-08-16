@@ -5,9 +5,9 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.damagesource.DamageSource
 
 data class PlayerDeathEvent(
-    val player: ServerPlayer,
+    override val player: ServerPlayer,
     val source: DamageSource
-): InvokableEvent<Unit>() {
+): InvokableEvent<Unit>(), PlayerEvent {
     override fun execute() {
         return this.player.die(this.source)
     }

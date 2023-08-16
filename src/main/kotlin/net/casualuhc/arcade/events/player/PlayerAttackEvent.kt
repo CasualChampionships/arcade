@@ -5,7 +5,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 
 data class PlayerAttackEvent(
-    val player: ServerPlayer,
+    override val player: ServerPlayer,
     val target: Entity,
     val damage: Float
-): CancellableEvent.Typed<Float>()
+): CancellableEvent.Typed<Float>(), PlayerEvent

@@ -1,7 +1,7 @@
 package net.casualuhc.arcade.gui.extensions
 
 import net.casualuhc.arcade.extensions.Extension
-import net.casualuhc.arcade.gui.ArcadeBossbar
+import net.casualuhc.arcade.gui.bossbar.CustomBossBar
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket
 import net.minecraft.server.level.ServerPlayer
@@ -11,7 +11,7 @@ import java.util.*
 class PlayerBossbarsExtension(
     private val owner: ServerPlayer
 ): Extension {
-    private val bossbars = HashMap<ArcadeBossbar, PlayerBossEvent>()
+    private val bossbars = HashMap<CustomBossBar, PlayerBossEvent>()
 
     internal fun tick() {
         for ((bar, data) in this.bossbars) {
@@ -26,52 +26,52 @@ class PlayerBossbarsExtension(
         }
     }
 
-    internal fun add(bar: ArcadeBossbar) {
+    internal fun add(bar: CustomBossBar) {
         if (this.bossbars.containsKey(bar)) {
             return
         }
 
         val data = PlayerBossEvent(
             bar.uuid,
-            bar.title.getComponent(this.owner),
-            bar.colour.getColour(this.owner),
-            bar.overlay.getOverlay(this.owner)
+            bar.getTitle(this.owner),
+            bar.getColour(this.owner),
+            bar.getOverlay(this.owner)
         )
-        data.progress = bar.progress.getProgress(this.owner)
-        data.setDarkenScreen(bar.dark.get(this.owner))
-        data.setPlayBossMusic(bar.music.get(this.owner))
-        data.setCreateWorldFog(bar.fog.get(this.owner))
+        data.progress = bar.getProgress(this.owner)
+        data.setDarkenScreen(bar.isDark(this.owner))
+        data.setPlayBossMusic(bar.hasMusic(this.owner))
+        data.setCreateWorldFog(bar.hasFog(this.owner))
         this.bossbars[bar] = data
         this.owner.connection.send(ClientboundBossEventPacket.createAddPacket(data))
     }
 
-    internal fun remove(bar: ArcadeBossbar) {
+    internal fun remove(bar: CustomBossBar) {
         this.bossbars.remove(bar)
         this.owner.connection.send(ClientboundBossEventPacket.createRemovePacket(bar.uuid))
     }
 
-    internal fun updateTitle(bar: ArcadeBossbar) {
+    internal fun updateTitle(bar: CustomBossBar) {
         val data = this.bossbars[bar] ?: return
-        val new = bar.title.getComponent(this.owner)
+        val new = bar.getTitle(this.owner)
         if (new != data.name) {
             data.name = new
             this.owner.connection.send(ClientboundBossEventPacket.createUpdateNamePacket(data))
         }
     }
 
-    internal fun updateProgress(bar: ArcadeBossbar) {
+    internal fun updateProgress(bar: CustomBossBar) {
         val data = this.bossbars[bar] ?: return
-        val new = bar.progress.getProgress(this.owner)
+        val new = bar.getProgress(this.owner)
         if (new != data.progress) {
             data.progress = new
             this.owner.connection.send(ClientboundBossEventPacket.createUpdateProgressPacket(data))
         }
     }
 
-    internal fun updateStyle(bar: ArcadeBossbar) {
+    internal fun updateStyle(bar: CustomBossBar) {
         val data = this.bossbars[bar] ?: return
-        val newColour = bar.colour.getColour(this.owner)
-        val newOverlay = bar.overlay.getOverlay(this.owner)
+        val newColour = bar.getColour(this.owner)
+        val newOverlay = bar.getOverlay(this.owner)
         if (newColour != data.color || newOverlay != data.overlay) {
             data.color = newColour
             data.overlay = newOverlay
@@ -79,11 +79,11 @@ class PlayerBossbarsExtension(
         }
     }
 
-    internal fun updateProperties(bar: ArcadeBossbar) {
+    internal fun updateProperties(bar: CustomBossBar) {
         val data = this.bossbars[bar] ?: return
-        val newDark = bar.dark.get(this.owner)
-        val newMusic = bar.music.get(this.owner)
-        val newFog = bar.fog.get(this.owner)
+        val newDark = bar.isDark(this.owner)
+        val newMusic = bar.hasMusic(this.owner)
+        val newFog = bar.hasFog(this.owner)
         if (newDark != data.shouldDarkenScreen() || newMusic != data.shouldPlayBossMusic() || newFog != data.shouldCreateWorldFog()) {
             data.setDarkenScreen(newDark)
             data.setPlayBossMusic(newMusic)

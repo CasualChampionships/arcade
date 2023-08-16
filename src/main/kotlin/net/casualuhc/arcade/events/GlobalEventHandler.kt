@@ -1,7 +1,7 @@
 package net.casualuhc.arcade.events
 
-import net.casualuhc.arcade.events.GlobalEventHandler.broadcast
 import net.casualuhc.arcade.events.GlobalEventHandler.addHandler
+import net.casualuhc.arcade.events.GlobalEventHandler.broadcast
 import net.casualuhc.arcade.events.core.Event
 import net.casualuhc.arcade.utils.CollectionUtils.addSorted
 import org.apache.logging.log4j.LogManager

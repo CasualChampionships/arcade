@@ -5,5 +5,5 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 
 data class PlayerJoinEvent(
-    val player: ServerPlayer
-): CancellableEvent.Typed<Component>()
+    override val player: ServerPlayer
+): CancellableEvent.Typed<Component>(), PlayerEvent

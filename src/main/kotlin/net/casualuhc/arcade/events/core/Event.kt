@@ -11,4 +11,4 @@ import net.casualuhc.arcade.events.GlobalEventHandler
  * @see CancellableEvent
  * @see GlobalEventHandler
  */
-abstract class Event
+interface Event

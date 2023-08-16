@@ -5,4 +5,4 @@ import net.minecraft.world.scores.PlayerTeam
 
 data class TeamCreatedEvent(
     val team: PlayerTeam
-): Event()
+): Event

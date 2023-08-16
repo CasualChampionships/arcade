@@ -6,8 +6,8 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 
 data class PlayerItemReleaseEvent(
-    val player: ServerPlayer,
+    override val player: ServerPlayer,
     val stack: ItemStack,
     val level: Level,
     val ticks: Int
-): CancellableEvent.Default()
+): CancellableEvent.Default(), PlayerEvent

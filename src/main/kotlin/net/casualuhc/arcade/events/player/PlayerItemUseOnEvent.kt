@@ -7,7 +7,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.context.UseOnContext
 
 data class PlayerItemUseOnEvent(
-    val player: ServerPlayer,
+    override val player: ServerPlayer,
     val stack: ItemStack,
     val context: UseOnContext
-): CancellableEvent.Typed<InteractionResult>()
+): CancellableEvent.Typed<InteractionResult>(), PlayerEvent

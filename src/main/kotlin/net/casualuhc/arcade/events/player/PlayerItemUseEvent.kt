@@ -8,8 +8,8 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 
 data class PlayerItemUseEvent(
-    val player: ServerPlayer,
+    override val player: ServerPlayer,
     val stack: ItemStack,
     val level: Level,
     val hand: InteractionHand
-): CancellableEvent.Typed<InteractionResultHolder<ItemStack>>()
+): CancellableEvent.Typed<InteractionResultHolder<ItemStack>>(), PlayerEvent

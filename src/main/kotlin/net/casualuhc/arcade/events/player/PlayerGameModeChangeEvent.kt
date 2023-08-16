@@ -5,7 +5,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.GameType
 
 data class PlayerGameModeChangeEvent(
-    val player: ServerPlayer,
+    override val player: ServerPlayer,
     val previous: GameType,
     val current: GameType
-): CancellableEvent.Default()
+): CancellableEvent.Default(), PlayerEvent

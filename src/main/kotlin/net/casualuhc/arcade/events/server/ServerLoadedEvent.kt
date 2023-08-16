@@ -12,4 +12,4 @@ import net.minecraft.server.MinecraftServer
  */
 data class ServerLoadedEvent(
     val server: MinecraftServer
-): Event()
+): Event

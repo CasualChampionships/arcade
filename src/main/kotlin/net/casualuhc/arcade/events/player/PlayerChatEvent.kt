@@ -5,6 +5,6 @@ import net.minecraft.network.chat.PlayerChatMessage
 import net.minecraft.server.level.ServerPlayer
 
 data class PlayerChatEvent(
-    val player: ServerPlayer,
+    override val player: ServerPlayer,
     val message: PlayerChatMessage
-): CancellableEvent.Default()
+): CancellableEvent.Default(), PlayerEvent

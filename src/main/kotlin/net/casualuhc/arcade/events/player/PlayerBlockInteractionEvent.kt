@@ -9,9 +9,9 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.phys.BlockHitResult
 
 data class PlayerBlockInteractionEvent(
-    val player: ServerPlayer,
+    override val player: ServerPlayer,
     val level: Level,
     val stack: ItemStack,
     val hand: InteractionHand,
     val result: BlockHitResult
-): CancellableEvent.Typed<InteractionResult>()
+): CancellableEvent.Typed<InteractionResult>(), PlayerEvent

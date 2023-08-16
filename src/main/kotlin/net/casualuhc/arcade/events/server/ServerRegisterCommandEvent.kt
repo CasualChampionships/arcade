@@ -8,4 +8,4 @@ import net.minecraft.commands.CommandSourceStack
 data class ServerRegisterCommandEvent(
     val dispatcher: CommandDispatcher<CommandSourceStack>,
     val context: CommandBuildContext
-): Event()
+): Event

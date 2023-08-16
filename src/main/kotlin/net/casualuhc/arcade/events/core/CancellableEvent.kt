@@ -19,7 +19,7 @@ import net.casualuhc.arcade.utils.Wrapper
  *
  * @see Event
  */
-sealed class CancellableEvent: Event() {
+sealed class CancellableEvent: Event {
     /**
      * Whether the event is cancelled.
      */

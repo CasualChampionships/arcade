@@ -7,8 +7,8 @@ import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.level.block.state.BlockState
 
 data class PlayerBlockPlacedEvent(
-    val player: ServerPlayer,
+    override val player: ServerPlayer,
     val item: BlockItem,
     val state: BlockState,
     val context: BlockPlaceContext
-): CancellableEvent.Default()
+): CancellableEvent.Default(), PlayerEvent

@@ -5,6 +5,6 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.block.state.BlockState
 
 data class PlayerBlockCollisionEvent(
-    val entity: ServerPlayer,
+    override val player: ServerPlayer,
     val state: BlockState
-): CancellableEvent.Default()
+): CancellableEvent.Default(), PlayerEvent

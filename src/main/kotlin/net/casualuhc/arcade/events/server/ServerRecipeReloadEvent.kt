@@ -4,12 +4,12 @@ import net.casualuhc.arcade.events.core.Event
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.world.item.crafting.Recipe
 import net.minecraft.world.item.crafting.RecipeManager
-import java.util.LinkedList
+import java.util.*
 
 data class ServerRecipeReloadEvent(
     val recipeManager: RecipeManager,
     val resourceManager: ResourceManager
-): Event() {
+): Event {
     private val recipes = LinkedList<Recipe<*>>()
 
     fun add(recipe: Recipe<*>) {

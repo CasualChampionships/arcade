@@ -5,9 +5,9 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.damagesource.DamageSource
 
 data class PlayerLandEvent(
-    val player: ServerPlayer,
+    override val player: ServerPlayer,
     val damage: Int,
     val distance: Float,
     val multiplier: Float,
     val source: DamageSource
-): CancellableEvent.Typed<Int>()
+): CancellableEvent.Typed<Int>(), PlayerEvent

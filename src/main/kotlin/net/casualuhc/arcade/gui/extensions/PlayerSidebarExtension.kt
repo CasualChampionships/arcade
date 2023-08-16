@@ -1,7 +1,7 @@
 package net.casualuhc.arcade.gui.extensions
 
 import net.casualuhc.arcade.extensions.Extension
-import net.casualuhc.arcade.gui.ArcadeSidebar
+import net.casualuhc.arcade.gui.sidebar.ArcadeSidebar
 import net.casualuhc.arcade.utils.SidebarUtils
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket.*

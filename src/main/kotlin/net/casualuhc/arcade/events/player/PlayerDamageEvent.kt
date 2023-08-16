@@ -5,7 +5,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.damagesource.DamageSource
 
 data class PlayerDamageEvent(
-    val player: ServerPlayer,
+    override val player: ServerPlayer,
     val amount: Float,
     val source: DamageSource
-): CancellableEvent.Typed<Float>()
+): CancellableEvent.Typed<Float>(), PlayerEvent

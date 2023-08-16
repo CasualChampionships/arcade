@@ -5,6 +5,6 @@ import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
 
 data class PlayerClientboundPacketEvent(
-    val player: ServerPlayer,
+    override val player: ServerPlayer,
     val packet: Packet<*>
-): CancellableEvent.Typed<Packet<*>>()
+): CancellableEvent.Typed<Packet<*>>(), PlayerEvent

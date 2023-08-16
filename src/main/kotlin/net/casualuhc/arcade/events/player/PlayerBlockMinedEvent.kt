@@ -7,8 +7,8 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
 
 data class PlayerBlockMinedEvent(
-    val player: ServerPlayer,
+    override val player: ServerPlayer,
     val pos: BlockPos,
     val state: BlockState,
     val entity: BlockEntity?
-): CancellableEvent.Default()
+): CancellableEvent.Default(), PlayerEvent
