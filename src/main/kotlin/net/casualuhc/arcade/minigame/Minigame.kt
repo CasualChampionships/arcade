@@ -14,7 +14,8 @@ abstract class Minigame {
     private val events = EventHandler()
 
     fun addPlayer(player: ServerPlayer) {
-        if (this.connections.add(player.connection)) {
+        if (!this.hasPlayer(player) && this.willAcceptPlayer(player)) {
+            this.connections.add(player.connection)
             player.minigame.setMinigame(this)
             this.onAddPlayer(player)
         }
@@ -34,6 +35,8 @@ abstract class Minigame {
     fun hasPlayer(player: ServerPlayer): Boolean {
         return this.connections.contains(player.connection)
     }
+
+    protected abstract fun willAcceptPlayer(player: ServerPlayer): Boolean
 
     protected abstract fun onAddPlayer(player: ServerPlayer)
 
