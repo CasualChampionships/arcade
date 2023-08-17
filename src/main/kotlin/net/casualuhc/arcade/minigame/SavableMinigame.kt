@@ -28,9 +28,9 @@ abstract class SavableMinigame(
         this.registerMinigameEvent<MinigameCloseEvent> { this.saveData() }
     }
 
-    protected abstract fun readData(tag: JsonObject)
+    protected abstract fun readData(json: JsonObject)
 
-    protected abstract fun writeData(tag: JsonObject)
+    protected abstract fun writeData(json: JsonObject)
 
     protected abstract fun createTask(id: String, data: JsonObject): Task?
 
