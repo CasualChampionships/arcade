@@ -4,7 +4,7 @@ import net.casualuhc.arcade.extensions.Extension
 import net.casualuhc.arcade.gui.display.ArcadeNameDisplay
 import net.minecraft.server.level.ServerPlayer
 
-class PlayerNameScoreExtension(
+internal class PlayerNameScoreExtension(
     private val owner: ServerPlayer
 ): Extension {
     private var score: ArcadeNameDisplay? = null

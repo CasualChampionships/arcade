@@ -8,7 +8,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.BossEvent
 import java.util.*
 
-class PlayerBossbarsExtension(
+internal class PlayerBossbarsExtension(
     private val owner: ServerPlayer
 ): Extension {
     private val bossbars = HashMap<CustomBossBar, PlayerBossEvent>()

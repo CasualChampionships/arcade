@@ -8,7 +8,7 @@ import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket.*
 import net.minecraft.server.ServerScoreboard
 import net.minecraft.server.level.ServerPlayer
 
-class PlayerSidebarExtension(
+internal class PlayerSidebarExtension(
     private val owner: ServerPlayer
 ): Extension {
     private val previousRows = ArrayList<Component>()
