@@ -25,6 +25,7 @@ abstract class Minigame(
 
     internal val phases = HashSet(this.getPhases())
     internal val scheduler = TickedScheduler()
+    internal val tasks = ArrayDeque<Task>()
 
     var phase = MinigamePhase.NONE
         internal set
@@ -61,6 +62,11 @@ abstract class Minigame(
         }
         this.scheduler.tasks.clear()
         this.phase = phase
+
+        for (task in this.tasks) {
+            task.run()
+        }
+        this.tasks.clear()
 
         GlobalEventHandler.broadcast(MinigameSetPhaseEvent(this, phase))
     }
@@ -112,6 +118,14 @@ abstract class Minigame(
     }
 
     protected abstract fun getPhases(): Collection<MinigamePhase>
+
+    protected fun schedulePhaseEndTask(task: Task) {
+        this.tasks.add(task)
+    }
+
+    protected fun schedulePhaseEndTask(runnable: Runnable) {
+        this.tasks.add(Task.of(runnable))
+    }
 
     protected fun schedulePhaseTask(time: Int, unit: MinecraftTimeUnit, task: Task) {
         this.scheduler.schedule(time, unit, task)

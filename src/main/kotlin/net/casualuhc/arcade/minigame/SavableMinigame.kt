@@ -64,6 +64,19 @@ abstract class SavableMinigame(
             }
         }
 
+        val endTasks = json.array("end_tasks")
+        for (data in endTasks.objects()) {
+            val id = data.string("id")
+            val custom = data.getObject("custom")
+            val task = this.createTask(id, custom)
+            if (task !== null) {
+                Arcade.logger.info("Successfully loaded end task $id for minigame ${this.id}")
+                this.schedulePhaseEndTask(task)
+            } else {
+                Arcade.logger.warn("Saved task $id for minigame ${this.id} could not be reloaded!")
+            }
+        }
+
         this.readData(json.getObject("custom"))
     }
 
@@ -83,6 +96,18 @@ abstract class SavableMinigame(
                     data.add("custom", custom)
                     tasks.add(data)
                 }
+            }
+        }
+
+        val endTasks = JsonArray()
+        for (task in this.tasks) {
+            if (task is SavableTask) {
+                val data = JsonObject()
+                val custom = JsonObject()
+                task.writeData(custom)
+                data.addProperty("name", task.id)
+                data.add("custom", custom)
+                endTasks.add(data)
             }
         }
 
