@@ -5,7 +5,7 @@ import com.google.gson.JsonObject
 abstract class SavableTask: Task() {
     abstract val id: String
 
-    open fun writeData(tag: JsonObject) {
+    open fun writeData(json: JsonObject) {
 
     }
 }
