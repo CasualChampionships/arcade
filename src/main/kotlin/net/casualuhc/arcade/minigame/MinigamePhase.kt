@@ -1,19 +1,19 @@
 package net.casualuhc.arcade.minigame
 
-interface MinigamePhase: Comparable<MinigamePhase> {
+interface MinigamePhase {
     val id: String
     val ordinal: Int
 
-    override fun compareTo(other: MinigamePhase): Int {
+    operator fun compareTo(other: MinigamePhase): Int {
         return this.ordinal.compareTo(other.ordinal)
     }
 
+    private class None: MinigamePhase {
+        override val id: String = "none"
+        override val ordinal: Int = -1
+    }
+
     companion object {
-        val NONE = object: MinigamePhase {
-            override val id: String
-                get() = "none"
-            override val ordinal: Int
-                get() = -1
-        }
+        val NONE: MinigamePhase = None()
     }
 }
