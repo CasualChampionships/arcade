@@ -3,6 +3,7 @@ package net.casualuhc.arcade.minigame
 import net.casualuhc.arcade.events.EventHandler
 import net.casualuhc.arcade.events.GlobalEventHandler
 import net.casualuhc.arcade.events.core.Event
+import net.casualuhc.arcade.events.level.LevelEvent
 import net.casualuhc.arcade.events.minigame.*
 import net.casualuhc.arcade.events.player.PlayerEvent
 import net.casualuhc.arcade.events.server.ServerStoppedEvent
@@ -10,29 +11,42 @@ import net.casualuhc.arcade.events.server.ServerTickEvent
 import net.casualuhc.arcade.scheduler.MinecraftTimeUnit
 import net.casualuhc.arcade.scheduler.Task
 import net.casualuhc.arcade.scheduler.TickedScheduler
+import net.casualuhc.arcade.screen.SelectionScreenBuilder
+import net.casualuhc.arcade.settings.DisplayableGameSetting
+import net.casualuhc.arcade.settings.GameSetting
+import net.casualuhc.arcade.utils.MinigameUtils
+import net.casualuhc.arcade.utils.MinigameUtils.getMinigame
 import net.casualuhc.arcade.utils.MinigameUtils.minigame
+import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
+import net.minecraft.world.level.Level
+import java.util.LinkedList
+import java.util.UUID
 import java.util.function.Consumer
 
 abstract class Minigame(
     val id: ResourceLocation
 ) {
     private val connections = HashSet<ServerGamePacketListenerImpl>()
+    private val levels = HashSet(this.getLevels())
     private val events = EventHandler()
     private var closed = false
 
+    internal val settings = LinkedHashMap<String, DisplayableGameSetting<*>>()
     internal val phases = HashSet(this.getPhases())
     internal val scheduler = TickedScheduler()
     internal val tasks = ArrayDeque<Task>()
+
+    internal var uuid = UUID.randomUUID()
 
     var phase = MinigamePhase.NONE
         internal set
     var paused = false
         internal set
 
-    init {
+    open fun initialise() {
         this.registerEvent<ServerTickEvent> {
             if (!this.paused) {
                 this.scheduler.tick()
@@ -42,6 +56,7 @@ abstract class Minigame(
             this.close()
         }
         GlobalEventHandler.addHandler(this.events)
+        Minigames.register(this)
     }
 
     fun isPhase(phase: MinigamePhase): Boolean {
@@ -56,7 +71,7 @@ abstract class Minigame(
         return this.phase > phase
     }
 
-    fun setPhase(phase: MinigamePhase) {
+    protected open fun setPhase(phase: MinigamePhase) {
         if (!this.phases.contains(phase)) {
             throw IllegalArgumentException("Cannot set minigame '${this.id}' phase to ${phase.id}")
         }
@@ -73,7 +88,14 @@ abstract class Minigame(
 
     fun addPlayer(player: ServerPlayer) {
         if (!this.closed && !this.hasPlayer(player)) {
-            val event = MinigameAddPlayerEvent(this, player)
+            if (player.getMinigame() === this) {
+                this.connections.add(player.connection)
+                val event = MinigameAddExistingPlayerEvent(this, player)
+                GlobalEventHandler.broadcast(event)
+                return
+            }
+
+            val event = MinigameAddNewPlayerEvent(this, player)
             GlobalEventHandler.broadcast(event)
             if (!event.isCancelled()) {
                 this.connections.add(player.connection)
@@ -89,12 +111,20 @@ abstract class Minigame(
         }
     }
 
+    fun getSettings(): Collection<GameSetting<*>> {
+        return this.settings.values.map { it.setting }
+    }
+
     fun getPlayers(): List<ServerPlayer> {
         return this.connections.map { it.player }
     }
 
     fun hasPlayer(player: ServerPlayer): Boolean {
         return this.connections.contains(player.connection)
+    }
+
+    fun hasLevel(level: Level): Boolean {
+        return this.levels.contains(level.dimension())
     }
 
     fun pause() {
@@ -117,7 +147,19 @@ abstract class Minigame(
         this.closed = true
     }
 
+    fun openRulesMenu(player: ServerPlayer, modifier: SelectionScreenBuilder.() -> Unit = { }) {
+        player.openMenu(MinigameUtils.createRulesMenu(this, modifier))
+    }
+
     protected abstract fun getPhases(): Collection<MinigamePhase>
+
+    protected abstract fun getLevels(): Collection<ResourceKey<Level>>
+
+    protected fun <T: Any> registerSetting(displayed: DisplayableGameSetting<T>): GameSetting<T> {
+        val setting = displayed.setting
+        this.settings[setting.name] = displayed
+        return setting
+    }
 
     protected fun schedulePhaseEndTask(task: Task) {
         this.tasks.add(task)
@@ -152,29 +194,24 @@ abstract class Minigame(
     }
 
     protected fun <T: Event> registerMinigameEvent(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
-        when {
-            registerPredicatedEvent(PlayerEvent::class.java, { this.hasPlayer(it.player) }, type, priority, listener) -> { }
-            registerPredicatedEvent(MinigameEvent::class.java, { this === it }, type, priority, listener) -> { }
-            else -> this.registerEvent(type, priority, listener)
+        val predicates = LinkedList<(T) -> Boolean>()
+        if (PlayerEvent::class.java.isAssignableFrom(type)) {
+            predicates.add { this.hasPlayer((it as PlayerEvent).player) }
         }
-    }
-
-    private fun <T: Event, S: Event> registerPredicatedEvent(
-        required: Class<T>,
-        predicate: (T) -> Boolean,
-        type: Class<S>,
-        priority: Int,
-        listener: Consumer<S>
-    ): Boolean {
-        if (required.isAssignableFrom(type)) {
-            this.registerEvent(type, priority) {
-                @Suppress("UNCHECKED_CAST")
-                if (predicate(it as T)) {
-                    listener.accept(it)
+        if (LevelEvent::class.java.isAssignableFrom(type)) {
+            predicates.add { this.hasLevel((it as LevelEvent).level) }
+        }
+        if (MinigameEvent::class.java.isAssignableFrom(type)) {
+            predicates.add { (it as MinigameEvent).minigame === this }
+        }
+        if (predicates.isEmpty()) {
+            this.registerEvent(type, priority, listener)
+        } else {
+            this.registerEvent(type, priority) { event ->
+                if (predicates.all { it(event) }) {
+                    listener.accept(event)
                 }
             }
-            return true
         }
-        return false
     }
 }

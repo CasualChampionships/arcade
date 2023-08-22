@@ -1,11 +1,12 @@
 package net.casualuhc.arcade.commands
 
 import com.mojang.brigadier.context.CommandContext
+import net.casualuhc.arcade.utils.EnumUtils
 import net.minecraft.commands.CommandSourceStack
 
 class EnumArgument<E: Enum<E>>(
     clazz: Class<E>
-): MappedArgument<E>(enumToMap(clazz)) {
+): MappedArgument<E>(EnumUtils.enumToMap(clazz, ::checkEnumName)) {
     companion object {
         inline fun <reified E: Enum<E>> enumeration(): EnumArgument<E> {
             return EnumArgument(E::class.java)
@@ -25,16 +26,11 @@ class EnumArgument<E: Enum<E>>(
             return context.getArgument(string, clazz)
         }
 
-        private fun <E: Enum<E>> enumToMap(clazz: Class<E>): Map<String, E> {
-            val constants = clazz.enumConstants
-            val enums = HashMap<String, E>(constants.size)
-            for (enumeration in constants) {
-                if (!CustomStringArgumentInfo.isAllowedWord(enumeration.name)) {
-                    throw IllegalArgumentException("Enumeration ${enumeration.name} has invalid characters")
-                }
-                enums[enumeration.name] = enumeration
+        private fun checkEnumName(enum: Enum<*>): String {
+            if (!CustomStringArgumentInfo.isAllowedWord(enum.name)) {
+                throw IllegalArgumentException("Enumeration ${enum.name} has invalid characters")
             }
-            return enums
+            return enum.name
         }
     }
 }

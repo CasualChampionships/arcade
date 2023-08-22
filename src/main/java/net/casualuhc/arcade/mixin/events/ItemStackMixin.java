@@ -28,7 +28,7 @@ public class ItemStackMixin {
 	)
 	private void onUse(Level level, Player player, InteractionHand usedHand, CallbackInfoReturnable<InteractionResultHolder<ItemStack>> cir) {
 		if (player instanceof ServerPlayer serverPlayer) {
-			PlayerItemUseEvent event = new PlayerItemUseEvent(serverPlayer, (ItemStack) (Object) this, level, usedHand);
+			PlayerItemUseEvent event = new PlayerItemUseEvent(serverPlayer, (ItemStack) (Object) this, usedHand);
 			GlobalEventHandler.broadcast(event);
 			if (event.isCancelled()) {
 				cir.setReturnValue(event.result());
@@ -58,7 +58,7 @@ public class ItemStackMixin {
 	)
 	private void onFinishUsing(Level level, LivingEntity livingEntity, CallbackInfoReturnable<ItemStack> cir) {
 		if (livingEntity instanceof ServerPlayer player) {
-			PlayerItemFinishEvent event = new PlayerItemFinishEvent(player, (ItemStack) (Object) this, level);
+			PlayerItemFinishEvent event = new PlayerItemFinishEvent(player, (ItemStack) (Object) this);
 			GlobalEventHandler.broadcast(event);
 			if (event.isCancelled()) {
 				cir.setReturnValue(event.result());
@@ -75,7 +75,7 @@ public class ItemStackMixin {
 	)
 	private boolean onReleaseUsing(Item instance, ItemStack stack, Level level, LivingEntity livingEntity, int timeCharged) {
 		if (livingEntity instanceof ServerPlayer player) {
-			PlayerItemReleaseEvent event = new PlayerItemReleaseEvent(player, stack, level, timeCharged);
+			PlayerItemReleaseEvent event = new PlayerItemReleaseEvent(player, stack, timeCharged);
 			GlobalEventHandler.broadcast(event);
 			return !event.isCancelled();
 		}

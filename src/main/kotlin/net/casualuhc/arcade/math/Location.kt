@@ -5,8 +5,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 
-@Suppress("unused")
-class Location(
+data class Location(
     val level: ServerLevel,
     val position: Vec3,
     val rotation: Vec2

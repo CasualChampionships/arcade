@@ -1,6 +1,7 @@
 package net.casualuhc.arcade.events.player
 
 import net.casualuhc.arcade.events.core.CancellableEvent
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
@@ -10,7 +11,6 @@ import net.minecraft.world.phys.BlockHitResult
 
 data class PlayerBlockInteractionEvent(
     override val player: ServerPlayer,
-    val level: Level,
     val stack: ItemStack,
     val hand: InteractionHand,
     val result: BlockHitResult

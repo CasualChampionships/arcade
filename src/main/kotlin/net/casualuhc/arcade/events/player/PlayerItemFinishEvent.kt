@@ -7,6 +7,5 @@ import net.minecraft.world.level.Level
 
 data class PlayerItemFinishEvent(
     override val player: ServerPlayer,
-    val stack: ItemStack,
-    val level: Level
+    val stack: ItemStack
 ): CancellableEvent.Typed<ItemStack>(), PlayerEvent

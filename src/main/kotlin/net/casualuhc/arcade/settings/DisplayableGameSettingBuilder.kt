@@ -1,0 +1,61 @@
+package net.casualuhc.arcade.settings
+
+import net.minecraft.world.item.ItemStack
+
+class DisplayableGameSettingBuilder<T: Any>(
+    private val constructor: (String, T, Map<String, T>) -> GameSetting<T>
+) {
+    private val options = LinkedHashMap<String, T>()
+    private val stacks = LinkedHashMap<ItemStack, T>()
+
+    var name: String = ""
+    var display: ItemStack = ItemStack.EMPTY
+    var value: T? = null
+
+    fun name(name: String): DisplayableGameSettingBuilder<T> {
+        this.name = name
+        return this
+    }
+
+    fun display(stack: ItemStack): DisplayableGameSettingBuilder<T> {
+        this.display = stack
+        return this
+    }
+
+    fun value(value: T): DisplayableGameSettingBuilder<T> {
+        this.value = value
+        return this
+    }
+
+    fun option(name: String, stack: ItemStack, value: T): DisplayableGameSettingBuilder<T> {
+        this.options[name] = value
+        this.stacks[stack] = value
+        return this
+    }
+
+    fun build(): DisplayableGameSetting<T> {
+        if (this.name.isEmpty()) {
+            throw IllegalStateException("No name to build GameSetting")
+        }
+        if (this.display.isEmpty) {
+            throw IllegalStateException("No display to build GameSetting")
+        }
+        val value = this.value ?: throw IllegalStateException("No value to build GameSetting")
+        val setting = this.constructor(this.name, value, this.options)
+        return DisplayableGameSetting(this.display, setting, this.stacks)
+    }
+
+    companion object {
+        fun long(): DisplayableGameSettingBuilder<Long> {
+            return DisplayableGameSettingBuilder(::LongGameSetting)
+        }
+
+        fun double(): DisplayableGameSettingBuilder<Double> {
+            return DisplayableGameSettingBuilder(::DoubleGameSetting)
+        }
+
+        fun <E: Enum<E>> enum(): DisplayableGameSettingBuilder<E> {
+            return DisplayableGameSettingBuilder(::EnumGameSetting)
+        }
+    }
+}

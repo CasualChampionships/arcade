@@ -2,7 +2,7 @@ package net.casualuhc.arcade.events
 
 import net.casualuhc.arcade.events.core.Event
 
-interface EventListener<T: Event>: Comparable<EventListener<T>> {
+fun interface EventListener<T: Event>: Comparable<EventListener<T>> {
     val priority: Int
         get() = 1_000
 

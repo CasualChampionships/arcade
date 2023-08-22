@@ -16,6 +16,7 @@ import net.casualuhc.arcade.utils.JsonUtils.objects
 import net.casualuhc.arcade.utils.JsonUtils.string
 import net.minecraft.resources.ResourceLocation
 import java.nio.file.Path
+import java.util.UUID
 import kotlin.io.path.bufferedReader
 import kotlin.io.path.bufferedWriter
 import kotlin.io.path.exists
@@ -25,7 +26,7 @@ abstract class SavableMinigame(
     private val path: Path
 ): Minigame(id) {
     init {
-        this.registerMinigameEvent<MinigameCloseEvent> { this.saveData() }
+        this.registerMinigameEvent<MinigameCloseEvent> { this.save() }
     }
 
     protected abstract fun readData(json: JsonObject)
@@ -34,12 +35,12 @@ abstract class SavableMinigame(
 
     protected abstract fun createTask(id: String, data: JsonObject): Task?
 
-    fun loadData() {
-        val json = if (this.path.exists()) {
-            Config.GSON.fromJson(this.path.bufferedReader(), JsonObject::class.java)
-        } else {
-            JsonObject()
+    override fun initialise() {
+        if (!this.path.exists()) {
+            super.initialise()
+            return
         }
+        val json = Config.GSON.fromJson(this.path.bufferedReader(), JsonObject::class.java)
 
         val phaseId = json.string("phase")
         for (phase in this.phases) {
@@ -49,6 +50,7 @@ abstract class SavableMinigame(
             }
         }
         this.paused = json.boolean("paused")
+        this.uuid = UUID.fromString(json.string("uuid"))
 
         val tasks = json.array("tasks")
         for (data in tasks.objects()) {
@@ -77,10 +79,24 @@ abstract class SavableMinigame(
             }
         }
 
+        val settings = json.array("settings")
+        for (data in settings.objects()) {
+            val name = data.string("name")
+            val value = data.get("value")
+            val display = this.settings[name]
+            if (display == null) {
+                Arcade.logger.warn("Saved setting $name for minigame ${this.id} could not be reloaded")
+                continue
+            }
+            display.setting.deserialise(value)
+        }
+
         this.readData(json.getObject("custom"))
+
+        super.initialise()
     }
 
-    fun saveData() {
+    fun save() {
         val json = JsonObject()
 
         val tasks = JsonArray()
@@ -111,11 +127,21 @@ abstract class SavableMinigame(
             }
         }
 
+        val settings = JsonArray()
+        for (setting in this.getSettings()) {
+            val data = JsonObject()
+            data.addProperty("name", setting.name)
+            data.add("value", setting.serialise())
+            settings.add(data)
+        }
+
         val custom = JsonObject()
         this.writeData(custom)
 
         json.add("custom", custom)
         json.add("tasks", tasks)
+        json.add("end_tasks", endTasks)
+        json.add("settings", settings)
 
         Config.GSON.toJson(json, this.path.bufferedWriter())
     }
