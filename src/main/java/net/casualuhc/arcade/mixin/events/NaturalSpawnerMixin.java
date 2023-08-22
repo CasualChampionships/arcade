@@ -29,9 +29,12 @@ public class NaturalSpawnerMixin {
 		ServerLevel level,
 		LevelChunk chunk,
 		NaturalSpawner.SpawnPredicate filter,
-		NaturalSpawner.AfterSpawnCallback callback
+		NaturalSpawner.AfterSpawnCallback callback,
+		ServerLevel foo,
+		LevelChunk bar,
+		NaturalSpawner.SpawnState state
 	) {
-		MobCategorySpawnEvent event = new MobCategorySpawnEvent(level, category, chunk.getPos());
+		MobCategorySpawnEvent event = new MobCategorySpawnEvent(level, category, chunk.getPos(), state);
 		GlobalEventHandler.broadcast(event);
 		return !event.isCancelled();
 	}
