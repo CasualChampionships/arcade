@@ -11,6 +11,8 @@
     "commands.ArgumentTypeInfosMixin",
     "commands.ClientboundCommandsPacketMixin",
     "events.BlockItemMixin",
+    "events.BrewingStandBlockEntityAccessor",
+    "events.BrewingStandBlockEntityMixin",
     "events.CommandsMixin",
     "events.EntityCallbacksMixin",
     "events.ItemStackMixin",
@@ -34,6 +36,7 @@
     "minigame.ScoreboardMixin",
     "recipes.ClientboundUpdateRecipesPacketMixin",
     "recipes.RecipeManagerMixin",
+    "screen.ServerGamePacketListenerImplMixin",
     "worldborder.MinecraftServerMixin",
     "worldborder.PlayerListMixin"
   ],
