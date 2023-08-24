@@ -12,6 +12,7 @@ import net.casualuhc.arcade.scheduler.MinecraftTimeUnit
 import net.casualuhc.arcade.scheduler.Task
 import net.casualuhc.arcade.scheduler.TickedScheduler
 import net.casualuhc.arcade.gui.screen.SelectionScreenBuilder
+import net.casualuhc.arcade.gui.screen.SelectionScreenComponents
 import net.casualuhc.arcade.settings.DisplayableGameSetting
 import net.casualuhc.arcade.settings.GameSetting
 import net.casualuhc.arcade.utils.MinigameUtils
@@ -148,8 +149,8 @@ abstract class Minigame(
         this.closed = true
     }
 
-    fun openRulesMenu(player: ServerPlayer, modifier: SelectionScreenBuilder.() -> Unit = { }) {
-        player.openMenu(ScreenUtils.createMinigameRulesScreen(this, modifier))
+    fun openRulesMenu(player: ServerPlayer, components: SelectionScreenComponents) {
+        player.openMenu(ScreenUtils.createMinigameRulesScreen(this, components))
     }
 
     protected abstract fun getPhases(): Collection<MinigamePhase>
