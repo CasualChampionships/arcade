@@ -1,20 +1,20 @@
-package net.casualuhc.arcade.screen
+package net.casualuhc.arcade.gui.screen
 
-import net.casualuhc.arcade.screen.SelectionScreen.Selection
-import net.casualuhc.arcade.utils.ItemUtils.literalNamed
+import net.casualuhc.arcade.gui.screen.SelectionScreen.Selection
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.Items
 
-class SelectionScreenBuilder {
+class SelectionScreenBuilder(
+    components: SelectionScreenComponents = SelectionScreenComponents.DEFAULT
+) {
     private val selections = ArrayList<Selection>()
 
-    var title: Component = Component.literal("Selection Screen")
-    var previous: ItemStack = ItemStack(Items.RED_STAINED_GLASS).literalNamed("Previous")
-    var next: ItemStack = ItemStack(Items.GREEN_STAINED_GLASS).literalNamed("Next")
-    var filler: ItemStack = ItemStack(Items.GRAY_STAINED_GLASS).literalNamed("")
+    var title = components.getTitle()
+    var previous = components.getPrevious()
+    var next = components.getNext()
+    var filler = components.getFiller()
 
     fun title(component: Component): SelectionScreenBuilder {
         this.title = component

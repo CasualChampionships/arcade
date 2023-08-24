@@ -1,54 +1,83 @@
 package net.casualuhc.arcade.utils
 
-import net.casualuhc.arcade.screen.SelectionScreenBuilder
-import net.casualuhc.arcade.utils.ItemUtils.literalNamed
+import net.casualuhc.arcade.gui.screen.SelectionScreenBuilder
+import net.casualuhc.arcade.gui.screen.SelectionScreenComponents
+import net.casualuhc.arcade.minigame.Minigame
+import net.casualuhc.arcade.settings.DisplayableGameSetting
 import net.casualuhc.arcade.utils.PlayerUtils.location
 import net.casualuhc.arcade.utils.PlayerUtils.teleportTo
 import net.casualuhc.arcade.utils.TeamUtils.getServerPlayers
 import net.minecraft.network.chat.Component
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.Items
 import net.minecraft.world.scores.PlayerTeam
 
 object ScreenUtils {
     fun createSpectatorScreen(
-        title: Component = Component.literal("Spectator Screen"),
-        previous: ItemStack = ItemStack(Items.RED_STAINED_GLASS).literalNamed("Previous"),
-        next: ItemStack = ItemStack(Items.GREEN_STAINED_GLASS).literalNamed("Next"),
-        filler: ItemStack = ItemStack(Items.GRAY_STAINED_GLASS).literalNamed("")
+        components: SelectionScreenComponents = DefaultSpectatorScreenComponent,
+        teamFilter: (PlayerTeam) -> Boolean = { true },
+        teamIcon: (PlayerTeam) -> ItemStack = TeamUtils::colouredHeadForTeam
     ): MenuProvider {
-        val builder = SelectionScreenBuilder()
-            .title(title)
-            .previous(previous)
-            .next(next)
-            .filler(filler)
+        val builder = SelectionScreenBuilder(components)
         val teams = TeamUtils.teams()
         for (team in teams) {
-            builder.selection(ItemStack(Items.BLUE_TERRACOTTA)) { player ->
-                player.openMenu(createTeamScreen(team, title, previous, next, filler))
+            if (teamFilter(team)) {
+                builder.selection(teamIcon(team)) { player ->
+                    player.openMenu(createTeamScreen(team, components))
+                }
             }
         }
         return builder.build()
     }
 
-    private fun createTeamScreen(
+    fun createTeamScreen(
         team: PlayerTeam,
-        title: Component,
-        previous: ItemStack,
-        next: ItemStack,
-        filler: ItemStack
+        components: SelectionScreenComponents = DefaultSpectatorScreenComponent
     ): MenuProvider {
-        val builder = SelectionScreenBuilder()
-            .title(title)
-            .previous(previous)
-            .next(next)
-            .filler(filler)
+        val builder = SelectionScreenBuilder(components)
         for (teammate in team.getServerPlayers()) {
             builder.selection(ItemUtils.generatePlayerHead(teammate.scoreboardName)) { player ->
                 player.teleportTo(teammate.location)
             }
         }
         return builder.build()
+    }
+
+    fun createMinigameRulesScreen(
+        minigame: Minigame,
+        components: SelectionScreenComponents = DefaultMinigameScreenComponent
+    ): MenuProvider {
+        val builder = SelectionScreenBuilder(components)
+        for (display in minigame.settings.values) {
+            builder.selection(display.display) { player ->
+                player.openMenu(createSettingMenu(display, components))
+            }
+        }
+        return builder.build()
+    }
+
+    fun <T: Any> createSettingMenu(
+        display: DisplayableGameSetting<T>,
+        components: SelectionScreenComponents = DefaultMinigameScreenComponent
+    ): MenuProvider {
+        val builder = SelectionScreenBuilder(components)
+        for ((option, value) in display.options) {
+            builder.selection(option) {
+                display.setting.set(value)
+            }
+        }
+        return builder.build()
+    }
+
+    private object DefaultSpectatorScreenComponent: SelectionScreenComponents {
+        override fun getTitle(): Component {
+            return Component.literal("Spectator Screen")
+        }
+    }
+
+    private object DefaultMinigameScreenComponent: SelectionScreenComponents {
+        override fun getTitle(): Component {
+            return Component.literal("Minigame Settings Screen")
+        }
     }
 }

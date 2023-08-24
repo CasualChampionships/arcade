@@ -4,10 +4,14 @@ import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Cons
 import net.casualuhc.arcade.Arcade
 import net.casualuhc.arcade.extensions.Extension
 import net.casualuhc.arcade.extensions.ExtensionHolder
+import net.casualuhc.arcade.utils.ComponentUtils.unItalicise
 import net.casualuhc.arcade.utils.ExtensionUtils.addExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtension
 import net.casualuhc.arcade.utils.ExtensionUtils.getExtensions
+import net.minecraft.ChatFormatting
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Team
 
@@ -41,6 +45,30 @@ object TeamUtils {
             }
         }
         return team
+    }
+
+    @JvmStatic
+    fun colouredHeadForTeam(team: Team): ItemStack {
+        val texture = when (team.color) {
+            ChatFormatting.BLACK -> HeadTextures.BLACK
+            ChatFormatting.DARK_BLUE -> HeadTextures.DARK_BLUE
+            ChatFormatting.DARK_GREEN -> HeadTextures.DARK_GREEN
+            ChatFormatting.DARK_AQUA -> HeadTextures.DARK_AQUA
+            ChatFormatting.DARK_RED -> HeadTextures.DARK_RED
+            ChatFormatting.DARK_PURPLE -> HeadTextures.DARK_PURPLE
+            ChatFormatting.GOLD -> HeadTextures.GOLD
+            ChatFormatting.GRAY -> HeadTextures.GRAY
+            ChatFormatting.DARK_GRAY -> HeadTextures.DARK_GRAY
+            ChatFormatting.BLUE -> HeadTextures.BLUE
+            ChatFormatting.GREEN -> HeadTextures.GREEN
+            ChatFormatting.AQUA -> HeadTextures.AQUA
+            ChatFormatting.RED -> HeadTextures.RED
+            ChatFormatting.LIGHT_PURPLE -> HeadTextures.LIGHT_PURPLE
+            ChatFormatting.YELLOW -> HeadTextures.YELLOW
+            else -> HeadTextures.WHITE
+        }
+        val item = ItemUtils.generatePlayerHead("Dummy", texture)
+        return item.setHoverName(Component.literal(team.name).unItalicise())
     }
 
     @JvmStatic

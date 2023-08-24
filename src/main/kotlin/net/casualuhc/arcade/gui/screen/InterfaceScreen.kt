@@ -1,4 +1,4 @@
-package net.casualuhc.arcade.screen
+package net.casualuhc.arcade.gui.screen
 
 import net.casualuhc.arcade.scheduler.GlobalTickedScheduler
 import net.casualuhc.arcade.scheduler.MinecraftTimeUnit

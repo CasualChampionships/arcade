@@ -11,12 +11,13 @@ import net.casualuhc.arcade.events.server.ServerTickEvent
 import net.casualuhc.arcade.scheduler.MinecraftTimeUnit
 import net.casualuhc.arcade.scheduler.Task
 import net.casualuhc.arcade.scheduler.TickedScheduler
-import net.casualuhc.arcade.screen.SelectionScreenBuilder
+import net.casualuhc.arcade.gui.screen.SelectionScreenBuilder
 import net.casualuhc.arcade.settings.DisplayableGameSetting
 import net.casualuhc.arcade.settings.GameSetting
 import net.casualuhc.arcade.utils.MinigameUtils
 import net.casualuhc.arcade.utils.MinigameUtils.getMinigame
 import net.casualuhc.arcade.utils.MinigameUtils.minigame
+import net.casualuhc.arcade.utils.ScreenUtils
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
@@ -148,7 +149,7 @@ abstract class Minigame(
     }
 
     fun openRulesMenu(player: ServerPlayer, modifier: SelectionScreenBuilder.() -> Unit = { }) {
-        player.openMenu(MinigameUtils.createRulesMenu(this, modifier))
+        player.openMenu(ScreenUtils.createMinigameRulesScreen(this, modifier))
     }
 
     protected abstract fun getPhases(): Collection<MinigamePhase>

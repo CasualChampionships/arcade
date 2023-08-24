@@ -1,6 +1,6 @@
 package net.casualuhc.arcade.mixin.screen;
 
-import net.casualuhc.arcade.screen.InterfaceScreen;
+import net.casualuhc.arcade.gui.screen.InterfaceScreen;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.spongepowered.asm.mixin.Mixin;
