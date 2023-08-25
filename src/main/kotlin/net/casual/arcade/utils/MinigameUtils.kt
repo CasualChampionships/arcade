@@ -19,7 +19,7 @@ object MinigameUtils {
         return this.minigame.getMinigame()
     }
 
-    init {
+    internal fun registerEvents() {
         GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
             player.addExtension(PlayerMinigameExtension(player))
         }
