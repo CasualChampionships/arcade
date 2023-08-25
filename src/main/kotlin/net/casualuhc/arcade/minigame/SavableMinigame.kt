@@ -3,7 +3,7 @@ package net.casualuhc.arcade.minigame
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import net.casualuhc.arcade.Arcade
-import net.casualuhc.arcade.config.Config
+import net.casualuhc.arcade.config.SavedConfig
 import net.casualuhc.arcade.events.minigame.MinigameCloseEvent
 import net.casualuhc.arcade.scheduler.MinecraftTimeUnit
 import net.casualuhc.arcade.scheduler.SavableTask
@@ -42,7 +42,7 @@ abstract class SavableMinigame(
             super.initialise()
             return
         }
-        val json = Config.GSON.fromJson(this.path.bufferedReader(), JsonObject::class.java)
+        val json = SavedConfig.GSON.fromJson(this.path.bufferedReader(), JsonObject::class.java)
 
         val phaseId = json.string("phase")
         for (phase in this.phases) {
@@ -145,6 +145,6 @@ abstract class SavableMinigame(
         json.add("end_tasks", endTasks)
         json.add("settings", settings)
 
-        Config.GSON.toJson(json, this.path.bufferedWriter())
+        SavedConfig.GSON.toJson(json, this.path.bufferedWriter())
     }
 }

@@ -34,7 +34,7 @@ import kotlin.io.path.bufferedWriter
 import kotlin.io.path.exists
 import kotlin.reflect.KProperty
 
-class Config(
+open class SavedConfig(
     private val path: Path
 ) {
     private var json = JsonObject()
