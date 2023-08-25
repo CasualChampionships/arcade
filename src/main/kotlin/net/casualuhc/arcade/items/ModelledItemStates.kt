@@ -3,6 +3,8 @@ package net.casualuhc.arcade.items
 import eu.pb4.polymer.core.api.item.PolymerItem
 import eu.pb4.polymer.resourcepack.api.PolymerModelData
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator
+import net.casualuhc.arcade.utils.ItemUtils.putIntElement
+import net.minecraft.nbt.Tag
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -46,13 +48,13 @@ class ModelledItemStates(
         return this.creator.requestModel(this.client, id)
     }
 
-    fun createStack(state: Int, model: (ItemStack, PolymerModelData) -> Unit): ItemStack {
-        return this.createStack(this.getState(state), model)
+    fun createStack(state: Int): ItemStack {
+        return this.createStack(this.getState(state))
     }
 
-    fun createStack(id: ResourceLocation, model: (ItemStack, PolymerModelData) -> Unit): ItemStack {
+    fun createStack(id: ResourceLocation): ItemStack {
         val stack = ItemStack(this.server)
-        model(stack, this.getModel(id))
+        stack.putIntElement(ID, this.getModel(id).value())
         return stack
     }
 
@@ -66,5 +68,20 @@ class ModelledItemStates(
 
     fun getStates(): List<ResourceLocation> {
         return this.states
+    }
+
+    internal fun getModelId(stack: ItemStack): Int {
+        if (!stack.`is`(this.getServerItem())) {
+            throw IllegalArgumentException("Cannot get model ID for incorrect stack '${stack}'")
+        }
+        val tag = stack.tag ?: return -1
+        if (tag.contains(ID, Tag.TAG_INT.toInt())) {
+            return tag.getInt(ID)
+        }
+        return -1
+    }
+
+    companion object {
+        private const val ID = "arcade_custom_model"
     }
 }
