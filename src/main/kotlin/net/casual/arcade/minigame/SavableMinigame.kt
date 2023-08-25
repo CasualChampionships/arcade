@@ -103,6 +103,10 @@ abstract class SavableMinigame(
     fun save() {
         val json = JsonObject()
 
+        json.addProperty("phase", this.phase.id)
+        json.addProperty("paused", this.paused)
+        json.addProperty("uuid", this.uuid.toString())
+
         val tasks = JsonArray()
         for ((tick, queue) in this.scheduler.tasks) {
             val delay = tick - this.scheduler.tickCount
@@ -142,10 +146,10 @@ abstract class SavableMinigame(
         val custom = JsonObject()
         this.writeData(custom)
 
-        json.add("custom", custom)
         json.add("tasks", tasks)
         json.add("end_tasks", endTasks)
         json.add("settings", settings)
+        json.add("custom", custom)
 
         this.path.bufferedWriter().use {
             CustomisableConfig.GSON.toJson(json, it)
