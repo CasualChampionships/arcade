@@ -46,6 +46,10 @@ class DisplayableGameSettingBuilder<T: Any>(
     }
 
     companion object {
+        fun boolean(): DisplayableGameSettingBuilder<Boolean> {
+            return DisplayableGameSettingBuilder(::BooleanGameSetting)
+        }
+
         fun long(): DisplayableGameSettingBuilder<Long> {
             return DisplayableGameSettingBuilder(::LongGameSetting)
         }
