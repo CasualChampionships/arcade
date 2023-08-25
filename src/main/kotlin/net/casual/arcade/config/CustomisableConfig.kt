@@ -41,12 +41,16 @@ open class CustomisableConfig(
     
     fun read() {
         if (this.path.exists()) {
-            this.json = GSON.fromJson(this.path.bufferedReader(), JsonObject::class.java)
+            this.path.bufferedReader().use {
+                this.json = GSON.fromJson(it, JsonObject::class.java)
+            }
         }
     }
 
     fun write() {
-        GSON.toJson(this.json, this.path.bufferedWriter())
+        this.path.bufferedWriter().use {
+            GSON.toJson(this.json, it)
+        }
     }
 
     fun boolean(name: String? = null, default: Boolean = false): Configurable<Boolean> {

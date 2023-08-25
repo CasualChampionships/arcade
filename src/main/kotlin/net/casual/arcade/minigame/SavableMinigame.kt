@@ -42,7 +42,9 @@ abstract class SavableMinigame(
             super.initialise()
             return
         }
-        val json = CustomisableConfig.GSON.fromJson(this.path.bufferedReader(), JsonObject::class.java)
+        val json = this.path.bufferedReader().use {
+            CustomisableConfig.GSON.fromJson(it, JsonObject::class.java)
+        }
 
         val phaseId = json.string("phase")
         for (phase in this.phases) {
@@ -145,6 +147,8 @@ abstract class SavableMinigame(
         json.add("end_tasks", endTasks)
         json.add("settings", settings)
 
-        CustomisableConfig.GSON.toJson(json, this.path.bufferedWriter())
+        this.path.bufferedWriter().use {
+            CustomisableConfig.GSON.toJson(json, it)
+        }
     }
 }
