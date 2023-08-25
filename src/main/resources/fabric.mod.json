@@ -17,7 +17,7 @@
     "main": [
       {
         "adapter": "kotlin",
-        "value": "net.casualuhc.arcade.Arcade"
+        "value": "net.casual.arcade.Arcade"
       }
     ]
   },
