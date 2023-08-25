@@ -15,6 +15,7 @@ import net.casualuhc.arcade.utils.JsonUtils.getObject
 import net.casualuhc.arcade.utils.JsonUtils.objects
 import net.casualuhc.arcade.utils.JsonUtils.string
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.MinecraftServer
 import java.nio.file.Path
 import java.util.UUID
 import kotlin.io.path.bufferedReader
@@ -23,8 +24,9 @@ import kotlin.io.path.exists
 
 abstract class SavableMinigame(
     id: ResourceLocation,
-    private val path: Path
-): Minigame(id) {
+    server: MinecraftServer,
+    private val path: Path,
+): Minigame(id, server) {
     init {
         this.registerMinigameEvent<MinigameCloseEvent> { this.save() }
     }

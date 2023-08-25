@@ -21,6 +21,7 @@ import net.casualuhc.arcade.utils.MinigameUtils.minigame
 import net.casualuhc.arcade.utils.ScreenUtils
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.level.Level
@@ -29,10 +30,10 @@ import java.util.UUID
 import java.util.function.Consumer
 
 abstract class Minigame(
-    val id: ResourceLocation
+    val id: ResourceLocation,
+    val server: MinecraftServer
 ) {
     private val connections = HashSet<ServerGamePacketListenerImpl>()
-    private val levels = HashSet(this.getLevels())
     private val events = EventHandler()
     private var closed = false
 
@@ -125,10 +126,6 @@ abstract class Minigame(
         return this.connections.contains(player.connection)
     }
 
-    fun hasLevel(level: Level): Boolean {
-        return this.levels.contains(level.dimension())
-    }
-
     fun pause() {
         this.paused = true
         GlobalEventHandler.broadcast(MinigamePauseEvent(this))
@@ -153,9 +150,9 @@ abstract class Minigame(
         player.openMenu(ScreenUtils.createMinigameRulesScreen(this, components))
     }
 
-    protected abstract fun getPhases(): Collection<MinigamePhase>
+    abstract fun hasLevel(level: Level): Boolean
 
-    protected abstract fun getLevels(): Collection<ResourceKey<Level>>
+    protected abstract fun getPhases(): Collection<MinigamePhase>
 
     protected fun <T: Any> registerSetting(displayed: DisplayableGameSetting<T>): GameSetting<T> {
         val setting = displayed.setting
