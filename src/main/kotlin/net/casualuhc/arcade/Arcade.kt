@@ -1,7 +1,9 @@
 package net.casualuhc.arcade
 
+import net.casualuhc.arcade.commands.MinigameCommand
 import net.casualuhc.arcade.events.GlobalEventHandler
 import net.casualuhc.arcade.events.server.ServerCreatedEvent
+import net.casualuhc.arcade.events.server.ServerRegisterCommandEvent
 import net.casualuhc.arcade.utils.BossbarUtils
 import net.casualuhc.arcade.utils.NameDisplayUtils
 import net.casualuhc.arcade.utils.SidebarUtils
@@ -30,5 +32,13 @@ class Arcade: ModInitializer {
         SidebarUtils.registerEvents()
         BossbarUtils.registerEvents()
         NameDisplayUtils.registerEvents()
+
+        this.registerCommands()
+    }
+
+    private fun registerCommands() {
+        GlobalEventHandler.register<ServerRegisterCommandEvent> {
+            MinigameCommand.register(it.dispatcher)
+        }
     }
 }

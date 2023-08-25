@@ -90,13 +90,13 @@ abstract class Minigame(
         GlobalEventHandler.broadcast(MinigameSetPhaseEvent(this, phase))
     }
 
-    fun addPlayer(player: ServerPlayer) {
+    fun addPlayer(player: ServerPlayer): Boolean {
         if (!this.closed && !this.hasPlayer(player)) {
             if (player.getMinigame() === this) {
                 this.connections.add(player.connection)
                 val event = MinigameAddExistingPlayerEvent(this, player)
                 GlobalEventHandler.broadcast(event)
-                return
+                return true
             }
 
             val event = MinigameAddNewPlayerEvent(this, player)
@@ -104,8 +104,10 @@ abstract class Minigame(
             if (!event.isCancelled()) {
                 this.connections.add(player.connection)
                 player.minigame.setMinigame(this)
+                return true
             }
         }
+        return false
     }
 
     fun removePlayer(player: ServerPlayer) {
@@ -153,6 +155,19 @@ abstract class Minigame(
 
     fun openRulesMenu(player: ServerPlayer, components: SelectionScreenComponents) {
         player.openMenu(ScreenUtils.createMinigameRulesScreen(this, components))
+    }
+
+    override fun toString(): String {
+        return """
+        Minigame: ${this::class.java.simpleName}
+        UUID: ${this.uuid}
+        ID: ${this.id}
+        Players: ${this.getPlayers().joinToString { it.scoreboardName }}
+        Levels: ${this.getLevels().joinToString { it.dimension().location().toString() }}
+        Phase: ${this.phase.id}
+        Paused: ${this.paused}
+        Closed: ${this.closed}
+        """.trimIndent()
     }
 
     protected abstract fun getPhases(): Collection<MinigamePhase>
