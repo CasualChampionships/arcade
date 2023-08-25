@@ -13,8 +13,10 @@ class SelectionScreenBuilder(
 
     var title = components.getTitle()
     var previous = components.getPrevious()
+    var back = components.getBack()
     var next = components.getNext()
     var filler = components.getFiller()
+    var parent: MenuProvider? = null
 
     fun title(component: Component): SelectionScreenBuilder {
         this.title = component
@@ -23,6 +25,11 @@ class SelectionScreenBuilder(
 
     fun previous(stack: ItemStack): SelectionScreenBuilder {
         this.previous = stack
+        return this
+    }
+
+    fun back(stack: ItemStack): SelectionScreenBuilder {
+        this.back = stack
         return this
     }
 
@@ -36,6 +43,11 @@ class SelectionScreenBuilder(
         return this
     }
 
+    fun parent(provider: MenuProvider?): SelectionScreenBuilder {
+        this.parent = provider
+        return this
+    }
+
     fun selection(stack: ItemStack, action: (ServerPlayer) -> Unit): SelectionScreenBuilder {
         this.selections.add(Selection(stack.copy(), action))
         return this
@@ -45,8 +57,10 @@ class SelectionScreenBuilder(
         return SelectionScreen.createScreenFactory(
             this.title,
             this.selections,
+            this.parent,
             0,
             this.previous,
+            this.back,
             this.next,
             this.filler
         )!!

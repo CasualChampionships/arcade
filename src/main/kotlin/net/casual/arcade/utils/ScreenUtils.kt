@@ -20,21 +20,24 @@ object ScreenUtils {
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
         val teams = TeamUtils.teams()
+        val provider = builder.build()
         for (team in teams) {
             if (teamFilter(team)) {
                 builder.selection(teamIcon(team)) { player ->
-                    player.openMenu(createTeamScreen(team, components))
+                    player.openMenu(createTeamScreen(team, components, provider))
                 }
             }
         }
-        return builder.build()
+        return provider
     }
 
     fun createTeamScreen(
         team: PlayerTeam,
-        components: SelectionScreenComponents = DefaultSpectatorScreenComponent
+        components: SelectionScreenComponents = DefaultSpectatorScreenComponent,
+        parent: MenuProvider? = null
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
+        builder.parent(parent)
         for (teammate in team.getServerPlayers()) {
             builder.selection(ItemUtils.generatePlayerHead(teammate.scoreboardName)) { player ->
                 player.teleportTo(teammate.location)
@@ -48,19 +51,22 @@ object ScreenUtils {
         components: SelectionScreenComponents = DefaultMinigameScreenComponent
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
+        val provider = builder.build()
         for (display in minigame.settings.values) {
             builder.selection(display.display) { player ->
-                player.openMenu(createSettingMenu(display, components))
+                player.openMenu(createSettingMenu(display, components, provider))
             }
         }
-        return builder.build()
+        return provider
     }
 
     fun <T: Any> createSettingMenu(
         display: DisplayableGameSetting<T>,
-        components: SelectionScreenComponents = DefaultMinigameScreenComponent
+        components: SelectionScreenComponents = DefaultMinigameScreenComponent,
+        parent: MenuProvider? = null
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
+        builder.parent(parent)
         for ((option, value) in display.options) {
             builder.selection(option) {
                 display.setting.set(value)
@@ -69,13 +75,13 @@ object ScreenUtils {
         return builder.build()
     }
 
-    private object DefaultSpectatorScreenComponent: SelectionScreenComponents {
+    object DefaultSpectatorScreenComponent: SelectionScreenComponents {
         override fun getTitle(): Component {
             return Component.literal("Spectator Screen")
         }
     }
 
-    private object DefaultMinigameScreenComponent: SelectionScreenComponents {
+    object DefaultMinigameScreenComponent: SelectionScreenComponents {
         override fun getTitle(): Component {
             return Component.literal("Minigame Settings Screen")
         }

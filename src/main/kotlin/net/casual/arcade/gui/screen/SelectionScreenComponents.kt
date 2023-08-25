@@ -14,6 +14,10 @@ interface SelectionScreenComponents {
         return ItemStack(Items.RED_STAINED_GLASS).literalNamed("Previous")
     }
 
+    fun getBack(): ItemStack {
+        return ItemStack(Items.GREEN_STAINED_GLASS).literalNamed("Back")
+    }
+
     fun getNext(): ItemStack {
         return ItemStack(Items.GREEN_STAINED_GLASS).literalNamed("Next")
     }

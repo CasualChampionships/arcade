@@ -153,7 +153,7 @@ abstract class Minigame(
         this.closed = true
     }
 
-    fun openRulesMenu(player: ServerPlayer, components: SelectionScreenComponents) {
+    fun openRulesMenu(player: ServerPlayer, components: SelectionScreenComponents = ScreenUtils.DefaultMinigameScreenComponent) {
         player.openMenu(ScreenUtils.createMinigameRulesScreen(this, components))
     }
 
