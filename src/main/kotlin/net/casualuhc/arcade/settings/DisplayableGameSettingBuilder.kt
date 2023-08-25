@@ -8,6 +8,8 @@ class DisplayableGameSettingBuilder<T: Any>(
     private val options = LinkedHashMap<String, T>()
     private val stacks = LinkedHashMap<ItemStack, T>()
 
+    private val listeners = ArrayList<SettingListener<T>>()
+
     var name: String = ""
     var display: ItemStack = ItemStack.EMPTY
     var value: T? = null
@@ -33,6 +35,11 @@ class DisplayableGameSettingBuilder<T: Any>(
         return this
     }
 
+    fun listener(listener: SettingListener<T>): DisplayableGameSettingBuilder<T> {
+        this.listeners.add(listener)
+        return this
+    }
+
     fun build(): DisplayableGameSetting<T> {
         if (this.name.isEmpty()) {
             throw IllegalStateException("No name to build GameSetting")
@@ -42,6 +49,9 @@ class DisplayableGameSettingBuilder<T: Any>(
         }
         val value = this.value ?: throw IllegalStateException("No value to build GameSetting")
         val setting = this.constructor(this.name, value, this.options)
+        for (listener in this.listeners) {
+            setting.addListener(listener)
+        }
         return DisplayableGameSetting(this.display, setting, this.stacks)
     }
 

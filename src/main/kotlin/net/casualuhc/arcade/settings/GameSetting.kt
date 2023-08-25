@@ -1,6 +1,7 @@
 package net.casualuhc.arcade.settings
 
 import com.google.gson.JsonElement
+import kotlin.reflect.KProperty
 
 abstract class GameSetting<T: Any>(
     val name: String,
@@ -43,5 +44,13 @@ abstract class GameSetting<T: Any>(
 
     fun addListener(listener: SettingListener<T>) {
         this.listeners.add(listener)
+    }
+
+    operator fun getValue(any: Any, property: KProperty<*>): T {
+        return this.get()
+    }
+
+    operator fun setValue(any: Any, property: KProperty<*>, value: T) {
+        this.set(value)
     }
 }
