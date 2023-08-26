@@ -5,6 +5,7 @@ import com.google.gson.JsonObject
 import net.casual.arcade.Arcade
 import net.casual.arcade.config.CustomisableConfig
 import net.casual.arcade.events.minigame.MinigameCloseEvent
+import net.casual.arcade.scheduler.CancellableTask
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.scheduler.SavableTask
 import net.casual.arcade.scheduler.Task
@@ -111,7 +112,7 @@ abstract class SavableMinigame(
         for ((tick, queue) in this.scheduler.tasks) {
             val delay = tick - this.scheduler.tickCount
             for (task in queue) {
-                if (task is SavableTask) {
+                if (task is SavableTask && !(task is CancellableTask && task.isCancelled())) {
                     val data = JsonObject()
                     val custom = JsonObject()
                     task.writeData(custom)
@@ -125,7 +126,7 @@ abstract class SavableMinigame(
 
         val endTasks = JsonArray()
         for (task in this.tasks) {
-            if (task is SavableTask) {
+            if (task is SavableTask && !(task is CancellableTask && task.isCancelled())) {
                 val data = JsonObject()
                 val custom = JsonObject()
                 task.writeData(custom)
