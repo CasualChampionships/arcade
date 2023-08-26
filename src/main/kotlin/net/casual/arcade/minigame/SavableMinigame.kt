@@ -13,6 +13,7 @@ import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.boolean
 import net.casual.arcade.utils.JsonUtils.int
 import net.casual.arcade.utils.JsonUtils.getObject
+import net.casual.arcade.utils.JsonUtils.intOrNull
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
 import net.minecraft.resources.ResourceLocation
@@ -57,12 +58,15 @@ abstract class SavableMinigame(
         this.paused = json.boolean("paused")
         this.uuid = UUID.fromString(json.string("uuid"))
 
+        val generated = HashMap<Int, Task?>()
+
         val tasks = json.array("tasks")
         for (data in tasks.objects()) {
             val delay = data.int("delay")
+            val identity = data.intOrNull("identity")
             val id = data.string("id")
             val custom = data.getObject("custom")
-            val task = this.createTask(id, custom)
+            val task = if (identity == null) this.createTask(id, custom) else generated.getOrPut(identity) { this.createTask(id, custom) }
             if (task !== null) {
                 Arcade.logger.info("Successfully loaded task $id for minigame ${this.id}, scheduled for $delay ticks")
                 this.schedulePhaseTask(delay, MinecraftTimeUnit.Ticks, task)
@@ -74,8 +78,9 @@ abstract class SavableMinigame(
         val endTasks = json.array("end_tasks")
         for (data in endTasks.objects()) {
             val id = data.string("id")
+            val identity = data.intOrNull("identity")
             val custom = data.getObject("custom")
-            val task = this.createTask(id, custom)
+            val task = if (identity == null) this.createTask(id, custom) else generated.getOrPut(identity) { this.createTask(id, custom) }
             if (task !== null) {
                 Arcade.logger.info("Successfully loaded end task $id for minigame ${this.id}")
                 this.schedulePhaseEndTask(task)
@@ -118,6 +123,7 @@ abstract class SavableMinigame(
                     task.writeData(custom)
                     data.addProperty("delay", delay)
                     data.addProperty("id", task.id)
+                    data.addProperty("identity", System.identityHashCode(task))
                     data.add("custom", custom)
                     tasks.add(data)
                 }
@@ -131,6 +137,7 @@ abstract class SavableMinigame(
                 val custom = JsonObject()
                 task.writeData(custom)
                 data.addProperty("id", task.id)
+                data.addProperty("identity", System.identityHashCode(task))
                 data.add("custom", custom)
                 endTasks.add(data)
             }
