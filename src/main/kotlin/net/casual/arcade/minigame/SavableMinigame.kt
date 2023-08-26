@@ -87,7 +87,7 @@ abstract class SavableMinigame(
         for (data in settings.objects()) {
             val name = data.string("name")
             val value = data.get("value")
-            val display = this.settings[name]
+            val display = this.gameSettings[name]
             if (display == null) {
                 Arcade.logger.warn("Saved setting $name for minigame ${this.id} could not be reloaded")
                 continue

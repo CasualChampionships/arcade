@@ -52,7 +52,7 @@ object ScreenUtils {
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
         val provider = builder.build()
-        for (display in minigame.settings.values) {
+        for (display in minigame.gameSettings.values) {
             builder.selection(display.display) { player ->
                 player.openMenu(createSettingMenu(display, components, provider))
             }

@@ -11,15 +11,12 @@ import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.scheduler.Task
 import net.casual.arcade.scheduler.TickedScheduler
-import net.casual.arcade.gui.screen.SelectionScreenBuilder
 import net.casual.arcade.gui.screen.SelectionScreenComponents
 import net.casual.arcade.settings.DisplayableGameSetting
 import net.casual.arcade.settings.GameSetting
-import net.casual.arcade.utils.MinigameUtils
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.ScreenUtils
-import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
@@ -38,7 +35,7 @@ abstract class Minigame(
     private val events = EventHandler()
     private var closed = false
 
-    internal val settings = LinkedHashMap<String, DisplayableGameSetting<*>>()
+    internal val gameSettings = LinkedHashMap<String, DisplayableGameSetting<*>>()
     internal val phases = HashSet(this.getPhases())
     internal val scheduler = TickedScheduler()
     internal val tasks = ArrayDeque<Task>()
@@ -118,7 +115,7 @@ abstract class Minigame(
     }
 
     fun getSettings(): Collection<GameSetting<*>> {
-        return this.settings.values.map { it.setting }
+        return this.gameSettings.values.map { it.setting }
     }
 
     fun getPlayers(): List<ServerPlayer> {
@@ -176,7 +173,7 @@ abstract class Minigame(
 
     protected fun <T: Any> registerSetting(displayed: DisplayableGameSetting<T>): GameSetting<T> {
         val setting = displayed.setting
-        this.settings[setting.name] = displayed
+        this.gameSettings[setting.name] = displayed
         return setting
     }
 
