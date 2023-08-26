@@ -2,10 +2,7 @@ package net.casual.arcade.mixin.events;
 
 import com.mojang.datafixers.DataFixer;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.server.ServerCreatedEvent;
-import net.casual.arcade.events.server.ServerLoadedEvent;
-import net.casual.arcade.events.server.ServerStoppedEvent;
-import net.casual.arcade.events.server.ServerTickEvent;
+import net.casual.arcade.events.server.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.Services;
 import net.minecraft.server.WorldStem;
@@ -16,6 +13,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.net.Proxy;
 import java.util.function.BooleanSupplier;
@@ -69,6 +67,15 @@ public class MinecraftServerMixin {
 	)
 	private void onShutdown(CallbackInfo ci) {
 		ServerStoppedEvent event = new ServerStoppedEvent((MinecraftServer) (Object) this);
+		GlobalEventHandler.broadcast(event);
+	}
+
+	@Inject(
+		method = "saveEverything",
+		at = @At("TAIL")
+	)
+	private void onSaveEverything(boolean suppressLog, boolean flush, boolean forced, CallbackInfoReturnable<Boolean> cir) {
+		ServerSaveEvent event = new ServerSaveEvent((MinecraftServer) (Object) this);
 		GlobalEventHandler.broadcast(event);
 	}
 }

@@ -5,6 +5,7 @@ import com.google.gson.JsonObject
 import net.casual.arcade.Arcade
 import net.casual.arcade.config.CustomisableConfig
 import net.casual.arcade.events.minigame.MinigameCloseEvent
+import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.scheduler.CancellableTask
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.scheduler.SavableTask
@@ -30,6 +31,7 @@ abstract class SavableMinigame(
     private val path: Path,
 ): Minigame(id, server) {
     init {
+        this.registerEvent<ServerSaveEvent> { this.save() }
         this.registerMinigameEvent<MinigameCloseEvent> { this.save() }
     }
 
