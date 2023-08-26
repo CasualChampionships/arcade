@@ -1,11 +1,11 @@
 package net.casual.arcade.scheduler
 
-abstract class Task: Runnable {
-    abstract override fun run()
+interface Task: Runnable {
+    override fun run()
 
     private class Impl(
         val runnable: Runnable
-    ): Task() {
+    ): Task {
         override fun run() {
             this.runnable.run()
         }

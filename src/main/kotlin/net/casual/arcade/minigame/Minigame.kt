@@ -8,6 +8,7 @@ import net.casual.arcade.events.minigame.*
 import net.casual.arcade.events.player.PlayerEvent
 import net.casual.arcade.events.server.ServerStoppedEvent
 import net.casual.arcade.events.server.ServerTickEvent
+import net.casual.arcade.gui.bossbar.CustomBossBar
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.scheduler.Task
 import net.casual.arcade.scheduler.TickedScheduler
@@ -16,6 +17,7 @@ import net.casual.arcade.settings.DisplayableGameSetting
 import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.MinigameUtils.minigame
+import net.casual.arcade.utils.PlayerUtils
 import net.casual.arcade.utils.ScreenUtils
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
@@ -32,6 +34,7 @@ abstract class Minigame(
     val server: MinecraftServer,
 ) {
     private val connections = HashSet<ServerGamePacketListenerImpl>()
+    private val bossbars = ArrayList<CustomBossBar>()
     private val events = EventHandler()
     private var closed = false
 
@@ -93,6 +96,7 @@ abstract class Minigame(
                 this.connections.add(player.connection)
                 val event = MinigameAddExistingPlayerEvent(this, player)
                 GlobalEventHandler.broadcast(event)
+                this.bossbars.forEach { it.addPlayer(player) }
                 return true
             }
 
@@ -101,6 +105,7 @@ abstract class Minigame(
             if (!event.isCancelled()) {
                 this.connections.add(player.connection)
                 player.minigame.setMinigame(this)
+                this.bossbars.forEach { it.addPlayer(player) }
                 return true
             }
         }
@@ -152,6 +157,31 @@ abstract class Minigame(
 
     fun openRulesMenu(player: ServerPlayer, components: SelectionScreenComponents = ScreenUtils.DefaultMinigameScreenComponent) {
         player.openMenu(ScreenUtils.createMinigameRulesScreen(this, components))
+    }
+
+    fun addBossbar(bar: CustomBossBar) {
+        this.bossbars.add(bar)
+        this.reloadBossbars()
+    }
+
+    fun removeBossbar(bar: CustomBossBar) {
+        this.bossbars.remove(bar)
+        bar.clearPlayers()
+    }
+
+    fun removeBossbars() {
+        for (bossbar in this.bossbars) {
+            bossbar.clearPlayers()
+        }
+        this.bossbars.clear()
+    }
+
+    fun reloadBossbars() {
+        for (bossbar in this.bossbars) {
+            PlayerUtils.forEveryPlayer {
+                bossbar.addPlayer(it)
+            }
+        }
     }
 
     override fun toString(): String {

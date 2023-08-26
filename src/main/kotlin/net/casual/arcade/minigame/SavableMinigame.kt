@@ -116,7 +116,7 @@ abstract class SavableMinigame(
                     val custom = JsonObject()
                     task.writeData(custom)
                     data.addProperty("delay", delay)
-                    data.addProperty("name", task.id)
+                    data.addProperty("id", task.id)
                     data.add("custom", custom)
                     tasks.add(data)
                 }
@@ -129,7 +129,7 @@ abstract class SavableMinigame(
                 val data = JsonObject()
                 val custom = JsonObject()
                 task.writeData(custom)
-                data.addProperty("name", task.id)
+                data.addProperty("id", task.id)
                 data.add("custom", custom)
                 endTasks.add(data)
             }

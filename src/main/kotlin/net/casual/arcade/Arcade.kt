@@ -4,8 +4,8 @@ import net.casual.arcade.commands.MinigameCommand
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerCreatedEvent
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
+import net.casual.arcade.utils.*
 import net.casual.arcade.utils.BossbarUtils
-import net.casual.arcade.utils.MinigameUtils
 import net.casual.arcade.utils.NameDisplayUtils
 import net.casual.arcade.utils.SidebarUtils
 import net.fabricmc.api.ModInitializer
@@ -34,6 +34,7 @@ class Arcade: ModInitializer {
         BossbarUtils.registerEvents()
         NameDisplayUtils.registerEvents()
         MinigameUtils.registerEvents()
+        TabUtils.registerEvents()
 
         this.registerCommands()
     }
