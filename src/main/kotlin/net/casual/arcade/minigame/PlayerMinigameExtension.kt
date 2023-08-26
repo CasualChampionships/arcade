@@ -2,6 +2,8 @@ package net.casual.arcade.minigame
 
 import net.casual.arcade.extensions.DataExtension
 import net.casual.arcade.extensions.Extension
+import net.casual.arcade.scheduler.GlobalTickedScheduler
+import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
 import net.minecraft.server.level.ServerPlayer
@@ -43,7 +45,9 @@ class PlayerMinigameExtension(
         if (element.hasUUID("minigame")) {
             val uuid = element.getUUID("minigame")
             this.minigame = Minigames.get(uuid)
-            this.minigame?.addPlayer(this.owner)
+            GlobalTickedScheduler.schedule(0, MinecraftTimeUnit.Ticks) {
+                this.minigame?.addPlayer(this.owner)
+            }
         }
     }
 }
