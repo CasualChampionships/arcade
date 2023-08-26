@@ -8,6 +8,7 @@ import net.minecraft.server.MinecraftServer
 import org.apache.logging.log4j.LogManager
 import java.util.*
 import java.util.function.Consumer
+import kotlin.reflect.typeOf
 
 /**
  * Object class that is responsible for broadcasting
@@ -24,7 +25,7 @@ object GlobalEventHandler {
     private val handlers = HashSet<EventHandler>()
     private val handler = EventHandler()
 
-    internal lateinit var server: MinecraftServer
+    internal var server: MinecraftServer? = null
 
     /**
      * This broadcasts an event for all listeners.
@@ -47,11 +48,18 @@ object GlobalEventHandler {
      */
     @JvmStatic
     fun <T: Event> broadcast(event: T) {
-        if (!this.server.isSameThread) {
-            this.server.execute { broadcast(event) }
+        val type = event::class.java
+
+        val server = this.server
+        if (server != null && !server.isSameThread) {
+            this.logger.warn(
+                "Event (type: {}) broadcasted off main thread, pushing to main thread...",
+                type.simpleName
+            )
+            server.execute { broadcast(event) }
+            return
         }
 
-        val type = event::class.java
         @Suppress("UNCHECKED_CAST")
         val listeners = ArrayList(this.handler.getListenersFor(type)) as MutableList<EventListener<T>>
 

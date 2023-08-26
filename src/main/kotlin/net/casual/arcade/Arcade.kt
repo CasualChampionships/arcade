@@ -25,6 +25,7 @@ class Arcade: ModInitializer {
         init {
             GlobalEventHandler.register<ServerCreatedEvent> {
                 this.server = it.server
+                GlobalEventHandler.server = it.server
             }
         }
     }
