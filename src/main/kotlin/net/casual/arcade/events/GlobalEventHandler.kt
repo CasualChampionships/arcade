@@ -4,6 +4,7 @@ import net.casual.arcade.events.GlobalEventHandler.addHandler
 import net.casual.arcade.events.GlobalEventHandler.broadcast
 import net.casual.arcade.events.core.Event
 import net.casual.arcade.utils.CollectionUtils.addSorted
+import net.minecraft.server.MinecraftServer
 import org.apache.logging.log4j.LogManager
 import java.util.*
 import java.util.function.Consumer
@@ -22,6 +23,8 @@ object GlobalEventHandler {
     private val stack = ArrayDeque<Class<out Event>>()
     private val handlers = HashSet<EventHandler>()
     private val handler = EventHandler()
+
+    internal lateinit var server: MinecraftServer
 
     /**
      * This broadcasts an event for all listeners.
@@ -44,6 +47,10 @@ object GlobalEventHandler {
      */
     @JvmStatic
     fun <T: Event> broadcast(event: T) {
+        if (!this.server.isSameThread) {
+            this.server.execute { broadcast(event) }
+        }
+
         val type = event::class.java
         @Suppress("UNCHECKED_CAST")
         val listeners = ArrayList(this.handler.getListenersFor(type)) as MutableList<EventListener<T>>
