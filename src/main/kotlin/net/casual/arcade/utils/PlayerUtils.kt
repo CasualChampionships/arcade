@@ -7,8 +7,6 @@ import net.casual.arcade.math.Location
 import net.casual.arcade.utils.ExtensionUtils.addExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtensions
-import net.casual.arcade.utils.PlayerUtils.distanceToBorders
-import net.casual.arcade.utils.PlayerUtils.distanceToNearestBorder
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getServerPlayers
 import net.minecraft.advancements.Advancement
@@ -19,6 +17,8 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.OutgoingChatMessage
 import net.minecraft.network.chat.PlayerChatMessage
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket
+import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket
+import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.Action.ADD
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket
 import net.minecraft.server.level.ServerLevel
@@ -29,9 +29,8 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.GameType
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
-import org.joml.Vector2d
+import net.minecraft.world.scores.PlayerTeam
 import java.util.function.Consumer
-import kotlin.math.abs
 
 @Suppress("unused")
 object PlayerUtils {
@@ -98,6 +97,13 @@ object PlayerUtils {
     @JvmStatic
     fun ServerPlayer.isGameMode(mode: GameType): Boolean {
         return this.gameMode.gameModeForPlayer == mode
+    }
+
+    @JvmStatic
+    fun ServerPlayer.spoofTeam(team: PlayerTeam) {
+        this.server.playerList.broadcastAll(
+            ClientboundSetPlayerTeamPacket.createPlayerPacket(team, this.scoreboardName, ADD)
+        )
     }
 
     @JvmStatic
