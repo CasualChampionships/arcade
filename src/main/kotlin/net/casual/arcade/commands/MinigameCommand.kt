@@ -40,7 +40,7 @@ object MinigameCommand: Command {
                 Commands.literal("info").then(
                     Commands.argument("uuid", StringArgumentType.word()).suggests { _, builder ->
                         SharedSuggestionProvider.suggest(Minigames.all().stream().map { it.uuid.toString() }, builder)
-                    }.executes(this::selfJoinMinigame)
+                    }.executes(this::infoMinigame)
                 )
             )
         )
@@ -99,9 +99,10 @@ object MinigameCommand: Command {
         return successes
     }
 
-    private fun infoMinigame(context: CommandContext<CommandSourceStack>) {
+    private fun infoMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = this.getMinigameFromContextUUID(context)
         context.source.success(Component.literal(minigame.toString()))
+        return 1
     }
 
     private fun getMinigameFromContextUUID(context: CommandContext<CommandSourceStack>): Minigame {

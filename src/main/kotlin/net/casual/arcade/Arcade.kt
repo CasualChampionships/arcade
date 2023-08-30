@@ -1,5 +1,6 @@
 package net.casual.arcade
 
+import com.google.common.hash.Hashing
 import net.casual.arcade.commands.MinigameCommand
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerCreatedEvent
@@ -12,6 +13,8 @@ import net.fabricmc.api.ModInitializer
 import net.minecraft.server.MinecraftServer
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import java.nio.file.Path
+import kotlin.io.path.readBytes
 
 class Arcade: ModInitializer {
     companion object {

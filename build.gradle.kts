@@ -1,3 +1,6 @@
+import org.apache.commons.io.output.ByteArrayOutputStream
+import java.nio.charset.Charset
+
 plugins {
     kotlin("jvm")
     id("fabric-loom")
@@ -58,6 +61,9 @@ tasks {
     publishing {
         publications {
             create<MavenPublication>("mavenJava") {
+                groupId = "com.github.CasualUHC"
+                artifactId = "Arcade"
+                version = getGitHash()
                 artifact(remapJar) {
                     builtBy(remapJar)
                 }
@@ -79,4 +85,13 @@ tasks {
 
 java {
     withSourcesJar()
+}
+
+fun getGitHash(): String {
+    val out = ByteArrayOutputStream()
+    exec {
+        commandLine("git", "rev-parse", "HEAD")
+        standardOutput = out
+    }
+    return out.toString(Charset.defaultCharset()).trim()
 }
