@@ -4,6 +4,7 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.player.PlayerCreatedEvent
 import net.casual.arcade.events.player.PlayerLeaveEvent
 import net.casual.arcade.events.player.PlayerTickEvent
+import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.gui.extensions.PlayerSidebarExtension
 import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
@@ -21,25 +22,14 @@ import net.minecraft.world.scores.Scoreboard
 internal object SidebarUtils {
     const val MAX_SIZE = 14
 
-    private val objectiveName = "\$DummyObjective"
+    private const val objectiveName = "Z\$DummyObjective"
     private val objective = ScoreboardUtils.dummyObjective(this.objectiveName)
-    private val teamName = "\$DummyTeam"
+    private const val teamName = "Z\$DummyTeam"
     private val teams = ArrayList<PlayerTeam>(16)
     private val players = ArrayList<String>(16)
 
     internal val ServerPlayer.sidebar
         get() = this.getExtension(PlayerSidebarExtension::class.java)
-
-    init {
-        for (i in 0..15) {
-            val player = ChatFormatting.RESET.toString().repeat(i)
-            val team = ScoreboardUtils.dummyTeam(this.teamName + i)
-
-            team.players.add(player)
-            this.teams.add(team)
-            this.players.add(player)
-        }
-    }
 
 
     internal fun sendSetObjectivePacket(player: ServerPlayer, method: Int, title: Component? = null) {
@@ -69,6 +59,16 @@ internal object SidebarUtils {
     }
 
     internal fun registerEvents() {
+        GlobalEventHandler.register<ServerLoadedEvent> {
+            for (i in 0..15) {
+                val player = ChatFormatting.RESET.toString().repeat(i)
+                val team = ScoreboardUtils.dummyTeam(this.teamName + i)
+
+                team.players.add(player)
+                this.teams.add(team)
+                this.players.add(player)
+            }
+        }
         GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
             player.addExtension(PlayerSidebarExtension(player))
         }

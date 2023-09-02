@@ -22,7 +22,11 @@ import java.util.function.BooleanSupplier;
 public class MinecraftServerMixin {
 	@Inject(
 		method = "<init>",
-		at = @At("TAIL")
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/util/thread/ReentrantBlockableEventLoop;<init>(Ljava/lang/String;)V",
+			shift = At.Shift.AFTER
+		)
 	)
 	private void onCreateServerInstance(
 		Thread thread,
