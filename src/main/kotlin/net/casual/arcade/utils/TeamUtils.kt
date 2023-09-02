@@ -19,7 +19,7 @@ import net.minecraft.world.scores.Team
 object TeamUtils {
     @JvmStatic
     fun teams(): Collection<PlayerTeam> {
-        return Arcade.server.scoreboard.playerTeams
+        return Arcade.getServer().scoreboard.playerTeams
     }
 
     @JvmStatic
@@ -34,12 +34,17 @@ object TeamUtils {
         return this as PlayerTeam
     }
 
+    @Deprecated("Replaced with 'team.getOnlinePlayers()'", ReplaceWith("this.getOnlinePlayers()"))
     @JvmStatic
     fun Team.getServerPlayers(): List<ServerPlayer> {
-        val players = Arcade.server.playerList
+        return this.getOnlinePlayers()
+    }
+
+    @JvmStatic
+    fun Team.getOnlinePlayers(): List<ServerPlayer> {
         val team = ArrayList<ServerPlayer>()
         for (name in this.players) {
-            val player = players.getPlayerByName(name)
+            val player = PlayerUtils.player(name)
             if (player != null) {
                 team.add(player)
             }
@@ -48,27 +53,22 @@ object TeamUtils {
     }
 
     @JvmStatic
-    fun colouredHeadForTeam(team: Team): ItemStack {
-        val texture = when (team.color) {
-            ChatFormatting.BLACK -> HeadTextures.BLACK
-            ChatFormatting.DARK_BLUE -> HeadTextures.DARK_BLUE
-            ChatFormatting.DARK_GREEN -> HeadTextures.DARK_GREEN
-            ChatFormatting.DARK_AQUA -> HeadTextures.DARK_AQUA
-            ChatFormatting.DARK_RED -> HeadTextures.DARK_RED
-            ChatFormatting.DARK_PURPLE -> HeadTextures.DARK_PURPLE
-            ChatFormatting.GOLD -> HeadTextures.GOLD
-            ChatFormatting.GRAY -> HeadTextures.GRAY
-            ChatFormatting.DARK_GRAY -> HeadTextures.DARK_GRAY
-            ChatFormatting.BLUE -> HeadTextures.BLUE
-            ChatFormatting.GREEN -> HeadTextures.GREEN
-            ChatFormatting.AQUA -> HeadTextures.AQUA
-            ChatFormatting.RED -> HeadTextures.RED
-            ChatFormatting.LIGHT_PURPLE -> HeadTextures.LIGHT_PURPLE
-            ChatFormatting.YELLOW -> HeadTextures.YELLOW
-            else -> HeadTextures.WHITE
+    fun Team.getOnlineCount(): Int {
+        var count = 0
+        for (name in this.players) {
+            val player = PlayerUtils.player(name)
+            if (player != null) {
+                count++
+            }
         }
-        val item = ItemUtils.generatePlayerHead("Dummy", texture)
-        return item.setHoverName(Component.literal(team.name).unItalicise())
+        return count
+    }
+
+    @JvmStatic
+    fun colouredHeadForTeam(team: Team): ItemStack {
+        val head = ItemUtils.colouredHeadForFormatting(team.color)
+        head.setHoverName(Component.literal(team.name).unItalicise())
+        return head
     }
 
     @JvmStatic

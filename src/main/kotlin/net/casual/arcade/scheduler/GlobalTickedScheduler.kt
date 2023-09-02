@@ -13,6 +13,11 @@ object GlobalTickedScheduler {
     }
 
     @JvmStatic
+    fun later(task: Runnable) {
+        this.schedule(time = 0, task = task)
+    }
+
+    @JvmStatic
     fun schedule(time: Int, unit: MinecraftTimeUnit = Ticks, task: Runnable): Task {
         return this.scheduler.schedule(time, unit, task)
     }

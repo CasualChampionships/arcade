@@ -10,6 +10,6 @@ object StructureUtils {
     fun read(path: Path): StructureTemplate {
         val inputStream = Files.newInputStream(path)
         val structureNBT = NbtIo.readCompressed(inputStream)
-        return Arcade.server.structureManager.readStructure(structureNBT)
+        return Arcade.getServer().structureManager.readStructure(structureNBT)
     }
 }

@@ -24,7 +24,7 @@ object BorderUtils {
         }
 
         val border = LevelUtils.overworld().worldBorder
-        for (level in Arcade.server.allLevels) {
+        for (level in LevelUtils.levels()) {
             border.addListener(this.original.getOrPut(level) { DelegateBorderChangeListener(level.worldBorder) })
         }
     }
@@ -40,7 +40,7 @@ object BorderUtils {
             border.removeListener(listener)
         }
 
-        for (level in Arcade.server.allLevels) {
+        for (level in LevelUtils.levels()) {
             val broadcaster = this.replacement.getOrPut(level) { LevelSpecificBorderBroadcaster(level) }
             level.worldBorder.addListener(broadcaster)
         }

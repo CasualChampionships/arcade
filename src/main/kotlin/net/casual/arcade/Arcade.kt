@@ -1,34 +1,35 @@
 package net.casual.arcade
 
-import com.google.common.hash.Hashing
 import net.casual.arcade.commands.MinigameCommand
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerCreatedEvent
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.utils.*
-import net.casual.arcade.utils.BossbarUtils
-import net.casual.arcade.utils.NameDisplayUtils
-import net.casual.arcade.utils.SidebarUtils
 import net.fabricmc.api.ModInitializer
 import net.minecraft.server.MinecraftServer
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import java.nio.file.Path
-import kotlin.io.path.readBytes
 
 class Arcade: ModInitializer {
     companion object {
         @JvmField
         val logger: Logger = LogManager.getLogger("Arcade")
 
+        private var server: MinecraftServer? = null
+
         @JvmStatic
-        lateinit var server: MinecraftServer
-            private set
+        fun getServer(): MinecraftServer {
+            return this.server ?: throw IllegalStateException("Called Arcade.getServer before Server was created")
+        }
+
+        @JvmStatic
+        fun getServerOrNull(): MinecraftServer? {
+            return this.server
+        }
 
         init {
             GlobalEventHandler.register<ServerCreatedEvent> {
                 this.server = it.server
-                GlobalEventHandler.server = it.server
             }
         }
     }

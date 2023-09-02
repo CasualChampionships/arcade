@@ -1,5 +1,7 @@
 package net.casual.arcade.utils
 
+import net.casual.arcade.utils.ComponentUtils.unItalicise
+import net.minecraft.ChatFormatting
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.ByteTag
 import net.minecraft.nbt.CompoundTag
@@ -18,6 +20,7 @@ import net.minecraft.world.item.alchemy.PotionUtils
 import net.minecraft.world.item.enchantment.Enchantment
 import net.minecraft.world.item.enchantment.EnchantmentHelper
 import net.minecraft.world.item.enchantment.EnchantmentInstance
+import java.util.*
 
 @Suppress("unused")
 object ItemUtils {
@@ -147,5 +150,29 @@ object ItemUtils {
             compound.put("tag", playerData)
         }
         return ItemStack.of(compound)
+    }
+
+    @JvmStatic
+    fun colouredHeadForFormatting(formatting: ChatFormatting): ItemStack {
+        val texture = when (formatting) {
+            ChatFormatting.BLACK -> HeadTextures.BLACK
+            ChatFormatting.DARK_BLUE -> HeadTextures.DARK_BLUE
+            ChatFormatting.DARK_GREEN -> HeadTextures.DARK_GREEN
+            ChatFormatting.DARK_AQUA -> HeadTextures.DARK_AQUA
+            ChatFormatting.DARK_RED -> HeadTextures.DARK_RED
+            ChatFormatting.DARK_PURPLE -> HeadTextures.DARK_PURPLE
+            ChatFormatting.GOLD -> HeadTextures.GOLD
+            ChatFormatting.GRAY -> HeadTextures.GRAY
+            ChatFormatting.DARK_GRAY -> HeadTextures.DARK_GRAY
+            ChatFormatting.BLUE -> HeadTextures.BLUE
+            ChatFormatting.GREEN -> HeadTextures.GREEN
+            ChatFormatting.AQUA -> HeadTextures.AQUA
+            ChatFormatting.RED -> HeadTextures.RED
+            ChatFormatting.LIGHT_PURPLE -> HeadTextures.LIGHT_PURPLE
+            ChatFormatting.YELLOW -> HeadTextures.YELLOW
+            else -> HeadTextures.WHITE
+        }
+        val item = generatePlayerHead("Dummy", texture)
+        return item.setHoverName(Component.literal(formatting.getName()).unItalicise())
     }
 }

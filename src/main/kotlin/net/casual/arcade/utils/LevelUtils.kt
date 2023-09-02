@@ -14,22 +14,22 @@ import net.minecraft.world.level.Level
 object LevelUtils {
     @JvmStatic
     fun overworld(): ServerLevel {
-        return Arcade.server.overworld()
+        return Arcade.getServer().overworld()
     }
 
     @JvmStatic
     fun nether(): ServerLevel {
-        return Arcade.server.getLevel(Level.NETHER)!!
+        return Arcade.getServer().getLevel(Level.NETHER)!!
     }
 
     @JvmStatic
     fun end(): ServerLevel {
-        return Arcade.server.getLevel(Level.END)!!
+        return Arcade.getServer().getLevel(Level.END)!!
     }
 
     @JvmStatic
     fun levels(): Iterable<ServerLevel> {
-        return Arcade.server.allLevels
+        return Arcade.getServer().allLevels
     }
 
     @JvmStatic

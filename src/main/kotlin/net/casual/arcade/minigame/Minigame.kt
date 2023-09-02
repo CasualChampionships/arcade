@@ -13,6 +13,8 @@ import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.scheduler.Task
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.gui.screen.SelectionScreenComponents
+import net.casual.arcade.gui.sidebar.ArcadeSidebar
+import net.casual.arcade.gui.tab.ArcadeTabDisplay
 import net.casual.arcade.settings.DisplayableGameSetting
 import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.utils.MinigameUtils.getMinigame
@@ -36,6 +38,9 @@ abstract class Minigame(
     private val connections = HashSet<ServerGamePacketListenerImpl>()
     private val bossbars = ArrayList<CustomBossBar>()
     private val events = EventHandler()
+
+    private var sidebar: ArcadeSidebar? = null
+    private var display: ArcadeTabDisplay? = null
     private var closed = false
 
     internal val gameSettings = LinkedHashMap<String, DisplayableGameSetting<*>>()
@@ -58,6 +63,11 @@ abstract class Minigame(
         }
         this.registerEvent<ServerStoppedEvent> {
             this.close()
+        }
+        this.registerMinigameEvent<MinigameAddPlayerEvent> { (_, player) ->
+            this.bossbars.forEach { it.addPlayer(player) }
+            this.sidebar?.addPlayer(player)
+            this.display?.addPlayer(player)
         }
         GlobalEventHandler.addHandler(this.events)
         Minigames.register(this)
@@ -94,9 +104,8 @@ abstract class Minigame(
         if (!this.closed && !this.hasPlayer(player)) {
             if (player.getMinigame() === this) {
                 this.connections.add(player.connection)
-                val event = MinigameAddExistingPlayerEvent(this, player)
-                GlobalEventHandler.broadcast(event)
-                this.bossbars.forEach { it.addPlayer(player) }
+                GlobalEventHandler.broadcast(MinigameAddExistingPlayerEvent(this, player))
+                GlobalEventHandler.broadcast(MinigameAddPlayerEvent(this, player))
                 return true
             }
 
@@ -105,7 +114,7 @@ abstract class Minigame(
             if (!event.isCancelled()) {
                 this.connections.add(player.connection)
                 player.minigame.setMinigame(this)
-                this.bossbars.forEach { it.addPlayer(player) }
+                GlobalEventHandler.broadcast(MinigameAddPlayerEvent(this, player))
                 return true
             }
         }
@@ -182,6 +191,34 @@ abstract class Minigame(
                 bossbar.addPlayer(it)
             }
         }
+    }
+
+    fun setSidebar(sidebar: ArcadeSidebar) {
+        this.removeSidebar()
+
+        this.sidebar = sidebar
+        for (player in this.getPlayers()) {
+            sidebar.addPlayer(player)
+        }
+    }
+
+    fun removeSidebar() {
+        this.sidebar?.clearPlayers()
+        this.sidebar = null
+    }
+
+    fun setTabDisplay(display: ArcadeTabDisplay) {
+        this.removeTabDisplay()
+
+        this.display = display
+        for (player in this.getPlayers()) {
+            display.addPlayer(player)
+        }
+    }
+
+    fun removeTabDisplay() {
+        this.display?.clearPlayers()
+        this.display = null
     }
 
     override fun toString(): String {

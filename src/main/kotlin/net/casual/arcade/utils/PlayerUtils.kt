@@ -43,7 +43,7 @@ object PlayerUtils {
 
     @JvmStatic
     fun players(): Collection<ServerPlayer> {
-        return Arcade.server.playerList.players
+        return Arcade.getServer().playerList.players
     }
 
     @JvmStatic
@@ -67,7 +67,7 @@ object PlayerUtils {
                 player.sendSystemMessage(message)
             }
         }
-        Arcade.server.sendSystemMessage(message)
+        Arcade.getServer().sendSystemMessage(message)
     }
 
     @JvmStatic
@@ -84,7 +84,7 @@ object PlayerUtils {
 
     @JvmStatic
     fun player(name: String): ServerPlayer? {
-        return Arcade.server.playerList.getPlayerByName(name)
+        return Arcade.getServer().playerList.getPlayerByName(name)
     }
 
     @JvmStatic

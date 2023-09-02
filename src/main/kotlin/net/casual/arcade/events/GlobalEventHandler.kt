@@ -1,8 +1,10 @@
 package net.casual.arcade.events
 
+import net.casual.arcade.Arcade
 import net.casual.arcade.events.GlobalEventHandler.addHandler
 import net.casual.arcade.events.GlobalEventHandler.broadcast
 import net.casual.arcade.events.core.Event
+import net.casual.arcade.events.server.ServerCreatedEvent
 import net.casual.arcade.utils.CollectionUtils.addSorted
 import net.minecraft.server.MinecraftServer
 import org.apache.logging.log4j.LogManager
@@ -24,8 +26,6 @@ object GlobalEventHandler {
     private val stack = ArrayDeque<Class<out Event>>()
     private val handlers = HashSet<EventHandler>()
     private val handler = EventHandler()
-
-    internal var server: MinecraftServer? = null
 
     /**
      * This broadcasts an event for all listeners.
@@ -50,10 +50,17 @@ object GlobalEventHandler {
     fun <T: Event> broadcast(event: T) {
         val type = event::class.java
 
-        val server = this.server
-        if (server != null && !server.isSameThread) {
+        val server = Arcade.getServerOrNull()
+        if (server == null) {
+            if (event !is ServerCreatedEvent) {
+                this.logger.warn(
+                    "Detected broadcasted event (type: {}), before server created, may be unsafe...",
+                    type.simpleName
+                )
+            }
+        } else if (!server.isSameThread) {
             this.logger.warn(
-                "Event (type: {}) broadcasted off main thread, pushing to main thread...",
+                "Detected broadcasted event (type: {}) off main thread, pushing to main thread...",
                 type.simpleName
             )
             server.execute { broadcast(event) }
