@@ -13,7 +13,7 @@ import net.casual.arcade.scheduler.Task
 import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.boolean
 import net.casual.arcade.utils.JsonUtils.int
-import net.casual.arcade.utils.JsonUtils.getObject
+import net.casual.arcade.utils.JsonUtils.obj
 import net.casual.arcade.utils.JsonUtils.intOrNull
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
@@ -67,7 +67,7 @@ abstract class SavableMinigame(
             val delay = data.int("delay")
             val identity = data.intOrNull("identity")
             val id = data.string("id")
-            val custom = data.getObject("custom")
+            val custom = data.obj("custom")
             val task = if (identity == null) this.createTask(id, custom) else generated.getOrPut(identity) { this.createTask(id, custom) }
             if (task !== null) {
                 Arcade.logger.info("Successfully loaded task $id for minigame ${this.id}, scheduled for $delay ticks")
@@ -81,7 +81,7 @@ abstract class SavableMinigame(
         for (data in endTasks.objects()) {
             val id = data.string("id")
             val identity = data.intOrNull("identity")
-            val custom = data.getObject("custom")
+            val custom = data.obj("custom")
             val task = if (identity == null) this.createTask(id, custom) else generated.getOrPut(identity) { this.createTask(id, custom) }
             if (task !== null) {
                 Arcade.logger.info("Successfully loaded end task $id for minigame ${this.id}")
@@ -103,7 +103,7 @@ abstract class SavableMinigame(
             display.setting.deserialise(value)
         }
 
-        this.readData(json.getObject("custom"))
+        this.readData(json.obj("custom"))
 
         super.initialise()
     }

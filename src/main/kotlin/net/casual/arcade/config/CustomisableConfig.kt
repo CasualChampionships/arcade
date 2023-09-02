@@ -10,24 +10,29 @@ import net.casual.arcade.utils.JsonUtils.arrayOrNull
 import net.casual.arcade.utils.JsonUtils.boolean
 import net.casual.arcade.utils.JsonUtils.booleanOrDefault
 import net.casual.arcade.utils.JsonUtils.booleanOrNull
+import net.casual.arcade.utils.JsonUtils.booleanOrPut
 import net.casual.arcade.utils.JsonUtils.double
 import net.casual.arcade.utils.JsonUtils.doubleOrDefault
 import net.casual.arcade.utils.JsonUtils.doubleOrNull
+import net.casual.arcade.utils.JsonUtils.doubleOrPut
 import net.casual.arcade.utils.JsonUtils.float
 import net.casual.arcade.utils.JsonUtils.floatOrDefault
 import net.casual.arcade.utils.JsonUtils.floatOrNull
 import net.casual.arcade.utils.JsonUtils.int
 import net.casual.arcade.utils.JsonUtils.intOrDefault
 import net.casual.arcade.utils.JsonUtils.intOrNull
+import net.casual.arcade.utils.JsonUtils.intOrPut
 import net.casual.arcade.utils.JsonUtils.number
 import net.casual.arcade.utils.JsonUtils.numberOrDefault
 import net.casual.arcade.utils.JsonUtils.numberOrNull
-import net.casual.arcade.utils.JsonUtils.getObject
+import net.casual.arcade.utils.JsonUtils.numberOrPut
+import net.casual.arcade.utils.JsonUtils.obj
 import net.casual.arcade.utils.JsonUtils.objOrDefault
 import net.casual.arcade.utils.JsonUtils.objOrNull
 import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.stringOrDefault
 import net.casual.arcade.utils.JsonUtils.stringOrNull
+import net.casual.arcade.utils.JsonUtils.stringOrPut
 import java.nio.file.Path
 import kotlin.io.path.bufferedReader
 import kotlin.io.path.bufferedWriter
@@ -60,7 +65,7 @@ open class CustomisableConfig(
             }
 
             override fun getValue(any: Any, property: KProperty<*>): Boolean {
-                return json.booleanOrDefault(name ?: property.name, default)
+                return json.booleanOrPut(name ?: property.name) { default }
             }
         }
     }
@@ -72,7 +77,7 @@ open class CustomisableConfig(
             }
 
             override fun getValue(any: Any, property: KProperty<*>): String {
-                return json.stringOrDefault(name ?: property.name, default)
+                return json.stringOrPut(name ?: property.name) { default }
             }
         }
     }
@@ -84,7 +89,7 @@ open class CustomisableConfig(
             }
 
             override fun getValue(any: Any, property: KProperty<*>): Number {
-                return json.numberOrDefault(name ?: property.name, default)
+                return json.numberOrPut(name ?: property.name) { default }
             }
         }
     }
@@ -96,7 +101,7 @@ open class CustomisableConfig(
             }
 
             override fun getValue(any: Any, property: KProperty<*>): Int {
-                return json.intOrDefault(name ?: property.name, default)
+                return json.intOrPut(name ?: property.name) { default }
             }
         }
     }
@@ -108,7 +113,72 @@ open class CustomisableConfig(
             }
 
             override fun getValue(any: Any, property: KProperty<*>): Double {
-                return json.doubleOrDefault(name ?: property.name, default)
+                return json.doubleOrPut(name ?: property.name) { default }
+            }
+        }
+    }
+
+    fun booleanOrNull(name: String? = null): Configurable<Boolean?> {
+        return object: Configurable<Boolean?> {
+            override fun setValue(any: Any, property: KProperty<*>, value: Boolean?) {
+                json.addProperty(name ?: property.name, value)
+            }
+
+            override fun getValue(any: Any, property: KProperty<*>): Boolean? {
+                val key = name ?: property.name
+                return json.booleanOrNull(key) ?: json.add(key, null).let { null }
+            }
+        }
+    }
+
+    fun stringOrNull(name: String? = null): Configurable<String?> {
+        return object: Configurable<String?> {
+            override fun setValue(any: Any, property: KProperty<*>, value: String?) {
+                json.addProperty(name ?: property.name, value)
+            }
+
+            override fun getValue(any: Any, property: KProperty<*>): String? {
+                val key = name ?: property.name
+                return json.stringOrNull(key) ?: json.add(key, null).let { null }
+            }
+        }
+    }
+
+    fun numberOrNull(name: String? = null): Configurable<Number?> {
+        return object: Configurable<Number?> {
+            override fun setValue(any: Any, property: KProperty<*>, value: Number?) {
+                json.addProperty(name ?: property.name, value)
+            }
+
+            override fun getValue(any: Any, property: KProperty<*>): Number? {
+                val key = name ?: property.name
+                return json.numberOrNull(key) ?: json.add(key, null).let { null }
+            }
+        }
+    }
+
+    fun intOrNull(name: String? = null): Configurable<Int?> {
+        return object: Configurable<Int?> {
+            override fun setValue(any: Any, property: KProperty<*>, value: Int?) {
+                json.addProperty(name ?: property.name, value)
+            }
+
+            override fun getValue(any: Any, property: KProperty<*>): Int? {
+                val key = name ?: property.name
+                return json.intOrNull(key) ?: json.add(key, null).let { null }
+            }
+        }
+    }
+
+    fun doubleOrNull(name: String? = null): Configurable<Double?> {
+        return object: Configurable<Double?> {
+            override fun setValue(any: Any, property: KProperty<*>, value: Double?) {
+                json.addProperty(name ?: property.name, value)
+            }
+
+            override fun getValue(any: Any, property: KProperty<*>): Double? {
+                val key = name ?: property.name
+                return json.doubleOrNull(key) ?: json.add(key, null).let { null }
             }
         }
     }
@@ -198,7 +268,7 @@ open class CustomisableConfig(
     }
 
     fun getObject(key: String): JsonObject {
-        return this.json.getObject(key)
+        return this.json.obj(key)
     }
 
     fun getObjectOrNull(key: String): JsonObject? {
