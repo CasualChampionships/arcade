@@ -1,14 +1,17 @@
 package net.casual.arcade.border
 
-import org.joml.Vector2d
-
 class StillCenterBorderState(
-    private var center: Vector2d,
+    private var centerX: Double,
+    private var centerZ: Double
 ): CenterBorderState {
 
 
-    override fun getCenter(): Vector2d {
-        return center
+    override fun getCenterX(): Double {
+        return centerX;
+    }
+
+    override fun getCenterZ(): Double {
+        return centerZ
     }
 
     override fun update(): CenterBorderState {

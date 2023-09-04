@@ -6,21 +6,27 @@ import org.joml.Vector2d
 
 class MovingCenterBorderState(
     private val border: ArcadeBorder,
+    private val centerX: Double,
+    private val centerZ: Double,
+    private val targetCenterX: Double,
+    private val targetCenterZ: Double,
     realDuration: Long,
 ): CenterBorderState {
-    private var tickDuration = realDuration / 50.0
+    private val tickDuration = realDuration / 50.0
     private var ticks = 0
 
-    private var center = Vector2d(0.0,0.0)
-    private var targetCenter = Vector2d(0.0,0.0)
 
 
-    override fun getCenter(): Vector2d {
+    override fun getCenterX(): Double {
         val progress = this.ticks/ tickDuration
-        val x = if (progress < 1.0) Mth.lerp(progress, this.center.x, targetCenter.x) else targetCenter.x
-        val z = if (progress < 1.0) Mth.lerp(progress, center.y, targetCenter.y) else targetCenter.y
-        return Vector2d(x, z)
+        return if (progress < 1.0) Mth.lerp(progress, this.centerX, this.targetCenterX) else this.targetCenterX
     }
+    override fun getCenterZ(): Double {
+        val progress = this.ticks / tickDuration
+        return if (progress < 1.0) Mth.lerp(progress, this.centerZ, this.targetCenterZ) else this.targetCenterZ
+
+    }
+
 
     override fun update(): CenterBorderState {
 
@@ -33,13 +39,13 @@ class MovingCenterBorderState(
                 // We do not want to update DelegateBorderChangeListener
                 // This updates borders in other dimensions
                 if (listener !is BorderChangeListener.DelegateBorderChangeListener) {
-                    listener.onBorderCenterSet(this.border, this.center.x, this.center.y)
+                    listener.onBorderCenterSet(this.border, this.getCenterX(), this.getCenterZ())
 
                 }
             }
         }
 
-        return if (this.ticks >= this.tickDuration) StillCenterBorderState(this.center) else this
+        return if (this.ticks >= this.tickDuration) StillCenterBorderState(this.centerX, this.centerZ) else this
     }
 
 

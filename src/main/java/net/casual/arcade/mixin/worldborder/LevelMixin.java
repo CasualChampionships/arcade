@@ -49,7 +49,7 @@ public class LevelMixin {
     ) {
         if (dimension == Level.OVERWORLD || dimension == Level.NETHER || dimension == Level.END) {
             Arcade.logger.debug("Setting Debug Border Enabled");
-            this.worldBorder = new TrackedBorder(5000, new Vector2d(0.0,0.0));
+            this.worldBorder = new TrackedBorder(5000, 0.0,0.0);
         }
     }
 
