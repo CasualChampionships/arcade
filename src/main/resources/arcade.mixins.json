@@ -38,7 +38,8 @@
     "recipes.RecipeManagerMixin",
     "screen.ServerGamePacketListenerImplMixin",
     "worldborder.MinecraftServerMixin",
-    "worldborder.PlayerListMixin"
+    "worldborder.PlayerListMixin",
+    "worldborder.WorldBorderMixin"
   ],
   "injectors": {
     "defaultRequire": 1
