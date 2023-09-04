@@ -11,6 +11,8 @@ abstract class ArcadeBorder: WorldBorder() {
 
 
     protected abstract var state: BorderState
+
+
     protected abstract var centerState: CenterBorderState
 
     override fun tick() {
@@ -39,22 +41,34 @@ abstract class ArcadeBorder: WorldBorder() {
     }
 
     override fun getCenterX(): Double {
-        return this.centerState.getCenter().x
+        return if (this.centerState != null) this.centerState.getCenter().x else 0.0
     }
 
     override fun getCenterZ(): Double {
-        return this.centerState.getCenter().y
+        return if (this.centerState != null) this.centerState.getCenter().y else 0.0
     }
 
 
     override fun setCenter(x: Double, z: Double) {
-        this.centerState.setCenter(Vector2d(x,z))
+        //Somehow this is still null when this would need to be called to init
+        this.centerState = StillCenterBorderState(this.centerState.getCenter())
 
         this.state.onCenterChange()
         this.centerState.onCenterChange()
 
         for (listener in this.listeners) {
             listener.onBorderCenterSet(this, x, z)
+        }
+    }
+
+    fun setCenterLerped(x: Double, z: Double, realTime: Long) {
+        this.centerState = MovingCenterBorderState(this, realTime)
+
+        this.state.onCenterChange()
+        this.centerState.onCenterChange()
+
+        for (listener in this.listeners) {
+            listener.onBorderCenterSet(this, this.centerX, this.centerZ)
         }
     }
 
