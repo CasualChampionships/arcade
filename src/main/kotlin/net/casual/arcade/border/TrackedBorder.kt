@@ -2,7 +2,12 @@ package net.casual.arcade.border
 
 import org.joml.Vector2d
 
-class TrackedBorder(size: Double, center: Vector2d) : ArcadeBorder() {
+
+
+
+
+class TrackedBorder(size: Double, center: Vector2d): ArcadeBorder() {
+    
     override var centerState: CenterBorderState = StillCenterBorderState(center)
     override var state: BorderState = StillBorderState(this, size)
 
