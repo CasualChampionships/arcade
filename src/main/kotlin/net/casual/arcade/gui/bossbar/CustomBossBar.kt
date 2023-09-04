@@ -1,5 +1,6 @@
 package net.casual.arcade.gui.bossbar
 
+import net.casual.arcade.gui.PlayerUI
 import net.casual.arcade.utils.BossbarUtils.bossbars
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
@@ -8,12 +9,8 @@ import net.minecraft.util.Mth
 import net.minecraft.world.BossEvent
 import java.util.*
 
-abstract class CustomBossBar {
-    private val connections = HashSet<ServerGamePacketListenerImpl>()
+abstract class CustomBossBar: PlayerUI() {
     internal val uuid: UUID = Mth.createInsecureUUID()
-
-    internal var interval = 1
-        private set
 
     abstract fun getTitle(player: ServerPlayer): Component
 
@@ -35,29 +32,11 @@ abstract class CustomBossBar {
         return false
     }
 
-    fun setUpdateInterval(interval: Int) {
-        this.interval = interval.coerceAtLeast(1)
+    override fun onAddPlayer(player: ServerPlayer) {
+        player.bossbars.add(this)
     }
 
-    fun addPlayer(player: ServerPlayer) {
-        if (this.connections.add(player.connection)) {
-            player.bossbars.add(this)
-        }
-    }
-
-    fun removePlayer(player: ServerPlayer) {
-        if (this.connections.remove(player.connection)) {
-            player.bossbars.remove(this)
-        }
-    }
-
-    fun clearPlayers() {
-        for (player in this.getPlayers()) {
-            this.removePlayer(player)
-        }
-    }
-
-    fun getPlayers(): List<ServerPlayer> {
-        return this.connections.map { it.player }
+    override fun onRemovePlayer(player: ServerPlayer) {
+        player.bossbars.remove(this)
     }
 }

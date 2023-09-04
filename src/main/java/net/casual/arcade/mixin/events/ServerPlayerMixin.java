@@ -1,10 +1,15 @@
 package net.casual.arcade.mixin.events;
 
+import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.*;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,7 +18,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerPlayer.class)
-public class ServerPlayerMixin {
+public abstract class ServerPlayerMixin extends Player {
+	public ServerPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
+		super(level, blockPos, f, gameProfile);
+	}
+
 	@Inject(
 		method = "tick",
 		at = @At("HEAD")
@@ -51,5 +60,16 @@ public class ServerPlayerMixin {
 	private void onFall(double movementX, double movementY, double movementZ, boolean onGround, CallbackInfo ci) {
 		PlayerFallEvent event = new PlayerFallEvent((ServerPlayer) (Object) this, movementY, onGround);
 		GlobalEventHandler.broadcast(event);
+	}
+
+	@Override
+	protected void updatePlayerPose() {
+		Pose previous = this.getPose();
+		super.updatePlayerPose();
+		Pose updated = this.getPose();
+		if (previous != updated) {
+			PlayerPoseEvent event = new PlayerPoseEvent((ServerPlayer) (Object) this, previous, updated);
+			GlobalEventHandler.broadcast(event);
+		}
 	}
 }

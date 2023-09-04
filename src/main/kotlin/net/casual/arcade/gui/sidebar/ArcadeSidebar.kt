@@ -1,19 +1,16 @@
 package net.casual.arcade.gui.sidebar
 
+import net.casual.arcade.gui.PlayerUI
 import net.casual.arcade.gui.suppliers.ComponentSupplier
 import net.casual.arcade.utils.SidebarUtils
 import net.casual.arcade.utils.SidebarUtils.sidebar
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 
-class ArcadeSidebar(title: ComponentSupplier) {
-    private val connections = HashSet<ServerGamePacketListenerImpl>()
+class ArcadeSidebar(title: ComponentSupplier): PlayerUI() {
     private val rows = ArrayList<ComponentSupplier>(SidebarUtils.MAX_SIZE)
 
     var title: ComponentSupplier = title
-        private set
-
-    var interval = 1
         private set
 
     fun size(): Int {
@@ -26,10 +23,6 @@ class ArcadeSidebar(title: ComponentSupplier) {
         for (player in this.getPlayers()) {
             player.sidebar.setTitle(title.getComponent(player))
         }
-    }
-
-    fun setInterval(interval: Int) {
-        this.interval = interval.coerceAtLeast(1)
     }
 
     fun getRow(index: Int): ComponentSupplier {
@@ -73,26 +66,12 @@ class ArcadeSidebar(title: ComponentSupplier) {
         }
     }
 
-    fun addPlayer(player: ServerPlayer) {
-        if (this.connections.add(player.connection)) {
-            player.sidebar.set(this)
-        }
+    override fun onAddPlayer(player: ServerPlayer) {
+        player.sidebar.set(this)
     }
 
-    fun removePlayer(player: ServerPlayer) {
-        if (this.connections.remove(player.connection)) {
-            player.sidebar.remove()
-        }
-    }
-
-    fun clearPlayers() {
-        for (player in this.getPlayers()) {
-            this.removePlayer(player)
-        }
-    }
-
-    fun getPlayers(): List<ServerPlayer> {
-        return this.connections.map { it.player }
+    override fun onRemovePlayer(player: ServerPlayer) {
+        player.sidebar.remove()
     }
 
     private fun checkBounds(index: Int, upper: Int) {

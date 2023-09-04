@@ -2,10 +2,15 @@ package net.casual.arcade
 
 import net.casual.arcade.commands.MinigameCommand
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.events.server.ServerCreatedEvent
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
+import net.casual.arcade.gui.nametag.ArcadeNameTag
+import net.casual.arcade.gui.suppliers.ComponentSupplier
 import net.casual.arcade.utils.*
+import net.casual.arcade.utils.PlayerUtils.isSurvival
 import net.fabricmc.api.ModInitializer
+import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -31,6 +36,16 @@ class Arcade: ModInitializer {
             GlobalEventHandler.register<ServerCreatedEvent> {
                 this.server = it.server
             }
+
+            GlobalEventHandler.register<PlayerJoinEvent> { (player) ->
+                if (player.scoreboardName == "senseiwells") {
+                    val health = ArcadeNameTag({ Component.literal("Health: " + it.health)}, { it.isSurvival })
+                    health.addPlayer(player)
+                    val tag = ArcadeNameTag(ComponentSupplier.of(Component.literal("Name")))
+                    tag.addPlayer(player)
+                }
+
+            }
         }
     }
 
@@ -40,6 +55,7 @@ class Arcade: ModInitializer {
         NameDisplayUtils.registerEvents()
         MinigameUtils.registerEvents()
         TabUtils.registerEvents()
+        NameTagUtils.registerEvents()
 
         this.registerCommands()
     }
