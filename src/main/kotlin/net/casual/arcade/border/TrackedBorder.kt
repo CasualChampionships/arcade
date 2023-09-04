@@ -4,8 +4,6 @@ import org.joml.Vector2d
 
 
 
-
-
 class TrackedBorder(size: Double, center: Vector2d): ArcadeBorder() {
     
     override var centerState: CenterBorderState = StillCenterBorderState(center)
