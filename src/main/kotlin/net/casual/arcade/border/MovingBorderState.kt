@@ -68,30 +68,7 @@ class MovingBorderState(
 
 
 
-/*    fun getCenter(): Vector2d {
-        val progress = ticks / tickDuration
-        if (progress >= 1.0) {
-
-            return Vector2d(this.border.getTargetCenterX(), this.border.getTargetCenterX())
-        }
-        val lerpedX = Mth.lerp(progress, this.border.centerX, this.border.getTargetCenterX())
-        val lerpedZ = Mth.lerp(progress, this.border.centerZ, this.border.getTargetCenterZ())
-        return Vector2d(lerpedX, lerpedZ)
-
-    }*/
-
-    override fun getCenterX(centerX: Double, targetCenterX: Double): Double {
-        val progress = ticks / tickDuration
-        return if (progress < 1.0) Mth.lerp(progress, centerX, targetCenterX) else targetCenterX
-    }
-
-    override fun getCenterZ(centerZ: Double, targetCenterZ: Double): Double {
-        val progress = ticks / tickDuration
-        return if (progress < 1.0) Mth.lerp(progress, centerZ, targetCenterZ) else targetCenterZ
-    }
-
     override fun update(): BorderState {
-        //TODO: does this work?
 
         if (this.ticks++ % 20 == 0) {
             // We need to update any listeners
@@ -104,20 +81,9 @@ class MovingBorderState(
                 if (listener !is DelegateBorderChangeListener) {
                     listener.onBorderSizeLerping(this.border, this.sizeFrom, this.sizeTo, this.realDuration)
 
-
-                    listener.onBorderCenterSet(this.border, this.border.centerX, this.border.centerZ)
-
-
                 }
             }
         }
-
-/*        if (this.border.centerX != this.border.getTargetCenterX() && this.border.centerZ != this.border.getTargetCenterZ()) {
-            for (listener in this.border.listeners) {
-                //TODO: Experimental
-                listener.onBorderCenterSet(this.border, this.border.centerX, this.border.centerZ)
-            }
-        }*/
 
         return if (this.ticks >= this.tickDuration) StillBorderState(this.border, this.sizeTo) else this
     }

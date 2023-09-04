@@ -10,6 +10,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.WritableLevelData;
+import org.joml.Vector2d;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 
@@ -47,8 +48,8 @@ public class LevelMixin {
             CallbackInfo ci
     ) {
         if (dimension == Level.OVERWORLD || dimension == Level.NETHER || dimension == Level.END) {
-            Arcade.logger.debug("Setting Debug Border Disabled");
-            //this.worldBorder = new TrackedBorder(5000);
+            Arcade.logger.debug("Setting Debug Border Enabled");
+            this.worldBorder = new TrackedBorder(5000, new Vector2d(0.0,0.0));
         }
     }
 

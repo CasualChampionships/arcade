@@ -3,20 +3,19 @@ package net.casual.arcade.border
 import net.minecraft.world.level.border.BorderChangeListener
 import net.minecraft.world.level.border.BorderStatus
 import net.minecraft.world.level.border.WorldBorder
+import org.joml.Vector2d
 
 abstract class ArcadeBorder: WorldBorder() {
-    private var centerX = 0.0
-    private var centerZ = 0.0
 
-    private var targetCenterX = 0.0
-    private var targetCenterZ = 0.0
 
 
 
     protected abstract var state: BorderState
+    protected abstract var centerState: CenterBorderState
 
     override fun tick() {
         this.state = this.state.update()
+        this.centerState = this.centerState.update()
     }
 
     override fun getStatus(): BorderStatus {
@@ -40,35 +39,19 @@ abstract class ArcadeBorder: WorldBorder() {
     }
 
     override fun getCenterX(): Double {
-        return if (this.state != null) this.state.getCenterX(this.centerX, this.getTargetCenterX()) else this.centerX
+        return this.centerState.getCenter().x
     }
 
     override fun getCenterZ(): Double {
-        return if (this.state != null) this.state.getCenterZ(this.centerZ, this.getTargetCenterZ()) else this.centerZ
-    }
-    fun getTargetCenterX(): Double {
-        return this.targetCenterX
-    }
-    fun getTargetCenterZ(): Double {
-        return this.targetCenterZ
+        return this.centerState.getCenter().y
     }
 
-    fun setCenterLerp(x: Double, z: Double) {
-        this.targetCenterX = x
-        this.targetCenterZ = z
-        this.state.onCenterChange()
 
-        //Update listeners in border state update method.
-
-    }
     override fun setCenter(x: Double, z: Double) {
-        this.targetCenterX = x
-        this.targetCenterZ = z
-
-        this.centerX = x
-        this.centerZ = z
+        this.centerState.setCenter(Vector2d(x,z))
 
         this.state.onCenterChange()
+        this.centerState.onCenterChange()
 
         for (listener in this.listeners) {
             listener.onBorderCenterSet(this, x, z)
@@ -93,6 +76,7 @@ abstract class ArcadeBorder: WorldBorder() {
 
     override fun setSize(size: Double) {
         this.state = StillBorderState(this, size)
+        this.centerState = StillCenterBorderState(this.centerState.getCenter())
 
         for (borderChangeListener in listeners) {
             borderChangeListener.onBorderSizeSet(this, size)
@@ -106,6 +90,7 @@ abstract class ArcadeBorder: WorldBorder() {
         }
 
         this.state = MovingBorderState(this, time, start, end)
+        this.centerState = MovingCenterBorderState(this, time)
 
         for (borderChangeListener in listeners) {
             borderChangeListener.onBorderSizeLerping(this, start, end, time)
