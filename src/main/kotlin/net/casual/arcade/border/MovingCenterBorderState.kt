@@ -17,7 +17,7 @@ class MovingCenterBorderState(
 
     override fun getCenter(): Vector2d {
         val progress = this.ticks/ tickDuration
-        val x = if (progress < 1.0) Mth.lerp(progress, this.border.centerX, targetCenter.x) else targetCenter.x
+        val x = if (progress < 1.0) Mth.lerp(progress, this.center.x, targetCenter.x) else targetCenter.x
         val z = if (progress < 1.0) Mth.lerp(progress, center.y, targetCenter.y) else targetCenter.y
         return Vector2d(x, z)
     }
