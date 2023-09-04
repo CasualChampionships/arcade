@@ -37,15 +37,15 @@ class Arcade: ModInitializer {
                 this.server = it.server
             }
 
-            GlobalEventHandler.register<PlayerJoinEvent> { (player) ->
-                if (player.scoreboardName == "senseiwells") {
-                    val health = ArcadeNameTag({ Component.literal("Health: " + it.health)}, { it.isSurvival })
-                    health.addPlayer(player)
-                    val tag = ArcadeNameTag(ComponentSupplier.of(Component.literal("Name")))
-                    tag.addPlayer(player)
-                }
-
-            }
+            // GlobalEventHandler.register<PlayerJoinEvent> { (player) ->
+            //     if (player.scoreboardName == "senseiwells") {
+            //         val health = ArcadeNameTag({ Component.literal("Health: " + it.health)}, { it.isSurvival })
+            //         health.addPlayer(player)
+            //         val tag = ArcadeNameTag(ComponentSupplier.of(Component.literal("Name")))
+            //         tag.addPlayer(player)
+            //     }
+            //
+            // }
         }
     }
 
