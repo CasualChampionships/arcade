@@ -71,6 +71,14 @@ class StillBorderState(
         return this.shape
     }
 
+    override fun getCenterX(centerX: Double, targetCenterX: Double): Double {
+        return centerX
+    }
+
+    override fun getCenterZ(centerZ: Double, targetCenterZ: Double): Double {
+        return centerZ
+    }
+
     private fun updateShape() {
         this.minX = Mth.clamp(
             this.border.centerX - size / 2.0,

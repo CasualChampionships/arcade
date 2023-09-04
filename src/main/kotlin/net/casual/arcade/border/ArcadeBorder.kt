@@ -8,6 +8,11 @@ abstract class ArcadeBorder: WorldBorder() {
     private var centerX = 0.0
     private var centerZ = 0.0
 
+    private var targetCenterX = 0.0
+    private var targetCenterZ = 0.0
+
+
+
     protected abstract var state: BorderState
 
     override fun tick() {
@@ -35,16 +40,34 @@ abstract class ArcadeBorder: WorldBorder() {
     }
 
     override fun getCenterX(): Double {
-        return this.centerX
+        return if (this.state != null) this.state.getCenterX(this.centerX, this.getTargetCenterX()) else this.centerX
     }
 
     override fun getCenterZ(): Double {
-        return this.centerZ
+        return if (this.state != null) this.state.getCenterZ(this.centerZ, this.getTargetCenterZ()) else this.centerZ
+    }
+    fun getTargetCenterX(): Double {
+        return this.targetCenterX
+    }
+    fun getTargetCenterZ(): Double {
+        return this.targetCenterZ
     }
 
+    fun setCenterLerp(x: Double, z: Double) {
+        this.targetCenterX = x
+        this.targetCenterZ = z
+        this.state.onCenterChange()
+
+        //Update listeners in border state update method.
+
+    }
     override fun setCenter(x: Double, z: Double) {
+        this.targetCenterX = x
+        this.targetCenterZ = z
+
         this.centerX = x
         this.centerZ = z
+
         this.state.onCenterChange()
 
         for (listener in this.listeners) {

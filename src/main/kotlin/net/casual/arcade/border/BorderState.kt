@@ -27,4 +27,8 @@ interface BorderState {
     fun update(): BorderState
 
     fun getCollisionShape(): VoxelShape
+
+
+    fun getCenterX(centerX: Double, targetCenterX: Double): Double
+    fun getCenterZ(centerZ: Double, targetCenterZ: Double): Double
 }
