@@ -47,6 +47,10 @@ dependencies {
     include(implementation(annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-fabric:0.2.0-beta.6")!!)!!)
 }
 
+loom {
+    accessWidenerPath.set(file("src/main/resources/arcade.accesswidener"))
+}
+
 tasks {
     processResources {
         inputs.property("version", project.version)
