@@ -1,5 +1,6 @@
 package net.casual.arcade
 
+import net.casual.arcade.commands.DebugCommand
 import net.casual.arcade.commands.MinigameCommand
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.player.PlayerJoinEvent
@@ -55,6 +56,7 @@ class Arcade: ModInitializer {
     private fun registerCommands() {
         GlobalEventHandler.register<ServerRegisterCommandEvent> {
             MinigameCommand.register(it.dispatcher)
+            DebugCommand.register(it.dispatcher)
         }
     }
 }

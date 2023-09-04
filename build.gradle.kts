@@ -89,10 +89,12 @@ java {
 }
 
 fun getGitHash(): String {
-    val out = ByteArrayOutputStream()
+    //TODO: FIX, started breaking for me sadly, I will fix it soon
+    return "842b7f070b92f62bfe28214ae6834a1da59bd8b4"
+/*    val out = ByteArrayOutputStream()
     exec {
         commandLine("git", "rev-parse", "HEAD")
         standardOutput = out
     }
-    return out.toString(Charset.defaultCharset()).trim()
+    return out.toString(Charset.defaultCharset()).trim()*/
 }

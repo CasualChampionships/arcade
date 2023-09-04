@@ -37,6 +37,7 @@
     "recipes.ClientboundUpdateRecipesPacketMixin",
     "recipes.RecipeManagerMixin",
     "screen.ServerGamePacketListenerImplMixin",
+    "worldborder.LevelMixin",
     "worldborder.MinecraftServerMixin",
     "worldborder.PlayerListMixin"
   ],
