@@ -16,20 +16,18 @@ class MovingCenterBorderState(
     private var ticks = 0
 
 
-
     override fun getCenterX(): Double {
         val progress = this.ticks/ tickDuration
         return if (progress < 1.0) Mth.lerp(progress, this.centerX, this.targetCenterX) else this.targetCenterX
     }
+
     override fun getCenterZ(): Double {
         val progress = this.ticks / tickDuration
         return if (progress < 1.0) Mth.lerp(progress, this.centerZ, this.targetCenterZ) else this.targetCenterZ
 
     }
 
-
     override fun update(): CenterBorderState {
-
         if (this.ticks++ % 20 == 0) {
             // We need to update any listeners
             // Most importantly those that send updates to the client
@@ -44,10 +42,8 @@ class MovingCenterBorderState(
                 }
             }
         }
-
-        return if (this.ticks >= this.tickDuration) StillCenterBorderState(this.centerX, this.centerZ) else this
+        return if (this.ticks >= this.tickDuration) StillCenterBorderState(this.targetCenterX, this.targetCenterZ) else this
     }
-
 
 
 }

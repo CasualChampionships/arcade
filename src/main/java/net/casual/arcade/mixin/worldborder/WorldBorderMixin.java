@@ -1,10 +1,13 @@
 package net.casual.arcade.mixin.worldborder;
 
+import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import net.casual.arcade.border.ArcadeBorder;
 import net.minecraft.world.level.border.WorldBorder;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Slice;
 
 @Mixin(WorldBorder.class)
 public class WorldBorderMixin {
@@ -12,7 +15,7 @@ public class WorldBorderMixin {
 		method = "<init>",
 		at = @At(
 			value = "NEW",
-			target = "Lnet/minecraft/world/level/border/WorldBorder$StaticBorderExtent;<init>(Lnet/minecraft/world/level/border/WorldBorder;D)V"
+			target = "(Lnet/minecraft/world/level/border/WorldBorder;D)Lnet/minecraft/world/level/border/WorldBorder$StaticBorderExtent;"
 		)
 	)
 	@SuppressWarnings("ConstantValue")
@@ -22,4 +25,6 @@ public class WorldBorderMixin {
 		}
 		return border.new StaticBorderExtent(size);
 	}
+
+
 }
