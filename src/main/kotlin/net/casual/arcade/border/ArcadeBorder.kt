@@ -3,6 +3,7 @@ package net.casual.arcade.border
 import net.minecraft.world.level.border.BorderChangeListener
 import net.minecraft.world.level.border.BorderStatus
 import net.minecraft.world.level.border.WorldBorder
+import net.minecraft.world.phys.shapes.VoxelShape
 
 abstract class ArcadeBorder: WorldBorder() {
     private var centerX = 0.0
@@ -95,6 +96,10 @@ abstract class ArcadeBorder: WorldBorder() {
 
     public override fun getListeners(): MutableList<BorderChangeListener> {
         return super.getListeners()
+    }
+
+    override fun getCollisionShape(): VoxelShape {
+        return this.state.getCollisionShape()
     }
 
     fun isStationary(): Boolean {

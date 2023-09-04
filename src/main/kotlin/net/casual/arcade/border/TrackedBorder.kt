@@ -1,6 +1,6 @@
 package net.casual.arcade.border
 
-class TrackedBorder(size: Double) : ArcadeBorder() {
+class TrackedBorder(size: Double): ArcadeBorder() {
     override var state: BorderState = StillBorderState(this, size)
 
     private var tracker: MultiLevelBorderTracker? = null
