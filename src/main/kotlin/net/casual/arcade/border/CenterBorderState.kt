@@ -10,8 +10,4 @@ interface CenterBorderState {
     fun getCenter(): Vector2d
 
     fun update(): CenterBorderState
-
-    fun onCenterChange()
-
-    fun setCenter(vector2d: Vector2d)
 }

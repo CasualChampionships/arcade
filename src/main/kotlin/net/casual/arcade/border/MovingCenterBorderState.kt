@@ -42,13 +42,6 @@ class MovingCenterBorderState(
         return if (this.ticks >= this.tickDuration) StillCenterBorderState(this.center) else this
     }
 
-    override fun onCenterChange() {
-        //Do nothing
-    }
-
-    override fun setCenter(vector2d: Vector2d) {
-        this.targetCenter = vector2d
-    }
 
 
 }

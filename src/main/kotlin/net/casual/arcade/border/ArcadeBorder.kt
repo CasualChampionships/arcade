@@ -56,7 +56,6 @@ abstract class ArcadeBorder: WorldBorder() {
         this.centerState = StillCenterBorderState(this.centerState.getCenter())
 
         this.state.onCenterChange()
-        this.centerState.onCenterChange()
 
         for (listener in this.listeners) {
             listener.onBorderCenterSet(this, x, z)
@@ -67,7 +66,6 @@ abstract class ArcadeBorder: WorldBorder() {
         this.centerState = MovingCenterBorderState(this, realTime)
 
         this.state.onCenterChange()
-        this.centerState.onCenterChange()
 
         for (listener in this.listeners) {
             listener.onBorderCenterSet(this, this.centerX, this.centerZ)
