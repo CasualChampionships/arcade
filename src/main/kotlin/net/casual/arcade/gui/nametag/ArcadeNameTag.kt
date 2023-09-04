@@ -9,12 +9,12 @@ import java.util.function.Predicate
 
 class ArcadeNameTag(
     var tag: ComponentSupplier,
-    private var mutablePredicate: Predicate<ServerPlayer> = Predicates.alwaysTrue()
+    private var watcherPredicate: Predicate<ServerPlayer> = Predicates.alwaysTrue()
 ): PlayerUI() {
-    val predicate = Predicate<ServerPlayer> { this.mutablePredicate.test(it) }
+    val predicate = Predicate<ServerPlayer> { this.watcherPredicate.test(it) }
 
     fun setPredicate(predicate: Predicate<ServerPlayer>) {
-        this.mutablePredicate = predicate
+        this.watcherPredicate = predicate
     }
 
     override fun onAddPlayer(player: ServerPlayer) {

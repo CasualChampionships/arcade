@@ -12,8 +12,10 @@ import net.casual.arcade.utils.PlayerUtils.isSurvival
 import net.fabricmc.api.ModInitializer
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.level.ServerPlayer
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import java.util.function.Predicate
 
 class Arcade: ModInitializer {
     companion object {
@@ -36,16 +38,6 @@ class Arcade: ModInitializer {
             GlobalEventHandler.register<ServerCreatedEvent> {
                 this.server = it.server
             }
-
-            // GlobalEventHandler.register<PlayerJoinEvent> { (player) ->
-            //     if (player.scoreboardName == "senseiwells") {
-            //         val health = ArcadeNameTag({ Component.literal("Health: " + it.health)}, { it.isSurvival })
-            //         health.addPlayer(player)
-            //         val tag = ArcadeNameTag(ComponentSupplier.of(Component.literal("Name")))
-            //         tag.addPlayer(player)
-            //     }
-            //
-            // }
         }
     }
 
