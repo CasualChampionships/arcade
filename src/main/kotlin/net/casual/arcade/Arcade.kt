@@ -5,6 +5,7 @@ import net.casual.arcade.commands.MinigameCommand
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.events.server.ServerCreatedEvent
+import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.gui.nametag.ArcadeNameTag
 import net.casual.arcade.gui.suppliers.ComponentSupplier
@@ -51,6 +52,8 @@ class Arcade: ModInitializer {
         NameTagUtils.registerEvents()
 
         this.registerCommands()
+
+
     }
 
     private fun registerCommands() {
