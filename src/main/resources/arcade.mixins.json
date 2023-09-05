@@ -39,7 +39,7 @@
     "screen.ServerGamePacketListenerImplMixin",
     "worldborder.MinecraftServerMixin",
     "worldborder.PlayerListMixin",
-    "worldborder.WorldBorderMixin"
+    "worldborder.StaticBorderExtentMixin"
   ],
   "injectors": {
     "defaultRequire": 1
