@@ -1,4 +1,4 @@
-package net.casual.arcade.border
+package net.casual.arcade.border.state
 
 import net.minecraft.world.level.border.BorderStatus
 import net.minecraft.world.phys.shapes.VoxelShape

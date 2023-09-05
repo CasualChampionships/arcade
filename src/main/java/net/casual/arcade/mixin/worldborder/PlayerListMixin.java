@@ -15,7 +15,12 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(PlayerList.class)
 public class PlayerListMixin {
 	@ModifyArg(
-		method = "addWorldborderListener", at = @At(value = "INVOKE",target = "Lnet/minecraft/world/level/border/WorldBorder;addListener(Lnet/minecraft/world/level/border/BorderChangeListener;)V"))
+		method = "addWorldborderListener",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/level/border/WorldBorder;addListener(Lnet/minecraft/world/level/border/BorderChangeListener;)V"
+		)
+	)
 	private BorderChangeListener onAddListener(BorderChangeListener listener, @Local(argsOnly = true) ServerLevel level) {
 		BorderUtils.addOriginalListener(level, listener);
 		return listener;

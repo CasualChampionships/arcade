@@ -1,6 +1,5 @@
 package net.casual.arcade.mixin.worldborder;
 
-
 import net.casual.arcade.Arcade;
 import net.casual.arcade.border.TrackedBorder;
 import net.minecraft.core.Holder;
@@ -23,32 +22,29 @@ import java.util.function.Supplier;
 
 @Mixin(Level.class)
 public class LevelMixin {
-
-    @Shadow
-    @Mutable
-    @Final
-    private WorldBorder worldBorder;
+    @Shadow @Mutable @Final private WorldBorder worldBorder;
 
     @Inject(
-            method = "<init>",
-            at = @At("TAIL")
+        method = "<init>",
+        at = @At("TAIL")
     )
     private void onCreateLevel(
-            WritableLevelData data,
-            ResourceKey<Level> dimension,
-            RegistryAccess access,
-            Holder<DimensionType> holder,
-            Supplier<ProfilerFiller> profiler,
-            boolean client,
-            boolean debug,
-            long biome,
-            int maxChain,
-            CallbackInfo ci
+        WritableLevelData data,
+        ResourceKey<Level> dimension,
+        RegistryAccess access,
+        Holder<DimensionType> holder,
+        Supplier<ProfilerFiller> profiler,
+        boolean client,
+        boolean debug,
+        long biome,
+        int maxChain,
+        CallbackInfo ci
     ) {
-        if (dimension == Level.OVERWORLD || dimension == Level.NETHER || dimension == Level.END) {
-            Arcade.logger.debug("Setting Debug Border Enabled");
-            this.worldBorder = new TrackedBorder(5000, 0.0,0.0);
+        if (Arcade.debug) {
+            if (dimension == Level.OVERWORLD || dimension == Level.NETHER || dimension == Level.END) {
+                Arcade.logger.debug("Setting debug border for level {}", dimension.location());
+                this.worldBorder = new TrackedBorder(5000, 0.0, 0.0);
+            }
         }
     }
-
 }

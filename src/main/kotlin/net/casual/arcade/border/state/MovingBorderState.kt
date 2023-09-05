@@ -1,5 +1,6 @@
-package net.casual.arcade.border
+package net.casual.arcade.border.state
 
+import net.casual.arcade.border.ArcadeBorder
 import net.casual.arcade.utils.TickUtils
 import net.minecraft.util.Mth
 import net.minecraft.world.level.border.BorderChangeListener.DelegateBorderChangeListener
@@ -22,27 +23,27 @@ class MovingBorderState(
 
     override fun getMinX(): Double {
         val maxSize = this.border.absoluteMaxSize
-        return Mth.clamp(border.centerX - getSize() / 2.0, -maxSize.toDouble(), maxSize.toDouble())
+        return Mth.clamp(this.border.centerX - getSize() / 2.0, -maxSize.toDouble(), maxSize.toDouble())
     }
 
     override fun getMaxX(): Double {
         val maxSize = this.border.absoluteMaxSize
-        return Mth.clamp(border.centerX + getSize() / 2.0, -maxSize.toDouble(), maxSize.toDouble())
+        return Mth.clamp(this.border.centerX + getSize() / 2.0, -maxSize.toDouble(), maxSize.toDouble())
     }
 
     override fun getMaxZ(): Double {
         val maxSize = this.border.absoluteMaxSize
-        return Mth.clamp(border.centerZ + getSize() / 2.0, -maxSize.toDouble(), maxSize.toDouble())
+        return Mth.clamp(this.border.centerZ + getSize() / 2.0, -maxSize.toDouble(), maxSize.toDouble())
     }
 
     override fun getMinZ(): Double {
         val maxSize = this.border.absoluteMaxSize
-        return Mth.clamp(border.centerZ - getSize() / 2.0, -maxSize.toDouble(), maxSize.toDouble())
+        return Mth.clamp(this.border.centerZ - getSize() / 2.0, -maxSize.toDouble(), maxSize.toDouble())
     }
 
     override fun getSize(): Double {
-        val progress = ticks / tickDuration
-        return if (progress < 1.0) Mth.lerp(progress, sizeFrom, sizeTo) else sizeTo
+        val progress = this.ticks / this.tickDuration
+        return if (progress < 1.0) Mth.lerp(progress, this.sizeFrom, this.sizeTo) else this.sizeTo
     }
 
     override fun getLerpSpeed(): Double {
@@ -66,10 +67,7 @@ class MovingBorderState(
 
     }
 
-
-
     override fun update(): BorderState {
-
         if (this.ticks++ % 20 == 0) {
             // We need to update any listeners
             // Most importantly those that send updates to the client

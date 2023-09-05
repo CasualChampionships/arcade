@@ -1,4 +1,4 @@
-package net.casual.arcade.border
+package net.casual.arcade.border.state
 
 import net.minecraft.world.level.border.BorderStatus
 
@@ -6,21 +6,19 @@ class StillCenterBorderState(
     private var centerX: Double,
     private var centerZ: Double
 ): CenterBorderState {
-
-
     override fun getCenterX(): Double {
-        return centerX;
+        return this.centerX;
     }
 
     override fun getCenterZ(): Double {
-        return centerZ
+        return this.centerZ
     }
 
     override fun update(): CenterBorderState {
         return this
     }
 
-    override fun getStatus(): BorderStatus {
-        return BorderStatus.STATIONARY
+    override fun getStatus(): CenterBorderStatus {
+        return CenterBorderStatus.STATIONARY
     }
 }

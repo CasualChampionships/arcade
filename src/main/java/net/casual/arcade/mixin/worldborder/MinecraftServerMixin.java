@@ -20,7 +20,6 @@ public class MinecraftServerMixin {
 		)
 	)
 	private BorderChangeListener onSyncListener(BorderChangeListener listener, @Local(ordinal = 1) ServerLevel serverLevel2) {
-		// System.out.println(serverLevel2);
 		BorderUtils.addOriginalListener(serverLevel2, listener);
 		return listener;
 	}

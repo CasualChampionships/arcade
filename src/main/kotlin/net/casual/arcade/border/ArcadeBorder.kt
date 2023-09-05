@@ -1,87 +1,79 @@
 package net.casual.arcade.border
 
+import net.casual.arcade.border.state.*
 import net.minecraft.world.level.border.BorderChangeListener
 import net.minecraft.world.level.border.BorderStatus
 import net.minecraft.world.level.border.WorldBorder
 import net.minecraft.world.phys.shapes.VoxelShape
 
 abstract class ArcadeBorder: WorldBorder() {
-
-    protected abstract var state: BorderState
+    protected abstract var borderState: BorderState
     protected abstract var centerState: CenterBorderState
 
     override fun tick() {
-        this.state = this.state.update()
+        this.borderState = this.borderState.update()
         this.centerState = this.centerState.update()
     }
 
-    override fun getStatus(): BorderStatus {
-        if (this.state.getStatus() == BorderStatus.STATIONARY && this.centerState.getStatus() != BorderStatus.STATIONARY) {
-            return this.centerState.getStatus()
-        }
-        return this.state.getStatus()
+    final override fun getStatus(): BorderStatus {
+        return this.borderState.getStatus()
     }
 
-    override fun getMinX(): Double {
-        return this.state.getMinX()
+    fun getCenterStatus(): CenterBorderStatus {
+        return this.centerState.getStatus()
     }
 
-    override fun getMinZ(): Double {
-        return this.state.getMinZ()
+    final override fun getMinX(): Double {
+        return this.borderState.getMinX()
     }
 
-    override fun getMaxX(): Double {
-        return this.state.getMaxX()
+    final override fun getMinZ(): Double {
+        return this.borderState.getMinZ()
     }
 
-    override fun getMaxZ(): Double {
-        return this.state.getMaxZ()
+    final override fun getMaxX(): Double {
+        return this.borderState.getMaxX()
     }
 
-    override fun getCenterX(): Double {
+    final override fun getMaxZ(): Double {
+        return this.borderState.getMaxZ()
+    }
+
+    final override fun getCenterX(): Double {
         return this.centerState.getCenterX()
     }
 
-    override fun getCenterZ(): Double {
+    final override fun getCenterZ(): Double {
         return this.centerState.getCenterZ()
     }
 
-
     override fun setCenter(x: Double, z: Double) {
-
-        this.state.onCenterChange()
         this.centerState = StillCenterBorderState(x, z)
-
-        for (listener in this.listeners) {
-            listener.onBorderCenterSet(this, x, z)
-        }
+        this.changeCenter(x, z)
     }
 
-    fun setCenterLerped(x: Double, z: Double, realTime: Long) {
+    open fun lerpCenterTo(x: Double, z: Double, realTime: Long) {
         this.centerState = MovingCenterBorderState(this, this.centerState.getCenterX(), this.centerState.getCenterZ(), x, z, realTime)
-
-        this.state.onCenterChange()
-
     }
 
-    override fun getSize(): Double {
-        return this.state.getSize()
+    final override fun getSize(): Double {
+        return this.borderState.getSize()
     }
 
-    override fun getLerpRemainingTime(): Long {
-        return this.state.getLerpRemainingTime()
+    final override fun getLerpRemainingTime(): Long {
+        return this.borderState.getLerpRemainingTime()
     }
 
-    override fun getLerpTarget(): Double {
-        return this.state.getLerpTarget()
+    final override fun getLerpTarget(): Double {
+        return this.borderState.getLerpTarget()
     }
 
-    override fun getLerpSpeed(): Double {
-        return this.state.getLerpSpeed()
+    final override fun getLerpSpeed(): Double {
+        return this.borderState.getLerpSpeed()
     }
 
     override fun setSize(size: Double) {
-        this.state = StillBorderState(this, size)
+        this.borderState = StillBorderState(this, size)
 
         for (borderChangeListener in listeners) {
             borderChangeListener.onBorderSizeSet(this, size)
@@ -94,7 +86,7 @@ abstract class ArcadeBorder: WorldBorder() {
             return
         }
 
-        this.state = MovingBorderState(this, time, start, end)
+        this.borderState = MovingBorderState(this, time, start, end)
 
         for (borderChangeListener in listeners) {
             borderChangeListener.onBorderSizeLerping(this, start, end, time)
@@ -105,15 +97,23 @@ abstract class ArcadeBorder: WorldBorder() {
 
     }
 
-    public override fun getListeners(): MutableList<BorderChangeListener> {
+    public final override fun getListeners(): MutableList<BorderChangeListener> {
         return super.getListeners()
     }
 
-    override fun getCollisionShape(): VoxelShape {
-        return this.state.getCollisionShape()
+    final override fun getCollisionShape(): VoxelShape {
+        return this.borderState.getCollisionShape()
     }
 
     fun isStationary(): Boolean {
-        return this.status === BorderStatus.STATIONARY
+        return this.status === BorderStatus.STATIONARY && this.getCenterStatus() === CenterBorderStatus.STATIONARY
+    }
+
+    internal fun changeCenter(x: Double, z: Double) {
+        this.borderState.onCenterChange()
+
+        for (listener in this.listeners) {
+            listener.onBorderCenterSet(this, x, z)
+        }
     }
 }

@@ -1,12 +1,16 @@
 package net.casual.arcade.border
 
+import net.casual.arcade.border.state.BorderState
+import net.casual.arcade.border.state.CenterBorderState
+import net.casual.arcade.border.state.StillBorderState
+import net.casual.arcade.border.state.StillCenterBorderState
+import java.util.LinkedList
 
 class TrackedBorder(size: Double, centerX: Double, centerZ: Double): ArcadeBorder() {
-    
+    override var borderState: BorderState = StillBorderState(this, size)
     override var centerState: CenterBorderState = StillCenterBorderState(centerX, centerZ)
-    override var state: BorderState = StillBorderState(this, size)
 
-    private var tracker: MultiLevelBorderTracker? = null
+    private var trackers = LinkedList<MultiLevelBorderTracker>()
 
     override fun tick() {
         this.trackChanges { super.tick() }
@@ -16,22 +20,34 @@ class TrackedBorder(size: Double, centerX: Double, centerZ: Double): ArcadeBorde
         this.trackChanges { super.lerpSizeBetween(start, end, time) }
     }
 
+    override fun lerpCenterTo(x: Double, z: Double, realTime: Long) {
+        this.trackChanges { super.lerpCenterTo(x, z, realTime) }
+    }
+
     override fun setSize(size: Double) {
         this.trackChanges { super.setSize(size) }
     }
 
-    internal fun setTracker(tracker: MultiLevelBorderTracker) {
-        this.tracker = tracker
+    override fun setCenter(x: Double, z: Double) {
+        this.trackChanges { super.setCenter(x, z) }
+    }
+
+    internal fun addTracker(tracker: MultiLevelBorderTracker) {
+        this.trackers.add(tracker)
+    }
+
+    internal fun removeTracker(tracker: MultiLevelBorderTracker) {
+        this.trackers.remove(tracker)
     }
 
     private inline fun trackChanges(block: TrackedBorder.() -> Unit) {
         val wasStationary = this.isStationary()
         block()
         if (!wasStationary && this.isStationary()) {
-            this.tracker?.onBorderComplete(this)
+            this.trackers.forEach { it.onBorderComplete(this) }
         }
         if (wasStationary && !this.isStationary()) {
-            this.tracker?.onBorderMove(this)
+            this.trackers.forEach { it.onBorderActive(this) }
         }
     }
 }

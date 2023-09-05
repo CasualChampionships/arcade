@@ -5,7 +5,7 @@ import net.minecraft.server.level.ServerLevel
 interface MultiLevelBorderListener {
     fun onInitialiseBorder(border: TrackedBorder, level: ServerLevel) { }
 
-    fun onSingleBorderMove(border: TrackedBorder, level: ServerLevel) { }
+    fun onSingleBorderActive(border: TrackedBorder, level: ServerLevel) { }
 
     fun onSingleBorderComplete(border: TrackedBorder, level: ServerLevel) { }
 
