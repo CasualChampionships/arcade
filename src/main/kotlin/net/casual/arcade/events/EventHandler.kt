@@ -3,10 +3,10 @@ package net.casual.arcade.events
 import net.casual.arcade.events.core.Event
 import java.util.function.Consumer
 
-class EventHandler {
+class EventHandler: ListenerHandler {
     private val events = HashMap<Class<out Event>, ArrayList<EventListener<*>>>()
 
-    fun <T: Event> getListenersFor(type: Class<T>): List<EventListener<*>> {
+    override fun <T: Event> getListenersFor(type: Class<T>): List<EventListener<*>> {
         return this.events[type] ?: emptyList()
     }
 

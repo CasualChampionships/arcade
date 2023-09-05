@@ -6,11 +6,9 @@ import net.casual.arcade.events.GlobalEventHandler.broadcast
 import net.casual.arcade.events.core.Event
 import net.casual.arcade.events.server.ServerCreatedEvent
 import net.casual.arcade.utils.CollectionUtils.addSorted
-import net.minecraft.server.MinecraftServer
 import org.apache.logging.log4j.LogManager
 import java.util.*
 import java.util.function.Consumer
-import kotlin.reflect.typeOf
 
 /**
  * Object class that is responsible for broadcasting
@@ -24,7 +22,7 @@ object GlobalEventHandler {
     private val logger = LogManager.getLogger("ArcadeEventHandler")
 
     private val stack = ArrayDeque<Class<out Event>>()
-    private val handlers = HashSet<EventHandler>()
+    private val handlers = HashSet<ListenerHandler>()
     private val handler = EventHandler()
 
     /**
@@ -138,12 +136,12 @@ object GlobalEventHandler {
     }
 
     @JvmStatic
-    fun addHandler(handler: EventHandler) {
+    fun addHandler(handler: ListenerHandler) {
         this.handlers.add(handler)
     }
 
     @JvmStatic
-    fun removeHandler(handler: EventHandler) {
+    fun removeHandler(handler: ListenerHandler) {
         this.handlers.remove(handler)
     }
 }
