@@ -2,6 +2,7 @@ package net.casual.arcade.border
 
 import net.minecraft.util.Mth
 import net.minecraft.world.level.border.BorderChangeListener
+import net.minecraft.world.level.border.BorderStatus
 import org.joml.Vector2d
 
 class MovingCenterBorderState(
@@ -17,7 +18,7 @@ class MovingCenterBorderState(
 
 
     override fun getCenterX(): Double {
-        val progress = this.ticks/ tickDuration
+        val progress = this.ticks / tickDuration
         return if (progress < 1.0) Mth.lerp(progress, this.centerX, this.targetCenterX) else this.targetCenterX
     }
 
@@ -28,7 +29,7 @@ class MovingCenterBorderState(
     }
 
     override fun update(): CenterBorderState {
-        if (this.ticks++ % 20 == 0) {
+        this.ticks++
             // We need to update any listeners
             // Most importantly those that send updates to the client
             // This is because the client logic uses real time
@@ -41,8 +42,11 @@ class MovingCenterBorderState(
 
                 }
             }
-        }
         return if (this.ticks >= this.tickDuration) StillCenterBorderState(this.targetCenterX, this.targetCenterZ) else this
+    }
+
+    override fun getStatus(): BorderStatus {
+        return if ((this.ticks / tickDuration) < 1.0) BorderStatus.SHRINKING else BorderStatus.STATIONARY
     }
 
 

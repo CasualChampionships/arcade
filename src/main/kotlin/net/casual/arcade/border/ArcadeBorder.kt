@@ -16,6 +16,9 @@ abstract class ArcadeBorder: WorldBorder() {
     }
 
     override fun getStatus(): BorderStatus {
+        if (this.state.getStatus() == BorderStatus.STATIONARY && this.centerState.getStatus() != BorderStatus.STATIONARY) {
+            return this.centerState.getStatus()
+        }
         return this.state.getStatus()
     }
 
@@ -55,13 +58,10 @@ abstract class ArcadeBorder: WorldBorder() {
     }
 
     fun setCenterLerped(x: Double, z: Double, realTime: Long) {
-        this.centerState = MovingCenterBorderState(this, this.centerState.getCenterX(), this.centerState.getCenterZ(), x, z,realTime)
+        this.centerState = MovingCenterBorderState(this, this.centerState.getCenterX(), this.centerState.getCenterZ(), x, z, realTime)
 
         this.state.onCenterChange()
 
-        for (listener in this.listeners) {
-            listener.onBorderCenterSet(this, this.centerX, this.centerZ)
-        }
     }
 
     override fun getSize(): Double {
