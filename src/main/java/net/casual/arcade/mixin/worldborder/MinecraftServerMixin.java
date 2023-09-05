@@ -8,19 +8,19 @@ import net.minecraft.world.level.border.BorderChangeListener;
 import net.minecraft.world.level.border.WorldBorder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(MinecraftServer.class)
 public class MinecraftServerMixin {
-	@Redirect(
+	@ModifyArg(
 		method = "createLevels",
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/world/level/border/WorldBorder;addListener(Lnet/minecraft/world/level/border/BorderChangeListener;)V"
 		)
 	)
-	private void onSyncListener(WorldBorder instance, BorderChangeListener listener, @Local(ordinal = 1) ServerLevel serverLevel2) {
-		// System.out.println(serverLevel2);
+	private BorderChangeListener onSyncListener(BorderChangeListener listener, @Local(ordinal = 1) ServerLevel serverLevel2) {
 		BorderUtils.addOriginalListener(serverLevel2, listener);
+		return listener;
 	}
 }

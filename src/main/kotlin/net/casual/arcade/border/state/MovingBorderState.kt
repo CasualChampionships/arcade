@@ -1,5 +1,6 @@
-package net.casual.arcade.border
+package net.casual.arcade.border.state
 
+import net.casual.arcade.border.ArcadeBorder
 import net.casual.arcade.utils.TickUtils
 import net.minecraft.util.Mth
 import net.minecraft.world.level.border.BorderChangeListener.DelegateBorderChangeListener
@@ -14,39 +15,39 @@ import kotlin.math.floor
 class MovingBorderState(
     private val border: ArcadeBorder,
     private val realDuration: Long,
-    private val from: Double,
-    private val to: Double
+    private val sizeFrom: Double,
+    private val sizeTo: Double
 ): BorderState {
     private var tickDuration = realDuration / 50.0
     private var ticks = 0
 
     override fun getMinX(): Double {
         val maxSize = this.border.absoluteMaxSize
-        return Mth.clamp(border.centerX - getSize() / 2.0, -maxSize.toDouble(), maxSize.toDouble())
+        return Mth.clamp(this.border.centerX - getSize() / 2.0, -maxSize.toDouble(), maxSize.toDouble())
     }
 
     override fun getMaxX(): Double {
         val maxSize = this.border.absoluteMaxSize
-        return Mth.clamp(border.centerX + getSize() / 2.0, -maxSize.toDouble(), maxSize.toDouble())
+        return Mth.clamp(this.border.centerX + getSize() / 2.0, -maxSize.toDouble(), maxSize.toDouble())
     }
 
     override fun getMaxZ(): Double {
         val maxSize = this.border.absoluteMaxSize
-        return Mth.clamp(border.centerZ + getSize() / 2.0, -maxSize.toDouble(), maxSize.toDouble())
+        return Mth.clamp(this.border.centerZ + getSize() / 2.0, -maxSize.toDouble(), maxSize.toDouble())
     }
 
     override fun getMinZ(): Double {
         val maxSize = this.border.absoluteMaxSize
-        return Mth.clamp(border.centerZ - getSize() / 2.0, -maxSize.toDouble(), maxSize.toDouble())
+        return Mth.clamp(this.border.centerZ - getSize() / 2.0, -maxSize.toDouble(), maxSize.toDouble())
     }
 
     override fun getSize(): Double {
-        val progress = ticks / tickDuration
-        return if (progress < 1.0) Mth.lerp(progress, from, to) else to
+        val progress = this.ticks / this.tickDuration
+        return if (progress < 1.0) Mth.lerp(progress, this.sizeFrom, this.sizeTo) else this.sizeTo
     }
 
     override fun getLerpSpeed(): Double {
-        return abs(this.from - this.to) / this.realDuration
+        return abs(this.sizeFrom - this.sizeTo) / this.realDuration
     }
 
     override fun getLerpRemainingTime(): Long {
@@ -55,11 +56,11 @@ class MovingBorderState(
     }
 
     override fun getLerpTarget(): Double {
-        return this.to
+        return this.sizeTo
     }
 
     override fun getStatus(): BorderStatus {
-        return if (this.to < this.from) BorderStatus.SHRINKING else BorderStatus.GROWING
+        return if (this.sizeTo < this.sizeFrom) BorderStatus.SHRINKING else BorderStatus.GROWING
     }
 
     override fun onCenterChange() {
@@ -76,11 +77,13 @@ class MovingBorderState(
                 // We do not want to update DelegateBorderChangeListener
                 // This updates borders in other dimensions
                 if (listener !is DelegateBorderChangeListener) {
-                    listener.onBorderSizeLerping(this.border, this.from, this.to, this.realDuration)
+                    listener.onBorderSizeLerping(this.border, this.sizeFrom, this.sizeTo, this.realDuration)
+
                 }
             }
         }
-        return if (this.ticks >= this.tickDuration) StillBorderState(this.border, this.to) else this
+
+        return if (this.ticks >= this.tickDuration) StillBorderState(this.border, this.sizeTo) else this
     }
 
     override fun getCollisionShape(): VoxelShape {

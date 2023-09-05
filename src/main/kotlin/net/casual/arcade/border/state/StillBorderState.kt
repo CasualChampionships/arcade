@@ -1,5 +1,6 @@
-package net.casual.arcade.border
+package net.casual.arcade.border.state
 
+import net.casual.arcade.border.ArcadeBorder
 import net.minecraft.util.Mth
 import net.minecraft.world.level.border.BorderStatus
 import net.minecraft.world.phys.shapes.BooleanOp

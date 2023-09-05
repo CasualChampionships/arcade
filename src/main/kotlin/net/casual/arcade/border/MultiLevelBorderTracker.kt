@@ -2,6 +2,7 @@ package net.casual.arcade.border
 
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.border.BorderStatus
+import net.minecraft.world.level.border.WorldBorder
 import java.util.LinkedList
 
 class MultiLevelBorderTracker {
@@ -11,16 +12,21 @@ class MultiLevelBorderTracker {
     private val listeners = ArrayList<MultiLevelBorderListener>()
 
     fun addLevelBorder(level: ServerLevel) {
-        val border = level.worldBorder
-        if (border !is TrackedBorder) {
-            throw IllegalArgumentException("ServerLevel must have 'TrackedArcadeBorder' to be trackable")
-        }
-        border.setTracker(this)
+        val border = this.castToTracked(level.worldBorder)
+        border.addTracker(this)
         this.tracking[border] = level
 
         if (border.isStationary()) {
             this.completed.add(border)
         }
+    }
+
+    fun removeLevelBorder(level: ServerLevel) {
+        val border = this.castToTracked(level.worldBorder)
+        border.removeTracker(this)
+        this.tracking.remove(border)
+
+        this.completed.remove(border)
     }
 
     fun addListener(listener: MultiLevelBorderListener) {
@@ -39,10 +45,10 @@ class MultiLevelBorderTracker {
         this.completed.add(border)
         this.listeners.forEach { it.onSingleBorderComplete(border, this.tracking[border]!!) }
 
-        if (this.completed.size == tracking.size) {
+        if (this.completed.size == this.tracking.size) {
             val incomplete = LinkedList<TrackedBorder>()
             for (complete in this.completed) {
-                if (complete.status != BorderStatus.STATIONARY) {
+                if (!complete.isStationary()) {
                     incomplete.add(complete)
                 }
             }
@@ -56,8 +62,15 @@ class MultiLevelBorderTracker {
         }
     }
 
-    internal fun onBorderMove(border: TrackedBorder) {
+    internal fun onBorderActive(border: TrackedBorder) {
         this.completed.remove(border)
-        this.listeners.forEach { it.onSingleBorderMove(border, this.tracking[border]!!) }
+        this.listeners.forEach { it.onSingleBorderActive(border, this.tracking[border]!!) }
+    }
+
+    private fun castToTracked(border: WorldBorder): TrackedBorder {
+        if (border !is TrackedBorder) {
+            throw IllegalArgumentException("ServerLevel must have 'TrackedArcadeBorder' to be trackable")
+        }
+        return border
     }
 }
