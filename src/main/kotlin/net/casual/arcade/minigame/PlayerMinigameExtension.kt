@@ -1,13 +1,11 @@
 package net.casual.arcade.minigame
 
 import net.casual.arcade.extensions.DataExtension
-import net.casual.arcade.extensions.Extension
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
 import net.minecraft.server.level.ServerPlayer
-import kotlin.math.min
 
 class PlayerMinigameExtension(
     private val owner: ServerPlayer

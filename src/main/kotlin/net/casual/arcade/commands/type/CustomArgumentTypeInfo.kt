@@ -1,4 +1,4 @@
-package net.casual.arcade.commands
+package net.casual.arcade.commands.type
 
 import net.minecraft.commands.synchronization.ArgumentTypeInfo
 

@@ -1,4 +1,4 @@
-package net.casual.arcade.commands
+package net.casual.arcade.commands.arguments
 
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.ArgumentType
@@ -6,6 +6,8 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
+import net.casual.arcade.commands.type.CustomArgumentType
+import net.casual.arcade.commands.type.CustomStringArgumentInfo
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.network.chat.Component

@@ -1,6 +1,5 @@
 package net.casual.arcade.utils
 
-import net.casual.arcade.Arcade
 import net.casual.arcade.border.LevelSpecificBorderBroadcaster
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.border.BorderChangeListener

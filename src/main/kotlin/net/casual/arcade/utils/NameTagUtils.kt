@@ -5,7 +5,6 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.player.PlayerCreatedEvent
 import net.casual.arcade.events.player.PlayerPoseEvent
 import net.casual.arcade.gui.extensions.PlayerNameTagExtension
-import net.casual.arcade.gui.nametag.ArcadeNameTag
 import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
 import net.minecraft.server.level.ServerPlayer

@@ -1,12 +1,13 @@
-package net.casual.arcade.commands
+package net.casual.arcade.commands.arguments
 
 import com.mojang.brigadier.context.CommandContext
+import net.casual.arcade.commands.type.CustomStringArgumentInfo
 import net.casual.arcade.utils.EnumUtils
 import net.minecraft.commands.CommandSourceStack
 
 class EnumArgument<E: Enum<E>>(
     clazz: Class<E>
-): MappedArgument<E>(EnumUtils.enumToMap(clazz, ::checkEnumName)) {
+): MappedArgument<E>(EnumUtils.enumToMap(clazz, Companion::checkEnumName)) {
     companion object {
         inline fun <reified E: Enum<E>> enumeration(): EnumArgument<E> {
             return EnumArgument(E::class.java)

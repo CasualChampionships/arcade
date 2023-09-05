@@ -9,12 +9,12 @@ import net.casual.arcade.events.player.PlayerEvent
 import net.casual.arcade.events.server.ServerStoppedEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.gui.bossbar.CustomBossBar
-import net.casual.arcade.scheduler.MinecraftTimeUnit
-import net.casual.arcade.scheduler.Task
-import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.gui.screen.SelectionScreenComponents
 import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.gui.tab.ArcadeTabDisplay
+import net.casual.arcade.scheduler.MinecraftTimeUnit
+import net.casual.arcade.scheduler.Task
+import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.settings.DisplayableGameSetting
 import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.utils.MinigameUtils.getMinigame
@@ -27,9 +27,20 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.level.Level
-import java.util.LinkedList
-import java.util.UUID
+import java.util.*
 import java.util.function.Consumer
+import kotlin.collections.ArrayDeque
+import kotlin.collections.ArrayList
+import kotlin.collections.Collection
+import kotlin.collections.HashSet
+import kotlin.collections.LinkedHashMap
+import kotlin.collections.List
+import kotlin.collections.all
+import kotlin.collections.contains
+import kotlin.collections.forEach
+import kotlin.collections.joinToString
+import kotlin.collections.map
+import kotlin.collections.set
 
 abstract class Minigame(
     val id: ResourceLocation,

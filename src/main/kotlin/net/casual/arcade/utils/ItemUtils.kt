@@ -3,16 +3,7 @@ package net.casual.arcade.utils
 import net.casual.arcade.utils.ComponentUtils.unItalicise
 import net.minecraft.ChatFormatting
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.nbt.ByteTag
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.DoubleTag
-import net.minecraft.nbt.FloatTag
-import net.minecraft.nbt.IntTag
-import net.minecraft.nbt.ListTag
-import net.minecraft.nbt.LongTag
-import net.minecraft.nbt.ShortTag
-import net.minecraft.nbt.StringTag
-import net.minecraft.nbt.Tag
+import net.minecraft.nbt.*
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.*
 import net.minecraft.world.item.alchemy.Potion
@@ -20,7 +11,6 @@ import net.minecraft.world.item.alchemy.PotionUtils
 import net.minecraft.world.item.enchantment.Enchantment
 import net.minecraft.world.item.enchantment.EnchantmentHelper
 import net.minecraft.world.item.enchantment.EnchantmentInstance
-import java.util.*
 
 @Suppress("unused")
 object ItemUtils {

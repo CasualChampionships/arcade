@@ -4,7 +4,6 @@ import net.casual.arcade.gui.PlayerUI
 import net.casual.arcade.utils.BossbarUtils.bossbars
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.util.Mth
 import net.minecraft.world.BossEvent
 import java.util.*

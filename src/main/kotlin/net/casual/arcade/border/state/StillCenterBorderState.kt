@@ -1,7 +1,5 @@
 package net.casual.arcade.border.state
 
-import net.minecraft.world.level.border.BorderStatus
-
 class StillCenterBorderState(
     private var centerX: Double,
     private var centerZ: Double

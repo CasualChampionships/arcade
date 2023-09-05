@@ -9,7 +9,6 @@ import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket
 import net.minecraft.server.ServerScoreboard
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.scores.Scoreboard
 import kotlin.random.Random
 

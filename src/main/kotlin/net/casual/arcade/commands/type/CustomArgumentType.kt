@@ -1,4 +1,4 @@
-package net.casual.arcade.commands
+package net.casual.arcade.commands.type
 
 import com.mojang.brigadier.suggestion.SuggestionProvider
 import net.minecraft.commands.SharedSuggestionProvider

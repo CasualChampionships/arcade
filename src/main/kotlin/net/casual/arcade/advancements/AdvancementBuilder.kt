@@ -1,12 +1,6 @@
 package net.casual.arcade.advancements
 
-import net.minecraft.advancements.Advancement
-import net.minecraft.advancements.AdvancementRewards
-import net.minecraft.advancements.Criterion
-import net.minecraft.advancements.CriterionTriggerInstance
-import net.minecraft.advancements.DisplayInfo
-import net.minecraft.advancements.FrameType
-import net.minecraft.advancements.RequirementsStrategy
+import net.minecraft.advancements.*
 import net.minecraft.advancements.critereon.ImpossibleTrigger
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation

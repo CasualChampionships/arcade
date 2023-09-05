@@ -1,9 +1,8 @@
 package net.casual.arcade.border
 
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.world.level.border.BorderStatus
 import net.minecraft.world.level.border.WorldBorder
-import java.util.LinkedList
+import java.util.*
 
 class MultiLevelBorderTracker {
     private val tracking = HashMap<TrackedBorder, ServerLevel>()

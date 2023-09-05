@@ -1,4 +1,4 @@
-package net.casual.arcade.commands
+package net.casual.arcade.commands.type
 
 import com.google.gson.JsonObject
 import com.mojang.brigadier.StringReader

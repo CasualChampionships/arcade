@@ -1,8 +1,6 @@
 package net.casual.arcade.utils
 
 import net.casual.arcade.Arcade
-import net.minecraft.server.MinecraftServer
-import java.lang.reflect.Field
 import java.util.*
 
 object TickUtils {

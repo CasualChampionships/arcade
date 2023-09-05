@@ -1,13 +1,9 @@
 package net.casual.arcade.gui.extensions
 
 import net.casual.arcade.extensions.Extension
-import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.gui.tab.ArcadeTabDisplay
-import net.casual.arcade.utils.SidebarUtils
 import net.minecraft.network.chat.Component
-import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket.*
 import net.minecraft.network.protocol.game.ClientboundTabListPacket
-import net.minecraft.server.ServerScoreboard
 import net.minecraft.server.level.ServerPlayer
 
 internal class PlayerTabDisplayExtension(

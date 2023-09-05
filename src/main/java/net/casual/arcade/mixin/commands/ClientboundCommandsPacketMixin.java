@@ -2,8 +2,7 @@ package net.casual.arcade.mixin.commands;
 
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.ArgumentCommandNode;
-import net.casual.arcade.commands.CustomArgumentType;
-import net.minecraft.commands.synchronization.SuggestionProviders;
+import net.casual.arcade.commands.type.CustomArgumentType;
 import net.minecraft.network.protocol.game.ClientboundCommandsPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

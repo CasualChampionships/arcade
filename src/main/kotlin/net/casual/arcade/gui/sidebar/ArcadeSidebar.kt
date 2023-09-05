@@ -5,7 +5,6 @@ import net.casual.arcade.gui.suppliers.ComponentSupplier
 import net.casual.arcade.utils.SidebarUtils
 import net.casual.arcade.utils.SidebarUtils.sidebar
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.server.network.ServerGamePacketListenerImpl
 
 class ArcadeSidebar(title: ComponentSupplier): PlayerUI() {
     private val rows = ArrayList<ComponentSupplier>(SidebarUtils.MAX_SIZE)
