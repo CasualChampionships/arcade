@@ -48,9 +48,11 @@ abstract class SavableMinigame(
         }
 
         val phaseId = json.string("phase")
+        var setPhase = false
         for (phase in this.phases) {
             if (phase.id == phaseId) {
                 this.phase = phase
+                setPhase = true
                 break
             }
         }
@@ -59,34 +61,23 @@ abstract class SavableMinigame(
 
         val generated = HashMap<Int, Task?>()
 
-        val tasks = json.array("tasks")
-        for (data in tasks.objects()) {
-            val delay = data.int("delay")
-            val identity = data.intOrNull("identity")
-            val id = data.string("id")
-            val custom = data.obj("custom")
-            val task = if (identity == null) this.createTask(id, custom) else generated.getOrPut(identity) { this.createTask(id, custom) }
-            if (task !== null) {
-                Arcade.logger.info("Successfully loaded task $id for minigame ${this.id}, scheduled for $delay ticks")
-                this.schedulePhaseTask(delay, MinecraftTimeUnit.Ticks, task)
-            } else {
-                Arcade.logger.warn("Saved task $id for minigame ${this.id} could not be reloaded!")
-            }
+        for (task in json.array("tasks").objects()) {
+            this.readScheduledTask(task, this.scheduler, generated)
+        }
+        for (task in json.array("phase_tasks").objects()) {
+            this.readScheduledTask(task, this.phaseScheduler, generated)
         }
 
-        val endTasks = json.array("end_tasks")
-        for (data in endTasks.objects()) {
-            val id = data.string("id")
-            val identity = data.intOrNull("identity")
-            val custom = data.obj("custom")
-            val task = if (identity == null) this.createTask(id, custom) else generated.getOrPut(identity) { this.createTask(id, custom) }
+        for (data in json.array("phase_end_tasks").objects()) {
+            val (id, task) = this.readTask(data, generated)
             if (task !== null) {
-                Arcade.logger.info("Successfully loaded end task $id for minigame ${this.id}")
+                Arcade.logger.info("Successfully loaded phase end task $id for minigame ${this.id}")
                 this.schedulePhaseEndTask(task)
             } else {
                 Arcade.logger.warn("Saved task $id for minigame ${this.id} could not be reloaded!")
             }
         }
+        generated.clear()
 
         val settings = json.array("settings")
         for (data in settings.objects()) {
@@ -103,6 +94,12 @@ abstract class SavableMinigame(
         this.readData(json.obj("custom"))
 
         super.initialise()
+
+        if (setPhase) {
+            this.phase.initialise(this)
+        } else {
+            Arcade.logger.warn("Phase for minigame ${this.id} could not be reloaded, given phase id: $phaseId")
+        }
     }
 
     fun save() {
@@ -112,34 +109,12 @@ abstract class SavableMinigame(
         json.addProperty("paused", this.paused)
         json.addProperty("uuid", this.uuid.toString())
 
-        val tasks = JsonArray()
-        for ((tick, queue) in this.scheduler.tasks) {
-            val delay = tick - this.scheduler.tickCount
-            for (task in queue) {
-                if (task is SavableTask && !(task is CancellableTask && task.isCancelled())) {
-                    val data = JsonObject()
-                    val custom = JsonObject()
-                    task.writeData(custom)
-                    data.addProperty("delay", delay)
-                    data.addProperty("id", task.id)
-                    data.addProperty("identity", System.identityHashCode(task))
-                    data.add("custom", custom)
-                    tasks.add(data)
-                }
-            }
-        }
+        val tasks = this.writeScheduledTasks(this.scheduler)
+        val phaseTasks = this.writeScheduledTasks(this.phaseScheduler)
 
-        val endTasks = JsonArray()
-        for (task in this.tasks) {
-            if (task is SavableTask && !(task is CancellableTask && task.isCancelled())) {
-                val data = JsonObject()
-                val custom = JsonObject()
-                task.writeData(custom)
-                data.addProperty("id", task.id)
-                data.addProperty("identity", System.identityHashCode(task))
-                data.add("custom", custom)
-                endTasks.add(data)
-            }
+        val phaseEndTasks = JsonArray()
+        for (task in this.phaseEndTasks) {
+            phaseTasks.add(this.writeTask(task) ?: continue)
         }
 
         val settings = JsonArray()
@@ -154,12 +129,60 @@ abstract class SavableMinigame(
         this.writeData(custom)
 
         json.add("tasks", tasks)
-        json.add("end_tasks", endTasks)
+        json.add("phase_tasks", phaseTasks)
+        json.add("phase_end_tasks", phaseEndTasks)
         json.add("settings", settings)
         json.add("custom", custom)
 
         this.path.bufferedWriter().use {
             CustomisableConfig.GSON.toJson(json, it)
         }
+    }
+
+    private fun readScheduledTask(json: JsonObject, scheduler: TickedScheduler, generated: MutableMap<Int, Task?>) {
+        val delay = json.int("delay")
+        val (id, task) = this.readTask(json, generated)
+        if (task !== null) {
+            Arcade.logger.info("Successfully loaded task $id for minigame ${this.id}, scheduled for $delay ticks")
+            scheduler.schedule(delay, MinecraftTimeUnit.Ticks, task)
+        } else {
+            Arcade.logger.warn("Saved task $id for minigame ${this.id} could not be reloaded!")
+        }
+    }
+
+    private fun writeScheduledTasks(scheduler: TickedScheduler): JsonArray {
+        val tasks = JsonArray()
+        for ((tick, queue) in scheduler.tasks) {
+            val delay = tick - scheduler.tickCount
+            for (task in queue) {
+                val written = this.writeTask(task) ?: continue
+                written.addProperty("delay", delay)
+                tasks.add(written)
+            }
+        }
+        return tasks
+    }
+
+    private fun readTask(json: JsonObject, generated: MutableMap<Int, Task?>): Pair<String, Task?> {
+        val id = json.string("id")
+        val hash = json.intOrNull("hash")
+        val custom = json.obj("custom")
+        if (hash == null) {
+            return id to this.createTask(id, custom)
+        }
+        return id to generated.getOrPut(hash) { this.createTask(id, custom) }
+    }
+
+    private fun writeTask(task: Task): JsonObject? {
+        if (task is SavableTask && !(task is CancellableTask && task.isCancelled())) {
+            val data = JsonObject()
+            val custom = JsonObject()
+            task.writeData(custom)
+            data.addProperty("id", task.id)
+            data.addProperty("hash", System.identityHashCode(task))
+            data.add("custom", custom)
+            return data
+        }
+        return null
     }
 }

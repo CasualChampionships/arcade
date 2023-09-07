@@ -81,6 +81,13 @@ class EventHandler: ListenerHandler {
         listeners.add(this.findIndexForPriority(listeners, listener), listener)
     }
 
+    /**
+     * Clears all event listeners from this EventHandler.
+     */
+    fun clear() {
+        this.events.clear()
+    }
+
     private fun <T: Event> findIndexForPriority(listeners: List<EventListener<T>>, listener: EventListener<T>): Int {
         var left = 0
         var right = listeners.size - 1

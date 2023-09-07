@@ -116,6 +116,7 @@ abstract class Minigame(
 ) {
     private val connections = HashSet<ServerGamePacketListenerImpl>()
     private val events = EventHandler()
+    private val phaseEvents = EventHandler()
 
     private val bossbars = ArrayList<CustomBossBar>()
     private val nameTags = ArrayList<ArcadeNameTag>()
@@ -125,9 +126,11 @@ abstract class Minigame(
     private var closed = false
 
     internal val gameSettings = LinkedHashMap<String, DisplayableGameSetting<*>>()
-    internal val phases = HashSet(this.getPhases())
     internal val scheduler = TickedScheduler()
-    internal val tasks = ArrayDeque<Task>()
+    internal val phaseScheduler = TickedScheduler()
+    @Deprecated("This will no longer be supported in future versions")
+    internal val phaseEndTasks = ArrayDeque<Task>()
+    internal val phases = HashSet(this.getPhases())
 
     internal var uuid = UUID.randomUUID()
 
@@ -160,9 +163,9 @@ abstract class Minigame(
      */
     protected open fun initialise() {
         this.registerEvent<ServerTickEvent> {
-
             if (!this.paused) {
                 this.scheduler.tick()
+                this.phaseScheduler.tick()
             }
         }
         this.registerEvent<ServerStoppedEvent> {
@@ -230,13 +233,18 @@ abstract class Minigame(
         if (!this.phases.contains(phase)) {
             throw IllegalArgumentException("Cannot set minigame '${this.id}' phase to ${phase.id}")
         }
-        this.scheduler.tasks.clear()
-        this.phase = phase
+        this.phaseScheduler.tasks.clear()
 
-        for (task in this.tasks) {
+        for (task in this.phaseEndTasks) {
             task.run()
         }
-        this.tasks.clear()
+        this.phaseEndTasks.clear()
+        this.phaseEvents.clear()
+
+        this.phase = phase
+        this.phase.end(this)
+        this.phase.start(this)
+        this.phase.initialise(this)
 
         GlobalEventHandler.broadcast(MinigameSetPhaseEvent(this, phase))
     }
@@ -283,6 +291,8 @@ abstract class Minigame(
 
     /**
      * This removes a given player from the minigame.
+     * This also removes the player from all the minigame UI.
+     *
      * If successful then the [MinigameRemovePlayerEvent] is
      * broadcast.
      *
@@ -290,6 +300,11 @@ abstract class Minigame(
      */
     fun removePlayer(player: ServerPlayer) {
         if (this.connections.remove(player.connection)) {
+            this.nameTags.forEach { it.removePlayer(player) }
+            this.bossbars.forEach { it.removePlayer(player) }
+            this.sidebar?.removePlayer(player)
+            this.display?.removePlayer(player)
+
             GlobalEventHandler.broadcast(MinigameRemovePlayerEvent(this, player))
             player.minigame.removeMinigame()
         }
@@ -369,13 +384,20 @@ abstract class Minigame(
         GlobalEventHandler.broadcast(MinigameUnpauseEvent(this))
     }
 
+    /**
+     * This closes the minigame, all players are removed from the
+     * minigame, all tasks are cleared
+     */
     fun close() {
         for (player in this.getPlayers()) {
             this.removePlayer(player)
         }
         GlobalEventHandler.broadcast(MinigameCloseEvent(this))
         GlobalEventHandler.removeHandler(this.events)
+        GlobalEventHandler.removeHandler(this.phaseEvents)
         this.scheduler.tasks.clear()
+        this.phaseScheduler.tasks.clear()
+        this.phaseEndTasks.clear()
         this.closed = true
     }
 
@@ -480,39 +502,73 @@ abstract class Minigame(
         return setting
     }
 
-    protected fun schedulePhaseEndTask(task: Task) {
-        this.tasks.add(task)
+    @Deprecated("Use MinigamePhase.end()")
+    fun schedulePhaseEndTask(task: Task) {
+        this.phaseEndTasks.add(task)
     }
 
-    protected fun schedulePhaseEndTask(runnable: Runnable) {
-        this.tasks.add(Task.of(runnable))
+    @Deprecated("Use MinigamePhase.end()")
+    fun schedulePhaseEndTask(runnable: Runnable) {
+        this.phaseEndTasks.add(Task.of(runnable))
     }
 
-    protected fun schedulePhaseTask(time: Int, unit: MinecraftTimeUnit, task: Task) {
+    fun scheduleTask(time: Int, unit: MinecraftTimeUnit, task: Task) {
         this.scheduler.schedule(time, unit, task)
     }
 
-    protected fun schedulePhaseTask(time: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
+    fun scheduleTask(time: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
         this.scheduler.schedule(time, unit, runnable)
     }
 
-    protected fun scheduleInLoopPhaseTask(delay: Int, interval: Int, duration: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
+    fun scheduleInLoopTask(delay: Int, interval: Int, duration: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
         this.scheduler.scheduleInLoop(delay, interval, duration, unit, runnable)
     }
 
-    protected inline fun <reified T: Event> registerEvent(priority: Int = 1_000, listener: Consumer<T>) {
+    fun schedulePhaseTask(time: Int, unit: MinecraftTimeUnit, task: Task) {
+        this.phaseScheduler.schedule(time, unit, task)
+    }
+
+    fun schedulePhaseTask(time: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
+        this.phaseScheduler.schedule(time, unit, runnable)
+    }
+
+    fun scheduleInLoopPhaseTask(delay: Int, interval: Int, duration: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
+        this.phaseScheduler.scheduleInLoop(delay, interval, duration, unit, runnable)
+    }
+
+    inline fun <reified T: Event> registerPhaseEvent(priority: Int = 1_000, listener: Consumer<T>) {
+        this.registerPhaseEvent(T::class.java, priority, listener)
+    }
+
+    fun <T: Event> registerPhaseEvent(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
+        this.phaseEvents.register(type, priority, listener)
+    }
+
+    inline fun <reified T: Event> registerEvent(priority: Int = 1_000, listener: Consumer<T>) {
         this.registerEvent(T::class.java, priority, listener)
     }
 
-    protected fun <T: Event> registerEvent(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
+    fun <T: Event> registerEvent(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
         this.events.register(type, priority, listener)
     }
 
-    protected inline fun <reified T: Event> registerMinigameEvent(priority: Int = 1_000, listener: Consumer<T>) {
+    inline fun <reified T: Event> registerMinigameEvent(priority: Int = 1_000, listener: Consumer<T>) {
         this.registerMinigameEvent(T::class.java, priority, listener)
     }
 
-    protected fun <T: Event> registerMinigameEvent(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
+    fun <T: Event> registerMinigameEvent(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
+        this.registerMinigameEvent(type, priority, listener, this.events)
+    }
+
+    inline fun <reified T: Event> registerPhaseMinigameEvent(priority: Int = 1_000, listener: Consumer<T>) {
+        this.registerPhaseMinigameEvent(T::class.java, priority, listener)
+    }
+
+    fun <T: Event> registerPhaseMinigameEvent(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
+        this.registerMinigameEvent(type, priority, listener, this.phaseEvents)
+    }
+
+    private fun <T: Event> registerMinigameEvent(type: Class<T>, priority: Int, listener: Consumer<T>, handler: EventHandler) {
         val predicates = LinkedList<(T) -> Boolean>()
         if (PlayerEvent::class.java.isAssignableFrom(type)) {
             predicates.add { this.hasPlayer((it as PlayerEvent).player) }
@@ -524,9 +580,9 @@ abstract class Minigame(
             predicates.add { (it as MinigameEvent).minigame === this }
         }
         if (predicates.isEmpty()) {
-            this.registerEvent(type, priority, listener)
+            handler.register(type, priority, listener)
         } else {
-            this.registerEvent(type, priority) { event ->
+            handler.register(type, priority) { event ->
                 if (predicates.all { it(event) }) {
                     listener.accept(event)
                 }

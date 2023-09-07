@@ -6,6 +6,8 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Mth
 import net.minecraft.world.BossEvent
+import net.minecraft.world.BossEvent.BossBarColor
+import net.minecraft.world.BossEvent.BossBarOverlay
 import java.util.*
 
 /**
@@ -45,9 +47,9 @@ abstract class CustomBossBar: PlayerUI() {
 
     abstract fun getProgress(player: ServerPlayer): Float
 
-    abstract fun getColour(player: ServerPlayer): BossEvent.BossBarColor
+    abstract fun getColour(player: ServerPlayer): BossBarColor
 
-    abstract fun getOverlay(player: ServerPlayer): BossEvent.BossBarOverlay
+    abstract fun getOverlay(player: ServerPlayer): BossBarOverlay
 
     open fun isDark(player: ServerPlayer): Boolean {
         return false
@@ -67,5 +69,33 @@ abstract class CustomBossBar: PlayerUI() {
 
     override fun onRemovePlayer(player: ServerPlayer) {
         player.bossbars.remove(this)
+    }
+
+    companion object {
+        fun of(
+            title: Component,
+            progress: Float = 1.0F,
+            colour: BossBarColor = BossBarColor.WHITE,
+            overlay: BossBarOverlay = BossBarOverlay.PROGRESS,
+            dark: Boolean = false,
+            music: Boolean = false,
+            fog: Boolean = false
+        ): CustomBossBar {
+            return object: CustomBossBar() {
+                override fun getTitle(player: ServerPlayer) = title
+
+                override fun getProgress(player: ServerPlayer) = progress
+
+                override fun getColour(player: ServerPlayer) = colour
+
+                override fun getOverlay(player: ServerPlayer) = overlay
+
+                override fun isDark(player: ServerPlayer) = dark
+
+                override fun hasMusic(player: ServerPlayer) = music
+
+                override fun hasFog(player: ServerPlayer) = fog
+            }
+        }
     }
 }
