@@ -28,7 +28,6 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.MenuProvider
-import net.minecraft.world.level.Level
 import java.util.*
 import java.util.function.Consumer
 import kotlin.collections.ArrayDeque
@@ -91,7 +90,7 @@ import kotlin.collections.set
  *         val mySetting by registerSetting(
  *             DisplayableGameSettingBuilder.boolean()
  *                 .name("my_setting")
- *                 .display(ItemStack(Items.GLOWSTONE))
+ *                 .display(ItemStack(Items.GLOWSTONE).literalNamed("My Setting"))
  *                 .defaultOptions()
  *                 .value(true)
  *                 .build()
@@ -161,6 +160,7 @@ abstract class Minigame(
      */
     protected open fun initialise() {
         this.registerEvent<ServerTickEvent> {
+
             if (!this.paused) {
                 this.scheduler.tick()
             }
