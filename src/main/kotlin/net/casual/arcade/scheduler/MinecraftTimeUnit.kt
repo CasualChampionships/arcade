@@ -2,9 +2,8 @@ package net.casual.arcade.scheduler
 
 import kotlin.math.roundToInt
 
-@Suppress("unused", "MemberVisibilityCanBePrivate")
 enum class MinecraftTimeUnit(
-    val ticksPerUnit: Int
+    private val ticksPerUnit: Int
 ) {
     Ticks(1),
     RedstoneTicks(2),

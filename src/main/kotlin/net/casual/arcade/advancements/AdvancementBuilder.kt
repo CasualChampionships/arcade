@@ -7,8 +7,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ItemLike
 
-@Suppress("unused", "MemberVisibilityCanBePrivate")
-class AdvancementBuilder private constructor() {
+class AdvancementBuilder {
     private val criterion = HashMap<String, Criterion>()
 
     var parent: Advancement? = null

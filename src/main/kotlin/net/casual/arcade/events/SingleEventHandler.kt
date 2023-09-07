@@ -8,6 +8,13 @@ class SingleEventHandler<T: Event>(
 ): ListenerHandler {
     private val listener = listOf(listener)
 
+    /**
+     * This method gets all the [EventListener]s for a given
+     * [Event] type, given by [type].
+     *
+     * @param type The type of the [Event] to get listeners for.
+     * @return The list of [EventListener]s for the given [type].
+     */
     override fun <T: Event> getListenersFor(type: Class<T>): List<EventListener<*>> {
         if (type == this.type) {
             return this.listener

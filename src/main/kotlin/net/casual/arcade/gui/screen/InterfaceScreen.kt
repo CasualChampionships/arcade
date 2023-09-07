@@ -1,7 +1,11 @@
 package net.casual.arcade.gui.screen
 
+import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.SingleEventHandler
+import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.MinecraftTimeUnit
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Container
 import net.minecraft.world.SimpleContainer
@@ -18,10 +22,16 @@ abstract class InterfaceScreen(
     syncId: Int,
     rows: Int
 ): AbstractContainerMenu(rowsToType(rows), syncId) {
+    private val ticking: SingleEventHandler<ServerTickEvent>
+
     private val inventory: Inventory
     private val container: Container
 
     init {
+        this.ticking = SingleEventHandler.of { (server) ->
+            this.onTick(server)
+        }
+
         this.inventory = inventory
         this.container = SimpleContainer(9 * rows)
         val i = (rows - 4) * 18
@@ -38,6 +48,8 @@ abstract class InterfaceScreen(
         for (j in 0..8) {
             this.addSlot(Slot(inventory, j, 8 + j * 18, 161 + i))
         }
+
+        GlobalEventHandler.addHandler(this.ticking)
     }
 
     constructor(player: Player, syncId: Int, rows: Int): this(Inventory(player), syncId, rows)
@@ -63,12 +75,21 @@ abstract class InterfaceScreen(
     }
 
     final override fun removed(player: Player) {
+        this.onRemove(player as ServerPlayer)
         super.removed(player)
-        // player.containerMenu.sendAllDataToRemote()
-        GlobalTickedScheduler.schedule(0, MinecraftTimeUnit.Ticks, player.containerMenu::sendAllDataToRemote)
+        GlobalEventHandler.removeHandler(this.ticking)
+        GlobalTickedScheduler.schedule(1, MinecraftTimeUnit.Ticks, player.containerMenu::sendAllDataToRemote)
     }
 
     abstract fun onClick(slotId: Int, button: Int, type: ClickType, player: ServerPlayer)
+
+    open fun onRemove(player: ServerPlayer) {
+
+    }
+
+    open fun onTick(server: MinecraftServer) {
+
+    }
 
     companion object {
         private fun rowsToType(rows: Int): MenuType<*> {

@@ -9,6 +9,7 @@ import net.casual.arcade.utils.CollectionUtils.addSorted
 import org.apache.logging.log4j.LogManager
 import java.util.*
 import java.util.function.Consumer
+import kotlin.collections.HashSet
 
 /**
  * Object class that is responsible for broadcasting
@@ -21,6 +22,7 @@ import java.util.function.Consumer
 object GlobalEventHandler {
     private val logger = LogManager.getLogger("ArcadeEventHandler")
 
+    private val suppressed = HashSet<Class<out Event>>()
     private val stack = ArrayDeque<Class<out Event>>()
     private val handlers = HashSet<ListenerHandler>()
     private val handler = EventHandler()
@@ -48,36 +50,21 @@ object GlobalEventHandler {
     fun <T: Event> broadcast(event: T) {
         val type = event::class.java
 
-        val server = Arcade.getServerOrNull()
-        if (server == null) {
-            if (event !is ServerCreatedEvent) {
-                this.logger.warn(
-                    "Detected broadcasted event (type: {}), before server created, may be unsafe...",
-                    type.simpleName
-                )
-            }
-        } else if (!server.isSameThread) {
-            this.logger.warn(
-                "Detected broadcasted event (type: {}) off main thread, pushing to main thread...",
-                type.simpleName
-            )
-            server.execute { broadcast(event) }
+        if (this.checkThread(event, type)) {
+            return
+        }
+
+        if (this.suppressed.remove(type)) {
+            this.logger.debug("Suppressing event (type: {})", type.simpleName)
+            return
+        }
+
+        if (this.checkRecursive(type)) {
             return
         }
 
         @Suppress("UNCHECKED_CAST")
         val listeners = ArrayList(this.handler.getListenersFor(type)) as MutableList<EventListener<T>>
-
-        for (within in this.stack) {
-            if (within === type) {
-                this.logger.warn(
-                    "Detected recursive event (type: {}), suppressing...",
-                    type.simpleName
-                )
-                return
-            }
-        }
-
         try {
             this.stack.push(type)
 
@@ -135,13 +122,65 @@ object GlobalEventHandler {
         this.handler.register(type, priority, listener)
     }
 
+    /**
+     * This adds a [ListenerHandler] to the [GlobalEventHandler].
+     *
+     * This will call [ListenerHandler.getListenersFor] whenever
+     * an [Event] is broadcasted and invoke the listeners.
+     *
+     * @param handler The [ListenerHandler] to add.
+     */
     @JvmStatic
     fun addHandler(handler: ListenerHandler) {
         this.handlers.add(handler)
     }
 
+    /**
+     * This removes a [ListenerHandler] to the [GlobalEventHandler].
+     *
+     * @param handler The [ListenerHandler] to remove.
+     */
     @JvmStatic
     fun removeHandler(handler: ListenerHandler) {
         this.handlers.remove(handler)
+    }
+
+    internal fun suppressNextEvent(type: Class<out Event>) {
+        if (!this.suppressed.add(type)) {
+            this.logger.warn("Adding suppressed event (type: {}) twice", type)
+        }
+    }
+
+    private fun checkRecursive(type: Class<out Event>): Boolean {
+        for (within in this.stack) {
+            if (within === type) {
+                this.logger.warn(
+                    "Detected recursive event (type: {}), suppressing...",
+                    type.simpleName
+                )
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun checkThread(event: Event, type: Class<out Event>): Boolean {
+        val server = Arcade.getServerOrNull()
+        if (server == null) {
+            if (event !is ServerCreatedEvent) {
+                this.logger.warn(
+                    "Detected broadcasted event (type: {}), before server created, may be unsafe...",
+                    type.simpleName
+                )
+            }
+        } else if (!server.isSameThread) {
+            this.logger.warn(
+                "Detected broadcasted event (type: {}) off main thread, pushing to main thread...",
+                type.simpleName
+            )
+            server.execute { broadcast(event) }
+            return true
+        }
+        return false
     }
 }

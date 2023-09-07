@@ -27,8 +27,8 @@ import org.joml.Vector3f
 import java.util.function.Consumer
 import java.util.function.Predicate
 
-// This is low-key some of the most cursed shit
-// I've ever written, lets hope I don't have to
+// This is low-key some of the most cursed code
+// I've ever written, let's hope I don't have to
 // ever touch it again :)
 class PlayerNameTagExtension(
     private val owner: ServerPlayer

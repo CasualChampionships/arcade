@@ -5,7 +5,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import java.util.*
 import java.util.function.IntFunction
 
-@Suppress("unused", "MemberVisibilityCanBePrivate")
 class TickedScheduler {
     val tasks: Int2ObjectMap<Queue<Task>> = Int2ObjectOpenHashMap()
     var tickCount = 0

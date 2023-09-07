@@ -43,7 +43,9 @@ class PlayerMinigameExtension(
         if (element.hasUUID("minigame")) {
             val uuid = element.getUUID("minigame")
             this.minigame = Minigames.get(uuid)
-            GlobalTickedScheduler.schedule(0, MinecraftTimeUnit.Ticks) {
+
+            // Player has not fully initialized yet...
+            GlobalTickedScheduler.later {
                 this.minigame?.addPlayer(this.owner)
             }
         }

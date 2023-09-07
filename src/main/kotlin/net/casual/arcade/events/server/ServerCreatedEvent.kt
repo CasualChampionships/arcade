@@ -11,8 +11,11 @@ import net.minecraft.server.MinecraftServer
  * called before the server has properly initialised,
  * e.g. before worlds are loaded, before configs are loaded.
  *
- * @param server The server that was instantiated.
+ * @param server The [MinecraftServer] that was instantiated.
  */
 data class ServerCreatedEvent(
+    /**
+     * The [MinecraftServer] that was instantiated.
+     */
     val server: MinecraftServer
 ): Event

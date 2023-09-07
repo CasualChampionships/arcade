@@ -2,6 +2,7 @@ package net.casual.arcade.gui.screen
 
 import net.casual.arcade.Arcade
 import net.minecraft.network.chat.Component
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.SimpleMenuProvider
@@ -12,6 +13,7 @@ import net.minecraft.world.item.ItemStack
 class SelectionScreen internal constructor(
     private val title: Component,
     private val selections: List<Selection>,
+    private val tickers: List<ItemStackTicker>,
     player: Player,
     syncId: Int,
     private val parent: MenuProvider? = null,
@@ -21,6 +23,8 @@ class SelectionScreen internal constructor(
     private val next: ItemStack,
     private val filler: ItemStack
 ): InterfaceScreen(player, syncId, 6) {
+    private val lastSelectionSlot: Int
+
     init {
         val inventory = this.getContainer()
         val size = inventory.containerSize
@@ -31,9 +35,11 @@ class SelectionScreen internal constructor(
             .limit(selectionSize.toLong())
             .toList()
 
-        for ((i, selection) in paged.withIndex()) {
-            inventory.setItem(i, selection.display)
+        var slot = 0
+        for (selection in paged) {
+            inventory.setItem(slot++, selection.display)
         }
+        this.lastSelectionSlot = 0.coerceAtMost(slot - 1)
 
         inventory.setItem(size - 1, this.next)
         for (i in  size - 2 downTo size - 8) {
@@ -74,6 +80,14 @@ class SelectionScreen internal constructor(
         selection.action(player)
     }
 
+    override fun onTick(server: MinecraftServer) {
+        val container = this.getContainer()
+        for (slot in 0..this.lastSelectionSlot) {
+            val stack = container.getItem(slot)
+            this.tickers.forEach { ticker -> ticker.tick(stack) }
+        }
+    }
+
     internal class Selection(
         val display: ItemStack,
         val action: (ServerPlayer) -> Unit
@@ -84,6 +98,7 @@ class SelectionScreen internal constructor(
             return createScreenFactory(
                 previous.title,
                 previous.selections,
+                previous.tickers,
                 previous.parent,
                 page,
                 previous.previous,
@@ -96,17 +111,18 @@ class SelectionScreen internal constructor(
         internal fun createScreenFactory(
             title: Component,
             selections: List<Selection>,
+            tickers: List<ItemStackTicker>,
             parent: MenuProvider?,
             page: Int,
             previous: ItemStack,
             back: ItemStack,
             next: ItemStack,
-            filler: ItemStack
+            filler: ItemStack,
         ): SimpleMenuProvider? {
             if (page >= 0) {
                 return SimpleMenuProvider(
                     { syncId, inv, player ->
-                        SelectionScreen(title, selections, player, syncId, parent, page, previous, back, next, filler)
+                        SelectionScreen(title, selections, tickers, player, syncId, parent, page, previous, back, next, filler)
                     },
                     title
                 )

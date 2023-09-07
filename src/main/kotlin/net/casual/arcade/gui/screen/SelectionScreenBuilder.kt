@@ -10,6 +10,7 @@ class SelectionScreenBuilder(
     components: SelectionScreenComponents = SelectionScreenComponents.DEFAULT
 ) {
     private val selections = ArrayList<Selection>()
+    private val tickers = ArrayList<ItemStackTicker>()
 
     var title = components.getTitle()
     var previous = components.getPrevious()
@@ -53,10 +54,16 @@ class SelectionScreenBuilder(
         return this
     }
 
+    fun ticker(ticker: ItemStackTicker): SelectionScreenBuilder {
+        this.tickers.add(ticker)
+        return this
+    }
+
     fun build(): MenuProvider {
         return SelectionScreen.createScreenFactory(
             this.title,
             this.selections,
+            this.tickers,
             this.parent,
             0,
             this.previous,

@@ -8,7 +8,7 @@ import net.casual.arcade.utils.ExtensionUtils.addExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtensions
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
-import net.casual.arcade.utils.TeamUtils.getServerPlayers
+import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.minecraft.advancements.Advancement
 import net.minecraft.core.Direction8
 import net.minecraft.core.particles.ParticleOptions
@@ -21,6 +21,7 @@ import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.Action.ADD
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket
+import net.minecraft.network.protocol.game.ClientboundStopSoundPacket
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvent
@@ -137,6 +138,7 @@ object PlayerUtils {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun ServerPlayer.sendSubtitle(subtitle: Component, force: Boolean = false) {
         this.connection.send(ClientboundSetSubtitleTextPacket(subtitle))
         if (force) {
@@ -145,6 +147,7 @@ object PlayerUtils {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun ServerPlayer.sendSound(
         sound: SoundEvent,
         source: SoundSource = SoundSource.MASTER,
@@ -152,6 +155,18 @@ object PlayerUtils {
         pitch: Float = 1.0F
     ) {
         this.playNotifySound(sound, source, volume, pitch)
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun ServerPlayer.stopSound(sound: SoundEvent, source: SoundSource? = null) {
+        this.connection.send(ClientboundStopSoundPacket(sound.location, source))
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun ServerPlayer.stopAllSounds(source: SoundSource? = null) {
+        this.connection.send(ClientboundStopSoundPacket(null, source))
     }
 
     @JvmStatic
@@ -179,7 +194,7 @@ object PlayerUtils {
 
         val outgoing = OutgoingChatMessage.create(message)
 
-        for (teammates in team.getServerPlayers()) {
+        for (teammates in team.getOnlinePlayers()) {
             val bound = if (teammates === this) outbound else inbound
             val filter = this.shouldFilterMessageTo(teammates)
             teammates.sendChatMessage(outgoing, filter, bound)
@@ -265,8 +280,8 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun <T: ParticleOptions> ServerPlayer.sendParticles(
-        options: T,
+    fun ServerPlayer.sendParticles(
+        options: ParticleOptions,
         position: Vec3,
         xDist: Float = 0.0F,
         yDist: Float = 0.0F,

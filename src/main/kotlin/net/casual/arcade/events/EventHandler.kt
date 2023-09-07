@@ -3,9 +3,35 @@ package net.casual.arcade.events
 import net.casual.arcade.events.core.Event
 import java.util.function.Consumer
 
+/**
+ * This is an implementation of [ListenerHandler] which allows
+ * this class to register multiple event listeners to be called
+ * when an event is broadcasted.
+ *
+ * By default, this class in used in [GlobalEventHandler] where
+ * you can register your events.
+ * However, if you would like the ability to unregister your
+ * events, you can create your own [EventHandler] and then add
+ * and remove it from the [GlobalEventHandler] by using
+ * [GlobalEventHandler.addHandler] and [GlobalEventHandler.removeHandler].
+ *
+ * You can then [register] events to the created [EventHandler]
+ * as normal and they will be invoked when the [GlobalEventHandler]
+ * broadcasts the given event.
+ *
+ * @see GlobalEventHandler
+ * @see ListenerHandler
+ */
 class EventHandler: ListenerHandler {
     private val events = HashMap<Class<out Event>, ArrayList<EventListener<*>>>()
 
+    /**
+     * This method gets all the [EventListener]s for a given
+     * [Event] type, given by [type].
+     *
+     * @param type The type of the [Event] to get listeners for.
+     * @return The list of [EventListener]s for the given [type].
+     */
     override fun <T: Event> getListenersFor(type: Class<T>): List<EventListener<*>> {
         return this.events[type] ?: emptyList()
     }

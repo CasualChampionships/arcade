@@ -9,6 +9,10 @@ data class PlayerBorderDamageEvent(
     val source: DamageSource,
     val amount: Float
 ): InvokableEvent<Boolean>(), PlayerEvent {
+    override fun suppress() {
+
+    }
+
     override fun execute(): Boolean {
         return this.player.hurt(this.source, this.amount)
     }

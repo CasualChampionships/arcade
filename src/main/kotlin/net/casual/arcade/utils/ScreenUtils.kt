@@ -4,9 +4,11 @@ import net.casual.arcade.gui.screen.SelectionScreenBuilder
 import net.casual.arcade.gui.screen.SelectionScreenComponents
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.settings.DisplayableGameSetting
+import net.casual.arcade.utils.ItemUtils.enableGlint
+import net.casual.arcade.utils.ItemUtils.removeEnchantments
 import net.casual.arcade.utils.PlayerUtils.location
 import net.casual.arcade.utils.PlayerUtils.teleportTo
-import net.casual.arcade.utils.TeamUtils.getServerPlayers
+import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.minecraft.network.chat.Component
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
@@ -38,7 +40,7 @@ object ScreenUtils {
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
         builder.parent(parent)
-        for (teammate in team.getServerPlayers()) {
+        for (teammate in team.getOnlinePlayers()) {
             builder.selection(ItemUtils.generatePlayerHead(teammate.scoreboardName)) { player ->
                 player.teleportTo(teammate.location)
             }
@@ -70,6 +72,16 @@ object ScreenUtils {
         for ((option, value) in display.options) {
             builder.selection(option) {
                 display.setting.set(value)
+            }
+        }
+        builder.ticker { stack ->
+            val option = display.options[stack]
+            if (stack.isEnchanted) {
+                if (display.setting.get() != option) {
+                    stack.removeEnchantments()
+                }
+            } else if (display.setting.get() == option) {
+                stack.enableGlint()
             }
         }
         return builder.build()
