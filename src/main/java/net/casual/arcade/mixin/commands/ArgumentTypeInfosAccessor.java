@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import java.util.Map;
 
 @Mixin(ArgumentTypeInfos.class)
-interface ArgumentTypeInfosAccessor {
+public interface ArgumentTypeInfosAccessor {
 	@Accessor("BY_CLASS")
 	static Map<Class<?>, ArgumentTypeInfo<?, ?>> getClassMap() {
 		throw new AssertionError();
