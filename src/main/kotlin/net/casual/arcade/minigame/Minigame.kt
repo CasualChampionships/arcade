@@ -30,6 +30,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.MenuProvider
+import java.lang.StringBuilder
 import java.util.*
 import java.util.function.Consumer
 import kotlin.collections.ArrayDeque
@@ -467,25 +468,25 @@ abstract class Minigame(
     }
 
     final override fun toString(): String {
-        return """
-        ~~~~~~~~~~~~~~
-        Minigame: ${this::class.java.simpleName}
-        Serializable: ${this is SavableMinigame}
-        UUID: ${this.uuid}
-        ID: ${this.id}
-        Players: ${this.getPlayers().joinToString { it.scoreboardName }}
-        Levels: ${this.getLevels().joinToString { it.dimension().location().toString() }}
-        Phases: ${this.phases.joinToString { it.id }}
-        Phase: ${this.phase.id}
-        Paused: ${this.paused}
-        Closed: ${this.closed}
-        BossBars: ${this.bossbars.size}
-        NameTags: ${this.nameTags.size}
-        HasSidebar: ${this.sidebar != null}
-        HasTabDisplay: ${this.display != null}
-        Settings: ${this.getSettings().joinToString("\n", "{\n", "\n}") { "  ${it.name}: ${it.get()}" }}
-        ~~~~~~~~~~~~~~
-        """.trimIndent()
+        val builder = StringBuilder()
+        builder.append("~~~~~~~~~~~~~~").append("\n")
+        builder.append("Minigame: ").append(this::class.java.simpleName).append("\n")
+        builder.append("Serializable: ").append(this is SavableMinigame).append("\n")
+        builder.append("UUID: ").append(this.uuid).append("\n")
+        builder.append("ID: ").append(this.id).append("\n")
+        builder.append("Players: ").append(this.getPlayers().joinToString("\n", "\n") { "  ${it.scoreboardName}" }).append("\n")
+        builder.append("Levels: ").append(this.getLevels().joinToString("\n", "\n") { "  ${it.dimension().location()}" }).append("\n")
+        builder.append("Phases: ").append(this.phases.joinToString("\n", "\n") { "  ${it.id}" }).append("\n")
+        builder.append("Phase: ").append(this.phase.id).append("\n")
+        builder.append("Paused").append(this.paused).append("\n")
+        builder.append("Closed: ").append(this.closed).append("\n")
+        builder.append("BossBars: ").append(this.bossbars.size).append("\n")
+        builder.append("NameTags: ").append(this.nameTags.size).append("\n")
+        builder.append("HasSidebar: ").append(this.sidebar != null).append("\n")
+        builder.append("HasDisplay: ").append(this.display != null).append("\n")
+        builder.append("Settings: ").append(this.getSettings().joinToString("\n", "\n") { "  ${it.name}: ${it.get()}" }).append("\n")
+        builder.append("~~~~~~~~~~~~~~")
+        return builder.toString()
     }
 
     /**

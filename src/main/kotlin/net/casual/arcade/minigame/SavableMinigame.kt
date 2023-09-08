@@ -7,9 +7,7 @@ import net.casual.arcade.config.CustomisableConfig
 import net.casual.arcade.events.minigame.MinigameCloseEvent
 import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.scheduler.*
-import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.arrayOrDefault
-import net.casual.arcade.utils.JsonUtils.boolean
 import net.casual.arcade.utils.JsonUtils.booleanOrDefault
 import net.casual.arcade.utils.JsonUtils.int
 import net.casual.arcade.utils.JsonUtils.intOrNull
