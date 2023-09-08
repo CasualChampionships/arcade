@@ -8,12 +8,15 @@ import net.casual.arcade.events.minigame.MinigameCloseEvent
 import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.scheduler.*
 import net.casual.arcade.utils.JsonUtils.array
+import net.casual.arcade.utils.JsonUtils.arrayOrDefault
 import net.casual.arcade.utils.JsonUtils.boolean
+import net.casual.arcade.utils.JsonUtils.booleanOrDefault
 import net.casual.arcade.utils.JsonUtils.int
 import net.casual.arcade.utils.JsonUtils.intOrNull
 import net.casual.arcade.utils.JsonUtils.obj
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
+import net.casual.arcade.utils.JsonUtils.stringOrDefault
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import java.nio.file.Path
@@ -47,7 +50,7 @@ abstract class SavableMinigame(
             CustomisableConfig.GSON.fromJson(it, JsonObject::class.java)
         }
 
-        val phaseId = json.string("phase")
+        val phaseId = json.stringOrDefault("phase")
         var setPhase = false
         for (phase in this.phases) {
             if (phase.id == phaseId) {
@@ -56,19 +59,19 @@ abstract class SavableMinigame(
                 break
             }
         }
-        this.paused = json.boolean("paused")
+        this.paused = json.booleanOrDefault("paused")
         this.uuid = UUID.fromString(json.string("uuid"))
 
         val generated = HashMap<Int, Task?>()
 
-        for (task in json.array("tasks").objects()) {
+        for (task in json.arrayOrDefault("tasks").objects()) {
             this.readScheduledTask(task, this.scheduler, generated)
         }
-        for (task in json.array("phase_tasks").objects()) {
+        for (task in json.arrayOrDefault("phase_tasks").objects()) {
             this.readScheduledTask(task, this.phaseScheduler, generated)
         }
 
-        for (data in json.array("phase_end_tasks").objects()) {
+        for (data in json.arrayOrDefault("phase_end_tasks").objects()) {
             val (id, task) = this.readTask(data, generated)
             if (task !== null) {
                 Arcade.logger.info("Successfully loaded phase end task $id for minigame ${this.id}")
@@ -79,8 +82,7 @@ abstract class SavableMinigame(
         }
         generated.clear()
 
-        val settings = json.array("settings")
-        for (data in settings.objects()) {
+        for (data in json.arrayOrDefault("settings").objects()) {
             val name = data.string("name")
             val value = data.get("value")
             val display = this.gameSettings[name]
