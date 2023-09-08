@@ -39,7 +39,7 @@ class SelectionScreen internal constructor(
         for (selection in paged) {
             inventory.setItem(slot++, selection.display)
         }
-        this.lastSelectionSlot = 0.coerceAtMost(slot - 1)
+        this.lastSelectionSlot = 0.coerceAtLeast(slot - 1)
 
         inventory.setItem(size - 1, this.next)
         for (i in  size - 2 downTo size - 8) {

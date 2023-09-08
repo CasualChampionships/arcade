@@ -478,7 +478,7 @@ abstract class Minigame(
         builder.append("Levels: ").append(this.getLevels().joinToString("\n", "\n") { "  ${it.dimension().location()}" }).append("\n")
         builder.append("Phases: ").append(this.phases.joinToString("\n", "\n") { "  ${it.id}" }).append("\n")
         builder.append("Phase: ").append(this.phase.id).append("\n")
-        builder.append("Paused").append(this.paused).append("\n")
+        builder.append("Paused: ").append(this.paused).append("\n")
         builder.append("Closed: ").append(this.closed).append("\n")
         builder.append("BossBars: ").append(this.bossbars.size).append("\n")
         builder.append("NameTags: ").append(this.nameTags.size).append("\n")
