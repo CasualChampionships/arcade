@@ -1,12 +1,13 @@
 package net.casual.arcade.settings
 
+import net.casual.arcade.items.HashableItemStack
 import net.minecraft.world.item.ItemStack
 
 class DisplayableGameSettingBuilder<T: Any>(
     private val constructor: (String, T, Map<String, T>) -> GameSetting<T>
 ) {
     private val options = LinkedHashMap<String, T>()
-    private val stacks = LinkedHashMap<ItemStack, T>()
+    private val stacks = LinkedHashMap<HashableItemStack, T>()
 
     private val listeners = ArrayList<SettingListener<T>>()
 
@@ -31,7 +32,7 @@ class DisplayableGameSettingBuilder<T: Any>(
 
     fun option(name: String, stack: ItemStack, value: T): DisplayableGameSettingBuilder<T> {
         this.options[name] = value
-        this.stacks[stack] = value
+        this.stacks[HashableItemStack(stack)] = value
         return this
     }
 

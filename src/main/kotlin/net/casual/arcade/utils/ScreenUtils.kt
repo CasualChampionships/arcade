@@ -69,13 +69,13 @@ object ScreenUtils {
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
         builder.parent(parent)
-        for ((option, value) in display.options) {
+        for ((option, value) in display.getOptions()) {
             builder.selection(option) {
                 display.setting.set(value)
             }
         }
         builder.ticker { stack ->
-            val option = display.options[stack]
+            val option = display.getValue(stack)
             if (stack.isEnchanted) {
                 if (display.setting.get() != option) {
                     stack.removeEnchantments()
