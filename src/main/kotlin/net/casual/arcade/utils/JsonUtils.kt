@@ -5,16 +5,21 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
 object JsonUtils {
+    fun JsonObject.getWithNull(key: String): JsonElement? {
+        val value = this.get(key) ?: return null
+        return if (value.isJsonNull) null else value
+    }
+
     fun JsonObject.boolean(key: String): Boolean {
         return this.get(key).asBoolean
     }
 
     fun JsonObject.booleanOrNull(key: String): Boolean? {
-        return this.get(key)?.asBoolean
+        return this.getWithNull(key)?.asBoolean
     }
 
     fun JsonObject.booleanOrDefault(key: String, default: Boolean = false): Boolean {
-        return this.get(key)?.asBoolean ?: default
+        return this.getWithNull(key)?.asBoolean ?: default
     }
 
     fun JsonObject.booleanOrPut(key: String, putter: () -> Boolean = { false }): Boolean {
@@ -26,11 +31,11 @@ object JsonUtils {
     }
 
     fun JsonObject.stringOrNull(key: String): String? {
-        return this.get(key)?.asString
+        return this.getWithNull(key)?.asString
     }
 
     fun JsonObject.stringOrDefault(key: String, default: String = ""): String {
-        return this.get(key)?.asString ?: default
+        return this.getWithNull(key)?.asString ?: default
     }
 
     fun JsonObject.stringOrPut(key: String, putter: () -> String = { "" }): String {
@@ -42,11 +47,11 @@ object JsonUtils {
     }
 
     fun JsonObject.numberOrNull(key: String): Number? {
-        return this.get(key)?.asNumber
+        return this.getWithNull(key)?.asNumber
     }
 
     fun JsonObject.numberOrDefault(key: String, default: Number = 0): Number {
-        return this.get(key)?.asNumber ?: default
+        return this.getWithNull(key)?.asNumber ?: default
     }
 
     fun JsonObject.numberOrPut(key: String, putter: () -> Number = { 0 }): Number {
@@ -58,11 +63,11 @@ object JsonUtils {
     }
 
     fun JsonObject.intOrNull(key: String): Int? {
-        return this.get(key)?.asInt
+        return this.getWithNull(key)?.asInt
     }
 
     fun JsonObject.intOrDefault(key: String, default: Int = 0): Int {
-        return this.get(key)?.asInt ?: default
+        return this.getWithNull(key)?.asInt ?: default
     }
 
     fun JsonObject.intOrPut(key: String, putter: () -> Int = { 0 }): Int {
@@ -74,11 +79,11 @@ object JsonUtils {
     }
 
     fun JsonObject.floatOrNull(key: String): Float? {
-        return this.get(key)?.asFloat
+        return this.getWithNull(key)?.asFloat
     }
 
     fun JsonObject.floatOrDefault(key: String, default: Float = 0.0F): Float {
-        return this.get(key)?.asFloat ?: default
+        return this.getWithNull(key)?.asFloat ?: default
     }
 
     fun JsonObject.floatOrPut(key: String, putter: () -> Float = { 0.0F }): Float {
@@ -90,11 +95,11 @@ object JsonUtils {
     }
 
     fun JsonObject.doubleOrNull(key: String): Double? {
-        return this.get(key)?.asDouble
+        return this.getWithNull(key)?.asDouble
     }
 
     fun JsonObject.doubleOrDefault(key: String, default: Double = 0.0): Double {
-        return this.get(key)?.asDouble ?: default
+        return this.getWithNull(key)?.asDouble ?: default
     }
 
     fun JsonObject.doubleOrPut(key: String, putter: () -> Double = { 0.0 }): Double {
@@ -106,11 +111,11 @@ object JsonUtils {
     }
 
     fun JsonObject.arrayOrNull(key: String): JsonArray? {
-        return this.get(key)?.asJsonArray
+        return this.getWithNull(key)?.asJsonArray
     }
 
     fun JsonObject.arrayOrDefault(key: String, default: JsonArray = JsonArray()): JsonArray {
-        return this.get(key)?.asJsonArray ?: default
+        return this.getWithNull(key)?.asJsonArray ?: default
     }
 
     fun JsonObject.arrayOrPut(key: String, putter: () -> JsonArray = ::JsonArray): JsonArray {
@@ -122,11 +127,11 @@ object JsonUtils {
     }
 
     fun JsonObject.objOrNull(key: String): JsonObject? {
-        return this.get(key)?.asJsonObject
+        return this.getWithNull(key)?.asJsonObject
     }
 
     fun JsonObject.objOrDefault(key: String, default: JsonObject = JsonObject()): JsonObject {
-        return this.get(key)?.asJsonObject ?: default
+        return this.getWithNull(key)?.asJsonObject ?: default
     }
 
     fun JsonObject.objOrPut(key: String, putter: () -> JsonObject = ::JsonObject): JsonObject {
