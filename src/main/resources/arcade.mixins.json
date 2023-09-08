@@ -8,7 +8,6 @@
     "advancements.ServerAdvancementManagerMixin",
     "commands.ArgumentNodeStub",
     "commands.ArgumentTypeInfosAccessor",
-    "commands.ArgumentTypeInfosMixin",
     "commands.ClientboundCommandsPacketMixin",
     "events.BlockItemMixin",
     "events.BrewingStandBlockEntityAccessor",
