@@ -7,8 +7,8 @@ import net.casual.arcade.border.state.StillCenterBorderState
 import java.util.*
 
 class TrackedBorder(size: Double, centerX: Double, centerZ: Double): ArcadeBorder() {
-    override var borderState: BorderState = StillBorderState(this, size)
     override var centerState: CenterBorderState = StillCenterBorderState(centerX, centerZ)
+    override var borderState: BorderState = StillBorderState(this, size)
 
     private var trackers = LinkedList<MultiLevelBorderTracker>()
 
