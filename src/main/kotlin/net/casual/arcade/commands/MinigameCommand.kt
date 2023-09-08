@@ -1,34 +1,27 @@
 package net.casual.arcade.commands
 
 import com.mojang.brigadier.CommandDispatcher
-import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
-import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.Minigames
+import net.casual.arcade.commands.arguments.MinigameArgument
+import net.casual.arcade.commands.arguments.MinigameArgument.SettingsName.Companion.INVALID_SETTING_NAME
+import net.casual.arcade.commands.arguments.MinigameArgument.SettingsOption.Companion.INVALID_SETTING_OPTION
 import net.casual.arcade.utils.CommandSourceUtils.fail
 import net.casual.arcade.utils.CommandSourceUtils.success
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
-import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
-import java.util.*
 
 object MinigameCommand: Command {
-    private val INVALID_UUID = SimpleCommandExceptionType(Component.literal("Invalid Minigame UUID"))
-
     override fun register(dispatcher: CommandDispatcher<CommandSourceStack>) {
         dispatcher.register(
             Commands.literal("minigame").requires {
                 it.hasPermission(4)
             }.then(
                 Commands.literal("join").then(
-                    Commands.argument("uuid", StringArgumentType.word()).suggests { _, builder ->
-                        SharedSuggestionProvider.suggest(Minigames.all().stream().map { it.uuid.toString() }, builder)
-                    }.then(
+                    Commands.argument("minigame", MinigameArgument.minigame()).then(
                         Commands.argument("players", EntityArgument.players()).executes(this::otherJoinMinigame)
                     ).executes(this::selfJoinMinigame)
                 )
@@ -38,9 +31,29 @@ object MinigameCommand: Command {
                 ).executes(this::selfLeaveMinigame)
             ).then(
                 Commands.literal("info").then(
-                    Commands.argument("uuid", StringArgumentType.word()).suggests { _, builder ->
-                        SharedSuggestionProvider.suggest(Minigames.all().stream().map { it.uuid.toString() }, builder)
-                    }.executes(this::infoMinigame)
+                    Commands.argument("minigame", MinigameArgument.minigame()).executes(this::infoMinigame)
+                )
+            ).then(
+                Commands.literal("settings").then(
+                    Commands.argument("minigame", MinigameArgument.minigame()).then(
+                        Commands.literal("get").then(
+                            Commands.argument("setting", MinigameArgument.SettingsName.name("minigame")).executes(this::getMinigameSetting)
+                        )
+                    ).then(
+                        Commands.literal("set").then(
+                            Commands.argument("setting", MinigameArgument.SettingsName.name("minigame")).then(
+                                Commands.literal("from").then(
+                                    Commands.literal("option").then(
+                                        Commands.argument("option", MinigameArgument.SettingsOption.option("minigame", "setting")).executes(this::setMinigameSettingFromOption)
+                                    )
+                                ).then(
+                                    Commands.literal("value").then(
+                                        Commands.argument("value", MinigameArgument.SettingsValue.value()).executes(this::setMinigameSettingFromValue)
+                                    )
+                                )
+                            )
+                        )
+                    ).executes(this::openMinigameSettings)
                 )
             )
         )
@@ -56,7 +69,7 @@ object MinigameCommand: Command {
     }
 
     private fun addPlayersToMinigame(players: Collection<ServerPlayer>, context: CommandContext<CommandSourceStack>): Int {
-        val minigame = this.getMinigameFromContextUUID(context)
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
         val total = players.size
         var successes = 0
         for (player in players) {
@@ -100,18 +113,43 @@ object MinigameCommand: Command {
     }
 
     private fun infoMinigame(context: CommandContext<CommandSourceStack>): Int {
-        val minigame = this.getMinigameFromContextUUID(context)
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
         context.source.success(Component.literal(minigame.toString()))
         return 1
     }
 
-    private fun getMinigameFromContextUUID(context: CommandContext<CommandSourceStack>): Minigame {
-        val uuid: UUID
-        try {
-            uuid = UUID.fromString(StringArgumentType.getString(context, "uuid"))
-        } catch (e: IllegalArgumentException) {
-            throw INVALID_UUID.create()
-        }
-        return Minigames.get(uuid) ?: throw INVALID_UUID.create()
+    private fun openMinigameSettings(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        context.source.playerOrException.openMenu(minigame.createRulesMenu())
+        return 1
+    }
+
+    private fun getMinigameSetting(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val name = MinigameArgument.SettingsName.getSettingsName(context, "setting")
+        val setting = minigame.getSetting(name) ?: throw INVALID_SETTING_NAME.create()
+        context.source.success(Component.literal("Setting $name for minigame ${minigame.id} is set to ${setting.get()}"))
+        return 1
+    }
+
+    private fun setMinigameSettingFromOption(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val name = MinigameArgument.SettingsName.getSettingsName(context, "setting")
+        val setting = minigame.getSetting(name) ?: throw INVALID_SETTING_NAME.create()
+        val option = MinigameArgument.SettingsOption.getSettingsOption(context, "option")
+        val value = setting.getOption(option) ?: throw INVALID_SETTING_OPTION.create()
+        setting.setFromOption(option)
+        context.source.success(Component.literal("Setting $name for minigame ${minigame.id} set to option $option ($value)"))
+        return 1
+    }
+
+    private fun setMinigameSettingFromValue(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val name = MinigameArgument.SettingsName.getSettingsName(context, "setting")
+        val setting = minigame.getSetting(name) ?: throw INVALID_SETTING_NAME.create()
+        val value = MinigameArgument.SettingsValue.getSettingsValue(context, "value")
+        setting.deserialiseAndSet(value)
+        context.source.success(Component.literal("Setting $name for minigame ${minigame.id} set to ${setting.get()}"))
+        return 1
     }
 }

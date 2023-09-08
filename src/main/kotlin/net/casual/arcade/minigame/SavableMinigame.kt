@@ -88,7 +88,7 @@ abstract class SavableMinigame(
                 Arcade.logger.warn("Saved setting $name for minigame ${this.id} could not be reloaded")
                 continue
             }
-            display.setting.deserialise(value)
+            display.setting.deserialiseAndSetQuietly(value)
         }
 
         this.readData(json.obj("custom"))
@@ -121,7 +121,7 @@ abstract class SavableMinigame(
         for (setting in this.getSettings()) {
             val data = JsonObject()
             data.addProperty("name", setting.name)
-            data.add("value", setting.serialise())
+            data.add("value", setting.serialiseValue())
             settings.add(data)
         }
 

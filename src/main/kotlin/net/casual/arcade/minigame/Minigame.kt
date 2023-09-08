@@ -8,6 +8,7 @@ import net.casual.arcade.events.minigame.*
 import net.casual.arcade.events.player.PlayerEvent
 import net.casual.arcade.events.server.ServerStoppedEvent
 import net.casual.arcade.events.server.ServerTickEvent
+import net.casual.arcade.gui.PlayerUI
 import net.casual.arcade.gui.bossbar.CustomBossBar
 import net.casual.arcade.gui.nametag.ArcadeNameTag
 import net.casual.arcade.gui.screen.SelectionScreenComponents
@@ -18,6 +19,7 @@ import net.casual.arcade.scheduler.Task
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.settings.DisplayableGameSetting
 import net.casual.arcade.settings.GameSetting
+import net.casual.arcade.utils.EventUtils.registerHandler
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.ScreenUtils
@@ -130,7 +132,7 @@ abstract class Minigame(
     internal val phaseScheduler = TickedScheduler()
     @Deprecated("This will no longer be supported in future versions")
     internal val phaseEndTasks = ArrayDeque<Task>()
-    internal val phases = HashSet(this.getPhases())
+    internal val phases = LinkedHashSet(this.getPhases())
 
     internal var uuid = UUID.randomUUID()
 
@@ -162,21 +164,10 @@ abstract class Minigame(
      * constructor.
      */
     protected open fun initialise() {
-        this.registerEvent<ServerTickEvent> {
-            if (!this.paused) {
-                this.scheduler.tick()
-                this.phaseScheduler.tick()
-            }
-        }
-        this.registerEvent<ServerStoppedEvent> {
-            this.close()
-        }
-        this.registerMinigameEvent<MinigameAddPlayerEvent> { (_, player) ->
-            this.bossbars.forEach { it.addPlayer(player) }
-            this.sidebar?.addPlayer(player)
-            this.display?.addPlayer(player)
-        }
-        GlobalEventHandler.addHandler(this.events)
+        this.registerEvents()
+        this.events.registerHandler()
+        this.phaseEvents.registerHandler()
+
         Minigames.register(this)
     }
 
@@ -187,7 +178,7 @@ abstract class Minigame(
      * @return Whether the minigame is in that phase.
      */
     fun isPhase(phase: MinigamePhase): Boolean {
-        return this.phase === phase
+        return this.phase == phase
     }
 
     /**
@@ -216,9 +207,10 @@ abstract class Minigame(
      * **different** to the current phase and in
      * the [phases] set.
      *
-     * When a phase is set, all previous scheduled
-     * tasks will be cleared, and post-phase tasks
-     * will be run.
+     * When a phase is set, all previously scheduled
+     * phase tasks will be cleared and will no longer run.
+     * Further, all the registered phase events will be
+     * cleared and will no longer be invoked.
      *
      * After this the [MinigameSetPhaseEvent] is
      * broadcasted for listeners.
@@ -226,7 +218,7 @@ abstract class Minigame(
      * @param phase The phase to set the minigame to.
      * @throws IllegalArgumentException If the [phase] is not in the [phases] set.
      */
-    protected open fun setPhase(phase: MinigamePhase) {
+    protected fun setPhase(phase: MinigamePhase) {
         if (this.isPhase(phase)) {
             return
         }
@@ -269,22 +261,23 @@ abstract class Minigame(
      * @return Whether the player was successfully accepted.
      */
     fun addPlayer(player: ServerPlayer): Boolean {
-        if (!this.closed && !this.hasPlayer(player)) {
-            if (player.getMinigame() === this) {
-                this.connections.add(player.connection)
-                GlobalEventHandler.broadcast(MinigameAddExistingPlayerEvent(this, player))
-                GlobalEventHandler.broadcast(MinigameAddPlayerEvent(this, player))
-                return true
-            }
+        if (this.closed || this.hasPlayer(player)) {
+            return false
+        }
+        if (player.getMinigame() === this) {
+            this.connections.add(player.connection)
+            GlobalEventHandler.broadcast(MinigameAddExistingPlayerEvent(this, player))
+            GlobalEventHandler.broadcast(MinigameAddPlayerEvent(this, player))
+            return true
+        }
 
-            val event = MinigameAddNewPlayerEvent(this, player)
-            GlobalEventHandler.broadcast(event)
-            if (!event.isCancelled()) {
-                this.connections.add(player.connection)
-                player.minigame.setMinigame(this)
-                GlobalEventHandler.broadcast(MinigameAddPlayerEvent(this, player))
-                return true
-            }
+        val event = MinigameAddNewPlayerEvent(this, player)
+        GlobalEventHandler.broadcast(event)
+        if (!event.isCancelled()) {
+            this.connections.add(player.connection)
+            player.minigame.setMinigame(this)
+            GlobalEventHandler.broadcast(MinigameAddPlayerEvent(this, player))
+            return true
         }
         return false
     }
@@ -300,11 +293,6 @@ abstract class Minigame(
      */
     fun removePlayer(player: ServerPlayer) {
         if (this.connections.remove(player.connection)) {
-            this.nameTags.forEach { it.removePlayer(player) }
-            this.bossbars.forEach { it.removePlayer(player) }
-            this.sidebar?.removePlayer(player)
-            this.display?.removePlayer(player)
-
             GlobalEventHandler.broadcast(MinigameRemovePlayerEvent(this, player))
             player.minigame.removeMinigame()
         }
@@ -351,6 +339,16 @@ abstract class Minigame(
     }
 
     /**
+     * This gets a setting for a given name.
+     *
+     * @param name The name of the given setting.
+     * @return The setting, may be null if non-existent.
+     */
+    fun getSetting(name: String): GameSetting<*>? {
+        return this.gameSettings[name]?.setting
+    }
+
+    /**
      * This creates a [MenuProvider] which provides a GUI
      * for updating the minigame's [GameSetting]s.
      *
@@ -358,7 +356,7 @@ abstract class Minigame(
      * @return The [MenuProvider] for the settings screen.
      */
     open fun createRulesMenu(components: SelectionScreenComponents = DefaultMinigameScreenComponent): MenuProvider {
-        return ScreenUtils.createMinigameRulesScreen(this, components)
+        return ScreenUtils.createMinigameRulesMenu(this, components)
     }
 
     /**
@@ -386,7 +384,12 @@ abstract class Minigame(
 
     /**
      * This closes the minigame, all players are removed from the
-     * minigame, all tasks are cleared
+     * minigame, all tasks are cleared, and all events are unregistered.
+     *
+     * This also broadcasts the [MinigameCloseEvent] after all the players
+     * have been removed.
+     *
+     * After a minigame has been closed, no more players are permitted to join.
      */
     fun close() {
         for (player in this.getPlayers()) {
@@ -403,7 +406,7 @@ abstract class Minigame(
 
     fun addBossbar(bar: CustomBossBar) {
         this.bossbars.add(bar)
-        this.reloadBossbars()
+        this.loadUI(bar)
     }
 
     fun removeBossbar(bar: CustomBossBar) {
@@ -418,17 +421,9 @@ abstract class Minigame(
         this.bossbars.clear()
     }
 
-    fun reloadBossbars() {
-        for (bossbar in this.bossbars) {
-            for (player in this.getPlayers()) {
-                bossbar.addPlayer(player)
-            }
-        }
-    }
-
     fun addNameTag(tag: ArcadeNameTag) {
         this.nameTags.add(tag)
-        this.reloadNameTags()
+        this.loadUI(tag)
     }
 
     fun removeNameTag(tag: ArcadeNameTag) {
@@ -443,21 +438,10 @@ abstract class Minigame(
         this.nameTags.clear()
     }
 
-    fun reloadNameTags() {
-        for (tag in this.nameTags) {
-            for (player in this.getPlayers()) {
-                tag.addPlayer(player)
-            }
-        }
-    }
-
     fun setSidebar(sidebar: ArcadeSidebar) {
         this.removeSidebar()
-
         this.sidebar = sidebar
-        for (player in this.getPlayers()) {
-            sidebar.addPlayer(player)
-        }
+        this.loadUI(sidebar)
     }
 
     fun removeSidebar() {
@@ -467,11 +451,8 @@ abstract class Minigame(
 
     fun setTabDisplay(display: ArcadeTabDisplay) {
         this.removeTabDisplay()
-
         this.display = display
-        for (player in this.getPlayers()) {
-            display.addPlayer(player)
-        }
+        this.loadUI(display)
     }
 
     fun removeTabDisplay() {
@@ -479,21 +460,54 @@ abstract class Minigame(
         this.display = null
     }
 
-    override fun toString(): String {
+    private fun loadUI(ui: PlayerUI) {
+        for (player in this.getPlayers()) {
+            ui.addPlayer(player)
+        }
+    }
+
+    final override fun toString(): String {
         return """
+        ~~~~~~~~~~~~~~
         Minigame: ${this::class.java.simpleName}
+        Serializable: ${this is SavableMinigame}
         UUID: ${this.uuid}
         ID: ${this.id}
         Players: ${this.getPlayers().joinToString { it.scoreboardName }}
         Levels: ${this.getLevels().joinToString { it.dimension().location().toString() }}
+        Phases: ${this.phases.joinToString { it.id }}
         Phase: ${this.phase.id}
         Paused: ${this.paused}
         Closed: ${this.closed}
+        BossBars: ${this.bossbars.size}
+        NameTags: ${this.nameTags.size}
+        HasSidebar: ${this.sidebar != null}
+        HasTabDisplay: ${this.display != null}
+        Settings: ${this.getSettings().joinToString("\n", "{\n", "\n}") { "  ${it.name}: ${it.get()}" }}
+        ~~~~~~~~~~~~~~
         """.trimIndent()
     }
 
+    /**
+     * This gets all the [MinigamePhase]s that this [Minigame]
+     * allows.
+     *
+     * This method will only be invoked **once**; when the
+     * minigame is initialized, the phases are then stored in
+     * a collection for the rest of the minigames lifetime.
+     *
+     * @return A collection of all the valid phases the minigame can be in.
+     */
     protected abstract fun getPhases(): Collection<MinigamePhase>
 
+    /**
+     * This gets all the [ServerLevel]s that the [Minigame] is in.
+     *
+     * This method is used for [hasLevel], to see if the minigame
+     * has a given level, and further for debugging purposes.
+     *
+     * @return A collection of levels that the minigame is in.
+     */
     protected abstract fun getLevels(): Collection<ServerLevel>
 
     protected fun <T: Any> registerSetting(displayed: DisplayableGameSetting<T>): GameSetting<T> {
@@ -588,5 +602,33 @@ abstract class Minigame(
                 }
             }
         }
+    }
+
+    private fun registerEvents() {
+        this.registerEvent<ServerTickEvent> { this.onServerTick() }
+        this.registerEvent<ServerStoppedEvent> { this.close() }
+        this.registerMinigameEvent<MinigameAddPlayerEvent> { (_, player) -> this.onPlayerAdd(player) }
+        this.registerMinigameEvent<MinigameRemovePlayerEvent> { (_, player) -> this.onPlayerRemove(player) }
+    }
+
+    private fun onServerTick() {
+        if (!this.paused) {
+            this.scheduler.tick()
+            this.phaseScheduler.tick()
+        }
+    }
+
+    private fun onPlayerAdd(player: ServerPlayer) {
+        this.bossbars.forEach { it.addPlayer(player) }
+        this.nameTags.forEach { it.addPlayer(player) }
+        this.sidebar?.addPlayer(player)
+        this.display?.addPlayer(player)
+    }
+
+    private fun onPlayerRemove(player: ServerPlayer) {
+        this.nameTags.forEach { it.removePlayer(player) }
+        this.bossbars.forEach { it.removePlayer(player) }
+        this.sidebar?.removePlayer(player)
+        this.display?.removePlayer(player)
     }
 }

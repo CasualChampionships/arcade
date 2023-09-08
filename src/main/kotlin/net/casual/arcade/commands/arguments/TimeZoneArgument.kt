@@ -21,11 +21,13 @@ class TimeZoneArgument: ArgumentType<ZoneId>, CustomArgumentType {
     }
 
     companion object {
+        @JvmStatic
         fun timeZone(): TimeZoneArgument {
             return TimeZoneArgument()
         }
 
-        fun getTimeZone(context: CommandContext<CommandSourceStack>, string: String): ZoneId {
+        @JvmStatic
+        fun getTimeZone(context: CommandContext<*>, string: String): ZoneId {
             return context.getArgument(string, ZoneId::class.java)
         }
     }

@@ -29,11 +29,13 @@ class TimeArgument: ArgumentType<LocalTime>, CustomArgumentType {
             }
         }
 
+        @JvmStatic
         fun time(): TimeArgument {
             return TimeArgument()
         }
 
-        fun getTime(context: CommandContext<CommandSourceStack>, string: String): LocalTime {
+        @JvmStatic
+        fun getTime(context: CommandContext<*>, string: String): LocalTime {
             return context.getArgument(string, LocalTime::class.java)
         }
     }

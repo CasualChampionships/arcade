@@ -9,12 +9,12 @@ class EnumGameSetting<E: Enum<E>>(
     value: E,
     options: Map<String, E>,
 ): GameSetting<E>(name, value, options) {
-    override fun serialise(): JsonElement {
-        return JsonPrimitive(this.get().name)
+    override fun serialise(value: E): JsonElement {
+        return JsonPrimitive(value.name)
     }
 
-    override fun deserialise(json: JsonElement) {
-        this.setQuietly(this.getOption(json.asString)!!)
+    override fun deserialise(json: JsonElement): E {
+        return this.getOption(json.asString)!!
     }
 
     companion object {

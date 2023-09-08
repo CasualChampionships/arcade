@@ -14,7 +14,6 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Team
 
-@Suppress("unused")
 object TeamUtils {
     @JvmStatic
     fun teams(): Collection<PlayerTeam> {

@@ -45,12 +45,12 @@ open class MappedArgument<T>(
             return MappedArgument(map)
         }
 
-        inline fun <reified T> getMapped(context: CommandContext<CommandSourceStack>, string: String): T {
+        inline fun <reified T> getMapped(context: CommandContext<*>, string: String): T {
             return context.getArgument(string, T::class.java)
         }
 
         @JvmStatic
-        fun <T> getMapped(context: CommandContext<CommandSourceStack>, string: String, clazz: Class<T>): T {
+        fun <T> getMapped(context: CommandContext<*>, string: String, clazz: Class<T>): T {
             return context.getArgument(string, clazz)
         }
     }

@@ -1,10 +1,8 @@
 package net.casual.arcade
 
-import net.casual.arcade.commands.DebugCommand
-import net.casual.arcade.commands.MinigameCommand
+import net.casual.arcade.commands.ArcadeCommands
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerCreatedEvent
-import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.utils.*
 import net.fabricmc.api.ModInitializer
 import net.minecraft.server.MinecraftServer
@@ -16,8 +14,7 @@ class Arcade: ModInitializer {
         @JvmField
         val logger: Logger = LogManager.getLogger("Arcade")
 
-        @JvmField
-        internal val debug = false
+        internal const val debug = false
 
         private var server: MinecraftServer? = null
 
@@ -46,16 +43,6 @@ class Arcade: ModInitializer {
         TabUtils.registerEvents()
         NameTagUtils.registerEvents()
 
-        this.registerCommands()
-    }
-
-    private fun registerCommands() {
-        GlobalEventHandler.register<ServerRegisterCommandEvent> {
-            MinigameCommand.register(it.dispatcher)
-
-            if (debug) {
-                DebugCommand.register(it.dispatcher)
-            }
-        }
+        ArcadeCommands.registerCommands()
     }
 }

@@ -18,12 +18,12 @@ class EnumArgument<E: Enum<E>>(
             return EnumArgument(clazz)
         }
 
-        inline fun <reified E: Enum<E>> getEnumeration(context: CommandContext<CommandSourceStack>, string: String): E {
+        inline fun <reified E: Enum<E>> getEnumeration(context: CommandContext<*>, string: String): E {
             return context.getArgument(string, E::class.java)
         }
 
         @JvmStatic
-        fun <E: Enum<E>> getEnumeration(context: CommandContext<CommandSourceStack>, string: String, clazz: Class<E>): E {
+        fun <E: Enum<E>> getEnumeration(context: CommandContext<*>, string: String, clazz: Class<E>): E {
             return context.getArgument(string, clazz)
         }
 

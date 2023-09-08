@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.scores.PlayerTeam
 
 object ScreenUtils {
-    fun createSpectatorScreen(
+    fun createSpectatorMenu(
         components: SelectionScreenComponents = DefaultSpectatorScreenComponent,
         teamFilter: (PlayerTeam) -> Boolean = { true },
         teamIcon: (PlayerTeam) -> ItemStack = TeamUtils::colouredHeadForTeam
@@ -26,14 +26,14 @@ object ScreenUtils {
         for (team in teams) {
             if (teamFilter(team)) {
                 builder.selection(teamIcon(team)) { player ->
-                    player.openMenu(createTeamScreen(team, components, provider))
+                    player.openMenu(createTeamMenu(team, components, provider))
                 }
             }
         }
         return provider
     }
 
-    fun createTeamScreen(
+    fun createTeamMenu(
         team: PlayerTeam,
         components: SelectionScreenComponents = DefaultSpectatorScreenComponent,
         parent: MenuProvider? = null
@@ -48,7 +48,7 @@ object ScreenUtils {
         return builder.build()
     }
 
-    fun createMinigameRulesScreen(
+    fun createMinigameRulesMenu(
         minigame: Minigame,
         components: SelectionScreenComponents = DefaultMinigameScreenComponent
     ): MenuProvider {

@@ -8,11 +8,11 @@ class BooleanGameSetting(
     value: Boolean,
     options: Map<String, Boolean> = emptyMap()
 ): GameSetting<Boolean>(name, value, options) {
-    override fun serialise(): JsonElement {
-        return JsonPrimitive(this.get())
+    override fun serialise(value: Boolean): JsonElement {
+        return JsonPrimitive(value)
     }
 
-    override fun deserialise(json: JsonElement) {
-        this.setQuietly(json.asBoolean)
+    override fun deserialise(json: JsonElement): Boolean {
+        return json.asBoolean
     }
 }
