@@ -17,6 +17,7 @@ import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.stringOrDefault
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
+import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.bufferedReader
@@ -28,18 +29,19 @@ abstract class SavableMinigame(
     server: MinecraftServer,
     private val path: Path,
 ): Minigame(id, server) {
-    init {
-        this.registerEvent<ServerSaveEvent> { this.save() }
-        this.registerMinigameEvent<MinigameCloseEvent> { this.save() }
-    }
-
+    @OverrideOnly
     protected abstract fun readData(json: JsonObject)
 
+    @OverrideOnly
     protected abstract fun writeData(json: JsonObject)
 
+    @OverrideOnly
     protected abstract fun createTask(id: String, data: JsonObject): Task?
 
     override fun initialise() {
+        this.registerEvent<ServerSaveEvent> { this.save() }
+        this.registerMinigameEvent<MinigameCloseEvent> { this.save() }
+
         if (!this.path.exists()) {
             super.initialise()
             return
@@ -104,7 +106,7 @@ abstract class SavableMinigame(
         }
     }
 
-    protected fun save() {
+    private fun save() {
         val json = JsonObject()
 
         json.addProperty("phase", this.phase.id)

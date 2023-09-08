@@ -33,7 +33,6 @@ import net.minecraft.world.phys.Vec3
 import net.minecraft.world.scores.PlayerTeam
 import java.util.function.Consumer
 
-@Suppress("unused")
 object PlayerUtils {
     @JvmStatic
     val ServerPlayer.location

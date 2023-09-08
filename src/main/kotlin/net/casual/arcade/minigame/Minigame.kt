@@ -1,5 +1,7 @@
 package net.casual.arcade.minigame
 
+import com.google.gson.JsonObject
+import net.casual.arcade.config.CustomisableConfig
 import net.casual.arcade.events.EventHandler
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.core.Event
@@ -19,8 +21,13 @@ import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.scheduler.Task
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.settings.DisplayableGameSetting
+import net.casual.arcade.settings.DisplayableGameSettingBuilder
 import net.casual.arcade.settings.GameSetting
+import net.casual.arcade.utils.EventUtils.broadcast
 import net.casual.arcade.utils.EventUtils.registerHandler
+import net.casual.arcade.utils.EventUtils.unregisterHandler
+import net.casual.arcade.utils.JsonUtils.toJsonObject
+import net.casual.arcade.utils.JsonUtils.toJsonStringArray
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.ScreenUtils
@@ -31,7 +38,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.MenuProvider
-import java.lang.StringBuilder
+import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.util.*
 import java.util.function.Consumer
 import kotlin.collections.ArrayDeque
@@ -160,20 +167,6 @@ abstract class Minigame(
         internal set
 
     /**
-     * This method initializes the core functionality of the
-     * minigame, such as registering events.
-     * This method should be called in your implementation's
-     * constructor.
-     */
-    protected open fun initialise() {
-        this.registerEvents()
-        this.events.registerHandler()
-        this.phaseEvents.registerHandler()
-
-        Minigames.register(this)
-    }
-
-    /**
      * Checks whether the minigame is in a given phase.
      *
      * @param phase The phase to check whether the minigame is in.
@@ -240,7 +233,7 @@ abstract class Minigame(
         this.phase.start(this)
         this.phase.initialise(this)
 
-        GlobalEventHandler.broadcast(MinigameSetPhaseEvent(this, phase))
+        MinigameSetPhaseEvent(this, phase).broadcast()
     }
 
     /**
@@ -268,17 +261,16 @@ abstract class Minigame(
         }
         if (player.getMinigame() === this) {
             this.connections.add(player.connection)
-            GlobalEventHandler.broadcast(MinigameAddExistingPlayerEvent(this, player))
-            GlobalEventHandler.broadcast(MinigameAddPlayerEvent(this, player))
+            MinigameAddExistingPlayerEvent(this, player).broadcast()
+            MinigameAddPlayerEvent(this, player).broadcast()
             return true
         }
 
-        val event = MinigameAddNewPlayerEvent(this, player)
-        GlobalEventHandler.broadcast(event)
+        val event = MinigameAddNewPlayerEvent(this, player).broadcast()
         if (!event.isCancelled()) {
             this.connections.add(player.connection)
             player.minigame.setMinigame(this)
-            GlobalEventHandler.broadcast(MinigameAddPlayerEvent(this, player))
+            MinigameAddPlayerEvent(this, player).broadcast()
             return true
         }
         return false
@@ -295,7 +287,7 @@ abstract class Minigame(
      */
     fun removePlayer(player: ServerPlayer) {
         if (this.connections.remove(player.connection)) {
-            GlobalEventHandler.broadcast(MinigameRemovePlayerEvent(this, player))
+            MinigameRemovePlayerEvent(this, player).broadcast()
             player.minigame.removeMinigame()
         }
     }
@@ -362,7 +354,8 @@ abstract class Minigame(
     }
 
     /**
-     *
+     * This gets the [MinigameResources] for this minigame which
+     * will be applied when the player joins this minigame.
      */
     open fun getResources(): MinigameResources {
         return MinigameResources.NONE
@@ -377,7 +370,7 @@ abstract class Minigame(
      */
     fun pause() {
         this.paused = true
-        GlobalEventHandler.broadcast(MinigamePauseEvent(this))
+        MinigamePauseEvent(this).broadcast()
     }
 
     /**
@@ -388,7 +381,7 @@ abstract class Minigame(
      */
     fun unpause() {
         this.paused = false
-        GlobalEventHandler.broadcast(MinigameUnpauseEvent(this))
+        MinigameUnpauseEvent(this).broadcast()
     }
 
     /**
@@ -404,97 +397,197 @@ abstract class Minigame(
         for (player in this.getPlayers()) {
             this.removePlayer(player)
         }
-        GlobalEventHandler.broadcast(MinigameCloseEvent(this))
-        GlobalEventHandler.removeHandler(this.events)
-        GlobalEventHandler.removeHandler(this.phaseEvents)
+        MinigameCloseEvent(this).broadcast()
+        this.events.unregisterHandler()
+        this.phaseEvents.unregisterHandler()
         this.scheduler.tasks.clear()
         this.phaseScheduler.tasks.clear()
         this.phaseEndTasks.clear()
         this.closed = true
     }
 
+    /**
+     * This adds a [CustomBossBar] to the minigame.
+     *
+     * This will be displayed to all players in the minigame.
+     *
+     * @param bar The bossbar to add.
+     * @see CustomBossBar
+     */
     fun addBossbar(bar: CustomBossBar) {
         this.bossbars.add(bar)
         this.loadUI(bar)
     }
 
+    /**
+     * This removes a [CustomBossBar] from the minigame.
+     *
+     * All players who were shown the bossbar will no longer
+     * be displayed the bossbar.
+     *
+     * @param bar The bar to remove.
+     */
     fun removeBossbar(bar: CustomBossBar) {
         this.bossbars.remove(bar)
         bar.clearPlayers()
     }
 
-    fun removeBossbars() {
+    /**
+     * This removes **ALL** bossbars from the minigame.
+     */
+    fun removeAllBossbars() {
         for (bossbar in this.bossbars) {
             bossbar.clearPlayers()
         }
         this.bossbars.clear()
     }
 
+    /**
+     * This adds a [ArcadeNameTag] to the minigame.
+     *
+     * This name tag will be applied to all players in
+     * the minigame.
+     *
+     * @param tag The name tag to add.
+     * @see ArcadeNameTag
+     */
     fun addNameTag(tag: ArcadeNameTag) {
         this.nameTags.add(tag)
         this.loadUI(tag)
     }
 
+    /**
+     * This removes a [ArcadeNameTag] from the minigame.
+     *
+     * All players who had the nametag will no longer be
+     * displayed the nametag.
+     *
+     * @param tag The nametag to remove.
+     */
     fun removeNameTag(tag: ArcadeNameTag) {
         this.nameTags.remove(tag)
         tag.clearPlayers()
     }
 
-    fun removeNameTags() {
+    /**
+     * This removes **ALL** nametags from the minigame.
+     */
+    fun removeAllNameTags() {
         for (tag in this.nameTags) {
             tag.clearPlayers()
         }
         this.nameTags.clear()
     }
 
+    /**
+     * This sets the [ArcadeSidebar] for the minigame.
+     *
+     * This sidebar will be displayed to all the players
+     * in the minigame.
+     *
+     * @param sidebar The sidebar to set.
+     */
     fun setSidebar(sidebar: ArcadeSidebar) {
         this.removeSidebar()
         this.sidebar = sidebar
         this.loadUI(sidebar)
     }
 
+    /**
+     * This removes the minigame sidebar.
+     *
+     * All players who were displayed the sidebar
+     * will no longer be displayed the sidebar.
+     */
     fun removeSidebar() {
         this.sidebar?.clearPlayers()
         this.sidebar = null
     }
 
+    /**
+     * This sets the [ArcadeTabDisplay] for the minigame.
+     *
+     * This tab display will be displayed to all the players
+     * in the minigame.
+     *
+     * @param display The tab display to set.
+     */
     fun setTabDisplay(display: ArcadeTabDisplay) {
         this.removeTabDisplay()
         this.display = display
         this.loadUI(display)
     }
 
+    /**
+     * This removes the minigame tab display.
+     *
+     * All players who were displayed the tab display
+     * will no longer be displayed the tab display.
+     */
     fun removeTabDisplay() {
         this.display?.clearPlayers()
         this.display = null
     }
 
-    private fun loadUI(ui: PlayerUI) {
-        for (player in this.getPlayers()) {
-            ui.addPlayer(player)
-        }
+    /**
+     * Gets the minigame's debug information as a string.
+     *
+     * @return The minigames debug information.
+     */
+    override fun toString(): String {
+        return CustomisableConfig.GSON.toJson(this.getDebugInfo())
     }
 
-    final override fun toString(): String {
-        val builder = StringBuilder()
-        builder.append("~~~~~~~~~~~~~~").append("\n")
-        builder.append("Minigame: ").append(this::class.java.simpleName).append("\n")
-        builder.append("Serializable: ").append(this is SavableMinigame).append("\n")
-        builder.append("UUID: ").append(this.uuid).append("\n")
-        builder.append("ID: ").append(this.id).append("\n")
-        builder.append("Players: ").append(this.getPlayers().joinToString("\n", "\n") { "  ${it.scoreboardName}" }).append("\n")
-        builder.append("Levels: ").append(this.getLevels().joinToString("\n", "\n") { "  ${it.dimension().location()}" }).append("\n")
-        builder.append("Phases: ").append(this.phases.joinToString("\n", "\n") { "  ${it.id}" }).append("\n")
-        builder.append("Phase: ").append(this.phase.id).append("\n")
-        builder.append("Paused: ").append(this.paused).append("\n")
-        builder.append("Closed: ").append(this.closed).append("\n")
-        builder.append("BossBars: ").append(this.bossbars.size).append("\n")
-        builder.append("NameTags: ").append(this.nameTags.size).append("\n")
-        builder.append("HasSidebar: ").append(this.sidebar != null).append("\n")
-        builder.append("HasDisplay: ").append(this.display != null).append("\n")
-        builder.append("Settings: ").append(this.getSettings().joinToString("\n", "\n") { "  ${it.name}: ${it.get()}" }).append("\n")
-        builder.append("~~~~~~~~~~~~~~")
-        return builder.toString()
+    /**
+     * This serializes some minigame information for debugging purposes.
+     *
+     * Implementations of minigame can add their own info with [appendAdditionalDebugInfo].
+     *
+     * @return The [JsonObject] containing the minigame's state.
+     */
+    fun getDebugInfo(): JsonObject {
+        val json = JsonObject()
+        json.addProperty("minigame", this::class.java.simpleName)
+        json.addProperty("serializable", this is SavableMinigame)
+        json.addProperty("uuid", this.uuid.toString())
+        json.addProperty("id", this.id.toString())
+        json.add("players", this.getPlayers().toJsonStringArray { it.scoreboardName })
+        json.add("levels", this.getLevels().toJsonStringArray { it.dimension().location().toString() })
+        json.add("phases", this.phases.toJsonStringArray { it.id })
+        json.addProperty("phase", this.phase.id)
+        json.addProperty("paused", this.paused)
+        json.addProperty("closed", this.closed)
+        json.addProperty("bossbars", this.bossbars.size)
+        json.addProperty("nametags", this.nameTags.size)
+        json.addProperty("has_sidebar", this.sidebar != null)
+        json.addProperty("has_display", this.display != null)
+        json.add("settings", this.getSettings().toJsonObject { it.name to it.serialiseValue() })
+        this.appendAdditionalDebugInfo(json)
+        return json
+    }
+
+    /**
+     * This appends any additional debug information to [getDebugInfo].
+     *
+     * @param json The json append to.
+     */
+    @OverrideOnly
+    protected open fun appendAdditionalDebugInfo(json: JsonObject) {
+
+    }
+
+    /**
+     * This method initializes the core functionality of the
+     * minigame, such as registering events.
+     * This method should be called in your implementation's
+     * constructor.
+     */
+    protected open fun initialise() {
+        this.registerEvents()
+        this.events.registerHandler()
+        this.phaseEvents.registerHandler()
+
+        Minigames.register(this)
     }
 
     /**
@@ -507,6 +600,7 @@ abstract class Minigame(
      *
      * @return A collection of all the valid phases the minigame can be in.
      */
+    @OverrideOnly
     protected abstract fun getPhases(): Collection<MinigamePhase>
 
     /**
@@ -517,8 +611,56 @@ abstract class Minigame(
      *
      * @return A collection of levels that the minigame is in.
      */
+    @OverrideOnly
     protected abstract fun getLevels(): Collection<ServerLevel>
 
+    /**
+     * This registers a [DisplayableGameSetting] to this minigame, and this returns
+     * the [GameSetting] which can be delegated in Kotlin.
+     *
+     * It is recommended that you create an inner class in your [Minigame]
+     * implementation where you register and delegate all your settings:
+     * ```kotlin
+     * class MyMinigame: Minigame(/* ... */) {
+     *     val settings = Settings()
+     *
+     *     // ...
+     *
+     *     inner class Settings {
+     *         val foo = registerSetting(
+     *             DisplayableGameSettingBuilder.boolean()
+     *                 .name("foo")
+     *                 .display(ItemStack(Items.GLOWSTONE).literalNamed("Foo"))
+     *                 .defaultOptions()
+     *                 .value(true)
+     *                 .build()
+     *         )
+     *
+     *         val bar = registerSetting(
+     *             DisplayableGameSettingBuilder.double()
+     *                 .name("bar")
+     *                 .display(ItemStack(Items.DIAMOND).literalNamed("Bar"))
+     *                 .option("first", ItemStack(Items.FERN), 1.0)
+     *                 .option("second", ItemStack(Items.GRASS), 100.0)
+     *                 .value(0.0)
+     *                 .build()
+     *         )
+     *     }
+     * }
+     * ```
+     *
+     * All registered settings can be modified using a UI in-game using the command:
+     *
+     * `/minigame settings <minigame-uuid>`
+     *
+     * Alternatively you can do it directly with commands:
+     *
+     * `/minigame settings <minigame-uuid> set <setting> from option <option>`
+     *
+     * `/minigame settings <minigame-uuid> set <setting> from value <value>`
+     *
+     * @see DisplayableGameSettingBuilder
+     */
     protected fun <T: Any> registerSetting(displayed: DisplayableGameSetting<T>): GameSetting<T> {
         val setting = displayed.setting
         this.gameSettings[setting.name] = displayed
@@ -641,5 +783,11 @@ abstract class Minigame(
         this.bossbars.forEach { it.removePlayer(player) }
         this.sidebar?.removePlayer(player)
         this.display?.removePlayer(player)
+    }
+
+    private fun loadUI(ui: PlayerUI) {
+        for (player in this.getPlayers()) {
+            ui.addPlayer(player)
+        }
     }
 }

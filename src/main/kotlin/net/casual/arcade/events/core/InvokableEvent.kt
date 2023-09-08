@@ -2,6 +2,7 @@ package net.casual.arcade.events.core
 
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.utils.Void
+import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 /**
  * This is an event that allows the user
@@ -58,6 +59,7 @@ abstract class InvokableEvent<T>: CancellableEvent.Typed<T>() {
      * a broadcast of this event then you should override this
      * method and remove the suppression.
      */
+    @OverrideOnly
     protected open fun suppress() {
         GlobalEventHandler.suppressNextEvent(this::class.java)
     }
@@ -85,6 +87,7 @@ abstract class InvokableEvent<T>: CancellableEvent.Typed<T>() {
          * This method is implemented in the event
          * and will determine what the event will execute.
          */
+        @OverrideOnly
         protected abstract fun call()
     }
 }

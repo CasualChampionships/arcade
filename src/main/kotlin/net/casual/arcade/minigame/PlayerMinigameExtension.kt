@@ -7,7 +7,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
 import net.minecraft.server.level.ServerPlayer
 
-class PlayerMinigameExtension(
+internal class PlayerMinigameExtension(
     private val owner: ServerPlayer
 ): DataExtension {
     private var minigame: Minigame? = null

@@ -4,7 +4,6 @@ import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.MutableComponent
 
-@Suppress("unused")
 object ComponentUtils {
     @JvmStatic
     fun MutableComponent.command(command: String): MutableComponent {

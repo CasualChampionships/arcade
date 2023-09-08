@@ -1,5 +1,7 @@
 package net.casual.arcade.minigame
 
+import org.jetbrains.annotations.ApiStatus.OverrideOnly
+
 interface MinigamePhase {
     /**
      * The identifier for the phase, this should be unique
@@ -35,6 +37,7 @@ interface MinigamePhase {
      * @param minigame The minigame which as set its phase to `this`.
      * @see initialise
      */
+    @OverrideOnly
     fun start(minigame: Minigame) {
 
     }
@@ -68,6 +71,7 @@ interface MinigamePhase {
      * @param minigame The minigame which is initializing its phase.
      * @see start
      */
+    @OverrideOnly
     fun initialise(minigame: Minigame) {
 
     }
@@ -87,6 +91,7 @@ interface MinigamePhase {
      * @param minigame The minigame that is changing phase.
      * @see start
      */
+    @OverrideOnly
     fun end(minigame: Minigame) {
 
     }

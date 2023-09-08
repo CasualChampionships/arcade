@@ -4,7 +4,7 @@ import net.casual.arcade.Arcade
 import net.casual.arcade.events.GlobalEventHandler.addHandler
 import net.casual.arcade.events.GlobalEventHandler.broadcast
 import net.casual.arcade.events.core.Event
-import net.casual.arcade.events.server.ServerCreatedEvent
+import net.casual.arcade.events.server.SafeServerlessEvent
 import net.casual.arcade.utils.CollectionUtils.addSorted
 import org.apache.logging.log4j.LogManager
 import java.util.*
@@ -167,7 +167,7 @@ object GlobalEventHandler {
     private fun checkThread(event: Event, type: Class<out Event>): Boolean {
         val server = Arcade.getServerOrNull()
         if (server == null) {
-            if (event !is ServerCreatedEvent) {
+            if (event !is SafeServerlessEvent) {
                 this.logger.warn(
                     "Detected broadcasted event (type: {}), before server created, may be unsafe...",
                     type.simpleName
@@ -178,7 +178,7 @@ object GlobalEventHandler {
                 "Detected broadcasted event (type: {}) off main thread, pushing to main thread...",
                 type.simpleName
             )
-            server.execute { broadcast(event) }
+            server.execute { this.broadcast(event) }
             return true
         }
         return false

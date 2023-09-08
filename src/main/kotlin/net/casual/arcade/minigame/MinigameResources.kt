@@ -1,6 +1,7 @@
 package net.casual.arcade.minigame
 
 import net.casual.arcade.resources.PackInfo
+import net.casual.arcade.utils.ResourcePackUtils
 import net.casual.arcade.utils.ResourcePackUtils.sendResourcePack
 import net.minecraft.server.MinecraftServer.ServerResourcePackInfo
 import net.minecraft.server.level.ServerPlayer
@@ -42,6 +43,20 @@ interface MinigameResources {
          */
         @JvmField
         val NONE = object: MinigameResources { }
+
+        /**
+         * This object provides an empty implementation of
+         * [MinigameResources], which provides a completely empty
+         * resource pack.
+         *
+         * @see ResourcePackUtils.EMPTY_PACK
+         */
+        @JvmField
+        val EMPTY = object: MinigameResources {
+            override fun getInfo(): PackInfo {
+                return ResourcePackUtils.EMPTY_PACK
+            }
+        }
 
         /**
          * Tries to send the [MinigameResources] to the player.

@@ -3,11 +3,37 @@ package net.casual.arcade.utils
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import java.util.stream.StreamSupport
 
 object JsonUtils {
-    fun JsonObject.getWithNull(key: String): JsonElement? {
+    private fun JsonObject.getWithNull(key: String): JsonElement? {
         val value = this.get(key) ?: return null
         return if (value.isJsonNull) null else value
+    }
+
+    fun <T> Collection<T>.toJsonObject(serializer: (T) -> Pair<String, JsonElement>): JsonObject {
+        val json = JsonObject()
+        for (element in this) {
+            val (key, value) = serializer(element)
+            json.add(key, value)
+        }
+        return json
+    }
+
+    fun <T> Collection<T>.toJsonArray(serializer: (T) -> JsonElement): JsonArray {
+        return this.stream().map { serializer(it) }.collect(::JsonArray, JsonArray::add, JsonArray::addAll)
+    }
+
+    fun <T> Collection<T>.toJsonBooleanArray(serializer: (T) -> Boolean): JsonArray {
+        return this.stream().map { serializer(it) }.collect(::JsonArray, JsonArray::add, JsonArray::addAll)
+    }
+
+    fun <T> Collection<T>.toJsonStringArray(serializer: (T) -> String): JsonArray {
+        return this.stream().map { serializer(it) }.collect(::JsonArray, JsonArray::add, JsonArray::addAll)
+    }
+
+    fun <T> Collection<T>.toJsonNumberArray(serializer: (T) -> Number): JsonArray {
+        return this.stream().map { serializer(it) }.collect(::JsonArray, JsonArray::add, JsonArray::addAll)
     }
 
     fun JsonObject.boolean(key: String): Boolean {

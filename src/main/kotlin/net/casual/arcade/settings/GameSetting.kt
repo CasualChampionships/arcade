@@ -20,16 +20,16 @@ abstract class GameSetting<T: Any>(
     }
 
     fun set(value: T) {
-        for (listener in this.listeners) {
-            listener.onSet(this, value)
+        if (this.get() != value) {
+            for (listener in this.listeners) {
+                listener.onSet(this, value)
+            }
+            this.setQuietly(value)
         }
-        this.setQuietly(value)
     }
 
     fun setQuietly(value: T) {
-        if (this.value != value) {
-            this.value = value
-        }
+        this.value = value
     }
 
     fun getOptions(): Map<String, T> {

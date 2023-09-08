@@ -2,6 +2,7 @@ package net.casual.arcade.gui
 
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
+import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 /**
  * This is the base class for every server-side
@@ -19,8 +20,10 @@ abstract class PlayerUI {
     internal var interval = 1
         private set
 
+    @OverrideOnly
     protected abstract fun onAddPlayer(player: ServerPlayer)
 
+    @OverrideOnly
     protected abstract fun onRemovePlayer(player: ServerPlayer)
 
     /**
