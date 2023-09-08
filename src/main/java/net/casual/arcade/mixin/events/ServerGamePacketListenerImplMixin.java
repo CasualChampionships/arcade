@@ -5,7 +5,7 @@ import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.PlayerChatEvent;
 import net.casual.arcade.events.player.PlayerClientboundPacketEvent;
 import net.casual.arcade.events.player.PlayerLeaveEvent;
-import net.casual.arcade.events.player.PlayerPackLoadEvent;
+import net.casual.arcade.events.player.PlayerPackStatusEvent;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.network.protocol.Packet;
@@ -29,10 +29,8 @@ public class ServerGamePacketListenerImplMixin {
 		at = @At("TAIL")
 	)
 	private void onResourcePackStatus(ServerboundResourcePackPacket packet, CallbackInfo ci) {
-		if (packet.getAction() == ServerboundResourcePackPacket.Action.SUCCESSFULLY_LOADED) {
-			PlayerPackLoadEvent event = new PlayerPackLoadEvent(this.player);
-			GlobalEventHandler.broadcast(event);
-		}
+		PlayerPackStatusEvent event = new PlayerPackStatusEvent(this.player, packet.getAction());
+		GlobalEventHandler.broadcast(event);
 	}
 
 	@WrapWithCondition(

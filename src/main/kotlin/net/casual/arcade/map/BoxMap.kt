@@ -14,6 +14,16 @@ class BoxMap(
     override val level: ServerLevel,
     val block: Block = Blocks.BARRIER
 ): PlaceableMap {
+    override fun place() {
+        val box = this.getBoundingBox()
+        val barrier = this.block.defaultBlockState()
+        BlockPos.betweenClosedStream(box).filter { p ->
+            p.x == box.minX() || p.x == box.maxX() || p.y == box.minY() || p.y == box.maxY() || p.z == box.minZ() || p.z == box.maxZ()
+        }.forEach { pos ->
+            this.level.setBlock(pos, barrier, 3)
+        }
+    }
+
     override fun getBoundingBox(): BoundingBox {
         return BoundingBox(
             this.center.x - this.radius,
@@ -23,15 +33,5 @@ class BoxMap(
             this.center.y + this.height,
             this.center.z + this.radius
         )
-    }
-
-    override fun place() {
-        val box = this.getBoundingBox()
-        val barrier = this.block.defaultBlockState()
-        BlockPos.betweenClosedStream(box).filter { p ->
-            p.x == box.minX() || p.x == box.maxX() || p.y == box.minY() || p.y == box.maxY() || p.z == box.minZ() || p.z == box.maxZ()
-        }.forEach { pos ->
-            this.level.setBlock(pos, barrier, 3)
-        }
     }
 }

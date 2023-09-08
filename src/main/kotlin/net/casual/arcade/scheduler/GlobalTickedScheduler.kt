@@ -4,7 +4,6 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
 
-@Suppress("unused")
 object GlobalTickedScheduler {
     private val scheduler = TickedScheduler()
 

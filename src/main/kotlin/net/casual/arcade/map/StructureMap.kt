@@ -13,6 +13,15 @@ class StructureMap(
     val centre: Vec3i,
     override val level: ServerLevel
 ): PlaceableMap {
+    override fun place() {
+        val dimensions = this.lobby.size
+        val halfX = dimensions.x / 2 + 1
+        val halfY = dimensions.y / 2 + 1
+        val halfZ = dimensions.z / 2 + 1
+        val corner = BlockPos(this.centre.x - halfX, this.centre.y - halfY, this.centre.z - halfZ)
+        this.lobby.placeInWorld(this.level, corner, corner, StructurePlaceSettings(), RandomSource.create(), 3)
+    }
+
     override fun getBoundingBox(): BoundingBox {
         val dimensions = this.lobby.size
         val halfX = dimensions.x / 2 + 1
@@ -26,14 +35,5 @@ class StructureMap(
             this.centre.y + halfY,
             this.centre.z + halfZ
         )
-    }
-
-    override fun place() {
-        val dimensions = this.lobby.size
-        val halfX = dimensions.x / 2 + 1
-        val halfY = dimensions.y / 2 + 1
-        val halfZ = dimensions.z / 2 + 1
-        val corner = BlockPos(this.centre.x - halfX, this.centre.y - halfY, this.centre.z - halfZ)
-        this.lobby.placeInWorld(this.level, corner, corner, StructurePlaceSettings(), RandomSource.create(), 3)
     }
 }

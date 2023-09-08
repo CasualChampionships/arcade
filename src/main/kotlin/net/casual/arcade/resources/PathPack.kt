@@ -7,9 +7,13 @@ import kotlin.io.path.fileSize
 import kotlin.io.path.inputStream
 import kotlin.io.path.name
 
-class PathPack(val path: Path): ReadablePack {
+class PathPack(private val path: Path): ReadablePack {
     override val name: String
         get() = this.path.name
+
+    override fun stream(): InputStream {
+        return this.path.inputStream()
+    }
 
     override fun readable(): Boolean {
         return this.path.exists()
@@ -17,9 +21,5 @@ class PathPack(val path: Path): ReadablePack {
 
     override fun length(): Long {
         return this.path.fileSize()
-    }
-
-    override fun stream(): InputStream {
-        return this.path.inputStream()
     }
 }

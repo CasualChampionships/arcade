@@ -58,7 +58,9 @@ abstract class SavableMinigame(
             }
         }
         this.paused = json.booleanOrDefault("paused")
-        this.uuid = UUID.fromString(json.string("uuid"))
+        if (json.has("uuid")) {
+            this.uuid = UUID.fromString(json.string("uuid"))
+        }
 
         val generated = HashMap<Int, Task?>()
 
@@ -102,7 +104,7 @@ abstract class SavableMinigame(
         }
     }
 
-    fun save() {
+    protected fun save() {
         val json = JsonObject()
 
         json.addProperty("phase", this.phase.id)

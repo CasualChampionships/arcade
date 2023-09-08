@@ -18,7 +18,7 @@ abstract class BossBarTask(
         return this.cancel
     }
 
-    override fun run() {
+    override fun invoke() {
         this.owner.removeBossbar(this.bar)
         this.cancel = true
     }

@@ -42,6 +42,7 @@ class Arcade: ModInitializer {
         MinigameUtils.registerEvents()
         TabUtils.registerEvents()
         NameTagUtils.registerEvents()
+        ResourcePackUtils.registerEvents()
 
         ArcadeCommands.registerCommands()
     }

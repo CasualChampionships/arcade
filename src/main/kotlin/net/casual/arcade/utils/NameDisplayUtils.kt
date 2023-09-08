@@ -9,7 +9,7 @@ import net.casual.arcade.utils.PlayerUtils.getExtension
 import net.minecraft.server.level.ServerPlayer
 
 internal object NameDisplayUtils {
-    internal val ServerPlayer.nameDisplay
+    internal val ServerPlayer.nameScoreDisplay
         get() = this.getExtension(PlayerNameScoreExtension::class.java)
 
     internal fun registerEvents() {
@@ -17,7 +17,7 @@ internal object NameDisplayUtils {
             player.addExtension(PlayerNameScoreExtension(player))
         }
         GlobalEventHandler.register<PlayerLeaveEvent> { (player) ->
-            player.nameDisplay.disconnect()
+            player.nameScoreDisplay.disconnect()
         }
     }
 }

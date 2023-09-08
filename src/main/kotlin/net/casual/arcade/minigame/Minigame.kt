@@ -14,6 +14,7 @@ import net.casual.arcade.gui.nametag.ArcadeNameTag
 import net.casual.arcade.gui.screen.SelectionScreenComponents
 import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.gui.tab.ArcadeTabDisplay
+import net.casual.arcade.minigame.MinigameResources.Companion.sendTo
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.scheduler.Task
 import net.casual.arcade.scheduler.TickedScheduler
@@ -631,6 +632,8 @@ abstract class Minigame(
         this.nameTags.forEach { it.addPlayer(player) }
         this.sidebar?.addPlayer(player)
         this.display?.addPlayer(player)
+
+        this.getResources().sendTo(player)
     }
 
     private fun onPlayerRemove(player: ServerPlayer) {
