@@ -75,12 +75,11 @@ object ScreenUtils {
             }
         }
         builder.ticker { stack ->
-            val option = display.getValue(stack)
             if (stack.isEnchanted) {
-                if (display.setting.get() != option) {
+                if (display.setting.get() != display.getValue(stack.copy().removeEnchantments())) {
                     stack.removeEnchantments()
                 }
-            } else if (display.setting.get() == option) {
+            } else if (display.setting.get() == display.getValue(stack)) {
                 stack.enableGlint()
             }
         }
