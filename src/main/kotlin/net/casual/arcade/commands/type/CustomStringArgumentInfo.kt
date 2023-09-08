@@ -33,8 +33,8 @@ class CustomStringArgumentInfo(
         })
     }
 
-    override fun getFacadeId(existing: Map<Class<*>, ArgumentTypeInfo<*, *>>): Int {
-        return BuiltInRegistries.COMMAND_ARGUMENT_TYPE.getId(existing[StringArgumentType::class.java])
+    override fun getFacadeType(): Class<out ArgumentType<*>> {
+        return StringArgumentType::class.java
     }
 
     inner class Properties: ArgumentTypeInfo.Template<ArgumentType<Any>> {

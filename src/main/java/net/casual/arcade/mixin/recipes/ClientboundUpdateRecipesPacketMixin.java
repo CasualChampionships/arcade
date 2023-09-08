@@ -20,6 +20,7 @@ public class ClientboundUpdateRecipesPacketMixin {
 		)
 	)
 	private ArrayList<Recipe<?>> onSetRecipes(ArrayList<Recipe<?>> recipes) {
+		// Our recipes have no serializer!
 		recipes.removeIf(recipe -> recipe instanceof ArcadeCustomRecipe);
 		return recipes;
 	}

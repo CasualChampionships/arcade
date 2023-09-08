@@ -8,14 +8,13 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.commands.type.CustomStringArgumentInfo
-import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.network.chat.Component
 import java.util.concurrent.CompletableFuture
 
 open class MappedArgument<T>(
     private val options: Map<String, T>
-): ArgumentType<T>, CustomArgumentType {
+): CustomArgumentType(), ArgumentType<T> {
     init {
         for (name in this.options.keys) {
             if (!CustomStringArgumentInfo.isAllowedWord(name)) {

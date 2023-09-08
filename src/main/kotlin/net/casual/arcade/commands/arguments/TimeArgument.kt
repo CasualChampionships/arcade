@@ -11,7 +11,7 @@ import net.minecraft.commands.SharedSuggestionProvider
 import java.time.LocalTime
 import java.util.concurrent.CompletableFuture
 
-class TimeArgument: ArgumentType<LocalTime>, CustomArgumentType {
+class TimeArgument: CustomArgumentType(), ArgumentType<LocalTime>  {
     override fun parse(reader: StringReader): LocalTime {
         return LocalTime.parse(reader.readString())
     }

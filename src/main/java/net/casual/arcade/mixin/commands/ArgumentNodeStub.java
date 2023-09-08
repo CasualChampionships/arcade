@@ -6,6 +6,7 @@ import com.mojang.brigadier.tree.ArgumentCommandNode;
 import net.casual.arcade.commands.type.CustomArgumentType;
 import net.casual.arcade.commands.type.CustomArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -41,7 +42,8 @@ public class ArgumentNodeStub {
 		CallbackInfo ci
 	) {
 		if (argumentInfo instanceof CustomArgumentTypeInfo customInfo) {
-			buffer.writeVarInt(customInfo.getFacadeId(ArgumentTypeInfosAccessor.getClassMap()));
+			ArgumentTypeInfo<?, ?> typeInfo = ArgumentTypeInfosAccessor.getClassMap().get(customInfo.getFacadeType());
+			buffer.writeVarInt(BuiltInRegistries.COMMAND_ARGUMENT_TYPE.getId(typeInfo));
 			argumentInfo.serializeToNetwork(argumentInfoTemplate, buffer);
 			ci.cancel();
 		}

@@ -219,7 +219,7 @@ abstract class Minigame(
      * @param phase The phase to set the minigame to.
      * @throws IllegalArgumentException If the [phase] is not in the [phases] set.
      */
-    protected fun setPhase(phase: MinigamePhase) {
+    fun setPhase(phase: MinigamePhase) {
         if (this.isPhase(phase)) {
             return
         }
@@ -358,6 +358,13 @@ abstract class Minigame(
      */
     open fun createRulesMenu(components: SelectionScreenComponents = DefaultMinigameScreenComponent): MenuProvider {
         return ScreenUtils.createMinigameRulesMenu(this, components)
+    }
+
+    /**
+     *
+     */
+    open fun getResources(): MinigameResources {
+        return MinigameResources.NONE
     }
 
     /**

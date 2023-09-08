@@ -22,7 +22,7 @@ public class PlayerListMixin {
 		)
 	)
 	private BorderChangeListener onAddListener(BorderChangeListener listener, @Local(argsOnly = true) ServerLevel level) {
-		BorderUtils.addOriginalListener(level, listener);
+		BorderUtils.addOriginalListener$arcade_api(level, listener);
 		return listener;
 	}
 
@@ -34,6 +34,6 @@ public class PlayerListMixin {
 		)
 	)
 	private WorldBorder onGetWorldBorder(WorldBorder border, ServerPlayer player, ServerLevel level) {
-		return BorderUtils.INSTANCE.getSynced() ? border : level.getWorldBorder();
+		return BorderUtils.getSynced() ? border : level.getWorldBorder();
 	}
 }

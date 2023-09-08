@@ -5,6 +5,8 @@ import net.casual.arcade.events.SingleEventHandler
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.MinecraftTimeUnit
+import net.casual.arcade.utils.EventUtils.registerHandler
+import net.casual.arcade.utils.EventUtils.unregisterHandler
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Container
@@ -49,7 +51,7 @@ abstract class InterfaceScreen(
             this.addSlot(Slot(inventory, j, 8 + j * 18, 161 + i))
         }
 
-        GlobalEventHandler.addHandler(this.ticking)
+        this.ticking.registerHandler()
     }
 
     constructor(player: Player, syncId: Int, rows: Int): this(Inventory(player), syncId, rows)
@@ -77,7 +79,7 @@ abstract class InterfaceScreen(
     final override fun removed(player: Player) {
         this.onRemove(player as ServerPlayer)
         super.removed(player)
-        GlobalEventHandler.removeHandler(this.ticking)
+        this.ticking.unregisterHandler()
         GlobalTickedScheduler.schedule(1, MinecraftTimeUnit.Ticks, player.containerMenu::sendAllDataToRemote)
     }
 

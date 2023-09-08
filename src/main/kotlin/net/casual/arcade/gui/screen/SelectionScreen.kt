@@ -46,9 +46,7 @@ class SelectionScreen internal constructor(
             inventory.setItem(i, this.filler)
         }
         inventory.setItem(size - 9, this.previous)
-        if (this.parent != null) {
-            inventory.setItem(size - 5, this.back)
-        }
+        inventory.setItem(size - 5, this.back)
     }
 
     override fun onClick(slotId: Int, button: Int, type: ClickType, player: ServerPlayer) {
@@ -61,8 +59,12 @@ class SelectionScreen internal constructor(
                 player.openMenu(createScreenFactory(this, this.page + 1))
             } else if (slotId == previous) {
                 player.openMenu(createScreenFactory(this, this.page - 1))
-            } else if (slotId == back && this.parent != null) {
-                player.openMenu(this.parent)
+            } else if (slotId == back) {
+                if (this.parent != null) {
+                    player.openMenu(this.parent)
+                } else {
+                    player.closeContainer()
+                }
             }
             return
         }

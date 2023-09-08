@@ -16,7 +16,7 @@ import net.minecraft.network.chat.Component
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
-class MinigameArgument: ArgumentType<Minigame>, CustomArgumentType {
+class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame> {
     override fun parse(reader: StringReader): Minigame {
         val uuid: UUID
         try {
@@ -46,7 +46,7 @@ class MinigameArgument: ArgumentType<Minigame>, CustomArgumentType {
         }
     }
 
-    class SettingsName(private val minigameKey: String): ArgumentType<String>, CustomArgumentType {
+    class SettingsName(private val minigameKey: String): CustomArgumentType(), ArgumentType<String> {
         override fun parse(reader: StringReader): String {
             return reader.readUnquotedString()
         }
@@ -74,7 +74,7 @@ class MinigameArgument: ArgumentType<Minigame>, CustomArgumentType {
     class SettingsOption(
         private val minigameKey: String,
         private val settingsNameKey: String
-    ): ArgumentType<String>, CustomArgumentType {
+    ): CustomArgumentType(), ArgumentType<String> {
         override fun parse(reader: StringReader): String {
             return reader.readString()
         }
@@ -101,7 +101,7 @@ class MinigameArgument: ArgumentType<Minigame>, CustomArgumentType {
         }
     }
 
-    class SettingsValue: ArgumentType<JsonElement>, CustomArgumentType {
+    class SettingsValue: CustomArgumentType(), ArgumentType<JsonElement> {
         override fun parse(reader: StringReader): JsonElement {
             return CustomisableConfig.GSON.fromJson(reader.readString(), JsonElement::class.java)
         }

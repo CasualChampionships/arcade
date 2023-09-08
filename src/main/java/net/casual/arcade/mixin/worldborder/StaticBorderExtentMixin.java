@@ -20,6 +20,7 @@ public class StaticBorderExtentMixin {
 		)
 	)
 	private boolean onUpdateBox(WorldBorder.StaticBorderExtent instance) {
+		// Prevent NullPointerException, updateBox() leaks `this`
 		return !(this.field_12748 instanceof ArcadeBorder);
 	}
 }

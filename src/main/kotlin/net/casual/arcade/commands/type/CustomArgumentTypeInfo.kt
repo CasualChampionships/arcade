@@ -1,7 +1,7 @@
 package net.casual.arcade.commands.type
 
-import net.minecraft.commands.synchronization.ArgumentTypeInfo
+import com.mojang.brigadier.arguments.ArgumentType
 
 interface CustomArgumentTypeInfo {
-    fun getFacadeId(existing: Map<Class<*>, ArgumentTypeInfo<*, *>>): Int
+    fun getFacadeType(): Class<out ArgumentType<*>>
 }
