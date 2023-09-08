@@ -1,7 +1,7 @@
 package net.casual.arcade.gui.bossbar
 
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.scheduler.CancellableTask
+import net.casual.arcade.task.CancellableTask
 
 @Deprecated("Instead you should use MinigamePhases")
 abstract class BossBarTask(

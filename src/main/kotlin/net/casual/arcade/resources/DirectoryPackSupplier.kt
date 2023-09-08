@@ -18,6 +18,11 @@ class DirectoryPackSupplier(
      */
     private val directory: Path
 ): PackSupplier {
+    /**
+     * This gets all the currently available packs.
+     *
+     * @return The available [ReadablePack]s.
+     */
     override fun getPacks(): Iterable<ReadablePack> {
         return this.directory.listDirectoryEntries("*.zip").map { PathPack(it) }
     }

@@ -8,11 +8,11 @@ class DoubleGameSetting(
     value: Double,
     options: Map<String, Double> = emptyMap()
 ): GameSetting<Double>(name, value, options) {
-    override fun serialise(value: Double): JsonElement {
+    override fun serialize(value: Double): JsonElement {
         return JsonPrimitive(value)
     }
 
-    override fun deserialise(json: JsonElement): Double {
+    override fun deserialize(json: JsonElement): Double {
         return json.asDouble
     }
 }

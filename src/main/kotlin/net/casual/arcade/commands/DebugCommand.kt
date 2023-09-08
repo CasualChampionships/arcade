@@ -10,7 +10,6 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
 
-
 object DebugCommand: Command {
     override fun register(dispatcher: CommandDispatcher<CommandSourceStack>) {
         dispatcher.register(

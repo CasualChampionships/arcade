@@ -2,6 +2,7 @@ package net.casual.arcade.scheduler
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import net.casual.arcade.task.Task
 import java.util.*
 import java.util.function.IntFunction
 
@@ -17,11 +18,8 @@ open class TickedScheduler {
         }
     }
 
-    fun schedule(time: Int, unit: MinecraftTimeUnit, task: Runnable): Task {
-        return this.schedule(time, unit, Task.of(task))
-    }
-
-    fun schedule(time: Int, unit: MinecraftTimeUnit, task: Task): Task {
+    fun schedule(time: Int, unit: MinecraftTimeUnit, runnable: Runnable): Task {
+        val task = Task.of(runnable)
         require(time >= 0) { "Cannot schedule a task in the past!" }
         this.tasks.computeIfAbsent(this.tickCount + unit.toTicks(time), IntFunction { ArrayDeque() }).add(task)
         return task

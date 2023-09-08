@@ -148,7 +148,7 @@ object MinigameCommand: Command {
         val name = MinigameArgument.SettingsName.getSettingsName(context, "setting")
         val setting = minigame.getSetting(name) ?: throw INVALID_SETTING_NAME.create()
         val value = MinigameArgument.SettingsValue.getSettingsValue(context, "value")
-        setting.deserialiseAndSet(value)
+        setting.deserializeAndSet(value)
         context.source.success(Component.literal("Setting $name for minigame ${minigame.id} set to ${setting.get()}"))
         return 1
     }

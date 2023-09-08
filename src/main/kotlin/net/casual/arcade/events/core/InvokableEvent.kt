@@ -74,7 +74,7 @@ abstract class InvokableEvent<T>: CancellableEvent.Typed<T>() {
 
     /**
      * Implementation of [InvokableEvent] however is unable
-     * to be canceled by the user of the event, only when
+     * to be cancelled by the user of the event, only when
      * invoked.
      */
     abstract class Uncancellable: InvokableEvent<Void>() {

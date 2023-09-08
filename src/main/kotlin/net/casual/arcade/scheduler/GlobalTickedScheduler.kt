@@ -3,6 +3,7 @@ package net.casual.arcade.scheduler
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
+import net.casual.arcade.task.Task
 
 object GlobalTickedScheduler {
     private val scheduler = TickedScheduler()
@@ -18,11 +19,6 @@ object GlobalTickedScheduler {
 
     @JvmStatic
     fun schedule(time: Int, unit: MinecraftTimeUnit = Ticks, task: Runnable): Task {
-        return this.scheduler.schedule(time, unit, task)
-    }
-
-    @JvmStatic
-    fun schedule(time: Int, unit: MinecraftTimeUnit, task: Task): Task {
         return this.scheduler.schedule(time, unit, task)
     }
 

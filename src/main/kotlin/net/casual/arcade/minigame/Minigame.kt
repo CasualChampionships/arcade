@@ -3,7 +3,6 @@ package net.casual.arcade.minigame
 import com.google.gson.JsonObject
 import net.casual.arcade.config.CustomisableConfig
 import net.casual.arcade.events.EventHandler
-import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.core.Event
 import net.casual.arcade.events.level.LevelEvent
 import net.casual.arcade.events.minigame.*
@@ -18,7 +17,7 @@ import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.gui.tab.ArcadeTabDisplay
 import net.casual.arcade.minigame.MinigameResources.Companion.sendTo
 import net.casual.arcade.scheduler.MinecraftTimeUnit
-import net.casual.arcade.scheduler.Task
+import net.casual.arcade.task.Task
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.settings.DisplayableGameSetting
 import net.casual.arcade.settings.DisplayableGameSettingBuilder
@@ -561,7 +560,7 @@ abstract class Minigame(
         json.addProperty("nametags", this.nameTags.size)
         json.addProperty("has_sidebar", this.sidebar != null)
         json.addProperty("has_display", this.display != null)
-        json.add("settings", this.getSettings().toJsonObject { it.name to it.serialiseValue() })
+        json.add("settings", this.getSettings().toJsonObject { it.name to it.serializeValue() })
         this.appendAdditionalDebugInfo(json)
         return json
     }
@@ -668,17 +667,8 @@ abstract class Minigame(
     }
 
     @Deprecated("Use MinigamePhase.end()")
-    fun schedulePhaseEndTask(task: Task) {
-        this.phaseEndTasks.add(task)
-    }
-
-    @Deprecated("Use MinigamePhase.end()")
     fun schedulePhaseEndTask(runnable: Runnable) {
         this.phaseEndTasks.add(Task.of(runnable))
-    }
-
-    fun scheduleTask(time: Int, unit: MinecraftTimeUnit, task: Task) {
-        this.scheduler.schedule(time, unit, task)
     }
 
     fun scheduleTask(time: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
@@ -687,10 +677,6 @@ abstract class Minigame(
 
     fun scheduleInLoopTask(delay: Int, interval: Int, duration: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
         this.scheduler.scheduleInLoop(delay, interval, duration, unit, runnable)
-    }
-
-    fun schedulePhaseTask(time: Int, unit: MinecraftTimeUnit, task: Task) {
-        this.phaseScheduler.schedule(time, unit, task)
     }
 
     fun schedulePhaseTask(time: Int, unit: MinecraftTimeUnit, runnable: Runnable) {

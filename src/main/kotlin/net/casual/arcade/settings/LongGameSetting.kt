@@ -8,11 +8,11 @@ class LongGameSetting(
     value: Long,
     options: Map<String, Long> = emptyMap()
 ): GameSetting<Long>(name, value, options) {
-    override fun serialise(value: Long): JsonElement {
+    override fun serialize(value: Long): JsonElement {
         return JsonPrimitive(value)
     }
 
-    override fun deserialise(json: JsonElement): Long {
+    override fun deserialize(json: JsonElement): Long {
         return json.asLong
     }
 }

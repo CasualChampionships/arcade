@@ -11,9 +11,9 @@ abstract class GameSetting<T: Any>(
 ) {
     private val listeners by lazy { ArrayList<SettingListener<T>>() }
 
-    abstract fun serialise(value: T): JsonElement
+    abstract fun serialize(value: T): JsonElement
 
-    abstract fun deserialise(json: JsonElement): T
+    abstract fun deserialize(json: JsonElement): T
 
     fun get(): T {
         return this.value
@@ -51,16 +51,16 @@ abstract class GameSetting<T: Any>(
         this.listeners.add(listener)
     }
 
-    fun serialiseValue(): JsonElement {
-        return this.serialise(this.get())
+    fun serializeValue(): JsonElement {
+        return this.serialize(this.get())
     }
 
-    fun deserialiseAndSet(json: JsonElement) {
-        this.set(this.deserialise(json))
+    fun deserializeAndSet(json: JsonElement) {
+        this.set(this.deserialize(json))
     }
 
-    fun deserialiseAndSetQuietly(json: JsonElement) {
-        this.setQuietly(this.deserialise(json))
+    fun deserializeAndSetQuietly(json: JsonElement) {
+        this.setQuietly(this.deserialize(json))
     }
 
     operator fun getValue(any: Any, property: KProperty<*>): T {
