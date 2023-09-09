@@ -54,17 +54,12 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  *
  * This way you can easily register your task to a [MinigameTaskGenerator]:
  * ```kotlin
- * class MyMinigame: SavableMinigame(/* ... */) {
- *     private val generator = MinigameTaskGenerator(this)
+ * class MyMinigame: SavableMinigame<MyMinigame>(/* ... */) {
  *
  *     init {
- *         this.generator.addFactory(MyTask)
+ *         this.addTaskFactory(MyTask)
  *
  *         // ...
- *     }
- *
- *     override fun createTask(id: String, data: JsonObject): Task? {
- *         return this.generator.create(id, data)
  *     }
  *
  *     // ...
@@ -72,7 +67,6 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  * ```
  *
  * @see SavableMinigame
- * @see MinigameTaskGenerator
  */
 interface SavableTask: Task {
     /**

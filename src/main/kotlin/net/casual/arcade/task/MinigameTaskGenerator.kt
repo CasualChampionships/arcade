@@ -11,22 +11,20 @@ import net.casual.arcade.minigame.SavableMinigame
  * Then when [generate] is called if a valid factory is present
  * it will construct a task and return it.
  *
- * This class is intended to be used with [SavableMinigame], see
- * [SavableMinigame.createTask] for more information.
+ * This class is intended to be used with [SavableMinigame].
  *
- * @param T The type of the minigame.
+ * @param M The type of the minigame.
  * @param minigame The owner of this task generator.
  * @see SavableMinigame
- * @see SavableMinigame.createTask
  * @see SavableTask
  */
-class MinigameTaskGenerator<T: Minigame>(
+class MinigameTaskGenerator<M: Minigame<M>>(
     /**
      * The owner of this task generator.
      */
-    private val minigame: T
+    private val minigame: M
 ) {
-    private val minigameFactories = HashMap<String, MinigameTaskFactory<T>>()
+    private val minigameFactories = HashMap<String, MinigameTaskFactory<M>>()
     private val regularFactories = HashMap<String, TaskFactory>()
 
     /**
@@ -38,7 +36,6 @@ class MinigameTaskGenerator<T: Minigame>(
      * @param id The id of the task.
      * @param data The data for the task.
      * @return The generated task; may be null.
-     * @see SavableMinigame.createTask
      */
     fun generate(id: String, data: JsonObject): Task? {
         this.minigameFactories[id]?.let { factory ->
@@ -66,7 +63,7 @@ class MinigameTaskGenerator<T: Minigame>(
      * @param factory The factory to add.
      * @see MinigameTaskFactory
      */
-    fun addFactory(factory: MinigameTaskFactory<T>) {
+    fun addFactory(factory: MinigameTaskFactory<M>) {
         this.minigameFactories[factory.id] = factory
     }
 }

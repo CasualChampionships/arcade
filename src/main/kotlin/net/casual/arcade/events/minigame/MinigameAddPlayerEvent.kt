@@ -8,6 +8,6 @@ import net.minecraft.server.level.ServerPlayer
  * new or existing is added to a minigame.
  */
 data class MinigameAddPlayerEvent(
-    override val minigame: Minigame,
+    override val minigame: Minigame<*>,
     val player: ServerPlayer
 ): MinigameEvent

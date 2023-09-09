@@ -123,7 +123,7 @@ class SelectionScreen internal constructor(
         ): SimpleMenuProvider? {
             if (page >= 0) {
                 return SimpleMenuProvider(
-                    { syncId, inv, player ->
+                    { syncId, _, player ->
                         SelectionScreen(title, selections, tickers, player, syncId, parent, page, previous, back, next, filler)
                     },
                     title

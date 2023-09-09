@@ -49,7 +49,7 @@ object ScreenUtils {
     }
 
     fun createMinigameRulesMenu(
-        minigame: Minigame,
+        minigame: Minigame<*>,
         components: SelectionScreenComponents = DefaultMinigameScreenComponent
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)

@@ -2,7 +2,52 @@ package net.casual.arcade.minigame
 
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
-interface MinigamePhase {
+/**
+ * This interface represents a phase of a given [Minigame] of type [M].
+ *
+ * This allows you to implement different logic for different phases of
+ * the minigame.
+ * Each phase is notified when it is starting, see [start], when it is
+ * being initialized, see [initialise], or when it's ending, see [end].
+ *
+ * Here's an example of an implementation of some [MinigamePhase]s:
+ * ```kotlin
+ * enum class MyMinigamePhases(override val id: String): MinigamePhase<MyMinigame> {
+ *     Grace("grace") {
+ *         override fun initialise(minigame: MyMinigame) {
+ *             minigame.server.isPvpAllowed = false
+ *         }
+ *
+ *         override fun end(minigame: MyMinigame) {
+ *             minigame.server.isPvpAllowed = true
+ *         }
+ *     },
+ *     Active("active") {
+ *         override fun initialise(minigame: MyMinigame) {
+ *             minigame.registerPhaseMinigameEvent<PlayerDeathEvent> {
+ *                 // ...
+ *             }
+ *         }
+ *     },
+ *     DeathMatch("death_match") {
+ *         override fun start(minigame: MyMinigame) {
+ *             for (player in minigame.getPlayers()) {
+ *                 player.teleportTo(/* ... */)
+ *             }
+ *         }
+ *     }
+ * }
+ *
+ * class MyMinigame: Minigame<MyMinigame>(/* ... */) {
+ *     override fun getPhases(): Collection<MinigamePhase<MyMinigame>> {
+ *         return MyMinigamePhases.values().toList()
+ *     }
+ *
+ *     // ...
+ * }
+ * ```
+ */
+interface MinigamePhase<M: Minigame<M>> {
     /**
      * The identifier for the phase, this should be unique
      * to avoid overlapping phase names.
@@ -38,7 +83,7 @@ interface MinigamePhase {
      * @see initialise
      */
     @OverrideOnly
-    fun start(minigame: Minigame) {
+    fun start(minigame: M) {
 
     }
 
@@ -72,7 +117,7 @@ interface MinigamePhase {
      * @see start
      */
     @OverrideOnly
-    fun initialise(minigame: Minigame) {
+    fun initialise(minigame: M) {
 
     }
 
@@ -92,20 +137,25 @@ interface MinigamePhase {
      * @see start
      */
     @OverrideOnly
-    fun end(minigame: Minigame) {
+    fun end(minigame: M) {
 
     }
 
-    operator fun compareTo(other: MinigamePhase): Int {
+    operator fun compareTo(other: MinigamePhase<*>): Int {
         return this.ordinal.compareTo(other.ordinal)
     }
 
-    private class None: MinigamePhase {
+    private class None<M: Minigame<M>>: MinigamePhase<M> {
         override val id: String = "none"
-        override val ordinal: Int = -1
+        override val ordinal: Int = Int.MIN_VALUE
     }
 
     companion object {
-        val NONE: MinigamePhase = None()
+        private val NONE: MinigamePhase<*> = None()
+
+        fun <M: Minigame<M>> none(): MinigamePhase<M> {
+            @Suppress("UNCHECKED_CAST")
+            return NONE as MinigamePhase<M>
+        }
     }
 }

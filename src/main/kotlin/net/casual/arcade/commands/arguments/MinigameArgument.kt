@@ -16,8 +16,8 @@ import net.minecraft.network.chat.Component
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
-class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame> {
-    override fun parse(reader: StringReader): Minigame {
+class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame<*>> {
+    override fun parse(reader: StringReader): Minigame<*> {
         val uuid: UUID
         try {
             uuid = UUID.fromString(reader.readString())
@@ -41,7 +41,7 @@ class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame> {
         }
 
         @JvmStatic
-        fun getMinigame(context: CommandContext<*>, string: String): Minigame {
+        fun getMinigame(context: CommandContext<*>, string: String): Minigame<*> {
             return context.getArgument(string, Minigame::class.java)
         }
     }

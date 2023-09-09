@@ -12,7 +12,7 @@ object MinigameUtils {
     internal val ServerPlayer.minigame
         get() = this.getExtension(PlayerMinigameExtension::class.java)
 
-    fun ServerPlayer.getMinigame(): Minigame? {
+    fun ServerPlayer.getMinigame(): Minigame<*>? {
         return this.minigame.getMinigame()
     }
 

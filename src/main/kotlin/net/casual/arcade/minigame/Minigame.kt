@@ -17,7 +17,6 @@ import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.gui.tab.ArcadeTabDisplay
 import net.casual.arcade.minigame.MinigameResources.Companion.sendTo
 import net.casual.arcade.scheduler.MinecraftTimeUnit
-import net.casual.arcade.task.Task
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.settings.DisplayableGameSetting
 import net.casual.arcade.settings.DisplayableGameSettingBuilder
@@ -40,7 +39,6 @@ import net.minecraft.world.MenuProvider
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.util.*
 import java.util.function.Consumer
-import kotlin.collections.ArrayDeque
 import kotlin.collections.set
 
 /**
@@ -63,11 +61,13 @@ import kotlin.collections.set
  *
  * As well as the minigames own state, see: [phase], [paused].
  *
+ * See more info about phases here: [MinigamePhase].
+ *
  * You can implement your own minigame by extending this class:
  * ```kotlin
  * enum class MyMinigamePhases(
  *     override val id: String
- * ): MinigamePhase {
+ * ): MinigamePhase<MyMinigame> {
  *     Grace("grace"),
  *     Active("active"),
  *     DeathMatch("death_match")
@@ -75,25 +75,26 @@ import kotlin.collections.set
  *
  * class MyMinigame(
  *     server: MinecraftServer
- * ): Minigame(ResourceLocation("modid", "my_minigame"), server) {
+ * ): Minigame<MyMinigame>(ResourceLocation("modid", "my_minigame"), server) {
  *     val settings = Settings()
  *
  *     init {
  *         this.initialise()
  *     }
  *
- *     override fun getPhases(): Collection<MinigamePhase> {
+ *     override fun initialise() {
+ *         super.initialise()
+ *         this.registerMinigameEvent<MinigameAddPlayerEvent> { (_, player) ->
+ *             player.sendSystemMessage(Component.literal("Welcome to My Minigame!"))
+ *         }
+ *     }
+ *
+ *     override fun getPhases(): Collection<MinigamePhase<MyMinigame>> {
  *         return MyMinigamePhases.values().toList()
  *     }
  *
  *     override fun getLevels(): Collection<ServerLevel> {
  *         return listOf(LevelUtils.overworld())
- *     }
- *
- *     private fun registerEvents() {
- *         this.registerMinigameEvent<MinigameAddPlayerEvent> { (_, player) ->
- *             player.sendSystemMessage(Component.literal("Welcome to My Minigame!"))
- *         }
  *     }
  *
  *     inner class Settings {
@@ -109,12 +110,13 @@ import kotlin.collections.set
  * }
  * ```
  *
+ * @param M The type of the child class.
  * @param id The [ResourceLocation] of the [Minigame].
  * @param server The [MinecraftServer] that created the [Minigame].
- *
  * @see SavableMinigame
+ * @see MinigamePhase
  */
-abstract class Minigame(
+abstract class Minigame<M: Minigame<M>>(
     /**
      * The [ResourceLocation] of the [Minigame].
      */
@@ -138,8 +140,6 @@ abstract class Minigame(
     internal val gameSettings = LinkedHashMap<String, DisplayableGameSetting<*>>()
     internal val scheduler = TickedScheduler()
     internal val phaseScheduler = TickedScheduler()
-    @Deprecated("This will no longer be supported in future versions")
-    internal val phaseEndTasks = ArrayDeque<Task>()
     internal val phases = LinkedHashSet(this.getPhases())
 
     internal var uuid = UUID.randomUUID()
@@ -153,7 +153,7 @@ abstract class Minigame(
      * @see setPhase
      * @see isPhase
      */
-    var phase = MinigamePhase.NONE
+    var phase: MinigamePhase<M> = MinigamePhase.none()
         internal set
 
     /**
@@ -172,7 +172,7 @@ abstract class Minigame(
      * @param phase The phase to check whether the minigame is in.
      * @return Whether the minigame is in that phase.
      */
-    fun isPhase(phase: MinigamePhase): Boolean {
+    fun isPhase(phase: MinigamePhase<M>): Boolean {
         return this.phase == phase
     }
 
@@ -182,7 +182,7 @@ abstract class Minigame(
      * @param phase The phase to check whether the minigame is before.
      * @return Whether the minigame is before that phase.
      */
-    fun isBeforePhase(phase: MinigamePhase): Boolean {
+    fun isBeforePhase(phase: MinigamePhase<M>): Boolean {
         return this.phase < phase
     }
 
@@ -192,7 +192,7 @@ abstract class Minigame(
      * @param phase The phase to check whether the minigame has past.
      * @return Whether the minigame is past that phase.
      */
-    fun isPastPhase(phase: MinigamePhase): Boolean {
+    fun isPastPhase(phase: MinigamePhase<M>): Boolean {
         return this.phase > phase
     }
 
@@ -213,7 +213,7 @@ abstract class Minigame(
      * @param phase The phase to set the minigame to.
      * @throws IllegalArgumentException If the [phase] is not in the [phases] set.
      */
-    fun setPhase(phase: MinigamePhase) {
+    fun setPhase(phase: MinigamePhase<M>) {
         if (this.isPhase(phase)) {
             return
         }
@@ -221,19 +221,15 @@ abstract class Minigame(
             throw IllegalArgumentException("Cannot set minigame '${this.id}' phase to ${phase.id}")
         }
         this.phaseScheduler.tasks.clear()
-
-        for (task in this.phaseEndTasks) {
-            task.run()
-        }
-        this.phaseEndTasks.clear()
         this.phaseEvents.clear()
 
+        val self = this.cast()
         this.phase = phase
-        this.phase.end(this)
-        this.phase.start(this)
-        this.phase.initialise(this)
+        this.phase.end(self)
+        this.phase.start(self)
+        this.phase.initialise(self)
 
-        MinigameSetPhaseEvent(this, phase).broadcast()
+        MinigameSetPhaseEvent(self, phase).broadcast()
     }
 
     /**
@@ -402,7 +398,6 @@ abstract class Minigame(
         this.phaseEvents.unregisterHandler()
         this.scheduler.tasks.clear()
         this.phaseScheduler.tasks.clear()
-        this.phaseEndTasks.clear()
         this.closed = true
     }
 
@@ -604,7 +599,7 @@ abstract class Minigame(
      * @return A collection of all the valid phases the minigame can be in.
      */
     @OverrideOnly
-    protected abstract fun getPhases(): Collection<MinigamePhase>
+    protected abstract fun getPhases(): Collection<MinigamePhase<M>>
 
     /**
      * This gets all the [ServerLevel]s that the [Minigame] is in.
@@ -616,6 +611,18 @@ abstract class Minigame(
      */
     @OverrideOnly
     protected abstract fun getLevels(): Collection<ServerLevel>
+
+    /**
+     * This returns `this` object but cast to its implementation
+     * type [M] to allow for calling methods that require
+     * the implemented object.
+     *
+     * @return The cast `this`.
+     */
+    protected fun cast(): M {
+        @Suppress("UNCHECKED_CAST")
+        return this as M
+    }
 
     /**
      * This registers a [DisplayableGameSetting] to this minigame, and this returns
@@ -668,11 +675,6 @@ abstract class Minigame(
         val setting = displayed.setting
         this.gameSettings[setting.name] = displayed
         return setting
-    }
-
-    @Deprecated("Use MinigamePhase.end()")
-    fun schedulePhaseEndTask(runnable: Runnable) {
-        this.phaseEndTasks.add(Task.of(runnable))
     }
 
     fun scheduleTask(time: Int, unit: MinecraftTimeUnit, runnable: Runnable) {

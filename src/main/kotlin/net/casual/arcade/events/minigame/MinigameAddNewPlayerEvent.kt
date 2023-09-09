@@ -9,6 +9,6 @@ import net.minecraft.server.level.ServerPlayer
  * joins the minigame.
  */
 data class MinigameAddNewPlayerEvent(
-    override val minigame: Minigame,
+    override val minigame: Minigame<*>,
     val player: ServerPlayer
 ): CancellableEvent.Default(), MinigameEvent

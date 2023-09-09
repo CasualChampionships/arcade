@@ -10,13 +10,13 @@ import net.minecraft.server.level.ServerPlayer
 internal class PlayerMinigameExtension(
     private val owner: ServerPlayer
 ): DataExtension {
-    private var minigame: Minigame? = null
+    private var minigame: Minigame<*>? = null
 
-    internal fun getMinigame(): Minigame? {
+    internal fun getMinigame(): Minigame<*>? {
         return this.minigame
     }
 
-    internal fun setMinigame(minigame: Minigame) {
+    internal fun setMinigame(minigame: Minigame<*>) {
         this.minigame?.removePlayer(this.owner)
         this.minigame = minigame
     }

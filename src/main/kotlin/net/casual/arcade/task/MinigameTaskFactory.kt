@@ -16,7 +16,7 @@ import net.casual.arcade.minigame.Minigame
  * @see SavableTask
  * @see TaskFactory
  */
-interface MinigameTaskFactory<T: Minigame> {
+interface MinigameTaskFactory<M: Minigame<M>> {
     /**
      * The id for the task that is being generated.
      */
@@ -30,5 +30,5 @@ interface MinigameTaskFactory<T: Minigame> {
      * @param data The serialized data.
      * @return The generated task.
      */
-    fun create(minigame: T, data: JsonObject): Task
+    fun create(minigame: M, data: JsonObject): Task
 }

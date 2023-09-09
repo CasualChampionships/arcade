@@ -7,10 +7,7 @@ import net.casual.arcade.config.CustomisableConfig
 import net.casual.arcade.events.minigame.MinigameCloseEvent
 import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.scheduler.*
-import net.casual.arcade.task.CancellableTask
-import net.casual.arcade.task.MinigameTaskGenerator
-import net.casual.arcade.task.SavableTask
-import net.casual.arcade.task.Task
+import net.casual.arcade.task.*
 import net.casual.arcade.utils.JsonUtils.arrayOrDefault
 import net.casual.arcade.utils.JsonUtils.booleanOrDefault
 import net.casual.arcade.utils.JsonUtils.int
@@ -51,10 +48,9 @@ import kotlin.io.path.exists
  * it will be serialized with its unique hash and when deserializing
  * only one object will be created to replace it.
  *
- * Furthermore, in order to read the tasks the [createTask] method
- * must be implemented which will create a task from a given
- * task id.
- * See [createTask] for more information.
+ * Furthermore, in order to read the tasks you must add [TaskFactory]s
+ * to your minigame.
+ * See [addTaskFactory].
  *
  * Important tasks that are integral to the running of the minigame
  * **should** be implemented as [SavableTask]s so they can be
@@ -63,18 +59,58 @@ import kotlin.io.path.exists
  * A very important note: when phases are read, they will be initialized
  * again, see [MinigamePhase.initialise] for more information.
  *
+ * @param M The type of the child class.
  * @param id The [ResourceLocation] of the [Minigame].
  * @param server The [MinecraftServer] that created the [Minigame].
  * @param path The path at which to read and write the minigame data.
+ * @see Minigame
  */
-abstract class SavableMinigame(
+abstract class SavableMinigame<M: SavableMinigame<M>>(
     id: ResourceLocation,
     server: MinecraftServer,
     /**
      * The path at which to read and write the minigame data.
      */
     private val path: Path,
-): Minigame(id, server) {
+): Minigame<M>(id, server) {
+    private val taskGenerator = MinigameTaskGenerator(this.cast())
+
+    /**
+     * This adds a task factory to your minigame, so it is
+     * able to deserialize tasks.
+     * Task factories should be added before you invoke
+     * [SavableMinigame.initialise], so in your constructor
+     * or in your own [initialise] implementation before your
+     * `super.initialise()` call.
+     *
+     * See [SavableTask] for details on how you should implement
+     * your task factories.
+     *
+     * @param factory The task factory to add.
+     * @see SavableTask
+     */
+    protected fun addTaskFactory(factory: TaskFactory) {
+        this.taskGenerator.addFactory(factory)
+    }
+
+    /**
+     * This adds a task factory to your minigame, so it is
+     * able to deserialize tasks.
+     * Task factories should be added before you invoke
+     * [SavableMinigame.initialise], so in your constructor
+     * or in your own [initialise] implementation before your
+     * `super.initialise()` call.
+     *
+     * See [SavableTask] for details on how you should implement
+     * your task factories.
+     *
+     * @param factory The task factory to add.
+     * @see SavableTask
+     */
+    protected fun addTaskFactory(factory: MinigameTaskFactory<M>) {
+        return this.taskGenerator.addFactory(factory)
+    }
+
     /**
      * This method reads custom data for your minigame implementation
      * from your serialized [JsonObject].
@@ -99,51 +135,6 @@ abstract class SavableMinigame(
      */
     @OverrideOnly
     protected abstract fun writeData(json: JsonObject)
-
-    /**
-     * This method creates [Task]s from a given [id] and serialized [data].
-     *
-     * The task created should correspond to what was serialized.
-     * If your minigame only has a couple tasks, then you can implement this
-     * manually and check the [id]s.
-     *
-     * However, there is a utility class for generating tasks, see
-     * [MinigameTaskGenerator], you can include this as a field in your
-     * minigame and add all the factories you need to it in your constructor.
-     *
-     * For example:
-     * ```kotlin
-     * class MyMinigame: SavableMinigame(/* ... */) {
-     *     private val generator = MinigameTaskGenerator(this)
-     *
-     *     init {
-     *         this.generator.addFactory(/* ... */)
-     *
-     *         // ...
-     *     }
-     *
-     *     override fun createTask(id: String, data: JsonObject): Task? {
-     *         return this.generator.create(id, data)
-     *     }
-     *
-     *     // ...
-     * }
-     * ```
-     *
-     * To see how you implement your task factories, see [SavableTask].
-     *
-     * If your task is not found null may be returned, however, this will
-     * result in a warning error as this should **NOT** occur, you should
-     * account for all the possible tasks that may be serialized.
-     *
-     * @param id The id of the task.
-     * @param data The data written by the task.
-     * @return The deserialized task; may be null if not found.
-     * @see MinigameTaskGenerator
-     * @see SavableTask
-     */
-    @OverrideOnly
-    protected abstract fun createTask(id: String, data: JsonObject): Task?
 
     /**
      * This appends any additional debug information to [getDebugInfo].
@@ -195,16 +186,6 @@ abstract class SavableMinigame(
         for (task in json.arrayOrDefault("phase_tasks").objects()) {
             this.readScheduledTask(task, this.phaseScheduler, generated)
         }
-
-        for (data in json.arrayOrDefault("phase_end_tasks").objects()) {
-            val (id, task) = this.readTask(data, generated)
-            if (task !== null) {
-                Arcade.logger.info("Successfully loaded phase end task $id for minigame ${this.id}")
-                this.schedulePhaseEndTask(task)
-            } else {
-                Arcade.logger.warn("Saved task $id for minigame ${this.id} could not be reloaded!")
-            }
-        }
         generated.clear()
 
         for (data in json.arrayOrDefault("settings").objects()) {
@@ -226,7 +207,7 @@ abstract class SavableMinigame(
         super.initialise()
 
         if (setPhase) {
-            this.phase.initialise(this)
+            this.phase.initialise(this.cast())
         } else {
             Arcade.logger.warn("Phase for minigame ${this.id} could not be reloaded, given phase id: $phaseId")
         }
@@ -246,11 +227,6 @@ abstract class SavableMinigame(
         val tasks = this.writeScheduledTasks(this.scheduler)
         val phaseTasks = this.writeScheduledTasks(this.phaseScheduler)
 
-        val phaseEndTasks = JsonArray()
-        for (task in this.phaseEndTasks) {
-            phaseTasks.add(this.writeTask(task) ?: continue)
-        }
-
         val settings = JsonArray()
         for (setting in this.getSettings()) {
             val data = JsonObject()
@@ -264,7 +240,6 @@ abstract class SavableMinigame(
 
         json.add("tasks", tasks)
         json.add("phase_tasks", phaseTasks)
-        json.add("phase_end_tasks", phaseEndTasks)
         json.add("settings", settings)
         json.add("custom", custom)
 
@@ -302,9 +277,9 @@ abstract class SavableMinigame(
         val hash = json.intOrNull("hash")
         val custom = json.obj("custom")
         if (hash == null) {
-            return id to this.createTask(id, custom)
+            return id to this.taskGenerator.generate(id, custom)
         }
-        return id to generated.getOrPut(hash) { this.createTask(id, custom) }
+        return id to generated.getOrPut(hash) { this.taskGenerator.generate(id, custom) }
     }
 
     private fun writeTask(task: Task): JsonObject? {
