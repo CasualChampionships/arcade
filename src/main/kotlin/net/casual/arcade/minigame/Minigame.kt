@@ -143,6 +143,7 @@ abstract class Minigame(
     internal val phases = LinkedHashSet(this.getPhases())
 
     internal var uuid = UUID.randomUUID()
+    internal var initialised = false
 
     /**
      * What phase the minigame is currently in.
@@ -547,6 +548,7 @@ abstract class Minigame(
     fun getDebugInfo(): JsonObject {
         val json = JsonObject()
         json.addProperty("minigame", this::class.java.simpleName)
+        json.addProperty("initialised", this.initialised)
         json.addProperty("serializable", this is SavableMinigame)
         json.addProperty("uuid", this.uuid.toString())
         json.addProperty("id", this.id.toString())
@@ -587,6 +589,8 @@ abstract class Minigame(
         this.phaseEvents.registerHandler()
 
         Minigames.register(this)
+
+        this.initialised = true
     }
 
     /**

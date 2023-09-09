@@ -233,6 +233,10 @@ abstract class SavableMinigame(
     }
 
     private fun save() {
+        if (!this.initialised) {
+            return
+        }
+
         val json = JsonObject()
 
         json.addProperty("phase", this.phase.id)
