@@ -1,10 +1,26 @@
 package net.casual.arcade.utils
 
+import net.casual.arcade.commands.hidden.HiddenCommand
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.MutableComponent
+import net.minecraft.server.level.ServerPlayer
+import org.jetbrains.annotations.ApiStatus.Experimental
+import java.util.function.Consumer
 
 object ComponentUtils {
+    @Experimental
+    @JvmStatic
+    fun MutableComponent.function(consumer: Consumer<ServerPlayer>): MutableComponent {
+        return this.function { consumer.accept(it.player) }
+    }
+
+    @Experimental
+    @JvmStatic
+    fun MutableComponent.function(command: HiddenCommand): MutableComponent {
+        return this.command(CommandUtils.registerHiddenCommand(command))
+    }
+
     @JvmStatic
     fun MutableComponent.command(command: String): MutableComponent {
         return this.withStyle { it.withClickEvent(ClickEvent(ClickEvent.Action.RUN_COMMAND, command)) }

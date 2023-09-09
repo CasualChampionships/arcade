@@ -9,6 +9,7 @@
     "commands.ArgumentNodeStub",
     "commands.ArgumentTypeInfosAccessor",
     "commands.ClientboundCommandsPacketMixin",
+    "commands.ServerGamePacketListenerImplMixin",
     "events.BlockItemMixin",
     "events.BrewingStandBlockEntityAccessor",
     "events.BrewingStandBlockEntityMixin",

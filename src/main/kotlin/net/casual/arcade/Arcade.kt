@@ -43,6 +43,7 @@ class Arcade: ModInitializer {
         TabUtils.registerEvents()
         NameTagUtils.registerEvents()
         ResourcePackUtils.registerEvents()
+        CommandUtils.registerEvents()
 
         ArcadeCommands.registerCommands()
     }
