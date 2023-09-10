@@ -1,8 +1,8 @@
-package net.casual.arcade.task
+package net.casual.arcade.minigame
 
 import com.google.gson.JsonObject
-import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.SavableMinigame
+import net.casual.arcade.task.Task
+import net.casual.arcade.task.TaskFactory
 
 /**
  * This class helps generate [Task]s for a minigame.
