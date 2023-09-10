@@ -5,8 +5,9 @@ import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.commands.arguments.MinigameArgument
 import net.casual.arcade.commands.arguments.MinigameArgument.SettingsName.Companion.INVALID_SETTING_NAME
 import net.casual.arcade.commands.arguments.MinigameArgument.SettingsOption.Companion.INVALID_SETTING_OPTION
-import net.casual.arcade.utils.CommandSourceUtils.fail
-import net.casual.arcade.utils.CommandSourceUtils.success
+import net.casual.arcade.utils.CommandUtils.commandSuccess
+import net.casual.arcade.utils.CommandUtils.fail
+import net.casual.arcade.utils.CommandUtils.success
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
@@ -78,8 +79,7 @@ object MinigameCommand: Command {
             }
         }
         if (successes == 0) {
-            context.source.fail(Component.literal("Failed to add any players to minigame"))
-            return 0
+            return context.source.fail(Component.literal("Failed to add any players to minigame"))
         }
         context.source.success(Component.literal("Successfully added $successes/$total players to minigame"))
         return successes
@@ -105,8 +105,7 @@ object MinigameCommand: Command {
             }
         }
         if (successes == 0) {
-            context.source.fail(Component.literal("Failed to remove any players from minigames"))
-            return 0
+            return context.source.fail(Component.literal("Failed to remove any players from minigames"))
         }
         context.source.success(Component.literal("Successfully removed $successes/$total players from minigames"))
         return successes
@@ -114,22 +113,19 @@ object MinigameCommand: Command {
 
     private fun infoMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        context.source.success(Component.literal(minigame.toString()))
-        return 1
+        return context.source.success(Component.literal(minigame.toString()))
     }
 
     private fun openMinigameSettings(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        context.source.playerOrException.openMenu(minigame.createRulesMenu())
-        return 1
+        return context.source.playerOrException.openMenu(minigame.createRulesMenu()).commandSuccess()
     }
 
     private fun getMinigameSetting(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val name = MinigameArgument.SettingsName.getSettingsName(context, "setting")
         val setting = minigame.getSetting(name) ?: throw INVALID_SETTING_NAME.create()
-        context.source.success(Component.literal("Setting $name for minigame ${minigame.id} is set to ${setting.get()}"))
-        return 1
+        return context.source.success(Component.literal("Setting $name for minigame ${minigame.id} is set to ${setting.get()}"))
     }
 
     private fun setMinigameSettingFromOption(context: CommandContext<CommandSourceStack>): Int {
@@ -139,8 +135,7 @@ object MinigameCommand: Command {
         val option = MinigameArgument.SettingsOption.getSettingsOption(context, "option")
         val value = setting.getOption(option) ?: throw INVALID_SETTING_OPTION.create()
         setting.setFromOption(option)
-        context.source.success(Component.literal("Setting $name for minigame ${minigame.id} set to option $option ($value)"))
-        return 1
+        return context.source.success(Component.literal("Setting $name for minigame ${minigame.id} set to option $option ($value)"))
     }
 
     private fun setMinigameSettingFromValue(context: CommandContext<CommandSourceStack>): Int {
@@ -149,7 +144,6 @@ object MinigameCommand: Command {
         val setting = minigame.getSetting(name) ?: throw INVALID_SETTING_NAME.create()
         val value = MinigameArgument.SettingsValue.getSettingsValue(context, "value")
         setting.deserializeAndSet(value)
-        context.source.success(Component.literal("Setting $name for minigame ${minigame.id} set to ${setting.get()}"))
-        return 1
+        return context.source.success(Component.literal("Setting $name for minigame ${minigame.id} set to ${setting.get()}"))
     }
 }

@@ -20,8 +20,8 @@ class TrackedBorder(size: Double, centerX: Double, centerZ: Double): ArcadeBorde
         this.trackChanges { super.lerpSizeBetween(start, end, time) }
     }
 
-    override fun lerpCenterTo(x: Double, z: Double, realTime: Long) {
-        this.trackChanges { super.lerpCenterTo(x, z, realTime) }
+    override fun lerpCenterTo(x: Double, z: Double, time: Long) {
+        this.trackChanges { super.lerpCenterTo(x, z, time) }
     }
 
     override fun setSize(size: Double) {

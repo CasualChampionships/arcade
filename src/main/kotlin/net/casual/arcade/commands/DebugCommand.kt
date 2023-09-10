@@ -5,6 +5,9 @@ import com.mojang.brigadier.arguments.DoubleArgumentType
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.border.ArcadeBorder
+import net.casual.arcade.scheduler.MinecraftTimeUnit.Seconds
+import net.casual.arcade.utils.CommandUtils.fail
+import net.casual.arcade.utils.CommandUtils.success
 import net.casual.arcade.utils.ComponentUtils.red
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
@@ -35,11 +38,9 @@ object DebugCommand: Command {
         val seconds = IntegerArgumentType.getInteger(context, "seconds")
         val border = context.source.level.worldBorder
         if (border is ArcadeBorder) {
-            border.lerpCenterTo(posX, posZ, (seconds * 1000).toLong())
-            context.source.sendSuccess({ Component.literal("Border set") }, true)
-        } else {
-            context.source.sendFailure(Component.literal("Border is not ArcadeBorder").red())
+            border.lerpCenterTo(posX, posZ, Seconds.duration(seconds))
+            return context.source.success(Component.literal("Border set"), true)
         }
-        return 1
+        return context.source.fail(Component.literal("Border is not ArcadeBorder").red())
     }
 }

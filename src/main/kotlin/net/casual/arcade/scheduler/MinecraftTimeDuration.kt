@@ -22,6 +22,10 @@ class MinecraftTimeDuration private constructor(
         return this.unit.toMinecraftDays(this.duration)
     }
 
+    fun toMilliseconds(): Int {
+        return this.toTicks() * 50
+    }
+
     fun toSeconds(): Double {
         return this.unit.toSeconds(this.duration)
     }

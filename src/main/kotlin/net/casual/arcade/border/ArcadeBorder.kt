@@ -1,6 +1,7 @@
 package net.casual.arcade.border
 
 import net.casual.arcade.border.state.*
+import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.minecraft.world.level.border.BorderChangeListener
 import net.minecraft.world.level.border.BorderStatus
 import net.minecraft.world.level.border.WorldBorder
@@ -52,8 +53,12 @@ abstract class ArcadeBorder: WorldBorder() {
         this.changeCenter(x, z)
     }
 
-    open fun lerpCenterTo(x: Double, z: Double, realTime: Long) {
-        this.centerState = MovingCenterBorderState(this, this.centerState.getCenterX(), this.centerState.getCenterZ(), x, z, realTime)
+    open fun lerpCenterTo(x: Double, z: Double, time: Long) {
+        this.centerState = MovingCenterBorderState(this, this.centerState.getCenterX(), this.centerState.getCenterZ(), x, z, time)
+    }
+
+    fun lerpCenterTo(x: Double, z: Double, duration: MinecraftTimeDuration) {
+        this.lerpCenterTo(x, z, duration.toMilliseconds().toLong())
     }
 
     final override fun getSize(): Double {
@@ -91,6 +96,10 @@ abstract class ArcadeBorder: WorldBorder() {
         for (borderChangeListener in listeners) {
             borderChangeListener.onBorderSizeLerping(this, start, end, time)
         }
+    }
+
+    fun lerpSizeBetween(start: Double, end: Double, duration: MinecraftTimeDuration) {
+        this.lerpSizeBetween(start, end, duration.toMilliseconds().toLong())
     }
 
     override fun setAbsoluteMaxSize(size: Int) {
