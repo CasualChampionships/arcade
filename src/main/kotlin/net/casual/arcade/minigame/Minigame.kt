@@ -89,7 +89,7 @@ import kotlin.collections.set
  *         }
  *     }
  *
- *     override fun getPhases(): Collection<MinigamePhase<MyMinigame>> {
+ *     override fun getPhases(): List<MinigamePhase<MyMinigame>> {
  *         return MyMinigamePhases.values().toList()
  *     }
  *
