@@ -55,7 +55,7 @@ interface TitledCountdown: Countdown {
 
         fun titled(title: Component): TitledCountdown {
             return object: TitledCountdown {
-                override fun getCountdownTitle(remainingSeconds: Int): Component {
+                override fun getCountdownTitle(current: Int): Component {
                     return title
                 }
             }
