@@ -1,4 +1,4 @@
-package net.casual.arcade.utils
+package net.casual.arcade.utils.impl
 
 import org.jetbrains.annotations.ApiStatus.Internal
 

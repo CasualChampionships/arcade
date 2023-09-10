@@ -1,29 +1,36 @@
-package net.casual.arcade.map
+package net.casual.arcade.area
 
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Vec3i
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.RandomSource
+import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.levelgen.structure.BoundingBox
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate
 
-class StructureMap(
-    val lobby: StructureTemplate,
-    val centre: Vec3i,
+class StructureArea(
+    private val structure: StructureTemplate,
+    private val centre: Vec3i,
     override val level: ServerLevel
-): PlaceableMap {
-    override fun place() {
-        val dimensions = this.lobby.size
+): PlaceableArea {
+    private val boundingBox by lazy(this::calculateBoundingBox)
+
+    override fun place(): Boolean {
+        val dimensions = this.structure.size
         val halfX = dimensions.x / 2 + 1
         val halfY = dimensions.y / 2 + 1
         val halfZ = dimensions.z / 2 + 1
         val corner = BlockPos(this.centre.x - halfX, this.centre.y - halfY, this.centre.z - halfZ)
-        this.lobby.placeInWorld(this.level, corner, corner, StructurePlaceSettings(), RandomSource.create(), 3)
+        return this.structure.placeInWorld(this.level, corner, corner, StructurePlaceSettings(), RandomSource.create(), Block.UPDATE_CLIENTS)
     }
 
     override fun getBoundingBox(): BoundingBox {
-        val dimensions = this.lobby.size
+        return this.boundingBox
+    }
+
+    private fun calculateBoundingBox(): BoundingBox {
+        val dimensions = this.structure.size
         val halfX = dimensions.x / 2 + 1
         val halfY = dimensions.y / 2 + 1
         val halfZ = dimensions.z / 2 + 1

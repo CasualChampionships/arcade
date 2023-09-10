@@ -3,7 +3,7 @@ package net.casual.arcade.scheduler
 import kotlin.math.roundToInt
 
 enum class MinecraftTimeUnit(
-    private val ticksPerUnit: Int
+    private val ticks: Int
 ) {
     Ticks(1),
     RedstoneTicks(2),
@@ -14,35 +14,39 @@ enum class MinecraftTimeUnit(
     Hours(Minutes.toTicks(60)),
     Days(Hours.toTicks(24));
 
-    fun toTicks(unitTime: Int): Int {
-        return this.ticksPerUnit * unitTime
+    fun toTicks(duration: Int): Int {
+        return this.ticks * duration
     }
 
-    fun toTicks(unitTime: Double): Int {
-        return (this.ticksPerUnit * unitTime).roundToInt()
+    fun toTicks(duration: Number): Int {
+        return (this.ticks * duration.toDouble()).roundToInt()
     }
 
-    fun toRedstoneTicks(unitTime: Double): Double {
-        return this.toTicks(unitTime) / RedstoneTicks.ticksPerUnit.toDouble()
+    fun toRedstoneTicks(duration: Number): Double {
+        return this.toTicks(duration.toDouble()) / RedstoneTicks.ticks.toDouble()
     }
 
-    fun toMinecraftDays(unitTime: Double): Double {
-        return this.toTicks(unitTime) / MinecraftDays.ticksPerUnit.toDouble()
+    fun toMinecraftDays(duration: Number): Double {
+        return this.toTicks(duration.toDouble()) / MinecraftDays.ticks.toDouble()
     }
 
-    fun toSeconds(unitTime: Double): Double {
-        return this.toTicks(unitTime) / Seconds.ticksPerUnit.toDouble()
+    fun toSeconds(duration: Number): Double {
+        return this.toTicks(duration.toDouble()) / Seconds.ticks.toDouble()
     }
 
-    fun toMinutes(unitTime: Double): Double {
-        return this.toTicks(unitTime) / Minutes.ticksPerUnit.toDouble()
+    fun toMinutes(duration: Number): Double {
+        return this.toTicks(duration.toDouble()) / Minutes.ticks.toDouble()
     }
 
-    fun toHours(unitTime: Double): Double {
-        return this.toTicks(unitTime) / Hours.ticksPerUnit.toDouble()
+    fun toHours(duration: Number): Double {
+        return this.toTicks(duration.toDouble()) / Hours.ticks.toDouble()
     }
 
-    fun toDays(unitTime: Double): Double {
-        return this.toTicks(unitTime) / Days.ticksPerUnit.toDouble()
+    fun toDays(duration: Number): Double {
+        return this.toTicks(duration.toDouble()) / Days.ticks.toDouble()
+    }
+
+    fun duration(duration: Int): MinecraftTimeDuration {
+        return MinecraftTimeDuration.of(duration, this)
     }
 }

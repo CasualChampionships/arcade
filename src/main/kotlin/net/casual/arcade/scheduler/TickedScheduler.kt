@@ -6,9 +6,9 @@ import net.casual.arcade.task.Task
 import java.util.*
 import java.util.function.IntFunction
 
-open class TickedScheduler {
-    val tasks: Int2ObjectMap<Queue<Task>> = Int2ObjectOpenHashMap()
-    var tickCount = 0
+class TickedScheduler: MinecraftScheduler {
+    internal val tasks: Int2ObjectMap<Queue<Task>> = Int2ObjectOpenHashMap()
+    internal var tickCount = 0
 
     fun tick() {
         val queue = this.tasks.remove(this.tickCount++)
@@ -18,23 +18,9 @@ open class TickedScheduler {
         }
     }
 
-    fun schedule(time: Int, unit: MinecraftTimeUnit, runnable: Runnable): Task {
+    override fun schedule(duration: MinecraftTimeDuration, runnable: Runnable): Task {
         val task = Task.of(runnable)
-        require(time >= 0) { "Cannot schedule a task in the past!" }
-        this.tasks.computeIfAbsent(this.tickCount + unit.toTicks(time), IntFunction { ArrayDeque() }).add(task)
-        return task
-    }
-
-    fun scheduleInLoop(delay: Int, interval: Int, duration: Int, unit: MinecraftTimeUnit, block: Runnable): Task {
-        require(delay >= 0 && interval > 0 && duration >= 0) {
-            "Delay, interval or duration ticks cannot be negative"
-        }
-        val task = Task.of(block)
-        var tick = delay
-        while (tick < duration + delay) {
-            this.schedule(tick, unit, task)
-            tick += interval
-        }
+        this.tasks.computeIfAbsent(this.tickCount + duration.toTicks(), IntFunction { ArrayDeque() }).add(task)
         return task
     }
 }

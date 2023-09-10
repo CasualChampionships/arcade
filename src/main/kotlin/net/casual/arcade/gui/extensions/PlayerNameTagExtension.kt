@@ -30,7 +30,7 @@ import java.util.function.Predicate
 // This is low-key some of the most cursed code
 // I've ever written, let's hope I don't have to
 // ever touch it again :)
-class PlayerNameTagExtension(
+internal class PlayerNameTagExtension(
     private val owner: ServerPlayer
 ): Extension {
     private val tags = LinkedHashMap<ArcadeNameTag, SingleElementHolder>()

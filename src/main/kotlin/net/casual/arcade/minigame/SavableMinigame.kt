@@ -153,8 +153,8 @@ abstract class SavableMinigame<M: SavableMinigame<M>>(
      * constructor.
      */
     override fun initialise() {
-        this.registerEvent<ServerSaveEvent> { this.save() }
-        this.registerMinigameEvent<MinigameCloseEvent> { this.save() }
+        this.events.register<ServerSaveEvent> { this.save() }
+        this.events.register<MinigameCloseEvent> { this.save() }
 
         if (!this.path.exists()) {
             super.initialise()
@@ -181,10 +181,10 @@ abstract class SavableMinigame<M: SavableMinigame<M>>(
         val generated = HashMap<Int, Task?>()
 
         for (task in json.arrayOrDefault("tasks").objects()) {
-            this.readScheduledTask(task, this.scheduler, generated)
+            this.readScheduledTask(task, this.scheduler.minigame, generated)
         }
         for (task in json.arrayOrDefault("phase_tasks").objects()) {
-            this.readScheduledTask(task, this.phaseScheduler, generated)
+            this.readScheduledTask(task, this.scheduler.phased, generated)
         }
         generated.clear()
 
@@ -214,18 +214,14 @@ abstract class SavableMinigame<M: SavableMinigame<M>>(
     }
 
     private fun save() {
-        if (!this.initialised) {
-            return
-        }
-
         val json = JsonObject()
 
         json.addProperty("phase", this.phase.id)
         json.addProperty("paused", this.paused)
         json.addProperty("uuid", this.uuid.toString())
 
-        val tasks = this.writeScheduledTasks(this.scheduler)
-        val phaseTasks = this.writeScheduledTasks(this.phaseScheduler)
+        val tasks = this.writeScheduledTasks(this.scheduler.minigame)
+        val phaseTasks = this.writeScheduledTasks(this.scheduler.phased)
 
         val settings = JsonArray()
         for (setting in this.getSettings()) {

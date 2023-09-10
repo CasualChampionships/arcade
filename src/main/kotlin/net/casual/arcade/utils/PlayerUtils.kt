@@ -3,12 +3,13 @@ package net.casual.arcade.utils
 import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
-import net.casual.arcade.math.Location
+import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.ExtensionUtils.addExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtensions
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
+import net.casual.arcade.utils.impl.Sound
 import net.minecraft.advancements.Advancement
 import net.minecraft.core.Direction8
 import net.minecraft.core.particles.ParticleOptions
@@ -132,17 +133,26 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun ServerPlayer.sendTitle(title: Component) {
+    fun ServerPlayer.sendTitle(title: Component, subtitle: Component? = null) {
         this.connection.send(ClientboundSetTitleTextPacket(title))
+        if (subtitle != null) {
+            this.connection.send(ClientboundSetSubtitleTextPacket(subtitle))
+        }
     }
 
     @JvmStatic
     @JvmOverloads
     fun ServerPlayer.sendSubtitle(subtitle: Component, force: Boolean = false) {
-        this.connection.send(ClientboundSetSubtitleTextPacket(subtitle))
         if (force) {
-            this.sendTitle(Component.empty())
+            this.sendTitle(Component.empty(), subtitle)
+            return
         }
+        this.connection.send(ClientboundSetSubtitleTextPacket(subtitle))
+    }
+
+    @JvmStatic
+    fun ServerPlayer.sendSound(sound: Sound) {
+        this.sendSound(sound.sound, sound.source, sound.volume, sound.pitch)
     }
 
     @JvmStatic

@@ -1,4 +1,4 @@
-package net.casual.arcade.math
+package net.casual.arcade.utils.impl
 
 import net.casual.arcade.utils.LevelUtils
 import net.minecraft.server.level.ServerLevel

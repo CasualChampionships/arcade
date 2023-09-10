@@ -61,6 +61,10 @@ class DisplayableGameSettingBuilder<T: Any>(
             return DisplayableGameSettingBuilder(::BooleanGameSetting)
         }
 
+        fun integer(): DisplayableGameSettingBuilder<Int> {
+            return DisplayableGameSettingBuilder(::IntegerGameSetting)
+        }
+
         fun long(): DisplayableGameSettingBuilder<Long> {
             return DisplayableGameSettingBuilder(::LongGameSetting)
         }

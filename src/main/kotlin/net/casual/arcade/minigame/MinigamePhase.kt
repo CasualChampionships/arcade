@@ -150,12 +150,23 @@ interface MinigamePhase<M: Minigame<M>> {
         override val ordinal: Int = Int.MIN_VALUE
     }
 
+    private class End<M: Minigame<M>>: MinigamePhase<M> {
+        override val id: String = "end"
+        override val ordinal: Int = Int.MAX_VALUE
+    }
+
     companion object {
         private val NONE: MinigamePhase<*> = None()
+        private val END: MinigamePhase<*> = End()
 
         fun <M: Minigame<M>> none(): MinigamePhase<M> {
             @Suppress("UNCHECKED_CAST")
             return NONE as MinigamePhase<M>
+        }
+
+        fun <M: Minigame<M>> end(): MinigamePhase<M> {
+            @Suppress("UNCHECKED_CAST")
+            return END as MinigamePhase<M>
         }
     }
 }

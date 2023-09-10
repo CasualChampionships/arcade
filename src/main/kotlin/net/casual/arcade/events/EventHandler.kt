@@ -22,7 +22,7 @@ import java.util.function.Consumer
  * @see GlobalEventHandler
  * @see ListenerHandler
  */
-class EventHandler: ListenerHandler {
+class EventHandler: EventRegisterer {
     private val events = HashMap<Class<out Event>, ArrayList<EventListener<*>>>()
 
     /**
@@ -56,26 +56,17 @@ class EventHandler: ListenerHandler {
     }
 
     /**
-     * Registers an event listener with a given priority.
+     * Registers an event listener.
      *
      * This allows you to register a callback to a specific event type.
      * This callback will **only** fire when instances of the given type
      * are fired.
      *
-     * The priority that you register the event with determines
-     * in what order the listener will be invoked. Lower values
-     * of [priority] will result in being invoked earlier.
-     *
      * @param T The type of event.
      * @param type The class of the event that you want to listen to.
-     * @param priority The priority of your event listener.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    fun <T: Event> register(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
-        this.register(type, EventListenerImpl(priority, listener))
-    }
-
-    fun <T: Event> register(type: Class<T>, listener: EventListener<T>) {
+    override fun <T: Event> register(type: Class<T>, listener: EventListener<T>) {
         @Suppress("UNCHECKED_CAST")
         val listeners = this.events.getOrPut(type) { ArrayList() } as MutableList<EventListener<T>>
         listeners.add(this.findIndexForPriority(listeners, listener), listener)
@@ -102,14 +93,5 @@ class EventHandler: ListenerHandler {
             }
         }
         return left
-    }
-
-    private class EventListenerImpl<T: Event>(
-        override val priority: Int,
-        private val listener: Consumer<T>
-    ): EventListener<T> {
-        override fun invoke(event: T) {
-            this.listener.accept(event)
-        }
     }
 }

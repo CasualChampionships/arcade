@@ -1,12 +1,10 @@
 package net.casual.arcade.minigame
 
 import com.google.gson.JsonObject
+import kotlinx.coroutines.flow.asFlow
 import net.casual.arcade.config.CustomisableConfig
 import net.casual.arcade.events.EventHandler
-import net.casual.arcade.events.core.Event
-import net.casual.arcade.events.level.LevelEvent
 import net.casual.arcade.events.minigame.*
-import net.casual.arcade.events.player.PlayerEvent
 import net.casual.arcade.events.server.ServerStoppedEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.gui.PlayerUI
@@ -16,7 +14,6 @@ import net.casual.arcade.gui.screen.SelectionScreenComponents
 import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.gui.tab.ArcadeTabDisplay
 import net.casual.arcade.minigame.MinigameResources.Companion.sendTo
-import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.settings.DisplayableGameSetting
 import net.casual.arcade.settings.DisplayableGameSettingBuilder
@@ -38,7 +35,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.MenuProvider
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.util.*
-import java.util.function.Consumer
+import kotlin.collections.ArrayList
 import kotlin.collections.set
 
 /**
@@ -59,7 +56,7 @@ import kotlin.collections.set
  * It also keeps track of the [ServerLevel]s which are
  * part of the minigame.
  *
- * As well as the minigames own state, see: [phase], [paused].
+ * As well as the minigames own state, see: [setPhase], [paused].
  *
  * See more info about phases here: [MinigamePhase].
  *
@@ -126,24 +123,23 @@ abstract class Minigame<M: Minigame<M>>(
      */
     val server: MinecraftServer,
 ) {
-    private val connections = HashSet<ServerGamePacketListenerImpl>()
-    private val events = EventHandler()
-    private val phaseEvents = EventHandler()
+    private val connections: MutableSet<ServerGamePacketListenerImpl>
 
-    private val bossbars = ArrayList<CustomBossBar>()
-    private val nameTags = ArrayList<ArcadeNameTag>()
+    private val bossbars: MutableList<CustomBossBar>
+    private val nameTags: MutableList<ArcadeNameTag>
 
-    private var sidebar: ArcadeSidebar? = null
-    private var display: ArcadeTabDisplay? = null
-    private var closed = false
+    private var sidebar: ArcadeSidebar?
+    private var display: ArcadeTabDisplay?
 
-    internal val gameSettings = LinkedHashMap<String, DisplayableGameSetting<*>>()
-    internal val scheduler = TickedScheduler()
-    internal val phaseScheduler = TickedScheduler()
-    internal val phases = LinkedHashSet(this.getPhases())
+    private var initialised: Boolean
 
-    internal var uuid = UUID.randomUUID()
-    internal var initialised = false
+    internal val gameSettings: MutableMap<String, DisplayableGameSetting<*>>
+    internal val phases: List<MinigamePhase<M>>
+
+    internal var uuid: UUID
+
+    val scheduler: MinigameScheduler
+    val events: MinigameEventHandler
 
     /**
      * What phase the minigame is currently in.
@@ -153,7 +149,7 @@ abstract class Minigame<M: Minigame<M>>(
      * @see setPhase
      * @see isPhase
      */
-    var phase: MinigamePhase<M> = MinigamePhase.none()
+    var phase: MinigamePhase<M>
         internal set
 
     /**
@@ -163,8 +159,32 @@ abstract class Minigame<M: Minigame<M>>(
      * @see pause
      * @see unpause
      */
-    var paused = false
+    var paused: Boolean
         internal set
+
+    init {
+        this.connections = HashSet()
+        this.bossbars = ArrayList()
+        this.nameTags = ArrayList()
+
+        this.sidebar = null
+        this.display = null
+
+        this.initialised = false
+
+        this.gameSettings = LinkedHashMap()
+        this.phases = this.getPhases()
+
+        this.uuid = UUID.randomUUID()
+
+        this.scheduler = MinigameScheduler()
+        @Suppress("LeakingThis") // Not really...
+        this.events = MinigameEventHandler(this)
+
+        this.phase = MinigamePhase.none()
+
+        this.paused = false
+    }
 
     /**
      * Checks whether the minigame is in a given phase.
@@ -217,11 +237,11 @@ abstract class Minigame<M: Minigame<M>>(
         if (this.isPhase(phase)) {
             return
         }
-        if (!this.phases.contains(phase)) {
+        if (!this.phases.contains(phase) && phase != MinigamePhase.none() && phase != MinigamePhase.end()) {
             throw IllegalArgumentException("Cannot set minigame '${this.id}' phase to ${phase.id}")
         }
-        this.phaseScheduler.tasks.clear()
-        this.phaseEvents.clear()
+        this.scheduler.phased.tasks.clear()
+        this.events.phased.clear()
 
         val self = this.cast()
         this.phase = phase
@@ -235,7 +255,7 @@ abstract class Minigame<M: Minigame<M>>(
     /**
      * This adds a player to the minigame.
      * The player may be rejected from joining the minigame.
-     * The minigame must not be [closed], and must not yet
+     * The minigame must be [initialised], and must not yet
      * be tracking the given player.
      * The player may also be rejected by the [MinigameAddNewPlayerEvent].
      *
@@ -252,7 +272,7 @@ abstract class Minigame<M: Minigame<M>>(
      * @return Whether the player was successfully accepted.
      */
     fun addPlayer(player: ServerPlayer): Boolean {
-        if (this.closed || this.hasPlayer(player)) {
+        if (!this.initialised || this.hasPlayer(player)) {
             return false
         }
         if (player.getMinigame() === this) {
@@ -394,11 +414,12 @@ abstract class Minigame<M: Minigame<M>>(
             this.removePlayer(player)
         }
         MinigameCloseEvent(this).broadcast()
+        this.events.minigame.clear()
+        this.events.phased.clear()
         this.events.unregisterHandler()
-        this.phaseEvents.unregisterHandler()
-        this.scheduler.tasks.clear()
-        this.phaseScheduler.tasks.clear()
-        this.closed = true
+        this.scheduler.minigame.tasks.clear()
+        this.scheduler.phased.tasks.clear()
+        this.initialised = false
     }
 
     /**
@@ -525,15 +546,6 @@ abstract class Minigame<M: Minigame<M>>(
     }
 
     /**
-     * Gets the minigame's debug information as a string.
-     *
-     * @return The minigames debug information.
-     */
-    override fun toString(): String {
-        return CustomisableConfig.GSON.toJson(this.getDebugInfo())
-    }
-
-    /**
      * This serializes some minigame information for debugging purposes.
      *
      * Implementations of minigame can add their own info with [appendAdditionalDebugInfo].
@@ -552,7 +564,6 @@ abstract class Minigame<M: Minigame<M>>(
         json.add("phases", this.phases.toJsonStringArray { it.id })
         json.addProperty("phase", this.phase.id)
         json.addProperty("paused", this.paused)
-        json.addProperty("closed", this.closed)
         json.addProperty("bossbars", this.bossbars.size)
         json.addProperty("nametags", this.nameTags.size)
         json.addProperty("has_sidebar", this.sidebar != null)
@@ -563,14 +574,19 @@ abstract class Minigame<M: Minigame<M>>(
     }
 
     /**
-     * This appends any additional debug information to [getDebugInfo].
+     * Gets the minigame's debug information as a string.
      *
-     * @param json The json append to.
+     * @return The minigames debug information.
      */
-    @OverrideOnly
-    protected open fun appendAdditionalDebugInfo(json: JsonObject) {
-
+    override fun toString(): String {
+        return CustomisableConfig.GSON.toJson(this.getDebugInfo())
     }
+
+    /**
+     * Starts the minigame.
+     * This should set the phase to the initial phase.
+     */
+    abstract fun start()
 
     /**
      * This method initializes the core functionality of the
@@ -581,7 +597,6 @@ abstract class Minigame<M: Minigame<M>>(
     protected open fun initialise() {
         this.registerEvents()
         this.events.registerHandler()
-        this.phaseEvents.registerHandler()
 
         Minigames.register(this)
 
@@ -599,7 +614,7 @@ abstract class Minigame<M: Minigame<M>>(
      * @return A collection of all the valid phases the minigame can be in.
      */
     @OverrideOnly
-    protected abstract fun getPhases(): Collection<MinigamePhase<M>>
+    protected abstract fun getPhases(): List<MinigamePhase<M>>
 
     /**
      * This gets all the [ServerLevel]s that the [Minigame] is in.
@@ -622,6 +637,16 @@ abstract class Minigame<M: Minigame<M>>(
     protected fun cast(): M {
         @Suppress("UNCHECKED_CAST")
         return this as M
+    }
+
+    /**
+     * This appends any additional debug information to [getDebugInfo].
+     *
+     * @param json The json append to.
+     */
+    @OverrideOnly
+    protected open fun appendAdditionalDebugInfo(json: JsonObject) {
+
     }
 
     /**
@@ -677,87 +702,17 @@ abstract class Minigame<M: Minigame<M>>(
         return setting
     }
 
-    fun scheduleTask(time: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
-        this.scheduler.schedule(time, unit, runnable)
-    }
-
-    fun scheduleInLoopTask(delay: Int, interval: Int, duration: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
-        this.scheduler.scheduleInLoop(delay, interval, duration, unit, runnable)
-    }
-
-    fun schedulePhaseTask(time: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
-        this.phaseScheduler.schedule(time, unit, runnable)
-    }
-
-    fun scheduleInLoopPhaseTask(delay: Int, interval: Int, duration: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
-        this.phaseScheduler.scheduleInLoop(delay, interval, duration, unit, runnable)
-    }
-
-    inline fun <reified T: Event> registerPhaseEvent(priority: Int = 1_000, listener: Consumer<T>) {
-        this.registerPhaseEvent(T::class.java, priority, listener)
-    }
-
-    fun <T: Event> registerPhaseEvent(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
-        this.phaseEvents.register(type, priority, listener)
-    }
-
-    inline fun <reified T: Event> registerEvent(priority: Int = 1_000, listener: Consumer<T>) {
-        this.registerEvent(T::class.java, priority, listener)
-    }
-
-    fun <T: Event> registerEvent(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
-        this.events.register(type, priority, listener)
-    }
-
-    inline fun <reified T: Event> registerMinigameEvent(priority: Int = 1_000, listener: Consumer<T>) {
-        this.registerMinigameEvent(T::class.java, priority, listener)
-    }
-
-    fun <T: Event> registerMinigameEvent(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
-        this.registerMinigameEvent(type, priority, listener, this.events)
-    }
-
-    inline fun <reified T: Event> registerPhaseMinigameEvent(priority: Int = 1_000, listener: Consumer<T>) {
-        this.registerPhaseMinigameEvent(T::class.java, priority, listener)
-    }
-
-    fun <T: Event> registerPhaseMinigameEvent(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
-        this.registerMinigameEvent(type, priority, listener, this.phaseEvents)
-    }
-
-    private fun <T: Event> registerMinigameEvent(type: Class<T>, priority: Int, listener: Consumer<T>, handler: EventHandler) {
-        val predicates = LinkedList<(T) -> Boolean>()
-        if (PlayerEvent::class.java.isAssignableFrom(type)) {
-            predicates.add { this.hasPlayer((it as PlayerEvent).player) }
-        }
-        if (LevelEvent::class.java.isAssignableFrom(type)) {
-            predicates.add { this.hasLevel((it as LevelEvent).level) }
-        }
-        if (MinigameEvent::class.java.isAssignableFrom(type)) {
-            predicates.add { (it as MinigameEvent).minigame === this }
-        }
-        if (predicates.isEmpty()) {
-            handler.register(type, priority, listener)
-        } else {
-            handler.register(type, priority) { event ->
-                if (predicates.all { it(event) }) {
-                    listener.accept(event)
-                }
-            }
-        }
-    }
-
     private fun registerEvents() {
-        this.registerEvent<ServerTickEvent> { this.onServerTick() }
-        this.registerEvent<ServerStoppedEvent> { this.close() }
-        this.registerMinigameEvent<MinigameAddPlayerEvent> { (_, player) -> this.onPlayerAdd(player) }
-        this.registerMinigameEvent<MinigameRemovePlayerEvent> { (_, player) -> this.onPlayerRemove(player) }
+        this.events.register<ServerTickEvent> { this.onServerTick() }
+        this.events.register<ServerTickEvent> { this.onServerTick() }
+        this.events.register<ServerStoppedEvent> { this.close() }
+        this.events.register<MinigameAddPlayerEvent> { (_, player) -> this.onPlayerAdd(player) }
+        this.events.register<MinigameRemovePlayerEvent> { (_, player) -> this.onPlayerRemove(player) }
     }
 
     private fun onServerTick() {
         if (!this.paused) {
             this.scheduler.tick()
-            this.phaseScheduler.tick()
         }
     }
 

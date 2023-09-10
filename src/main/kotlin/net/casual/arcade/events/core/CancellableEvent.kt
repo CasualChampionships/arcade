@@ -1,6 +1,6 @@
 package net.casual.arcade.events.core
 
-import net.casual.arcade.utils.Wrapper
+import net.casual.arcade.utils.impl.Wrapper
 
 /**
  * This is an event that usually is fired before

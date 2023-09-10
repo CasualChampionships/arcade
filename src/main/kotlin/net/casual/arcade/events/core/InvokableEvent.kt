@@ -1,7 +1,7 @@
 package net.casual.arcade.events.core
 
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.utils.Void
+import net.casual.arcade.utils.impl.Void
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 /**
