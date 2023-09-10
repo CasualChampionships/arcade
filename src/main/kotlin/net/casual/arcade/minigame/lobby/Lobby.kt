@@ -1,11 +1,13 @@
-package net.casual.arcade.utils.minigame.lobby
+package net.casual.arcade.minigame.lobby
 
 import net.casual.arcade.area.PlaceableArea
 import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.utils.PlayerUtils.teleportTo
 import net.minecraft.server.level.ServerPlayer
+import org.jetbrains.annotations.ApiStatus.Experimental
 
+@Experimental
 interface Lobby {
     val area: PlaceableArea
     val spawn: Location

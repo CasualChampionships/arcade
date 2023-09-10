@@ -44,20 +44,60 @@ abstract class CustomBossBar: PlayerUI() {
      */
     abstract fun getTitle(player: ServerPlayer): Component
 
+    /**
+     * This gets the progress of the [CustomBossBar] which will be
+     * displayed to the given [player].
+     *
+     * @param player The player being displayed the progress.
+     * @return The progress to display the bossbar as having.
+     */
     abstract fun getProgress(player: ServerPlayer): Float
 
+    /**
+     * This gets the colour of the [CustomBossBar] which will be
+     * displayed to the given [player].
+     *
+     * @param player The player being displayed the colour.
+     * @return The [BossBarColor] to set the bossbar to.
+     */
     abstract fun getColour(player: ServerPlayer): BossBarColor
 
+    /**
+     * This gets the overlay of the [CustomBossBar] which will be
+     * displayed to the given [player].
+     *
+     * @param player The player being displayed the overlay.
+     * @return The [BossBarOverlay] to set the bossbar to.
+     */
     abstract fun getOverlay(player: ServerPlayer): BossBarOverlay
 
+    /**
+     * This sets whether the player's world is dark or not.
+     *
+     * @param player The player being displayed the bar.
+     * @return Whether the player's world should be dark.
+     */
     open fun isDark(player: ServerPlayer): Boolean {
         return false
     }
 
+    /**
+     * This sets whether the player's should be played boss
+     * music in the end dimension.
+     *
+     * @param player The player being displayed the bar.
+     * @return Whether the player should play boss music.
+     */
     open fun hasMusic(player: ServerPlayer): Boolean {
         return false
     }
 
+    /**
+     * This sets whether the player's world has fog or not.
+     *
+     * @param player The player being displayed the bar.
+     * @return Whether the player's world should have fog.
+     */
     open fun hasFog(player: ServerPlayer): Boolean {
         return false
     }

@@ -2,9 +2,18 @@ package net.casual.arcade.minigame
 
 import java.util.*
 
+/**
+ * This object is used for registering and holding
+ * all the current minigames that are running.
+ */
 object Minigames {
     private val ALL = LinkedHashMap<UUID, Minigame<*>>()
 
+    /**
+     * This method gets all the current running minigames.
+     *
+     * @return All the current running minigames.
+     */
     fun all(): Collection<Minigame<*>> {
         return ALL.values
     }

@@ -68,30 +68,77 @@ class ArcadeBossbar(
         }
     }
 
+    /**
+     * This gets the title of the [CustomBossBar] which will be
+     * displayed to the given [player].
+     *
+     * @param player The player being displayed the component.
+     * @return The [Component] to display as the title of the [CustomBossBar].
+     */
     override fun getTitle(player: ServerPlayer): Component {
         return this.title.getComponent(player)
     }
 
+    /**
+     * This gets the progress of the [CustomBossBar] which will be
+     * displayed to the given [player].
+     *
+     * @param player The player being displayed the progress.
+     * @return The progress to display the bossbar as having.
+     */
     override fun getProgress(player: ServerPlayer): Float {
         return this.progress.getProgress(player)
     }
 
+    /**
+     * This gets the colour of the [CustomBossBar] which will be
+     * displayed to the given [player].
+     *
+     * @param player The player being displayed the colour.
+     * @return The [BossBarColor] to set the bossbar to.
+     */
     override fun getColour(player: ServerPlayer): BossEvent.BossBarColor {
         return this.colour.getColour(player)
     }
 
+    /**
+     * This gets the overlay of the [CustomBossBar] which will be
+     * displayed to the given [player].
+     *
+     * @param player The player being displayed the overlay.
+     * @return The [BossBarOverlay] to set the bossbar to.
+     */
     override fun getOverlay(player: ServerPlayer): BossEvent.BossBarOverlay {
         return this.overlay.getOverlay(player)
     }
 
+    /**
+     * This sets whether the player's world is dark or not.
+     *
+     * @param player The player being displayed the bar.
+     * @return Whether the player's world should be dark.
+     */
     override fun isDark(player: ServerPlayer): Boolean {
         return this.dark.get(player)
     }
 
+    /**
+     * This sets whether the player's should be played boss
+     * music in the end dimension.
+     *
+     * @param player The player being displayed the bar.
+     * @return Whether the player should play boss music.
+     */
     override fun hasMusic(player: ServerPlayer): Boolean {
         return this.music.get(player)
     }
 
+    /**
+     * This sets whether the player's world has fog or not.
+     *
+     * @param player The player being displayed the bar.
+     * @return Whether the player's world should have fog.
+     */
     override fun hasFog(player: ServerPlayer): Boolean {
         return this.fog.get(player)
     }

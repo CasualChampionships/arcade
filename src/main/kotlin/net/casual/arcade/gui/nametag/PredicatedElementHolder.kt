@@ -3,8 +3,10 @@ package net.casual.arcade.gui.nametag
 import eu.pb4.polymer.virtualentity.api.ElementHolder
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
+import org.jetbrains.annotations.ApiStatus.Internal
 import java.util.function.Predicate
 
+@Internal
 open class PredicatedElementHolder(
     private val predicate: Predicate<ServerPlayer>
 ): ElementHolder() {

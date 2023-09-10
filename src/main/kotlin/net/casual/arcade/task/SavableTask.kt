@@ -1,8 +1,8 @@
 package net.casual.arcade.task
 
 import com.google.gson.JsonObject
-import net.casual.arcade.minigame.MinigameTaskFactory
-import net.casual.arcade.minigame.MinigameTaskGenerator
+import net.casual.arcade.minigame.task.MinigameTaskFactory
+import net.casual.arcade.minigame.task.MinigameTaskGenerator
 import net.casual.arcade.minigame.SavableMinigame
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 

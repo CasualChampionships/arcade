@@ -1,7 +1,10 @@
-package net.casual.arcade.minigame
+package net.casual.arcade.minigame.task
 
 import com.google.gson.JsonObject
+import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.task.SavableTask
 import net.casual.arcade.task.Task
+import net.casual.arcade.task.TaskFactory
 
 /**
  * This interface is for creating tasks from serialized data.

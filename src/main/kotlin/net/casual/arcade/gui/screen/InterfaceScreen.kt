@@ -1,6 +1,5 @@
 package net.casual.arcade.gui.screen
 
-import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.SingleEventHandler
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.scheduler.GlobalTickedScheduler

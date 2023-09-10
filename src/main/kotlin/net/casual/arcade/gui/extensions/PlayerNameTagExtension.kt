@@ -10,7 +10,6 @@ import it.unimi.dsi.fastutil.ints.IntList
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.gui.nametag.ArcadeNameTag
 import net.casual.arcade.gui.nametag.PredicatedElementHolder
-import net.casual.arcade.gui.suppliers.ComponentSupplier
 import net.casual.arcade.utils.NameTagUtils.isWatching
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
@@ -36,7 +35,7 @@ internal class PlayerNameTagExtension(
     private val tags = LinkedHashMap<ArcadeNameTag, SingleElementHolder>()
 
     internal fun addNameTag(tag: ArcadeNameTag) {
-        val display = NameTagDisplay(tag.tag)
+        val display = NameTagDisplay(tag)
         val holder = SingleElementHolder(display, tag.predicate)
         EntityAttachment.ofTicking(holder, this.owner)
         VirtualEntityUtils.addVirtualPassenger(this.owner, *holder.entityIds.toIntArray())
@@ -80,9 +79,11 @@ internal class PlayerNameTagExtension(
         private const val SHIFT = 0.3F
     }
 
-    private inner class NameTagDisplay(private val generator: ComponentSupplier): AbstractElement() {
+    private inner class NameTagDisplay(private val tag: ArcadeNameTag): AbstractElement() {
         private val background = TextDisplayElement()
         private val foreground = TextDisplayElement()
+
+        private var ticks = 0
 
         init {
             this.initialiseDisplay(this.background)
@@ -115,10 +116,12 @@ internal class PlayerNameTagExtension(
         }
 
         override fun tick() {
-            val text = this.generator.getComponent(owner)
-            this.foreground.text = text
-            this.background.text = text
-            this.sendTrackerUpdates()
+            if (this.ticks++ % this.tag.interval == 0) {
+                val text = this.tag.tag.getComponent(owner)
+                this.foreground.text = text
+                this.background.text = text
+                this.sendTrackerUpdates()
+            }
         }
 
         override fun startWatching(player: ServerPlayer, consumer: Consumer<Packet<ClientGamePacketListener>>) {

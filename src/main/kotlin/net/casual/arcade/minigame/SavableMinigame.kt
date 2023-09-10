@@ -6,6 +6,8 @@ import net.casual.arcade.Arcade
 import net.casual.arcade.config.CustomisableConfig
 import net.casual.arcade.events.minigame.MinigameCloseEvent
 import net.casual.arcade.events.server.ServerSaveEvent
+import net.casual.arcade.minigame.task.MinigameTaskFactory
+import net.casual.arcade.minigame.task.MinigameTaskGenerator
 import net.casual.arcade.scheduler.*
 import net.casual.arcade.task.*
 import net.casual.arcade.utils.JsonUtils.arrayOrDefault
@@ -259,8 +261,8 @@ abstract class SavableMinigame<M: SavableMinigame<M>>(
         val tasks = JsonArray()
         for ((tick, queue) in scheduler.tasks) {
             val delay = tick - scheduler.tickCount
-            for (task in queue) {
-                val written = this.writeTask(task) ?: continue
+            for (runnable in queue) {
+                val written = this.writeTask(runnable) ?: continue
                 written.addProperty("delay", delay)
                 tasks.add(written)
             }
@@ -278,7 +280,7 @@ abstract class SavableMinigame<M: SavableMinigame<M>>(
         return id to generated.getOrPut(hash) { this.taskGenerator.generate(id, custom) }
     }
 
-    private fun writeTask(task: Task): JsonObject? {
+    private fun writeTask(task: Runnable): JsonObject? {
         if (task is SavableTask && !(task is CancellableTask && task.isCancelled())) {
             val data = JsonObject()
             val custom = JsonObject()

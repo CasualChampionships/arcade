@@ -1,4 +1,4 @@
-package net.casual.arcade.utils.minigame.lobby
+package net.casual.arcade.minigame.lobby
 
 import com.google.gson.JsonObject
 import net.casual.arcade.events.minigame.MinigameAddPlayerEvent
@@ -8,7 +8,9 @@ import net.casual.arcade.utils.MinigameUtils.countdown
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
+import org.jetbrains.annotations.ApiStatus.Experimental
 
+@Experimental
 class LobbyMinigame(
     id: ResourceLocation,
     server: MinecraftServer,
