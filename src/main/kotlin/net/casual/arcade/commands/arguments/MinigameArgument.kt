@@ -46,6 +46,31 @@ class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame<*>> {
         }
     }
 
+    class PhaseName(private val minigameKey: String): CustomArgumentType(), ArgumentType<String> {
+        override fun parse(reader: StringReader): String {
+            return reader.readString()
+        }
+
+        override fun <S : Any?> listSuggestions(context: CommandContext<S>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
+            val minigame = getMinigame(context, this.minigameKey)
+            return SharedSuggestionProvider.suggest(minigame.phases.map { it.id }, builder)
+        }
+
+        companion object {
+            val INVALID_PHASE_NAME = SimpleCommandExceptionType(Component.literal("Invalid Settings Name"))
+
+            @JvmStatic
+            fun name(minigameKey: String): SettingsName {
+                return SettingsName(minigameKey)
+            }
+
+            @JvmStatic
+            fun getPhaseName(context: CommandContext<*>, string: String): String {
+                return context.getArgument(string, String::class.java)
+            }
+        }
+    }
+
     class SettingsName(private val minigameKey: String): CustomArgumentType(), ArgumentType<String> {
         override fun parse(reader: StringReader): String {
             return reader.readUnquotedString()

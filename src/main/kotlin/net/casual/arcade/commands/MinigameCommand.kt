@@ -3,8 +3,10 @@ package net.casual.arcade.commands
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.commands.arguments.MinigameArgument
+import net.casual.arcade.commands.arguments.MinigameArgument.PhaseName.Companion.INVALID_PHASE_NAME
 import net.casual.arcade.commands.arguments.MinigameArgument.SettingsName.Companion.INVALID_SETTING_NAME
 import net.casual.arcade.commands.arguments.MinigameArgument.SettingsOption.Companion.INVALID_SETTING_OPTION
+import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.success
@@ -55,6 +57,16 @@ object MinigameCommand: Command {
                             )
                         )
                     ).executes(this::openMinigameSettings)
+                )
+            ).then(
+                Commands.literal("phase").then(
+                    Commands.argument("minigame", MinigameArgument.minigame()).then(
+                        Commands.literal("get").executes(this::getMinigamePhase)
+                    ).then(
+                        Commands.literal("set").then(
+                            Commands.argument("phase", MinigameArgument.PhaseName.name("minigame")).executes(this::setMinigamePhase)
+                        )
+                    )
                 )
             )
         )
@@ -145,5 +157,19 @@ object MinigameCommand: Command {
         val value = MinigameArgument.SettingsValue.getSettingsValue(context, "value")
         setting.deserializeAndSet(value)
         return context.source.success(Component.literal("Setting $name for minigame ${minigame.id} set to ${setting.get()}"))
+    }
+
+    private fun getMinigamePhase(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        return context.source.success(Component.literal("The phase of minigame ${minigame.id} is ${minigame.phase.id}"))
+    }
+
+    private fun <M: Minigame<M>> setMinigamePhase(context: CommandContext<CommandSourceStack>): Int {
+        @Suppress("UNCHECKED_CAST")
+        val minigame = MinigameArgument.getMinigame(context, "minigame") as Minigame<M>
+        val name = MinigameArgument.PhaseName.getPhaseName(context, "phase")
+        val phase = minigame.phases.find { it.id == name } ?: throw INVALID_PHASE_NAME.create()
+        minigame.setPhase(phase)
+        return context.source.success(Component.literal("Successfully set phase of minigame ${minigame.id} to ${phase.id}"))
     }
 }
