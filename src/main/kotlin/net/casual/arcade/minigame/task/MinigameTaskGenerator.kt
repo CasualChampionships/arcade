@@ -1,9 +1,9 @@
 package net.casual.arcade.minigame.task
 
-import com.google.gson.JsonObject
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.task.SavableTask
 import net.casual.arcade.task.Task
+import net.casual.arcade.task.TaskCreationContext
 import net.casual.arcade.task.TaskFactory
 
 /**
@@ -39,12 +39,12 @@ class MinigameTaskGenerator<M: Minigame<M>>(
      * @param data The data for the task.
      * @return The generated task; may be null.
      */
-    fun generate(id: String, data: JsonObject): Task? {
+    fun generate(id: String, context: TaskCreationContext): Task? {
         this.minigameFactories[id]?.let { factory ->
-            return factory.create(this.minigame, data)
+            return factory.create(this.minigame, context)
         }
         this.regularFactories[id]?.let { factory ->
-            return factory.create(data)
+            return factory.create(context)
         }
         return null
     }

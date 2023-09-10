@@ -14,11 +14,12 @@ import net.casual.arcade.utils.JsonUtils.arrayOrDefault
 import net.casual.arcade.utils.JsonUtils.booleanOrDefault
 import net.casual.arcade.utils.JsonUtils.int
 import net.casual.arcade.utils.JsonUtils.intOrNull
-import net.casual.arcade.utils.JsonUtils.obj
+import net.casual.arcade.utils.JsonUtils.objOrDefault
 import net.casual.arcade.utils.JsonUtils.objOrNull
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.stringOrDefault
+import net.casual.arcade.utils.JsonUtils.stringOrNull
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
@@ -248,7 +249,8 @@ abstract class SavableMinigame<M: SavableMinigame<M>>(
 
     private fun readScheduledTask(json: JsonObject, scheduler: TickedScheduler, generated: MutableMap<Int, Task?>) {
         val delay = json.int("delay")
-        val (id, task) = this.readTask(json, generated)
+        val id = json.string("id")
+        val task = this.deserializeTask(id, json, generated)
         if (task !== null) {
             Arcade.logger.info("Successfully loaded task $id for minigame ${this.id}, scheduled for $delay ticks")
             scheduler.schedule(delay, MinecraftTimeUnit.Ticks, task)
@@ -262,7 +264,7 @@ abstract class SavableMinigame<M: SavableMinigame<M>>(
         for ((tick, queue) in scheduler.tasks) {
             val delay = tick - scheduler.tickCount
             for (runnable in queue) {
-                val written = this.writeTask(runnable) ?: continue
+                val written = this.serializeTask(runnable) ?: continue
                 written.addProperty("delay", delay)
                 tasks.add(written)
             }
@@ -270,26 +272,44 @@ abstract class SavableMinigame<M: SavableMinigame<M>>(
         return tasks
     }
 
-    private fun readTask(json: JsonObject, generated: MutableMap<Int, Task?>): Pair<String, Task?> {
-        val id = json.string("id")
+    private fun deserializeTask(id: String, json: JsonObject, generated: MutableMap<Int, Task?>): Task? {
         val hash = json.intOrNull("hash")
-        val custom = json.obj("custom")
+        val custom = json.objOrDefault("custom")
         if (hash == null) {
-            return id to this.taskGenerator.generate(id, custom)
+            return this.taskGenerator.generate(id, MinigameTaskCreationContext(custom, generated))
         }
-        return id to generated.getOrPut(hash) { this.taskGenerator.generate(id, custom) }
+        return generated.getOrPut(hash) {
+            this.taskGenerator.generate(id, MinigameTaskCreationContext(custom, generated))
+        }
     }
 
-    private fun writeTask(task: Runnable): JsonObject? {
+    private fun serializeTask(task: Runnable): JsonObject? {
         if (task is SavableTask && !(task is CancellableTask && task.isCancelled())) {
             val data = JsonObject()
-            val custom = JsonObject()
-            task.writeData(custom)
             data.addProperty("id", task.id)
             data.addProperty("hash", System.identityHashCode(task))
-            data.add("custom", custom)
+            data.add("custom", task.writeCustomData(MinigameTaskWriteContext()))
             return data
         }
         return null
+    }
+
+    private inner class MinigameTaskCreationContext(
+        private val data: JsonObject,
+        private val generated: MutableMap<Int, Task?>,
+    ): TaskCreationContext {
+        override fun getCustomData(): JsonObject {
+            return this.data
+        }
+
+        override fun createTask(data: JsonObject): Task? {
+            return deserializeTask(data.stringOrNull("id") ?: return null, data, this.generated)
+        }
+    }
+
+    private inner class MinigameTaskWriteContext: TaskWriteContext {
+        override fun writeTask(task: Task): JsonObject? {
+            return serializeTask(task)
+        }
     }
 }

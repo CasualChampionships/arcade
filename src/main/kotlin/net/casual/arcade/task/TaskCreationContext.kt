@@ -3,7 +3,7 @@ package net.casual.arcade.task
 import com.google.gson.JsonObject
 
 interface TaskCreationContext {
-    fun getData(): JsonObject
+    fun getCustomData(): JsonObject
 
-    fun createTask(id: String, data: JsonObject): Task?
+    fun createTask(data: JsonObject): Task?
 }

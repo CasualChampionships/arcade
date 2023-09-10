@@ -83,11 +83,12 @@ interface SavableTask: Task {
      * This serialized data will be passed to the
      * [TaskFactory] when generating a new task.
      *
-     * @param data The [JsonObject] to write additional data to.
+     * @param context The [TaskWriteContext].
+     * @return The serialized data.
      */
     @OverrideOnly
-    fun writeData(data: JsonObject) {
-
+    fun writeCustomData(context: TaskWriteContext): JsonObject {
+        return JsonObject()
     }
 }
 

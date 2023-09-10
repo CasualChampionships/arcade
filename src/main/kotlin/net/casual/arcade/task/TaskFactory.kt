@@ -1,6 +1,5 @@
 package net.casual.arcade.task
 
-import com.google.gson.JsonObject
 import net.casual.arcade.minigame.task.MinigameTaskFactory
 
 /**
@@ -24,5 +23,5 @@ interface TaskFactory {
      * @param data The serialized data.
      * @return The generated task.
      */
-    fun create(data: JsonObject): Task
+    fun create(context: TaskCreationContext): Task
 }
