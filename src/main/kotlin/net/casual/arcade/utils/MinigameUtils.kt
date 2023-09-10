@@ -4,8 +4,11 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.player.PlayerCreatedEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.PlayerMinigameExtension
+import net.casual.arcade.scheduler.MinecraftTimeDuration
+import net.casual.arcade.task.Completable
 import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
+import net.casual.arcade.gui.countdown.Countdown
 import net.minecraft.server.level.ServerPlayer
 
 object MinigameUtils {
@@ -14,6 +17,20 @@ object MinigameUtils {
 
     fun ServerPlayer.getMinigame(): Minigame<*>? {
         return this.minigame.getMinigame()
+    }
+
+    @JvmStatic
+    fun Countdown.countdown(minigame: Minigame<*>): Completable {
+        val post = Completable.Impl()
+        var remaining = this.getCountdownDuration()
+        val interval = this.getCountdownInterval()
+        var current = remaining / interval
+        minigame.scheduler.schedulePhasedInLoop(MinecraftTimeDuration.ZERO, interval, remaining) {
+            this.sendCountdown(minigame.getPlayers(), current--, remaining)
+            remaining -= interval
+        }
+        minigame.scheduler.schedulePhased(remaining, post::complete)
+        return post
     }
 
     internal fun registerEvents() {

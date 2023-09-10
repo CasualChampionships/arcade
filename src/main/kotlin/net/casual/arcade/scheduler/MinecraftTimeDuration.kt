@@ -46,6 +46,10 @@ class MinecraftTimeDuration private constructor(
         return MinecraftTimeDuration(this.toTicks() - other.toTicks(), Ticks)
     }
 
+    operator fun div(other: MinecraftTimeDuration): Int {
+        return this.toTicks() / other.toTicks()
+    }
+
     operator fun compareTo(other: MinecraftTimeDuration): Int {
         return this.toTicks().compareTo(other.toTicks())
     }

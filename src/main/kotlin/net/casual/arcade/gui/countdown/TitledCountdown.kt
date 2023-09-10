@@ -1,11 +1,10 @@
-package net.casual.arcade.utils.minigame
+package net.casual.arcade.gui.countdown
 
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.utils.ComponentUtils.bold
 import net.casual.arcade.utils.ComponentUtils.lime
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.ComponentUtils.yellow
-import net.casual.arcade.utils.MathUtils.wholeOrNull
 import net.casual.arcade.utils.PlayerUtils.sendSound
 import net.casual.arcade.utils.PlayerUtils.sendTitle
 import net.casual.arcade.utils.impl.Sound
@@ -14,16 +13,16 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
-interface TitledMinigameCountdown: MinigameCountdown {
+interface TitledCountdown: Countdown {
     @OverrideOnly
-    fun getCountdownTitle(remainingSeconds: Int): Component {
+    fun getCountdownTitle(current: Int): Component {
         return Component.literal("Starting In:").bold()
     }
 
     @OverrideOnly
-    fun getCountdownSubtitle(remainingSeconds: Int): Component {
-        val subtitle = Component.literal("▶ $remainingSeconds ◀")
-        when (remainingSeconds) {
+    fun getCountdownSubtitle(current: Int): Component {
+        val subtitle = Component.literal("▶ $current ◀")
+        when (current) {
             3 -> subtitle.red()
             2 -> subtitle.yellow()
             1 -> subtitle.lime()
@@ -32,18 +31,17 @@ interface TitledMinigameCountdown: MinigameCountdown {
     }
 
     @OverrideOnly
-    fun getCountdownSound(remainingSeconds: Int): Sound? {
+    fun getCountdownSound(current: Int): Sound? {
         return Sound(
             sound = SoundEvents.NOTE_BLOCK_PLING.value(),
             pitch = 3.0F
         )
     }
 
-    override fun sendCountdown(players: Collection<ServerPlayer>, remaining: MinecraftTimeDuration) {
-        val seconds = remaining.toSeconds().wholeOrNull() ?: return
-        val title = this.getCountdownTitle(seconds)
-        val subtitle = this.getCountdownSubtitle(seconds)
-        val sound = this.getCountdownSound(seconds)
+    override fun sendCountdown(players: Collection<ServerPlayer>, current: Int, remaining: MinecraftTimeDuration) {
+        val title = this.getCountdownTitle(current)
+        val subtitle = this.getCountdownSubtitle(current)
+        val sound = this.getCountdownSound(current)
         for (player in players) {
             player.sendTitle(title, subtitle)
             if (sound != null) {
@@ -53,10 +51,10 @@ interface TitledMinigameCountdown: MinigameCountdown {
     }
 
     companion object {
-        val DEFAULT = object: TitledMinigameCountdown { }
+        val DEFAULT = object: TitledCountdown { }
 
-        fun titled(title: Component): TitledMinigameCountdown {
-            return object: TitledMinigameCountdown {
+        fun titled(title: Component): TitledCountdown {
+            return object: TitledCountdown {
                 override fun getCountdownTitle(remainingSeconds: Int): Component {
                     return title
                 }

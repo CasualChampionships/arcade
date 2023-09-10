@@ -8,6 +8,7 @@ import net.casual.arcade.events.minigame.*
 import net.casual.arcade.events.server.ServerStoppedEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.gui.PlayerUI
+import net.casual.arcade.gui.TickableUI
 import net.casual.arcade.gui.bossbar.CustomBossBar
 import net.casual.arcade.gui.nametag.ArcadeNameTag
 import net.casual.arcade.gui.screen.SelectionScreenComponents
@@ -36,6 +37,7 @@ import net.minecraft.world.MenuProvider
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
 import kotlin.collections.set
 
 /**
@@ -127,6 +129,7 @@ abstract class Minigame<M: Minigame<M>>(
 
     private val bossbars: MutableList<CustomBossBar>
     private val nameTags: MutableList<ArcadeNameTag>
+    private val tickables: MutableSet<TickableUI>
 
     private var sidebar: ArcadeSidebar?
     private var display: ArcadeTabDisplay?
@@ -164,8 +167,10 @@ abstract class Minigame<M: Minigame<M>>(
 
     init {
         this.connections = HashSet()
-        this.bossbars = ArrayList()
-        this.nameTags = ArrayList()
+
+        this.bossbars = LinkedList()
+        this.nameTags = LinkedList()
+        this.tickables = HashSet()
 
         this.sidebar = null
         this.display = null
@@ -444,18 +449,16 @@ abstract class Minigame<M: Minigame<M>>(
      * @param bar The bar to remove.
      */
     fun removeBossbar(bar: CustomBossBar) {
-        this.bossbars.remove(bar)
-        bar.clearPlayers()
+        if (this.bossbars.remove(bar)) {
+            this.removeUI(bar)
+        }
     }
 
     /**
      * This removes **ALL** bossbars from the minigame.
      */
     fun removeAllBossbars() {
-        for (bossbar in this.bossbars) {
-            bossbar.clearPlayers()
-        }
-        this.bossbars.clear()
+        this.removeAllUI(this.bossbars)
     }
 
     /**
@@ -481,18 +484,16 @@ abstract class Minigame<M: Minigame<M>>(
      * @param tag The nametag to remove.
      */
     fun removeNameTag(tag: ArcadeNameTag) {
-        this.nameTags.remove(tag)
-        tag.clearPlayers()
+        if (this.nameTags.remove(tag)) {
+            this.removeUI(tag)
+        }
     }
 
     /**
      * This removes **ALL** nametags from the minigame.
      */
     fun removeAllNameTags() {
-        for (tag in this.nameTags) {
-            tag.clearPlayers()
-        }
-        this.nameTags.clear()
+        this.removeAllUI(this.nameTags)
     }
 
     /**
@@ -516,7 +517,7 @@ abstract class Minigame<M: Minigame<M>>(
      * will no longer be displayed the sidebar.
      */
     fun removeSidebar() {
-        this.sidebar?.clearPlayers()
+        this.removeUI(this.sidebar)
         this.sidebar = null
     }
 
@@ -541,7 +542,7 @@ abstract class Minigame<M: Minigame<M>>(
      * will no longer be displayed the tab display.
      */
     fun removeTabDisplay() {
-        this.display?.clearPlayers()
+        this.removeUI(this.display)
         this.display = null
     }
 
@@ -713,6 +714,9 @@ abstract class Minigame<M: Minigame<M>>(
     private fun onServerTick() {
         if (!this.paused) {
             this.scheduler.tick()
+            for (tickable in this.tickables) {
+                tickable.tick()
+            }
         }
     }
 
@@ -736,5 +740,24 @@ abstract class Minigame<M: Minigame<M>>(
         for (player in this.getPlayers()) {
             ui.addPlayer(player)
         }
+        if (ui is TickableUI) {
+            this.tickables.add(ui)
+        }
+    }
+
+    private fun removeUI(ui: PlayerUI?) {
+        if (ui != null) {
+            ui.clearPlayers()
+            if (ui is TickableUI) {
+                this.tickables.remove(ui)
+            }
+        }
+    }
+
+    private fun removeAllUI(uis: MutableCollection<out PlayerUI>) {
+        for (ui in uis) {
+            this.removeUI(ui)
+        }
+        uis.clear()
     }
 }
