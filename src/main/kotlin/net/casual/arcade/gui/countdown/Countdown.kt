@@ -6,11 +6,11 @@ import net.minecraft.server.level.ServerPlayer
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 interface Countdown {
-    fun getCountdownDuration(): MinecraftTimeDuration {
+    fun getDuration(): MinecraftTimeDuration {
         return Seconds.duration(10)
     }
 
-    fun getCountdownInterval(): MinecraftTimeDuration {
+    fun getInterval(): MinecraftTimeDuration {
         return Seconds.duration(1)
     }
 

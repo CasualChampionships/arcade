@@ -19,6 +19,7 @@ import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.settings.DisplayableGameSetting
 import net.casual.arcade.settings.DisplayableGameSettingBuilder
 import net.casual.arcade.settings.GameSetting
+import net.casual.arcade.task.Completable
 import net.casual.arcade.utils.EventUtils.broadcast
 import net.casual.arcade.utils.EventUtils.registerHandler
 import net.casual.arcade.utils.EventUtils.unregisterHandler

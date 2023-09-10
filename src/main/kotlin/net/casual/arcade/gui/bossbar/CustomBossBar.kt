@@ -62,39 +62,11 @@ abstract class CustomBossBar: PlayerUI() {
         return false
     }
 
-    override fun onAddPlayer(player: ServerPlayer) {
+    final override fun onAddPlayer(player: ServerPlayer) {
         player.bossbars.add(this)
     }
 
-    override fun onRemovePlayer(player: ServerPlayer) {
+    final override fun onRemovePlayer(player: ServerPlayer) {
         player.bossbars.remove(this)
-    }
-
-    companion object {
-        fun constant(
-            title: Component,
-            progress: Float = 1.0F,
-            colour: BossBarColor = BossBarColor.WHITE,
-            overlay: BossBarOverlay = BossBarOverlay.PROGRESS,
-            dark: Boolean = false,
-            music: Boolean = false,
-            fog: Boolean = false
-        ): CustomBossBar {
-            return object: CustomBossBar() {
-                override fun getTitle(player: ServerPlayer) = title
-
-                override fun getProgress(player: ServerPlayer) = progress
-
-                override fun getColour(player: ServerPlayer) = colour
-
-                override fun getOverlay(player: ServerPlayer) = overlay
-
-                override fun isDark(player: ServerPlayer) = dark
-
-                override fun hasMusic(player: ServerPlayer) = music
-
-                override fun hasFog(player: ServerPlayer) = fog
-            }
-        }
     }
 }

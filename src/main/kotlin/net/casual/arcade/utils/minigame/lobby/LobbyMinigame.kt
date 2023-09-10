@@ -4,6 +4,7 @@ import com.google.gson.JsonObject
 import net.casual.arcade.events.minigame.MinigameAddPlayerEvent
 import net.casual.arcade.events.player.PlayerTickEvent
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.utils.MinigameUtils.countdown
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel

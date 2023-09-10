@@ -15,6 +15,7 @@ object MinigameUtils {
     internal val ServerPlayer.minigame
         get() = this.getExtension(PlayerMinigameExtension::class.java)
 
+    @JvmStatic
     fun ServerPlayer.getMinigame(): Minigame<*>? {
         return this.minigame.getMinigame()
     }
@@ -22,8 +23,8 @@ object MinigameUtils {
     @JvmStatic
     fun Countdown.countdown(minigame: Minigame<*>): Completable {
         val post = Completable.Impl()
-        var remaining = this.getCountdownDuration()
-        val interval = this.getCountdownInterval()
+        var remaining = this.getDuration()
+        val interval = this.getInterval()
         var current = remaining / interval
         minigame.scheduler.schedulePhasedInLoop(MinecraftTimeDuration.ZERO, interval, remaining) {
             this.sendCountdown(minigame.getPlayers(), current--, remaining)
