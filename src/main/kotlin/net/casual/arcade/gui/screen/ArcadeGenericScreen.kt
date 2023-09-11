@@ -3,12 +3,13 @@ package net.casual.arcade.gui.screen
 import net.casual.arcade.events.SingleEventHandler
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.scheduler.GlobalTickedScheduler
-import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.utils.EventUtils.registerHandler
 import net.casual.arcade.utils.EventUtils.unregisterHandler
+import net.casual.arcade.utils.TimeUtils.Ticks
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Container
+import net.minecraft.world.MenuProvider
 import net.minecraft.world.SimpleContainer
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
@@ -18,11 +19,23 @@ import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.ItemStack
 
-abstract class InterfaceScreen(
+/**
+ * This class represents a generic custom server-sided screen.
+ *
+ * This screen uses the 'chest' UI, and you can specify the number
+ * of rows you would like the screen to have.
+ *
+ * @param inventory The player's inventory.
+ * @param syncId The syncId provided by the [MenuProvider].
+ * @param rows The number of rows the screen should have.
+ * @see SelectionScreenBuilder
+ * @see SpectatorUsableScreen
+ */
+abstract class ArcadeGenericScreen(
     inventory: Inventory,
     syncId: Int,
     rows: Int
-): AbstractContainerMenu(rowsToType(rows), syncId) {
+): AbstractContainerMenu(rowsToType(rows), syncId), SpectatorUsableScreen {
     private val ticking: SingleEventHandler<ServerTickEvent>
 
     private val inventory: Inventory
@@ -63,6 +76,16 @@ abstract class InterfaceScreen(
         return this.inventory
     }
 
+    abstract fun onClick(slotId: Int, button: Int, type: ClickType, player: ServerPlayer)
+
+    open fun onRemove(player: ServerPlayer) {
+
+    }
+
+    open fun onTick(server: MinecraftServer) {
+
+    }
+
     final override fun clicked(slotId: Int, button: Int, clickType: ClickType, player: Player) {
         this.onClick(slotId, button, clickType, player as ServerPlayer)
     }
@@ -79,21 +102,11 @@ abstract class InterfaceScreen(
         this.onRemove(player as ServerPlayer)
         super.removed(player)
         this.ticking.unregisterHandler()
-        GlobalTickedScheduler.schedule(1, MinecraftTimeUnit.Ticks, player.containerMenu::sendAllDataToRemote)
-    }
-
-    abstract fun onClick(slotId: Int, button: Int, type: ClickType, player: ServerPlayer)
-
-    open fun onRemove(player: ServerPlayer) {
-
-    }
-
-    open fun onTick(server: MinecraftServer) {
-
+        GlobalTickedScheduler.schedule(1.Ticks, player.containerMenu::sendAllDataToRemote)
     }
 
     companion object {
-        private fun rowsToType(rows: Int): MenuType<*> {
+        fun rowsToType(rows: Int): MenuType<*> {
             return when (rows) {
                 1 -> MenuType.GENERIC_9x1
                 2 -> MenuType.GENERIC_9x2

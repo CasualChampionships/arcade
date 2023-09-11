@@ -10,6 +10,7 @@ import net.casual.arcade.utils.PlayerUtils.location
 import net.casual.arcade.utils.PlayerUtils.teleportTo
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.scores.PlayerTeam
@@ -26,7 +27,7 @@ object ScreenUtils {
         for (team in teams) {
             if (teamFilter(team)) {
                 builder.selection(teamIcon(team)) { player ->
-                    player.openMenu(createTeamMenu(team, components, provider))
+                    player.openMenu(createTeamMenu(team, components, provider) { it.isSpectator })
                 }
             }
         }
@@ -36,13 +37,16 @@ object ScreenUtils {
     fun createTeamMenu(
         team: PlayerTeam,
         components: SelectionScreenComponents = DefaultSpectatorScreenComponent,
-        parent: MenuProvider? = null
+        parent: MenuProvider? = null,
+        predicate: (ServerPlayer) -> Boolean
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
         builder.parent(parent)
         for (teammate in team.getOnlinePlayers()) {
             builder.selection(ItemUtils.generatePlayerHead(teammate.scoreboardName)) { player ->
-                player.teleportTo(teammate.location)
+                if (predicate(player)) {
+                    player.teleportTo(teammate.location)
+                }
             }
         }
         return builder.build()
@@ -69,7 +73,7 @@ object ScreenUtils {
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
         builder.parent(parent)
-        for ((option, value) in display.getOptions()) {
+        display.forEachOption { option, value ->
             builder.selection(option) {
                 display.setting.set(value)
             }

@@ -7,7 +7,7 @@ import net.minecraft.world.BossEvent.BossBarOverlay
 
 /**
  * This class is an implementation of [CustomBossBar] that
- * doesn't update and remains static to **all** players.
+ * doesn't update and remains static.
  *
  * @param title The title of the bar.
  * @param progress The progress of the bar.

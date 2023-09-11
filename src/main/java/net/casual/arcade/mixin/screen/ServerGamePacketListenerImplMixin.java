@@ -1,6 +1,6 @@
 package net.casual.arcade.mixin.screen;
 
-import net.casual.arcade.gui.screen.InterfaceScreen;
+import net.casual.arcade.gui.screen.SpectatorUsableScreen;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,6 +20,6 @@ public class ServerGamePacketListenerImplMixin {
 		)
 	)
 	private boolean canClick(ServerPlayer instance) {
-		return !(instance.containerMenu instanceof InterfaceScreen) && instance.isSpectator();
+		return !(instance.containerMenu instanceof SpectatorUsableScreen screen && screen.isSpectatorUsable()) && instance.isSpectator();
 	}
 }

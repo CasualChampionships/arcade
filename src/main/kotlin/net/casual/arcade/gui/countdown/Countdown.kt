@@ -2,16 +2,17 @@ package net.casual.arcade.gui.countdown
 
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.scheduler.MinecraftTimeUnit.Seconds
+import net.casual.arcade.utils.TimeUtils.Seconds
 import net.minecraft.server.level.ServerPlayer
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 interface Countdown {
     fun getDuration(): MinecraftTimeDuration {
-        return Seconds.duration(10)
+        return 10.Seconds
     }
 
     fun getInterval(): MinecraftTimeDuration {
-        return Seconds.duration(1)
+        return 1.Seconds
     }
 
     @OverrideOnly

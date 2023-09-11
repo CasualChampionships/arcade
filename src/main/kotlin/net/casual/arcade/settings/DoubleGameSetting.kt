@@ -1,18 +1,9 @@
 package net.casual.arcade.settings
 
-import com.google.gson.JsonElement
-import com.google.gson.JsonPrimitive
+import net.casual.arcade.utils.json.DoubleSerializer
 
 class DoubleGameSetting(
     name: String,
     value: Double,
     options: Map<String, Double> = emptyMap()
-): GameSetting<Double>(name, value, options) {
-    override fun serialize(value: Double): JsonElement {
-        return JsonPrimitive(value)
-    }
-
-    override fun deserialize(json: JsonElement): Double {
-        return json.asDouble
-    }
-}
+): GameSetting<Double>(name, value, options, DoubleSerializer())

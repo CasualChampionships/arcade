@@ -5,6 +5,8 @@ import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
 import net.casual.arcade.task.Completable
 import net.casual.arcade.task.Task
+import net.casual.arcade.utils.TimeUtils.Ticks
+import net.minecraft.server.level.ServerPlayer
 
 abstract class TimerBossBar(
     duration: MinecraftTimeDuration
@@ -36,6 +38,17 @@ abstract class TimerBossBar(
     }
 
     fun getRemainingDuration(): MinecraftTimeDuration {
-        return Ticks.duration(this.ticks - this.tick)
+        return (this.ticks - this.tick).Ticks
+    }
+
+    /**
+     * This gets the progress of the [CustomBossBar] which will be
+     * displayed to the given [player].
+     *
+     * @param player The player being displayed the progress.
+     * @return The progress to display the bossbar as having.
+     */
+    override fun getProgress(player: ServerPlayer): Float {
+        return this.getProgress()
     }
 }

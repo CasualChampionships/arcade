@@ -1,9 +1,11 @@
 package net.casual.arcade.minigame.lobby
 
 import com.google.gson.JsonObject
+import net.casual.arcade.events.minigame.MinigameAddNewPlayerEvent
 import net.casual.arcade.events.minigame.MinigameAddPlayerEvent
 import net.casual.arcade.events.player.PlayerTickEvent
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.MinigamePhase
 import net.casual.arcade.utils.MinigameUtils.countdown
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
@@ -21,24 +23,22 @@ class LobbyMinigame(
         this.initialise()
     }
 
-    internal fun countdown() {
-        val countdown = this.lobby.getCountdown()
-        countdown.countdown(this).then(this::startNextMinigame)
-    }
-
     override fun start() {
-        this.setPhase(LobbyMinigamePhases.Waiting)
-        this.lobby.area.place()
+        this.setPhase(Phases.Waiting)
     }
 
     override fun initialise() {
         super.initialise()
-        this.events.register<MinigameAddPlayerEvent> { this.onMinigameAddPlayer(it) }
-        this.events.register<PlayerTickEvent> { this.onPlayerTick(it) }
+        this.events.register<MinigameAddNewPlayerEvent> { (_, player) ->
+            this.lobby.forceTeleportToSpawn(player)
+        }
+        this.events.register<PlayerTickEvent> { (player) ->
+            this.lobby.tryTeleportToSpawn(player)
+        }
     }
 
-    override fun getPhases(): List<LobbyMinigamePhases> {
-        return LobbyMinigamePhases.values().toList()
+    override fun getPhases(): List<Phases> {
+        return listOf(Phases.Waiting, Phases.Countdown)
     }
 
     override fun getLevels(): Collection<ServerLevel> {
@@ -50,18 +50,25 @@ class LobbyMinigame(
         json.add("next_minigame", this.next.getDebugInfo())
     }
 
-    private fun onMinigameAddPlayer(event: MinigameAddPlayerEvent) {
-        this.lobby.tryTeleportToSpawn(event.player)
-    }
+    enum class Phases(override val id: String): MinigamePhase<LobbyMinigame> {
+        Waiting("waiting") {
+            override fun start(minigame: LobbyMinigame) {
+                minigame.lobby.area.place()
+            }
+        },
+        Countdown("countdown") {
+            override fun start(minigame: LobbyMinigame) {
+                minigame.lobby.getCountdown().countdown(minigame).then {
+                    minigame.setPhase(MinigamePhase.end())
+                }
+            }
 
-    private fun onPlayerTick(event: PlayerTickEvent) {
-        this.lobby.tryTeleportToSpawn(event.player)
-    }
-
-    private fun startNextMinigame() {
-        for (player in this.getPlayers()) {
-            this.next.addPlayer(player)
+            override fun end(minigame: LobbyMinigame) {
+                for (player in minigame.getPlayers()) {
+                    minigame.next.addPlayer(player)
+                }
+                minigame.next.start()
+            }
         }
-        this.next.start()
     }
 }

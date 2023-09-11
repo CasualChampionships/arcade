@@ -22,7 +22,7 @@ class SelectionScreen internal constructor(
     private val back: ItemStack,
     private val next: ItemStack,
     private val filler: ItemStack
-): InterfaceScreen(player, syncId, 6) {
+): ArcadeGenericScreen(player, syncId, 6) {
     private val lastSelectionSlot: Int
 
     init {

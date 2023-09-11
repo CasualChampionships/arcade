@@ -8,8 +8,8 @@ import eu.pb4.polymer.virtualentity.api.elements.TextDisplayElement
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData
 import it.unimi.dsi.fastutil.ints.IntList
 import net.casual.arcade.extensions.Extension
+import net.casual.arcade.gui.nametag.ObserverPredicate
 import net.casual.arcade.gui.nametag.ArcadeNameTag
-import net.casual.arcade.gui.nametag.PredicatedElementHolder
 import net.casual.arcade.utils.NameTagUtils.isWatching
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
@@ -24,7 +24,6 @@ import net.minecraft.world.entity.EntityType
 import net.minecraft.world.phys.Vec3
 import org.joml.Vector3f
 import java.util.function.Consumer
-import java.util.function.Predicate
 
 // This is low-key some of the most cursed code
 // I've ever written, let's hope I don't have to
@@ -32,11 +31,11 @@ import java.util.function.Predicate
 internal class PlayerNameTagExtension(
     private val owner: ServerPlayer
 ): Extension {
-    private val tags = LinkedHashMap<ArcadeNameTag, SingleElementHolder>()
+    private val tags = LinkedHashMap<ArcadeNameTag, Holder>()
 
     internal fun addNameTag(tag: ArcadeNameTag) {
         val display = NameTagDisplay(tag)
-        val holder = SingleElementHolder(display, tag.predicate)
+        val holder = Holder(display, tag.observable)
         EntityAttachment.ofTicking(holder, this.owner)
         VirtualEntityUtils.addVirtualPassenger(this.owner, *holder.entityIds.toIntArray())
         this.tags[tag] = holder
@@ -79,6 +78,12 @@ internal class PlayerNameTagExtension(
         private const val SHIFT = 0.3F
     }
 
+    // Okay, so I think I should write some implementation comments just
+    // encase, because this might look confusing.
+    // So a vanilla name tag is rendered twice - once for the 'background'
+    // nametag (the see-through rectangle and text), and once for the
+    // 'foreground' which is the non-see-through text, it has no rectangle.
+    // This class handles both of these as separate Display entities.
     private inner class NameTagDisplay(private val tag: ArcadeNameTag): AbstractElement() {
         private val background = TextDisplayElement()
         private val foreground = TextDisplayElement()
@@ -97,17 +102,24 @@ internal class PlayerNameTagExtension(
         }
 
         fun sneak() {
+            // When the player sneaks, the background becomes
+            // non-see-through and the foreground becomes invisible
             this.background.seeThrough = false
             this.foreground.textOpacity = -127
         }
 
         fun unsneak() {
+            // When the player un-sneaks, we return to default
             this.background.seeThrough = true
+            // Not sure why 255 is required here, 128 doesn't work.
             this.foreground.textOpacity = 255.toByte()
         }
 
         private fun initialiseDisplay(display: TextDisplayElement) {
+            // Our nametags are going to be 'riding' the player,
+            // so we ignore all position updates
             display.ignorePositionUpdates()
+            // The nametag rotates with the player's camera.
             display.billboardMode = Display.BillboardConstraints.CENTER
         }
 
@@ -191,7 +203,12 @@ internal class PlayerNameTagExtension(
             }
         }
 
+        // Okay, so this is where it gets REALLY jank
+        // Essentially since certain nametags aren't visible to
+        // some players, the heights of each nametag are going to
+        // be different for every observer.
         private fun sendModifiedData(display: TextDisplayElement, holder: ElementHolder, values: List<DataValue<*>>) {
+            // Either we have to add TRANSLATION or replace it
             val modifier = this.getTranslationModifier(values)
             for (connection in holder.watchingPlayers) {
                 val copy = ArrayList(values)
@@ -200,6 +217,7 @@ internal class PlayerNameTagExtension(
             }
         }
 
+        // We manually calculate the translation for every observer.
         private fun getTranslationFor(player: ServerPlayer): Vector3f {
             val translation = Vector3f(0.0F, DEFAULT, 0.0F)
             for (holder in tags.values) {
@@ -229,22 +247,27 @@ internal class PlayerNameTagExtension(
         }
     }
 
-    private inner class SingleElementHolder(
+    private inner class Holder(
         val element: NameTagDisplay,
-        predicate: Predicate<ServerPlayer>
-    ): PredicatedElementHolder(predicate) {
+        val predicate: ObserverPredicate
+    ): ElementHolder() {
         init {
             this.addElement(this.element)
         }
 
+        override fun onTick() {
+            this.attachment?.updateCurrentlyTracking(this.watchingPlayers)
+        }
+
         override fun startWatching(connection: ServerGamePacketListenerImpl): Boolean {
-            if (super.startWatching(connection)) {
+            if (this.predicate.observable(owner, connection.player) && super.startWatching(connection)) {
                 connection.send(ClientboundSetPassengersPacket(owner))
                 for (holder in tags.values) {
                     holder.element.sendChangedTrackerEntries(connection.player, connection::send)
                 }
                 return true
             }
+            this.stopWatching(connection)
             return false
         }
 

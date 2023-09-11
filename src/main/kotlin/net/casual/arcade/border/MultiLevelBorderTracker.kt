@@ -1,5 +1,7 @@
 package net.casual.arcade.border
 
+import com.google.common.collect.ImmutableMap
+import com.ibm.icu.impl.locale.XCldrStub
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.border.WorldBorder
 import java.util.*
@@ -33,11 +35,11 @@ class MultiLevelBorderTracker {
     }
 
     fun initialiseBorders() {
-        this.listeners.forEach { it.onInitialiseBorder(this.tracking) }
+        this.listeners.forEach { it.onInitialiseBorder(this.getAllTracking()) }
     }
 
     fun getAllTracking(): Map<TrackedBorder, ServerLevel> {
-        return this.tracking
+        return Collections.unmodifiableMap(this.tracking)
     }
 
     internal fun onBorderComplete(border: TrackedBorder) {
@@ -56,7 +58,7 @@ class MultiLevelBorderTracker {
             }
 
             if (incomplete.isEmpty()) {
-                this.listeners.forEach { it.onAllBordersComplete(this.tracking) }
+                this.listeners.forEach { it.onAllBordersComplete(this.getAllTracking()) }
             }
         }
     }
@@ -68,7 +70,7 @@ class MultiLevelBorderTracker {
 
     private fun castToTracked(border: WorldBorder): TrackedBorder {
         if (border !is TrackedBorder) {
-            throw IllegalArgumentException("ServerLevel must have 'TrackedArcadeBorder' to be trackable")
+            throw IllegalArgumentException("ServerLevel must have 'TrackedBorder' to be trackable")
         }
         return border
     }

@@ -8,12 +8,10 @@ class DisplayableGameSetting<T: Any>(
     val setting: GameSetting<T>,
     private val options: Map<HashableItemStack, T>
 ) {
-    fun getOptions(): List<Pair<ItemStack, T>> {
-        val options = ArrayList<Pair<ItemStack, T>>()
+    fun forEachOption(consumer: (ItemStack, T) -> Unit) {
         for ((hashable, value) in this.options) {
-            options.add(hashable.stack to value)
+            consumer(hashable.stack, value)
         }
-        return options
     }
 
     fun getValue(option: ItemStack): T? {

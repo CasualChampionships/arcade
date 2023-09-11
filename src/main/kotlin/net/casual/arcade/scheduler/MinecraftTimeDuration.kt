@@ -1,6 +1,7 @@
 package net.casual.arcade.scheduler
 
 import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
+import net.casual.arcade.utils.TimeUtils.Ticks
 
 class MinecraftTimeDuration private constructor(
     private val duration: Int,
@@ -59,7 +60,7 @@ class MinecraftTimeDuration private constructor(
     }
 
     companion object {
-        val ZERO = Ticks.duration(0)
+        val ZERO = 0.Ticks
 
         @JvmStatic
         fun of(duration: Int, unit: MinecraftTimeUnit): MinecraftTimeDuration {

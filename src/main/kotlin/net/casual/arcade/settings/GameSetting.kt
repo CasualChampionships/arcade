@@ -1,19 +1,17 @@
 package net.casual.arcade.settings
 
-import com.google.common.collect.ImmutableMap
 import com.google.gson.JsonElement
+import net.casual.arcade.utils.json.JsonSerializer
+import java.util.*
 import kotlin.reflect.KProperty
 
-abstract class GameSetting<T: Any>(
+open class GameSetting<T: Any>(
     val name: String,
     private var value: T,
-    private val options: Map<String, T>
+    private val options: Map<String, T>,
+    private val serializer: JsonSerializer<T>
 ) {
     private val listeners by lazy { ArrayList<SettingListener<T>>() }
-
-    abstract fun serialize(value: T): JsonElement
-
-    abstract fun deserialize(json: JsonElement): T
 
     fun get(): T {
         return this.value
@@ -33,7 +31,7 @@ abstract class GameSetting<T: Any>(
     }
 
     fun getOptions(): Map<String, T> {
-        return ImmutableMap.copyOf(this.options)
+        return Collections.unmodifiableMap(this.options)
     }
 
     fun getOption(option: String): T? {
@@ -52,15 +50,15 @@ abstract class GameSetting<T: Any>(
     }
 
     fun serializeValue(): JsonElement {
-        return this.serialize(this.get())
+        return this.serializer.serialize(this.get())
     }
 
     fun deserializeAndSet(json: JsonElement) {
-        this.set(this.deserialize(json))
+        this.set(this.serializer.deserialize(json))
     }
 
     fun deserializeAndSetQuietly(json: JsonElement) {
-        this.setQuietly(this.deserialize(json))
+        this.setQuietly(this.serializer.deserialize(json))
     }
 
     operator fun getValue(any: Any, property: KProperty<*>): T {
