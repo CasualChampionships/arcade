@@ -27,10 +27,14 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  *
  *     // ...
  *
+ *     override fun fun writeCustomData(context: TaskWriteContext): JsonObject {
+ *         return JsonObject()
+ *     }
+ *
  *     companion object: TaskFactory {
  *         override val id: String = "my_task"
  *
- *         override fun create(data: JsonObject): Task {
+ *         override fun create(context: TaskCreationContext): Task {
  *             return MyTask()
  *         }
  *     }
@@ -44,10 +48,14 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  *
  *      // ...
  *
+ *      override fun fun writeCustomData(context: TaskWriteContext): JsonObject {
+ *          return JsonObject()
+ *      }
+ *
  *      companion object: MinigameTaskFactory<MyMinigame> {
  *          override val id: String = "my_task"
  *
- *          override fun create(minigame: MyMinigame, data: JsonObject): Task {
+ *          override fun create(minigame: MyMinigame, context: TaskCreationContext): Task {
  *              return MyTask(minigame)
  *          }
  *      }

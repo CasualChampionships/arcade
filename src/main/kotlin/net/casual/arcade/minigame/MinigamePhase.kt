@@ -1,5 +1,6 @@
 package net.casual.arcade.minigame
 
+import org.jetbrains.annotations.ApiStatus.NonExtendable
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 /**
@@ -141,29 +142,53 @@ interface MinigamePhase<M: Minigame<M>> {
 
     }
 
+    // We don't implement Comparable<MinigamePhase<M>>
+    // because it causes conflicts when inheriting with Enum
+    @NonExtendable
     operator fun compareTo(other: MinigamePhase<*>): Int {
         return this.ordinal.compareTo(other.ordinal)
     }
 
     private class None<M: Minigame<M>>: MinigamePhase<M> {
-        override val id: String = "none"
+        override val id: String = "core_none"
         override val ordinal: Int = Int.MIN_VALUE
+
+        override fun compareTo(other: MinigamePhase<*>): Int {
+            return Int.MIN_VALUE
+        }
     }
 
     private class End<M: Minigame<M>>: MinigamePhase<M> {
-        override val id: String = "end"
+        override val id: String = "core_end"
         override val ordinal: Int = Int.MAX_VALUE
+
+        override fun compareTo(other: MinigamePhase<*>): Int {
+            return Int.MAX_VALUE
+        }
     }
 
     companion object {
         private val NONE: MinigamePhase<*> = None()
         private val END: MinigamePhase<*> = End()
 
+        /**
+         * This gets the none minigame phase.
+         * This is the default phase before a minigame starts.
+         *
+         * @return The none minigame phase instance.
+         */
         fun <M: Minigame<M>> none(): MinigamePhase<M> {
             @Suppress("UNCHECKED_CAST")
             return NONE as MinigamePhase<M>
         }
 
+        /**
+         * This gets the end minigame phase.
+         * Any minigame can be set to this phase,
+         * usually denoting the minigame is over.
+         *
+         * @return The end minigame phase instance.
+         */
         fun <M: Minigame<M>> end(): MinigamePhase<M> {
             @Suppress("UNCHECKED_CAST")
             return END as MinigamePhase<M>

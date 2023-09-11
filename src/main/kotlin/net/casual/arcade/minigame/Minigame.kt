@@ -1,7 +1,6 @@
 package net.casual.arcade.minigame
 
 import com.google.gson.JsonObject
-import kotlinx.coroutines.flow.asFlow
 import net.casual.arcade.config.CustomisableConfig
 import net.casual.arcade.events.EventHandler
 import net.casual.arcade.events.minigame.*
@@ -19,7 +18,6 @@ import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.settings.DisplayableGameSetting
 import net.casual.arcade.settings.DisplayableGameSettingBuilder
 import net.casual.arcade.settings.GameSetting
-import net.casual.arcade.task.Completable
 import net.casual.arcade.utils.EventUtils.broadcast
 import net.casual.arcade.utils.EventUtils.registerHandler
 import net.casual.arcade.utils.EventUtils.unregisterHandler
@@ -37,7 +35,6 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.MenuProvider
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 import kotlin.collections.set
 
@@ -179,7 +176,7 @@ abstract class Minigame<M: Minigame<M>>(
         this.initialised = false
 
         this.gameSettings = LinkedHashMap()
-        this.phases = this.getPhases()
+        this.phases = this.getAllPhases()
 
         this.uuid = UUID.randomUUID()
 
@@ -228,6 +225,11 @@ abstract class Minigame<M: Minigame<M>>(
      * **different** to the current phase and in
      * the [phases] set.
      *
+     * All minigames will be able to be set to either
+     * [MinigamePhase.none] or [MinigamePhase.end].
+     * You can set the minigame's phase to [MinigamePhase.end]
+     * to end the final implemented minigame phase.
+     *
      * When a phase is set, all previously scheduled
      * phase tasks will be cleared and will no longer run.
      * Further, all the registered phase events will be
@@ -243,7 +245,7 @@ abstract class Minigame<M: Minigame<M>>(
         if (this.isPhase(phase)) {
             return
         }
-        if (!this.phases.contains(phase) && phase != MinigamePhase.none() && phase != MinigamePhase.end()) {
+        if (!this.phases.contains(phase)) {
             throw IllegalArgumentException("Cannot set minigame '${this.id}' phase to ${phase.id}")
         }
         this.scheduler.phased.tasks.clear()
@@ -420,12 +422,14 @@ abstract class Minigame<M: Minigame<M>>(
             this.removePlayer(player)
         }
         MinigameCloseEvent(this).broadcast()
+        this.events.unregisterHandler()
         this.events.minigame.clear()
         this.events.phased.clear()
-        this.events.unregisterHandler()
         this.scheduler.minigame.tasks.clear()
         this.scheduler.phased.tasks.clear()
+
         this.initialised = false
+        this.phase = MinigamePhase.none()
     }
 
     /**
@@ -609,6 +613,12 @@ abstract class Minigame<M: Minigame<M>>(
      * This gets all the [MinigamePhase]s that this [Minigame]
      * allows.
      *
+     * The phases **do not** have to be in order, any duplicates
+     * will also be removed.
+     * Further you do not need to include the default phases
+     * ([MinigamePhase.none] and [MinigamePhase.end]), they'll
+     * be included automatically.
+     *
      * This method will only be invoked **once**; when the
      * minigame is initialized, the phases are then stored in
      * a collection for the rest of the minigames lifetime.
@@ -616,7 +626,7 @@ abstract class Minigame<M: Minigame<M>>(
      * @return A collection of all the valid phases the minigame can be in.
      */
     @OverrideOnly
-    protected abstract fun getPhases(): List<MinigamePhase<M>>
+    protected abstract fun getPhases(): Collection<MinigamePhase<M>>
 
     /**
      * This gets all the [ServerLevel]s that the [Minigame] is in.
@@ -702,6 +712,13 @@ abstract class Minigame<M: Minigame<M>>(
         val setting = displayed.setting
         this.gameSettings[setting.name] = displayed
         return setting
+    }
+
+    private fun getAllPhases(): List<MinigamePhase<M>> {
+        val phases = HashSet(this.getPhases())
+        phases.add(MinigamePhase.none())
+        phases.add(MinigamePhase.end())
+        return phases.sortedWith { a, b -> a.compareTo(b) }
     }
 
     private fun registerEvents() {
