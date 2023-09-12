@@ -2,6 +2,7 @@ package net.casual.arcade.minigame
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import com.mojang.authlib.GameProfile
 import net.casual.arcade.Arcade
 import net.casual.arcade.config.CustomisableConfig
 import net.casual.arcade.events.minigame.MinigameCloseEvent
@@ -13,6 +14,7 @@ import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.task.*
 import net.casual.arcade.utils.JsonUtils.arrayOrDefault
 import net.casual.arcade.utils.JsonUtils.booleanOrDefault
+import net.casual.arcade.utils.JsonUtils.hasNonNull
 import net.casual.arcade.utils.JsonUtils.int
 import net.casual.arcade.utils.JsonUtils.intOrNull
 import net.casual.arcade.utils.JsonUtils.objOrDefault
@@ -64,19 +66,17 @@ import kotlin.io.path.exists
  * again, see [MinigamePhase.initialise] for more information.
  *
  * @param M The type of the child class.
- * @param id The [ResourceLocation] of the [Minigame].
  * @param server The [MinecraftServer] that created the [Minigame].
  * @param path The path at which to read and write the minigame data.
  * @see Minigame
  */
 public abstract class SavableMinigame<M: SavableMinigame<M>>(
-    id: ResourceLocation,
     server: MinecraftServer,
     /**
      * The path at which to read and write the minigame data.
      */
     private val path: Path,
-): Minigame<M>(id, server) {
+): Minigame<M>(server) {
     private val taskGenerator = MinigameTaskGenerator(this.cast())
 
     /**
@@ -192,6 +192,12 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         }
         generated.clear()
 
+
+        for (player in json.arrayOrDefault("offline_players").objects()) {
+            val uuid = if (player.hasNonNull("uuid")) UUID.fromString(player.string("uuid")) else null
+            this.offline.add(GameProfile(uuid, player.stringOrNull("name")))
+        }
+
         for (data in json.arrayOrDefault("settings").objects()) {
             val name = data.string("name")
             val value = data.get("value")
@@ -227,6 +233,14 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         val tasks = this.writeScheduledTasks(this.scheduler.minigame)
         val phaseTasks = this.writeScheduledTasks(this.scheduler.phased)
 
+        val offline = JsonArray()
+        for (player in this.offline) {
+            val data = JsonObject()
+            data.addProperty("name", player.name)
+            data.addProperty("uuid", player.id?.toString())
+            offline.add(data)
+        }
+
         val settings = JsonArray()
         for (setting in this.getSettings()) {
             val data = JsonObject()
@@ -240,6 +254,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
 
         json.add("tasks", tasks)
         json.add("phase_tasks", phaseTasks)
+        json.add("offline_players", offline)
         json.add("settings", settings)
         json.add("custom", custom)
 

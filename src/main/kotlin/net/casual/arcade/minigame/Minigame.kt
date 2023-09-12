@@ -1,9 +1,13 @@
 package net.casual.arcade.minigame
 
 import com.google.gson.JsonObject
+import com.google.gson.JsonPrimitive
+import com.mojang.authlib.GameProfile
+import net.casual.arcade.Arcade
 import net.casual.arcade.config.CustomisableConfig
 import net.casual.arcade.events.EventHandler
 import net.casual.arcade.events.minigame.*
+import net.casual.arcade.events.player.PlayerLeaveEvent
 import net.casual.arcade.events.server.ServerStoppedEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.gui.PlayerUI
@@ -27,6 +31,7 @@ import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.ScreenUtils
 import net.casual.arcade.utils.ScreenUtils.DefaultMinigameScreenComponent
+import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
@@ -35,6 +40,8 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.MenuProvider
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.util.*
+import kotlin.collections.HashSet
+import kotlin.collections.LinkedHashSet
 import kotlin.collections.set
 
 /**
@@ -71,7 +78,9 @@ import kotlin.collections.set
  *
  * class MyMinigame(
  *     server: MinecraftServer
- * ): Minigame<MyMinigame>(ResourceLocation("modid", "my_minigame"), server) {
+ * ): Minigame<MyMinigame>(server) {
+ *     override val id = ResourceLocation("modid", "my_minigame")
+ *
  *     val settings = Settings()
  *
  *     init {
@@ -114,10 +123,6 @@ import kotlin.collections.set
  */
 public abstract class Minigame<M: Minigame<M>>(
     /**
-     * The [ResourceLocation] of the [Minigame].
-     */
-    public val id: ResourceLocation,
-    /**
      * The [MinecraftServer] that created the [Minigame].
      */
     public val server: MinecraftServer,
@@ -132,6 +137,8 @@ public abstract class Minigame<M: Minigame<M>>(
     private var display: ArcadeTabDisplay?
 
     private var initialised: Boolean
+
+    internal val offline: MutableSet<GameProfile>
 
     internal val gameSettings: MutableMap<String, DisplayableGameSetting<*>>
     internal val phases: List<MinigamePhase<M>>
@@ -162,17 +169,24 @@ public abstract class Minigame<M: Minigame<M>>(
     public var paused: Boolean
         internal set
 
+    /**
+     * The [ResourceLocation] of the [Minigame].
+     */
+    public abstract val id: ResourceLocation
+
     init {
-        this.connections = HashSet()
+        this.connections = LinkedHashSet()
 
         this.bossbars = LinkedList()
         this.nameTags = LinkedList()
-        this.tickables = HashSet()
+        this.tickables = LinkedHashSet()
 
         this.sidebar = null
         this.display = null
 
         this.initialised = false
+
+        this.offline = LinkedHashSet()
 
         this.gameSettings = LinkedHashMap()
         this.phases = this.getAllPhases()
@@ -282,7 +296,13 @@ public abstract class Minigame<M: Minigame<M>>(
         if (!this.initialised || this.hasPlayer(player)) {
             return false
         }
-        if (player.getMinigame() === this) {
+        val hasMinigame = player.getMinigame() === this
+        if (this.offline.remove(player.gameProfile) || hasMinigame) {
+            if (!hasMinigame) {
+                Arcade.logger.warn("Player's minigame UUID didn't work?!")
+                player.minigame.setMinigame(this)
+            }
+
             this.connections.add(player.connection)
             MinigameAddExistingPlayerEvent(this, player).broadcast()
             MinigameAddPlayerEvent(this, player).broadcast()
@@ -309,10 +329,15 @@ public abstract class Minigame<M: Minigame<M>>(
      * @param player The player to remove.
      */
     public fun removePlayer(player: ServerPlayer) {
-        if (this.connections.remove(player.connection)) {
+        val wasOffline = this.offline.remove(player.gameProfile)
+        if (wasOffline || this.connections.remove(player.connection)) {
+            if (wasOffline) {
+                Arcade.logger.warn("Removed offline player?!")
+            }
             MinigameRemovePlayerEvent(this, player).broadcast()
             player.minigame.removeMinigame()
         }
+
     }
 
     /**
@@ -323,6 +348,26 @@ public abstract class Minigame<M: Minigame<M>>(
      */
     public fun getPlayers(): List<ServerPlayer> {
         return this.connections.map { it.player }
+    }
+
+    /**
+     * This gets all profiles of the player's that
+     * were playing the minigame but are now offline.
+     *
+     * @return All the offline player's profiles.
+     */
+    public fun getOfflinePlayerProfiles(): List<GameProfile> {
+        return this.offline.toList()
+    }
+
+    /**
+     * This gets all the player profiles that are playing this minigame,
+     * whether online or offline.
+     *
+     * @return All the player's profiles.
+     */
+    public fun getAllPlayerProfiles(): List<GameProfile> {
+        return this.getPlayers().map { it.gameProfile }.concat(this.getOfflinePlayerProfiles())
     }
 
     /**
@@ -565,6 +610,7 @@ public abstract class Minigame<M: Minigame<M>>(
         json.addProperty("uuid", this.uuid.toString())
         json.addProperty("id", this.id.toString())
         json.add("players", this.getPlayers().toJsonStringArray { it.scoreboardName })
+        json.add("offline_players", this.offline.toJsonObject { it.name to JsonPrimitive(it.id?.toString()) })
         json.add("levels", this.getLevels().toJsonStringArray { it.dimension().location().toString() })
         json.add("phases", this.phases.toJsonStringArray { it.id })
         json.addProperty("phase", this.phase.id)
@@ -722,10 +768,10 @@ public abstract class Minigame<M: Minigame<M>>(
 
     private fun registerEvents() {
         this.events.register<ServerTickEvent> { this.onServerTick() }
-        this.events.register<ServerTickEvent> { this.onServerTick() }
+        this.events.register<PlayerLeaveEvent>(Int.MAX_VALUE) { this.onPlayerLeave(it.player) }
         this.events.register<ServerStoppedEvent> { this.close() }
-        this.events.register<MinigameAddPlayerEvent> { (_, player) -> this.onPlayerAdd(player) }
-        this.events.register<MinigameRemovePlayerEvent> { (_, player) -> this.onPlayerRemove(player) }
+        this.events.register<MinigameAddPlayerEvent> { this.onPlayerAdd(it.player) }
+        this.events.register<MinigameRemovePlayerEvent> { this.onPlayerRemove(it.player) }
     }
 
     private fun onServerTick() {
@@ -734,6 +780,12 @@ public abstract class Minigame<M: Minigame<M>>(
             for (tickable in this.tickables) {
                 tickable.tick()
             }
+        }
+    }
+
+    private fun onPlayerLeave(player: ServerPlayer) {
+        if (this.connections.remove(player.connection)) {
+            this.offline.add(player.gameProfile)
         }
     }
 

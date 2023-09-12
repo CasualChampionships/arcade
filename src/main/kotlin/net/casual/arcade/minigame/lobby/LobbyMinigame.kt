@@ -13,11 +13,11 @@ import org.jetbrains.annotations.ApiStatus.Experimental
 
 @Experimental
 public class LobbyMinigame(
-    id: ResourceLocation,
     server: MinecraftServer,
+    override val id: ResourceLocation,
     private val lobby: Lobby,
-    private val next: Minigame<*>
-): Minigame<LobbyMinigame>(id, server) {
+    private val next: Minigame<*>,
+): Minigame<LobbyMinigame>(server) {
     init {
         this.initialise()
     }

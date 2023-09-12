@@ -35,6 +35,10 @@ public object JsonUtils {
         return this.stream().map { serializer(it) }.collect(::JsonArray, JsonArray::add, JsonArray::addAll)
     }
 
+    public fun JsonObject.hasNonNull(key: String): Boolean {
+        return this.has(key) && !this.get(key).isJsonNull
+    }
+
     public fun JsonObject.boolean(key: String): Boolean {
         return this.get(key).asBoolean
     }
