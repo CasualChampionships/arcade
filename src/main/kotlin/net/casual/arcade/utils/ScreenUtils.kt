@@ -15,8 +15,8 @@ import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.scores.PlayerTeam
 
-object ScreenUtils {
-    fun createSpectatorMenu(
+public object ScreenUtils {
+    public fun createSpectatorMenu(
         components: SelectionScreenComponents = DefaultSpectatorScreenComponent,
         teamFilter: (PlayerTeam) -> Boolean = { true },
         teamIcon: (PlayerTeam) -> ItemStack = TeamUtils::colouredHeadForTeam
@@ -34,7 +34,7 @@ object ScreenUtils {
         return provider
     }
 
-    fun createTeamMenu(
+    public fun createTeamMenu(
         team: PlayerTeam,
         components: SelectionScreenComponents = DefaultSpectatorScreenComponent,
         parent: MenuProvider? = null,
@@ -52,7 +52,7 @@ object ScreenUtils {
         return builder.build()
     }
 
-    fun createMinigameRulesMenu(
+    public fun createMinigameRulesMenu(
         minigame: Minigame<*>,
         components: SelectionScreenComponents = DefaultMinigameScreenComponent
     ): MenuProvider {
@@ -66,7 +66,7 @@ object ScreenUtils {
         return provider
     }
 
-    fun <T: Any> createSettingMenu(
+    public fun <T: Any> createSettingMenu(
         display: DisplayableGameSetting<T>,
         components: SelectionScreenComponents = DefaultMinigameScreenComponent,
         parent: MenuProvider? = null
@@ -90,13 +90,13 @@ object ScreenUtils {
         return builder.build()
     }
 
-    object DefaultSpectatorScreenComponent: SelectionScreenComponents {
+    public object DefaultSpectatorScreenComponent: SelectionScreenComponents {
         override fun getTitle(): Component {
             return Component.literal("Spectator Screen")
         }
     }
 
-    object DefaultMinigameScreenComponent: SelectionScreenComponents {
+    public object DefaultMinigameScreenComponent: SelectionScreenComponents {
         override fun getTitle(): Component {
             return Component.literal("Minigame Settings Screen")
         }

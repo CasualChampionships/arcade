@@ -4,20 +4,20 @@ import net.minecraft.world.phys.Vec3
 import kotlin.math.ceil
 import kotlin.math.floor
 
-object MathUtils {
-    operator fun Vec3.component1(): Double {
+public object MathUtils {
+    public operator fun Vec3.component1(): Double {
         return this.x
     }
 
-    operator fun Vec3.component2(): Double {
+    public operator fun Vec3.component2(): Double {
         return this.y
     }
 
-    operator fun Vec3.component3(): Double {
+    public operator fun Vec3.component3(): Double {
         return this.z
     }
 
-    fun Double.wholeOrNull(): Int? {
+    public fun Double.wholeOrNull(): Int? {
         if (ceil(this) == floor(this)) {
             return this.toInt()
         }

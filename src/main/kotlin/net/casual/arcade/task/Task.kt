@@ -16,13 +16,13 @@ import net.casual.arcade.scheduler.TickedScheduler
  * @see SavableTask
  * @see CancellableTask
  */
-fun interface Task: Runnable {
+public fun interface Task: Runnable {
     /**
      * This runs the task.
      */
     override fun run()
 
-    companion object {
+    public companion object {
         /**
          * Converts a [Runnable] to a [Task].
          *
@@ -33,7 +33,7 @@ fun interface Task: Runnable {
          * @return The converted task.
          */
         @JvmStatic
-        fun of(runnable: Runnable): Task {
+        public fun of(runnable: Runnable): Task {
             return if (runnable is Task) runnable else Task { runnable.run() }
         }
     }

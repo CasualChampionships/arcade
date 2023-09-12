@@ -11,13 +11,13 @@ import net.minecraft.world.item.Items
  *
  * @see SelectionScreenBuilder
  */
-interface SelectionScreenComponents {
+public interface SelectionScreenComponents {
     /**
      * Gets the default title.
      *
      * @return The default title [Component].
      */
-    fun getTitle(): Component {
+    public fun getTitle(): Component {
         return Component.literal("Selection Screen")
     }
 
@@ -26,7 +26,7 @@ interface SelectionScreenComponents {
      *
      * @return The default previous [ItemStack]
      */
-    fun getPrevious(): ItemStack {
+    public fun getPrevious(): ItemStack {
         return ItemStack(Items.RED_STAINED_GLASS).literalNamed("Previous")
     }
 
@@ -35,7 +35,7 @@ interface SelectionScreenComponents {
      *
      * @return The default back [ItemStack]
      */
-    fun getBack(): ItemStack {
+    public fun getBack(): ItemStack {
         return ItemStack(Items.RED_STAINED_GLASS).literalNamed("Back")
     }
 
@@ -44,7 +44,7 @@ interface SelectionScreenComponents {
      *
      * @return The default next [ItemStack]
      */
-    fun getNext(): ItemStack {
+    public fun getNext(): ItemStack {
         return ItemStack(Items.GREEN_STAINED_GLASS).literalNamed("Next")
     }
 
@@ -53,14 +53,14 @@ interface SelectionScreenComponents {
      *
      * @return The default filler [ItemStack]
      */
-    fun getFiller(): ItemStack {
+    public fun getFiller(): ItemStack {
         return ItemStack(Items.GRAY_STAINED_GLASS).literalNamed("")
     }
 
-    companion object {
+    public companion object {
         /**
          * The default implementation of the [SelectionScreenComponents].
          */
-        val DEFAULT = object: SelectionScreenComponents { }
+        public val DEFAULT: SelectionScreenComponents = object: SelectionScreenComponents { }
     }
 }

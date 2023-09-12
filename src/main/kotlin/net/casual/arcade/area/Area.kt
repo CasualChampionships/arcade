@@ -12,12 +12,12 @@ import org.jetbrains.annotations.ApiStatus.NonExtendable
 import java.util.*
 import java.util.function.Predicate
 
-interface Area {
-    val level: ServerLevel
+public interface Area {
+    public val level: ServerLevel
 
-    fun getBoundingBox(): BoundingBox
+    public fun getBoundingBox(): BoundingBox
 
-    fun getEntityBoundingBox(): AABB {
+    public fun getEntityBoundingBox(): AABB {
         val box = this.getBoundingBox()
         return AABB(
             box.minX() - ENTITY_SPACE,
@@ -30,7 +30,7 @@ interface Area {
     }
 
     @NonExtendable
-    fun removeBlocks() {
+    public fun removeBlocks() {
         val air = Blocks.AIR.defaultBlockState()
         val level = this.level
         BlockPos.betweenClosedStream(this.getBoundingBox()).forEach { pos ->
@@ -41,7 +41,7 @@ interface Area {
     }
 
     @NonExtendable
-    fun removeEntities(predicate: Predicate<Entity>) {
+    public fun removeEntities(predicate: Predicate<Entity>) {
         val box = this.getEntityBoundingBox()
         val entities = LinkedList<Entity>()
         for (entity in level.allEntities) {
@@ -54,7 +54,7 @@ interface Area {
         }
     }
 
-    companion object {
-        private const val ENTITY_SPACE = 20.0
+    private companion object {
+        const val ENTITY_SPACE = 20.0
     }
 }

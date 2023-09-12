@@ -9,26 +9,26 @@ import java.io.InputStream
  * @see PathPack
  * @see PackHost
  */
-interface ReadablePack {
+public interface ReadablePack {
     /**
      * The name of the pack.
      * This may or may not end in `.zip`.
      */
-    val name: String
+    public val name: String
 
     /**
      * This streams the contents of the [ReadablePack].
      *
      * @return The [InputStream] for the pack.
      */
-    fun stream(): InputStream
+    public fun stream(): InputStream
 
     /**
      * Checks whether the pack is currently readable.
      *
      * @return Whether the pack is readable.
      */
-    fun readable(): Boolean {
+    public fun readable(): Boolean {
         return true
     }
 
@@ -38,7 +38,7 @@ interface ReadablePack {
      *
      * @return The size of the pack in bytes.
      */
-    fun length(): Long {
+    public fun length(): Long {
         return 0
     }
 }

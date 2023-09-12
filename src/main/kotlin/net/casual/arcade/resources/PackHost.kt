@@ -8,7 +8,7 @@ import com.sun.net.httpserver.HttpServer
 import org.slf4j.LoggerFactory
 import java.net.InetAddress
 import java.net.InetSocketAddress
-import java.util.LinkedList
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutorService
@@ -29,7 +29,7 @@ import kotlin.random.Random
  * @see PackSupplier
  * @see ReadablePack
  */
-class PackHost(
+public class PackHost(
     /**
      * The number of threads used for pack hosting.
      *
@@ -58,7 +58,7 @@ class PackHost(
      *
      * @param packs The supplier to add.
      */
-    fun addPacks(packs: PackSupplier) {
+    public fun addPacks(packs: PackSupplier) {
         this.packs.add(packs)
     }
 
@@ -72,7 +72,7 @@ class PackHost(
      * @return The [HostedPack] containing all the details.
      * @see HostedPack
      */
-    fun getHostedPack(name: String): HostedPack? {
+    public fun getHostedPack(name: String): HostedPack? {
         val zipped = if (name.endsWith(".zip")) name else "$name.zip"
         return this.hosted[zipped]
     }
@@ -89,7 +89,7 @@ class PackHost(
      * @return A [CompletableFuture] which will complete after all packs have been loaded
      * and are ready to be requested by a client, it will be true if the host was successful.
      */
-    fun start(hostIp: String? = null, hostPort: Int = 24464, randomise: Boolean = false): CompletableFuture<Boolean> {
+    public fun start(hostIp: String? = null, hostPort: Int = 24464, randomise: Boolean = false): CompletableFuture<Boolean> {
         return CompletableFuture.supplyAsync({
             val restart = this.server !== null
             this.hosted.clear()
@@ -147,7 +147,7 @@ class PackHost(
      *
      * Clients will no longer be able to request packs.
      */
-    fun shutdown() {
+    public fun shutdown() {
         this.server?.stop(0)
         this.pool?.shutdownNow()
         this.executor.shutdownNow()

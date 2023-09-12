@@ -5,7 +5,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 
-data class PlayerTNTPrimedEvent(
+public data class PlayerTNTPrimedEvent(
     override val player: ServerPlayer,
     /**
      * The [ServerLevel] where the TNT is being primed.

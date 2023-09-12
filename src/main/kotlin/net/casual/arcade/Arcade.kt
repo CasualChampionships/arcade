@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger
 /**
  * Arcade initializer class.
  */
-object Arcade: ModInitializer {
+public object Arcade: ModInitializer {
     private var server: MinecraftServer? = null
 
     @JvmField
@@ -22,12 +22,12 @@ object Arcade: ModInitializer {
     /**
      * Whether arcade is in debug mode.
      */
-    internal const val DEBUG = false
+    internal const val DEBUG: Boolean = false
 
     /**
      * The mod identifier for Arcade.
      */
-    const val MOD_ID = "arcade"
+    public const val MOD_ID: String = "arcade"
 
     init {
         GlobalEventHandler.register<ServerCreatedEvent> {
@@ -44,7 +44,7 @@ object Arcade: ModInitializer {
      * @see getServerOrNull
      */
     @JvmStatic
-    fun getServer(): MinecraftServer {
+    public fun getServer(): MinecraftServer {
         return this.server ?: throw IllegalStateException("Called Arcade.getServer before server was created")
     }
 
@@ -56,7 +56,7 @@ object Arcade: ModInitializer {
      * @see getServer
      */
     @JvmStatic
-    fun getServerOrNull(): MinecraftServer? {
+    public fun getServerOrNull(): MinecraftServer? {
         return this.server
     }
 
@@ -67,7 +67,7 @@ object Arcade: ModInitializer {
      * @return The created [ResourceLocation].
      */
     @JvmStatic
-    fun id(path: String): ResourceLocation {
+    public fun id(path: String): ResourceLocation {
         return ResourceLocation(MOD_ID, path)
     }
 

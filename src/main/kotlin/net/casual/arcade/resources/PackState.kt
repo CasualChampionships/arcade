@@ -10,11 +10,11 @@ package net.casual.arcade.resources
  * @param pack The pack that the player was last sent.
  * @param status The current status of the pack.
  */
-class PackState(
+public class PackState(
     /**
      * The pack that the player was last sent.
      */
-    val pack: PackInfo,
+    public val pack: PackInfo,
     /**
      * The current status of the pack.
      */
@@ -26,7 +26,7 @@ class PackState(
      *
      * @return Whether the player has loaded the pack.
      */
-    fun hasLoadedPack(): Boolean {
+    public fun hasLoadedPack(): Boolean {
         return this.status == PackStatus.SUCCESS
     }
 
@@ -37,7 +37,7 @@ class PackState(
      *
      * @return Whether the player is loading the pack.
      */
-    fun isLoadingPack(): Boolean {
+    public fun isLoadingPack(): Boolean {
         return this.status == PackStatus.WAITING || this.status == PackStatus.ACCEPTED
     }
 
@@ -48,7 +48,7 @@ class PackState(
      *
      * @return Whether the player has declined the pack.
      */
-    fun hasDeclinedPack(): Boolean {
+    public fun hasDeclinedPack(): Boolean {
         return this.status == PackStatus.DECLINED
     }
 
@@ -62,7 +62,7 @@ class PackState(
      *
      * @return Whether the player has failed to download the pack.
      */
-    fun hasFailedToLoadPack(): Boolean {
+    public fun hasFailedToLoadPack(): Boolean {
         return this.status == PackStatus.FAILED
     }
 }

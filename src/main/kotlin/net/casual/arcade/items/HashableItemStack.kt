@@ -2,7 +2,7 @@ package net.casual.arcade.items
 
 import net.minecraft.world.item.ItemStack
 
-class HashableItemStack(val stack: ItemStack) {
+public class HashableItemStack(public val stack: ItemStack) {
     override fun equals(other: Any?): Boolean {
         if (other !is HashableItemStack) {
             return false

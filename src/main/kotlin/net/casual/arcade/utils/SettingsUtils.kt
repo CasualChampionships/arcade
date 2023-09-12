@@ -5,8 +5,8 @@ import net.casual.arcade.utils.ItemUtils.literalNamed
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 
-object SettingsUtils {
-    fun DisplayableGameSettingBuilder<Boolean>.defaultOptions(
+public object SettingsUtils {
+    public fun DisplayableGameSettingBuilder<Boolean>.defaultOptions(
         enabled: ItemStack = Items.GREEN_STAINED_GLASS_PANE.literalNamed("On"),
         disabled: ItemStack = Items.RED_STAINED_GLASS_PANE.literalNamed("Off")
     ): DisplayableGameSettingBuilder<Boolean> {
@@ -15,7 +15,7 @@ object SettingsUtils {
         return this
     }
 
-    fun <E: Enum<E>> DisplayableGameSettingBuilder<E>.defaultOptions(
+    public fun <E: Enum<E>> DisplayableGameSettingBuilder<E>.defaultOptions(
         type: Class<E>,
         itemMapper: (enum: E) -> ItemStack = DefaultEnumItemMapper(),
         nameMapper: (enum: E) -> String = { it.name }

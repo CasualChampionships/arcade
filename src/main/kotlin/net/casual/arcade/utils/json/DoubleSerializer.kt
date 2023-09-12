@@ -3,7 +3,7 @@ package net.casual.arcade.utils.json
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 
-class DoubleSerializer: JsonSerializer<Double> {
+public class DoubleSerializer: JsonSerializer<Double> {
     override fun serialize(value: Double): JsonElement {
         return JsonPrimitive(value)
     }

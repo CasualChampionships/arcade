@@ -10,11 +10,11 @@ import net.casual.arcade.utils.PlayerUtils.getExtension
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Pose
 
-object NameTagUtils {
+public object NameTagUtils {
     internal val ServerPlayer.nameTags
         get() = this.getExtension(PlayerNameTagExtension::class.java)
 
-    fun ElementHolder.isWatching(player: ServerPlayer): Boolean {
+    public fun ElementHolder.isWatching(player: ServerPlayer): Boolean {
         return this.watchingPlayers.contains(player.connection)
     }
 

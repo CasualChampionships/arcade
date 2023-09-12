@@ -8,7 +8,8 @@ import net.casual.arcade.events.minigame.MinigameCloseEvent
 import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.minigame.task.MinigameTaskFactory
 import net.casual.arcade.minigame.task.MinigameTaskGenerator
-import net.casual.arcade.scheduler.*
+import net.casual.arcade.scheduler.MinecraftTimeUnit
+import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.task.*
 import net.casual.arcade.utils.JsonUtils.arrayOrDefault
 import net.casual.arcade.utils.JsonUtils.booleanOrDefault
@@ -68,7 +69,7 @@ import kotlin.io.path.exists
  * @param path The path at which to read and write the minigame data.
  * @see Minigame
  */
-abstract class SavableMinigame<M: SavableMinigame<M>>(
+public abstract class SavableMinigame<M: SavableMinigame<M>>(
     id: ResourceLocation,
     server: MinecraftServer,
     /**

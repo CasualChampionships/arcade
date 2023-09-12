@@ -12,7 +12,7 @@ import kotlin.io.path.listDirectoryEntries
  * @see PackSupplier
  * @see PathPack
  */
-class DirectoryPackSupplier(
+public class DirectoryPackSupplier(
     /**
      * The directory containing all the zipped packs.
      */

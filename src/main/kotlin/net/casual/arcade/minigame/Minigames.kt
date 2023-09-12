@@ -6,7 +6,7 @@ import java.util.*
  * This object is used for registering and holding
  * all the current minigames that are running.
  */
-object Minigames {
+public object Minigames {
     private val ALL = LinkedHashMap<UUID, Minigame<*>>()
 
     /**
@@ -14,7 +14,7 @@ object Minigames {
      *
      * @return All the current running minigames.
      */
-    fun all(): Collection<Minigame<*>> {
+    public fun all(): Collection<Minigame<*>> {
         return ALL.values
     }
 

@@ -32,7 +32,7 @@ import java.util.*
  * @see ArcadeBossbar
  * @see PlayerUI
  */
-abstract class CustomBossBar: PlayerUI() {
+public abstract class CustomBossBar: PlayerUI() {
     internal val uuid: UUID = Mth.createInsecureUUID()
 
     /**
@@ -42,7 +42,7 @@ abstract class CustomBossBar: PlayerUI() {
      * @param player The player being displayed the component.
      * @return The [Component] to display as the title of the [CustomBossBar].
      */
-    abstract fun getTitle(player: ServerPlayer): Component
+    public abstract fun getTitle(player: ServerPlayer): Component
 
     /**
      * This gets the progress of the [CustomBossBar] which will be
@@ -51,7 +51,7 @@ abstract class CustomBossBar: PlayerUI() {
      * @param player The player being displayed the progress.
      * @return The progress to display the bossbar as having.
      */
-    abstract fun getProgress(player: ServerPlayer): Float
+    public abstract fun getProgress(player: ServerPlayer): Float
 
     /**
      * This gets the colour of the [CustomBossBar] which will be
@@ -60,7 +60,7 @@ abstract class CustomBossBar: PlayerUI() {
      * @param player The player being displayed the colour.
      * @return The [BossBarColor] to set the bossbar to.
      */
-    abstract fun getColour(player: ServerPlayer): BossBarColor
+    public abstract fun getColour(player: ServerPlayer): BossBarColor
 
     /**
      * This gets the overlay of the [CustomBossBar] which will be
@@ -69,7 +69,7 @@ abstract class CustomBossBar: PlayerUI() {
      * @param player The player being displayed the overlay.
      * @return The [BossBarOverlay] to set the bossbar to.
      */
-    abstract fun getOverlay(player: ServerPlayer): BossBarOverlay
+    public abstract fun getOverlay(player: ServerPlayer): BossBarOverlay
 
     /**
      * This sets whether the player's world is dark or not.
@@ -77,7 +77,7 @@ abstract class CustomBossBar: PlayerUI() {
      * @param player The player being displayed the bar.
      * @return Whether the player's world should be dark.
      */
-    open fun isDark(player: ServerPlayer): Boolean {
+    public open fun isDark(player: ServerPlayer): Boolean {
         return false
     }
 
@@ -88,7 +88,7 @@ abstract class CustomBossBar: PlayerUI() {
      * @param player The player being displayed the bar.
      * @return Whether the player should play boss music.
      */
-    open fun hasMusic(player: ServerPlayer): Boolean {
+    public open fun hasMusic(player: ServerPlayer): Boolean {
         return false
     }
 
@@ -98,7 +98,7 @@ abstract class CustomBossBar: PlayerUI() {
      * @param player The player being displayed the bar.
      * @return Whether the player's world should have fog.
      */
-    open fun hasFog(player: ServerPlayer): Boolean {
+    public open fun hasFog(player: ServerPlayer): Boolean {
         return false
     }
 

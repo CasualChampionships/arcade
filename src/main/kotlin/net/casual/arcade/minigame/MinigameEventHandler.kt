@@ -42,7 +42,7 @@ import java.util.function.Consumer
  * @see Minigame
  * @see Minigame.events
  */
-class MinigameEventHandler(
+public class MinigameEventHandler(
     private val owner: Minigame<*>
 ): EventRegisterer {
     internal val minigame = EventHandler()
@@ -77,7 +77,7 @@ class MinigameEventHandler(
      * @param priority The priority of your event listener.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    inline fun <reified T: Event> register(priority: Int = 1_000, listener: Consumer<T>) {
+    public inline fun <reified T: Event> register(priority: Int = 1_000, listener: Consumer<T>) {
         this.register(T::class.java, priority, listener)
     }
 
@@ -114,7 +114,7 @@ class MinigameEventHandler(
      * @param priority The priority of your event listener.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    inline fun <reified T: Event> registerPhased(priority: Int = 1_000, listener: Consumer<T>) {
+    public inline fun <reified T: Event> registerPhased(priority: Int = 1_000, listener: Consumer<T>) {
         this.registerPhased(T::class.java, priority, listener)
     }
 
@@ -134,7 +134,7 @@ class MinigameEventHandler(
      * @param priority The priority of your event listener.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    fun <T: Event> registerPhased(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
+    public fun <T: Event> registerPhased(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
         this.registerPhased(type, EventListener.of(priority, listener))
     }
 
@@ -153,7 +153,7 @@ class MinigameEventHandler(
      * @param type The class of the event that you want to listen to.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    fun <T: Event> registerPhased(type: Class<T>, listener: EventListener<T>) {
+    public fun <T: Event> registerPhased(type: Class<T>, listener: EventListener<T>) {
         return this.registerFiltered(type, listener, this.phased)
     }
 

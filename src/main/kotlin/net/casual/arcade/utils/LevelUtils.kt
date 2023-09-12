@@ -7,50 +7,55 @@ import net.casual.arcade.extensions.ExtensionHolder
 import net.casual.arcade.utils.ExtensionUtils.addExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtensions
+import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
 
-@Suppress("unused")
-object LevelUtils {
+public object LevelUtils {
     @JvmStatic
-    fun overworld(): ServerLevel {
+    public fun overworld(): ServerLevel {
         return Arcade.getServer().overworld()
     }
 
     @JvmStatic
-    fun nether(): ServerLevel {
-        return Arcade.getServer().getLevel(Level.NETHER)!!
+    public fun nether(): ServerLevel {
+        return level(Level.NETHER)
     }
 
     @JvmStatic
-    fun end(): ServerLevel {
-        return Arcade.getServer().getLevel(Level.END)!!
+    public fun end(): ServerLevel {
+        return level(Level.END)
     }
 
     @JvmStatic
-    fun levels(): Iterable<ServerLevel> {
+    public fun level(key: ResourceKey<Level>): ServerLevel {
+        return Arcade.getServer().getLevel(key)!!
+    }
+
+    @JvmStatic
+    public fun levels(): Iterable<ServerLevel> {
         return Arcade.getServer().allLevels
     }
 
     @JvmStatic
-    fun forEachLevel(consumer: Consumer<ServerLevel>) {
+    public fun forEachLevel(consumer: Consumer<ServerLevel>) {
         for (level in this.levels()) {
             consumer.accept(level)
         }
     }
 
     @JvmStatic
-    fun ServerLevel.addExtension(extension: Extension) {
+    public fun ServerLevel.addExtension(extension: Extension) {
         (this as ExtensionHolder).addExtension(extension)
     }
 
     @JvmStatic
-    fun <T: Extension> ServerLevel.getExtension(type: Class<T>): T {
+    public fun <T: Extension> ServerLevel.getExtension(type: Class<T>): T {
         return (this as ExtensionHolder).getExtension(type)
     }
 
     @JvmStatic
-    fun ServerLevel.getExtensions(): Collection<Extension> {
+    public fun ServerLevel.getExtensions(): Collection<Extension> {
         return (this as ExtensionHolder).getExtensions()
     }
 }

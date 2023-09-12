@@ -4,7 +4,7 @@ import net.minecraft.world.phys.Vec3
 import kotlin.math.cos
 import kotlin.math.sin
 
-class ArrowShape(
+public class ArrowShape(
     private val tip: Vec3,
     private val left: Vec3,
     private val right: Vec3,
@@ -54,12 +54,12 @@ class ArrowShape(
         }
     }
 
-    companion object {
-        fun createCentred(x: Int, y: Double, z: Int, scale: Double, rotation: Double): ArrowShape {
+    public companion object {
+        public fun createCentred(x: Int, y: Double, z: Int, scale: Double, rotation: Double): ArrowShape {
             return create(x + 0.5, y, z + 0.5, scale, rotation)
         }
 
-        fun create(x: Double, y: Double, z: Double, scale: Double, rotation: Double): ArrowShape {
+        public fun create(x: Double, y: Double, z: Double, scale: Double, rotation: Double): ArrowShape {
             val size = scale / 2.0
 
             val tip = Vec3(size * sin(rotation), 0.0, size * cos(rotation))

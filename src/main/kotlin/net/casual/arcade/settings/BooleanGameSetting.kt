@@ -2,7 +2,7 @@ package net.casual.arcade.settings
 
 import net.casual.arcade.utils.json.BooleanSerializer
 
-class BooleanGameSetting(
+public class BooleanGameSetting(
     name: String,
     value: Boolean,
     options: Map<String, Boolean> = emptyMap()

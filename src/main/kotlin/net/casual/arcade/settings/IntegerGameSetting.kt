@@ -2,7 +2,7 @@ package net.casual.arcade.settings
 
 import net.casual.arcade.utils.json.IntSerializer
 
-class IntegerGameSetting(
+public class IntegerGameSetting(
     name: String,
     value: Int,
     options: Map<String, Int> = emptyMap()

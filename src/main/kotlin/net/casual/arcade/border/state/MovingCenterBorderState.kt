@@ -3,7 +3,7 @@ package net.casual.arcade.border.state
 import net.casual.arcade.border.ArcadeBorder
 import net.minecraft.util.Mth
 
-class MovingCenterBorderState(
+public class MovingCenterBorderState(
     private val border: ArcadeBorder,
     private val centerX: Double,
     private val centerZ: Double,

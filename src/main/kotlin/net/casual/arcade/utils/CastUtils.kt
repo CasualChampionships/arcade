@@ -1,8 +1,8 @@
 package net.casual.arcade.utils
 
-object CastUtils {
+public object CastUtils {
     @JvmStatic
-    fun <T: Any> tryCast(clazz: Class<T>, value: Any): T? {
+    public fun <T: Any> tryCast(clazz: Class<T>, value: Any): T? {
         if (clazz.isInstance(value)) {
             @Suppress("UNCHECKED_CAST")
             return value as T

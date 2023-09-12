@@ -56,7 +56,7 @@ import org.jetbrains.annotations.ApiStatus.NonExtendable
  * }
  * ```
  */
-interface ArcadeModelledItem: PolymerItem {
+public interface ArcadeModelledItem: PolymerItem {
     /**
      * Returns main/default item used on the client for specific player.
      *
@@ -74,7 +74,7 @@ interface ArcadeModelledItem: PolymerItem {
      * @return The modelled item handler.
      * @see ItemModeller
      */
-    fun getModeller(): ItemModeller
+    public fun getModeller(): ItemModeller
 
     /**
      * Method used for getting custom model data of items.

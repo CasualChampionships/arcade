@@ -4,7 +4,7 @@ import net.casual.arcade.events.core.InvokableEvent
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.damagesource.DamageSource
 
-data class PlayerBorderDamageEvent(
+public data class PlayerBorderDamageEvent(
     override val player: ServerPlayer,
     val source: DamageSource,
     val amount: Float

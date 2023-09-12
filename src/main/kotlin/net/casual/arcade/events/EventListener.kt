@@ -4,11 +4,11 @@ import net.casual.arcade.events.core.Event
 import org.jetbrains.annotations.ApiStatus.NonExtendable
 import java.util.function.Consumer
 
-fun interface EventListener<T: Event>: Comparable<EventListener<T>> {
-    val priority: Int
+public fun interface EventListener<T: Event>: Comparable<EventListener<T>> {
+    public val priority: Int
         get() = 1_000
 
-    fun invoke(event: T)
+    public fun invoke(event: T)
 
     @NonExtendable
     override operator fun compareTo(other: EventListener<T>): Int {
@@ -24,8 +24,8 @@ fun interface EventListener<T: Event>: Comparable<EventListener<T>> {
         }
     }
 
-    companion object {
-        fun <T: Event> of(priority: Int, listener: Consumer<T>): EventListener<T> {
+    public companion object {
+        public fun <T: Event> of(priority: Int, listener: Consumer<T>): EventListener<T> {
             return Impl(priority, listener)
         }
     }

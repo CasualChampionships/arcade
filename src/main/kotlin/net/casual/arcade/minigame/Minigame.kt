@@ -35,7 +35,6 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.MenuProvider
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.util.*
-import kotlin.collections.HashSet
 import kotlin.collections.set
 
 /**
@@ -113,15 +112,15 @@ import kotlin.collections.set
  * @see SavableMinigame
  * @see MinigamePhase
  */
-abstract class Minigame<M: Minigame<M>>(
+public abstract class Minigame<M: Minigame<M>>(
     /**
      * The [ResourceLocation] of the [Minigame].
      */
-    val id: ResourceLocation,
+    public val id: ResourceLocation,
     /**
      * The [MinecraftServer] that created the [Minigame].
      */
-    val server: MinecraftServer,
+    public val server: MinecraftServer,
 ) {
     private val connections: MutableSet<ServerGamePacketListenerImpl>
 
@@ -139,8 +138,8 @@ abstract class Minigame<M: Minigame<M>>(
 
     internal var uuid: UUID
 
-    val scheduler: MinigameScheduler
-    val events: MinigameEventHandler
+    public val scheduler: MinigameScheduler
+    public val events: MinigameEventHandler
 
     /**
      * What phase the minigame is currently in.
@@ -150,7 +149,7 @@ abstract class Minigame<M: Minigame<M>>(
      * @see setPhase
      * @see isPhase
      */
-    var phase: MinigamePhase<M>
+    public var phase: MinigamePhase<M>
         internal set
 
     /**
@@ -160,7 +159,7 @@ abstract class Minigame<M: Minigame<M>>(
      * @see pause
      * @see unpause
      */
-    var paused: Boolean
+    public var paused: Boolean
         internal set
 
     init {
@@ -195,7 +194,7 @@ abstract class Minigame<M: Minigame<M>>(
      * @param phase The phase to check whether the minigame is in.
      * @return Whether the minigame is in that phase.
      */
-    fun isPhase(phase: MinigamePhase<M>): Boolean {
+    public fun isPhase(phase: MinigamePhase<M>): Boolean {
         return this.phase == phase
     }
 
@@ -205,7 +204,7 @@ abstract class Minigame<M: Minigame<M>>(
      * @param phase The phase to check whether the minigame is before.
      * @return Whether the minigame is before that phase.
      */
-    fun isBeforePhase(phase: MinigamePhase<M>): Boolean {
+    public fun isBeforePhase(phase: MinigamePhase<M>): Boolean {
         return this.phase < phase
     }
 
@@ -215,7 +214,7 @@ abstract class Minigame<M: Minigame<M>>(
      * @param phase The phase to check whether the minigame has past.
      * @return Whether the minigame is past that phase.
      */
-    fun isPastPhase(phase: MinigamePhase<M>): Boolean {
+    public fun isPastPhase(phase: MinigamePhase<M>): Boolean {
         return this.phase > phase
     }
 
@@ -241,7 +240,7 @@ abstract class Minigame<M: Minigame<M>>(
      * @param phase The phase to set the minigame to.
      * @throws IllegalArgumentException If the [phase] is not in the [phases] set.
      */
-    fun setPhase(phase: MinigamePhase<M>) {
+    public fun setPhase(phase: MinigamePhase<M>) {
         if (this.isPhase(phase)) {
             return
         }
@@ -279,7 +278,7 @@ abstract class Minigame<M: Minigame<M>>(
      * @param player The player to add to the minigame.
      * @return Whether the player was successfully accepted.
      */
-    fun addPlayer(player: ServerPlayer): Boolean {
+    public fun addPlayer(player: ServerPlayer): Boolean {
         if (!this.initialised || this.hasPlayer(player)) {
             return false
         }
@@ -309,7 +308,7 @@ abstract class Minigame<M: Minigame<M>>(
      *
      * @param player The player to remove.
      */
-    fun removePlayer(player: ServerPlayer) {
+    public fun removePlayer(player: ServerPlayer) {
         if (this.connections.remove(player.connection)) {
             MinigameRemovePlayerEvent(this, player).broadcast()
             player.minigame.removeMinigame()
@@ -322,7 +321,7 @@ abstract class Minigame<M: Minigame<M>>(
      *
      * @return All the playing players.
      */
-    fun getPlayers(): List<ServerPlayer> {
+    public fun getPlayers(): List<ServerPlayer> {
         return this.connections.map { it.player }
     }
 
@@ -332,7 +331,7 @@ abstract class Minigame<M: Minigame<M>>(
      * @param player The player to check whether they are playing.
      * @return Whether the player is playing.
      */
-    fun hasPlayer(player: ServerPlayer): Boolean {
+    public fun hasPlayer(player: ServerPlayer): Boolean {
         return this.connections.contains(player.connection)
     }
 
@@ -342,7 +341,7 @@ abstract class Minigame<M: Minigame<M>>(
      * @param level The level to check whether is part of the minigame.
      * @return Whether the level is part of the minigame.
      */
-    fun hasLevel(level: ServerLevel): Boolean {
+    public fun hasLevel(level: ServerLevel): Boolean {
         return this.getLevels().contains(level)
     }
 
@@ -352,7 +351,7 @@ abstract class Minigame<M: Minigame<M>>(
      *
      * @return A collection of all the settings.
      */
-    fun getSettings(): Collection<GameSetting<*>> {
+    public fun getSettings(): Collection<GameSetting<*>> {
         return this.gameSettings.values.map { it.setting }
     }
 
@@ -362,7 +361,7 @@ abstract class Minigame<M: Minigame<M>>(
      * @param name The name of the given setting.
      * @return The setting, may be null if non-existent.
      */
-    fun getSetting(name: String): GameSetting<*>? {
+    public fun getSetting(name: String): GameSetting<*>? {
         return this.gameSettings[name]?.setting
     }
 
@@ -373,7 +372,7 @@ abstract class Minigame<M: Minigame<M>>(
      * @param components The screen components to use for the GUI, by default [DefaultMinigameScreenComponent].
      * @return The [MenuProvider] for the settings screen.
      */
-    open fun createRulesMenu(components: SelectionScreenComponents = DefaultMinigameScreenComponent): MenuProvider {
+    public open fun createRulesMenu(components: SelectionScreenComponents = DefaultMinigameScreenComponent): MenuProvider {
         return ScreenUtils.createMinigameRulesMenu(this, components)
     }
 
@@ -381,7 +380,7 @@ abstract class Minigame<M: Minigame<M>>(
      * This gets the [MinigameResources] for this minigame which
      * will be applied when the player joins this minigame.
      */
-    open fun getResources(): MinigameResources {
+    public open fun getResources(): MinigameResources {
         return MinigameResources.NONE
     }
 
@@ -392,7 +391,7 @@ abstract class Minigame<M: Minigame<M>>(
      *
      * @see paused
      */
-    fun pause() {
+    public fun pause() {
         this.paused = true
         MinigamePauseEvent(this).broadcast()
     }
@@ -403,7 +402,7 @@ abstract class Minigame<M: Minigame<M>>(
      *
      * @see paused
      */
-    fun unpause() {
+    public fun unpause() {
         this.paused = false
         MinigameUnpauseEvent(this).broadcast()
     }
@@ -417,7 +416,7 @@ abstract class Minigame<M: Minigame<M>>(
      *
      * After a minigame has been closed, no more players are permitted to join.
      */
-    fun close() {
+    public fun close() {
         for (player in this.getPlayers()) {
             this.removePlayer(player)
         }
@@ -440,7 +439,7 @@ abstract class Minigame<M: Minigame<M>>(
      * @param bar The bossbar to add.
      * @see CustomBossBar
      */
-    fun addBossbar(bar: CustomBossBar) {
+    public fun addBossbar(bar: CustomBossBar) {
         this.bossbars.add(bar)
         this.loadUI(bar)
     }
@@ -453,7 +452,7 @@ abstract class Minigame<M: Minigame<M>>(
      *
      * @param bar The bar to remove.
      */
-    fun removeBossbar(bar: CustomBossBar) {
+    public fun removeBossbar(bar: CustomBossBar) {
         if (this.bossbars.remove(bar)) {
             this.removeUI(bar)
         }
@@ -462,7 +461,7 @@ abstract class Minigame<M: Minigame<M>>(
     /**
      * This removes **ALL** bossbars from the minigame.
      */
-    fun removeAllBossbars() {
+    public fun removeAllBossbars() {
         this.removeAllUI(this.bossbars)
     }
 
@@ -475,7 +474,7 @@ abstract class Minigame<M: Minigame<M>>(
      * @param tag The name tag to add.
      * @see ArcadeNameTag
      */
-    fun addNameTag(tag: ArcadeNameTag) {
+    public fun addNameTag(tag: ArcadeNameTag) {
         this.nameTags.add(tag)
         this.loadUI(tag)
     }
@@ -488,7 +487,7 @@ abstract class Minigame<M: Minigame<M>>(
      *
      * @param tag The nametag to remove.
      */
-    fun removeNameTag(tag: ArcadeNameTag) {
+    public fun removeNameTag(tag: ArcadeNameTag) {
         if (this.nameTags.remove(tag)) {
             this.removeUI(tag)
         }
@@ -497,7 +496,7 @@ abstract class Minigame<M: Minigame<M>>(
     /**
      * This removes **ALL** nametags from the minigame.
      */
-    fun removeAllNameTags() {
+    public fun removeAllNameTags() {
         this.removeAllUI(this.nameTags)
     }
 
@@ -509,7 +508,7 @@ abstract class Minigame<M: Minigame<M>>(
      *
      * @param sidebar The sidebar to set.
      */
-    fun setSidebar(sidebar: ArcadeSidebar) {
+    public fun setSidebar(sidebar: ArcadeSidebar) {
         this.removeSidebar()
         this.sidebar = sidebar
         this.loadUI(sidebar)
@@ -521,7 +520,7 @@ abstract class Minigame<M: Minigame<M>>(
      * All players who were displayed the sidebar
      * will no longer be displayed the sidebar.
      */
-    fun removeSidebar() {
+    public fun removeSidebar() {
         this.removeUI(this.sidebar)
         this.sidebar = null
     }
@@ -534,7 +533,7 @@ abstract class Minigame<M: Minigame<M>>(
      *
      * @param display The tab display to set.
      */
-    fun setTabDisplay(display: ArcadeTabDisplay) {
+    public fun setTabDisplay(display: ArcadeTabDisplay) {
         this.removeTabDisplay()
         this.display = display
         this.loadUI(display)
@@ -546,7 +545,7 @@ abstract class Minigame<M: Minigame<M>>(
      * All players who were displayed the tab display
      * will no longer be displayed the tab display.
      */
-    fun removeTabDisplay() {
+    public fun removeTabDisplay() {
         this.removeUI(this.display)
         this.display = null
     }
@@ -558,7 +557,7 @@ abstract class Minigame<M: Minigame<M>>(
      *
      * @return The [JsonObject] containing the minigame's state.
      */
-    fun getDebugInfo(): JsonObject {
+    public fun getDebugInfo(): JsonObject {
         val json = JsonObject()
         json.addProperty("minigame", this::class.java.simpleName)
         json.addProperty("initialised", this.initialised)
@@ -592,7 +591,7 @@ abstract class Minigame<M: Minigame<M>>(
      * Starts the minigame.
      * This should set the phase to the initial phase.
      */
-    abstract fun start()
+    public abstract fun start()
 
     /**
      * This method initializes the core functionality of the

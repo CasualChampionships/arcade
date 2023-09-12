@@ -7,9 +7,11 @@ package net.casual.arcade.extensions
  * @see Extension
  * @see ExtensionMap
  */
-interface ExtensionHolder {
+public interface ExtensionHolder {
     /**
      * This gets all the extensions that are being held.
+     *
+     * @return The extension map.
      */
-    fun getExtensionMap(): ExtensionMap
+    public fun getExtensionMap(): ExtensionMap
 }

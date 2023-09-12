@@ -2,13 +2,12 @@ package net.casual.arcade.gui.bossbar
 
 import net.casual.arcade.gui.TickableUI
 import net.casual.arcade.scheduler.MinecraftTimeDuration
-import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
 import net.casual.arcade.task.Completable
 import net.casual.arcade.task.Task
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.minecraft.server.level.ServerPlayer
 
-abstract class TimerBossBar(
+public abstract class TimerBossBar(
     duration: MinecraftTimeDuration
 ): CustomBossBar(), TickableUI, Completable {
     private val completable = Completable.Impl()
@@ -33,11 +32,11 @@ abstract class TimerBossBar(
         return this.completable.then(task)
     }
 
-    fun getProgress(): Float {
+    public fun getProgress(): Float {
         return this.tick / this.ticks.toFloat()
     }
 
-    fun getRemainingDuration(): MinecraftTimeDuration {
+    public fun getRemainingDuration(): MinecraftTimeDuration {
         return (this.ticks - this.tick).Ticks
     }
 

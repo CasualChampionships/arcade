@@ -11,4 +11,4 @@ import net.casual.arcade.events.GlobalEventHandler
  * @see CancellableEvent
  * @see GlobalEventHandler
  */
-interface Event
+public interface Event

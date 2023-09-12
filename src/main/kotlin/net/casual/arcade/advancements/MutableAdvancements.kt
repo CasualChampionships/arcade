@@ -2,8 +2,9 @@ package net.casual.arcade.advancements
 
 import net.minecraft.advancements.Advancement
 
-interface MutableAdvancements {
-    fun addAdvancement(advancement: Advancement)
+@Suppress("FunctionName")
+internal interface MutableAdvancements {
+    fun `arcade$addAdvancement`(advancement: Advancement)
 
-    fun removeAdvancement(advancement: Advancement)
+    fun `arcade$removeAdvancement`(advancement: Advancement)
 }

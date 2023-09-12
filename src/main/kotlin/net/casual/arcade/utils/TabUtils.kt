@@ -9,7 +9,7 @@ import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
 import net.minecraft.server.level.ServerPlayer
 
-object TabUtils {
+internal object TabUtils {
     internal val ServerPlayer.tabDisplay
         get() = this.getExtension(PlayerTabDisplayExtension::class.java)
 

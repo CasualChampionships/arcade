@@ -13,14 +13,14 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
-interface TitledCountdown: Countdown {
+public interface TitledCountdown: Countdown {
     @OverrideOnly
-    fun getCountdownTitle(current: Int): Component {
+    public fun getCountdownTitle(current: Int): Component {
         return Component.literal("Starting In:").bold()
     }
 
     @OverrideOnly
-    fun getCountdownSubtitle(current: Int): Component {
+    public fun getCountdownSubtitle(current: Int): Component {
         val subtitle = Component.literal("▶ $current ◀")
         when (current) {
             3 -> subtitle.red()
@@ -31,7 +31,7 @@ interface TitledCountdown: Countdown {
     }
 
     @OverrideOnly
-    fun getCountdownSound(current: Int): Sound? {
+    public fun getCountdownSound(current: Int): Sound? {
         return Sound(
             sound = SoundEvents.NOTE_BLOCK_PLING.value(),
             pitch = 3.0F
@@ -50,10 +50,10 @@ interface TitledCountdown: Countdown {
         }
     }
 
-    companion object {
-        val DEFAULT = object: TitledCountdown { }
+    public companion object {
+        public val DEFAULT: TitledCountdown = object: TitledCountdown { }
 
-        fun titled(title: Component): TitledCountdown {
+        public fun titled(title: Component): TitledCountdown {
             return object: TitledCountdown {
                 override fun getCountdownTitle(current: Int): Component {
                     return title

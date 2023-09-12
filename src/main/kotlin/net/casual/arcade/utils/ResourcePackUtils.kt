@@ -14,7 +14,7 @@ import net.casual.arcade.utils.PlayerUtils.getExtension
 import net.minecraft.network.protocol.game.ClientboundResourcePackPacket
 import net.minecraft.server.level.ServerPlayer
 
-object ResourcePackUtils {
+public object ResourcePackUtils {
     private val ServerPlayer.resourcePacks
         get() = this.getExtension(PlayerPackExtension::class.java)
 
@@ -26,7 +26,7 @@ object ResourcePackUtils {
      * @see EMPTY
      */
     @JvmField
-    val EMPTY_PACK = PackInfo(
+    public val EMPTY_PACK: PackInfo = PackInfo(
         url = "https://download.mc-packs.net/pack/8694214da5d1b2adac38971828e07b20e33d3e24.zip",
         hash = "8694214da5d1b2adac38971828e07b20e33d3e24",
         required = false,
@@ -34,24 +34,24 @@ object ResourcePackUtils {
     )
 
     @JvmStatic
-    fun ServerPlayer.getPreviousResourcePack(): PackInfo? {
+    public fun ServerPlayer.getPreviousResourcePack(): PackInfo? {
         return this.resourcePacks.previous
     }
 
     @JvmStatic
-    fun ServerPlayer.getResourcePackState(): PackState? {
+    public fun ServerPlayer.getResourcePackState(): PackState? {
         val current = this.resourcePacks.current ?: return null
         return PackState(current, this.resourcePacks.status)
     }
 
     @JvmStatic
-    fun ServerPlayer.resendLastResourcePack() {
+    public fun ServerPlayer.resendLastResourcePack() {
         val state = this.getResourcePackState() ?: return
         this.sendResourcePack(state.pack)
     }
 
     @JvmStatic
-    fun ServerPlayer.sendResourcePack(pack: PackInfo) {
+    public fun ServerPlayer.sendResourcePack(pack: PackInfo) {
         this.sendTexturePack(pack.url, pack.hash, pack.required, pack.prompt)
     }
 

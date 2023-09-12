@@ -23,7 +23,7 @@ import net.casual.arcade.task.SavableTask
  * @see MinecraftScheduler
  * @see Minigame
  */
-class MinigameScheduler internal constructor(): MinecraftScheduler {
+public class MinigameScheduler internal constructor(): MinecraftScheduler {
     internal val minigame = TickedScheduler()
     internal val phased = TickedScheduler()
 
@@ -53,7 +53,7 @@ class MinigameScheduler internal constructor(): MinecraftScheduler {
      * @param duration The duration to wait before running the [runnable].
      * @param runnable The runnable to be scheduled.
      */
-    fun schedulePhased(duration: MinecraftTimeDuration, runnable: Runnable) {
+    public fun schedulePhased(duration: MinecraftTimeDuration, runnable: Runnable) {
         this.phased.schedule(duration, runnable)
     }
 
@@ -68,7 +68,7 @@ class MinigameScheduler internal constructor(): MinecraftScheduler {
      * @param unit The units of time, by default [Ticks].
      * @param runnable The runnable to be scheduled.
      */
-    fun schedulePhased(time: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
+    public fun schedulePhased(time: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
         this.phased.schedule(time, unit, runnable)
     }
 
@@ -85,7 +85,7 @@ class MinigameScheduler internal constructor(): MinecraftScheduler {
      * @param duration The total duration the loop should be running for.
      * @param runnable The runnable to be scheduled.
      */
-    fun schedulePhasedInLoop(
+    public fun schedulePhasedInLoop(
         delay: MinecraftTimeDuration,
         interval: MinecraftTimeDuration,
         duration: MinecraftTimeDuration,
@@ -108,7 +108,7 @@ class MinigameScheduler internal constructor(): MinecraftScheduler {
      * @param unit The units of time for [delay], [interval], and [duration].
      * @param runnable The runnable to be scheduled.
      */
-    fun schedulePhasedInLoop(
+    public fun schedulePhasedInLoop(
         delay: Int,
         interval: Int,
         duration: Int,

@@ -11,18 +11,18 @@ import org.jetbrains.annotations.ApiStatus.NonExtendable
  *
  * @see Task
  */
-interface CancellableTask: Task {
+public interface CancellableTask: Task {
     /**
      * Checks whether the task is cancelled.
      *
      * @return Whether the task is cancelled.
      */
-    fun isCancelled(): Boolean
+    public fun isCancelled(): Boolean
 
     /**
      * This runs the task.
      */
-    fun invoke()
+    public fun invoke()
 
     /**
      * This will be called when running the task,

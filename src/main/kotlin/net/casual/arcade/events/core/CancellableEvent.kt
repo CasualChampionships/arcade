@@ -19,7 +19,7 @@ import net.casual.arcade.utils.impl.Wrapper
  *
  * @see Event
  */
-sealed class CancellableEvent: Event {
+public sealed class CancellableEvent: Event {
     /**
      * Whether the event is cancelled.
      */
@@ -41,7 +41,7 @@ sealed class CancellableEvent: Event {
      *
      * @return Whether the event has been cancelled.
      */
-    fun isCancelled(): Boolean {
+    public fun isCancelled(): Boolean {
         return this.cancelled
     }
 
@@ -49,7 +49,7 @@ sealed class CancellableEvent: Event {
      * Abstract class of [CancellableEvent] that
      * make the [cancel] method accessible.
      */
-    abstract class Default: CancellableEvent() {
+    public abstract class Default: CancellableEvent() {
         /**
          * Cancels the event.
          */
@@ -67,7 +67,7 @@ sealed class CancellableEvent: Event {
      * @param T The type of the result. May be nullable.
      * @see CancellableEvent
      */
-    abstract class Typed<T>: CancellableEvent() {
+    public abstract class Typed<T>: CancellableEvent() {
         /**
          * The result of the event.
          */
@@ -88,7 +88,7 @@ sealed class CancellableEvent: Event {
          *
          * @param result The result.
          */
-        fun cancel(result: T) {
+        public fun cancel(result: T) {
             this.result = Wrapper(result)
             this.cancel()
         }
@@ -100,9 +100,9 @@ sealed class CancellableEvent: Event {
          *
          * @return The result.
          */
-        fun result(): T {
+        public fun result(): T {
             val result = this.result
-            if (result === null) {
+            if (result == null) {
                 throw IllegalStateException("Called result() when no result is present")
             }
             return result.value

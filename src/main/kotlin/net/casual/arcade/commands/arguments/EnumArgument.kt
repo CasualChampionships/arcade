@@ -3,27 +3,26 @@ package net.casual.arcade.commands.arguments
 import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.commands.type.CustomStringArgumentInfo
 import net.casual.arcade.utils.EnumUtils
-import net.minecraft.commands.CommandSourceStack
 
-class EnumArgument<E: Enum<E>>(
+public class EnumArgument<E: Enum<E>>(
     clazz: Class<E>
 ): MappedArgument<E>(EnumUtils.enumToMap(clazz, Companion::checkEnumName)) {
-    companion object {
-        inline fun <reified E: Enum<E>> enumeration(): EnumArgument<E> {
+    public companion object {
+        public inline fun <reified E: Enum<E>> enumeration(): EnumArgument<E> {
             return EnumArgument(E::class.java)
         }
 
         @JvmStatic
-        fun <E: Enum<E>> enumeration(clazz: Class<E>): EnumArgument<E> {
+        public fun <E: Enum<E>> enumeration(clazz: Class<E>): EnumArgument<E> {
             return EnumArgument(clazz)
         }
 
-        inline fun <reified E: Enum<E>> getEnumeration(context: CommandContext<*>, string: String): E {
+        public inline fun <reified E: Enum<E>> getEnumeration(context: CommandContext<*>, string: String): E {
             return context.getArgument(string, E::class.java)
         }
 
         @JvmStatic
-        fun <E: Enum<E>> getEnumeration(context: CommandContext<*>, string: String, clazz: Class<E>): E {
+        public fun <E: Enum<E>> getEnumeration(context: CommandContext<*>, string: String, clazz: Class<E>): E {
             return context.getArgument(string, clazz)
         }
 

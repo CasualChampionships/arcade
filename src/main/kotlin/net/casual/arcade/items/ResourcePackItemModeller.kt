@@ -20,7 +20,7 @@ import net.minecraft.world.item.ItemStack
  * @see ArcadeModelledItem
  * @see ResourcePackCreator
  */
-class ResourcePackItemModeller(
+public class ResourcePackItemModeller(
     modelledItem: ArcadeModelledItem,
     private val creator: ResourcePackCreator
 ): ItemModeller {
@@ -42,7 +42,7 @@ class ResourcePackItemModeller(
      *
      * @return The server sided item.
      */
-    fun item(): Item {
+    public fun item(): Item {
         return this.server
     }
 
@@ -53,7 +53,7 @@ class ResourcePackItemModeller(
      * given resource pack creator.
      * @return The [ItemStack] generator.
      */
-    fun model(location: ResourceLocation): ItemStackFactory {
+    public fun model(location: ResourceLocation): ItemStackFactory {
         this.states.add(location)
         // Load it for pack
         this.creator.requestModel(this.client, location)
@@ -71,7 +71,7 @@ class ResourcePackItemModeller(
      * @param location The location of the modelled item.
      * @return The modelled [ItemStack].
      */
-    fun create(location: ResourceLocation): ItemStack {
+    public fun create(location: ResourceLocation): ItemStack {
         val stack = ItemStack(this.item())
         stack.putIntElement(ID, this.getModelData(location).value())
         return stack
@@ -87,7 +87,7 @@ class ResourcePackItemModeller(
      * @param id The state id.
      * @return The modelled [ItemStack].
      */
-    fun create(id: Int): ItemStack {
+    public fun create(id: Int): ItemStack {
         return this.create(this.getLocation(id))
     }
 
@@ -121,7 +121,7 @@ class ResourcePackItemModeller(
         return this.creator.requestModel(this.client, id)
     }
 
-    companion object {
+    private companion object {
         private const val ID = "arcade_packed_custom_model"
     }
 }

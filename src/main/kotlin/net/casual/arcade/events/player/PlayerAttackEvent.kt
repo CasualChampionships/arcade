@@ -4,7 +4,7 @@ import net.casual.arcade.events.core.CancellableEvent
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 
-data class PlayerAttackEvent(
+public data class PlayerAttackEvent(
     override val player: ServerPlayer,
     val target: Entity,
     val damage: Float

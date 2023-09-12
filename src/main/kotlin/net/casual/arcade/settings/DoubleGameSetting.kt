@@ -2,7 +2,7 @@ package net.casual.arcade.settings
 
 import net.casual.arcade.utils.json.DoubleSerializer
 
-class DoubleGameSetting(
+public class DoubleGameSetting(
     name: String,
     value: Double,
     options: Map<String, Double> = emptyMap()

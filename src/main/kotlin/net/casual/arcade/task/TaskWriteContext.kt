@@ -14,7 +14,7 @@ import net.casual.arcade.minigame.task.MinigameTaskFactory
  * @see MinigameTaskFactory
  * @see TaskCreationContext
  */
-interface TaskWriteContext {
+public interface TaskWriteContext {
     /**
      * This method allows you to serialize a task as a
      * [JsonObject] to allow subtasks.
@@ -25,5 +25,5 @@ interface TaskWriteContext {
      * @param task The task to serialize.
      * @return The serialized task; may be null.
      */
-    fun writeTask(task: Task): JsonObject?
+    public fun writeTask(task: Task): JsonObject?
 }

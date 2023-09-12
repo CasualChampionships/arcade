@@ -7,7 +7,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.block.entity.BrewingStandBlockEntity
 import net.minecraft.world.level.block.state.BlockState
 
-data class BrewingStandBrewEvent(
+public data class BrewingStandBrewEvent(
     override val level: ServerLevel,
     val pos: BlockPos,
     val state: BlockState,

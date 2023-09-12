@@ -12,7 +12,7 @@ import net.minecraft.server.MinecraftServer
  *
  * @param server The [MinecraftServer] that was instantiated.
  */
-data class ServerCreatedEvent(
+public data class ServerCreatedEvent(
     /**
      * The [MinecraftServer] that was instantiated.
      */

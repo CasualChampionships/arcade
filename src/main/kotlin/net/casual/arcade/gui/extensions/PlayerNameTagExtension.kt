@@ -8,8 +8,8 @@ import eu.pb4.polymer.virtualentity.api.elements.TextDisplayElement
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData
 import it.unimi.dsi.fastutil.ints.IntList
 import net.casual.arcade.extensions.Extension
-import net.casual.arcade.gui.nametag.ObserverPredicate
 import net.casual.arcade.gui.nametag.ArcadeNameTag
+import net.casual.arcade.gui.nametag.ObserverPredicate
 import net.casual.arcade.utils.NameTagUtils.isWatching
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener

@@ -3,15 +3,14 @@ package net.casual.arcade.utils
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import java.util.stream.StreamSupport
 
-object JsonUtils {
+public object JsonUtils {
     private fun JsonObject.getWithNull(key: String): JsonElement? {
         val value = this.get(key) ?: return null
         return if (value.isJsonNull) null else value
     }
 
-    fun <T> Collection<T>.toJsonObject(serializer: (T) -> Pair<String, JsonElement>): JsonObject {
+    public fun <T> Collection<T>.toJsonObject(serializer: (T) -> Pair<String, JsonElement>): JsonObject {
         val json = JsonObject()
         for (element in this) {
             val (key, value) = serializer(element)
@@ -20,179 +19,179 @@ object JsonUtils {
         return json
     }
 
-    fun <T> Collection<T>.toJsonArray(serializer: (T) -> JsonElement): JsonArray {
+    public fun <T> Collection<T>.toJsonArray(serializer: (T) -> JsonElement): JsonArray {
         return this.stream().map { serializer(it) }.collect(::JsonArray, JsonArray::add, JsonArray::addAll)
     }
 
-    fun <T> Collection<T>.toJsonBooleanArray(serializer: (T) -> Boolean): JsonArray {
+    public fun <T> Collection<T>.toJsonBooleanArray(serializer: (T) -> Boolean): JsonArray {
         return this.stream().map { serializer(it) }.collect(::JsonArray, JsonArray::add, JsonArray::addAll)
     }
 
-    fun <T> Collection<T>.toJsonStringArray(serializer: (T) -> String): JsonArray {
+    public fun <T> Collection<T>.toJsonStringArray(serializer: (T) -> String): JsonArray {
         return this.stream().map { serializer(it) }.collect(::JsonArray, JsonArray::add, JsonArray::addAll)
     }
 
-    fun <T> Collection<T>.toJsonNumberArray(serializer: (T) -> Number): JsonArray {
+    public fun <T> Collection<T>.toJsonNumberArray(serializer: (T) -> Number): JsonArray {
         return this.stream().map { serializer(it) }.collect(::JsonArray, JsonArray::add, JsonArray::addAll)
     }
 
-    fun JsonObject.boolean(key: String): Boolean {
+    public fun JsonObject.boolean(key: String): Boolean {
         return this.get(key).asBoolean
     }
 
-    fun JsonObject.booleanOrNull(key: String): Boolean? {
+    public fun JsonObject.booleanOrNull(key: String): Boolean? {
         return this.getWithNull(key)?.asBoolean
     }
 
-    fun JsonObject.booleanOrDefault(key: String, default: Boolean = false): Boolean {
+    public fun JsonObject.booleanOrDefault(key: String, default: Boolean = false): Boolean {
         return this.getWithNull(key)?.asBoolean ?: default
     }
 
-    fun JsonObject.booleanOrPut(key: String, putter: () -> Boolean = { false }): Boolean {
+    public fun JsonObject.booleanOrPut(key: String, putter: () -> Boolean = { false }): Boolean {
         return this.booleanOrNull(key) ?: putter().also { this.addProperty(key, it) }
     }
 
-    fun JsonObject.string(key: String): String {
+    public fun JsonObject.string(key: String): String {
         return this.get(key).asString
     }
 
-    fun JsonObject.stringOrNull(key: String): String? {
+    public fun JsonObject.stringOrNull(key: String): String? {
         return this.getWithNull(key)?.asString
     }
 
-    fun JsonObject.stringOrDefault(key: String, default: String = ""): String {
+    public fun JsonObject.stringOrDefault(key: String, default: String = ""): String {
         return this.getWithNull(key)?.asString ?: default
     }
 
-    fun JsonObject.stringOrPut(key: String, putter: () -> String = { "" }): String {
+    public fun JsonObject.stringOrPut(key: String, putter: () -> String = { "" }): String {
         return this.stringOrNull(key) ?: putter().also { this.addProperty(key, it) }
     }
 
-    fun JsonObject.number(key: String): Number {
+    public fun JsonObject.number(key: String): Number {
         return this.get(key).asNumber
     }
 
-    fun JsonObject.numberOrNull(key: String): Number? {
+    public fun JsonObject.numberOrNull(key: String): Number? {
         return this.getWithNull(key)?.asNumber
     }
 
-    fun JsonObject.numberOrDefault(key: String, default: Number = 0): Number {
+    public fun JsonObject.numberOrDefault(key: String, default: Number = 0): Number {
         return this.getWithNull(key)?.asNumber ?: default
     }
 
-    fun JsonObject.numberOrPut(key: String, putter: () -> Number = { 0 }): Number {
+    public fun JsonObject.numberOrPut(key: String, putter: () -> Number = { 0 }): Number {
         return this.numberOrNull(key) ?: putter().also { this.addProperty(key, it) }
     }
 
-    fun JsonObject.int(key: String): Int {
+    public fun JsonObject.int(key: String): Int {
         return this.get(key).asInt
     }
 
-    fun JsonObject.intOrNull(key: String): Int? {
+    public fun JsonObject.intOrNull(key: String): Int? {
         return this.getWithNull(key)?.asInt
     }
 
-    fun JsonObject.intOrDefault(key: String, default: Int = 0): Int {
+    public fun JsonObject.intOrDefault(key: String, default: Int = 0): Int {
         return this.getWithNull(key)?.asInt ?: default
     }
 
-    fun JsonObject.intOrPut(key: String, putter: () -> Int = { 0 }): Int {
+    public fun JsonObject.intOrPut(key: String, putter: () -> Int = { 0 }): Int {
         return this.intOrNull(key) ?: putter().also { this.addProperty(key, it) }
     }
 
-    fun JsonObject.float(key: String): Float {
+    public fun JsonObject.float(key: String): Float {
         return this.get(key).asFloat
     }
 
-    fun JsonObject.floatOrNull(key: String): Float? {
+    public fun JsonObject.floatOrNull(key: String): Float? {
         return this.getWithNull(key)?.asFloat
     }
 
-    fun JsonObject.floatOrDefault(key: String, default: Float = 0.0F): Float {
+    public fun JsonObject.floatOrDefault(key: String, default: Float = 0.0F): Float {
         return this.getWithNull(key)?.asFloat ?: default
     }
 
-    fun JsonObject.floatOrPut(key: String, putter: () -> Float = { 0.0F }): Float {
+    public fun JsonObject.floatOrPut(key: String, putter: () -> Float = { 0.0F }): Float {
         return this.floatOrNull(key) ?: putter().also { this.addProperty(key, it) }
     }
 
-    fun JsonObject.double(key: String): Double {
+    public fun JsonObject.double(key: String): Double {
         return this.get(key).asDouble
     }
 
-    fun JsonObject.doubleOrNull(key: String): Double? {
+    public fun JsonObject.doubleOrNull(key: String): Double? {
         return this.getWithNull(key)?.asDouble
     }
 
-    fun JsonObject.doubleOrDefault(key: String, default: Double = 0.0): Double {
+    public fun JsonObject.doubleOrDefault(key: String, default: Double = 0.0): Double {
         return this.getWithNull(key)?.asDouble ?: default
     }
 
-    fun JsonObject.doubleOrPut(key: String, putter: () -> Double = { 0.0 }): Double {
+    public fun JsonObject.doubleOrPut(key: String, putter: () -> Double = { 0.0 }): Double {
         return this.doubleOrNull(key) ?: putter().also { this.addProperty(key, it) }
     }
 
-    fun JsonObject.array(key: String): JsonArray {
+    public fun JsonObject.array(key: String): JsonArray {
         return this.get(key).asJsonArray
     }
 
-    fun JsonObject.arrayOrNull(key: String): JsonArray? {
+    public fun JsonObject.arrayOrNull(key: String): JsonArray? {
         return this.getWithNull(key)?.asJsonArray
     }
 
-    fun JsonObject.arrayOrDefault(key: String, default: JsonArray = JsonArray()): JsonArray {
+    public fun JsonObject.arrayOrDefault(key: String, default: JsonArray = JsonArray()): JsonArray {
         return this.getWithNull(key)?.asJsonArray ?: default
     }
 
-    fun JsonObject.arrayOrPut(key: String, putter: () -> JsonArray = ::JsonArray): JsonArray {
+    public fun JsonObject.arrayOrPut(key: String, putter: () -> JsonArray = ::JsonArray): JsonArray {
         return this.arrayOrNull(key) ?: putter().also { this.add(key, it) }
     }
 
-    fun JsonObject.obj(key: String): JsonObject {
+    public fun JsonObject.obj(key: String): JsonObject {
         return this.get(key).asJsonObject
     }
 
-    fun JsonObject.objOrNull(key: String): JsonObject? {
+    public fun JsonObject.objOrNull(key: String): JsonObject? {
         return this.getWithNull(key)?.asJsonObject
     }
 
-    fun JsonObject.objOrDefault(key: String, default: JsonObject = JsonObject()): JsonObject {
+    public fun JsonObject.objOrDefault(key: String, default: JsonObject = JsonObject()): JsonObject {
         return this.getWithNull(key)?.asJsonObject ?: default
     }
 
-    fun JsonObject.objOrPut(key: String, putter: () -> JsonObject = ::JsonObject): JsonObject {
+    public fun JsonObject.objOrPut(key: String, putter: () -> JsonObject = ::JsonObject): JsonObject {
         return this.objOrNull(key) ?: putter().also { this.add(key, it) }
     }
 
-    fun JsonArray.booleans(): Iterable<Boolean> {
+    public fun JsonArray.booleans(): Iterable<Boolean> {
         return this.mapped(JsonElement::getAsBoolean)
     }
 
-    fun JsonArray.strings(): Iterable<String> {
+    public fun JsonArray.strings(): Iterable<String> {
         return this.mapped(JsonElement::getAsString)
     }
 
-    fun JsonArray.ints(): Iterable<Int> {
+    public fun JsonArray.ints(): Iterable<Int> {
         return this.mapped(JsonElement::getAsInt)
     }
 
-    fun JsonArray.floats(): Iterable<Float> {
+    public fun JsonArray.floats(): Iterable<Float> {
         return this.mapped(JsonElement::getAsFloat)
     }
 
-    fun JsonArray.doubles(): Iterable<Double> {
+    public fun JsonArray.doubles(): Iterable<Double> {
         return this.mapped(JsonElement::getAsDouble)
     }
 
-    fun JsonArray.arrays(): Iterable<JsonArray> {
+    public fun JsonArray.arrays(): Iterable<JsonArray> {
         return this.mapped(JsonElement::getAsJsonArray)
     }
 
-    fun JsonArray.objects(): Iterable<JsonObject> {
+    public fun JsonArray.objects(): Iterable<JsonObject> {
         return this.mapped(JsonElement::getAsJsonObject)
     }
 
-    fun <T> JsonArray.mapped(mapper: JsonElement.() -> T): Iterable<T> {
+    public fun <T> JsonArray.mapped(mapper: JsonElement.() -> T): Iterable<T> {
         return object: Iterable<T> {
             override fun iterator(): Iterator<T> {
                 return object: Iterator<T> {

@@ -9,7 +9,6 @@ import net.casual.arcade.utils.CollectionUtils.addSorted
 import org.apache.logging.log4j.LogManager
 import java.util.*
 import java.util.function.Consumer
-import kotlin.collections.HashSet
 
 /**
  * Object class that is responsible for broadcasting
@@ -19,7 +18,7 @@ import kotlin.collections.HashSet
  * @see addHandler
  * @see Event
  */
-object GlobalEventHandler {
+public object GlobalEventHandler {
     private val logger = LogManager.getLogger("ArcadeEventHandler")
 
     private val suppressed = HashSet<Class<out Event>>()
@@ -31,15 +30,15 @@ object GlobalEventHandler {
      * This broadcasts an event for all listeners.
      *
      * It is possible that listeners may **mutate** the
-     * firing event, this should then be handled by the caller.
+     * firing event, the caller should then handle this.
      * See the implementation details of the firing event.
      *
      * In the unlikely case that an event is fired within
-     * one of its listeners it will **not** recurse and instead
+     * one of its listeners, it will **not** recurse, and instead
      * the recursive event will simply just be logged and suppressed.
      *
      * It is also possible to register to the firing event,
-     * however these listeners will be deferred and will not
+     * however, these listeners will be deferred and will not
      * be fired in the same event where they were registered.
      * The reasoning for this is because we cannot guarantee
      * priority preservation.
@@ -47,7 +46,7 @@ object GlobalEventHandler {
      * @param event The event that is being fired.
      */
     @JvmStatic
-    fun <T: Event> broadcast(event: T) {
+    public fun <T: Event> broadcast(event: T) {
         val type = event::class.java
 
         if (this.checkThread(event, type)) {
@@ -96,7 +95,7 @@ object GlobalEventHandler {
      * @param priority The priority of your event listener.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    inline fun <reified T: Event> register(priority: Int = 1_000, listener: Consumer<T>) {
+    public inline fun <reified T: Event> register(priority: Int = 1_000, listener: Consumer<T>) {
         this.register(T::class.java, priority, listener)
     }
 
@@ -118,7 +117,7 @@ object GlobalEventHandler {
      */
     @JvmStatic
     @JvmOverloads
-    fun <T: Event> register(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
+    public fun <T: Event> register(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
         this.handler.register(type, priority, listener)
     }
 
@@ -131,7 +130,7 @@ object GlobalEventHandler {
      * @param handler The [ListenerHandler] to add.
      */
     @JvmStatic
-    fun addHandler(handler: ListenerHandler) {
+    public fun addHandler(handler: ListenerHandler) {
         this.handlers.add(handler)
     }
 
@@ -141,7 +140,7 @@ object GlobalEventHandler {
      * @param handler The [ListenerHandler] to remove.
      */
     @JvmStatic
-    fun removeHandler(handler: ListenerHandler) {
+    public fun removeHandler(handler: ListenerHandler) {
         this.handlers.remove(handler)
     }
 

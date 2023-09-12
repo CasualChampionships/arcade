@@ -5,16 +5,16 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.border.BorderChangeListener
 import net.minecraft.world.level.border.BorderChangeListener.DelegateBorderChangeListener
 
-object BorderUtils {
+public object BorderUtils {
     @JvmStatic
-    var synced = true
+    public var synced: Boolean = true
         private set
 
     private val original = HashMap<ServerLevel, BorderChangeListener>()
     private val replacement = HashMap<ServerLevel, BorderChangeListener>()
 
     @JvmStatic
-    fun joinWorldBorders() {
+    public fun joinWorldBorders() {
         if (this.synced) {
             return
         }
@@ -31,7 +31,7 @@ object BorderUtils {
     }
 
     @JvmStatic
-    fun isolateWorldBorders() {
+    public fun isolateWorldBorders() {
         if (!this.synced) {
             return
         }

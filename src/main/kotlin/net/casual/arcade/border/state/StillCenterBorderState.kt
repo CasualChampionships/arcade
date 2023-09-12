@@ -1,11 +1,11 @@
 package net.casual.arcade.border.state
 
-class StillCenterBorderState(
+public class StillCenterBorderState(
     private var centerX: Double,
     private var centerZ: Double
 ): CenterBorderState {
     override fun getCenterX(): Double {
-        return this.centerX;
+        return this.centerX
     }
 
     override fun getCenterZ(): Double {

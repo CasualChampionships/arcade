@@ -6,7 +6,7 @@ import net.casual.arcade.border.state.StillBorderState
 import net.casual.arcade.border.state.StillCenterBorderState
 import java.util.*
 
-class TrackedBorder(size: Double, centerX: Double, centerZ: Double): ArcadeBorder() {
+public class TrackedBorder(size: Double, centerX: Double, centerZ: Double): ArcadeBorder() {
     override var centerState: CenterBorderState = StillCenterBorderState(centerX, centerZ)
     override var borderState: BorderState = StillBorderState(this, size)
 

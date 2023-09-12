@@ -2,7 +2,7 @@ package net.casual.arcade.settings
 
 import net.casual.arcade.utils.json.LongSerializer
 
-class LongGameSetting(
+public class LongGameSetting(
     name: String,
     value: Long,
     options: Map<String, Long> = emptyMap()

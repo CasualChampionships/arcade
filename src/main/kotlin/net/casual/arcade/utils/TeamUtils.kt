@@ -14,32 +14,26 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Team
 
-object TeamUtils {
+public object TeamUtils {
     @JvmStatic
-    fun teams(): Collection<PlayerTeam> {
+    public fun teams(): Collection<PlayerTeam> {
         return Arcade.getServer().scoreboard.playerTeams
     }
 
     @JvmStatic
-    fun forEachTeam(consumer: Consumer<PlayerTeam>) {
+    public fun forEachTeam(consumer: Consumer<PlayerTeam>) {
         for (team in this.teams()) {
             consumer.accept(team)
         }
     }
 
     @JvmStatic
-    fun Team.asPlayerTeam(): PlayerTeam {
+    public fun Team.asPlayerTeam(): PlayerTeam {
         return this as PlayerTeam
     }
 
-    @Deprecated("Replaced with 'team.getOnlinePlayers()'", ReplaceWith("this.getOnlinePlayers()"))
     @JvmStatic
-    fun Team.getServerPlayers(): List<ServerPlayer> {
-        return this.getOnlinePlayers()
-    }
-
-    @JvmStatic
-    fun Team.getOnlinePlayers(): List<ServerPlayer> {
+    public fun Team.getOnlinePlayers(): List<ServerPlayer> {
         val team = ArrayList<ServerPlayer>()
         for (name in this.players) {
             val player = PlayerUtils.player(name)
@@ -51,7 +45,7 @@ object TeamUtils {
     }
 
     @JvmStatic
-    fun Team.getOnlineCount(): Int {
+    public fun Team.getOnlineCount(): Int {
         var count = 0
         for (name in this.players) {
             val player = PlayerUtils.player(name)
@@ -63,24 +57,24 @@ object TeamUtils {
     }
 
     @JvmStatic
-    fun colouredHeadForTeam(team: Team): ItemStack {
+    public fun colouredHeadForTeam(team: Team): ItemStack {
         val head = ItemUtils.colouredHeadForFormatting(team.color)
         head.setHoverName(Component.literal(team.name).unitalicise())
         return head
     }
 
     @JvmStatic
-    fun Team.addExtension(extension: Extension) {
+    public fun Team.addExtension(extension: Extension) {
         (this as ExtensionHolder).addExtension(extension)
     }
 
     @JvmStatic
-    fun <T: Extension> Team.getExtension(type: Class<T>): T {
+    public fun <T: Extension> Team.getExtension(type: Class<T>): T {
         return (this as ExtensionHolder).getExtension(type)
     }
 
     @JvmStatic
-    fun Team.getExtensions(): Collection<Extension> {
+    public fun Team.getExtensions(): Collection<Extension> {
         return (this as ExtensionHolder).getExtensions()
     }
 }

@@ -3,7 +3,6 @@ package net.casual.arcade.minigame
 import net.casual.arcade.resources.PackInfo
 import net.casual.arcade.utils.ResourcePackUtils
 import net.casual.arcade.utils.ResourcePackUtils.sendResourcePack
-import net.minecraft.server.MinecraftServer.ServerResourcePackInfo
 import net.minecraft.server.level.ServerPlayer
 
 /**
@@ -12,13 +11,13 @@ import net.minecraft.server.level.ServerPlayer
  *
  * @see Minigame.getResources
  */
-interface MinigameResources {
+public interface MinigameResources {
     /**
      * This gets the default [PackInfo] for a minigame.
      *
      * @return The default pack info.
      */
-    fun getInfo(): PackInfo? {
+    public fun getInfo(): PackInfo? {
         return null
     }
 
@@ -32,17 +31,17 @@ interface MinigameResources {
      * @return The pack info for the player.
      * @see sendTo
      */
-    fun getInfo(player: ServerPlayer): PackInfo? {
+    public fun getInfo(player: ServerPlayer): PackInfo? {
         return this.getInfo()
     }
 
-    companion object {
+    public companion object {
         /**
          * This object is the default [MinigameResources].
          * Players will not be sent a resource pack.
          */
         @JvmField
-        val NONE = object: MinigameResources { }
+        public val NONE: MinigameResources = object: MinigameResources { }
 
         /**
          * This object provides an empty implementation of
@@ -52,7 +51,7 @@ interface MinigameResources {
          * @see ResourcePackUtils.EMPTY_PACK
          */
         @JvmField
-        val EMPTY = object: MinigameResources {
+        public val EMPTY: MinigameResources = object: MinigameResources {
             override fun getInfo(): PackInfo {
                 return ResourcePackUtils.EMPTY_PACK
             }
@@ -67,7 +66,7 @@ interface MinigameResources {
          * @return Whether the player was sent the resources.
          */
         @JvmStatic
-        fun MinigameResources.sendTo(player: ServerPlayer): Boolean {
+        public fun MinigameResources.sendTo(player: ServerPlayer): Boolean {
             val info = this.getInfo(player) ?: return false
             player.sendResourcePack(info)
             return true
@@ -80,7 +79,7 @@ interface MinigameResources {
          * @see sendTo
          */
         @JvmStatic
-        fun MinigameResources.sendTo(players: Collection<ServerPlayer>) {
+        public fun MinigameResources.sendTo(players: Collection<ServerPlayer>) {
             for (player in players) {
                 this.sendTo(player)
             }

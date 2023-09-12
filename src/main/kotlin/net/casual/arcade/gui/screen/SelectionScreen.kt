@@ -33,7 +33,7 @@ import net.minecraft.world.item.ItemStack
  * @see SelectionScreenBuilder
  * @see ArcadeGenericScreen
  */
-class SelectionScreen internal constructor(
+public class SelectionScreen internal constructor(
     private val title: Component,
     private val selections: List<Selection>,
     private val tickers: List<ItemStackTicker>,
@@ -137,7 +137,7 @@ class SelectionScreen internal constructor(
         val action: (ServerPlayer) -> Unit
     )
 
-    companion object {
+    public companion object {
         internal fun createScreenFactory(previous: SelectionScreen, page: Int): SimpleMenuProvider? {
             return createScreenFactory(
                 previous.title,

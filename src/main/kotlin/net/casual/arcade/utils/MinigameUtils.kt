@@ -2,26 +2,26 @@ package net.casual.arcade.utils
 
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.player.PlayerCreatedEvent
+import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.PlayerMinigameExtension
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.task.Completable
 import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
-import net.casual.arcade.gui.countdown.Countdown
 import net.minecraft.server.level.ServerPlayer
 
-object MinigameUtils {
+public object MinigameUtils {
     internal val ServerPlayer.minigame
         get() = this.getExtension(PlayerMinigameExtension::class.java)
 
     @JvmStatic
-    fun ServerPlayer.getMinigame(): Minigame<*>? {
+    public fun ServerPlayer.getMinigame(): Minigame<*>? {
         return this.minigame.getMinigame()
     }
 
     @JvmStatic
-    fun Countdown.countdown(minigame: Minigame<*>): Completable {
+    public fun Countdown.countdown(minigame: Minigame<*>): Completable {
         val post = Completable.Impl()
         var remaining = this.getDuration()
         val interval = this.getInterval()

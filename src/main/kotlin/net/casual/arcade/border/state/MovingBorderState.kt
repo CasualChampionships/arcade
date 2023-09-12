@@ -12,7 +12,7 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
 
-class MovingBorderState(
+public class MovingBorderState(
     private val border: ArcadeBorder,
     private val realDuration: Long,
     private val sizeFrom: Double,

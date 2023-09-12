@@ -20,7 +20,8 @@ public class ArgumentNodeStub {
 		method = "<init>(Lcom/mojang/brigadier/tree/ArgumentCommandNode;)V",
 		at = @At(
 			value = "INVOKE",
-			target = "Lcom/mojang/brigadier/tree/ArgumentCommandNode;getCustomSuggestions()Lcom/mojang/brigadier/suggestion/SuggestionProvider;"
+			target = "Lcom/mojang/brigadier/tree/ArgumentCommandNode;getCustomSuggestions()Lcom/mojang/brigadier/suggestion/SuggestionProvider;",
+			remap = false
 		)
 	)
 	private static SuggestionProvider<?> getCustomSuggestions(ArgumentCommandNode<?, ?> instance) {

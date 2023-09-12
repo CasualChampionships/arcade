@@ -10,7 +10,7 @@ import net.minecraft.server.MinecraftServer
  *
  * @param server The [MinecraftServer] instance that is loaded.
  */
-data class ServerLoadedEvent(
+public data class ServerLoadedEvent(
     /**
      * The [MinecraftServer] instance that is loaded.
      */

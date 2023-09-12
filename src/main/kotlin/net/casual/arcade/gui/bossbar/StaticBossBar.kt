@@ -18,7 +18,7 @@ import net.minecraft.world.BossEvent.BossBarOverlay
  * @param fog Whether the player's world should have fog.
  * @see CustomBossBar
  */
-data class StaticBossBar(
+public data class StaticBossBar(
     /**
      * The title of the bar.
      */

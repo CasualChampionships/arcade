@@ -10,53 +10,53 @@ import net.minecraft.world.item.crafting.Ingredient
 import net.minecraft.world.item.crafting.ShapedRecipe
 import net.minecraft.world.item.crafting.ShapelessRecipe
 
-object CraftingRecipeBuilder {
-    fun shaped(block: Shaped.() -> Unit): Shaped {
+public object CraftingRecipeBuilder {
+    public fun shaped(block: Shaped.() -> Unit): Shaped {
         return Shaped().apply(block)
     }
 
-    fun shapeless(block: Shapeless.() -> Unit): Shapeless {
+    public fun shapeless(block: Shapeless.() -> Unit): Shapeless {
         return Shapeless().apply(block)
     }
 
-    class Shaped internal constructor() {
+    public class Shaped internal constructor() {
         private val ingredients = NonNullList.create<Ingredient>()
-        var id: ResourceLocation? = null
-        var category: CraftingBookCategory = CraftingBookCategory.MISC
-        var group: String = ""
-        var width: Int = 0
-        var height: Int = 0
-        var result: ItemStack = ItemStack.EMPTY
+        public var id: ResourceLocation? = null
+        public var category: CraftingBookCategory = CraftingBookCategory.MISC
+        public var group: String = ""
+        public var width: Int = 0
+        public var height: Int = 0
+        public var result: ItemStack = ItemStack.EMPTY
 
-        fun id(id: ResourceLocation): Shaped {
+        public fun id(id: ResourceLocation): Shaped {
             this.id = id
             return this
         }
 
-        fun category(category: CraftingBookCategory): Shaped {
+        public fun category(category: CraftingBookCategory): Shaped {
             this.category = category
             return this
         }
 
-        fun group(group: String): Shaped {
+        public fun group(group: String): Shaped {
             this.group = group
             return this
         }
 
-        fun ingredient(ingredient: Ingredient): Shaped {
+        public fun ingredient(ingredient: Ingredient): Shaped {
             this.ingredients.add(ingredient)
             return this
         }
 
-        fun ingredient(item: Item): Shaped {
+        public fun ingredient(item: Item): Shaped {
             return this.ingredient(Ingredient.of(item))
         }
 
-        fun ingredient(item: TagKey<Item>): Shaped {
+        public fun ingredient(item: TagKey<Item>): Shaped {
             return this.ingredient(Ingredient.of(item))
         }
 
-        fun build(): ShapedRecipe {
+        public fun build(): ShapedRecipe {
             val id = this.id
             requireNotNull(id)
             return ShapedRecipe(
@@ -71,42 +71,42 @@ object CraftingRecipeBuilder {
         }
     }
 
-    class Shapeless internal constructor() {
+    public class Shapeless internal constructor() {
         private val ingredients = NonNullList.create<Ingredient>()
-        var id: ResourceLocation? = null
-        var category: CraftingBookCategory = CraftingBookCategory.MISC
-        var group: String = ""
-        var result: ItemStack = ItemStack.EMPTY
+        public var id: ResourceLocation? = null
+        public var category: CraftingBookCategory = CraftingBookCategory.MISC
+        public var group: String = ""
+        public var result: ItemStack = ItemStack.EMPTY
 
-        fun id(id: ResourceLocation): Shapeless {
+        public fun id(id: ResourceLocation): Shapeless {
             this.id = id
             return this
         }
 
-        fun category(category: CraftingBookCategory): Shapeless {
+        public fun category(category: CraftingBookCategory): Shapeless {
             this.category = category
             return this
         }
 
-        fun group(group: String): Shapeless {
+        public fun group(group: String): Shapeless {
             this.group = group
             return this
         }
 
-        fun ingredient(ingredient: Ingredient): Shapeless {
+        public fun ingredient(ingredient: Ingredient): Shapeless {
             this.ingredients.add(ingredient)
             return this
         }
 
-        fun ingredient(item: Item): Shapeless {
+        public fun ingredient(item: Item): Shapeless {
             return this.ingredient(Ingredient.of(item))
         }
 
-        fun ingredient(item: TagKey<Item>): Shapeless {
+        public fun ingredient(item: TagKey<Item>): Shapeless {
             return this.ingredient(Ingredient.of(item))
         }
 
-        fun build(): ShapelessRecipe {
+        public fun build(): ShapelessRecipe {
             val id = this.id
             requireNotNull(id)
             return ShapelessRecipe(

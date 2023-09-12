@@ -7,7 +7,7 @@ import net.minecraft.world.entity.MobCategory
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.NaturalSpawner.SpawnState
 
-data class MobCategorySpawnEvent(
+public data class MobCategorySpawnEvent(
     override val level: ServerLevel,
     val category: MobCategory,
     val pos: ChunkPos,

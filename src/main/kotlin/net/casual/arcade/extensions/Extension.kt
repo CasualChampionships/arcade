@@ -43,4 +43,4 @@ import net.minecraft.world.scores.PlayerTeam
  * @see DataExtension
  * @see ExtensionHolder
  */
-interface Extension
+public interface Extension

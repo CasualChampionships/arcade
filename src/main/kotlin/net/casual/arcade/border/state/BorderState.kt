@@ -3,28 +3,28 @@ package net.casual.arcade.border.state
 import net.minecraft.world.level.border.BorderStatus
 import net.minecraft.world.phys.shapes.VoxelShape
 
-interface BorderState {
-    fun getMinX(): Double
+public interface BorderState {
+    public fun getMinX(): Double
 
-    fun getMaxX(): Double
+    public fun getMaxX(): Double
 
-    fun getMinZ(): Double
+    public fun getMinZ(): Double
 
-    fun getMaxZ(): Double
+    public fun getMaxZ(): Double
 
-    fun getSize(): Double
+    public fun getSize(): Double
 
-    fun getLerpSpeed(): Double
+    public fun getLerpSpeed(): Double
 
-    fun getLerpRemainingTime(): Long
+    public fun getLerpRemainingTime(): Long
 
-    fun getLerpTarget(): Double
+    public fun getLerpTarget(): Double
 
-    fun getStatus(): BorderStatus
+    public fun getStatus(): BorderStatus
 
-    fun onCenterChange()
+    public fun onCenterChange()
 
-    fun update(): BorderState
+    public fun update(): BorderState
 
-    fun getCollisionShape(): VoxelShape
+    public fun getCollisionShape(): VoxelShape
 }

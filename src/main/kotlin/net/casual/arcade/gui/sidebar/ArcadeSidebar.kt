@@ -6,17 +6,17 @@ import net.casual.arcade.utils.SidebarUtils
 import net.casual.arcade.utils.SidebarUtils.sidebar
 import net.minecraft.server.level.ServerPlayer
 
-class ArcadeSidebar(title: ComponentSupplier): PlayerUI() {
+public class ArcadeSidebar(title: ComponentSupplier): PlayerUI() {
     private val rows = ArrayList<ComponentSupplier>(SidebarUtils.MAX_SIZE)
 
-    var title: ComponentSupplier = title
+    public var title: ComponentSupplier = title
         private set
 
-    fun size(): Int {
+    public fun size(): Int {
         return this.rows.size
     }
 
-    fun setTitle(title: ComponentSupplier) {
+    public fun setTitle(title: ComponentSupplier) {
         this.title = title
 
         for (player in this.getPlayers()) {
@@ -24,17 +24,17 @@ class ArcadeSidebar(title: ComponentSupplier): PlayerUI() {
         }
     }
 
-    fun getRow(index: Int): ComponentSupplier {
+    public fun getRow(index: Int): ComponentSupplier {
         this.checkBounds(index, this.size() - 1)
         return this.rows[index]
     }
 
-    fun addRow(row: ComponentSupplier) {
+    public fun addRow(row: ComponentSupplier) {
         // Add to the bottom
         this.addRow(0, row)
     }
 
-    fun addRow(index: Int, row: ComponentSupplier) {
+    public fun addRow(index: Int, row: ComponentSupplier) {
         require(this.size() < SidebarUtils.MAX_SIZE) { "Cannot add more rows, already at max size: ${SidebarUtils.MAX_SIZE}" }
         this.checkBounds(index, this.size())
 
@@ -45,7 +45,7 @@ class ArcadeSidebar(title: ComponentSupplier): PlayerUI() {
         }
     }
 
-    fun setRow(index: Int, row: ComponentSupplier) {
+    public fun setRow(index: Int, row: ComponentSupplier) {
         this.checkBounds(index, this.size() - 1)
 
         this.rows[index] = row
@@ -55,7 +55,7 @@ class ArcadeSidebar(title: ComponentSupplier): PlayerUI() {
         }
     }
 
-    fun removeRow(index: Int) {
+    public fun removeRow(index: Int) {
         this.checkBounds(index, this.size() - 1)
 
         this.rows.removeAt(index)

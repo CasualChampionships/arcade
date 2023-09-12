@@ -1,6 +1,7 @@
 package net.casual.arcade.minigame.task
 
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.SavableMinigame
 import net.casual.arcade.task.SavableTask
 import net.casual.arcade.task.Task
 import net.casual.arcade.task.TaskCreationContext
@@ -20,7 +21,7 @@ import net.casual.arcade.task.TaskFactory
  * @see SavableMinigame
  * @see SavableTask
  */
-class MinigameTaskGenerator<M: Minigame<M>>(
+public class MinigameTaskGenerator<M: Minigame<M>>(
     /**
      * The owner of this task generator.
      */
@@ -36,10 +37,10 @@ class MinigameTaskGenerator<M: Minigame<M>>(
      * If no valid factory is found, then null is returned.
      *
      * @param id The id of the task.
-     * @param data The data for the task.
+     * @param context The task creation context.
      * @return The generated task; may be null.
      */
-    fun generate(id: String, context: TaskCreationContext): Task? {
+    public fun generate(id: String, context: TaskCreationContext): Task? {
         this.minigameFactories[id]?.let { factory ->
             return factory.create(this.minigame, context)
         }
@@ -55,7 +56,7 @@ class MinigameTaskGenerator<M: Minigame<M>>(
      * @param factory The factory to add.
      * @see TaskFactory
      */
-    fun addFactory(factory: TaskFactory) {
+    public fun addFactory(factory: TaskFactory) {
         this.regularFactories[factory.id] = factory
     }
 
@@ -65,7 +66,7 @@ class MinigameTaskGenerator<M: Minigame<M>>(
      * @param factory The factory to add.
      * @see MinigameTaskFactory
      */
-    fun addFactory(factory: MinigameTaskFactory<M>) {
+    public fun addFactory(factory: MinigameTaskFactory<M>) {
         this.minigameFactories[factory.id] = factory
     }
 }

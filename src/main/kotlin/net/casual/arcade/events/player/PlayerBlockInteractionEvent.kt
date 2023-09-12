@@ -7,7 +7,7 @@ import net.minecraft.world.InteractionResult
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.BlockHitResult
 
-data class PlayerBlockInteractionEvent(
+public data class PlayerBlockInteractionEvent(
     override val player: ServerPlayer,
     val stack: ItemStack,
     val hand: InteractionHand,

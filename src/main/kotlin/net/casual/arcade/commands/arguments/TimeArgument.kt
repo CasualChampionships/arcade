@@ -6,12 +6,11 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.type.CustomArgumentType
-import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import java.time.LocalTime
 import java.util.concurrent.CompletableFuture
 
-class TimeArgument: CustomArgumentType(), ArgumentType<LocalTime>  {
+public class TimeArgument: CustomArgumentType(), ArgumentType<LocalTime>  {
     override fun parse(reader: StringReader): LocalTime {
         return LocalTime.parse(reader.readString())
     }
@@ -20,7 +19,7 @@ class TimeArgument: CustomArgumentType(), ArgumentType<LocalTime>  {
         return SharedSuggestionProvider.suggest(hours, builder)
     }
 
-    companion object {
+    public companion object {
         private val hours = ArrayList<String>()
 
         init {
@@ -30,12 +29,12 @@ class TimeArgument: CustomArgumentType(), ArgumentType<LocalTime>  {
         }
 
         @JvmStatic
-        fun time(): TimeArgument {
+        public fun time(): TimeArgument {
             return TimeArgument()
         }
 
         @JvmStatic
-        fun getTime(context: CommandContext<*>, string: String): LocalTime {
+        public fun getTime(context: CommandContext<*>, string: String): LocalTime {
             return context.getArgument(string, LocalTime::class.java)
         }
     }

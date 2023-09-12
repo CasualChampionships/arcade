@@ -11,7 +11,7 @@ import net.minecraft.network.chat.Component
  * @param required Whether the resource pack is required to play on the server.
  * @param prompt The prompt given to the player about this resource pack; may be null.
  */
-data class PackInfo(
+public data class PackInfo(
     /**
      * The URL to download the pack from.
      */

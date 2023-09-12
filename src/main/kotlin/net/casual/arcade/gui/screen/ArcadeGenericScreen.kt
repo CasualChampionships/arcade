@@ -30,9 +30,8 @@ import net.minecraft.world.item.ItemStack
  * @param rows The number of rows the screen should have.
  * @see SelectionScreenBuilder
  * @see SpectatorUsableScreen
- * @see constructor
  */
-abstract class ArcadeGenericScreen(
+public abstract class ArcadeGenericScreen(
     inventory: Inventory,
     syncId: Int,
     rows: Int
@@ -75,14 +74,14 @@ abstract class ArcadeGenericScreen(
      * @param syncId The syncId provided by the [MenuProvider].
      * @param rows The number of rows the screen should have.
      */
-    constructor(player: Player, syncId: Int, rows: Int): this(Inventory(player), syncId, rows)
+    public constructor(player: Player, syncId: Int, rows: Int): this(Inventory(player), syncId, rows)
 
     /**
      * This method gets the main inventory container of this screen.
      *
      * @return The inventory container.
      */
-    fun getContainer(): Container {
+    public fun getContainer(): Container {
         return this.container
     }
 
@@ -91,7 +90,7 @@ abstract class ArcadeGenericScreen(
      *
      * @return The player inventory.
      */
-    fun getPlayerInventory(): Inventory {
+    public fun getPlayerInventory(): Inventory {
         return this.inventory
     }
 
@@ -109,14 +108,14 @@ abstract class ArcadeGenericScreen(
      * @param type The type of click the player did.
      * @param player The player that clicked.
      */
-    abstract fun onClick(slotId: Int, button: Int, type: ClickType, player: ServerPlayer)
+    public abstract fun onClick(slotId: Int, button: Int, type: ClickType, player: ServerPlayer)
 
     /**
      * This method is called when the screen is removed or closed.
      *
      * @param player The player who had the screen open.
      */
-    open fun onRemove(player: ServerPlayer) {
+    public open fun onRemove(player: ServerPlayer) {
 
     }
 
@@ -125,7 +124,7 @@ abstract class ArcadeGenericScreen(
      *
      * @param server The [MinecraftServer] instance.
      */
-    open fun onTick(server: MinecraftServer) {
+    public open fun onTick(server: MinecraftServer) {
 
     }
 
@@ -148,8 +147,8 @@ abstract class ArcadeGenericScreen(
         GlobalTickedScheduler.schedule(1.Ticks, player.containerMenu::sendAllDataToRemote)
     }
 
-    companion object {
-        fun rowsToType(rows: Int): MenuType<*> {
+    public companion object {
+        public fun rowsToType(rows: Int): MenuType<*> {
             return when (rows) {
                 1 -> MenuType.GENERIC_9x1
                 2 -> MenuType.GENERIC_9x2

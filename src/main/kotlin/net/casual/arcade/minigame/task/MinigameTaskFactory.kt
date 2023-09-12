@@ -19,19 +19,19 @@ import net.casual.arcade.task.TaskFactory
  * @see SavableTask
  * @see TaskFactory
  */
-interface MinigameTaskFactory<M: Minigame<M>> {
+public interface MinigameTaskFactory<M: Minigame<M>> {
     /**
      * The id for the task that is being generated.
      */
-    val id: String
+    public val id: String
 
     /**
      * This creates a [Task] from the given [data] and
      * the task's [minigame] owner.
      *
      * @param minigame The owner of this task.
-     * @param data The serialized data.
+     * @param context The task creation context.
      * @return The generated task.
      */
-    fun create(minigame: M, context: TaskCreationContext): Task
+    public fun create(minigame: M, context: TaskCreationContext): Task
 }

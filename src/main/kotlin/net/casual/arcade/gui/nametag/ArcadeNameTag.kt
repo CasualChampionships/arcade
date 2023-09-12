@@ -29,16 +29,16 @@ import net.minecraft.server.level.ServerPlayer
  * @see Minigame.addNameTag
  * @see PlayerUI
  */
-class ArcadeNameTag(
+public class ArcadeNameTag(
     /**
      * The [ComponentSupplier] to get the player's nametag.
      */
-    var tag: ComponentSupplier,
+    public var tag: ComponentSupplier,
     /**
      * The predicate to determine which players can see
      * the player's nametag.
      */
-    val observable: ObserverPredicate = ObserverPredicate { _, _ -> true }
+    public val observable: ObserverPredicate = ObserverPredicate { _, _ -> true }
 ): PlayerUI() {
     override fun onAddPlayer(player: ServerPlayer) {
         player.nameTags.addNameTag(this)

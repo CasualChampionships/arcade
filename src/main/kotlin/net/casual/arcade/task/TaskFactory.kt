@@ -11,17 +11,17 @@ import net.casual.arcade.minigame.task.MinigameTaskFactory
  * @see SavableTask
  * @see MinigameTaskFactory
  */
-interface TaskFactory {
+public interface TaskFactory {
     /**
      * The id for the task that is being generated.
      */
-    val id: String
+    public val id: String
 
     /**
      * This creates a [Task] from the given [data].
      *
-     * @param data The serialized data.
+     * @param context The task creation context.
      * @return The generated task.
      */
-    fun create(context: TaskCreationContext): Task
+    public fun create(context: TaskCreationContext): Task
 }

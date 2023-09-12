@@ -1,6 +1,6 @@
 package net.casual.arcade.utils.impl
 
-class ConcatenatedList<E> private constructor(
+public class ConcatenatedList<E> private constructor(
     private val first: List<E>,
     private val second: List<E>
 ): AbstractList<E>() {
@@ -14,7 +14,7 @@ class ConcatenatedList<E> private constructor(
         return this.first[index]
     }
 
-    companion object {
+    public companion object {
         /**
          * This method returns a concatenated view of both lists.
          *
@@ -26,7 +26,7 @@ class ConcatenatedList<E> private constructor(
          * @param other The other list to concatenate with.
          * @return The concatenated view of the lists.
          */
-        fun <E> List<E>.concat(other: List<E>): List<E> {
+        public fun <E> List<E>.concat(other: List<E>): List<E> {
             return ConcatenatedList(this, other)
         }
     }

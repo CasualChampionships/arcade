@@ -6,7 +6,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
 
-data class PlayerBlockMinedEvent(
+public data class PlayerBlockMinedEvent(
     override val player: ServerPlayer,
     val pos: BlockPos,
     val state: BlockState,

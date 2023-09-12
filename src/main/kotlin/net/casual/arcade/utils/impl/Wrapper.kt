@@ -1,5 +1,6 @@
 package net.casual.arcade.utils.impl
 
-class Wrapper<T>(
-    val value: T
+@JvmInline
+public value class Wrapper<T>(
+    public val value: T
 )

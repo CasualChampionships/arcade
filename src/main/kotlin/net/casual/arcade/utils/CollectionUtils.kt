@@ -1,7 +1,7 @@
 package net.casual.arcade.utils
 
-object CollectionUtils {
-    fun <E: Comparable<E>> MutableList<E>.addSorted(sorted: List<E>) {
+public object CollectionUtils {
+    public fun <E: Comparable<E>> MutableList<E>.addSorted(sorted: List<E>) {
         if (sorted.isEmpty()) {
             return
         }

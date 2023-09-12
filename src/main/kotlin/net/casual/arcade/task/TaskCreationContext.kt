@@ -17,7 +17,7 @@ import net.casual.arcade.minigame.task.MinigameTaskFactory
  * @see MinigameTaskFactory
  * @see TaskWriteContext
  */
-interface TaskCreationContext {
+public interface TaskCreationContext {
     /**
      * This gets the custom data that was written
      * by the task.
@@ -26,7 +26,7 @@ interface TaskCreationContext {
      *
      * @return The serialized [JsonObject].
      */
-    fun getCustomData(): JsonObject
+    public fun getCustomData(): JsonObject
 
     /**
      * This provides the ability to create subtasks by passing
@@ -40,5 +40,5 @@ interface TaskCreationContext {
      * @param data The data to create another task.
      * @return The created task, null if it could not be created.
      */
-    fun createTask(data: JsonObject): Task?
+    public fun createTask(data: JsonObject): Task?
 }

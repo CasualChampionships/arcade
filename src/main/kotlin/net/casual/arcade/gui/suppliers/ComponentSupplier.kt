@@ -3,11 +3,11 @@ package net.casual.arcade.gui.suppliers
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 
-fun interface ComponentSupplier {
-    fun getComponent(player: ServerPlayer): Component
+public fun interface ComponentSupplier {
+    public fun getComponent(player: ServerPlayer): Component
 
-    companion object {
-        fun of(component: Component): ComponentSupplier {
+    public companion object {
+        public fun of(component: Component): ComponentSupplier {
             return Constant(component)
         }
     }

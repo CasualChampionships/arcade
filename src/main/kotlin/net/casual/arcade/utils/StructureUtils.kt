@@ -6,8 +6,8 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import java.nio.file.Files
 import java.nio.file.Path
 
-object StructureUtils {
-    fun read(path: Path): StructureTemplate {
+public object StructureUtils {
+    public fun read(path: Path): StructureTemplate {
         val inputStream = Files.newInputStream(path)
         val structureNBT = NbtIo.readCompressed(inputStream)
         return Arcade.getServer().structureManager.readStructure(structureNBT)

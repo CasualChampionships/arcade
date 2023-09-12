@@ -1,5 +1,5 @@
 package net.casual.arcade.settings
 
-fun interface SettingListener<T: Any> {
-    fun onSet(setting: GameSetting<T>, value: T)
+public fun interface SettingListener<T: Any> {
+    public fun onSet(setting: GameSetting<T>, value: T)
 }

@@ -24,7 +24,7 @@ import net.casual.arcade.events.core.Event
  * @see GlobalEventHandler
  * @see SingleEventHandler
  */
-interface ListenerHandler {
+public interface ListenerHandler {
     /**
      * This method gets all the [EventListener]s for a given
      * [Event] type, given by [type].
@@ -32,5 +32,5 @@ interface ListenerHandler {
      * @param type The type of the [Event] to get listeners for.
      * @return The list of [EventListener]s for the given [type].
      */
-    fun <T: Event> getListenersFor(type: Class<T>): List<EventListener<*>>
+    public fun <T: Event> getListenersFor(type: Class<T>): List<EventListener<*>>
 }

@@ -6,7 +6,7 @@ import net.minecraft.network.protocol.game.ServerboundResourcePackPacket
  * This enum represents a player's server-side
  * resource pack status.
  */
-enum class PackStatus {
+public enum class PackStatus {
     /**
      * Waiting for the player's response to receiving the
      * server-side resource pack request.
@@ -41,13 +41,13 @@ enum class PackStatus {
      */
     FAILED;
 
-    companion object {
+    public companion object {
         /**
          * This converts a [ServerboundResourcePackPacket.Action] to a [PackStatus].
          *
          * @return The corresponding pack status.
          */
-        fun ServerboundResourcePackPacket.Action.toPackStatus(): PackStatus {
+        public fun ServerboundResourcePackPacket.Action.toPackStatus(): PackStatus {
             return when (this) {
                 ServerboundResourcePackPacket.Action.SUCCESSFULLY_LOADED -> SUCCESS
                 ServerboundResourcePackPacket.Action.FAILED_DOWNLOAD -> FAILED

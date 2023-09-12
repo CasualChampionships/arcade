@@ -1,5 +1,5 @@
 package net.casual.arcade.area
 
-interface PlaceableArea: Area {
-    fun place(): Boolean
+public interface PlaceableArea: Area {
+    public fun place(): Boolean
 }

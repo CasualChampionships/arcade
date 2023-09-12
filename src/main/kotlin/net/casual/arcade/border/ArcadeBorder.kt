@@ -7,7 +7,7 @@ import net.minecraft.world.level.border.BorderStatus
 import net.minecraft.world.level.border.WorldBorder
 import net.minecraft.world.phys.shapes.VoxelShape
 
-abstract class ArcadeBorder: WorldBorder() {
+public abstract class ArcadeBorder: WorldBorder() {
     protected abstract var borderState: BorderState
     protected abstract var centerState: CenterBorderState
 
@@ -20,7 +20,7 @@ abstract class ArcadeBorder: WorldBorder() {
         return this.borderState.getStatus()
     }
 
-    fun getCenterStatus(): CenterBorderStatus {
+    public fun getCenterStatus(): CenterBorderStatus {
         return this.centerState.getStatus()
     }
 
@@ -53,11 +53,11 @@ abstract class ArcadeBorder: WorldBorder() {
         this.changeCenter(x, z)
     }
 
-    open fun lerpCenterTo(x: Double, z: Double, time: Long) {
+    public open fun lerpCenterTo(x: Double, z: Double, time: Long) {
         this.centerState = MovingCenterBorderState(this, this.centerState.getCenterX(), this.centerState.getCenterZ(), x, z, time)
     }
 
-    fun lerpCenterTo(x: Double, z: Double, duration: MinecraftTimeDuration) {
+    public fun lerpCenterTo(x: Double, z: Double, duration: MinecraftTimeDuration) {
         this.lerpCenterTo(x, z, duration.toMilliseconds().toLong())
     }
 
@@ -98,7 +98,7 @@ abstract class ArcadeBorder: WorldBorder() {
         }
     }
 
-    fun lerpSizeBetween(start: Double, end: Double, duration: MinecraftTimeDuration) {
+    public fun lerpSizeBetween(start: Double, end: Double, duration: MinecraftTimeDuration) {
         this.lerpSizeBetween(start, end, duration.toMilliseconds().toLong())
     }
 
@@ -114,7 +114,7 @@ abstract class ArcadeBorder: WorldBorder() {
         return this.borderState.getCollisionShape()
     }
 
-    fun isStationary(): Boolean {
+    public fun isStationary(): Boolean {
         return this.status === BorderStatus.STATIONARY && this.getCenterStatus() === CenterBorderStatus.STATIONARY
     }
 

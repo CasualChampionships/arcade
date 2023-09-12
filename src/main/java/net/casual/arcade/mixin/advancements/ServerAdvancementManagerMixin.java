@@ -39,7 +39,7 @@ public class ServerAdvancementManagerMixin {
 
 		MutableAdvancements mutable = (MutableAdvancements) advancements;
 		for (Advancement advancement : event.getAdvancements()) {
-			mutable.addAdvancement(advancement);
+			mutable.arcade$addAdvancement(advancement);
 		}
 	}
 }

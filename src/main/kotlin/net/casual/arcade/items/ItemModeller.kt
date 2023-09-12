@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack
  *
  * @see ResourcePackItemModeller
  */
-interface ItemModeller {
+public interface ItemModeller {
     /**
      * This gets the custom model id of a given
      * [ItemStack] to send to the client.
@@ -16,5 +16,5 @@ interface ItemModeller {
      * @param stack The stack to get the id of.
      * @return The custom model id.
      */
-    fun getModelId(stack: ItemStack): Int
+    public fun getModelId(stack: ItemStack): Int
 }

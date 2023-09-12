@@ -17,7 +17,7 @@ import net.minecraft.world.item.ItemStack
  * @param components The default [SelectionScreenComponents].
  * @see SelectionScreen
  */
-class SelectionScreenBuilder(
+public class SelectionScreenBuilder(
     components: SelectionScreenComponents = SelectionScreenComponents.DEFAULT
 ) {
     private val selections = ArrayList<Selection>()
@@ -26,32 +26,32 @@ class SelectionScreenBuilder(
     /**
      * The title of the selection screen.
      */
-    var title = components.getTitle()
+    public var title: Component = components.getTitle()
 
     /**
      * The previous [ItemStack] instance.
      */
-    var previous = components.getPrevious()
+    public var previous: ItemStack = components.getPrevious()
 
     /**
      * The back [ItemStack] instance.
      */
-    var back = components.getBack()
+    public var back: ItemStack = components.getBack()
 
     /**
      * The next [ItemStack] instance.
      */
-    var next = components.getNext()
+    public var next: ItemStack = components.getNext()
 
     /**
      * The filler [ItemStack] instance.
      */
-    var filler = components.getFiller()
+    public var filler: ItemStack = components.getFiller()
 
     /**
      * The parent [MenuProvider], may be null.
      */
-    var parent: MenuProvider? = null
+    public var parent: MenuProvider? = null
 
     /**
      * Sets the [title] [Component].
@@ -59,7 +59,7 @@ class SelectionScreenBuilder(
      * @param component The title.
      * @return The current [SelectionScreenBuilder].
      */
-    fun title(component: Component): SelectionScreenBuilder {
+    public fun title(component: Component): SelectionScreenBuilder {
         this.title = component
         return this
     }
@@ -70,7 +70,7 @@ class SelectionScreenBuilder(
      * @param stack The title.
      * @return The current [SelectionScreenBuilder].
      */
-    fun previous(stack: ItemStack): SelectionScreenBuilder {
+    public fun previous(stack: ItemStack): SelectionScreenBuilder {
         this.previous = stack
         return this
     }
@@ -81,7 +81,7 @@ class SelectionScreenBuilder(
      * @param stack The title.
      * @return The current [SelectionScreenBuilder].
      */
-    fun back(stack: ItemStack): SelectionScreenBuilder {
+    public fun back(stack: ItemStack): SelectionScreenBuilder {
         this.back = stack
         return this
     }
@@ -92,7 +92,7 @@ class SelectionScreenBuilder(
      * @param stack The title.
      * @return The current [SelectionScreenBuilder].
      */
-    fun next(stack: ItemStack): SelectionScreenBuilder {
+    public fun next(stack: ItemStack): SelectionScreenBuilder {
         this.next = stack
         return this
     }
@@ -103,7 +103,7 @@ class SelectionScreenBuilder(
      * @param stack The title.
      * @return The current [SelectionScreenBuilder].
      */
-    fun filler(stack: ItemStack): SelectionScreenBuilder {
+    public fun filler(stack: ItemStack): SelectionScreenBuilder {
         this.filler = stack
         return this
     }
@@ -114,7 +114,7 @@ class SelectionScreenBuilder(
      * @param provider The parent screen provider.
      * @return The current [SelectionScreenBuilder].
      */
-    fun parent(provider: MenuProvider?): SelectionScreenBuilder {
+    public fun parent(provider: MenuProvider?): SelectionScreenBuilder {
         this.parent = provider
         return this
     }
@@ -127,7 +127,7 @@ class SelectionScreenBuilder(
      * @param action The action to run when [stack] is clicked.
      * @return The current [SelectionScreenBuilder].
      */
-    fun selection(stack: ItemStack, action: (ServerPlayer) -> Unit): SelectionScreenBuilder {
+    public fun selection(stack: ItemStack, action: (ServerPlayer) -> Unit): SelectionScreenBuilder {
         this.selections.add(Selection(stack.copy(), action))
         return this
     }
@@ -139,7 +139,7 @@ class SelectionScreenBuilder(
      * @param ticker The [ItemStackTicker].
      * @return The current [SelectionScreenBuilder].
      */
-    fun ticker(ticker: ItemStackTicker): SelectionScreenBuilder {
+    public fun ticker(ticker: ItemStackTicker): SelectionScreenBuilder {
         this.tickers.add(ticker)
         return this
     }
@@ -151,7 +151,7 @@ class SelectionScreenBuilder(
      *
      * @return The built [MenuProvider].
      */
-    fun build(): MenuProvider {
+    public fun build(): MenuProvider {
         return SelectionScreen.createScreenFactory(
             this.title,
             this.selections,

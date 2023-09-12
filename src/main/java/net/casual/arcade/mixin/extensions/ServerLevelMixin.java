@@ -3,8 +3,8 @@ package net.casual.arcade.mixin.extensions;
 import net.casual.arcade.Arcade;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.level.LevelCreatedEvent;
-import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.ExtensionMap;
+import net.casual.arcade.extensions.MinecraftExtensionHolder;
 import net.casual.arcade.utils.ExtensionUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
@@ -39,8 +39,8 @@ import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 @Mixin(ServerLevel.class)
-public abstract class ServerLevelMixin extends Level implements ExtensionHolder {
-	@Unique private final ExtensionMap arcade_extensionMap = new ExtensionMap();
+public abstract class ServerLevelMixin extends Level implements MinecraftExtensionHolder {
+	@Unique private final ExtensionMap arcade$extensionMap = new ExtensionMap();
 	@Unique private Path arcade_savePath;
 
 	protected ServerLevelMixin(
@@ -108,8 +108,7 @@ public abstract class ServerLevelMixin extends Level implements ExtensionHolder 
 
 	@Unique
 	@NotNull
-	@Override
-	public ExtensionMap getExtensionMap() {
-		return this.arcade_extensionMap;
+	public ExtensionMap arcade$getExtensionMap() {
+		return this.arcade$extensionMap;
 	}
 }

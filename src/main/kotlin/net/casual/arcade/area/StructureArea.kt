@@ -9,12 +9,12 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate
 
-class StructureArea(
+public class StructureArea(
     private val structure: StructureTemplate,
     private val centre: Vec3i,
     override val level: ServerLevel
 ): PlaceableArea {
-    private val boundingBox by lazy(this::calculateBoundingBox)
+    private val box by lazy(this::calculateBoundingBox)
 
     override fun place(): Boolean {
         val dimensions = this.structure.size
@@ -26,7 +26,7 @@ class StructureArea(
     }
 
     override fun getBoundingBox(): BoundingBox {
-        return this.boundingBox
+        return this.box
     }
 
     private fun calculateBoundingBox(): BoundingBox {

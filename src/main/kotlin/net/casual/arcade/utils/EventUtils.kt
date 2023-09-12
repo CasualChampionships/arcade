@@ -4,17 +4,17 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerHandler
 import net.casual.arcade.events.core.Event
 
-object EventUtils {
-    fun <T: Event> T.broadcast(): T {
+public object EventUtils {
+    public fun <T: Event> T.broadcast(): T {
         GlobalEventHandler.broadcast(this)
         return this
     }
 
-    fun ListenerHandler.registerHandler() {
+    public fun ListenerHandler.registerHandler() {
         GlobalEventHandler.addHandler(this)
     }
 
-    fun ListenerHandler.unregisterHandler() {
+    public fun ListenerHandler.unregisterHandler() {
         GlobalEventHandler.removeHandler(this)
     }
 }

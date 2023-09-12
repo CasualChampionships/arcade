@@ -2,7 +2,6 @@ package net.casual.arcade.minigame.lobby
 
 import com.google.gson.JsonObject
 import net.casual.arcade.events.minigame.MinigameAddNewPlayerEvent
-import net.casual.arcade.events.minigame.MinigameAddPlayerEvent
 import net.casual.arcade.events.player.PlayerTickEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigamePhase
@@ -13,7 +12,7 @@ import net.minecraft.server.level.ServerLevel
 import org.jetbrains.annotations.ApiStatus.Experimental
 
 @Experimental
-class LobbyMinigame(
+public class LobbyMinigame(
     id: ResourceLocation,
     server: MinecraftServer,
     private val lobby: Lobby,
@@ -50,7 +49,7 @@ class LobbyMinigame(
         json.add("next_minigame", this.next.getDebugInfo())
     }
 
-    enum class Phases(override val id: String): MinigamePhase<LobbyMinigame> {
+    public enum class Phases(override val id: String): MinigamePhase<LobbyMinigame> {
         Waiting("waiting") {
             override fun start(minigame: LobbyMinigame) {
                 minigame.lobby.area.place()

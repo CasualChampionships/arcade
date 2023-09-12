@@ -9,7 +9,7 @@ import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
  * @see TickedScheduler
  * @see GlobalTickedScheduler
  */
-interface MinecraftScheduler {
+public interface MinecraftScheduler {
     /**
      * This method will schedule a [runnable] to be run
      * after a given [duration].
@@ -17,7 +17,7 @@ interface MinecraftScheduler {
      * @param duration The duration to wait before running the [runnable].
      * @param runnable The runnable to be scheduled.
      */
-    fun schedule(duration: MinecraftTimeDuration, runnable: Runnable)
+    public fun schedule(duration: MinecraftTimeDuration, runnable: Runnable)
 
     /**
      * This method will schedule a [runnable] to be run
@@ -27,7 +27,7 @@ interface MinecraftScheduler {
      * @param unit The units of time, by default [Ticks].
      * @param runnable The runnable to be scheduled.
      */
-    fun schedule(time: Int, unit: MinecraftTimeUnit = Ticks, runnable: Runnable) {
+    public fun schedule(time: Int, unit: MinecraftTimeUnit = Ticks, runnable: Runnable) {
         this.schedule(unit.duration(time), runnable)
     }
 
@@ -41,7 +41,7 @@ interface MinecraftScheduler {
      * @param duration The total duration the loop should be running for.
      * @param runnable The runnable to be scheduled.
      */
-    fun scheduleInLoop(
+    public fun scheduleInLoop(
         delay: MinecraftTimeDuration,
         interval: MinecraftTimeDuration,
         duration: MinecraftTimeDuration,
@@ -66,7 +66,7 @@ interface MinecraftScheduler {
      * @param unit The units of time for [delay], [interval], and [duration].
      * @param runnable The runnable to be scheduled.
      */
-    fun scheduleInLoop(
+    public fun scheduleInLoop(
         delay: Int,
         interval: Int,
         duration: Int,

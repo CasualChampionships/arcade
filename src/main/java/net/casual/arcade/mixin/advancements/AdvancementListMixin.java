@@ -23,7 +23,7 @@ public abstract class AdvancementListMixin implements MutableAdvancements {
 	@Shadow protected abstract void remove(Advancement advancement);
 
 	@Override
-	public void addAdvancement(@NotNull Advancement advancement) {
+	public void arcade$addAdvancement(@NotNull Advancement advancement) {
 		if (advancement.getParent() == null || this.advancements.containsKey(advancement.getParent().getId())) {
 			this.advancements.put(advancement.getId(), advancement);
 			if (advancement.getParent() == null) {
@@ -41,7 +41,7 @@ public abstract class AdvancementListMixin implements MutableAdvancements {
 	}
 
 	@Override
-	public void removeAdvancement(@NotNull Advancement advancement) {
+	public void arcade$removeAdvancement(@NotNull Advancement advancement) {
 		this.remove(advancement);
 	}
 }

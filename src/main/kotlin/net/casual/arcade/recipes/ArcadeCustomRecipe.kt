@@ -27,7 +27,7 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  * @param category The category of the recipe.
  * @see CraftingRecipeBuilder
  */
-abstract class ArcadeCustomRecipe(
+public abstract class ArcadeCustomRecipe(
     id: ResourceLocation,
     category: CraftingBookCategory
 ): CustomRecipe(id, category) {

@@ -2,6 +2,7 @@ package net.casual.arcade.events.player
 
 import net.casual.arcade.events.level.LevelEvent
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.MinigameEventHandler
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 
@@ -15,13 +16,13 @@ import net.minecraft.server.level.ServerPlayer
  * This interface also extends [LevelEvent] which
  * allows further filtering.
  *
- * @see Minigame.registerMinigameEvent
+ * @see MinigameEventHandler.register
  */
-interface PlayerEvent: LevelEvent {
+public interface PlayerEvent: LevelEvent {
     /**
      * The [ServerPlayer] that is tied to the event.
      */
-    val player: ServerPlayer
+    public val player: ServerPlayer
 
     /**
      * The [player]'s [ServerLevel].

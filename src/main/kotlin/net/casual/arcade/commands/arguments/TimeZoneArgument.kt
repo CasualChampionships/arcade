@@ -6,12 +6,11 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.type.CustomArgumentType
-import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import java.time.ZoneId
 import java.util.concurrent.CompletableFuture
 
-class TimeZoneArgument: CustomArgumentType(), ArgumentType<ZoneId> {
+public class TimeZoneArgument: CustomArgumentType(), ArgumentType<ZoneId> {
     override fun parse(reader: StringReader): ZoneId {
         return ZoneId.of(reader.readUnquotedString())
     }
@@ -20,14 +19,14 @@ class TimeZoneArgument: CustomArgumentType(), ArgumentType<ZoneId> {
         return SharedSuggestionProvider.suggest(ZoneId.getAvailableZoneIds().map { "\"$it\"" }, builder)
     }
 
-    companion object {
+    public companion object {
         @JvmStatic
-        fun timeZone(): TimeZoneArgument {
+        public fun timeZone(): TimeZoneArgument {
             return TimeZoneArgument()
         }
 
         @JvmStatic
-        fun getTimeZone(context: CommandContext<*>, string: String): ZoneId {
+        public fun getTimeZone(context: CommandContext<*>, string: String): ZoneId {
             return context.getArgument(string, ZoneId::class.java)
         }
     }

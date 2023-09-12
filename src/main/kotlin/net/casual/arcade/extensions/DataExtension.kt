@@ -46,7 +46,7 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  *
  * @see Extension
  */
-interface DataExtension: Extension {
+public interface DataExtension: Extension {
     /**
      * This gets the name of your extension.
      *
@@ -55,7 +55,7 @@ interface DataExtension: Extension {
      *
      * @return The name of your extension.
      */
-    fun getName(): String
+    public fun getName(): String
 
     /**
      * This method serializes any data in your extension.
@@ -66,7 +66,7 @@ interface DataExtension: Extension {
      * @return The serialized data.
      */
     @OverrideOnly
-    fun serialize(): Tag
+    public fun serialize(): Tag
 
     /**
      * This method deserializes any data for your extension.
@@ -77,5 +77,5 @@ interface DataExtension: Extension {
      * @param element The serialized data.
      */
     @OverrideOnly
-    fun deserialize(element: Tag)
+    public fun deserialize(element: Tag)
 }

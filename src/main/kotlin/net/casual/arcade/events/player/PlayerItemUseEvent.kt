@@ -6,7 +6,7 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.item.ItemStack
 
-data class PlayerItemUseEvent(
+public data class PlayerItemUseEvent(
     override val player: ServerPlayer,
     val stack: ItemStack,
     val hand: InteractionHand

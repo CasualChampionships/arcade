@@ -4,7 +4,7 @@ import net.casual.arcade.events.core.CancellableEvent
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 
-data class PlayerItemFinishEvent(
+public data class PlayerItemFinishEvent(
     override val player: ServerPlayer,
     val stack: ItemStack
 ): CancellableEvent.Typed<ItemStack>(), PlayerEvent

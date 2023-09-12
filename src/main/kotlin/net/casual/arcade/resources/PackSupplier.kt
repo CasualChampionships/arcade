@@ -7,15 +7,15 @@ package net.casual.arcade.resources
  * @see PackHost
  * @see ReadablePack
  */
-fun interface PackSupplier {
+public fun interface PackSupplier {
     /**
      * This gets all the currently available packs.
      *
      * @return The available [ReadablePack]s.
      */
-    fun getPacks(): Iterable<ReadablePack>
+    public fun getPacks(): Iterable<ReadablePack>
 
-    companion object {
+    public companion object {
         /**
          * Creates a [PackSupplier] from a given number of [ReadablePack]s.
          *
@@ -23,7 +23,7 @@ fun interface PackSupplier {
          * @return A created [PackSupplier] to supply the given packs.
          */
         @JvmStatic
-        fun of(vararg packs: ReadablePack): PackSupplier {
+        public fun of(vararg packs: ReadablePack): PackSupplier {
             val list = packs.toList()
             return PackSupplier { list }
         }

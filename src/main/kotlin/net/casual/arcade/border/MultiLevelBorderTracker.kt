@@ -4,13 +4,13 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.border.WorldBorder
 import java.util.*
 
-class MultiLevelBorderTracker {
+public class MultiLevelBorderTracker {
     private val tracking = HashMap<TrackedBorder, ServerLevel>()
     private val completed = HashSet<TrackedBorder>()
 
     private val listeners = ArrayList<MultiLevelBorderListener>()
 
-    fun addLevelBorder(level: ServerLevel) {
+    public fun addLevelBorder(level: ServerLevel) {
         val border = this.castToTracked(level.worldBorder)
         border.addTracker(this)
         this.tracking[border] = level
@@ -20,7 +20,7 @@ class MultiLevelBorderTracker {
         }
     }
 
-    fun removeLevelBorder(level: ServerLevel) {
+    public fun removeLevelBorder(level: ServerLevel) {
         val border = this.castToTracked(level.worldBorder)
         border.removeTracker(this)
         this.tracking.remove(border)
@@ -28,15 +28,15 @@ class MultiLevelBorderTracker {
         this.completed.remove(border)
     }
 
-    fun addListener(listener: MultiLevelBorderListener) {
+    public fun addListener(listener: MultiLevelBorderListener) {
         this.listeners.add(listener)
     }
 
-    fun initialiseBorders() {
+    public fun initialiseBorders() {
         this.listeners.forEach { it.onInitialiseBorder(this.getAllTracking()) }
     }
 
-    fun getAllTracking(): Map<TrackedBorder, ServerLevel> {
+    public fun getAllTracking(): Map<TrackedBorder, ServerLevel> {
         return Collections.unmodifiableMap(this.tracking)
     }
 

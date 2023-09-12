@@ -6,7 +6,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Mob
 import net.minecraft.world.entity.SpawnGroupData
 
-data class MobSpawnEvent(
+public data class MobSpawnEvent(
     override val level: ServerLevel,
     val mob: Mob,
     val data: SpawnGroupData?

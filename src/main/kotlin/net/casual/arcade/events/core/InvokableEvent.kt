@@ -16,7 +16,7 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  * multiple listeners call [invoke] on the
  * same event.
  */
-abstract class InvokableEvent<T>: CancellableEvent.Typed<T>() {
+public abstract class InvokableEvent<T>: CancellableEvent.Typed<T>() {
     /**
      * The result of the invocation.
      */
@@ -31,7 +31,7 @@ abstract class InvokableEvent<T>: CancellableEvent.Typed<T>() {
      *
      * @return The return value of the event.
      */
-    fun invoke(): T {
+    public fun invoke(): T {
         val result = this.result.value
         this.cancel(result)
         return result
@@ -43,7 +43,7 @@ abstract class InvokableEvent<T>: CancellableEvent.Typed<T>() {
      *
      * @return Whether the event has been invoked.
      */
-    fun invoked(): Boolean {
+    public fun invoked(): Boolean {
         return this.result.isInitialized()
     }
 
@@ -77,7 +77,7 @@ abstract class InvokableEvent<T>: CancellableEvent.Typed<T>() {
      * to be cancelled by the user of the event, only when
      * invoked.
      */
-    abstract class Uncancellable: InvokableEvent<Void>() {
+    public abstract class Uncancellable: InvokableEvent<Void>() {
         final override fun execute(): Void {
             this.call()
             return Void

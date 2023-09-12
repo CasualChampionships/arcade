@@ -4,7 +4,7 @@ import org.apache.commons.io.FilenameUtils
 import java.io.InputStream
 import java.net.URL
 
-class URLPack(
+public class URLPack(
     private val url: URL
 ): ReadablePack {
     override val name: String

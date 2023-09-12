@@ -14,7 +14,8 @@ public class PlayerTeamMixin {
 		method = "<init>",
 		at = @At(
 			value = "INVOKE",
-			target = "Lcom/google/common/collect/Sets;newHashSet()Ljava/util/HashSet;"
+			target = "Lcom/google/common/collect/Sets;newHashSet()Ljava/util/HashSet;",
+			remap = false
 		)
 	)
 	private <E> HashSet<E> onNewHashSet() {

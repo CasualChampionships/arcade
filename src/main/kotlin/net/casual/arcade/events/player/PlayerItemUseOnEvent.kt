@@ -6,7 +6,7 @@ import net.minecraft.world.InteractionResult
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.context.UseOnContext
 
-data class PlayerItemUseOnEvent(
+public data class PlayerItemUseOnEvent(
     override val player: ServerPlayer,
     val stack: ItemStack,
     val context: UseOnContext

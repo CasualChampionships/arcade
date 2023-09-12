@@ -22,7 +22,7 @@ import java.util.function.Consumer
  * @see GlobalEventHandler
  * @see ListenerHandler
  */
-class EventHandler: EventRegisterer {
+public class EventHandler: EventRegisterer {
     private val events = HashMap<Class<out Event>, ArrayList<EventListener<*>>>()
 
     /**
@@ -51,7 +51,7 @@ class EventHandler: EventRegisterer {
      * @param priority The priority of your event listener.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    inline fun <reified T: Event> register(priority: Int = 1_000, listener: Consumer<T>) {
+    public inline fun <reified T: Event> register(priority: Int = 1_000, listener: Consumer<T>) {
         this.register(T::class.java, priority, listener)
     }
 
@@ -75,7 +75,7 @@ class EventHandler: EventRegisterer {
     /**
      * Clears all event listeners from this EventHandler.
      */
-    fun clear() {
+    public fun clear() {
         this.events.clear()
     }
 

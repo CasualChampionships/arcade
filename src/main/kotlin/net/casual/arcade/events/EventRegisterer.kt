@@ -3,7 +3,7 @@ package net.casual.arcade.events
 import net.casual.arcade.events.core.Event
 import java.util.function.Consumer
 
-interface EventRegisterer: ListenerHandler {
+public interface EventRegisterer: ListenerHandler {
     /**
      * Registers an event listener with a given priority.
      *
@@ -20,7 +20,7 @@ interface EventRegisterer: ListenerHandler {
      * @param priority The priority of your event listener.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    fun <T: Event> register(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
+    public fun <T: Event> register(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
         this.register(type, EventListener.of(priority, listener))
     }
 
@@ -35,6 +35,6 @@ interface EventRegisterer: ListenerHandler {
      * @param type The class of the event that you want to listen to.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    fun <T: Event> register(type: Class<T>, listener: EventListener<T>)
+    public fun <T: Event> register(type: Class<T>, listener: EventListener<T>)
 }
 

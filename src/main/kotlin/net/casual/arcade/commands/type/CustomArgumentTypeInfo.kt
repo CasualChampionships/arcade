@@ -2,6 +2,6 @@ package net.casual.arcade.commands.type
 
 import com.mojang.brigadier.arguments.ArgumentType
 
-interface CustomArgumentTypeInfo {
-    fun getFacadeType(): Class<out ArgumentType<*>>
+public interface CustomArgumentTypeInfo {
+    public fun getFacadeType(): Class<out ArgumentType<*>>
 }

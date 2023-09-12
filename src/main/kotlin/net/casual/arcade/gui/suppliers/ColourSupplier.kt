@@ -3,11 +3,11 @@ package net.casual.arcade.gui.suppliers
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.BossEvent.BossBarColor
 
-fun interface ColourSupplier {
-    fun getColour(player: ServerPlayer): BossBarColor
+public fun interface ColourSupplier {
+    public fun getColour(player: ServerPlayer): BossBarColor
 
-    companion object {
-        fun of(colour: BossBarColor): ColourSupplier {
+    public companion object {
+        public fun of(colour: BossBarColor): ColourSupplier {
             return Constant(colour)
         }
     }

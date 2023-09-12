@@ -3,18 +3,18 @@ package net.casual.arcade.settings
 import net.casual.arcade.items.HashableItemStack
 import net.minecraft.world.item.ItemStack
 
-class DisplayableGameSetting<T: Any>(
-    val display: ItemStack,
-    val setting: GameSetting<T>,
+public class DisplayableGameSetting<T: Any>(
+    public val display: ItemStack,
+    public val setting: GameSetting<T>,
     private val options: Map<HashableItemStack, T>
 ) {
-    fun forEachOption(consumer: (ItemStack, T) -> Unit) {
+    public fun forEachOption(consumer: (ItemStack, T) -> Unit) {
         for ((hashable, value) in this.options) {
             consumer(hashable.stack, value)
         }
     }
 
-    fun getValue(option: ItemStack): T? {
+    public fun getValue(option: ItemStack): T? {
         return this.options[HashableItemStack(option)]
     }
 }

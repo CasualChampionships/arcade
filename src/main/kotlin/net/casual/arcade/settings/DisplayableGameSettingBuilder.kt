@@ -3,7 +3,7 @@ package net.casual.arcade.settings
 import net.casual.arcade.items.HashableItemStack
 import net.minecraft.world.item.ItemStack
 
-class DisplayableGameSettingBuilder<T: Any>(
+public class DisplayableGameSettingBuilder<T: Any>(
     private val constructor: (String, T, Map<String, T>) -> GameSetting<T>
 ) {
     private val options = LinkedHashMap<String, T>()
@@ -11,37 +11,37 @@ class DisplayableGameSettingBuilder<T: Any>(
 
     private val listeners = ArrayList<SettingListener<T>>()
 
-    var name: String = ""
-    var display: ItemStack = ItemStack.EMPTY
-    var value: T? = null
+    public var name: String = ""
+    public var display: ItemStack = ItemStack.EMPTY
+    public var value: T? = null
 
-    fun name(name: String): DisplayableGameSettingBuilder<T> {
+    public fun name(name: String): DisplayableGameSettingBuilder<T> {
         this.name = name
         return this
     }
 
-    fun display(stack: ItemStack): DisplayableGameSettingBuilder<T> {
+    public fun display(stack: ItemStack): DisplayableGameSettingBuilder<T> {
         this.display = stack
         return this
     }
 
-    fun value(value: T): DisplayableGameSettingBuilder<T> {
+    public fun value(value: T): DisplayableGameSettingBuilder<T> {
         this.value = value
         return this
     }
 
-    fun option(name: String, stack: ItemStack, value: T): DisplayableGameSettingBuilder<T> {
+    public fun option(name: String, stack: ItemStack, value: T): DisplayableGameSettingBuilder<T> {
         this.options[name] = value
         this.stacks[HashableItemStack(stack)] = value
         return this
     }
 
-    fun listener(listener: SettingListener<T>): DisplayableGameSettingBuilder<T> {
+    public fun listener(listener: SettingListener<T>): DisplayableGameSettingBuilder<T> {
         this.listeners.add(listener)
         return this
     }
 
-    fun build(): DisplayableGameSetting<T> {
+    public fun build(): DisplayableGameSetting<T> {
         if (this.name.isEmpty()) {
             throw IllegalStateException("No name to build GameSetting")
         }
@@ -56,24 +56,24 @@ class DisplayableGameSettingBuilder<T: Any>(
         return DisplayableGameSetting(this.display, setting, this.stacks)
     }
 
-    companion object {
-        fun boolean(): DisplayableGameSettingBuilder<Boolean> {
+    public companion object {
+        public fun boolean(): DisplayableGameSettingBuilder<Boolean> {
             return DisplayableGameSettingBuilder(::BooleanGameSetting)
         }
 
-        fun integer(): DisplayableGameSettingBuilder<Int> {
+        public fun integer(): DisplayableGameSettingBuilder<Int> {
             return DisplayableGameSettingBuilder(::IntegerGameSetting)
         }
 
-        fun long(): DisplayableGameSettingBuilder<Long> {
+        public fun long(): DisplayableGameSettingBuilder<Long> {
             return DisplayableGameSettingBuilder(::LongGameSetting)
         }
 
-        fun double(): DisplayableGameSettingBuilder<Double> {
+        public fun double(): DisplayableGameSettingBuilder<Double> {
             return DisplayableGameSettingBuilder(::DoubleGameSetting)
         }
 
-        fun <E: Enum<E>> enum(): DisplayableGameSettingBuilder<E> {
+        public fun <E: Enum<E>> enum(): DisplayableGameSettingBuilder<E> {
             return DisplayableGameSettingBuilder(::EnumGameSetting)
         }
     }

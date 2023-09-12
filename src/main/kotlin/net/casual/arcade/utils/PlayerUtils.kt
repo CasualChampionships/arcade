@@ -3,12 +3,12 @@ package net.casual.arcade.utils
 import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
-import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.ExtensionUtils.addExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtensions
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
+import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.impl.Sound
 import net.minecraft.advancements.Advancement
 import net.minecraft.core.Direction8
@@ -17,12 +17,8 @@ import net.minecraft.network.chat.ChatType
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.OutgoingChatMessage
 import net.minecraft.network.chat.PlayerChatMessage
-import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket
-import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket
+import net.minecraft.network.protocol.game.*
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.Action.ADD
-import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket
-import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket
-import net.minecraft.network.protocol.game.ClientboundStopSoundPacket
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvent
@@ -34,35 +30,36 @@ import net.minecraft.world.phys.Vec3
 import net.minecraft.world.scores.PlayerTeam
 import java.util.function.Consumer
 
-object PlayerUtils {
+public object PlayerUtils {
     @JvmStatic
-    val ServerPlayer.location
+    public val ServerPlayer.location: Location
         get() = Location(this.serverLevel(), Vec3(this.x, this.y, this.z), Vec2(this.xRot, this.yRot))
 
     @JvmStatic
-    val ServerPlayer.isSurvival get() = this.isGameMode(GameType.SURVIVAL)
+    public val ServerPlayer.isSurvival: Boolean
+        get() = this.isGameMode(GameType.SURVIVAL)
 
     @JvmStatic
-    fun players(): Collection<ServerPlayer> {
+    public fun players(): Collection<ServerPlayer> {
         return Arcade.getServer().playerList.players
     }
 
     @JvmStatic
-    fun forEveryPlayer(consumer: Consumer<ServerPlayer>) {
+    public fun forEveryPlayer(consumer: Consumer<ServerPlayer>) {
         for (player in this.players()) {
             consumer.accept(player)
         }
     }
 
     @JvmStatic
-    fun broadcast(message: Component) {
+    public fun broadcast(message: Component) {
         for (player in this.players()) {
             player.sendSystemMessage(message)
         }
     }
 
     @JvmStatic
-    fun broadcastToOps(message: Component) {
+    public fun broadcastToOps(message: Component) {
         for (player in this.players()) {
             if (player.hasPermissions(2)) {
                 player.sendSystemMessage(message)
@@ -72,7 +69,7 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun spread(
+    public fun spread(
         level: ServerLevel,
         center: Vec2,
         distance: Double,
@@ -84,31 +81,31 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun player(name: String): ServerPlayer? {
+    public fun player(name: String): ServerPlayer? {
         return Arcade.getServer().playerList.getPlayerByName(name)
     }
 
     @JvmStatic
-    fun ServerPlayer.clearPlayerInventory() {
+    public fun ServerPlayer.clearPlayerInventory() {
         this.inventory.clearContent()
         this.inventoryMenu.clearCraftingContent()
         this.inventoryMenu.carried = ItemStack.EMPTY
     }
 
     @JvmStatic
-    fun ServerPlayer.isGameMode(mode: GameType): Boolean {
+    public fun ServerPlayer.isGameMode(mode: GameType): Boolean {
         return this.gameMode.gameModeForPlayer == mode
     }
 
     @JvmStatic
-    fun ServerPlayer.spoofTeam(team: PlayerTeam) {
+    public fun ServerPlayer.spoofTeam(team: PlayerTeam) {
         this.server.playerList.broadcastAll(
             ClientboundSetPlayerTeamPacket.createPlayerPacket(team, this.scoreboardName, ADD)
         )
     }
 
     @JvmStatic
-    fun ServerPlayer.grantAdvancement(advancement: Advancement) {
+    public fun ServerPlayer.grantAdvancement(advancement: Advancement) {
         val progress = this.advancements.getOrStartProgress(advancement)
         if (!progress.isDone) {
             for (string in progress.remainingCriteria) {
@@ -118,7 +115,7 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun ServerPlayer.revokeAdvancement(advancement: Advancement) {
+    public fun ServerPlayer.revokeAdvancement(advancement: Advancement) {
         val progress = this.advancements.getOrStartProgress(advancement)
         if (progress.hasProgress()) {
             for (string in progress.completedCriteria) {
@@ -128,12 +125,12 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun ServerPlayer.teleportTo(location: Location) {
+    public fun ServerPlayer.teleportTo(location: Location) {
         this.teleportTo(location.level, location.x, location.y, location.z, location.yaw, location.pitch)
     }
 
     @JvmStatic
-    fun ServerPlayer.sendTitle(title: Component, subtitle: Component? = null) {
+    public fun ServerPlayer.sendTitle(title: Component, subtitle: Component? = null) {
         this.connection.send(ClientboundSetTitleTextPacket(title))
         if (subtitle != null) {
             this.connection.send(ClientboundSetSubtitleTextPacket(subtitle))
@@ -142,7 +139,7 @@ object PlayerUtils {
 
     @JvmStatic
     @JvmOverloads
-    fun ServerPlayer.sendSubtitle(subtitle: Component, force: Boolean = false) {
+    public fun ServerPlayer.sendSubtitle(subtitle: Component, force: Boolean = false) {
         if (force) {
             this.sendTitle(Component.empty(), subtitle)
             return
@@ -151,13 +148,13 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun ServerPlayer.sendSound(sound: Sound) {
+    public fun ServerPlayer.sendSound(sound: Sound) {
         this.sendSound(sound.sound, sound.source, sound.volume, sound.pitch)
     }
 
     @JvmStatic
     @JvmOverloads
-    fun ServerPlayer.sendSound(
+    public fun ServerPlayer.sendSound(
         sound: SoundEvent,
         source: SoundSource = SoundSource.MASTER,
         volume: Float = 1.0F,
@@ -168,33 +165,33 @@ object PlayerUtils {
 
     @JvmStatic
     @JvmOverloads
-    fun ServerPlayer.stopSound(sound: SoundEvent, source: SoundSource? = null) {
+    public fun ServerPlayer.stopSound(sound: SoundEvent, source: SoundSource? = null) {
         this.connection.send(ClientboundStopSoundPacket(sound.location, source))
     }
 
     @JvmStatic
     @JvmOverloads
-    fun ServerPlayer.stopAllSounds(source: SoundSource? = null) {
+    public fun ServerPlayer.stopAllSounds(source: SoundSource? = null) {
         this.connection.send(ClientboundStopSoundPacket(null, source))
     }
 
     @JvmStatic
-    fun ServerPlayer.message(message: Component) {
+    public fun ServerPlayer.message(message: Component) {
         this.message(PlayerChatMessage.unsigned(this.uuid, message.string).withUnsignedContent(message))
     }
 
     @JvmStatic
-    fun ServerPlayer.message(message: PlayerChatMessage) {
+    public fun ServerPlayer.message(message: PlayerChatMessage) {
         this.server.playerList.broadcastChatMessage(message, this, ChatType.bind(ChatType.CHAT, this))
     }
 
     @JvmStatic
-    fun ServerPlayer.teamMessage(message: Component): Boolean {
+    public fun ServerPlayer.teamMessage(message: Component): Boolean {
         return this.teamMessage(PlayerChatMessage.unsigned(this.uuid, message.string).withUnsignedContent(message))
     }
 
     @JvmStatic
-    fun ServerPlayer.teamMessage(message: PlayerChatMessage): Boolean {
+    public fun ServerPlayer.teamMessage(message: PlayerChatMessage): Boolean {
         val team = this.team ?: return false
 
         val teamDisplay = team.asPlayerTeam().displayName
@@ -212,7 +209,7 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun ServerPlayer.distanceToBorders(): Vec3 {
+    public fun ServerPlayer.distanceToBorders(): Vec3 {
         val border = this.level().worldBorder
         val distanceToEast = this.x - border.minX
         val distanceToWest = border.maxX - this.x
@@ -224,7 +221,7 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun ServerPlayer.distanceToNearestBorder(): Vec3 {
+    public fun ServerPlayer.distanceToNearestBorder(): Vec3 {
         val distance = this.distanceToBorders()
         return when {
             distance.x < 0 && distance.z < 0 -> distance
@@ -236,7 +233,7 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun ServerPlayer.directionVectorToBorders(): Vec3 {
+    public fun ServerPlayer.directionVectorToBorders(): Vec3 {
         val border = this.level().worldBorder
         val distanceToEast = this.x - border.minX
         val distanceToWest = border.maxX - this.x
@@ -248,7 +245,7 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun ServerPlayer.directionVectorToNearestBorder(): Vec3 {
+    public fun ServerPlayer.directionVectorToNearestBorder(): Vec3 {
         val distance = this.distanceToBorders()
         val direction = this.directionVectorToBorders()
         return when {
@@ -261,7 +258,7 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun ServerPlayer.directionToNearestBorder(): Direction8 {
+    public fun ServerPlayer.directionToNearestBorder(): Direction8 {
         val direction = this.directionVectorToNearestBorder()
         return if (direction.x < 0) {
             if (direction.z < 0) {
@@ -289,7 +286,7 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun ServerPlayer.sendParticles(
+    public fun ServerPlayer.sendParticles(
         options: ParticleOptions,
         position: Vec3,
         xDist: Float = 0.0F,
@@ -305,17 +302,17 @@ object PlayerUtils {
     }
 
     @JvmStatic
-    fun ServerPlayer.addExtension(extension: Extension) {
+    public fun ServerPlayer.addExtension(extension: Extension) {
         (this as ExtensionHolder).addExtension(extension)
     }
 
     @JvmStatic
-    fun <T: Extension> ServerPlayer.getExtension(type: Class<T>): T {
+    public fun <T: Extension> ServerPlayer.getExtension(type: Class<T>): T {
         return (this as ExtensionHolder).getExtension(type)
     }
 
     @JvmStatic
-    fun ServerPlayer.getExtensions(): Collection<Extension> {
+    public fun ServerPlayer.getExtensions(): Collection<Extension> {
         return (this as ExtensionHolder).getExtensions()
     }
 }

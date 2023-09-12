@@ -2,18 +2,18 @@ package net.casual.arcade.gui.suppliers
 
 import net.minecraft.server.level.ServerPlayer
 
-fun interface BooleanSupplier {
-    fun get(player: ServerPlayer): Boolean
+public fun interface BooleanSupplier {
+    public fun get(player: ServerPlayer): Boolean
 
-    companion object {
+    public companion object {
         private val TRUE = BooleanSupplier { true }
         private val FALSE = BooleanSupplier { false }
 
-        fun alwaysTrue(): BooleanSupplier {
+        public fun alwaysTrue(): BooleanSupplier {
             return TRUE
         }
 
-        fun alwaysFalse(): BooleanSupplier {
+        public fun alwaysFalse(): BooleanSupplier {
             return FALSE
         }
     }

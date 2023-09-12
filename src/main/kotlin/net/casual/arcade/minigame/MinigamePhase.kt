@@ -48,14 +48,14 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  * }
  * ```
  */
-interface MinigamePhase<M: Minigame<M>> {
+public interface MinigamePhase<M: Minigame<M>> {
     /**
      * The identifier for the phase, this should be unique
      * to avoid overlapping phase names.
      *
      * Generally the id should follow `snake_case`.
      */
-    val id: String
+    public val id: String
 
     /**
      * The ordinal of the phase.
@@ -65,7 +65,7 @@ interface MinigamePhase<M: Minigame<M>> {
      * If you use an [Enum] to represent your [MinigamePhase]s
      * then you do not need to override this field.
      */
-    val ordinal: Int
+    public val ordinal: Int
 
     /**
      * This method is called when the [minigame]s
@@ -84,7 +84,7 @@ interface MinigamePhase<M: Minigame<M>> {
      * @see initialise
      */
     @OverrideOnly
-    fun start(minigame: M) {
+    public fun start(minigame: M) {
 
     }
 
@@ -118,7 +118,7 @@ interface MinigamePhase<M: Minigame<M>> {
      * @see start
      */
     @OverrideOnly
-    fun initialise(minigame: M) {
+    public fun initialise(minigame: M) {
 
     }
 
@@ -138,14 +138,14 @@ interface MinigamePhase<M: Minigame<M>> {
      * @see start
      */
     @OverrideOnly
-    fun end(minigame: M) {
+    public fun end(minigame: M) {
 
     }
 
     // We don't implement Comparable<MinigamePhase<M>>
     // because it causes conflicts when inheriting with Enum
     @NonExtendable
-    operator fun compareTo(other: MinigamePhase<*>): Int {
+    public operator fun compareTo(other: MinigamePhase<*>): Int {
         return this.ordinal.compareTo(other.ordinal)
     }
 
@@ -167,7 +167,7 @@ interface MinigamePhase<M: Minigame<M>> {
         }
     }
 
-    companion object {
+    public companion object {
         private val NONE: MinigamePhase<*> = None()
         private val END: MinigamePhase<*> = End()
 
@@ -177,7 +177,7 @@ interface MinigamePhase<M: Minigame<M>> {
          *
          * @return The none minigame phase instance.
          */
-        fun <M: Minigame<M>> none(): MinigamePhase<M> {
+        public fun <M: Minigame<M>> none(): MinigamePhase<M> {
             @Suppress("UNCHECKED_CAST")
             return NONE as MinigamePhase<M>
         }
@@ -189,7 +189,7 @@ interface MinigamePhase<M: Minigame<M>> {
          *
          * @return The end minigame phase instance.
          */
-        fun <M: Minigame<M>> end(): MinigamePhase<M> {
+        public fun <M: Minigame<M>> end(): MinigamePhase<M> {
             @Suppress("UNCHECKED_CAST")
             return END as MinigamePhase<M>
         }

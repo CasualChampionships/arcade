@@ -1,5 +1,5 @@
 package net.casual.arcade.border.state
 
-enum class CenterBorderStatus {
+public enum class CenterBorderStatus {
     MOVING, STATIONARY
 }

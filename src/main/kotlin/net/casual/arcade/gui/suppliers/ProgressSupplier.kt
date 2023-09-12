@@ -2,11 +2,11 @@ package net.casual.arcade.gui.suppliers
 
 import net.minecraft.server.level.ServerPlayer
 
-fun interface ProgressSupplier {
-    fun getProgress(player: ServerPlayer): Float
+public fun interface ProgressSupplier {
+    public fun getProgress(player: ServerPlayer): Float
 
-    companion object {
-        fun of(progress: Float): ProgressSupplier {
+    public companion object {
+        public fun of(progress: Float): ProgressSupplier {
             return Constant(progress)
         }
     }

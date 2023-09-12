@@ -6,8 +6,8 @@ import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.server.level.ServerPlayer
 
-object ShapeUtils {
-    fun ArcadeShape.drawAsParticlesFor(
+public object ShapeUtils {
+    public fun ArcadeShape.drawAsParticlesFor(
         player: ServerPlayer,
         particle: ParticleOptions = ParticleTypes.END_ROD,
         steps: Int = 10

@@ -14,7 +14,7 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  * using [addPlayer], [removePlayer], and [clearPlayers]
  * respectively.
  */
-abstract class PlayerUI {
+public abstract class PlayerUI {
     private val connections = HashSet<ServerGamePacketListenerImpl>()
 
     internal var interval = 1
@@ -32,7 +32,7 @@ abstract class PlayerUI {
      *
      * @param interval The duration between each update; cannot be less than 1.
      */
-    fun setInterval(interval: Int) {
+    public fun setInterval(interval: Int) {
         this.interval = interval.coerceAtLeast(1)
     }
 
@@ -42,7 +42,7 @@ abstract class PlayerUI {
      *
      * @param player The player to add.
      */
-    fun addPlayer(player: ServerPlayer) {
+    public fun addPlayer(player: ServerPlayer) {
         if (this.connections.add(player.connection)) {
             this.onAddPlayer(player)
         }
@@ -54,7 +54,7 @@ abstract class PlayerUI {
      *
      * @param player The player to remove.
      */
-    fun removePlayer(player: ServerPlayer) {
+    public fun removePlayer(player: ServerPlayer) {
         if (this.connections.remove(player.connection)) {
             this.onRemovePlayer(player)
         }
@@ -63,7 +63,7 @@ abstract class PlayerUI {
     /**
      * Clears all the players from the [PlayerUI] component.
      */
-    fun clearPlayers() {
+    public fun clearPlayers() {
         for (player in this.getPlayers()) {
             this.removePlayer(player)
         }
@@ -75,7 +75,7 @@ abstract class PlayerUI {
      *
      * @return All the players being displayed the [PlayerUI].
      */
-    fun getPlayers(): List<ServerPlayer> {
+    public fun getPlayers(): List<ServerPlayer> {
         return this.connections.map { it.player }
     }
 }

@@ -1,8 +1,8 @@
 package net.casual.arcade.events.minigame
 
 import net.casual.arcade.events.core.Event
-import net.casual.arcade.events.level.LevelEvent
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.MinigameEventHandler
 
 /**
  * Superclass for all minigame-related events.
@@ -11,11 +11,11 @@ import net.casual.arcade.minigame.Minigame
  * in [Minigame]s, allowing you to only listen to
  * [MinigameEvent]s for the levels in the given [Minigame].
  *
- * @see Minigame.registerMinigameEvent
+ * @see MinigameEventHandler.register
  */
-interface MinigameEvent: Event {
+public interface MinigameEvent: Event {
     /**
      * The [Minigame] that is tied to the event.
      */
-    val minigame: Minigame<*>
+    public val minigame: Minigame<*>
 }

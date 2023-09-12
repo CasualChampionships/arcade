@@ -13,13 +13,13 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.Scoreboard.DISPLAY_SLOT_BELOW_NAME
 import kotlin.random.Random
 
-class ArcadeNameScoreDisplay(title: Component): PlayerUI() {
+public class ArcadeNameScoreDisplay(title: Component): PlayerUI() {
     private val objective = ScoreboardUtils.dummyObjective(Random.nextInt(Int.MAX_VALUE).toString(16))
 
-    var title: Component = title
+    public var title: Component = title
         private set
 
-    fun setTitle(title: Component) {
+    public fun setTitle(title: Component) {
         this.title = title
         this.objective.displayName = this.title
         val packet = ClientboundSetObjectivePacket(this.objective, METHOD_CHANGE)
@@ -28,7 +28,7 @@ class ArcadeNameScoreDisplay(title: Component): PlayerUI() {
         }
     }
 
-    fun setScore(player: ServerPlayer, score: Int) {
+    public fun setScore(player: ServerPlayer, score: Int) {
         val packet = ClientboundSetScorePacket(CHANGE, this.objective.name, player.scoreboardName, score)
         for (watching in this.getPlayers()) {
             watching.connection.send(packet)

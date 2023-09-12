@@ -5,13 +5,13 @@ import net.casual.arcade.gui.suppliers.ComponentSupplier
 import net.casual.arcade.utils.TabUtils.tabDisplay
 import net.minecraft.server.level.ServerPlayer
 
-class ArcadeTabDisplay(header: ComponentSupplier, footer: ComponentSupplier): PlayerUI() {
-    var header = header
+public class ArcadeTabDisplay(header: ComponentSupplier, footer: ComponentSupplier): PlayerUI() {
+    public var header: ComponentSupplier = header
         private set
-    var footer = footer
+    public var footer: ComponentSupplier = footer
         private set
 
-    fun setDisplay(header: ComponentSupplier, footer: ComponentSupplier) {
+    public fun setDisplay(header: ComponentSupplier, footer: ComponentSupplier) {
         this.header = header
         this.footer = footer
 

@@ -3,8 +3,8 @@ package net.casual.arcade.mixin.extensions;
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.PlayerCreatedEvent;
-import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.ExtensionMap;
+import net.casual.arcade.extensions.MinecraftExtensionHolder;
 import net.casual.arcade.utils.ExtensionUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
@@ -18,9 +18,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
-public class ServerPlayerMixin implements ExtensionHolder {
+public class ServerPlayerMixin implements MinecraftExtensionHolder {
 	@Unique
-	private final ExtensionMap arcade_extensionMap = new ExtensionMap();
+	private final ExtensionMap arcade$extensionMap = new ExtensionMap();
 
 	@Inject(
 		method = "<init>",
@@ -52,8 +52,7 @@ public class ServerPlayerMixin implements ExtensionHolder {
 
 	@Unique
 	@NotNull
-	@Override
-	public ExtensionMap getExtensionMap() {
-		return this.arcade_extensionMap;
+	public ExtensionMap arcade$getExtensionMap() {
+		return this.arcade$extensionMap;
 	}
 }

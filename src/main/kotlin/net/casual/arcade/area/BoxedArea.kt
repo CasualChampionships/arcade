@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.levelgen.structure.BoundingBox
 
-class BoxedArea(
+public class BoxedArea(
     private val center: Vec3i,
     private val radius: Int,
     private val height: Int,

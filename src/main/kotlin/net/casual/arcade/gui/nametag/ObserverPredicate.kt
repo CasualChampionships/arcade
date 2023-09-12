@@ -8,7 +8,7 @@ import net.minecraft.server.level.ServerPlayer
  *
  * @see ArcadeNameTag
  */
-fun interface ObserverPredicate {
+public fun interface ObserverPredicate {
     /**
      * This method determines whether the [observee] can be
      * observed by the [observer].
@@ -17,5 +17,5 @@ fun interface ObserverPredicate {
      * @param observer The player observing.
      * @return Whether the [observer] can be observed.
      */
-    fun observable(observee: ServerPlayer, observer: ServerPlayer): Boolean
+    public fun observable(observee: ServerPlayer, observer: ServerPlayer): Boolean
 }

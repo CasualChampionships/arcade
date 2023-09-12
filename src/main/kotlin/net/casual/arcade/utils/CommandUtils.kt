@@ -10,7 +10,7 @@ import net.minecraft.util.Mth
 import net.minecraft.util.RandomSource
 import org.jetbrains.annotations.ApiStatus.Experimental
 
-object CommandUtils {
+public object CommandUtils {
     private val commands = HashMap<String, HiddenCommand>()
     private val random = RandomSource.create()
 
@@ -18,7 +18,7 @@ object CommandUtils {
 
     @Experimental
     @JvmStatic
-    fun registerHiddenCommand(command: HiddenCommand): String {
+    public fun registerHiddenCommand(command: HiddenCommand): String {
         val name = "$ROOT ${Mth.createInsecureUUID(this.random)}"
         this.commands[name] = command
         return "/$name"
@@ -26,21 +26,21 @@ object CommandUtils {
 
     @JvmStatic
     @Suppress("UnusedReceiverParameter")
-    fun Any?.commandSuccess(): Int {
+    public fun Any?.commandSuccess(): Int {
         return 1
     }
 
     @JvmStatic
     @Suppress("UnusedReceiverParameter")
-    fun Any?.commandFailure(): Int {
+    public fun Any?.commandFailure(): Int {
         return 0
     }
 
-    fun CommandSourceStack.success(component: Component, log: Boolean = false): Int {
+    public fun CommandSourceStack.success(component: Component, log: Boolean = false): Int {
         return this.sendSuccess({ component }, log).commandSuccess()
     }
 
-    fun CommandSourceStack.fail(component: Component): Int {
+    public fun CommandSourceStack.fail(component: Component): Int {
         return this.sendFailure(component).commandFailure()
     }
 

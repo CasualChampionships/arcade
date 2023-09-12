@@ -21,7 +21,7 @@ import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
  * @see TickedScheduler
  * @see MinigameScheduler
  */
-object GlobalTickedScheduler {
+public object GlobalTickedScheduler {
     private val scheduler = TickedScheduler()
 
     init {
@@ -37,7 +37,7 @@ object GlobalTickedScheduler {
      * @param runnable The runnable to be scheduled.
      */
     @JvmStatic
-    fun later(runnable: Runnable) {
+    public fun later(runnable: Runnable) {
         this.schedule(MinecraftTimeDuration.ZERO, runnable)
     }
 
@@ -49,7 +49,7 @@ object GlobalTickedScheduler {
      * @param runnable The runnable to be scheduled.
      */
     @JvmStatic
-    fun schedule(duration: MinecraftTimeDuration, runnable: Runnable) {
+    public fun schedule(duration: MinecraftTimeDuration, runnable: Runnable) {
         this.scheduler.schedule(duration, runnable)
     }
 
@@ -62,7 +62,7 @@ object GlobalTickedScheduler {
      * @param runnable The runnable to be scheduled.
      */
     @JvmStatic
-    fun schedule(time: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
+    public fun schedule(time: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
         this.scheduler.schedule(time, unit, runnable)
     }
 
@@ -77,7 +77,7 @@ object GlobalTickedScheduler {
      * @param runnable The runnable to be scheduled.
      */
     @JvmStatic
-    fun scheduleInLoop(
+    public fun scheduleInLoop(
         delay: MinecraftTimeDuration,
         interval: MinecraftTimeDuration,
         duration: MinecraftTimeDuration,
@@ -98,7 +98,7 @@ object GlobalTickedScheduler {
      * @param runnable The runnable to be scheduled.
      */
     @JvmStatic
-    fun scheduleInLoop(
+    public fun scheduleInLoop(
         delay: Int,
         interval: Int,
         duration: Int,

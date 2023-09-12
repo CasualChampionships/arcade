@@ -4,9 +4,10 @@ import net.casual.arcade.gui.suppliers.*
 import net.casual.arcade.utils.BossbarUtils.bossbars
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.BossEvent
+import net.minecraft.world.BossEvent.BossBarColor
+import net.minecraft.world.BossEvent.BossBarOverlay
 
-class ArcadeBossbar(
+public class ArcadeBossbar(
     private var title: ComponentSupplier,
     private var progress: ProgressSupplier,
     private var colour: ColourSupplier,
@@ -16,7 +17,7 @@ class ArcadeBossbar(
     private var music = BooleanSupplier.alwaysFalse()
     private var fog = BooleanSupplier.alwaysFalse()
 
-    fun setTitle(title: ComponentSupplier) {
+    public fun setTitle(title: ComponentSupplier) {
         this.title = title
 
         for (player in this.getPlayers()) {
@@ -24,7 +25,7 @@ class ArcadeBossbar(
         }
     }
 
-    fun setProgress(progress: ProgressSupplier) {
+    public fun setProgress(progress: ProgressSupplier) {
         this.progress = progress
 
         for (player in this.getPlayers()) {
@@ -32,7 +33,7 @@ class ArcadeBossbar(
         }
     }
 
-    fun setStyle(
+    public fun setStyle(
         colour: ColourSupplier? = null,
         overlay: OverlaySupplier? = null
     ) {
@@ -48,7 +49,7 @@ class ArcadeBossbar(
         }
     }
 
-    fun setProperties(
+    public fun setProperties(
         dark: BooleanSupplier? = null,
         music: BooleanSupplier? = null,
         fog: BooleanSupplier? = null
@@ -97,7 +98,7 @@ class ArcadeBossbar(
      * @param player The player being displayed the colour.
      * @return The [BossBarColor] to set the bossbar to.
      */
-    override fun getColour(player: ServerPlayer): BossEvent.BossBarColor {
+    override fun getColour(player: ServerPlayer): BossBarColor {
         return this.colour.getColour(player)
     }
 
@@ -108,7 +109,7 @@ class ArcadeBossbar(
      * @param player The player being displayed the overlay.
      * @return The [BossBarOverlay] to set the bossbar to.
      */
-    override fun getOverlay(player: ServerPlayer): BossEvent.BossBarOverlay {
+    override fun getOverlay(player: ServerPlayer): BossBarOverlay {
         return this.overlay.getOverlay(player)
     }
 

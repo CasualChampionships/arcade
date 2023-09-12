@@ -8,14 +8,14 @@ import net.minecraft.world.scores.criteria.ObjectiveCriteria.DUMMY
 import net.minecraft.world.scores.criteria.ObjectiveCriteria.RenderType
 import net.minecraft.world.scores.criteria.ObjectiveCriteria.RenderType.INTEGER
 
-object ScoreboardUtils {
+public object ScoreboardUtils {
     private val scoreboard = Scoreboard()
 
-    fun dummyObjective(name: String, title: Component = Component.empty(), type: RenderType = INTEGER): Objective {
+    public fun dummyObjective(name: String, title: Component = Component.empty(), type: RenderType = INTEGER): Objective {
         return Objective(this.scoreboard, name, DUMMY, title, type)
     }
 
-    fun dummyTeam(name: String): PlayerTeam {
+    public fun dummyTeam(name: String): PlayerTeam {
         return PlayerTeam(this.scoreboard, name)
     }
 }

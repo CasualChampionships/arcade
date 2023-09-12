@@ -12,6 +12,10 @@ plugins {
 group = property("maven_group")!!
 version = property("mod_version")!!
 
+kotlin {
+    explicitApi()
+}
+
 repositories {
     maven {
         url = uri("https://maven.parchmentmc.org/")
@@ -27,6 +31,7 @@ repositories {
     }
 }
 
+@Suppress("UnstableApiUsage")
 dependencies {
     minecraft("com.mojang:minecraft:${property("minecraft_version")}")
     mappings(loom.layered {

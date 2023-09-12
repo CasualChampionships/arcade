@@ -39,12 +39,12 @@ import kotlin.io.path.bufferedWriter
 import kotlin.io.path.exists
 import kotlin.reflect.KProperty
 
-open class CustomisableConfig(
+public open class CustomisableConfig(
     private val path: Path
 ) {
     private var json = JsonObject()
     
-    fun read() {
+    public fun read() {
         if (this.path.exists()) {
             this.path.bufferedReader().use {
                 this.json = GSON.fromJson(it, JsonObject::class.java)
@@ -52,13 +52,13 @@ open class CustomisableConfig(
         }
     }
 
-    fun write() {
+    public fun write() {
         this.path.bufferedWriter().use {
             GSON.toJson(this.json, it)
         }
     }
 
-    fun boolean(name: String? = null, default: Boolean = false): Configurable<Boolean> {
+    public fun boolean(name: String? = null, default: Boolean = false): Configurable<Boolean> {
         return object: Configurable<Boolean> {
             override fun setValue(any: Any, property: KProperty<*>, value: Boolean) {
                 json.addProperty(name ?: property.name, value)
@@ -70,7 +70,7 @@ open class CustomisableConfig(
         }
     }
 
-    fun string(name: String? = null, default: String = ""): Configurable<String> {
+    public fun string(name: String? = null, default: String = ""): Configurable<String> {
         return object: Configurable<String> {
             override fun setValue(any: Any, property: KProperty<*>, value: String) {
                 json.addProperty(name ?: property.name, value)
@@ -82,7 +82,7 @@ open class CustomisableConfig(
         }
     }
 
-    fun number(name: String? = null, default: Number = 0): Configurable<Number> {
+    public fun number(name: String? = null, default: Number = 0): Configurable<Number> {
         return object: Configurable<Number> {
             override fun setValue(any: Any, property: KProperty<*>, value: Number) {
                 json.addProperty(name ?: property.name, value)
@@ -94,7 +94,7 @@ open class CustomisableConfig(
         }
     }
 
-    fun int(name: String? = null, default: Int = 0): Configurable<Int> {
+    public fun int(name: String? = null, default: Int = 0): Configurable<Int> {
         return object: Configurable<Int> {
             override fun setValue(any: Any, property: KProperty<*>, value: Int) {
                 json.addProperty(name ?: property.name, value)
@@ -106,7 +106,7 @@ open class CustomisableConfig(
         }
     }
 
-    fun double(name: String? = null, default: Double = 0.0): Configurable<Double> {
+    public fun double(name: String? = null, default: Double = 0.0): Configurable<Double> {
         return object: Configurable<Double> {
             override fun setValue(any: Any, property: KProperty<*>, value: Double) {
                 json.addProperty(name ?: property.name, value)
@@ -118,7 +118,7 @@ open class CustomisableConfig(
         }
     }
 
-    fun booleanOrNull(name: String? = null): Configurable<Boolean?> {
+    public fun booleanOrNull(name: String? = null): Configurable<Boolean?> {
         return object: Configurable<Boolean?> {
             override fun setValue(any: Any, property: KProperty<*>, value: Boolean?) {
                 json.addProperty(name ?: property.name, value)
@@ -131,7 +131,7 @@ open class CustomisableConfig(
         }
     }
 
-    fun stringOrNull(name: String? = null): Configurable<String?> {
+    public fun stringOrNull(name: String? = null): Configurable<String?> {
         return object: Configurable<String?> {
             override fun setValue(any: Any, property: KProperty<*>, value: String?) {
                 json.addProperty(name ?: property.name, value)
@@ -144,7 +144,7 @@ open class CustomisableConfig(
         }
     }
 
-    fun numberOrNull(name: String? = null): Configurable<Number?> {
+    public fun numberOrNull(name: String? = null): Configurable<Number?> {
         return object: Configurable<Number?> {
             override fun setValue(any: Any, property: KProperty<*>, value: Number?) {
                 json.addProperty(name ?: property.name, value)
@@ -157,7 +157,7 @@ open class CustomisableConfig(
         }
     }
 
-    fun intOrNull(name: String? = null): Configurable<Int?> {
+    public fun intOrNull(name: String? = null): Configurable<Int?> {
         return object: Configurable<Int?> {
             override fun setValue(any: Any, property: KProperty<*>, value: Int?) {
                 json.addProperty(name ?: property.name, value)
@@ -170,7 +170,7 @@ open class CustomisableConfig(
         }
     }
 
-    fun doubleOrNull(name: String? = null): Configurable<Double?> {
+    public fun doubleOrNull(name: String? = null): Configurable<Double?> {
         return object: Configurable<Double?> {
             override fun setValue(any: Any, property: KProperty<*>, value: Double?) {
                 json.addProperty(name ?: property.name, value)
@@ -183,103 +183,103 @@ open class CustomisableConfig(
         }
     }
     
-    fun getBoolean(key: String): Boolean {
+    public fun getBoolean(key: String): Boolean {
         return this.json.boolean(key)
     }
 
-    fun getBooleanOrNull(key: String): Boolean? {
+    public fun getBooleanOrNull(key: String): Boolean? {
         return this.json.booleanOrNull(key)
     }
 
-    fun getBooleanOrDefault(key: String, default: Boolean = false): Boolean {
+    public fun getBooleanOrDefault(key: String, default: Boolean = false): Boolean {
         return this.json.booleanOrDefault(key, default)
     }
 
-    fun getString(key: String): String {
+    public fun getString(key: String): String {
         return this.json.string(key)
     }
 
-    fun getStringOrNull(key: String): String? {
+    public fun getStringOrNull(key: String): String? {
         return this.json.stringOrNull(key)
     }
 
-    fun getStringOrDefault(key: String, default: String = ""): String {
+    public fun getStringOrDefault(key: String, default: String = ""): String {
         return this.json.stringOrDefault(key, default)
     }
 
-    fun getNumber(key: String): Number {
+    public fun getNumber(key: String): Number {
         return this.json.number(key)
     }
 
-    fun getNumberOrNull(key: String): Number? {
+    public fun getNumberOrNull(key: String): Number? {
         return this.json.numberOrNull(key)
     }
 
-    fun getNumberOrDefault(key: String, default: Number = 0): Number {
+    public fun getNumberOrDefault(key: String, default: Number = 0): Number {
         return this.json.numberOrDefault(key, default)
     }
 
-    fun getInt(key: String): Int {
+    public fun getInt(key: String): Int {
         return this.json.int(key)
     }
 
-    fun getIntOrNull(key: String): Int? {
+    public fun getIntOrNull(key: String): Int? {
         return this.json.intOrNull(key)
     }
 
-    fun getIntOrDefault(key: String, default: Int = 0): Int {
+    public fun getIntOrDefault(key: String, default: Int = 0): Int {
         return this.json.intOrDefault(key, default)
     }
 
-    fun getFloat(key: String): Float {
+    public fun getFloat(key: String): Float {
         return this.json.float(key)
     }
 
-    fun getFloatOrNull(key: String): Float? {
+    public fun getFloatOrNull(key: String): Float? {
         return this.json.floatOrNull(key)
     }
 
-    fun getFloatOrDefault(key: String, default: Float = 0.0F): Float {
+    public fun getFloatOrDefault(key: String, default: Float = 0.0F): Float {
         return this.json.floatOrDefault(key, default)
     }
 
-    fun getDouble(key: String): Double {
+    public fun getDouble(key: String): Double {
         return this.json.double(key)
     }
 
-    fun getDoubleOrNull(key: String): Double? {
+    public fun getDoubleOrNull(key: String): Double? {
         return this.json.doubleOrNull(key)
     }
 
-    fun getDoubleOrDefault(key: String, default: Double = 0.0): Double {
+    public fun getDoubleOrDefault(key: String, default: Double = 0.0): Double {
         return this.json.doubleOrDefault(key, default)
     }
 
-    fun getArray(key: String): JsonArray {
+    public fun getArray(key: String): JsonArray {
         return this.json.array(key)
     }
 
-    fun getArrayOrNull(key: String): JsonArray? {
+    public fun getArrayOrNull(key: String): JsonArray? {
         return this.json.arrayOrNull(key)
     }
 
-    fun getArrayOrDefault(key: String, default: JsonArray = JsonArray()): JsonArray {
+    public fun getArrayOrDefault(key: String, default: JsonArray = JsonArray()): JsonArray {
         return this.json.arrayOrDefault(key, default)
     }
 
-    fun getObject(key: String): JsonObject {
+    public fun getObject(key: String): JsonObject {
         return this.json.obj(key)
     }
 
-    fun getObjectOrNull(key: String): JsonObject? {
+    public fun getObjectOrNull(key: String): JsonObject? {
         return this.json.objOrNull(key)
     }
 
-    fun getObjectOrDefault(key: String, default: JsonObject = JsonObject()): JsonObject {
+    public fun getObjectOrDefault(key: String, default: JsonObject = JsonObject()): JsonObject {
         return this.json.objOrDefault(key, default)
     }
 
-    companion object {
-        val GSON: Gson = GsonBuilder().disableHtmlEscaping().serializeNulls().setPrettyPrinting().create()
+    public companion object {
+        public val GSON: Gson = GsonBuilder().disableHtmlEscaping().serializeNulls().setPrettyPrinting().create()
     }
 }

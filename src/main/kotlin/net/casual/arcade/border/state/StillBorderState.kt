@@ -9,7 +9,7 @@ import net.minecraft.world.phys.shapes.VoxelShape
 import kotlin.math.ceil
 import kotlin.math.floor
 
-class StillBorderState(
+public class StillBorderState(
     private val border: ArcadeBorder,
     private var size: Double
 ): BorderState {

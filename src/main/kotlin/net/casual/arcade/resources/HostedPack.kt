@@ -10,7 +10,7 @@ import net.minecraft.network.chat.Component
  * @param url The URL that it is being hosted at.
  * @param hash The hash of the [pack].
  */
-data class HostedPack(
+public data class HostedPack(
     /**
      * The readable pack that is being hosted.
      */
@@ -33,7 +33,7 @@ data class HostedPack(
      * @return The pack info.
      * @see PackInfo
      */
-    fun toPackInfo(required: Boolean = false, prompt: Component? = null): PackInfo {
+    public fun toPackInfo(required: Boolean = false, prompt: Component? = null): PackInfo {
         return PackInfo(this.url, this.hash, required, prompt)
     }
 }

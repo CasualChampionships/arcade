@@ -16,7 +16,7 @@ import net.minecraft.network.chat.Component
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
-class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame<*>> {
+public class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame<*>> {
     override fun parse(reader: StringReader): Minigame<*> {
         val uuid: UUID
         try {
@@ -32,21 +32,21 @@ class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame<*>> {
         return SharedSuggestionProvider.suggest(Minigames.all().stream().map { it.uuid.toString() }, builder)
     }
 
-    companion object {
-        val INVALID_MINIGAME = SimpleCommandExceptionType(Component.literal("Invalid Minigame UUID"))
+    public companion object {
+        public val INVALID_MINIGAME: SimpleCommandExceptionType = SimpleCommandExceptionType(Component.literal("Invalid Minigame UUID"))
 
         @JvmStatic
-        fun minigame(): MinigameArgument {
+        public fun minigame(): MinigameArgument {
             return MinigameArgument()
         }
 
         @JvmStatic
-        fun getMinigame(context: CommandContext<*>, string: String): Minigame<*> {
+        public fun getMinigame(context: CommandContext<*>, string: String): Minigame<*> {
             return context.getArgument(string, Minigame::class.java)
         }
     }
 
-    class PhaseName(private val minigameKey: String): CustomArgumentType(), ArgumentType<String> {
+    public class PhaseName(private val minigameKey: String): CustomArgumentType(), ArgumentType<String> {
         override fun parse(reader: StringReader): String {
             return reader.readString()
         }
@@ -56,22 +56,22 @@ class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame<*>> {
             return SharedSuggestionProvider.suggest(minigame.phases.map { it.id }, builder)
         }
 
-        companion object {
-            val INVALID_PHASE_NAME = SimpleCommandExceptionType(Component.literal("Invalid Settings Name"))
+        public companion object {
+            public val INVALID_PHASE_NAME: SimpleCommandExceptionType = SimpleCommandExceptionType(Component.literal("Invalid Settings Name"))
 
             @JvmStatic
-            fun name(minigameKey: String): SettingsName {
+            public fun name(minigameKey: String): SettingsName {
                 return SettingsName(minigameKey)
             }
 
             @JvmStatic
-            fun getPhaseName(context: CommandContext<*>, string: String): String {
+            public fun getPhaseName(context: CommandContext<*>, string: String): String {
                 return context.getArgument(string, String::class.java)
             }
         }
     }
 
-    class SettingsName(private val minigameKey: String): CustomArgumentType(), ArgumentType<String> {
+    public class SettingsName(private val minigameKey: String): CustomArgumentType(), ArgumentType<String> {
         override fun parse(reader: StringReader): String {
             return reader.readUnquotedString()
         }
@@ -81,22 +81,22 @@ class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame<*>> {
             return SharedSuggestionProvider.suggest(minigame.getSettings().map { it.name }, builder)
         }
 
-        companion object {
-            val INVALID_SETTING_NAME = SimpleCommandExceptionType(Component.literal("Invalid Settings Name"))
+        public companion object {
+            public val INVALID_SETTING_NAME: SimpleCommandExceptionType = SimpleCommandExceptionType(Component.literal("Invalid Settings Name"))
 
             @JvmStatic
-            fun name(minigameKey: String): SettingsName {
+            public fun name(minigameKey: String): SettingsName {
                 return SettingsName(minigameKey)
             }
 
             @JvmStatic
-            fun getSettingsName(context: CommandContext<*>, string: String): String {
+            public fun getSettingsName(context: CommandContext<*>, string: String): String {
                 return context.getArgument(string, String::class.java)
             }
         }
     }
 
-    class SettingsOption(
+    public class SettingsOption(
         private val minigameKey: String,
         private val settingsNameKey: String
     ): CustomArgumentType(), ArgumentType<String> {
@@ -111,34 +111,34 @@ class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame<*>> {
             return SharedSuggestionProvider.suggest(setting.getOptions().keys, builder)
         }
 
-        companion object {
-            val INVALID_SETTING_OPTION = SimpleCommandExceptionType(Component.literal("Invalid Settings Option"))
+        public companion object {
+            public val INVALID_SETTING_OPTION: SimpleCommandExceptionType = SimpleCommandExceptionType(Component.literal("Invalid Settings Option"))
 
             @JvmStatic
-            fun option(minigameKey: String, settingsNameKey: String): SettingsOption {
+            public fun option(minigameKey: String, settingsNameKey: String): SettingsOption {
                 return SettingsOption(minigameKey, settingsNameKey)
             }
 
             @JvmStatic
-            fun getSettingsOption(context: CommandContext<*>, string: String): String {
+            public fun getSettingsOption(context: CommandContext<*>, string: String): String {
                 return context.getArgument(string, String::class.java)
             }
         }
     }
 
-    class SettingsValue: CustomArgumentType(), ArgumentType<JsonElement> {
+    public class SettingsValue: CustomArgumentType(), ArgumentType<JsonElement> {
         override fun parse(reader: StringReader): JsonElement {
             return CustomisableConfig.GSON.fromJson(reader.readString(), JsonElement::class.java)
         }
 
-        companion object {
+        public companion object {
             @JvmStatic
-            fun value(): SettingsValue {
+            public fun value(): SettingsValue {
                 return SettingsValue()
             }
 
             @JvmStatic
-            fun getSettingsValue(context: CommandContext<*>, string: String): JsonElement {
+            public fun getSettingsValue(context: CommandContext<*>, string: String): JsonElement {
                 return context.getArgument(string, JsonElement::class.java)
             }
         }

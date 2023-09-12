@@ -1,11 +1,11 @@
 package net.casual.arcade.border.state
 
-interface CenterBorderState {
-    fun getCenterX(): Double
+public interface CenterBorderState {
+    public fun getCenterX(): Double
 
-    fun getCenterZ(): Double
+    public fun getCenterZ(): Double
 
-    fun update(): CenterBorderState
+    public fun update(): CenterBorderState
 
-    fun getStatus(): CenterBorderStatus
+    public fun getStatus(): CenterBorderStatus
 }

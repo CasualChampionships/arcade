@@ -1,8 +1,8 @@
 package net.casual.arcade.events.level
 
 import net.casual.arcade.events.core.Event
-import net.casual.arcade.events.player.PlayerEvent
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.MinigameEventHandler
 import net.minecraft.server.level.ServerLevel
 
 /**
@@ -12,11 +12,11 @@ import net.minecraft.server.level.ServerLevel
  * in [Minigame]s, allowing you to only listen to
  * [LevelEvent]s for the levels in the given [Minigame].
  *
- * @see Minigame.registerMinigameEvent
+ * @see MinigameEventHandler.register
  */
-interface LevelEvent: Event {
+public interface LevelEvent: Event {
     /**
      * The [ServerLevel] that is tied to the event.
      */
-    val level: ServerLevel
+    public val level: ServerLevel
 }

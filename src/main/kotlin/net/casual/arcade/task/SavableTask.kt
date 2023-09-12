@@ -1,9 +1,9 @@
 package net.casual.arcade.task
 
 import com.google.gson.JsonObject
+import net.casual.arcade.minigame.SavableMinigame
 import net.casual.arcade.minigame.task.MinigameTaskFactory
 import net.casual.arcade.minigame.task.MinigameTaskGenerator
-import net.casual.arcade.minigame.SavableMinigame
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 /**
@@ -78,11 +78,11 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  *
  * @see SavableMinigame
  */
-interface SavableTask: Task {
+public interface SavableTask: Task {
     /**
      * The id for the task that will be serialized.
      */
-    val id: String
+    public val id: String
 
     /**
      * This writes any additional data needed
@@ -95,7 +95,7 @@ interface SavableTask: Task {
      * @return The serialized data.
      */
     @OverrideOnly
-    fun writeCustomData(context: TaskWriteContext): JsonObject {
+    public fun writeCustomData(context: TaskWriteContext): JsonObject {
         return JsonObject()
     }
 }

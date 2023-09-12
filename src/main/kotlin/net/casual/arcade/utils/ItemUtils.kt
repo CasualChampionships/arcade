@@ -13,29 +13,29 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper
 import net.minecraft.world.item.enchantment.EnchantmentInstance
 
 @Suppress("unused")
-object ItemUtils {
+public object ItemUtils {
     @JvmStatic
-    fun Item.literalNamed(name: String): ItemStack {
+    public fun Item.literalNamed(name: String): ItemStack {
         return this.defaultInstance.literalNamed(name)
     }
 
     @JvmStatic
-    fun Item.translatableNamed(key: String, vararg args: Any): ItemStack {
+    public fun Item.translatableNamed(key: String, vararg args: Any): ItemStack {
         return this.defaultInstance.translatableNamed(key, args)
     }
 
     @JvmStatic
-    fun ItemStack.literalNamed(name: String): ItemStack {
+    public fun ItemStack.literalNamed(name: String): ItemStack {
         return this.setHoverName(Component.literal(name))
     }
 
     @JvmStatic
-    fun ItemStack.translatableNamed(key: String, vararg args: Any): ItemStack {
+    public fun ItemStack.translatableNamed(key: String, vararg args: Any): ItemStack {
         return this.setHoverName(Component.translatable(key, args))
     }
 
     @JvmStatic
-    fun ItemStack.setLore(lore: Iterable<Component>) {
+    public fun ItemStack.setLore(lore: Iterable<Component>) {
         val list = ListTag()
         for (component in lore) {
             list.add(StringTag.valueOf(Component.Serializer.toJson(component)))
@@ -44,53 +44,53 @@ object ItemUtils {
     }
 
     @JvmStatic
-    fun ItemStack.putElement(key: String, tag: Tag): ItemStack {
+    public fun ItemStack.putElement(key: String, tag: Tag): ItemStack {
         this.addTagElement(key, tag)
         return this
     }
 
     @JvmStatic
-    fun ItemStack.putIntElement(key: String, int: Int): ItemStack {
+    public fun ItemStack.putIntElement(key: String, int: Int): ItemStack {
         return this.putElement(key, IntTag.valueOf(int))
     }
 
     @JvmStatic
-    fun ItemStack.putByteElement(key: String, byte: Byte): ItemStack {
+    public fun ItemStack.putByteElement(key: String, byte: Byte): ItemStack {
         return this.putElement(key, ByteTag.valueOf(byte))
     }
 
     @JvmStatic
-    fun ItemStack.putShortElement(key: String, short: Short): ItemStack {
+    public fun ItemStack.putShortElement(key: String, short: Short): ItemStack {
         return this.putElement(key, ShortTag.valueOf(short))
     }
 
     @JvmStatic
-    fun ItemStack.putLongElement(key: String, long: Long): ItemStack {
+    public fun ItemStack.putLongElement(key: String, long: Long): ItemStack {
         return this.putElement(key, LongTag.valueOf(long))
     }
 
     @JvmStatic
-    fun ItemStack.putFloatElement(key: String, float: Float): ItemStack {
+    public fun ItemStack.putFloatElement(key: String, float: Float): ItemStack {
         return this.putElement(key, FloatTag.valueOf(float))
     }
 
     @JvmStatic
-    fun ItemStack.putDoubleElement(key: String, double: Double): ItemStack {
+    public fun ItemStack.putDoubleElement(key: String, double: Double): ItemStack {
         return this.putElement(key, DoubleTag.valueOf(double))
     }
 
     @JvmStatic
-    fun ItemStack.putStringElement(key: String, string: String): ItemStack {
+    public fun ItemStack.putStringElement(key: String, string: String): ItemStack {
         return this.putElement(key, StringTag.valueOf(string))
     }
 
     @JvmStatic
-    fun ItemStack.potion(potion: Potion): ItemStack {
+    public fun ItemStack.potion(potion: Potion): ItemStack {
         return PotionUtils.setPotion(this, potion)
     }
 
     @JvmStatic
-    fun ItemStack.enableGlint(): ItemStack {
+    public fun ItemStack.enableGlint(): ItemStack {
         val tag = this.getOrCreateTag()
         val enchants = ListTag()
         enchants.add(CompoundTag())
@@ -99,7 +99,7 @@ object ItemUtils {
     }
 
     @JvmStatic
-    fun ItemStack.addEnchantment(enchantment: Enchantment, level: Int): ItemStack {
+    public fun ItemStack.addEnchantment(enchantment: Enchantment, level: Int): ItemStack {
         val id = BuiltInRegistries.ENCHANTMENT.getKey(enchantment) ?: return this
         val enchants = this.enchantmentTags
         enchants.add(EnchantmentHelper.storeEnchantment(id, level))
@@ -111,13 +111,13 @@ object ItemUtils {
     }
 
     @JvmStatic
-    fun ItemStack.removeEnchantments(): ItemStack {
+    public fun ItemStack.removeEnchantments(): ItemStack {
         this.removeTagKey(ItemStack.TAG_ENCH)
         return this
     }
 
     @JvmStatic
-    fun generatePlayerHead(playerName: String, texture: String? = null): ItemStack {
+    public fun generatePlayerHead(playerName: String, texture: String? = null): ItemStack {
         val compound = CompoundTag()
         compound.putString("id", "player_head")
         compound.putByte("Count", 1.toByte())
@@ -143,7 +143,7 @@ object ItemUtils {
     }
 
     @JvmStatic
-    fun colouredHeadForFormatting(formatting: ChatFormatting): ItemStack {
+    public fun colouredHeadForFormatting(formatting: ChatFormatting): ItemStack {
         val texture = when (formatting) {
             ChatFormatting.BLACK -> HeadTextures.BLACK
             ChatFormatting.DARK_BLUE -> HeadTextures.DARK_BLUE

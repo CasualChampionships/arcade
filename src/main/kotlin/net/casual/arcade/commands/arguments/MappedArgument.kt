@@ -12,7 +12,7 @@ import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.network.chat.Component
 import java.util.concurrent.CompletableFuture
 
-open class MappedArgument<T>(
+public open class MappedArgument<T>(
     private val options: Map<String, T>
 ): CustomArgumentType(), ArgumentType<T> {
     init {
@@ -36,20 +36,20 @@ open class MappedArgument<T>(
         return SharedSuggestionProvider.suggest(this.options.keys, builder)
     }
 
-    companion object {
+    public companion object {
         private val INVALID_ELEMENT = DynamicCommandExceptionType { Component.literal("$it is not a valid argument option") }
 
         @JvmStatic
-        fun <T> mapped(map: Map<String, T>): MappedArgument<T> {
+        public fun <T> mapped(map: Map<String, T>): MappedArgument<T> {
             return MappedArgument(map)
         }
 
-        inline fun <reified T> getMapped(context: CommandContext<*>, string: String): T {
+        public inline fun <reified T> getMapped(context: CommandContext<*>, string: String): T {
             return context.getArgument(string, T::class.java)
         }
 
         @JvmStatic
-        fun <T> getMapped(context: CommandContext<*>, string: String, clazz: Class<T>): T {
+        public fun <T> getMapped(context: CommandContext<*>, string: String, clazz: Class<T>): T {
             return context.getArgument(string, clazz)
         }
     }
