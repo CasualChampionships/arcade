@@ -13,7 +13,64 @@ import org.apache.logging.log4j.Logger
 /**
  * Arcade initializer class.
  */
-class Arcade: ModInitializer {
+object Arcade: ModInitializer {
+    private var server: MinecraftServer? = null
+
+    @JvmField
+    internal val logger: Logger = LogManager.getLogger("Arcade")
+
+    /**
+     * Whether arcade is in debug mode.
+     */
+    internal const val DEBUG = false
+
+    /**
+     * The mod identifier for Arcade.
+     */
+    const val MOD_ID = "arcade"
+
+    init {
+        GlobalEventHandler.register<ServerCreatedEvent> {
+            this.server = it.server
+        }
+    }
+
+    /**
+     * Gets the [MinecraftServer] instance, this should only
+     * be called after the server has been created otherwise
+     * this method will throw an [IllegalStateException].
+     *
+     * @return The [MinecraftServer] instance.
+     * @see getServerOrNull
+     */
+    @JvmStatic
+    fun getServer(): MinecraftServer {
+        return this.server ?: throw IllegalStateException("Called Arcade.getServer before server was created")
+    }
+
+    /**
+     * Gets the [MinecraftServer] instance, this may be `null`
+     * if the server has not been created yet.
+     *
+     * @return The [MinecraftServer] instance, or null.
+     * @see getServer
+     */
+    @JvmStatic
+    fun getServerOrNull(): MinecraftServer? {
+        return this.server
+    }
+
+    /**
+     * Creates a [ResourceLocation] with the namespace of [MOD_ID].
+     *
+     * @param path The path of the [ResourceLocation].
+     * @return The created [ResourceLocation].
+     */
+    @JvmStatic
+    fun id(path: String): ResourceLocation {
+        return ResourceLocation(MOD_ID, path)
+    }
+
     override fun onInitialize() {
         SidebarUtils.registerEvents()
         BossbarUtils.registerEvents()
@@ -25,60 +82,5 @@ class Arcade: ModInitializer {
         CommandUtils.registerEvents()
 
         ArcadeCommands.registerCommands()
-    }
-
-    companion object {
-        private var server: MinecraftServer? = null
-        internal const val debug = false
-
-        @JvmField
-        internal val logger: Logger = LogManager.getLogger("Arcade")
-
-        /**
-         * The mod identifier for Arcade.
-         */
-        const val MOD_ID = "arcade"
-
-        /**
-         * Gets the [MinecraftServer] instance, this should only
-         * be called after the server has been created otherwise
-         * this method will throw an [IllegalStateException].
-         *
-         * @return The [MinecraftServer] instance.
-         * @see getServerOrNull
-         */
-        @JvmStatic
-        fun getServer(): MinecraftServer {
-            return this.server ?: throw IllegalStateException("Called Arcade.getServer before server was created")
-        }
-
-        /**
-         * Gets the [MinecraftServer] instance, this may be `null`
-         * if the server has not been created yet.
-         *
-         * @return The [MinecraftServer] instance, or null.
-         * @see getServer
-         */
-        @JvmStatic
-        fun getServerOrNull(): MinecraftServer? {
-            return this.server
-        }
-
-        /**
-         * Creates a [ResourceLocation] with the namespace of [MOD_ID].
-         *
-         * @param path The path of the [ResourceLocation].
-         * @return The created [ResourceLocation].
-         */
-        @JvmStatic
-        fun id(path: String): ResourceLocation {
-            return ResourceLocation(MOD_ID, path)
-        }
-
-        init {
-            GlobalEventHandler.register<ServerCreatedEvent> {
-                this.server = it.server
-            }
-        }
     }
 }

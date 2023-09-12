@@ -1,7 +1,5 @@
 package net.casual.arcade.border
 
-import com.google.common.collect.ImmutableMap
-import com.ibm.icu.impl.locale.XCldrStub
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.border.WorldBorder
 import java.util.*

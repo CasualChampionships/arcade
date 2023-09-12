@@ -10,6 +10,29 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.ClickType
 import net.minecraft.world.item.ItemStack
 
+/**
+ * This [ArcadeGenericScreen] implementation is a customizable
+ * screen that allows you to create functional, clickable, items.
+ *
+ * The menu provides options for returning to a parent screen as
+ * well as setting custom items for the back, next, and filler items.
+ *
+ * You can create your own selection screens using [SelectionScreenBuilder].
+ *
+ * @param title The title of the screen.
+ * @param selections The possible selections.
+ * @param tickers The item tickers.
+ * @param player The player opening the screen.
+ * @param syncId The sync id.
+ * @param parent The parent menu.
+ * @param page The page of the screen.
+ * @param previous The previous [ItemStack].
+ * @param back The back [ItemStack].
+ * @param next The next [ItemStack].
+ * @param filler The filler [ItemStack].
+ * @see SelectionScreenBuilder
+ * @see ArcadeGenericScreen
+ */
 class SelectionScreen internal constructor(
     private val title: Component,
     private val selections: List<Selection>,
@@ -49,6 +72,20 @@ class SelectionScreen internal constructor(
         inventory.setItem(size - 5, this.back)
     }
 
+    /**
+     * This method is called when a slot is clicked on the screen.
+     *
+     * This could be a slot in either the main inventory container or
+     * the player's inventory.
+     *
+     * This also gets invoked when the player tries to drop an item
+     * outside the inventory, in which case [slotId] is -999.
+     *
+     * @param slotId The id of the slot that was clicked.
+     * @param button The button id, used for a left and right-click, or the swapped slot.
+     * @param type The type of click the player did.
+     * @param player The player that clicked.
+     */
     override fun onClick(slotId: Int, button: Int, type: ClickType, player: ServerPlayer) {
         val size = this.getContainer().containerSize
         val next = size - 1
@@ -82,6 +119,11 @@ class SelectionScreen internal constructor(
         selection.action(player)
     }
 
+    /**
+     * This method is called every server tick.
+     *
+     * @param server The [MinecraftServer] instance.
+     */
     override fun onTick(server: MinecraftServer) {
         val container = this.getContainer()
         for (slot in 0..this.lastSelectionSlot) {

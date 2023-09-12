@@ -40,7 +40,7 @@ public class LevelMixin {
         int maxChain,
         CallbackInfo ci
     ) {
-        if (Arcade.debug) {
+        if (Arcade.DEBUG) {
             if (dimension == Level.OVERWORLD || dimension == Level.NETHER || dimension == Level.END) {
                 Arcade.logger.debug("Setting debug border for level {}", dimension.location());
                 this.worldBorder = new TrackedBorder(5000, 0.0, 0.0);

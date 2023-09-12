@@ -11,6 +11,15 @@ import java.util.function.Consumer
 object ComponentUtils {
     @Experimental
     @JvmStatic
+    fun MutableComponent.singleUseFunction(consumer: Consumer<ServerPlayer>) {
+        this.function { context ->
+            consumer.accept(context.player)
+            context.remove()
+        }
+    }
+
+    @Experimental
+    @JvmStatic
     fun MutableComponent.function(consumer: Consumer<ServerPlayer>): MutableComponent {
         return this.function { consumer.accept(it.player) }
     }
@@ -37,7 +46,7 @@ object ComponentUtils {
     }
 
     @JvmStatic
-    fun MutableComponent.unBold(): MutableComponent {
+    fun MutableComponent.unbold(): MutableComponent {
         return this.withStyle { it.withBold(false) }
     }
 
@@ -47,7 +56,7 @@ object ComponentUtils {
     }
 
     @JvmStatic
-    fun MutableComponent.unItalicise(): MutableComponent {
+    fun MutableComponent.unitalicise(): MutableComponent {
         return this.withStyle { it.withItalic(false) }
     }
 
@@ -114,5 +123,10 @@ object ComponentUtils {
     @JvmStatic
     fun MutableComponent.white(): MutableComponent {
         return this.withStyle(ChatFormatting.WHITE)
+    }
+
+    @JvmStatic
+    fun MutableComponent.colour(colour: Int): MutableComponent? {
+        return this.withStyle { it.withColor(colour) }
     }
 }

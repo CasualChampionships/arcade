@@ -1,6 +1,6 @@
 package net.casual.arcade.utils
 
-import net.casual.arcade.utils.ComponentUtils.unItalicise
+import net.casual.arcade.utils.ComponentUtils.unitalicise
 import net.minecraft.ChatFormatting
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.*
@@ -163,6 +163,6 @@ object ItemUtils {
             else -> HeadTextures.WHITE
         }
         val item = generatePlayerHead("Dummy", texture)
-        return item.setHoverName(Component.literal(formatting.getName()).unItalicise())
+        return item.setHoverName(Component.literal(formatting.getName()).unitalicise())
     }
 }

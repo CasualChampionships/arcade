@@ -30,6 +30,7 @@ import net.minecraft.world.item.ItemStack
  * @param rows The number of rows the screen should have.
  * @see SelectionScreenBuilder
  * @see SpectatorUsableScreen
+ * @see constructor
  */
 abstract class ArcadeGenericScreen(
     inventory: Inventory,
@@ -66,22 +67,64 @@ abstract class ArcadeGenericScreen(
         this.ticking.registerHandler()
     }
 
+    /**
+     * This constructs a [ArcadeGenericScreen] using a given player's actual
+     * inventory as the actual inventory.
+     *
+     * @param player The player whose inventory to use.
+     * @param syncId The syncId provided by the [MenuProvider].
+     * @param rows The number of rows the screen should have.
+     */
     constructor(player: Player, syncId: Int, rows: Int): this(Inventory(player), syncId, rows)
 
+    /**
+     * This method gets the main inventory container of this screen.
+     *
+     * @return The inventory container.
+     */
     fun getContainer(): Container {
         return this.container
     }
 
+    /**
+     * This method gets the player inventory of the screen.
+     *
+     * @return The player inventory.
+     */
     fun getPlayerInventory(): Inventory {
         return this.inventory
     }
 
+    /**
+     * This method is called when a slot is clicked on the screen.
+     *
+     * This could be a slot in either the main inventory container or
+     * the player's inventory.
+     *
+     * This also gets invoked when the player tries to drop an item
+     * outside the inventory, in which case [slotId] is -999.
+     *
+     * @param slotId The id of the slot that was clicked.
+     * @param button The button id, used for a left and right-click, or the swapped slot.
+     * @param type The type of click the player did.
+     * @param player The player that clicked.
+     */
     abstract fun onClick(slotId: Int, button: Int, type: ClickType, player: ServerPlayer)
 
+    /**
+     * This method is called when the screen is removed or closed.
+     *
+     * @param player The player who had the screen open.
+     */
     open fun onRemove(player: ServerPlayer) {
 
     }
 
+    /**
+     * This method is called every server tick.
+     *
+     * @param server The [MinecraftServer] instance.
+     */
     open fun onTick(server: MinecraftServer) {
 
     }

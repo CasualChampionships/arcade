@@ -1,8 +1,8 @@
 package net.casual.arcade.minigame
 
+import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.DataExtension
 import net.casual.arcade.scheduler.GlobalTickedScheduler
-import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
 import net.minecraft.server.level.ServerPlayer
@@ -26,7 +26,7 @@ internal class PlayerMinigameExtension(
     }
 
     override fun getName(): String {
-        return "Arcade_MinigameExtension"
+        return "${Arcade.MOD_ID}_minigame_extension"
     }
 
     override fun serialize(): Tag {

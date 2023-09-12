@@ -9,7 +9,7 @@ internal object ArcadeCommands {
         GlobalEventHandler.register<ServerRegisterCommandEvent> {
             MinigameCommand.register(it.dispatcher)
 
-            if (Arcade.debug) {
+            if (Arcade.DEBUG) {
                 DebugCommand.register(it.dispatcher)
             }
         }

@@ -1,5 +1,8 @@
 package net.casual.arcade.extensions
 
+/**
+ * This class keeps a map of all [Extension]s
+ */
 class ExtensionMap {
     private val extensions = HashMap<Class<out Extension>, Extension>()
 
