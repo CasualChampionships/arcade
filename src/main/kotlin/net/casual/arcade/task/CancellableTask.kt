@@ -1,44 +1,156 @@
 package net.casual.arcade.task
 
-import org.jetbrains.annotations.ApiStatus.NonExtendable
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import net.casual.arcade.config.CustomisableConfig.Companion.GSON
+import net.casual.arcade.utils.JsonUtils.boolean
+import net.casual.arcade.utils.JsonUtils.objects
 
 /**
  * This extension of the [Task] interface allows
  * for cancelling of a task.
  *
  * If a task is cancelled, it will no longer run
- * or serialized (if it also implements [SavableTask]).
+ * or serialized.
  *
  * @see Task
  */
-public interface CancellableTask: Task {
-    /**
-     * Checks whether the task is cancelled.
-     *
-     * @return Whether the task is cancelled.
-     */
-    public fun isCancelled(): Boolean
+public sealed class CancellableTask(
+    protected val wrapped: Task
+): Task {
+    protected val cancelled: MutableList<Task> = ArrayList()
 
     /**
-     * This runs the task.
+     * Whether the task is cancelled or not.
      */
-    public fun invoke()
+    public var isCancelled: Boolean = false
+        private set
+
+    /**
+     * This cancels the task and prevents it from running.
+     */
+    public fun cancel() {
+        if (this.isCancelled) {
+            return
+        }
+        this.isCancelled = true
+        for (cancel in this.cancelled) {
+            cancel.run()
+        }
+    }
+
+    /**
+     * This adds a callback which will be called
+     * when the task is cancelled.
+     *
+     * @param runnable The task to add.
+     */
+    public fun cancelled(runnable: Runnable): CancellableTask {
+        this.cancelled.add(Task.of(runnable))
+        return this
+    }
 
     /**
      * This will be called when running the task,
-     * however, it is overridden to first check whether
-     * this task is cancelled before invoking [invoke].
-     *
-     * This is where the task should now implement its
-     * [run] logic instead of here.
-     * This method should **NOT** be overridden.
-     *
-     * @see invoke
+     * however, it will check whether the event has
+     * been cancelled before running the wrapped
+     * task, if the current task is cancelled then
+     * it will not run the wrapped task.
      */
-    @NonExtendable
     override fun run() {
-        if (!this.isCancelled()) {
-            this.invoke()
+        if (!this.isCancelled) {
+            this.wrapped.run()
+        }
+    }
+
+    private class Default(wrapped: Task): CancellableTask(wrapped)
+
+    internal class Savable(wrapped: Task): CancellableTask(wrapped), SavableTask {
+        override val id = Savable.id
+
+        override fun writeCustomData(context: TaskWriteContext): JsonObject {
+            val data = JsonObject()
+            val wrappedData = context.writeTask(this.wrapped)
+            if (wrappedData == null) {
+                val message = "Cancellable\$Savable task failed to write wrapped task ${this.wrapped::class.simpleName}"
+                throw IllegalStateException(message)
+            }
+            data.add("wrapped", data)
+            val onCancel = JsonArray()
+            for (cancel in this.cancelled) {
+                val onCancelData = context.writeTask(cancel)
+                if (onCancelData == null) {
+                    val message = "Cancellable\$Savable task failed to write on_cancel task ${cancel::class.simpleName}"
+                    throw IllegalStateException(message)
+                }
+            }
+            data.add("on_cancel", onCancel)
+            data.addProperty("is_cancelled", this.isCancelled)
+            return data
+        }
+
+        companion object: TaskFactory {
+            override val id = "\$arcade_internal_savable_cancellable"
+
+            override fun create(context: TaskCreationContext): Task {
+                val data = context.getCustomData()
+                val wrappedData = data.getAsJsonObject("wrapped")
+                val wrapped = context.createTask(wrappedData)
+                if (wrapped == null) {
+                    val message = "Cancellable\$Savable task failed to create wrapped task with data: ${GSON.toJson(wrappedData)}"
+                    throw IllegalStateException(message)
+                }
+                val isCancelled = data.boolean("is_cancelled")
+
+                val savable = Savable(wrapped)
+                if (isCancelled) {
+                    savable.cancel()
+                }
+
+                val onCancelArray = data.getAsJsonArray("on_cancel")
+                for (onCancelData in onCancelArray.objects()) {
+                    val task = context.createTask(onCancelData)
+                    if (task == null) {
+                        val message = "Cancellable\$Savable task failed to create on_cancel task with data ${GSON.toJson(onCancelData)}"
+                        throw IllegalStateException(message)
+                    }
+                    savable.cancelled(task)
+                }
+                return savable
+            }
+        }
+    }
+
+    public companion object {
+        /**
+         * This method creates a cancellable task with a given runnable.
+         *
+         * If given a savable task this will save the savable task within
+         * the cancellable task which will also be savable.
+         *
+         * @param runnable The task to wrap in a cancellable task.
+         * @return The cancellable task.
+         */
+        @JvmStatic
+        public fun of(runnable: Runnable): CancellableTask {
+            if (runnable is SavableTask) {
+                return Savable(runnable)
+            }
+            return Default(Task.of(runnable))
+        }
+
+        /**
+         * This method creates a [CancellableTask] with a given runnable
+         * similar to the [of] method *however* this method will also
+         * make the runnable be called when the task is [cancelled].
+         *
+         * @param runnable The task to wrap in a cancellable task.
+         * @return The cancellable task.
+         * @see of
+         */
+        @JvmStatic
+        public fun cancellable(runnable: Runnable): CancellableTask {
+            return of(runnable).cancelled(runnable)
         }
     }
 }

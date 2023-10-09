@@ -2,6 +2,7 @@ package net.casual.arcade.scheduler
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import net.casual.arcade.task.CancellableTask
 import java.util.*
 import java.util.function.IntFunction
 
@@ -29,6 +30,36 @@ public class TickedScheduler: MinecraftScheduler {
             queue.forEach(Runnable::run)
             queue.clear()
         }
+    }
+
+    /**
+     * This cancels and removes all tasks with a
+     * given tick delta.
+     *
+     * @param delta The tick delta.
+     */
+    public fun cancel(delta: Int = 0) {
+        val queue = this.tasks.remove(this.tickCount + delta)
+        for (task in queue) {
+            if (task is CancellableTask) {
+                task.cancel()
+            }
+        }
+    }
+
+    /**
+     * This cancels all the tasks that are currently
+     * scheduled in the scheduler.
+     */
+    public fun cancelAll() {
+        for (ticked in this.tasks.values) {
+            for (task in ticked) {
+                if (task is CancellableTask) {
+                    task.cancel()
+                }
+            }
+        }
+        this.tasks.clear()
     }
 
     /**

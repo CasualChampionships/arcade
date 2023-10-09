@@ -40,8 +40,6 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.MenuProvider
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.util.*
-import kotlin.collections.HashSet
-import kotlin.collections.LinkedHashSet
 import kotlin.collections.set
 
 /**
@@ -116,7 +114,6 @@ import kotlin.collections.set
  * ```
  *
  * @param M The type of the child class.
- * @param id The [ResourceLocation] of the [Minigame].
  * @param server The [MinecraftServer] that created the [Minigame].
  * @see SavableMinigame
  * @see MinigamePhase
@@ -261,7 +258,7 @@ public abstract class Minigame<M: Minigame<M>>(
         if (!this.phases.contains(phase)) {
             throw IllegalArgumentException("Cannot set minigame '${this.id}' phase to ${phase.id}")
         }
-        this.scheduler.phased.tasks.clear()
+        this.scheduler.phased.cancelAll()
         this.events.phased.clear()
 
         val self = this.cast()
@@ -469,8 +466,8 @@ public abstract class Minigame<M: Minigame<M>>(
         this.events.unregisterHandler()
         this.events.minigame.clear()
         this.events.phased.clear()
-        this.scheduler.minigame.tasks.clear()
-        this.scheduler.phased.tasks.clear()
+        this.scheduler.minigame.cancelAll()
+        this.scheduler.phased.cancelAll()
 
         this.initialised = false
         this.phase = MinigamePhase.none()

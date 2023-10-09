@@ -23,7 +23,6 @@ import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.stringOrDefault
 import net.casual.arcade.utils.JsonUtils.stringOrNull
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.nio.file.Path
@@ -78,6 +77,11 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
     private val path: Path,
 ): Minigame<M>(server) {
     private val taskGenerator = MinigameTaskGenerator(this.cast())
+
+    init {
+        // Add default task factories
+        this.addTaskFactory(CancellableTask.Savable)
+    }
 
     /**
      * This adds a task factory to your minigame, so it is
@@ -183,7 +187,6 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         }
 
         val generated = HashMap<Int, Task?>()
-
         for (task in json.arrayOrDefault("tasks").objects()) {
             this.readScheduledTask(task, this.scheduler.minigame, generated)
         }
@@ -300,7 +303,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
     }
 
     private fun serializeTask(task: Runnable): JsonObject? {
-        if (task is SavableTask && !(task is CancellableTask && task.isCancelled())) {
+        if (task is SavableTask) {
             val data = JsonObject()
             data.addProperty("id", task.id)
             data.addProperty("hash", System.identityHashCode(task))
