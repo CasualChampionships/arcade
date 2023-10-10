@@ -5,6 +5,7 @@ import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
 import net.casual.arcade.scheduler.TickedScheduler
+import net.casual.arcade.task.CancellableTask
 import net.casual.arcade.task.SavableTask
 
 /**
@@ -65,11 +66,40 @@ public class MinigameScheduler internal constructor(): MinecraftScheduler {
      * the task will no longer run.
      *
      * @param time The amount of time to wait before running the [runnable].
-     * @param unit The units of time, by default [Ticks].
+     * @param unit The units of time.
      * @param runnable The runnable to be scheduled.
      */
     public fun schedulePhased(time: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
         this.phased.schedule(time, unit, runnable)
+    }
+
+    /**
+     * This method will schedule a task which will be made cancellable.
+     * The user can cancel the task, *or* the minigame may cancel the event
+     * in the case that the phase changes.
+     *
+     * @param duration The duration to wait before running the [runnable].
+     * @param runnable The runnable to be scheduled.
+     * @return The cancellable task.
+     */
+    public fun schedulePhasedCancellable(duration: MinecraftTimeDuration, runnable: Runnable): CancellableTask {
+        val cancellable = CancellableTask.of(runnable)
+        this.schedulePhased(duration, cancellable)
+        return cancellable
+    }
+
+    /**
+     * This method will schedule a task which will be made cancellable.
+     * The user can cancel the task, *or* the minigame may cancel the event
+     * in the case that the phase changes.
+     *
+     * @param time The amount of time to wait before running the [runnable].
+     * @param unit The units of time.
+     * @param runnable The runnable to be scheduled.
+     * @return The cancellable task.
+     */
+    public fun schedulePhasedCancellable(time: Int, unit: MinecraftTimeUnit, runnable: Runnable): CancellableTask {
+        return this.schedulePhasedCancellable(unit.duration(time), runnable)
     }
 
     /**
