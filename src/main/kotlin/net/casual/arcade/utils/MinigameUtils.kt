@@ -4,7 +4,7 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.player.PlayerCreatedEvent
 import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.PlayerMinigameExtension
+import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.task.Completable
 import net.casual.arcade.utils.PlayerUtils.addExtension

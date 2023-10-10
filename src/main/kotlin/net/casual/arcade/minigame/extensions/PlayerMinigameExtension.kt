@@ -1,7 +1,9 @@
-package net.casual.arcade.minigame
+package net.casual.arcade.minigame.extensions
 
 import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.DataExtension
+import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag

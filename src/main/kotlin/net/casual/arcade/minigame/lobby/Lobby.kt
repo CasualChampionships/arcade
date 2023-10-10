@@ -7,7 +7,6 @@ import net.casual.arcade.utils.impl.Location
 import net.minecraft.server.level.ServerPlayer
 import org.jetbrains.annotations.ApiStatus.Experimental
 
-@Experimental
 public interface Lobby {
     public val area: PlaceableArea
     public val spawn: Location

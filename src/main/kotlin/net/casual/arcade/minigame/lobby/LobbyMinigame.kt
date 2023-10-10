@@ -11,19 +11,14 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import org.jetbrains.annotations.ApiStatus.Experimental
 
-@Experimental
-public class LobbyMinigame(
+public abstract class LobbyMinigame(
     server: MinecraftServer,
-    override val id: ResourceLocation,
-    private val lobby: Lobby,
     private val next: Minigame<*>,
 ): Minigame<LobbyMinigame>(server) {
+    protected abstract val lobby: Lobby
+
     init {
         this.initialise()
-    }
-
-    override fun start() {
-        this.setPhase(Phases.Waiting)
     }
 
     override fun initialise() {
@@ -36,11 +31,23 @@ public class LobbyMinigame(
         }
     }
 
-    override fun getPhases(): List<Phases> {
+    public open fun onStart() {
+
+    }
+
+    public open fun onStartCountdown() {
+
+    }
+
+    final override fun start() {
+        this.setPhase(Phases.Waiting)
+    }
+
+    final override fun getPhases(): List<Phases> {
         return listOf(Phases.Waiting, Phases.Countdown)
     }
 
-    override fun getLevels(): Collection<ServerLevel> {
+    final override fun getLevels(): Collection<ServerLevel> {
         return listOf(this.lobby.spawn.level)
     }
 
@@ -53,6 +60,7 @@ public class LobbyMinigame(
         Waiting("waiting") {
             override fun start(minigame: LobbyMinigame) {
                 minigame.lobby.area.place()
+                minigame.onStart()
             }
         },
         Countdown("countdown") {
@@ -60,6 +68,7 @@ public class LobbyMinigame(
                 minigame.lobby.getCountdown().countdown(minigame).then {
                     minigame.setPhase(MinigamePhase.end())
                 }
+                minigame.onStartCountdown()
             }
 
             override fun end(minigame: LobbyMinigame) {
