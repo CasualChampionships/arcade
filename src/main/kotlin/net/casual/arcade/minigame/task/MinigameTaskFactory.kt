@@ -26,7 +26,7 @@ public interface MinigameTaskFactory<M: Minigame<M>> {
     public val id: String
 
     /**
-     * This creates a [Task] from the given [data] and
+     * This creates a [Task] from the given [context] and
      * the task's [minigame] owner.
      *
      * @param minigame The owner of this task.
