@@ -1,17 +1,24 @@
 package net.casual.arcade.utils.impl
 
+import org.jetbrains.annotations.ApiStatus.Internal
+
+@Internal
 public class ConcatenatedList<E> private constructor(
-    private val first: List<E>,
-    private val second: List<E>
+    internal val lists: MutableList<List<E>>
 ): AbstractList<E>() {
     override val size: Int
-        get() = this.first.size + this.second.size
+        get() = this.lists.sumOf { it.size }
 
     override fun get(index: Int): E {
-        if (index >= this.first.size) {
-            this.second[index - this.first.size]
+        var passed = 0
+
+        for (list in this.lists) {
+            if (index < passed + list.size) {
+                return list[index - passed]
+            }
+            passed += list.size
         }
-        return this.first[index]
+        throw IndexOutOfBoundsException()
     }
 
     public companion object {
@@ -27,7 +34,15 @@ public class ConcatenatedList<E> private constructor(
          * @return The concatenated view of the lists.
          */
         public fun <E> List<E>.concat(other: List<E>): List<E> {
-            return ConcatenatedList(this, other)
+            if (this is ConcatenatedList) {
+                this.lists.add(other)
+                return this
+            }
+            if (other is ConcatenatedList) {
+                other.lists.add(0, other)
+                return other
+            }
+            return ConcatenatedList(mutableListOf(this, other))
         }
     }
 }

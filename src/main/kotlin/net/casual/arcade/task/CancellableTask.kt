@@ -44,10 +44,21 @@ public sealed class CancellableTask(
      * when the task is cancelled.
      *
      * @param runnable The task to add.
+     * @return The cancellable task.
      */
     public fun cancelled(runnable: Runnable): CancellableTask {
         this.cancelled.add(Task.of(runnable))
         return this
+    }
+
+    /**
+     * This makes the Cancellable's task run when
+     * if the task is cancelled.
+     *
+     * @return The cancellable task.
+     */
+    public fun runOnCancel(): CancellableTask {
+        return this.cancelled(this.wrapped)
     }
 
     /**
@@ -150,7 +161,7 @@ public sealed class CancellableTask(
          */
         @JvmStatic
         public fun cancellable(runnable: Runnable): CancellableTask {
-            return of(runnable).cancelled(runnable)
+            return of(runnable).runOnCancel()
         }
     }
 }
