@@ -24,4 +24,15 @@ public interface AnyMinigameTaskFactory extends MinigameTaskFactory {
 	@NotNull
 	@Override
 	Task create(@NotNull Minigame minigame, @NotNull TaskCreationContext context);
+
+	/**
+	 * This method allows you to cast this factory into any type.
+	 *
+	 * @return The casted {@link MinigameTaskFactory}
+	 * @param <M> The type of Minigame.
+	 */
+	@SuppressWarnings("unchecked")
+	default <M extends Minigame<M>> MinigameTaskFactory<M> cast() {
+		return this;
+	}
 }
