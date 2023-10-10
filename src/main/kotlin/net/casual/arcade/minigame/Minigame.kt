@@ -38,6 +38,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.MenuProvider
+import net.minecraft.world.scores.PlayerTeam
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.util.*
 import kotlin.collections.set
@@ -365,6 +366,19 @@ public abstract class Minigame<M: Minigame<M>>(
      */
     public fun getAllPlayerProfiles(): List<GameProfile> {
         return this.getPlayers().map { it.gameProfile }.concat(this.getOfflinePlayerProfiles())
+    }
+
+    /**
+     * This gets all the teams that are playing in the minigame.
+     *
+     * @return The collection of player teams.
+     */
+    public fun getPlayerTeams(): Collection<PlayerTeam> {
+        val teams = HashSet<PlayerTeam>()
+        for (profile in this.getAllPlayerProfiles()) {
+            teams.add(this.server.scoreboard.getPlayersTeam(profile.name) ?: continue)
+        }
+        return teams
     }
 
     /**

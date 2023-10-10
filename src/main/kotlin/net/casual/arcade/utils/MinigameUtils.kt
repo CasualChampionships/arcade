@@ -10,6 +10,7 @@ import net.casual.arcade.task.Completable
 import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.scores.PlayerTeam
 
 public object MinigameUtils {
     internal val ServerPlayer.minigame
