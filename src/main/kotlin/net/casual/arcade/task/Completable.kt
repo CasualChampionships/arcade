@@ -30,9 +30,11 @@ public interface Completable {
         }
 
         public fun complete() {
-            this.complete = true
-            for (task in this.tasks) {
-                task.run()
+            if (!this.complete) {
+                this.complete = true
+                for (task in this.tasks) {
+                    task.run()
+                }
             }
         }
     }

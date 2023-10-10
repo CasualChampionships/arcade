@@ -7,7 +7,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.BossEvent.BossBarColor
 import net.minecraft.world.BossEvent.BossBarOverlay
 
-public class ArcadeBossbar(
+public class SuppliedBossBar(
     private var title: ComponentSupplier,
     private var progress: ProgressSupplier,
     private var colour: ColourSupplier,

@@ -7,37 +7,42 @@ import net.casual.arcade.task.Task
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.minecraft.server.level.ServerPlayer
 
-public abstract class TimerBossBar(
-    duration: MinecraftTimeDuration
-): CustomBossBar(), TickableUI, Completable {
+public abstract class TimerBossBar: CustomBossBar(), TickableUI, Completable {
     private val completable = Completable.Impl()
 
-    private var ticks = duration.toTicks()
+    private var ticks = -1
     private var tick = 0
 
     override val complete: Boolean
         get() = this.completable.complete
 
     override fun tick() {
+        if (this.ticks == -1) {
+            return
+        }
         if (this.tick < this.ticks) {
             this.tick++
             return
         }
-        if (!this.complete) {
-            this.completable.complete()
-        }
+        this.completable.complete()
     }
 
     override fun then(task: Task): Completable {
         return this.completable.then(task)
     }
 
+    public fun setDuration(duration: MinecraftTimeDuration) {
+        this.completable.complete = false
+        this.tick = 0
+        this.ticks = duration.toTicks()
+    }
+
     public fun getProgress(): Float {
-        return this.tick / this.ticks.toFloat()
+        return if (this.ticks == -1) 0.0F else this.tick / this.ticks.toFloat()
     }
 
     public fun getRemainingDuration(): MinecraftTimeDuration {
-        return (this.ticks - this.tick).Ticks
+        return if (this.ticks == -1) 0.Ticks else (this.ticks - this.tick).Ticks
     }
 
     /**
