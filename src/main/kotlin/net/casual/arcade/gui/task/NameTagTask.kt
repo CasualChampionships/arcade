@@ -5,14 +5,14 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.task.Task
 
 public open class NameTagTask(
-    public val owner: Minigame<*>,
+    private val minigame: Minigame<*>,
     private val tag: ArcadeNameTag
 ): Task {
     init {
-        this.owner.addNameTag(this.tag)
+        this.minigame.addNameTag(this.tag)
     }
 
     final override fun run() {
-        this.owner.removeNameTag(this.tag)
+        this.minigame.removeNameTag(this.tag)
     }
 }

@@ -5,14 +5,14 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.task.Task
 
 public open class SidebarTask(
-    public val owner: Minigame<*>,
+    private val minigame: Minigame<*>,
     sidebar: ArcadeSidebar
 ): Task {
     init {
-        this.owner.setSidebar(sidebar)
+        this.minigame.setSidebar(sidebar)
     }
 
     override fun run() {
-        this.owner.removeSidebar()
+        this.minigame.removeSidebar()
     }
 }

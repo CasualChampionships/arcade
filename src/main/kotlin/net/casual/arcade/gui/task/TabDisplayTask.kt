@@ -5,14 +5,14 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.task.Task
 
 public open class TabDisplayTask(
-    public val owner: Minigame<*>,
+    private val minigame: Minigame<*>,
     display: ArcadeTabDisplay
 ): Task {
     init {
-        this.owner.setTabDisplay(display)
+        this.minigame.setTabDisplay(display)
     }
 
     override fun run() {
-        this.owner.removeTabDisplay()
+        this.minigame.removeTabDisplay()
     }
 }
