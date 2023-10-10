@@ -16,6 +16,9 @@ public abstract class TimerBossBar: CustomBossBar(), TickableUI, Completable {
     override val complete: Boolean
         get() = this.completable.complete
 
+    public val hasDuration: Boolean
+        get() = this.ticks != -1
+
     override fun tick() {
         if (this.ticks == -1) {
             return
@@ -35,6 +38,11 @@ public abstract class TimerBossBar: CustomBossBar(), TickableUI, Completable {
         this.completable.complete = false
         this.tick = 0
         this.ticks = duration.toTicks()
+    }
+
+    public fun removeDuration() {
+        this.completable.complete = true
+        this.ticks = -1
     }
 
     public fun getProgress(): Float {
