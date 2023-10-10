@@ -15,6 +15,8 @@ public abstract class LobbyMinigame(
 ): Minigame<LobbyMinigame>(server) {
     protected abstract val lobby: Lobby
 
+    private var next: Minigame<*>? = null
+
     init {
         this.initialise()
     }
@@ -37,7 +39,13 @@ public abstract class LobbyMinigame(
 
     }
 
-    public abstract fun getNextMinigame(): Minigame<*>?
+    public fun getNextMinigame(): Minigame<*>? {
+        return this.next
+    }
+
+    public fun setNextMinigame(minigame: Minigame<*>) {
+        this.next = minigame
+    }
 
     final override fun start() {
         this.setPhase(Phases.Waiting)
@@ -53,7 +61,7 @@ public abstract class LobbyMinigame(
 
     override fun appendAdditionalDebugInfo(json: JsonObject) {
         super.appendAdditionalDebugInfo(json)
-        val next = this.getNextMinigame()
+        val next = this.next
         if (next != null) {
             json.add("next_minigame", next.getDebugInfo())
         }
@@ -68,6 +76,13 @@ public abstract class LobbyMinigame(
         },
         Countdown("countdown") {
             override fun start(minigame: LobbyMinigame) {
+                val next = minigame.next
+                if (next == null) {
+                    Arcade.logger.warn("Tried counting down in lobby when there is no next minigame!")
+                    minigame.setPhase(Waiting)
+                    return
+                }
+
                 minigame.lobby.getCountdown().countdown(minigame).then {
                     minigame.setPhase(MinigamePhase.end())
                 }
@@ -75,13 +90,7 @@ public abstract class LobbyMinigame(
             }
 
             override fun end(minigame: LobbyMinigame) {
-                val next = minigame.getNextMinigame()
-                if (next == null) {
-                    Arcade.logger.warn("Tried counting down in lobby when there is no next minigame!")
-                    minigame.setPhase(Waiting)
-                    return
-                }
-
+                val next = minigame.next!!
                 for (player in minigame.getPlayers()) {
                     next.addPlayer(player)
                 }
