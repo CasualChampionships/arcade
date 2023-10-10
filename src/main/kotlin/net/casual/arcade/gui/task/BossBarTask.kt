@@ -4,9 +4,9 @@ import net.casual.arcade.gui.bossbar.CustomBossBar
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.task.Task
 
-public open class BossBarTask(
+public open class BossBarTask<T: CustomBossBar>(
     private val minigame: Minigame<*>,
-    private val bar: CustomBossBar
+    public val bar: T
 ): Task {
     init {
         this.minigame.addBossbar(this.bar)
