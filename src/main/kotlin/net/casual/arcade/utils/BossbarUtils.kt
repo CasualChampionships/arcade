@@ -22,6 +22,11 @@ public object BossbarUtils {
         return this
     }
 
+    public fun shrink(percent: Float, factor: Float): Float {
+        val shift = (1 - factor) / 2.0F
+        return shift + percent * factor
+    }
+
     internal fun registerEvents() {
         GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
             player.addExtension(PlayerBossbarsExtension(player))
