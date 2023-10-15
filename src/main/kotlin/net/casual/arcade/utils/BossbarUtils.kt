@@ -17,7 +17,7 @@ public object BossbarUtils {
         get() = this.getExtension(PlayerBossbarsExtension::class.java)
 
 
-    public fun BossBarTask<TimerBossBar>.withDuration(duration: MinecraftTimeDuration): BossBarTask<TimerBossBar> {
+    public fun <T: TimerBossBar> BossBarTask<T>.withDuration(duration: MinecraftTimeDuration): BossBarTask<T> {
         this.bar.setDuration(duration)
         return this
     }
