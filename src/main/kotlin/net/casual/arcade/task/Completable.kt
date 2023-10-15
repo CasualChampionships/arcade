@@ -21,12 +21,16 @@ public interface Completable {
     public fun then(task: Task): Completable
 
     public class Impl: Completable {
-        private val tasks = LinkedList<Task>()
+        private val tasks: MutableList<Task> = LinkedList()
         override var complete: Boolean = false
 
         override fun then(task: Task): Completable {
             this.tasks.add(task)
             return this
+        }
+
+        public fun tasks(): List<Task> {
+            return this.tasks
         }
 
         public fun complete() {

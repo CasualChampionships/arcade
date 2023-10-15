@@ -1,12 +1,17 @@
 package net.casual.arcade.gui.bossbar
 
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import net.casual.arcade.gui.TickableUI
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.task.Completable
 import net.casual.arcade.task.Task
+import net.casual.arcade.task.TaskCreationContext
+import net.casual.arcade.task.TaskWriteContext
+import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.boolean
 import net.casual.arcade.utils.JsonUtils.int
+import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.minecraft.server.level.ServerPlayer
 
@@ -74,17 +79,30 @@ public abstract class TimerBossBar: CustomBossBar(), TickableUI, Completable {
         return this.getProgress()
     }
 
-    public fun writeData(): JsonObject {
+    public fun writeData(context: TaskWriteContext): JsonObject {
         val data = JsonObject()
         data.addProperty("tick", this.tick)
         data.addProperty("ticks", this.ticks)
         data.addProperty("complete", this.complete)
+
+        val taskArray = JsonArray()
+        for (task in this.completable.tasks()) {
+            taskArray.add(context.writeTask(task) ?: continue)
+        }
+        data.add("tasks", taskArray)
+
         return data
     }
 
-    public fun readData(json: JsonObject) {
-        this.tick = json.int("tick")
-        this.ticks = json.int("ticks")
-        this.completable.complete = json.boolean("complete")
+    public fun readData(context: TaskCreationContext) {
+        val data = context.getCustomData()
+        this.tick = data.int("tick")
+        this.ticks = data.int("ticks")
+        this.completable.complete = data.boolean("complete")
+
+        for (taskData in data.array("tasks").objects()) {
+            val task = context.createTask(taskData) ?: continue
+            this.completable.then(task)
+        }
     }
 }

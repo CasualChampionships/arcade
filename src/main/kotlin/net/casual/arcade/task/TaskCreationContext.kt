@@ -41,4 +41,23 @@ public interface TaskCreationContext {
      * @return The created task, null if it could not be created.
      */
     public fun createTask(data: JsonObject): Task?
+
+    private class Child(
+        private val parent: TaskCreationContext,
+        private val data: JsonObject
+    ): TaskCreationContext {
+        override fun getCustomData(): JsonObject {
+            return this.data
+        }
+
+        override fun createTask(data: JsonObject): Task? {
+            return this.parent.createTask(data)
+        }
+    }
+
+    public companion object {
+        public fun TaskCreationContext.withCustomData(data: JsonObject): TaskCreationContext {
+            return Child(this, data)
+        }
+    }
 }
