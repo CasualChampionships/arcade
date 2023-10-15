@@ -145,6 +145,7 @@ public abstract class Minigame<M: Minigame<M>>(
 
     public val scheduler: MinigameScheduler
     public val events: MinigameEventHandler
+    public val commands: MinigameCommandManager
 
     /**
      * What phase the minigame is currently in.
@@ -192,8 +193,8 @@ public abstract class Minigame<M: Minigame<M>>(
         this.uuid = UUID.randomUUID()
 
         this.scheduler = MinigameScheduler()
-        @Suppress("LeakingThis") // Not really...
-        this.events = MinigameEventHandler(this)
+        this.events = MinigameEventHandler(this.cast())
+        this.commands = MinigameCommandManager(this.cast())
 
         this.phase = MinigamePhase.none()
 
@@ -335,7 +336,6 @@ public abstract class Minigame<M: Minigame<M>>(
             MinigameRemovePlayerEvent(this, player).broadcast()
             player.minigame.removeMinigame()
         }
-
     }
 
     /**
@@ -473,6 +473,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * After a minigame has been closed, no more players are permitted to join.
      */
     public fun close() {
+        this.commands.unregisterAll()
         for (player in this.getPlayers()) {
             this.removePlayer(player)
         }
@@ -807,6 +808,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.display?.addPlayer(player)
 
         this.getResources().sendTo(player)
+        this.server.commands.sendCommands(player)
     }
 
     private fun onPlayerRemove(player: ServerPlayer) {
@@ -814,6 +816,8 @@ public abstract class Minigame<M: Minigame<M>>(
         this.bossbars.forEach { it.removePlayer(player) }
         this.sidebar?.removePlayer(player)
         this.display?.removePlayer(player)
+
+        this.server.commands.sendCommands(player)
     }
 
     private fun loadUI(ui: PlayerUI) {

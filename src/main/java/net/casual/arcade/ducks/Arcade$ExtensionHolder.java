@@ -1,5 +1,8 @@
-package net.casual.arcade.extensions;
+package net.casual.arcade.ducks;
 
+import net.casual.arcade.extensions.Extension;
+import net.casual.arcade.extensions.ExtensionHolder;
+import net.casual.arcade.extensions.ExtensionMap;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
  * @see Extension
  * @see ExtensionMap
  */
-public interface MinecraftExtensionHolder extends ExtensionHolder {
+public interface Arcade$ExtensionHolder extends ExtensionHolder {
 	/**
 	 * This gets all the extensions that are being held.
 	 *

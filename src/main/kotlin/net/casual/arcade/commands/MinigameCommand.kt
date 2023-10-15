@@ -68,6 +68,8 @@ internal object MinigameCommand: Command {
                         )
                     )
                 )
+            ).then(
+                Commands.literal("command")
             )
         )
     }
