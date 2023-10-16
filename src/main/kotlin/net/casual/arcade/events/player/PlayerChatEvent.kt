@@ -7,4 +7,7 @@ import net.minecraft.server.level.ServerPlayer
 public data class PlayerChatEvent(
     override val player: ServerPlayer,
     val message: PlayerChatMessage
-): CancellableEvent.Default(), PlayerEvent
+): CancellableEvent.Default(), PlayerEvent {
+    val rawMessage: String
+        get() = this.message.signedContent()
+}
