@@ -43,17 +43,19 @@ public object CraftingRecipeBuilder {
             return this
         }
 
-        public fun ingredient(ingredient: Ingredient): Shaped {
-            this.ingredients.add(ingredient)
+        public fun ingredients(vararg ingredient: Ingredient): Shaped {
+            this.ingredients.addAll(ingredient)
             return this
         }
 
-        public fun ingredient(item: Item): Shaped {
-            return this.ingredient(Ingredient.of(item))
+        public fun ingredients(vararg item: Item): Shaped {
+            this.ingredients.addAll(item.map { Ingredient.of(it) })
+            return this
         }
 
-        public fun ingredient(item: TagKey<Item>): Shaped {
-            return this.ingredient(Ingredient.of(item))
+        public fun ingredients(vararg item: TagKey<Item>): Shaped {
+            this.ingredients.addAll(item.map(Ingredient::of))
+            return this
         }
 
         public fun build(): ShapedRecipe {
@@ -93,17 +95,19 @@ public object CraftingRecipeBuilder {
             return this
         }
 
-        public fun ingredient(ingredient: Ingredient): Shapeless {
-            this.ingredients.add(ingredient)
+        public fun ingredients(vararg ingredient: Ingredient): Shapeless {
+            this.ingredients.addAll(ingredient)
             return this
         }
 
-        public fun ingredient(item: Item): Shapeless {
-            return this.ingredient(Ingredient.of(item))
+        public fun ingredients(vararg item: Item): Shapeless {
+            this.ingredients.addAll(item.map { Ingredient.of(it) })
+            return this
         }
 
-        public fun ingredient(item: TagKey<Item>): Shapeless {
-            return this.ingredient(Ingredient.of(item))
+        public fun ingredients(vararg item: TagKey<Item>): Shapeless {
+            this.ingredients.addAll(item.map(Ingredient::of))
+            return this
         }
 
         public fun build(): ShapelessRecipe {
