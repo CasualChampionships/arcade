@@ -9,6 +9,7 @@ import net.casual.arcade.gui.bossbar.TimerBossBar
 import net.casual.arcade.gui.extensions.PlayerBossbarsExtension
 import net.casual.arcade.gui.task.BossBarTask
 import net.casual.arcade.scheduler.MinecraftTimeDuration
+import net.casual.arcade.task.Task
 import net.casual.arcade.task.TaskCreationContext
 import net.casual.arcade.task.TaskWriteContext
 import net.casual.arcade.utils.BossbarUtils.readData
@@ -27,6 +28,11 @@ public object BossbarUtils {
 
     public fun <T: TimerBossBar> BossBarTask<T>.readData(context: TaskCreationContext): BossBarTask<T> {
         this.bar.readData(context)
+        return this
+    }
+
+    public fun <T: TimerBossBar> BossBarTask<T>.then(task: Task): BossBarTask<T> {
+        this.bar.then(task)
         return this
     }
 
