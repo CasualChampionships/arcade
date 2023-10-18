@@ -2,6 +2,7 @@ package net.casual.arcade.recipes
 
 import net.minecraft.core.NonNullList
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -9,6 +10,7 @@ import net.minecraft.world.item.crafting.CraftingBookCategory
 import net.minecraft.world.item.crafting.Ingredient
 import net.minecraft.world.item.crafting.ShapedRecipe
 import net.minecraft.world.item.crafting.ShapelessRecipe
+import java.util.function.Predicate
 
 public object CraftingRecipeBuilder {
     public fun shaped(block: Shaped.() -> Unit): Shaped {
@@ -27,6 +29,7 @@ public object CraftingRecipeBuilder {
         public var width: Int = 0
         public var height: Int = 0
         public var result: ItemStack = ItemStack.EMPTY
+        public var canPlayerUse: Predicate<ServerPlayer> = Predicate { _ -> true }
 
         public fun id(id: ResourceLocation): Shaped {
             this.id = id
@@ -58,10 +61,15 @@ public object CraftingRecipeBuilder {
             return this
         }
 
+        public fun canPlayerUse(canPlayerUse: Predicate<ServerPlayer>): Shaped {
+            this.canPlayerUse = canPlayerUse
+            return this
+        }
+
         public fun build(): ShapedRecipe {
             val id = this.id
             requireNotNull(id)
-            return ShapedRecipe(
+            return object: ShapedRecipe(
                 id,
                 this.group,
                 this.category,
@@ -69,7 +77,11 @@ public object CraftingRecipeBuilder {
                 this.height,
                 this.ingredients,
                 this.result
-            )
+            ), PlayerPredicatedRecipe {
+                override fun canUse(player: ServerPlayer): Boolean {
+                    return canPlayerUse.test(player)
+                }
+            }
         }
     }
 
@@ -79,6 +91,7 @@ public object CraftingRecipeBuilder {
         public var category: CraftingBookCategory = CraftingBookCategory.MISC
         public var group: String = ""
         public var result: ItemStack = ItemStack.EMPTY
+        public var canPlayerUse: Predicate<ServerPlayer> = Predicate { _ -> true }
 
         public fun id(id: ResourceLocation): Shapeless {
             this.id = id
@@ -110,16 +123,25 @@ public object CraftingRecipeBuilder {
             return this
         }
 
+        public fun canPlayerUse(canPlayerUse: Predicate<ServerPlayer>): Shapeless {
+            this.canPlayerUse = canPlayerUse
+            return this
+        }
+
         public fun build(): ShapelessRecipe {
             val id = this.id
             requireNotNull(id)
-            return ShapelessRecipe(
+            return object: ShapelessRecipe(
                 id,
                 this.group,
                 this.category,
                 this.result,
                 this.ingredients,
-            )
+            ), PlayerPredicatedRecipe {
+                override fun canUse(player: ServerPlayer): Boolean {
+                    return canPlayerUse.test(player)
+                }
+            }
         }
     }
 }

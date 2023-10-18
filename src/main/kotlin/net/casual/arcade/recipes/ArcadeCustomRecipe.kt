@@ -3,6 +3,7 @@ package net.casual.arcade.recipes
 import net.minecraft.core.RegistryAccess
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.inventory.CraftingContainer
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.crafting.*
@@ -30,7 +31,18 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
 public abstract class ArcadeCustomRecipe(
     id: ResourceLocation,
     category: CraftingBookCategory
-): CustomRecipe(id, category) {
+): CustomRecipe(id, category), PlayerPredicatedRecipe {
+    /**
+     * This method is used to check whether a player can
+     * craft this recipe.
+     *
+     * @param player The player to check.
+     * @return Whether the player can craft this recipe.
+     */
+    override fun canUse(player: ServerPlayer): Boolean {
+        return true
+    }
+
     /**
      * This method is called when the recipe is being assembled.
      *

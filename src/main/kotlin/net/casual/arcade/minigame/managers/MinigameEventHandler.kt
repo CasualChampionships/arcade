@@ -1,12 +1,14 @@
-package net.casual.arcade.minigame
+package net.casual.arcade.minigame.managers
 
 import net.casual.arcade.events.EventHandler
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.EventRegisterer
 import net.casual.arcade.events.core.Event
 import net.casual.arcade.events.level.LevelEvent
+import net.casual.arcade.events.minigame.MinigameCloseEvent
 import net.casual.arcade.events.minigame.MinigameEvent
 import net.casual.arcade.events.player.PlayerEvent
+import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import java.util.*
 import java.util.function.Consumer

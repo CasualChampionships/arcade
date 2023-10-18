@@ -2,7 +2,7 @@ package net.casual.arcade.events.level
 
 import net.casual.arcade.events.core.Event
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.MinigameEventHandler
+import net.casual.arcade.minigame.managers.MinigameEventHandler
 import net.minecraft.server.level.ServerLevel
 
 /**

@@ -1,6 +1,6 @@
 package net.casual.arcade.mixin.advancements;
 
-import net.casual.arcade.advancements.MutableAdvancements;
+import net.casual.arcade.ducks.Arcade$MutableAdvancements;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementList;
 import net.minecraft.resources.ResourceLocation;
@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Mixin(AdvancementList.class)
-public abstract class AdvancementListMixin implements MutableAdvancements {
+public abstract class AdvancementListMixin implements Arcade$MutableAdvancements {
 	@Shadow @Final private Map<ResourceLocation, Advancement> advancements;
 	@Shadow @Final private Set<Advancement> roots;
 	@Shadow @Final private Set<Advancement> tasks;

@@ -1,5 +1,6 @@
 package net.casual.arcade.utils
 
+import com.mojang.brigadier.Command
 import net.casual.arcade.commands.hidden.HiddenCommand
 import net.casual.arcade.commands.hidden.HiddenCommandContext
 import net.casual.arcade.events.GlobalEventHandler
@@ -27,7 +28,7 @@ public object CommandUtils {
     @JvmStatic
     @Suppress("UnusedReceiverParameter")
     public fun Any?.commandSuccess(): Int {
-        return 1
+        return Command.SINGLE_SUCCESS
     }
 
     @JvmStatic

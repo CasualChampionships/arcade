@@ -2,7 +2,7 @@ package net.casual.arcade.events.minigame
 
 import net.casual.arcade.events.core.Event
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.MinigameEventHandler
+import net.casual.arcade.minigame.managers.MinigameEventHandler
 
 /**
  * Superclass for all minigame-related events.

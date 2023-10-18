@@ -3,7 +3,7 @@ package net.casual.arcade.scheduler
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.MinigameScheduler
+import net.casual.arcade.minigame.managers.MinigameScheduler
 import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
 
 /**

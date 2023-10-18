@@ -4,6 +4,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.Arcade
+import net.casual.arcade.minigame.managers.MinigameAdvancementManager
 import net.casual.arcade.config.CustomisableConfig
 import net.casual.arcade.events.EventHandler
 import net.casual.arcade.events.minigame.*
@@ -18,6 +19,10 @@ import net.casual.arcade.gui.screen.SelectionScreenComponents
 import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.gui.tab.ArcadeTabDisplay
 import net.casual.arcade.minigame.MinigameResources.Companion.sendTo
+import net.casual.arcade.minigame.managers.MinigameCommandManager
+import net.casual.arcade.minigame.managers.MinigameEventHandler
+import net.casual.arcade.minigame.managers.MinigameScheduler
+import net.casual.arcade.minigame.managers.MinigameRecipeManager
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.settings.DisplayableGameSetting
 import net.casual.arcade.settings.DisplayableGameSettingBuilder
@@ -146,6 +151,8 @@ public abstract class Minigame<M: Minigame<M>>(
     public val scheduler: MinigameScheduler
     public val events: MinigameEventHandler
     public val commands: MinigameCommandManager
+    public val advancements: MinigameAdvancementManager
+    public val recipes: MinigameRecipeManager
 
     /**
      * What phase the minigame is currently in.
@@ -195,6 +202,8 @@ public abstract class Minigame<M: Minigame<M>>(
         this.scheduler = MinigameScheduler()
         this.events = MinigameEventHandler(this.cast())
         this.commands = MinigameCommandManager(this.cast())
+        this.advancements = MinigameAdvancementManager(this.cast())
+        this.recipes = MinigameRecipeManager(this.cast())
 
         this.phase = MinigamePhase.none()
 
@@ -467,17 +476,16 @@ public abstract class Minigame<M: Minigame<M>>(
      * This closes the minigame, all players are removed from the
      * minigame, all tasks are cleared, and all events are unregistered.
      *
-     * This also broadcasts the [MinigameCloseEvent] after all the players
+     * This also broadcasts the [MinigameCloseEvent] **before** all the players
      * have been removed.
      *
      * After a minigame has been closed, no more players are permitted to join.
      */
     public fun close() {
-        this.commands.unregisterAll()
+        MinigameCloseEvent(this).broadcast()
         for (player in this.getPlayers()) {
             this.removePlayer(player)
         }
-        MinigameCloseEvent(this).broadcast()
         this.events.unregisterHandler()
         this.events.minigame.clear()
         this.events.phased.clear()
@@ -632,6 +640,7 @@ public abstract class Minigame<M: Minigame<M>>(
         json.addProperty("has_sidebar", this.sidebar != null)
         json.addProperty("has_display", this.display != null)
         json.add("settings", this.getSettings().toJsonObject { it.name to it.serializeValue() })
+        json.add("commands", this.commands.getAllRootCommands().toJsonStringArray { it })
         this.appendAdditionalDebugInfo(json)
         return json
     }
