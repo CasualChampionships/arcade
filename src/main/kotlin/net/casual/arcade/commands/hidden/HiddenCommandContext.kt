@@ -8,7 +8,7 @@ public class HiddenCommandContext(
     internal var remove = false
         private set
 
-    public fun remove() {
+    public fun deleteCommand() {
         this.remove = true
     }
 }

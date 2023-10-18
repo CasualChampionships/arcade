@@ -29,7 +29,7 @@ public object ComponentUtils {
     public fun MutableComponent.singleUseFunction(consumer: Consumer<ServerPlayer>) {
         this.function { context ->
             consumer.accept(context.player)
-            context.remove()
+            context.deleteCommand()
         }
     }
 
