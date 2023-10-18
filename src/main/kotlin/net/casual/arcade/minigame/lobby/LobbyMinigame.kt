@@ -1,6 +1,7 @@
 package net.casual.arcade.minigame.lobby
 
 import com.google.gson.JsonObject
+import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import net.casual.arcade.Arcade
@@ -36,7 +37,8 @@ public abstract class LobbyMinigame(
         this.events.register<PlayerTickEvent> { (player) ->
             this.lobby.tryTeleportToSpawn(player)
         }
-        this.registerLobbyCommand()
+
+        this.commands.register(this.createLobbyCommand())
     }
 
     public open fun onStart() {
@@ -75,18 +77,16 @@ public abstract class LobbyMinigame(
         }
     }
 
-    private fun registerLobbyCommand() {
-        this.commands.register(
-            Commands.literal("lobby").then(
-                Commands.literal("next").then(
-                    Commands.literal("settings").executes(this::nextMinigameSettings)
-                ).then(
-                    Commands.literal("set").then(
-                        Commands.argument("minigame", MinigameArgument.minigame()).executes(this::setNextMinigame)
-                    )
-                ).then(
-                    Commands.literal("unset").executes(this::unsetNextMinigame)
+    protected open fun createLobbyCommand(): LiteralArgumentBuilder<CommandSourceStack> {
+        return Commands.literal("lobby").then(
+            Commands.literal("next").then(
+                Commands.literal("settings").executes(this::nextMinigameSettings)
+            ).then(
+                Commands.literal("set").then(
+                    Commands.argument("minigame", MinigameArgument.minigame()).executes(this::setNextMinigame)
                 )
+            ).then(
+                Commands.literal("unset").executes(this::unsetNextMinigame)
             )
         )
     }
