@@ -4,6 +4,7 @@ import net.casual.arcade.gui.screen.SelectionScreenBuilder
 import net.casual.arcade.gui.screen.SelectionScreenComponents
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.settings.DisplayableGameSetting
+import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ItemUtils.enableGlint
 import net.casual.arcade.utils.ItemUtils.removeEnchantments
 import net.casual.arcade.utils.PlayerUtils.location
@@ -92,13 +93,13 @@ public object ScreenUtils {
 
     public object DefaultSpectatorScreenComponent: SelectionScreenComponents {
         override fun getTitle(): Component {
-            return Component.literal("Spectator Screen")
+            return "Spectator Screen".literal()
         }
     }
 
     public object DefaultMinigameScreenComponent: SelectionScreenComponents {
         override fun getTitle(): Component {
-            return Component.literal("Minigame Settings Screen")
+            return "Minigame Settings Screen".literal()
         }
     }
 }

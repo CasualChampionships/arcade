@@ -1,5 +1,6 @@
 package net.casual.arcade.utils
 
+import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.unitalicise
 import net.minecraft.ChatFormatting
 import net.minecraft.core.registries.BuiltInRegistries
@@ -26,7 +27,7 @@ public object ItemUtils {
 
     @JvmStatic
     public fun ItemStack.literalNamed(name: String): ItemStack {
-        return this.setHoverName(Component.literal(name))
+        return this.setHoverName(name.literal())
     }
 
     @JvmStatic
@@ -163,6 +164,6 @@ public object ItemUtils {
             else -> HeadTextures.WHITE
         }
         val item = generatePlayerHead("Dummy", texture)
-        return item.setHoverName(Component.literal(formatting.getName()).unitalicise())
+        return item.setHoverName(formatting.getName().literal().unitalicise())
     }
 }

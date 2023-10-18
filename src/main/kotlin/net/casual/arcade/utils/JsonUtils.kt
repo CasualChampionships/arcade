@@ -168,34 +168,34 @@ public object JsonUtils {
     }
 
     public fun JsonArray.booleans(): Iterable<Boolean> {
-        return this.mapped(JsonElement::getAsBoolean)
+        return this.map(JsonElement::getAsBoolean)
     }
 
     public fun JsonArray.strings(): Iterable<String> {
-        return this.mapped(JsonElement::getAsString)
+        return this.map(JsonElement::getAsString)
     }
 
     public fun JsonArray.ints(): Iterable<Int> {
-        return this.mapped(JsonElement::getAsInt)
+        return this.map(JsonElement::getAsInt)
     }
 
     public fun JsonArray.floats(): Iterable<Float> {
-        return this.mapped(JsonElement::getAsFloat)
+        return this.map(JsonElement::getAsFloat)
     }
 
     public fun JsonArray.doubles(): Iterable<Double> {
-        return this.mapped(JsonElement::getAsDouble)
+        return this.map(JsonElement::getAsDouble)
     }
 
     public fun JsonArray.arrays(): Iterable<JsonArray> {
-        return this.mapped(JsonElement::getAsJsonArray)
+        return this.map(JsonElement::getAsJsonArray)
     }
 
     public fun JsonArray.objects(): Iterable<JsonObject> {
-        return this.mapped(JsonElement::getAsJsonObject)
+        return this.map(JsonElement::getAsJsonObject)
     }
 
-    public fun <T> JsonArray.mapped(mapper: JsonElement.() -> T): Iterable<T> {
+    public fun <T> JsonArray.map(mapper: JsonElement.() -> T): Iterable<T> {
         return object: Iterable<T> {
             override fun iterator(): Iterator<T> {
                 return object: Iterator<T> {

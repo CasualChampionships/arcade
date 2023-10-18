@@ -11,6 +11,7 @@ import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.config.CustomisableConfig
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
+import net.casual.arcade.utils.ComponentUtils.literal
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.network.chat.Component
 import java.util.*
@@ -33,7 +34,7 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame<*>> {
     }
 
     public companion object {
-        public val INVALID_MINIGAME: SimpleCommandExceptionType = SimpleCommandExceptionType(Component.literal("Invalid Minigame UUID"))
+        public val INVALID_MINIGAME: SimpleCommandExceptionType = SimpleCommandExceptionType("Invalid Minigame UUID".literal())
 
         @JvmStatic
         public fun minigame(): MinigameArgument {
@@ -57,7 +58,7 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame<*>> {
         }
 
         public companion object {
-            public val INVALID_PHASE_NAME: SimpleCommandExceptionType = SimpleCommandExceptionType(Component.literal("Invalid Settings Name"))
+            public val INVALID_PHASE_NAME: SimpleCommandExceptionType = SimpleCommandExceptionType("Invalid Settings Name".literal())
 
             @JvmStatic
             public fun name(minigameKey: String): SettingsName {
@@ -82,7 +83,7 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame<*>> {
         }
 
         public companion object {
-            public val INVALID_SETTING_NAME: SimpleCommandExceptionType = SimpleCommandExceptionType(Component.literal("Invalid Settings Name"))
+            public val INVALID_SETTING_NAME: SimpleCommandExceptionType = SimpleCommandExceptionType("Invalid Settings Name".literal())
 
             @JvmStatic
             public fun name(minigameKey: String): SettingsName {
@@ -112,7 +113,7 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame<*>> {
         }
 
         public companion object {
-            public val INVALID_SETTING_OPTION: SimpleCommandExceptionType = SimpleCommandExceptionType(Component.literal("Invalid Settings Option"))
+            public val INVALID_SETTING_OPTION: SimpleCommandExceptionType = SimpleCommandExceptionType("Invalid Settings Option".literal())
 
             @JvmStatic
             public fun option(minigameKey: String, settingsNameKey: String): SettingsOption {

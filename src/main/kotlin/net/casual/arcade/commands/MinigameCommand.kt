@@ -93,9 +93,9 @@ internal object MinigameCommand: Command {
             }
         }
         if (successes == 0) {
-            return context.source.fail(Component.literal("Failed to add any players to minigame"))
+            return context.source.fail("Failed to add any players to minigame")
         }
-        context.source.success(Component.literal("Successfully added $successes/$total players to minigame"))
+        context.source.success("Successfully added $successes/$total players to minigame")
         return successes
     }
 
@@ -119,15 +119,15 @@ internal object MinigameCommand: Command {
             }
         }
         if (successes == 0) {
-            return context.source.fail(Component.literal("Failed to remove any players from minigames"))
+            return context.source.fail("Failed to remove any players from minigames")
         }
-        context.source.success(Component.literal("Successfully removed $successes/$total players from minigames"))
+        context.source.success("Successfully removed $successes/$total players from minigames")
         return successes
     }
 
     private fun infoMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        return context.source.success(Component.literal(minigame.toString()))
+        return context.source.success(minigame.toString())
     }
 
     private fun openMinigameSettings(context: CommandContext<CommandSourceStack>): Int {
@@ -139,7 +139,7 @@ internal object MinigameCommand: Command {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val name = MinigameArgument.SettingsName.getSettingsName(context, "setting")
         val setting = minigame.getSetting(name) ?: throw INVALID_SETTING_NAME.create()
-        return context.source.success(Component.literal("Setting $name for minigame ${minigame.id} is set to ${setting.get()}"))
+        return context.source.success("Setting $name for minigame ${minigame.id} is set to ${setting.get()}")
     }
 
     private fun setMinigameSettingFromOption(context: CommandContext<CommandSourceStack>): Int {
@@ -149,7 +149,7 @@ internal object MinigameCommand: Command {
         val option = MinigameArgument.SettingsOption.getSettingsOption(context, "option")
         val value = setting.getOption(option) ?: throw INVALID_SETTING_OPTION.create()
         setting.setFromOption(option)
-        return context.source.success(Component.literal("Setting $name for minigame ${minigame.id} set to option $option ($value)"))
+        return context.source.success("Setting $name for minigame ${minigame.id} set to option $option ($value)")
     }
 
     private fun setMinigameSettingFromValue(context: CommandContext<CommandSourceStack>): Int {
@@ -158,12 +158,12 @@ internal object MinigameCommand: Command {
         val setting = minigame.getSetting(name) ?: throw INVALID_SETTING_NAME.create()
         val value = MinigameArgument.SettingsValue.getSettingsValue(context, "value")
         setting.deserializeAndSet(value)
-        return context.source.success(Component.literal("Setting $name for minigame ${minigame.id} set to ${setting.get()}"))
+        return context.source.success("Setting $name for minigame ${minigame.id} set to ${setting.get()}")
     }
 
     private fun getMinigamePhase(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        return context.source.success(Component.literal("The phase of minigame ${minigame.id} is ${minigame.phase.id}"))
+        return context.source.success("The phase of minigame ${minigame.id} is ${minigame.phase.id}")
     }
 
     private fun <M: Minigame<M>> setMinigamePhase(context: CommandContext<CommandSourceStack>): Int {
@@ -172,6 +172,6 @@ internal object MinigameCommand: Command {
         val name = MinigameArgument.PhaseName.getPhaseName(context, "phase")
         val phase = minigame.phases.find { it.id == name } ?: throw INVALID_PHASE_NAME.create()
         minigame.setPhase(phase)
-        return context.source.success(Component.literal("Successfully set phase of minigame ${minigame.id} to ${phase.id}"))
+        return context.source.success("Successfully set phase of minigame ${minigame.id} to ${phase.id}")
     }
 }

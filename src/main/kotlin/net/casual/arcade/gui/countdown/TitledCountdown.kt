@@ -3,6 +3,7 @@ package net.casual.arcade.gui.countdown
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.utils.ComponentUtils.bold
 import net.casual.arcade.utils.ComponentUtils.lime
+import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.ComponentUtils.yellow
 import net.casual.arcade.utils.PlayerUtils.sendSound
@@ -16,12 +17,12 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
 public interface TitledCountdown: Countdown {
     @OverrideOnly
     public fun getCountdownTitle(current: Int): Component {
-        return Component.literal("Starting In:").bold()
+        return "Starting In:".literal().bold()
     }
 
     @OverrideOnly
     public fun getCountdownSubtitle(current: Int): Component {
-        val subtitle = Component.literal("▶ $current ◀")
+        val subtitle = "▶ $current ◀".literal()
         when (current) {
             3 -> subtitle.red()
             2 -> subtitle.yellow()

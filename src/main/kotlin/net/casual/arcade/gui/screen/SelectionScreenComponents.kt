@@ -1,5 +1,6 @@
 package net.casual.arcade.gui.screen
 
+import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ItemUtils.literalNamed
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
@@ -18,7 +19,7 @@ public interface SelectionScreenComponents {
      * @return The default title [Component].
      */
     public fun getTitle(): Component {
-        return Component.literal("Selection Screen")
+        return "Selection Screen".literal()
     }
 
     /**

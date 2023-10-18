@@ -39,8 +39,8 @@ internal object DebugCommand: Command {
         val border = context.source.level.worldBorder
         if (border is ArcadeBorder) {
             border.lerpCenterTo(posX, posZ, seconds.Seconds)
-            return context.source.success(Component.literal("Border set"), true)
+            return context.source.success("Border set", true)
         }
-        return context.source.fail(Component.literal("Border is not ArcadeBorder").red())
+        return context.source.fail("Border is not ArcadeBorder")
     }
 }

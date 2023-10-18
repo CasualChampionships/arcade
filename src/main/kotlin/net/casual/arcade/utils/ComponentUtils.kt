@@ -19,6 +19,11 @@ public object ComponentUtils {
         }
     }
 
+    @JvmStatic
+    public fun String.literal(): MutableComponent {
+        return Component.literal(this)
+    }
+
     @Experimental
     @JvmStatic
     public fun MutableComponent.singleUseFunction(consumer: Consumer<ServerPlayer>) {
@@ -139,7 +144,6 @@ public object ComponentUtils {
     public fun MutableComponent.colour(colour: Int): MutableComponent? {
         return this.withStyle { it.withColor(colour) }
     }
-
 
     @JvmStatic
     public fun Component.toFormattedString(): String {

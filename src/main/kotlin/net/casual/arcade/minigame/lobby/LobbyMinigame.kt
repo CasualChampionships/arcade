@@ -11,12 +11,14 @@ import net.casual.arcade.events.player.PlayerTickEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigamePhase
 import net.casual.arcade.utils.CommandUtils.commandSuccess
+import net.casual.arcade.utils.CommandUtils.success
+import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.MinigameUtils.countdown
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
-import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.entity.player.Player
 
 public abstract class LobbyMinigame(
     server: MinecraftServer
@@ -88,6 +90,14 @@ public abstract class LobbyMinigame(
             ).then(
                 Commands.literal("unset").executes(this::unsetNextMinigame)
             )
+        ).then(
+            Commands.literal("reload").executes(this::reloadLobby)
+        ).then(
+            Commands.literal("delete").executes(this::deleteLobby)
+        ).then(
+            Commands.literal("tp").executes(this::teleportToLobby)
+        ).then(
+            Commands.literal("countdown").executes(this::startCountdown)
         )
     }
 
@@ -101,16 +111,38 @@ public abstract class LobbyMinigame(
     private fun setNextMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         this.next = minigame
-        return this.commandSuccess()
+        return context.source.success("Successfully set the next minigame to ${minigame.id}")
     }
 
     private fun unsetNextMinigame(context: CommandContext<CommandSourceStack>): Int {
         this.next = null
-        return this.commandSuccess()
+        return context.source.success("Successfully unset the next minigame")
+    }
+
+    private fun reloadLobby(context: CommandContext<CommandSourceStack>): Int {
+        this.lobby.reload()
+        return context.source.success("Successfully reloaded the lobby")
+    }
+
+    private fun deleteLobby(context: CommandContext<CommandSourceStack>): Int {
+        this.lobby.area.removeBlocks()
+        this.lobby.area.removeEntities { it !is Player }
+        return context.source.success("Successfully removed the lobby")
+    }
+
+    private fun teleportToLobby(context: CommandContext<CommandSourceStack>): Int {
+        val player = context.source.playerOrException
+        this.lobby.forceTeleportToSpawn(player)
+        return context.source.success("Successfully teleported to the lobby")
+    }
+
+    private fun startCountdown(context: CommandContext<CommandSourceStack>): Int {
+        this.setPhase(Phases.Countdown)
+        return context.source.success("Successfully started the countdown")
     }
 
     private companion object {
-        val NO_MINIGAME = SimpleCommandExceptionType(Component.literal("Lobby has no next minigame"))
+        val NO_MINIGAME = SimpleCommandExceptionType("Lobby has no next minigame".literal())
     }
 
     public enum class Phases(override val id: String): MinigamePhase<LobbyMinigame> {

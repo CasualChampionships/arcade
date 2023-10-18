@@ -5,6 +5,7 @@ import net.casual.arcade.commands.hidden.HiddenCommand
 import net.casual.arcade.commands.hidden.HiddenCommandContext
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.player.PlayerCommandEvent
+import net.casual.arcade.utils.ComponentUtils.literal
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 import net.minecraft.util.Mth
@@ -37,8 +38,16 @@ public object CommandUtils {
         return 0
     }
 
+    public fun CommandSourceStack.success(literal: String, log: Boolean = false): Int {
+        return this.success(literal.literal(), log)
+    }
+
     public fun CommandSourceStack.success(component: Component, log: Boolean = false): Int {
         return this.sendSuccess({ component }, log).commandSuccess()
+    }
+
+    public fun CommandSourceStack.fail(literal: String): Int {
+        return this.fail(literal.literal())
     }
 
     public fun CommandSourceStack.fail(component: Component): Int {

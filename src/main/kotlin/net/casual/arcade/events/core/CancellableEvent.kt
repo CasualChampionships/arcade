@@ -64,7 +64,7 @@ public sealed class CancellableEvent: Event {
      * useful when the event is wrapped around an execution
      * that has some result.
      *
-     * @param T The type of the result. May be nullable.
+     * @param T The type of the result. It may be nullable.
      * @see CancellableEvent
      */
     public abstract class Typed<T>: CancellableEvent() {
@@ -101,10 +101,7 @@ public sealed class CancellableEvent: Event {
          * @return The result.
          */
         public fun result(): T {
-            val result = this.result
-            if (result == null) {
-                throw IllegalStateException("Called result() when no result is present")
-            }
+            val result = this.result ?: throw IllegalStateException("Called result() when no result is present")
             return result.value
         }
     }

@@ -4,6 +4,7 @@ import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Cons
 import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
+import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.unitalicise
 import net.casual.arcade.utils.ExtensionUtils.addExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtension
@@ -59,7 +60,7 @@ public object TeamUtils {
     @JvmStatic
     public fun colouredHeadForTeam(team: Team): ItemStack {
         val head = ItemUtils.colouredHeadForFormatting(team.color)
-        head.setHoverName(Component.literal(team.name).unitalicise())
+        head.setHoverName(team.name.literal().unitalicise())
         return head
     }
 
