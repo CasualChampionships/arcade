@@ -51,6 +51,14 @@ public abstract class LobbyMinigame(
 
     }
 
+    protected open fun moveToNextMinigame() {
+        val next = this.next!!
+        for (player in this.getPlayers()) {
+            next.addPlayer(player)
+        }
+        next.start()
+    }
+
     public fun getNextMinigame(): Minigame<*>? {
         return this.next
     }
@@ -168,11 +176,7 @@ public abstract class LobbyMinigame(
             }
 
             override fun end(minigame: LobbyMinigame) {
-                val next = minigame.next!!
-                for (player in minigame.getPlayers()) {
-                    next.addPlayer(player)
-                }
-                next.start()
+                minigame.moveToNextMinigame()
             }
         }
     }
