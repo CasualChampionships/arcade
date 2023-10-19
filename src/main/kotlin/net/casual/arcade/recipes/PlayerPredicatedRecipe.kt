@@ -1,8 +1,12 @@
 package net.casual.arcade.recipes
 
+import com.google.gson.JsonObject
+import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Container
 import net.minecraft.world.item.crafting.Recipe
+import net.minecraft.world.item.crafting.RecipeSerializer
 
 /**
  * This interface is used to determine whether a recipe
@@ -22,6 +26,10 @@ public fun interface PlayerPredicatedRecipe {
         private val wrapped: Recipe<C>,
         predicate: PlayerPredicatedRecipe
     ): Recipe<C> by wrapped, PlayerPredicatedRecipe by predicate {
+        override fun getSerializer(): RecipeSerializer<Recipe<C>>? {
+            return if (this.wrapped.serializer == null) null else WrapperRecipeSerializer.get()
+        }
+
         override fun equals(other: Any?): Boolean {
             @Suppress("SuspiciousEqualsCombination")
             return this === other || this.wrapped == other
@@ -29,6 +37,30 @@ public fun interface PlayerPredicatedRecipe {
 
         override fun hashCode(): Int {
             return this.wrapped.hashCode()
+        }
+    }
+
+    private class WrapperRecipeSerializer<C: Container>: RecipeSerializer<Recipe<C>> {
+        override fun fromJson(recipeId: ResourceLocation, serializedRecipe: JsonObject): Recipe<C> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun fromNetwork(recipeId: ResourceLocation, buffer: FriendlyByteBuf): Recipe<C> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun toNetwork(buffer: FriendlyByteBuf, recipe: Recipe<C>) {
+            @Suppress("UNCHECKED_CAST")
+            return (recipe.serializer as RecipeSerializer<Recipe<C>>).toNetwork(buffer, recipe)
+        }
+
+        companion object {
+            private val INSTANCE = WrapperRecipeSerializer<Container>()
+
+            fun <C: Container> get(): RecipeSerializer<Recipe<C>> {
+                @Suppress("UNCHECKED_CAST")
+                return INSTANCE as RecipeSerializer<Recipe<C>>
+            }
         }
     }
 

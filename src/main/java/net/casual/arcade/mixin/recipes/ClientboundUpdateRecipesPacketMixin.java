@@ -19,9 +19,10 @@ public class ClientboundUpdateRecipesPacketMixin {
 			remap = false
 		)
 	)
+	@SuppressWarnings("ConstantValue")
 	private ArrayList<Recipe<?>> onSetRecipes(ArrayList<Recipe<?>> recipes) {
 		// Our recipes have no serializer!
-		recipes.removeIf(recipe -> recipe instanceof ArcadeCustomRecipe);
+		recipes.removeIf(recipe -> recipe.getSerializer() == null);
 		return recipes;
 	}
 }
