@@ -1,6 +1,6 @@
 package net.casual.arcade.mixin.recipes;
 
-import com.llamalad7.mixinextras.injector.ModifyReceiver;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.casual.arcade.recipes.PlayerPredicatedRecipe;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(CraftingMenu.class)
 public class CraftingMenuMixin {
-	@ModifyReceiver(
+	@ModifyExpressionValue(
 		method = "slotChangedCraftingGrid",
 		at = @At(
 			value = "INVOKE",
