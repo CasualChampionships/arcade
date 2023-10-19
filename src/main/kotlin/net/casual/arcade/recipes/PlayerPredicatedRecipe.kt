@@ -3,7 +3,6 @@ package net.casual.arcade.recipes
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Container
 import net.minecraft.world.item.crafting.Recipe
-import net.minecraft.world.item.crafting.RecipeSerializer
 
 /**
  * This interface is used to determine whether a recipe
@@ -19,26 +18,6 @@ public fun interface PlayerPredicatedRecipe {
      */
     public fun canUse(player: ServerPlayer): Boolean
 
-    private class Wrapper<C: Container>(
-        private val wrapped: Recipe<C>,
-        predicate: PlayerPredicatedRecipe
-    ): Recipe<C> by wrapped, PlayerPredicatedRecipe by predicate {
-        private val serializer = this.wrapped.serializer?.let { WrappedRecipeSerializer<C>(it) }
-        
-        override fun getSerializer(): RecipeSerializer<Recipe<C>>? {
-            return this.serializer
-        }
-
-        override fun equals(other: Any?): Boolean {
-            @Suppress("SuspiciousEqualsCombination")
-            return this === other || this.wrapped == other
-        }
-
-        override fun hashCode(): Int {
-            return this.wrapped.hashCode()
-        }
-    }
-
     public companion object {
         /**
          * This creates a wrapper recipe of the given [recipe]
@@ -49,7 +28,7 @@ public fun interface PlayerPredicatedRecipe {
          * @return The wrapped recipe.
          */
         public fun <C: Container> wrap(recipe: Recipe<C>, predicate: PlayerPredicatedRecipe): Recipe<C> {
-            return Wrapper(recipe, predicate)
+            return object: WrappedRecipe<C>(recipe), PlayerPredicatedRecipe by predicate { }
         }
     }
 }
