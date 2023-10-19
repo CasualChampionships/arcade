@@ -657,6 +657,8 @@ public abstract class Minigame<M: Minigame<M>>(
     /**
      * Starts the minigame.
      * This should set the phase to the initial phase.
+     *
+     *  This will not be run if your minigame restart.
      */
     public abstract fun start()
 
