@@ -7,7 +7,9 @@ import net.minecraft.world.Container
 import net.minecraft.world.item.crafting.Recipe
 import net.minecraft.world.item.crafting.RecipeSerializer
 
-public class WrappedRecipeSerializer<C: Container>: RecipeSerializer<WrappedRecipe<C>> {
+public class WrappedRecipeSerializer<C: Container>(
+    public val wrapped: RecipeSerializer<*>
+): RecipeSerializer<WrappedRecipe<C>> {
     override fun fromJson(recipeId: ResourceLocation, serializedRecipe: JsonObject): WrappedRecipe<C> {
         throw UnsupportedOperationException()
     }
@@ -19,14 +21,5 @@ public class WrappedRecipeSerializer<C: Container>: RecipeSerializer<WrappedReci
     override fun toNetwork(buffer: FriendlyByteBuf, recipe: WrappedRecipe<C>) {
         @Suppress("UNCHECKED_CAST")
         return (recipe.wrapped.serializer as RecipeSerializer<Recipe<C>>).toNetwork(buffer, recipe.wrapped)
-    }
-
-    public companion object {
-        private val INSTANCE = WrappedRecipeSerializer<Container>()
-
-        public fun <C: Container> get(): RecipeSerializer<Recipe<C>> {
-            @Suppress("UNCHECKED_CAST")
-            return INSTANCE as RecipeSerializer<Recipe<C>>
-        }
     }
 }

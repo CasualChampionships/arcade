@@ -64,7 +64,7 @@ public abstract class BuiltInRegistriesMixin {
 
 			private RecipeSerializer<?> unwrap(RecipeSerializer<?> value) {
 				if (value instanceof WrappedRecipeSerializer<?> wrapped) {
-					return wrapped.getOriginal();
+					return wrapped.getWrapped();
 				}
 				return value;
 			}
