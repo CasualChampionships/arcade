@@ -37,6 +37,7 @@
     "extensions.ServerPlayerMixin",
     "minigame.PlayerTeamMixin",
     "minigame.ScoreboardMixin",
+    "recipes.BuiltInRegistriesMixin",
     "recipes.ClientboundUpdateRecipesPacketMixin",
     "recipes.CraftingMenuMixin",
     "recipes.RecipeManagerMixin",
