@@ -144,7 +144,7 @@ public abstract class ArcadeGenericScreen(
         this.onRemove(player as ServerPlayer)
         super.removed(player)
         this.ticking.unregisterHandler()
-        GlobalTickedScheduler.schedule(1.Ticks, player.containerMenu::sendAllDataToRemote)
+        // GlobalTickedScheduler.schedule(1.Ticks, player.containerMenu::sendAllDataToRemote)
     }
 
     public companion object {
