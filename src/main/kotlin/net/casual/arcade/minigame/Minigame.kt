@@ -801,10 +801,10 @@ public abstract class Minigame<M: Minigame<M>>(
 
     private fun onServerTick() {
         if (!this.paused) {
-            this.scheduler.tick()
             for (tickable in this.tickables) {
                 tickable.tick()
             }
+            this.scheduler.tick()
         }
     }
 
