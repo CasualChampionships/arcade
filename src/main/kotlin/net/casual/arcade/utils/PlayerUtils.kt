@@ -3,11 +3,13 @@ package net.casual.arcade.utils
 import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
+import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.utils.ExtensionUtils.addExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtensions
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
+import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.impl.Sound
 import net.minecraft.advancements.Advancement
@@ -130,7 +132,16 @@ public object PlayerUtils {
     }
 
     @JvmStatic
-    public fun ServerPlayer.setTitleAnimation(fadeIn: Int, stay: Int, fadeOut: Int) {
+    public fun ServerPlayer.setTitleAnimation(
+        fadeIn: MinecraftTimeDuration = 10.Ticks,
+        stay: MinecraftTimeDuration = 70.Ticks,
+        fadeOut: MinecraftTimeDuration = 20.Ticks
+    ) {
+        this.setTitleAnimation(fadeIn.toTicks(), stay.toTicks(), fadeOut.toTicks())
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.setTitleAnimation(fadeIn: Int = 10, stay: Int = 70, fadeOut: Int = 20) {
         this.connection.send(ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut))
     }
 

@@ -15,6 +15,11 @@ public interface Countdown {
     }
 
     @OverrideOnly
+    public fun beforeCountdown(players: Collection<ServerPlayer>) {
+
+    }
+
+    @OverrideOnly
     public fun sendCountdown(players: Collection<ServerPlayer>, current: Int, remaining: MinecraftTimeDuration)
 
     @OverrideOnly

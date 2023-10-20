@@ -61,8 +61,8 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame<*>> {
             public val INVALID_PHASE_NAME: SimpleCommandExceptionType = SimpleCommandExceptionType("Invalid Settings Name".literal())
 
             @JvmStatic
-            public fun name(minigameKey: String): SettingsName {
-                return SettingsName(minigameKey)
+            public fun name(minigameKey: String): PhaseName {
+                return PhaseName(minigameKey)
             }
 
             @JvmStatic
