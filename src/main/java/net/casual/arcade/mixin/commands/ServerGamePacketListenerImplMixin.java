@@ -66,7 +66,7 @@ public class ServerGamePacketListenerImplMixin {
 		CompletableFuture<List<Suggestions>> collected = futures.thenApply(v -> all.stream().map(CompletableFuture::join).toList());
 
 		return collected.thenAccept(suggestions -> {
-			Suggestions merged = Suggestions.merge(command, suggestions);
+			Suggestions merged = Suggestions.merge(packet.getCommand(), suggestions);
 			this.connection.send(new ClientboundCommandSuggestionsPacket(packet.getId(), merged));
 		});
 	}
