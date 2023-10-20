@@ -273,8 +273,8 @@ public abstract class Minigame<M: Minigame<M>>(
         this.events.phased.clear()
 
         val self = this.cast()
-        this.phase = phase
         this.phase.end(self)
+        this.phase = phase
         this.phase.start(self)
         this.phase.initialise(self)
 
