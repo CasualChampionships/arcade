@@ -791,7 +791,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * @param modifier The modifier to apply to the game rules.
      * @see GameRules
      */
-    protected fun setGameRules(modifier: (GameRules) -> Unit) {
+    protected fun setGameRules(modifier: GameRules.() -> Unit) {
         for (level in this.getLevels()) {
             modifier(level.gameRules)
         }
