@@ -4,7 +4,12 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.casual.arcade.commands.hidden.HiddenCommand
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.*
+import net.minecraft.network.chat.HoverEvent.Action.*
+import net.minecraft.network.chat.HoverEvent.EntityTooltipInfo
+import net.minecraft.network.chat.HoverEvent.ItemStackInfo
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.item.ItemStack
 import org.jetbrains.annotations.ApiStatus.Experimental
 import java.util.*
 import java.util.function.Consumer
@@ -56,6 +61,28 @@ public object ComponentUtils {
     }
 
     @JvmStatic
+    public fun MutableComponent.hover(string: String): MutableComponent {
+        return this.hover(string.literal())
+    }
+
+    @JvmStatic
+    public fun MutableComponent.hover(component: Component): MutableComponent {
+        return this.withStyle { it.withHoverEvent(HoverEvent(SHOW_TEXT, component)) }
+    }
+
+    @JvmStatic
+    public fun MutableComponent.hover(entity: Entity): MutableComponent {
+        return this.withStyle {
+            it.withHoverEvent(HoverEvent(SHOW_ENTITY, EntityTooltipInfo(entity.type, entity.uuid, entity.name)))
+        }
+    }
+
+    @JvmStatic
+    public fun MutableComponent.hover(item: ItemStack): MutableComponent {
+        return this.withStyle { it.withHoverEvent(HoverEvent(SHOW_ITEM, ItemStackInfo(item))) }
+    }
+
+    @JvmStatic
     public fun MutableComponent.bold(): MutableComponent {
         return this.withStyle(ChatFormatting.BOLD)
     }
@@ -63,6 +90,16 @@ public object ComponentUtils {
     @JvmStatic
     public fun MutableComponent.unbold(): MutableComponent {
         return this.withStyle { it.withBold(false) }
+    }
+
+    @JvmStatic
+    public fun MutableComponent.underline(): MutableComponent {
+        return this.withStyle(ChatFormatting.UNDERLINE)
+    }
+
+    @JvmStatic
+    public fun MutableComponent.noUnderline(): MutableComponent {
+        return this.withStyle { it.withUnderlined(false) }
     }
 
     @JvmStatic
@@ -138,6 +175,16 @@ public object ComponentUtils {
     @JvmStatic
     public fun MutableComponent.white(): MutableComponent {
         return this.withStyle(ChatFormatting.WHITE)
+    }
+
+    @JvmStatic
+    public fun MutableComponent.grey(): MutableComponent {
+        return this.withStyle(ChatFormatting.GRAY)
+    }
+
+    @JvmStatic
+    public fun MutableComponent.black(): MutableComponent {
+        return this.withStyle(ChatFormatting.BLACK)
     }
 
     @JvmStatic

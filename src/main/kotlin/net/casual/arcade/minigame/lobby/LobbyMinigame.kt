@@ -11,6 +11,7 @@ import net.casual.arcade.events.player.PlayerTickEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigamePhase
 import net.casual.arcade.utils.CommandUtils.commandSuccess
+import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.success
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.MinigameUtils.countdown
@@ -145,6 +146,7 @@ public abstract class LobbyMinigame(
     }
 
     private fun startCountdown(context: CommandContext<CommandSourceStack>): Int {
+        this.next ?: return context.source.fail("Cannot move to next minigame, it has not been set!")
         this.setPhase(Phases.Countdown)
         return context.source.success("Successfully started the countdown")
     }

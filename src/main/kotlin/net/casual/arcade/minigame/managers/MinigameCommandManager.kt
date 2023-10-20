@@ -2,14 +2,27 @@ package net.casual.arcade.minigame.managers
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
+import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.tree.CommandNode
 import net.casual.arcade.events.minigame.MinigameCloseEvent
 import net.casual.arcade.events.player.PlayerCommandEvent
 import net.casual.arcade.events.player.PlayerSendCommandsEvent
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.utils.CommandUtils.fail
+import net.casual.arcade.utils.ComponentUtils.command
+import net.casual.arcade.utils.ComponentUtils.grey
+import net.casual.arcade.utils.ComponentUtils.hover
+import net.casual.arcade.utils.ComponentUtils.italicise
+import net.casual.arcade.utils.ComponentUtils.literal
+import net.casual.arcade.utils.ComponentUtils.red
+import net.casual.arcade.utils.ComponentUtils.underline
 import net.casual.arcade.utils.ducks.DeletableCommand
+import net.minecraft.commands.CommandRuntimeException
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
+import net.minecraft.network.chat.CommonComponents
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.ComponentUtils
 import java.util.*
 
 public class MinigameCommandManager(
@@ -23,11 +36,7 @@ public class MinigameCommandManager(
             it.addCustomCommandNode(this.dispatcher.root)
         }
         this.minigame.events.register<PlayerCommandEvent> {
-            val result = this.dispatcher.parse(it.command, it.player.createCommandSourceStack())
-            if (!result.reader.canRead()) {
-                this.dispatcher.execute(result)
-                it.cancel()
-            }
+            this.onCommand(it)
         }
         this.minigame.events.register<MinigameCloseEvent> {
             this.unregisterAll()
@@ -77,5 +86,38 @@ public class MinigameCommandManager(
 
     private fun getGlobalMinigameCommand(): CommandNode<CommandSourceStack>? {
         return this.minigame.server.commands.dispatcher.root.getChild("minigame")?.getChild("command")
+    }
+
+    private fun onCommand(event: PlayerCommandEvent) {
+        val source = event.player.createCommandSourceStack()
+        val result = this.dispatcher.parse(event.command, source)
+        if (!result.reader.canRead()) {
+            try {
+                this.dispatcher.execute(result)
+            } catch (runtime: CommandRuntimeException) {
+                source.fail(runtime.component)
+            } catch (syntax: CommandSyntaxException) {
+                source.fail(ComponentUtils.fromMessage(syntax.rawMessage))
+                if (syntax.input != null && syntax.cursor >= 0) {
+                    val i = syntax.input.length.coerceAtMost(syntax.cursor);
+                    val command = Component.empty().grey().command("/${event.command}")
+                    if (i > 10) {
+                        command.append(CommonComponents.ELLIPSIS)
+                    }
+
+                    command.append(syntax.input.substring(0.coerceAtLeast(i - 10), i))
+                    if (i < syntax.input.length) {
+                        val component = syntax.input.substring(i).literal().red().underline()
+                        command.append(component)
+                    }
+
+                    command.append(Component.translatable("command.context.here").red().italicise())
+                    source.sendFailure(command)
+                }
+            } catch (e: Exception) {
+                source.fail("Command threw unexpected exception: ${e.message}".literal().hover(e.stackTraceToString()))
+            }
+            event.cancel()
+        }
     }
 }
