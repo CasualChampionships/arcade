@@ -61,11 +61,11 @@ public abstract class TimerBossBar: CustomBossBar(), TickableUI, Completable {
     }
 
     public fun getProgress(): Float {
-        return if (this.hasDuration) 0.0F else this.tick / this.ticks.toFloat()
+        return if (!this.hasDuration) 0.0F else this.tick / this.ticks.toFloat()
     }
 
     public fun getRemainingDuration(): MinecraftTimeDuration {
-        return if (this.hasDuration) 0.Ticks else (this.ticks - this.tick).Ticks
+        return if (!this.hasDuration) 0.Ticks else (this.ticks - this.tick).Ticks
     }
 
     /**
