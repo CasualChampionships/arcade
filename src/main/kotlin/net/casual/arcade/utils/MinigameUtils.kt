@@ -31,7 +31,10 @@ public object MinigameUtils {
             this.sendCountdown(minigame.getPlayers(), current--, remaining)
             remaining -= interval
         }
-        minigame.scheduler.schedulePhased(remaining, post::complete)
+        minigame.scheduler.schedulePhased(remaining) {
+            this.afterCountdown(minigame.getPlayers())
+            post.complete()
+        }
         return post
     }
 

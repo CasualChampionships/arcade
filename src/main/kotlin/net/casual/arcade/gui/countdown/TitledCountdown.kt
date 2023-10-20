@@ -6,8 +6,10 @@ import net.casual.arcade.utils.ComponentUtils.lime
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.ComponentUtils.yellow
+import net.casual.arcade.utils.PlayerUtils.clearTitle
 import net.casual.arcade.utils.PlayerUtils.sendSound
 import net.casual.arcade.utils.PlayerUtils.sendTitle
+import net.casual.arcade.utils.PlayerUtils.setTitleAnimation
 import net.casual.arcade.utils.impl.Sound
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
@@ -44,10 +46,17 @@ public interface TitledCountdown: Countdown {
         val subtitle = this.getCountdownSubtitle(current)
         val sound = this.getCountdownSound(current)
         for (player in players) {
+            player.setTitleAnimation(0, 20, 0)
             player.sendTitle(title, subtitle)
             if (sound != null) {
                 player.sendSound(sound)
             }
+        }
+    }
+
+    override fun afterCountdown(players: Collection<ServerPlayer>) {
+        for (player in players) {
+            player.clearTitle()
         }
     }
 

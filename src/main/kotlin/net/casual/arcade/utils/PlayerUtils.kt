@@ -130,6 +130,17 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    public fun ServerPlayer.setTitleAnimation(fadeIn: Int, stay: Int, fadeOut: Int) {
+        this.connection.send(ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut))
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    public fun ServerPlayer.clearTitle(resetTimes: Boolean = true) {
+        this.connection.send(ClientboundClearTitlesPacket(resetTimes))
+    }
+
+    @JvmStatic
     public fun ServerPlayer.sendTitle(title: Component, subtitle: Component? = null) {
         this.connection.send(ClientboundSetTitleTextPacket(title))
         if (subtitle != null) {
