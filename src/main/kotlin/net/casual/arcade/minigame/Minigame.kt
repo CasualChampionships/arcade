@@ -474,6 +474,18 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     /**
+     * This sets the [GameRules] for all the levels in the minigame.
+     *
+     * @param modifier The modifier to apply to the game rules.
+     * @see GameRules
+     */
+    public fun setGameRules(modifier: GameRules.() -> Unit) {
+        for (level in this.getLevels()) {
+            modifier(level.gameRules)
+        }
+    }
+
+    /**
      * This closes the minigame, all players are removed from the
      * minigame, all tasks are cleared, and all events are unregistered.
      *
@@ -783,18 +795,6 @@ public abstract class Minigame<M: Minigame<M>>(
         val setting = displayed.setting
         this.gameSettings[setting.name] = displayed
         return setting
-    }
-
-    /**
-     * This sets the [GameRules] for all the levels in the minigame.
-     *
-     * @param modifier The modifier to apply to the game rules.
-     * @see GameRules
-     */
-    protected fun setGameRules(modifier: GameRules.() -> Unit) {
-        for (level in this.getLevels()) {
-            modifier(level.gameRules)
-        }
     }
 
     private fun getAllPhases(): List<MinigamePhase<M>> {

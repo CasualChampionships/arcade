@@ -45,23 +45,6 @@ public abstract class LobbyMinigame(
         }
 
         this.commands.register(this.createLobbyCommand())
-
-        this.setGameRules {
-            resetToDefault()
-            set(GameRules.RULE_NATURAL_REGENERATION, true)
-            set(GameRules.RULE_DOINSOMNIA, false)
-            set(GameRules.RULE_DOFIRETICK, false)
-            set(GameRules.RULE_DAYLIGHT, false)
-            set(GameRules.RULE_ANNOUNCE_ADVANCEMENTS, true)
-            set(GameRules.RULE_FALL_DAMAGE, false)
-            set(GameRules.RULE_DROWNING_DAMAGE, false)
-            set(GameRules.RULE_DOENTITYDROPS, false)
-            set(GameRules.RULE_WEATHER_CYCLE, false)
-            set(GameRules.RULE_DO_TRADER_SPAWNING, false)
-            set(GameRules.RULE_DOBLOCKDROPS, false)
-            set(GameRules.RULE_SNOW_ACCUMULATION_HEIGHT, 0)
-            set(GameRules.RULE_RANDOMTICKING, 0)
-        }
     }
 
     public open fun onStart() {
