@@ -127,8 +127,6 @@ public class MinigameCommandManager(
 
     private fun onCommandSuggestions(event: PlayerCommandSuggestionsEvent) {
         val result = this.dispatcher.parse(event.command, event.player.createCommandSourceStack())
-        if (!result.reader.canRead()) {
-            event.cancel(this.dispatcher.getCompletionSuggestions(result))
-        }
+        event.cancel(this.dispatcher.getCompletionSuggestions(result))
     }
 }

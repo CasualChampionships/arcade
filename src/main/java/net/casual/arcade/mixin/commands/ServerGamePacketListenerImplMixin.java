@@ -1,7 +1,6 @@
 package net.casual.arcade.mixin.commands;
 
-import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.suggestion.Suggestions;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.PlayerCommandEvent;
 import net.casual.arcade.events.player.PlayerCommandSuggestionsEvent;
@@ -17,9 +16,12 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Locale;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public class ServerGamePacketListenerImplMixin {
@@ -40,24 +42,32 @@ public class ServerGamePacketListenerImplMixin {
 		}
 	}
 
-	@Inject(
+	@Redirect(
 		method = "handleCustomCommandSuggestions",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V",
-			shift = At.Shift.AFTER
-		),
-		cancellable = true
+			target = "Ljava/util/concurrent/CompletableFuture;thenAccept(Ljava/util/function/Consumer;)Ljava/util/concurrent/CompletableFuture;",
+			remap = false
+		)
 	)
-	private void onCustomCommandSuggestions(ServerboundCommandSuggestionPacket packet, CallbackInfo ci) {
+	private CompletableFuture<?> onCustomCommandSuggestions(
+		CompletableFuture<Suggestions> vanillaSuggestions,
+		Consumer<? super Suggestions> action,
+		ServerboundCommandSuggestionPacket packet
+	) {
 		String command = packet.getCommand().startsWith("/") ? packet.getCommand().substring(1) : packet.getCommand();
 		PlayerCommandSuggestionsEvent event = new PlayerCommandSuggestionsEvent(this.player, command);
+		event.addSuggestions(vanillaSuggestions);
 		GlobalEventHandler.broadcast(event);
-		if (event.isCancelled()) {
-			event.result().thenAccept(suggestions -> {
-				this.connection.send(new ClientboundCommandSuggestionsPacket(packet.getId(), suggestions));
-			});
-			ci.cancel();
-		}
+
+		List<CompletableFuture<Suggestions>> all = event.getAllSuggestions();
+		CompletableFuture<Void> futures = CompletableFuture.allOf(all.toArray(CompletableFuture[]::new));
+
+		CompletableFuture<List<Suggestions>> collected = futures.thenApply(v -> all.stream().map(CompletableFuture::join).toList());
+
+		return collected.thenAccept(suggestions -> {
+			Suggestions merged = Suggestions.merge(command, suggestions);
+			this.connection.send(new ClientboundCommandSuggestionsPacket(packet.getId(), merged));
+		});
 	}
 }
