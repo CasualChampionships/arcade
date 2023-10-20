@@ -86,7 +86,7 @@ public sealed class CancellableTask(
                 val message = "Cancellable\$Savable task failed to write wrapped task ${this.wrapped::class.simpleName}"
                 throw IllegalStateException(message)
             }
-            data.add("wrapped", data)
+            data.add("wrapped", wrappedData)
             val onCancel = JsonArray()
             for (cancel in this.cancelled) {
                 val onCancelData = context.writeTask(cancel)
