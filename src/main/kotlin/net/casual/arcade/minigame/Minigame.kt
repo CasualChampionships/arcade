@@ -494,6 +494,7 @@ public abstract class Minigame<M: Minigame<M>>(
 
         this.initialised = false
         this.phase = MinigamePhase.none()
+
     }
 
     /**

@@ -6,6 +6,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.tree.CommandNode
 import net.casual.arcade.events.minigame.MinigameCloseEvent
 import net.casual.arcade.events.player.PlayerCommandEvent
+import net.casual.arcade.events.player.PlayerCommandSuggestionsEvent
 import net.casual.arcade.events.player.PlayerSendCommandsEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.CommandUtils.fail
@@ -37,6 +38,9 @@ public class MinigameCommandManager(
         }
         this.minigame.events.register<PlayerCommandEvent> {
             this.onCommand(it)
+        }
+        this.minigame.events.register<PlayerCommandSuggestionsEvent> {
+            this.onCommandSuggestions(it)
         }
         this.minigame.events.register<MinigameCloseEvent> {
             this.unregisterAll()
@@ -118,6 +122,13 @@ public class MinigameCommandManager(
                 source.fail("Command threw unexpected exception: ${e.message}".literal().hover(e.stackTraceToString()))
             }
             event.cancel()
+        }
+    }
+
+    private fun onCommandSuggestions(event: PlayerCommandSuggestionsEvent) {
+        val result = this.dispatcher.parse(event.command, event.player.createCommandSourceStack())
+        if (!result.reader.canRead()) {
+            event.cancel(this.dispatcher.getCompletionSuggestions(result))
         }
     }
 }
