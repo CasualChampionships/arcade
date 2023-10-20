@@ -1,6 +1,7 @@
 package net.casual.arcade.events
 
 import net.casual.arcade.events.core.Event
+import java.util.function.Consumer
 
 public class SingleEventHandler<T: Event>(
     public val type: Class<T>,
@@ -23,12 +24,8 @@ public class SingleEventHandler<T: Event>(
     }
 
     public companion object {
-        public fun <T: Event> of(type: Class<T>, listener: EventListener<T>): SingleEventHandler<T> {
-            return SingleEventHandler(type, listener)
-        }
-
-        public inline fun <reified T: Event> of(listener: EventListener<T>): SingleEventHandler<T> {
-            return of(T::class.java, listener)
+        public inline fun <reified T: Event> of(priority: Int = 1_000, listener: Consumer<T>): SingleEventHandler<T> {
+            return SingleEventHandler(T::class.java, EventListener.of(priority, listener))
         }
     }
 }
