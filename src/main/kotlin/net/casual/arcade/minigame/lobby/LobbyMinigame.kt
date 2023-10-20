@@ -14,12 +14,15 @@ import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.success
 import net.casual.arcade.utils.ComponentUtils.literal
+import net.casual.arcade.utils.GameRuleUtils.resetToDefault
+import net.casual.arcade.utils.GameRuleUtils.set
 import net.casual.arcade.utils.MinigameUtils.countdown
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.GameRules
 
 public abstract class LobbyMinigame(
     server: MinecraftServer
@@ -42,6 +45,23 @@ public abstract class LobbyMinigame(
         }
 
         this.commands.register(this.createLobbyCommand())
+
+        this.setGameRules {
+            resetToDefault()
+            set(GameRules.RULE_NATURAL_REGENERATION, true)
+            set(GameRules.RULE_DOINSOMNIA, false)
+            set(GameRules.RULE_DOFIRETICK, false)
+            set(GameRules.RULE_DAYLIGHT, false)
+            set(GameRules.RULE_ANNOUNCE_ADVANCEMENTS, true)
+            set(GameRules.RULE_FALL_DAMAGE, false)
+            set(GameRules.RULE_DROWNING_DAMAGE, false)
+            set(GameRules.RULE_DOENTITYDROPS, false)
+            set(GameRules.RULE_WEATHER_CYCLE, false)
+            set(GameRules.RULE_DO_TRADER_SPAWNING, false)
+            set(GameRules.RULE_DOBLOCKDROPS, false)
+            set(GameRules.RULE_SNOW_ACCUMULATION_HEIGHT, 0)
+            set(GameRules.RULE_RANDOMTICKING, 0)
+        }
     }
 
     public open fun onStart() {
