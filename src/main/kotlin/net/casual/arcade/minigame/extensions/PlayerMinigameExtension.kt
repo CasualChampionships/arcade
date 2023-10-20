@@ -45,6 +45,10 @@ internal class PlayerMinigameExtension(
         if (element.hasUUID("minigame")) {
             val uuid = element.getUUID("minigame")
             this.minigame = Minigames.get(uuid)
+            if (this.minigame == null) {
+                Arcade.logger.warn("Player ${owner.scoreboardName} was part of an old minigame...")
+                return
+            }
 
             // Player has not fully initialized yet...
             GlobalTickedScheduler.later {

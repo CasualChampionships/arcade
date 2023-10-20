@@ -43,6 +43,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.MenuProvider
+import net.minecraft.world.level.GameRules
 import net.minecraft.world.scores.PlayerTeam
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.util.*
@@ -782,6 +783,18 @@ public abstract class Minigame<M: Minigame<M>>(
         val setting = displayed.setting
         this.gameSettings[setting.name] = displayed
         return setting
+    }
+
+    /**
+     * This sets the [GameRules] for all the levels in the minigame.
+     *
+     * @param modifier The modifier to apply to the game rules.
+     * @see GameRules
+     */
+    protected fun setGameRules(modifier: (GameRules) -> Unit) {
+        for (level in this.getLevels()) {
+            modifier(level.gameRules)
+        }
     }
 
     private fun getAllPhases(): List<MinigamePhase<M>> {

@@ -27,10 +27,7 @@ import net.minecraft.server.MinecraftServer
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.nio.file.Path
 import java.util.*
-import kotlin.io.path.absolutePathString
-import kotlin.io.path.bufferedReader
-import kotlin.io.path.bufferedWriter
-import kotlin.io.path.exists
+import kotlin.io.path.*
 
 /**
  * This extension of the [Minigame] class allows for serialization
@@ -66,17 +63,14 @@ import kotlin.io.path.exists
  *
  * @param M The type of the child class.
  * @param server The [MinecraftServer] that created the [Minigame].
- * @param path The path at which to read and write the minigame data.
  * @see Minigame
  */
 public abstract class SavableMinigame<M: SavableMinigame<M>>(
-    server: MinecraftServer,
-    /**
-     * The path at which to read and write the minigame data.
-     */
-    private val path: Path,
+    server: MinecraftServer
 ): Minigame<M>(server) {
     private val taskGenerator = MinigameTaskGenerator(this.cast())
+
+    protected var path: Path? = null
 
     init {
         // Add default task factories
@@ -151,7 +145,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
      */
     override fun appendAdditionalDebugInfo(json: JsonObject) {
         super.appendAdditionalDebugInfo(json)
-        json.addProperty("save_path", this.path.absolutePathString())
+        json.addProperty("save_path", this.path?.absolutePathString())
     }
 
     /**
@@ -163,12 +157,16 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
     override fun initialise() {
         this.events.register<ServerSaveEvent> { this.save() }
         this.events.register<MinigameCloseEvent> { this.save() }
+    }
 
-        if (!this.path.exists()) {
+    protected fun read(): Boolean {
+        val path = this.path
+
+        if (path == null || !path.exists()) {
             super.initialise()
-            return
+            return false
         }
-        val json = this.path.bufferedReader().use {
+        val json = path.bufferedReader().use {
             CustomisableConfig.GSON.fromJson(it, JsonObject::class.java)
         }
 
@@ -183,7 +181,9 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         }
         this.paused = json.booleanOrDefault("paused")
         if (json.has("uuid")) {
+            Minigames.unregister(this)
             this.uuid = UUID.fromString(json.string("uuid"))
+            Minigames.register(this)
         }
 
         val generated = HashMap<Int, Task?>()
@@ -217,16 +217,17 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
             this.readData(custom)
         }
 
-        super.initialise()
-
         if (setPhase) {
             this.phase.initialise(this.cast())
         } else {
             Arcade.logger.warn("Phase for minigame ${this.id} could not be reloaded, given phase id: $phaseId")
         }
+        return true
     }
 
-    private fun save() {
+    protected fun save(): Boolean {
+        val path = this.path ?: return false
+
         val json = JsonObject()
 
         json.addProperty("phase", this.phase.id)
@@ -261,9 +262,14 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         json.add("settings", settings)
         json.add("custom", custom)
 
-        this.path.bufferedWriter().use {
+        path.bufferedWriter().use {
             CustomisableConfig.GSON.toJson(json, it)
         }
+        return true
+    }
+
+    protected fun delete(): Boolean {
+        return this.path?.deleteIfExists() ?: false
     }
 
     private fun readScheduledTask(json: JsonObject, scheduler: TickedScheduler, generated: MutableMap<Int, Task?>) {
