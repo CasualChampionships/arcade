@@ -58,6 +58,8 @@ public abstract class LobbyMinigame(
             next.addPlayer(player)
         }
         next.start()
+
+        this.close()
     }
 
     public fun getNextMinigame(): Minigame<*>? {

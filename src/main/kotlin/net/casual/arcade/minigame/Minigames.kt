@@ -25,4 +25,8 @@ public object Minigames {
     internal fun register(minigame: Minigame<*>) {
         this.ALL[minigame.uuid] = minigame
     }
+
+    internal fun unregister(minigame: Minigame<*>) {
+        this.ALL.remove(minigame.uuid)
+    }
 }
