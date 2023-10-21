@@ -30,12 +30,14 @@ import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.utils.EventUtils.broadcast
 import net.casual.arcade.utils.EventUtils.registerHandler
 import net.casual.arcade.utils.EventUtils.unregisterHandler
+import net.casual.arcade.utils.ItemUtils.literalNamed
 import net.casual.arcade.utils.JsonUtils.toJsonObject
 import net.casual.arcade.utils.JsonUtils.toJsonStringArray
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.ScreenUtils
 import net.casual.arcade.utils.ScreenUtils.DefaultMinigameScreenComponent
+import net.casual.arcade.utils.SettingsUtils.defaultOptions
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
@@ -43,6 +45,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.MenuProvider
+import net.minecraft.world.item.Items
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.scores.PlayerTeam
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
@@ -176,6 +179,21 @@ public abstract class Minigame<M: Minigame<M>>(
      */
     public var paused: Boolean
         internal set
+
+    /**
+     * Whether pvp is enabled for this minigame.
+     *
+     * It is implemented as a [GameSetting] so that it can be
+     * changed in the minigame settings GUI.
+     */
+    public var pvp: Boolean by this.registerSetting(
+        DisplayableGameSettingBuilder.boolean()
+            .name("pvp")
+            .display(Items.IRON_SWORD.literalNamed("PvP"))
+            .defaultOptions()
+            .value(true)
+            .build()
+    )
 
     /**
      * The [ResourceLocation] of the [Minigame].
