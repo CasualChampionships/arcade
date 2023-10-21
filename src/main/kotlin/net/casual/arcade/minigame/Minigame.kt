@@ -181,36 +181,6 @@ public abstract class Minigame<M: Minigame<M>>(
         internal set
 
     /**
-     * Whether pvp is enabled for this minigame.
-     *
-     * It is implemented as a [GameSetting] so that it can be
-     * changed in the minigame settings GUI.
-     */
-    public var pvp: Boolean by this.registerSetting(
-        DisplayableGameSettingBuilder.boolean()
-            .name("pvp")
-            .display(Items.IRON_SWORD.literalNamed("PvP"))
-            .defaultOptions()
-            .value(true)
-            .build()
-    )
-
-    /**
-     * Whether the player will lose hunger in this minigame.
-     *
-     * It is implemented as a [GameSetting] so that it can be
-     * changed in the minigame settings GUI.
-     */
-    public var hunger: Boolean by this.registerSetting(
-        DisplayableGameSettingBuilder.boolean()
-            .name("hunger")
-            .display(Items.COOKED_BEEF.literalNamed("Hunger"))
-            .defaultOptions()
-            .value(true)
-            .build()
-    )
-
-    /**
      * The [ResourceLocation] of the [Minigame].
      */
     public abstract val id: ResourceLocation
@@ -244,6 +214,36 @@ public abstract class Minigame<M: Minigame<M>>(
 
         this.paused = false
     }
+
+    /**
+     * Whether pvp is enabled for this minigame.
+     *
+     * It is implemented as a [GameSetting] so that it can be
+     * changed in the minigame settings GUI.
+     */
+    public var pvp: Boolean by this.registerSetting(
+        DisplayableGameSettingBuilder.boolean()
+            .name("pvp")
+            .display(Items.IRON_SWORD.literalNamed("PvP"))
+            .defaultOptions()
+            .value(true)
+            .build()
+    )
+
+    /**
+     * Whether the player will lose hunger in this minigame.
+     *
+     * It is implemented as a [GameSetting] so that it can be
+     * changed in the minigame settings GUI.
+     */
+    public var hunger: Boolean by this.registerSetting(
+        DisplayableGameSettingBuilder.boolean()
+            .name("hunger")
+            .display(Items.COOKED_BEEF.literalNamed("Hunger"))
+            .defaultOptions()
+            .value(true)
+            .build()
+    )
 
     /**
      * Checks whether the minigame is in a given phase.
