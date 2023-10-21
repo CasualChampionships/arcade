@@ -8,6 +8,7 @@ import java.util.*
  */
 public object Minigames {
     private val ALL = LinkedHashMap<UUID, Minigame<*>>()
+    private val FACTORIES = LinkedHashMap<String, MinigameFactory>()
 
     /**
      * This method gets all the current running minigames.
@@ -16,6 +17,18 @@ public object Minigames {
      */
     public fun all(): Collection<Minigame<*>> {
         return ALL.values
+    }
+
+    public fun registerFactory(id: String, factory: MinigameFactory) {
+        this.FACTORIES[id] = factory
+    }
+
+    public fun getFactory(id: String): MinigameFactory? {
+        return this.FACTORIES[id]
+    }
+
+    public fun getAllFactoryIds(): MutableSet<String> {
+        return this.FACTORIES.keys
     }
 
     internal fun get(uuid: UUID): Minigame<*>? {

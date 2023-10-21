@@ -14,7 +14,6 @@ import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.commands.arguments.EntityArgument
-import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 
 internal object MinigameCommand: Command {
@@ -67,6 +66,22 @@ internal object MinigameCommand: Command {
                             Commands.argument("phase", MinigameArgument.PhaseName.name("minigame")).executes(this::setMinigamePhase)
                         )
                     )
+                )
+            ).then(
+                Commands.literal("pause").then(
+                    Commands.argument("minigame", MinigameArgument.minigame()).executes(this::pauseMinigame)
+                )
+            ).then(
+                Commands.literal("unpause").then(
+                    Commands.argument("minigame", MinigameArgument.minigame()).executes(this::unpauseMinigame)
+                )
+            ).then(
+                Commands.literal("create").then(
+                    Commands.argument("factory", MinigameArgument.Factory.factory()).executes(this::createMinigame)
+                )
+            ).then(
+                Commands.literal("close").then(
+                    Commands.argument("minigame", MinigameArgument.minigame()).executes(this::closeMinigame)
                 )
             ).then(
                 Commands.literal("command")
@@ -173,5 +188,29 @@ internal object MinigameCommand: Command {
         val phase = minigame.phases.find { it.id == name } ?: throw INVALID_PHASE_NAME.create()
         minigame.setPhase(phase)
         return context.source.success("Successfully set phase of minigame ${minigame.id} to ${phase.id}")
+    }
+
+    private fun pauseMinigame(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        minigame.pause()
+        return context.source.success("Successfully paused minigame ${minigame.id}")
+    }
+
+    private fun unpauseMinigame(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        minigame.unpause()
+        return context.source.success("Successfully unpaused minigame ${minigame.id}")
+    }
+
+    private fun createMinigame(context: CommandContext<CommandSourceStack>): Int {
+        val factory = MinigameArgument.Factory.getFactory(context, "factory")
+        val minigame = factory.create(context.source.server)
+        return context.source.success("Successfully created minigame ${minigame.id} with uuid ${minigame.uuid}")
+    }
+
+    private fun closeMinigame(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        minigame.close()
+        return context.source.success("Successfully closed minigame ${minigame.id}")
     }
 }

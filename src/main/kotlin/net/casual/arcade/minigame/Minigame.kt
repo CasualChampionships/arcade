@@ -47,6 +47,7 @@ import net.minecraft.world.level.GameRules
 import net.minecraft.world.scores.PlayerTeam
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.util.*
+import kotlin.collections.HashSet
 import kotlin.collections.set
 
 /**
@@ -384,6 +385,20 @@ public abstract class Minigame<M: Minigame<M>>(
      * @return The collection of player teams.
      */
     public fun getPlayerTeams(): Collection<PlayerTeam> {
+        val teams = HashSet<PlayerTeam>()
+        for (player in this.getPlayers()) {
+            teams.add(this.server.scoreboard.getPlayersTeam(player.gameProfile.name) ?: continue)
+        }
+        return teams
+    }
+
+    /**
+     * This gets all the teams that are playing in the minigame,
+     * including offline teams.
+     *
+     * @return The collection of player teams.
+     */
+    public fun getAllPlayerTeams(): Collection<PlayerTeam> {
         val teams = HashSet<PlayerTeam>()
         for (profile in this.getAllPlayerProfiles()) {
             teams.add(this.server.scoreboard.getPlayersTeam(profile.name) ?: continue)

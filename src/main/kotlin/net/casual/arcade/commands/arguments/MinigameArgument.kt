@@ -10,31 +10,49 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.config.CustomisableConfig
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.MinigameFactory
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.utils.ComponentUtils.literal
+import net.casual.arcade.utils.MinigameUtils.getMinigame
+import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
-import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerPlayer
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.stream.Stream
 
-public class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame<*>> {
-    override fun parse(reader: StringReader): Minigame<*> {
+public class MinigameArgument: CustomArgumentType(), ArgumentType<MinigameArgument.ParsedMinigame> {
+    override fun parse(reader: StringReader): ParsedMinigame {
+        val string = reader.readString()
+        if (string == "-") {
+            return ParsedMinigame()
+        }
+
         val uuid: UUID
         try {
-            uuid = UUID.fromString(reader.readString())
+            uuid = UUID.fromString(string)
         } catch (e: IllegalArgumentException) {
             throw INVALID_MINIGAME.create()
         }
-        return Minigames.get(uuid) ?: throw INVALID_MINIGAME.create()
+        return ParsedMinigame(Minigames.get(uuid) ?: throw INVALID_MINIGAME.create())
     }
-
 
     override fun <S: Any?> listSuggestions(context: CommandContext<S>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
-        return SharedSuggestionProvider.suggest(Minigames.all().stream().map { it.uuid.toString() }, builder)
+        var minigames = Minigames.all().stream().map { it.uuid.toString() }
+        val source = context.source
+        if (source is CommandSourceStack && source.player?.getMinigame() != null) {
+            minigames = Stream.concat(minigames, Stream.of("-"))
+        }
+        return SharedSuggestionProvider.suggest(minigames, builder)
     }
+
+    public class ParsedMinigame(
+        internal val minigame: Minigame<*>? = null
+    )
 
     public companion object {
         public val INVALID_MINIGAME: SimpleCommandExceptionType = SimpleCommandExceptionType("Invalid Minigame UUID".literal())
+        public val NOT_PARTICIPATING: SimpleCommandExceptionType = SimpleCommandExceptionType("You are not part of a minigame".literal())
 
         @JvmStatic
         public fun minigame(): MinigameArgument {
@@ -43,7 +61,40 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame<*>> {
 
         @JvmStatic
         public fun getMinigame(context: CommandContext<*>, string: String): Minigame<*> {
-            return context.getArgument(string, Minigame::class.java)
+            val parsed = context.getArgument(string, ParsedMinigame::class.java)
+            if (parsed.minigame != null) {
+                return parsed.minigame
+            }
+
+            val source = context.source
+            if (source !is CommandSourceStack) {
+                throw NOT_PARTICIPATING.create()
+            }
+            return source.player?.getMinigame() ?: throw NOT_PARTICIPATING.create()
+        }
+    }
+
+    public class Factory: CustomArgumentType(), ArgumentType<MinigameFactory> {
+        override fun parse(reader: StringReader): MinigameFactory {
+            return Minigames.getFactory(reader.readString()) ?: throw INVALID_FACTORY.create()
+        }
+
+        override fun <S: Any?> listSuggestions(context: CommandContext<S>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
+            return SharedSuggestionProvider.suggest(Minigames.getAllFactoryIds(), builder)
+        }
+
+        public companion object {
+            public val INVALID_FACTORY: SimpleCommandExceptionType = SimpleCommandExceptionType("Invalid Minigame Factory".literal())
+
+            @JvmStatic
+            public fun factory(): Factory {
+                return Factory()
+            }
+
+            @JvmStatic
+            public fun getFactory(context: CommandContext<*>, string: String): MinigameFactory {
+                return context.getArgument(string, MinigameFactory::class.java)
+            }
         }
     }
 
@@ -52,7 +103,7 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<Minigame<*>> {
             return reader.readString()
         }
 
-        override fun <S : Any?> listSuggestions(context: CommandContext<S>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
+        override fun <S: Any?> listSuggestions(context: CommandContext<S>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
             val minigame = getMinigame(context, this.minigameKey)
             return SharedSuggestionProvider.suggest(minigame.phases.map { it.id }, builder)
         }
