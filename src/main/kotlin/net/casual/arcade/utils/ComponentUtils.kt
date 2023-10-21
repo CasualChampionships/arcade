@@ -31,8 +31,8 @@ public object ComponentUtils {
 
     @Experimental
     @JvmStatic
-    public fun MutableComponent.singleUseFunction(consumer: Consumer<ServerPlayer>) {
-        this.function { context ->
+    public fun MutableComponent.singleUseFunction(consumer: Consumer<ServerPlayer>): MutableComponent {
+        return this.function { context ->
             consumer.accept(context.player)
             context.deleteCommand()
         }

@@ -8,27 +8,37 @@ import net.casual.arcade.Arcade
 import net.casual.arcade.commands.arguments.MinigameArgument
 import net.casual.arcade.events.minigame.MinigameAddNewPlayerEvent
 import net.casual.arcade.events.player.PlayerTickEvent
+import net.casual.arcade.gui.ready.ReadyChecker
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigamePhase
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.success
+import net.casual.arcade.utils.ComponentUtils
+import net.casual.arcade.utils.ComponentUtils.green
 import net.casual.arcade.utils.ComponentUtils.literal
+import net.casual.arcade.utils.ComponentUtils.singleUseFunction
 import net.casual.arcade.utils.GameRuleUtils.resetToDefault
 import net.casual.arcade.utils.GameRuleUtils.set
+import net.casual.arcade.utils.MinigameUtils.arePlayersReady
+import net.casual.arcade.utils.MinigameUtils.areTeamsReady
 import net.casual.arcade.utils.MinigameUtils.countdown
+import net.casual.arcade.utils.PlayerUtils
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
+import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.GameRules
 
 public abstract class LobbyMinigame(
     server: MinecraftServer
-): Minigame<LobbyMinigame>(server) {
+): Minigame<LobbyMinigame>(server), ReadyChecker {
     protected abstract val lobby: Lobby
 
+    private var awaiting: (() -> Component)? = null
     private var next: Minigame<*>? = null
 
     init {
@@ -56,6 +66,24 @@ public abstract class LobbyMinigame(
 
     public open fun onStartCountdown() {
 
+    }
+
+    override fun onReady() {
+        this.awaiting = null
+        val component = "All players are ready, click to start!".literal().green().singleUseFunction {
+            this.setPhase(Phases.Countdown)
+        }
+        for (player in this.getPlayers()) {
+            if (player.hasPermissions(4)) {
+                player.sendSystemMessage(component)
+            }
+        }
+    }
+
+    override fun broadcast(message: Component) {
+        for (player in this.getPlayers()) {
+            player.sendSystemMessage(message)
+        }
     }
 
     protected open fun moveToNextMinigame() {
@@ -115,6 +143,14 @@ public abstract class LobbyMinigame(
             Commands.literal("tp").executes(this::teleportToLobby)
         ).then(
             Commands.literal("countdown").executes(this::startCountdown)
+        ).then(
+            Commands.literal("ready").then(
+                Commands.literal("players").executes(this::readyPlayers)
+            ).then(
+                Commands.literal("teams").executes(this::readyTeams)
+            ).then(
+                Commands.literal("awaiting").executes(this::awaitingReady)
+            )
         )
     }
 
@@ -157,6 +193,43 @@ public abstract class LobbyMinigame(
         this.next ?: return context.source.fail("Cannot move to next minigame, it has not been set!")
         this.setPhase(Phases.Countdown)
         return context.source.success("Successfully started the countdown")
+    }
+
+    private fun readyPlayers(context: CommandContext<CommandSourceStack>): Int {
+        this.next ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
+        val awaiting = this.arePlayersReady(this.getPlayers())
+        this.awaiting = {
+            val component = "Awaiting the following players: ".literal()
+            for (player in awaiting) {
+                if (component.siblings.isNotEmpty()) {
+                    component.append(", ")
+                }
+                component.append(player.displayName)
+            }
+            component
+        }
+        return context.source.success("Successfully broadcasted ready check")
+    }
+
+    private fun readyTeams(context: CommandContext<CommandSourceStack>): Int {
+        this.next ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
+        val awaiting = this.areTeamsReady(this.getPlayerTeams())
+        this.awaiting = {
+            val component = "Awaiting the following teams: ".literal()
+            for (team in awaiting) {
+                if (component.siblings.isNotEmpty()) {
+                    component.append(", ")
+                }
+                component.append(team.formattedDisplayName)
+            }
+            component
+        }
+        return context.source.success("Successfully broadcasted ready check")
+    }
+
+    private fun awaitingReady(context: CommandContext<CommandSourceStack>): Int {
+        val awaiting = this.awaiting ?: return context.source.fail("Not currently awaiting any players or teams to be ready")
+        return context.source.success(awaiting())
     }
 
     private companion object {

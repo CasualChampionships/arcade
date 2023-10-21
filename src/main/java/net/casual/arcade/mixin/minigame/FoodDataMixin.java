@@ -6,11 +6,9 @@ import net.casual.arcade.utils.MinigameUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
-import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Debug(export = true)
 @Mixin(FoodData.class)
 public class FoodDataMixin {
 	@WrapWithCondition(
