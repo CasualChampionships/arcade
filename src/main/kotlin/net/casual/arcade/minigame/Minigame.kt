@@ -196,6 +196,21 @@ public abstract class Minigame<M: Minigame<M>>(
     )
 
     /**
+     * Whether the player will lose hunger in this minigame.
+     *
+     * It is implemented as a [GameSetting] so that it can be
+     * changed in the minigame settings GUI.
+     */
+    public var hunger: Boolean by this.registerSetting(
+        DisplayableGameSettingBuilder.boolean()
+            .name("hunger")
+            .display(Items.COOKED_BEEF.literalNamed("Hunger"))
+            .defaultOptions()
+            .value(true)
+            .build()
+    )
+
+    /**
      * The [ResourceLocation] of the [Minigame].
      */
     public abstract val id: ResourceLocation

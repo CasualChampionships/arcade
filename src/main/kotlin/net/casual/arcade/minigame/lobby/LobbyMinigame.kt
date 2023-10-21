@@ -47,6 +47,7 @@ public abstract class LobbyMinigame(
         this.commands.register(this.createLobbyCommand())
 
         this.pvp = false
+        this.hunger = false
     }
 
     public open fun onStart() {

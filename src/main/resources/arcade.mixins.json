@@ -35,6 +35,7 @@
     "extensions.ScoreboardSaveDataMixin",
     "extensions.ServerLevelMixin",
     "extensions.ServerPlayerMixin",
+    "minigame.FoodDataMixin",
     "minigame.PlayerTeamMixin",
     "minigame.ScoreboardMixin",
     "minigame.ServerPlayerMixin",
