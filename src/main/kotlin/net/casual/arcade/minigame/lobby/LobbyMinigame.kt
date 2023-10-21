@@ -45,6 +45,8 @@ public abstract class LobbyMinigame(
         }
 
         this.commands.register(this.createLobbyCommand())
+
+        this.pvp = false
     }
 
     public open fun onStart() {
