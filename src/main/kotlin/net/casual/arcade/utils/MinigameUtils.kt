@@ -4,7 +4,7 @@ import net.casual.arcade.commands.hidden.HiddenCommand
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.player.PlayerCreatedEvent
 import net.casual.arcade.gui.countdown.Countdown
-import net.casual.arcade.gui.ready.Ready
+import net.casual.arcade.gui.ready.ReadyChecker
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
 import net.casual.arcade.scheduler.MinecraftTimeDuration
@@ -30,14 +30,14 @@ public object MinigameUtils {
      *
      * This will broadcast a message to all players asking if
      * their team is ready, once all teams confirm they are
-     * ready [Ready.onReady] will be called.
+     * ready [ReadyChecker.onReady] will be called.
      *
      * @param teams The teams to check.
      * @return The teams that are not ready, this collection is mutable,
      * and may be updated in the future.
      */
     @JvmStatic
-    public fun Ready.areTeamsReady(teams: Collection<PlayerTeam>): Collection<PlayerTeam> {
+    public fun ReadyChecker.areTeamsReady(teams: Collection<PlayerTeam>): Collection<PlayerTeam> {
         val unready = HashSet<PlayerTeam>()
         for (team in teams) {
             val players = team.getOnlinePlayers()
@@ -73,14 +73,14 @@ public object MinigameUtils {
      *
      * This will broadcast a message to all players asking if
      * they are ready, once all players confirm they are
-     * ready [Ready.onReady] will be called.
+     * ready [ReadyChecker.onReady] will be called.
      *
      * @param players The players to check.
      * @return The players that are not ready, this collection is mutable,
      * and may be updated in the future.
      */
     @JvmStatic
-    public fun Ready.arePlayersReady(players: Collection<ServerPlayer>): Collection<ServerPlayer> {
+    public fun ReadyChecker.arePlayersReady(players: Collection<ServerPlayer>): Collection<ServerPlayer> {
         val unready = HashSet<ServerPlayer>(players)
         for (player in players) {
             val ready = HiddenCommand { context ->

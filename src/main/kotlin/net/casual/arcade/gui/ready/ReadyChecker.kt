@@ -8,7 +8,7 @@ import net.casual.arcade.utils.ComponentUtils.literal
 import net.minecraft.network.chat.Component
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
-public interface Ready {
+public interface ReadyChecker {
     @OverrideOnly
     public fun getReadyMessage(ready: HiddenCommand, notReady: HiddenCommand): Component {
         return "Are you ready? ".literal()
