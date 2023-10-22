@@ -13,6 +13,7 @@ import net.minecraft.util.RandomSource
 import org.jetbrains.annotations.ApiStatus.Experimental
 
 public object CommandUtils {
+    private val removed = HashMap<String, Component>()
     private val commands = HashMap<String, HiddenCommand>()
     private val random = RandomSource.create()
 
@@ -57,14 +58,22 @@ public object CommandUtils {
     internal fun registerEvents() {
         GlobalEventHandler.register<PlayerCommandEvent> { event ->
             val (player, string) = event
-            val command = this.commands[string]
-            if (command != null && command.canRun(player)) {
-                val context = HiddenCommandContext(player)
-                command.run(context)
-                if (context.remove) {
-                    this.commands.remove(string)
-                }
+            val removedMessage = this.removed[string]
+            if (removedMessage != null) {
+                player.sendSystemMessage(removedMessage)
                 event.cancel()
+            } else {
+                val command = this.commands[string]
+                if (command != null && command.canRun(player)) {
+                    val context = HiddenCommandContext(player)
+                    command.run(context)
+                    val message = context.removedMessage
+                    if (message != null) {
+                        this.commands.remove(string)
+                        this.removed[string] = message
+                    }
+                    event.cancel()
+                }
             }
         }
     }

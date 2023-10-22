@@ -1,14 +1,16 @@
 package net.casual.arcade.commands.hidden
 
+import net.casual.arcade.utils.ComponentUtils.crimson
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 
 public class HiddenCommandContext(
     public val player: ServerPlayer
 ) {
-    internal var remove = false
+    internal var removedMessage: Component? = null
         private set
 
-    public fun deleteCommand() {
-        this.remove = true
+    public fun removeCommand(message: Component = Component.literal("This command has been removed").crimson()) {
+        this.removedMessage = message
     }
 }
