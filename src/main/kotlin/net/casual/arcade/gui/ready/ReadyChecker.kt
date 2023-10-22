@@ -30,6 +30,16 @@ public interface ReadyChecker {
     }
 
     @OverrideOnly
+    public fun getAlreadyReadyMessage(): Component {
+        return "You are already ready!".literal().crimson()
+    }
+
+    @OverrideOnly
+    public fun getAlreadyNotReadyMessage(): Component {
+        return "You are already marked as not ready!".literal().crimson()
+    }
+
+    @OverrideOnly
     public fun broadcast(message: Component)
 
     @OverrideOnly

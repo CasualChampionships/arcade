@@ -9,6 +9,7 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.task.Completable
+import net.casual.arcade.utils.MinigameUtils.areTeamsReady
 import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
@@ -51,13 +52,17 @@ public object MinigameUtils {
                             this.onReady()
                         }
                     }
-                    context.deleteCommand()
+                    context.removeCommand {
+                        if (unready.contains(team)) this.getAlreadyNotReadyMessage() else this.getAlreadyReadyMessage()
+                    }
                 }
                 val notReady = HiddenCommand { context ->
                     if (context.player.team == team && unready.contains(team)) {
                         this.broadcast(Component.empty().append(team.formattedDisplayName).append(this.getNotReadyMessage()))
                     }
-                    context.deleteCommand()
+                    context.removeCommand {
+                        if (unready.contains(team)) this.getAlreadyNotReadyMessage() else this.getAlreadyReadyMessage()
+                    }
                 }
 
                 for (player in players) {
@@ -90,13 +95,17 @@ public object MinigameUtils {
                         this.onReady()
                     }
                 }
-                context.deleteCommand()
+                context.removeCommand {
+                    if (unready.contains(it)) this.getAlreadyNotReadyMessage() else this.getAlreadyReadyMessage()
+                }
             }
             val notReady = HiddenCommand { context ->
                 if (context.player == player && unready.contains(player)) {
                     this.broadcast(Component.empty().append(player.displayName).append(this.getNotReadyMessage()))
                 }
-                context.deleteCommand()
+                context.removeCommand {
+                    if (unready.contains(it)) this.getAlreadyNotReadyMessage() else this.getAlreadyReadyMessage()
+                }
             }
             player.sendSystemMessage(this.getReadyMessage(ready, notReady))
         }

@@ -7,10 +7,12 @@ import net.minecraft.server.level.ServerPlayer
 public class HiddenCommandContext(
     public val player: ServerPlayer
 ) {
-    internal var removedMessage: Component? = null
+    internal var removedMessage: ((ServerPlayer) -> Component)? = null
         private set
 
-    public fun removeCommand(message: Component = Component.literal("This command has been removed").crimson()) {
+    public fun removeCommand(
+        message: (ServerPlayer) -> Component = { Component.literal("This command has been removed").crimson() }
+    ) {
         this.removedMessage = message
     }
 }

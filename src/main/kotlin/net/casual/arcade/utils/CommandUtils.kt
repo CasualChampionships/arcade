@@ -8,12 +8,13 @@ import net.casual.arcade.events.player.PlayerCommandEvent
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Mth
 import net.minecraft.util.RandomSource
 import org.jetbrains.annotations.ApiStatus.Experimental
 
 public object CommandUtils {
-    private val removed = HashMap<String, Component>()
+    private val removed = HashMap<String, (ServerPlayer) -> Component>()
     private val commands = HashMap<String, HiddenCommand>()
     private val random = RandomSource.create()
 
@@ -60,7 +61,7 @@ public object CommandUtils {
             val (player, string) = event
             val removedMessage = this.removed[string]
             if (removedMessage != null) {
-                player.sendSystemMessage(removedMessage)
+                player.sendSystemMessage(removedMessage(player))
                 event.cancel()
             } else {
                 val command = this.commands[string]
