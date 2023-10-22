@@ -41,7 +41,7 @@ import java.util.function.Supplier;
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin extends Level implements Arcade$ExtensionHolder {
 	@Unique private final ExtensionMap arcade$extensionMap = new ExtensionMap();
-	@Unique private Path arcade_savePath;
+	@Unique private Path arcade$savePath;
 
 	protected ServerLevelMixin(
 		WritableLevelData writableLevelData,
@@ -76,13 +76,13 @@ public abstract class ServerLevelMixin extends Level implements Arcade$Extension
 		@Nullable RandomSequences randomSequences,
 		CallbackInfo ci
 	) {
-		this.arcade_savePath = levelStorageAccess.getDimensionPath(this.dimension()).resolve("arcade.nbt");
+		this.arcade$savePath = levelStorageAccess.getDimensionPath(this.dimension()).resolve("arcade.nbt");
 
 		LevelCreatedEvent event = new LevelCreatedEvent((ServerLevel) (Object) this);
 		GlobalEventHandler.broadcast(event);
 
 		try {
-			CompoundTag tag = NbtIo.read(this.arcade_savePath.toFile());
+			CompoundTag tag = NbtIo.read(this.arcade$savePath.toFile());
 			if (tag != null) {
 				ExtensionUtils.deserialize(this, tag);
 			}
@@ -99,8 +99,8 @@ public abstract class ServerLevelMixin extends Level implements Arcade$Extension
 		CompoundTag tag = new CompoundTag();
 		ExtensionUtils.serialize(this, tag);
 		try {
-			Files.createDirectories(this.arcade_savePath.getParent());
-			NbtIo.write(tag, this.arcade_savePath.toFile());
+			Files.createDirectories(this.arcade$savePath.getParent());
+			NbtIo.write(tag, this.arcade$savePath.toFile());
 		} catch (IOException e) {
 			Arcade.logger.error("Failed to save arcade extension data", e);
 		}

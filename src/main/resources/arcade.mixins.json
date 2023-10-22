@@ -33,6 +33,7 @@
     "events.TntBlockMixin",
     "extensions.PlayerTeamMixin",
     "extensions.ScoreboardSaveDataMixin",
+    "extensions.ServerGamePacketListenerImplMixin",
     "extensions.ServerLevelMixin",
     "extensions.ServerPlayerMixin",
     "minigame.FoodDataMixin",

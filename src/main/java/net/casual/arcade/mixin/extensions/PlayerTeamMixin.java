@@ -26,11 +26,6 @@ public class PlayerTeamMixin implements Arcade$ExtensionHolder {
 		GlobalEventHandler.broadcast(event);
 	}
 
-	/**
-	 * This gets all the extensions that are being held.
-	 *
-	 * @return The extension map.
-	 */
 	@Unique
 	@Override
 	public ExtensionMap arcade$getExtensionMap() {
