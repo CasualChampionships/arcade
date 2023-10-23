@@ -74,25 +74,4 @@ public class LivingEntityMixin {
 		GlobalEventHandler.broadcast(event);
 		return !event.isCancelled();
 	}
-
-	@Inject(
-		method = "die",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/world/damagesource/DamageSource;getEntity()Lnet/minecraft/world/entity/Entity;",
-			shift = At.Shift.BEFORE
-		),
-		cancellable = true
-	)
-	private void onDeath(DamageSource source, CallbackInfo ci) {
-		ServerPlayer player = CastUtils.tryCast(ServerPlayer.class, this);
-		if (player == null) {
-			return;
-		}
-		PlayerDeathEvent event = new PlayerDeathEvent(player, source);
-		GlobalEventHandler.broadcast(event);
-		if (event.isCancelled()) {
-			ci.cancel();
-		}
-	}
 }

@@ -6,6 +6,7 @@ import net.casual.arcade.events.player.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -58,6 +59,19 @@ public abstract class ServerPlayerMixin extends Player {
 	private void onFall(double movementX, double movementY, double movementZ, boolean onGround, CallbackInfo ci) {
 		PlayerFallEvent event = new PlayerFallEvent((ServerPlayer) (Object) this, movementY, onGround);
 		GlobalEventHandler.broadcast(event);
+	}
+
+	@Inject(
+		method = "die",
+		at = @At("HEAD"),
+		cancellable = true
+	)
+	private void onDeath(DamageSource source, CallbackInfo ci) {
+		PlayerDeathEvent event = new PlayerDeathEvent((ServerPlayer) (Object) this, source);
+		GlobalEventHandler.broadcast(event);
+		if (event.isCancelled()) {
+			ci.cancel();
+		}
 	}
 
 	@Override
