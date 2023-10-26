@@ -14,16 +14,14 @@ import net.casual.arcade.minigame.MinigamePhase
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.success
-import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.green
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.singleUseFunction
-import net.casual.arcade.utils.GameRuleUtils.resetToDefault
-import net.casual.arcade.utils.GameRuleUtils.set
 import net.casual.arcade.utils.MinigameUtils.arePlayersReady
 import net.casual.arcade.utils.MinigameUtils.areTeamsReady
 import net.casual.arcade.utils.MinigameUtils.countdown
-import net.casual.arcade.utils.PlayerUtils
+import net.casual.arcade.utils.PlayerUtils.broadcast
+import net.casual.arcade.utils.PlayerUtils.broadcastToOps
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
@@ -31,7 +29,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.level.GameRules
+import net.minecraft.world.scores.PlayerTeam
 
 public abstract class LobbyMinigame(
     server: MinecraftServer
@@ -68,22 +66,24 @@ public abstract class LobbyMinigame(
 
     }
 
+    public open fun getTeamsToReady(): Collection<PlayerTeam> {
+        return this.getPlayerTeams()
+    }
+
+    public open fun getPlayersToReady(): Collection<ServerPlayer> {
+        return this.getPlayers()
+    }
+
     override fun onReady() {
         this.awaiting = null
         val component = "All players are ready, click to start!".literal().green().singleUseFunction {
             this.setPhase(Phases.Countdown)
         }
-        for (player in this.getPlayers()) {
-            if (player.hasPermissions(4)) {
-                player.sendSystemMessage(component)
-            }
-        }
+        this.getPlayers().broadcastToOps(component, 4)
     }
 
     override fun broadcast(message: Component) {
-        for (player in this.getPlayers()) {
-            player.sendSystemMessage(message)
-        }
+        this.getPlayers().broadcast(message)
     }
 
     protected open fun moveToNextMinigame() {
@@ -197,7 +197,7 @@ public abstract class LobbyMinigame(
 
     private fun readyPlayers(context: CommandContext<CommandSourceStack>): Int {
         this.next ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
-        val awaiting = this.arePlayersReady(this.getPlayers())
+        val awaiting = this.arePlayersReady(this.getPlayersToReady())
         this.awaiting = {
             val component = "Awaiting the following players: ".literal()
             for (player in awaiting) {
@@ -213,7 +213,7 @@ public abstract class LobbyMinigame(
 
     private fun readyTeams(context: CommandContext<CommandSourceStack>): Int {
         this.next ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
-        val awaiting = this.areTeamsReady(this.getPlayerTeams())
+        val awaiting = this.areTeamsReady(this.getTeamsToReady())
         this.awaiting = {
             val component = "Awaiting the following teams: ".literal()
             for (team in awaiting) {

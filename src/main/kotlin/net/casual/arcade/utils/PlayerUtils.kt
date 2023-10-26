@@ -55,19 +55,42 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun broadcast(message: Component) {
-        for (player in this.players()) {
+        this.players().broadcast(message)
+    }
+
+    @JvmStatic
+    public fun broadcastToOps(message: Component) {
+        this.players().broadcastToOps(message)
+    }
+
+    @JvmStatic
+    public fun Iterable<ServerPlayer>.broadcast(message: Component) {
+        for (player in this) {
             player.sendSystemMessage(message)
         }
     }
 
     @JvmStatic
-    public fun broadcastToOps(message: Component) {
-        for (player in this.players()) {
-            if (player.hasPermissions(2)) {
+    @JvmOverloads
+    public fun Iterable<ServerPlayer>.broadcastToOps(message: Component, level: Int = 2) {
+        for (player in this) {
+            if (player.hasPermissions(level)) {
                 player.sendSystemMessage(message)
             }
         }
         Arcade.getServer().sendSystemMessage(message)
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    public fun Iterable<ServerPlayer>.ops(level: Int = 2): List<ServerPlayer> {
+        return this.filter { it.hasPermissions(level) }
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    public fun Iterable<ServerPlayer>.gamemode(type: GameType = GameType.SURVIVAL): List<ServerPlayer> {
+        return this.filter { it.isGameMode(type) }
     }
 
     @JvmStatic
