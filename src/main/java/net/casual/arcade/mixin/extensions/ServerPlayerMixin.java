@@ -1,6 +1,7 @@
 package net.casual.arcade.mixin.extensions;
 
 import net.casual.arcade.ducks.Arcade$ExtensionHolder;
+import net.casual.arcade.ducks.Arcade$TemporaryExtensionHolder;
 import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.ExtensionMap;
 import net.casual.arcade.utils.ExtensionUtils;
@@ -16,8 +17,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
-public class ServerPlayerMixin implements Arcade$ExtensionHolder {
+public class ServerPlayerMixin implements Arcade$ExtensionHolder, Arcade$TemporaryExtensionHolder {
 	@Shadow public ServerGamePacketListenerImpl connection;
+
+	@Unique private ExtensionMap arcade$extensions;
 
 	@Inject(
 		method = "readAdditionalSaveData",
@@ -41,6 +44,16 @@ public class ServerPlayerMixin implements Arcade$ExtensionHolder {
 	@Unique
 	@NotNull
 	public ExtensionMap arcade$getExtensionMap() {
+		if (this.connection == null) {
+			return this.arcade$getTemporaryExtensionMap();
+		}
 		return ((ExtensionHolder) this.connection).getExtensionMap();
+	}
+
+	@Override
+	public ExtensionMap arcade$getTemporaryExtensionMap() {
+		ExtensionMap map = this.arcade$extensions;
+		this.arcade$extensions = null;
+		return map;
 	}
 }
