@@ -36,7 +36,7 @@ import net.casual.arcade.utils.JsonUtils.toJsonStringArray
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.ScreenUtils
-import net.casual.arcade.utils.ScreenUtils.DefaultMinigameScreenComponent
+import net.casual.arcade.utils.ScreenUtils.DefaultMinigameSettingsComponent
 import net.casual.arcade.utils.SettingsUtils.defaultOptions
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.resources.ResourceLocation
@@ -483,11 +483,11 @@ public abstract class Minigame<M: Minigame<M>>(
      * This creates a [MenuProvider] which provides a GUI
      * for updating the minigame's [GameSetting]s.
      *
-     * @param components The screen components to use for the GUI, by default [DefaultMinigameScreenComponent].
+     * @param components The screen components to use for the GUI, by default [DefaultMinigameSettingsComponent].
      * @return The [MenuProvider] for the settings screen.
      */
-    public open fun createRulesMenu(components: SelectionScreenComponents = DefaultMinigameScreenComponent): MenuProvider {
-        return ScreenUtils.createMinigameRulesMenu(this, components)
+    public open fun createRulesMenu(components: SelectionScreenComponents = DefaultMinigameSettingsComponent): MenuProvider {
+        return ScreenUtils.createMinigameSettingsMenu(this, components)
     }
 
     /**

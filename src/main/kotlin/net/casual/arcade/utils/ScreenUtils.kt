@@ -53,23 +53,23 @@ public object ScreenUtils {
         return builder.build()
     }
 
-    public fun createMinigameRulesMenu(
+    public fun createMinigameSettingsMenu(
         minigame: Minigame<*>,
-        components: SelectionScreenComponents = DefaultMinigameScreenComponent
+        components: SelectionScreenComponents = DefaultMinigameSettingsComponent
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
         val provider = builder.build()
         for (display in minigame.gameSettings.values) {
             builder.selection(display.display) { player ->
-                player.openMenu(createSettingMenu(display, components, provider))
+                player.openMenu(createSettingConfigMenu(display, components, provider))
             }
         }
         return provider
     }
 
-    public fun <T: Any> createSettingMenu(
+    public fun <T: Any> createSettingConfigMenu(
         display: DisplayableGameSetting<T>,
-        components: SelectionScreenComponents = DefaultMinigameScreenComponent,
+        components: SelectionScreenComponents = DefaultMinigameConfigComponent(display),
         parent: MenuProvider? = null
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
@@ -97,9 +97,17 @@ public object ScreenUtils {
         }
     }
 
-    public object DefaultMinigameScreenComponent: SelectionScreenComponents {
+    public object DefaultMinigameSettingsComponent: SelectionScreenComponents {
         override fun getTitle(): Component {
             return "Minigame Settings Screen".literal()
+        }
+    }
+
+    public class DefaultMinigameConfigComponent(
+        private val setting: DisplayableGameSetting<*>
+    ): SelectionScreenComponents {
+        override fun getTitle(): Component {
+            return setting.display.hoverName
         }
     }
 }

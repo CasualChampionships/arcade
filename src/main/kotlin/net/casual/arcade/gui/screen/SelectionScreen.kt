@@ -47,6 +47,7 @@ public class SelectionScreen internal constructor(
     private val filler: ItemStack
 ): ArcadeGenericScreen(player, syncId, 6) {
     private val lastSelectionSlot: Int
+    private val hasNextPage: Boolean
 
     init {
         val inventory = this.getContainer()
@@ -54,9 +55,11 @@ public class SelectionScreen internal constructor(
         val selectionSize = size - 9
 
         val paged = this.selections.stream()
-            .skip((selectionSize * page).toLong())
+            .skip((selectionSize * this.page).toLong())
             .limit(selectionSize.toLong())
             .toList()
+
+        this.hasNextPage = this.selections.size < selectionSize * (this.page + 1)
 
         var slot = 0
         for (selection in paged) {
@@ -92,9 +95,9 @@ public class SelectionScreen internal constructor(
         val back = size - 5
         val previous = size - 9
         if (slotId in previous..next) {
-            if (slotId == next) {
+            if (slotId == next && this.hasNextPage) {
                 player.openMenu(createScreenFactory(this, this.page + 1))
-            } else if (slotId == previous) {
+            } else if (slotId == previous && this.page > 0) {
                 player.openMenu(createScreenFactory(this, this.page - 1))
             } else if (slotId == back) {
                 if (this.parent != null) {
