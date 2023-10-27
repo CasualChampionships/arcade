@@ -1,5 +1,7 @@
 package net.casual.arcade.utils
 
+import com.mojang.authlib.GameProfile
+import me.lucko.fabric.api.permissions.v0.Permissions
 import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
@@ -13,6 +15,7 @@ import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.impl.Sound
 import net.minecraft.advancements.Advancement
+import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.core.Direction8
 import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.network.chat.ChatType
@@ -30,6 +33,7 @@ import net.minecraft.world.level.GameType
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.scores.PlayerTeam
+import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
 
 public object PlayerUtils {
@@ -79,6 +83,31 @@ public object PlayerUtils {
             }
         }
         Arcade.getServer().sendSystemMessage(message)
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    public fun Iterable<ServerPlayer>.broadcastTo(message: Component, permission: String = "arcade") {
+        for (player in this) {
+            if (Permissions.check(player, permission)) {
+                player.sendSystemMessage(message)
+            }
+        }
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.hasPermission(permission: String, level: Int = 4): Boolean {
+        return Permissions.check(this, permission)
+    }
+
+    @JvmStatic
+    public fun SharedSuggestionProvider.hasPermission(permission: String, level: Int = 4): Boolean {
+        return Permissions.check(this, permission, level)
+    }
+
+    @JvmStatic
+    public fun GameProfile.hasPermission(permission: String): CompletableFuture<Boolean> {
+        return Permissions.check(this, permission)
     }
 
     @JvmStatic

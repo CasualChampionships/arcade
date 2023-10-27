@@ -29,6 +29,9 @@ repositories {
     maven {
         url = uri("https://maven.nucleoid.xyz")
     }
+    maven {
+        url = uri("https://oss.sonatype.org/content/repositories/snapshots")
+    }
 }
 
 @Suppress("UnstableApiUsage")
@@ -47,6 +50,8 @@ dependencies {
     include(modImplementation("eu.pb4:polymer-blocks:${property("polymer_version")}")!!)
     include(modImplementation("eu.pb4:polymer-resource-pack:${property("polymer_version")}")!!)
     include(modImplementation("eu.pb4:polymer-virtual-entity:${property("polymer_version")}")!!)
+
+    include(modImplementation("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")!!)
 
     // include(modImplementation("eu.pb4:sgui:1.2.1+1.19.3")!!)
     include(implementation(annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-fabric:0.2.0-beta.6")!!)!!)
