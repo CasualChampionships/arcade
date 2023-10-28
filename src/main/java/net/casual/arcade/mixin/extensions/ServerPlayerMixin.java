@@ -45,16 +45,16 @@ public class ServerPlayerMixin implements Arcade$ExtensionHolder, Arcade$Tempora
 	@NotNull
 	public ExtensionMap arcade$getExtensionMap() {
 		if (this.connection == null) {
-			if (this.arcade$extensions == null) {
-				this.arcade$extensions = new ExtensionMap();
-			}
-			return this.arcade$extensions;
+			return this.arcade$getTemporaryExtensionMap();
 		}
 		return ((ExtensionHolder) this.connection).getExtensionMap();
 	}
 
 	@Override
 	public ExtensionMap arcade$getTemporaryExtensionMap() {
+		if (this.arcade$extensions == null) {
+			this.arcade$extensions = new ExtensionMap();
+		}
 		return this.arcade$extensions;
 	}
 
