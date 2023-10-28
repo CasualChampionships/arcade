@@ -55,13 +55,14 @@ public object ScreenUtils {
 
     public fun createMinigameSettingsMenu(
         minigame: Minigame<*>,
-        components: SelectionScreenComponents = DefaultMinigameSettingsComponent
+        components: SelectionScreenComponents = DefaultMinigameSettingsComponent,
+        configComponents: (DisplayableGameSetting<*>) -> SelectionScreenComponents = ::DefaultMinigameConfigComponent
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
         val provider = builder.build()
         for (display in minigame.gameSettings.values) {
             builder.selection(display.display) { player ->
-                player.openMenu(createSettingConfigMenu(display, components, provider))
+                player.openMenu(createSettingConfigMenu(display, configComponents(display), provider))
             }
         }
         return provider

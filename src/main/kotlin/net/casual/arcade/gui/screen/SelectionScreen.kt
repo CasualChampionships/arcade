@@ -59,7 +59,7 @@ public class SelectionScreen internal constructor(
             .limit(selectionSize.toLong())
             .toList()
 
-        this.hasNextPage = this.selections.size < selectionSize * (this.page + 1)
+        this.hasNextPage = this.selections.size > selectionSize * (this.page + 1)
 
         var slot = 0
         for (selection in paged) {
