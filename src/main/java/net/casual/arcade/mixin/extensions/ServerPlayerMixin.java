@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ServerPlayerMixin implements Arcade$ExtensionHolder, Arcade$TemporaryExtensionHolder {
 	@Shadow public ServerGamePacketListenerImpl connection;
 
-	@Unique private ExtensionMap arcade$extensions;
+	@Unique private ExtensionMap arcade$extensions = new ExtensionMap();
 
 	@Inject(
 		method = "readAdditionalSaveData",
