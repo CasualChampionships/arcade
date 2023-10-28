@@ -7,13 +7,11 @@ import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.border.ArcadeBorder
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.success
-import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
-import net.minecraft.network.chat.Component
 
-internal object DebugCommand: Command {
+internal object ArcadeCommand: Command {
     override fun register(dispatcher: CommandDispatcher<CommandSourceStack>) {
         dispatcher.register(
             Commands.literal("arcade").requires {

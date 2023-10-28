@@ -3,6 +3,7 @@ package net.casual.arcade.utils
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.casual.arcade.commands.hidden.HiddenCommand
 import net.minecraft.ChatFormatting
+import net.minecraft.ChatFormatting.*
 import net.minecraft.network.chat.*
 import net.minecraft.network.chat.HoverEvent.Action.*
 import net.minecraft.network.chat.HoverEvent.EntityTooltipInfo
@@ -13,14 +14,34 @@ import net.minecraft.world.item.ItemStack
 import org.jetbrains.annotations.ApiStatus.Experimental
 import java.util.*
 import java.util.function.Consumer
+import kotlin.collections.HashMap
 
 public object ComponentUtils {
     private val formattingByColour = Int2ObjectOpenHashMap<ChatFormatting>()
+    private val formattingToName = HashMap<ChatFormatting, String>()
 
     init {
         for (formatting in ChatFormatting.values()) {
             val colour = formatting.color ?: continue
             this.formattingByColour[colour] = formatting
+        }
+        this.formattingToName.apply {
+            put(BLACK, "Black")
+            put(DARK_BLUE, "Navy")
+            put(DARK_GREEN, "Green")
+            put(DARK_AQUA, "Teal")
+            put(DARK_RED, "Red")
+            put(DARK_PURPLE, "Purple")
+            put(GOLD, "Orange")
+            put(GRAY, "Stone")
+            put(DARK_GRAY, "Grey")
+            put(BLUE, "Blue")
+            put(GREEN, "Lime")
+            put(AQUA, "Aqua")
+            put(RED, "Crimson")
+            put(LIGHT_PURPLE, "Pink")
+            put(YELLOW, "Yellow")
+            put(WHITE, "White")
         }
     }
 
@@ -84,7 +105,7 @@ public object ComponentUtils {
 
     @JvmStatic
     public fun MutableComponent.bold(): MutableComponent {
-        return this.withStyle(ChatFormatting.BOLD)
+        return this.withStyle(BOLD)
     }
 
     @JvmStatic
@@ -94,7 +115,7 @@ public object ComponentUtils {
 
     @JvmStatic
     public fun MutableComponent.underline(): MutableComponent {
-        return this.withStyle(ChatFormatting.UNDERLINE)
+        return this.withStyle(UNDERLINE)
     }
 
     @JvmStatic
@@ -104,7 +125,7 @@ public object ComponentUtils {
 
     @JvmStatic
     public fun MutableComponent.italicise(): MutableComponent {
-        return this.withStyle(ChatFormatting.ITALIC)
+        return this.withStyle(ITALIC)
     }
 
     @JvmStatic
@@ -113,78 +134,83 @@ public object ComponentUtils {
     }
 
     @JvmStatic
+    public fun ChatFormatting.prettyName(): String {
+        return formattingToName[this] ?: this.getName()
+    }
+
+    @JvmStatic
     public fun MutableComponent.red(): MutableComponent {
-        return this.withStyle(ChatFormatting.RED)
+        return this.withStyle(RED)
     }
 
     @JvmStatic
     public fun MutableComponent.crimson(): MutableComponent {
-        return this.withStyle(ChatFormatting.DARK_RED)
+        return this.withStyle(DARK_RED)
     }
 
     @JvmStatic
     public fun MutableComponent.navy(): MutableComponent {
-        return this.withStyle(ChatFormatting.DARK_BLUE)
+        return this.withStyle(DARK_BLUE)
     }
 
     @JvmStatic
     public fun MutableComponent.blue(): MutableComponent {
-        return this.withStyle(ChatFormatting.BLUE)
+        return this.withStyle(BLUE)
     }
 
     @JvmStatic
     public fun MutableComponent.aqua(): MutableComponent {
-        return this.withStyle(ChatFormatting.AQUA)
+        return this.withStyle(AQUA)
     }
 
     @JvmStatic
     public fun MutableComponent.teal(): MutableComponent {
-        return this.withStyle(ChatFormatting.DARK_AQUA)
+        return this.withStyle(DARK_AQUA)
     }
 
     @JvmStatic
     public fun MutableComponent.gold(): MutableComponent {
-        return this.withStyle(ChatFormatting.GOLD)
+        return this.withStyle(GOLD)
     }
 
     @JvmStatic
     public fun MutableComponent.pink(): MutableComponent {
-        return this.withStyle(ChatFormatting.LIGHT_PURPLE)
+        return this.withStyle(LIGHT_PURPLE)
     }
 
     @JvmStatic
     public fun MutableComponent.purple(): MutableComponent {
-        return this.withStyle(ChatFormatting.DARK_PURPLE)
+        return this.withStyle(DARK_PURPLE)
     }
 
     @JvmStatic
     public fun MutableComponent.lime(): MutableComponent {
-        return this.withStyle(ChatFormatting.GREEN)
+        return this.withStyle(GREEN)
     }
 
     @JvmStatic
     public fun MutableComponent.green(): MutableComponent {
-        return this.withStyle(ChatFormatting.DARK_GREEN)
+        return this.withStyle(DARK_GREEN)
     }
 
     @JvmStatic
     public fun MutableComponent.yellow(): MutableComponent {
-        return this.withStyle(ChatFormatting.YELLOW)
+        return this.withStyle(YELLOW)
     }
 
     @JvmStatic
     public fun MutableComponent.white(): MutableComponent {
-        return this.withStyle(ChatFormatting.WHITE)
+        return this.withStyle(WHITE)
     }
 
     @JvmStatic
     public fun MutableComponent.grey(): MutableComponent {
-        return this.withStyle(ChatFormatting.GRAY)
+        return this.withStyle(GRAY)
     }
 
     @JvmStatic
     public fun MutableComponent.black(): MutableComponent {
-        return this.withStyle(ChatFormatting.BLACK)
+        return this.withStyle(BLACK)
     }
 
     @JvmStatic
@@ -216,19 +242,19 @@ public object ComponentUtils {
         }
 
         if (this.isBold) {
-            formats.add(ChatFormatting.BOLD)
+            formats.add(BOLD)
         }
         if (this.isItalic) {
-            formats.add(ChatFormatting.ITALIC)
+            formats.add(ITALIC)
         }
         if (this.isObfuscated) {
-            formats.add(ChatFormatting.OBFUSCATED)
+            formats.add(OBFUSCATED)
         }
         if (this.isStrikethrough) {
-            formats.add(ChatFormatting.STRIKETHROUGH)
+            formats.add(STRIKETHROUGH)
         }
         if (this.isUnderlined) {
-            formats.add(ChatFormatting.UNDERLINE)
+            formats.add(UNDERLINE)
         }
         return formats
     }
@@ -238,12 +264,12 @@ public object ComponentUtils {
 
         override fun accept(style: Style, string: String): Optional<Unit> {
             for (format in style.toChatFormatting()) {
-                this.builder.append(ChatFormatting.PREFIX_CODE)
+                this.builder.append(PREFIX_CODE)
                 this.builder.append(format.char)
             }
             this.builder.append(string)
-            this.builder.append(ChatFormatting.PREFIX_CODE)
-            this.builder.append(ChatFormatting.RESET.char)
+            this.builder.append(PREFIX_CODE)
+            this.builder.append(RESET.char)
             return Optional.empty()
         }
 
