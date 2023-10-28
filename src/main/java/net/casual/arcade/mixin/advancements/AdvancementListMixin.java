@@ -3,6 +3,7 @@ package net.casual.arcade.mixin.advancements;
 import net.casual.arcade.ducks.Arcade$MutableAdvancements;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementList;
+import net.minecraft.advancements.TreeNodePosition;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,6 +37,10 @@ public abstract class AdvancementListMixin implements Arcade$MutableAdvancements
 				if (this.listener != null) {
 					this.listener.onAddAdvancementTask(advancement);
 				}
+			}
+
+			if (advancement.getRoot().getDisplay() != null) {
+				TreeNodePosition.run(advancement.getRoot());
 			}
 		}
 	}
