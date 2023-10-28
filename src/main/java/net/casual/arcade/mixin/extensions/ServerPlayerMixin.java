@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ServerPlayerMixin implements Arcade$ExtensionHolder, Arcade$TemporaryExtensionHolder {
 	@Shadow public ServerGamePacketListenerImpl connection;
 
-	@Unique private ExtensionMap arcade$extensions = new ExtensionMap();
+	@Unique private ExtensionMap arcade$extensions;
 
 	@Inject(
 		method = "readAdditionalSaveData",
@@ -45,15 +45,21 @@ public class ServerPlayerMixin implements Arcade$ExtensionHolder, Arcade$Tempora
 	@NotNull
 	public ExtensionMap arcade$getExtensionMap() {
 		if (this.connection == null) {
-			return this.arcade$getTemporaryExtensionMap();
+			if (this.arcade$extensions == null) {
+				this.arcade$extensions = new ExtensionMap();
+			}
+			return this.arcade$extensions;
 		}
 		return ((ExtensionHolder) this.connection).getExtensionMap();
 	}
 
 	@Override
 	public ExtensionMap arcade$getTemporaryExtensionMap() {
-		ExtensionMap map = this.arcade$extensions;
+		return this.arcade$extensions;
+	}
+
+	@Override
+	public void arcade$deleteTemporaryExtensionMap() {
 		this.arcade$extensions = null;
-		return map;
 	}
 }

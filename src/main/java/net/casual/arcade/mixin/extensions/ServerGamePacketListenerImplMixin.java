@@ -34,7 +34,9 @@ public class ServerGamePacketListenerImplMixin implements Arcade$ExtensionHolder
 		)
 	)
 	private void mergeExtensionMap(MinecraftServer server, Connection connection, ServerPlayer player, CallbackInfo ci) {
-		this.arcade$extensionMap = ((Arcade$TemporaryExtensionHolder) player).arcade$getTemporaryExtensionMap();
+		Arcade$TemporaryExtensionHolder holder = (Arcade$TemporaryExtensionHolder) player;
+		this.arcade$extensionMap = holder.arcade$getTemporaryExtensionMap();
+		holder.arcade$deleteTemporaryExtensionMap();
 	}
 
 	@Inject(
