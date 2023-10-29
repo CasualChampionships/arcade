@@ -48,7 +48,9 @@ public class ServerPlayerMixin implements Arcade$ExtensionHolder, Arcade$Extensi
 
 	@Override
 	public void arcade$deserializeExtensionData() {
-		ExtensionUtils.deserialize(this, this.arcade$data);
-		this.arcade$data = null;
+		if (this.arcade$data != null) {
+			ExtensionUtils.deserialize(this, this.arcade$data);
+			this.arcade$data = null;
+		}
 	}
 }
