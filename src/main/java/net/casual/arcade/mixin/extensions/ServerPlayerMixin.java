@@ -1,7 +1,7 @@
 package net.casual.arcade.mixin.extensions;
 
 import net.casual.arcade.ducks.Arcade$ExtensionHolder;
-import net.casual.arcade.ducks.Arcade$TemporaryExtensionHolder;
+import net.casual.arcade.ducks.Arcade$ExtensionDataHolder;
 import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.ExtensionMap;
 import net.casual.arcade.utils.ExtensionUtils;
@@ -17,18 +17,17 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
-public class ServerPlayerMixin implements Arcade$ExtensionHolder, Arcade$TemporaryExtensionHolder {
+public class ServerPlayerMixin implements Arcade$ExtensionHolder, Arcade$ExtensionDataHolder {
 	@Shadow public ServerGamePacketListenerImpl connection;
 
-	@Unique private ExtensionMap arcade$extensions;
+	@Unique private CompoundTag arcade$data;
 
 	@Inject(
 		method = "readAdditionalSaveData",
 		at = @At("TAIL")
 	)
 	private void onLoadPlayer(CompoundTag compound, CallbackInfo ci) {
-		CompoundTag arcade = compound.getCompound("arcade");
-		ExtensionUtils.deserialize(this, arcade);
+		this.arcade$data = compound.getCompound("arcade");
 	}
 
 	@Inject(
@@ -44,22 +43,12 @@ public class ServerPlayerMixin implements Arcade$ExtensionHolder, Arcade$Tempora
 	@Unique
 	@NotNull
 	public ExtensionMap arcade$getExtensionMap() {
-		if (this.connection == null) {
-			return this.arcade$getTemporaryExtensionMap();
-		}
 		return ((ExtensionHolder) this.connection).getExtensionMap();
 	}
 
 	@Override
-	public ExtensionMap arcade$getTemporaryExtensionMap() {
-		if (this.arcade$extensions == null) {
-			this.arcade$extensions = new ExtensionMap();
-		}
-		return this.arcade$extensions;
-	}
-
-	@Override
-	public void arcade$deleteTemporaryExtensionMap() {
-		this.arcade$extensions = null;
+	public void arcade$deserializeExtensionData() {
+		ExtensionUtils.deserialize(this, this.arcade$data);
+		this.arcade$data = null;
 	}
 }

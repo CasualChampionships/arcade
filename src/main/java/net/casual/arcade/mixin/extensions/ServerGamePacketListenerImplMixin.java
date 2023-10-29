@@ -1,13 +1,10 @@
 package net.casual.arcade.mixin.extensions;
 
 import net.casual.arcade.ducks.Arcade$ExtensionHolder;
-import net.casual.arcade.ducks.Arcade$TemporaryExtensionHolder;
+import net.casual.arcade.ducks.Arcade$ExtensionDataHolder;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.PlayerCreatedEvent;
-import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.ExtensionMap;
-import net.casual.arcade.utils.ExtensionUtils;
-import net.casual.arcade.utils.PlayerUtils;
 import net.minecraft.network.Connection;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,21 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ServerGamePacketListenerImplMixin implements Arcade$ExtensionHolder {
 	@Shadow public ServerPlayer player;
 
-	@Unique private ExtensionMap arcade$extensionMap;
-
-	@Inject(
-		method = "<init>",
-		at = @At(
-			value = "INVOKE",
-			target = "Ljava/lang/Object;<init>()V",
-			shift = At.Shift.AFTER
-		)
-	)
-	private void mergeExtensionMap(MinecraftServer server, Connection connection, ServerPlayer player, CallbackInfo ci) {
-		Arcade$TemporaryExtensionHolder holder = (Arcade$TemporaryExtensionHolder) player;
-		this.arcade$extensionMap = holder.arcade$getTemporaryExtensionMap();
-		holder.arcade$deleteTemporaryExtensionMap();
-	}
+	@Unique private ExtensionMap arcade$extensionMap = new ExtensionMap();
 
 	@Inject(
 		method = "<init>",
@@ -46,6 +29,8 @@ public class ServerGamePacketListenerImplMixin implements Arcade$ExtensionHolder
 	private void onCreatePlayer(MinecraftServer server, Connection connection, ServerPlayer player, CallbackInfo ci) {
 		PlayerCreatedEvent event = new PlayerCreatedEvent(player);
 		GlobalEventHandler.broadcast(event);
+
+		((Arcade$ExtensionDataHolder) player).arcade$deserializeExtensionData();
 	}
 
 	@Override
