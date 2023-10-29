@@ -46,7 +46,7 @@ public class ServerGamePacketListenerImplMixin {
 	}
 
 	@Inject(
-		method = "disconnect",
+		method = "onDisconnect",
 		at = @At("HEAD")
 	)
 	private void onDisconnect(CallbackInfo ci) {
