@@ -125,11 +125,11 @@ public object TeamUtils {
         }
         for (colour in colours) {
             for (animal in ANIMALS[colour]!!.shuffled()) {
-                val teamName = "${colour.prettyName()} $animal"
+                val teamName = "${colour.prettyName()}$animal"
                 if (scoreboard.getPlayerTeam(teamName) == null) {
                     val team = scoreboard.addPlayerTeam(teamName)
                     team.color = colour
-                    team.displayName = teamName.literal().withStyle(colour)
+                    team.displayName = "${colour.prettyName()} $animal".literal().withStyle(colour)
                     team.playerPrefix = team.formattedDisplayName.append(" ")
                     return team
                 }
@@ -142,7 +142,7 @@ public object TeamUtils {
     public fun deleteAllRandomTeams(scoreboard: Scoreboard) {
         for (colour in TEAM_COLOURS) {
             for (animal in ANIMALS[colour]!!) {
-                val teamName = "${colour.prettyName()} $animal"
+                val teamName = "${colour.prettyName()}$animal"
                 val team = scoreboard.getPlayerTeam(teamName) ?: continue
                 scoreboard.removePlayerTeam(team)
             }
