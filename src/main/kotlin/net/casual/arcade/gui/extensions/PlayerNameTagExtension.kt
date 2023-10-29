@@ -260,14 +260,17 @@ internal class PlayerNameTagExtension(
         }
 
         override fun startWatching(connection: ServerGamePacketListenerImpl): Boolean {
-            if (this.predicate.observable(owner, connection.player) && super.startWatching(connection)) {
-                connection.send(ClientboundSetPassengersPacket(owner))
-                for (holder in tags.values) {
-                    holder.element.sendChangedTrackerEntries(connection.player, connection::send)
+            if (this.predicate.observable(owner, connection.player)) {
+                if (super.startWatching(connection)) {
+                    connection.send(ClientboundSetPassengersPacket(owner))
+                    for (holder in tags.values) {
+                        holder.element.sendChangedTrackerEntries(connection.player, connection::send)
+                    }
+                    return true
                 }
-                return true
+            } else {
+                this.stopWatching(connection)
             }
-            this.stopWatching(connection)
             return false
         }
 
