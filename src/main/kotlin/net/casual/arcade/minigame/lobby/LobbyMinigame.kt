@@ -39,10 +39,6 @@ public abstract class LobbyMinigame(
     private var awaiting: (() -> Component)? = null
     private var next: Minigame<*>? = null
 
-    init {
-        this.initialise()
-    }
-
     override fun initialise() {
         super.initialise()
         this.events.register<MinigameAddNewPlayerEvent> { (_, player) ->
