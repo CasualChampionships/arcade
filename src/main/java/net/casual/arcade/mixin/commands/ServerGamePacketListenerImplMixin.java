@@ -55,8 +55,7 @@ public class ServerGamePacketListenerImplMixin {
 		Consumer<? super Suggestions> action,
 		ServerboundCommandSuggestionPacket packet
 	) {
-		String command = packet.getCommand().startsWith("/") ? packet.getCommand().substring(1) : packet.getCommand();
-		PlayerCommandSuggestionsEvent event = new PlayerCommandSuggestionsEvent(this.player, command);
+		PlayerCommandSuggestionsEvent event = new PlayerCommandSuggestionsEvent(this.player, packet.getCommand());
 		event.addSuggestions(vanillaSuggestions);
 		GlobalEventHandler.broadcast(event);
 
