@@ -16,16 +16,24 @@ import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
-import net.minecraft.server.level.ServerPlayer
+import net.minecraft.resources.ResourceLocation
 import java.util.*
 import java.util.concurrent.CompletableFuture
-import java.util.stream.Stream
 
 public class MinigameArgument: CustomArgumentType(), ArgumentType<MinigameArgument.ParsedMinigame> {
     override fun parse(reader: StringReader): ParsedMinigame {
         val string = reader.readString()
         if (string == "-") {
             return ParsedMinigame()
+        }
+
+        val id = ResourceLocation.tryParse(string.replace("+", ":"))
+        if (id != null) {
+            val minigames = Minigames.get(id)
+            if (minigames.size != 1) {
+                throw TOO_MANY_MINIGAMES.create()
+            }
+            return ParsedMinigame(minigames[0])
         }
 
         val uuid: UUID
@@ -38,12 +46,22 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<MinigameArgume
     }
 
     override fun <S: Any?> listSuggestions(context: CommandContext<S>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
-        var minigames = Minigames.all().stream().map { it.uuid.toString() }
+        val suggestions = LinkedList<String>()
+
+        for ((id, minigames) in Minigames.allById()) {
+            if (minigames.size == 1) {
+                suggestions.add("${id.namespace}+${id.path}")
+            }
+            for (minigame in minigames) {
+                suggestions.add(minigame.uuid.toString())
+            }
+        }
+
         val source = context.source
         if (source is CommandSourceStack && source.player?.getMinigame() != null) {
-            minigames = Stream.concat(minigames, Stream.of("-"))
+            suggestions.add("-")
         }
-        return SharedSuggestionProvider.suggest(minigames, builder)
+        return SharedSuggestionProvider.suggest(suggestions, builder)
     }
 
     public class ParsedMinigame(
@@ -52,6 +70,7 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<MinigameArgume
 
     public companion object {
         public val INVALID_MINIGAME: SimpleCommandExceptionType = SimpleCommandExceptionType("Invalid Minigame UUID".literal())
+        public val TOO_MANY_MINIGAMES: SimpleCommandExceptionType = SimpleCommandExceptionType("Too many Minigames with given id".literal())
         public val NOT_PARTICIPATING: SimpleCommandExceptionType = SimpleCommandExceptionType("You are not part of a minigame".literal())
 
         @JvmStatic

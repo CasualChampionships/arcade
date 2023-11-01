@@ -1,5 +1,6 @@
 package net.casual.arcade.minigame
 
+import net.minecraft.resources.ResourceLocation
 import java.util.*
 
 /**
@@ -8,6 +9,7 @@ import java.util.*
  */
 public object Minigames {
     private val ALL = LinkedHashMap<UUID, Minigame<*>>()
+    private val BY_ID = LinkedHashMap<ResourceLocation, ArrayList<Minigame<*>>>()
     private val FACTORIES = LinkedHashMap<String, MinigameFactory>()
 
     /**
@@ -16,7 +18,7 @@ public object Minigames {
      * @return All the current running minigames.
      */
     public fun all(): Collection<Minigame<*>> {
-        return ALL.values
+        return Collections.unmodifiableCollection(ALL.values)
     }
 
     public fun registerFactory(id: String, factory: MinigameFactory) {
@@ -31,15 +33,25 @@ public object Minigames {
         return this.FACTORIES.keys
     }
 
-    internal fun get(uuid: UUID): Minigame<*>? {
+    public fun get(uuid: UUID): Minigame<*>? {
         return this.ALL[uuid]
+    }
+
+    public fun get(id: ResourceLocation): List<Minigame<*>> {
+        return Collections.unmodifiableList(this.BY_ID[id] ?: return emptyList())
+    }
+
+    internal fun allById(): Map<ResourceLocation, ArrayList<Minigame<*>>> {
+        return this.BY_ID
     }
 
     internal fun register(minigame: Minigame<*>) {
         this.ALL[minigame.uuid] = minigame
+        this.BY_ID.getOrPut(minigame.id) { ArrayList() }.add(minigame)
     }
 
     internal fun unregister(minigame: Minigame<*>) {
         this.ALL.remove(minigame.uuid)
+        this.BY_ID[minigame.id]?.remove(minigame)
     }
 }
