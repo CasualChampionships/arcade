@@ -4,6 +4,7 @@ import net.casual.arcade.border.LevelSpecificBorderBroadcaster
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.border.BorderChangeListener
 import net.minecraft.world.level.border.BorderChangeListener.DelegateBorderChangeListener
+import org.jetbrains.annotations.ApiStatus.Internal
 
 public object BorderUtils {
     @JvmStatic
@@ -48,8 +49,9 @@ public object BorderUtils {
         }
     }
 
+    @Internal
     @JvmStatic
-    internal fun addOriginalListener(level: ServerLevel, listener: BorderChangeListener) {
+    public fun addOriginalListener(level: ServerLevel, listener: BorderChangeListener) {
         this.original[level] = listener
     }
 }

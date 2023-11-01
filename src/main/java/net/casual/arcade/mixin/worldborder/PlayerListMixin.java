@@ -22,7 +22,7 @@ public class PlayerListMixin {
 		)
 	)
 	private BorderChangeListener onAddListener(BorderChangeListener listener, @Local(argsOnly = true) ServerLevel level) {
-		BorderUtils.addOriginalListener$arcade_api(level, listener);
+		BorderUtils.addOriginalListener(level, listener);
 		return listener;
 	}
 

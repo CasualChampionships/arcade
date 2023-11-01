@@ -19,7 +19,7 @@ public class MinecraftServerMixin {
 		)
 	)
 	private BorderChangeListener onSyncListener(BorderChangeListener listener, @Local(ordinal = 1) ServerLevel serverLevel2) {
-		BorderUtils.addOriginalListener$arcade_api(serverLevel2, listener);
+		BorderUtils.addOriginalListener(serverLevel2, listener);
 		return listener;
 	}
 }
