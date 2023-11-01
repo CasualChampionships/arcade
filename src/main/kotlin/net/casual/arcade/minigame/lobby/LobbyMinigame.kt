@@ -130,7 +130,13 @@ public abstract class LobbyMinigame(
                 Commands.literal("settings").executes(this::nextMinigameSettings)
             ).then(
                 Commands.literal("set").then(
-                    Commands.argument("minigame", MinigameArgument.minigame()).executes(this::setNextMinigame)
+                    Commands.literal("existing").then(
+                        Commands.argument("minigame", MinigameArgument.minigame()).executes(this::setNextMinigame)
+                    )
+                ).then(
+                    Commands.literal("new").then(
+                        Commands.argument("minigame", MinigameArgument.Factory.factory()).executes(this::setNextNewMinigame)
+                    )
                 )
             ).then(
                 Commands.literal("unset").executes(this::unsetNextMinigame)
@@ -165,6 +171,13 @@ public abstract class LobbyMinigame(
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         this.next = minigame
         return context.source.success("Successfully set the next minigame to ${minigame.id}")
+    }
+
+    private fun setNextNewMinigame(context: CommandContext<CommandSourceStack>): Int {
+        val factory = MinigameArgument.Factory.getFactory(context, "minigame")
+        val next = factory.create(context.source.server)
+        this.next = next
+        return context.source.success("Successfully set the next minigame to ${next.id}")
     }
 
     private fun unsetNextMinigame(context: CommandContext<CommandSourceStack>): Int {
