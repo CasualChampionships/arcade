@@ -2,7 +2,10 @@ package net.casual.arcade.utils
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
+import com.google.gson.JsonNull
 import com.google.gson.JsonObject
+import com.google.gson.JsonPrimitive
+import net.minecraft.nbt.*
 
 public object JsonUtils {
     private fun JsonObject.getWithNull(key: String): JsonElement? {
@@ -210,6 +213,68 @@ public object JsonUtils {
                     }
                 }
             }
+        }
+    }
+
+    public fun JsonObject.toCompoundTag(): CompoundTag {
+        val tag = CompoundTag()
+        for ((key, value) in this.asMap()) {
+            tag.put(key, value.toTag())
+        }
+        return tag
+    }
+
+    public fun JsonArray.toListTag(): ListTag {
+        val tag = ListTag()
+        for (element in this) {
+            tag.add(element.toTag())
+        }
+        return tag
+    }
+
+    public fun JsonPrimitive.toTag(): Tag {
+        return when {
+            this.isBoolean -> if (this.asBoolean) ByteTag.ONE else ByteTag.ZERO
+            this.isNumber -> DoubleTag.valueOf(this.asDouble)
+            else -> return StringTag.valueOf(this.asString)
+        }
+    }
+
+    public fun JsonElement.toTag(): Tag {
+        return when (this) {
+            is JsonObject -> this.toCompoundTag()
+            is JsonArray -> this.toListTag()
+            is JsonPrimitive ->  this.toTag()
+            else -> EndTag.INSTANCE
+        }
+    }
+
+    public fun CompoundTag.toJsonObject(): JsonObject {
+        val json = JsonObject()
+        for (key in this.allKeys) {
+            if (this.contains(key)) {
+                val value = this.get(key)!!
+                json.add(key, value.toJsonElement())
+            }
+        }
+        return json
+    }
+
+    public fun <T: Tag> CollectionTag<T>.toJsonArray(): JsonArray {
+        val json = JsonArray()
+        for (tag in this) {
+            json.add(tag.toJsonElement())
+        }
+        return json
+    }
+
+    public fun Tag.toJsonElement(): JsonElement {
+        return when (this) {
+            is CompoundTag -> this.toJsonObject()
+            is CollectionTag<*> -> this.toJsonArray()
+            is StringTag -> JsonPrimitive(this.asString)
+            is NumericTag -> JsonPrimitive(this.asNumber)
+            else -> JsonNull.INSTANCE
         }
     }
 }

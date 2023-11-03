@@ -30,10 +30,11 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<MinigameArgume
         val id = ResourceLocation.tryParse(string.replace("+", ":"))
         if (id != null) {
             val minigames = Minigames.get(id)
-            if (minigames.size != 1) {
+            if (minigames.size > 1) {
                 throw TOO_MANY_MINIGAMES.create()
+            } else if (minigames.size == 1) {
+                return ParsedMinigame(minigames[0])
             }
-            return ParsedMinigame(minigames[0])
         }
 
         val uuid: UUID
