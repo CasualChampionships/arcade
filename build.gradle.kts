@@ -5,12 +5,15 @@ plugins {
     kotlin("jvm")
     id("fabric-loom")
     id("io.github.juuxel.loom-quiltflower")
+    id("com.github.johnrengelman.shadow")
     `maven-publish`
     java
 }
 
 group = property("maven_group")!!
 version = property("mod_version")!!
+
+val shade: Configuration by configurations.creating
 
 kotlin {
     explicitApi()
@@ -54,11 +57,36 @@ dependencies {
     include(modImplementation("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")!!)
 
     // include(modImplementation("eu.pb4:sgui:1.2.1+1.19.3")!!)
-    include(implementation(annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-fabric:0.2.0-beta.6")!!)!!)
+    implementation(annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-fabric:0.2.0-beta.6")!!)?.let { shade(it) }
 }
 
 loom {
     accessWidenerPath.set(file("src/main/resources/arcade.accesswidener"))
+}
+
+tasks.shadowJar {
+    configurations = listOf(shade)
+
+    // @see https://youtrack.jetbrains.com/issue/KT-25709
+    exclude("**/*.kotlin_metadata")
+    exclude("**/*.kotlin_builtins")
+
+    relocate("com.llamalad7", "shadow.llamalad7")
+
+    from("LICENSE")
+
+    archiveClassifier.set("fat")
+
+    // archiveFileName.set("${rootProject.name}-${archiveVersion.get()}.jar")
+}
+
+tasks.prepareRemapJar {
+    dependsOn(tasks.shadowJar.get())
+}
+
+tasks.remapJar {
+    remapperIsolation.set(true)
+    inputFile.set(tasks.shadowJar.get().archiveFile.get())
 }
 
 tasks {
