@@ -154,8 +154,9 @@ public object GlobalEventHandler {
         for (within in this.stack) {
             if (within === type) {
                 this.logger.warn(
-                    "Detected recursive event (type: {}), suppressing...",
-                    type.simpleName
+                    "Detected recursive event (type: {}), suppressing...\nStacktrace: \n{}",
+                    type.simpleName,
+                    Thread.currentThread().stackTrace.joinToString("\n")
                 )
                 return true
             }
