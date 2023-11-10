@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.BoolArgumentType
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.commands.arguments.EnumArgument
+import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.success
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.TeamUtils
@@ -41,6 +42,12 @@ internal object TeamCommandModifier: Command {
         val players = EntityArgument.getPlayers(context, "players")
         val size = IntegerArgumentType.getInteger(context, "size")
         val teams = TeamUtils.createRandomTeams(context.source.server, players, size, friendlyFire, collision)
+
+        if (teams == null) {
+            val message = "Failed to completely generate teams, you must delete some unused teams first!"
+            return context.source.fail(message)
+        }
+
         val component = "Successfully created the following teams: ".literal()
         for (team in teams) {
             if (component.siblings.isNotEmpty()) {

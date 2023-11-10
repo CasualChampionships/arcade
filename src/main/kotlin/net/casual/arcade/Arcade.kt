@@ -76,7 +76,6 @@ public object Arcade: ModInitializer {
         BossbarUtils.registerEvents()
         NameDisplayUtils.registerEvents()
         MinigameUtils.registerEvents()
-        StatusUtil.registerEvents()
         TabUtils.registerEvents()
         NameTagUtils.registerEvents()
         ResourcePackUtils.registerEvents()

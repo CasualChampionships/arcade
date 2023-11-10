@@ -91,7 +91,7 @@ public object TeamUtils {
         teamSize: Int,
         friendlyFire: Boolean,
         collision: Team.CollisionRule
-    ): Collection<PlayerTeam> {
+    ): Collection<PlayerTeam>? {
         val mutable = ArrayList(collection).apply { shuffle() }
         val teams = Iterators.partition(mutable.iterator(), teamSize)
 
@@ -103,7 +103,7 @@ public object TeamUtils {
             while (team == null) {
                 team = getUnusedRandomTeam(server.scoreboard, colours)
                 if (i++ > 20) {
-                    throw IllegalStateException()
+                    return null
                 }
             }
             colours.remove(team.color)
@@ -126,8 +126,8 @@ public object TeamUtils {
         for (colour in colours) {
             for (animal in ANIMALS[colour]!!.shuffled()) {
                 val teamName = "${colour.prettyName()}$animal"
-                if (scoreboard.getPlayerTeam(teamName) == null) {
-                    val team = scoreboard.addPlayerTeam(teamName)
+                val team = scoreboard.getPlayerTeam(teamName) ?: scoreboard.addPlayerTeam(teamName)
+                if (team.players.isEmpty()) {
                     team.color = colour
                     team.displayName = "${colour.prettyName()} $animal".literal().withStyle(colour)
                     team.playerPrefix = team.formattedDisplayName.append(" ")

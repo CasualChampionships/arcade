@@ -76,8 +76,8 @@ tasks {
     publishing {
         publications {
             create<MavenPublication>("mavenJava") {
-                groupId = "com.github.CasualUHC"
-                artifactId = "Arcade"
+                groupId = "com.github.CasualChampionships"
+                artifactId = "arcade"
                 version = getGitHash()
                 artifact(remapJar) {
                     builtBy(remapJar)
