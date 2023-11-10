@@ -54,7 +54,7 @@ dependencies {
     include(modImplementation("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")!!)
 
     // include(modImplementation("eu.pb4:sgui:1.2.1+1.19.3")!!)
-    include(implementation(annotationProcessor("io.github.llamalad7.mixinextras:mixinextras-fabric:0.2.1-beta.2")!!)!!)
+    include(implementation("io.github.llamalad7.mixinextras:mixinextras-fabric:0.2.1-beta.2")!!)
 }
 
 loom {
