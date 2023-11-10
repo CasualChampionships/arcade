@@ -54,8 +54,7 @@ dependencies {
     include(modImplementation("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")!!)
 
     // include(modImplementation("eu.pb4:sgui:1.2.1+1.19.3")!!)
-    include(implementation("io.github.llamalad7.mixinextras:mixinextras-fabric:0.2.1-beta.2")!!)
-}
+    include(implementation(annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-fabric:0.2.0-beta.6")!!)!!)}
 
 loom {
     accessWidenerPath.set(file("src/main/resources/arcade.accesswidener"))
