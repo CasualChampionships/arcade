@@ -170,6 +170,22 @@ public object JsonUtils {
         return this.objOrNull(key) ?: putter().also { this.add(key, it) }
     }
 
+    public operator fun JsonObject.set(key: String, value: String) {
+        this.addProperty(key, value)
+    }
+
+    public operator fun JsonObject.set(key: String, value: Number) {
+        this.addProperty(key, value)
+    }
+
+    public operator fun JsonObject.set(key: String, value: Boolean) {
+        this.addProperty(key, value)
+    }
+
+    public operator fun JsonObject.set(key: String, value: JsonElement) {
+        this.add(key, value)
+    }
+
     public fun JsonArray.booleans(): Iterable<Boolean> {
         return this.map(JsonElement::getAsBoolean)
     }
