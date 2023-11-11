@@ -7,7 +7,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import net.casual.arcade.Arcade
 import net.casual.arcade.commands.arguments.MinigameArgument
 import net.casual.arcade.events.minigame.MinigameAddNewPlayerEvent
-import net.casual.arcade.events.player.PlayerTickEvent
+import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.gui.ready.ReadyChecker
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigamePhase
@@ -28,7 +28,6 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.entity.player.Player
 import net.minecraft.world.scores.PlayerTeam
 
 public abstract class LobbyMinigame(
@@ -44,8 +43,10 @@ public abstract class LobbyMinigame(
         this.events.register<MinigameAddNewPlayerEvent> { (_, player) ->
             this.lobby.forceTeleportToSpawn(player)
         }
-        this.events.register<PlayerTickEvent> { (player) ->
-            this.lobby.tryTeleportToSpawn(player)
+        this.events.register<ServerTickEvent> {
+            for (player in this.getPlayers()) {
+                this.lobby.tryTeleportToSpawn(player)
+            }
         }
 
         this.commands.register(this.createLobbyCommand())
