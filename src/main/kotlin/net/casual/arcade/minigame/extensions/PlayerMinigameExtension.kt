@@ -43,16 +43,20 @@ internal class PlayerMinigameExtension(
     override fun deserialize(element: Tag) {
         element as CompoundTag
         if (element.hasUUID("minigame")) {
-            val uuid = element.getUUID("minigame")
-            this.minigame = Minigames.get(uuid)
-            if (this.minigame == null) {
+            val minigame = Minigames.get(element.getUUID("minigame"))
+            this.minigame = minigame
+            if (minigame == null) {
                 Arcade.logger.warn("Player ${owner.scoreboardName} was part of an old minigame...")
                 return
             }
 
-            // Player has not fully initialized yet...
-            GlobalTickedScheduler.later {
-                this.minigame?.addPlayer(this.owner)
+            // The reason we do the uuid check is that the
+            // player may be a shadow (rejoined) player.
+            if (!minigame.hasPlayer(this.owner.uuid)) {
+                // Player has not fully initialized yet...
+                GlobalTickedScheduler.later {
+                    minigame.addPlayer(this.owner)
+                }
             }
         }
     }

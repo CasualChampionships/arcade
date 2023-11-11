@@ -256,7 +256,7 @@ internal class PlayerNameTagExtension(
         }
 
         override fun onTick() {
-            this.attachment?.updateCurrentlyTracking(this.watchingPlayers)
+            this.attachment?.updateCurrentlyTracking(ArrayList(this.watchingPlayers))
         }
 
         override fun startWatching(connection: ServerGamePacketListenerImpl): Boolean {

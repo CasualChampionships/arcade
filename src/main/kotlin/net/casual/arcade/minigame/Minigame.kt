@@ -352,13 +352,14 @@ public abstract class Minigame<M: Minigame<M>>(
             return true
         }
 
+        this.connections.add(player.connection)
         val event = MinigameAddNewPlayerEvent(this, player).broadcast()
         if (!event.isCancelled()) {
-            this.connections.add(player.connection)
             player.minigame.setMinigame(this)
             MinigameAddPlayerEvent(this, player).broadcast()
             return true
         }
+        this.connections.remove(player.connection)
         return false
     }
 
@@ -447,6 +448,16 @@ public abstract class Minigame<M: Minigame<M>>(
      */
     public fun hasPlayer(player: ServerPlayer): Boolean {
         return this.connections.contains(player.connection)
+    }
+
+    /**
+     * This checks whether a given player uuid is playing in the minigame.
+     *
+     * @param uuid The uuid of the player you want to check.
+     * @return Whether the player is playing.
+     */
+    public fun hasPlayer(uuid: UUID): Boolean {
+        return this.connections.any { it.player.uuid == uuid } || this.offline.any { it.id == uuid }
     }
 
     /**

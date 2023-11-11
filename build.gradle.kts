@@ -42,6 +42,7 @@ dependencies {
         parchment("org.parchmentmc.data:parchment-${property("parchment_version")}@zip")
     })
     modImplementation("net.fabricmc:fabric-loader:${property("loader_version")}")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_version")}")
 
     // modImplementation("xyz.nucleoid:server-translations-api:${property("server_translations_api_version")}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin_version")}")
