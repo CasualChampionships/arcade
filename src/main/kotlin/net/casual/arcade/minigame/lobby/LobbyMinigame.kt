@@ -140,6 +140,10 @@ public abstract class LobbyMinigame(
         ).then(
             Commands.literal("reload").executes(this::reloadLobby)
         ).then(
+            Commands.literal("place").executes(this::placeLobby)
+        ).then(
+            Commands.literal("replace").executes(this::replaceLobby)
+        ).then(
             Commands.literal("delete").executes(this::deleteLobby)
         ).then(
             Commands.literal("tp").executes(this::teleportToLobby)
@@ -186,9 +190,18 @@ public abstract class LobbyMinigame(
         return context.source.success("Successfully reloaded the lobby")
     }
 
+    private fun placeLobby(context: CommandContext<CommandSourceStack>): Int {
+        this.lobby.area.place()
+        return context.source.success("Successfully placed the lobby")
+    }
+
+    private fun replaceLobby(context: CommandContext<CommandSourceStack>): Int {
+        this.lobby.area.replace()
+        return context.source.success("Successfully replaced the lobby")
+    }
+
     private fun deleteLobby(context: CommandContext<CommandSourceStack>): Int {
-        this.lobby.area.removeBlocks()
-        this.lobby.area.removeEntities { it !is Player }
+        this.lobby.area.removeAllButPlayers()
         return context.source.success("Successfully removed the lobby")
     }
 
@@ -248,7 +261,7 @@ public abstract class LobbyMinigame(
     public enum class Phases(override val id: String): MinigamePhase<LobbyMinigame> {
         Waiting("waiting") {
             override fun start(minigame: LobbyMinigame) {
-                minigame.lobby.area.place()
+                minigame.lobby.area.replace()
                 minigame.onStart()
             }
         },
