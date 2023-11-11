@@ -35,6 +35,7 @@ import net.casual.arcade.utils.JsonUtils.toJsonObject
 import net.casual.arcade.utils.JsonUtils.toJsonStringArray
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.MinigameUtils.minigame
+import net.casual.arcade.utils.PlayerUtils
 import net.casual.arcade.utils.ScreenUtils
 import net.casual.arcade.utils.ScreenUtils.DefaultMinigameSettingsComponent
 import net.casual.arcade.utils.SettingsUtils.defaultOptions
@@ -336,7 +337,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * @return Whether the player was successfully accepted.
      */
     public fun addPlayer(player: ServerPlayer): Boolean {
-        if (!this.initialised || this.hasPlayer(player)) {
+        if (!this.initialised || this.hasPlayer(player.uuid)) {
             return false
         }
         val hasMinigame = player.getMinigame() === this
@@ -457,7 +458,11 @@ public abstract class Minigame<M: Minigame<M>>(
      * @return Whether the player is playing.
      */
     public fun hasPlayer(uuid: UUID): Boolean {
-        return this.connections.any { it.player.uuid == uuid } || this.offline.any { it.id == uuid }
+        val player = PlayerUtils.player(uuid)
+        if (player != null) {
+            return this.hasPlayer(player)
+        }
+        return this.offline.any { it.id == uuid }
     }
 
     /**

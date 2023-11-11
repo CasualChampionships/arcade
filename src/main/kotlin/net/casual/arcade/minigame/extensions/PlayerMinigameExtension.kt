@@ -50,13 +50,9 @@ internal class PlayerMinigameExtension(
                 return
             }
 
-            // The reason we do the uuid check is that the
-            // player may be a shadow (rejoined) player.
-            if (!minigame.hasPlayer(this.owner.uuid)) {
-                // Player has not fully initialized yet...
-                GlobalTickedScheduler.later {
-                    minigame.addPlayer(this.owner)
-                }
+            // Player has not fully initialized yet...
+            GlobalTickedScheduler.later {
+                minigame.addPlayer(this.owner)
             }
         }
     }

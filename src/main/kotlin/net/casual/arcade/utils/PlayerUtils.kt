@@ -33,6 +33,7 @@ import net.minecraft.world.level.GameType
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.scores.PlayerTeam
+import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
 
@@ -137,6 +138,11 @@ public object PlayerUtils {
     @JvmStatic
     public fun player(name: String): ServerPlayer? {
         return Arcade.getServer().playerList.getPlayerByName(name)
+    }
+
+    @JvmStatic
+    public fun player(uuid: UUID): ServerPlayer? {
+        return Arcade.getServer().playerList.getPlayer(uuid)
     }
 
     @JvmStatic
