@@ -28,8 +28,16 @@ public class TrackedBorder(size: Double, centerX: Double, centerZ: Double): Arca
         this.trackChanges { super.setSize(size) }
     }
 
+    public fun setSizeUntracked(size: Double) {
+        super.setSize(size)
+    }
+
     override fun setCenter(x: Double, z: Double) {
         this.trackChanges { super.setCenter(x, z) }
+    }
+
+    public fun setCenterUntracked(x: Double, z: Double) {
+        super.setCenter(x, z)
     }
 
     internal fun addTracker(tracker: MultiLevelBorderTracker) {
