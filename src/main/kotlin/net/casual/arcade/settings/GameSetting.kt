@@ -18,12 +18,10 @@ public open class GameSetting<T: Any>(
     }
 
     public fun set(value: T) {
-        if (this.get() != value) {
-            for (listener in this.listeners) {
-                listener.onSet(this, value)
-            }
-            this.setQuietly(value)
+        for (listener in this.listeners) {
+            listener.onSet(this, value)
         }
+        this.setQuietly(value)
     }
 
     public fun setQuietly(value: T) {
