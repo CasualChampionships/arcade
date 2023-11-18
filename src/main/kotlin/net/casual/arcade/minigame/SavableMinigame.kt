@@ -58,7 +58,7 @@ import kotlin.io.path.*
  * **should** be implemented as [SavableTask]s so they can be
  * reloaded if necessary.
  *
- * A very important note: when phases are read, they will be initialized
+ * A crucial note: when phases are read, they will be initialized
  * again, see [MinigamePhase.initialise] for more information.
  *
  * @param M The type of the child class.
