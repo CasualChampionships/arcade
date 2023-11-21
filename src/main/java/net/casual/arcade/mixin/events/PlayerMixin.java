@@ -1,12 +1,10 @@
 package net.casual.arcade.mixin.events;
 
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.PlayerAttackEvent;
 import net.casual.arcade.events.player.PlayerDamageEvent;
-import net.casual.arcade.utils.CastUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -39,8 +37,7 @@ public class PlayerMixin {
 		)
 	)
 	private boolean onAttack(Entity entity, DamageSource source, float amount) {
-		ServerPlayer player = CastUtils.tryCast(ServerPlayer.class, this);
-		if (player != null) {
+		if ((Object) this instanceof ServerPlayer player) {
 			PlayerAttackEvent event = new PlayerAttackEvent(player, entity, amount);
 			GlobalEventHandler.broadcast(event);
 			if (event.isCancelled()) {
@@ -60,14 +57,12 @@ public class PlayerMixin {
 		)
 	)
 	private void onDamage(DamageSource source, float damageAmount, CallbackInfo ci, @Local(ordinal = 1) LocalFloatRef damage) {
-		ServerPlayer player = CastUtils.tryCast(ServerPlayer.class, this);
-		if (player == null) {
-			return;
-		}
-		PlayerDamageEvent event = new PlayerDamageEvent(player, damage.get(), source);
-		GlobalEventHandler.broadcast(event);
-		if (event.isCancelled()) {
-			damage.set(event.result());
+		if ((Object) this instanceof ServerPlayer player) {
+			PlayerDamageEvent event = new PlayerDamageEvent(player, damage.get(), source);
+			GlobalEventHandler.broadcast(event);
+			if (event.isCancelled()) {
+				damage.set(event.result());
+			}
 		}
 	}
 }

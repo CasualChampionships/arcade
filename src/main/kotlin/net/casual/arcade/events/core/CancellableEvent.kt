@@ -96,13 +96,17 @@ public sealed class CancellableEvent: Event {
         /**
          * This tries to get the cancelled result
          * of this event. If the user has not set
-         * the result this will throw an error.
+         * the result, this will throw an error.
          *
          * @return The result.
          */
         public fun result(): T {
             val result = this.result ?: throw IllegalStateException("Called result() when no result is present")
             return result.value
+        }
+
+        public fun resultOrElse(otherwise: () -> T): T {
+            return this.result?.value ?: otherwise()
         }
     }
 }

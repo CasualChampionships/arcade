@@ -17,6 +17,10 @@ public class EnumSerializer<E: Enum<E>>(
         return this.enums[json.asString]!!
     }
 
+    override fun type(): String {
+        return "enumeration"
+    }
+
     public companion object {
         public fun <E: Enum<E>> of(type: Class<E>): EnumSerializer<E> {
             return EnumSerializer(EnumUtils.enumToMap(type))

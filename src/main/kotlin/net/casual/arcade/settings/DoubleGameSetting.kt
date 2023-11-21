@@ -6,4 +6,4 @@ public class DoubleGameSetting(
     name: String,
     value: Double,
     options: Map<String, Double> = emptyMap()
-): GameSetting<Double>(name, value, options, DoubleSerializer())
+): GameSetting<Double>(name, value, options, DoubleSerializer)

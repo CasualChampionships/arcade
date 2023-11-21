@@ -3,19 +3,15 @@ package net.casual.arcade.utils
 import net.casual.arcade.stats.Stat
 
 public object StatUtils {
-    public operator fun Stat<Int>.plusAssign(delta: Int) {
+    public fun Stat<Int>.increment(delta: Int = 1) {
         this.value += delta
     }
 
-    public operator fun Stat<Int>.minusAssign(delta: Int) {
-        this.value -= delta
-    }
-
-    public operator fun Stat<Double>.plusAssign(delta: Double) {
+    public fun Stat<Float>.increment(delta: Float = 1.0F) {
         this.value += delta
     }
 
-    public operator fun Stat<Double>.minusAssign(delta: Double) {
-        this.value -= delta
+    public fun Stat<Double>.increment(delta: Double = 1.0) {
+        this.value += delta
     }
 }

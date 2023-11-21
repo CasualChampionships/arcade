@@ -6,4 +6,4 @@ public class LongGameSetting(
     name: String,
     value: Long,
     options: Map<String, Long> = emptyMap()
-): GameSetting<Long>(name, value, options, LongSerializer())
+): GameSetting<Long>(name, value, options, LongSerializer)

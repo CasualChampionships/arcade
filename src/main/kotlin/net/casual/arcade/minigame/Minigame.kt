@@ -4,11 +4,10 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.Arcade
-import net.casual.arcade.minigame.managers.MinigameAdvancementManager
 import net.casual.arcade.config.CustomisableConfig
 import net.casual.arcade.events.EventHandler
 import net.casual.arcade.events.minigame.*
-import net.casual.arcade.events.player.PlayerLeaveEvent
+import net.casual.arcade.events.player.*
 import net.casual.arcade.events.server.ServerStoppedEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.gui.PlayerUI
@@ -19,14 +18,12 @@ import net.casual.arcade.gui.screen.SelectionScreenComponents
 import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.gui.tab.ArcadeTabDisplay
 import net.casual.arcade.minigame.MinigameResources.Companion.sendTo
-import net.casual.arcade.minigame.managers.MinigameCommandManager
-import net.casual.arcade.minigame.managers.MinigameEventHandler
-import net.casual.arcade.minigame.managers.MinigameScheduler
-import net.casual.arcade.minigame.managers.MinigameRecipeManager
+import net.casual.arcade.minigame.managers.*
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.settings.DisplayableGameSetting
 import net.casual.arcade.settings.DisplayableGameSettingBuilder
 import net.casual.arcade.settings.GameSetting
+import net.casual.arcade.stats.ArcadeStats
 import net.casual.arcade.utils.EventUtils.broadcast
 import net.casual.arcade.utils.EventUtils.registerHandler
 import net.casual.arcade.utils.EventUtils.unregisterHandler
@@ -39,6 +36,7 @@ import net.casual.arcade.utils.PlayerUtils
 import net.casual.arcade.utils.ScreenUtils
 import net.casual.arcade.utils.ScreenUtils.DefaultMinigameSettingsComponent
 import net.casual.arcade.utils.SettingsUtils.defaultOptions
+import net.casual.arcade.utils.StatUtils.increment
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
@@ -159,6 +157,7 @@ public abstract class Minigame<M: Minigame<M>>(
     public val commands: MinigameCommandManager
     public val advancements: MinigameAdvancementManager
     public val recipes: MinigameRecipeManager
+    public val stats: MinigameStatManager
 
     /**
      * What phase the minigame is currently in.
@@ -210,6 +209,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.commands = MinigameCommandManager(this.cast())
         this.advancements = MinigameAdvancementManager(this.cast())
         this.recipes = MinigameRecipeManager(this.cast())
+        this.stats = MinigameStatManager()
 
         this.phase = MinigamePhase.none()
 
@@ -870,10 +870,13 @@ public abstract class Minigame<M: Minigame<M>>(
 
     private fun registerEvents() {
         this.events.register<ServerTickEvent> { this.onServerTick() }
-        this.events.register<PlayerLeaveEvent>(Int.MAX_VALUE) { this.onPlayerLeave(it.player) }
+        this.events.register<PlayerJoinEvent> { this.onPlayerJoin(it) }
+        this.events.register<PlayerDeathEvent> { this.onPlayerDeath(it) }
+        this.events.register<PlayerDamageEvent>(Int.MAX_VALUE) { this.onPlayerDamage(it) }
+        this.events.register<PlayerLeaveEvent>(Int.MAX_VALUE) { this.onPlayerLeave(it) }
         this.events.register<ServerStoppedEvent> { this.close() }
-        this.events.register<MinigameAddPlayerEvent> { this.onPlayerAdd(it.player) }
-        this.events.register<MinigameRemovePlayerEvent> { this.onPlayerRemove(it.player) }
+        this.events.register<MinigameAddPlayerEvent> { this.onPlayerAdd(it) }
+        this.events.register<MinigameRemovePlayerEvent> { this.onPlayerRemove(it) }
     }
 
     private fun onServerTick() {
@@ -885,13 +888,38 @@ public abstract class Minigame<M: Minigame<M>>(
         }
     }
 
-    private fun onPlayerLeave(player: ServerPlayer) {
-        if (this.connections.remove(player.connection)) {
-            this.offline.add(player.gameProfile)
+    private fun onPlayerJoin(event: PlayerJoinEvent) {
+        this.stats.getOrCreateStat(event.player, ArcadeStats.RELOGS).increment()
+    }
+
+    private fun onPlayerDeath(event: PlayerDeathEvent) {
+        this.stats.getOrCreateStat(event.player, ArcadeStats.DEATHS).increment()
+
+        val killer = event.source.entity
+        if (killer is ServerPlayer && this.hasPlayer(killer)) {
+            this.stats.getOrCreateStat(killer, ArcadeStats.KILLS).increment()
         }
     }
 
-    private fun onPlayerAdd(player: ServerPlayer) {
+    private fun onPlayerDamage(event: PlayerDamageEvent) {
+        val (player, _, source) = event
+        val amount = event.resultOrElse { event.amount }
+        this.stats.getOrCreateStat(player, ArcadeStats.DAMAGE_TAKEN).increment(amount)
+
+        val attacker = source.entity
+        if (attacker is ServerPlayer && this.hasPlayer(attacker)) {
+            this.stats.getOrCreateStat(attacker, ArcadeStats.DAMAGE_DEALT).increment(amount)
+        }
+    }
+
+    private fun onPlayerLeave(event: PlayerLeaveEvent) {
+        if (this.connections.remove(event.player.connection)) {
+            this.offline.add(event.player.gameProfile)
+        }
+    }
+
+    private fun onPlayerAdd(event: MinigameAddPlayerEvent) {
+        val (_, player) = event
         this.bossbars.forEach { it.addPlayer(player) }
         this.nameTags.forEach { it.addPlayer(player) }
         this.sidebar?.addPlayer(player)
@@ -901,7 +929,8 @@ public abstract class Minigame<M: Minigame<M>>(
         this.server.commands.sendCommands(player)
     }
 
-    private fun onPlayerRemove(player: ServerPlayer) {
+    private fun onPlayerRemove(event: MinigameRemovePlayerEvent) {
+        val (_, player) = event
         this.nameTags.forEach { it.removePlayer(player) }
         this.bossbars.forEach { it.removePlayer(player) }
         this.sidebar?.removePlayer(player)

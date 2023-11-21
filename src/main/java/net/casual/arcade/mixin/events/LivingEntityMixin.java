@@ -5,17 +5,14 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.PlayerBorderDamageEvent;
-import net.casual.arcade.events.player.PlayerDeathEvent;
 import net.casual.arcade.events.player.PlayerLandEvent;
 import net.casual.arcade.events.player.PlayerVoidDamageEvent;
-import net.casual.arcade.utils.CastUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
@@ -29,14 +26,12 @@ public class LivingEntityMixin {
 		)
 	)
 	private void onFallDamage(float distance, float multiplier, DamageSource source, CallbackInfoReturnable<Boolean> cir, @Local LocalIntRef damage) {
-		ServerPlayer player = CastUtils.tryCast(ServerPlayer.class, this);
-		if (player == null) {
-			return;
-		}
-		PlayerLandEvent event = new PlayerLandEvent(player, damage.get(), distance, multiplier, source);
-		GlobalEventHandler.broadcast(event);
-		if (event.isCancelled()) {
-			damage.set(event.result());
+		if ((Object) this instanceof ServerPlayer player) {
+			PlayerLandEvent event = new PlayerLandEvent(player, damage.get(), distance, multiplier, source);
+			GlobalEventHandler.broadcast(event);
+			if (event.isCancelled()) {
+				damage.set(event.result());
+			}
 		}
 	}
 
@@ -48,13 +43,12 @@ public class LivingEntityMixin {
 		)
 	)
 	private boolean onVoidDamage(LivingEntity instance, DamageSource source, float amount) {
-		ServerPlayer player = CastUtils.tryCast(ServerPlayer.class, this);
-		if (player == null) {
-			return true;
+		if ((Object) this instanceof ServerPlayer player) {
+			PlayerVoidDamageEvent event = new PlayerVoidDamageEvent(player);
+			GlobalEventHandler.broadcast(event);
+			return !event.isCancelled();
 		}
-		PlayerVoidDamageEvent event = new PlayerVoidDamageEvent(player);
-		GlobalEventHandler.broadcast(event);
-		return !event.isCancelled();
+		return true;
 	}
 
 	@WrapWithCondition(
@@ -66,12 +60,11 @@ public class LivingEntityMixin {
 		)
 	)
 	private boolean onHurtByBorder(LivingEntity instance, DamageSource source, float amount) {
-		ServerPlayer player = CastUtils.tryCast(ServerPlayer.class, this);
-		if (player == null) {
-			return true;
+		if ((Object) this instanceof ServerPlayer player) {
+			PlayerBorderDamageEvent event = new PlayerBorderDamageEvent(player, source, amount);
+			GlobalEventHandler.broadcast(event);
+			return !event.isCancelled();
 		}
-		PlayerBorderDamageEvent event = new PlayerBorderDamageEvent(player, source, amount);
-		GlobalEventHandler.broadcast(event);
-		return !event.isCancelled();
+		return true;
 	}
 }

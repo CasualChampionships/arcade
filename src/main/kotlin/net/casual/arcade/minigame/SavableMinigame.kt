@@ -11,7 +11,9 @@ import net.casual.arcade.minigame.task.MinigameTaskFactory
 import net.casual.arcade.minigame.task.MinigameTaskGenerator
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.scheduler.TickedScheduler
+import net.casual.arcade.stats.StatTracker
 import net.casual.arcade.task.*
+import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.arrayOrDefault
 import net.casual.arcade.utils.JsonUtils.booleanOrDefault
 import net.casual.arcade.utils.JsonUtils.hasNonNull
@@ -23,6 +25,7 @@ import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.stringOrDefault
 import net.casual.arcade.utils.JsonUtils.stringOrNull
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.nio.file.Path
@@ -195,7 +198,6 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         }
         generated.clear()
 
-
         for (player in json.arrayOrDefault("offline_players").objects()) {
             val uuid = if (player.hasNonNull("uuid")) UUID.fromString(player.string("uuid")) else null
             this.offline.add(GameProfile(uuid, player.stringOrNull("name")))
@@ -210,6 +212,11 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
                 continue
             }
             display.setting.deserializeAndSetQuietly(value)
+        }
+
+        for (data in json.arrayOrDefault("stats").objects()) {
+            val uuid = UUID.fromString(data.string("uuid"))
+            this.stats.stats.getOrPut(uuid) { StatTracker() }.deserialize(data.array("stats"))
         }
 
         val custom = json.objOrNull("custom")
@@ -253,6 +260,14 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
             settings.add(data)
         }
 
+        val playerStats = JsonArray()
+        for ((uuid, tracker) in this.stats.stats) {
+            val data = JsonObject()
+            data.addProperty("uuid", uuid.toString())
+            data.add("stats", tracker.serialize())
+            playerStats.add(data)
+        }
+
         val custom = JsonObject()
         this.writeData(custom)
 
@@ -260,6 +275,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         json.add("phase_tasks", phaseTasks)
         json.add("offline_players", offline)
         json.add("settings", settings)
+        json.add("stats", playerStats)
         json.add("custom", custom)
 
         path.bufferedWriter().use {
