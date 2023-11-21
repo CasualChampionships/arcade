@@ -27,6 +27,7 @@ import net.casual.arcade.utils.JsonUtils.stringOrDefault
 import net.casual.arcade.utils.JsonUtils.stringOrNull
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
+import org.jetbrains.annotations.ApiStatus.Internal
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.nio.file.Path
 import java.util.*
@@ -139,7 +140,8 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
     @OverrideOnly
     protected abstract fun writeData(json: JsonObject)
 
-    internal fun read(json: JsonObject): Boolean {
+    @Internal
+    public fun read(json: JsonObject): Boolean {
         val phaseId = json.stringOrDefault("phase")
         var setPhase = false
         for (phase in this.phases) {
@@ -199,7 +201,8 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         return true
     }
 
-    internal fun save(): JsonObject {
+    @Internal
+    public fun save(): JsonObject {
         val json = JsonObject()
 
         json.addProperty("phase", this.phase.id)

@@ -5,13 +5,14 @@ import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.EventRegisterer
 import net.casual.arcade.events.core.Event
 import net.casual.arcade.events.level.LevelEvent
-import net.casual.arcade.events.minigame.MinigameCloseEvent
 import net.casual.arcade.events.minigame.MinigameEvent
 import net.casual.arcade.events.player.PlayerEvent
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.MinigamePhase
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import java.util.*
 import java.util.function.Consumer
+import kotlin.collections.ArrayList
 
 /**
  * This class is an implementation of [EventRegisterer]
@@ -44,8 +45,8 @@ import java.util.function.Consumer
  * @see Minigame
  * @see Minigame.events
  */
-public class MinigameEventHandler(
-    private val owner: Minigame<*>
+public class MinigameEventHandler<M: Minigame<M>>(
+    private val owner: Minigame<M>
 ): EventRegisterer {
     internal val minigame = EventHandler()
     internal val phased = EventHandler()
@@ -121,7 +122,7 @@ public class MinigameEventHandler(
     /**
      * Registers an event listener with a given priority for phased events.
      *
-     * This means that the event listener may be removed after the phase
+     * This means that the event listener may be removed after the current phase
      * of a minigame changes.
      *
      * This will filter events for the given minigame, see
@@ -140,7 +141,7 @@ public class MinigameEventHandler(
     /**
      * Registers an event listener with a given priority for phased events.
      *
-     * This means that the event listener may be removed after the phase
+     * This means that the event listener may be removed after the current phase
      * of a minigame changes.
      *
      * This will filter events for the given minigame, see
@@ -158,7 +159,7 @@ public class MinigameEventHandler(
     /**
      * Registers an event listener with a given priority for phased events.
      *
-     * This means that the event listener may be removed after the phase
+     * This means that the event listener may be removed after the current phase
      * of a minigame changes.
      *
      * This will filter events for the given minigame, see
@@ -178,7 +179,7 @@ public class MinigameEventHandler(
     /**
      * Registers an event listener for phased events.
      *
-     * This means that the event listener may be removed after the phase
+     * This means that the event listener may be removed after the current phase
      * of a minigame changes.
      *
      * This will filter events for the given minigame, see
@@ -194,8 +195,144 @@ public class MinigameEventHandler(
         return this.registerFiltered(type, listener, this.phased)
     }
 
-    private fun <T: Event> registerFiltered(type: Class<T>, listener: EventListener<T>, handler: EventRegisterer) {
+    /**
+     * Registers an event listener for phased events.
+     *
+     * This implementation, however, allows you to specify the phases and the
+     * event listener will **NOT** be removed if the phase changes, meaning
+     * if the phase returns to a previous phase, the events will still be triggered.
+     *
+     * @param T The type of event.
+     * @param phases The phases that you want this listener to trigger in.
+     * @param listener The callback which will be invoked when the event is fired.
+     */
+    public inline fun <reified T: Event> registerInPhases(vararg phases: MinigamePhase<M>, listener: Consumer<T>) {
+        this.registerInPhases(1_000, phases = phases, listener = listener)
+    }
+
+    /**
+     * Registers an event listener for phased events.
+     *
+     * This implementation, however, allows you to specify the phases and the
+     * event listener will **NOT** be removed if the phase changes, meaning
+     * if the phase returns to a previous phase, the events will still be triggered.
+     *
+     * @param T The type of event.
+     * @param priority The priority of your event listener.
+     * @param phases The phases that you want this listener to trigger in.
+     * @param listener The callback which will be invoked when the event is fired.
+     */
+    public inline fun <reified T: Event> registerInPhases(
+        priority: Int,
+        vararg phases: MinigamePhase<M>,
+        listener: Consumer<T>
+    ) {
+        this.registerInPhases(T::class.java, phases = phases, listener = EventListener.of(priority, listener))
+    }
+
+    /**
+     * Registers an event listener for phased events.
+     *
+     * This implementation, however, allows you to specify the phases and the
+     * event listener will **NOT** be removed if the phase changes, meaning
+     * if the phase returns to a previous phase, the events will still be triggered.
+     *
+     * @param T The type of event.
+     * @param type The class of the event that you want to listen to.
+     * @param phases The phases that you want this listener to trigger in.
+     * @param listener The callback which will be invoked when the event is fired.
+     */
+    public fun <T: Event> registerInPhases(
+        type: Class<T>,
+        vararg phases: MinigamePhase<M>,
+        listener: EventListener<T>
+    ) {
+        if (phases.isEmpty()) {
+            this.register(type, listener)
+        }
         val predicates = LinkedList<(T) -> Boolean>()
+        if (phases.size == 1) {
+            predicates.add { this.owner.isPhase(phases[0]) }
+            return this.registerFiltered(type, listener, this.minigame, predicates)
+        }
+        predicates.add {
+            for (phase in phases) {
+                if (this.owner.isPhase(phase)) {
+                    return@add true
+                }
+            }
+            false
+        }
+
+        return this.registerFiltered(type, listener, this.minigame, predicates)
+    }
+
+    /**
+     * Registers an event listener for phased events, this allows you
+     * to specify phase ranges in which to trigger your listener.
+     *
+     * @param T The type of event.
+     * @param start The start phase of the range, inclusive.
+     * @param end The end phase of the range, inclusive.
+     * @param listener The callback which will be invoked when the event is fired.
+     */
+    public inline fun <reified T: Event> registerBetweenPhases(
+        start: MinigamePhase<M>,
+        end: MinigamePhase<M>,
+        listener: Consumer<T>
+    ) {
+        this.registerBetweenPhases(1_000, start, end, listener)
+    }
+
+    /**
+     * Registers an event listener for phased events, this allows you
+     * to specify phase ranges in which to trigger your listener.
+     *
+     * @param T The type of event.
+     * @param priority The priority of your event listener.
+     * @param start The start phase of the range, inclusive.
+     * @param end The end phase of the range, inclusive.
+     * @param listener The callback which will be invoked when the event is fired.
+     */
+    public inline fun <reified T: Event> registerBetweenPhases(
+        priority: Int,
+        start: MinigamePhase<M>,
+        end: MinigamePhase<M>,
+        listener: Consumer<T>
+    ) {
+        this.registerBetweenPhases(T::class.java, start, end, EventListener.of(priority, listener))
+    }
+
+    /**
+     * Registers an event listener for phased events, this allows you
+     * to specify phase ranges in which to trigger your listener.
+     *
+     * @param T The type of event.
+     * @param type The class of the event that you want to listen to.
+     * @param start The start phase of the range, inclusive.
+     * @param end The end phase of the range, inclusive.
+     * @param listener The callback which will be invoked when the event is fired.
+     */
+    public fun <T: Event> registerBetweenPhases(
+        type: Class<T>,
+        start: MinigamePhase<M>,
+        end: MinigamePhase<M>,
+        listener: EventListener<T>
+    ) {
+        val predicates = ArrayList<(T) -> Boolean>()
+        predicates.add {
+            (this.owner.isAfterPhase(start) || this.owner.isPhase(start)) &&
+            (this.owner.isBeforePhase(end) || this.owner.isPhase(end))
+        }
+        return this.registerFiltered(type, listener, this.minigame, predicates)
+    }
+
+    private fun <T: Event> registerFiltered(
+        type: Class<T>,
+        listener: EventListener<T>,
+        handler: EventRegisterer,
+        predicates: MutableList<(T) -> Boolean> = LinkedList()
+    ) {
         if (PlayerEvent::class.java.isAssignableFrom(type)) {
             predicates.add { this.owner.hasPlayer((it as PlayerEvent).player) }
         }

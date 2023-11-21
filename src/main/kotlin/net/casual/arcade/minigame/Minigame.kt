@@ -7,11 +7,12 @@ import net.casual.arcade.Arcade
 import net.casual.arcade.config.CustomisableConfig
 import net.casual.arcade.events.EventHandler
 import net.casual.arcade.events.minigame.*
-import net.casual.arcade.events.player.*
+import net.casual.arcade.events.player.PlayerDamageEvent
+import net.casual.arcade.events.player.PlayerDeathEvent
+import net.casual.arcade.events.player.PlayerJoinEvent
+import net.casual.arcade.events.player.PlayerLeaveEvent
 import net.casual.arcade.events.server.ServerStoppedEvent
 import net.casual.arcade.events.server.ServerTickEvent
-import net.casual.arcade.gui.PlayerUI
-import net.casual.arcade.gui.TickableUI
 import net.casual.arcade.gui.bossbar.CustomBossBar
 import net.casual.arcade.gui.nametag.ArcadeNameTag
 import net.casual.arcade.gui.screen.SelectionScreenComponents
@@ -24,6 +25,7 @@ import net.casual.arcade.settings.DisplayableGameSetting
 import net.casual.arcade.settings.DisplayableGameSettingBuilder
 import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.stats.ArcadeStats
+import net.casual.arcade.task.SavableTask
 import net.casual.arcade.utils.EventUtils.broadcast
 import net.casual.arcade.utils.EventUtils.registerHandler
 import net.casual.arcade.utils.EventUtils.unregisterHandler
@@ -49,7 +51,6 @@ import net.minecraft.world.level.GameRules
 import net.minecraft.world.scores.PlayerTeam
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.util.*
-import kotlin.collections.HashSet
 import kotlin.collections.set
 
 /**
@@ -136,28 +137,73 @@ public abstract class Minigame<M: Minigame<M>>(
 ) {
     private val connections: MutableSet<ServerGamePacketListenerImpl>
 
-    private val bossbars: MutableList<CustomBossBar>
-    private val nameTags: MutableList<ArcadeNameTag>
-    private val tickables: MutableSet<TickableUI>
-
-    private var sidebar: ArcadeSidebar?
-    private var display: ArcadeTabDisplay?
-
     private var initialised: Boolean
 
     internal val offline: MutableSet<GameProfile>
-
     internal val gameSettings: MutableMap<String, DisplayableGameSetting<*>>
     internal val phases: List<MinigamePhase<M>>
 
-    internal var uuid: UUID
+    /**
+     * This handles registering and invoking events.
+     *
+     * @see MinigameEventHandler
+     */
+    public val events: MinigameEventHandler<M>
 
+    /**
+     * The scheduler for scheduling tasks based on the minigames
+     * ticking rate, the scheduler will be paused if the minigame
+     * is paused.
+     *
+     * If your minigame is extending [SavableMinigame] then your
+     * tasks can be saved, see [SavableTask] and [SavableMinigame].
+     *
+     * @see MinigameScheduler
+     */
     public val scheduler: MinigameScheduler
-    public val events: MinigameEventHandler
+
+    /**
+     * This manages all the UI for the minigame.
+     *
+     * @see MinigameUIManager
+     */
+    public val ui: MinigameUIManager
+
+    /**
+     * This manager is for registering any minigame
+     * specific commands, these commands will only be
+     * accessible if a player is part of the minigame.
+     *
+     * @see MinigameCommandManager
+     */
     public val commands: MinigameCommandManager
+
+    /**
+     * This manages minigame specific advancements.
+     *
+     * @see MinigameAdvancementManager
+     */
     public val advancements: MinigameAdvancementManager
+
+    /**
+     * This manages minigame specific recipes.
+     *
+     * @see MinigameRecipeManager
+     */
     public val recipes: MinigameRecipeManager
+
+    /**
+     * This manages minigame statistics.
+     *
+     * @see MinigameStatManager
+     */
     public val stats: MinigameStatManager
+
+    /**
+     * The [UUID] of the minigame.
+     */
+    public var uuid: UUID
+        internal set
 
     /**
      * What phase the minigame is currently in.
@@ -188,13 +234,6 @@ public abstract class Minigame<M: Minigame<M>>(
     init {
         this.connections = LinkedHashSet()
 
-        this.bossbars = LinkedList()
-        this.nameTags = LinkedList()
-        this.tickables = LinkedHashSet()
-
-        this.sidebar = null
-        this.display = null
-
         this.initialised = false
 
         this.offline = LinkedHashSet()
@@ -205,6 +244,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.uuid = UUID.randomUUID()
 
         this.scheduler = MinigameScheduler()
+        this.ui = MinigameUIManager(this.cast())
         this.events = MinigameEventHandler(this.cast())
         this.commands = MinigameCommandManager(this.cast())
         this.advancements = MinigameAdvancementManager(this.cast())
@@ -272,7 +312,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * @param phase The phase to check whether the minigame has past.
      * @return Whether the minigame is past that phase.
      */
-    public fun isPastPhase(phase: MinigamePhase<M>): Boolean {
+    public fun isAfterPhase(phase: MinigamePhase<M>): Boolean {
         return this.phase > phase
     }
 
@@ -575,124 +615,6 @@ public abstract class Minigame<M: Minigame<M>>(
         Minigames.unregister(this)
     }
 
-    /**
-     * This adds a [CustomBossBar] to the minigame.
-     *
-     * This will be displayed to all players in the minigame.
-     *
-     * @param bar The bossbar to add.
-     * @see CustomBossBar
-     */
-    public fun addBossbar(bar: CustomBossBar) {
-        this.bossbars.add(bar)
-        this.loadUI(bar)
-    }
-
-    /**
-     * This removes a [CustomBossBar] from the minigame.
-     *
-     * All players who were shown the bossbar will no longer
-     * be displayed the bossbar.
-     *
-     * @param bar The bar to remove.
-     */
-    public fun removeBossbar(bar: CustomBossBar) {
-        if (this.bossbars.remove(bar)) {
-            this.removeUI(bar)
-        }
-    }
-
-    /**
-     * This removes **ALL** bossbars from the minigame.
-     */
-    public fun removeAllBossbars() {
-        this.removeAllUI(this.bossbars)
-    }
-
-    /**
-     * This adds a [ArcadeNameTag] to the minigame.
-     *
-     * This name tag will be applied to all players in
-     * the minigame.
-     *
-     * @param tag The name tag to add.
-     * @see ArcadeNameTag
-     */
-    public fun addNameTag(tag: ArcadeNameTag) {
-        this.nameTags.add(tag)
-        this.loadUI(tag)
-    }
-
-    /**
-     * This removes a [ArcadeNameTag] from the minigame.
-     *
-     * All players who had the nametag will no longer be
-     * displayed the nametag.
-     *
-     * @param tag The nametag to remove.
-     */
-    public fun removeNameTag(tag: ArcadeNameTag) {
-        if (this.nameTags.remove(tag)) {
-            this.removeUI(tag)
-        }
-    }
-
-    /**
-     * This removes **ALL** nametags from the minigame.
-     */
-    public fun removeAllNameTags() {
-        this.removeAllUI(this.nameTags)
-    }
-
-    /**
-     * This sets the [ArcadeSidebar] for the minigame.
-     *
-     * This sidebar will be displayed to all the players
-     * in the minigame.
-     *
-     * @param sidebar The sidebar to set.
-     */
-    public fun setSidebar(sidebar: ArcadeSidebar) {
-        this.removeSidebar()
-        this.sidebar = sidebar
-        this.loadUI(sidebar)
-    }
-
-    /**
-     * This removes the minigame sidebar.
-     *
-     * All players who were displayed the sidebar
-     * will no longer be displayed the sidebar.
-     */
-    public fun removeSidebar() {
-        this.removeUI(this.sidebar)
-        this.sidebar = null
-    }
-
-    /**
-     * This sets the [ArcadeTabDisplay] for the minigame.
-     *
-     * This tab display will be displayed to all the players
-     * in the minigame.
-     *
-     * @param display The tab display to set.
-     */
-    public fun setTabDisplay(display: ArcadeTabDisplay) {
-        this.removeTabDisplay()
-        this.display = display
-        this.loadUI(display)
-    }
-
-    /**
-     * This removes the minigame tab display.
-     *
-     * All players who were displayed the tab display
-     * will no longer be displayed the tab display.
-     */
-    public fun removeTabDisplay() {
-        this.removeUI(this.display)
-        this.display = null
-    }
 
     /**
      * This serializes some minigame information for debugging purposes.
@@ -714,10 +636,6 @@ public abstract class Minigame<M: Minigame<M>>(
         json.add("phases", this.phases.toJsonStringArray { it.id })
         json.addProperty("phase", this.phase.id)
         json.addProperty("paused", this.paused)
-        json.addProperty("bossbars", this.bossbars.size)
-        json.addProperty("nametags", this.nameTags.size)
-        json.addProperty("has_sidebar", this.sidebar != null)
-        json.addProperty("has_display", this.display != null)
         json.add("settings", this.getSettings().toJsonObject { it.name to it.serializeValue() })
         json.add("commands", this.commands.getAllRootCommands().toJsonStringArray { it })
         this.appendAdditionalDebugInfo(json)
@@ -881,9 +799,7 @@ public abstract class Minigame<M: Minigame<M>>(
 
     private fun onServerTick() {
         if (!this.paused) {
-            for (tickable in this.tickables) {
-                tickable.tick()
-            }
+            this.ui.tick()
             this.scheduler.tick()
         }
     }
@@ -920,47 +836,11 @@ public abstract class Minigame<M: Minigame<M>>(
 
     private fun onPlayerAdd(event: MinigameAddPlayerEvent) {
         val (_, player) = event
-        this.bossbars.forEach { it.addPlayer(player) }
-        this.nameTags.forEach { it.addPlayer(player) }
-        this.sidebar?.addPlayer(player)
-        this.display?.addPlayer(player)
-
         this.getResources().sendTo(player)
         this.server.commands.sendCommands(player)
     }
 
     private fun onPlayerRemove(event: MinigameRemovePlayerEvent) {
-        val (_, player) = event
-        this.nameTags.forEach { it.removePlayer(player) }
-        this.bossbars.forEach { it.removePlayer(player) }
-        this.sidebar?.removePlayer(player)
-        this.display?.removePlayer(player)
-
-        this.server.commands.sendCommands(player)
-    }
-
-    private fun loadUI(ui: PlayerUI) {
-        for (player in this.getPlayers()) {
-            ui.addPlayer(player)
-        }
-        if (ui is TickableUI) {
-            this.tickables.add(ui)
-        }
-    }
-
-    private fun removeUI(ui: PlayerUI?) {
-        if (ui != null) {
-            ui.clearPlayers()
-            if (ui is TickableUI) {
-                this.tickables.remove(ui)
-            }
-        }
-    }
-
-    private fun removeAllUI(uis: MutableCollection<out PlayerUI>) {
-        for (ui in uis) {
-            this.removeUI(ui)
-        }
-        uis.clear()
+        this.server.commands.sendCommands(event.player)
     }
 }

@@ -16,18 +16,16 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  * enum class MyMinigamePhases(override val id: String): MinigamePhase<MyMinigame> {
  *     Grace("grace") {
  *         override fun initialise(minigame: MyMinigame) {
- *             minigame.server.isPvpAllowed = false
+ *             minigame.pvp = false
  *         }
  *
  *         override fun end(minigame: MyMinigame) {
- *             minigame.server.isPvpAllowed = true
+ *             minigame.getPlayers().broadcast(/* ... */)
  *         }
  *     },
  *     Active("active") {
  *         override fun initialise(minigame: MyMinigame) {
- *             minigame.registerPhaseMinigameEvent<PlayerDeathEvent> {
- *                 // ...
- *             }
+ *             minigame.pvp = true
  *         }
  *     },
  *     DeathMatch("death_match") {
@@ -72,10 +70,9 @@ public interface MinigamePhase<M: Minigame<M>> {
      * phase is set to `this`.
      * Here you may schedule tasks for the [minigame]
      * or run specific code that **only** runs when
-     * the phase is **set**.
+     * the phase is **set**, this method **WILL NOT**
+     * be called when a minigame is reloaded from save.
      *
-     * You **MUST NOT** register events in this
-     * method.
      * That should instead be done in
      * [initialise], see documentation for more
      * information.
@@ -91,28 +88,31 @@ public interface MinigamePhase<M: Minigame<M>> {
     /**
      * This method is called either when a phase is set
      * **or** when a phase is re-set (for example, when
-     * the minigame restarts, see [SavableMinigame]).
+     * the minigame reloads, see [SavableMinigame]).
      * This method will **always** be invoked after
-     * [start] has been invoked.
+     * [start] has been invoked, however it does not necessarily
+     * follow [start], it will be called by itself when a minigame
+     * is reloaded.
      *
-     * This **SHOULD NOT** be used to run code that
-     * is only meant to be run when a phase is set,
+     * This **SHOULD NOT** be used to run code
+     * only meant to be run when a phase is set,
      * instead use [start].
      *
      * Instead, this method should be used for setting
-     * state in the [minigame], for example registering
-     * phase events, or setting the UI:
+     * state in the [minigame], that is **not** serialized
+     * and that you need to be set when the minigame reloads.
+     *
+     * For example, settings UI elements:
      * ```kotlin
      * fun initialise(minigame: Minigame) {
-     *     minigame.registerPhaseMinigameEvent<PlayerDeathEvent> { (player) ->
-     *         val message = Component.literal("You died in the phase ${this.id}!")
-     *         player.sendSystemMessage(message)
-     *     }
-     *
      *     val bossbar = CustomBossBar.of(Component.literal("My BossBar"))
      *     minigame.addBossbar(bossbar)
      * }
      * ```
+     *
+     * This method allows for more control when reloading
+     * savable minigames, however, it is probably safest to
+     * use [start] and [end].
      *
      * @param minigame The minigame which is initializing its phase.
      * @see start
@@ -125,14 +125,8 @@ public interface MinigamePhase<M: Minigame<M>> {
     /**
      * This method is called when the [minigame] is changing phase
      * from the current one.
-     * This is called after the minigame has already changed phase,
-     * so you may do [Minigame.phase] to get the phase that it is
-     * being set to, however, the new phase has **NOT** yet started
-     * or initialized.
-     *
-     * This should reset any state that was changed in [start] or
-     * [initialise], for example, removing UI that was set by this
-     * phase.
+     * This is called before the minigame has changed phase,
+     * so [Minigame.phase] will still reference `this`.
      *
      * @param minigame The minigame that is changing phase.
      * @see start
@@ -143,7 +137,7 @@ public interface MinigamePhase<M: Minigame<M>> {
     }
 
     // We don't implement Comparable<MinigamePhase<M>>
-    // because it causes conflicts when inheriting with Enum
+    // because it causes conflicts when inheriting with Enum.
     @NonExtendable
     public operator fun compareTo(other: MinigamePhase<*>): Int {
         return this.ordinal.compareTo(other.ordinal)
