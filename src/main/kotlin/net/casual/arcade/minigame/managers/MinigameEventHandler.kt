@@ -79,8 +79,25 @@ public class MinigameEventHandler(
      * @param priority The priority of your event listener.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public inline fun <reified T: Event> register(priority: Int = 1_000, listener: Consumer<T>) {
+    public inline fun <reified T: Event> register(priority: Int, listener: Consumer<T>) {
         this.register(T::class.java, priority, listener)
+    }
+
+    /**
+     * Registers an event listener with a given priority.
+     *
+     * This allows you to register a callback to a specific event type.
+     * This callback will **only** fire when instances of the given type
+     * are fired.
+     *
+     * This will filter events for the given minigame, see
+     * [MinigameEventHandler] documentation for more details.
+     *
+     * @param T The type of event.
+     * @param listener The callback which will be invoked when the event is fired.
+     */
+    public inline fun <reified T: Event> register(listener: Consumer<T>) {
+        this.register(T::class.java, 1_000, listener)
     }
 
     /**
@@ -116,8 +133,26 @@ public class MinigameEventHandler(
      * @param priority The priority of your event listener.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public inline fun <reified T: Event> registerPhased(priority: Int = 1_000, listener: Consumer<T>) {
+    public inline fun <reified T: Event> registerPhased(priority: Int, listener: Consumer<T>) {
         this.registerPhased(T::class.java, priority, listener)
+    }
+
+    /**
+     * Registers an event listener with a given priority for phased events.
+     *
+     * This means that the event listener may be removed after the phase
+     * of a minigame changes.
+     *
+     * This will filter events for the given minigame, see
+     * [MinigameEventHandler] documentation for more details.
+     *
+     * See [register] for more information
+     *
+     * @param T The type of event.
+     * @param listener The callback which will be invoked when the event is fired.
+     */
+    public inline fun <reified T: Event> registerPhased(listener: Consumer<T>) {
+        this.registerPhased(T::class.java, 1_000, listener)
     }
 
     /**

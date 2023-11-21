@@ -73,8 +73,6 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
 ): Minigame<M>(server) {
     private val taskGenerator = MinigameTaskGenerator(this.cast())
 
-    protected var path: Path? = null
-
     init {
         // Add default task factories
         this.addTaskFactory(CancellableTask.Savable)
@@ -141,38 +139,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
     @OverrideOnly
     protected abstract fun writeData(json: JsonObject)
 
-    /**
-     * This appends any additional debug information to [getDebugInfo].
-     *
-     * @param json The json append to.
-     */
-    override fun appendAdditionalDebugInfo(json: JsonObject) {
-        super.appendAdditionalDebugInfo(json)
-        json.addProperty("save_path", this.path?.absolutePathString())
-    }
-
-    /**
-     * This method initializes the core functionality of the
-     * minigame, such as registering events.
-     * This method should be called in your implementation's
-     * constructor.
-     */
-    override fun initialise() {
-        this.events.register<ServerSaveEvent> { this.save() }
-        this.events.register<MinigameCloseEvent> { this.save() }
-    }
-
-    protected fun read(): Boolean {
-        val path = this.path
-
-        if (path == null || !path.exists()) {
-            super.initialise()
-            return false
-        }
-        val json = path.bufferedReader().use {
-            CustomisableConfig.GSON.fromJson(it, JsonObject::class.java)
-        }
-
+    internal fun read(json: JsonObject): Boolean {
         val phaseId = json.stringOrDefault("phase")
         var setPhase = false
         for (phase in this.phases) {
@@ -232,9 +199,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         return true
     }
 
-    protected fun save(): Boolean {
-        val path = this.path ?: return false
-
+    internal fun save(): JsonObject {
         val json = JsonObject()
 
         json.addProperty("phase", this.phase.id)
@@ -277,15 +242,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         json.add("settings", settings)
         json.add("stats", playerStats)
         json.add("custom", custom)
-
-        path.bufferedWriter().use {
-            CustomisableConfig.GSON.toJson(json, it)
-        }
-        return true
-    }
-
-    protected fun delete(): Boolean {
-        return this.path?.deleteIfExists() ?: false
+        return json
     }
 
     private fun readScheduledTask(json: JsonObject, scheduler: TickedScheduler, generated: MutableMap<Int, Task?>) {

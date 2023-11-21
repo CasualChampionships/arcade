@@ -3,12 +3,15 @@ package net.casual.arcade
 import net.casual.arcade.commands.ArcadeCommands
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerCreatedEvent
+import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.utils.*
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import java.nio.file.Path
 
 /**
  * Arcade initializer class.
@@ -18,11 +21,6 @@ public object Arcade: ModInitializer {
 
     @JvmField
     internal val logger: Logger = LogManager.getLogger("Arcade")
-
-    /**
-     * Whether arcade is in debug mode.
-     */
-    internal const val DEBUG: Boolean = false
 
     /**
      * The mod identifier for Arcade.
@@ -71,11 +69,22 @@ public object Arcade: ModInitializer {
         return ResourceLocation(MOD_ID, path)
     }
 
+    /**
+     * Gets the config path for Arcade.
+     *
+     * @return The config path.
+     */
+    @JvmStatic
+    public fun path(): Path {
+        return FabricLoader.getInstance().configDir.resolve("arcade")
+    }
+
     override fun onInitialize() {
         SidebarUtils.registerEvents()
         BossbarUtils.registerEvents()
         NameDisplayUtils.registerEvents()
         MinigameUtils.registerEvents()
+        Minigames.registerEvents()
         TabUtils.registerEvents()
         NameTagUtils.registerEvents()
         ResourcePackUtils.registerEvents()

@@ -27,7 +27,7 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<MinigameArgume
             return ParsedMinigame()
         }
 
-        val id = ResourceLocation.tryParse(string.replace("+", ":"))
+        val id = ResourceLocation.tryParse(string.replace('+', ':'))
         if (id != null) {
             val minigames = Minigames.get(id)
             if (minigames.size > 1) {
@@ -96,11 +96,19 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<MinigameArgume
 
     public class Factory: CustomArgumentType(), ArgumentType<MinigameFactory> {
         override fun parse(reader: StringReader): MinigameFactory {
-            return Minigames.getFactory(reader.readString()) ?: throw INVALID_FACTORY.create()
+            val formatted = reader.readString().replace('+', ':')
+            val id = ResourceLocation.tryParse(formatted) ?: throw INVALID_FACTORY.create()
+            return Minigames.getFactory(id) ?: throw INVALID_FACTORY.create()
         }
 
-        override fun <S: Any?> listSuggestions(context: CommandContext<S>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
-            return SharedSuggestionProvider.suggest(Minigames.getAllFactoryIds(), builder)
+        override fun <S: Any?> listSuggestions(
+            context: CommandContext<S>,
+            builder: SuggestionsBuilder
+        ): CompletableFuture<Suggestions> {
+            return SharedSuggestionProvider.suggest(
+                Minigames.getAllFactoryIds().stream().map { "${it.namespace}+${it.path}" },
+                builder
+            )
         }
 
         public companion object {
@@ -123,7 +131,10 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<MinigameArgume
             return reader.readString()
         }
 
-        override fun <S: Any?> listSuggestions(context: CommandContext<S>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
+        override fun <S: Any?> listSuggestions(
+            context: CommandContext<S>,
+            builder: SuggestionsBuilder
+        ): CompletableFuture<Suggestions> {
             val minigame = getMinigame(context, this.minigameKey)
             return SharedSuggestionProvider.suggest(minigame.phases.map { it.id }, builder)
         }
@@ -148,7 +159,10 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<MinigameArgume
             return reader.readUnquotedString()
         }
 
-        override fun <S: Any?> listSuggestions(context: CommandContext<S>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
+        override fun <S: Any?> listSuggestions(
+            context: CommandContext<S>,
+            builder: SuggestionsBuilder
+        ): CompletableFuture<Suggestions> {
             val minigame = getMinigame(context, this.minigameKey)
             return SharedSuggestionProvider.suggest(minigame.getSettings().map { it.name }, builder)
         }
@@ -176,7 +190,10 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<MinigameArgume
             return reader.readString()
         }
 
-        override fun <S: Any?> listSuggestions(context: CommandContext<S>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
+        override fun <S: Any?> listSuggestions(
+            context: CommandContext<S>,
+            builder: SuggestionsBuilder
+        ): CompletableFuture<Suggestions> {
             val minigame = getMinigame(context, this.minigameKey)
             val name = SettingsName.getSettingsName(context, this.settingsNameKey)
             val setting = minigame.getSetting(name) ?: return Suggestions.empty()
