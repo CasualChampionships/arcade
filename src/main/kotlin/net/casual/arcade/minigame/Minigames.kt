@@ -21,7 +21,7 @@ import kotlin.io.path.*
  */
 public object Minigames {
     private val GSON = GsonBuilder().disableHtmlEscaping().serializeNulls().setPrettyPrinting().create()
-    private val PATH = Arcade.path().resolve("minigames.json")
+    private val PATH = Arcade.path.resolve("minigames.json")
 
     private val ALL = LinkedHashMap<UUID, Minigame<*>>()
     private val BY_ID = LinkedHashMap<ResourceLocation, ArrayList<Minigame<*>>>()

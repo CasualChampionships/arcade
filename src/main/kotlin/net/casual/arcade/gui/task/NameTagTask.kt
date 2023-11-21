@@ -9,10 +9,10 @@ public open class NameTagTask(
     private val tag: ArcadeNameTag
 ): Task {
     init {
-        this.minigame.addNameTag(this.tag)
+        this.minigame.ui.addNameTag(this.tag)
     }
 
     final override fun run() {
-        this.minigame.removeNameTag(this.tag)
+        this.minigame.ui.removeNameTag(this.tag)
     }
 }

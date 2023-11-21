@@ -9,10 +9,10 @@ public open class SidebarTask(
     sidebar: ArcadeSidebar
 ): Task {
     init {
-        this.minigame.setSidebar(sidebar)
+        this.minigame.ui.setSidebar(sidebar)
     }
 
     override fun run() {
-        this.minigame.removeSidebar()
+        this.minigame.ui.removeSidebar()
     }
 }

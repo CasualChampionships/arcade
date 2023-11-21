@@ -11,6 +11,7 @@ import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.gui.ready.ReadyChecker
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigamePhase
+import net.casual.arcade.minigame.annotation.MinigameEvent
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.success
@@ -83,6 +84,14 @@ public abstract class LobbyMinigame(
         this.getPlayers().broadcast(message)
     }
 
+    public fun getNextMinigame(): Minigame<*>? {
+        return this.next
+    }
+
+    public fun setNextMinigame(minigame: Minigame<*>) {
+        this.next = minigame
+    }
+
     protected open fun moveToNextMinigame() {
         val next = this.next!!
         for (player in this.getPlayers()) {
@@ -91,14 +100,6 @@ public abstract class LobbyMinigame(
         next.start()
 
         this.close()
-    }
-
-    public fun getNextMinigame(): Minigame<*>? {
-        return this.next
-    }
-
-    public fun setNextMinigame(minigame: Minigame<*>) {
-        this.next = minigame
     }
 
     final override fun start() {

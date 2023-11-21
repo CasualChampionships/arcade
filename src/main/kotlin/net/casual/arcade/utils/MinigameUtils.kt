@@ -1,12 +1,17 @@
 package net.casual.arcade.utils
 
 import net.casual.arcade.commands.hidden.HiddenCommand
+import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.core.Event
 import net.casual.arcade.events.player.PlayerCreatedEvent
 import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.gui.ready.ReadyChecker
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.MinigamePhase
+import net.casual.arcade.minigame.annotation.MinigameEvent
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
+import net.casual.arcade.minigame.lobby.LobbyMinigame
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.task.Completable
 import net.casual.arcade.utils.MinigameUtils.areTeamsReady
@@ -16,6 +21,9 @@ import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
+import java.lang.IllegalArgumentException
+import java.lang.invoke.MethodHandles
+import java.lang.reflect.Method
 
 public object MinigameUtils {
     internal val ServerPlayer.minigame
@@ -136,9 +144,74 @@ public object MinigameUtils {
         return post
     }
 
+    @JvmStatic
+    public fun <M: Minigame<M>> Minigame<M>.getPhase(id: String): MinigamePhase<M>? {
+        for (phase in this.phases) {
+            if (phase.id == id) {
+                return phase
+            }
+        }
+        return null
+    }
+
+    internal fun parseMinigameEvents(minigame: Minigame<*>) {
+        var type: Class<*> = minigame::class.java
+        while (type != Minigame::class.java) {
+            for (method in type.declaredMethods) {
+                this.parseMinigameEventMethod(minigame, method)
+            }
+            type = type.superclass
+        }
+    }
+
     internal fun registerEvents() {
         GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
             player.addExtension(PlayerMinigameExtension(player))
         }
+    }
+
+    private fun <M: Minigame<M>> parseMinigameEventMethod(minigame: Minigame<M>, method: Method) {
+        if (method.parameterCount != 1) {
+            return
+        }
+
+        val parameter = method.parameterTypes[0]
+        if (!Event::class.java.isAssignableFrom(parameter)) {
+            return
+        }
+        @Suppress("UNCHECKED_CAST")
+        parameter as Class<Event>
+
+        val event = method.getAnnotation(MinigameEvent::class.java) ?: return
+        val priority = event.priority
+
+        method.isAccessible = true
+        val handle = MethodHandles.lookup().unreflect(method)
+        val listener = EventListener.of<Event>(priority) { handle.invoke(minigame, it) }
+
+        if (event.phases.isNotEmpty()) {
+            val phases = event.phases.map { id ->
+                val phase = minigame.getPhase(id)
+                phase ?: throw IllegalArgumentException("Phase with id $id does not exist")
+            }
+            minigame.events.registerInPhases(
+                type = parameter,
+                phases = phases.toTypedArray(),
+                listener = listener
+            )
+            return
+        }
+        if (event.start != "" && event.end != "") {
+            val start = minigame.getPhase(event.start) ?: throw IllegalArgumentException("Start phase does not exist")
+            val end = minigame.getPhase(event.end) ?: throw IllegalArgumentException("End phase does not exist")
+            minigame.events.registerBetweenPhases(
+                type = parameter,
+                start = start,
+                end = end,
+                listener = listener
+            )
+            return
+        }
+        minigame.events.register(type = parameter, listener = listener)
     }
 }

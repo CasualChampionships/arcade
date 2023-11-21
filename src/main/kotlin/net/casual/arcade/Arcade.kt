@@ -12,6 +12,7 @@ import net.minecraft.server.MinecraftServer
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
 
 /**
  * Arcade initializer class.
@@ -21,6 +22,14 @@ public object Arcade: ModInitializer {
 
     @JvmField
     internal val logger: Logger = LogManager.getLogger("Arcade")
+
+    /**
+     * The path to the arcade config directory.
+     */
+    @JvmStatic
+    public val path: Path by lazy {
+        FabricLoader.getInstance().configDir.resolve(MOD_ID).apply { createDirectories() }
+    }
 
     /**
      * The mod identifier for Arcade.
@@ -67,16 +76,6 @@ public object Arcade: ModInitializer {
     @JvmStatic
     public fun id(path: String): ResourceLocation {
         return ResourceLocation(MOD_ID, path)
-    }
-
-    /**
-     * Gets the config path for Arcade.
-     *
-     * @return The config path.
-     */
-    @JvmStatic
-    public fun path(): Path {
-        return FabricLoader.getInstance().configDir.resolve("arcade")
     }
 
     override fun onInitialize() {

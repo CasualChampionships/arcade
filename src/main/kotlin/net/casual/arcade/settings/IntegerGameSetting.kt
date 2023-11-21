@@ -6,4 +6,4 @@ public class IntegerGameSetting(
     name: String,
     value: Int,
     options: Map<String, Int> = emptyMap()
-): GameSetting<Int>(name, value, options, IntSerializer())
+): GameSetting<Int>(name, value, options, IntSerializer)

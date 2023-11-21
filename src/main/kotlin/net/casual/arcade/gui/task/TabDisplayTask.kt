@@ -9,10 +9,10 @@ public open class TabDisplayTask(
     display: ArcadeTabDisplay
 ): Task {
     init {
-        this.minigame.setTabDisplay(display)
+        this.minigame.ui.setTabDisplay(display)
     }
 
     override fun run() {
-        this.minigame.removeTabDisplay()
+        this.minigame.ui.removeTabDisplay()
     }
 }

@@ -32,6 +32,7 @@ import net.casual.arcade.utils.EventUtils.unregisterHandler
 import net.casual.arcade.utils.ItemUtils.literalNamed
 import net.casual.arcade.utils.JsonUtils.toJsonObject
 import net.casual.arcade.utils.JsonUtils.toJsonStringArray
+import net.casual.arcade.utils.MinigameUtils
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.PlayerUtils
@@ -244,8 +245,8 @@ public abstract class Minigame<M: Minigame<M>>(
         this.uuid = UUID.randomUUID()
 
         this.scheduler = MinigameScheduler()
-        this.ui = MinigameUIManager(this.cast())
         this.events = MinigameEventHandler(this.cast())
+        this.ui = MinigameUIManager(this.cast())
         this.commands = MinigameCommandManager(this.cast())
         this.advancements = MinigameAdvancementManager(this.cast())
         this.recipes = MinigameRecipeManager(this.cast())
@@ -254,6 +255,8 @@ public abstract class Minigame<M: Minigame<M>>(
         this.phase = MinigamePhase.none()
 
         this.paused = false
+
+        MinigameUtils.parseMinigameEvents(this.cast())
     }
 
     /**

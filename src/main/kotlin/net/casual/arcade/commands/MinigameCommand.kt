@@ -7,6 +7,7 @@ import net.casual.arcade.commands.arguments.MinigameArgument.PhaseName.Companion
 import net.casual.arcade.commands.arguments.MinigameArgument.SettingsName.Companion.INVALID_SETTING_NAME
 import net.casual.arcade.commands.arguments.MinigameArgument.SettingsOption.Companion.INVALID_SETTING_OPTION
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.success
@@ -22,6 +23,8 @@ internal object MinigameCommand: Command {
             Commands.literal("minigame").requires {
                 it.hasPermission(4)
             }.then(
+                Commands.literal("list").executes(this::listMinigames)
+            ).then(
                 Commands.literal("join").then(
                     Commands.argument("minigame", MinigameArgument.minigame()).then(
                         Commands.argument("players", EntityArgument.players()).executes(this::otherJoinMinigame)
@@ -87,6 +90,11 @@ internal object MinigameCommand: Command {
                 Commands.literal("command")
             )
         )
+    }
+
+    private fun listMinigames(context: CommandContext<CommandSourceStack>): Int {
+        val formatted = Minigames.all().joinToString("\n") { "ID: ${it.id}, UUID: ${it.uuid}" }
+        return context.source.success(formatted)
     }
 
     private fun selfJoinMinigame(context: CommandContext<CommandSourceStack>): Int {
