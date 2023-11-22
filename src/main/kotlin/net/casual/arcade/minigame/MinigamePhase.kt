@@ -9,7 +9,7 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  * This allows you to implement different logic for different phases of
  * the minigame.
  * Each phase is notified when it is starting, see [start], when it is
- * being initialized, see [initialise], or when it's ending, see [end].
+ * being initialized, see [initialize], or when it's ending, see [end].
  *
  * Here's an example of an implementation of some [MinigamePhase]s:
  * ```kotlin
@@ -74,11 +74,11 @@ public interface MinigamePhase<M: Minigame<M>> {
      * be called when a minigame is reloaded from save.
      *
      * That should instead be done in
-     * [initialise], see documentation for more
+     * [initialize], see documentation for more
      * information.
      *
      * @param minigame The minigame which as set its phase to `this`.
-     * @see initialise
+     * @see initialize
      */
     @OverrideOnly
     public fun start(minigame: M) {
@@ -104,7 +104,7 @@ public interface MinigamePhase<M: Minigame<M>> {
      *
      * For example, settings UI elements:
      * ```kotlin
-     * fun initialise(minigame: Minigame) {
+     * fun initialize(minigame: Minigame) {
      *     val bossbar = CustomBossBar.of(Component.literal("My BossBar"))
      *     minigame.addBossbar(bossbar)
      * }
@@ -118,7 +118,7 @@ public interface MinigamePhase<M: Minigame<M>> {
      * @see start
      */
     @OverrideOnly
-    public fun initialise(minigame: M) {
+    public fun initialize(minigame: M) {
 
     }
 

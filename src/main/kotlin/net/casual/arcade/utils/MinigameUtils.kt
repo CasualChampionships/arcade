@@ -6,15 +6,13 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.core.Event
 import net.casual.arcade.events.player.PlayerCreatedEvent
 import net.casual.arcade.gui.countdown.Countdown
-import net.casual.arcade.gui.ready.ReadyChecker
+import net.casual.arcade.minigame.lobby.ReadyChecker
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigamePhase
 import net.casual.arcade.minigame.annotation.MinigameEvent
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
-import net.casual.arcade.minigame.lobby.LobbyMinigame
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.task.Completable
-import net.casual.arcade.utils.MinigameUtils.areTeamsReady
 import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
@@ -50,32 +48,37 @@ public object MinigameUtils {
         val unready = HashSet<PlayerTeam>()
         for (team in teams) {
             val players = team.getOnlinePlayers()
-            if (players.isNotEmpty()) {
-                unready.add(team)
+            if (players.isEmpty()) {
+                continue
+            }
+            unready.add(team)
 
-                val ready = HiddenCommand { context ->
-                    if (context.player.team == team && unready.remove(team)) {
-                        this.broadcast(Component.empty().append(team.formattedDisplayName).append(this.getIsReadyMessage()))
-                        if (unready.isEmpty()) {
-                            this.onReady()
-                        }
-                    }
-                    context.removeCommand {
-                        if (unready.contains(team)) this.getAlreadyNotReadyMessage() else this.getAlreadyReadyMessage()
+            val ready = HiddenCommand { context ->
+                if (context.player.team == team && unready.remove(team)) {
+                    this.broadcast(
+                        Component.empty().append(team.formattedDisplayName).append(this.getIsReadyMessage())
+                    )
+                    if (unready.isEmpty()) {
+                        this.onReady()
                     }
                 }
-                val notReady = HiddenCommand { context ->
-                    if (context.player.team == team && unready.contains(team)) {
-                        this.broadcast(Component.empty().append(team.formattedDisplayName).append(this.getNotReadyMessage()))
-                    }
-                    context.removeCommand {
-                        if (unready.contains(team)) this.getAlreadyNotReadyMessage() else this.getAlreadyReadyMessage()
-                    }
+                context.removeCommand {
+                    if (unready.contains(team)) this.getAlreadyNotReadyMessage() else this.getAlreadyReadyMessage()
                 }
+            }
+            val notReady = HiddenCommand { context ->
+                if (context.player.team == team && unready.contains(team)) {
+                    this.broadcast(
+                        Component.empty().append(team.formattedDisplayName).append(this.getNotReadyMessage())
+                    )
+                }
+                context.removeCommand {
+                    if (unready.contains(team)) this.getAlreadyNotReadyMessage() else this.getAlreadyReadyMessage()
+                }
+            }
 
-                for (player in players) {
-                    player.sendSystemMessage(this.getReadyMessage(ready, notReady))
-                }
+            for (player in players) {
+                player.sendSystemMessage(this.getReadyMessage(ready, notReady))
             }
         }
         return unready
@@ -171,23 +174,8 @@ public object MinigameUtils {
     }
 
     private fun <M: Minigame<M>> parseMinigameEventMethod(minigame: Minigame<M>, method: Method) {
-        if (method.parameterCount != 1) {
-            return
-        }
-
-        val parameter = method.parameterTypes[0]
-        if (!Event::class.java.isAssignableFrom(parameter)) {
-            return
-        }
-        @Suppress("UNCHECKED_CAST")
-        parameter as Class<Event>
-
         val event = method.getAnnotation(MinigameEvent::class.java) ?: return
-        val priority = event.priority
-
-        method.isAccessible = true
-        val handle = MethodHandles.lookup().unreflect(method)
-        val listener = EventListener.of<Event>(priority) { handle.invoke(minigame, it) }
+        val (type, listener) = this.createEventListener(minigame, method, event)
 
         if (event.phases.isNotEmpty()) {
             val phases = event.phases.map { id ->
@@ -195,7 +183,7 @@ public object MinigameUtils {
                 phase ?: throw IllegalArgumentException("Phase with id $id does not exist")
             }
             minigame.events.registerInPhases(
-                type = parameter,
+                type = type,
                 phases = phases.toTypedArray(),
                 listener = listener
             )
@@ -205,13 +193,37 @@ public object MinigameUtils {
             val start = minigame.getPhase(event.start) ?: throw IllegalArgumentException("Start phase does not exist")
             val end = minigame.getPhase(event.end) ?: throw IllegalArgumentException("End phase does not exist")
             minigame.events.registerBetweenPhases(
-                type = parameter,
+                type = type,
                 start = start,
                 end = end,
                 listener = listener
             )
             return
         }
-        minigame.events.register(type = parameter, listener = listener)
+        minigame.events.register(type = type, listener = listener)
+    }
+
+    private fun createEventListener(
+        minigame: Minigame<*>,
+        method: Method,
+        event: MinigameEvent
+    ): Pair<Class<Event>, EventListener<Event>> {
+        if (method.parameterCount != 1) {
+            throw IllegalArgumentException("MinigameEvent ($method) has unexpected parameter count, should be 1")
+        }
+
+        val type = method.parameterTypes[0]
+        if (!Event::class.java.isAssignableFrom(type)) {
+            val message = "MinigameEvent ($method) only accepts parameter type $type but should accept Event"
+            throw IllegalArgumentException(message)
+        }
+        @Suppress("UNCHECKED_CAST")
+        type as Class<Event>
+
+        val priority = event.priority
+
+        method.isAccessible = true
+        val handle = MethodHandles.lookup().unreflect(method)
+        return type to EventListener.of(priority) { handle.invoke(minigame, it) }
     }
 }

@@ -22,9 +22,9 @@ import net.minecraft.world.scores.Scoreboard
 internal object SidebarUtils {
     const val MAX_SIZE = 14
 
-    private const val objectiveName = "Z\$DummyObjective"
-    private val objective = ScoreboardUtils.dummyObjective(this.objectiveName)
-    private const val teamName = "Z\$DummyTeam"
+    private const val OBJECTIVE_NAME = "Z\$DummyObjective"
+    private val objective = ScoreboardUtils.dummyObjective(OBJECTIVE_NAME)
+    private const val TEAM_NAME = "Z\$DummyTeam"
     private val teams = ArrayList<PlayerTeam>(16)
     private val players = ArrayList<String>(16)
 
@@ -41,7 +41,7 @@ internal object SidebarUtils {
     }
 
     internal fun sendSetScorePacket(player: ServerPlayer, index: Int, method: Method) {
-        player.connection.send(ClientboundSetScorePacket(method, this.objectiveName, this.players[index], index))
+        player.connection.send(ClientboundSetScorePacket(method, OBJECTIVE_NAME, this.players[index], index))
     }
 
     internal fun sendSetSidebarDisplayPacket(player: ServerPlayer, remove: Boolean) {
@@ -62,7 +62,7 @@ internal object SidebarUtils {
         GlobalEventHandler.register<ServerLoadedEvent> {
             for (i in 0..15) {
                 val player = ChatFormatting.RESET.toString().repeat(i)
-                val team = ScoreboardUtils.dummyTeam(this.teamName + i)
+                val team = ScoreboardUtils.dummyTeam(TEAM_NAME + i)
 
                 team.players.add(player)
                 this.teams.add(team)

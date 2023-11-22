@@ -4,9 +4,6 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.Arcade
-import net.casual.arcade.config.CustomisableConfig
-import net.casual.arcade.events.minigame.MinigameCloseEvent
-import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.minigame.task.MinigameTaskFactory
 import net.casual.arcade.minigame.task.MinigameTaskGenerator
 import net.casual.arcade.scheduler.MinecraftTimeUnit
@@ -25,13 +22,10 @@ import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.stringOrDefault
 import net.casual.arcade.utils.JsonUtils.stringOrNull
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import org.jetbrains.annotations.ApiStatus.Internal
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
-import java.nio.file.Path
 import java.util.*
-import kotlin.io.path.*
 
 /**
  * This extension of the [Minigame] class allows for serialization
@@ -63,7 +57,7 @@ import kotlin.io.path.*
  * reloaded if necessary.
  *
  * A crucial note: when phases are read, they will be initialized
- * again, see [MinigamePhase.initialise] for more information.
+ * again, see [MinigamePhase.initialize] for more information.
  *
  * @param M The type of the child class.
  * @param server The [MinecraftServer] that created the [Minigame].
@@ -82,10 +76,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
     /**
      * This adds a task factory to your minigame, so it is
      * able to deserialize tasks.
-     * Task factories should be added before you invoke
-     * [SavableMinigame.initialise], so in your constructor
-     * or in your own [initialise] implementation before your
-     * `super.initialise()` call.
+     * Task factories should be added in your constructor.
      *
      * See [SavableTask] for details on how you should implement
      * your task factories.
@@ -100,10 +91,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
     /**
      * This adds a task factory to your minigame, so it is
      * able to deserialize tasks.
-     * Task factories should be added before you invoke
-     * [SavableMinigame.initialise], so in your constructor
-     * or in your own [initialise] implementation before your
-     * `super.initialise()` call.
+     * Task factories should be added in your constructor.
      *
      * See [SavableTask] for details on how you should implement
      * your task factories.
@@ -194,7 +182,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         }
 
         if (setPhase) {
-            this.phase.initialise(this.cast())
+            this.phase.initialize(this.cast())
         } else {
             Arcade.logger.warn("Phase for minigame ${this.id} could not be reloaded, given phase id: $phaseId")
         }

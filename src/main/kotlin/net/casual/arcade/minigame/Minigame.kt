@@ -78,7 +78,7 @@ import kotlin.collections.set
  *
  * You can implement your own minigame by extending this class:
  * ```kotlin
- * enum class MyMinigamePhases(
+ * enum class MyMinigamePhase(
  *     override val id: String
  * ): MinigamePhase<MyMinigame> {
  *     Grace("grace"),
@@ -99,13 +99,17 @@ import kotlin.collections.set
  *
  *     override fun initialise() {
  *         super.initialise()
- *         this.registerMinigameEvent<MinigameAddPlayerEvent> { (_, player) ->
+ *         this.events.register<MinigameAddPlayerEvent> { (_, player) ->
  *             player.sendSystemMessage(Component.literal("Welcome to My Minigame!"))
  *         }
  *     }
  *
+ *     override fun start() {
+ *         this.setPhase(MyMinigamePhase.Grace)
+ *     }
+ *
  *     override fun getPhases(): List<MinigamePhase<MyMinigame>> {
- *         return MyMinigamePhases.values().toList()
+ *         return MyMinigamePhase.values().toList()
  *     }
  *
  *     override fun getLevels(): Collection<ServerLevel> {
@@ -138,7 +142,7 @@ public abstract class Minigame<M: Minigame<M>>(
 ) {
     private val connections: MutableSet<ServerGamePacketListenerImpl>
 
-    private var initialised: Boolean
+    private var initialized: Boolean
 
     internal val offline: MutableSet<GameProfile>
     internal val gameSettings: MutableMap<String, DisplayableGameSetting<*>>
@@ -235,7 +239,7 @@ public abstract class Minigame<M: Minigame<M>>(
     init {
         this.connections = LinkedHashSet()
 
-        this.initialised = false
+        this.initialized = false
 
         this.offline = LinkedHashSet()
 
@@ -255,8 +259,6 @@ public abstract class Minigame<M: Minigame<M>>(
         this.phase = MinigamePhase.none()
 
         this.paused = false
-
-        MinigameUtils.parseMinigameEvents(this.cast())
     }
 
     /**
@@ -355,7 +357,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.phase.end(self)
         this.phase = phase
         this.phase.start(self)
-        this.phase.initialise(self)
+        this.phase.initialize(self)
 
         MinigameSetPhaseEvent(self, phase).broadcast()
     }
@@ -363,7 +365,7 @@ public abstract class Minigame<M: Minigame<M>>(
     /**
      * This adds a player to the minigame.
      * The player may be rejected from joining the minigame.
-     * The minigame must be [initialised], and must not yet
+     * The minigame must be [initialized], and must not yet
      * be tracking the given player.
      * The player may also be rejected by the [MinigameAddNewPlayerEvent].
      *
@@ -380,7 +382,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * @return Whether the player was successfully accepted.
      */
     public fun addPlayer(player: ServerPlayer): Boolean {
-        if (!this.initialised || this.hasPlayer(player.uuid)) {
+        if (!this.initialized || this.hasPlayer(player.uuid)) {
             return false
         }
         val hasMinigame = player.getMinigame() === this
@@ -612,7 +614,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.scheduler.minigame.cancelAll()
         this.scheduler.phased.cancelAll()
 
-        this.initialised = false
+        this.initialized = false
         this.phase = MinigamePhase.none()
 
         Minigames.unregister(this)
@@ -629,7 +631,7 @@ public abstract class Minigame<M: Minigame<M>>(
     public fun getDebugInfo(): JsonObject {
         val json = JsonObject()
         json.addProperty("minigame", this::class.java.simpleName)
-        json.addProperty("initialised", this.initialised)
+        json.addProperty("initialized", this.initialized)
         json.addProperty("serializable", this is SavableMinigame)
         json.addProperty("uuid", this.uuid.toString())
         json.addProperty("id", this.id.toString())
@@ -658,7 +660,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * Starts the minigame.
      * This should set the phase to the initial phase.
      *
-     *  This will not be run if your minigame restart.
+     * This will not run if your minigame restart.
      */
     public abstract fun start()
 
@@ -668,13 +670,14 @@ public abstract class Minigame<M: Minigame<M>>(
      * This method should be called in your implementation's
      * constructor.
      */
-    protected open fun initialise() {
+    protected open fun initialize() {
         this.registerEvents()
         this.events.registerHandler()
+        MinigameUtils.parseMinigameEvents(this.cast())
 
         Minigames.register(this)
 
-        this.initialised = true
+        this.initialized = true
     }
 
     /**

@@ -8,10 +8,8 @@ import net.casual.arcade.Arcade
 import net.casual.arcade.commands.arguments.MinigameArgument
 import net.casual.arcade.events.minigame.MinigameAddNewPlayerEvent
 import net.casual.arcade.events.server.ServerTickEvent
-import net.casual.arcade.gui.ready.ReadyChecker
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigamePhase
-import net.casual.arcade.minigame.annotation.MinigameEvent
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.success
@@ -39,8 +37,8 @@ public abstract class LobbyMinigame(
     private var awaiting: (() -> Component)? = null
     private var next: Minigame<*>? = null
 
-    override fun initialise() {
-        super.initialise()
+    override fun initialize() {
+        super.initialize()
         this.events.register<MinigameAddNewPlayerEvent> { (_, player) ->
             this.lobby.forceTeleportToSpawn(player)
         }
@@ -75,7 +73,7 @@ public abstract class LobbyMinigame(
     override fun onReady() {
         this.awaiting = null
         val component = "All players are ready, click to start!".literal().green().singleUseFunction {
-            this.setPhase(Phases.Countdown)
+            this.setPhase(Phase.Countdown)
         }
         this.getPlayers().broadcastToOps(component, 4)
     }
@@ -103,11 +101,11 @@ public abstract class LobbyMinigame(
     }
 
     final override fun start() {
-        this.setPhase(Phases.Waiting)
+        this.setPhase(Phase.Waiting)
     }
 
-    final override fun getPhases(): List<Phases> {
-        return listOf(Phases.Waiting, Phases.Countdown)
+    final override fun getPhases(): List<Phase> {
+        return listOf(Phase.Waiting, Phase.Countdown)
     }
 
     final override fun getLevels(): Collection<ServerLevel> {
@@ -215,7 +213,7 @@ public abstract class LobbyMinigame(
 
     private fun startCountdown(context: CommandContext<CommandSourceStack>): Int {
         this.next ?: return context.source.fail("Cannot move to next minigame, it has not been set!")
-        this.setPhase(Phases.Countdown)
+        this.setPhase(Phase.Countdown)
         return context.source.success("Successfully started the countdown")
     }
 
@@ -260,7 +258,7 @@ public abstract class LobbyMinigame(
         val NO_MINIGAME = SimpleCommandExceptionType("Lobby has no next minigame".literal())
     }
 
-    public enum class Phases(override val id: String): MinigamePhase<LobbyMinigame> {
+    public enum class Phase(override val id: String): MinigamePhase<LobbyMinigame> {
         Waiting("waiting") {
             override fun start(minigame: LobbyMinigame) {
                 minigame.lobby.area.replace()

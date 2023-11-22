@@ -1,11 +1,20 @@
 package net.casual.arcade.minigame.annotation
 
+import net.casual.arcade.events.core.Event
+import kotlin.reflect.KClass
+
 /**
  * This annotation is used to mark a method as an event handler.
  */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 public annotation class MinigameEvent(
+    /**
+     * This is the type of the event, this does not need
+     * to be explicitly specified.
+     */
+    val type: KClass<out Event> = Event::class,
+
     /**
      * This is the priority of the event.
      * Higher values will be called later.

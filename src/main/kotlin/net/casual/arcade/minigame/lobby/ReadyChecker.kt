@@ -1,4 +1,4 @@
-package net.casual.arcade.gui.ready
+package net.casual.arcade.minigame.lobby
 
 import net.casual.arcade.commands.hidden.HiddenCommand
 import net.casual.arcade.utils.ComponentUtils.crimson
