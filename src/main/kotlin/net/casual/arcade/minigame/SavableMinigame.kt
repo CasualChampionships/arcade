@@ -4,8 +4,10 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.Arcade
+import net.casual.arcade.minigame.task.AnyMinigameTaskFactory
 import net.casual.arcade.minigame.task.MinigameTaskFactory
 import net.casual.arcade.minigame.task.MinigameTaskGenerator
+import net.casual.arcade.minigame.task.impl.PhaseChangeTask
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.stats.StatTracker
@@ -91,6 +93,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
     init {
         // Add default task factories
         this.addTaskFactory(CancellableTask.Savable)
+        this.addTaskFactory(PhaseChangeTask)
     }
 
     /**
@@ -121,6 +124,21 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
      */
     protected fun addTaskFactory(factory: MinigameTaskFactory<M>) {
         return this.taskGenerator.addFactory(factory)
+    }
+
+    /**
+     * This adds a task factory to your minigame, so it is
+     * able to deserialize tasks.
+     * Task factories should be added in your constructor.
+     *
+     * See [SavableTask] for details on how you should implement
+     * your task factories.
+     *
+     * @param factory The task factory to add.
+     * @see SavableTask
+     */
+    protected fun addTaskFactory(factory: AnyMinigameTaskFactory) {
+        this.addTaskFactory(factory.cast())
     }
 
     /**

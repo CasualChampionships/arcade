@@ -132,6 +132,7 @@ public object Minigames {
             }
 
             val minigame = factory.create(server)
+            register(minigame)
             if (minigame is SavableMinigame) {
                 minigame.read(game.obj("data"))
             } else {
