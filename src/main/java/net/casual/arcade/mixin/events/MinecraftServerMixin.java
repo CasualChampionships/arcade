@@ -67,6 +67,18 @@ public class MinecraftServerMixin {
 
 	@Inject(
 		method = "stopServer",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/MinecraftServer;saveAllChunks(ZZZ)Z"
+		)
+	)
+	private void onSave(CallbackInfo ci) {
+		ServerSaveEvent event = new ServerSaveEvent((MinecraftServer) (Object) this);
+		GlobalEventHandler.broadcast(event);
+	}
+
+	@Inject(
+		method = "stopServer",
 		at = @At("TAIL")
 	)
 	private void onShutdown(CallbackInfo ci) {
