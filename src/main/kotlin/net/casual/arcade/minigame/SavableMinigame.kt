@@ -74,6 +74,20 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
 ): Minigame<M>(server) {
     private val taskGenerator = MinigameTaskGenerator(this.cast())
 
+    /**
+     * This field denotes whether the minigame is allowed to
+     * save raw lambdas, i.e. tasks that are not Savable.
+     *
+     * We are able to save these tasks in case they do not
+     * have any captures, or their captures are serializable.
+     *
+     * This may be problematic if the capture is serializable
+     * **AND** may be mutated as the mutable capture will be
+     *  serialized, and when deserialized it will be a separate
+     * unique object.
+     */
+    protected open val allowRawSerialization: Boolean = false
+
     init {
         // Add default task factories
         this.addTaskFactory(CancellableTask.Savable)
@@ -248,8 +262,8 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
     private fun readScheduledTask(json: JsonObject, scheduler: TickedScheduler, generated: MutableMap<Int, Task?>) {
         val delay = json.int("delay")
         val task = this.deserializeTask(json, generated)
+        val id = json.stringOrDefault("id", "[Anonymous]")
         if (task !== null) {
-            val id = json.stringOrDefault("id", "[Anonymous]")
             Arcade.logger.info("Successfully loaded task $id for minigame ${this.id}, scheduled for $delay ticks")
             scheduler.schedule(delay, MinecraftTimeUnit.Ticks, task)
         } else {
@@ -283,7 +297,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         json: JsonObject,
         generated: MutableMap<Int, Task?>
     ): (() -> Task?)? {
-        if (json.has("raw")) {
+        if (this.allowRawSerialization && json.has("raw")) {
             return {
                 json.string("raw").decodeHexToBytes().inputStream().use { bytes ->
                     ObjectInputStream(bytes).use { it.readObject() as Task }
@@ -303,20 +317,23 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
             data.add("custom", task.writeCustomData(MinigameTaskWriteContext()))
             return data
         }
-        try {
-            ByteArrayOutputStream().use { bytes ->
-                ObjectOutputStream(bytes).use { stream ->
-                    stream.writeObject(task)
+        if (this.allowRawSerialization) {
+            try {
+                ByteArrayOutputStream().use { bytes ->
+                    ObjectOutputStream(bytes).use { stream ->
+                        stream.writeObject(task)
+                    }
+                    val data = JsonObject()
+                    data.addProperty("hash", System.identityHashCode(task))
+                    data.addProperty("raw", bytes.toByteArray().encodeToHexString())
+                    return data
                 }
-                val data = JsonObject()
-                data.addProperty("hash", System.identityHashCode(task))
-                data.addProperty("raw", bytes.toByteArray().encodeToHexString())
-                return data
+            } catch (ignored: NotSerializableException) {
+
             }
-        } catch (e: NotSerializableException) {
-            Arcade.logger.warn("Savable minigame scheduled a non-savable task, skipping it...")
-            return null
         }
+        Arcade.logger.warn("Savable minigame scheduled a non-savable task, skipping it...")
+        return null
     }
 
     private inner class MinigameTaskCreationContext(
