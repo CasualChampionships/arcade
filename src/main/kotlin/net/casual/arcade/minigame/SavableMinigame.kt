@@ -22,6 +22,8 @@ import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.stringOrDefault
 import net.casual.arcade.utils.JsonUtils.stringOrNull
+import net.casual.arcade.utils.StringUtils.decodeHexToBytes
+import net.casual.arcade.utils.StringUtils.encodeToHexString
 import net.minecraft.server.MinecraftServer
 import org.jetbrains.annotations.ApiStatus.Internal
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
@@ -29,7 +31,6 @@ import java.io.ByteArrayOutputStream
 import java.io.NotSerializableException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
-import java.nio.charset.Charset
 import java.util.*
 
 /**
@@ -248,7 +249,8 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         val delay = json.int("delay")
         val task = this.deserializeTask(json, generated)
         if (task !== null) {
-            Arcade.logger.info("Successfully loaded task ${json.string("id")} for minigame ${this.id}, scheduled for $delay ticks")
+            val id = json.stringOrDefault("id", "[Anonymous]")
+            Arcade.logger.info("Successfully loaded task $id for minigame ${this.id}, scheduled for $delay ticks")
             scheduler.schedule(delay, MinecraftTimeUnit.Ticks, task)
         } else {
             Arcade.logger.warn("Saved task $id for minigame ${this.id} could not be reloaded!")
@@ -270,21 +272,27 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
 
     private fun deserializeTask(json: JsonObject, generated: MutableMap<Int, Task?>): Task? {
         val hash = json.intOrNull("hash")
-        val generator = if (json.has("raw")) ({
-            json.string("raw").decodeHex().inputStream().use { bytes ->
-                ObjectInputStream(bytes).use { stream ->
-                    stream.readObject() as Task
-                }
-            }
-        }) else {
-            val id = json.stringOrNull("id") ?: return null
-            val custom = json.objOrDefault("custom")
-            ({ this.taskGenerator.generate(id, MinigameTaskCreationContext(custom, generated)) })
-        }
+        val generator = this.createTaskGenerator(json, generated) ?: return null
         if (hash == null) {
             return generator()
         }
         return generated.getOrPut(hash, generator)
+    }
+
+    private fun createTaskGenerator(
+        json: JsonObject,
+        generated: MutableMap<Int, Task?>
+    ): (() -> Task?)? {
+        if (json.has("raw")) {
+            return {
+                json.string("raw").decodeHexToBytes().inputStream().use { bytes ->
+                    ObjectInputStream(bytes).use { it.readObject() as Task }
+                }
+            }
+        }
+        val id = json.stringOrNull("id") ?: return null
+        val custom = json.objOrDefault("custom")
+        return { this.taskGenerator.generate(id, MinigameTaskCreationContext(custom, generated)) }
     }
 
     private fun serializeTask(task: Task): JsonObject? {
@@ -302,20 +310,13 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
                 }
                 val data = JsonObject()
                 data.addProperty("hash", System.identityHashCode(task))
-                data.addProperty("raw", bytes.toByteArray().encodeHex())
+                data.addProperty("raw", bytes.toByteArray().encodeToHexString())
                 return data
             }
         } catch (e: NotSerializableException) {
+            Arcade.logger.warn("Savable minigame scheduled a non-savable task, skipping it...")
             return null
         }
-    }
-
-    private fun String.decodeHex(): ByteArray {
-        return this.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
-    }
-
-    private fun ByteArray.encodeHex(): String {
-        return this.joinToString("") { "%02x".format(it) }
     }
 
     private inner class MinigameTaskCreationContext(
