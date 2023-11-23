@@ -1,13 +1,11 @@
 package net.casual.arcade.task
 
 import net.casual.arcade.scheduler.TickedScheduler
+import java.io.Serializable
 
 /**
  * This interface represents a [Task] used in the
  * [TickedScheduler] which can be run.
- *
- * You can create a [Task] from a plain [Runnable]
- * using the [Task.of] method.
  *
  * Tasks can be serializable, see [SavableTask],
  * or cancellable see [CancellableTask].
@@ -16,7 +14,7 @@ import net.casual.arcade.scheduler.TickedScheduler
  * @see SavableTask
  * @see CancellableTask
  */
-public fun interface Task: Runnable {
+public fun interface Task: Runnable, Serializable {
     /**
      * This runs the task.
      */

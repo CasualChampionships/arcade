@@ -8,6 +8,7 @@ import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.task.CancellableTask
 import net.casual.arcade.task.SavableTask
+import net.casual.arcade.task.Task
 
 /**
  * This is an implementation of [MinigameScheduler] that allows for
@@ -35,43 +36,43 @@ public class MinigameScheduler internal constructor(): MinecraftScheduler {
     }
 
     /**
-     * This method will schedule a [runnable] to be run
+     * This method will schedule a [task] to be run
      * after a given [duration].
      *
-     * @param duration The duration to wait before running the [runnable].
-     * @param runnable The runnable to be scheduled.
+     * @param duration The duration to wait before running the [task].
+     * @param task The runnable to be scheduled.
      */
-    override fun schedule(duration: MinecraftTimeDuration, runnable: Runnable) {
-        this.minigame.schedule(duration, runnable)
+    override fun schedule(duration: MinecraftTimeDuration, task: Task) {
+        this.minigame.schedule(duration, task)
     }
 
     /**
-     * This method will schedule a [runnable] to be run
+     * This method will schedule a [task] to be run
      * after a given [duration].
      *
      * If the minigame's phase changes before the [duration]
      * the task will no longer run.
      *
-     * @param duration The duration to wait before running the [runnable].
-     * @param runnable The runnable to be scheduled.
+     * @param duration The duration to wait before running the [task].
+     * @param task The runnable to be scheduled.
      */
-    public fun schedulePhased(duration: MinecraftTimeDuration, runnable: Runnable) {
-        this.phased.schedule(duration, runnable)
+    public fun schedulePhased(duration: MinecraftTimeDuration, task: Task) {
+        this.phased.schedule(duration, task)
     }
 
     /**
-     * This method will schedule a [runnable] to be run
+     * This method will schedule a [task] to be run
      * after a given [time] with units [unit].
      *
      * If the minigame's phase changes before the [time]
      * the task will no longer run.
      *
-     * @param time The amount of time to wait before running the [runnable].
+     * @param time The amount of time to wait before running the [task].
      * @param unit The units of time.
-     * @param runnable The runnable to be scheduled.
+     * @param task The runnable to be scheduled.
      */
-    public fun schedulePhased(time: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
-        this.phased.schedule(time, unit, runnable)
+    public fun schedulePhased(time: Int, unit: MinecraftTimeUnit, task: Task) {
+        this.phased.schedule(time, unit, task)
     }
 
     /**
@@ -79,12 +80,12 @@ public class MinigameScheduler internal constructor(): MinecraftScheduler {
      * The user can cancel the task, *or* the minigame may cancel the event
      * in the case that the phase changes.
      *
-     * @param duration The duration to wait before running the [runnable].
-     * @param runnable The runnable to be scheduled.
+     * @param duration The duration to wait before running the [task].
+     * @param task The runnable to be scheduled.
      * @return The cancellable task.
      */
-    public fun schedulePhasedCancellable(duration: MinecraftTimeDuration, runnable: Runnable): CancellableTask {
-        val cancellable = CancellableTask.of(runnable)
+    public fun schedulePhasedCancellable(duration: MinecraftTimeDuration, task: Task): CancellableTask {
+        val cancellable = CancellableTask.of(task)
         this.schedulePhased(duration, cancellable)
         return cancellable
     }
@@ -94,58 +95,58 @@ public class MinigameScheduler internal constructor(): MinecraftScheduler {
      * The user can cancel the task, *or* the minigame may cancel the event
      * in the case that the phase changes.
      *
-     * @param time The amount of time to wait before running the [runnable].
+     * @param time The amount of time to wait before running the [task].
      * @param unit The units of time.
-     * @param runnable The runnable to be scheduled.
+     * @param task The runnable to be scheduled.
      * @return The cancellable task.
      */
-    public fun schedulePhasedCancellable(time: Int, unit: MinecraftTimeUnit, runnable: Runnable): CancellableTask {
-        return this.schedulePhasedCancellable(unit.duration(time), runnable)
+    public fun schedulePhasedCancellable(time: Int, unit: MinecraftTimeUnit, task: Task): CancellableTask {
+        return this.schedulePhasedCancellable(unit.duration(time), task)
     }
 
     /**
-     * This schedules a [runnable] in a loop with a given
+     * This schedules a [task] in a loop with a given
      * initial [delay] and with a given [interval] between
-     * each invocation of the [runnable] for a given [duration].
+     * each invocation of the [task] for a given [duration].
      *
      * If the minigame's phase changes, some of the scheduled
      * tasks will not be run.
      *
-     * @param delay The initial delay before the first [runnable] is scheduled.
-     * @param interval The amount of time between each [runnable].
+     * @param delay The initial delay before the first [task] is scheduled.
+     * @param interval The amount of time between each [task].
      * @param duration The total duration the loop should be running for.
-     * @param runnable The runnable to be scheduled.
+     * @param task The runnable to be scheduled.
      */
     public fun schedulePhasedInLoop(
         delay: MinecraftTimeDuration,
         interval: MinecraftTimeDuration,
         duration: MinecraftTimeDuration,
-        runnable: Runnable
+        task: Task
     ) {
-        this.phased.scheduleInLoop(delay, interval, duration, runnable)
+        this.phased.scheduleInLoop(delay, interval, duration, task)
     }
 
     /**
-     * This schedules a [runnable] in a loop with a given
+     * This schedules a [task] in a loop with a given
      * initial [delay] and with a given [interval] between
-     * each invocation of the [runnable] for a given [duration].
+     * each invocation of the [task] for a given [duration].
      *
      * If the minigame's phase changes, some of the scheduled
      * tasks will not be run.
      *
-     * @param delay The initial delay before the first [runnable] is scheduled.
-     * @param interval The amount of time between each [runnable].
+     * @param delay The initial delay before the first [task] is scheduled.
+     * @param interval The amount of time between each [task].
      * @param duration The total duration the loop should be running for.
      * @param unit The units of time for [delay], [interval], and [duration].
-     * @param runnable The runnable to be scheduled.
+     * @param task The runnable to be scheduled.
      */
     public fun schedulePhasedInLoop(
         delay: Int,
         interval: Int,
         duration: Int,
         unit: MinecraftTimeUnit,
-        runnable: Runnable
+        task: Task
     ) {
-        this.phased.scheduleInLoop(delay, interval, duration, unit, runnable)
+        this.phased.scheduleInLoop(delay, interval, duration, unit, task)
     }
 }

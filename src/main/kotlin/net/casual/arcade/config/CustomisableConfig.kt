@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.arrayOrDefault
 import net.casual.arcade.utils.JsonUtils.arrayOrNull
@@ -47,14 +48,14 @@ public open class CustomisableConfig(
     public fun read() {
         if (this.path.exists()) {
             this.path.bufferedReader().use {
-                this.json = GSON.fromJson(it, JsonObject::class.java)
+                this.json = JsonUtils.GSON.fromJson(it, JsonObject::class.java)
             }
         }
     }
 
     public fun write() {
         this.path.bufferedWriter().use {
-            GSON.toJson(this.json, it)
+            JsonUtils.GSON.toJson(this.json, it)
         }
     }
 
@@ -280,6 +281,7 @@ public open class CustomisableConfig(
     }
 
     public companion object {
+        @Deprecated("Use 'JsonUtils.GSON' instead")
         public val GSON: Gson = GsonBuilder().disableHtmlEscaping().serializeNulls().setPrettyPrinting().create()
     }
 }

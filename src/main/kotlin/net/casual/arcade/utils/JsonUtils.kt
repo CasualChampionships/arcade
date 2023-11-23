@@ -1,5 +1,7 @@
 package net.casual.arcade.utils
 
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonNull
@@ -8,6 +10,8 @@ import com.google.gson.JsonPrimitive
 import net.minecraft.nbt.*
 
 public object JsonUtils {
+    public val GSON: Gson = GsonBuilder().setPrettyPrinting().serializeNulls().disableHtmlEscaping().create()
+
     private fun JsonObject.getWithNull(key: String): JsonElement? {
         val value = this.get(key) ?: return null
         return if (value.isJsonNull) null else value

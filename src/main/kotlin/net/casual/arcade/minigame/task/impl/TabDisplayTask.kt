@@ -1,4 +1,4 @@
-package net.casual.arcade.gui.task
+package net.casual.arcade.minigame.task.impl
 
 import net.casual.arcade.gui.tab.ArcadeTabDisplay
 import net.casual.arcade.minigame.Minigame

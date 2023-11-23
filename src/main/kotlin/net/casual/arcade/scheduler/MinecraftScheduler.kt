@@ -1,6 +1,7 @@
 package net.casual.arcade.scheduler
 
 import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
+import net.casual.arcade.task.Task
 
 /**
  * This interface provides methods for scheduling [Runnable]s
@@ -11,73 +12,73 @@ import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
  */
 public interface MinecraftScheduler {
     /**
-     * This method will schedule a [runnable] to be run
+     * This method will schedule a [task] to be run
      * after a given [duration].
      *
-     * @param duration The duration to wait before running the [runnable].
-     * @param runnable The runnable to be scheduled.
+     * @param duration The duration to wait before running the [task].
+     * @param task The runnable to be scheduled.
      */
-    public fun schedule(duration: MinecraftTimeDuration, runnable: Runnable)
+    public fun schedule(duration: MinecraftTimeDuration, task: Task)
 
     /**
-     * This method will schedule a [runnable] to be run
+     * This method will schedule a [task] to be run
      * after a given [time] with units [unit].
      *
-     * @param time The amount of time to wait before running the [runnable].
+     * @param time The amount of time to wait before running the [task].
      * @param unit The units of time, by default [Ticks].
-     * @param runnable The runnable to be scheduled.
+     * @param task The runnable to be scheduled.
      */
-    public fun schedule(time: Int, unit: MinecraftTimeUnit = Ticks, runnable: Runnable) {
-        this.schedule(unit.duration(time), runnable)
+    public fun schedule(time: Int, unit: MinecraftTimeUnit = Ticks, task: Task) {
+        this.schedule(unit.duration(time), task)
     }
 
     /**
-     * This schedules a [runnable] in a loop with a given
+     * This schedules a [task] in a loop with a given
      * initial [delay] and with a given [interval] between
-     * each invocation of the [runnable] for a given [duration].
+     * each invocation of the [task] for a given [duration].
      *
-     * @param delay The initial delay before the first [runnable] is scheduled.
-     * @param interval The amount of time between each [runnable].
+     * @param delay The initial delay before the first [task] is scheduled.
+     * @param interval The amount of time between each [task].
      * @param duration The total duration the loop should be running for.
-     * @param runnable The runnable to be scheduled.
+     * @param task The runnable to be scheduled.
      */
     public fun scheduleInLoop(
         delay: MinecraftTimeDuration,
         interval: MinecraftTimeDuration,
         duration: MinecraftTimeDuration,
-        runnable: Runnable
+        task: Task
     ) {
         val total = duration + delay
         var current = delay
         while (current < total) {
-            this.schedule(current, runnable)
+            this.schedule(current, task)
             current += interval
         }
     }
 
     /**
-     * This schedules a [runnable] in a loop with a given
+     * This schedules a [task] in a loop with a given
      * initial [delay] and with a given [interval] between
-     * each invocation of the [runnable] for a given [duration].
+     * each invocation of the [task] for a given [duration].
      *
-     * @param delay The initial delay before the first [runnable] is scheduled.
-     * @param interval The amount of time between each [runnable].
+     * @param delay The initial delay before the first [task] is scheduled.
+     * @param interval The amount of time between each [task].
      * @param duration The total duration the loop should be running for.
      * @param unit The units of time for [delay], [interval], and [duration].
-     * @param runnable The runnable to be scheduled.
+     * @param task The runnable to be scheduled.
      */
     public fun scheduleInLoop(
         delay: Int,
         interval: Int,
         duration: Int,
         unit: MinecraftTimeUnit,
-        runnable: Runnable
+        task: Task
     ) {
         return this.scheduleInLoop(
             unit.duration(delay),
             unit.duration(interval),
             unit.duration(duration),
-            runnable
+            task
         )
     }
 }

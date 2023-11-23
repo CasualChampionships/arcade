@@ -3,6 +3,7 @@ package net.casual.arcade.scheduler
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.casual.arcade.task.CancellableTask
+import net.casual.arcade.task.Task
 import java.util.*
 import java.util.function.IntFunction
 
@@ -15,7 +16,7 @@ import java.util.function.IntFunction
  * @see GlobalTickedScheduler
  */
 public class TickedScheduler: MinecraftScheduler {
-    internal val tasks: Int2ObjectMap<Queue<Runnable>> = Int2ObjectOpenHashMap()
+    internal val tasks: Int2ObjectMap<Queue<Task>> = Int2ObjectOpenHashMap()
     internal var tickCount = 0
 
     /**
@@ -63,13 +64,13 @@ public class TickedScheduler: MinecraftScheduler {
     }
 
     /**
-     * This method will schedule a [runnable] to be run
+     * This method will schedule a [task] to be run
      * after a given [duration].
      *
-     * @param duration The duration to wait before running the [runnable].
-     * @param runnable The runnable to be scheduled.
+     * @param duration The duration to wait before running the [ta  ].
+     * @param task The task to be scheduled.
      */
-    override fun schedule(duration: MinecraftTimeDuration, runnable: Runnable) {
-        this.tasks.computeIfAbsent(this.tickCount + duration.toTicks(), IntFunction { ArrayDeque() }).add(runnable)
+    override fun schedule(duration: MinecraftTimeDuration, task: Task) {
+        this.tasks.computeIfAbsent(this.tickCount + duration.toTicks(), IntFunction { ArrayDeque() }).add(task)
     }
 }

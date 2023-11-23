@@ -25,6 +25,10 @@ import net.casual.arcade.utils.JsonUtils.stringOrNull
 import net.minecraft.server.MinecraftServer
 import org.jetbrains.annotations.ApiStatus.Internal
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
+import java.io.ByteArrayOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.nio.charset.Charset
 import java.util.*
 
 /**
@@ -241,10 +245,9 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
 
     private fun readScheduledTask(json: JsonObject, scheduler: TickedScheduler, generated: MutableMap<Int, Task?>) {
         val delay = json.int("delay")
-        val id = json.string("id")
-        val task = this.deserializeTask(id, json, generated)
+        val task = this.deserializeTask(json, generated)
         if (task !== null) {
-            Arcade.logger.info("Successfully loaded task $id for minigame ${this.id}, scheduled for $delay ticks")
+            Arcade.logger.info("Successfully loaded task ${json.string("id")} for minigame ${this.id}, scheduled for $delay ticks")
             scheduler.schedule(delay, MinecraftTimeUnit.Ticks, task)
         } else {
             Arcade.logger.warn("Saved task $id for minigame ${this.id} could not be reloaded!")
@@ -255,8 +258,8 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         val tasks = JsonArray()
         for ((tick, queue) in scheduler.tasks) {
             val delay = tick - scheduler.tickCount
-            for (runnable in queue) {
-                val written = this.serializeTask(runnable) ?: continue
+            for (task in queue) {
+                val written = this.serializeTask(task) ?: continue
                 written.addProperty("delay", delay)
                 tasks.add(written)
             }
@@ -264,24 +267,41 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         return tasks
     }
 
-    private fun deserializeTask(id: String, json: JsonObject, generated: MutableMap<Int, Task?>): Task? {
+    private fun deserializeTask(json: JsonObject, generated: MutableMap<Int, Task?>): Task? {
         val hash = json.intOrNull("hash")
-        val custom = json.objOrDefault("custom")
+        val generator = if (json.has("raw")) ({
+            json.string("raw").byteInputStream(Charsets.UTF_8).use { bytes ->
+                ObjectInputStream(bytes).use { stream ->
+                    stream.readObject() as Task
+                }
+            }
+        }) else {
+            val id = json.stringOrNull("id") ?: return null
+            val custom = json.objOrDefault("custom")
+            ({ this.taskGenerator.generate(id, MinigameTaskCreationContext(custom, generated)) })
+        }
         if (hash == null) {
-            return this.taskGenerator.generate(id, MinigameTaskCreationContext(custom, generated))
+            return generator()
         }
-        return generated.getOrPut(hash) {
-            this.taskGenerator.generate(id, MinigameTaskCreationContext(custom, generated))
-        }
+        return generated.getOrPut(hash, generator)
     }
 
-    private fun serializeTask(task: Runnable): JsonObject? {
+    private fun serializeTask(task: Task): JsonObject? {
         if (task is SavableTask) {
             val data = JsonObject()
             data.addProperty("id", task.id)
             data.addProperty("hash", System.identityHashCode(task))
             data.add("custom", task.writeCustomData(MinigameTaskWriteContext()))
             return data
+        } else {
+            ByteArrayOutputStream().use { bytes ->
+                ObjectOutputStream(bytes).use { stream ->
+                    stream.writeObject(task)
+                }
+                val data = JsonObject()
+                data.addProperty("hash", System.identityHashCode(task))
+                data.addProperty("raw", bytes.toString(Charsets.UTF_8))
+            }
         }
         return null
     }
@@ -295,7 +315,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         }
 
         override fun createTask(data: JsonObject): Task? {
-            return deserializeTask(data.stringOrNull("id") ?: return null, data, this.generated)
+            return deserializeTask(data, this.generated)
         }
     }
 

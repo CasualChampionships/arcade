@@ -2,6 +2,7 @@ package net.casual.arcade.task
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import net.casual.arcade.Arcade
 import net.casual.arcade.config.CustomisableConfig.Companion.GSON
 import net.casual.arcade.utils.JsonUtils.boolean
 import net.casual.arcade.utils.JsonUtils.objects
@@ -43,11 +44,11 @@ public sealed class CancellableTask(
      * This adds a callback which will be called
      * when the task is cancelled.
      *
-     * @param runnable The task to add.
+     * @param task The task to add.
      * @return The cancellable task.
      */
-    public fun cancelled(runnable: Runnable): CancellableTask {
-        this.cancelled.add(Task.of(runnable))
+    public fun cancelled(task: Task): CancellableTask {
+        this.cancelled.add(task)
         return this
     }
 
@@ -101,7 +102,7 @@ public sealed class CancellableTask(
         }
 
         companion object: TaskFactory {
-            override val id = "\$arcade_internal_savable_cancellable"
+            override val id = "$${Arcade.MOD_ID}_internal_savable_cancellable"
 
             override fun create(context: TaskCreationContext): Task {
                 val data = context.getCustomData()
@@ -139,15 +140,15 @@ public sealed class CancellableTask(
          * If given a savable task this will save the savable task within
          * the cancellable task which will also be savable.
          *
-         * @param runnable The task to wrap in a cancellable task.
+         * @param task The task to wrap in a cancellable task.
          * @return The cancellable task.
          */
         @JvmStatic
-        public fun of(runnable: Runnable): CancellableTask {
-            if (runnable is SavableTask) {
-                return Savable(runnable)
+        public fun of(task: Task): CancellableTask {
+            if (task is SavableTask) {
+                return Savable(task)
             }
-            return Default(Task.of(runnable))
+            return Default(task)
         }
 
         /**
@@ -160,8 +161,8 @@ public sealed class CancellableTask(
          * @see of
          */
         @JvmStatic
-        public fun cancellable(runnable: Runnable): CancellableTask {
-            return of(runnable).runOnCancel()
+        public fun cancellable(task: Task): CancellableTask {
+            return of(task).runOnCancel()
         }
     }
 }
