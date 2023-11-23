@@ -12,7 +12,7 @@ import java.io.Serializable
 import java.util.UUID
 
 
-public fun interface MinigameTask<M: Minigame<M>> {
+public fun interface MinigameTask<M: Minigame<M>>: Serializable {
     public fun run(minigame: Minigame<M>)
 }
 
