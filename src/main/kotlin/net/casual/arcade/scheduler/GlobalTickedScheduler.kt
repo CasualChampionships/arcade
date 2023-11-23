@@ -5,6 +5,7 @@ import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.managers.MinigameScheduler
 import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
+import net.casual.arcade.task.Task
 
 /**
  * This is a global implementation of a [TickedScheduler], you
@@ -29,16 +30,16 @@ public object GlobalTickedScheduler {
     }
 
     /**
-     * This method will schedule a [runnable] to be run later in
+     * This method will schedule a [task] to be run later in
      * the tick.
      * This is useful if you need to execute something after it
      * has been initialized.
      *
-     * @param runnable The runnable to be scheduled.
+     * @param task The runnable to be scheduled.
      */
     @JvmStatic
-    public fun later(runnable: Runnable) {
-        this.schedule(MinecraftTimeDuration.ZERO, runnable)
+    public fun later(task: Task) {
+        this.schedule(MinecraftTimeDuration.ZERO, task)
     }
 
     /**
@@ -49,53 +50,53 @@ public object GlobalTickedScheduler {
      * @param runnable The runnable to be scheduled.
      */
     @JvmStatic
-    public fun schedule(duration: MinecraftTimeDuration, runnable: Runnable) {
+    public fun schedule(duration: MinecraftTimeDuration, runnable: Task) {
         this.scheduler.schedule(duration, runnable)
     }
 
     /**
-     * This method will schedule a [runnable] to be run
+     * This method will schedule a [task] to be run
      * after a given [time] with units [unit].
      *
-     * @param time The amount of time to wait before running the [runnable].
+     * @param time The amount of time to wait before running the [task].
      * @param unit The units of time, by default [Ticks].
-     * @param runnable The runnable to be scheduled.
+     * @param task The runnable to be scheduled.
      */
     @JvmStatic
-    public fun schedule(time: Int, unit: MinecraftTimeUnit, runnable: Runnable) {
-        this.scheduler.schedule(time, unit, runnable)
+    public fun schedule(time: Int, unit: MinecraftTimeUnit, task: Task) {
+        this.scheduler.schedule(time, unit, task)
     }
 
     /**
-     * This schedules a [runnable] in a loop with a given
+     * This schedules a [task] in a loop with a given
      * initial [delay] and with a given [interval] between
-     * each invocation of the [runnable] for a given [duration].
+     * each invocation of the [task] for a given [duration].
      *
-     * @param delay The initial delay before the first [runnable] is scheduled.
-     * @param interval The amount of time between each [runnable].
+     * @param delay The initial delay before the first [task] is scheduled.
+     * @param interval The amount of time between each [task].
      * @param duration The total duration the loop should be running for.
-     * @param runnable The runnable to be scheduled.
+     * @param task The runnable to be scheduled.
      */
     @JvmStatic
     public fun scheduleInLoop(
         delay: MinecraftTimeDuration,
         interval: MinecraftTimeDuration,
         duration: MinecraftTimeDuration,
-        runnable: Runnable
+        task: Task
     ) {
-        this.scheduler.scheduleInLoop(delay, interval, duration, runnable)
+        this.scheduler.scheduleInLoop(delay, interval, duration, task)
     }
 
     /**
-     * This schedules a [runnable] in a loop with a given
+     * This schedules a [task] in a loop with a given
      * initial [delay] and with a given [interval] between
-     * each invocation of the [runnable] for a given [duration].
+     * each invocation of the [task] for a given [duration].
      *
-     * @param delay The initial delay before the first [runnable] is scheduled.
-     * @param interval The amount of time between each [runnable].
+     * @param delay The initial delay before the first [task] is scheduled.
+     * @param interval The amount of time between each [task].
      * @param duration The total duration the loop should be running for.
      * @param unit The units of time for [delay], [interval], and [duration].
-     * @param runnable The runnable to be scheduled.
+     * @param task The runnable to be scheduled.
      */
     @JvmStatic
     public fun scheduleInLoop(
@@ -103,8 +104,8 @@ public object GlobalTickedScheduler {
         interval: Int,
         duration: Int,
         unit: MinecraftTimeUnit,
-        runnable: Runnable
+        task: Task
     ) {
-        this.scheduler.scheduleInLoop(delay, interval, duration, unit, runnable)
+        this.scheduler.scheduleInLoop(delay, interval, duration, unit, task)
     }
 }

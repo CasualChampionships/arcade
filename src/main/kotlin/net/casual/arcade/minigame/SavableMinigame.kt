@@ -26,6 +26,7 @@ import net.minecraft.server.MinecraftServer
 import org.jetbrains.annotations.ApiStatus.Internal
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.io.ByteArrayOutputStream
+import java.io.NotSerializableException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.nio.charset.Charset
@@ -270,7 +271,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
     private fun deserializeTask(json: JsonObject, generated: MutableMap<Int, Task?>): Task? {
         val hash = json.intOrNull("hash")
         val generator = if (json.has("raw")) ({
-            json.string("raw").byteInputStream(Charsets.UTF_8).use { bytes ->
+            json.string("raw").decodeHex().inputStream().use { bytes ->
                 ObjectInputStream(bytes).use { stream ->
                     stream.readObject() as Task
                 }
@@ -293,17 +294,28 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
             data.addProperty("hash", System.identityHashCode(task))
             data.add("custom", task.writeCustomData(MinigameTaskWriteContext()))
             return data
-        } else {
+        }
+        try {
             ByteArrayOutputStream().use { bytes ->
                 ObjectOutputStream(bytes).use { stream ->
                     stream.writeObject(task)
                 }
                 val data = JsonObject()
                 data.addProperty("hash", System.identityHashCode(task))
-                data.addProperty("raw", bytes.toString(Charsets.UTF_8))
+                data.addProperty("raw", bytes.toByteArray().encodeHex())
+                return data
             }
+        } catch (e: NotSerializableException) {
+            return null
         }
-        return null
+    }
+
+    private fun String.decodeHex(): ByteArray {
+        return this.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+    }
+
+    private fun ByteArray.encodeHex(): String {
+        return this.joinToString("") { "%02x".format(it) }
     }
 
     private inner class MinigameTaskCreationContext(
