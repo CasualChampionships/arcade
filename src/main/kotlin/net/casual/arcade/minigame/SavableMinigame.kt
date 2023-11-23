@@ -130,15 +130,18 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
 
     @Internal
     public fun read(json: JsonObject): Boolean {
-        val phaseId = json.stringOrDefault("phase")
+        val phaseId = json.stringOrNull("phase")
         var setPhase = false
-        for (phase in this.phases) {
-            if (phase.id == phaseId) {
-                this.phase = phase
-                setPhase = true
-                break
+        if (phaseId != null) {
+            for (phase in this.phases) {
+                if (phase.id == phaseId) {
+                    this.phase = phase
+                    setPhase = true
+                    break
+                }
             }
         }
+
         this.paused = json.booleanOrDefault("paused")
         if (json.has("uuid")) {
             Minigames.unregister(this)
@@ -155,7 +158,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         }
         generated.clear()
 
-        for (player in json.arrayOrDefault("offline_players").objects()) {
+        for (player in json.arrayOrDefault("players").objects()) {
             val uuid = if (player.hasNonNull("uuid")) UUID.fromString(player.string("uuid")) else null
             this.offline.add(GameProfile(uuid, player.stringOrNull("name")))
         }
@@ -200,12 +203,12 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         val tasks = this.writeScheduledTasks(this.scheduler.minigame)
         val phaseTasks = this.writeScheduledTasks(this.scheduler.phased)
 
-        val offline = JsonArray()
-        for (player in this.offline) {
+        val players = JsonArray()
+        for (player in this.getAllPlayerProfiles()) {
             val data = JsonObject()
             data.addProperty("name", player.name)
             data.addProperty("uuid", player.id?.toString())
-            offline.add(data)
+            players.add(data)
         }
 
         val settings = JsonArray()
@@ -229,7 +232,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
 
         json.add("tasks", tasks)
         json.add("phase_tasks", phaseTasks)
-        json.add("offline_players", offline)
+        json.add("players", players)
         json.add("settings", settings)
         json.add("stats", playerStats)
         json.add("custom", custom)
