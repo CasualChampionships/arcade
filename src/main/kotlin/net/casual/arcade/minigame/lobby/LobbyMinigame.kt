@@ -7,6 +7,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import net.casual.arcade.Arcade
 import net.casual.arcade.commands.arguments.MinigameArgument
 import net.casual.arcade.events.minigame.MinigameAddNewPlayerEvent
+import net.casual.arcade.events.minigame.MinigameAddPlayerEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigamePhase
@@ -21,12 +22,14 @@ import net.casual.arcade.utils.MinigameUtils.areTeamsReady
 import net.casual.arcade.utils.MinigameUtils.countdown
 import net.casual.arcade.utils.PlayerUtils.broadcast
 import net.casual.arcade.utils.PlayerUtils.broadcastToOps
+import net.casual.arcade.utils.PlayerUtils.resetHunger
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.GameType
 import net.minecraft.world.scores.PlayerTeam
 
 public abstract class LobbyMinigame(
@@ -41,11 +44,16 @@ public abstract class LobbyMinigame(
         super.initialize()
         this.events.register<MinigameAddNewPlayerEvent> { (_, player) ->
             this.lobby.forceTeleportToSpawn(player)
+            player.setGameMode(GameType.ADVENTURE)
+            player.resetHunger()
         }
         this.events.register<ServerTickEvent> {
             for (player in this.getPlayers()) {
                 this.lobby.tryTeleportToSpawn(player)
             }
+        }
+        this.events.register<MinigameAddPlayerEvent> { (_, player) ->
+
         }
 
         this.commands.register(this.createLobbyCommand())

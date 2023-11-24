@@ -146,6 +146,19 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    public fun ServerPlayer.resetExperience() {
+        this.experienceLevel = 0
+        this.experienceProgress = 0.0F
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.resetHunger() {
+        this.foodData.foodLevel = 20
+        this.foodData.setSaturation(20.0F)
+        this.foodData.setExhaustion(0.0F)
+    }
+
+    @JvmStatic
     public fun ServerPlayer.clearPlayerInventory() {
         this.inventory.clearContent()
         this.inventoryMenu.clearCraftingContent()
