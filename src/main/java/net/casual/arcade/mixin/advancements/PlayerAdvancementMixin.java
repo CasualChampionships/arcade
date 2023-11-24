@@ -12,7 +12,8 @@ public class PlayerAdvancementMixin {
 		method = "method_48026",
 		at = @At(
 			value = "INVOKE",
-			target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"
+			target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V",
+			remap = false
 		)
 	)
 	private boolean onWarnNoAdvancement(Logger instance, String string, Object o1, Object o2) {

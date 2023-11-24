@@ -62,7 +62,8 @@ public abstract class AdvancementListMixin implements Arcade$MutableAdvancements
 		method = "remove(Lnet/minecraft/advancements/Advancement;)V",
 		at = @At(
 			value = "INVOKE",
-			target = "Lorg/slf4j/Logger;info(Ljava/lang/String;Ljava/lang/Object;)V"
+			target = "Lorg/slf4j/Logger;info(Ljava/lang/String;Ljava/lang/Object;)V",
+			remap = false
 		)
 	)
 	private boolean onInfo(Logger instance, String string, Object o) {
