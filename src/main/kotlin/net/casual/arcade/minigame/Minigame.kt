@@ -30,6 +30,7 @@ import net.casual.arcade.utils.EventUtils.broadcast
 import net.casual.arcade.utils.EventUtils.registerHandler
 import net.casual.arcade.utils.EventUtils.unregisterHandler
 import net.casual.arcade.utils.ItemUtils.literalNamed
+import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.toJsonObject
 import net.casual.arcade.utils.JsonUtils.toJsonStringArray
 import net.casual.arcade.utils.MinigameUtils
@@ -653,7 +654,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * @return The minigames debug information.
      */
     override fun toString(): String {
-        return CustomisableConfig.GSON.toJson(this.getDebugInfo())
+        return JsonUtils.GSON.toJson(this.getDebugInfo())
     }
 
     /**

@@ -50,10 +50,8 @@ internal class PlayerMinigameExtension(
                 return
             }
 
-            // Player has not fully initialized yet...
-            GlobalTickedScheduler.later {
-                minigame.addPlayer(this.owner)
-            }
+            // We add the player in the JoinEvent.
+            // See in MinigameUtils#registerEvents()
         }
     }
 }

@@ -5,6 +5,7 @@ import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.core.Event
 import net.casual.arcade.events.player.PlayerCreatedEvent
+import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.minigame.lobby.ReadyChecker
 import net.casual.arcade.minigame.Minigame
@@ -170,6 +171,9 @@ public object MinigameUtils {
     internal fun registerEvents() {
         GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
             player.addExtension(PlayerMinigameExtension(player))
+        }
+        GlobalEventHandler.register<PlayerJoinEvent>(Int.MIN_VALUE) { (player) ->
+            player.getMinigame()?.addPlayer(player)
         }
     }
 

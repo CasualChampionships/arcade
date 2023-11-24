@@ -23,7 +23,7 @@ public class StatTracker {
         return this.stats.getOrPut(type) { Stat(type) } as Stat<T>
     }
 
-    internal fun serialize(): JsonElement {
+    public fun serialize(): JsonElement {
         val stats = JsonArray()
         for ((type, stat) in this.stats) {
             val statData = JsonObject()
@@ -42,7 +42,7 @@ public class StatTracker {
         return stats
     }
 
-    internal fun deserialize(stats: JsonArray) {
+    public fun deserialize(stats: JsonArray) {
         for (statData in stats.objects()) {
             val location = ResourceLocation(statData.string("type"))
             val value = statData["value"]

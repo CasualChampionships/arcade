@@ -10,9 +10,7 @@ import net.casual.arcade.minigame.task.MinigameTaskGenerator
 import net.casual.arcade.minigame.task.impl.PhaseChangeTask
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.scheduler.TickedScheduler
-import net.casual.arcade.stats.StatTracker
 import net.casual.arcade.task.*
-import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.arrayOrDefault
 import net.casual.arcade.utils.JsonUtils.booleanOrDefault
 import net.casual.arcade.utils.JsonUtils.hasNonNull
@@ -198,10 +196,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
             display.setting.deserializeAndSetQuietly(value)
         }
 
-        for (data in json.arrayOrDefault("stats").objects()) {
-            val uuid = UUID.fromString(data.string("uuid"))
-            this.stats.stats.getOrPut(uuid) { StatTracker() }.deserialize(data.array("stats"))
-        }
+        this.stats.deserialize(json.arrayOrDefault("stats"))
 
         val custom = json.objOrNull("custom")
         if (custom != null) {
@@ -243,13 +238,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
             settings.add(data)
         }
 
-        val playerStats = JsonArray()
-        for ((uuid, tracker) in this.stats.stats) {
-            val data = JsonObject()
-            data.addProperty("uuid", uuid.toString())
-            data.add("stats", tracker.serialize())
-            playerStats.add(data)
-        }
+        val stats = this.stats.serialize()
 
         val custom = JsonObject()
         this.writeData(custom)
@@ -258,7 +247,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         json.add("phase_tasks", phaseTasks)
         json.add("players", players)
         json.add("settings", settings)
-        json.add("stats", playerStats)
+        json.add("stats", stats)
         json.add("custom", custom)
         return json
     }
