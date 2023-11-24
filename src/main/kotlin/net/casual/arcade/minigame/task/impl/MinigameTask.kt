@@ -4,25 +4,22 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.task.Task
 import java.io.IOException
-
 import java.io.ObjectInputStream
-
 import java.io.ObjectOutputStream
 import java.io.Serializable
-import java.util.UUID
-
+import java.util.*
 
 public fun interface MinigameTask<M: Minigame<M>>: Serializable {
-    public fun run(minigame: Minigame<M>)
+    public fun run(minigame: M)
 }
 
 @Suppress("FunctionName")
-public fun <M: Minigame<M>> MinigameTask(minigame: Minigame<M>, task: MinigameTask<M>): Task {
+public fun <M: Minigame<M>> MinigameTask(minigame: M, task: MinigameTask<M>): Task {
     return Impl(minigame, task)
 }
 
 private class Impl<M: Minigame<M>>(
-    @Transient private var minigame: Minigame<M>,
+    @Transient private var minigame: M,
     private val task: MinigameTask<M>
 ): Task, Serializable {
     override fun run() {
@@ -40,6 +37,6 @@ private class Impl<M: Minigame<M>>(
         stream.defaultReadObject()
         val uuid = stream.readObject() as UUID
         @Suppress("UNCHECKED_CAST")
-        this.minigame = Minigames.get(uuid) as Minigame<M>
+        this.minigame = Minigames.get(uuid) as M
     }
 }
