@@ -26,6 +26,8 @@ public object GlobalEventHandler {
     private val handlers = HashSet<ListenerHandler>()
     private val handler = EventHandler()
 
+    private var stopping = false
+
     /**
      * This broadcasts an event for all listeners.
      *
@@ -174,16 +176,22 @@ public object GlobalEventHandler {
                 )
             }
         } else if (!server.isSameThread) {
+            if (this.stopping) {
+                return true
+            }
+            if (server.isStopped) {
+                this.stopping = true
+                this.logger.warn(
+                    "Event broadcasted (type: {}) while server is stopping, ignoring events...",
+                    type.simpleName
+                )
+                return true
+            }
             this.logger.warn(
                 "Detected broadcasted event (type: {}) off main thread, pushing to main thread...",
                 type.simpleName
             )
-            if (!server.isStopped) {
-                server.execute { this.broadcast(event) }
-            } else {
-                this.logger.warn("Cannot push to main thread, server is stopping! This may cause undefined behaviour...")
-                return false
-            }
+            server.execute { this.broadcast(event) }
             return true
         }
         return false
