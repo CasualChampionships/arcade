@@ -2,9 +2,7 @@ package net.casual.arcade.utils
 
 import net.casual.arcade.Arcade
 import net.minecraft.world.level.GameRules
-import net.minecraft.world.level.GameRules.BooleanValue
-import net.minecraft.world.level.GameRules.GameRuleTypeVisitor
-import net.minecraft.world.level.GameRules.IntegerValue
+import net.minecraft.world.level.GameRules.*
 
 public object GameRuleUtils {
     public fun GameRules.resetToDefault() {

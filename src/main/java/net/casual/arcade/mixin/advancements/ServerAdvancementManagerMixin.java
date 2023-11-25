@@ -2,10 +2,10 @@ package net.casual.arcade.mixin.advancements;
 
 import com.google.gson.JsonElement;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.casual.arcade.utils.ducks.MutableAdvancements;
 import net.casual.arcade.ducks.Arcade$MutableAdvancements;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.ServerAdvancementReloadEvent;
+import net.casual.arcade.utils.ducks.MutableAdvancements;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementList;
 import net.minecraft.resources.ResourceLocation;

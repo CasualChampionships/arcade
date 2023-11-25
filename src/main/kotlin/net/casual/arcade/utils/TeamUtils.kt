@@ -19,7 +19,6 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Scoreboard
 import net.minecraft.world.scores.Team
-import java.lang.IllegalStateException
 
 public object TeamUtils {
     public val TEAM_COLOURS: Set<ChatFormatting>

@@ -10,7 +10,6 @@ import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.commands.type.CustomStringArgumentInfo
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.minecraft.commands.SharedSuggestionProvider
-import net.minecraft.network.chat.Component
 import java.util.concurrent.CompletableFuture
 
 public open class MappedArgument<T>(

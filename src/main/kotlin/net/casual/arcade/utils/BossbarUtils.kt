@@ -40,7 +40,7 @@ public object BossbarUtils {
 
     internal fun registerEvents() {
         GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
-            player.addExtension(PlayerBossbarsExtension(player))
+            player.addExtension(PlayerBossbarsExtension(player.connection))
         }
         GlobalEventHandler.register<PlayerLeaveEvent> { (player) ->
             player.bossbars.disconnect()

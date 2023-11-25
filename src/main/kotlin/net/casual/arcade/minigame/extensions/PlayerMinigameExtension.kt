@@ -2,16 +2,16 @@ package net.casual.arcade.minigame.extensions
 
 import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.DataExtension
+import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
-import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
-import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.network.ServerGamePacketListenerImpl
 
 internal class PlayerMinigameExtension(
-    private val owner: ServerPlayer
-): DataExtension {
+    owner: ServerGamePacketListenerImpl
+): PlayerExtension(owner), DataExtension {
     private var minigame: Minigame<*>? = null
 
     internal fun getMinigame(): Minigame<*>? {
@@ -19,7 +19,7 @@ internal class PlayerMinigameExtension(
     }
 
     internal fun setMinigame(minigame: Minigame<*>) {
-        this.minigame?.removePlayer(this.owner)
+        this.minigame?.removePlayer(this.player)
         this.minigame = minigame
     }
 
@@ -46,7 +46,7 @@ internal class PlayerMinigameExtension(
             val minigame = Minigames.get(element.getUUID("minigame"))
             this.minigame = minigame
             if (minigame == null) {
-                Arcade.logger.warn("Player ${owner.scoreboardName} was part of an old minigame...")
+                Arcade.logger.warn("Player ${this.player.scoreboardName} was part of an old minigame...")
                 return
             }
 

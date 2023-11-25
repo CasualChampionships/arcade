@@ -4,7 +4,6 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.Arcade
-import net.casual.arcade.config.CustomisableConfig
 import net.casual.arcade.events.EventHandler
 import net.casual.arcade.events.minigame.*
 import net.casual.arcade.events.player.PlayerDamageEvent

@@ -7,11 +7,11 @@ import net.casual.arcade.events.core.Event
 import net.casual.arcade.events.player.PlayerCreatedEvent
 import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.gui.countdown.Countdown
-import net.casual.arcade.minigame.lobby.ReadyChecker
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigamePhase
 import net.casual.arcade.minigame.annotation.MinigameEvent
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
+import net.casual.arcade.minigame.lobby.ReadyChecker
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.task.Completable
 import net.casual.arcade.utils.PlayerUtils.addExtension
@@ -20,7 +20,6 @@ import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
-import java.lang.IllegalArgumentException
 import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
 
@@ -170,7 +169,7 @@ public object MinigameUtils {
 
     internal fun registerEvents() {
         GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
-            player.addExtension(PlayerMinigameExtension(player))
+            player.addExtension(PlayerMinigameExtension(player.connection))
         }
         GlobalEventHandler.register<PlayerJoinEvent>(Int.MIN_VALUE) { (player) ->
             player.getMinigame()?.addPlayer(player)

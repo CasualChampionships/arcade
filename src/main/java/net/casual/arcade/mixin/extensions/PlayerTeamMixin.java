@@ -1,9 +1,9 @@
 package net.casual.arcade.mixin.extensions;
 
+import net.casual.arcade.ducks.Arcade$ExtensionHolder;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.team.TeamCreatedEvent;
 import net.casual.arcade.extensions.ExtensionMap;
-import net.casual.arcade.ducks.Arcade$ExtensionHolder;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import org.spongepowered.asm.mixin.Mixin;

@@ -1,16 +1,16 @@
 package net.casual.arcade.gui.extensions
 
-import net.casual.arcade.extensions.Extension
+import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.utils.SidebarUtils
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket.*
 import net.minecraft.server.ServerScoreboard
-import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.network.ServerGamePacketListenerImpl
 
 internal class PlayerSidebarExtension(
-    private val owner: ServerPlayer
-): Extension {
+    owner: ServerGamePacketListenerImpl
+): PlayerExtension(owner) {
     private val previousRows = ArrayList<Component>()
     private var previousTitle: Component? = null
     private var current: ArcadeSidebar? = null
@@ -23,67 +23,67 @@ internal class PlayerSidebarExtension(
             return
         }
 
-        val title = current.title.getComponent(this.owner)
+        val title = current.title.getComponent(this.player)
         if (title != this.previousTitle) {
             this.setTitle(title)
         }
 
         for ((index, previous) in this.previousRows.withIndex()) {
-            val replacement = current.getRow(index).getComponent(this.owner)
+            val replacement = current.getRow(index).getComponent(this.player)
             if (previous == replacement) {
                 continue
             }
             this.previousRows[index] = replacement
-            SidebarUtils.sendPlayerTeamUpdatePacket(this.owner, index, false, replacement)
-            SidebarUtils.sendSetScorePacket(this.owner, index, ServerScoreboard.Method.CHANGE)
+            SidebarUtils.sendPlayerTeamUpdatePacket(this.player, index, false, replacement)
+            SidebarUtils.sendSetScorePacket(this.player, index, ServerScoreboard.Method.CHANGE)
         }
     }
 
     internal fun setTitle(title: Component) {
         this.previousTitle = title
-        SidebarUtils.sendSetObjectivePacket(this.owner, METHOD_CHANGE, title)
+        SidebarUtils.sendSetObjectivePacket(this.player, METHOD_CHANGE, title)
     }
 
     internal fun addRow(index: Int, component: Component) {
         this.previousRows.add(index, component)
         for (i in index until this.previousRows.size) {
-            SidebarUtils.sendPlayerTeamUpdatePacket(this.owner, i, true, this.previousRows[i])
-            SidebarUtils.sendSetScorePacket(this.owner, i, ServerScoreboard.Method.CHANGE)
+            SidebarUtils.sendPlayerTeamUpdatePacket(this.player, i, true, this.previousRows[i])
+            SidebarUtils.sendSetScorePacket(this.player, i, ServerScoreboard.Method.CHANGE)
         }
     }
 
     internal fun setRow(index: Int, component: Component) {
         this.previousRows[index] = component
         for (i in index until this.previousRows.size) {
-            SidebarUtils.sendPlayerTeamUpdatePacket(this.owner, index, false, this.previousRows[i])
-            SidebarUtils.sendSetScorePacket(this.owner, index, ServerScoreboard.Method.CHANGE)
+            SidebarUtils.sendPlayerTeamUpdatePacket(this.player, index, false, this.previousRows[i])
+            SidebarUtils.sendSetScorePacket(this.player, index, ServerScoreboard.Method.CHANGE)
         }
     }
 
     internal fun removeRow(index: Int) {
         this.previousRows.removeAt(index)
 
-        SidebarUtils.sendSetScorePacket(this.owner, this.previousRows.size, ServerScoreboard.Method.REMOVE)
-        SidebarUtils.sendPlayerTeamRemovePacket(this.owner, this.previousRows.size)
+        SidebarUtils.sendSetScorePacket(this.player, this.previousRows.size, ServerScoreboard.Method.REMOVE)
+        SidebarUtils.sendPlayerTeamRemovePacket(this.player, this.previousRows.size)
 
         for (i in index until this.previousRows.size) {
-            SidebarUtils.sendPlayerTeamUpdatePacket(this.owner, i, false, this.previousRows[i])
-            SidebarUtils.sendSetScorePacket(this.owner, i, ServerScoreboard.Method.CHANGE)
+            SidebarUtils.sendPlayerTeamUpdatePacket(this.player, i, false, this.previousRows[i])
+            SidebarUtils.sendSetScorePacket(this.player, i, ServerScoreboard.Method.CHANGE)
         }
     }
 
     internal fun set(sidebar: ArcadeSidebar) {
         val current = this.current
         if (current !== null) {
-            current.removePlayer(this.owner)
+            current.removePlayer(this.player)
         }
         this.current = sidebar
         this.ticks = 0
 
-        SidebarUtils.sendSetObjectivePacket(this.owner, METHOD_ADD, sidebar.title.getComponent(this.owner))
-        SidebarUtils.sendSetSidebarDisplayPacket(this.owner, false)
+        SidebarUtils.sendSetObjectivePacket(this.player, METHOD_ADD, sidebar.title.getComponent(this.player))
+        SidebarUtils.sendSetSidebarDisplayPacket(this.player, false)
         for (i in 0 until sidebar.size()) {
-            this.addRow(i, sidebar.getRow(i).getComponent(this.owner))
+            this.addRow(i, sidebar.getRow(i).getComponent(this.player))
         }
     }
 
@@ -91,11 +91,11 @@ internal class PlayerSidebarExtension(
         this.current = null
         this.previousTitle = null
         this.previousRows.clear()
-        SidebarUtils.sendSetObjectivePacket(this.owner, METHOD_REMOVE)
-        SidebarUtils.sendSetSidebarDisplayPacket(this.owner, true)
+        SidebarUtils.sendSetObjectivePacket(this.player, METHOD_REMOVE)
+        SidebarUtils.sendSetSidebarDisplayPacket(this.player, true)
     }
 
     internal fun disconnect() {
-        this.current?.removePlayer(this.owner)
+        this.current?.removePlayer(this.player)
     }
 }

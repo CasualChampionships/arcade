@@ -13,7 +13,9 @@ import net.casual.arcade.utils.JsonUtils.string
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import java.util.*
-import kotlin.io.path.*
+import kotlin.io.path.bufferedReader
+import kotlin.io.path.bufferedWriter
+import kotlin.io.path.exists
 
 /**
  * This object is used for registering and holding

@@ -14,7 +14,6 @@ import net.minecraft.world.item.ItemStack
 import org.jetbrains.annotations.ApiStatus.Experimental
 import java.util.*
 import java.util.function.Consumer
-import kotlin.collections.HashMap
 
 public object ComponentUtils {
     private val formattingByColour = Int2ObjectOpenHashMap<ChatFormatting>()

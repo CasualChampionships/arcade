@@ -14,7 +14,7 @@ internal object NameDisplayUtils {
 
     internal fun registerEvents() {
         GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
-            player.addExtension(PlayerNameScoreExtension(player))
+            player.addExtension(PlayerNameScoreExtension(player.connection))
         }
         GlobalEventHandler.register<PlayerLeaveEvent> { (player) ->
             player.nameScoreDisplay.disconnect()

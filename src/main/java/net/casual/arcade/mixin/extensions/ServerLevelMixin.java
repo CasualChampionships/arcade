@@ -1,10 +1,10 @@
 package net.casual.arcade.mixin.extensions;
 
 import net.casual.arcade.Arcade;
+import net.casual.arcade.ducks.Arcade$ExtensionHolder;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.level.LevelCreatedEvent;
 import net.casual.arcade.extensions.ExtensionMap;
-import net.casual.arcade.ducks.Arcade$ExtensionHolder;
 import net.casual.arcade.utils.ExtensionUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;

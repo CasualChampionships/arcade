@@ -7,7 +7,7 @@ import eu.pb4.polymer.virtualentity.api.elements.AbstractElement
 import eu.pb4.polymer.virtualentity.api.elements.TextDisplayElement
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData
 import it.unimi.dsi.fastutil.ints.IntList
-import net.casual.arcade.extensions.Extension
+import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.gui.nametag.ArcadeNameTag
 import net.casual.arcade.gui.nametag.ObserverPredicate
 import net.casual.arcade.utils.NameTagUtils.isWatching
@@ -29,21 +29,21 @@ import java.util.function.Consumer
 // I've ever written, let's hope I don't have to
 // ever touch it again :)
 internal class PlayerNameTagExtension(
-    private val owner: ServerPlayer
-): Extension {
+    owner: ServerGamePacketListenerImpl
+): PlayerExtension(owner) {
     private val tags = LinkedHashMap<ArcadeNameTag, Holder>()
 
     internal fun addNameTag(tag: ArcadeNameTag) {
         val display = NameTagDisplay(tag)
         val holder = Holder(display, tag.observable)
-        EntityAttachment.ofTicking(holder, this.owner)
-        VirtualEntityUtils.addVirtualPassenger(this.owner, *holder.entityIds.toIntArray())
+        EntityAttachment.ofTicking(holder, this.player)
+        VirtualEntityUtils.addVirtualPassenger(this.player, *holder.entityIds.toIntArray())
         this.tags[tag] = holder
     }
 
     internal fun removeNameTag(tag: ArcadeNameTag) {
         val removed = this.tags.remove(tag) ?: return
-        VirtualEntityUtils.removeVirtualPassenger(this.owner, *removed.entityIds.toIntArray())
+        VirtualEntityUtils.removeVirtualPassenger(this.player, *removed.entityIds.toIntArray())
         removed.destroy()
 
         this.updateNameTags()
@@ -129,7 +129,7 @@ internal class PlayerNameTagExtension(
 
         override fun tick() {
             if (this.ticks++ % this.tag.interval == 0) {
-                val text = this.tag.tag.getComponent(owner)
+                val text = this.tag.tag.getComponent(player)
                 this.foreground.text = text
                 this.background.text = text
                 this.sendTrackerUpdates()
@@ -155,9 +155,9 @@ internal class PlayerNameTagExtension(
             return ClientboundAddEntityPacket(
                 display.entityId,
                 display.uuid,
-                owner.x,
-                owner.y,
-                owner.z,
+                player.x,
+                player.y,
+                player.z,
                 display.pitch,
                 display.yaw,
                 EntityType.TEXT_DISPLAY,
@@ -260,9 +260,9 @@ internal class PlayerNameTagExtension(
         }
 
         override fun startWatching(connection: ServerGamePacketListenerImpl): Boolean {
-            if (this.predicate.observable(owner, connection.player)) {
+            if (this.predicate.observable(player, connection.player)) {
                 if (super.startWatching(connection)) {
-                    connection.send(ClientboundSetPassengersPacket(owner))
+                    connection.send(ClientboundSetPassengersPacket(player))
                     for (holder in tags.values) {
                         holder.element.sendChangedTrackerEntries(connection.player, connection::send)
                     }

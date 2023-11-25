@@ -3,7 +3,6 @@ package net.casual.arcade.minigame.lobby
 import net.casual.arcade.commands.hidden.HiddenCommand
 import net.casual.arcade.utils.ComponentUtils.crimson
 import net.casual.arcade.utils.ComponentUtils.function
-import net.casual.arcade.utils.ComponentUtils.green
 import net.casual.arcade.utils.ComponentUtils.lime
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red

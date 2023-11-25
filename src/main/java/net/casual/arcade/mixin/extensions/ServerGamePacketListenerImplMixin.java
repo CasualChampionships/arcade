@@ -1,7 +1,7 @@
 package net.casual.arcade.mixin.extensions;
 
-import net.casual.arcade.ducks.Arcade$ExtensionHolder;
 import net.casual.arcade.ducks.Arcade$ExtensionDataHolder;
+import net.casual.arcade.ducks.Arcade$ExtensionHolder;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.PlayerCreatedEvent;
 import net.casual.arcade.extensions.ExtensionMap;

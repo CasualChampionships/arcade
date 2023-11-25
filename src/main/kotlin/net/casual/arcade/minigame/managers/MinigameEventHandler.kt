@@ -12,7 +12,6 @@ import net.casual.arcade.minigame.MinigamePhase
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import java.util.*
 import java.util.function.Consumer
-import kotlin.collections.ArrayList
 
 /**
  * This class is an implementation of [EventRegisterer]

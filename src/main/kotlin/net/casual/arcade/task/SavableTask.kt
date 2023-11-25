@@ -5,7 +5,6 @@ import net.casual.arcade.minigame.SavableMinigame
 import net.casual.arcade.minigame.task.MinigameTaskFactory
 import net.casual.arcade.minigame.task.MinigameTaskGenerator
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
-import java.io.Serializable
 
 /**
  * This interface is used to represent a [Task] that

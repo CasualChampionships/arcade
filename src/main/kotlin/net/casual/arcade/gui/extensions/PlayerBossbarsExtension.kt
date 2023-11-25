@@ -1,16 +1,16 @@
 package net.casual.arcade.gui.extensions
 
-import net.casual.arcade.extensions.Extension
+import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.gui.bossbar.CustomBossBar
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket
-import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.BossEvent
 import java.util.*
 
 internal class PlayerBossbarsExtension(
-    private val owner: ServerPlayer
-): Extension {
+    owner: ServerGamePacketListenerImpl
+): PlayerExtension(owner) {
     private val bossbars = HashMap<CustomBossBar, PlayerBossEvent>()
 
     internal fun tick() {
@@ -33,68 +33,68 @@ internal class PlayerBossbarsExtension(
 
         val data = PlayerBossEvent(
             bar.uuid,
-            bar.getTitle(this.owner),
-            bar.getColour(this.owner),
-            bar.getOverlay(this.owner)
+            bar.getTitle(this.player),
+            bar.getColour(this.player),
+            bar.getOverlay(this.player)
         )
-        data.progress = bar.getProgress(this.owner)
-        data.setDarkenScreen(bar.isDark(this.owner))
-        data.setPlayBossMusic(bar.hasMusic(this.owner))
-        data.setCreateWorldFog(bar.hasFog(this.owner))
+        data.progress = bar.getProgress(this.player)
+        data.setDarkenScreen(bar.isDark(this.player))
+        data.setPlayBossMusic(bar.hasMusic(this.player))
+        data.setCreateWorldFog(bar.hasFog(this.player))
         this.bossbars[bar] = data
-        this.owner.connection.send(ClientboundBossEventPacket.createAddPacket(data))
+        this.player.connection.send(ClientboundBossEventPacket.createAddPacket(data))
     }
 
     internal fun remove(bar: CustomBossBar) {
         this.bossbars.remove(bar)
-        this.owner.connection.send(ClientboundBossEventPacket.createRemovePacket(bar.uuid))
+        this.player.connection.send(ClientboundBossEventPacket.createRemovePacket(bar.uuid))
     }
 
     internal fun updateTitle(bar: CustomBossBar) {
         val data = this.bossbars[bar] ?: return
-        val new = bar.getTitle(this.owner)
+        val new = bar.getTitle(this.player)
         if (new != data.name) {
             data.name = new
-            this.owner.connection.send(ClientboundBossEventPacket.createUpdateNamePacket(data))
+            this.player.connection.send(ClientboundBossEventPacket.createUpdateNamePacket(data))
         }
     }
 
     internal fun updateProgress(bar: CustomBossBar) {
         val data = this.bossbars[bar] ?: return
-        val new = bar.getProgress(this.owner)
+        val new = bar.getProgress(this.player)
         if (new != data.progress) {
             data.progress = new
-            this.owner.connection.send(ClientboundBossEventPacket.createUpdateProgressPacket(data))
+            this.player.connection.send(ClientboundBossEventPacket.createUpdateProgressPacket(data))
         }
     }
 
     internal fun updateStyle(bar: CustomBossBar) {
         val data = this.bossbars[bar] ?: return
-        val newColour = bar.getColour(this.owner)
-        val newOverlay = bar.getOverlay(this.owner)
+        val newColour = bar.getColour(this.player)
+        val newOverlay = bar.getOverlay(this.player)
         if (newColour != data.color || newOverlay != data.overlay) {
             data.color = newColour
             data.overlay = newOverlay
-            this.owner.connection.send(ClientboundBossEventPacket.createUpdateStylePacket(data))
+            this.player.connection.send(ClientboundBossEventPacket.createUpdateStylePacket(data))
         }
     }
 
     internal fun updateProperties(bar: CustomBossBar) {
         val data = this.bossbars[bar] ?: return
-        val newDark = bar.isDark(this.owner)
-        val newMusic = bar.hasMusic(this.owner)
-        val newFog = bar.hasFog(this.owner)
+        val newDark = bar.isDark(this.player)
+        val newMusic = bar.hasMusic(this.player)
+        val newFog = bar.hasFog(this.player)
         if (newDark != data.shouldDarkenScreen() || newMusic != data.shouldPlayBossMusic() || newFog != data.shouldCreateWorldFog()) {
             data.setDarkenScreen(newDark)
             data.setPlayBossMusic(newMusic)
             data.setCreateWorldFog(newFog)
-            this.owner.connection.send(ClientboundBossEventPacket.createUpdatePropertiesPacket(data))
+            this.player.connection.send(ClientboundBossEventPacket.createUpdatePropertiesPacket(data))
         }
     }
 
     internal fun disconnect() {
         for (bar in LinkedList(this.bossbars.keys)) {
-            bar.removePlayer(this.owner)
+            bar.removePlayer(this.player)
         }
     }
 

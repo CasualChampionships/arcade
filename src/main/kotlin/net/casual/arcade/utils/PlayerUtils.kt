@@ -33,7 +33,7 @@ import net.minecraft.world.level.GameType
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.scores.PlayerTeam
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
 

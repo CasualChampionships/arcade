@@ -3,7 +3,7 @@ package net.casual.arcade.events.player
 import com.mojang.brigadier.tree.RootCommandNode
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.server.level.ServerPlayer
-import java.util.LinkedList
+import java.util.*
 
 public class PlayerSendCommandsEvent(
     override val player: ServerPlayer

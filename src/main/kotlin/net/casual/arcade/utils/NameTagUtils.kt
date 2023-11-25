@@ -20,7 +20,7 @@ public object NameTagUtils {
 
     internal fun registerEvents() {
         GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
-            player.addExtension(PlayerNameTagExtension(player))
+            player.addExtension(PlayerNameTagExtension(player.connection))
         }
         GlobalEventHandler.register<PlayerPoseEvent> { (player, previous, next) ->
             if (previous == Pose.CROUCHING) {
