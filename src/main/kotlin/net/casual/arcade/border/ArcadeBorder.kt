@@ -1,13 +1,18 @@
 package net.casual.arcade.border
 
+import com.google.gson.JsonObject
 import net.casual.arcade.border.state.*
 import net.casual.arcade.scheduler.MinecraftTimeDuration
+import net.casual.arcade.utils.JsonUtils.double
+import net.casual.arcade.utils.JsonUtils.int
+import net.casual.arcade.utils.JsonUtils.long
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.border.BorderChangeListener
 import net.minecraft.world.level.border.BorderStatus
 import net.minecraft.world.level.border.WorldBorder
 import net.minecraft.world.phys.shapes.VoxelShape
 
-public abstract class ArcadeBorder: WorldBorder() {
+public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
     protected abstract var borderState: BorderState
     protected abstract var centerState: CenterBorderState
 
@@ -53,12 +58,12 @@ public abstract class ArcadeBorder: WorldBorder() {
         this.changeCenter(x, z)
     }
 
-    public open fun lerpCenterTo(x: Double, z: Double, time: Long) {
-        this.centerState = MovingCenterBorderState(this, this.centerState.getCenterX(), this.centerState.getCenterZ(), x, z, time)
+    public open fun lerpCenterBetween(fromX: Double, fromZ: Double, toX: Double, toZ: Double, time: Long) {
+        this.centerState = MovingCenterBorderState(this, fromX, fromZ, toX, toZ, time)
     }
 
     public fun lerpCenterTo(x: Double, z: Double, duration: MinecraftTimeDuration) {
-        this.lerpCenterTo(x, z, duration.toMilliseconds().toLong())
+        this.lerpCenterBetween(this.centerX, this.centerZ, x, z, duration.toMilliseconds().toLong())
     }
 
     final override fun getSize(): Double {
@@ -123,6 +128,43 @@ public abstract class ArcadeBorder: WorldBorder() {
 
         for (listener in this.listeners) {
             listener.onBorderCenterSet(this, x, z)
+        }
+    }
+
+    override fun serialize(): CompoundTag {
+        val compound = super.serialize()
+        compound.putLong("center_lerp_time", this.centerState.getLerpRemainingTime())
+        compound.putDouble("center_lerp_target_x", this.centerState.getTargetCenterX())
+        compound.putDouble("center_lerp_target_z", this.centerState.getTargetCenterZ())
+        return compound
+    }
+
+    override fun deserialize(compound: CompoundTag) {
+        this.damagePerBlock = compound.getDouble("damage_per_block")
+        this.damageSafeZone = compound.getDouble("damage_safe_zone")
+        this.warningBlocks = compound.getInt("warning_blocks")
+        this.warningTime = compound.getInt("warning_time")
+        val remaining = compound.getLong("lerp_time")
+        val size = compound.getDouble("size")
+        if (remaining > 0L) {
+            this.lerpSizeBetween(size, compound.getDouble("lerp_target"), remaining)
+        } else {
+            setSize(size)
+        }
+
+        val centerRemaining = compound.getLong("center_lerp_time")
+        val centerX = compound.getDouble("center_x")
+        val centerZ = compound.getDouble("center_z")
+        if (centerRemaining > 0L) {
+            this.lerpCenterBetween(
+                centerX,
+                centerZ,
+                compound.getDouble("center_lerp_target_x"),
+                compound.getDouble("center_lerp_target_z"),
+                compound.getLong("center_lerp_time")
+            )
+        } else {
+            this.setCenter(centerX, centerZ)
         }
     }
 }

@@ -12,6 +12,18 @@ public class StillCenterBorderState(
         return this.centerZ
     }
 
+    override fun getTargetCenterX(): Double {
+        return this.centerX
+    }
+
+    override fun getTargetCenterZ(): Double {
+        return this.centerZ
+    }
+
+    override fun getLerpRemainingTime(): Long {
+        return 0L
+    }
+
     override fun update(): CenterBorderState {
         return this
     }

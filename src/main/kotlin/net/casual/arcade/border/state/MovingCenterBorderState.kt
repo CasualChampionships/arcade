@@ -1,6 +1,7 @@
 package net.casual.arcade.border.state
 
 import net.casual.arcade.border.ArcadeBorder
+import net.casual.arcade.utils.TickUtils
 import net.minecraft.util.Mth
 
 public class MovingCenterBorderState(
@@ -22,6 +23,19 @@ public class MovingCenterBorderState(
     override fun getCenterZ(): Double {
         val progress = this.ticks / this.tickDuration
         return if (progress < 1.0) Mth.lerp(progress, this.centerZ, this.targetCenterZ) else this.targetCenterZ
+    }
+
+    override fun getTargetCenterX(): Double {
+        return this.targetCenterX
+    }
+
+    override fun getTargetCenterZ(): Double {
+        return this.targetCenterZ
+    }
+
+    override fun getLerpRemainingTime(): Long {
+        val tps = TickUtils.calculateTPS()
+        return ((this.tickDuration - this.ticks) / tps * 1000).toLong()
     }
 
     override fun update(): CenterBorderState {

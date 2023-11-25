@@ -20,8 +20,8 @@ public class TrackedBorder(size: Double, centerX: Double, centerZ: Double): Arca
         this.trackChanges { super.lerpSizeBetween(start, end, time) }
     }
 
-    override fun lerpCenterTo(x: Double, z: Double, time: Long) {
-        this.trackChanges { super.lerpCenterTo(x, z, time) }
+    override fun lerpCenterBetween(fromX: Double, fromZ: Double, toX: Double, toZ: Double, time: Long) {
+        this.trackChanges { super.lerpCenterBetween(fromX, fromZ, toX, toZ, time) }
     }
 
     override fun setSize(size: Double) {

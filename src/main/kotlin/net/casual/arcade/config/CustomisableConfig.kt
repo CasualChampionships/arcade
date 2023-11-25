@@ -3,6 +3,7 @@ package net.casual.arcade.config
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.array
@@ -57,6 +58,30 @@ public open class CustomisableConfig(
         this.path.bufferedWriter().use {
             JsonUtils.GSON.toJson(this.json, it)
         }
+    }
+
+    public operator fun set(name: String, json: JsonElement) {
+        this.json.add(name, json)
+    }
+
+    public operator fun set(name: String, none: Nothing?) {
+        this.json.add(name, none)
+    }
+
+    public operator fun set(name: String, string: String) {
+        this.json.addProperty(name, string)
+    }
+
+    public operator fun set(name: String, number: Number) {
+        this.json.addProperty(name, number)
+    }
+
+    public operator fun set(name: String, boolean: Boolean) {
+        this.json.addProperty(name, boolean)
+    }
+
+    public operator fun set(name: String, char: Char) {
+        this.json.addProperty(name, char)
     }
 
     public fun boolean(name: String? = null, default: Boolean = false): Configurable<Boolean> {

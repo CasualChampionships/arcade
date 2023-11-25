@@ -110,6 +110,22 @@ public object JsonUtils {
         return this.intOrNull(key) ?: putter().also { this.addProperty(key, it) }
     }
 
+    public fun JsonObject.long(key: String): Long {
+        return this.get(key).asLong
+    }
+
+    public fun JsonObject.longOrNull(key: String): Long? {
+        return this.getWithNull(key)?.asLong
+    }
+
+    public fun JsonObject.longOrDefault(key: String, default: Long = 0L): Long {
+        return this.getWithNull(key)?.asLong ?: default
+    }
+
+    public fun JsonObject.longOrPut(key: String, putter: () -> Long = { 0L }): Long {
+        return this.longOrNull(key) ?: putter().also { this.addProperty(key, it) }
+    }
+
     public fun JsonObject.float(key: String): Float {
         return this.get(key).asFloat
     }
