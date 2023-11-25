@@ -9,9 +9,12 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(WorldBorder.class)
 public abstract class WorldBorderMixin implements Arcade$SerializableBorder {
-	@Shadow private double damageSafeZone;
 	@Shadow private double damagePerBlock;
+
+	@Shadow private double damageSafeZone;
+
 	@Shadow private int warningBlocks;
+
 	@Shadow private int warningTime;
 
 	@Shadow public abstract double getSize();
@@ -30,18 +33,26 @@ public abstract class WorldBorderMixin implements Arcade$SerializableBorder {
 
 	@Shadow public abstract void setSize(double size);
 
+	@Shadow public abstract int getWarningBlocks();
+
+	@Shadow public abstract int getWarningTime();
+
+	@Shadow public abstract double getDamageSafeZone();
+
+	@Shadow public abstract double getDamagePerBlock();
+
 	@Override
 	public CompoundTag arcade$serialize() {
 		CompoundTag compound = new CompoundTag();
 		compound.putDouble("center_x", this.getCenterX());
 		compound.putDouble("center_z", this.getCenterZ());
 		compound.putDouble("size", this.getSize());
-		compound.putDouble("damage_safe_zone", this.damageSafeZone);
-		compound.putDouble("damage_per_block", this.damagePerBlock);
+		compound.putDouble("damage_safe_zone", this.getDamageSafeZone());
+		compound.putDouble("damage_per_block", this.getDamagePerBlock());
 		compound.putLong("lerp_time", this.getLerpRemainingTime());
 		compound.putDouble("lerp_target", this.getLerpTarget());
-		compound.putInt("warning_blocks", this.warningBlocks);
-		compound.putInt("warning_time", this.warningTime);
+		compound.putInt("warning_blocks", this.getWarningBlocks());
+		compound.putInt("warning_time", this.getWarningTime());
 		return compound;
 	}
 
