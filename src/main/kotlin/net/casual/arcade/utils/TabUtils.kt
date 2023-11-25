@@ -15,7 +15,7 @@ internal object TabUtils {
 
     internal fun registerEvents() {
         GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
-            player.addExtension(PlayerTabDisplayExtension(player))
+            player.addExtension(PlayerTabDisplayExtension(player.connection))
         }
         GlobalEventHandler.register<PlayerLeaveEvent> { (player) ->
             player.tabDisplay.disconnect()
