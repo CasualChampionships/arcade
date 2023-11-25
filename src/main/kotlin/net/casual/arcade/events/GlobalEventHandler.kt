@@ -178,7 +178,12 @@ public object GlobalEventHandler {
                 "Detected broadcasted event (type: {}) off main thread, pushing to main thread...",
                 type.simpleName
             )
-            server.execute { this.broadcast(event) }
+            if (!server.isStopped) {
+                server.execute { this.broadcast(event) }
+            } else {
+                this.logger.warn("Cannot push to main thread, server is stopping! This may cause undefined behaviour...")
+                return false
+            }
             return true
         }
         return false
