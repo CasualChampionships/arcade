@@ -13,6 +13,7 @@
     "commands.CommandDispatcherMixin",
     "commands.CommandNodeMixin",
     "commands.CommandsMixin",
+    "commands.PlayerListMixin",
     "commands.ServerGamePacketListenerImplMixin",
     "events.BlockItemMixin",
     "events.BrewingStandBlockEntityAccessor",
