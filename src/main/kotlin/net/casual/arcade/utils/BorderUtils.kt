@@ -16,7 +16,7 @@ public object BorderUtils {
     private val original = HashMap<ServerLevel, BorderChangeListener>()
     private val replacement = HashMap<ServerLevel, BorderChangeListener>()
 
-    private var currentlySynced = false
+    private var currentlySynced = true
 
     @JvmStatic
     public var synced: Boolean by ArcadeConfig.boolean("border_synced", false)
