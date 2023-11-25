@@ -2,6 +2,7 @@ package net.casual.arcade.border
 
 import com.google.gson.JsonObject
 import net.casual.arcade.border.state.*
+import net.casual.arcade.ducks.`Arcade$SerializableBorder`
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.utils.JsonUtils.double
 import net.casual.arcade.utils.JsonUtils.int
@@ -132,7 +133,7 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
     }
 
     override fun serialize(): CompoundTag {
-        val compound = super.serialize()
+        val compound = (this as `Arcade$SerializableBorder`).`arcade$serialize`()
         compound.putLong("center_lerp_time", this.centerState.getLerpRemainingTime())
         compound.putDouble("center_lerp_target_x", this.centerState.getTargetCenterX())
         compound.putDouble("center_lerp_target_z", this.centerState.getTargetCenterZ())
