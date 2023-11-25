@@ -29,6 +29,10 @@ public class MinigameStatManager {
         return stats
     }
 
+    public fun serialize(player: ServerPlayer): JsonArray {
+        return this.stats[player.uuid]?.serialize() ?: JsonArray()
+    }
+
     internal fun deserialize(array: JsonArray) {
         for (tracker in array.objects()) {
             val uuid = UUID.fromString(tracker.string("uuid"))
