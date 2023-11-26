@@ -34,6 +34,19 @@ public class PlayerListMixin {
 		)
 	)
 	private WorldBorder onGetWorldBorder(WorldBorder border, ServerPlayer player, ServerLevel level) {
-		return BorderUtils.getSynced() ? border : level.getWorldBorder();
+		if (BorderUtils.getSynced()) {
+			return border;
+		}
+		WorldBorder current = level.getWorldBorder();
+		// Minecraft by default scales down the center of the border,
+		// so we need to copy the border and reset this adjustment...
+		double scale = level.dimensionType().coordinateScale();
+		if (scale != 1.0) {
+			WorldBorder copy = new WorldBorder();
+			copy.applySettings(current.createSettings());
+			copy.setCenter(copy.getCenterX() * scale, copy.getCenterZ() * scale);
+			return copy;
+		}
+		return current;
 	}
 }

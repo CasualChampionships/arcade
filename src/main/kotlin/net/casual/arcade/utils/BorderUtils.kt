@@ -23,9 +23,9 @@ public object BorderUtils {
         private set
 
     @JvmStatic
-    public fun joinWorldBorders() {
+    public fun joinWorldBorders(): Boolean {
         if (this.currentlySynced) {
-            return
+            return false
         }
         this.currentlySynced = true
         this.synced = true
@@ -38,12 +38,13 @@ public object BorderUtils {
         for (level in LevelUtils.levels()) {
             border.addListener(this.original.getOrPut(level) { DelegateBorderChangeListener(level.worldBorder) })
         }
+        return true
     }
 
     @JvmStatic
-    public fun isolateWorldBorders() {
+    public fun isolateWorldBorders(): Boolean {
         if (!this.currentlySynced) {
-            return
+            return false
         }
         this.currentlySynced = false
         this.synced = false
@@ -57,6 +58,7 @@ public object BorderUtils {
             val broadcaster = this.replacement.getOrPut(level) { LevelSpecificBorderBroadcaster(level) }
             level.worldBorder.addListener(broadcaster)
         }
+        return true
     }
 
     @Internal

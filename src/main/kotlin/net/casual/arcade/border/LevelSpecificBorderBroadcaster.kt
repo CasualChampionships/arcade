@@ -16,6 +16,14 @@ internal class LevelSpecificBorderBroadcaster(val level: ServerLevel): BorderCha
     }
 
     override fun onBorderCenterSet(border: WorldBorder, x: Double, z: Double) {
+        // We need to copy the border with the corrected center
+        val scale = this.level.dimensionType().coordinateScale
+        if (scale != 0.0) {
+            val copy = WorldBorder()
+            copy.setCenter(x * scale, z * scale)
+            this.broadcast(ClientboundSetBorderCenterPacket(copy))
+            return
+        }
         this.broadcast(ClientboundSetBorderCenterPacket(border))
     }
 

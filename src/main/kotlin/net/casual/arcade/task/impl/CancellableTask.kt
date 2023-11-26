@@ -3,11 +3,11 @@ package net.casual.arcade.task.impl
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import net.casual.arcade.Arcade
-import net.casual.arcade.config.CustomisableConfig.Companion.GSON
 import net.casual.arcade.task.*
 import net.casual.arcade.task.serialization.TaskCreationContext
 import net.casual.arcade.task.serialization.TaskFactory
 import net.casual.arcade.task.serialization.TaskWriteContext
+import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.boolean
 import net.casual.arcade.utils.JsonUtils.objects
 
@@ -113,7 +113,7 @@ public sealed class CancellableTask(
                 val wrappedData = data.getAsJsonObject("wrapped")
                 val wrapped = context.createTask(wrappedData)
                 if (wrapped == null) {
-                    val message = "Cancellable\$Savable task failed to create wrapped task with data: ${GSON.toJson(wrappedData)}"
+                    val message = "Cancellable\$Savable task failed to create wrapped task with data: ${JsonUtils.GSON.toJson(wrappedData)}"
                     throw IllegalStateException(message)
                 }
                 val isCancelled = data.boolean("is_cancelled")
@@ -127,7 +127,7 @@ public sealed class CancellableTask(
                 for (onCancelData in onCancelArray.objects()) {
                     val task = context.createTask(onCancelData)
                     if (task == null) {
-                        val message = "Cancellable\$Savable task failed to create on_cancel task with data ${GSON.toJson(onCancelData)}"
+                        val message = "Cancellable\$Savable task failed to create on_cancel task with data ${JsonUtils.GSON.toJson(onCancelData)}"
                         throw IllegalStateException(message)
                     }
                     savable.cancelled(task)

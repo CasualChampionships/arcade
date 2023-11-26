@@ -28,6 +28,7 @@ public object FantasyUtils {
         return Triple(overworld, nether, end)
     }
 
+    @JvmName("createNullableTemporaryVanillaLikeLevels")
     public fun createTemporaryVanillaLikeLevels(
         server: MinecraftServer = Arcade.getServer(),
         overworldConfig: RuntimeWorldConfig? = null,
@@ -62,6 +63,7 @@ public object FantasyUtils {
         return Triple(overworld, nether, end)
     }
 
+    @JvmName("createNullablePersistentVanillaLikeLevels")
     public fun createPersistentVanillaLikeLevels(
         server: MinecraftServer = Arcade.getServer(),
         overworldConfig: PersistentConfig? = null,

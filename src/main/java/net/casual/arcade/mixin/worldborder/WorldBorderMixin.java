@@ -10,11 +10,8 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(WorldBorder.class)
 public abstract class WorldBorderMixin implements Arcade$SerializableBorder {
 	@Shadow private double damagePerBlock;
-
 	@Shadow private double damageSafeZone;
-
 	@Shadow private int warningBlocks;
-
 	@Shadow private int warningTime;
 
 	@Shadow public abstract double getSize();

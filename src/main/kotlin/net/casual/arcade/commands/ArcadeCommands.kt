@@ -8,6 +8,7 @@ internal object ArcadeCommands {
         GlobalEventHandler.register<ServerRegisterCommandEvent> {
             MinigameCommand.register(it.dispatcher)
             TeamCommandModifier.register(it.dispatcher)
+            WorldBorderCommandModifier.register(it.dispatcher)
 
             ArcadeCommand.register(it.dispatcher)
         }

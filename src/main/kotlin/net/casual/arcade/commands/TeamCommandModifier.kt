@@ -19,7 +19,7 @@ internal object TeamCommandModifier: Command {
     override fun register(dispatcher: CommandDispatcher<CommandSourceStack>) {
         dispatcher.register(
             Commands.literal("team").then(
-                Commands.literal("randomise").then(
+                Commands.literal("randomize").then(
                     Commands.argument("players", EntityArgument.players()).then(
                         Commands.argument("size", IntegerArgumentType.integer(1)).then(
                             Commands.argument("friendlyFire", BoolArgumentType.bool()).then(

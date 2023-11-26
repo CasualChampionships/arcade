@@ -300,9 +300,4 @@ public open class CustomisableConfig(
     public fun getObjectOrDefault(key: String, default: JsonObject = JsonObject()): JsonObject {
         return this.json.objOrDefault(key, default)
     }
-
-    public companion object {
-        @Deprecated("Use 'JsonUtils.GSON' instead")
-        public val GSON: Gson = GsonBuilder().disableHtmlEscaping().serializeNulls().setPrettyPrinting().create()
-    }
 }

@@ -13,6 +13,7 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.utils.ComponentUtils.literal
+import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
@@ -217,7 +218,7 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<MinigameArgume
 
     public class SettingsValue: CustomArgumentType(), ArgumentType<JsonElement> {
         override fun parse(reader: StringReader): JsonElement {
-            return CustomisableConfig.GSON.fromJson(reader.readString(), JsonElement::class.java)
+            return JsonUtils.GSON.fromJson(reader.readString(), JsonElement::class.java)
         }
 
         public companion object {

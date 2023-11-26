@@ -12,6 +12,8 @@ public class TrackedBorder(size: Double, centerX: Double, centerZ: Double): Arca
 
     private var trackers = LinkedList<MultiLevelBorderTracker>()
 
+    private var isTracking = false
+
     override fun tick() {
         this.trackChanges { super.tick() }
     }
@@ -49,6 +51,11 @@ public class TrackedBorder(size: Double, centerX: Double, centerZ: Double): Arca
     }
 
     private inline fun trackChanges(block: TrackedBorder.() -> Unit) {
+        if (this.isTracking) {
+            block()
+            return
+        }
+        this.isTracking = true
         val wasStationary = this.isStationary()
         block()
         if (!wasStationary && this.isStationary()) {
@@ -57,5 +64,6 @@ public class TrackedBorder(size: Double, centerX: Double, centerZ: Double): Arca
         if (wasStationary && !this.isStationary()) {
             this.trackers.forEach { it.onBorderActive(this) }
         }
+        this.isTracking = false
     }
 }

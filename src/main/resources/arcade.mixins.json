@@ -51,9 +51,11 @@
     "recipes.CraftingMenuMixin",
     "recipes.RecipeManagerMixin",
     "screen.ServerGamePacketListenerImplMixin",
+    "worldborder.LevelMixin",
     "worldborder.MinecraftServerMixin",
     "worldborder.PlayerListMixin",
     "worldborder.StaticBorderExtentMixin",
+    "worldborder.WorldBorderCommandMixin",
     "worldborder.WorldBorderMixin"
   ],
   "injectors": {
