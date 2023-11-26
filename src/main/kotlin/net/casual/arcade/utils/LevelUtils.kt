@@ -4,6 +4,8 @@ import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Cons
 import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
+import net.casual.arcade.level.VanillaDimension
+import net.casual.arcade.level.VanillaLikeLevel
 import net.casual.arcade.utils.ExtensionUtils.addExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtensions
@@ -42,6 +44,38 @@ public object LevelUtils {
         for (level in this.levels()) {
             consumer.accept(level)
         }
+    }
+
+    @JvmStatic
+    public fun getLikeDimension(level: Level): ResourceKey<Level> {
+        if (level is VanillaLikeLevel) {
+            return level.vanilla.key
+        }
+        return level.dimension()
+    }
+
+    @JvmStatic
+    public fun getNetherOppositeDimension(level: Level, default: ResourceKey<Level>): ResourceKey<Level>? {
+        if (level is VanillaLikeLevel) {
+            return when (level.vanilla) {
+                VanillaDimension.Overworld -> level.others.nether
+                VanillaDimension.Nether -> level.others.overworld
+                VanillaDimension.End -> null
+            }
+        }
+        return default
+    }
+
+    @JvmStatic
+    public fun getEndOppositeDimension(level: Level, default: ResourceKey<Level>): ResourceKey<Level>? {
+        if (level is VanillaLikeLevel) {
+            return when (level.vanilla) {
+                VanillaDimension.Overworld -> level.others.end
+                VanillaDimension.End -> level.others.overworld
+                VanillaDimension.Nether -> null
+            }
+        }
+        return default
     }
 
     @JvmStatic

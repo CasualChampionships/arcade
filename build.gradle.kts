@@ -47,6 +47,8 @@ dependencies {
     // modImplementation("xyz.nucleoid:server-translations-api:${property("server_translations_api_version")}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin_version")}")
 
+    include(modImplementation("xyz.nucleoid:fantasy:${property("fantasy_version")}")!!)
+
     include(modImplementation("eu.pb4:polymer-core:${property("polymer_version")}")!!)
     include(modImplementation("eu.pb4:polymer-blocks:${property("polymer_version")}")!!)
     include(modImplementation("eu.pb4:polymer-resource-pack:${property("polymer_version")}")!!)
