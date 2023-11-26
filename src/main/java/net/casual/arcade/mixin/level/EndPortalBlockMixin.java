@@ -16,6 +16,6 @@ public class EndPortalBlockMixin {
 		at = @At("STORE")
 	)
 	private ResourceKey<Level> getOppositeDimension(ResourceKey<Level> original, BlockState state, Level level) {
-		return LevelUtils.getNetherOppositeDimension(level, original);
+		return LevelUtils.getEndOppositeDimension(level, original);
 	}
 }
