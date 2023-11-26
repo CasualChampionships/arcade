@@ -1,9 +1,11 @@
-package net.casual.arcade.minigame
+package net.casual.arcade.minigame.serialization
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.Arcade
+import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.task.AnyMinigameTaskFactory
 import net.casual.arcade.minigame.task.MinigameTaskFactory
 import net.casual.arcade.minigame.task.MinigameTaskGenerator
@@ -11,6 +13,10 @@ import net.casual.arcade.minigame.task.impl.PhaseChangeTask
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.task.*
+import net.casual.arcade.task.impl.CancellableTask
+import net.casual.arcade.task.serialization.TaskCreationContext
+import net.casual.arcade.task.serialization.TaskFactory
+import net.casual.arcade.task.serialization.TaskWriteContext
 import net.casual.arcade.utils.JsonUtils.arrayOrDefault
 import net.casual.arcade.utils.JsonUtils.booleanOrDefault
 import net.casual.arcade.utils.JsonUtils.hasNonNull

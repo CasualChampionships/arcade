@@ -98,7 +98,7 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.hasPermission(permission: String, level: Int = 4): Boolean {
-        return Permissions.check(this, permission)
+        return Permissions.check(this, permission, level)
     }
 
     @JvmStatic
@@ -175,6 +175,11 @@ public object PlayerUtils {
         this.server.playerList.broadcastAll(
             ClientboundSetPlayerTeamPacket.createPlayerPacket(team, this.scoreboardName, ADD)
         )
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.hasAdvancement(advancement: Advancement): Boolean {
+        return this.advancements.getOrStartProgress(advancement).isDone
     }
 
     @JvmStatic

@@ -15,10 +15,10 @@ public fun interface MinigameTask<M: Minigame<M>>: Serializable {
 
 @Suppress("FunctionName")
 public fun <M: Minigame<M>> MinigameTask(minigame: M, task: MinigameTask<M>): Task {
-    return Impl(minigame, task)
+    return MinigameTaskImpl(minigame, task)
 }
 
-private class Impl<M: Minigame<M>>(
+private class MinigameTaskImpl<M: Minigame<M>>(
     @Transient private var minigame: M,
     private val task: MinigameTask<M>
 ): Task, Serializable {

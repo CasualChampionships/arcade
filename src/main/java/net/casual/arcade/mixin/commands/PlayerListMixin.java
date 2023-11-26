@@ -26,17 +26,15 @@ public abstract class PlayerListMixin {
 
 	@Inject(
 		method = "respawn",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/server/level/ServerLevel;addRespawnedPlayer(Lnet/minecraft/server/level/ServerPlayer;)V",
-			shift = At.Shift.AFTER
-		)
+		at = @At("RETURN")
 	)
 	private void afterAddRespawnPlayer(
 		ServerPlayer player,
 		boolean keepEverything,
 		CallbackInfoReturnable<ServerPlayer> cir
 	) {
+		// We delay the sending of player permissions until
+		// after the player has been added to the world
 		this.sendPlayerPermissionLevel(player);
 	}
 }

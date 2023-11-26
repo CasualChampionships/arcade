@@ -10,6 +10,7 @@ import net.casual.arcade.events.minigame.MinigameAddNewPlayerEvent
 import net.casual.arcade.events.minigame.MinigameAddPlayerEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.MinigamePhase
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
@@ -183,7 +184,7 @@ public abstract class LobbyMinigame(
 
     private fun setNextNewMinigame(context: CommandContext<CommandSourceStack>): Int {
         val factory = MinigameArgument.Factory.getFactory(context, "minigame")
-        val next = factory.create(context.source.server)
+        val next = factory.create(MinigameCreationContext(context.source.server))
         this.next = next
         return context.source.success("Successfully set the next minigame to ${next.id}")
     }

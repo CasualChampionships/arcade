@@ -26,6 +26,11 @@ public object ItemUtils {
     }
 
     @JvmStatic
+    public fun Item.named(text: Component): ItemStack {
+        return this.defaultInstance.setHoverName(text)
+    }
+
+    @JvmStatic
     public fun ItemStack.literalNamed(name: String): ItemStack {
         return this.setHoverName(name.literal())
     }
@@ -36,12 +41,24 @@ public object ItemUtils {
     }
 
     @JvmStatic
+    public fun ItemStack.named(text: Component): ItemStack {
+        return this.setHoverName(text)
+    }
+
+    @JvmStatic
     public fun ItemStack.setLore(lore: Iterable<Component>) {
         val list = ListTag()
         for (component in lore) {
             list.add(StringTag.valueOf(Component.Serializer.toJson(component)))
         }
         this.addTagElement(ItemStack.TAG_LORE, list)
+    }
+
+    @JvmStatic
+    public fun ItemStack.hideTooltips() {
+        for (part in ItemStack.TooltipPart.values()) {
+            this.hideTooltipPart(part)
+        }
     }
 
     @JvmStatic

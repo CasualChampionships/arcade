@@ -7,7 +7,11 @@ import net.casual.arcade.Arcade
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.events.server.ServerSaveEvent
+import net.casual.arcade.minigame.serialization.MinigameCreationContext
+import net.casual.arcade.minigame.serialization.MinigameFactory
+import net.casual.arcade.minigame.serialization.SavableMinigame
 import net.casual.arcade.utils.JsonUtils.obj
+import net.casual.arcade.utils.JsonUtils.objOrNull
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
 import net.minecraft.resources.ResourceLocation
@@ -133,10 +137,12 @@ public object Minigames {
                 continue
             }
 
-            val minigame = factory.create(server)
+            val data = game.obj("data")
+            val context = MinigameCreationContext(server, data.objOrNull("custom"))
+            val minigame = factory.create(context)
             register(minigame)
             if (minigame is SavableMinigame) {
-                minigame.read(game.obj("data"))
+                minigame.read(data)
             } else {
                 Arcade.logger.warn("Minigame with id $id loaded but was not Savable?!?")
             }

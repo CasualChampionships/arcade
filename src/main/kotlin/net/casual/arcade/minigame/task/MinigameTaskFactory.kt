@@ -3,8 +3,8 @@ package net.casual.arcade.minigame.task
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.task.SavableTask
 import net.casual.arcade.task.Task
-import net.casual.arcade.task.TaskCreationContext
-import net.casual.arcade.task.TaskFactory
+import net.casual.arcade.task.serialization.TaskCreationContext
+import net.casual.arcade.task.serialization.TaskFactory
 
 /**
  * This interface is for creating tasks from serialized data.

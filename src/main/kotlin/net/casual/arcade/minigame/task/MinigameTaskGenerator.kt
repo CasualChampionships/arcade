@@ -1,11 +1,11 @@
 package net.casual.arcade.minigame.task
 
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.SavableMinigame
+import net.casual.arcade.minigame.serialization.SavableMinigame
 import net.casual.arcade.task.SavableTask
 import net.casual.arcade.task.Task
-import net.casual.arcade.task.TaskCreationContext
-import net.casual.arcade.task.TaskFactory
+import net.casual.arcade.task.serialization.TaskCreationContext
+import net.casual.arcade.task.serialization.TaskFactory
 
 /**
  * This class helps generate [Task]s for a minigame.

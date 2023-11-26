@@ -7,6 +7,7 @@ import net.casual.arcade.commands.arguments.MinigameArgument.PhaseName.Companion
 import net.casual.arcade.commands.arguments.MinigameArgument.SettingsName.Companion.INVALID_SETTING_NAME
 import net.casual.arcade.commands.arguments.MinigameArgument.SettingsOption.Companion.INVALID_SETTING_OPTION
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
@@ -212,7 +213,7 @@ internal object MinigameCommand: Command {
 
     private fun createMinigame(context: CommandContext<CommandSourceStack>): Int {
         val factory = MinigameArgument.Factory.getFactory(context, "factory")
-        val minigame = factory.create(context.source.server)
+        val minigame = factory.create(MinigameCreationContext(context.source.server))
         return context.source.success("Successfully created minigame ${minigame.id} with uuid ${minigame.uuid}")
     }
 

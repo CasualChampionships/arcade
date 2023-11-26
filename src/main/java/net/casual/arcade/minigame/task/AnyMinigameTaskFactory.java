@@ -2,7 +2,7 @@ package net.casual.arcade.minigame.task;
 
 import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.task.Task;
-import net.casual.arcade.task.TaskCreationContext;
+import net.casual.arcade.task.serialization.TaskCreationContext;
 import org.jetbrains.annotations.NotNull;
 
 /**

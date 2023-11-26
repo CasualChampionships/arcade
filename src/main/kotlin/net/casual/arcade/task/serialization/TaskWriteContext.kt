@@ -1,7 +1,8 @@
-package net.casual.arcade.task
+package net.casual.arcade.task.serialization
 
 import com.google.gson.JsonObject
 import net.casual.arcade.minigame.task.MinigameTaskFactory
+import net.casual.arcade.task.Task
 
 /**
  * This interface provides the method that will be available

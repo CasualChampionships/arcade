@@ -6,8 +6,8 @@ import net.casual.arcade.gui.TickableUI
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.task.Completable
 import net.casual.arcade.task.Task
-import net.casual.arcade.task.TaskCreationContext
-import net.casual.arcade.task.TaskWriteContext
+import net.casual.arcade.task.serialization.TaskCreationContext
+import net.casual.arcade.task.serialization.TaskWriteContext
 import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.boolean
 import net.casual.arcade.utils.JsonUtils.int

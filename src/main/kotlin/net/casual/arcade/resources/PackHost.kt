@@ -129,7 +129,7 @@ public class PackHost(
                 }
 
                 // Wait for all of them to complete
-                futures.forEach { it.get() }
+                futures.forEach { it.join() }
 
                 server.start()
                 this.server = server

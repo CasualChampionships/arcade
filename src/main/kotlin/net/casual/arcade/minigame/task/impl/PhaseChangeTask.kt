@@ -7,8 +7,8 @@ import net.casual.arcade.minigame.MinigamePhase
 import net.casual.arcade.minigame.task.AnyMinigameTaskFactory
 import net.casual.arcade.task.SavableTask
 import net.casual.arcade.task.Task
-import net.casual.arcade.task.TaskCreationContext
-import net.casual.arcade.task.TaskWriteContext
+import net.casual.arcade.task.serialization.TaskCreationContext
+import net.casual.arcade.task.serialization.TaskWriteContext
 import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.MinigameUtils.getPhase
 

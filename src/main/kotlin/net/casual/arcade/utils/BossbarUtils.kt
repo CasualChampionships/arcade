@@ -9,7 +9,7 @@ import net.casual.arcade.gui.extensions.PlayerBossbarsExtension
 import net.casual.arcade.minigame.task.impl.BossBarTask
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.task.Task
-import net.casual.arcade.task.TaskCreationContext
+import net.casual.arcade.task.serialization.TaskCreationContext
 import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
 import net.minecraft.server.level.ServerPlayer

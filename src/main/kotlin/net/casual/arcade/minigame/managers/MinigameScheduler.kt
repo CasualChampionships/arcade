@@ -1,12 +1,12 @@
 package net.casual.arcade.minigame.managers
 
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.SavableMinigame
+import net.casual.arcade.minigame.serialization.SavableMinigame
 import net.casual.arcade.scheduler.MinecraftScheduler
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.scheduler.TickedScheduler
-import net.casual.arcade.task.CancellableTask
+import net.casual.arcade.task.impl.CancellableTask
 import net.casual.arcade.task.SavableTask
 import net.casual.arcade.task.Task
 

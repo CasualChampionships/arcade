@@ -129,6 +129,7 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
     }
 
     override fun serialize(): CompoundTag {
+        // This essentially calls super.serialize() (WorldBorer#serialize())
         val compound =  (this as `Arcade$SerializableBorder`).`arcade$serialize`()
         compound.putLong("center_lerp_time", this.centerState.getLerpRemainingTime())
         compound.putDouble("center_lerp_target_x", this.centerState.getTargetCenterX())

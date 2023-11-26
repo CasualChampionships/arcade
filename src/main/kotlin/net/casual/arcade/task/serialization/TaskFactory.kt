@@ -1,6 +1,7 @@
-package net.casual.arcade.task
+package net.casual.arcade.task.serialization
 
 import net.casual.arcade.minigame.task.MinigameTaskFactory
+import net.casual.arcade.task.Task
 
 /**
  * This interface is for creating tasks from serialized data.

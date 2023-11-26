@@ -1,9 +1,13 @@
-package net.casual.arcade.task
+package net.casual.arcade.task.impl
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import net.casual.arcade.Arcade
 import net.casual.arcade.config.CustomisableConfig.Companion.GSON
+import net.casual.arcade.task.*
+import net.casual.arcade.task.serialization.TaskCreationContext
+import net.casual.arcade.task.serialization.TaskFactory
+import net.casual.arcade.task.serialization.TaskWriteContext
 import net.casual.arcade.utils.JsonUtils.boolean
 import net.casual.arcade.utils.JsonUtils.objects
 
@@ -78,7 +82,7 @@ public sealed class CancellableTask(
     private class Default(wrapped: Task): CancellableTask(wrapped)
 
     internal class Savable(wrapped: Task): CancellableTask(wrapped), SavableTask {
-        override val id = Savable.id
+        override val id = Companion.id
 
         override fun writeCustomData(context: TaskWriteContext): JsonObject {
             val data = JsonObject()
