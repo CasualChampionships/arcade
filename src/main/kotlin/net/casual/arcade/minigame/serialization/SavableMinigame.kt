@@ -237,7 +237,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         }
 
         val settings = JsonArray()
-        for (setting in this.getSettings()) {
+        for (setting in this.getGameSettings()) {
             val data = JsonObject()
             data.addProperty("name", setting.name)
             data.add("value", setting.serializeValue())

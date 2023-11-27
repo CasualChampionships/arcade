@@ -23,6 +23,9 @@ import net.casual.arcade.utils.MinigameUtils.areTeamsReady
 import net.casual.arcade.utils.MinigameUtils.countdown
 import net.casual.arcade.utils.PlayerUtils.broadcast
 import net.casual.arcade.utils.PlayerUtils.broadcastToOps
+import net.casual.arcade.utils.PlayerUtils.clearPlayerInventory
+import net.casual.arcade.utils.PlayerUtils.resetExperience
+import net.casual.arcade.utils.PlayerUtils.resetHealth
 import net.casual.arcade.utils.PlayerUtils.resetHunger
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
@@ -45,22 +48,27 @@ public abstract class LobbyMinigame(
         super.initialize()
         this.events.register<MinigameAddNewPlayerEvent> { (_, player) ->
             this.lobby.forceTeleportToSpawn(player)
-            player.setGameMode(GameType.ADVENTURE)
+            player.resetHealth()
+            player.resetExperience()
             player.resetHunger()
+            player.clearPlayerInventory()
         }
         this.events.register<ServerTickEvent> {
             for (player in this.getPlayers()) {
                 this.lobby.tryTeleportToSpawn(player)
             }
         }
-        this.events.register<MinigameAddPlayerEvent> { (_, player) ->
-
-        }
 
         this.commands.register(this.createLobbyCommand())
 
-        this.pvp = false
-        this.hunger = false
+        this.settings.canPvp = false
+        this.settings.canGetHungry = false
+        this.settings.canBreakBlocks = false
+        this.settings.canPlaceBlocks = false
+        this.settings.canThrowItems = false
+        this.settings.canPickupItems = false
+        this.settings.canTakeDamage = false
+        this.settings.canInteractAll = false
     }
 
     public open fun onStart() {

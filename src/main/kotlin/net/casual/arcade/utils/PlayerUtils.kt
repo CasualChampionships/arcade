@@ -146,6 +146,11 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    public fun ServerPlayer.resetHealth() {
+        this.health = this.maxHealth
+    }
+
+    @JvmStatic
     public fun ServerPlayer.resetExperience() {
         this.experienceLevel = 0
         this.experienceProgress = 0.0F

@@ -47,6 +47,10 @@ import java.util.function.Consumer
 public class MinigameEventHandler<M: Minigame<M>>(
     private val owner: Minigame<M>
 ): EventRegisterer {
+    public companion object {
+
+    }
+
     internal val minigame = EventHandler()
     internal val phased = EventHandler()
 

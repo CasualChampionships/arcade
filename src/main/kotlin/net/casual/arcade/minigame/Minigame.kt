@@ -10,7 +10,6 @@ import net.casual.arcade.events.player.PlayerDamageEvent
 import net.casual.arcade.events.player.PlayerDeathEvent
 import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.events.player.PlayerLeaveEvent
-import net.casual.arcade.events.server.ServerStoppedEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.gui.bossbar.CustomBossBar
 import net.casual.arcade.gui.nametag.ArcadeNameTag
@@ -18,6 +17,7 @@ import net.casual.arcade.gui.screen.SelectionScreenComponents
 import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.gui.tab.ArcadeTabDisplay
 import net.casual.arcade.minigame.MinigameResources.Companion.sendTo
+import net.casual.arcade.minigame.annotation.MinigameEvent
 import net.casual.arcade.minigame.managers.*
 import net.casual.arcade.minigame.serialization.SavableMinigame
 import net.casual.arcade.scheduler.TickedScheduler
@@ -29,7 +29,6 @@ import net.casual.arcade.task.SavableTask
 import net.casual.arcade.utils.EventUtils.broadcast
 import net.casual.arcade.utils.EventUtils.registerHandler
 import net.casual.arcade.utils.EventUtils.unregisterHandler
-import net.casual.arcade.utils.ItemUtils.literalNamed
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.toJsonObject
 import net.casual.arcade.utils.JsonUtils.toJsonStringArray
@@ -39,7 +38,6 @@ import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.PlayerUtils
 import net.casual.arcade.utils.ScreenUtils
 import net.casual.arcade.utils.ScreenUtils.DefaultMinigameSettingsComponent
-import net.casual.arcade.utils.SettingsUtils.defaultOptions
 import net.casual.arcade.utils.StatUtils.increment
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.resources.ResourceLocation
@@ -48,11 +46,12 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.MenuProvider
-import net.minecraft.world.item.Items
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.scores.PlayerTeam
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
+import xyz.nucleoid.fantasy.RuntimeWorldHandle
 import java.util.*
+import kotlin.collections.LinkedHashSet
 import kotlin.collections.set
 
 /**
@@ -141,6 +140,7 @@ public abstract class Minigame<M: Minigame<M>>(
      */
     public val server: MinecraftServer,
 ) {
+    private val levelHandles: MutableSet<RuntimeWorldHandle>
     private val connections: MutableSet<ServerGamePacketListenerImpl>
 
     private var initialized: Boolean
@@ -206,6 +206,11 @@ public abstract class Minigame<M: Minigame<M>>(
     public val stats: MinigameStatManager
 
     /**
+     * This handles all the settings for a minigame.
+     */
+    public open val settings: MinigameSettings = MinigameSettings(this.cast())
+
+    /**
      * The [UUID] of the minigame.
      */
     public var uuid: UUID
@@ -238,6 +243,7 @@ public abstract class Minigame<M: Minigame<M>>(
     public abstract val id: ResourceLocation
 
     init {
+        this.levelHandles = LinkedHashSet()
         this.connections = LinkedHashSet()
 
         this.initialized = false
@@ -261,36 +267,6 @@ public abstract class Minigame<M: Minigame<M>>(
 
         this.paused = false
     }
-
-    /**
-     * Whether pvp is enabled for this minigame.
-     *
-     * It is implemented as a [GameSetting] so that it can be
-     * changed in the minigame settings GUI.
-     */
-    public var pvp: Boolean by this.registerSetting(
-        DisplayableGameSettingBuilder.boolean()
-            .name("pvp")
-            .display(Items.IRON_SWORD.literalNamed("PvP"))
-            .defaultOptions()
-            .value(true)
-            .build()
-    )
-
-    /**
-     * Whether the player will lose hunger in this minigame.
-     *
-     * It is implemented as a [GameSetting] so that it can be
-     * changed in the minigame settings GUI.
-     */
-    public var hunger: Boolean by this.registerSetting(
-        DisplayableGameSettingBuilder.boolean()
-            .name("hunger")
-            .display(Items.COOKED_BEEF.literalNamed("Hunger"))
-            .defaultOptions()
-            .value(true)
-            .build()
-    )
 
     /**
      * Checks whether the minigame is in a given phase.
@@ -431,6 +407,18 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     /**
+     * This adds a level handle to the minigame.
+     *
+     * This will automatically delete the level after the
+     * minigame ends.
+     *
+     * @param handle The RuntimeWorldHandle to delete after the minigame closes.
+     */
+    public fun addLevelHandle(handle: RuntimeWorldHandle) {
+        this.levelHandles.add(handle)
+    }
+
+    /**
      * This gets all the tracked players who are
      * playing this minigame.
      *
@@ -527,7 +515,7 @@ public abstract class Minigame<M: Minigame<M>>(
      *
      * @return A collection of all the settings.
      */
-    public fun getSettings(): Collection<GameSetting<*>> {
+    public fun getGameSettings(): Collection<GameSetting<*>> {
         return this.gameSettings.values.map { it.setting }
     }
 
@@ -537,7 +525,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * @param name The name of the given setting.
      * @return The setting, may be null if non-existent.
      */
-    public fun getSetting(name: String): GameSetting<*>? {
+    public fun getGameSetting(name: String): GameSetting<*>? {
         return this.gameSettings[name]?.setting
     }
 
@@ -609,6 +597,9 @@ public abstract class Minigame<M: Minigame<M>>(
         for (player in this.getPlayers()) {
             this.removePlayer(player)
         }
+        for (handle in this.levelHandles) {
+            handle.delete()
+        }
         this.events.unregisterHandler()
         this.events.minigame.clear()
         this.events.phased.clear()
@@ -642,7 +633,7 @@ public abstract class Minigame<M: Minigame<M>>(
         json.add("phases", this.phases.toJsonStringArray { it.id })
         json.addProperty("phase", this.phase.id)
         json.addProperty("paused", this.paused)
-        json.add("settings", this.getSettings().toJsonObject { it.name to it.serializeValue() })
+        json.add("settings", this.getGameSettings().toJsonObject { it.name to it.serializeValue() })
         json.add("commands", this.commands.getAllRootCommands().toJsonStringArray { it })
         this.appendAdditionalDebugInfo(json)
         return json
@@ -780,7 +771,7 @@ public abstract class Minigame<M: Minigame<M>>(
      *
      * @see DisplayableGameSettingBuilder
      */
-    protected fun <T: Any> registerSetting(displayed: DisplayableGameSetting<T>): GameSetting<T> {
+    public fun <T: Any> registerSetting(displayed: DisplayableGameSetting<T>): GameSetting<T> {
         val setting = displayed.setting
         this.gameSettings[setting.name] = displayed
         return setting
@@ -799,7 +790,6 @@ public abstract class Minigame<M: Minigame<M>>(
         this.events.register<PlayerDeathEvent> { this.onPlayerDeath(it) }
         this.events.register<PlayerDamageEvent>(Int.MAX_VALUE) { this.onPlayerDamage(it) }
         this.events.register<PlayerLeaveEvent>(Int.MAX_VALUE) { this.onPlayerLeave(it) }
-        this.events.register<ServerStoppedEvent> { this.close() }
         this.events.register<MinigameAddPlayerEvent> { this.onPlayerAdd(it) }
         this.events.register<MinigameRemovePlayerEvent> { this.onPlayerRemove(it) }
     }

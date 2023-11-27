@@ -162,14 +162,14 @@ internal object MinigameCommand: Command {
     private fun getMinigameSetting(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val name = MinigameArgument.SettingsName.getSettingsName(context, "setting")
-        val setting = minigame.getSetting(name) ?: throw INVALID_SETTING_NAME.create()
+        val setting = minigame.getGameSetting(name) ?: throw INVALID_SETTING_NAME.create()
         return context.source.success("Setting $name for minigame ${minigame.id} is set to ${setting.get()}")
     }
 
     private fun setMinigameSettingFromOption(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val name = MinigameArgument.SettingsName.getSettingsName(context, "setting")
-        val setting = minigame.getSetting(name) ?: throw INVALID_SETTING_NAME.create()
+        val setting = minigame.getGameSetting(name) ?: throw INVALID_SETTING_NAME.create()
         val option = MinigameArgument.SettingsOption.getSettingsOption(context, "option")
         val value = setting.getOption(option) ?: throw INVALID_SETTING_OPTION.create()
         setting.setFromOption(option)
@@ -179,7 +179,7 @@ internal object MinigameCommand: Command {
     private fun setMinigameSettingFromValue(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val name = MinigameArgument.SettingsName.getSettingsName(context, "setting")
-        val setting = minigame.getSetting(name) ?: throw INVALID_SETTING_NAME.create()
+        val setting = minigame.getGameSetting(name) ?: throw INVALID_SETTING_NAME.create()
         val value = MinigameArgument.SettingsValue.getSettingsValue(context, "value")
         setting.deserializeAndSet(value)
         return context.source.success("Setting $name for minigame ${minigame.id} set to ${setting.get()}")

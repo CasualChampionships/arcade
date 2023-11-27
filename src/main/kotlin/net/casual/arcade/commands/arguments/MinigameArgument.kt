@@ -8,7 +8,6 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.type.CustomArgumentType
-import net.casual.arcade.config.CustomisableConfig
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.Minigames
@@ -165,7 +164,7 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<MinigameArgume
             builder: SuggestionsBuilder
         ): CompletableFuture<Suggestions> {
             val minigame = getMinigame(context, this.minigameKey)
-            return SharedSuggestionProvider.suggest(minigame.getSettings().map { it.name }, builder)
+            return SharedSuggestionProvider.suggest(minigame.getGameSettings().map { it.name }, builder)
         }
 
         public companion object {
@@ -197,7 +196,7 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<MinigameArgume
         ): CompletableFuture<Suggestions> {
             val minigame = getMinigame(context, this.minigameKey)
             val name = SettingsName.getSettingsName(context, this.settingsNameKey)
-            val setting = minigame.getSetting(name) ?: return Suggestions.empty()
+            val setting = minigame.getGameSetting(name) ?: return Suggestions.empty()
             return SharedSuggestionProvider.suggest(setting.getOptions().keys, builder)
         }
 
