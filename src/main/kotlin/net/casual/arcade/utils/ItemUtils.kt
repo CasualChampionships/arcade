@@ -16,26 +16,48 @@ import net.minecraft.world.item.enchantment.EnchantmentInstance
 @Suppress("unused")
 public object ItemUtils {
     @JvmStatic
+    @Deprecated(
+        "Use this.named(name) instead", 
+        ReplaceWith("this.named(name)")
+    )
     public fun Item.literalNamed(name: String): ItemStack {
-        return this.defaultInstance.literalNamed(name)
+        return this.defaultInstance.named(name)
     }
 
     @JvmStatic
+    @Deprecated(
+        "Use this.named(Component.translatable(key, args)) instead",
+        ReplaceWith("this.named(Component.translatable(key, args))")
+    )
     public fun Item.translatableNamed(key: String, vararg args: Any): ItemStack {
-        return this.defaultInstance.translatableNamed(key, args)
+        return this.defaultInstance.named(Component.translatable(key, *args))
     }
 
     @JvmStatic
     public fun Item.named(text: Component): ItemStack {
+
         return this.defaultInstance.setHoverName(text)
     }
 
     @JvmStatic
+    public fun Item.named(name: String): ItemStack {
+        return this.defaultInstance.named(name)
+    }
+
+    @JvmStatic
+    @Deprecated(
+        "Use this.named(name) instead",
+        ReplaceWith("this.named(name)")
+    )
     public fun ItemStack.literalNamed(name: String): ItemStack {
         return this.setHoverName(name.literal())
     }
 
     @JvmStatic
+    @Deprecated(
+        "Use this.named(Component.translatable(key, args)) instead",
+        ReplaceWith("this.named(Component.translatable(key, args))")
+    )
     public fun ItemStack.translatableNamed(key: String, vararg args: Any): ItemStack {
         return this.setHoverName(Component.translatable(key, args))
     }
@@ -43,6 +65,11 @@ public object ItemUtils {
     @JvmStatic
     public fun ItemStack.named(text: Component): ItemStack {
         return this.setHoverName(text)
+    }
+
+    @JvmStatic
+    public fun ItemStack.named(name: String): ItemStack {
+        return this.setHoverName(name.literal())
     }
 
     @JvmStatic

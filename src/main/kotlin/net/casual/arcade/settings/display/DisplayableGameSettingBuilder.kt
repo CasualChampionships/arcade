@@ -1,6 +1,9 @@
-package net.casual.arcade.settings
+package net.casual.arcade.settings.display
 
 import net.casual.arcade.items.HashableItemStack
+import net.casual.arcade.settings.GameSetting
+import net.casual.arcade.settings.SettingListener
+import net.casual.arcade.settings.impl.*
 import net.minecraft.world.item.ItemStack
 
 public class DisplayableGameSettingBuilder<T: Any>(
@@ -57,24 +60,46 @@ public class DisplayableGameSettingBuilder<T: Any>(
     }
 
     public companion object {
-        public fun boolean(): DisplayableGameSettingBuilder<Boolean> {
+        public fun bool(): DisplayableGameSettingBuilder<Boolean> {
             return DisplayableGameSettingBuilder(::BooleanGameSetting)
         }
 
-        public fun integer(): DisplayableGameSettingBuilder<Int> {
+        public fun bool(block: DisplayableGameSettingBuilder<Boolean>.() -> Unit): DisplayableGameSetting<Boolean> {
+            return DisplayableGameSettingBuilder(::BooleanGameSetting).apply(block).build()
+        }
+
+        public fun int32(): DisplayableGameSettingBuilder<Int> {
             return DisplayableGameSettingBuilder(::IntegerGameSetting)
         }
 
-        public fun long(): DisplayableGameSettingBuilder<Long> {
+        public fun int32(block: DisplayableGameSettingBuilder<Int>.() -> Unit): DisplayableGameSetting<Int> {
+            return DisplayableGameSettingBuilder(::IntegerGameSetting).apply(block).build()
+        }
+
+        public fun int64(): DisplayableGameSettingBuilder<Long> {
             return DisplayableGameSettingBuilder(::LongGameSetting)
         }
 
-        public fun double(): DisplayableGameSettingBuilder<Double> {
+        public fun int64(block: DisplayableGameSettingBuilder<Long>.() -> Unit): DisplayableGameSetting<Long> {
+            return DisplayableGameSettingBuilder(::LongGameSetting).apply(block).build()
+        }
+
+        public fun float64(): DisplayableGameSettingBuilder<Double> {
             return DisplayableGameSettingBuilder(::DoubleGameSetting)
         }
 
-        public fun <E: Enum<E>> enum(): DisplayableGameSettingBuilder<E> {
+        public fun float64(block: DisplayableGameSettingBuilder<Double>.() -> Unit): DisplayableGameSetting<Double> {
+            return DisplayableGameSettingBuilder(::DoubleGameSetting).apply(block).build()
+        }
+
+        public fun <E: Enum<E>> enumeration(): DisplayableGameSettingBuilder<E> {
             return DisplayableGameSettingBuilder(::EnumGameSetting)
+        }
+
+        public fun <E: Enum<E>> enumeration(
+            block: DisplayableGameSettingBuilder<E>.() -> Unit
+        ): DisplayableGameSetting<E> {
+            return DisplayableGameSettingBuilder<E>(::EnumGameSetting).apply(block).build()
         }
     }
 }

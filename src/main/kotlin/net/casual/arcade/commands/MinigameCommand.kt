@@ -28,8 +28,20 @@ internal object MinigameCommand: Command {
             ).then(
                 Commands.literal("join").then(
                     Commands.argument("minigame", MinigameArgument.minigame()).then(
-                        Commands.argument("players", EntityArgument.players()).executes(this::otherJoinMinigame)
+                        Commands.argument("players", EntityArgument.players()).executes(this::addPlayersToMinigame)
                     ).executes(this::selfJoinMinigame)
+                )
+            ).then(
+                Commands.literal("spectate").then(
+                    Commands.argument("minigame", MinigameArgument.minigame()).then(
+                        Commands.argument("players", EntityArgument.players()).executes(this::addPlayersToSpectate)
+                    ).executes(this::selfSpectateMinigame)
+                )
+            ).then(
+                Commands.literal("admin").then(
+                    Commands.argument("minigame", MinigameArgument.minigame()).then(
+                        Commands.argument("players", EntityArgument.players()).executes(this::addPlayersToAdmin)
+                    ).executes(this::selfAdminMinigame)
                 )
             ).then(
                 Commands.literal("leave").then(
@@ -99,15 +111,13 @@ internal object MinigameCommand: Command {
     }
 
     private fun selfJoinMinigame(context: CommandContext<CommandSourceStack>): Int {
-        return this.addPlayersToMinigame(listOf(context.source.playerOrException), context)
+        return this.addPlayersToMinigame(context, listOf(context.source.playerOrException))
     }
 
-    private fun otherJoinMinigame(context: CommandContext<CommandSourceStack>): Int {
-        val players = EntityArgument.getPlayers(context, "players")
-        return this.addPlayersToMinigame(players, context)
-    }
-
-    private fun addPlayersToMinigame(players: Collection<ServerPlayer>, context: CommandContext<CommandSourceStack>): Int {
+    private fun addPlayersToMinigame(
+        context: CommandContext<CommandSourceStack>,
+        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
+    ): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val total = players.size
         var successes = 0
@@ -120,6 +130,54 @@ internal object MinigameCommand: Command {
             return context.source.fail("Failed to add any players to minigame")
         }
         context.source.success("Successfully added $successes/$total players to minigame")
+        return successes
+    }
+
+    private fun selfSpectateMinigame(context: CommandContext<CommandSourceStack>): Int {
+        return this.addPlayersToSpectate(context, listOf(context.source.playerOrException))
+    }
+
+    private fun addPlayersToSpectate(
+        context: CommandContext<CommandSourceStack>,
+        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
+    ): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val total = players.size
+        var successes = 0
+        for (player in players) {
+            minigame.addPlayer(player)
+            if (minigame.hasPlayer(player) && minigame.addSpectator(player)) {
+                successes++
+            }
+        }
+        if (successes == 0) {
+            return context.source.fail("Failed to make players spectate")
+        }
+        context.source.success("Successfully made $successes/$total players spectate")
+        return successes
+    }
+
+    private fun selfAdminMinigame(context: CommandContext<CommandSourceStack>): Int {
+        return this.addPlayersToAdmin(context, listOf(context.source.playerOrException))
+    }
+
+    private fun addPlayersToAdmin(
+        context: CommandContext<CommandSourceStack>,
+        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
+    ): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val total = players.size
+        var successes = 0
+        for (player in players) {
+            minigame.addPlayer(player)
+            if (minigame.hasPlayer(player) && minigame.addAdmin(player)) {
+                successes++
+            }
+        }
+        if (successes == 0) {
+            return context.source.fail("Failed to make players admin")
+        }
+        context.source.success("Successfully made $successes/$total players admin")
         return successes
     }
 
@@ -156,20 +214,20 @@ internal object MinigameCommand: Command {
 
     private fun openMinigameSettings(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        return context.source.playerOrException.openMenu(minigame.createRulesMenu()).commandSuccess()
+        return context.source.playerOrException.openMenu(minigame.settings.menu()).commandSuccess()
     }
 
     private fun getMinigameSetting(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val name = MinigameArgument.SettingsName.getSettingsName(context, "setting")
-        val setting = minigame.getGameSetting(name) ?: throw INVALID_SETTING_NAME.create()
+        val setting = minigame.settings.get(name) ?: throw INVALID_SETTING_NAME.create()
         return context.source.success("Setting $name for minigame ${minigame.id} is set to ${setting.get()}")
     }
 
     private fun setMinigameSettingFromOption(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val name = MinigameArgument.SettingsName.getSettingsName(context, "setting")
-        val setting = minigame.getGameSetting(name) ?: throw INVALID_SETTING_NAME.create()
+        val setting = minigame.settings.get(name) ?: throw INVALID_SETTING_NAME.create()
         val option = MinigameArgument.SettingsOption.getSettingsOption(context, "option")
         val value = setting.getOption(option) ?: throw INVALID_SETTING_OPTION.create()
         setting.setFromOption(option)
@@ -179,7 +237,7 @@ internal object MinigameCommand: Command {
     private fun setMinigameSettingFromValue(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val name = MinigameArgument.SettingsName.getSettingsName(context, "setting")
-        val setting = minigame.getGameSetting(name) ?: throw INVALID_SETTING_NAME.create()
+        val setting = minigame.settings.get(name) ?: throw INVALID_SETTING_NAME.create()
         val value = MinigameArgument.SettingsValue.getSettingsValue(context, "value")
         setting.deserializeAndSet(value)
         return context.source.success("Setting $name for minigame ${minigame.id} set to ${setting.get()}")

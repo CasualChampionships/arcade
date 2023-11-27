@@ -36,11 +36,13 @@ public open class GameSetting<T: Any>(
         return this.options[option]
     }
 
-    public fun setFromOption(option: String) {
+    public fun setFromOption(option: String): Boolean {
         val value = this.getOption(option)
         if (value != null) {
             this.set(value)
+            return true
         }
+        return false
     }
 
     public fun addListener(listener: SettingListener<T>) {
@@ -51,12 +53,20 @@ public open class GameSetting<T: Any>(
         return this.serializer.serialize(this.get())
     }
 
-    public fun deserializeAndSet(json: JsonElement) {
-        this.set(this.serializer.deserialize(json))
+    public fun deserializeAndSet(json: JsonElement): Boolean {
+        this.runCatching {
+            this.set(this.serializer.deserialize(json))
+            return true
+        }
+        return false
     }
 
-    public fun deserializeAndSetQuietly(json: JsonElement) {
-        this.setQuietly(this.serializer.deserialize(json))
+    public fun deserializeAndSetQuietly(json: JsonElement): Boolean {
+        this.runCatching {
+            this.setQuietly(this.serializer.deserialize(json))
+            return true
+        }
+        return false
     }
 
     public operator fun getValue(any: Any, property: KProperty<*>): T {

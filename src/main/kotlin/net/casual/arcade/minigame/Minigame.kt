@@ -13,16 +13,12 @@ import net.casual.arcade.events.player.PlayerLeaveEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.gui.bossbar.CustomBossBar
 import net.casual.arcade.gui.nametag.ArcadeNameTag
-import net.casual.arcade.gui.screen.SelectionScreenComponents
 import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.gui.tab.ArcadeTabDisplay
 import net.casual.arcade.minigame.MinigameResources.Companion.sendTo
-import net.casual.arcade.minigame.annotation.MinigameEvent
 import net.casual.arcade.minigame.managers.*
 import net.casual.arcade.minigame.serialization.SavableMinigame
 import net.casual.arcade.scheduler.TickedScheduler
-import net.casual.arcade.settings.DisplayableGameSetting
-import net.casual.arcade.settings.DisplayableGameSettingBuilder
 import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.stats.ArcadeStats
 import net.casual.arcade.task.SavableTask
@@ -52,7 +48,6 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import xyz.nucleoid.fantasy.RuntimeWorldHandle
 import java.util.*
 import kotlin.collections.LinkedHashSet
-import kotlin.collections.set
 
 /**
  * This class represents a [Minigame] which player's can play.
@@ -68,7 +63,7 @@ import kotlin.collections.set
  * [ArcadeSidebar], [ArcadeTabDisplay], and [ArcadeNameTag]s.
  *
  * The minigame keeps track of who is currently playing,
- * this can be accessed through [getPlayers].
+ * this can be accessed through [getAllPlayers].
  * It also keeps track of the [ServerLevel]s which are
  * part of the minigame.
  *
@@ -90,8 +85,6 @@ import kotlin.collections.set
  *     server: MinecraftServer
  * ): Minigame<MyMinigame>(server) {
  *     override val id = ResourceLocation("modid", "my_minigame")
- *
- *     val settings = Settings()
  *
  *     init {
  *         this.initialise()
@@ -115,17 +108,6 @@ import kotlin.collections.set
  *     override fun getLevels(): Collection<ServerLevel> {
  *         return listOf(LevelUtils.overworld())
  *     }
- *
- *     inner class Settings {
- *         val mySetting by registerSetting(
- *             DisplayableGameSettingBuilder.boolean()
- *                 .name("my_setting")
- *                 .display(ItemStack(Items.GLOWSTONE).literalNamed("My Setting"))
- *                 .defaultOptions()
- *                 .value(true)
- *                 .build()
- *         )
- *     }
  * }
  * ```
  *
@@ -145,8 +127,9 @@ public abstract class Minigame<M: Minigame<M>>(
 
     private var initialized: Boolean
 
+    internal val admins: MutableSet<UUID>
+    internal val spectators: MutableSet<UUID>
     internal val offline: MutableSet<GameProfile>
-    internal val gameSettings: MutableMap<String, DisplayableGameSetting<*>>
     internal val phases: List<MinigamePhase<M>>
 
     /**
@@ -208,7 +191,7 @@ public abstract class Minigame<M: Minigame<M>>(
     /**
      * This handles all the settings for a minigame.
      */
-    public open val settings: MinigameSettings = MinigameSettings(this.cast())
+    public val settings: MinigameSettings
 
     /**
      * The [UUID] of the minigame.
@@ -245,12 +228,13 @@ public abstract class Minigame<M: Minigame<M>>(
     init {
         this.levelHandles = LinkedHashSet()
         this.connections = LinkedHashSet()
+        this.admins = LinkedHashSet()
+        this.spectators = LinkedHashSet()
 
         this.initialized = false
 
         this.offline = LinkedHashSet()
 
-        this.gameSettings = LinkedHashMap()
         this.phases = this.getAllPhases()
 
         this.uuid = UUID.randomUUID()
@@ -262,6 +246,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.advancements = MinigameAdvancementManager(this.cast())
         this.recipes = MinigameRecipeManager(this.cast())
         this.stats = MinigameStatManager()
+        this.settings = this.getMinigameSettings()
 
         this.phase = MinigamePhase.none()
 
@@ -395,15 +380,52 @@ public abstract class Minigame<M: Minigame<M>>(
      *
      * @param player The player to remove.
      */
-    public fun removePlayer(player: ServerPlayer) {
+    public fun removePlayer(player: ServerPlayer): Boolean {
         val wasOffline = this.offline.remove(player.gameProfile)
         if (wasOffline || this.connections.remove(player.connection)) {
             if (wasOffline) {
                 Arcade.logger.warn("Removed offline player?!")
             }
+            this.removeSpectator(player)
+            this.removeAdmin(player)
+
             MinigameRemovePlayerEvent(this, player).broadcast()
             player.minigame.removeMinigame()
+            return true
         }
+        return false
+    }
+
+    public fun addSpectator(player: ServerPlayer): Boolean {
+        if (this.spectators.add(player.uuid)) {
+            MinigameAddSpectatorEvent(this, player).broadcast()
+            return true
+        }
+        return false
+    }
+
+    public fun removeSpectator(player: ServerPlayer): Boolean {
+        if (this.spectators.remove(player.uuid)) {
+            MinigameRemoveSpectatorEvent(this, player).broadcast()
+            return true
+        }
+        return false
+    }
+
+    public fun addAdmin(player: ServerPlayer): Boolean {
+        if (this.admins.add(player.uuid)) {
+            MinigameAddAdminEvent(this, player).broadcast()
+            return true
+        }
+        return false
+    }
+
+    public fun removeAdmin(player: ServerPlayer): Boolean {
+        if (this.admins.remove(player.uuid)) {
+            MinigameRemoveAdminEvent(this, player).broadcast()
+            return true
+        }
+        return false
     }
 
     /**
@@ -419,13 +441,43 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     /**
-     * This gets all the tracked players who are
-     * playing this minigame.
+     * This gets all the tracked players in this minigame.
+     * This includes spectating and playing players.
      *
-     * @return All the playing players.
+     * @return All the players.
      */
-    public fun getPlayers(): List<ServerPlayer> {
+    public fun getAllPlayers(): List<ServerPlayer> {
         return this.connections.map { it.player }
+    }
+
+    /**
+     * This gets all the players that are currently
+     * playing in the minigame, i.e. not spectating.
+     *
+     * @return The list of playing players.
+     */
+    public fun getPlayingPlayers(): List<ServerPlayer> {
+        return this.connections.stream().filter { this.isPlaying(it.player) }.map { it.player }.toList()
+    }
+
+    /**
+     * This gets all the players that are currently
+     * spectating in the minigame.
+     *
+     * @return The list of spectating players.
+     */
+    public fun getSpectatingPlayers(): List<ServerPlayer> {
+        return this.connections.stream().filter { this.isSpectating(it.player) }.map { it.player }.toList()
+    }
+
+    /**
+     * This gets a list of all the players that are
+     * admins, they may be either spectating or playing.
+     *
+     * @return The list of admin players.
+     */
+    public fun getAdminPlayers(): List<ServerPlayer> {
+        return this.connections.stream().filter { this.isAdmin(it.player) }.map { it.player }.toList()
     }
 
     /**
@@ -445,7 +497,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * @return All the player's profiles.
      */
     public fun getAllPlayerProfiles(): List<GameProfile> {
-        return this.getPlayers().map { it.gameProfile }.concat(this.getOfflinePlayerProfiles())
+        return this.getAllPlayers().map { it.gameProfile }.concat(this.getOfflinePlayerProfiles())
     }
 
     /**
@@ -455,7 +507,7 @@ public abstract class Minigame<M: Minigame<M>>(
      */
     public fun getPlayerTeams(): Collection<PlayerTeam> {
         val teams = HashSet<PlayerTeam>()
-        for (player in this.getPlayers()) {
+        for (player in this.getAllPlayers()) {
             teams.add(this.server.scoreboard.getPlayersTeam(player.gameProfile.name) ?: continue)
         }
         return teams
@@ -499,6 +551,18 @@ public abstract class Minigame<M: Minigame<M>>(
         return this.offline.any { it.id == uuid }
     }
 
+    public fun isPlaying(player: ServerPlayer): Boolean {
+        return !this.isSpectating(player)
+    }
+
+    public fun isSpectating(player: ServerPlayer): Boolean {
+        return this.spectators.contains(player.uuid)
+    }
+
+    public fun isAdmin(player: ServerPlayer): Boolean {
+        return this.admins.contains(player.uuid)
+    }
+
     /**
      * This checks whether a given level is part of this minigame.
      *
@@ -507,37 +571,6 @@ public abstract class Minigame<M: Minigame<M>>(
      */
     public fun hasLevel(level: ServerLevel): Boolean {
         return this.getLevels().contains(level)
-    }
-
-    /**
-     * This gets all the registered [GameSetting]s for
-     * this minigame.
-     *
-     * @return A collection of all the settings.
-     */
-    public fun getGameSettings(): Collection<GameSetting<*>> {
-        return this.gameSettings.values.map { it.setting }
-    }
-
-    /**
-     * This gets a setting for a given name.
-     *
-     * @param name The name of the given setting.
-     * @return The setting, may be null if non-existent.
-     */
-    public fun getGameSetting(name: String): GameSetting<*>? {
-        return this.gameSettings[name]?.setting
-    }
-
-    /**
-     * This creates a [MenuProvider] which provides a GUI
-     * for updating the minigame's [GameSetting]s.
-     *
-     * @param components The screen components to use for the GUI, by default [DefaultMinigameSettingsComponent].
-     * @return The [MenuProvider] for the settings screen.
-     */
-    public open fun createRulesMenu(components: SelectionScreenComponents = DefaultMinigameSettingsComponent): MenuProvider {
-        return ScreenUtils.createMinigameSettingsMenu(this, components)
     }
 
     /**
@@ -594,7 +627,7 @@ public abstract class Minigame<M: Minigame<M>>(
      */
     public fun close() {
         MinigameCloseEvent(this).broadcast()
-        for (player in this.getPlayers()) {
+        for (player in this.getAllPlayers()) {
             this.removePlayer(player)
         }
         for (handle in this.levelHandles) {
@@ -627,13 +660,13 @@ public abstract class Minigame<M: Minigame<M>>(
         json.addProperty("serializable", this is SavableMinigame)
         json.addProperty("uuid", this.uuid.toString())
         json.addProperty("id", this.id.toString())
-        json.add("players", this.getPlayers().toJsonStringArray { it.scoreboardName })
+        json.add("players", this.getAllPlayers().toJsonStringArray { it.scoreboardName })
         json.add("offline_players", this.offline.toJsonObject { it.name to JsonPrimitive(it.id?.toString()) })
         json.add("levels", this.getLevels().toJsonStringArray { it.dimension().location().toString() })
         json.add("phases", this.phases.toJsonStringArray { it.id })
         json.addProperty("phase", this.phase.id)
         json.addProperty("paused", this.paused)
-        json.add("settings", this.getGameSettings().toJsonObject { it.name to it.serializeValue() })
+        json.add("settings", this.settings.all().toJsonObject { it.name to it.serializeValue() })
         json.add("commands", this.commands.getAllRootCommands().toJsonStringArray { it })
         this.appendAdditionalDebugInfo(json)
         return json
@@ -670,6 +703,10 @@ public abstract class Minigame<M: Minigame<M>>(
         Minigames.register(this)
 
         this.initialized = true
+    }
+
+    protected open fun getMinigameSettings(): MinigameSettings {
+        return MinigameSettings()
     }
 
     /**
@@ -722,59 +759,6 @@ public abstract class Minigame<M: Minigame<M>>(
     @OverrideOnly
     protected open fun appendAdditionalDebugInfo(json: JsonObject) {
 
-    }
-
-    /**
-     * This registers a [DisplayableGameSetting] to this minigame, and this returns
-     * the [GameSetting] which can be delegated in Kotlin.
-     *
-     * It is recommended that you create an inner class in your [Minigame]
-     * implementation where you register and delegate all your settings:
-     * ```kotlin
-     * class MyMinigame: Minigame(/* ... */) {
-     *     val settings = Settings()
-     *
-     *     // ...
-     *
-     *     inner class Settings {
-     *         val foo = registerSetting(
-     *             DisplayableGameSettingBuilder.boolean()
-     *                 .name("foo")
-     *                 .display(ItemStack(Items.GLOWSTONE).literalNamed("Foo"))
-     *                 .defaultOptions()
-     *                 .value(true)
-     *                 .build()
-     *         )
-     *
-     *         val bar = registerSetting(
-     *             DisplayableGameSettingBuilder.double()
-     *                 .name("bar")
-     *                 .display(ItemStack(Items.DIAMOND).literalNamed("Bar"))
-     *                 .option("first", ItemStack(Items.FERN), 1.0)
-     *                 .option("second", ItemStack(Items.GRASS), 100.0)
-     *                 .value(0.0)
-     *                 .build()
-     *         )
-     *     }
-     * }
-     * ```
-     *
-     * All registered settings can be modified using a UI in-game using the command:
-     *
-     * `/minigame settings <minigame-uuid>`
-     *
-     * Alternatively you can do it directly with commands:
-     *
-     * `/minigame settings <minigame-uuid> set <setting> from option <option>`
-     *
-     * `/minigame settings <minigame-uuid> set <setting> from value <value>`
-     *
-     * @see DisplayableGameSettingBuilder
-     */
-    public fun <T: Any> registerSetting(displayed: DisplayableGameSetting<T>): GameSetting<T> {
-        val setting = displayed.setting
-        this.gameSettings[setting.name] = displayed
-        return setting
     }
 
     private fun getAllPhases(): List<MinigamePhase<M>> {

@@ -1,148 +1,175 @@
 package net.casual.arcade.minigame
 
-import net.casual.arcade.settings.DisplayableGameSettingBuilder
-import net.casual.arcade.settings.GameSetting
+import net.casual.arcade.settings.display.DisplayableGameSettingBuilder.Companion.bool
+import net.casual.arcade.settings.display.DisplayableSettings
 import net.casual.arcade.utils.ItemUtils.hideTooltips
-import net.casual.arcade.utils.ItemUtils.literalNamed
+import net.casual.arcade.utils.ItemUtils.named
+import net.casual.arcade.utils.ScreenUtils
 import net.casual.arcade.utils.SettingsUtils.defaultOptions
+import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.Items
 
-public open class MinigameSettings(
-    public val minigame: Minigame<*>
-) {
+/**
+ * This class is the base class for all minigame settings.
+ *
+ * This contains the default settings that are available
+ * to every minigame.
+ *
+ * All registered settings can be modified using a UI in-game using the command:
+ *
+ * `/minigame settings <minigame-uuid>`
+ *
+ * Alternatively you can do it directly with commands:
+ *
+ * `/minigame settings <minigame-uuid> set <setting> from option <option>`
+ *
+ * `/minigame settings <minigame-uuid> set <setting> from value <value>`
+ *
+ */
+public open class MinigameSettings: DisplayableSettings() {
     /**
      * Whether pvp is enabled for this minigame.
-     *
-     * It is implemented as a [GameSetting] so that it can be
-     * changed in the minigame settings GUI.
      */
-    public var canPvp: Boolean by this.minigame.registerSetting(
-        DisplayableGameSettingBuilder.boolean()
-            .name("pvp")
-            .display(Items.IRON_SWORD.literalNamed("PvP").hideTooltips())
-            .defaultOptions()
-            .value(true)
-            .build()
-    )
+    public var canPvp: Boolean by this.register(bool {
+        name = "pvp"
+        display = Items.IRON_SWORD.named("PvP").hideTooltips()
+        value = true
+        defaultOptions()
+    })
 
     /**
-     * Whether the player will lose hunger in this minigame.
-     *
-     * It is implemented as a [GameSetting] so that it can be
-     * changed in the minigame settings GUI.
+     * Whether the player will lose hunger.
      */
-    public var canGetHungry: Boolean by this.minigame.registerSetting(
-        DisplayableGameSettingBuilder.boolean()
-            .name("hunger")
-            .display(Items.COOKED_BEEF.literalNamed("Hunger"))
-            .defaultOptions()
-            .value(true)
-            .build()
-    )
+    public var canGetHungry: Boolean by this.register(bool {
+        name = "hunger"
+        display = Items.COOKED_BEEF.named("Hunger")
+        value = true
+        defaultOptions()
+    })
 
-    public var canTakeDamage: Boolean by this.minigame.registerSetting(
-        DisplayableGameSettingBuilder.boolean()
-            .name("can_take_damage")
-            .display(Items.SHIELD.literalNamed("Damage"))
-            .defaultOptions()
-            .value(true)
-            .build()
-    )
+    /**
+     * Whether players can take damage.
+     */
+    public var canTakeDamage: Boolean by this.register(bool {
+        name = "can_take_damage"
+        display = Items.SHIELD.named("Damage")
+        value = true
+        defaultOptions()
+    })
 
-    public var canBreakBlocks: Boolean by this.minigame.registerSetting(
-        DisplayableGameSettingBuilder.boolean()
-            .name("can_break_blocks")
-            .display(Items.DIAMOND_PICKAXE.literalNamed("Break Blocks"))
-            .defaultOptions()
-            .value(true)
-            .build()
-    )
+    /**
+     * Whether players can break blocks.
+     */
+    public var canBreakBlocks: Boolean by this.register(bool {
+        name = "can_break_blocks"
+        display = Items.DIAMOND_PICKAXE.named("Break Blocks")
+        value = true
+        defaultOptions()
+    })
 
-    public var canPlaceBlocks: Boolean by this.minigame.registerSetting(
-        DisplayableGameSettingBuilder.boolean()
-            .name("can_place_blocks")
-            .display(Items.DIRT.literalNamed("Place Blocks"))
-            .defaultOptions()
-            .value(true)
-            .build()
-    )
+    /**
+     * Whether players can place blocks.
+     */
+    public var canPlaceBlocks: Boolean by this.register(bool {
+        name = "can_place_blocks"
+        display = Items.DIRT.named("Place Blocks")
+        value = true
+        defaultOptions()
+    })
 
-    public var canThrowItems: Boolean by this.minigame.registerSetting(
-        DisplayableGameSettingBuilder.boolean()
-            .name("can_throw_items")
-            .display(Items.ENDER_PEARL.literalNamed("Throw Items"))
-            .defaultOptions()
-            .value(true)
-            .build()
-    )
+    /**
+     * Whether players can throw items in this minigame
+     */
+    public var canThrowItems: Boolean by this.register(bool {
+        name = "can_throw_items"
+        display = Items.ENDER_PEARL.named("Throw Items")
+        value = true
+        defaultOptions()
+    })
 
-    public var canPickupItems: Boolean by this.minigame.registerSetting(
-        DisplayableGameSettingBuilder.boolean()
-            .name("can_pickup_items")
-            .display(Items.COBBLESTONE.literalNamed("Pickup Items"))
-            .defaultOptions()
-            .value(true)
-            .build()
-    )
+    /**
+     * Whether players can pick up items.
+     */
+    public var canPickupItems: Boolean by this.register(bool {
+        name = "can_pickup_items"
+        display = Items.COBBLESTONE.named("Pickup Items")
+        value = true
+        defaultOptions()
+    })
 
-    public var canAttackEntities: Boolean by this.minigame.registerSetting(
-        DisplayableGameSettingBuilder.boolean()
-            .name("can_attack_entities")
-            .display(Items.DIAMOND_AXE.literalNamed("Attack Entities").hideTooltips())
-            .defaultOptions()
-            .value(true)
-            .build()
-    )
+    /**
+     * Whether players can attack entities.
+     */
+    public var canAttackEntities: Boolean by this.register(bool {
+        name = "can_attack_entities"
+        display = Items.DIAMOND_AXE.named("Attack Entities").hideTooltips()
+        value = true
+        defaultOptions()
+    })
 
-    public var canInteractEntities: Boolean by this.minigame.registerSetting(
-        DisplayableGameSettingBuilder.boolean()
-            .name("can_interact_entities")
-            .display(Items.VILLAGER_SPAWN_EGG.literalNamed("Interact With Entities"))
-            .defaultOptions()
-            .value(true)
-            .listener { _, value ->
-                this.canInteractAllSetting.setQuietly(value && this.canInteractItems && this.canInteractBlocks)
-            }
-            .build()
-    )
+    /**
+     * Whether players can interact with entities.
+     */
+    public var canInteractEntities: Boolean by this.register(bool {
+        name = "can_interact_entities"
+        display = Items.VILLAGER_SPAWN_EGG.named("Interact With Entities")
+        value = true
+        defaultOptions()
+        listener { _, value ->
+            canInteractAllSetting.setQuietly(value && canInteractItems && canInteractBlocks)
+        }
+    })
 
-    public var canInteractBlocks: Boolean by this.minigame.registerSetting(
-        DisplayableGameSettingBuilder.boolean()
-            .name("can_interact_blocks")
-            .display(Items.FURNACE.literalNamed("Interact With Blocks"))
-            .defaultOptions()
-            .value(true)
-            .listener { _, value ->
-                this.canInteractAllSetting.setQuietly(value && this.canInteractItems && this.canInteractEntities)
-            }
-            .build()
-    )
+    /**
+     * Whether players can interact with blocks.
+     */
+    public var canInteractBlocks: Boolean by this.register(bool {
+        name = "can_interact_blocks"
+        display = Items.FURNACE.named("Interact With Blocks")
+        value = true
+        defaultOptions()
+        listener { _, value ->
+            canInteractAllSetting.setQuietly(value && canInteractItems && canInteractEntities)
+        }
+    })
 
-    public var canInteractItems: Boolean by this.minigame.registerSetting(
-        DisplayableGameSettingBuilder.boolean()
-            .name("can_interact_items")
-            .display(Items.WRITTEN_BOOK.literalNamed("Interact With Items").hideTooltips())
-            .defaultOptions()
-            .value(true)
-            .listener { _, value ->
-                this.canInteractAllSetting.setQuietly(value && this.canInteractBlocks && this.canInteractEntities)
-            }
-            .build()
-    )
+    /**
+     * Whether players can interact with items.
+     */
+    public var canInteractItems: Boolean by this.register(bool {
+        name = "can_interact_items"
+        display = Items.WRITTEN_BOOK.named("Interact With Items").hideTooltips()
+        value = true
+        defaultOptions()
+        listener { _, value ->
+            canInteractAllSetting.setQuietly(value && canInteractBlocks && canInteractEntities)
+        }
+    })
 
-    private val canInteractAllSetting = this.minigame.registerSetting(
-        DisplayableGameSettingBuilder.boolean()
-            .name("can_interact_all")
-            .display(Items.OBSERVER.literalNamed("Interact With Everything"))
-            .defaultOptions()
-            .value(true)
-            .listener { _, value ->
-                this.canInteractBlocks = value
-                this.canInteractEntities = value
-                this.canInteractItems = value
-            }
-            .build()
-    )
+    private val canInteractAllSetting = this.register(bool {
+        name = "can_interact_all"
+        display = Items.OBSERVER.named("Interact With Everything")
+        value = true
+        defaultOptions()
+        listener { _, value ->
+            canInteractBlocks = value
+            canInteractEntities = value
+            canInteractItems = value
+        }
+    })
 
+    /**
+     * Whether players can interact with anything.
+     */
     public var canInteractAll: Boolean by this.canInteractAllSetting
+
+    /**
+     * This creates a menu which can be displayed to a
+     * player to directly interact with the settings.
+     *
+     * @return The menu provider.
+     */
+    override fun menu(): MenuProvider {
+        return ScreenUtils.createSettingsMenu(this, ScreenUtils.DefaultMinigameSettingsComponent)
+    }
 }

@@ -180,7 +180,7 @@ public class MinigameUIManager(
     }
 
     private fun loadUI(ui: PlayerUI) {
-        for (player in this.minigame.getPlayers()) {
+        for (player in this.minigame.getAllPlayers()) {
             ui.addPlayer(player)
         }
         if (ui is TickableUI) {

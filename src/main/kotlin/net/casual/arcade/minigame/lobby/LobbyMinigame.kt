@@ -7,11 +7,10 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import net.casual.arcade.Arcade
 import net.casual.arcade.commands.arguments.MinigameArgument
 import net.casual.arcade.events.minigame.MinigameAddNewPlayerEvent
-import net.casual.arcade.events.minigame.MinigameAddPlayerEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.MinigamePhase
+import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.success
@@ -33,7 +32,6 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.level.GameType
 import net.minecraft.world.scores.PlayerTeam
 
 public abstract class LobbyMinigame(
@@ -54,7 +52,7 @@ public abstract class LobbyMinigame(
             player.clearPlayerInventory()
         }
         this.events.register<ServerTickEvent> {
-            for (player in this.getPlayers()) {
+            for (player in this.getAllPlayers()) {
                 this.lobby.tryTeleportToSpawn(player)
             }
         }
@@ -84,7 +82,7 @@ public abstract class LobbyMinigame(
     }
 
     public open fun getPlayersToReady(): Collection<ServerPlayer> {
-        return this.getPlayers()
+        return this.getAllPlayers()
     }
 
     override fun onReady() {
@@ -92,11 +90,11 @@ public abstract class LobbyMinigame(
         val component = "All players are ready, click to start!".literal().green().singleUseFunction {
             this.setPhase(Phase.Countdown)
         }
-        this.getPlayers().broadcastToOps(component, 4)
+        this.getAllPlayers().broadcastToOps(component, 4)
     }
 
     override fun broadcast(message: Component) {
-        this.getPlayers().broadcast(message)
+        this.getAllPlayers().broadcast(message)
     }
 
     public fun getNextMinigame(): Minigame<*>? {
@@ -109,7 +107,7 @@ public abstract class LobbyMinigame(
 
     protected open fun moveToNextMinigame() {
         val next = this.next!!
-        for (player in this.getPlayers()) {
+        for (player in this.getAllPlayers()) {
             next.addPlayer(player)
         }
         next.start()
@@ -180,7 +178,7 @@ public abstract class LobbyMinigame(
     private fun nextMinigameSettings(context: CommandContext<CommandSourceStack>): Int {
         val next = this.next ?: throw NO_MINIGAME.create()
         val player = context.source.playerOrException
-        player.openMenu(next.createRulesMenu())
+        player.openMenu(next.settings.menu())
         return this.commandSuccess()
     }
 

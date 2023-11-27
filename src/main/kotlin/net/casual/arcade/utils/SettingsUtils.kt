@@ -1,14 +1,14 @@
 package net.casual.arcade.utils
 
-import net.casual.arcade.settings.DisplayableGameSettingBuilder
-import net.casual.arcade.utils.ItemUtils.literalNamed
+import net.casual.arcade.settings.display.DisplayableGameSettingBuilder
+import net.casual.arcade.utils.ItemUtils.named
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 
 public object SettingsUtils {
     public fun DisplayableGameSettingBuilder<Boolean>.defaultOptions(
-        enabled: ItemStack = Items.GREEN_STAINED_GLASS_PANE.literalNamed("On"),
-        disabled: ItemStack = Items.RED_STAINED_GLASS_PANE.literalNamed("Off")
+        enabled: ItemStack = Items.GREEN_STAINED_GLASS_PANE.named("On"),
+        disabled: ItemStack = Items.RED_STAINED_GLASS_PANE.named("Off")
     ): DisplayableGameSettingBuilder<Boolean> {
         this.option("enabled", enabled, true)
         this.option("disabled", disabled, false)
@@ -33,7 +33,7 @@ public object SettingsUtils {
 
         override fun invoke(enum: E): ItemStack {
             val item = if (this.calls++ % 2 == 0) Items.WHITE_STAINED_GLASS_PANE else Items.RED_STAINED_GLASS_PANE
-            return item.literalNamed(enum.name)
+            return item.named(enum.name)
         }
     }
 }

@@ -1,6 +1,7 @@
 package net.casual.arcade.commands.arguments
 
 import com.google.gson.JsonElement
+import com.google.gson.JsonParseException
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.context.CommandContext
@@ -164,7 +165,7 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<MinigameArgume
             builder: SuggestionsBuilder
         ): CompletableFuture<Suggestions> {
             val minigame = getMinigame(context, this.minigameKey)
-            return SharedSuggestionProvider.suggest(minigame.getGameSettings().map { it.name }, builder)
+            return SharedSuggestionProvider.suggest(minigame.settings.all().map { it.name }, builder)
         }
 
         public companion object {
@@ -196,7 +197,7 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<MinigameArgume
         ): CompletableFuture<Suggestions> {
             val minigame = getMinigame(context, this.minigameKey)
             val name = SettingsName.getSettingsName(context, this.settingsNameKey)
-            val setting = minigame.getGameSetting(name) ?: return Suggestions.empty()
+            val setting = minigame.settings.get(name) ?: return Suggestions.empty()
             return SharedSuggestionProvider.suggest(setting.getOptions().keys, builder)
         }
 
@@ -217,10 +218,16 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<MinigameArgume
 
     public class SettingsValue: CustomArgumentType(), ArgumentType<JsonElement> {
         override fun parse(reader: StringReader): JsonElement {
-            return JsonUtils.GSON.fromJson(reader.readString(), JsonElement::class.java)
+            try {
+                return JsonUtils.GSON.fromJson(reader.readString(), JsonElement::class.java)
+            } catch (e: JsonParseException) {
+                throw INVALID_SETTING_VALUE.create()
+            }
         }
 
         public companion object {
+            public val INVALID_SETTING_VALUE: SimpleCommandExceptionType = SimpleCommandExceptionType("Invalid Settings Value".literal())
+
             @JvmStatic
             public fun value(): SettingsValue {
                 return SettingsValue()

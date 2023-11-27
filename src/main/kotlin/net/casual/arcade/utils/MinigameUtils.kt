@@ -137,11 +137,11 @@ public object MinigameUtils {
         val interval = this.getInterval()
         var current = remaining / interval
         minigame.scheduler.schedulePhasedInLoop(MinecraftTimeDuration.ZERO, interval, remaining) {
-            this.sendCountdown(minigame.getPlayers(), current--, remaining)
+            this.sendCountdown(minigame.getAllPlayers(), current--, remaining)
             remaining -= interval
         }
         minigame.scheduler.schedulePhased(remaining) {
-            this.afterCountdown(minigame.getPlayers())
+            this.afterCountdown(minigame.getAllPlayers())
             post.complete()
         }
         return post
@@ -188,6 +188,7 @@ public object MinigameUtils {
             minigame.events.registerInPhases(
                 type = type,
                 phases = phases.toTypedArray(),
+                flags = event.flags,
                 listener = listener
             )
             return
@@ -199,11 +200,12 @@ public object MinigameUtils {
                 type = type,
                 start = start,
                 end = end,
+                flags = event.flags,
                 listener = listener
             )
             return
         }
-        minigame.events.register(type = type, listener = listener)
+        minigame.events.register(type = type, flags = event.flags, listener = listener)
     }
 
     private fun createEventListener(

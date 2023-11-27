@@ -1,5 +1,6 @@
-package net.casual.arcade.settings
+package net.casual.arcade.settings.impl
 
+import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.utils.json.LongSerializer
 
 public class LongGameSetting(

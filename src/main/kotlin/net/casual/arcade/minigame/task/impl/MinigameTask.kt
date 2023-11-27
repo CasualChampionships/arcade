@@ -3,40 +3,25 @@ package net.casual.arcade.minigame.task.impl
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.task.Task
-import java.io.IOException
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
+import net.casual.arcade.task.capture.CaptureConsumerTask
+import net.casual.arcade.task.capture.CaptureMapper
+import net.casual.arcade.task.capture.CaptureSerializer
+import net.casual.arcade.task.capture.CaptureTask
 import java.io.Serializable
 import java.util.*
 
-public fun interface MinigameTask<M: Minigame<M>>: Serializable {
-    public fun run(minigame: M)
+private class MinigameSerializer<M: Minigame<M>>: CaptureSerializer<M, UUID> {
+    override fun serialize(capture: M): UUID {
+        return capture.uuid
+    }
+
+    override fun deserialize(serialized: UUID): M {
+        @Suppress("UNCHECKED_CAST")
+        return Minigames.get(serialized) as M
+    }
 }
 
 @Suppress("FunctionName")
-public fun <M: Minigame<M>> MinigameTask(minigame: M, task: MinigameTask<M>): Task {
-    return MinigameTaskImpl(minigame, task)
-}
-
-private class MinigameTaskImpl<M: Minigame<M>>(
-    @Transient private var minigame: M,
-    private val task: MinigameTask<M>
-): Task, Serializable {
-    override fun run() {
-        this.task.run(this.minigame)
-    }
-
-    @Throws(IOException::class)
-    private fun writeObject(stream: ObjectOutputStream) {
-        stream.defaultWriteObject()
-        stream.writeObject(this.minigame.uuid)
-    }
-
-    @Throws(IOException::class, ClassNotFoundException::class)
-    private fun readObject(stream: ObjectInputStream) {
-        stream.defaultReadObject()
-        val uuid = stream.readObject() as UUID
-        @Suppress("UNCHECKED_CAST")
-        this.minigame = Minigames.get(uuid) as M
-    }
+public fun <M: Minigame<M>> MinigameTask(minigame: M, task: CaptureConsumerTask<M>): Task {
+    return CaptureTask(minigame, { it }, MinigameSerializer(), task)
 }

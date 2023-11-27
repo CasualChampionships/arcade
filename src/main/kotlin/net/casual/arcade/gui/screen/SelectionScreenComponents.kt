@@ -1,7 +1,7 @@
 package net.casual.arcade.gui.screen
 
 import net.casual.arcade.utils.ComponentUtils.literal
-import net.casual.arcade.utils.ItemUtils.literalNamed
+import net.casual.arcade.utils.ItemUtils.named
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -28,7 +28,7 @@ public interface SelectionScreenComponents {
      * @return The default previous [ItemStack]
      */
     public fun getPrevious(): ItemStack {
-        return ItemStack(Items.RED_STAINED_GLASS).literalNamed("Previous")
+        return ItemStack(Items.RED_STAINED_GLASS).named("Previous")
     }
 
     /**
@@ -37,7 +37,7 @@ public interface SelectionScreenComponents {
      * @return The default back [ItemStack]
      */
     public fun getBack(): ItemStack {
-        return ItemStack(Items.RED_STAINED_GLASS).literalNamed("Back")
+        return ItemStack(Items.RED_STAINED_GLASS).named("Back")
     }
 
     /**
@@ -46,7 +46,7 @@ public interface SelectionScreenComponents {
      * @return The default next [ItemStack]
      */
     public fun getNext(): ItemStack {
-        return ItemStack(Items.GREEN_STAINED_GLASS).literalNamed("Next")
+        return ItemStack(Items.GREEN_STAINED_GLASS).named("Next")
     }
 
     /**
@@ -55,7 +55,7 @@ public interface SelectionScreenComponents {
      * @return The default filler [ItemStack]
      */
     public fun getFiller(): ItemStack {
-        return ItemStack(Items.GRAY_STAINED_GLASS).literalNamed("")
+        return ItemStack(Items.GRAY_STAINED_GLASS).named("")
     }
 
     public companion object {

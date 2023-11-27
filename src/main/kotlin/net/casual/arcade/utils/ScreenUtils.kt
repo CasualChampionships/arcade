@@ -2,13 +2,14 @@ package net.casual.arcade.utils
 
 import net.casual.arcade.gui.screen.SelectionScreenBuilder
 import net.casual.arcade.gui.screen.SelectionScreenComponents
-import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.settings.DisplayableGameSetting
+import net.casual.arcade.settings.display.DisplayableGameSetting
+import net.casual.arcade.settings.display.DisplayableSettings
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ItemUtils.enableGlint
 import net.casual.arcade.utils.ItemUtils.removeEnchantments
 import net.casual.arcade.utils.PlayerUtils.location
 import net.casual.arcade.utils.PlayerUtils.teleportTo
+import net.casual.arcade.utils.TeamUtils.getOnlineCount
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
@@ -26,7 +27,7 @@ public object ScreenUtils {
         val teams = TeamUtils.teams()
         val provider = builder.build()
         for (team in teams) {
-            if (teamFilter(team)) {
+            if (team.getOnlineCount() > 0 && teamFilter(team)) {
                 builder.selection(teamIcon(team)) { player ->
                     player.openMenu(createTeamMenu(team, components, provider) { it.isSpectator })
                 }
@@ -53,14 +54,14 @@ public object ScreenUtils {
         return builder.build()
     }
 
-    public fun createMinigameSettingsMenu(
-        minigame: Minigame<*>,
-        components: SelectionScreenComponents = DefaultMinigameSettingsComponent,
-        configComponents: (DisplayableGameSetting<*>) -> SelectionScreenComponents = ::DefaultMinigameConfigComponent
+    public fun createSettingsMenu(
+        settings: DisplayableSettings,
+        components: SelectionScreenComponents = DefaultSettingsComponent,
+        configComponents: (DisplayableGameSetting<*>) -> SelectionScreenComponents = ::DefaultSettingsComponents
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
         val provider = builder.build()
-        for (display in minigame.gameSettings.values) {
+        for (display in settings.displays()) {
             builder.selection(display.display) { player ->
                 player.openMenu(createSettingConfigMenu(display, configComponents(display), provider))
             }
@@ -70,7 +71,7 @@ public object ScreenUtils {
 
     public fun <T: Any> createSettingConfigMenu(
         display: DisplayableGameSetting<T>,
-        components: SelectionScreenComponents = DefaultMinigameConfigComponent(display),
+        components: SelectionScreenComponents = DefaultSettingsComponents(display),
         parent: MenuProvider? = null
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
@@ -98,13 +99,19 @@ public object ScreenUtils {
         }
     }
 
+    public object DefaultSettingsComponent: SelectionScreenComponents {
+        override fun getTitle(): Component {
+            return "Settings Screen".literal()
+        }
+    }
+
     public object DefaultMinigameSettingsComponent: SelectionScreenComponents {
         override fun getTitle(): Component {
             return "Minigame Settings Screen".literal()
         }
     }
 
-    public class DefaultMinigameConfigComponent(
+    public class DefaultSettingsComponents(
         private val setting: DisplayableGameSetting<*>
     ): SelectionScreenComponents {
         override fun getTitle(): Component {

@@ -1,6 +1,7 @@
-package net.casual.arcade.settings
+package net.casual.arcade.settings.display
 
 import net.casual.arcade.items.HashableItemStack
+import net.casual.arcade.settings.GameSetting
 import net.minecraft.world.item.ItemStack
 
 public class DisplayableGameSetting<T: Any>(

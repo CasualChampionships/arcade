@@ -5,6 +5,7 @@ import com.google.gson.JsonObject
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.Arcade
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.MinigamePhase
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.task.AnyMinigameTaskFactory
 import net.casual.arcade.minigame.task.MinigameTaskFactory
@@ -28,6 +29,7 @@ import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.stringOrDefault
 import net.casual.arcade.utils.JsonUtils.stringOrNull
+import net.casual.arcade.utils.JsonUtils.strings
 import net.casual.arcade.utils.StringUtils.decodeHexToBytes
 import net.casual.arcade.utils.StringUtils.encodeToHexString
 import net.minecraft.server.MinecraftServer
@@ -52,15 +54,16 @@ import java.util.*
  * be saved after a restart, see [readData] and [writeData].
  *
  * As mentioned scheduled tasks may be saved when the minigame is
- * saved however the task must implement [SavableTask], if the task
- * also implements [CancellableTask] the task must not be cancelled
- * to be serialized.
+ * saved however the task must implement [SavableTask], regular
+ * [Task]s **may** be saved but this is not guaranteed.
+ * This behaviour depends on whether the closure of the task
+ * is also serializable. If you have a task that requires capturing
  *
  * If a single [SavableTask] object is scheduled multiple times
  * it will be serialized with its unique hash and when deserializing
  * only one object will be created to replace it.
  *
- * Furthermore, in order to read the tasks you must add [TaskFactory]s
+ * Furthermore, to read the tasks you must add [TaskFactory]s
  * to your minigame.
  * See [addTaskFactory].
  *
@@ -191,17 +194,15 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
             this.offline.add(GameProfile(uuid, player.stringOrNull("name")))
         }
 
-        for (data in json.arrayOrDefault("settings").objects()) {
-            val name = data.string("name")
-            val value = data.get("value")
-            val display = this.gameSettings[name]
-            if (display == null) {
-                Arcade.logger.warn("Saved setting $name for minigame ${this.id} could not be reloaded")
-                continue
-            }
-            display.setting.deserializeAndSetQuietly(value)
+        for (spectator in json.arrayOrDefault("spectators").strings()) {
+            this.spectators.add(UUID.fromString(spectator))
         }
 
+        for (admin in json.arrayOrDefault("admins").strings()) {
+            this.admins.add(UUID.fromString(admin))
+        }
+
+        this.settings.deserialize(json.arrayOrDefault("settings"))
         this.stats.deserialize(json.arrayOrDefault("stats"))
 
         val custom = json.objOrNull("custom")
@@ -236,14 +237,17 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
             players.add(data)
         }
 
-        val settings = JsonArray()
-        for (setting in this.getGameSettings()) {
-            val data = JsonObject()
-            data.addProperty("name", setting.name)
-            data.add("value", setting.serializeValue())
-            settings.add(data)
+        val spectators = JsonArray()
+        for (spectator in this.spectators) {
+            spectators.add(spectator.toString())
         }
 
+        val admins = JsonArray()
+        for (admin in this.admins) {
+            admins.add(admin.toString())
+        }
+
+        val settings = this.settings.serialize()
         val stats = this.stats.serialize()
 
         val custom = JsonObject()
@@ -252,6 +256,8 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         json.add("tasks", tasks)
         json.add("phase_tasks", phaseTasks)
         json.add("players", players)
+        json.add("spectators", spectators)
+        json.add("admins", admins)
         json.add("settings", settings)
         json.add("stats", stats)
         json.add("custom", custom)
@@ -311,10 +317,13 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
     private fun serializeTask(task: Task): JsonObject? {
         if (task is SavableTask) {
             val data = JsonObject()
-            data.addProperty("id", task.id)
-            data.addProperty("hash", System.identityHashCode(task))
-            data.add("custom", task.writeCustomData(MinigameTaskWriteContext()))
-            return data
+            val result = this.runCatching { task.writeCustomData(MinigameTaskWriteContext()) }
+            if (!result.isFailure) {
+                data.addProperty("id", task.id)
+                data.addProperty("hash", System.identityHashCode(task))
+                data.add("custom", result.getOrThrow())
+                return data
+            }
         }
         try {
             ByteArrayOutputStream().use { bytes ->

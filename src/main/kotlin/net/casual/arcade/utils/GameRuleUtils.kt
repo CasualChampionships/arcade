@@ -6,26 +6,26 @@ import net.minecraft.world.level.GameRules.*
 
 public object GameRuleUtils {
     public fun GameRules.resetToDefault() {
-        GameRules.visitGameRuleTypes(object: GameRuleTypeVisitor {
-            override fun <T: GameRules.Value<T>> visit(key: GameRules.Key<T>, type: GameRules.Type<T>) {
+        visitGameRuleTypes(object: GameRuleTypeVisitor {
+            override fun <T: Value<T>> visit(key: Key<T>, type: Type<T>) {
                 getRule(key).setFrom(type.createRule(), Arcade.getServer())
             }
         })
     }
 
-    public fun GameRules.set(rule: GameRules.Key<BooleanValue>, value: Boolean) {
+    public fun GameRules.set(rule: Key<BooleanValue>, value: Boolean) {
         this.getRule(rule).set(value, Arcade.getServer())
     }
 
-    public fun GameRules.set(rule: GameRules.Key<IntegerValue>, value: Int) {
+    public fun GameRules.set(rule: Key<IntegerValue>, value: Int) {
         this.getRule(rule).set(value, Arcade.getServer())
     }
 
-    public fun GameRules.get(rule: GameRules.Key<BooleanValue>): Boolean {
+    public fun GameRules.get(rule: Key<BooleanValue>): Boolean {
         return this.getRule(rule).get()
     }
 
-    public fun GameRules.get(rule: GameRules.Key<IntegerValue>): Int {
+    public fun GameRules.get(rule: Key<IntegerValue>): Int {
         return this.getRule(rule).get()
     }
 }

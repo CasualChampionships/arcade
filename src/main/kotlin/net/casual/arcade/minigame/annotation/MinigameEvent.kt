@@ -1,6 +1,10 @@
 package net.casual.arcade.minigame.annotation
 
 import net.casual.arcade.events.core.Event
+import net.casual.arcade.minigame.managers.MinigameEventHandler
+import net.casual.arcade.minigame.managers.MinigameEventHandler.Companion.HAS_LEVEL
+import net.casual.arcade.minigame.managers.MinigameEventHandler.Companion.HAS_PLAYER
+import net.casual.arcade.minigame.managers.MinigameEventHandler.Companion.IS_MINIGAME
 import kotlin.reflect.KClass
 
 /**
@@ -20,6 +24,11 @@ public annotation class MinigameEvent(
      * Higher values will be called later.
      */
     val priority: Int = 1_000,
+
+    /**
+     * The flags for setting the minigame event.
+     */
+    val flags: Int = MinigameEventHandler.DEFAULT,
 
     /**
      * These will be the phases of the minigame that

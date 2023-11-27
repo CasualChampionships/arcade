@@ -83,7 +83,7 @@ public class MinigameCommandManager(
     }
 
     private fun resendCommands() {
-        for (player in this.minigame.getPlayers()) {
+        for (player in this.minigame.getAllPlayers()) {
             this.minigame.server.commands.sendCommands(player)
         }
     }
