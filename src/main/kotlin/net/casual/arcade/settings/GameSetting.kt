@@ -76,4 +76,10 @@ public open class GameSetting<T: Any>(
     public operator fun setValue(any: Any, property: KProperty<*>, value: T) {
         this.set(value)
     }
+
+    public companion object {
+        public fun <T: Any> generator(serializer: JsonSerializer<T>): (String, T, Map<String, T>) -> GameSetting<T> {
+            return { id, value, options -> GameSetting(id, value, options, serializer) }
+        }
+    }
 }

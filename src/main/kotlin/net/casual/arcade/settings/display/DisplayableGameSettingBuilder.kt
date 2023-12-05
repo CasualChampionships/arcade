@@ -1,9 +1,11 @@
 package net.casual.arcade.settings.display
 
 import net.casual.arcade.items.HashableItemStack
+import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.settings.SettingListener
 import net.casual.arcade.settings.impl.*
+import net.casual.arcade.utils.json.*
 import net.minecraft.world.item.ItemStack
 
 public class DisplayableGameSettingBuilder<T: Any>(
@@ -60,36 +62,61 @@ public class DisplayableGameSettingBuilder<T: Any>(
     }
 
     public companion object {
+        private val boolean = GameSetting.generator(BooleanSerializer)
+        private val integer = GameSetting.generator(IntSerializer)
+        private val long = GameSetting.generator(LongSerializer)
+        private val float = GameSetting.generator(FloatSerializer)
+        private val double = GameSetting.generator(DoubleSerializer)
+        private val time = GameSetting.generator(TimeDurationSerializer)
+
         public fun bool(): DisplayableGameSettingBuilder<Boolean> {
-            return DisplayableGameSettingBuilder(::BooleanGameSetting)
+            return DisplayableGameSettingBuilder(this.boolean)
         }
 
         public fun bool(block: DisplayableGameSettingBuilder<Boolean>.() -> Unit): DisplayableGameSetting<Boolean> {
-            return DisplayableGameSettingBuilder(::BooleanGameSetting).apply(block).build()
+            return bool().apply(block).build()
         }
 
         public fun int32(): DisplayableGameSettingBuilder<Int> {
-            return DisplayableGameSettingBuilder(::IntegerGameSetting)
+            return DisplayableGameSettingBuilder(this.integer)
         }
 
         public fun int32(block: DisplayableGameSettingBuilder<Int>.() -> Unit): DisplayableGameSetting<Int> {
-            return DisplayableGameSettingBuilder(::IntegerGameSetting).apply(block).build()
+            return int32().apply(block).build()
         }
 
         public fun int64(): DisplayableGameSettingBuilder<Long> {
-            return DisplayableGameSettingBuilder(::LongGameSetting)
+            return DisplayableGameSettingBuilder(this.long)
         }
 
         public fun int64(block: DisplayableGameSettingBuilder<Long>.() -> Unit): DisplayableGameSetting<Long> {
-            return DisplayableGameSettingBuilder(::LongGameSetting).apply(block).build()
+            return int64().apply(block).build()
+        }
+
+        public fun float32(): DisplayableGameSettingBuilder<Float> {
+            return DisplayableGameSettingBuilder(this.float)
+        }
+
+        public fun float32(block: DisplayableGameSettingBuilder<Float>.() -> Unit): DisplayableGameSetting<Float> {
+            return float32().apply(block).build()
         }
 
         public fun float64(): DisplayableGameSettingBuilder<Double> {
-            return DisplayableGameSettingBuilder(::DoubleGameSetting)
+            return DisplayableGameSettingBuilder(this.double)
         }
 
         public fun float64(block: DisplayableGameSettingBuilder<Double>.() -> Unit): DisplayableGameSetting<Double> {
-            return DisplayableGameSettingBuilder(::DoubleGameSetting).apply(block).build()
+            return float64().apply(block).build()
+        }
+
+        public fun time(): DisplayableGameSettingBuilder<MinecraftTimeDuration> {
+            return DisplayableGameSettingBuilder(this.time)
+        }
+
+        public fun time(
+            block: DisplayableGameSettingBuilder<MinecraftTimeDuration>.() -> Unit
+        ): DisplayableGameSetting<MinecraftTimeDuration> {
+            return time().apply(block).build()
         }
 
         public fun <E: Enum<E>> enumeration(): DisplayableGameSettingBuilder<E> {
@@ -99,7 +126,7 @@ public class DisplayableGameSettingBuilder<T: Any>(
         public fun <E: Enum<E>> enumeration(
             block: DisplayableGameSettingBuilder<E>.() -> Unit
         ): DisplayableGameSetting<E> {
-            return DisplayableGameSettingBuilder<E>(::EnumGameSetting).apply(block).build()
+            return enumeration<E>().apply(block).build()
         }
     }
 }
