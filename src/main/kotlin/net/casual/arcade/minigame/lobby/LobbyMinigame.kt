@@ -63,7 +63,7 @@ public abstract class LobbyMinigame(
         this.settings.canGetHungry = false
         this.settings.canBreakBlocks = false
         this.settings.canPlaceBlocks = false
-        this.settings.canThrowItems = false
+        this.settings.canDropItems = false
         this.settings.canPickupItems = false
         this.settings.canTakeDamage = false
         this.settings.canInteractAll = false

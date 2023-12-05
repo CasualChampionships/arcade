@@ -41,7 +41,7 @@ public class PlayerMixin {
 	) {
 		if ((Object) this instanceof ServerPlayer player) {
 			Minigame<?> minigame = MinigameUtils.getMinigame(player);
-			if (minigame != null && !minigame.getSettings().getCanThrowItems()) {
+			if (minigame != null && !minigame.getSettings().getCanDropItems()) {
 				cir.setReturnValue(null);
 			}
 		}

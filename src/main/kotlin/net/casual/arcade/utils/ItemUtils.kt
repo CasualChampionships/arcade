@@ -73,12 +73,25 @@ public object ItemUtils {
     }
 
     @JvmStatic
-    public fun ItemStack.setLore(lore: Iterable<Component>) {
+    public fun ItemStack.setLore(vararg lore: Component): ItemStack {
         val list = ListTag()
         for (component in lore) {
             list.add(StringTag.valueOf(Component.Serializer.toJson(component)))
         }
-        this.addTagElement(ItemStack.TAG_LORE, list)
+        val display = this.getOrCreateTagElement(ItemStack.TAG_DISPLAY)
+        display.put(ItemStack.TAG_LORE, list)
+        return this
+    }
+
+    @JvmStatic
+    public fun ItemStack.setLore(lore: Iterable<Component>): ItemStack {
+        val list = ListTag()
+        for (component in lore) {
+            list.add(StringTag.valueOf(Component.Serializer.toJson(component)))
+        }
+        val display = this.getOrCreateTagElement(ItemStack.TAG_DISPLAY)
+        display.put(ItemStack.TAG_LORE, list)
+        return this
     }
 
     @JvmStatic

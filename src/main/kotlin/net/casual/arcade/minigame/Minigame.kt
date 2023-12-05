@@ -44,6 +44,7 @@ import net.minecraft.world.scores.PlayerTeam
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import xyz.nucleoid.fantasy.RuntimeWorldHandle
 import java.util.*
+import kotlin.collections.LinkedHashSet
 
 /**
  * This class represents a [Minigame] which player's can play.
@@ -118,7 +119,8 @@ public abstract class Minigame<M: Minigame<M>>(
      */
     public val server: MinecraftServer,
 ) {
-    private val levelHandles: MutableSet<RuntimeWorldHandle>
+    private val handles: MutableSet<RuntimeWorldHandle>
+    private val levels: MutableSet<ServerLevel>
     private val connections: MutableSet<ServerGamePacketListenerImpl>
 
     private var initialized: Boolean
@@ -229,7 +231,8 @@ public abstract class Minigame<M: Minigame<M>>(
     public abstract val id: ResourceLocation
 
     init {
-        this.levelHandles = LinkedHashSet()
+        this.handles = LinkedHashSet()
+        this.levels = LinkedHashSet()
         this.connections = LinkedHashSet()
         this.admins = LinkedHashSet()
         this.spectators = LinkedHashSet()
@@ -440,7 +443,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * @param handle The RuntimeWorldHandle to delete after the minigame closes.
      */
     public fun addLevelHandle(handle: RuntimeWorldHandle) {
-        this.levelHandles.add(handle)
+        this.handles.add(handle)
     }
 
     /**
@@ -633,9 +636,11 @@ public abstract class Minigame<M: Minigame<M>>(
         for (player in this.getAllPlayers()) {
             this.removePlayer(player)
         }
-        for (handle in this.levelHandles) {
+        for (handle in this.handles) {
             handle.delete()
         }
+        this.handles.clear()
+        this.levels.clear()
         this.events.unregisterHandler()
         this.events.minigame.clear()
         this.events.phased.clear()

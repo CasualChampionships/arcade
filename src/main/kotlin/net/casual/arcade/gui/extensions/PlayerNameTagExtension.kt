@@ -106,6 +106,8 @@ internal class PlayerNameTagExtension(
             // non-see-through and the foreground becomes invisible
             this.background.seeThrough = false
             this.foreground.textOpacity = -127
+
+            this.sendTrackerUpdates()
         }
 
         fun unsneak() {
@@ -113,6 +115,8 @@ internal class PlayerNameTagExtension(
             this.background.seeThrough = true
             // Not sure why 255 is required here, 128 doesn't work.
             this.foreground.textOpacity = 255.toByte()
+
+            this.sendTrackerUpdates()
         }
 
         private fun initialiseDisplay(display: TextDisplayElement) {
