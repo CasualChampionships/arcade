@@ -187,7 +187,7 @@ public abstract class Minigame<M: Minigame<M>>(
     /**
      * This handles all the settings for a minigame.
      */
-    public val settings: MinigameSettings
+    public open val settings: MinigameSettings = MinigameSettings()
 
     /**
      * The [UUID] of the minigame.
@@ -242,7 +242,6 @@ public abstract class Minigame<M: Minigame<M>>(
         this.advancements = MinigameAdvancementManager(this.cast())
         this.recipes = MinigameRecipeManager(this.cast())
         this.stats = MinigameStatManager()
-        this.settings = this.getMinigameSettings()
 
         this.phase = MinigamePhase.none()
 
@@ -699,10 +698,6 @@ public abstract class Minigame<M: Minigame<M>>(
         Minigames.register(this)
 
         this.initialized = true
-    }
-
-    protected open fun getMinigameSettings(): MinigameSettings {
-        return MinigameSettings()
     }
 
     /**
