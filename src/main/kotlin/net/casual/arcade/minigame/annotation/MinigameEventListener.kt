@@ -9,7 +9,7 @@ import kotlin.reflect.KClass
  */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-public annotation class MinigameEvent(
+public annotation class MinigameEventListener(
     /**
      * This is the type of the event, this does not need
      * to be explicitly specified.

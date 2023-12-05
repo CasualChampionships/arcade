@@ -1,5 +1,6 @@
 package net.casual.arcade.utils
 
+import net.casual.arcade.Arcade
 import net.casual.arcade.commands.hidden.HiddenCommand
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.GlobalEventHandler
@@ -9,7 +10,7 @@ import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigamePhase
-import net.casual.arcade.minigame.annotation.MinigameEvent
+import net.casual.arcade.minigame.annotation.MinigameEventListener
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
 import net.casual.arcade.minigame.lobby.ReadyChecker
 import net.casual.arcade.scheduler.MinecraftTimeDuration
@@ -22,6 +23,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
 import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 
 public object MinigameUtils {
     internal val ServerPlayer.minigame
@@ -159,7 +161,7 @@ public object MinigameUtils {
 
     internal fun parseMinigameEvents(minigame: Minigame<*>) {
         var type: Class<*> = minigame::class.java
-        while (type != Minigame::class.java) {
+        while (type != Any::class.java) {
             for (method in type.declaredMethods) {
                 this.parseMinigameEventMethod(minigame, method)
             }
@@ -177,7 +179,10 @@ public object MinigameUtils {
     }
 
     private fun <M: Minigame<M>> parseMinigameEventMethod(minigame: Minigame<M>, method: Method) {
-        val event = method.getAnnotation(MinigameEvent::class.java) ?: return
+        val event = method.getAnnotation(MinigameEventListener::class.java) ?: return
+        if (!Modifier.isPrivate(method.modifiers)) {
+            Arcade.logger.warn("MinigameEventListener was declared non-private, it should be private!")
+        }
         val (type, listener) = this.createEventListener(minigame, method, event)
 
         if (event.phases.isNotEmpty()) {
@@ -193,9 +198,17 @@ public object MinigameUtils {
             )
             return
         }
-        if (event.start != "" && event.end != "") {
-            val start = minigame.getPhase(event.start) ?: throw IllegalArgumentException("Start phase does not exist")
-            val end = minigame.getPhase(event.end) ?: throw IllegalArgumentException("End phase does not exist")
+        if (event.start != "" || event.end != "") {
+            val start = if (event.start != "") {
+                minigame.getPhase(event.start) ?: throw IllegalArgumentException("Start phase does not exist")
+            } else {
+                MinigamePhase.none()
+            }
+            val end = if (event.start != "") {
+                minigame.getPhase(event.end) ?: throw IllegalArgumentException("End phase does not exist")
+            } else {
+                MinigamePhase.end()
+            }
             minigame.events.registerBetweenPhases(
                 type = type,
                 start = start,
@@ -211,15 +224,15 @@ public object MinigameUtils {
     private fun createEventListener(
         minigame: Minigame<*>,
         method: Method,
-        event: MinigameEvent
+        event: MinigameEventListener
     ): Pair<Class<Event>, EventListener<Event>> {
         if (method.parameterCount != 1) {
-            throw IllegalArgumentException("MinigameEvent ($method) has unexpected parameter count, should be 1")
+            throw IllegalArgumentException("MinigameEventListener ($method) has unexpected parameter count, should be 1")
         }
 
         val type = method.parameterTypes[0]
         if (!Event::class.java.isAssignableFrom(type)) {
-            val message = "MinigameEvent ($method) only accepts parameter type $type but should accept Event"
+            val message = "MinigameEventListener ($method) only accepts parameter type $type but should accept Event"
             throw IllegalArgumentException(message)
         }
         @Suppress("UNCHECKED_CAST")

@@ -208,6 +208,16 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    public fun ServerPlayer.grantAllRecipes() {
+        this.awardRecipes(this.server.recipeManager.recipes)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.revokeAllRecipes() {
+        this.resetRecipes(this.server.recipeManager.recipes)
+    }
+
+    @JvmStatic
     public fun ServerPlayer.teleportTo(location: Location) {
         this.teleportTo(location.level, location.x, location.y, location.z, location.yaw, location.pitch)
     }
