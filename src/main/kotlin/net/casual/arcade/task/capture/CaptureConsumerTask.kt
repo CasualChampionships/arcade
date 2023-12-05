@@ -1,5 +1,7 @@
 package net.casual.arcade.task.capture
 
-public fun interface CaptureConsumerTask<C> {
+import java.io.Serializable
+
+public fun interface CaptureConsumerTask<C>: Serializable {
     public fun run(capture: C)
 }
