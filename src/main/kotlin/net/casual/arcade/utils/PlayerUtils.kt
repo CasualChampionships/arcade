@@ -28,6 +28,8 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
+import net.minecraft.world.damagesource.DamageSource
+import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.GameType
 import net.minecraft.world.phys.Vec2
@@ -121,6 +123,11 @@ public object PlayerUtils {
     @JvmOverloads
     public fun Iterable<ServerPlayer>.gamemode(type: GameType = GameType.SURVIVAL): List<ServerPlayer> {
         return this.filter { it.isGameMode(type) }
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.getKillCreditWith(source: DamageSource): Entity? {
+        return source.entity ?: this.killCredit
     }
 
     @JvmStatic

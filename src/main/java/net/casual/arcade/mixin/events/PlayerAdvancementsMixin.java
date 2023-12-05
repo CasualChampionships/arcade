@@ -19,12 +19,12 @@ public class PlayerAdvancementsMixin {
 		method = "award",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/advancements/Advancement;getDisplay()Lnet/minecraft/advancements/DisplayInfo;"
+			target = "Lnet/minecraft/advancements/DisplayInfo;shouldAnnounceChat()Z"
 		)
 	)
-	private DisplayInfo onAward(Advancement instance) {
-		PlayerAdvancementEvent event = new PlayerAdvancementEvent(this.player, instance);
+	private boolean onAward(DisplayInfo instance, Advancement advancement) {
+		PlayerAdvancementEvent event = new PlayerAdvancementEvent(this.player, advancement);
 		GlobalEventHandler.broadcast(event);
-		return event.getAnnounce() ? instance.getDisplay() : null;
+		return event.getAnnounce();
 	}
 }
