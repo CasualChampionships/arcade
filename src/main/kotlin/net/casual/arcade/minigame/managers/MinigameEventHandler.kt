@@ -9,6 +9,7 @@ import net.casual.arcade.events.minigame.MinigameEvent
 import net.casual.arcade.events.player.PlayerEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigamePhase
+import net.casual.arcade.minigame.annotation.*
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import java.util.*
 import java.util.function.Consumer
@@ -47,17 +48,6 @@ import java.util.function.Consumer
 public class MinigameEventHandler<M: Minigame<M>>(
     private val owner: Minigame<M>
 ): EventRegisterer {
-    public companion object {
-        public const val HAS_PLAYER: Int = 1 shl 1
-        public const val IS_PLAYING: Int = 1 shl 2
-        public const val IS_SPECTATOR: Int = 1 shl 3
-        public const val IS_ADMIN: Int = 1 shl 4
-        public const val HAS_LEVEL: Int = 1 shl 5
-        public const val IS_MINIGAME: Int = 1 shl 6
-
-        public const val DEFAULT: Int = HAS_PLAYER or HAS_LEVEL or IS_MINIGAME
-    }
-
     internal val minigame = EventHandler()
     internal val phased = EventHandler()
 

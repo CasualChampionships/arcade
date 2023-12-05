@@ -1,8 +1,17 @@
 package net.casual.arcade.minigame.annotation
 
 import net.casual.arcade.events.core.Event
+import net.casual.arcade.minigame.MinigamePhase
 import net.casual.arcade.minigame.managers.MinigameEventHandler
 import kotlin.reflect.KClass
+
+public const val HAS_PLAYER: Int = 1 shl 1
+public const val IS_PLAYING: Int = 1 shl 2
+public const val IS_SPECTATOR: Int = 1 shl 3
+public const val IS_ADMIN: Int = 1 shl 4
+public const val HAS_LEVEL: Int = 1 shl 5
+public const val IS_MINIGAME: Int = 1 shl 6
+public const val DEFAULT: Int = HAS_PLAYER or HAS_LEVEL or IS_MINIGAME
 
 /**
  * This annotation is used to mark a method as an event handler.
@@ -25,14 +34,14 @@ public annotation class MinigameEventListener(
     /**
      * The flags for setting the minigame event.
      */
-    val flags: Int = MinigameEventHandler.DEFAULT,
+    val flags: Int = DEFAULT,
 
     /**
      * These will be the phases of the minigame that
      * this event handler will be invoked in.
      *
      * If this array is empty, the event handler will
-     * either use the [start] and [end] to determine
+     * either use the [after] and [before] to determine
      * the events that it will be invoked in, or it will
      * be invoked in all phases.
      */
@@ -40,25 +49,19 @@ public annotation class MinigameEventListener(
 
     /**
      * This is the id of the start phase that this
-     * handler should be invoked in.
+     * handler should be invoked in, this is inclusive.
      *
-     * This **must** be accompanied by an [end].
-     *
-     * Together with the [end], this will be used
-     * to invoke this handler when the minigame phase
-     * is between the given phases.
+     * By default, if not specified will default to
+     * [MinigamePhase.none].
      */
-    val start: String = "",
+    val after: String = "",
 
     /**
      * This is the id of the end phase that this
-     * handler should be invoked in.
+     * handler should be invoked in, this is inclusive.
      *
-     * This **must** be accompanied by a [start].
-     *
-     * Together with the [start], this will be used
-     * to invoke this handler when the minigame phase
-     * is between the given phases.
+     * By default, if not specified will default to
+     * [MinigamePhase.end].
      */
-    val end: String = ""
+    val before: String = ""
 )

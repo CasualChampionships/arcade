@@ -198,14 +198,14 @@ public object MinigameUtils {
             )
             return
         }
-        if (event.start != "" || event.end != "") {
-            val start = if (event.start != "") {
-                minigame.getPhase(event.start) ?: throw IllegalArgumentException("Start phase does not exist")
+        if (event.after != "" || event.before != "") {
+            val start = if (event.after != "") {
+                minigame.getPhase(event.after) ?: throw IllegalArgumentException("Start phase does not exist")
             } else {
                 MinigamePhase.none()
             }
-            val end = if (event.start != "") {
-                minigame.getPhase(event.end) ?: throw IllegalArgumentException("End phase does not exist")
+            val end = if (event.after != "") {
+                minigame.getPhase(event.before) ?: throw IllegalArgumentException("End phase does not exist")
             } else {
                 MinigamePhase.end()
             }
