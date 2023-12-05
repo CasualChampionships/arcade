@@ -10,6 +10,7 @@ import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigamePhase
+import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.annotation.MinigameEventListener
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
 import net.casual.arcade.minigame.lobby.ReadyChecker
@@ -159,11 +160,18 @@ public object MinigameUtils {
         return null
     }
 
-    internal fun parseMinigameEvents(minigame: Minigame<*>) {
+    public fun Minigame<*>.addEventListener(listener: MinigameEventListener) {
+        if (listener is Minigame<*>) {
+            throw IllegalArgumentException("Cannot parse Minigame as ${listener::class.java}")
+        }
+        parseMinigameEvents(this, listener)
+    }
+
+    internal fun parseMinigameEvents(minigame: Minigame<*>, declarer: Any = minigame) {
         var type: Class<*> = minigame::class.java
         while (type != Any::class.java) {
             for (method in type.declaredMethods) {
-                this.parseMinigameEventMethod(minigame, method)
+                this.parseMinigameEventMethod(minigame, minigame, method)
             }
             type = type.superclass
         }
@@ -178,12 +186,16 @@ public object MinigameUtils {
         }
     }
 
-    private fun <M: Minigame<M>> parseMinigameEventMethod(minigame: Minigame<M>, method: Method) {
-        val event = method.getAnnotation(MinigameEventListener::class.java) ?: return
+    private fun <M: Minigame<M>> parseMinigameEventMethod(
+        minigame: Minigame<M>,
+        declarer: Any,
+        method: Method
+    ) {
+        val event = method.getAnnotation(Listener::class.java) ?: return
         if (!Modifier.isPrivate(method.modifiers)) {
             Arcade.logger.warn("MinigameEventListener was declared non-private, it should be private!")
         }
-        val (type, listener) = this.createEventListener(minigame, method, event)
+        val (type, listener) = this.createEventListener(declarer, method, event)
 
         if (event.phases.isNotEmpty()) {
             val phases = event.phases.map { id ->
@@ -222,17 +234,17 @@ public object MinigameUtils {
     }
 
     private fun createEventListener(
-        minigame: Minigame<*>,
+        declarer: Any,
         method: Method,
-        event: MinigameEventListener
+        event: Listener
     ): Pair<Class<Event>, EventListener<Event>> {
         if (method.parameterCount != 1) {
-            throw IllegalArgumentException("MinigameEventListener ($method) has unexpected parameter count, should be 1")
+            throw IllegalArgumentException("Minigame Listener ($method) has unexpected parameter count, should be 1")
         }
 
         val type = method.parameterTypes[0]
         if (!Event::class.java.isAssignableFrom(type)) {
-            val message = "MinigameEventListener ($method) only accepts parameter type $type but should accept Event"
+            val message = "Minigame Listener ($method) only accepts parameter type $type but should accept Event"
             throw IllegalArgumentException(message)
         }
         @Suppress("UNCHECKED_CAST")
@@ -242,6 +254,6 @@ public object MinigameUtils {
 
         method.isAccessible = true
         val handle = MethodHandles.lookup().unreflect(method)
-        return type to EventListener.of(priority) { handle.invoke(minigame, it) }
+        return type to EventListener.of(priority) { handle.invoke(declarer, it) }
     }
 }
