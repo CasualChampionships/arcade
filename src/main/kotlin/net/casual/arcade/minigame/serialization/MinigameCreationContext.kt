@@ -2,7 +2,6 @@ package net.casual.arcade.minigame.serialization
 
 import com.google.gson.JsonObject
 import net.minecraft.server.MinecraftServer
-import java.lang.IllegalStateException
 
 public class MinigameCreationContext(
     public val server: MinecraftServer,

@@ -13,7 +13,6 @@ import net.casual.arcade.utils.CommandUtils.success
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.commands.arguments.DimensionArgument
-import net.minecraft.commands.arguments.TimeArgument
 import net.minecraft.commands.arguments.coordinates.Vec2Argument
 import net.minecraft.network.chat.Component
 import net.minecraft.world.level.border.WorldBorder

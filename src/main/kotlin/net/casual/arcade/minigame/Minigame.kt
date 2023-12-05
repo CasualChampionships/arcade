@@ -32,8 +32,6 @@ import net.casual.arcade.utils.MinigameUtils
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.PlayerUtils
-import net.casual.arcade.utils.ScreenUtils
-import net.casual.arcade.utils.ScreenUtils.DefaultMinigameSettingsComponent
 import net.casual.arcade.utils.StatUtils.increment
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.resources.ResourceLocation
@@ -41,13 +39,11 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
-import net.minecraft.world.MenuProvider
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.scores.PlayerTeam
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import xyz.nucleoid.fantasy.RuntimeWorldHandle
 import java.util.*
-import kotlin.collections.LinkedHashSet
 
 /**
  * This class represents a [Minigame] which player's can play.

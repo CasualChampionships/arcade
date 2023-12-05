@@ -2,7 +2,6 @@ package net.casual.arcade.settings.display
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import net.casual.arcade.Arcade
 import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string

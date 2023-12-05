@@ -4,6 +4,7 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.level.Level
 import xyz.nucleoid.fantasy.RuntimeWorld
+import xyz.nucleoid.fantasy.RuntimeWorld.Constructor
 import xyz.nucleoid.fantasy.RuntimeWorldConfig
 
 public class VanillaLikeRuntimeLevel(

@@ -6,9 +6,9 @@ import net.casual.arcade.scheduler.MinecraftScheduler
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.scheduler.TickedScheduler
-import net.casual.arcade.task.impl.CancellableTask
 import net.casual.arcade.task.SavableTask
 import net.casual.arcade.task.Task
+import net.casual.arcade.task.impl.CancellableTask
 
 /**
  * This is an implementation of [MinigameScheduler] that allows for

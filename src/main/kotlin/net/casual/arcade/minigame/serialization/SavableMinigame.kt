@@ -13,7 +13,8 @@ import net.casual.arcade.minigame.task.MinigameTaskGenerator
 import net.casual.arcade.minigame.task.impl.PhaseChangeTask
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.scheduler.TickedScheduler
-import net.casual.arcade.task.*
+import net.casual.arcade.task.SavableTask
+import net.casual.arcade.task.Task
 import net.casual.arcade.task.impl.CancellableTask
 import net.casual.arcade.task.serialization.TaskCreationContext
 import net.casual.arcade.task.serialization.TaskFactory

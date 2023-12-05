@@ -2,9 +2,6 @@ package net.casual.arcade.minigame.annotation
 
 import net.casual.arcade.events.core.Event
 import net.casual.arcade.minigame.managers.MinigameEventHandler
-import net.casual.arcade.minigame.managers.MinigameEventHandler.Companion.HAS_LEVEL
-import net.casual.arcade.minigame.managers.MinigameEventHandler.Companion.HAS_PLAYER
-import net.casual.arcade.minigame.managers.MinigameEventHandler.Companion.IS_MINIGAME
 import kotlin.reflect.KClass
 
 /**

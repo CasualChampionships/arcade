@@ -10,8 +10,8 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.Minigames
+import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.MinigameUtils.getMinigame

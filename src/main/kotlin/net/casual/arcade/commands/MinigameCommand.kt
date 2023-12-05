@@ -7,8 +7,8 @@ import net.casual.arcade.commands.arguments.MinigameArgument.PhaseName.Companion
 import net.casual.arcade.commands.arguments.MinigameArgument.SettingsName.Companion.INVALID_SETTING_NAME
 import net.casual.arcade.commands.arguments.MinigameArgument.SettingsOption.Companion.INVALID_SETTING_OPTION
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.Minigames
+import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.success
