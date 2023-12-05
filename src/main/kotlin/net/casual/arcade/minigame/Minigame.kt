@@ -544,6 +544,15 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     /**
+     * This gets all the levels that are part of the minigame.
+     *
+     * @return The collection of levels.
+     */
+    public fun getLevels(): Collection<ServerLevel> {
+        return this.levels
+    }
+
+    /**
      * This gets whether a given player is playing in the minigame.
      *
      * @param player The player to check whether they are playing.
