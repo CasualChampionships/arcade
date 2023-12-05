@@ -21,7 +21,7 @@ public class ItemStackMixin {
 	private void canPlaceBlock(UseOnContext context, CallbackInfoReturnable<InteractionResult> cir) {
 		if (context.getPlayer() instanceof ServerPlayer player) {
 			Minigame<?> minigame = MinigameUtils.getMinigame(player);
-			if (minigame != null && !minigame.getSettings().getCanPlaceBlocks()) {
+			if (minigame != null && !minigame.getSettings().canPlaceBlocks.get(player)) {
 				cir.setReturnValue(InteractionResult.PASS);
 			}
 		}

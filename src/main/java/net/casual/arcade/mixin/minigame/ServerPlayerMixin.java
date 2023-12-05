@@ -20,8 +20,9 @@ public class ServerPlayerMixin {
 		)
 	)
 	private boolean isPvpAllowed(boolean original) {
-		Minigame<?> minigame = MinigameUtils.getMinigame((ServerPlayer) (Object) this);
-		return original && (minigame == null || minigame.getSettings().getCanPvp());
+		ServerPlayer player = (ServerPlayer) (Object) this;
+		Minigame<?> minigame = MinigameUtils.getMinigame(player);
+		return original && (minigame == null || minigame.getSettings().canPvp.get(player));
 	}
 
 	@Inject(
@@ -30,8 +31,9 @@ public class ServerPlayerMixin {
 		cancellable = true
 	)
 	private void onIsInvulnerableTo(DamageSource source, CallbackInfoReturnable<Boolean> cir) {
-		Minigame<?> minigame = MinigameUtils.getMinigame((ServerPlayer) (Object) this);
-		if (minigame != null && !minigame.getSettings().getCanTakeDamage()) {
+		ServerPlayer player = (ServerPlayer) (Object) this;
+		Minigame<?> minigame = MinigameUtils.getMinigame(player);
+		if (minigame != null && !minigame.getSettings().canTakeDamage.get(player)) {
 			cir.setReturnValue(true);
 		}
 	}

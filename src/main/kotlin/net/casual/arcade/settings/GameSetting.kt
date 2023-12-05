@@ -2,6 +2,7 @@ package net.casual.arcade.settings
 
 import com.google.gson.JsonElement
 import net.casual.arcade.utils.json.JsonSerializer
+import net.minecraft.server.level.ServerPlayer
 import java.util.*
 import kotlin.reflect.KProperty
 
@@ -12,9 +13,14 @@ public open class GameSetting<T: Any>(
     private val serializer: JsonSerializer<T>
 ) {
     private val listeners by lazy { ArrayList<SettingListener<T>>() }
+    private var override: (ServerPlayer) -> T? = { null }
 
     public fun get(): T {
         return this.value
+    }
+
+    public fun get(player: ServerPlayer): T {
+        return this.override(player) ?: this.get()
     }
 
     public fun set(value: T) {

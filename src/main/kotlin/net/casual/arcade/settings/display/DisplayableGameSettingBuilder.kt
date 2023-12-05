@@ -6,6 +6,7 @@ import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.settings.SettingListener
 import net.casual.arcade.settings.impl.*
 import net.casual.arcade.utils.json.*
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 
 public class DisplayableGameSettingBuilder<T: Any>(
@@ -19,6 +20,7 @@ public class DisplayableGameSettingBuilder<T: Any>(
     public var name: String = ""
     public var display: ItemStack = ItemStack.EMPTY
     public var value: T? = null
+    public var override: (ServerPlayer) -> T? = { null }
 
     public fun name(name: String): DisplayableGameSettingBuilder<T> {
         this.name = name

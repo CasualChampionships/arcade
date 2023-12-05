@@ -89,6 +89,7 @@ import kotlin.collections.LinkedHashSet
  *
  *     override fun initialise() {
  *         super.initialise()
+ *         this.addLevel(LevelUtils.overworld())
  *         this.events.register<MinigameAddPlayerEvent> { (_, player) ->
  *             player.sendSystemMessage(Component.literal("Welcome to My Minigame!"))
  *         }
@@ -100,10 +101,6 @@ import kotlin.collections.LinkedHashSet
  *
  *     override fun getPhases(): List<MinigamePhase<MyMinigame>> {
  *         return MyMinigamePhase.values().toList()
- *     }
- *
- *     override fun getLevels(): Collection<ServerLevel> {
- *         return listOf(LevelUtils.overworld())
  *     }
  * }
  * ```
@@ -189,7 +186,7 @@ public abstract class Minigame<M: Minigame<M>>(
     /**
      * This handles all the settings for a minigame.
      */
-    public open val settings: MinigameSettings = MinigameSettings()
+    public open val settings: MinigameSettings = MinigameSettings(this.cast())
 
     /**
      * The [UUID] of the minigame.
@@ -442,8 +439,21 @@ public abstract class Minigame<M: Minigame<M>>(
      *
      * @param handle The RuntimeWorldHandle to delete after the minigame closes.
      */
-    public fun addLevelHandle(handle: RuntimeWorldHandle) {
+    public fun addLevel(handle: RuntimeWorldHandle) {
         this.handles.add(handle)
+        this.levels.add(handle.asWorld())
+    }
+
+    /**
+     * This adds a level to the minigame.
+     *
+     * This will automatically delete the level after the
+     * minigame ends.
+     *
+     * @param handle The RuntimeWorldHandle to delete after the minigame closes.
+     */
+    public fun addLevel(level: ServerLevel) {
+        this.levels.add(level)
     }
 
     /**
@@ -576,7 +586,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * @return Whether the level is part of the minigame.
      */
     public fun hasLevel(level: ServerLevel): Boolean {
-        return this.getLevels().contains(level)
+        return this.levels.contains(level)
     }
 
     /**
@@ -617,7 +627,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * @see GameRules
      */
     public fun setGameRules(modifier: GameRules.() -> Unit) {
-        for (level in this.getLevels()) {
+        for (level in this.levels) {
             modifier(level.gameRules)
         }
     }
@@ -636,8 +646,10 @@ public abstract class Minigame<M: Minigame<M>>(
         for (player in this.getAllPlayers()) {
             this.removePlayer(player)
         }
-        for (handle in this.handles) {
-            handle.delete()
+        if (this.settings.shouldDeleteLevels) {
+            for (handle in this.handles) {
+                handle.delete()
+            }
         }
         this.handles.clear()
         this.levels.clear()
@@ -670,7 +682,7 @@ public abstract class Minigame<M: Minigame<M>>(
         json.addProperty("id", this.id.toString())
         json.add("players", this.getAllPlayers().toJsonStringArray { it.scoreboardName })
         json.add("offline_players", this.offline.toJsonObject { it.name to JsonPrimitive(it.id?.toString()) })
-        json.add("levels", this.getLevels().toJsonStringArray { it.dimension().location().toString() })
+        json.add("levels", this.levels.toJsonStringArray { it.dimension().location().toString() })
         json.add("phases", this.phases.toJsonStringArray { it.id })
         json.addProperty("phase", this.phase.id)
         json.addProperty("paused", this.paused)
@@ -731,17 +743,6 @@ public abstract class Minigame<M: Minigame<M>>(
      */
     @OverrideOnly
     protected abstract fun getPhases(): Collection<MinigamePhase<M>>
-
-    /**
-     * This gets all the [ServerLevel]s that the [Minigame] is in.
-     *
-     * This method is used for [hasLevel], to see if the minigame
-     * has a given level, and further for debugging purposes.
-     *
-     * @return A collection of levels that the minigame is in.
-     */
-    @OverrideOnly
-    protected abstract fun getLevels(): Collection<ServerLevel>
 
     /**
      * This returns `this` object but cast to its implementation

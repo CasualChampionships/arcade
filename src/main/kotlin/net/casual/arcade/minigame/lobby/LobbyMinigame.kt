@@ -44,6 +44,7 @@ public abstract class LobbyMinigame(
 
     override fun initialize() {
         super.initialize()
+        this.addLevel(this.lobby.spawn.level)
         this.events.register<MinigameAddNewPlayerEvent> { (_, player) ->
             this.lobby.forceTeleportToSpawn(player)
             player.resetHealth()
@@ -59,13 +60,13 @@ public abstract class LobbyMinigame(
 
         this.commands.register(this.createLobbyCommand())
 
-        this.settings.canPvp = false
-        this.settings.canGetHungry = false
-        this.settings.canBreakBlocks = false
-        this.settings.canPlaceBlocks = false
-        this.settings.canDropItems = false
-        this.settings.canPickupItems = false
-        this.settings.canTakeDamage = false
+        this.settings.canPvp.set(false)
+        this.settings.canGetHungry.set(false)
+        this.settings.canBreakBlocks.set(false)
+        this.settings.canPlaceBlocks.set(false)
+        this.settings.canDropItems.set(false)
+        this.settings.canPickupItems.set(false)
+        this.settings.canTakeDamage.set(false)
         this.settings.canInteractAll = false
     }
 
@@ -121,10 +122,6 @@ public abstract class LobbyMinigame(
 
     final override fun getPhases(): List<Phase> {
         return listOf(Phase.Waiting, Phase.Countdown)
-    }
-
-    final override fun getLevels(): Collection<ServerLevel> {
-        return listOf(this.lobby.spawn.level)
     }
 
     override fun appendAdditionalDebugInfo(json: JsonObject) {

@@ -26,7 +26,7 @@ public class InteractPacketHandlerImplMixin {
 	)
 	private void canInteract(InteractionHand hand, Vec3 interactionLocation, CallbackInfo ci) {
 		Minigame<?> minigame = MinigameUtils.getMinigame(this.field_28963.player);
-		if (minigame != null && !minigame.getSettings().getCanInteractEntities()) {
+		if (minigame != null && !minigame.getSettings().canInteractEntities.get(this.field_28963.player)) {
 			ci.cancel();
 		}
 	}
@@ -38,7 +38,7 @@ public class InteractPacketHandlerImplMixin {
 	)
 	private void canInteract(InteractionHand hand, CallbackInfo ci) {
 		Minigame<?> minigame = MinigameUtils.getMinigame(this.field_28963.player);
-		if (minigame != null && !minigame.getSettings().getCanInteractEntities()) {
+		if (minigame != null && !minigame.getSettings().canInteractEntities.get(this.field_28963.player)) {
 			ci.cancel();
 		}
 	}
@@ -52,6 +52,6 @@ public class InteractPacketHandlerImplMixin {
 	)
 	private boolean canAttack(ServerPlayer player, Entity target) {
 		Minigame<?> minigame = MinigameUtils.getMinigame(player);
-		return minigame == null || minigame.getSettings().getCanAttackEntities();
+		return minigame == null || minigame.getSettings().canAttackEntities.get(player);
 	}
 }

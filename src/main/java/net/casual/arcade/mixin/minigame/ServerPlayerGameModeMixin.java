@@ -42,7 +42,7 @@ public class ServerPlayerGameModeMixin {
 		CallbackInfo ci
 	) {
 		Minigame<?> minigame = MinigameUtils.getMinigame(this.player);
-		if (minigame != null && !minigame.getSettings().getCanBreakBlocks()) {
+		if (minigame != null && !minigame.getSettings().canBreakBlocks.get(this.player)) {
 			this.player.connection.send(new ClientboundBlockUpdatePacket(pos, this.level.getBlockState(pos)));
 			ci.cancel();
 		}
@@ -61,7 +61,7 @@ public class ServerPlayerGameModeMixin {
 		CallbackInfoReturnable<InteractionResult> cir
 	) {
 		Minigame<?> minigame = MinigameUtils.getMinigame(player);
-		if (minigame != null && !minigame.getSettings().getCanInteractItems()) {
+		if (minigame != null && !minigame.getSettings().canInteractItems.get(player)) {
 			cir.setReturnValue(InteractionResult.PASS);
 		}
 	}
@@ -80,7 +80,7 @@ public class ServerPlayerGameModeMixin {
 		CallbackInfoReturnable<InteractionResult> cir
 	) {
 		Minigame<?> minigame = MinigameUtils.getMinigame(player);
-		if (minigame != null && !minigame.getSettings().getCanInteractBlocks()) {
+		if (minigame != null && !minigame.getSettings().canInteractBlocks.get(player)) {
 			cir.setReturnValue(InteractionResult.PASS);
 		}
 	}
