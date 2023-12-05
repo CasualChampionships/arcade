@@ -23,6 +23,7 @@ import net.casual.arcade.utils.JsonUtils.arrayOrDefault
 import net.casual.arcade.utils.JsonUtils.booleanOrDefault
 import net.casual.arcade.utils.JsonUtils.hasNonNull
 import net.casual.arcade.utils.JsonUtils.int
+import net.casual.arcade.utils.JsonUtils.intOrDefault
 import net.casual.arcade.utils.JsonUtils.intOrNull
 import net.casual.arcade.utils.JsonUtils.objOrDefault
 import net.casual.arcade.utils.JsonUtils.objOrNull
@@ -31,6 +32,10 @@ import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.stringOrDefault
 import net.casual.arcade.utils.JsonUtils.stringOrNull
 import net.casual.arcade.utils.JsonUtils.strings
+import net.casual.arcade.utils.JsonUtils.uuid
+import net.casual.arcade.utils.JsonUtils.uuidOrNull
+import net.casual.arcade.utils.JsonUtils.uuids
+import net.casual.arcade.utils.MinigameUtils.getPhase
 import net.casual.arcade.utils.StringUtils.decodeHexToBytes
 import net.casual.arcade.utils.StringUtils.encodeToHexString
 import net.minecraft.server.MinecraftServer
@@ -165,19 +170,18 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         val phaseId = json.stringOrNull("phase")
         var setPhase = false
         if (phaseId != null) {
-            for (phase in this.phases) {
-                if (phase.id == phaseId) {
-                    this.phase = phase
-                    setPhase = true
-                    break
-                }
+            val phase = this.getPhase(phaseId)
+            if (phase != null) {
+                this.phase = phase
+                setPhase = true
             }
         }
 
+        this.uptime = json.intOrDefault("uptime")
         this.paused = json.booleanOrDefault("paused")
         if (json.has("uuid")) {
             Minigames.unregister(this)
-            this.uuid = UUID.fromString(json.string("uuid"))
+            this.uuid = json.uuid("uuid")
             Minigames.register(this)
         }
 
@@ -191,17 +195,11 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         generated.clear()
 
         for (player in json.arrayOrDefault("players").objects()) {
-            val uuid = if (player.hasNonNull("uuid")) UUID.fromString(player.string("uuid")) else null
-            this.offline.add(GameProfile(uuid, player.stringOrNull("name")))
+            this.offline.add(GameProfile(player.uuidOrNull("uuid"), player.stringOrNull("name")))
         }
 
-        for (spectator in json.arrayOrDefault("spectators").strings()) {
-            this.spectators.add(UUID.fromString(spectator))
-        }
-
-        for (admin in json.arrayOrDefault("admins").strings()) {
-            this.admins.add(UUID.fromString(admin))
-        }
+        this.spectators.addAll(json.arrayOrDefault("spectators").uuids())
+        this.admins.addAll(json.arrayOrDefault("admins").uuids())
 
         this.settings.deserialize(json.arrayOrDefault("settings"))
         this.stats.deserialize(json.arrayOrDefault("stats"))

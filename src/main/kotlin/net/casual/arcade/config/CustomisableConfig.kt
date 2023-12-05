@@ -33,7 +33,11 @@ import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.stringOrDefault
 import net.casual.arcade.utils.JsonUtils.stringOrNull
 import net.casual.arcade.utils.JsonUtils.stringOrPut
+import net.casual.arcade.utils.JsonUtils.uuidOrNull
+import net.casual.arcade.utils.JsonUtils.uuidOrPut
+import net.minecraft.Util
 import java.nio.file.Path
+import java.util.UUID
 import kotlin.io.path.bufferedReader
 import kotlin.io.path.bufferedWriter
 import kotlin.io.path.exists
@@ -142,6 +146,18 @@ public open class CustomisableConfig(
         }
     }
 
+    public fun uuid(name: String? = null, default: UUID = Util.NIL_UUID): Configurable<UUID> {
+        return object: Configurable<UUID> {
+            override fun setValue(any: Any, property: KProperty<*>, value: UUID) {
+                json.addProperty(name ?: property.name, value.toString())
+            }
+
+            override fun getValue(any: Any, property: KProperty<*>): UUID {
+                return json.uuidOrPut(name ?: property.name) { default }
+            }
+        }
+    }
+
     public fun booleanOrNull(name: String? = null): Configurable<Boolean?> {
         return object: Configurable<Boolean?> {
             override fun setValue(any: Any, property: KProperty<*>, value: Boolean?) {
@@ -203,6 +219,19 @@ public open class CustomisableConfig(
             override fun getValue(any: Any, property: KProperty<*>): Double? {
                 val key = name ?: property.name
                 return json.doubleOrNull(key) ?: json.add(key, null).let { null }
+            }
+        }
+    }
+
+    public fun uuidOrNull(name: String? = null): Configurable<UUID?> {
+        return object: Configurable<UUID?> {
+            override fun setValue(any: Any, property: KProperty<*>, value: UUID?) {
+                json.addProperty(name ?: property.name, value?.toString())
+            }
+
+            override fun getValue(any: Any, property: KProperty<*>): UUID? {
+                val key = name ?: property.name
+                return json.uuidOrNull(key) ?: json.add(key, null).let { null }
             }
         }
     }

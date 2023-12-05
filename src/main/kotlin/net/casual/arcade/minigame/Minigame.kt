@@ -207,6 +207,13 @@ public abstract class Minigame<M: Minigame<M>>(
         internal set
 
     /**
+     * How long the minigame has been up for.
+     * This does not include time that the minigame was paused for.
+     */
+    public var uptime: Int
+        internal set
+
+    /**
      * When minigames are paused, none of the scheduled
      * tasks will execute until the minigame in unpaused.
      *
@@ -244,6 +251,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.stats = MinigameStatManager()
 
         this.phase = MinigamePhase.none()
+        this.uptime = 0
 
         this.paused = false
     }
@@ -771,6 +779,7 @@ public abstract class Minigame<M: Minigame<M>>(
 
     private fun onServerTick() {
         if (!this.paused) {
+            this.uptime++
             this.ui.tick()
             this.scheduler.tick()
         }

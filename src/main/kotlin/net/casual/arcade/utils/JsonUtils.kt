@@ -1,7 +1,9 @@
 package net.casual.arcade.utils
 
 import com.google.gson.*
+import net.minecraft.Util
 import net.minecraft.nbt.*
+import java.util.UUID
 
 public object JsonUtils {
     public val GSON: Gson = GsonBuilder().setPrettyPrinting().serializeNulls().disableHtmlEscaping().create()
@@ -70,6 +72,22 @@ public object JsonUtils {
 
     public fun JsonObject.stringOrPut(key: String, putter: () -> String = { "" }): String {
         return this.stringOrNull(key) ?: putter().also { this.addProperty(key, it) }
+    }
+
+    public fun JsonObject.uuid(key: String): UUID {
+        return UUID.fromString(this.string(key))
+    }
+
+    public fun JsonObject.uuidOrNull(key: String): UUID? {
+        return UUID.fromString(this.getWithNull(key)?.asString ?: return null)
+    }
+
+    public fun JsonObject.uuidOrDefault(key: String, default: UUID = Util.NIL_UUID): UUID {
+        return UUID.fromString(this.getWithNull(key)?.asString ?: return default)
+    }
+
+    public fun JsonObject.uuidOrPut(key: String, putter: () -> UUID = { Util.NIL_UUID }): UUID {
+        return this.uuidOrNull(key) ?: putter().also { this.addProperty(key, it.toString()) }
     }
 
     public fun JsonObject.number(key: String): Number {
@@ -206,6 +224,10 @@ public object JsonUtils {
 
     public fun JsonArray.strings(): Iterable<String> {
         return this.map(JsonElement::getAsString)
+    }
+
+    public fun JsonArray.uuids(): Iterable<UUID> {
+        return this.map { element -> UUID.fromString(element.asString) }
     }
 
     public fun JsonArray.ints(): Iterable<Int> {
