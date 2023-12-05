@@ -2,6 +2,7 @@ package net.casual.arcade.scheduler
 
 import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
 import net.casual.arcade.utils.TimeUtils.Ticks
+import kotlin.math.max
 
 public class MinecraftTimeDuration private constructor(
     private val duration: Int,
@@ -48,11 +49,19 @@ public class MinecraftTimeDuration private constructor(
     }
 
     public operator fun minus(other: MinecraftTimeDuration): MinecraftTimeDuration {
-        return MinecraftTimeDuration(this.toTicks() - other.toTicks(), Ticks)
+        return MinecraftTimeDuration(max(this.toTicks() - other.toTicks(), 0), Ticks)
     }
 
     public operator fun div(other: MinecraftTimeDuration): Int {
         return this.toTicks() / other.toTicks()
+    }
+
+    public operator fun times(other: Int): MinecraftTimeDuration {
+        return MinecraftTimeDuration(max(this.toTicks() * other, 0), Ticks)
+    }
+
+    public operator fun times(other: Double): MinecraftTimeDuration {
+        return MinecraftTimeDuration(max(this.toTicks() * other, 0.0).toInt(), Ticks)
     }
 
     public operator fun compareTo(other: MinecraftTimeDuration): Int {
@@ -65,7 +74,7 @@ public class MinecraftTimeDuration private constructor(
         @JvmStatic
         public fun of(duration: Int, unit: MinecraftTimeUnit): MinecraftTimeDuration {
             if (duration < 0) {
-                throw IllegalArgumentException("Cannot have a negative duration!")
+                return ZERO
             }
             return MinecraftTimeDuration(duration, unit)
         }
