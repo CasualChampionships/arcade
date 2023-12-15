@@ -146,7 +146,7 @@ internal object MinigameCommand: Command {
         var successes = 0
         for (player in players) {
             minigame.addPlayer(player)
-            if (minigame.hasPlayer(player) && minigame.addSpectator(player)) {
+            if (minigame.hasPlayer(player) && minigame.makeSpectator(player)) {
                 successes++
             }
         }
@@ -170,7 +170,7 @@ internal object MinigameCommand: Command {
         var successes = 0
         for (player in players) {
             minigame.addPlayer(player)
-            if (minigame.hasPlayer(player) && minigame.addAdmin(player)) {
+            if (minigame.hasPlayer(player) && minigame.makeAdmin(player)) {
                 successes++
             }
         }

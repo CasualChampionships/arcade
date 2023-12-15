@@ -30,7 +30,6 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
 
@@ -110,6 +109,9 @@ public abstract class LobbyMinigame(
         val next = this.next!!
         for (player in this.getAllPlayers()) {
             next.addPlayer(player)
+            if (this.isAdmin(player)) {
+                next.makeAdmin(player)
+            }
         }
         next.start()
 

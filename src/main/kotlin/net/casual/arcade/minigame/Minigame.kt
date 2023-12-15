@@ -399,7 +399,7 @@ public abstract class Minigame<M: Minigame<M>>(
         return false
     }
 
-    public fun addSpectator(player: ServerPlayer): Boolean {
+    public fun makeSpectator(player: ServerPlayer): Boolean {
         if (this.spectators.add(player.uuid)) {
             MinigameAddSpectatorEvent(this, player).broadcast()
             return true
@@ -415,7 +415,7 @@ public abstract class Minigame<M: Minigame<M>>(
         return false
     }
 
-    public fun addAdmin(player: ServerPlayer): Boolean {
+    public fun makeAdmin(player: ServerPlayer): Boolean {
         if (this.admins.add(player.uuid)) {
             MinigameAddAdminEvent(this, player).broadcast()
             return true
@@ -494,6 +494,15 @@ public abstract class Minigame<M: Minigame<M>>(
      */
     public fun getAdminPlayers(): List<ServerPlayer> {
         return this.connections.stream().filter { this.isAdmin(it.player) }.map { it.player }.toList()
+    }
+
+    /**
+     * Gets a list of all the non-admin players, they may be either spectating or playing.
+     *
+     * @return The list of all non-admin players.
+     */
+    public fun getNonAdminPlayers(): List<ServerPlayer> {
+        return this.connections.stream().filter { !this.isAdmin(it.player) }.map { it.player }.toList()
     }
 
     /**
