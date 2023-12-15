@@ -39,4 +39,8 @@ public class MinigameAdvancementManager(
         }
         this.advancements.clear()
     }
+
+    public fun all(): Collection<Advancement> {
+        return this.advancements
+    }
 }

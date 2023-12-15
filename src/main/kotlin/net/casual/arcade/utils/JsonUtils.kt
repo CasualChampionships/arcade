@@ -1,6 +1,10 @@
 package net.casual.arcade.utils
 
 import com.google.gson.*
+import net.casual.arcade.database.DatabaseCollection
+import net.casual.arcade.database.DatabaseElement
+import net.casual.arcade.database.DatabaseObject
+import net.casual.arcade.database.DatabaseWriter
 import net.minecraft.Util
 import net.minecraft.nbt.*
 import java.util.UUID
@@ -327,6 +331,39 @@ public object JsonUtils {
             is StringTag -> JsonPrimitive(this.asString)
             is NumericTag -> JsonPrimitive(this.asNumber)
             else -> JsonNull.INSTANCE
+        }
+    }
+
+    public fun <E: DatabaseElement<E>> JsonElement.writeForDatabase(writer: DatabaseWriter<E>): DatabaseElement<E> {
+        return when (this) {
+            is JsonObject -> this.writeForDatabase(writer)
+            is JsonArray -> this.writeForDatabase(writer)
+            is JsonPrimitive -> this.writeForDatabase(writer)
+            else -> writer.createEmptyObject()
+        }
+    }
+
+    private fun <E: DatabaseElement<E>> JsonObject.writeForDatabase(writer: DatabaseWriter<E>): DatabaseObject<E> {
+        val data = writer.createEmptyObject()
+        for ((key, value) in this.entrySet()) {
+            data.write(key, value.writeForDatabase(writer))
+        }
+        return data
+    }
+
+    private fun <E: DatabaseElement<E>> JsonArray.writeForDatabase(writer: DatabaseWriter<E>): DatabaseCollection<E> {
+        val collection = writer.createEmptyCollection()
+        for (element in this) {
+            collection.add(element.writeForDatabase(writer))
+        }
+        return collection
+    }
+
+    private fun <E: DatabaseElement<E>> JsonPrimitive.writeForDatabase(writer: DatabaseWriter<E>): E {
+        return when {
+            this.isNumber -> writer.createNumberElement(this.asNumber)
+            this.isBoolean -> writer.createBooleanElement(this.asBoolean)
+            else -> writer.createStringElement(this.asString)
         }
     }
 }

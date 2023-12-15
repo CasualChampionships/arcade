@@ -138,10 +138,6 @@ public abstract class LobbyMinigame(
         this.close()
     }
 
-    final override fun start() {
-        this.setPhase(Phase.Waiting)
-    }
-
     final override fun getPhases(): List<Phase> {
         return listOf(Phase.Waiting, Phase.Countdown)
     }

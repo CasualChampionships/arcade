@@ -25,6 +25,7 @@ import net.casual.arcade.utils.JsonUtils.hasNonNull
 import net.casual.arcade.utils.JsonUtils.int
 import net.casual.arcade.utils.JsonUtils.intOrDefault
 import net.casual.arcade.utils.JsonUtils.intOrNull
+import net.casual.arcade.utils.JsonUtils.obj
 import net.casual.arcade.utils.JsonUtils.objOrDefault
 import net.casual.arcade.utils.JsonUtils.objOrNull
 import net.casual.arcade.utils.JsonUtils.objects
@@ -204,6 +205,8 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         this.settings.deserialize(json.arrayOrDefault("settings"))
         this.stats.deserialize(json.arrayOrDefault("stats"))
 
+        this.data.fromJson(json.obj("data_tracker"))
+
         val custom = json.objOrNull("custom")
         if (custom != null) {
             this.readData(custom)
@@ -249,6 +252,8 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         val settings = this.settings.serialize()
         val stats = this.stats.serialize()
 
+        val data = this.data.toJson()
+
         val custom = JsonObject()
         this.writeData(custom)
 
@@ -259,6 +264,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         json.add("admins", admins)
         json.add("settings", settings)
         json.add("stats", stats)
+        json.add("data_tracker", data)
         json.add("custom", custom)
         return json
     }

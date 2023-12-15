@@ -17,6 +17,7 @@ import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.gui.tab.ArcadeTabDisplay
 import net.casual.arcade.minigame.MinigameResources.Companion.sendTo
 import net.casual.arcade.minigame.managers.*
+import net.casual.arcade.minigame.serialization.MinigameDataTracker
 import net.casual.arcade.minigame.serialization.SavableMinigame
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.settings.GameSetting
@@ -184,6 +185,14 @@ public abstract class Minigame<M: Minigame<M>>(
     public val stats: MinigameStatManager
 
     /**
+     * This tracks minigame data which can be serialized
+     * and then displayed to players later.
+     *
+     * @see MinigameDataTracker
+     */
+    public val data: MinigameDataTracker
+
+    /**
      * This handles all the settings for a minigame.
      */
     public open val settings: MinigameSettings = MinigameSettings(this.cast())
@@ -248,6 +257,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.commands = MinigameCommandManager(this.cast())
         this.advancements = MinigameAdvancementManager(this.cast())
         this.recipes = MinigameRecipeManager(this.cast())
+        this.data = MinigameDataTracker(this.cast())
         this.stats = MinigameStatManager()
 
         this.phase = MinigamePhase.none()
@@ -447,10 +457,7 @@ public abstract class Minigame<M: Minigame<M>>(
     /**
      * This adds a level to the minigame.
      *
-     * This will automatically delete the level after the
-     * minigame ends.
-     *
-     * @param handle The RuntimeWorldHandle to delete after the minigame closes.
+     * @param level The level to add.
      */
     public fun addLevel(level: ServerLevel) {
         this.levels.add(level)
@@ -660,6 +667,8 @@ public abstract class Minigame<M: Minigame<M>>(
      * After a minigame has been closed, no more players are permitted to join.
      */
     public fun close() {
+        this.data.end()
+
         MinigameCloseEvent(this).broadcast()
         for (player in this.getAllPlayers()) {
             this.removePlayer(player)
@@ -721,17 +730,23 @@ public abstract class Minigame<M: Minigame<M>>(
 
     /**
      * Starts the minigame.
-     * This should set the phase to the initial phase.
      *
      * This will not run if your minigame restart.
      */
-    public abstract fun start()
+    public fun start() {
+        if (!this.initialized) {
+            this.initialize()
+        }
+
+        this.data.start()
+        // The first phase is MinigamePhase.none()
+        // This will never IOB because we always have at least 2 phases
+        this.setPhase(this.phases[1])
+    }
 
     /**
      * This method initializes the core functionality of the
      * minigame, such as registering events.
-     * This method should be called in your implementation's
-     * constructor.
      */
     protected open fun initialize() {
         this.registerEvents()
@@ -836,6 +851,8 @@ public abstract class Minigame<M: Minigame<M>>(
     private fun onPlayerLeave(event: PlayerLeaveEvent) {
         if (this.connections.remove(event.player.connection)) {
             this.offline.add(event.player.gameProfile)
+
+            this.data.updatePlayer(event.player)
         }
     }
 
