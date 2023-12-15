@@ -22,6 +22,7 @@ import net.casual.arcade.utils.GameRuleUtils.set
 import net.casual.arcade.utils.MinigameUtils.arePlayersReady
 import net.casual.arcade.utils.MinigameUtils.areTeamsReady
 import net.casual.arcade.utils.MinigameUtils.countdown
+import net.casual.arcade.utils.MinigameUtils.requiresAdminOrPermission
 import net.casual.arcade.utils.PlayerUtils.broadcast
 import net.casual.arcade.utils.PlayerUtils.broadcastToOps
 import net.casual.arcade.utils.PlayerUtils.clearPlayerInventory
@@ -127,10 +128,10 @@ public abstract class LobbyMinigame(
     protected open fun moveToNextMinigame() {
         val next = this.next!!
         for (player in this.getAllPlayers()) {
-            next.addPlayer(player)
             if (this.isAdmin(player)) {
                 next.makeAdmin(player)
             }
+            next.addPlayer(player)
         }
         next.start()
 
@@ -154,7 +155,7 @@ public abstract class LobbyMinigame(
     }
 
     protected open fun createLobbyCommand(): LiteralArgumentBuilder<CommandSourceStack> {
-        return Commands.literal("lobby").requires { this.isAdmin(it.playerOrException) }.then(
+        return Commands.literal("lobby").requiresAdminOrPermission().then(
             Commands.literal("next").then(
                 Commands.literal("settings").executes(this::nextMinigameSettings)
             ).then(

@@ -1,5 +1,6 @@
 package net.casual.arcade.utils
 
+import com.mojang.brigadier.builder.ArgumentBuilder
 import net.casual.arcade.Arcade
 import net.casual.arcade.commands.hidden.HiddenCommand
 import net.casual.arcade.events.EventListener
@@ -19,6 +20,7 @@ import net.casual.arcade.task.Completable
 import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
+import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
@@ -158,6 +160,22 @@ public object MinigameUtils {
             }
         }
         return null
+    }
+
+    public fun <T: ArgumentBuilder<CommandSourceStack, T>> T.requiresAdminOrPermission(level: Int = 4): T {
+        return this.requires { source ->
+            if (source.isPlayer) {
+                source.playerOrException.isMinigameAdminOrHasPermission(level)
+            } else source.hasPermission(level)
+        }
+    }
+
+    public fun ServerPlayer.isMinigameAdminOrHasPermission(level: Int = 4): Boolean {
+        val minigame = this.getMinigame()
+        if (minigame != null && minigame.isAdmin(this)) {
+            return true
+        }
+        return this.hasPermissions(level)
     }
 
     public fun Minigame<*>.addEventListener(listener: MinigameEventListener) {
