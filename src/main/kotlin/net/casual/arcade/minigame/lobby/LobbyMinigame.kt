@@ -17,6 +17,8 @@ import net.casual.arcade.utils.CommandUtils.success
 import net.casual.arcade.utils.ComponentUtils.green
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.singleUseFunction
+import net.casual.arcade.utils.GameRuleUtils.resetToDefault
+import net.casual.arcade.utils.GameRuleUtils.set
 import net.casual.arcade.utils.MinigameUtils.arePlayersReady
 import net.casual.arcade.utils.MinigameUtils.areTeamsReady
 import net.casual.arcade.utils.MinigameUtils.countdown
@@ -31,6 +33,7 @@ import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.GameRules
 import net.minecraft.world.scores.PlayerTeam
 
 public abstract class LobbyMinigame(
@@ -44,6 +47,22 @@ public abstract class LobbyMinigame(
     override fun initialize() {
         super.initialize()
         this.addLevel(this.lobby.spawn.level)
+
+        this.setGameRules {
+            resetToDefault()
+            set(GameRules.RULE_DOINSOMNIA, false)
+            set(GameRules.RULE_DOFIRETICK, false)
+            set(GameRules.RULE_DOMOBSPAWNING, false)
+            set(GameRules.RULE_DAYLIGHT, false)
+            set(GameRules.RULE_FALL_DAMAGE, false)
+            set(GameRules.RULE_DROWNING_DAMAGE, false)
+            set(GameRules.RULE_DOENTITYDROPS, false)
+            set(GameRules.RULE_WEATHER_CYCLE, false)
+            set(GameRules.RULE_DO_TRADER_SPAWNING, false)
+            set(GameRules.RULE_DOBLOCKDROPS, false)
+            set(GameRules.RULE_SNOW_ACCUMULATION_HEIGHT, 0)
+            set(GameRules.RULE_RANDOMTICKING, 0)
+        }
         this.events.register<MinigameAddNewPlayerEvent> { (_, player) ->
             this.lobby.forceTeleportToSpawn(player)
             player.resetHealth()
@@ -135,7 +154,7 @@ public abstract class LobbyMinigame(
     }
 
     protected open fun createLobbyCommand(): LiteralArgumentBuilder<CommandSourceStack> {
-        return Commands.literal("lobby").then(
+        return Commands.literal("lobby").requires { this.isAdmin(it.playerOrException) }.then(
             Commands.literal("next").then(
                 Commands.literal("settings").executes(this::nextMinigameSettings)
             ).then(
