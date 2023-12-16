@@ -401,6 +401,7 @@ public abstract class Minigame<M: Minigame<M>>(
             if (wasOffline) {
                 Arcade.logger.warn("Removed offline player?!")
             }
+            this.data.updatePlayer(player)
             this.removeSpectator(player)
             this.removeAdmin(player)
 

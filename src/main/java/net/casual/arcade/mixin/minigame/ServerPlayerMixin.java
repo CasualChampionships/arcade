@@ -37,4 +37,17 @@ public class ServerPlayerMixin {
 			cir.setReturnValue(true);
 		}
 	}
+
+	@Inject(
+		method = "drop(Z)Z",
+		at = @At("HEAD"),
+		cancellable = true
+	)
+	private void onDropItem(boolean dropStack, CallbackInfoReturnable<Boolean> cir) {
+		ServerPlayer player = (ServerPlayer) (Object) this;
+		Minigame<?> minigame = MinigameUtils.getMinigame(player);
+		if (minigame != null && !minigame.getSettings().canDropItems.get(player)) {
+			cir.setReturnValue(false);
+		}
+	}
 }

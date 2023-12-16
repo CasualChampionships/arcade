@@ -77,7 +77,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
     @JvmField
     public val canBreakBlocks: GameSetting<Boolean> = this.register(bool {
         name = "can_break_blocks"
-        display = Items.DIAMOND_PICKAXE.named("Break Blocks").setLore(
+        display = Items.DIAMOND_PICKAXE.named("Break Blocks").hideTooltips().setLore(
             "If enabled players will be able to break blocks.".literal()
         )
         value = true

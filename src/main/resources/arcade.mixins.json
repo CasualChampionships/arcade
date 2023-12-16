@@ -42,6 +42,7 @@
     "level.EndPortalBlockMixin",
     "level.EntityMixin",
     "level.ServerPlayerMixin",
+    "minigame.AbstractContainerMenuMixin",
     "minigame.FoodDataMixin",
     "minigame.InteractPacketHandlerImplMixin",
     "minigame.ItemEntityMixin",
