@@ -343,7 +343,7 @@ public object JsonUtils {
         }
     }
 
-    private fun <E> JsonObject.writeForDatabase(writer: DatabaseWriter<E>): DatabaseObject<E> {
+    public fun <E> JsonObject.writeForDatabase(writer: DatabaseWriter<E>): DatabaseObject<E> {
         val data = writer.createEmptyObject()
         for ((key, value) in this.entrySet()) {
             data.write(key, value.writeForDatabase(writer))
@@ -351,7 +351,7 @@ public object JsonUtils {
         return data
     }
 
-    private fun <E> JsonArray.writeForDatabase(writer: DatabaseWriter<E>): DatabaseCollection<E> {
+    public fun <E> JsonArray.writeForDatabase(writer: DatabaseWriter<E>): DatabaseCollection<E> {
         val collection = writer.createEmptyCollection()
         for (element in this) {
             collection.add(element.writeForDatabase(writer))
