@@ -186,7 +186,7 @@ public object MinigameUtils {
     }
 
     internal fun parseMinigameEvents(minigame: Minigame<*>, declarer: Any = minigame) {
-        var type: Class<*> = minigame::class.java
+        var type: Class<*> = declarer::class.java
         while (type != Any::class.java) {
             for (method in type.declaredMethods) {
                 this.parseMinigameEventMethod(minigame, minigame, method)
