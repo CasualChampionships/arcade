@@ -68,6 +68,17 @@ public class MinecraftTimeDuration private constructor(
         return this.toTicks().compareTo(other.toTicks())
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (other is MinecraftTimeDuration) {
+            return this.toTicks() == other.toTicks()
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return this.toTicks().hashCode()
+    }
+
     public companion object {
         public val ZERO: MinecraftTimeDuration = 0.Ticks
 
