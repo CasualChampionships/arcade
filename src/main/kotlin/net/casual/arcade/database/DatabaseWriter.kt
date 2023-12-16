@@ -1,6 +1,6 @@
 package net.casual.arcade.database
 
-public interface DatabaseWriter<E: DatabaseElement<E>> {
+public interface DatabaseWriter<E> {
     public fun createEmptyObject(): DatabaseObject<E>
 
     public fun createEmptyCollection(): DatabaseCollection<E>
