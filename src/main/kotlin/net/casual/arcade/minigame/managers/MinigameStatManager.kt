@@ -13,7 +13,21 @@ import java.util.*
 
 public class MinigameStatManager {
     private val stats = HashMap<UUID, StatTracker>()
+    private var frozen: Boolean = false
 
+    public fun freeze() {
+        this.frozen = true
+        for (stat in this.stats.values) {
+            stat.freeze()
+        }
+    }
+
+    public fun unfreeze() {
+        this.frozen = false
+        for (stat in this.stats.values) {
+            stat.unfreeze()
+        }
+    }
     public fun <T> getOrCreateStat(player: ServerPlayer, type: StatType<T>): Stat<T> {
         return this.getOrCreateTracker(player.uuid).getOrCreateStat(type)
     }
@@ -41,6 +55,8 @@ public class MinigameStatManager {
     }
 
     private fun getOrCreateTracker(uuid: UUID): StatTracker {
-        return this.stats.getOrPut(uuid) { StatTracker() }
+        return this.stats.getOrPut(uuid) {
+            StatTracker().also { if (this.frozen) it.freeze() }
+        }
     }
 }
