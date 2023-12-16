@@ -334,7 +334,7 @@ public object JsonUtils {
         }
     }
 
-    public fun <E: DatabaseElement<E>> JsonElement.writeForDatabase(writer: DatabaseWriter<E>): DatabaseElement<E> {
+    public fun <E> JsonElement.writeForDatabase(writer: DatabaseWriter<E>): DatabaseElement<E> {
         return when (this) {
             is JsonObject -> this.writeForDatabase(writer)
             is JsonArray -> this.writeForDatabase(writer)
@@ -343,7 +343,7 @@ public object JsonUtils {
         }
     }
 
-    private fun <E: DatabaseElement<E>> JsonObject.writeForDatabase(writer: DatabaseWriter<E>): DatabaseObject<E> {
+    private fun <E> JsonObject.writeForDatabase(writer: DatabaseWriter<E>): DatabaseObject<E> {
         val data = writer.createEmptyObject()
         for ((key, value) in this.entrySet()) {
             data.write(key, value.writeForDatabase(writer))
@@ -351,7 +351,7 @@ public object JsonUtils {
         return data
     }
 
-    private fun <E: DatabaseElement<E>> JsonArray.writeForDatabase(writer: DatabaseWriter<E>): DatabaseCollection<E> {
+    private fun <E> JsonArray.writeForDatabase(writer: DatabaseWriter<E>): DatabaseCollection<E> {
         val collection = writer.createEmptyCollection()
         for (element in this) {
             collection.add(element.writeForDatabase(writer))
@@ -359,7 +359,7 @@ public object JsonUtils {
         return collection
     }
 
-    private fun <E: DatabaseElement<E>> JsonPrimitive.writeForDatabase(writer: DatabaseWriter<E>): E {
+    private fun <E> JsonPrimitive.writeForDatabase(writer: DatabaseWriter<E>): DatabaseElement<E> {
         return when {
             this.isNumber -> writer.createNumberElement(this.asNumber)
             this.isBoolean -> writer.createBooleanElement(this.asBoolean)

@@ -5,11 +5,11 @@ public interface DatabaseWriter<E> {
 
     public fun createEmptyCollection(): DatabaseCollection<E>
 
-    public fun createStringElement(string: String): E
+    public fun createStringElement(string: String): DatabaseElement<E>
 
-    public fun createNumberElement(number: Number): E
+    public fun createNumberElement(number: Number): DatabaseElement<E>
 
-    public fun createBooleanElement(boolean: Boolean): E
+    public fun createBooleanElement(boolean: Boolean): DatabaseElement<E>
 
-    public fun createEmptyElement(): E
+    public fun createEmptyElement(): DatabaseElement<E>
 }
