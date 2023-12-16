@@ -189,7 +189,7 @@ public object MinigameUtils {
         var type: Class<*> = declarer::class.java
         while (type != Any::class.java) {
             for (method in type.declaredMethods) {
-                this.parseMinigameEventMethod(minigame, minigame, method)
+                this.parseMinigameEventMethod(minigame, declarer, method)
             }
             type = type.superclass
         }

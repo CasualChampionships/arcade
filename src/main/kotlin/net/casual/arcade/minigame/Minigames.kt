@@ -139,12 +139,16 @@ public object Minigames {
 
             val data = game.obj("data")
             val context = MinigameCreationContext(server, data.objOrNull("custom"))
-            val minigame = factory.create(context)
-            register(minigame)
-            if (minigame is SavableMinigame) {
-                minigame.read(data)
-            } else {
-                Arcade.logger.warn("Minigame with id $id loaded but was not Savable?!?")
+            try {
+                val minigame = factory.create(context)
+                register(minigame)
+                if (minigame is SavableMinigame) {
+                    minigame.read(data)
+                } else {
+                    Arcade.logger.warn("Minigame with id $id loaded but was not Savable?!?")
+                }
+            } catch (e: Exception) {
+                Arcade.logger.error("Failed to reload minigame (${id}) on restart", e)
             }
         }
     }
