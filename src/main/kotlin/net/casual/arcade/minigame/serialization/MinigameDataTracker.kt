@@ -47,6 +47,10 @@ public class MinigameDataTracker(
     }
 
     public fun toJson(): JsonObject {
+        for (player in this.minigame.getAllPlayers()) {
+            this.updatePlayer(player)
+        }
+
         val json = JsonObject()
         json.addProperty("minigame_start_ms", this.startTime)
         json.addProperty("minigame_end_ms", this.endTime)
