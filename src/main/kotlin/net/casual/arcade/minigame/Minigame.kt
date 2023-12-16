@@ -44,6 +44,7 @@ import net.minecraft.world.level.GameRules
 import net.minecraft.world.scores.PlayerTeam
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import xyz.nucleoid.fantasy.RuntimeWorldHandle
+import java.lang.IllegalStateException
 import java.util.*
 import kotlin.collections.LinkedHashSet
 
@@ -357,9 +358,8 @@ public abstract class Minigame<M: Minigame<M>>(
      * @return Whether the player was successfully accepted.
      */
     public fun addPlayer(player: ServerPlayer): Boolean {
-        if (!this.initialized || this.hasPlayer(player.uuid)) {
-            return false
-        }
+        this.tryInitialize()
+
         val hasMinigame = player.getMinigame() === this
         if (this.offline.remove(player.gameProfile) || hasMinigame) {
             if (!hasMinigame) {
@@ -394,6 +394,8 @@ public abstract class Minigame<M: Minigame<M>>(
      * @param player The player to remove.
      */
     public fun removePlayer(player: ServerPlayer): Boolean {
+        this.tryInitialize()
+
         val wasOffline = this.offline.remove(player.gameProfile)
         if (wasOffline || this.connections.remove(player.connection)) {
             if (wasOffline) {
@@ -734,9 +736,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * This will not run if your minigame restart.
      */
     public fun start() {
-        if (!this.initialized) {
-            this.initialize()
-        }
+        this.tryInitialize()
 
         this.data.start()
         // The first phase is MinigamePhase.none()
@@ -797,6 +797,15 @@ public abstract class Minigame<M: Minigame<M>>(
     @OverrideOnly
     protected open fun appendAdditionalDebugInfo(json: JsonObject) {
 
+    }
+
+    private fun tryInitialize() {
+        if (!this.initialized) {
+            this.initialize()
+            if (!this.initialized) {
+                throw IllegalStateException("Failed to initialize minigame ${this.id}, you must call super.initialize()")
+            }
+        }
     }
 
     private fun getAllPhases(): List<MinigamePhase<M>> {
