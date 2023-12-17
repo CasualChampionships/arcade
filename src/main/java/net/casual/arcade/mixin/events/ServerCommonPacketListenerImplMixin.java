@@ -49,7 +49,7 @@ public abstract class ServerCommonPacketListenerImplMixin {
 	)
 	private Packet<?> onSendPacket(Packet<?> value) {
 		ServerCommonPacketListenerImpl self = (ServerCommonPacketListenerImpl) (Object) this;
-		CancellableEvent.Typed<Packet<?>> event = new ClientboundPacketEvent(this.server, self, this.playerProfile(), value);
+		CancellableEvent.Typed<Packet<?>> event = new ClientboundPacketEvent(this.server, this.playerProfile(), value);
 		GlobalEventHandler.broadcast(event);
 
 		if (self instanceof ServerGamePacketListenerImpl connection) {

@@ -1,6 +1,7 @@
 package net.casual.arcade.utils
 
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.network.ClientboundPacketEvent
 import net.casual.arcade.events.network.PackStatusEvent
 import net.casual.arcade.events.network.PlayerDisconnectEvent
 import net.casual.arcade.events.network.PlayerLoginEvent
@@ -13,6 +14,8 @@ import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.HashMap
 
 public object ResourcePackUtils {
     private val universe = HashMap<UUID, PlayerPackExtension>()
@@ -45,16 +48,18 @@ public object ResourcePackUtils {
 
     internal fun registerEvents() {
         GlobalEventHandler.register<PlayerLoginEvent> { (_, profile) ->
+            // This may be off thread
             this.universe[profile.id] = PlayerPackExtension()
         }
         GlobalEventHandler.register<PlayerDisconnectEvent> { (_, profile) ->
             this.universe.remove(profile.id)
         }
-        GlobalEventHandler.register<PlayerClientboundPacketEvent> { (player, packet) ->
+        GlobalEventHandler.register<ClientboundPacketEvent> { (_, profile, packet) ->
+            // This may be off thread
             if (packet is ClientboundResourcePackPushPacket) {
-                player.resourcePacks.onPushPack(packet)
+                this.universe[profile.id]?.onPushPack(packet)
             } else if (packet is ClientboundResourcePackPopPacket) {
-                player.resourcePacks.onPopPack(packet)
+                this.universe[profile.id]?.onPopPack(packet)
             }
         }
         GlobalEventHandler.register<PackStatusEvent> { (_, profile, uuid, status) ->

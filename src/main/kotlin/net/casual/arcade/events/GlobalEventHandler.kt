@@ -3,8 +3,10 @@ package net.casual.arcade.events
 import net.casual.arcade.Arcade
 import net.casual.arcade.events.GlobalEventHandler.addHandler
 import net.casual.arcade.events.GlobalEventHandler.broadcast
+import net.casual.arcade.events.core.CancellableEvent
 import net.casual.arcade.events.core.Event
 import net.casual.arcade.events.server.SafeServerlessEvent
+import net.casual.arcade.events.server.ServerOffThreadEvent
 import net.casual.arcade.utils.CollectionUtils.addSorted
 import org.apache.logging.log4j.LogManager
 import java.util.*
@@ -187,10 +189,15 @@ public object GlobalEventHandler {
                 )
                 return true
             }
-            this.logger.warn(
-                "Detected broadcasted event (type: {}) off main thread, pushing to main thread...",
-                type.simpleName
-            )
+            if (event !is ServerOffThreadEvent) {
+                this.logger.warn(
+                    "Detected broadcasted event (type: {}) off main thread, pushing to main thread...",
+                    type.simpleName
+                )
+            }
+            if (event is CancellableEvent) {
+                event.offthread = true
+            }
             server.execute { this.broadcast(event) }
             return true
         }

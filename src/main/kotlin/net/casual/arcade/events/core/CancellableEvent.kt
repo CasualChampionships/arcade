@@ -25,6 +25,8 @@ public sealed class CancellableEvent: Event {
      */
     private var cancelled = false
 
+    internal var offthread = false
+
     /**
      * This method should be implemented in
      * the event implementation.
@@ -32,6 +34,9 @@ public sealed class CancellableEvent: Event {
      * This sets the event to being cancelled.
      */
     protected open fun cancel() {
+        if (this.offthread) {
+            throw IllegalStateException("Cannot cancel an event that is off thread")
+        }
         this.cancelled = true
     }
 

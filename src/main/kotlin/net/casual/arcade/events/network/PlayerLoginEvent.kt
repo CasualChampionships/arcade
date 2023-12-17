@@ -3,6 +3,7 @@ package net.casual.arcade.events.network
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.events.core.Event
 import net.casual.arcade.events.player.PlayerJoinEvent
+import net.casual.arcade.events.server.ServerOffThreadEvent
 import net.minecraft.server.MinecraftServer
 
 /**
@@ -15,4 +16,4 @@ import net.minecraft.server.MinecraftServer
 public data class PlayerLoginEvent(
     val server: MinecraftServer,
     val profile: GameProfile
-): Event
+): ServerOffThreadEvent
