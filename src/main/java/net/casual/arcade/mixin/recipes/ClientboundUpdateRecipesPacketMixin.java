@@ -3,6 +3,7 @@ package net.casual.arcade.mixin.recipes;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -19,9 +20,9 @@ public class ClientboundUpdateRecipesPacketMixin {
 		)
 	)
 	@SuppressWarnings("ConstantValue")
-	private ArrayList<Recipe<?>> onSetRecipes(ArrayList<Recipe<?>> recipes) {
+	private ArrayList<RecipeHolder<?>> onSetRecipes(ArrayList<RecipeHolder<?>> recipes) {
 		// Our recipes have no serializer!
-		recipes.removeIf(recipe -> recipe.getSerializer() == null);
+		recipes.removeIf(recipe -> recipe.value().getSerializer() == null);
 		return recipes;
 	}
 }
