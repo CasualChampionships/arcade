@@ -1,7 +1,6 @@
 package net.casual.arcade.recipes
 
 import net.minecraft.core.RegistryAccess
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.inventory.CraftingContainer
@@ -24,14 +23,12 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  * crafting book as they cannot be properly serialized to
  * the players.
  *
- * @param id The [ResourceLocation] of the recipe.
  * @param category The category of the recipe.
  * @see CraftingRecipeBuilder
  */
 public abstract class ArcadeCustomRecipe(
-    id: ResourceLocation,
     category: CraftingBookCategory
-): CustomRecipe(id, category), PlayerPredicatedRecipe {
+): CustomRecipe(category), PlayerPredicatedRecipe {
     /**
      * This method is used to check whether a player can
      * craft this recipe.

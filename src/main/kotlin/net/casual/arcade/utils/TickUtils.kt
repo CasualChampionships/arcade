@@ -1,16 +1,20 @@
 package net.casual.arcade.utils
 
 import net.casual.arcade.Arcade
+import net.minecraft.util.TimeUtil
 import java.util.*
+import java.util.concurrent.TimeUnit
+import kotlin.math.max
 
 public object TickUtils {
     @JvmStatic
     public fun calculateMSPT(): Double {
-        return Arrays.stream(Arcade.getServer().tickTimes).average().orElseThrow() * 1.0E-6
+        return TimeUnit.NANOSECONDS.toMillis(Arcade.getServer().averageTickTimeNanos).toDouble()
     }
 
     @JvmStatic
     public fun calculateTPS(): Double {
-        return 1000 / this.calculateMSPT().coerceAtLeast(50.0)
+        val manager = Arcade.getServer().tickRateManager()
+        return 1000 / max(this.calculateMSPT(), manager.millisecondsPerTick().toDouble())
     }
 }

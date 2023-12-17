@@ -6,11 +6,12 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.AdvancementUtils.addAdvancement
 import net.casual.arcade.utils.AdvancementUtils.removeAdvancement
 import net.minecraft.advancements.Advancement
+import net.minecraft.advancements.AdvancementHolder
 
 public class MinigameAdvancementManager(
     private val minigame: Minigame<*>
 ) {
-    private val advancements = ArrayList<Advancement>()
+    private val advancements = ArrayList<AdvancementHolder>()
 
     init {
         this.minigame.events.register<ServerAdvancementReloadEvent> {
@@ -21,13 +22,13 @@ public class MinigameAdvancementManager(
         }
     }
 
-    public fun add(advancement: Advancement) {
+    public fun add(advancement: AdvancementHolder) {
         if (this.advancements.add(advancement)) {
             this.minigame.server.advancements.addAdvancement(advancement)
         }
     }
 
-    public fun remove(advancement: Advancement) {
+    public fun remove(advancement: AdvancementHolder) {
         if (this.advancements.remove(advancement)) {
             this.minigame.server.advancements.removeAdvancement(advancement)
         }
@@ -40,7 +41,7 @@ public class MinigameAdvancementManager(
         this.advancements.clear()
     }
 
-    public fun all(): Collection<Advancement> {
+    public fun all(): Collection<AdvancementHolder> {
         return this.advancements
     }
 }

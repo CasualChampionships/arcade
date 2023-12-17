@@ -82,7 +82,7 @@ public abstract class ServerLevelMixin extends Level implements Arcade$Extension
 		GlobalEventHandler.broadcast(event);
 
 		try {
-			CompoundTag tag = NbtIo.read(this.arcade$savePath.toFile());
+			CompoundTag tag = NbtIo.read(this.arcade$savePath);
 			if (tag != null) {
 				ExtensionUtils.deserialize(this, tag);
 			}
@@ -100,7 +100,7 @@ public abstract class ServerLevelMixin extends Level implements Arcade$Extension
 		ExtensionUtils.serialize(this, tag);
 		try {
 			Files.createDirectories(this.arcade$savePath.getParent());
-			NbtIo.write(tag, this.arcade$savePath.toFile());
+			NbtIo.write(tag, this.arcade$savePath);
 		} catch (IOException e) {
 			Arcade.logger.error("Failed to save arcade extension data", e);
 		}

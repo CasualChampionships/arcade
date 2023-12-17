@@ -15,6 +15,7 @@ import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.impl.Sound
 import net.minecraft.advancements.Advancement
+import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.core.Direction8
 import net.minecraft.core.particles.ParticleOptions
@@ -190,12 +191,12 @@ public object PlayerUtils {
     }
 
     @JvmStatic
-    public fun ServerPlayer.hasAdvancement(advancement: Advancement): Boolean {
+    public fun ServerPlayer.hasAdvancement(advancement: AdvancementHolder): Boolean {
         return this.advancements.getOrStartProgress(advancement).isDone
     }
 
     @JvmStatic
-    public fun ServerPlayer.grantAdvancement(advancement: Advancement) {
+    public fun ServerPlayer.grantAdvancement(advancement: AdvancementHolder) {
         val progress = this.advancements.getOrStartProgress(advancement)
         if (!progress.isDone) {
             for (string in progress.remainingCriteria) {
@@ -205,7 +206,7 @@ public object PlayerUtils {
     }
 
     @JvmStatic
-    public fun ServerPlayer.revokeAdvancement(advancement: Advancement) {
+    public fun ServerPlayer.revokeAdvancement(advancement: AdvancementHolder) {
         val progress = this.advancements.getOrStartProgress(advancement)
         if (progress.hasProgress()) {
             for (string in progress.completedCriteria) {

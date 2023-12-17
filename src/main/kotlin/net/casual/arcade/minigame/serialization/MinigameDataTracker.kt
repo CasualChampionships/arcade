@@ -10,6 +10,7 @@ import net.casual.arcade.utils.JsonUtils.uuid
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 public class MinigameDataTracker(
     private val minigame: Minigame<*>
@@ -35,7 +36,7 @@ public class MinigameDataTracker(
             if (!player.advancements.getOrStartProgress(advancement).isDone) {
                 continue
             }
-            val display = advancement.display ?: continue
+            val display = advancement.value.display.getOrNull() ?: continue
             val data = JsonObject()
             data.addProperty("id", advancement.id.toString())
             data.addProperty("item", BuiltInRegistries.ITEM.getKey(display.icon.item).toString())

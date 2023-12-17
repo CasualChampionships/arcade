@@ -256,7 +256,7 @@ public abstract class LobbyMinigame(
                 if (component.siblings.isNotEmpty()) {
                     component.append(", ")
                 }
-                component.append(player.displayName)
+                component.append(player.displayName!!)
             }
             component
         }

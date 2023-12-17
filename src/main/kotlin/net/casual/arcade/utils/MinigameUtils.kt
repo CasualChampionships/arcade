@@ -106,7 +106,7 @@ public object MinigameUtils {
         for (player in players) {
             val ready = HiddenCommand { context ->
                 if (context.player == player && unready.remove(player)) {
-                    this.broadcast(Component.empty().append(player.displayName).append(this.getIsReadyMessage()))
+                    this.broadcast(Component.empty().append(player.displayName!!).append(this.getIsReadyMessage()))
                     if (unready.isEmpty()) {
                         this.onReady()
                     }
@@ -117,7 +117,7 @@ public object MinigameUtils {
             }
             val notReady = HiddenCommand { context ->
                 if (context.player == player && unready.contains(player)) {
-                    this.broadcast(Component.empty().append(player.displayName).append(this.getNotReadyMessage()))
+                    this.broadcast(Component.empty().append(player.displayName!!).append(this.getNotReadyMessage()))
                 }
                 context.removeCommand {
                     if (unready.contains(it)) this.getAlreadyNotReadyMessage() else this.getAlreadyReadyMessage()

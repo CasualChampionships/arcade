@@ -8,6 +8,7 @@ import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket.*
 import net.minecraft.server.ServerScoreboard
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 
+// TODO: Update to support new sidebar capabilities
 internal class PlayerSidebarExtension(
     owner: ServerGamePacketListenerImpl
 ): PlayerExtension(owner) {
@@ -35,7 +36,7 @@ internal class PlayerSidebarExtension(
             }
             this.previousRows[index] = replacement
             SidebarUtils.sendPlayerTeamUpdatePacket(this.player, index, false, replacement)
-            SidebarUtils.sendSetScorePacket(this.player, index, ServerScoreboard.Method.CHANGE)
+            SidebarUtils.sendSetScorePacket(this.player, index)
         }
     }
 
@@ -48,7 +49,7 @@ internal class PlayerSidebarExtension(
         this.previousRows.add(index, component)
         for (i in index until this.previousRows.size) {
             SidebarUtils.sendPlayerTeamUpdatePacket(this.player, i, true, this.previousRows[i])
-            SidebarUtils.sendSetScorePacket(this.player, i, ServerScoreboard.Method.CHANGE)
+            SidebarUtils.sendSetScorePacket(this.player, i)
         }
     }
 
@@ -56,19 +57,19 @@ internal class PlayerSidebarExtension(
         this.previousRows[index] = component
         for (i in index until this.previousRows.size) {
             SidebarUtils.sendPlayerTeamUpdatePacket(this.player, index, false, this.previousRows[i])
-            SidebarUtils.sendSetScorePacket(this.player, index, ServerScoreboard.Method.CHANGE)
+            SidebarUtils.sendSetScorePacket(this.player, index)
         }
     }
 
     internal fun removeRow(index: Int) {
         this.previousRows.removeAt(index)
 
-        SidebarUtils.sendSetScorePacket(this.player, this.previousRows.size, ServerScoreboard.Method.REMOVE)
+        SidebarUtils.sendResetScorePacket(this.player, this.previousRows.size)
         SidebarUtils.sendPlayerTeamRemovePacket(this.player, this.previousRows.size)
 
         for (i in index until this.previousRows.size) {
             SidebarUtils.sendPlayerTeamUpdatePacket(this.player, i, false, this.previousRows[i])
-            SidebarUtils.sendSetScorePacket(this.player, i, ServerScoreboard.Method.CHANGE)
+            SidebarUtils.sendSetScorePacket(this.player, i)
         }
     }
 

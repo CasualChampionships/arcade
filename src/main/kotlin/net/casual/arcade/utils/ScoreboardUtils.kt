@@ -12,7 +12,7 @@ public object ScoreboardUtils {
     private val scoreboard = Scoreboard()
 
     public fun dummyObjective(name: String, title: Component = Component.empty(), type: RenderType = INTEGER): Objective {
-        return Objective(this.scoreboard, name, DUMMY, title, type)
+        return Objective(this.scoreboard, name, DUMMY, title, type, true, null)
     }
 
     public fun dummyTeam(name: String): PlayerTeam {

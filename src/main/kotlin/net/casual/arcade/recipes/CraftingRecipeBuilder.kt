@@ -6,10 +6,8 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.crafting.CraftingBookCategory
-import net.minecraft.world.item.crafting.Ingredient
-import net.minecraft.world.item.crafting.ShapedRecipe
-import net.minecraft.world.item.crafting.ShapelessRecipe
+import net.minecraft.world.item.crafting.*
+import java.util.*
 import java.util.function.Predicate
 
 public object CraftingRecipeBuilder {
@@ -66,22 +64,24 @@ public object CraftingRecipeBuilder {
             return this
         }
 
-        public fun build(): ShapedRecipe {
-            val id = this.id
-            requireNotNull(id)
-            return object: ShapedRecipe(
-                id,
+        public fun build(): RecipeHolder<ShapedRecipe> {
+            val id = requireNotNull(this.id)
+            val recipe = object: ShapedRecipe(
                 this.group,
                 this.category,
-                this.width,
-                this.height,
-                this.ingredients,
+                ShapedRecipePattern(
+                    this.width,
+                    this.height,
+                    this.ingredients,
+                    Optional.empty()
+                ),
                 this.result
             ), PlayerPredicatedRecipe {
                 override fun canUse(player: ServerPlayer): Boolean {
                     return canPlayerUse.test(player)
                 }
             }
+            return RecipeHolder(id, recipe)
         }
     }
 
@@ -128,11 +128,9 @@ public object CraftingRecipeBuilder {
             return this
         }
 
-        public fun build(): ShapelessRecipe {
-            val id = this.id
-            requireNotNull(id)
-            return object: ShapelessRecipe(
-                id,
+        public fun build(): RecipeHolder<ShapelessRecipe> {
+            val id = requireNotNull(this.id)
+            val recipe = object: ShapelessRecipe(
                 this.group,
                 this.category,
                 this.result,
@@ -142,6 +140,7 @@ public object CraftingRecipeBuilder {
                     return canPlayerUse.test(player)
                 }
             }
+            return RecipeHolder(id, recipe)
         }
     }
 }

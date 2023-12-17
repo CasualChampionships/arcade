@@ -15,7 +15,8 @@ public class ServerRecipeBookMixin {
 		at = @At(
 			value = "INVOKE",
 			target = "Lorg/slf4j/Logger;error(Ljava/lang/String;Ljava/lang/Object;)V",
-			ordinal = 0
+			ordinal = 0,
+			remap = false
 		)
 	)
 	private boolean onNoRecipeExists(Logger instance, String string, Object o) {

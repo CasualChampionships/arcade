@@ -10,12 +10,15 @@ import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.numbers.BlankFormat
+import net.minecraft.network.protocol.game.ClientboundResetScorePacket
 import net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket
 import net.minecraft.server.ServerScoreboard.Method
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.scores.DisplaySlot
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Scoreboard
 
@@ -40,12 +43,28 @@ internal object SidebarUtils {
         player.connection.send(packet)
     }
 
-    internal fun sendSetScorePacket(player: ServerPlayer, index: Int, method: Method) {
-        player.connection.send(ClientboundSetScorePacket(method, OBJECTIVE_NAME, this.players[index], index))
+    internal fun sendSetScorePacket(player: ServerPlayer, index: Int) {
+        player.connection.send(ClientboundSetScorePacket(
+            OBJECTIVE_NAME,
+            this.players[index],
+            index,
+            null,
+            BlankFormat.INSTANCE
+        ))
+    }
+
+    internal fun sendResetScorePacket(player: ServerPlayer, index: Int) {
+        player.connection.send(ClientboundResetScorePacket(
+            OBJECTIVE_NAME,
+            this.players[index]
+        ))
     }
 
     internal fun sendSetSidebarDisplayPacket(player: ServerPlayer, remove: Boolean) {
-        player.connection.send(ClientboundSetDisplayObjectivePacket(Scoreboard.DISPLAY_SLOT_SIDEBAR, if (remove) null else this.objective))
+        player.connection.send(ClientboundSetDisplayObjectivePacket(
+            DisplaySlot.SIDEBAR,
+            if (remove) null else this.objective
+        ))
     }
 
     internal fun sendPlayerTeamUpdatePacket(player: ServerPlayer, index: Int, initial: Boolean, prefix: Component)  {

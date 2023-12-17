@@ -25,7 +25,8 @@ public class ServerLoginPacketListenerImplMixin {
 		at = @At(
 			value = "INVOKE",
 			target = "Lorg/apache/commons/lang3/Validate;validState(ZLjava/lang/String;[Ljava/lang/Object;)V",
-			shift = At.Shift.AFTER
+			shift = At.Shift.AFTER,
+			remap = false
 		)
 	)
 	private void onPlayerLogin(ServerboundLoginAcknowledgedPacket packet, CallbackInfo ci) {

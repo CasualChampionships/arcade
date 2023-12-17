@@ -81,7 +81,6 @@ public object Arcade: ModInitializer {
     override fun onInitialize() {
         SidebarUtils.registerEvents()
         BossbarUtils.registerEvents()
-        NameDisplayUtils.registerEvents()
         MinigameUtils.registerEvents()
         Minigames.registerEvents()
         TabUtils.registerEvents()

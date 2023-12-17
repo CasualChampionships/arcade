@@ -18,7 +18,6 @@ import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.ComponentUtils.underline
 import net.casual.arcade.utils.ducks.DeletableCommand
-import net.minecraft.commands.CommandRuntimeException
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.CommonComponents
@@ -98,9 +97,7 @@ public class MinigameCommandManager(
         if (!result.reader.canRead()) {
             try {
                 this.dispatcher.execute(result)
-            } catch (runtime: CommandRuntimeException) {
-                source.fail(runtime.component)
-            } catch (syntax: CommandSyntaxException) {
+            }  catch (syntax: CommandSyntaxException) {
                 source.fail(ComponentUtils.fromMessage(syntax.rawMessage))
                 if (syntax.input != null && syntax.cursor >= 0) {
                     val i = syntax.input.length.coerceAtMost(syntax.cursor);

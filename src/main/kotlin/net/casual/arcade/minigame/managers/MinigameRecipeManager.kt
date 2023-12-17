@@ -12,15 +12,12 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Container
 import net.minecraft.world.inventory.CraftingContainer
-import net.minecraft.world.item.crafting.CraftingBookCategory
-import net.minecraft.world.item.crafting.CraftingRecipe
-import net.minecraft.world.item.crafting.Recipe
-import net.minecraft.world.item.crafting.RecipeType
+import net.minecraft.world.item.crafting.*
 
 public class MinigameRecipeManager(
     private val minigame: Minigame<*>
 ) {
-    private val recipes = ArrayList<Recipe<*>>()
+    private val recipes = ArrayList<RecipeHolder<*>>()
 
     init {
         this.minigame.events.register<ServerRecipeReloadEvent> {
@@ -31,14 +28,14 @@ public class MinigameRecipeManager(
         }
     }
 
-    public fun add(recipes: Collection<Recipe<*>>) {
+    public fun add(recipes: Collection<RecipeHolder<*>>) {
         val minigameRecipes = recipes.map { this.wrap(it) }
         if (this.recipes.addAll(minigameRecipes)) {
             this.minigame.server.recipeManager.addRecipes(minigameRecipes)
         }
     }
 
-    public fun remove(recipes: Collection<Recipe<*>>) {
+    public fun remove(recipes: Collection<RecipeHolder<*>>) {
         if (this.recipes.removeAll(recipes.toSet())) {
             this.minigame.server.recipeManager.removeRecipes(recipes)
         }
@@ -49,28 +46,30 @@ public class MinigameRecipeManager(
         this.recipes.clear()
     }
 
-    private fun <C: Container> wrap(recipe: Recipe<C>): Recipe<*> {
-        if (recipe is CraftingRecipe) {
-            return object: MinigameRecipe<CraftingContainer>(recipe), CraftingRecipe {
-                override fun getType(): RecipeType<*> {
-                    return RecipeType.CRAFTING
-                }
+    private fun wrap(holder: RecipeHolder<*>): RecipeHolder<*> {
+        val wrapper = when (val recipe = holder.value) {
+            is CraftingRecipe -> {
+                object: MinigameRecipe<CraftingContainer>(recipe), CraftingRecipe {
+                    override fun getType(): RecipeType<*> {
+                        return RecipeType.CRAFTING
+                    }
 
-                override fun category(): CraftingBookCategory {
-                    return recipe.category()
+                    override fun category(): CraftingBookCategory {
+                        return recipe.category()
+                    }
                 }
             }
+            else -> MinigameRecipe(recipe)
         }
-        return MinigameRecipe(recipe)
+        return RecipeHolder(
+            Arcade.id("${this.minigame.uuid}.${holder.id.path}.${holder.id.namespace}"),
+            wrapper
+        )
     }
 
     private open inner class MinigameRecipe<C: Container>(
         wrapped: Recipe<C>
     ): WrappedRecipe<C>(wrapped), PlayerPredicatedRecipe {
-        override fun getId(): ResourceLocation {
-            return Arcade.id("${minigame.uuid}.${wrapped.id.path}.${wrapped.id.namespace}")
-        }
-
         override fun canUse(player: ServerPlayer): Boolean {
             return minigame.hasPlayer(player)
         }

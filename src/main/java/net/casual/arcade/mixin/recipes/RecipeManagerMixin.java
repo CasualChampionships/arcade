@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,9 +26,9 @@ import java.util.Map;
 
 @Mixin(RecipeManager.class)
 public abstract class RecipeManagerMixin implements Arcade$MutableRecipeManager {
-	@Shadow private Map<ResourceLocation, Recipe<?>> byName;
+	@Shadow private Map<ResourceLocation, RecipeHolder<?>> byName;
 
-	@Shadow public abstract void replaceRecipes(Iterable<Recipe<?>> recipes);
+	@Shadow public abstract void replaceRecipes(Iterable<RecipeHolder<?>> recipes);
 
 	@Inject(
 		method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
@@ -44,28 +45,28 @@ public abstract class RecipeManagerMixin implements Arcade$MutableRecipeManager 
 		ResourceManager resourceManager,
 		ProfilerFiller profiler,
 		CallbackInfo ci,
-		@Local(ordinal = 1) Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, Recipe<?>>> recipesByType,
-		@Local ImmutableMap.Builder<ResourceLocation, Recipe<?>> recipesByName
+		@Local(ordinal = 1) Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>>> recipesByType,
+		@Local ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> recipesByName
 	) {
 		ServerRecipeReloadEvent event = new ServerRecipeReloadEvent((RecipeManager) (Object) this, resourceManager);
 		GlobalEventHandler.broadcast(event);
 
-		for (Recipe<?> recipe : event.getRecipes()) {
-			recipesByType.computeIfAbsent(recipe.getType(), recipeType -> ImmutableMap.builder()).put(recipe.getId(), recipe);
-			recipesByName.put(recipe.getId(), recipe);
+		for (RecipeHolder<?> recipe : event.getRecipes()) {
+			recipesByType.computeIfAbsent(recipe.value().getType(), recipeType -> ImmutableMap.builder()).put(recipe.id(), recipe);
+			recipesByName.put(recipe.id(), recipe);
 		}
 	}
 
 	@Override
-	public void arcade$addRecipes(Collection<? extends Recipe<?>> recipes) {
-		List<Recipe<?>> mutable = new LinkedList<>(recipes);
+	public void arcade$addRecipes(Collection<? extends RecipeHolder<?>> recipes) {
+		List<RecipeHolder<?>> mutable = new LinkedList<>(recipes);
 		mutable.addAll(this.byName.values());
 		this.replaceRecipes(mutable);
 	}
 
 	@Override
-	public void arcade$removeRecipes(Collection<? extends Recipe<?>> recipes) {
-		List<Recipe<?>> mutable = new LinkedList<>(this.byName.values());
+	public void arcade$removeRecipes(Collection<? extends RecipeHolder<?>> recipes) {
+		List<RecipeHolder<?>> mutable = new LinkedList<>(this.byName.values());
 		mutable.removeAll(recipes);
 		this.replaceRecipes(mutable);
 	}
