@@ -24,7 +24,7 @@ public class PlayerAdvancementsMixin {
 		)
 	)
 	private boolean onAward(DisplayInfo instance, AdvancementHolder holder) {
-		PlayerAdvancementEvent event = new PlayerAdvancementEvent(this.player, holder.value());
+		PlayerAdvancementEvent event = new PlayerAdvancementEvent(this.player, holder);
 		GlobalEventHandler.broadcast(event);
 		return event.getAnnounce();
 	}
