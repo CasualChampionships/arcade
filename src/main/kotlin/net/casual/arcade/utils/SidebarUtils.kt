@@ -43,8 +43,8 @@ internal object SidebarUtils {
         component: SidebarComponent
     ) {
         player.connection.send(ClientboundSetScorePacket(
-            OBJECTIVE_NAME,
             this.players[index],
+            OBJECTIVE_NAME,
             index,
             component.display,
             component.score
