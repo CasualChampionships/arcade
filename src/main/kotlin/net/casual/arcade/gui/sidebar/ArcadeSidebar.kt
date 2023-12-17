@@ -7,7 +7,7 @@ import net.casual.arcade.utils.SidebarUtils.sidebar
 import net.minecraft.server.level.ServerPlayer
 
 public class ArcadeSidebar(title: ComponentSupplier): PlayerUI() {
-    private val rows = ArrayList<ComponentSupplier>(SidebarUtils.MAX_SIZE)
+    private val rows = ArrayList<SidebarSupplier>(SidebarUtils.MAX_SIZE)
 
     public var title: ComponentSupplier = title
         private set
@@ -24,17 +24,17 @@ public class ArcadeSidebar(title: ComponentSupplier): PlayerUI() {
         }
     }
 
-    public fun getRow(index: Int): ComponentSupplier {
+    public fun getRow(index: Int): SidebarSupplier {
         this.checkBounds(index, this.size() - 1)
         return this.rows[index]
     }
 
-    public fun addRow(row: ComponentSupplier) {
+    public fun addRow(row: SidebarSupplier) {
         // Add to the bottom
         this.addRow(0, row)
     }
 
-    public fun addRow(index: Int, row: ComponentSupplier) {
+    public fun addRow(index: Int, row: SidebarSupplier) {
         require(this.size() < SidebarUtils.MAX_SIZE) { "Cannot add more rows, already at max size: ${SidebarUtils.MAX_SIZE}" }
         this.checkBounds(index, this.size())
 
@@ -45,7 +45,7 @@ public class ArcadeSidebar(title: ComponentSupplier): PlayerUI() {
         }
     }
 
-    public fun setRow(index: Int, row: ComponentSupplier) {
+    public fun setRow(index: Int, row: SidebarSupplier) {
         this.checkBounds(index, this.size() - 1)
 
         this.rows[index] = row

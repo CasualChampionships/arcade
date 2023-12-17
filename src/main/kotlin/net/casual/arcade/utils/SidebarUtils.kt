@@ -6,29 +6,23 @@ import net.casual.arcade.events.player.PlayerLeaveEvent
 import net.casual.arcade.events.player.PlayerTickEvent
 import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.gui.extensions.PlayerSidebarExtension
+import net.casual.arcade.gui.sidebar.SidebarComponent
 import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.numbers.BlankFormat
 import net.minecraft.network.protocol.game.ClientboundResetScorePacket
 import net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket
-import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket
-import net.minecraft.server.ServerScoreboard.Method
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.DisplaySlot
-import net.minecraft.world.scores.PlayerTeam
-import net.minecraft.world.scores.Scoreboard
 
 internal object SidebarUtils {
     const val MAX_SIZE = 14
 
     private const val OBJECTIVE_NAME = "Z\$DummyObjective"
     private val objective = ScoreboardUtils.dummyObjective(OBJECTIVE_NAME)
-    private const val TEAM_NAME = "Z\$DummyTeam"
-    private val teams = ArrayList<PlayerTeam>(16)
     private val players = ArrayList<String>(16)
 
     internal val ServerPlayer.sidebar
@@ -43,13 +37,17 @@ internal object SidebarUtils {
         player.connection.send(packet)
     }
 
-    internal fun sendSetScorePacket(player: ServerPlayer, index: Int) {
+    internal fun sendSetScorePacket(
+        player: ServerPlayer,
+        index: Int,
+        component: SidebarComponent
+    ) {
         player.connection.send(ClientboundSetScorePacket(
             OBJECTIVE_NAME,
             this.players[index],
             index,
-            null,
-            BlankFormat.INSTANCE
+            component.display,
+            component.score
         ))
     }
 
@@ -67,24 +65,10 @@ internal object SidebarUtils {
         ))
     }
 
-    internal fun sendPlayerTeamUpdatePacket(player: ServerPlayer, index: Int, initial: Boolean, prefix: Component)  {
-        val team = this.teams[index]
-        team.playerPrefix = prefix
-        player.connection.send(ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, initial))
-    }
-
-    internal fun sendPlayerTeamRemovePacket(player: ServerPlayer, index: Int) {
-        player.connection.send(ClientboundSetPlayerTeamPacket.createRemovePacket(this.teams[index]))
-    }
-
     internal fun registerEvents() {
         GlobalEventHandler.register<ServerLoadedEvent> {
             for (i in 0..15) {
                 val player = ChatFormatting.RESET.toString().repeat(i)
-                val team = ScoreboardUtils.dummyTeam(TEAM_NAME + i)
-
-                team.players.add(player)
-                this.teams.add(team)
                 this.players.add(player)
             }
         }

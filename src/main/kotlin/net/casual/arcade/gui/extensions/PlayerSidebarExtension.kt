@@ -2,17 +2,16 @@ package net.casual.arcade.gui.extensions
 
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.gui.sidebar.ArcadeSidebar
+import net.casual.arcade.gui.sidebar.SidebarComponent
 import net.casual.arcade.utils.SidebarUtils
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket.*
-import net.minecraft.server.ServerScoreboard
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 
-// TODO: Update to support new sidebar capabilities
 internal class PlayerSidebarExtension(
     owner: ServerGamePacketListenerImpl
 ): PlayerExtension(owner) {
-    private val previousRows = ArrayList<Component>()
+    private val previousRows = ArrayList<SidebarComponent>()
     private var previousTitle: Component? = null
     private var current: ArcadeSidebar? = null
 
@@ -35,8 +34,7 @@ internal class PlayerSidebarExtension(
                 continue
             }
             this.previousRows[index] = replacement
-            SidebarUtils.sendPlayerTeamUpdatePacket(this.player, index, false, replacement)
-            SidebarUtils.sendSetScorePacket(this.player, index)
+            SidebarUtils.sendSetScorePacket(this.player, index, replacement)
         }
     }
 
@@ -45,32 +43,22 @@ internal class PlayerSidebarExtension(
         SidebarUtils.sendSetObjectivePacket(this.player, METHOD_CHANGE, title)
     }
 
-    internal fun addRow(index: Int, component: Component) {
+    internal fun addRow(index: Int, component: SidebarComponent) {
         this.previousRows.add(index, component)
-        for (i in index until this.previousRows.size) {
-            SidebarUtils.sendPlayerTeamUpdatePacket(this.player, i, true, this.previousRows[i])
-            SidebarUtils.sendSetScorePacket(this.player, i)
-        }
+        this.resendRows(index)
     }
 
-    internal fun setRow(index: Int, component: Component) {
+    internal fun setRow(index: Int, component: SidebarComponent) {
         this.previousRows[index] = component
-        for (i in index until this.previousRows.size) {
-            SidebarUtils.sendPlayerTeamUpdatePacket(this.player, index, false, this.previousRows[i])
-            SidebarUtils.sendSetScorePacket(this.player, index)
-        }
+        this.resendRows(index)
     }
 
     internal fun removeRow(index: Int) {
         this.previousRows.removeAt(index)
 
         SidebarUtils.sendResetScorePacket(this.player, this.previousRows.size)
-        SidebarUtils.sendPlayerTeamRemovePacket(this.player, this.previousRows.size)
 
-        for (i in index until this.previousRows.size) {
-            SidebarUtils.sendPlayerTeamUpdatePacket(this.player, i, false, this.previousRows[i])
-            SidebarUtils.sendSetScorePacket(this.player, i)
-        }
+        this.resendRows(index)
     }
 
     internal fun set(sidebar: ArcadeSidebar) {
@@ -98,5 +86,11 @@ internal class PlayerSidebarExtension(
 
     internal fun disconnect() {
         this.current?.removePlayer(this.player)
+    }
+
+    private fun resendRows(from: Int) {
+        for (i in from until this.previousRows.size) {
+            SidebarUtils.sendSetScorePacket(this.player, i, this.previousRows[i])
+        }
     }
 }
