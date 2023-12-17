@@ -8,18 +8,18 @@ public fun interface SidebarSupplier {
 
     public companion object {
         public fun empty(): SidebarSupplier {
-            return ofNoScore(Component.empty())
+            return withNoScore(Component.empty())
         }
 
         public fun of(component: SidebarComponent): SidebarSupplier {
             return Constant(component)
         }
 
-        public fun ofNoScore(component: Component): SidebarSupplier {
+        public fun withNoScore(component: Component): SidebarSupplier {
             return of(SidebarComponent.withNoScore(component))
         }
 
-        public fun ofCustomScore(component: Component, score: Component): SidebarSupplier {
+        public fun withCustomScore(component: Component, score: Component): SidebarSupplier {
             return of(SidebarComponent.withCustomScore(component, score))
         }
     }
