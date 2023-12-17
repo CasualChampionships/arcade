@@ -26,7 +26,7 @@
   ],
   "accessWidener": "arcade.accesswidener",
   "depends": {
-    "fabricloader": ">=0.14.12",
+    "fabricloader": ">=0.15.0",
     "minecraft": "1.20.x",
     "java": ">=17",
     "fabric-language-kotlin": ">=1.9.0+kotlin.1.8.0"

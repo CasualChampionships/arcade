@@ -9,7 +9,10 @@ import net.minecraft.network.chat.LastSeenMessages;
 import net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket;
 import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundCommandSuggestionPacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,10 +27,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 @Mixin(ServerGamePacketListenerImpl.class)
-public class ServerGamePacketListenerImplMixin {
+public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPacketListenerImpl {
 	@Shadow public ServerPlayer player;
 
-	@Shadow @Final private Connection connection;
+	public ServerGamePacketListenerImplMixin(MinecraftServer server, Connection connection, CommonListenerCookie cookie) {
+		super(server, connection, cookie);
+	}
 
 	@Inject(
 		method = "performChatCommand",

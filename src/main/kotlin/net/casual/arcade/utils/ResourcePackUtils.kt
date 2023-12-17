@@ -1,71 +1,64 @@
 package net.casual.arcade.utils
 
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.network.PackStatusEvent
+import net.casual.arcade.events.network.PlayerDisconnectEvent
+import net.casual.arcade.events.network.PlayerLoginEvent
 import net.casual.arcade.events.player.PlayerClientboundPacketEvent
-import net.casual.arcade.events.player.PlayerCreatedEvent
-import net.casual.arcade.events.player.PlayerPackStatusEvent
-import net.casual.arcade.minigame.MinigameResources.Companion.EMPTY
 import net.casual.arcade.resources.PackInfo
-import net.casual.arcade.resources.PackState
-import net.casual.arcade.resources.PackStatus.Companion.toPackStatus
+import net.casual.arcade.resources.PackStatus
 import net.casual.arcade.resources.PlayerPackExtension
-import net.casual.arcade.utils.PlayerUtils.addExtension
-import net.casual.arcade.utils.PlayerUtils.getExtension
-import net.minecraft.network.protocol.game.ClientboundResourcePackPacket
+import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
+import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import net.minecraft.server.level.ServerPlayer
+import java.util.*
+import java.util.concurrent.CompletableFuture
 
 public object ResourcePackUtils {
+    private val universe = HashMap<UUID, PlayerPackExtension>()
+
     private val ServerPlayer.resourcePacks
-        get() = this.getExtension(PlayerPackExtension::class.java)
-
-    /**
-     * This [PackInfo] holds a completely empty resource pack.
-     *
-     * This may be useful for resetting the client's resource pack.
-     *
-     * @see EMPTY
-     */
-    @JvmField
-    public val EMPTY_PACK: PackInfo = PackInfo(
-        url = "https://download.mc-packs.net/pack/8694214da5d1b2adac38971828e07b20e33d3e24.zip",
-        hash = "8694214da5d1b2adac38971828e07b20e33d3e24",
-        required = false,
-        prompt = null
-    )
+        get() = universe[this.uuid]!!
 
     @JvmStatic
-    public fun ServerPlayer.getPreviousResourcePack(): PackInfo? {
-        return this.resourcePacks.previous
+    public fun ServerPlayer.sendResourcePack(pack: PackInfo): CompletableFuture<PackStatus> {
+        val future = CompletableFuture<PackStatus>()
+        this.connection.send(ClientboundResourcePackPushPacket(
+            pack.uuid, pack.url, pack.hash, pack.required, pack.prompt
+        ))
+        this.resourcePacks.futures[pack.uuid] = future
+        return future
     }
 
     @JvmStatic
-    public fun ServerPlayer.getResourcePackState(): PackState? {
-        val current = this.resourcePacks.current ?: return null
-        return PackState(current, this.resourcePacks.status)
+    public fun ServerPlayer.removeResourcePack(pack: PackInfo): CompletableFuture<PackStatus> {
+        val future = CompletableFuture<PackStatus>()
+        this.connection.send(ClientboundResourcePackPopPacket(Optional.of(pack.uuid)))
+        this.resourcePacks.futures[pack.uuid] = future
+        return future
     }
 
     @JvmStatic
-    public fun ServerPlayer.resendLastResourcePack() {
-        val state = this.getResourcePackState() ?: return
-        this.sendResourcePack(state.pack)
-    }
-
-    @JvmStatic
-    public fun ServerPlayer.sendResourcePack(pack: PackInfo) {
-        this.sendTexturePack(pack.url, pack.hash, pack.required, pack.prompt)
+    public fun ServerPlayer.removeAllResourcePacks() {
+        this.connection.send(ClientboundResourcePackPopPacket(Optional.empty()))
     }
 
     internal fun registerEvents() {
-        GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
-            player.addExtension(PlayerPackExtension())
+        GlobalEventHandler.register<PlayerLoginEvent> { (_, profile) ->
+            this.universe[profile.id] = PlayerPackExtension()
+        }
+        GlobalEventHandler.register<PlayerDisconnectEvent> { (_, profile) ->
+            this.universe.remove(profile.id)
         }
         GlobalEventHandler.register<PlayerClientboundPacketEvent> { (player, packet) ->
-            if (packet is ClientboundResourcePackPacket) {
-                player.resourcePacks.onSentPack(packet)
+            if (packet is ClientboundResourcePackPushPacket) {
+                player.resourcePacks.onPushPack(packet)
+            } else if (packet is ClientboundResourcePackPopPacket) {
+                player.resourcePacks.onPopPack(packet)
             }
         }
-        GlobalEventHandler.register<PlayerPackStatusEvent> { (player, status) ->
-            player.resourcePacks.status = status.toPackStatus()
+        GlobalEventHandler.register<PackStatusEvent> { (_, profile, uuid, status) ->
+            this.universe[profile.id]?.onPackStatus(uuid, status)
         }
     }
 }

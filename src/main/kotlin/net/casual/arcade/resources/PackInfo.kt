@@ -1,6 +1,7 @@
 package net.casual.arcade.resources
 
 import net.minecraft.network.chat.Component
+import java.util.*
 
 /**
  * This class contains all the information required by the
@@ -27,5 +28,9 @@ public data class PackInfo(
     /**
      * The prompt given to the player about this resource pack; may be null.
      */
-    val prompt: Component?
+    val prompt: Component?,
+    /**
+     * The uuid identifying this pack.
+     */
+    val uuid: UUID = UUID.nameUUIDFromBytes(url.toByteArray())
 )

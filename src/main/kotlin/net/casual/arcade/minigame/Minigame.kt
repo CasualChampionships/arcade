@@ -15,6 +15,7 @@ import net.casual.arcade.gui.bossbar.CustomBossBar
 import net.casual.arcade.gui.nametag.ArcadeNameTag
 import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.gui.tab.ArcadeTabDisplay
+import net.casual.arcade.minigame.MinigameResources.Companion.removeFrom
 import net.casual.arcade.minigame.MinigameResources.Companion.sendTo
 import net.casual.arcade.minigame.managers.*
 import net.casual.arcade.minigame.serialization.MinigameDataTracker
@@ -873,6 +874,7 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     private fun onPlayerRemove(event: MinigameRemovePlayerEvent) {
+        this.getResources().removeFrom(event.player)
         this.server.commands.sendCommands(event.player)
     }
 }

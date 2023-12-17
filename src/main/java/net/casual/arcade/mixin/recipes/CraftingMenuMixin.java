@@ -16,7 +16,7 @@ public class CraftingMenuMixin {
 		method = "slotChangedCraftingGrid",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/inventory/ResultContainer;setRecipeUsed(Lnet/minecraft/world/level/Level;Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/item/crafting/Recipe;)Z"
+			target = "Lnet/minecraft/world/inventory/ResultContainer;setRecipeUsed(Lnet/minecraft/world/level/Level;Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/item/crafting/RecipeHolder;)Z"
 		)
 	)
 	private static boolean onGetRecipe(

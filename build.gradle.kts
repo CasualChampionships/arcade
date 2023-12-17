@@ -4,7 +4,6 @@ import java.nio.charset.Charset
 plugins {
     kotlin("jvm")
     id("fabric-loom")
-    id("io.github.juuxel.loom-quiltflower")
     `maven-publish`
     java
 }
@@ -57,7 +56,7 @@ dependencies {
     include(modImplementation("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")!!)
 
     // include(modImplementation("eu.pb4:sgui:1.2.1+1.19.3")!!)
-    include(implementation(annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-fabric:${property("mixin_extras_version")}")!!)!!)
+    // include(implementation(annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-fabric:${property("mixin_extras_version")}")!!)!!)
 }
 
 loom {

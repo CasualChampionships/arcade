@@ -21,6 +21,7 @@ public class WorldBorderCommandMixin {
 		},
 		at = @At("STORE")
 	)
+	@SuppressWarnings("InvalidInjectorMethodSignature")
 	private static WorldBorder onGetBorder(WorldBorder original, CommandSourceStack source) {
 		return source.getLevel().getWorldBorder();
 	}

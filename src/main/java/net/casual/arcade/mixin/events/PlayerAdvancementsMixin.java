@@ -3,6 +3,7 @@ package net.casual.arcade.mixin.events;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.PlayerAdvancementEvent;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,14 +17,14 @@ public class PlayerAdvancementsMixin {
 	@Shadow private ServerPlayer player;
 
 	@Redirect(
-		method = "award",
+		method = "method_53637",
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/advancements/DisplayInfo;shouldAnnounceChat()Z"
 		)
 	)
-	private boolean onAward(DisplayInfo instance, Advancement advancement) {
-		PlayerAdvancementEvent event = new PlayerAdvancementEvent(this.player, advancement);
+	private boolean onAward(DisplayInfo instance, AdvancementHolder holder) {
+		PlayerAdvancementEvent event = new PlayerAdvancementEvent(this.player, holder.value());
 		GlobalEventHandler.broadcast(event);
 		return event.getAnnounce();
 	}

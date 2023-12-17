@@ -1,7 +1,7 @@
 package net.casual.arcade.minigame
 
 import net.casual.arcade.resources.PackInfo
-import net.casual.arcade.utils.ResourcePackUtils
+import net.casual.arcade.utils.ResourcePackUtils.removeResourcePack
 import net.casual.arcade.utils.ResourcePackUtils.sendResourcePack
 import net.minecraft.server.level.ServerPlayer
 
@@ -13,26 +13,26 @@ import net.minecraft.server.level.ServerPlayer
  */
 public interface MinigameResources {
     /**
-     * This gets the default [PackInfo] for a minigame.
+     * This gets the default [PackInfo]s for a minigame.
      *
-     * @return The default pack info.
+     * @return The default pack infos.
      */
-    public fun getInfo(): PackInfo? {
-        return null
+    public fun getPacks(): Collection<PackInfo> {
+        return listOf()
     }
 
     /**
-     * This gets the [PackInfo] for a minigame for a
-     * given player, this way you may specify the pack that is sent
+     * This gets the [PackInfo]s for a minigame for a
+     * given player, this way you may specify the packs that are sent
      * to each player, for example, if players on different teams
-     * require a different resource pack.
+     * require different resource packs.
      *
      * @param player The player that the pack info is for.
-     * @return The pack info for the player.
+     * @return The pack infos for the player.
      * @see sendTo
      */
-    public fun getInfo(player: ServerPlayer): PackInfo? {
-        return this.getInfo()
+    public fun getPacks(player: ServerPlayer): Collection<PackInfo> {
+        return this.getPacks()
     }
 
     public companion object {
@@ -44,32 +44,29 @@ public interface MinigameResources {
         public val NONE: MinigameResources = object: MinigameResources { }
 
         /**
-         * This object provides an empty implementation of
-         * [MinigameResources], which provides a completely empty
-         * resource pack.
+         * Tries to send the [MinigameResources] to the player.
          *
-         * @see ResourcePackUtils.EMPTY_PACK
+         * @param player The player to send the resources to.
          */
-        @JvmField
-        public val EMPTY: MinigameResources = object: MinigameResources {
-            override fun getInfo(): PackInfo {
-                return ResourcePackUtils.EMPTY_PACK
+        @JvmStatic
+        public fun MinigameResources.sendTo(player: ServerPlayer) {
+            val packs = this.getPacks(player)
+            for (pack in packs) {
+                player.sendResourcePack(pack)
             }
         }
 
         /**
-         * Tries to send the [MinigameResources] to the player.
-         * If the result of [getInfo] is null then the resources cannot
-         * be sent to the player, and this method will return false.
+         * This pops all the resource packs sent to a player.
          *
          * @param player The player to send the resources to.
-         * @return Whether the player was sent the resources.
          */
         @JvmStatic
-        public fun MinigameResources.sendTo(player: ServerPlayer): Boolean {
-            val info = this.getInfo(player) ?: return false
-            player.sendResourcePack(info)
-            return true
+        public fun MinigameResources.removeFrom(player: ServerPlayer) {
+            val packs = this.getPacks(player)
+            for (pack in packs) {
+                player.removeResourcePack(pack)
+            }
         }
 
         /**

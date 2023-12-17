@@ -7,6 +7,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ItemLike
+import java.util.*
 
 /**
  * This class is a builder for building [Advancement]s.
@@ -17,12 +18,14 @@ import net.minecraft.world.level.ItemLike
  * @see Advancement
  */
 public class AdvancementBuilder {
-    private val criterion = HashMap<String, Criterion>()
+    private val criterion = java.util.Map.of<String, Criterion<*>>(
+        "Impossible", CriteriaTriggers.IMPOSSIBLE.createCriterion(ImpossibleTrigger.TriggerInstance())
+    )
 
     /**
      * The parent [Advancement], may be null if this has no parent.
      */
-    public var parent: Advancement? = null
+    public var parent: ResourceLocation? = null
 
     /**
      * This is the [ResourceLocation] of the advancement.
@@ -52,12 +55,7 @@ public class AdvancementBuilder {
     /**
      * The [FrameType] for the advancement.
      */
-    public var frame: FrameType = FrameType.TASK
-
-    /**
-     * The requirement strategy for the advancement.
-     */
-    public var requirements: RequirementsStrategy = RequirementsStrategy.AND
+    public var type: AdvancementType = AdvancementType.TASK
 
     /**
      * The rewards granted for the advancement.
@@ -85,8 +83,8 @@ public class AdvancementBuilder {
      * @param parent The parent advancement.
      * @return This [AdvancementBuilder] instance.
      */
-    public fun parent(parent: Advancement): AdvancementBuilder {
-        this.parent = parent
+    public fun parent(parent: AdvancementHolder): AdvancementBuilder {
+        this.parent = parent.id
         return this
     }
 
@@ -157,24 +155,13 @@ public class AdvancementBuilder {
     }
 
     /**
-     * This sets the advancement frame.
+     * This sets the advancement type.
      *
-     * @param frame The advancement frame.
+     * @param type The advancement type.
      * @return This [AdvancementBuilder] instance.
      */
-    public fun frame(frame: FrameType): AdvancementBuilder {
-        this.frame = frame
-        return this
-    }
-
-    /**
-     * This sets the advancement requirements strategy.
-     *
-     * @param requirements The advancement requirements strategy.
-     * @return This [AdvancementBuilder] instance.
-     */
-    public fun requirements(requirements: RequirementsStrategy): AdvancementBuilder {
-        this.requirements = requirements
+    public fun type(type: AdvancementType): AdvancementBuilder {
+        this.type = type
         return this
     }
 
@@ -220,29 +207,6 @@ public class AdvancementBuilder {
     }
 
     /**
-     * This sets an advancement criterion.
-     *
-     * @param name The name of the criterion.
-     * @param trigger The [CriterionTriggerInstance].
-     * @return This [AdvancementBuilder] instance.
-     */
-    public fun criterion(name: String, trigger: CriterionTriggerInstance): AdvancementBuilder {
-        this.criterion[name] = Criterion(trigger)
-        return this
-    }
-
-    /**
-     * This adds the impossible criterion, the game cannot trigger this
-     * you must manually grant this advancement.
-     *
-     * @return This [AdvancementBuilder] instance.
-     */
-    public fun impossible(): AdvancementBuilder {
-        this.criterion("impossible", ImpossibleTrigger.TriggerInstance())
-        return this
-    }
-
-    /**
      * This builds the [Advancement] from this builder.
      *
      * This should be the last step of the builder.
@@ -251,28 +215,26 @@ public class AdvancementBuilder {
      *
      * @return The built [Advancement].
      */
-    public fun build(): Advancement {
-        val id = this.id
-        requireNotNull(id)
-        val requirements = this.requirements.createRequirements(this.criterion.keys)
-        return Advancement(
-            id,
-            this.parent,
-            DisplayInfo(
+    public fun build(): AdvancementHolder {
+        val id = requireNotNull(this.id)
+        val advancement = Advancement(
+            Optional.ofNullable(this.parent),
+            Optional.of(DisplayInfo(
                 this.display,
                 this.title,
                 this.description,
-                this.background,
-                this.frame,
+                Optional.ofNullable(this.background),
+                this.type,
                 this.toast,
                 this.announce,
                 this.hidden
-            ),
+            )),
             this.rewards,
             this.criterion,
-            requirements,
+            AdvancementRequirements.Strategy.OR.create(this.criterion.keys),
             false
         )
+        return AdvancementHolder(id, advancement)
     }
 
     public companion object {

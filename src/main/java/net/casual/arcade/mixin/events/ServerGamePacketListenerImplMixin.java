@@ -2,12 +2,12 @@ package net.casual.arcade.mixin.events;
 
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.player.*;
+import net.casual.arcade.events.player.PlayerChatEvent;
+import net.casual.arcade.events.player.PlayerLeaveEvent;
+import net.casual.arcade.events.player.PlayerRespawnEvent;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.PlayerChatMessage;
-import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
-import net.minecraft.network.protocol.game.ServerboundResourcePackPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.players.PlayerList;
@@ -15,21 +15,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public class ServerGamePacketListenerImplMixin {
 	@Shadow public ServerPlayer player;
-
-	@Inject(
-		method = "handleResourcePackResponse",
-		at = @At("TAIL")
-	)
-	private void onResourcePackStatus(ServerboundResourcePackPacket packet, CallbackInfo ci) {
-		PlayerPackStatusEvent event = new PlayerPackStatusEvent(this.player, packet.getAction());
-		GlobalEventHandler.broadcast(event);
-	}
 
 	@WrapWithCondition(
 		method = "broadcastChatMessage",
@@ -51,20 +41,6 @@ public class ServerGamePacketListenerImplMixin {
 	private void onDisconnect(CallbackInfo ci) {
 		PlayerLeaveEvent event = new PlayerLeaveEvent(this.player);
 		GlobalEventHandler.broadcast(event);
-	}
-
-	@ModifyVariable(
-		method = "send(Lnet/minecraft/network/protocol/Packet;)V",
-		at = @At("HEAD"),
-		argsOnly = true
-	)
-	private Packet<?> onSendPacket(Packet<?> packet) {
-		PlayerClientboundPacketEvent event = new PlayerClientboundPacketEvent(this.player, packet);
-		GlobalEventHandler.broadcast(event);
-		if (event.isCancelled()) {
-			return event.result();
-		}
-		return packet;
 	}
 
 	@Inject(

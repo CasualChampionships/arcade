@@ -4,6 +4,7 @@ import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.PlayerJoinEvent;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,7 +17,7 @@ public class PlayerListMixin {
 		method = "placeNewPlayer",
 		at = @At("TAIL")
 	)
-	private void onPlayerJoin(Connection connection, ServerPlayer player, CallbackInfo ci) {
+	private void onPlayerJoin(Connection connection, ServerPlayer player, CommonListenerCookie cookie, CallbackInfo ci) {
 		PlayerJoinEvent event = new PlayerJoinEvent(player);
 		GlobalEventHandler.broadcast(event);
 		if (event.isCancelled()) {

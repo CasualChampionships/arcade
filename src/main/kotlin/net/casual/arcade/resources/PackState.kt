@@ -18,7 +18,7 @@ public class PackState(
     /**
      * The current status of the pack.
      */
-    private val status: PackStatus
+    private var status: PackStatus
 ) {
     /**
      * Checks whether the player has successfully loaded
@@ -64,5 +64,9 @@ public class PackState(
      */
     public fun hasFailedToLoadPack(): Boolean {
         return this.status == PackStatus.FAILED
+    }
+
+    public fun setStatus(status: PackStatus) {
+        this.status = status
     }
 }
