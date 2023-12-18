@@ -27,7 +27,7 @@ public class PackState(
      * @return Whether the player has loaded the pack.
      */
     public fun hasLoadedPack(): Boolean {
-        return this.status == PackStatus.SUCCESS
+        return this.status.hasLoadedPack()
     }
 
     /**
@@ -38,7 +38,7 @@ public class PackState(
      * @return Whether the player is loading the pack.
      */
     public fun isLoadingPack(): Boolean {
-        return this.status == PackStatus.WAITING || this.status == PackStatus.ACCEPTED
+        return this.status.isLoadingPack()
     }
 
     /**
@@ -49,7 +49,7 @@ public class PackState(
      * @return Whether the player has declined the pack.
      */
     public fun hasDeclinedPack(): Boolean {
-        return this.status == PackStatus.DECLINED
+        return this.status.hasDeclinedPack()
     }
 
     /**
@@ -63,7 +63,7 @@ public class PackState(
      * @return Whether the player has failed to download the pack.
      */
     public fun hasFailedToLoadPack(): Boolean {
-        return this.status == PackStatus.FAILED
+        return this.status.hasFailedToLoadPack()
     }
 
     public fun setStatus(status: PackStatus) {

@@ -9,12 +9,14 @@ import net.casual.arcade.events.player.PlayerClientboundPacketEvent
 import net.casual.arcade.resources.PackInfo
 import net.casual.arcade.resources.PackStatus
 import net.casual.arcade.resources.PlayerPackExtension
+import net.casual.arcade.utils.ResourcePackUtils.sendResourcePack
 import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 public object ResourcePackUtils {
@@ -25,20 +27,16 @@ public object ResourcePackUtils {
 
     @JvmStatic
     public fun ServerPlayer.sendResourcePack(pack: PackInfo): CompletableFuture<PackStatus> {
-        val future = CompletableFuture<PackStatus>()
         this.connection.send(ClientboundResourcePackPushPacket(
             pack.uuid, pack.url, pack.hash, pack.required, pack.prompt
         ))
-        this.resourcePacks.futures[pack.uuid] = future
-        return future
+        return this.resourcePacks.addFuture(pack.uuid)
     }
 
     @JvmStatic
     public fun ServerPlayer.removeResourcePack(pack: PackInfo): CompletableFuture<PackStatus> {
-        val future = CompletableFuture<PackStatus>()
         this.connection.send(ClientboundResourcePackPopPacket(Optional.of(pack.uuid)))
-        this.resourcePacks.futures[pack.uuid] = future
-        return future
+        return this.resourcePacks.addFuture(pack.uuid)
     }
 
     @JvmStatic

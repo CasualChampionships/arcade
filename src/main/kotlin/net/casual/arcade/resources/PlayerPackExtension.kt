@@ -14,15 +14,21 @@ import kotlin.collections.HashMap
 import kotlin.collections.HashSet
 
 internal class PlayerPackExtension: Extension {
-    internal val futures = HashMap<UUID, CompletableFuture<PackStatus>>()
+    internal val futures = HashMap<UUID, MutableList<CompletableFuture<PackStatus>>>()
     private val packs = HashMap<UUID, PackState>()
+
+    internal fun addFuture(uuid: UUID): CompletableFuture<PackStatus> {
+        val future = CompletableFuture<PackStatus>()
+        this.futures.getOrPut(uuid) { ArrayList() }.add(future)
+        return future
+    }
 
     internal fun onPackStatus(uuid: UUID, status: PackStatus) {
         if (status == PackStatus.REMOVED) {
             if (this.packs.remove(uuid) != null) {
                 Arcade.logger.warn("Client removed resource pack without server telling it to!")
             }
-            this.futures.remove(uuid)?.complete(status)
+            this.futures.remove(uuid)?.forEach { it.complete(status) }
             return
         }
         val state = this.packs[uuid]
@@ -32,7 +38,9 @@ internal class PlayerPackExtension: Extension {
         }
         state.setStatus(status)
 
-        this.futures.remove(uuid)?.complete(status)
+        if (!status.isLoadingPack()) {
+            this.futures.remove(uuid)?.forEach { it.complete(status) }
+        }
     }
 
     internal fun onPushPack(packet: ClientboundResourcePackPushPacket) {
