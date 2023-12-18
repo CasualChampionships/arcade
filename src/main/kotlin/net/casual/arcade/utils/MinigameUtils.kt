@@ -133,20 +133,25 @@ public object MinigameUtils {
      * the countdown to all players for a given minigame.
      *
      * @param minigame The minigame to send the countdown to.
+     * @param players The players function, the players to send the countdown to.
      * @return A [Completable] that will complete when the countdown is finished.
      */
     @JvmStatic
-    public fun Countdown.countdown(minigame: Minigame<*>): Completable {
+    public fun <M: Minigame<M>> Countdown.countdown(
+        minigame: Minigame<M>,
+        players: (Minigame<M>) -> Collection<ServerPlayer> = Minigame<*>::getAllPlayers
+    ): Completable {
         val post = Completable.Impl()
         var remaining = this.getDuration()
         val interval = this.getInterval()
         var current = remaining / interval
+        this.beforeCountdown(players(minigame))
         minigame.scheduler.schedulePhasedInLoop(MinecraftTimeDuration.ZERO, interval, remaining) {
-            this.sendCountdown(minigame.getAllPlayers(), current--, remaining)
+            this.sendCountdown(players(minigame), current--, remaining)
             remaining -= interval
         }
         minigame.scheduler.schedulePhased(remaining) {
-            this.afterCountdown(minigame.getAllPlayers())
+            this.afterCountdown(players(minigame))
             post.complete()
         }
         return post

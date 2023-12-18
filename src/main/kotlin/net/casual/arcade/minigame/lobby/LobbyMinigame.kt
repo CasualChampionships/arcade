@@ -72,7 +72,7 @@ public abstract class LobbyMinigame(
             player.clearPlayerInventory()
         }
         this.events.register<ServerTickEvent> {
-            for (player in this.getAllPlayers()) {
+            for (player in this.getNonAdminPlayers()) {
                 this.lobby.tryTeleportToSpawn(player)
             }
         }
@@ -132,6 +132,12 @@ public abstract class LobbyMinigame(
                 next.makeAdmin(player)
             }
             next.addPlayer(player)
+            if (this.isAdmin(player)) {
+                next.makeAdmin(player)
+            }
+            if (this.isSpectating(player)) {
+                next.makeSpectator(player)
+            }
         }
         next.start()
 
