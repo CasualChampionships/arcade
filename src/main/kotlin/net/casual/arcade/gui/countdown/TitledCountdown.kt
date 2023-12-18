@@ -44,7 +44,7 @@ public interface TitledCountdown: Countdown {
 
     override fun beforeCountdown(players: Collection<ServerPlayer>) {
         for (player in players) {
-            player.setTitleAnimation(0.Ticks, this.getInterval(), 0.Ticks)
+            player.setTitleAnimation(0.Ticks, this.getInterval() * 2, 0.Ticks)
         }
     }
 
