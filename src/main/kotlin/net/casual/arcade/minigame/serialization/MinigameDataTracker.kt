@@ -30,7 +30,7 @@ public class MinigameDataTracker(
     public fun updatePlayer(player: ServerPlayer) {
         val json = JsonObject()
         json.addProperty("uuid", player.stringUUID)
-        json.add("stats", this.minigame.stats.serialize(player))
+        // json.add("stats", this.minigame.stats.serialize(player))
         val array = JsonArray()
         for (advancement in this.minigame.advancements.all()) {
             if (!player.advancements.getOrStartProgress(advancement).isDone) {
@@ -49,6 +49,12 @@ public class MinigameDataTracker(
     }
 
     public fun toJson(): JsonObject {
+        return this.serialize { uuid, json ->
+            json.add("stats", this.minigame.stats.serialize(uuid))
+        }
+    }
+
+    internal fun serialize(modifier: ((UUID, JsonObject) -> Unit)? = null): JsonObject {
         for (player in this.minigame.getAllPlayers()) {
             this.updatePlayer(player)
         }
@@ -59,14 +65,15 @@ public class MinigameDataTracker(
         json.addProperty("id", this.minigame.id.toString())
         json.addProperty("uuid", this.minigame.uuid.toString())
         val players = JsonArray()
-        for (player in this.players.values) {
+        for ((uuid, data) in this.players) {
+            val player = if (modifier != null) { data.deepCopy().also { modifier(uuid, it) } } else data
             players.add(player)
         }
         json.add("players", players)
         return json
     }
 
-    internal fun fromJson(json: JsonObject) {
+    internal fun deserialize(json: JsonObject) {
         this.startTime = json.long("minigame_start_ms")
         this.endTime = json.long("minigame_end_ms")
 

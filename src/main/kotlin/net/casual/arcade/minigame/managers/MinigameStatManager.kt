@@ -44,7 +44,11 @@ public class MinigameStatManager {
     }
 
     public fun serialize(player: ServerPlayer): JsonArray {
-        return this.stats[player.uuid]?.serialize() ?: JsonArray()
+        return this.serialize(player.uuid)
+    }
+
+    public fun serialize(uuid: UUID): JsonArray {
+        return this.stats[uuid]?.serialize() ?: JsonArray()
     }
 
     internal fun deserialize(array: JsonArray) {
