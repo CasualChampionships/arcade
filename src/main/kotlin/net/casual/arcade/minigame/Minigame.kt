@@ -360,6 +360,9 @@ public abstract class Minigame<M: Minigame<M>>(
      */
     public fun addPlayer(player: ServerPlayer): Boolean {
         this.tryInitialize()
+        if (this.hasPlayer(player)) {
+            return false
+        }
 
         val hasMinigame = player.getMinigame() === this
         if (this.offline.remove(player.gameProfile) || hasMinigame) {
