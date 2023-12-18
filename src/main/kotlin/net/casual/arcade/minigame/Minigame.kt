@@ -823,8 +823,8 @@ public abstract class Minigame<M: Minigame<M>>(
         this.events.register<PlayerDeathEvent> { this.onPlayerDeath(it) }
         this.events.register<PlayerDamageEvent>(Int.MAX_VALUE) { this.onPlayerDamage(it) }
         this.events.register<PlayerLeaveEvent>(Int.MAX_VALUE) { this.onPlayerLeave(it) }
-        this.events.register<MinigameAddPlayerEvent> { this.onPlayerAdd(it) }
-        this.events.register<MinigameRemovePlayerEvent> { this.onPlayerRemove(it) }
+        this.events.register<MinigameAddPlayerEvent>(-1000) { this.onPlayerAdd(it) }
+        this.events.register<MinigameRemovePlayerEvent>(2000) { this.onPlayerRemove(it) }
     }
 
     private fun onServerTick() {
