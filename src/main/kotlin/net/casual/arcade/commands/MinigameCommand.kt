@@ -44,6 +44,12 @@ internal object MinigameCommand: Command {
                     ).executes(this::selfAdminMinigame)
                 )
             ).then(
+                Commands.literal("unadmin").then(
+                    Commands.argument("minigame", MinigameArgument.minigame()).then(
+                        Commands.argument("players", EntityArgument.players()).executes(this::removePlayersFromAdmin)
+                    ).executes(this::selfUnAdminMinigame)
+                )
+            ).then(
                 Commands.literal("leave").then(
                     Commands.argument("players", EntityArgument.players()).executes(this::otherLeaveMinigame)
                 ).executes(this::selfLeaveMinigame)
@@ -178,6 +184,29 @@ internal object MinigameCommand: Command {
             return context.source.fail("Failed to make players admin")
         }
         context.source.success("Successfully made $successes/$total players admin")
+        return successes
+    }
+
+    private fun selfUnAdminMinigame(context: CommandContext<CommandSourceStack>): Int {
+        return this.addPlayersToAdmin(context, listOf(context.source.playerOrException))
+    }
+
+    private fun removePlayersFromAdmin(
+        context: CommandContext<CommandSourceStack>,
+        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
+    ): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val total = players.size
+        var successes = 0
+        for (player in players) {
+            if (minigame.hasPlayer(player) && minigame.removeAdmin(player)) {
+                successes++
+            }
+        }
+        if (successes == 0) {
+            return context.source.fail("Failed to remove players admin")
+        }
+        context.source.success("Successfully removed $successes/$total players admin")
         return successes
     }
 
