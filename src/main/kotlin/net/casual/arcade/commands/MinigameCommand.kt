@@ -188,7 +188,7 @@ internal object MinigameCommand: Command {
     }
 
     private fun selfUnAdminMinigame(context: CommandContext<CommandSourceStack>): Int {
-        return this.addPlayersToAdmin(context, listOf(context.source.playerOrException))
+        return this.removePlayersFromAdmin(context, listOf(context.source.playerOrException))
     }
 
     private fun removePlayersFromAdmin(
