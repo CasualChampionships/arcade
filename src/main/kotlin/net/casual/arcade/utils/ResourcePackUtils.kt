@@ -6,6 +6,7 @@ import net.casual.arcade.events.network.PackStatusEvent
 import net.casual.arcade.events.network.PlayerDisconnectEvent
 import net.casual.arcade.events.network.PlayerLoginEvent
 import net.casual.arcade.events.player.PlayerClientboundPacketEvent
+import net.casual.arcade.events.player.PlayerCreatedEvent
 import net.casual.arcade.resources.PackInfo
 import net.casual.arcade.resources.PackStatus
 import net.casual.arcade.resources.PlayerPackExtension
@@ -23,7 +24,7 @@ public object ResourcePackUtils {
     private val universe = HashMap<UUID, PlayerPackExtension>()
 
     private val ServerPlayer.resourcePacks
-        get() = universe[this.uuid]!!
+        get() = getExtension(this.uuid)
 
     @JvmStatic
     public fun ServerPlayer.sendResourcePack(pack: PackInfo): CompletableFuture<PackStatus> {
@@ -44,24 +45,24 @@ public object ResourcePackUtils {
         this.connection.send(ClientboundResourcePackPopPacket(Optional.empty()))
     }
 
+    private fun getExtension(uuid: UUID): PlayerPackExtension {
+        return this.universe.getOrPut(uuid) { PlayerPackExtension() }
+    }
+
     internal fun registerEvents() {
-        GlobalEventHandler.register<PlayerLoginEvent> { (_, profile) ->
-            // This may be off thread
-            this.universe[profile.id] = PlayerPackExtension()
-        }
         GlobalEventHandler.register<PlayerDisconnectEvent> { (_, profile) ->
             this.universe.remove(profile.id)
         }
         GlobalEventHandler.register<ClientboundPacketEvent> { (_, profile, packet) ->
             // This may be off thread
             if (packet is ClientboundResourcePackPushPacket) {
-                this.universe[profile.id]?.onPushPack(packet)
+                this.getExtension(profile.id).onPushPack(packet)
             } else if (packet is ClientboundResourcePackPopPacket) {
-                this.universe[profile.id]?.onPopPack(packet)
+                this.getExtension(profile.id).onPopPack(packet)
             }
         }
         GlobalEventHandler.register<PackStatusEvent> { (_, profile, uuid, status) ->
-            this.universe[profile.id]?.onPackStatus(uuid, status)
+            this.getExtension(profile.id).onPackStatus(uuid, status)
         }
     }
 }
