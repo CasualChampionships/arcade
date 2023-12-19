@@ -57,6 +57,7 @@ public class DisplayableGameSettingBuilder<T: Any>(
         }
         val value = this.value ?: throw IllegalStateException("No value to build GameSetting")
         val setting = this.constructor(this.name, value, this.options)
+        setting.override = this.override
         for (listener in this.listeners) {
             setting.addListener(listener)
         }
