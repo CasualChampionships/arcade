@@ -78,7 +78,7 @@ internal class PlayerNameTagExtension(
     }
 
     companion object {
-        private const val DEFAULT = 0.7F
+        private const val DEFAULT = 0.3F
         private const val SHIFT = 0.3F
     }
 

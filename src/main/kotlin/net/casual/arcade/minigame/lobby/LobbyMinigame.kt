@@ -129,14 +129,13 @@ public abstract class LobbyMinigame(
     protected open fun moveToNextMinigame() {
         val next = this.next!!
         for (player in this.getAllPlayers()) {
-            if (this.isAdmin(player)) {
-                next.makeAdmin(player)
-            }
+            val wasAdmin = this.isAdmin(player)
+            val wasSpectating = this.isSpectating(player)
             next.addPlayer(player)
-            if (this.isAdmin(player)) {
+            if (wasAdmin) {
                 next.makeAdmin(player)
             }
-            if (this.isSpectating(player)) {
+            if (wasSpectating) {
                 next.makeSpectator(player)
             }
         }
