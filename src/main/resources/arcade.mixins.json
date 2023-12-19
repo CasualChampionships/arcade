@@ -28,6 +28,7 @@
     "events.PlayerListMixin",
     "events.PlayerMixin",
     "events.RandomizbleContainerMixin",
+    "events.ScoreboardMixin",
     "events.ServerCommonPacketListenerImplMixin",
     "events.ServerGamePacketListenerImplMixin",
     "events.ServerLevelMixin",
