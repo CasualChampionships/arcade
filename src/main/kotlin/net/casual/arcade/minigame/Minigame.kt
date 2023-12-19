@@ -750,6 +750,19 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     /**
+     * This tries to initialize the minigame
+     * if it's not already initialized.
+     */
+    public fun tryInitialize() {
+        if (!this.initialized) {
+            this.initialize()
+            if (!this.initialized) {
+                throw IllegalStateException("Failed to initialize minigame ${this.id}, you must call super.initialize()")
+            }
+        }
+    }
+
+    /**
      * This method initializes the core functionality of the
      * minigame, such as registering events.
      */
@@ -802,15 +815,6 @@ public abstract class Minigame<M: Minigame<M>>(
     @OverrideOnly
     protected open fun appendAdditionalDebugInfo(json: JsonObject) {
 
-    }
-
-    private fun tryInitialize() {
-        if (!this.initialized) {
-            this.initialize()
-            if (!this.initialized) {
-                throw IllegalStateException("Failed to initialize minigame ${this.id}, you must call super.initialize()")
-            }
-        }
     }
 
     private fun getAllPhases(): List<MinigamePhase<M>> {

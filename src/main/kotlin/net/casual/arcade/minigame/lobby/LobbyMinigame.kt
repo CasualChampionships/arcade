@@ -213,6 +213,7 @@ public abstract class LobbyMinigame(
     private fun setNextNewMinigame(context: CommandContext<CommandSourceStack>): Int {
         val factory = MinigameArgument.Factory.getFactory(context, "minigame")
         val next = factory.create(MinigameCreationContext(context.source.server))
+        next.tryInitialize()
         this.next = next
         return context.source.success("Successfully set the next minigame to ${next.id}")
     }
