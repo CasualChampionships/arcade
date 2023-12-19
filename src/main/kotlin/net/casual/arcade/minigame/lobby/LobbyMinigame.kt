@@ -86,6 +86,7 @@ public abstract class LobbyMinigame(
         this.settings.canDropItems.set(false)
         this.settings.canPickupItems.set(false)
         this.settings.canTakeDamage.set(false)
+        this.settings.canAttackEntities.set(false)
         this.settings.canInteractAll = false
     }
 
