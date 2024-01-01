@@ -14,8 +14,8 @@ public data class Location(
     val y: Double get() = this.position.y
     val z: Double get() = this.position.z
 
-    val yaw: Float get() = this.rotation.x
-    val pitch: Float get() = this.rotation.y
+    val pitch: Float get() = this.rotation.x
+    val yaw: Float get() = this.rotation.y
 
     public companion object {
         public fun of(): Location {
