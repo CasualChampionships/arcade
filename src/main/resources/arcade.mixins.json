@@ -44,6 +44,7 @@
     "level.BaseFireBlockMixin",
     "level.EndPortalBlockMixin",
     "level.EntityMixin",
+    "level.ServerLevelMixin",
     "level.ServerPlayerMixin",
     "minigame.AbstractContainerMenuMixin",
     "minigame.FoodDataMixin",
