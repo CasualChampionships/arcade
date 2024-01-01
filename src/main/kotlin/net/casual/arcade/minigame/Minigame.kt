@@ -233,6 +233,9 @@ public abstract class Minigame<M: Minigame<M>>(
     public var paused: Boolean
         internal set
 
+    public val ticking: Boolean
+        get() = !this.paused && !this.isPhase(MinigamePhase.none())
+
     /**
      * The [ResourceLocation] of the [Minigame].
      */
@@ -716,6 +719,8 @@ public abstract class Minigame<M: Minigame<M>>(
         json.addProperty("id", this.id.toString())
         json.add("players", this.getAllPlayers().toJsonStringArray { it.scoreboardName })
         json.add("offline_players", this.offline.toJsonObject { it.name to JsonPrimitive(it.id?.toString()) })
+        json.add("admins", this.getAdminPlayers().toJsonStringArray { it.scoreboardName })
+        json.add("spectating", this.getSpectatingPlayers().toJsonStringArray { it.scoreboardName })
         json.add("levels", this.levels.toJsonStringArray { it.dimension().location().toString() })
         json.add("phases", this.phases.toJsonStringArray { it.id })
         json.addProperty("phase", this.phase.id)
@@ -835,7 +840,7 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     private fun onServerTick() {
-        if (!this.paused) {
+        if (this.ticking) {
             this.uptime++
             this.ui.tick()
             this.scheduler.tick()
