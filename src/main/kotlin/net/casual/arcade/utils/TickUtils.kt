@@ -15,6 +15,7 @@ public object TickUtils {
     @JvmStatic
     public fun calculateTPS(): Double {
         val manager = Arcade.getServer().tickRateManager()
-        return 1000 / max(this.calculateMSPT(), manager.millisecondsPerTick().toDouble())
+        val mspt = this.calculateMSPT()
+        return 1000 / if (manager.isSprinting) mspt else max(mspt, manager.millisecondsPerTick().toDouble())
     }
 }

@@ -28,10 +28,6 @@ import java.util.function.Consumer
 // This is low-key some of the most cursed code
 // I've ever written, let's hope I don't have to
 // ever touch it again :)
-// TODO:
-//   Currently the vertical translation affects horizontal.
-//   The solution to this would be to have a marker that handles the
-//   vertical translation then make the nametag be a passenger of the marker.
 internal class PlayerNameTagExtension(
     owner: ServerGamePacketListenerImpl
 ): PlayerExtension(owner) {

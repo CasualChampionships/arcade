@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,6 +53,14 @@ public class ServerAdvancementManagerMixin implements Arcade$MutableAdvancements
 
 		// We want to mutate advancements...
 		this.advancements = new Object2ObjectOpenHashMap<>(this.advancements);
+	}
+
+	@Override
+	public void arcade$addAllAdvancements(Collection<AdvancementHolder> advancements) {
+		((MutableAdvancements) this.tree).addAllAdvancements(advancements);
+		for (AdvancementHolder advancement : advancements) {
+			this.advancements.put(advancement.id(), advancement);
+		}
 	}
 
 	@Override

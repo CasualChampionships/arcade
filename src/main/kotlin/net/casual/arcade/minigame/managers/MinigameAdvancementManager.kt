@@ -4,8 +4,8 @@ import net.casual.arcade.events.minigame.MinigameCloseEvent
 import net.casual.arcade.events.server.ServerAdvancementReloadEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.AdvancementUtils.addAdvancement
+import net.casual.arcade.utils.AdvancementUtils.addAllAdvancements
 import net.casual.arcade.utils.AdvancementUtils.removeAdvancement
-import net.minecraft.advancements.Advancement
 import net.minecraft.advancements.AdvancementHolder
 
 public class MinigameAdvancementManager(
@@ -19,6 +19,12 @@ public class MinigameAdvancementManager(
         }
         this.minigame.events.register<MinigameCloseEvent> {
             this.removeAll()
+        }
+    }
+
+    public fun addAll(advancements: Collection<AdvancementHolder>) {
+        if (this.advancements.addAll(advancements)) {
+            this.minigame.server.advancements.addAllAdvancements(advancements)
         }
     }
 

@@ -6,6 +6,10 @@ import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.server.ServerAdvancementManager
 
 public object AdvancementUtils {
+    public fun ServerAdvancementManager.addAllAdvancements(advancements: Collection<AdvancementHolder>) {
+        (this as MutableAdvancements).addAllAdvancements(advancements)
+    }
+
     public fun ServerAdvancementManager.addAdvancement(advancement: AdvancementHolder) {
         (this as MutableAdvancements).addAdvancement(advancement)
     }

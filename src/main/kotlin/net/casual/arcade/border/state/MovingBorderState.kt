@@ -78,7 +78,6 @@ public class MovingBorderState(
                 // This updates borders in other dimensions
                 if (listener !is DelegateBorderChangeListener) {
                     listener.onBorderSizeLerping(this.border, this.sizeFrom, this.sizeTo, this.realDuration)
-
                 }
             }
         }
