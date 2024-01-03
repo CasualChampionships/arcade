@@ -128,6 +128,12 @@ public abstract class LobbyMinigame(
 
     protected open fun moveToNextMinigame() {
         val next = this.next!!
+        if (next.closed) {
+            Arcade.logger.warn("Failed to move to next minigame ${next.id}, it was closed before starting!")
+            this.next = null
+            return
+        }
+
         for (player in this.getAllPlayers()) {
             val wasAdmin = this.isAdmin(player)
             val wasSpectating = this.isSpectating(player)

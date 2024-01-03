@@ -125,6 +125,7 @@ public abstract class Minigame<M: Minigame<M>>(
 
     private var initialized: Boolean
 
+
     internal val admins: MutableSet<UUID>
     internal val spectators: MutableSet<UUID>
     internal val offline: MutableSet<GameProfile>
@@ -233,6 +234,9 @@ public abstract class Minigame<M: Minigame<M>>(
     public var paused: Boolean
         internal set
 
+    public var closed: Boolean
+        private set
+
     public val ticking: Boolean
         get() = !this.paused && !this.isPhase(MinigamePhase.none())
 
@@ -249,6 +253,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.spectators = LinkedHashSet()
 
         this.initialized = false
+        this.closed = false
 
         this.offline = LinkedHashSet()
 
@@ -677,6 +682,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * After a minigame has been closed, no more players are permitted to join.
      */
     public fun close() {
+        this.closed = true
         this.data.end()
 
         MinigameCloseEvent(this).broadcast()
@@ -759,6 +765,9 @@ public abstract class Minigame<M: Minigame<M>>(
      * if it's not already initialized.
      */
     public fun tryInitialize() {
+        if (this.closed) {
+            throw IllegalStateException("Cannot initialize closed minigame ${this.id}")
+        }
         if (!this.initialized) {
             this.initialize()
             if (!this.initialized) {
