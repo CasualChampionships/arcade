@@ -9,4 +9,9 @@ public object ResourceUtils {
         val key = RandomStringUtils.random(16, "abcdefghijklmnopqrstuvwxyz0123456789")
         return ResourceLocation(Arcade.MOD_ID, key)
     }
+
+    public fun random(modifier: (String) -> String): ResourceLocation {
+        val key = RandomStringUtils.random(16, "abcdefghijklmnopqrstuvwxyz0123456789")
+        return ResourceLocation(Arcade.MOD_ID, modifier(key))
+    }
 }
