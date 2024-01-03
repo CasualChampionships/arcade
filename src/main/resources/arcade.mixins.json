@@ -7,6 +7,7 @@
     "advancements.AdvancementTreeMixin",
     "advancements.PlayerAdvancementMixin",
     "advancements.ServerAdvancementManagerMixin",
+    "bugfixes.ServerPlayerMixin",
     "commands.ArgumentNodeStub",
     "commands.ArgumentTypeInfosAccessor",
     "commands.ClientboundCommandsPacketMixin",
