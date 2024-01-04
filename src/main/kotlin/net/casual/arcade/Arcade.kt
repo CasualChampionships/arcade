@@ -88,6 +88,7 @@ public object Arcade: ModInitializer {
         ResourcePackUtils.registerEvents()
         CommandUtils.registerEvents()
         BorderUtils.registerEvents()
+        LevelUtils.registerEvents()
 
         ArcadeCommands.registerCommands()
     }

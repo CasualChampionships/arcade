@@ -1,5 +1,6 @@
 package net.casual.arcade.mixin.level;
 
+import net.casual.arcade.level.DragonDataExtension;
 import net.casual.arcade.scheduler.GlobalTickedScheduler;
 import net.casual.arcade.utils.LevelUtils;
 import net.minecraft.core.Holder;
@@ -27,6 +28,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import xyz.nucleoid.fantasy.RuntimeWorld;
+import xyz.nucleoid.fantasy.RuntimeWorldHandle;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -36,6 +39,8 @@ import java.util.function.Supplier;
 public abstract class ServerLevelMixin extends Level {
 	@Shadow @Nullable private EndDragonFight dragonFight;
 	@Shadow @Final private MinecraftServer server;
+
+	@Shadow public abstract long getSeed();
 
 	protected ServerLevelMixin(WritableLevelData levelData, ResourceKey<Level> dimension, RegistryAccess registryAccess, Holder<DimensionType> dimensionTypeRegistration, Supplier<ProfilerFiller> profiler, boolean isClientSide, boolean isDebug, long biomeZoomSeed, int maxChainedNeighborUpdates) {
 		super(levelData, dimension, registryAccess, dimensionTypeRegistration, profiler, isClientSide, isDebug, biomeZoomSeed, maxChainedNeighborUpdates);
@@ -60,11 +65,16 @@ public abstract class ServerLevelMixin extends Level {
 		RandomSequences randomSequences,
 		CallbackInfo ci
 	) {
+		// We don't load dragon data for the end, we let vanilla handle this.
+		if (this.dimension() == Level.END) {
+			return;
+		}
 		// We need to do this later because we haven't initialized our world fully
 		GlobalTickedScheduler.later(() -> {
 			if (this.dragonFight == null && LevelUtils.getLikeDimension(this) == Level.END && this.dimensionTypeRegistration().is(BuiltinDimensionTypes.END)) {
-				WorldData data = this.server.getWorldData();
-				this.dragonFight = new EndDragonFight((ServerLevel) (Object) this, data.worldGenOptions().seed(), data.endDragonFightData());
+				// We use an extension here because dragon data by default is stored for the entire server, we need it per level
+				DragonDataExtension extension = LevelUtils.getExtension((ServerLevel) (Object) this, DragonDataExtension.class);
+				this.dragonFight = new EndDragonFight((ServerLevel) (Object) this, this.getSeed(), extension.getDataOrDefault());
 			}
 		});
 	}
