@@ -21,4 +21,15 @@ public class GameRuleCommandMixin {
 	private static GameRules getGameRules(MinecraftServer instance, CommandContext<CommandSourceStack> context) {
 		return context.getSource().getLevel().getGameRules();
 	}
+
+	@Redirect(
+		method = "queryRule",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/MinecraftServer;getGameRules()Lnet/minecraft/world/level/GameRules;"
+		)
+	)
+	private static GameRules getGameRules(MinecraftServer instance, CommandSourceStack source) {
+		return source.getLevel().getGameRules();
+	}
 }
