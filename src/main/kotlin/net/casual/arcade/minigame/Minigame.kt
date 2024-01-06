@@ -562,6 +562,19 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     /**
+     * This gets all the playing players teams.
+     *
+     * @return The collecting of playing players teams.
+     */
+    public fun getPlayingPlayerTeams(): Collection<PlayerTeam> {
+        val teams = HashSet<PlayerTeam>()
+        for (player in this.getPlayingPlayers()) {
+            teams.add(this.server.scoreboard.getPlayersTeam(player.gameProfile.name) ?: continue)
+        }
+        return teams
+    }
+
+    /**
      * This gets all the teams that are playing in the minigame,
      * including offline teams.
      *

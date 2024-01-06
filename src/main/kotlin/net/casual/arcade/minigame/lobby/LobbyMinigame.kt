@@ -103,7 +103,7 @@ public abstract class LobbyMinigame(
     }
 
     public open fun getPlayersToReady(): Collection<ServerPlayer> {
-        return this.getAllPlayers()
+        return this.getPlayingPlayers()
     }
 
     override fun onReady() {
@@ -325,6 +325,8 @@ public abstract class LobbyMinigame(
 
             override fun end(minigame: LobbyMinigame) {
                 minigame.moveToNextMinigame()
+
+                minigame.lobby.area.removeAllButPlayers()
             }
         }
     }

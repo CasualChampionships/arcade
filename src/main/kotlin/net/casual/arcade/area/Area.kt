@@ -2,6 +2,7 @@ package net.casual.arcade.area
 
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Clearable
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
@@ -45,10 +46,8 @@ public interface Area {
     public fun removeEntities(predicate: Predicate<Entity>) {
         val box = this.getEntityBoundingBox()
         val entities = LinkedList<Entity>()
-        for (entity in level.allEntities) {
-            if (box.contains(entity.position()) && predicate.test(entity)) {
-                entities.add(entity)
-            }
+        for (entity in this.level.getEntitiesOfClass(Entity::class.java, box, predicate)) {
+            entities.add(entity)
         }
         for (entity in entities) {
             entity.kill()
@@ -58,7 +57,7 @@ public interface Area {
     @NonExtendable
     public fun removeAllButPlayers() {
         this.removeBlocks()
-        this.removeEntities { it !is Player }
+        this.removeEntities { it !is ServerPlayer }
     }
 
     private companion object {
