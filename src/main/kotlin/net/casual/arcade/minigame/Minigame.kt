@@ -34,6 +34,7 @@ import net.casual.arcade.utils.MinigameUtils
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.PlayerUtils
+import net.casual.arcade.utils.PlayerUtils.getKillCreditWith
 import net.casual.arcade.utils.StatUtils.increment
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.resources.ResourceLocation
@@ -863,7 +864,7 @@ public abstract class Minigame<M: Minigame<M>>(
     private fun onPlayerDeath(event: PlayerDeathEvent) {
         this.stats.getOrCreateStat(event.player, ArcadeStats.DEATHS).increment()
 
-        val killer = event.source.entity
+        val killer = event.player.getKillCreditWith(event.source)
         if (killer is ServerPlayer && this.hasPlayer(killer)) {
             this.stats.getOrCreateStat(killer, ArcadeStats.KILLS).increment()
         }
