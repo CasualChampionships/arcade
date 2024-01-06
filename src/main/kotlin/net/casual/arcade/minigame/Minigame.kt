@@ -683,13 +683,14 @@ public abstract class Minigame<M: Minigame<M>>(
      * After a minigame has been closed, no more players are permitted to join.
      */
     public fun close() {
-        this.closed = true
         this.data.end()
 
         MinigameCloseEvent(this).broadcast()
         for (player in this.getAllPlayers()) {
             this.removePlayer(player)
         }
+        // Closed is true after remove player
+        this.closed = true
         if (this.settings.shouldDeleteLevels) {
             for (handle in this.handles) {
                 handle.delete()
