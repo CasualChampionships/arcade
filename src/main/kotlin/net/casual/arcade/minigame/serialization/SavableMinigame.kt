@@ -223,6 +223,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         val json = JsonObject()
 
         json.addProperty("phase", this.phase.id)
+        json.addProperty("uptime", this.uptime)
         json.addProperty("paused", this.paused)
         json.addProperty("uuid", this.uuid.toString())
 
