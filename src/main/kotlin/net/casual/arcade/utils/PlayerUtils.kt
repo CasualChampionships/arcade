@@ -128,7 +128,7 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.getKillCreditWith(source: DamageSource): Entity? {
-        return source.entity ?: this.killCredit
+        return this.killCredit ?: source.entity
     }
 
     @JvmStatic
@@ -138,9 +138,10 @@ public object PlayerUtils {
         distance: Double,
         range: Double,
         teams: Boolean,
-        targets: Collection<ServerPlayer>
+        targets: Collection<ServerPlayer>,
+        height: Int = level.maxBuildHeight
     ) {
-        SpreadPlayers.run(level, center, distance, range, level.maxBuildHeight, teams, targets)
+        SpreadPlayers.run(level, center, distance, range, height, teams, targets)
     }
 
     @JvmStatic
