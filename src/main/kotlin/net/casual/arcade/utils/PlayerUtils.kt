@@ -217,6 +217,13 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    public fun ServerPlayer.revokeAllAdvancements() {
+        for (advancement in this.server.advancements.allAdvancements) {
+            this.revokeAdvancement(advancement)
+        }
+    }
+
+    @JvmStatic
     public fun ServerPlayer.grantAllRecipes() {
         this.awardRecipes(this.server.recipeManager.recipes)
     }
@@ -328,6 +335,16 @@ public object PlayerUtils {
             teammates.sendChatMessage(outgoing, filter, bound)
         }
         return true
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.addToTeam(team: PlayerTeam) {
+        this.server.scoreboard.addPlayerToTeam(this.scoreboardName, team)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.removeFromTeam() {
+        this.server.scoreboard.removePlayerFromTeam(this.scoreboardName)
     }
 
     @JvmStatic

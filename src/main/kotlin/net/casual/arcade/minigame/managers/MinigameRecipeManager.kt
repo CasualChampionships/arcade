@@ -46,6 +46,10 @@ public class MinigameRecipeManager(
         this.recipes.clear()
     }
 
+    public fun all(): Collection<RecipeHolder<*>> {
+        return this.recipes
+    }
+
     private fun wrap(holder: RecipeHolder<*>): RecipeHolder<*> {
         val wrapper = when (val recipe = holder.value) {
             is CraftingRecipe -> {

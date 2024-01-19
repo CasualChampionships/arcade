@@ -239,4 +239,32 @@ public class MinigameArgument: CustomArgumentType(), ArgumentType<MinigameArgume
             }
         }
     }
+
+    public class InfoPath(
+        private val minigameKey: String
+    ): CustomArgumentType(), ArgumentType<String> {
+        override fun parse(reader: StringReader): String {
+            return reader.readString()
+        }
+
+        override fun <S: Any?> listSuggestions(
+            context: CommandContext<S>,
+            builder: SuggestionsBuilder
+        ): CompletableFuture<Suggestions> {
+            val minigame = getMinigame(context, this.minigameKey)
+            return SharedSuggestionProvider.suggest(minigame.getDebugInfo().keySet(), builder)
+        }
+
+        public companion object {
+            @JvmStatic
+            public fun path(minigameKey: String): InfoPath {
+                return InfoPath(minigameKey)
+            }
+
+            @JvmStatic
+            public fun getPath(context: CommandContext<*>, string: String): String {
+                return context.getArgument(string, String::class.java)
+            }
+        }
+    }
 }

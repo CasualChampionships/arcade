@@ -94,6 +94,9 @@ public interface MinigamePhase<M: Minigame<M>> {
      * follow [start], it will be called by itself when a minigame
      * is reloaded.
      *
+     * This will also be invoked for all phases that preceded the
+     * current phase too.
+     *
      * This **SHOULD NOT** be used to run code
      * only meant to be run when a phase is set,
      * instead use [start].

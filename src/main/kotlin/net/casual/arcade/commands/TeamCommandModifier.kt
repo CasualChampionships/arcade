@@ -20,12 +20,14 @@ internal object TeamCommandModifier: Command {
         dispatcher.register(
             Commands.literal("team").then(
                 Commands.literal("randomize").then(
-                    Commands.argument("players", EntityArgument.players()).then(
-                        Commands.argument("size", IntegerArgumentType.integer(1)).then(
-                            Commands.argument("friendlyFire", BoolArgumentType.bool()).then(
-                                Commands.argument("collision", EnumArgument.enumeration<CollisionRule>()).executes(this::createRandomTeams)
-                            ).executes { this.createRandomTeams(it, collision = ALWAYS) }
-                        ).executes { this.createRandomTeams(it, friendlyFire = false, collision = ALWAYS) }
+                    Commands.literal("with").then(
+                        Commands.argument("players", EntityArgument.players()).then(
+                            Commands.argument("size", IntegerArgumentType.integer(1)).then(
+                                Commands.argument("friendlyFire", BoolArgumentType.bool()).then(
+                                    Commands.argument("collision", EnumArgument.enumeration<CollisionRule>()).executes(this::createRandomTeams)
+                                ).executes { this.createRandomTeams(it, collision = ALWAYS) }
+                            ).executes { this.createRandomTeams(it, friendlyFire = false, collision = ALWAYS) }
+                        )
                     )
                 ).then(
                     Commands.literal("delete").executes(this::deleteRandomTeams)

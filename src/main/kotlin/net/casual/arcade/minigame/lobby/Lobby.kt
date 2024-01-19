@@ -27,8 +27,4 @@ public interface Lobby {
         }
         return false
     }
-
-    public fun reload() {
-
-    }
 }

@@ -12,6 +12,7 @@ import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.success
+import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
@@ -38,6 +39,12 @@ internal object MinigameCommand: Command {
                     ).executes(this::selfSpectateMinigame)
                 )
             ).then(
+                Commands.literal("playing").then(
+                    Commands.argument("minigame", MinigameArgument.minigame()).then(
+                        Commands.argument("players", EntityArgument.players()).executes(this::addPlayersToPlaying)
+                    ).executes(this::selfPlayingMinigame)
+                )
+            ).then(
                 Commands.literal("admin").then(
                     Commands.argument("minigame", MinigameArgument.minigame()).then(
                         Commands.argument("players", EntityArgument.players()).executes(this::addPlayersToAdmin)
@@ -55,7 +62,9 @@ internal object MinigameCommand: Command {
                 ).executes(this::selfLeaveMinigame)
             ).then(
                 Commands.literal("info").then(
-                    Commands.argument("minigame", MinigameArgument.minigame()).executes(this::infoMinigame)
+                    Commands.argument("minigame", MinigameArgument.minigame()).then(
+                        Commands.argument("path", MinigameArgument.InfoPath.path("minigame")).executes(this::infoPathMinigame)
+                    ).executes(this::infoMinigame)
                 )
             ).then(
                 Commands.literal("settings").then(
@@ -124,19 +133,13 @@ internal object MinigameCommand: Command {
         context: CommandContext<CommandSourceStack>,
         players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
     ): Int {
-        val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val total = players.size
-        var successes = 0
-        for (player in players) {
-            if (minigame.addPlayer(player)) {
-                successes++
-            }
-        }
-        if (successes == 0) {
-            return context.source.fail("Failed to add any players to minigame")
-        }
-        context.source.success("Successfully added $successes/$total players to minigame")
-        return successes
+        return applyToPlayersInMinigame(
+            context,
+            players,
+            { player, minigame -> minigame.addPlayer(player) },
+            "Failed to add any players to minigame",
+            { "Successfully added $it players to minigame" }
+        )
     }
 
     private fun selfSpectateMinigame(context: CommandContext<CommandSourceStack>): Int {
@@ -147,20 +150,30 @@ internal object MinigameCommand: Command {
         context: CommandContext<CommandSourceStack>,
         players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
     ): Int {
-        val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val total = players.size
-        var successes = 0
-        for (player in players) {
-            minigame.addPlayer(player)
-            if (minigame.hasPlayer(player) && minigame.makeSpectator(player)) {
-                successes++
-            }
-        }
-        if (successes == 0) {
-            return context.source.fail("Failed to make players spectate")
-        }
-        context.source.success("Successfully made $successes/$total players spectate")
-        return successes
+        return applyToPlayersInMinigame(
+            context,
+            players,
+            { player, minigame -> minigame.hasPlayer(player) && minigame.makeSpectator(player) },
+            "Failed to make players spectate",
+            { "Successfully made $it players spectate" }
+        )
+    }
+
+    private fun selfPlayingMinigame(context: CommandContext<CommandSourceStack>): Int {
+        return this.addPlayersToPlaying(context, listOf(context.source.playerOrException))
+    }
+
+    private fun addPlayersToPlaying(
+        context: CommandContext<CommandSourceStack>,
+        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
+    ): Int {
+        return applyToPlayersInMinigame(
+            context,
+            players,
+            { player, minigame -> minigame.hasPlayer(player) && minigame.removeSpectator(player) },
+            "Failed to make players playing",
+            { "Successfully made $it players playing" }
+        )
     }
 
     private fun selfAdminMinigame(context: CommandContext<CommandSourceStack>): Int {
@@ -171,20 +184,13 @@ internal object MinigameCommand: Command {
         context: CommandContext<CommandSourceStack>,
         players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
     ): Int {
-        val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val total = players.size
-        var successes = 0
-        for (player in players) {
-            minigame.addPlayer(player)
-            if (minigame.hasPlayer(player) && minigame.makeAdmin(player)) {
-                successes++
-            }
-        }
-        if (successes == 0) {
-            return context.source.fail("Failed to make players admin")
-        }
-        context.source.success("Successfully made $successes/$total players admin")
-        return successes
+        return applyToPlayersInMinigame(
+            context,
+            players,
+            { player, minigame -> minigame.hasPlayer(player) && minigame.makeAdmin(player) },
+            "Failed to make players admin",
+            { "Successfully made $it players admin" }
+        )
     }
 
     private fun selfUnAdminMinigame(context: CommandContext<CommandSourceStack>): Int {
@@ -195,18 +201,34 @@ internal object MinigameCommand: Command {
         context: CommandContext<CommandSourceStack>,
         players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
     ): Int {
+        return applyToPlayersInMinigame(
+            context,
+            players,
+            { player, minigame -> minigame.hasPlayer(player) && minigame.removeAdmin(player) },
+            "Failed to remove players admin",
+            { "Successfully removed $it players admin" }
+        )
+    }
+
+    private fun applyToPlayersInMinigame(
+        context: CommandContext<CommandSourceStack>,
+        players: Collection<ServerPlayer>,
+        function: (ServerPlayer, Minigame<*>) -> Boolean,
+        fail: String,
+        success: (String) -> String
+    ): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val total = players.size
         var successes = 0
         for (player in players) {
-            if (minigame.hasPlayer(player) && minigame.removeAdmin(player)) {
+            if (function(player, minigame)) {
                 successes++
             }
         }
         if (successes == 0) {
-            return context.source.fail("Failed to remove players admin")
+            return context.source.fail(fail)
         }
-        context.source.success("Successfully removed $successes/$total players admin")
+        context.source.success(success("$successes/$total"))
         return successes
     }
 
@@ -239,6 +261,13 @@ internal object MinigameCommand: Command {
     private fun infoMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         return context.source.success(minigame.toString())
+    }
+
+    private fun infoPathMinigame(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val path = MinigameArgument.InfoPath.getPath(context, "path")
+        val info = JsonUtils.GSON.toJson(minigame.getDebugInfo().get(path))
+        return context.source.success(info)
     }
 
     private fun openMinigameSettings(context: CommandContext<CommandSourceStack>): Int {

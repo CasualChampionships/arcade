@@ -126,7 +126,6 @@ public abstract class Minigame<M: Minigame<M>>(
 
     private var initialized: Boolean
 
-
     internal val admins: MutableSet<UUID>
     internal val spectators: MutableSet<UUID>
     internal val offline: MutableSet<GameProfile>
@@ -187,6 +186,13 @@ public abstract class Minigame<M: Minigame<M>>(
      * @see MinigameStatManager
      */
     public val stats: MinigameStatManager
+
+    /**
+     * This manages a minigame's teams.
+     *
+     * @see MinigameStatManager
+     */
+    public val teams: MinigameTeamManager
 
     /**
      * This tracks minigame data which can be serialized
@@ -263,12 +269,14 @@ public abstract class Minigame<M: Minigame<M>>(
         this.uuid = UUID.randomUUID()
 
         this.scheduler = MinigameScheduler()
+        // Events must be assigned first!
         this.events = MinigameEventHandler(this.cast())
         this.ui = MinigameUIManager(this.cast())
         this.commands = MinigameCommandManager(this.cast())
         this.advancements = MinigameAdvancementManager(this.cast())
         this.recipes = MinigameRecipeManager(this.cast())
         this.data = MinigameDataTracker(this.cast())
+        this.teams = MinigameTeamManager(this.cast())
         this.stats = MinigameStatManager()
 
         this.phase = MinigamePhase.none()
@@ -549,46 +557,6 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     /**
-     * This gets all the teams that are playing in the minigame.
-     *
-     * @return The collection of player teams.
-     */
-    public fun getPlayerTeams(): Collection<PlayerTeam> {
-        val teams = HashSet<PlayerTeam>()
-        for (player in this.getAllPlayers()) {
-            teams.add(this.server.scoreboard.getPlayersTeam(player.gameProfile.name) ?: continue)
-        }
-        return teams
-    }
-
-    /**
-     * This gets all the playing players teams.
-     *
-     * @return The collecting of playing players teams.
-     */
-    public fun getPlayingPlayerTeams(): Collection<PlayerTeam> {
-        val teams = HashSet<PlayerTeam>()
-        for (player in this.getPlayingPlayers()) {
-            teams.add(this.server.scoreboard.getPlayersTeam(player.gameProfile.name) ?: continue)
-        }
-        return teams
-    }
-
-    /**
-     * This gets all the teams that are playing in the minigame,
-     * including offline teams.
-     *
-     * @return The collection of player teams.
-     */
-    public fun getAllPlayerTeams(): Collection<PlayerTeam> {
-        val teams = HashSet<PlayerTeam>()
-        for (profile in this.getAllPlayerProfiles()) {
-            teams.add(this.server.scoreboard.getPlayersTeam(profile.name) ?: continue)
-        }
-        return teams
-    }
-
-    /**
      * This gets all the levels that are part of the minigame.
      *
      * @return The collection of levels.
@@ -738,15 +706,22 @@ public abstract class Minigame<M: Minigame<M>>(
         json.addProperty("serializable", this is SavableMinigame)
         json.addProperty("uuid", this.uuid.toString())
         json.addProperty("id", this.id.toString())
+        json.addProperty("uptime", this.uptime)
         json.add("players", this.getAllPlayers().toJsonStringArray { it.scoreboardName })
         json.add("offline_players", this.offline.toJsonObject { it.name to JsonPrimitive(it.id?.toString()) })
         json.add("admins", this.getAdminPlayers().toJsonStringArray { it.scoreboardName })
         json.add("spectating", this.getSpectatingPlayers().toJsonStringArray { it.scoreboardName })
+        json.add("teams", this.teams.getAllTeams().toJsonStringArray { it.name })
+        json.add("playing_teams", this.teams.getPlayingTeams().toJsonStringArray { it.name })
+        json.add("eliminated_teams", this.teams.getEliminatedTeams().toJsonStringArray { it.name })
         json.add("levels", this.levels.toJsonStringArray { it.dimension().location().toString() })
         json.add("phases", this.phases.toJsonStringArray { it.id })
         json.addProperty("phase", this.phase.id)
+        json.addProperty("ticking", this.ticking)
         json.addProperty("paused", this.paused)
         json.add("settings", this.settings.all().toJsonObject { it.name to it.serializeValue() })
+        json.add("advancements", this.advancements.all().toJsonStringArray { it.id.toString() })
+        json.add("recipes", this.recipes.all().toJsonStringArray { it.id.toString() })
         json.add("commands", this.commands.getAllRootCommands().toJsonStringArray { it })
         this.appendAdditionalDebugInfo(json)
         return json
@@ -771,7 +746,7 @@ public abstract class Minigame<M: Minigame<M>>(
 
         this.data.start()
         // The first phase is MinigamePhase.none()
-        // This will never IOB because we always have at least 2 phases
+        // This will never IOOB because we always have at least 2 phases
         this.setPhase(this.phases[1])
     }
 
@@ -798,7 +773,7 @@ public abstract class Minigame<M: Minigame<M>>(
     protected open fun initialize() {
         this.registerEvents()
         this.events.registerHandler()
-        MinigameUtils.parseMinigameEvents(this.cast())
+        MinigameUtils.parseMinigameEvents(this)
 
         Minigames.register(this)
 
@@ -904,13 +879,10 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     private fun onPlayerAdd(event: MinigameAddPlayerEvent) {
-        val (_, player) = event
-        this.getResources().sendTo(player)
-        this.server.commands.sendCommands(player)
+        this.getResources().sendTo(event.player)
     }
 
     private fun onPlayerRemove(event: MinigameRemovePlayerEvent) {
         this.getResources().removeFrom(event.player)
-        this.server.commands.sendCommands(event.player)
     }
 }

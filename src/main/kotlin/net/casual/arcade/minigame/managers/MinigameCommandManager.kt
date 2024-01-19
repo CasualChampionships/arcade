@@ -4,7 +4,7 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.tree.CommandNode
-import net.casual.arcade.events.minigame.MinigameCloseEvent
+import net.casual.arcade.events.minigame.*
 import net.casual.arcade.events.player.PlayerCommandEvent
 import net.casual.arcade.events.player.PlayerCommandSuggestionsEvent
 import net.casual.arcade.events.player.PlayerSendCommandsEvent
@@ -23,6 +23,7 @@ import net.minecraft.commands.Commands
 import net.minecraft.network.chat.CommonComponents
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.ComponentUtils
+import net.minecraft.server.level.ServerPlayer
 import java.util.*
 
 public class MinigameCommandManager(
@@ -43,6 +44,20 @@ public class MinigameCommandManager(
         }
         this.minigame.events.register<MinigameCloseEvent> {
             this.unregisterAll()
+        }
+
+        // Resending the command tree...
+        this.minigame.events.register<MinigameAddPlayerEvent> {
+            this.resendCommandsTo(it.player)
+        }
+        this.minigame.events.register<MinigameRemovePlayerEvent> {
+            this.resendCommandsTo(it.player)
+        }
+        this.minigame.events.register<MinigameAddAdminEvent> {
+            this.resendCommandsTo(it.player)
+        }
+        this.minigame.events.register<MinigameRemoveAdminEvent> {
+            this.resendCommandsTo(it.player)
         }
     }
 
@@ -83,8 +98,12 @@ public class MinigameCommandManager(
 
     private fun resendCommands() {
         for (player in this.minigame.getAllPlayers()) {
-            this.minigame.server.commands.sendCommands(player)
+            this.resendCommandsTo(player)
         }
+    }
+
+    private fun resendCommandsTo(player: ServerPlayer) {
+        this.minigame.server.commands.sendCommands(player)
     }
 
     private fun getGlobalMinigameCommand(): CommandNode<CommandSourceStack>? {

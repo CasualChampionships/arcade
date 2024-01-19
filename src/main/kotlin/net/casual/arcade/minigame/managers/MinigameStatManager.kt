@@ -28,6 +28,7 @@ public class MinigameStatManager {
             stat.unfreeze()
         }
     }
+
     public fun <T> getOrCreateStat(player: ServerPlayer, type: StatType<T>): Stat<T> {
         return this.getOrCreateTracker(player.uuid).getOrCreateStat(type)
     }

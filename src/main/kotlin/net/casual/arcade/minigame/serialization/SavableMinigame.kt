@@ -211,7 +211,12 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         }
 
         if (setPhase) {
-            this.phase.initialize(this.cast())
+            // Ordered phases
+            for (phase in this.phases) {
+                if (phase <= this.phase) {
+                    phase.initialize(this.cast())
+                }
+            }
         } else {
             Arcade.logger.warn("Phase for minigame ${this.id} could not be reloaded, given phase id: $phaseId")
         }

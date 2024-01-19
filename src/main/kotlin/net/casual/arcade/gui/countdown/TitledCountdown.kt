@@ -67,6 +67,7 @@ public interface TitledCountdown: Countdown {
     }
 
     public companion object {
+        @JvmField
         public val DEFAULT: TitledCountdown = object: TitledCountdown { }
 
         public fun titled(title: Component): TitledCountdown {

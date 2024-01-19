@@ -69,4 +69,26 @@ public class ServerPlayerMixin {
 	private ResourceKey<Level> getLikeDimension3(ServerLevel instance) {
 		return LevelUtils.getLikeDimension(instance);
 	}
+
+	@Redirect(
+		method = "triggerDimensionChangeTriggers",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/level/ServerLevel;dimension()Lnet/minecraft/resources/ResourceKey;"
+		)
+	)
+	private ResourceKey<Level> getLikeDimension4(ServerLevel instance) {
+		return LevelUtils.getLikeDimension(instance);
+	}
+
+	@Redirect(
+		method = "triggerDimensionChangeTriggers",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/level/Level;dimension()Lnet/minecraft/resources/ResourceKey;"
+		)
+	)
+	private ResourceKey<Level> getLikeDimension4(Level instance) {
+		return LevelUtils.getLikeDimension(instance);
+	}
 }

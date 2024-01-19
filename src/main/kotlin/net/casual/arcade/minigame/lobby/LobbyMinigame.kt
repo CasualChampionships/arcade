@@ -180,8 +180,6 @@ public abstract class LobbyMinigame(
                 Commands.literal("unset").executes(this::unsetNextMinigame)
             )
         ).then(
-            Commands.literal("reload").executes(this::reloadLobby)
-        ).then(
             Commands.literal("place").executes(this::placeLobby)
         ).then(
             Commands.literal("replace").executes(this::replaceLobby)
@@ -226,11 +224,6 @@ public abstract class LobbyMinigame(
     private fun unsetNextMinigame(context: CommandContext<CommandSourceStack>): Int {
         this.next = null
         return context.source.success("Successfully unset the next minigame")
-    }
-
-    private fun reloadLobby(context: CommandContext<CommandSourceStack>): Int {
-        this.lobby.reload()
-        return context.source.success("Successfully reloaded the lobby")
     }
 
     private fun placeLobby(context: CommandContext<CommandSourceStack>): Int {
