@@ -4,6 +4,7 @@ import net.casual.arcade.events.player.PlayerChatEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.NONE
 import net.casual.arcade.utils.ComponentUtils.literal
+import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.PlayerUtils.getChatPrefix
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
@@ -28,8 +29,15 @@ public class MinigameChatManager(
     }
 
     private fun onPlayerChat(event: PlayerChatEvent) {
+        val (player, message) = event
+        if (this.minigame.settings.isChatMuted.get(player)) {
+            event.cancel()
+            player.sendSystemMessage("Currently chat is muted".literal().red())
+            return
+        }
+
         if (this.minigame.settings.isTeamChat) {
-            val team = event.player.team
+            val team = player.team
             if (team == null || this.minigame.teams.isTeamIgnored(team)) {
                 return
             }
@@ -44,8 +52,8 @@ public class MinigameChatManager(
                 }
                 return
             }
-            val prefix = Component.empty().append(team.formattedDisplayName).append(" ").append(event.player.getChatPrefix(false))
-            event.replaceMessage(event.message.decoratedContent(), prefix)
+            val prefix = Component.empty().append(team.formattedDisplayName).append(" ").append(player.getChatPrefix(false))
+            event.replaceMessage(message.decoratedContent(), prefix)
             event.addFilter { team == it.team }
         }
     }

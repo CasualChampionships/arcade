@@ -243,6 +243,17 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
         defaultOptions()
     })
 
+    @JvmField
+    public val isChatMuted: GameSetting<Boolean> = this.register(bool {
+        name = "is_chat_muted"
+        display = Items.BARRIER.named("Mute Chat").setLore(
+            "If enabled, players will not be able to talk in chat".literal()
+        )
+        value = false
+        override = isAdminOverride(minigame, false)
+        defaultOptions()
+    })
+
     /**
      * This creates a menu which can be displayed to a
      * player to directly interact with the settings.
