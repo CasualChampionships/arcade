@@ -23,6 +23,11 @@ public object BossbarUtils {
         return this
     }
 
+    public fun <T: TimerBossBar> BossBarTask<T>.withRemainingDuration(duration: MinecraftTimeDuration): BossBarTask<T> {
+        this.bar.setRemainingDuration(duration)
+        return this
+    }
+
     public fun <T: TimerBossBar> BossBarTask<T>.readData(context: TaskCreationContext): BossBarTask<T> {
         this.bar.readData(context)
         return this

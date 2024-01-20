@@ -97,6 +97,7 @@ public sealed class CancellableTask(
                     val message = "Cancellable\$Savable task failed to write on_cancel task ${cancel::class.simpleName}"
                     throw IllegalStateException(message)
                 }
+                onCancel.add(onCancelData)
             }
             data.add("on_cancel", onCancel)
             data.addProperty("is_cancelled", this.isCancelled)
