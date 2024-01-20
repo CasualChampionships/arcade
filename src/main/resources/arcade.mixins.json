@@ -27,7 +27,6 @@
     "events.MinecraftServerMixin",
     "events.NaturalSpawnerMixin",
     "events.PlayerAdvancementsMixin",
-    "events.PlayerListInvoker",
     "events.PlayerListMixin",
     "events.PlayerMixin",
     "events.RandomizbleContainerMixin",
