@@ -222,6 +222,27 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
         defaultOptions()
     })
 
+    public var isChatGlobal: Boolean by this.register(bool {
+        name = "is_chat_global"
+        display = Items.PAPER.named("Global Chat").setLore(
+            "If this is enabled then the entire server can see".literal(),
+            "chat messages from players in the minigame, and".literal(),
+            "players in the minigame can see global messages.".literal()
+        )
+        value = false
+        defaultOptions()
+    })
+
+    public var isTeamChat: Boolean by this.register(bool {
+        name = "is_team_chat"
+        display = Items.ACACIA_SIGN.named("Team Chat").setLore(
+            "If enabled then by default messages will be sent to teams.".literal(),
+            "To send messages to global players must prefix their message with !.".literal()
+        )
+        value = false
+        defaultOptions()
+    })
+
     /**
      * This creates a menu which can be displayed to a
      * player to directly interact with the settings.

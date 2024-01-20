@@ -6,23 +6,21 @@ import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
 import net.casual.arcade.scheduler.MinecraftTimeDuration
+import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ExtensionUtils.addExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtensions
+import net.casual.arcade.utils.PlayerUtils.broadcastMessageAsSystem
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.impl.Sound
-import net.minecraft.advancements.Advancement
 import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.core.Direction8
 import net.minecraft.core.particles.ParticleOptions
-import net.minecraft.network.chat.ChatType
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.OutgoingChatMessage
-import net.minecraft.network.chat.PlayerChatMessage
+import net.minecraft.network.chat.*
 import net.minecraft.network.protocol.game.*
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.Action.ADD
 import net.minecraft.server.level.ServerLevel
@@ -39,6 +37,7 @@ import net.minecraft.world.scores.PlayerTeam
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
+import java.util.function.Predicate
 
 public object PlayerUtils {
     @JvmStatic
@@ -62,8 +61,12 @@ public object PlayerUtils {
     }
 
     @JvmStatic
-    public fun broadcast(message: Component) {
-        this.players().broadcast(message)
+    @JvmOverloads
+    public fun broadcast(
+        message: Component,
+        filter: Predicate<ServerPlayer> = Predicate { true }
+    ) {
+        this.players().broadcast(message, filter)
     }
 
     @JvmStatic
@@ -72,31 +75,23 @@ public object PlayerUtils {
     }
 
     @JvmStatic
-    public fun Iterable<ServerPlayer>.broadcast(message: Component) {
+    @JvmOverloads
+    public fun Iterable<ServerPlayer>.broadcast(
+        message: Component,
+        filter: Predicate<ServerPlayer> = Predicate { true }
+    ) {
         for (player in this) {
-            player.sendSystemMessage(message)
+            if (filter.test(player)) {
+                player.sendSystemMessage(message)
+            }
         }
     }
 
     @JvmStatic
     @JvmOverloads
     public fun Iterable<ServerPlayer>.broadcastToOps(message: Component, level: Int = 2) {
-        for (player in this) {
-            if (player.hasPermissions(level)) {
-                player.sendSystemMessage(message)
-            }
-        }
+        this.broadcast(message) { it.hasPermissions(level) }
         Arcade.getServer().sendSystemMessage(message)
-    }
-
-    @JvmStatic
-    @JvmOverloads
-    public fun Iterable<ServerPlayer>.broadcastTo(message: Component, permission: String = "arcade") {
-        for (player in this) {
-            if (Permissions.check(player, permission)) {
-                player.sendSystemMessage(message)
-            }
-        }
     }
 
     @JvmStatic
@@ -305,22 +300,38 @@ public object PlayerUtils {
     }
 
     @JvmStatic
-    public fun ServerPlayer.message(message: Component) {
-        this.message(PlayerChatMessage.unsigned(this.uuid, message.string).withUnsignedContent(message))
+    @JvmOverloads
+    public fun ServerPlayer.broadcastMessageAsSystem(
+        message: Component,
+        filter: Predicate<ServerPlayer> = Predicate { true },
+        prefix: Component = this.getChatPrefix()
+    ) {
+        val decorated = Component.empty().append(prefix).append(message)
+        broadcast(decorated, filter)
     }
 
     @JvmStatic
-    public fun ServerPlayer.message(message: PlayerChatMessage) {
+    public fun ServerPlayer.getChatPrefix(): MutableComponent {
+        return "<".literal().append(this.displayName!!).append("> ")
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.broadcastUnsignedMessage(message: Component) {
+        this.broadcastUnsignedMessage(PlayerChatMessage.unsigned(this.uuid, message.string).withUnsignedContent(message))
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.broadcastUnsignedMessage(message: PlayerChatMessage) {
         this.server.playerList.broadcastChatMessage(message, this, ChatType.bind(ChatType.CHAT, this))
     }
 
     @JvmStatic
-    public fun ServerPlayer.teamMessage(message: Component): Boolean {
-        return this.teamMessage(PlayerChatMessage.unsigned(this.uuid, message.string).withUnsignedContent(message))
+    public fun ServerPlayer.broadcastUnsignedTeamMessage(message: Component): Boolean {
+        return this.broadcastUnsignedTeamMessage(PlayerChatMessage.unsigned(this.uuid, message.string).withUnsignedContent(message))
     }
 
     @JvmStatic
-    public fun ServerPlayer.teamMessage(message: PlayerChatMessage): Boolean {
+    public fun ServerPlayer.broadcastUnsignedTeamMessage(message: PlayerChatMessage): Boolean {
         val team = this.team ?: return false
 
         val teamDisplay = team.asPlayerTeam().displayName

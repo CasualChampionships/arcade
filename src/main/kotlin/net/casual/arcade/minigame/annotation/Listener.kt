@@ -4,6 +4,7 @@ import net.casual.arcade.events.core.Event
 import net.casual.arcade.minigame.MinigamePhase
 import kotlin.reflect.KClass
 
+public const val NONE: Int = 0
 public const val HAS_PLAYER: Int = 1 shl 1
 public const val IS_PLAYING: Int = 1 shl 2
 public const val IS_SPECTATOR: Int = 1 shl 3

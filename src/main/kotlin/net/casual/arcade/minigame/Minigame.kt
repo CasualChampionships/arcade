@@ -195,6 +195,13 @@ public abstract class Minigame<M: Minigame<M>>(
     public val teams: MinigameTeamManager
 
     /**
+     * This manages a minigame's chat.
+     *
+     * @see MinigameChatManager
+     */
+    public val chat: MinigameChatManager
+
+    /**
      * This tracks minigame data which can be serialized
      * and then displayed to players later.
      *
@@ -277,6 +284,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.recipes = MinigameRecipeManager(this.cast())
         this.data = MinigameDataTracker(this.cast())
         this.teams = MinigameTeamManager(this.cast())
+        this.chat = MinigameChatManager(this.cast())
         this.stats = MinigameStatManager()
 
         this.phase = MinigamePhase.none()
