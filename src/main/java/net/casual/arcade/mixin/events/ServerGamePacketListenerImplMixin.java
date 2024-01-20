@@ -40,7 +40,7 @@ public class ServerGamePacketListenerImplMixin {
 			Predicate<ServerPlayer> filter = event.getFilter();
 			Component replacement = event.getReplacementMessage();
 			if (filter != null || replacement != null) {
-				filter = filter == null ? sender::shouldFilterMessageTo : filter.and(sender::shouldFilterMessageTo);
+				filter = filter == null ? (player) -> true : filter;
 				replacement = replacement == null ? message.decoratedContent() : replacement;
 				Component decorated;
 				Component prefix = event.getMessagePrefix();
