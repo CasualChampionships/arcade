@@ -35,8 +35,8 @@ public class ServerGamePacketListenerImplMixin {
 	private boolean onBroadcastMessage(PlayerList instance, PlayerChatMessage message, ServerPlayer sender, ChatType.Bound bound) {
 		PlayerChatEvent event = new PlayerChatEvent(sender, message);
 		GlobalEventHandler.broadcast(event);
-		boolean cancelled = !event.isCancelled();
-		if (!cancelled) {
+		boolean notCancelled = !event.isCancelled();
+		if (notCancelled) {
 			Predicate<ServerPlayer> filter = event.getFilter();
 			Component replacement = event.getReplacementMessage();
 			if (filter != null || replacement != null) {
@@ -59,7 +59,7 @@ public class ServerGamePacketListenerImplMixin {
 				return false;
 			}
 		}
-		return cancelled;
+		return notCancelled;
 	}
 
 	@Inject(
