@@ -10,7 +10,6 @@ import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ExtensionUtils.addExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtensions
-import net.casual.arcade.utils.PlayerUtils.broadcastMessageAsSystem
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -311,7 +310,10 @@ public object PlayerUtils {
     }
 
     @JvmStatic
-    public fun ServerPlayer.getChatPrefix(): MutableComponent {
+    public fun ServerPlayer.getChatPrefix(team: Boolean = true): MutableComponent {
+        if (!team) {
+            return "<".literal().append(this.name).append("> ")
+        }
         return "<".literal().append(this.displayName!!).append("> ")
     }
 

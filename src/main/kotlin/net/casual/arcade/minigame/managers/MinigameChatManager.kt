@@ -5,6 +5,7 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.NONE
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.PlayerUtils.getChatPrefix
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 
 public class MinigameChatManager(
@@ -38,10 +39,12 @@ public class MinigameChatManager(
                 val decorated = content.substring(1)
                 if (decorated.isNotBlank()) {
                     event.replaceMessage(decorated.trim().literal())
+                } else {
+                    event.cancel()
                 }
                 return
             }
-            val prefix = team.formattedDisplayName.append(" ").append(event.player.getChatPrefix())
+            val prefix = Component.empty().append(team.formattedDisplayName).append(" ").append(event.player.getChatPrefix(false))
             event.replaceMessage(event.message.decoratedContent(), prefix)
             event.addFilter { team == it.team }
         }
