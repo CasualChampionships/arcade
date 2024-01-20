@@ -5,6 +5,7 @@ import net.casual.arcade.database.DatabaseCollection
 import net.casual.arcade.database.DatabaseElement
 import net.casual.arcade.database.DatabaseObject
 import net.casual.arcade.database.DatabaseWriter
+import net.casual.arcade.utils.json.JsonSerializer
 import net.minecraft.Util
 import net.minecraft.nbt.*
 import java.util.UUID
@@ -186,10 +187,6 @@ public object JsonUtils {
         return this.getWithNull(key)?.asJsonArray ?: default
     }
 
-    public fun JsonObject.arrayOrPut(key: String, putter: () -> JsonArray = ::JsonArray): JsonArray {
-        return this.arrayOrNull(key) ?: putter().also { this.add(key, it) }
-    }
-
     public fun JsonObject.obj(key: String): JsonObject {
         return this.get(key).asJsonObject
     }
@@ -202,8 +199,16 @@ public object JsonUtils {
         return this.getWithNull(key)?.asJsonObject ?: default
     }
 
-    public fun JsonObject.objOrPut(key: String, putter: () -> JsonObject = ::JsonObject): JsonObject {
-        return this.objOrNull(key) ?: putter().also { this.add(key, it) }
+    public fun <T: Any> JsonObject.any(key: String, serializer: JsonSerializer<T>): T {
+        return serializer.deserialize(this.get(key))
+    }
+
+    public fun <T: Any> JsonObject.anyOrNull(key: String, serializer: JsonSerializer<T>): T? {
+        return serializer.deserialize(this.getWithNull(key) ?: return null)
+    }
+
+    public fun <T: Any> JsonObject.anyOrPut(key: String, serializer: JsonSerializer<T>, putter: () -> T): T {
+        return this.anyOrNull(key, serializer) ?: putter().also { this[key] = serializer.serialize(it) }
     }
 
     public operator fun JsonObject.set(key: String, value: String) {

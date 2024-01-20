@@ -9,6 +9,7 @@ import net.casual.arcade.events.player.PlayerTeamJoinEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.PlayerUtils.addToTeam
 import net.casual.arcade.utils.PlayerUtils.removeFromTeam
+import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Team
@@ -57,10 +58,16 @@ public class MinigameTeamManager(
 
     public fun setAdminTeam(team: PlayerTeam) {
         this.admins = team
+        for (player in team.getOnlinePlayers()) {
+            this.minigame.makeAdmin(player)
+        }
     }
 
     public fun setSpectatorTeam(team: PlayerTeam) {
         this.spectators = team
+        for (player in team.getOnlinePlayers()) {
+            this.minigame.makeSpectator(player)
+        }
     }
 
     public fun addEliminatedTeam(team: PlayerTeam) {
@@ -81,6 +88,14 @@ public class MinigameTeamManager(
 
     public fun removeEliminatedTeam(team: PlayerTeam) {
         this.eliminated.remove(team)
+    }
+
+    public fun hasAdminTeam(): Boolean {
+        return this.admins != null
+    }
+
+    public fun hasSpectatorTeam(): Boolean {
+        return this.spectators != null
     }
 
     public fun getAdminTeam(): PlayerTeam {

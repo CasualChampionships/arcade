@@ -10,31 +10,26 @@ import net.casual.arcade.utils.JsonUtils.arrayOrNull
 import net.casual.arcade.utils.JsonUtils.boolean
 import net.casual.arcade.utils.JsonUtils.booleanOrDefault
 import net.casual.arcade.utils.JsonUtils.booleanOrNull
-import net.casual.arcade.utils.JsonUtils.booleanOrPut
 import net.casual.arcade.utils.JsonUtils.double
 import net.casual.arcade.utils.JsonUtils.doubleOrDefault
 import net.casual.arcade.utils.JsonUtils.doubleOrNull
-import net.casual.arcade.utils.JsonUtils.doubleOrPut
 import net.casual.arcade.utils.JsonUtils.float
 import net.casual.arcade.utils.JsonUtils.floatOrDefault
 import net.casual.arcade.utils.JsonUtils.floatOrNull
 import net.casual.arcade.utils.JsonUtils.int
 import net.casual.arcade.utils.JsonUtils.intOrDefault
 import net.casual.arcade.utils.JsonUtils.intOrNull
-import net.casual.arcade.utils.JsonUtils.intOrPut
 import net.casual.arcade.utils.JsonUtils.number
 import net.casual.arcade.utils.JsonUtils.numberOrDefault
 import net.casual.arcade.utils.JsonUtils.numberOrNull
-import net.casual.arcade.utils.JsonUtils.numberOrPut
 import net.casual.arcade.utils.JsonUtils.obj
 import net.casual.arcade.utils.JsonUtils.objOrDefault
 import net.casual.arcade.utils.JsonUtils.objOrNull
 import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.stringOrDefault
 import net.casual.arcade.utils.JsonUtils.stringOrNull
-import net.casual.arcade.utils.JsonUtils.stringOrPut
 import net.casual.arcade.utils.JsonUtils.uuidOrNull
-import net.casual.arcade.utils.JsonUtils.uuidOrPut
+import net.casual.arcade.utils.json.*
 import net.minecraft.Util
 import java.nio.file.Path
 import java.util.UUID
@@ -87,151 +82,77 @@ public open class CustomisableConfig(
     }
 
     public fun boolean(name: String? = null, default: Boolean = false): Configurable<Boolean> {
-        return object: Configurable<Boolean> {
-            override fun setValue(any: Any, property: KProperty<*>, value: Boolean) {
-                json.addProperty(name ?: property.name, value)
-            }
-
-            override fun getValue(any: Any, property: KProperty<*>): Boolean {
-                return json.booleanOrPut(name ?: property.name) { default }
-            }
-        }
+        return any(name, default, BooleanSerializer)
     }
 
     public fun string(name: String? = null, default: String = ""): Configurable<String> {
-        return object: Configurable<String> {
-            override fun setValue(any: Any, property: KProperty<*>, value: String) {
-                json.addProperty(name ?: property.name, value)
-            }
-
-            override fun getValue(any: Any, property: KProperty<*>): String {
-                return json.stringOrPut(name ?: property.name) { default }
-            }
-        }
-    }
-
-    public fun number(name: String? = null, default: Number = 0): Configurable<Number> {
-        return object: Configurable<Number> {
-            override fun setValue(any: Any, property: KProperty<*>, value: Number) {
-                json.addProperty(name ?: property.name, value)
-            }
-
-            override fun getValue(any: Any, property: KProperty<*>): Number {
-                return json.numberOrPut(name ?: property.name) { default }
-            }
-        }
+        return any(name, default, StringSerializer)
     }
 
     public fun int(name: String? = null, default: Int = 0): Configurable<Int> {
-        return object: Configurable<Int> {
-            override fun setValue(any: Any, property: KProperty<*>, value: Int) {
-                json.addProperty(name ?: property.name, value)
-            }
-
-            override fun getValue(any: Any, property: KProperty<*>): Int {
-                return json.intOrPut(name ?: property.name) { default }
-            }
-        }
+        return any(name, default, IntSerializer)
     }
 
     public fun double(name: String? = null, default: Double = 0.0): Configurable<Double> {
-        return object: Configurable<Double> {
-            override fun setValue(any: Any, property: KProperty<*>, value: Double) {
-                json.addProperty(name ?: property.name, value)
-            }
-
-            override fun getValue(any: Any, property: KProperty<*>): Double {
-                return json.doubleOrPut(name ?: property.name) { default }
-            }
-        }
+        return any(name, default, DoubleSerializer)
     }
 
     public fun uuid(name: String? = null, default: UUID = Util.NIL_UUID): Configurable<UUID> {
-        return object: Configurable<UUID> {
-            override fun setValue(any: Any, property: KProperty<*>, value: UUID) {
-                json.addProperty(name ?: property.name, value.toString())
+        return any(name, default, UUIDSerializer)
+    }
+
+    public fun <T: Any> any(name: String? = null, default: T, serializer: JsonSerializer<T>): Configurable<T> {
+        return object: Configurable<T> {
+            override fun setValue(any: Any, property: KProperty<*>, value: T) {
+                json.add(name ?: property.name, serializer.serialize(value))
             }
 
-            override fun getValue(any: Any, property: KProperty<*>): UUID {
-                return json.uuidOrPut(name ?: property.name) { default }
+            override fun getValue(any: Any, property: KProperty<*>): T {
+                val key = name ?: property.name
+                val element = json.get(key)
+                if (element == null) {
+                    json.add(key, serializer.serialize(default))
+                    return default
+                }
+                return serializer.deserialize(element)
             }
         }
     }
 
     public fun booleanOrNull(name: String? = null): Configurable<Boolean?> {
-        return object: Configurable<Boolean?> {
-            override fun setValue(any: Any, property: KProperty<*>, value: Boolean?) {
-                json.addProperty(name ?: property.name, value)
-            }
-
-            override fun getValue(any: Any, property: KProperty<*>): Boolean? {
-                val key = name ?: property.name
-                return json.booleanOrNull(key) ?: json.add(key, null).let { null }
-            }
-        }
+        return anyOrNull(name, BooleanSerializer)
     }
 
     public fun stringOrNull(name: String? = null): Configurable<String?> {
-        return object: Configurable<String?> {
-            override fun setValue(any: Any, property: KProperty<*>, value: String?) {
-                json.addProperty(name ?: property.name, value)
-            }
-
-            override fun getValue(any: Any, property: KProperty<*>): String? {
-                val key = name ?: property.name
-                return json.stringOrNull(key) ?: json.add(key, null).let { null }
-            }
-        }
-    }
-
-    public fun numberOrNull(name: String? = null): Configurable<Number?> {
-        return object: Configurable<Number?> {
-            override fun setValue(any: Any, property: KProperty<*>, value: Number?) {
-                json.addProperty(name ?: property.name, value)
-            }
-
-            override fun getValue(any: Any, property: KProperty<*>): Number? {
-                val key = name ?: property.name
-                return json.numberOrNull(key) ?: json.add(key, null).let { null }
-            }
-        }
+        return anyOrNull(name, StringSerializer)
     }
 
     public fun intOrNull(name: String? = null): Configurable<Int?> {
-        return object: Configurable<Int?> {
-            override fun setValue(any: Any, property: KProperty<*>, value: Int?) {
-                json.addProperty(name ?: property.name, value)
-            }
-
-            override fun getValue(any: Any, property: KProperty<*>): Int? {
-                val key = name ?: property.name
-                return json.intOrNull(key) ?: json.add(key, null).let { null }
-            }
-        }
+        return anyOrNull(name, IntSerializer)
     }
 
     public fun doubleOrNull(name: String? = null): Configurable<Double?> {
-        return object: Configurable<Double?> {
-            override fun setValue(any: Any, property: KProperty<*>, value: Double?) {
-                json.addProperty(name ?: property.name, value)
-            }
-
-            override fun getValue(any: Any, property: KProperty<*>): Double? {
-                val key = name ?: property.name
-                return json.doubleOrNull(key) ?: json.add(key, null).let { null }
-            }
-        }
+        return anyOrNull(name, DoubleSerializer)
     }
 
     public fun uuidOrNull(name: String? = null): Configurable<UUID?> {
-        return object: Configurable<UUID?> {
-            override fun setValue(any: Any, property: KProperty<*>, value: UUID?) {
-                json.addProperty(name ?: property.name, value?.toString())
+        return anyOrNull(name, UUIDSerializer)
+    }
+
+    public fun <T: Any> anyOrNull(name: String? = null, serializer: JsonSerializer<T>): Configurable<T?> {
+        return object: Configurable<T?> {
+            override fun setValue(any: Any, property: KProperty<*>, value: T?) {
+                json.add(name ?: property.name, if (value == null) null else serializer.serialize(value))
             }
 
-            override fun getValue(any: Any, property: KProperty<*>): UUID? {
+            override fun getValue(any: Any, property: KProperty<*>): T? {
                 val key = name ?: property.name
-                return json.uuidOrNull(key) ?: json.add(key, null).let { null }
+                val element = json.get(key)
+                if (element == null) {
+                    json.add(key, null)
+                    return null
+                }
+                return serializer.deserialize(element)
             }
         }
     }

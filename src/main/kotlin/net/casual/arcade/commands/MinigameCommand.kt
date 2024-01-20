@@ -17,6 +17,7 @@ import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.commands.arguments.EntityArgument
+import net.minecraft.commands.arguments.TeamArgument
 import net.minecraft.server.level.ServerPlayer
 
 internal object MinigameCommand: Command {
@@ -31,6 +32,20 @@ internal object MinigameCommand: Command {
                     Commands.argument("minigame", MinigameArgument.minigame()).then(
                         Commands.argument("players", EntityArgument.players()).executes(this::addPlayersToMinigame)
                     ).executes(this::selfJoinMinigame)
+                )
+            ).then(
+                Commands.literal("team").then(
+                    Commands.argument("minigame", MinigameArgument.minigame()).then(
+                        Commands.argument("team", TeamArgument.team()).then(
+                            Commands.literal("admin").executes(this::makeTeamAdmin)
+                        ).then(
+                            Commands.literal("spectator").executes(this::makeTeamSpectator)
+                        ).then(
+                            Commands.literal("eliminated").executes(this::setTeamEliminated)
+                        ).then(
+                            Commands.literal("playing").executes(this::setTeamPlaying)
+                        )
+                    )
                 )
             ).then(
                 Commands.literal("spectate").then(
@@ -127,6 +142,34 @@ internal object MinigameCommand: Command {
 
     private fun selfJoinMinigame(context: CommandContext<CommandSourceStack>): Int {
         return this.addPlayersToMinigame(context, listOf(context.source.playerOrException))
+    }
+
+    private fun makeTeamAdmin(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val team = TeamArgument.getTeam(context, "team")
+        minigame.teams.setAdminTeam(team)
+        return context.source.success("Successfully set ${team.name} to be the admin team")
+    }
+
+    private fun makeTeamSpectator(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val team = TeamArgument.getTeam(context, "team")
+        minigame.teams.setSpectatorTeam(team)
+        return context.source.success("Successfully set ${team.name} to be the spectator team")
+    }
+
+    private fun setTeamEliminated(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val team = TeamArgument.getTeam(context, "team")
+        minigame.teams.addEliminatedTeam(team)
+        return context.source.success("Successfully set ${team.name} to be eliminated")
+    }
+
+    private fun setTeamPlaying(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val team = TeamArgument.getTeam(context, "team")
+        minigame.teams.removeEliminatedTeam(team)
+        return context.source.success("Successfully set ${team.name} to be playing")
     }
 
     private fun addPlayersToMinigame(

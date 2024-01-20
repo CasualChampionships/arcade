@@ -99,7 +99,7 @@ public abstract class LobbyMinigame(
     }
 
     public open fun getTeamsToReady(): Collection<PlayerTeam> {
-        return this.getPlayerTeams()
+        return this.teams.getPlayingTeams()
     }
 
     public open fun getPlayersToReady(): Collection<ServerPlayer> {
@@ -132,6 +132,13 @@ public abstract class LobbyMinigame(
             Arcade.logger.warn("Failed to move to next minigame ${next.id}, it was closed before starting!")
             this.next = null
             return
+        }
+
+        if (this.teams.hasSpectatorTeam()) {
+            next.teams.setSpectatorTeam(this.teams.getSpectatorTeam())
+        }
+        if (this.teams.hasAdminTeam()) {
+            next.teams.setAdminTeam(this.teams.getAdminTeam())
         }
 
         for (player in this.getAllPlayers()) {

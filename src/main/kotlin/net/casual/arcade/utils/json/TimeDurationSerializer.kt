@@ -13,4 +13,8 @@ public object TimeDurationSerializer: JsonSerializer<MinecraftTimeDuration> {
     override fun deserialize(json: JsonElement): MinecraftTimeDuration {
         return json.asInt.Ticks
     }
+
+    override fun type(): String {
+        return "ticks"
+    }
 }
