@@ -860,11 +860,6 @@ public abstract class Minigame<M: Minigame<M>>(
     private fun onPlayerJoin(event: PlayerJoinEvent) {
         val (player) = event
         this.stats.getOrCreateStat(player, ArcadeStats.RELOGS).increment()
-
-        val advancements = this.data.getAdvancements(player)
-        for (advancement in advancements) {
-            player.grantAdvancementSilently(advancement)
-        }
     }
 
     private fun onPlayerDeath(event: PlayerDeathEvent) {
@@ -894,18 +889,23 @@ public abstract class Minigame<M: Minigame<M>>(
             this.offline.add(player.gameProfile)
 
             this.data.updatePlayer(player)
-
-            for (advancement in this.advancements.all()) {
-                player.revokeAdvancement(advancement)
-            }
         }
     }
 
     private fun onPlayerAdd(event: MinigameAddPlayerEvent) {
         this.getResources().sendTo(event.player)
+
+        val advancements = this.data.getAdvancements(event.player)
+        for (advancement in advancements) {
+            event.player.grantAdvancementSilently(advancement)
+        }
     }
 
     private fun onPlayerRemove(event: MinigameRemovePlayerEvent) {
         this.getResources().removeFrom(event.player)
+
+        for (advancement in this.advancements.all()) {
+            event.player.revokeAdvancement(advancement)
+        }
     }
 }
