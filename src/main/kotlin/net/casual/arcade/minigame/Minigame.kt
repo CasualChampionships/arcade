@@ -37,6 +37,7 @@ import net.casual.arcade.utils.PlayerUtils
 import net.casual.arcade.utils.PlayerUtils.getKillCreditWith
 import net.casual.arcade.utils.PlayerUtils.grantAdvancementSilently
 import net.casual.arcade.utils.PlayerUtils.hasAdvancement
+import net.casual.arcade.utils.PlayerUtils.revokeAdvancement
 import net.casual.arcade.utils.StatUtils.increment
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.resources.ResourceLocation
@@ -887,10 +888,16 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     private fun onPlayerLeave(event: PlayerLeaveEvent) {
-        if (this.connections.remove(event.player.connection)) {
-            this.offline.add(event.player.gameProfile)
+        val (player) = event
 
-            this.data.updatePlayer(event.player)
+        if (this.connections.remove(player.connection)) {
+            this.offline.add(player.gameProfile)
+
+            this.data.updatePlayer(player)
+
+            for (advancement in this.advancements.all()) {
+                player.revokeAdvancement(advancement)
+            }
         }
     }
 
