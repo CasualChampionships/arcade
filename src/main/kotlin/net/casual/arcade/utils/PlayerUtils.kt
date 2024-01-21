@@ -210,7 +210,7 @@ public object PlayerUtils {
                 progress.grantProgress(string)
             }
             accessor.progressChanged.add(advancement)
-            accessor.markForVisibilityUpdate(advancement)
+            accessor.updateVisibility(advancement)
         }
     }
 

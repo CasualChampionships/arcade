@@ -14,5 +14,5 @@ public interface PlayerAdvancementsAccessor {
 	Set<AdvancementHolder> getProgressChanged();
 
 	@Invoker("markForVisibilityUpdate")
-	void markForVisibilityUpdate(AdvancementHolder advancement);
+	void updateVisibility(AdvancementHolder advancement);
 }
