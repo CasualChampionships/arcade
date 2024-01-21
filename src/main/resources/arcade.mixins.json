@@ -6,6 +6,7 @@
   "mixins": [
     "advancements.AdvancementTreeMixin",
     "advancements.PlayerAdvancementMixin",
+    "advancements.PlayerAdvancementsAccessor",
     "advancements.ServerAdvancementManagerMixin",
     "bugfixes.GameRuleCommandMixin",
     "bugfixes.ServerPlayerMixin",

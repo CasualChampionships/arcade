@@ -35,6 +35,8 @@ import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.PlayerUtils
 import net.casual.arcade.utils.PlayerUtils.getKillCreditWith
+import net.casual.arcade.utils.PlayerUtils.grantAdvancementSilently
+import net.casual.arcade.utils.PlayerUtils.hasAdvancement
 import net.casual.arcade.utils.StatUtils.increment
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.resources.ResourceLocation
@@ -855,7 +857,13 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     private fun onPlayerJoin(event: PlayerJoinEvent) {
-        this.stats.getOrCreateStat(event.player, ArcadeStats.RELOGS).increment()
+        val (player) = event
+        this.stats.getOrCreateStat(player, ArcadeStats.RELOGS).increment()
+
+        val advancements = this.data.getAdvancements(player)
+        for (advancement in advancements) {
+            player.grantAdvancementSilently(advancement)
+        }
     }
 
     private fun onPlayerDeath(event: PlayerDeathEvent) {

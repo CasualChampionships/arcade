@@ -6,10 +6,16 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.long
 import net.casual.arcade.utils.JsonUtils.objects
+import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.uuid
+import net.casual.arcade.utils.PlayerUtils.grantAdvancement
+import net.casual.arcade.utils.PlayerUtils.grantAdvancementSilently
+import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.jvm.optionals.getOrNull
 
 public class MinigameDataTracker(
@@ -46,6 +52,16 @@ public class MinigameDataTracker(
         json.add("advancements", array)
 
         this.players[player.uuid] = json
+    }
+
+    public fun getAdvancements(player: ServerPlayer): List<AdvancementHolder> {
+        val json = this.players[player.uuid] ?: return listOf()
+        val list = ArrayList<AdvancementHolder>()
+        for (data in json.array("advancements").objects()) {
+            val id = ResourceLocation(data.string("id"))
+            list.add(this.minigame.advancements.get(id) ?: continue)
+        }
+        return list
     }
 
     public fun toJson(): JsonObject {

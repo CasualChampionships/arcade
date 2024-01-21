@@ -5,6 +5,7 @@ import me.lucko.fabric.api.permissions.v0.Permissions
 import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
+import net.casual.arcade.mixin.advancements.PlayerAdvancementsAccessor
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ExtensionUtils.addExtension
@@ -197,6 +198,19 @@ public object PlayerUtils {
             for (string in progress.remainingCriteria) {
                 this.advancements.award(advancement, string)
             }
+        }
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.grantAdvancementSilently(advancement: AdvancementHolder) {
+        val progress = this.advancements.getOrStartProgress(advancement)
+        val accessor = this.advancements as PlayerAdvancementsAccessor
+        if (!progress.isDone) {
+            for (string in progress.remainingCriteria) {
+                progress.grantProgress(string)
+            }
+            accessor.progressChanged.add(advancement)
+            accessor.markForVisibilityUpdate(advancement)
         }
     }
 

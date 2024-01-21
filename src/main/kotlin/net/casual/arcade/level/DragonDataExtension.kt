@@ -38,9 +38,6 @@ internal class DragonDataExtension(
     }
 
     override fun deserialize(element: Tag) {
-        if (element == EndTag.INSTANCE) {
-            return
-        }
         this.data = Dynamic(NbtOps.INSTANCE, element)
             .read(EndDragonFight.Data.CODEC)
             .result()
