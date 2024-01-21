@@ -9,6 +9,7 @@ import net.casual.arcade.events.player.PlayerCommandEvent
 import net.casual.arcade.events.player.PlayerCommandSuggestionsEvent
 import net.casual.arcade.events.player.PlayerSendCommandsEvent
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.annotation.HAS_PLAYER
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.ComponentUtils.command
 import net.casual.arcade.utils.ComponentUtils.grey
@@ -33,13 +34,13 @@ public class MinigameCommandManager(
     private val registered = LinkedList<String>()
 
     init {
-        this.minigame.events.register<PlayerSendCommandsEvent> {
+        this.minigame.events.register<PlayerSendCommandsEvent>(1_000, HAS_PLAYER) {
             it.addCustomCommandNode(this.dispatcher.root)
         }
-        this.minigame.events.register<PlayerCommandEvent> {
+        this.minigame.events.register<PlayerCommandEvent>(1_000, HAS_PLAYER) {
             this.onCommand(it)
         }
-        this.minigame.events.register<PlayerCommandSuggestionsEvent> {
+        this.minigame.events.register<PlayerCommandSuggestionsEvent>(1_000, HAS_PLAYER) {
             this.onCommandSuggestions(it)
         }
         this.minigame.events.register<MinigameCloseEvent> {
@@ -69,7 +70,7 @@ public class MinigameCommandManager(
         global.addChild(
             Commands.literal(this.minigame.uuid.toString()).then(literal).build()
         )
-        this.resendCommands()
+        this.resendGlobalCommands()
     }
 
     public fun unregister(name: String) {
@@ -77,7 +78,7 @@ public class MinigameCommandManager(
             (this.dispatcher as DeletableCommand).delete(name)
             val command = this.getGlobalMinigameCommand()?.getChild(this.minigame.uuid.toString()) ?: return
             (command as DeletableCommand).delete(name)
-            this.resendCommands()
+            this.resendGlobalCommands()
         }
     }
 
@@ -89,7 +90,7 @@ public class MinigameCommandManager(
             (command as DeletableCommand).delete(name)
         }
         this.registered.clear()
-        this.resendCommands()
+        this.resendGlobalCommands()
     }
 
     public fun getAllRootCommands(): Collection<String> {
@@ -98,6 +99,12 @@ public class MinigameCommandManager(
 
     private fun resendCommands() {
         for (player in this.minigame.getAllPlayers()) {
+            this.resendCommandsTo(player)
+        }
+    }
+
+    private fun resendGlobalCommands() {
+        for (player in this.minigame.server.playerList.players) {
             this.resendCommandsTo(player)
         }
     }
