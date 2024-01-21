@@ -26,11 +26,11 @@ internal class DragonDataExtension(
         return "${Arcade.MOD_ID}_dragon_data_extension"
     }
 
-    override fun serialize(): Tag {
+    override fun serialize(): Tag? {
         val fight = this.level.dragonFight
         // We let vanilla handle the default end dimension.
         if (fight == null || this.level.dimension() == Level.END) {
-            return EndTag.INSTANCE
+            return null
         }
 
         val result = EndDragonFight.Data.CODEC.encodeStart(NbtOps.INSTANCE, fight.saveData())

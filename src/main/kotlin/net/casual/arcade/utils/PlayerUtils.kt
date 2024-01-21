@@ -307,14 +307,17 @@ public object PlayerUtils {
     ) {
         val decorated = Component.empty().append(prefix).append(message)
         broadcast(decorated, filter)
+        this.server.sendSystemMessage(decorated)
     }
 
     @JvmStatic
-    public fun ServerPlayer.getChatPrefix(team: Boolean = true): MutableComponent {
-        if (!team) {
+    public fun ServerPlayer.getChatPrefix(withTeam: Boolean = true): MutableComponent {
+        val team = this.team
+        if (!withTeam || team == null) {
             return "<".literal().append(this.name).append("> ")
         }
-        return "<".literal().append(this.displayName!!).append("> ")
+        val name = Component.empty().append(team.playerPrefix).append(this.name).append(team.playerSuffix)
+        return "<".literal().append(name).append("> ")
     }
 
     @JvmStatic

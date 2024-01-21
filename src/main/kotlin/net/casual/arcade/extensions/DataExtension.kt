@@ -66,7 +66,7 @@ public interface DataExtension: Extension {
      * @return The serialized data.
      */
     @OverrideOnly
-    public fun serialize(): Tag
+    public fun serialize(): Tag?
 
     /**
      * This method deserializes any data for your extension.

@@ -22,7 +22,10 @@ public object ExtensionUtils {
     public fun ExtensionHolder.serialize(tag: CompoundTag) {
         for (extension in this.getExtensions()) {
             if (extension is DataExtension) {
-                tag.put(extension.getName(), extension.serialize())
+                val serialized = extension.serialize()
+                if (serialized != null) {
+                    tag.put(extension.getName(), serialized)
+                }
             }
         }
     }
