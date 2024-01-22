@@ -46,13 +46,16 @@ public class MinigameChatManager(
             if (content.startsWith("!")) {
                 val decorated = content.substring(1)
                 if (decorated.isNotBlank()) {
-                    event.replaceMessage(decorated.trim().literal())
+                    event.replaceMessage(decorated.trim().literal(), player.getChatPrefix())
                 } else {
                     event.cancel()
                 }
                 return
             }
-            val prefix = Component.empty().append(team.formattedDisplayName).append(" ").append(player.getChatPrefix(false))
+            val prefix = Component.empty()
+                .append(team.formattedDisplayName)
+                .append(" ")
+                .append(player.getChatPrefix(false))
             event.replaceMessage(message.decoratedContent(), prefix)
             event.addFilter { team == it.team }
         }
