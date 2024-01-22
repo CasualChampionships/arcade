@@ -27,7 +27,7 @@ public data class Location(
         }
 
         public fun of(x: Double, y: Double, z: Double, yaw: Float = 0.0F, pitch: Float = 0.0F, level: ServerLevel): Location {
-            return Location(level, Vec3(x, y, z), Vec2(yaw, pitch))
+            return Location(level, Vec3(x, y, z), Vec2(pitch, yaw))
         }
     }
 }
