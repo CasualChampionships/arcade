@@ -193,6 +193,8 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         }
         generated.clear()
 
+        this.teams.deserialize(json.objOrDefault("teams"), this.server.scoreboard)
+
         for (player in json.arrayOrDefault("players").objects()) {
             this.offline.add(GameProfile(player.uuidOrNull("uuid"), player.stringOrNull("name")))
         }
@@ -235,6 +237,8 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         val tasks = this.writeScheduledTasks(this.scheduler.minigame)
         val phaseTasks = this.writeScheduledTasks(this.scheduler.phased)
 
+        val teams = this.teams.serialize()
+
         val players = JsonArray()
         for (player in this.getAllPlayerProfiles()) {
             val data = JsonObject()
@@ -263,6 +267,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
 
         json.add("tasks", tasks)
         json.add("phase_tasks", phaseTasks)
+        json.add("teams", teams)
         json.add("players", players)
         json.add("spectators", spectators)
         json.add("admins", admins)

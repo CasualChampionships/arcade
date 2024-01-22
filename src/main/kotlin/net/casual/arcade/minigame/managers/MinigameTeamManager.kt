@@ -1,5 +1,6 @@
 package net.casual.arcade.minigame.managers
 
+import com.google.gson.JsonObject
 import net.casual.arcade.Arcade
 import net.casual.arcade.events.minigame.MinigameAddAdminEvent
 import net.casual.arcade.events.minigame.MinigameAddSpectatorEvent
@@ -7,11 +8,14 @@ import net.casual.arcade.events.minigame.MinigameRemoveAdminEvent
 import net.casual.arcade.events.minigame.MinigameRemoveSpectatorEvent
 import net.casual.arcade.events.player.PlayerTeamJoinEvent
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.utils.JsonUtils.string
+import net.casual.arcade.utils.JsonUtils.stringOrNull
 import net.casual.arcade.utils.PlayerUtils.addToTeam
 import net.casual.arcade.utils.PlayerUtils.removeFromTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
+import net.minecraft.world.scores.Scoreboard
 import net.minecraft.world.scores.Team
 import java.lang.IllegalStateException
 import kotlin.collections.HashSet
@@ -37,9 +41,9 @@ public class MinigameTeamManager(
             }
         }
         this.minigame.events.register<MinigameAddAdminEvent> { (_, player) ->
-            val spectators = this.spectators
-            if (spectators != null && (player.team != null || player.team == spectators)) {
-                player.addToTeam(spectators)
+            val admins = this.admins
+            if (admins != null && (player.team == null || player.team == this.spectators)) {
+                player.addToTeam(admins)
             }
         }
         this.minigame.events.register<MinigameRemoveAdminEvent> { (_, player) ->
@@ -166,6 +170,24 @@ public class MinigameTeamManager(
         }
         this.admins?.nameTagVisibility = Team.Visibility.ALWAYS
         this.spectators?.nameTagVisibility = Team.Visibility.ALWAYS
+    }
+
+    internal fun serialize(): JsonObject {
+        val teams = JsonObject()
+        teams.addProperty("admins", this.admins?.name)
+        teams.addProperty("spectators", this.spectators?.name)
+        return teams
+    }
+
+    internal fun deserialize(teams: JsonObject, scoreboard: Scoreboard) {
+        val admins = teams.stringOrNull("admins")
+        if (admins != null) {
+            this.admins = scoreboard.getPlayerTeam(admins)
+        }
+        val spectators = teams.stringOrNull("spectators")
+        if (spectators != null) {
+            this.spectators = scoreboard.getPlayerTeam(spectators)
+        }
     }
 
     private fun getPlayerTeamsFor(players: Collection<ServerPlayer>): HashSet<PlayerTeam> {
