@@ -30,10 +30,7 @@ public class MinigameTeamManager(
 
     init {
         this.minigame.events.register<MinigameAddSpectatorEvent> { (_, player) ->
-            val spectators = this.spectators
-            if (player.team != null && spectators != null) {
-                player.addToTeam(spectators)
-            }
+            this.addToSpectatorTeam(player)
         }
         this.minigame.events.register<MinigameRemoveSpectatorEvent> { (_, player) ->
             if (player.team != null && player.team == this.spectators) {
@@ -41,10 +38,7 @@ public class MinigameTeamManager(
             }
         }
         this.minigame.events.register<MinigameAddAdminEvent> { (_, player) ->
-            val admins = this.admins
-            if (admins != null && (player.team == null || player.team == this.spectators)) {
-                player.addToTeam(admins)
-            }
+            this.addToAdminTeam(player)
         }
         this.minigame.events.register<MinigameRemoveAdminEvent> { (_, player) ->
             if (player.team != null && player.team == this.admins) {
@@ -65,12 +59,18 @@ public class MinigameTeamManager(
         for (player in team.getOnlinePlayers()) {
             this.minigame.makeAdmin(player)
         }
+        for (admin in this.minigame.getAdminPlayers()) {
+            this.addToAdminTeam(admin)
+        }
     }
 
     public fun setSpectatorTeam(team: PlayerTeam) {
         this.spectators = team
         for (player in team.getOnlinePlayers()) {
             this.minigame.makeSpectator(player)
+        }
+        for (spectator in this.minigame.getSpectatingPlayers()) {
+            this.addToSpectatorTeam(spectator)
         }
     }
 
@@ -170,6 +170,20 @@ public class MinigameTeamManager(
         }
         this.admins?.nameTagVisibility = Team.Visibility.ALWAYS
         this.spectators?.nameTagVisibility = Team.Visibility.ALWAYS
+    }
+
+    internal fun addToSpectatorTeam(player: ServerPlayer) {
+        val spectators = this.spectators
+        if (player.team == null && spectators != null) {
+            player.addToTeam(spectators)
+        }
+    }
+
+    internal fun addToAdminTeam(player: ServerPlayer) {
+        val admins = this.admins
+        if (admins != null && (player.team == null || player.team == this.spectators)) {
+            player.addToTeam(admins)
+        }
     }
 
     internal fun serialize(): JsonObject {
