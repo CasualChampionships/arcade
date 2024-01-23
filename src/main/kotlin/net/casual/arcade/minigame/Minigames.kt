@@ -111,7 +111,7 @@ public object Minigames {
 
     internal fun unregister(minigame: Minigame<*>) {
         this.ALL.remove(minigame.uuid)
-        this.BY_ID[minigame.id]?.remove(minigame)
+        this.BY_ID[minigame.id]?.removeIf { it.uuid == minigame.uuid }
     }
 
     internal fun registerEvents() {
