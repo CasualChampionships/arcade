@@ -373,6 +373,7 @@ internal object MinigameCommand: Command {
     private fun createMinigame(context: CommandContext<CommandSourceStack>): Int {
         val factory = MinigameArgument.Factory.getFactory(context, "factory")
         val minigame = factory.create(MinigameCreationContext(context.source.server))
+        minigame.tryInitialize()
         return context.source.success("Successfully created minigame ${minigame.id} with uuid ${minigame.uuid}")
     }
 
