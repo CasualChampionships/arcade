@@ -39,7 +39,7 @@ public open class DisplayableSettings {
      *
      * @param settings The settings to copy from.
      */
-    public fun <T: Any> copyFrom(settings: DisplayableSettings) {
+    public fun copyFrom(settings: DisplayableSettings) {
         for (setting in settings.displays.values) {
             this.register(setting)
         }
