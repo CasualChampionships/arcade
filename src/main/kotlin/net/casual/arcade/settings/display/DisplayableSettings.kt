@@ -34,6 +34,18 @@ public open class DisplayableSettings {
     }
 
     /**
+     * This copies all the settings from another instance
+     * of [DisplayableSettings] and registers them here.
+     *
+     * @param settings The settings to copy from.
+     */
+    public fun <T: Any> copyFrom(settings: DisplayableSettings) {
+        for (setting in settings.displays.values) {
+            this.register(setting)
+        }
+    }
+
+    /**
      * This gets all the registered [GameSetting]s.
      *
      * @return A collection of all the settings.
@@ -60,6 +72,17 @@ public open class DisplayableSettings {
      */
     public open fun menu(): MenuProvider {
         return ScreenUtils.createSettingsMenu(this)
+    }
+
+    /**
+     * This creates a menu which can be displayed to a
+     * player to view the settings, without having the
+     * ability to modify any of the settings.
+     *
+     * @return The menu provider.
+     */
+    public open fun unmodifiableMenu(): MenuProvider {
+        return ScreenUtils.createSettingsMenu(this, modifiable = { false })
     }
 
     public fun serialize(): JsonArray {

@@ -39,40 +39,41 @@ public class SelectionScreen internal constructor(
     private val tickers: List<ItemStackTicker>,
     player: Player,
     syncId: Int,
-    private val parent: MenuProvider? = null,
+    private val parent: MenuProvider?,
+    private val style: SelectionScreenStyle,
     private val page: Int,
     private val previous: ItemStack,
     private val back: ItemStack,
     private val next: ItemStack,
     private val filler: ItemStack
 ): ArcadeGenericScreen(player, syncId, 6) {
-    private val lastSelectionSlot: Int
     private val hasNextPage: Boolean
 
     init {
         val inventory = this.getContainer()
-        val size = inventory.containerSize
-        val selectionSize = size - 9
+        val slots = this.style.getSlots()
+        val count = slots.size
 
         val paged = this.selections.stream()
-            .skip((selectionSize * this.page).toLong())
-            .limit(selectionSize.toLong())
+            .skip((count * this.page).toLong())
+            .limit(count.toLong())
             .toList()
 
-        this.hasNextPage = this.selections.size > selectionSize * (this.page + 1)
+        this.hasNextPage = this.selections.size > count * (this.page + 1)
 
-        var slot = 0
-        for (selection in paged) {
-            inventory.setItem(slot++, selection.display)
+        for ((i, slot) in slots.withIndex()) {
+            inventory.setItem(slot, paged[i].display)
         }
-        this.lastSelectionSlot = 0.coerceAtLeast(slot - 1)
 
-        inventory.setItem(size - 1, this.next)
-        for (i in  size - 2 downTo size - 8) {
-            inventory.setItem(i, this.filler)
+        inventory.setItem(45, this.previous)
+        inventory.setItem(49, this.back)
+        inventory.setItem(53, this.next)
+
+        for (i in 0 until inventory.containerSize) {
+            if (!slots.contains(i) && inventory.getItem(i).isEmpty) {
+                inventory.setItem(i, this.filler)
+            }
         }
-        inventory.setItem(size - 9, this.previous)
-        inventory.setItem(size - 5, this.back)
     }
 
     /**
@@ -129,9 +130,11 @@ public class SelectionScreen internal constructor(
      */
     override fun onTick(server: MinecraftServer) {
         val container = this.getContainer()
-        for (slot in 0..this.lastSelectionSlot) {
+        for (slot in this.style.getSlots()) {
             val stack = container.getItem(slot)
-            this.tickers.forEach { ticker -> ticker.tick(stack) }
+            if (!stack.isEmpty) {
+                this.tickers.forEach { ticker -> ticker.tick(stack) }
+            }
         }
     }
 
@@ -147,6 +150,7 @@ public class SelectionScreen internal constructor(
                 previous.selections,
                 previous.tickers,
                 previous.parent,
+                previous.style,
                 page,
                 previous.previous,
                 previous.back,
@@ -160,6 +164,7 @@ public class SelectionScreen internal constructor(
             selections: List<Selection>,
             tickers: List<ItemStackTicker>,
             parent: MenuProvider?,
+            style: SelectionScreenStyle,
             page: Int,
             previous: ItemStack,
             back: ItemStack,
@@ -169,7 +174,7 @@ public class SelectionScreen internal constructor(
             if (page >= 0) {
                 return SimpleMenuProvider(
                     { syncId, _, player ->
-                        SelectionScreen(title, selections, tickers, player, syncId, parent, page, previous, back, next, filler)
+                        SelectionScreen(title, selections, tickers, player, syncId, parent, style, page, previous, back, next, filler)
                     },
                     title
                 )

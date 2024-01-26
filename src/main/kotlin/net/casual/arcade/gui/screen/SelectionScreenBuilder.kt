@@ -54,6 +54,11 @@ public class SelectionScreenBuilder(
     public var parent: MenuProvider? = null
 
     /**
+     * The style of the selection screen.
+     */
+    public var style: SelectionScreenStyle = SelectionScreenStyle.DEFAULT
+
+    /**
      * Sets the [title] [Component].
      *
      * @param component The title.
@@ -120,6 +125,17 @@ public class SelectionScreenBuilder(
     }
 
     /**
+     * Sets the style of the [SelectionScreen].
+     *
+     * @param style The style of the screen.
+     * @return The current [SelectionScreenBuilder].
+     */
+    public fun style(style: SelectionScreenStyle): SelectionScreenBuilder {
+        this.style = style
+        return this
+    }
+
+    /**
      * This adds a selectable [ItemStack] that has an [action] when
      * the player clicks on the item.
      *
@@ -157,6 +173,7 @@ public class SelectionScreenBuilder(
             this.selections,
             this.tickers,
             this.parent,
+            this.style,
             0,
             this.previous,
             this.back,

@@ -9,6 +9,9 @@ public class DisplayableGameSetting<T: Any>(
     public val setting: GameSetting<T>,
     private val options: Map<HashableItemStack, T>
 ) {
+    public val optionCount: Int
+        get() = this.options.size
+
     public fun forEachOption(consumer: (ItemStack, T) -> Unit) {
         for ((hashable, value) in this.options) {
             consumer(hashable.stack, value)

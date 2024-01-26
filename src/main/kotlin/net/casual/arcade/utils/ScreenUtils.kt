@@ -2,6 +2,7 @@ package net.casual.arcade.utils
 
 import net.casual.arcade.gui.screen.SelectionScreenBuilder
 import net.casual.arcade.gui.screen.SelectionScreenComponents
+import net.casual.arcade.gui.screen.SelectionScreenStyle
 import net.casual.arcade.settings.display.DisplayableGameSetting
 import net.casual.arcade.settings.display.DisplayableSettings
 import net.casual.arcade.utils.ComponentUtils.literal
@@ -13,6 +14,7 @@ import net.casual.arcade.utils.TeamUtils.getOnlineCount
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.util.Mth
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.scores.PlayerTeam
@@ -57,13 +59,17 @@ public object ScreenUtils {
     public fun createSettingsMenu(
         settings: DisplayableSettings,
         components: SelectionScreenComponents = DefaultSettingsComponent,
-        configComponents: (DisplayableGameSetting<*>) -> SelectionScreenComponents = ::DefaultSettingsComponents
+        style: SelectionScreenStyle = SelectionScreenStyle.DEFAULT,
+        configComponents: (DisplayableGameSetting<*>) -> SelectionScreenComponents = ::DefaultSettingsComponents,
+        configStyle: (DisplayableGameSetting<*>) -> SelectionScreenStyle = ::createCenteredSettingStyle,
+        modifiable: (ServerPlayer) -> Boolean = { true }
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
+        builder.style(style)
         val provider = builder.build()
         for (display in settings.displays()) {
             builder.selection(display.display) { player ->
-                player.openMenu(createSettingConfigMenu(display, configComponents(display), provider))
+                player.openMenu(createSettingConfigMenu(display, configComponents(display), provider, configStyle(display), modifiable))
             }
         }
         return provider
@@ -72,13 +78,18 @@ public object ScreenUtils {
     public fun <T: Any> createSettingConfigMenu(
         display: DisplayableGameSetting<T>,
         components: SelectionScreenComponents = DefaultSettingsComponents(display),
-        parent: MenuProvider? = null
+        parent: MenuProvider? = null,
+        style: SelectionScreenStyle = SelectionScreenStyle.DEFAULT,
+        modifiable: (ServerPlayer) -> Boolean = { true }
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
+        builder.style(style)
         builder.parent(parent)
         display.forEachOption { option, value ->
             builder.selection(option) {
-                display.setting.set(value)
+                if (modifiable(it)) {
+                    display.setting.set(value)
+                }
             }
         }
         builder.ticker { stack ->
@@ -91,6 +102,18 @@ public object ScreenUtils {
             }
         }
         return builder.build()
+    }
+
+    private fun createCenteredSettingStyle(setting: DisplayableGameSetting<*>): SelectionScreenStyle {
+        val options = setting.optionCount
+        for (i in 1 .. 5) {
+            val remainder = options / i
+            if (remainder <= 9) {
+                val columns = Mth.ceil((remainder + (i - 1) * 9) / i.toDouble())
+                return SelectionScreenStyle.centered(columns, i)
+            }
+        }
+        return SelectionScreenStyle.DEFAULT
     }
 
     public object DefaultSpectatorScreenComponent: SelectionScreenComponents {
