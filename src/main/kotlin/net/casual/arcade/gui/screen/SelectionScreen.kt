@@ -62,6 +62,9 @@ public class SelectionScreen internal constructor(
         this.hasNextPage = this.selections.size > count * (this.page + 1)
 
         for ((i, slot) in slots.withIndex()) {
+            if (i >= paged.size) {
+                break
+            }
             inventory.setItem(slot, paged[i].display)
         }
 

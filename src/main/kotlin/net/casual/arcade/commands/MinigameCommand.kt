@@ -130,6 +130,10 @@ internal object MinigameCommand: Command {
                     Commands.argument("minigame", MinigameArgument.minigame()).executes(this::closeMinigame)
                 )
             ).then(
+                Commands.literal("start").then(
+                    Commands.argument("minigame", MinigameArgument.minigame()).executes(this::startMinigame)
+                )
+            ).then(
                 Commands.literal("command")
             )
         )
@@ -381,5 +385,11 @@ internal object MinigameCommand: Command {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         minigame.close()
         return context.source.success("Successfully closed minigame ${minigame.id}")
+    }
+
+    private fun startMinigame(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        minigame.start()
+        return context.source.success("Successfully started minigame ${minigame.id}")
     }
 }
