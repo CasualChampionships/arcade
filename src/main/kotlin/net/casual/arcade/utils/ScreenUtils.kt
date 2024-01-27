@@ -106,6 +106,9 @@ public object ScreenUtils {
 
     private fun createCenteredSettingStyle(setting: DisplayableGameSetting<*>): SelectionScreenStyle {
         val options = setting.optionCount
+        if (options == 2) {
+            return SelectionScreenStyle.bool()
+        }
         for (i in 1 .. 5) {
             val remainder = options / i
             if (remainder <= 9) {

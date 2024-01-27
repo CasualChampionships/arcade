@@ -72,8 +72,8 @@ public class SelectionScreen internal constructor(
         inventory.setItem(49, this.back)
         inventory.setItem(53, this.next)
 
-        for (i in 0 until inventory.containerSize) {
-            if (!slots.contains(i) && inventory.getItem(i).isEmpty) {
+        for (i in 45 until inventory.containerSize) {
+            if (inventory.getItem(i).isEmpty) {
                 inventory.setItem(i, this.filler)
             }
         }

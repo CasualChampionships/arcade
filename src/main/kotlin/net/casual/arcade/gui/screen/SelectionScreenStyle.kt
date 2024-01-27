@@ -48,5 +48,13 @@ public interface SelectionScreenStyle {
             }
             return CenteredStyle(width, height)
         }
+
+        public fun bool(): SelectionScreenStyle {
+            return object: SelectionScreenStyle {
+                override fun getSlots(): Collection<Int> {
+                    return listOf(21, 23)
+                }
+            }
+        }
     }
 }
