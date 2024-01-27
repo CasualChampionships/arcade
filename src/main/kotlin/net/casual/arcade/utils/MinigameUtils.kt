@@ -14,7 +14,7 @@ import net.casual.arcade.minigame.MinigamePhase
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.annotation.MinigameEventListener
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
-import net.casual.arcade.minigame.lobby.ReadyChecker
+import net.casual.arcade.minigame.events.lobby.ReadyChecker
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.task.Completable
 import net.casual.arcade.utils.PlayerUtils.addExtension
@@ -188,6 +188,39 @@ public object MinigameUtils {
             throw IllegalArgumentException("Cannot parse Minigame as ${listener::class.java}")
         }
         parseMinigameEvents(this, listener)
+    }
+
+    public fun Minigame<*>.transferTo(next: Minigame<*>) {
+        if (next.closed) {
+            throw IllegalArgumentException("Cannot transfer to a closed minigame")
+        }
+
+        if (this.teams.hasSpectatorTeam()) {
+            next.teams.setSpectatorTeam(this.teams.getSpectatorTeam())
+        }
+        if (this.teams.hasAdminTeam()) {
+            next.teams.setAdminTeam(this.teams.getAdminTeam())
+        }
+
+        val players = this.getAllPlayers()
+        val delayed = ArrayList<() -> Unit>()
+        for (player in players) {
+            val wasAdmin = this.isAdmin(player)
+            val wasSpectating = this.isSpectating(player)
+            delayed.add {
+                next.addPlayer(player)
+                if (wasAdmin) {
+                    next.makeAdmin(player)
+                }
+                if (wasSpectating) {
+                    next.makeSpectator(player)
+                }
+            }
+        }
+        this.close()
+        delayed.forEach { it() }
+
+        next.start()
     }
 
     internal fun parseMinigameEvents(minigame: Minigame<*>, declarer: Any = minigame) {

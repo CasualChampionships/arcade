@@ -211,19 +211,19 @@ public object JsonUtils {
         return this.anyOrNull(key, serializer) ?: putter().also { this[key] = serializer.serialize(it) }
     }
 
-    public operator fun JsonObject.set(key: String, value: String) {
+    public operator fun JsonObject.set(key: String, value: String?) {
         this.addProperty(key, value)
     }
 
-    public operator fun JsonObject.set(key: String, value: Number) {
+    public operator fun JsonObject.set(key: String, value: Number?) {
         this.addProperty(key, value)
     }
 
-    public operator fun JsonObject.set(key: String, value: Boolean) {
+    public operator fun JsonObject.set(key: String, value: Boolean?) {
         this.addProperty(key, value)
     }
 
-    public operator fun JsonObject.set(key: String, value: JsonElement) {
+    public operator fun JsonObject.set(key: String, value: JsonElement?) {
         this.add(key, value)
     }
 

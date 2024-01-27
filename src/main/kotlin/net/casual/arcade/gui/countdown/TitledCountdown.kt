@@ -20,7 +20,7 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
 public interface TitledCountdown: Countdown {
     @OverrideOnly
     public fun getCountdownTitle(current: Int): Component {
-        return "Starting In:".literal().bold()
+        return DEFAULT_TITLE
     }
 
     @OverrideOnly
@@ -67,6 +67,9 @@ public interface TitledCountdown: Countdown {
     }
 
     public companion object {
+        @JvmField
+        public val DEFAULT_TITLE: Component = "Starting In:".literal().bold()
+
         @JvmField
         public val DEFAULT: TitledCountdown = object: TitledCountdown { }
 

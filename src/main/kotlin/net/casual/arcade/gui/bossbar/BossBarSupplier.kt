@@ -22,7 +22,9 @@ public interface BossBarSupplier {
      * @param player The player being displayed the progress.
      * @return The progress to display the bossbar as having.
      */
-    public fun getProgress(player: ServerPlayer): Float
+    public fun getProgress(player: ServerPlayer): Float {
+        return 1.0F
+    }
 
     /**
      * This gets the colour of the [BossBarSupplier] which will be
@@ -31,7 +33,9 @@ public interface BossBarSupplier {
      * @param player The player being displayed the colour.
      * @return The [BossBarColor] to set the bossbar to.
      */
-    public fun getColour(player: ServerPlayer): BossBarColor
+    public fun getColour(player: ServerPlayer): BossBarColor {
+        return BossBarColor.WHITE
+    }
 
     /**
      * This gets the overlay of the [BossBarSupplier] which will be
@@ -40,7 +44,9 @@ public interface BossBarSupplier {
      * @param player The player being displayed the overlay.
      * @return The [BossBarOverlay] to set the bossbar to.
      */
-    public fun getOverlay(player: ServerPlayer): BossBarOverlay
+    public fun getOverlay(player: ServerPlayer): BossBarOverlay {
+        return BossBarOverlay.PROGRESS
+    }
 
     /**
      * This sets whether the player's world is dark or not.

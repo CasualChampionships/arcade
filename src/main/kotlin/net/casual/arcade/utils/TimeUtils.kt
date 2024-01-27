@@ -33,6 +33,14 @@ public object TimeUtils {
         return time.toEpochSecond(LocalDate.now(zone), zone.rules.getOffset(Instant.now()))
     }
 
+    public fun MinecraftTimeDuration.formatHHMMSS(): String {
+        return formatHHMMSS(this)
+    }
+
+    public fun MinecraftTimeDuration.formatMMSS(): String {
+        return formatMMSS(this)
+    }
+
     public fun formatHHMMSS(duration: MinecraftTimeDuration): String {
         val seconds = duration.toSeconds().toInt()
         val hours = seconds / 3600

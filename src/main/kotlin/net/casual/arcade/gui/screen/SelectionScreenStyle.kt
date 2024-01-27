@@ -1,5 +1,7 @@
 package net.casual.arcade.gui.screen
 
+import net.minecraft.util.Mth
+
 /**
  * This interface allows you to configure how
  * items are laid out in a selection screen.
@@ -47,6 +49,20 @@ public interface SelectionScreenStyle {
                 throw IllegalArgumentException("Invalid height argument $height")
             }
             return CenteredStyle(width, height)
+        }
+
+        public fun centered(elements: Int): SelectionScreenStyle {
+            if (elements == 2) {
+                return bool()
+            }
+            for (i in 1 .. 5) {
+                val remainder = elements / i
+                if (remainder <= 9) {
+                    val columns = Mth.ceil((remainder + (i - 1) * 9) / i.toDouble())
+                    return centered(columns, i)
+                }
+            }
+            return DEFAULT
         }
 
         public fun bool(): SelectionScreenStyle {

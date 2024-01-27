@@ -1,28 +1,36 @@
-package net.casual.arcade.minigame.lobby
+package net.casual.arcade.minigame.events.lobby
 
 import com.google.gson.JsonObject
+import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import net.casual.arcade.Arcade
+import net.casual.arcade.commands.arguments.EnumArgument
 import net.casual.arcade.commands.arguments.MinigameArgument
+import net.casual.arcade.events.minigame.LobbyMoveToNextMinigameEvent
 import net.casual.arcade.events.minigame.MinigameAddNewPlayerEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigamePhase
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
+import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.success
+import net.casual.arcade.utils.ComponentUtils.command
 import net.casual.arcade.utils.ComponentUtils.green
+import net.casual.arcade.utils.ComponentUtils.lime
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.singleUseFunction
+import net.casual.arcade.utils.EventUtils.broadcast
 import net.casual.arcade.utils.GameRuleUtils.resetToDefault
 import net.casual.arcade.utils.GameRuleUtils.set
 import net.casual.arcade.utils.MinigameUtils.arePlayersReady
 import net.casual.arcade.utils.MinigameUtils.areTeamsReady
 import net.casual.arcade.utils.MinigameUtils.countdown
 import net.casual.arcade.utils.MinigameUtils.requiresAdminOrPermission
+import net.casual.arcade.utils.MinigameUtils.transferTo
 import net.casual.arcade.utils.PlayerUtils.broadcast
 import net.casual.arcade.utils.PlayerUtils.broadcastToOps
 import net.casual.arcade.utils.PlayerUtils.clearPlayerInventory
@@ -32,18 +40,24 @@ import net.casual.arcade.utils.PlayerUtils.resetHunger
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.GameRules
+import net.minecraft.world.level.GameType
 import net.minecraft.world.scores.PlayerTeam
+import net.minecraft.world.scores.Team
 
-public abstract class LobbyMinigame(
-    server: MinecraftServer
+public open class LobbyMinigame(
+    server: MinecraftServer,
+    public val lobby: Lobby,
 ): Minigame<LobbyMinigame>(server), ReadyChecker {
-    protected abstract val lobby: Lobby
-
     private var awaiting: (() -> Component)? = null
     private var next: Minigame<*>? = null
+
+    private val bossbar = this.lobby.createBossbar().apply { then(::completeBossBar) }
+
+    override val id: ResourceLocation = ID
 
     override fun initialize() {
         super.initialize()
@@ -90,14 +104,6 @@ public abstract class LobbyMinigame(
         this.settings.canInteractAll = false
     }
 
-    public open fun onStart() {
-
-    }
-
-    public open fun onStartCountdown() {
-
-    }
-
     public open fun getTeamsToReady(): Collection<PlayerTeam> {
         return this.teams.getPlayingTeams()
     }
@@ -126,7 +132,7 @@ public abstract class LobbyMinigame(
         this.next = minigame
     }
 
-    protected open fun moveToNextMinigame() {
+    private fun moveToNextMinigame() {
         val next = this.next!!
         if (next.closed) {
             Arcade.logger.warn("Failed to move to next minigame ${next.id}, it was closed before starting!")
@@ -134,27 +140,9 @@ public abstract class LobbyMinigame(
             return
         }
 
-        if (this.teams.hasSpectatorTeam()) {
-            next.teams.setSpectatorTeam(this.teams.getSpectatorTeam())
-        }
-        if (this.teams.hasAdminTeam()) {
-            next.teams.setAdminTeam(this.teams.getAdminTeam())
-        }
+        LobbyMoveToNextMinigameEvent(this, next).broadcast()
 
-        for (player in this.getAllPlayers()) {
-            val wasAdmin = this.isAdmin(player)
-            val wasSpectating = this.isSpectating(player)
-            next.addPlayer(player)
-            if (wasAdmin) {
-                next.makeAdmin(player)
-            }
-            if (wasSpectating) {
-                next.makeSpectator(player)
-            }
-        }
-        next.start()
-
-        this.close()
+        this.transferTo(next)
     }
 
     final override fun getPhases(): List<Phase> {
@@ -204,6 +192,14 @@ public abstract class LobbyMinigame(
             ).then(
                 Commands.literal("awaiting").executes(this::awaitingReady)
             )
+        ).then(
+            Commands.literal("start").then(
+                Commands.literal("in").then(
+                    Commands.argument("time", IntegerArgumentType.integer(1)).then(
+                        Commands.argument("unit", EnumArgument.enumeration(MinecraftTimeUnit::class.java)).executes(this::setTime)
+                    )
+                )
+            )
         )
     }
 
@@ -222,6 +218,7 @@ public abstract class LobbyMinigame(
 
     private fun setNextNewMinigame(context: CommandContext<CommandSourceStack>): Int {
         val factory = MinigameArgument.Factory.getFactory(context, "minigame")
+        this.next?.close()
         val next = factory.create(MinigameCreationContext(context.source.server))
         next.tryInitialize()
         this.next = next
@@ -229,6 +226,7 @@ public abstract class LobbyMinigame(
     }
 
     private fun unsetNextMinigame(context: CommandContext<CommandSourceStack>): Int {
+        this.next?.close()
         this.next = null
         return context.source.success("Successfully unset the next minigame")
     }
@@ -297,15 +295,43 @@ public abstract class LobbyMinigame(
         return context.source.success(awaiting())
     }
 
-    private companion object {
-        val NO_MINIGAME = SimpleCommandExceptionType("Lobby has no next minigame".literal())
+    private fun setTime(context: CommandContext<CommandSourceStack>): Int {
+        val time = IntegerArgumentType.getInteger(context, "time")
+        val unit = EnumArgument.getEnumeration(context, "unit", MinecraftTimeUnit::class.java)
+        val duration = unit.duration(time)
+        this.bossbar.setDuration(duration)
+        return context.source.success("Countdown will begin in $time ${unit.name}")
+    }
+
+    private fun completeBossBar() {
+        val message = "Lobby waiting period has finished. ".literal()
+        val teams = "[Click to ready teams]".literal().lime().command("/lobby ready teams")
+        val players = "[Click to ready players]".literal().lime().command("/lobby ready players")
+        val component = message.append(teams).append(" or ").append(players)
+
+        for (player in this.getAdminPlayers()) {
+            player.sendSystemMessage(component)
+        }
+    }
+
+    public companion object {
+        private val NO_MINIGAME = SimpleCommandExceptionType("Lobby has no next minigame".literal())
+
+        public val ID: ResourceLocation = Arcade.id("lobby")
     }
 
     public enum class Phase(override val id: String): MinigamePhase<LobbyMinigame> {
         Waiting("waiting") {
             override fun start(minigame: LobbyMinigame) {
                 minigame.lobby.area.replace()
-                minigame.onStart()
+
+                minigame.ui.addBossbar(minigame.bossbar)
+                for (player in minigame.getNonAdminPlayers()) {
+                    player.setGameMode(GameType.ADVENTURE)
+                }
+                for (team in minigame.teams.getAllTeams()) {
+                    team.collisionRule = Team.CollisionRule.NEVER
+                }
             }
         },
         Countdown("countdown") {
@@ -320,7 +346,10 @@ public abstract class LobbyMinigame(
                 minigame.lobby.getCountdown().countdown(minigame).then {
                     minigame.setPhase(MinigamePhase.end())
                 }
-                minigame.onStartCountdown()
+                minigame.ui.removeBossbar(minigame.bossbar)
+                for (team in minigame.teams.getAllTeams()) {
+                    team.collisionRule = Team.CollisionRule.ALWAYS
+                }
             }
 
             override fun end(minigame: LobbyMinigame) {

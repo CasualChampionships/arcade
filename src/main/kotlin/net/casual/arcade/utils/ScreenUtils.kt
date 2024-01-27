@@ -105,18 +105,7 @@ public object ScreenUtils {
     }
 
     private fun createCenteredSettingStyle(setting: DisplayableGameSetting<*>): SelectionScreenStyle {
-        val options = setting.optionCount
-        if (options == 2) {
-            return SelectionScreenStyle.bool()
-        }
-        for (i in 1 .. 5) {
-            val remainder = options / i
-            if (remainder <= 9) {
-                val columns = Mth.ceil((remainder + (i - 1) * 9) / i.toDouble())
-                return SelectionScreenStyle.centered(columns, i)
-            }
-        }
-        return SelectionScreenStyle.DEFAULT
+        return SelectionScreenStyle.centered(setting.optionCount)
     }
 
     public object DefaultSpectatorScreenComponent: SelectionScreenComponents {
