@@ -6,6 +6,7 @@ import net.casual.arcade.Arcade
 import net.casual.arcade.events.minigame.LobbyMoveToNextMinigameEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
+import net.casual.arcade.minigame.events.lobby.Lobby
 import net.casual.arcade.minigame.events.lobby.LobbyMinigame
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.utils.JsonUtils.int
@@ -24,7 +25,8 @@ import xyz.nucleoid.fantasy.RuntimeWorldHandle
 import xyz.nucleoid.fantasy.util.VoidChunkGenerator
 
 public class MinigamesEvent(
-    public var config: MinigamesEventConfig
+    public var config: MinigamesEventConfig,
+    private val lobbyFactory: (MinecraftServer, Lobby) -> LobbyMinigame = ::LobbyMinigame
 ) {
     public lateinit var current: Minigame<*>
     private var index: Int = 0
@@ -38,7 +40,7 @@ public class MinigamesEvent(
             if (level == null) Either.left(createTemporaryLobbyLevel(server)) else Either.right(level)
         }
         val level = either.map({ it.asWorld() }, { it })
-        val lobby = LobbyMinigame(server, this.config.lobby.create(level))
+        val lobby = this.lobbyFactory(server, this.config.lobby.create(level))
         either.ifLeft(lobby::addLevel)
 
         lobby.events.register<LobbyMoveToNextMinigameEvent> {
