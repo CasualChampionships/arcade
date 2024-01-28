@@ -97,7 +97,7 @@ public class LobbyConfigSerializer: JsonSerializer<LobbyConfig> {
         JsonObject().also { countdown ->
             countdown["type"] = value.countdown.id
             countdown["data"] = value.countdown.write()
-            json["bossbar"] = countdown
+            json["countdown"] = countdown
         }
 
         json["dimension"] = value.dimension?.location()?.toString()
