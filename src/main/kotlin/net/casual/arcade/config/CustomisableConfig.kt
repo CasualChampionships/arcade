@@ -16,6 +16,7 @@ import net.casual.arcade.utils.JsonUtils.doubleOrNull
 import net.casual.arcade.utils.JsonUtils.float
 import net.casual.arcade.utils.JsonUtils.floatOrDefault
 import net.casual.arcade.utils.JsonUtils.floatOrNull
+import net.casual.arcade.utils.JsonUtils.getWithNull
 import net.casual.arcade.utils.JsonUtils.int
 import net.casual.arcade.utils.JsonUtils.intOrDefault
 import net.casual.arcade.utils.JsonUtils.intOrNull
@@ -28,11 +29,10 @@ import net.casual.arcade.utils.JsonUtils.objOrNull
 import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.stringOrDefault
 import net.casual.arcade.utils.JsonUtils.stringOrNull
-import net.casual.arcade.utils.JsonUtils.uuidOrNull
 import net.casual.arcade.utils.json.*
 import net.minecraft.Util
 import java.nio.file.Path
-import java.util.UUID
+import java.util.*
 import kotlin.io.path.bufferedReader
 import kotlin.io.path.bufferedWriter
 import kotlin.io.path.exists
@@ -147,7 +147,7 @@ public open class CustomisableConfig(
 
             override fun getValue(any: Any, property: KProperty<*>): T? {
                 val key = name ?: property.name
-                val element = json.get(key)
+                val element = json.getWithNull(key)
                 if (element == null) {
                     json.add(key, null)
                     return null

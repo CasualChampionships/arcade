@@ -13,7 +13,7 @@ import java.util.UUID
 public object JsonUtils {
     public val GSON: Gson = GsonBuilder().setPrettyPrinting().serializeNulls().disableHtmlEscaping().create()
 
-    private fun JsonObject.getWithNull(key: String): JsonElement? {
+    public fun JsonObject.getWithNull(key: String): JsonElement? {
         val value = this.get(key) ?: return null
         return if (value.isJsonNull) null else value
     }

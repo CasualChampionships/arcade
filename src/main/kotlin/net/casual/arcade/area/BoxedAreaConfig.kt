@@ -17,7 +17,7 @@ public class BoxedAreaConfig(
     private val height: Int,
     private val block: Block
 ): PlaceableAreaConfig {
-    override val id: String = Companion.id
+    override val id: String = BoxedAreaConfig.id
 
     override fun create(level: ServerLevel): PlaceableArea {
         return BoxedArea(this.position, this.radius, this.height, level, this.block)
