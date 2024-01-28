@@ -3,6 +3,7 @@ package net.casual.arcade.minigame.events.lobby
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import net.casual.arcade.Arcade
+import net.casual.arcade.area.BoxedAreaConfig
 import net.casual.arcade.utils.JsonUtils.double
 import net.casual.arcade.utils.JsonUtils.float
 import net.casual.arcade.utils.JsonUtils.obj
@@ -10,10 +11,7 @@ import net.casual.arcade.utils.JsonUtils.set
 import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.json.JsonSerializer
 import net.casual.arcade.area.PlaceableAreaConfigFactory
-import net.casual.arcade.minigame.events.lobby.ui.CountdownConfig
-import net.casual.arcade.minigame.events.lobby.ui.CountdownConfigFactory
-import net.casual.arcade.minigame.events.lobby.ui.TimerBossbarConfig
-import net.casual.arcade.minigame.events.lobby.ui.TimerBossbarConfigFactory
+import net.casual.arcade.minigame.events.lobby.ui.*
 import net.casual.arcade.utils.JsonUtils.objOrNull
 import net.casual.arcade.utils.JsonUtils.stringOrNull
 import net.fabricmc.fabric.impl.biome.modification.BuiltInRegistryKeys
@@ -23,14 +21,28 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 
-public class LobbyConfigSerializer(
-    areaFactories: List<PlaceableAreaConfigFactory>,
-    countdownFactories: List<CountdownConfigFactory> = listOf(),
-    bossbarFactories: List<TimerBossbarConfigFactory> = listOf()
-): JsonSerializer<LobbyConfig> {
-    private val areaFactories = areaFactories.associateBy { it.id }
-    private val bossbarFactories = bossbarFactories.associateBy { it.id }
-    private val countdownFactories = countdownFactories.associateBy { it.id }
+public class LobbyConfigSerializer: JsonSerializer<LobbyConfig> {
+    private val areaFactories = HashMap<String, PlaceableAreaConfigFactory>()
+    private val bossbarFactories = HashMap<String, TimerBossbarConfigFactory>()
+    private val countdownFactories = HashMap<String, CountdownConfigFactory>()
+
+    init {
+        this.addAreaFactory(BoxedAreaConfig)
+        this.addBossbarFactory(SimpleTimerBossbarConfig)
+        this.addCountdownFactory(TitledCountdownConfig)
+    }
+
+    public fun addAreaFactory(factory: PlaceableAreaConfigFactory) {
+        this.areaFactories[factory.id] = factory
+    }
+
+    public fun addBossbarFactory(factory: TimerBossbarConfigFactory) {
+        this.bossbarFactories[factory.id] = factory
+    }
+
+    public fun addCountdownFactory(factory: CountdownConfigFactory) {
+        this.countdownFactories[factory.id] = factory
+    }
 
     override fun deserialize(json: JsonElement): LobbyConfig {
         json as JsonObject

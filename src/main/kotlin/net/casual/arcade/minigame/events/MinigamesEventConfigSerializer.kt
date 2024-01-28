@@ -16,12 +16,20 @@ import net.casual.arcade.minigame.events.lobby.ui.CountdownConfigFactory
 import net.casual.arcade.minigame.events.lobby.ui.TimerBossbarConfigFactory
 import net.minecraft.resources.ResourceLocation
 
-public class MinigamesEventConfigSerializer(
-    areaFactories: List<PlaceableAreaConfigFactory>,
-    countdownFactories: List<CountdownConfigFactory> = listOf(),
-    bossbarFactories: List<TimerBossbarConfigFactory> = listOf()
-): JsonSerializer<MinigamesEventConfig> {
-    private val lobbySerializer = LobbyConfigSerializer(areaFactories, countdownFactories, bossbarFactories)
+public class MinigamesEventConfigSerializer: JsonSerializer<MinigamesEventConfig> {
+    private val lobbySerializer = LobbyConfigSerializer()
+
+    public fun addAreaFactory(factory: PlaceableAreaConfigFactory) {
+        this.lobbySerializer.addAreaFactory(factory)
+    }
+
+    public fun addBossbarFactory(factory: TimerBossbarConfigFactory) {
+        this.lobbySerializer.addBossbarFactory(factory)
+    }
+
+    public fun addCountdownFactory(factory: CountdownConfigFactory) {
+        this.lobbySerializer.addCountdownFactory(factory)
+    }
 
     override fun deserialize(json: JsonElement): MinigamesEventConfig {
         json as JsonObject
