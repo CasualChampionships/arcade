@@ -50,6 +50,7 @@
     "level.EntityMixin",
     "level.ServerLevelMixin",
     "level.ServerPlayerMixin",
+    "level.TheEndGatewayBlockEntityMixin",
     "minigame.AbstractContainerMenuMixin",
     "minigame.FoodDataMixin",
     "minigame.InteractPacketHandlerImplMixin",
