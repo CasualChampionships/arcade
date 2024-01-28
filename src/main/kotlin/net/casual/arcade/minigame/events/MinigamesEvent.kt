@@ -24,7 +24,7 @@ import xyz.nucleoid.fantasy.RuntimeWorldHandle
 import xyz.nucleoid.fantasy.util.VoidChunkGenerator
 
 public class MinigamesEvent(
-    private var config: MinigamesEventConfig
+    public var config: MinigamesEventConfig
 ) {
     public lateinit var current: Minigame<*>
     private var index: Int = 0
