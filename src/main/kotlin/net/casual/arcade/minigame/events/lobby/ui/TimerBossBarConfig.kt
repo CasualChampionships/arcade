@@ -5,7 +5,7 @@ import net.casual.arcade.gui.bossbar.TimerBossBar
 import net.minecraft.world.BossEvent.BossBarColor.YELLOW
 import net.minecraft.world.BossEvent.BossBarOverlay.PROGRESS
 
-public interface TimerBossbarConfig {
+public interface TimerBossBarConfig {
     public val id: String
 
     public fun create(): TimerBossBar

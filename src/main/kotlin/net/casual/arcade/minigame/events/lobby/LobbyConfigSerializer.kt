@@ -14,7 +14,6 @@ import net.casual.arcade.area.PlaceableAreaConfigFactory
 import net.casual.arcade.minigame.events.lobby.ui.*
 import net.casual.arcade.utils.JsonUtils.objOrNull
 import net.casual.arcade.utils.JsonUtils.stringOrNull
-import net.fabricmc.fabric.impl.biome.modification.BuiltInRegistryKeys
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
@@ -23,7 +22,7 @@ import net.minecraft.world.phys.Vec3
 
 public class LobbyConfigSerializer: JsonSerializer<LobbyConfig> {
     private val areaFactories = HashMap<String, PlaceableAreaConfigFactory>()
-    private val bossbarFactories = HashMap<String, TimerBossbarConfigFactory>()
+    private val bossbarFactories = HashMap<String, TimerBossBarConfigFactory>()
     private val countdownFactories = HashMap<String, CountdownConfigFactory>()
 
     init {
@@ -36,7 +35,7 @@ public class LobbyConfigSerializer: JsonSerializer<LobbyConfig> {
         this.areaFactories[factory.id] = factory
     }
 
-    public fun addBossbarFactory(factory: TimerBossbarConfigFactory) {
+    public fun addBossbarFactory(factory: TimerBossBarConfigFactory) {
         this.bossbarFactories[factory.id] = factory
     }
 
@@ -72,7 +71,7 @@ public class LobbyConfigSerializer: JsonSerializer<LobbyConfig> {
             val factory = this.bossbarFactories[type]
             val data = bossbar.objOrNull("data") ?: return@let null
             factory?.create(data)
-        } ?: TimerBossbarConfig.DEFAULT
+        } ?: TimerBossBarConfig.DEFAULT
         val countdown = json.objOrNull("countdown")?.let { countdown ->
             val type = countdown.stringOrNull("type") ?: return@let null
             val factory = this.countdownFactories[type]

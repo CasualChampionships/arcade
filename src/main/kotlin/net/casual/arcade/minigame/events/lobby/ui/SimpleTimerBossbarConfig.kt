@@ -16,7 +16,7 @@ public class SimpleTimerBossbarConfig(
     private val title: String,
     private val overlay: BossBarOverlay,
     private val colour: BossBarColor
-): TimerBossbarConfig {
+): TimerBossBarConfig {
     override val id: String = SimpleTimerBossbarConfig.id
 
     override fun create(): TimerBossBar {
@@ -43,10 +43,10 @@ public class SimpleTimerBossbarConfig(
         return json
     }
 
-    public companion object: TimerBossbarConfigFactory {
+    public companion object: TimerBossBarConfigFactory {
         override val id: String = "simple"
 
-        override fun create(data: JsonObject): TimerBossbarConfig {
+        override fun create(data: JsonObject): TimerBossBarConfig {
             val title = data.string("title")
             val overlay = BossBarOverlay.byName(data.stringOrDefault("overlay"))
             val colour = BossBarColor.byName(data.stringOrDefault("colour", data.stringOrDefault("color")))

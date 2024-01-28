@@ -13,7 +13,7 @@ import net.casual.arcade.area.PlaceableAreaConfigFactory
 import net.casual.arcade.minigame.events.lobby.LobbyConfig
 import net.casual.arcade.minigame.events.lobby.LobbyConfigSerializer
 import net.casual.arcade.minigame.events.lobby.ui.CountdownConfigFactory
-import net.casual.arcade.minigame.events.lobby.ui.TimerBossbarConfigFactory
+import net.casual.arcade.minigame.events.lobby.ui.TimerBossBarConfigFactory
 import net.minecraft.resources.ResourceLocation
 
 public class MinigamesEventConfigSerializer: JsonSerializer<MinigamesEventConfig> {
@@ -23,7 +23,7 @@ public class MinigamesEventConfigSerializer: JsonSerializer<MinigamesEventConfig
         this.lobbySerializer.addAreaFactory(factory)
     }
 
-    public fun addBossbarFactory(factory: TimerBossbarConfigFactory) {
+    public fun addBossbarFactory(factory: TimerBossBarConfigFactory) {
         this.lobbySerializer.addBossbarFactory(factory)
     }
 
