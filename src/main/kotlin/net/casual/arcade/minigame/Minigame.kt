@@ -17,6 +17,7 @@ import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.gui.tab.ArcadeTabDisplay
 import net.casual.arcade.minigame.MinigameResources.Companion.removeFrom
 import net.casual.arcade.minigame.MinigameResources.Companion.sendTo
+import net.casual.arcade.minigame.MinigameResources.MultiMinigameResources
 import net.casual.arcade.minigame.managers.*
 import net.casual.arcade.minigame.serialization.MinigameDataTracker
 import net.casual.arcade.minigame.serialization.SavableMinigame
@@ -127,6 +128,7 @@ public abstract class Minigame<M: Minigame<M>>(
     private val levels: MutableSet<ServerLevel>
     private val connections: MutableSet<ServerGamePacketListenerImpl>
 
+    private var resources: MultiMinigameResources
     private var initialized: Boolean
 
     internal val admins: MutableSet<UUID>
@@ -269,6 +271,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.admins = LinkedHashSet()
         this.spectators = LinkedHashSet()
 
+        this.resources = MultiMinigameResources()
         this.initialized = false
         this.closed = false
 
@@ -626,8 +629,20 @@ public abstract class Minigame<M: Minigame<M>>(
      * This gets the [MinigameResources] for this minigame which
      * will be applied when the player joins this minigame.
      */
-    public open fun getResources(): MinigameResources {
-        return MinigameResources.NONE
+    public fun getResources(): MinigameResources {
+        return this.resources
+    }
+
+    public fun addResources(resources: MinigameResources) {
+        if (this.resources.addResources(resources)) {
+            resources.sendTo(this.getAllPlayers())
+        }
+    }
+
+    public fun removeResources(resources: MinigameResources) {
+        if (this.resources.removeResources(resources)) {
+            resources.removeFrom(this.getAllPlayers())
+        }
     }
 
     /**

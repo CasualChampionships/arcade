@@ -35,6 +35,26 @@ public interface MinigameResources {
         return this.getPacks()
     }
 
+    public class MultiMinigameResources: MinigameResources {
+        private val resources = LinkedHashSet<MinigameResources>()
+
+        public fun addResources(resources: MinigameResources): Boolean {
+            return this.resources.add(resources)
+        }
+
+        public fun removeResources(resources: MinigameResources): Boolean {
+            return this.resources.remove(resources)
+        }
+
+        override fun getPacks(): Collection<PackInfo> {
+            return this.resources.flatMap { it.getPacks() }
+        }
+
+        override fun getPacks(player: ServerPlayer): Collection<PackInfo> {
+            return this.resources.flatMap { it.getPacks(player) }
+        }
+    }
+
     public companion object {
         /**
          * This object is the default [MinigameResources].
@@ -59,7 +79,7 @@ public interface MinigameResources {
         /**
          * This pops all the resource packs sent to a player.
          *
-         * @param player The player to send the resources to.
+         * @param player The player to remove the resources from.
          */
         @JvmStatic
         public fun MinigameResources.removeFrom(player: ServerPlayer) {
@@ -79,6 +99,18 @@ public interface MinigameResources {
         public fun MinigameResources.sendTo(players: Collection<ServerPlayer>) {
             for (player in players) {
                 this.sendTo(player)
+            }
+        }
+
+        /**
+         * This pops all the resource packs sent to the given players.
+         *
+         * @param players The players to remove the resources from.
+         */
+        @JvmStatic
+        public fun MinigameResources.removeFrom(players: Collection<ServerPlayer>) {
+            for (player in players) {
+                this.removeFrom(player)
             }
         }
     }
