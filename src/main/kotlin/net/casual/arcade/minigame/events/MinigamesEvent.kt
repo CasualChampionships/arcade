@@ -45,6 +45,7 @@ public class MinigamesEvent(
 
         lobby.events.register<LobbyMoveToNextMinigameEvent> {
             this.incrementIndex(it.next)
+            this.current = it.next
         }
 
         this.startNewMinigame(lobby)
