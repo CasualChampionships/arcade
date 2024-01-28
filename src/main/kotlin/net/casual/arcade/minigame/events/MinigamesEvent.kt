@@ -59,6 +59,8 @@ public class MinigamesEvent(
         this.incrementIndex(minigame)
         if (this::current.isInitialized) {
             this.current.transferTo(minigame)
+        } else {
+            minigame.start()
         }
         this.current = minigame
     }
