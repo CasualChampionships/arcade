@@ -2,7 +2,6 @@ package net.casual.arcade.area
 
 import com.google.gson.JsonObject
 import net.casual.arcade.Arcade
-import net.casual.arcade.area.*
 import net.casual.arcade.utils.JsonUtils.int
 import net.casual.arcade.utils.JsonUtils.set
 import net.casual.arcade.utils.JsonUtils.string
@@ -21,7 +20,7 @@ public class StructuredAreaConfig(
     override val id: String = "structured"
 
     private val structure by lazy {
-        val path = this.root.resolve(this.path)
+        val path = this.root.resolve(if (this.path.endsWith(".nbt")) this.path else "${this.path}.nbt")
         try {
             StructureUtils.read(path)
         } catch (e: IOException) {
