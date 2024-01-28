@@ -8,6 +8,7 @@
     "advancements.PlayerAdvancementMixin",
     "advancements.PlayerAdvancementsAccessor",
     "advancements.ServerAdvancementManagerMixin",
+    "bugfixes.BaseFireBlockMixin",
     "bugfixes.GameRuleCommandMixin",
     "bugfixes.ServerPlayerMixin",
     "commands.ArgumentNodeStub",

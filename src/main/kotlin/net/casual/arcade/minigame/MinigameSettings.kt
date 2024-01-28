@@ -254,6 +254,15 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
         defaultOptions()
     })
 
+    public var mobsWithNoAIAreFlammable: Boolean by this.register(bool {
+        name = "mobs_with_no_ai_are_flammable"
+        display = Items.FLINT_AND_STEEL.named("Mobs With No AI Are Flammable").setLore(
+            "If enabled mobs with no ai can be set on fire".literal()
+        )
+        value = false
+        defaultOptions()
+    })
+
     /**
      * This creates a menu which can be displayed to a
      * player to directly interact with the settings.
