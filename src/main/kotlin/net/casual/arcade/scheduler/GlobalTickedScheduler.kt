@@ -29,6 +29,10 @@ public object GlobalTickedScheduler {
         GlobalEventHandler.register<ServerTickEvent> { this.scheduler.tick() }
     }
 
+    public fun asScheduler(): MinecraftScheduler {
+        return this.scheduler
+    }
+
     /**
      * This method will schedule a [task] to be run later in
      * the tick.

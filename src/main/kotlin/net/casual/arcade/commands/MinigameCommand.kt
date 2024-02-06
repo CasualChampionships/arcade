@@ -11,6 +11,7 @@ import net.casual.arcade.commands.arguments.MinigameArgument.SettingsOption.Comp
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
+import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.utils.CommandUtils.commandSuccess
@@ -375,12 +376,18 @@ internal object MinigameCommand: Command {
 
     private fun pauseMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
+        if (minigame.paused) {
+            return context.source.fail("Minigame ${minigame.id} was already paused")
+        }
         minigame.pause()
         return context.source.success("Successfully paused minigame ${minigame.id}")
     }
 
     private fun unpauseMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
+        if (!minigame.paused) {
+            return context.source.fail("Minigame ${minigame.id} was already unpaused")
+        }
         minigame.unpause()
         return context.source.success("Successfully unpaused minigame ${minigame.id}")
     }
@@ -391,8 +398,13 @@ internal object MinigameCommand: Command {
         unit: MinecraftTimeUnit = EnumArgument.getEnumeration(context, "unit", MinecraftTimeUnit::class.java)
     ): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
+        if (!minigame.paused) {
+            return context.source.fail("Minigame ${minigame.id} was already unpaused")
+        }
         val duration = unit.duration(time)
-        minigame.ui.countdown.countdown(minigame, duration).then(minigame::unpause)
+        // We must use the global scheduler, because the minigame scheduler is paused
+        minigame.ui.countdown.countdown(minigame, duration, scheduler = GlobalTickedScheduler.asScheduler())
+            .then(minigame::unpause)
         return context.source.success("Successfully started countdown for minigame ${minigame.id}")
     }
 

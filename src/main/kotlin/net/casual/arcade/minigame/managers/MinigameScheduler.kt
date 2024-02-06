@@ -30,6 +30,15 @@ public class MinigameScheduler internal constructor(): MinecraftScheduler {
     internal val minigame = TickedScheduler()
     internal val phased = TickedScheduler()
 
+    /**
+     * This returns the phased scheduler.
+     *
+     * @return The phased scheduler.
+     */
+    public fun asPhasedScheduler(): MinecraftScheduler {
+        return this.phased
+    }
+
     internal fun tick() {
         this.minigame.tick()
         this.phased.tick()

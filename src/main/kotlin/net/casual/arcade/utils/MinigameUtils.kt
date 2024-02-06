@@ -17,8 +17,11 @@ import net.casual.arcade.minigame.annotation.MinigameEventListener
 import net.casual.arcade.minigame.events.lobby.ReadyChecker
 import net.casual.arcade.minigame.extensions.LevelMinigameExtension
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
+import net.casual.arcade.scheduler.GlobalTickedScheduler
+import net.casual.arcade.scheduler.MinecraftScheduler
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.task.Completable
+import net.casual.arcade.task.Task
 import net.casual.arcade.utils.LevelUtils.addExtension
 import net.casual.arcade.utils.LevelUtils.getExtension
 import net.casual.arcade.utils.PlayerUtils.addExtension
@@ -51,97 +54,6 @@ public object MinigameUtils {
     }
 
     /**
-     * This allows you to check if all teams are ready.
-     *
-     * This will broadcast a message to all players asking if
-     * their team is ready, once all teams confirm they are
-     * ready [ReadyChecker.onReady] will be called.
-     *
-     * @param teams The teams to check.
-     * @return The teams that are not ready, this collection is mutable,
-     * and may be updated in the future.
-     */
-    @JvmStatic
-    public fun ReadyChecker.areTeamsReady(teams: Collection<PlayerTeam>): Collection<PlayerTeam> {
-        val unready = HashSet<PlayerTeam>()
-        for (team in teams) {
-            val players = team.getOnlinePlayers()
-            if (players.isEmpty()) {
-                continue
-            }
-            unready.add(team)
-
-            val ready = HiddenCommand { context ->
-                if (context.player.team == team && unready.remove(team)) {
-                    this.broadcast(
-                        Component.empty().append(team.formattedDisplayName).append(this.getIsReadyMessage())
-                    )
-                    if (unready.isEmpty()) {
-                        this.onReady()
-                    }
-                }
-                context.removeCommand {
-                    if (unready.contains(team)) this.getAlreadyNotReadyMessage() else this.getAlreadyReadyMessage()
-                }
-            }
-            val notReady = HiddenCommand { context ->
-                if (context.player.team == team && unready.contains(team)) {
-                    this.broadcast(
-                        Component.empty().append(team.formattedDisplayName).append(this.getNotReadyMessage())
-                    )
-                }
-                context.removeCommand {
-                    if (unready.contains(team)) this.getAlreadyNotReadyMessage() else this.getAlreadyReadyMessage()
-                }
-            }
-
-            for (player in players) {
-                player.sendSystemMessage(this.getReadyMessage(ready, notReady))
-            }
-        }
-        return unready
-    }
-
-    /**
-     * This allows you to check if all players are ready.
-     *
-     * This will broadcast a message to all players asking if
-     * they are ready, once all players confirm they are
-     * ready [ReadyChecker.onReady] will be called.
-     *
-     * @param players The players to check.
-     * @return The players that are not ready, this collection is mutable,
-     * and may be updated in the future.
-     */
-    @JvmStatic
-    public fun ReadyChecker.arePlayersReady(players: Collection<ServerPlayer>): Collection<ServerPlayer> {
-        val unready = HashSet<ServerPlayer>(players)
-        for (player in players) {
-            val ready = HiddenCommand { context ->
-                if (context.player == player && unready.remove(player)) {
-                    this.broadcast(Component.empty().append(player.displayName!!).append(this.getIsReadyMessage()))
-                    if (unready.isEmpty()) {
-                        this.onReady()
-                    }
-                }
-                context.removeCommand {
-                    if (unready.contains(it)) this.getAlreadyNotReadyMessage() else this.getAlreadyReadyMessage()
-                }
-            }
-            val notReady = HiddenCommand { context ->
-                if (context.player == player && unready.contains(player)) {
-                    this.broadcast(Component.empty().append(player.displayName!!).append(this.getNotReadyMessage()))
-                }
-                context.removeCommand {
-                    if (unready.contains(it)) this.getAlreadyNotReadyMessage() else this.getAlreadyReadyMessage()
-                }
-            }
-            player.sendSystemMessage(this.getReadyMessage(ready, notReady))
-        }
-        return unready
-    }
-
-    /**
      * This counts down for the specified duration, and sends
      * the countdown to all players for a given minigame.
      *
@@ -154,21 +66,10 @@ public object MinigameUtils {
         minigame: Minigame<M>,
         duration: MinecraftTimeDuration = 10.Seconds,
         interval: MinecraftTimeDuration = 1.Seconds,
-        players: (Minigame<M>) -> Collection<ServerPlayer> = Minigame<*>::getAllPlayers
+        scheduler: MinecraftScheduler = minigame.scheduler.asPhasedScheduler(),
+        players: () -> Collection<ServerPlayer> = minigame::getAllPlayers
     ): Completable {
-        val post = Completable.Impl()
-        var remaining = duration
-        var current = remaining / interval
-        this.beforeCountdown(players(minigame), interval)
-        minigame.scheduler.schedulePhasedInLoop(MinecraftTimeDuration.ZERO, interval, remaining) {
-            this.sendCountdown(players(minigame), current--, remaining)
-            remaining -= interval
-        }
-        minigame.scheduler.schedulePhased(remaining) {
-            this.afterCountdown(players(minigame))
-            post.complete()
-        }
-        return post
+        return this.countdown(duration, interval, scheduler, players)
     }
 
     @JvmStatic

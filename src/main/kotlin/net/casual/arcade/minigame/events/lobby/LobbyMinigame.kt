@@ -26,8 +26,6 @@ import net.casual.arcade.utils.ComponentUtils.singleUseFunction
 import net.casual.arcade.utils.EventUtils.broadcast
 import net.casual.arcade.utils.GameRuleUtils.resetToDefault
 import net.casual.arcade.utils.GameRuleUtils.set
-import net.casual.arcade.utils.MinigameUtils.arePlayersReady
-import net.casual.arcade.utils.MinigameUtils.areTeamsReady
 import net.casual.arcade.utils.MinigameUtils.countdown
 import net.casual.arcade.utils.MinigameUtils.requiresAdminOrPermission
 import net.casual.arcade.utils.MinigameUtils.transferTo

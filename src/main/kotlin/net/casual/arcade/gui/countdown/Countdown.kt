@@ -1,8 +1,14 @@
 package net.casual.arcade.gui.countdown
 
+import net.casual.arcade.scheduler.GlobalTickedScheduler
+import net.casual.arcade.scheduler.MinecraftScheduler
 import net.casual.arcade.scheduler.MinecraftTimeDuration
+import net.casual.arcade.task.Completable
+import net.casual.arcade.utils.MinigameUtils.countdown
+import net.casual.arcade.utils.PlayerUtils
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.minecraft.server.level.ServerPlayer
+import org.jetbrains.annotations.ApiStatus.NonExtendable
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 public interface Countdown {
@@ -17,5 +23,27 @@ public interface Countdown {
     @OverrideOnly
     public fun afterCountdown(players: Collection<ServerPlayer>) {
 
+    }
+
+    @NonExtendable
+    public fun countdown(
+        duration: MinecraftTimeDuration = 10.Seconds,
+        interval: MinecraftTimeDuration = 1.Seconds,
+        scheduler: MinecraftScheduler = GlobalTickedScheduler.asScheduler(),
+        players: () -> Collection<ServerPlayer> = PlayerUtils::players
+    ): Completable {
+        val post = Completable.Impl()
+        var remaining = duration
+        var current = remaining / interval
+        this.beforeCountdown(players(), interval)
+        scheduler.scheduleInLoop(MinecraftTimeDuration.ZERO, interval, remaining) {
+            this.sendCountdown(players(), current--, remaining)
+            remaining -= interval
+        }
+        scheduler.schedule(remaining) {
+            this.afterCountdown(players())
+            post.complete()
+        }
+        return post
     }
 }
