@@ -70,6 +70,12 @@ public class MinigamesEvent(
         val minigames = this.config.minigames
 
         if (this.index !in minigames.indices) {
+            if (this.config.repeat) {
+                this.index = 0
+                if (this.config.minigames.isNotEmpty()) {
+                    return this.config.minigames[0]
+                }
+            }
             return null
         }
         return this.config.minigames[this.index]

@@ -8,9 +8,10 @@ public data class MinigamesEventConfig(
     val lobby: LobbyConfig,
     val packs: List<String>,
     val operators: List<String>,
-    val minigames: List<ResourceLocation>
+    val minigames: List<ResourceLocation>,
+    val repeat: Boolean
 ) {
     public companion object {
-        public val DEFAULT: MinigamesEventConfig = MinigamesEventConfig(5, LobbyConfig.DEFAULT, listOf(), listOf(), listOf())
+        public val DEFAULT: MinigamesEventConfig = MinigamesEventConfig(5, LobbyConfig.DEFAULT, listOf(), listOf(), listOf(), true)
     }
 }

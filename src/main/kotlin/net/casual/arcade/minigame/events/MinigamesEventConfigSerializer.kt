@@ -9,6 +9,7 @@ import net.casual.arcade.minigame.events.lobby.ui.CountdownConfigFactory
 import net.casual.arcade.minigame.events.lobby.ui.TimerBossBarConfigFactory
 import net.casual.arcade.utils.JsonUtils.any
 import net.casual.arcade.utils.JsonUtils.arrayOrDefault
+import net.casual.arcade.utils.JsonUtils.booleanOrDefault
 import net.casual.arcade.utils.JsonUtils.intOrDefault
 import net.casual.arcade.utils.JsonUtils.set
 import net.casual.arcade.utils.JsonUtils.strings
@@ -41,7 +42,8 @@ public class MinigamesEventConfigSerializer: JsonSerializer<MinigamesEventConfig
         val lobby = runCatching {
             json.any("lobby", this.lobbySerializer)
         }.getOrDefault(LobbyConfig.DEFAULT)
-        return MinigamesEventConfig(teamSize, lobby, packs, operators, minigames)
+        val repeat = json.booleanOrDefault("repeat")
+        return MinigamesEventConfig(teamSize, lobby, packs, operators, minigames, repeat)
     }
 
     override fun serialize(value: MinigamesEventConfig): JsonElement {
@@ -50,6 +52,7 @@ public class MinigamesEventConfigSerializer: JsonSerializer<MinigamesEventConfig
         json["additional_packs"] = value.packs.toJsonStringArray { it }
         json["operators"] = value.operators.toJsonStringArray { it }
         json["minigames"] = value.minigames.toJsonStringArray { it.toString() }
+        json["repeat"] = value.repeat
         json["lobby"] = this.lobbySerializer.serialize(value.lobby)
         return json
     }
