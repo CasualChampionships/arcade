@@ -6,16 +6,8 @@ import net.minecraft.server.level.ServerPlayer
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 public interface Countdown {
-    public fun getDuration(): MinecraftTimeDuration {
-        return 10.Seconds
-    }
-
-    public fun getInterval(): MinecraftTimeDuration {
-        return 1.Seconds
-    }
-
     @OverrideOnly
-    public fun beforeCountdown(players: Collection<ServerPlayer>) {
+    public fun beforeCountdown(players: Collection<ServerPlayer>, interval: MinecraftTimeDuration) {
 
     }
 

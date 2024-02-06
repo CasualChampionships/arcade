@@ -5,6 +5,8 @@ import net.casual.arcade.events.minigame.MinigameRemovePlayerEvent
 import net.casual.arcade.gui.PlayerUI
 import net.casual.arcade.gui.TickableUI
 import net.casual.arcade.gui.bossbar.CustomBossBar
+import net.casual.arcade.gui.countdown.Countdown
+import net.casual.arcade.gui.countdown.TitledCountdown
 import net.casual.arcade.gui.nametag.ArcadeNameTag
 import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.gui.tab.ArcadeTabDisplay
@@ -29,11 +31,14 @@ public class MinigameUIManager(
     private var sidebar: ArcadeSidebar?
     private var display: ArcadeTabDisplay?
 
+    public var countdown: Countdown
+
     init {
         this.bossbars = ArrayList()
         this.nameTags = ArrayList()
         this.tickables = LinkedHashSet()
 
+        this.countdown = TitledCountdown.DEFAULT
         this.sidebar = null
         this.display = null
 

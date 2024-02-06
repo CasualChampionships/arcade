@@ -1,6 +1,7 @@
 package net.casual.arcade.minigame.events.lobby.ui
 
 import com.google.gson.JsonObject
+import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.gui.countdown.TitledCountdown
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.JsonUtils.set
@@ -11,7 +12,7 @@ public class TitledCountdownConfig(
 ): CountdownConfig {
     override val id: String = TitledCountdownConfig.id
     
-    override fun create(): TitledCountdown {
+    override fun create(): Countdown {
         return TitledCountdown.titled(this.title.literal())
     }
 

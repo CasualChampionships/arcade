@@ -15,7 +15,7 @@ internal class LevelMinigameExtension(
     }
 
     internal fun setMinigame(minigame: Minigame<*>) {
-        if (this.minigame != null) {
+        if (this.minigame != null && this.minigame !== minigame) {
             Arcade.logger.warn("Level ${this.level.dimension().location()} has been assigned multiple minigames!")
         }
         this.minigame = minigame

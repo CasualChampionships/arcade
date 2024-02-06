@@ -1,7 +1,9 @@
 package net.casual.arcade.commands
 
 import com.mojang.brigadier.CommandDispatcher
+import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.context.CommandContext
+import net.casual.arcade.commands.arguments.EnumArgument
 import net.casual.arcade.commands.arguments.MinigameArgument
 import net.casual.arcade.commands.arguments.MinigameArgument.PhaseName.Companion.INVALID_PHASE_NAME
 import net.casual.arcade.commands.arguments.MinigameArgument.SettingsName.Companion.INVALID_SETTING_NAME
@@ -9,10 +11,13 @@ import net.casual.arcade.commands.arguments.MinigameArgument.SettingsOption.Comp
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
+import net.casual.arcade.scheduler.MinecraftTimeDuration
+import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.success
 import net.casual.arcade.utils.JsonUtils
+import net.casual.arcade.utils.MinigameUtils.countdown
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
@@ -119,7 +124,13 @@ internal object MinigameCommand: Command {
                 )
             ).then(
                 Commands.literal("unpause").then(
-                    Commands.argument("minigame", MinigameArgument.minigame()).executes(this::unpauseMinigame)
+                    Commands.argument("minigame", MinigameArgument.minigame()).then(
+                        Commands.literal("countdown").then(
+                            Commands.argument("time", IntegerArgumentType.integer(1)).then(
+                                Commands.argument("unit", EnumArgument.enumeration(MinecraftTimeUnit::class.java)).executes(this::unpauseWithCountdown)
+                            )
+                        ).executes { this.unpauseWithCountdown(it, 10, MinecraftTimeUnit.Seconds) }
+                    ).executes(this::unpauseMinigame)
                 )
             ).then(
                 Commands.literal("create").then(
@@ -372,6 +383,17 @@ internal object MinigameCommand: Command {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         minigame.unpause()
         return context.source.success("Successfully unpaused minigame ${minigame.id}")
+    }
+
+    private fun unpauseWithCountdown(
+        context: CommandContext<CommandSourceStack>,
+        time: Int = IntegerArgumentType.getInteger(context, "time"),
+        unit: MinecraftTimeUnit = EnumArgument.getEnumeration(context, "unit", MinecraftTimeUnit::class.java)
+    ): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val duration = unit.duration(time)
+        minigame.ui.countdown.countdown(minigame, duration).then(minigame::unpause)
+        return context.source.success("Successfully started countdown for minigame ${minigame.id}")
     }
 
     private fun createMinigame(context: CommandContext<CommandSourceStack>): Int {

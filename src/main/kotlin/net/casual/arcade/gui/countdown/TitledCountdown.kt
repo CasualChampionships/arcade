@@ -42,9 +42,9 @@ public interface TitledCountdown: Countdown {
         )
     }
 
-    override fun beforeCountdown(players: Collection<ServerPlayer>) {
+    override fun beforeCountdown(players: Collection<ServerPlayer>, interval: MinecraftTimeDuration) {
         for (player in players) {
-            player.setTitleAnimation(0.Ticks, this.getInterval() * 2, 0.Ticks)
+            player.setTitleAnimation(0.Ticks, interval * 2, 0.Ticks)
         }
     }
 
@@ -73,7 +73,7 @@ public interface TitledCountdown: Countdown {
         @JvmField
         public val DEFAULT: TitledCountdown = object: TitledCountdown { }
 
-        public fun titled(title: Component): TitledCountdown {
+        public fun titled(title: Component): Countdown {
             return object: TitledCountdown {
                 override fun getCountdownTitle(current: Int): Component {
                     return title

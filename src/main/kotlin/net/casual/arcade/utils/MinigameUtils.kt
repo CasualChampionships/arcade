@@ -24,6 +24,7 @@ import net.casual.arcade.utils.LevelUtils.getExtension
 import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
+import net.casual.arcade.utils.TimeUtils.Seconds
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
@@ -151,13 +152,14 @@ public object MinigameUtils {
     @JvmStatic
     public fun <M: Minigame<M>> Countdown.countdown(
         minigame: Minigame<M>,
+        duration: MinecraftTimeDuration = 10.Seconds,
+        interval: MinecraftTimeDuration = 1.Seconds,
         players: (Minigame<M>) -> Collection<ServerPlayer> = Minigame<*>::getAllPlayers
     ): Completable {
         val post = Completable.Impl()
-        var remaining = this.getDuration()
-        val interval = this.getInterval()
+        var remaining = duration
         var current = remaining / interval
-        this.beforeCountdown(players(minigame))
+        this.beforeCountdown(players(minigame), interval)
         minigame.scheduler.schedulePhasedInLoop(MinecraftTimeDuration.ZERO, interval, remaining) {
             this.sendCountdown(players(minigame), current--, remaining)
             remaining -= interval
