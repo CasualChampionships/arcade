@@ -19,10 +19,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPacketListenerImpl {
 	@Shadow public ServerPlayer player;
+	@Shadow @Nullable private Entity lastVehicle;
 
 	@Shadow public abstract void teleport(double x, double y, double z, float yaw, float pitch);
 
-	@Shadow private @Nullable Entity lastVehicle;
+	@Shadow public abstract void ackBlockChangesUpTo(int sequence);
 
 	public ServerGamePacketListenerImplMixin(MinecraftServer server, Connection connection, CommonListenerCookie cookie) {
 		super(server, connection, cookie);
@@ -128,6 +129,44 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 	private void onHandleClick(ServerboundContainerClickPacket packet, CallbackInfo ci) {
 		if (!MinigameUtils.isTicking(this.player)) {
 			this.player.inventoryMenu.sendAllDataToRemote();
+			ci.cancel();
+		}
+	}
+
+	@Inject(
+		method = "handlePlayerAction",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V",
+			shift = At.Shift.AFTER
+		),
+		cancellable = true
+	)
+	private void onHandleAction(ServerboundPlayerActionPacket packet, CallbackInfo ci) {
+		if (!MinigameUtils.isTicking(this.player)) {
+			switch (packet.getAction()) {
+				case SWAP_ITEM_WITH_OFFHAND, DROP_ITEM, DROP_ALL_ITEMS -> {
+					this.player.inventoryMenu.sendAllDataToRemote();
+				}
+				case START_DESTROY_BLOCK, ABORT_DESTROY_BLOCK, STOP_DESTROY_BLOCK -> {
+					this.ackBlockChangesUpTo(packet.getSequence());
+				}
+			}
+			ci.cancel();
+		}
+	}
+
+	@Inject(
+		method = "handleInteract",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V",
+			shift = At.Shift.AFTER
+		),
+		cancellable = true
+	)
+	private void onHandleInteract(ServerboundInteractPacket packet, CallbackInfo ci) {
+		if (!MinigameUtils.isTicking(this.player)) {
 			ci.cancel();
 		}
 	}

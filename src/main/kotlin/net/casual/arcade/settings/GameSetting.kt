@@ -13,7 +13,7 @@ public open class GameSetting<T: Any>(
     private val serializer: JsonSerializer<T>
 ) {
     private val listeners by lazy { ArrayList<SettingListener<T>>() }
-    internal var override: (ServerPlayer) -> T? = { null }
+    public var override: (ServerPlayer) -> T? = { null }
 
     public fun get(): T {
         return this.value

@@ -36,9 +36,9 @@ public class ServerLevelMixin {
 		ProfilerFiller filler,
 		Entity entity
 	) {
-		if (!original && entity instanceof ServerPlayer player) {
+		if (entity instanceof ServerPlayer player) {
 			return !MinigameUtils.isTicking(player);
 		}
-		return original;
+		return !MinigameUtils.isTicking((ServerLevel) (Object) this);
 	}
 }

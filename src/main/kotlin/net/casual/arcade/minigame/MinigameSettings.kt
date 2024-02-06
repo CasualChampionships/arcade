@@ -41,7 +41,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
             "If enabled this will allow players to pvp with one another.".literal()
         )
         value = true
-        override = isAdminOverride(minigame, true)
+        override = isAdminOverride(true)
         defaultOptions()
     })
 
@@ -81,7 +81,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
             "If enabled players will be able to break blocks.".literal()
         )
         value = true
-        override = isAdminOverride(minigame, true)
+        override = isAdminOverride(true)
         defaultOptions()
     })
 
@@ -95,7 +95,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
             "If enabled players will be able to place blocks.".literal()
         )
         value = true
-        override = isAdminOverride(minigame, true)
+        override = isAdminOverride(true)
         defaultOptions()
     })
 
@@ -109,7 +109,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
             "If enabled players will be able to drop items".literal()
         )
         value = true
-        override = isAdminOverride(minigame, true)
+        override = isAdminOverride(true)
         defaultOptions()
     })
 
@@ -123,7 +123,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
             "If enabled players will be able to pick up items.".literal()
         )
         value = true
-        override = isAdminOverride(minigame, true)
+        override = isAdminOverride(true)
         defaultOptions()
     })
 
@@ -137,7 +137,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
             "If enabled players will be able to attack all other entities.".literal()
         )
         value = true
-        override = isAdminOverride(minigame, true)
+        override = isAdminOverride(true)
         defaultOptions()
     })
 
@@ -151,7 +151,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
             "If enabled players will be able to interact with all other entities.".literal()
         )
         value = true
-        override = isAdminOverride(minigame, true)
+        override = isAdminOverride(true)
         defaultOptions()
         listener { _, value ->
             canInteractAllSetting.setQuietly(value && canInteractItems.get() && canInteractBlocks.get())
@@ -168,7 +168,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
             "If enabled players will be able to interact with all other blocks".literal()
         )
         value = true
-        override = isAdminOverride(minigame, true)
+        override = isAdminOverride(true)
         defaultOptions()
         listener { _, value ->
             canInteractAllSetting.setQuietly(value && canInteractItems.get() && canInteractEntities.get())
@@ -185,7 +185,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
             "If enabled players will be able to interact with all items".literal()
         )
         value = true
-        override = isAdminOverride(minigame, true)
+        override = isAdminOverride(true)
         defaultOptions()
         listener { _, value ->
             canInteractAllSetting.setQuietly(value && canInteractBlocks.get() && canInteractEntities.get())
@@ -250,7 +250,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
             "If enabled, players will not be able to talk in chat".literal()
         )
         value = false
-        override = isAdminOverride(minigame, false)
+        override = isAdminOverride(false)
         defaultOptions()
     })
 
@@ -266,10 +266,11 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
     public val tickFreezeOnPause: GameSetting<Boolean> = this.register(bool {
         name = "tick_freeze_on_pause"
         display = Items.PACKED_ICE.named("Tick Freeze On Pause").setLore(
-            "When the minigame is paused the world will freeze all ticking".literal()
+            "When the minigame is paused the world will".literal(),
+            "freeze all ticking, including players.".literal()
         )
         value = false
-        override = isAdminOverride(minigame, false)
+        override = isAdminOverride(false)
         defaultOptions()
     })
 
@@ -292,9 +293,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
         return ScreenUtils.createSettingsMenu(this, ScreenUtils.DefaultMinigameSettingsComponent)
     }
 
-    public companion object {
-        public fun <T: Any> isAdminOverride(minigame: Minigame<*>, value: T): (ServerPlayer) -> T? {
-            return { if (minigame.isAdmin(it)) value else null }
-        }
+    protected fun <T: Any> isAdminOverride(value: T): (ServerPlayer) -> T? {
+        return { if (this.minigame.isAdmin(it)) value else null }
     }
 }
