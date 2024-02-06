@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.nucleoid.fantasy.RuntimeWorld;
 import xyz.nucleoid.fantasy.RuntimeWorldConfig;
 
-@Mixin(targets = "xyz.nucleoid.fantasy.RuntimeWorldManager")
+@Mixin(targets = "xyz.nucleoid.fantasy.RuntimeWorldManager", remap = false)
 public class RuntimeWorldManagerMixin {
 	@Shadow @Final private MinecraftServer server;
 
