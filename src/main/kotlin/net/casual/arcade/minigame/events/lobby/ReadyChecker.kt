@@ -46,6 +46,9 @@ public interface ReadyChecker {
     public fun broadcast(message: Component)
 
     @OverrideOnly
+    public fun broadcastTo(message: Component, player: ServerPlayer)
+
+    @OverrideOnly
     public fun onReady()
 
     /**
@@ -60,7 +63,9 @@ public interface ReadyChecker {
      * and may be updated in the future.
      */
     @NonExtendable
-    public fun areTeamsReady(teams: Collection<PlayerTeam>): Collection<PlayerTeam> {
+    public fun areTeamsReady(
+        teams: Collection<PlayerTeam>,
+    ): Collection<PlayerTeam> {
         val unready = HashSet<PlayerTeam>()
         for (team in teams) {
             val players = team.getOnlinePlayers()
@@ -94,7 +99,7 @@ public interface ReadyChecker {
             }
 
             for (player in players) {
-                player.sendSystemMessage(this.getReadyMessage(ready, notReady))
+                this.broadcastTo(this.getReadyMessage(ready, notReady), player)
             }
         }
         return unready
@@ -112,7 +117,9 @@ public interface ReadyChecker {
      * and may be updated in the future.
      */
     @NonExtendable
-    public fun arePlayersReady(players: Collection<ServerPlayer>): Collection<ServerPlayer> {
+    public fun arePlayersReady(
+        players: Collection<ServerPlayer>,
+    ): Collection<ServerPlayer> {
         val unready = HashSet<ServerPlayer>(players)
         for (player in players) {
             val ready = HiddenCommand { context ->
@@ -134,7 +141,7 @@ public interface ReadyChecker {
                     if (unready.contains(it)) this.getAlreadyNotReadyMessage() else this.getAlreadyReadyMessage()
                 }
             }
-            player.sendSystemMessage(this.getReadyMessage(ready, notReady))
+            this.broadcastTo(this.getReadyMessage(ready, notReady), player)
         }
         return unready
     }

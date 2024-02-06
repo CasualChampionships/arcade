@@ -1,10 +1,10 @@
 package net.casual.arcade.minigame.managers
 
 import net.casual.arcade.chat.ChatFormatter
+import net.casual.arcade.chat.PlayerChatFormatter
 import net.casual.arcade.events.player.PlayerChatEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.NONE
-import net.casual.arcade.utils.ComponentUtils.colour
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
 import net.minecraft.network.chat.Component
@@ -13,15 +13,34 @@ import net.minecraft.server.level.ServerPlayer
 public class MinigameChatManager(
     private val minigame: Minigame<*>
 ) {
-    public var globalChatFormatter: ChatFormatter = ChatFormatter.GLOBAL
-    public var teamChatFormatter: ChatFormatter = ChatFormatter.TEAM
-    public var regularChatFormatter: ChatFormatter? = null
+    public var globalChatFormatter: PlayerChatFormatter = PlayerChatFormatter.GLOBAL
+    public var teamChatFormatter: PlayerChatFormatter = PlayerChatFormatter.TEAM
+    public var adminChatFormatter: PlayerChatFormatter = PlayerChatFormatter.ADMIN
+    public var spectatorChatFormatter: PlayerChatFormatter = PlayerChatFormatter.SPECTATOR
+    public var regularChatFormatter: PlayerChatFormatter? = null
+
+    public var systemChatFormatter: ChatFormatter = ChatFormatter.SYSTEM
 
     public var mutedMessage: Component = "Currently chat is muted".literal().red()
 
     init {
         this.minigame.events.register<PlayerChatEvent>(1_000, NONE, this::onGlobalPlayerChat)
         this.minigame.events.register<PlayerChatEvent> { this.onPlayerChat(it) }
+    }
+
+    public fun broadcast(message: Component) {
+        this.broadcastTo(message, this.minigame.getAllPlayers())
+    }
+
+    public fun broadcastTo(message: Component, players: Collection<ServerPlayer>) {
+        val formatted = this.systemChatFormatter.format(message)
+        for (player in players) {
+            player.sendSystemMessage(formatted)
+        }
+    }
+
+    public fun broadcastTo(message: Component, player: ServerPlayer) {
+        player.sendSystemMessage(this.systemChatFormatter.format(message))
     }
 
     public fun isMessageGlobal(sender: ServerPlayer, message: String): Boolean {
@@ -39,7 +58,19 @@ public class MinigameChatManager(
         val (player, message) = event
         if (this.minigame.settings.isChatMuted.get(player)) {
             event.cancel()
-            player.sendSystemMessage(this.mutedMessage)
+            this.broadcastTo(this.mutedMessage, player)
+            return
+        }
+
+        if (this.minigame.isAdmin(player)) {
+            val (decorated, prefix) = this.adminChatFormatter.format(player, message.decoratedContent())
+            event.replaceMessage(decorated, prefix)
+            return
+        }
+
+        if (this.minigame.isSpectating(player)) {
+            val (decorated, prefix) = this.spectatorChatFormatter.format(player, message.decoratedContent())
+            event.replaceMessage(decorated, prefix)
             return
         }
 

@@ -29,8 +29,6 @@ import net.casual.arcade.utils.GameRuleUtils.set
 import net.casual.arcade.utils.MinigameUtils.countdown
 import net.casual.arcade.utils.MinigameUtils.requiresAdminOrPermission
 import net.casual.arcade.utils.MinigameUtils.transferTo
-import net.casual.arcade.utils.PlayerUtils.broadcast
-import net.casual.arcade.utils.PlayerUtils.broadcastToOps
 import net.casual.arcade.utils.PlayerUtils.clearPlayerInventory
 import net.casual.arcade.utils.PlayerUtils.resetExperience
 import net.casual.arcade.utils.PlayerUtils.resetHealth
@@ -115,11 +113,15 @@ public open class LobbyMinigame(
         val component = "All players are ready, click to start!".literal().green().singleUseFunction {
             this.setPhase(Phase.Countdown)
         }
-        this.getAllPlayers().broadcastToOps(component, 4)
+        this.chat.broadcastTo(component, this.getAdminPlayers())
     }
 
     override fun broadcast(message: Component) {
-        this.getAllPlayers().broadcast(message)
+        this.chat.broadcast(message)
+    }
+
+    override fun broadcastTo(message: Component, player: ServerPlayer) {
+        this.chat.broadcastTo(message, player)
     }
 
     public fun getNextMinigame(): Minigame<*>? {
@@ -307,9 +309,7 @@ public open class LobbyMinigame(
         val players = "[Click to ready players]".literal().lime().command("/lobby ready players")
         val component = message.append(teams).append(" or ").append(players)
 
-        for (player in this.getAdminPlayers()) {
-            player.sendSystemMessage(component)
-        }
+        this.chat.broadcastTo(component, this.getAdminPlayers())
     }
 
     public companion object {
