@@ -14,6 +14,6 @@ public class CommandDispatcherMixin<S> implements Arcade$DeletableCommand {
 
 	@Override
 	public void arcade$delete(String name) {
-		((DeletableCommand) this.root).delete(name);
+		((Arcade$DeletableCommand) this.root).arcade$delete(name);
 	}
 }

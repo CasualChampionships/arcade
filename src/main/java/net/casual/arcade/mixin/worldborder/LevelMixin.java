@@ -1,7 +1,6 @@
 package net.casual.arcade.mixin.worldborder;
 
 import net.casual.arcade.border.TrackedBorder;
-import net.casual.arcade.ducks.Arcade$MutableWorldBorder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;

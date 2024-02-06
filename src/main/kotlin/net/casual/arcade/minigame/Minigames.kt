@@ -16,8 +16,6 @@ import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.level.ServerLevel
-import org.jetbrains.annotations.ApiStatus.Internal
 import java.util.*
 import kotlin.io.path.bufferedReader
 import kotlin.io.path.bufferedWriter
@@ -100,16 +98,6 @@ public object Minigames {
      */
     public fun get(id: ResourceLocation): List<Minigame<*>> {
         return Collections.unmodifiableList(this.BY_ID[id] ?: return emptyList())
-    }
-
-    @Internal
-    public fun byLevel(level: ServerLevel): Minigame<*>? {
-        for (minigame in ALL.values) {
-            if (minigame.hasLevel(level)) {
-                return minigame
-            }
-        }
-        return null
     }
 
     internal fun allById(): Map<ResourceLocation, ArrayList<Minigame<*>>> {

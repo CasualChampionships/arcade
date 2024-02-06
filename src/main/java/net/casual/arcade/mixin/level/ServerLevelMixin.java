@@ -19,17 +19,13 @@ import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.ServerLevelData;
-import net.minecraft.world.level.storage.WorldData;
 import net.minecraft.world.level.storage.WritableLevelData;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xyz.nucleoid.fantasy.RuntimeWorld;
-import xyz.nucleoid.fantasy.RuntimeWorldHandle;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -38,7 +34,6 @@ import java.util.function.Supplier;
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin extends Level {
 	@Shadow @Nullable private EndDragonFight dragonFight;
-	@Shadow @Final private MinecraftServer server;
 
 	@Shadow public abstract long getSeed();
 

@@ -46,10 +46,8 @@ public class ServerAdvancementManagerMixin implements Arcade$MutableAdvancements
 		ServerAdvancementReloadEvent event = new ServerAdvancementReloadEvent((ServerAdvancementManager) (Object) this, resourceManager);
 		GlobalEventHandler.broadcast(event);
 
-		MutableAdvancements mutable = (MutableAdvancements) advancementTree;
-		for (AdvancementHolder advancement : event.getAdvancements()) {
-			mutable.addAdvancement(advancement);
-		}
+		Arcade$MutableAdvancements mutable = (Arcade$MutableAdvancements) advancementTree;
+		mutable.arcade$addAllAdvancements(event.getAdvancements());
 
 		// We want to mutate advancements...
 		this.advancements = new Object2ObjectOpenHashMap<>(this.advancements);
@@ -57,7 +55,7 @@ public class ServerAdvancementManagerMixin implements Arcade$MutableAdvancements
 
 	@Override
 	public void arcade$addAllAdvancements(Collection<AdvancementHolder> advancements) {
-		((MutableAdvancements) this.tree).addAllAdvancements(advancements);
+		((Arcade$MutableAdvancements) this.tree).arcade$addAllAdvancements(advancements);
 		for (AdvancementHolder advancement : advancements) {
 			this.advancements.put(advancement.id(), advancement);
 		}
@@ -65,13 +63,13 @@ public class ServerAdvancementManagerMixin implements Arcade$MutableAdvancements
 
 	@Override
 	public void arcade$addAdvancement(AdvancementHolder advancement) {
-		((MutableAdvancements) this.tree).addAdvancement(advancement);
+		((Arcade$MutableAdvancements) this.tree).arcade$addAdvancement(advancement);
 		this.advancements.put(advancement.id(), advancement);
 	}
 
 	@Override
 	public void arcade$removeAdvancement(AdvancementHolder advancement) {
-		((MutableAdvancements) this.tree).removeAdvancement(advancement);
+		((Arcade$MutableAdvancements) this.tree).arcade$removeAdvancement(advancement);
 		this.advancements.remove(advancement.id());
 	}
 }

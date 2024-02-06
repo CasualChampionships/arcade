@@ -3,6 +3,7 @@ package net.casual.arcade.mixin.bugfixes;
 import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.minigame.Minigames;
 import net.casual.arcade.utils.BoundingBoxUtils;
+import net.casual.arcade.utils.MinigameUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -34,7 +35,7 @@ public class BaseFireBlockMixin {
 		CallbackInfo ci
 	) {
 		if (level instanceof ServerLevel serverLevel) {
-			Minigame<?> minigame = Minigames.INSTANCE.byLevel(serverLevel);
+			Minigame<?> minigame = MinigameUtils.getMinigame(serverLevel);
 			if (minigame != null && minigame.getSettings().getMobsWithNoAIAreFlammable()) {
 				List<Mob> entities = serverLevel.getEntitiesOfClass(Mob.class, AABB.of(new BoundingBox(pos)));
 				for (Mob entity : entities) {

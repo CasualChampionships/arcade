@@ -1,7 +1,7 @@
 package net.casual.arcade.border.extensions
 
 import net.casual.arcade.Arcade
-import net.casual.arcade.border.SerializableBorder
+import net.casual.arcade.ducks.`Arcade$SerializableBorder`
 import net.casual.arcade.extensions.DataExtension
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.minecraft.nbt.CompoundTag
@@ -16,13 +16,13 @@ public class BorderSerializerExtension(
     }
 
     override fun serialize(): Tag {
-        return (this.level.worldBorder as SerializableBorder).serialize()
+        return (this.level.worldBorder as `Arcade$SerializableBorder`).`arcade$serialize`()
     }
 
     override fun deserialize(element: Tag) {
         element as CompoundTag
         GlobalTickedScheduler.later {
-            (this.level.worldBorder as SerializableBorder).deserialize(element)
+            (this.level.worldBorder as `Arcade$SerializableBorder`).`arcade$deserialize`(element)
         }
     }
 }

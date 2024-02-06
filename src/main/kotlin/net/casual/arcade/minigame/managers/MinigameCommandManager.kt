@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.tree.CommandNode
+import net.casual.arcade.ducks.`Arcade$DeletableCommand`
 import net.casual.arcade.events.minigame.*
 import net.casual.arcade.events.player.PlayerCommandEvent
 import net.casual.arcade.events.player.PlayerCommandSuggestionsEvent
@@ -18,7 +19,6 @@ import net.casual.arcade.utils.ComponentUtils.italicise
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.ComponentUtils.underline
-import net.casual.arcade.utils.ducks.DeletableCommand
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.CommonComponents
@@ -75,19 +75,19 @@ public class MinigameCommandManager(
 
     public fun unregister(name: String) {
         if (this.registered.remove(name)) {
-            (this.dispatcher as DeletableCommand).delete(name)
+            (this.dispatcher as `Arcade$DeletableCommand`).`arcade$delete`(name)
             val command = this.getGlobalMinigameCommand()?.getChild(this.minigame.uuid.toString()) ?: return
-            (command as DeletableCommand).delete(name)
+            (command as `Arcade$DeletableCommand`).`arcade$delete`(name)
             this.resendGlobalCommands()
         }
     }
 
     public fun unregisterAll() {
-        val dispatcher = this.dispatcher as DeletableCommand
+        val dispatcher = this.dispatcher as `Arcade$DeletableCommand`
         for (name in this.registered) {
-            dispatcher.delete(name)
+            dispatcher.`arcade$delete`(name)
             val command = this.getGlobalMinigameCommand()?.getChild(this.minigame.uuid.toString()) ?: return
-            (command as DeletableCommand).delete(name)
+            (command as `Arcade$DeletableCommand`).`arcade$delete`(name)
         }
         this.registered.clear()
         this.resendGlobalCommands()

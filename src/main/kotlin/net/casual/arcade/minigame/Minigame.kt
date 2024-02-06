@@ -10,6 +10,7 @@ import net.casual.arcade.events.player.PlayerDamageEvent
 import net.casual.arcade.events.player.PlayerDeathEvent
 import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.events.player.PlayerLeaveEvent
+import net.casual.arcade.events.server.ServerStoppingEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.gui.bossbar.CustomBossBar
 import net.casual.arcade.gui.nametag.ArcadeNameTag
@@ -37,7 +38,6 @@ import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.PlayerUtils
 import net.casual.arcade.utils.PlayerUtils.getKillCreditWith
 import net.casual.arcade.utils.PlayerUtils.grantAdvancementSilently
-import net.casual.arcade.utils.PlayerUtils.hasAdvancement
 import net.casual.arcade.utils.PlayerUtils.revokeAdvancement
 import net.casual.arcade.utils.StatUtils.increment
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
@@ -47,7 +47,6 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.level.GameRules
-import net.minecraft.world.scores.PlayerTeam
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import xyz.nucleoid.fantasy.RuntimeWorldHandle
 import java.lang.IllegalStateException
@@ -499,6 +498,7 @@ public abstract class Minigame<M: Minigame<M>>(
      */
     public fun addLevel(level: ServerLevel) {
         this.levels.add(level)
+        level.minigame.setMinigame(this)
     }
 
     /**
@@ -696,6 +696,9 @@ public abstract class Minigame<M: Minigame<M>>(
         for (player in this.getAllPlayers()) {
             this.removePlayer(player)
         }
+        for (level in this.levels) {
+            level.minigame.removeMinigame()
+        }
         // Closed is true after remove player
         this.closed = true
         if (this.settings.shouldDeleteLevels) {
@@ -862,6 +865,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.events.register<PlayerLeaveEvent>(Int.MAX_VALUE) { this.onPlayerLeave(it) }
         this.events.register<MinigameAddPlayerEvent>(-1000) { this.onPlayerAdd(it) }
         this.events.register<MinigameRemovePlayerEvent>(2000) { this.onPlayerRemove(it) }
+        this.events.register<ServerStoppingEvent> { this.onServerStopping(it) }
     }
 
     private fun onServerTick() {
@@ -921,6 +925,12 @@ public abstract class Minigame<M: Minigame<M>>(
 
         for (advancement in this.advancements.all()) {
             event.player.revokeAdvancement(advancement)
+        }
+    }
+
+    private fun onServerStopping(event: ServerStoppingEvent) {
+        if (this.settings.pauseOnServerStop && !this.paused) {
+            this.pause()
         }
     }
 }

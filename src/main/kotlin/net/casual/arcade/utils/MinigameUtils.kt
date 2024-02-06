@@ -6,6 +6,7 @@ import net.casual.arcade.commands.hidden.HiddenCommand
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.core.Event
+import net.casual.arcade.events.level.LevelCreatedEvent
 import net.casual.arcade.events.player.PlayerCreatedEvent
 import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.gui.countdown.Countdown
@@ -15,13 +16,17 @@ import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.annotation.MinigameEventListener
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
 import net.casual.arcade.minigame.events.lobby.ReadyChecker
+import net.casual.arcade.minigame.extensions.LevelMinigameExtension
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.task.Completable
+import net.casual.arcade.utils.LevelUtils.addExtension
+import net.casual.arcade.utils.LevelUtils.getExtension
 import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
 import java.lang.invoke.MethodHandles
@@ -31,9 +36,16 @@ import java.lang.reflect.Modifier
 public object MinigameUtils {
     internal val ServerPlayer.minigame
         get() = this.getExtension(PlayerMinigameExtension::class.java)
+    internal val ServerLevel.minigame
+        get() = this.getExtension(LevelMinigameExtension::class.java)
 
     @JvmStatic
     public fun ServerPlayer.getMinigame(): Minigame<*>? {
+        return this.minigame.getMinigame()
+    }
+
+    @JvmStatic
+    public fun ServerLevel.getMinigame(): Minigame<*>? {
         return this.minigame.getMinigame()
     }
 
@@ -223,6 +235,28 @@ public object MinigameUtils {
         next.start()
     }
 
+    @JvmStatic
+    public fun ServerLevel.isTicking(): Boolean {
+        val ticking = this.tickRateManager().runsNormally()
+        if (!ticking) {
+            return false
+        }
+        val minigame = this.getMinigame()
+        if (minigame != null && minigame.settings.tickFreezeOnPause.get()) {
+            return !minigame.paused
+        }
+        return true
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.isTicking(): Boolean {
+        val minigame = this.getMinigame()
+        if (minigame != null && minigame.settings.tickFreezeOnPause.get(this)) {
+            return !minigame.paused
+        }
+        return true
+    }
+
     internal fun parseMinigameEvents(minigame: Minigame<*>, declarer: Any = minigame) {
         var type: Class<*> = declarer::class.java
         while (type != Any::class.java) {
@@ -239,6 +273,9 @@ public object MinigameUtils {
         }
         GlobalEventHandler.register<PlayerJoinEvent>(Int.MIN_VALUE) { (player) ->
             player.getMinigame()?.addPlayer(player)
+        }
+        GlobalEventHandler.register<LevelCreatedEvent> { (level) ->
+            level.addExtension(LevelMinigameExtension(level))
         }
     }
 

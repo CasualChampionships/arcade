@@ -2,11 +2,8 @@ package net.casual.arcade.utils
 
 import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer
 import net.casual.arcade.Arcade
-import net.casual.arcade.border.extensions.BorderSerializerExtension
-import net.casual.arcade.ducks.`Arcade$MutableWorldBorder`
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.level.LevelCreatedEvent
-import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
 import net.casual.arcade.level.DragonDataExtension
@@ -15,11 +12,10 @@ import net.casual.arcade.level.VanillaLikeLevel
 import net.casual.arcade.utils.ExtensionUtils.addExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtensions
-import net.casual.arcade.utils.LevelUtils.addExtension
+import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
-import net.minecraft.world.level.border.WorldBorder
 
 public object LevelUtils {
     @JvmStatic
@@ -52,11 +48,6 @@ public object LevelUtils {
         for (level in this.levels()) {
             consumer.accept(level)
         }
-    }
-
-    @JvmStatic
-    public fun ServerLevel.setWorldBorder(border: WorldBorder) {
-        (this as `Arcade$MutableWorldBorder`).`arcade$setWorldBorder`(border)
     }
 
     @JvmStatic

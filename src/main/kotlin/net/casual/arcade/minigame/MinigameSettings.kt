@@ -263,6 +263,25 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
         defaultOptions()
     })
 
+    public val tickFreezeOnPause: GameSetting<Boolean> = this.register(bool {
+        name = "tick_freeze_on_pause"
+        display = Items.PACKED_ICE.named("Tick Freeze On Pause").setLore(
+            "When the minigame is paused the world will freeze all ticking".literal()
+        )
+        value = false
+        override = isAdminOverride(minigame, false)
+        defaultOptions()
+    })
+
+    public var pauseOnServerStop: Boolean by this.register(bool {
+        name = "pause_on_server_stop"
+        display = Items.ICE.named("Pause On Server Stop").setLore(
+            "Pauses the minigame just before the server stops".literal()
+        )
+        value = true
+        defaultOptions()
+    })
+
     /**
      * This creates a menu which can be displayed to a
      * player to directly interact with the settings.

@@ -79,10 +79,10 @@ public class MinecraftServerMixin {
 
 	@Inject(
 		method = "stopServer",
-		at = @At("TAIL")
+		at = @At("HEAD")
 	)
 	private void onShutdown(CallbackInfo ci) {
-		ServerStoppedEvent event = new ServerStoppedEvent((MinecraftServer) (Object) this);
+		ServerStoppingEvent event = new ServerStoppingEvent((MinecraftServer) (Object) this);
 		GlobalEventHandler.broadcast(event);
 	}
 
