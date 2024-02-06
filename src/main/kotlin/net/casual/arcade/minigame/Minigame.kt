@@ -486,7 +486,7 @@ public abstract class Minigame<M: Minigame<M>>(
      */
     public fun addLevel(handle: RuntimeWorldHandle) {
         this.handles.add(handle)
-        this.levels.add(handle.asWorld())
+        this.addLevel(handle.asWorld())
     }
 
     /**
