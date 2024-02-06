@@ -1,17 +1,24 @@
 package net.casual.arcade.minigame.managers
 
+import net.casual.arcade.chat.ChatFormatter
 import net.casual.arcade.events.player.PlayerChatEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.NONE
+import net.casual.arcade.utils.ComponentUtils.colour
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
-import net.casual.arcade.utils.PlayerUtils.getChatPrefix
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 
 public class MinigameChatManager(
     private val minigame: Minigame<*>
 ) {
+    public var globalChatFormatter: ChatFormatter = ChatFormatter.GLOBAL
+    public var teamChatFormatter: ChatFormatter = ChatFormatter.TEAM
+    public var regularChatFormatter: ChatFormatter? = null
+
+    public var mutedMessage: Component = "Currently chat is muted".literal().red()
+
     init {
         this.minigame.events.register<PlayerChatEvent>(1_000, NONE, this::onGlobalPlayerChat)
         this.minigame.events.register<PlayerChatEvent> { this.onPlayerChat(it) }
@@ -32,32 +39,36 @@ public class MinigameChatManager(
         val (player, message) = event
         if (this.minigame.settings.isChatMuted.get(player)) {
             event.cancel()
-            player.sendSystemMessage("Currently chat is muted".literal().red())
+            player.sendSystemMessage(this.mutedMessage)
             return
         }
 
-        if (this.minigame.settings.isTeamChat) {
-            val team = player.team
-            if (team == null || this.minigame.teams.isTeamIgnored(team)) {
-                return
+        if (!this.minigame.settings.isTeamChat) {
+            val formatter = this.regularChatFormatter
+            if (formatter != null) {
+                val (decorated, prefix) = formatter.format(player, message.decoratedContent())
+                event.replaceMessage(decorated, prefix)
             }
-
-            val content = event.rawMessage
-            if (content.startsWith("!")) {
-                val decorated = content.substring(1)
-                if (decorated.isNotBlank()) {
-                    event.replaceMessage(decorated.trim().literal(), player.getChatPrefix())
-                } else {
-                    event.cancel()
-                }
-                return
-            }
-            val prefix = Component.empty()
-                .append(team.formattedDisplayName)
-                .append(" ")
-                .append(player.getChatPrefix(false))
-            event.replaceMessage(message.decoratedContent(), prefix)
-            event.addFilter { team == it.team }
+            return
         }
+
+        val team = player.team
+
+        val content = event.rawMessage
+        val exclaimed = content.startsWith("!")
+        if (exclaimed || team == null || this.minigame.teams.isTeamIgnored(team)) {
+            val trimmed = if (exclaimed) content.substring(1) else content
+            if (trimmed.isNotBlank()) {
+                val (decorated, prefix) = this.globalChatFormatter.format(player, trimmed.trim().literal())
+                event.replaceMessage(decorated, prefix)
+            } else {
+                event.cancel()
+            }
+            return
+        }
+        val (decorated, prefix) = this.teamChatFormatter.format(player, message.decoratedContent())
+        event.replaceMessage(decorated, prefix)
+        event.addFilter { team == it.team }
+        return
     }
 }

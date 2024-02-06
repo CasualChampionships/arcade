@@ -213,7 +213,7 @@ public object ComponentUtils {
     }
 
     @JvmStatic
-    public fun MutableComponent.colour(colour: Int): MutableComponent? {
+    public fun MutableComponent.colour(colour: Int): MutableComponent {
         return this.withStyle { it.withColor(colour) }
     }
 
