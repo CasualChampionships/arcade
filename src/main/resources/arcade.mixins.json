@@ -45,7 +45,7 @@
     "extensions.ServerGamePacketListenerImplMixin",
     "extensions.ServerLevelMixin",
     "extensions.ServerPlayerMixin",
-    "fantasy.RuntimeWorldManagerMixin",
+    "fantasy.RequiredArgumentBuilderMixin",
     "level.BaseFireBlockMixin",
     "level.EndPortalBlockMixin",
     "level.EntityMixin",
