@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.function.Supplier;
 
 @Mixin(Level.class)
-public class LevelMixin implements Arcade$MutableWorldBorder {
+public class LevelMixin {
 	@Shadow @Mutable @Final private WorldBorder worldBorder;
 
 	@Inject(
@@ -40,10 +40,5 @@ public class LevelMixin implements Arcade$MutableWorldBorder {
 		CallbackInfo ci
 	) {
 		this.worldBorder = new TrackedBorder(29999984, 0, 0);
-	}
-
-	@Override
-	public void arcade$setWorldBorder(WorldBorder border) {
-		this.worldBorder = border;
 	}
 }
