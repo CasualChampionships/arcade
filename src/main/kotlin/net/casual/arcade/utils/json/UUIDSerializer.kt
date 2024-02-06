@@ -2,7 +2,7 @@ package net.casual.arcade.utils.json
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
-import java.util.UUID
+import java.util.*
 
 public object UUIDSerializer: JsonSerializer<UUID> {
     override fun serialize(value: UUID): JsonElement {

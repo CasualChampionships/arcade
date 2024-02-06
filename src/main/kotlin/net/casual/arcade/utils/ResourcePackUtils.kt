@@ -4,21 +4,14 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.network.ClientboundPacketEvent
 import net.casual.arcade.events.network.PackStatusEvent
 import net.casual.arcade.events.network.PlayerDisconnectEvent
-import net.casual.arcade.events.network.PlayerLoginEvent
-import net.casual.arcade.events.player.PlayerClientboundPacketEvent
-import net.casual.arcade.events.player.PlayerCreatedEvent
 import net.casual.arcade.resources.PackInfo
 import net.casual.arcade.resources.PackStatus
 import net.casual.arcade.resources.PlayerPackExtension
-import net.casual.arcade.utils.ResourcePackUtils.sendResourcePack
 import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 public object ResourcePackUtils {
     private val universe = HashMap<UUID, PlayerPackExtension>()

@@ -1,8 +1,6 @@
 package net.casual.arcade.utils
 
 import net.casual.arcade.ducks.`Arcade$MutableRecipeManager`
-import net.casual.arcade.utils.ducks.MutableRecipeManager
-import net.minecraft.world.item.crafting.Recipe
 import net.minecraft.world.item.crafting.RecipeHolder
 import net.minecraft.world.item.crafting.RecipeManager
 

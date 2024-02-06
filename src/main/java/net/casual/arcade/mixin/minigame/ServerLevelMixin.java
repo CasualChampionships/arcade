@@ -1,7 +1,6 @@
 package net.casual.arcade.mixin.minigame;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.utils.MinigameUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;

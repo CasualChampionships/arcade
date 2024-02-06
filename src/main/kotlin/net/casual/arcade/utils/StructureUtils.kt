@@ -4,7 +4,6 @@ import net.casual.arcade.Arcade
 import net.minecraft.nbt.NbtAccounter
 import net.minecraft.nbt.NbtIo
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate
-import java.nio.file.Files
 import java.nio.file.Path
 
 public object StructureUtils {

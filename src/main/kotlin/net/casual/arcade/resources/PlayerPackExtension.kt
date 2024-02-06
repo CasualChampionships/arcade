@@ -1,17 +1,11 @@
 package net.casual.arcade.resources
 
 import net.casual.arcade.Arcade
-import net.casual.arcade.events.network.PackStatusEvent
 import net.casual.arcade.extensions.Extension
-import net.casual.arcade.resources.PackStatus.Companion.toPackStatus
 import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
-import net.minecraft.network.protocol.common.ServerboundResourcePackPacket
 import java.util.*
 import java.util.concurrent.CompletableFuture
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
-import kotlin.collections.HashSet
 
 internal class PlayerPackExtension: Extension {
     internal val futures = HashMap<UUID, MutableList<CompletableFuture<PackStatus>>>()

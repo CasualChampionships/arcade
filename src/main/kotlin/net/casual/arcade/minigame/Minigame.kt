@@ -49,9 +49,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.level.GameRules
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import xyz.nucleoid.fantasy.RuntimeWorldHandle
-import java.lang.IllegalStateException
 import java.util.*
-import kotlin.collections.LinkedHashSet
 
 /**
  * This class represents a [Minigame] which player's can play.

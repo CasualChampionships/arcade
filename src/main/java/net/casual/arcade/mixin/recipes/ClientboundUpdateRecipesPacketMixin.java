@@ -2,7 +2,6 @@ package net.casual.arcade.mixin.recipes;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

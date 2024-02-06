@@ -4,7 +4,7 @@ import net.casual.arcade.items.HashableItemStack
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.settings.SettingListener
-import net.casual.arcade.settings.impl.*
+import net.casual.arcade.settings.impl.EnumGameSetting
 import net.casual.arcade.utils.json.*
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack

@@ -1,7 +1,6 @@
 package net.casual.arcade.minigame.events.lobby.ui
 
 import com.google.gson.JsonObject
-import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.gui.countdown.TitledCountdown
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.JsonUtils.set

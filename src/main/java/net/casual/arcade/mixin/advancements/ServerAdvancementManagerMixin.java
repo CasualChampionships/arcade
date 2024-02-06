@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.casual.arcade.ducks.Arcade$MutableAdvancements;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.ServerAdvancementReloadEvent;
-import net.casual.arcade.utils.ducks.MutableAdvancements;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementTree;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +19,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 @Mixin(ServerAdvancementManager.class)

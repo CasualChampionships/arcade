@@ -8,7 +8,7 @@ import net.casual.arcade.database.DatabaseWriter
 import net.casual.arcade.utils.json.JsonSerializer
 import net.minecraft.Util
 import net.minecraft.nbt.*
-import java.util.UUID
+import java.util.*
 
 public object JsonUtils {
     public val GSON: Gson = GsonBuilder().setPrettyPrinting().serializeNulls().disableHtmlEscaping().create()

@@ -14,9 +14,9 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigamePhase
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.annotation.MinigameEventListener
-import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
 import net.casual.arcade.minigame.events.lobby.ReadyChecker
 import net.casual.arcade.minigame.extensions.LevelMinigameExtension
+import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.task.Completable
 import net.casual.arcade.utils.LevelUtils.addExtension

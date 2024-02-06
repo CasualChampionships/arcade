@@ -9,7 +9,7 @@ import net.minecraft.world.level.border.BorderStatus
 import net.minecraft.world.level.border.WorldBorder
 import net.minecraft.world.phys.shapes.VoxelShape
 
-public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
+public abstract class ArcadeBorder: WorldBorder(), `Arcade$SerializableBorder` {
     protected abstract var borderState: BorderState
     protected abstract var centerState: CenterBorderState
 
@@ -128,7 +128,7 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
         }
     }
 
-    override fun serialize(): CompoundTag {
+    override fun `arcade$serialize`(): CompoundTag {
         // This essentially calls super.serialize() (WorldBorer#serialize())
         val compound =  (this as `Arcade$SerializableBorder`).`arcade$serialize`()
         compound.putLong("center_lerp_time", this.centerState.getLerpRemainingTime())
@@ -137,7 +137,7 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
         return compound
     }
 
-    override fun deserialize(compound: CompoundTag) {
+    override fun `arcade$deserialize`(compound: CompoundTag) {
         this.damagePerBlock = compound.getDouble("damage_per_block")
         this.damageSafeZone = compound.getDouble("damage_safe_zone")
         this.warningBlocks = compound.getInt("warning_blocks")

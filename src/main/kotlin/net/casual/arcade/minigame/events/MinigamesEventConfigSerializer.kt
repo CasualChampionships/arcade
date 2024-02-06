@@ -2,6 +2,11 @@ package net.casual.arcade.minigame.events
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import net.casual.arcade.area.PlaceableAreaConfigFactory
+import net.casual.arcade.minigame.events.lobby.LobbyConfig
+import net.casual.arcade.minigame.events.lobby.LobbyConfigSerializer
+import net.casual.arcade.minigame.events.lobby.ui.CountdownConfigFactory
+import net.casual.arcade.minigame.events.lobby.ui.TimerBossBarConfigFactory
 import net.casual.arcade.utils.JsonUtils.any
 import net.casual.arcade.utils.JsonUtils.arrayOrDefault
 import net.casual.arcade.utils.JsonUtils.intOrDefault
@@ -9,11 +14,6 @@ import net.casual.arcade.utils.JsonUtils.set
 import net.casual.arcade.utils.JsonUtils.strings
 import net.casual.arcade.utils.JsonUtils.toJsonStringArray
 import net.casual.arcade.utils.json.JsonSerializer
-import net.casual.arcade.area.PlaceableAreaConfigFactory
-import net.casual.arcade.minigame.events.lobby.LobbyConfig
-import net.casual.arcade.minigame.events.lobby.LobbyConfigSerializer
-import net.casual.arcade.minigame.events.lobby.ui.CountdownConfigFactory
-import net.casual.arcade.minigame.events.lobby.ui.TimerBossBarConfigFactory
 import net.minecraft.resources.ResourceLocation
 
 public class MinigamesEventConfigSerializer: JsonSerializer<MinigamesEventConfig> {

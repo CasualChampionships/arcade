@@ -1,12 +1,9 @@
 package net.casual.arcade.mixin.bugfixes;
 
 import net.casual.arcade.minigame.Minigame;
-import net.casual.arcade.minigame.Minigames;
-import net.casual.arcade.utils.BoundingBoxUtils;
 import net.casual.arcade.utils.MinigameUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;

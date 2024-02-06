@@ -4,8 +4,7 @@ import com.mojang.authlib.GameProfile
 import net.casual.arcade.events.core.Event
 import net.casual.arcade.resources.PackStatus
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.network.ServerCommonPacketListenerImpl
-import java.util.UUID
+import java.util.*
 
 public data class PackStatusEvent(
     val server: MinecraftServer,

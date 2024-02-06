@@ -1,7 +1,6 @@
 package net.casual.arcade.events.server
 
 import net.minecraft.server.packs.resources.ResourceManager
-import net.minecraft.world.item.crafting.Recipe
 import net.minecraft.world.item.crafting.RecipeHolder
 import net.minecraft.world.item.crafting.RecipeManager
 import java.util.*

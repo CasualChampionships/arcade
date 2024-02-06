@@ -1,8 +1,6 @@
 package net.casual.arcade.utils
 
 import net.casual.arcade.Arcade
-import net.minecraft.util.TimeUtil
-import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.max
 

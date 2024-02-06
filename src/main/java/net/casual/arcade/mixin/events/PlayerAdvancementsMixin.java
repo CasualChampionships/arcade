@@ -2,7 +2,6 @@ package net.casual.arcade.mixin.events;
 
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.PlayerAdvancementEvent;
-import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.server.PlayerAdvancements;

@@ -8,7 +8,6 @@ import net.casual.arcade.recipes.PlayerPredicatedRecipe
 import net.casual.arcade.recipes.WrappedRecipe
 import net.casual.arcade.utils.RecipeUtils.addRecipes
 import net.casual.arcade.utils.RecipeUtils.removeRecipes
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Container
 import net.minecraft.world.inventory.CraftingContainer

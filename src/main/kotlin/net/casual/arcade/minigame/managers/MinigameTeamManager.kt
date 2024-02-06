@@ -8,7 +8,6 @@ import net.casual.arcade.events.minigame.MinigameRemoveAdminEvent
 import net.casual.arcade.events.minigame.MinigameRemoveSpectatorEvent
 import net.casual.arcade.events.player.PlayerTeamJoinEvent
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.stringOrNull
 import net.casual.arcade.utils.PlayerUtils.addToTeam
 import net.casual.arcade.utils.PlayerUtils.removeFromTeam
@@ -17,8 +16,6 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Scoreboard
 import net.minecraft.world.scores.Team
-import java.lang.IllegalStateException
-import kotlin.collections.HashSet
 
 public class MinigameTeamManager(
     private val minigame: Minigame<*>
