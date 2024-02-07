@@ -37,7 +37,7 @@ public fun interface PlayerChatFormatter {
         }
 
         public val ADMIN: PlayerChatFormatter = PlayerChatFormatter { player, message ->
-            val prefix = "[".literal().append("✩".literal().red()).append("] ")
+            val prefix = Component.empty().append("[\uD83D\uDC64] ".literal().red())
             prefix.append(player.getChatPrefix(false))
             PlayerFormattedChat(message, prefix)
         }

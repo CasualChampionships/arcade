@@ -19,7 +19,7 @@ public class MinigameChatManager(
     public var spectatorChatFormatter: PlayerChatFormatter = PlayerChatFormatter.SPECTATOR
     public var regularChatFormatter: PlayerChatFormatter? = null
 
-    public var systemChatFormatter: ChatFormatter = ChatFormatter.SYSTEM
+    public var systemChatFormatter: ChatFormatter? = null
 
     public var mutedMessage: Component = "Currently chat is muted".literal().red()
 
@@ -28,19 +28,28 @@ public class MinigameChatManager(
         this.minigame.events.register<PlayerChatEvent> { this.onPlayerChat(it) }
     }
 
-    public fun broadcast(message: Component) {
-        this.broadcastTo(message, this.minigame.getAllPlayers())
+    public fun broadcast(message: Component, formatter: ChatFormatter? = this.systemChatFormatter) {
+        this.broadcastTo(message, this.minigame.getAllPlayers(), formatter)
     }
 
-    public fun broadcastTo(message: Component, players: Collection<ServerPlayer>) {
-        val formatted = this.systemChatFormatter.format(message)
+    public fun broadcastTo(
+        message: Component,
+        players: Collection<ServerPlayer>,
+        formatter: ChatFormatter? = this.systemChatFormatter
+    ) {
+        val formatted = formatter?.format(message) ?: message
         for (player in players) {
             player.sendSystemMessage(formatted)
         }
     }
 
-    public fun broadcastTo(message: Component, player: ServerPlayer) {
-        player.sendSystemMessage(this.systemChatFormatter.format(message))
+    public fun broadcastTo(
+        message: Component,
+        player: ServerPlayer,
+        formatter: ChatFormatter? = this.systemChatFormatter
+    ) {
+        val formatted = formatter?.format(message) ?: message
+        player.sendSystemMessage(formatted)
     }
 
     public fun isMessageGlobal(sender: ServerPlayer, message: String): Boolean {
