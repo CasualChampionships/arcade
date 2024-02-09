@@ -2,6 +2,8 @@ package net.casual.arcade.utils
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.casual.arcade.commands.hidden.HiddenCommand
+import net.casual.arcade.scheduler.MinecraftTimeDuration
+import net.casual.arcade.utils.TimeUtils.Minutes
 import net.minecraft.ChatFormatting
 import net.minecraft.ChatFormatting.*
 import net.minecraft.network.chat.*
@@ -66,13 +68,18 @@ public object ComponentUtils {
 
     @Experimental
     @JvmStatic
-    public fun MutableComponent.function(command: HiddenCommand): MutableComponent {
-        return this.command(CommandUtils.registerHiddenCommand(command))
+    public fun MutableComponent.function(timeout: MinecraftTimeDuration = 10.Minutes, command: HiddenCommand): MutableComponent {
+        return this.command(CommandUtils.registerHiddenCommand(timeout, command))
     }
 
     @JvmStatic
     public fun MutableComponent.command(command: String): MutableComponent {
         return this.withStyle { it.withClickEvent(ClickEvent(ClickEvent.Action.RUN_COMMAND, command)) }
+    }
+
+    @JvmStatic
+    public fun MutableComponent.suggestCommand(command: String): MutableComponent {
+        return this.withStyle { it.withClickEvent(ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command)) }
     }
 
     @JvmStatic

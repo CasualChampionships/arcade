@@ -655,8 +655,10 @@ public abstract class Minigame<M: Minigame<M>>(
      * @see paused
      */
     public fun pause() {
-        this.paused = true
-        MinigamePauseEvent(this).broadcast()
+        if (!this.paused) {
+            this.paused = true
+            MinigamePauseEvent(this).broadcast()
+        }
     }
 
     /**
@@ -666,8 +668,10 @@ public abstract class Minigame<M: Minigame<M>>(
      * @see paused
      */
     public fun unpause() {
-        this.paused = false
-        MinigameUnpauseEvent(this).broadcast()
+        if (this.paused) {
+            this.paused = false
+            MinigameUnpauseEvent(this).broadcast()
+        }
     }
 
     /**

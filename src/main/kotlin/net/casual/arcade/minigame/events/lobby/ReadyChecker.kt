@@ -1,6 +1,7 @@
 package net.casual.arcade.minigame.events.lobby
 
 import net.casual.arcade.commands.hidden.HiddenCommand
+import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.ComponentUtils.crimson
 import net.casual.arcade.utils.ComponentUtils.function
 import net.casual.arcade.utils.ComponentUtils.lime
@@ -23,13 +24,13 @@ public interface ReadyChecker {
     }
 
     @OverrideOnly
-    public fun getIsReadyMessage(): Component {
-        return " is ready!".literal().lime()
+    public fun getIsReadyMessage(readier: Component): Component {
+        return Component.empty().append(readier).append(" is ready!".literal().lime())
     }
 
     @OverrideOnly
-    public fun getNotReadyMessage(): Component {
-        return " is not ready!".literal().red()
+    public fun getNotReadyMessage(readier: Component): Component {
+        return Component.empty().append(readier).append(" is not ready!".literal().red())
     }
 
     @OverrideOnly
@@ -48,23 +49,22 @@ public interface ReadyChecker {
     @OverrideOnly
     public fun broadcastTo(message: Component, player: ServerPlayer)
 
-    @OverrideOnly
-    public fun onReady()
-
     /**
      * This allows you to check if all teams are ready.
      *
      * This will broadcast a message to all players asking if
-     * their team is ready, once all teams confirm they are
-     * ready [ReadyChecker.onReady] will be called.
+     * their team is ready, once all teams confirm the callback
+     * will be invoked.
      *
      * @param teams The teams to check.
+     * @param callback The function called when all tean are ready.
      * @return The teams that are not ready, this collection is mutable,
      * and may be updated in the future.
      */
     @NonExtendable
     public fun areTeamsReady(
         teams: Collection<PlayerTeam>,
+        callback: () -> Unit
     ): Collection<PlayerTeam> {
         val unready = HashSet<PlayerTeam>()
         for (team in teams) {
@@ -76,11 +76,9 @@ public interface ReadyChecker {
 
             val ready = HiddenCommand { context ->
                 if (context.player.team == team && unready.remove(team)) {
-                    this.broadcast(
-                        Component.empty().append(team.formattedDisplayName).append(this.getIsReadyMessage())
-                    )
+                    this.broadcast(this.getIsReadyMessage(team.formattedDisplayName))
                     if (unready.isEmpty()) {
-                        this.onReady()
+                        callback()
                     }
                 }
                 context.removeCommand {
@@ -89,9 +87,7 @@ public interface ReadyChecker {
             }
             val notReady = HiddenCommand { context ->
                 if (context.player.team == team && unready.contains(team)) {
-                    this.broadcast(
-                        Component.empty().append(team.formattedDisplayName).append(this.getNotReadyMessage())
-                    )
+                    this.broadcast(this.getNotReadyMessage(team.formattedDisplayName))
                 }
                 context.removeCommand {
                     if (unready.contains(team)) this.getAlreadyNotReadyMessage() else this.getAlreadyReadyMessage()
@@ -109,24 +105,26 @@ public interface ReadyChecker {
      * This allows you to check if all players are ready.
      *
      * This will broadcast a message to all players asking if
-     * they are ready, once all players confirm they are
-     * ready [ReadyChecker.onReady] will be called.
+     * they are ready, once all players confirm the callback
+     * will be invoked.
      *
      * @param players The players to check.
+     * @param callback The function called when all players are ready.
      * @return The players that are not ready, this collection is mutable,
      * and may be updated in the future.
      */
     @NonExtendable
     public fun arePlayersReady(
         players: Collection<ServerPlayer>,
+        callback: () -> Unit
     ): Collection<ServerPlayer> {
         val unready = HashSet<ServerPlayer>(players)
         for (player in players) {
             val ready = HiddenCommand { context ->
                 if (context.player == player && unready.remove(player)) {
-                    this.broadcast(Component.empty().append(player.displayName!!).append(this.getIsReadyMessage()))
+                    this.broadcast(this.getIsReadyMessage(player.displayName!!))
                     if (unready.isEmpty()) {
-                        this.onReady()
+                        callback()
                     }
                 }
                 context.removeCommand {
@@ -135,7 +133,7 @@ public interface ReadyChecker {
             }
             val notReady = HiddenCommand { context ->
                 if (context.player == player && unready.contains(player)) {
-                    this.broadcast(Component.empty().append(player.displayName!!).append(this.getNotReadyMessage()))
+                    this.broadcast(this.getNotReadyMessage(player.displayName!!))
                 }
                 context.removeCommand {
                     if (unready.contains(it)) this.getAlreadyNotReadyMessage() else this.getAlreadyReadyMessage()
@@ -144,5 +142,19 @@ public interface ReadyChecker {
             this.broadcastTo(this.getReadyMessage(ready, notReady), player)
         }
         return unready
+    }
+
+    public companion object {
+        public fun of(minigame: Minigame<*>): ReadyChecker {
+            return object: ReadyChecker {
+                override fun broadcast(message: Component) {
+                    minigame.chat.broadcast(message)
+                }
+
+                override fun broadcastTo(message: Component, player: ServerPlayer) {
+                    minigame.chat.broadcastTo(message, player)
+                }
+            }
+        }
     }
 }

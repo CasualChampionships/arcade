@@ -17,13 +17,22 @@ import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.success
+import net.casual.arcade.utils.ComponentUtils.function
+import net.casual.arcade.utils.ComponentUtils.green
+import net.casual.arcade.utils.ComponentUtils.literal
+import net.casual.arcade.utils.ComponentUtils.singleUseFunction
+import net.casual.arcade.utils.ComponentUtils.suggestCommand
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.MinigameUtils.countdown
 import net.casual.arcade.utils.MinigameUtils.getMinigame
+import net.casual.arcade.utils.PlayerUtils.player
+import net.casual.arcade.utils.PlayerUtils.toComponent
+import net.casual.arcade.utils.TeamUtils.toComponent
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.TeamArgument
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 
 internal object MinigameCommand: Command {
@@ -131,6 +140,12 @@ internal object MinigameCommand: Command {
                                 Commands.argument("unit", EnumArgument.enumeration(MinecraftTimeUnit::class.java)).executes(this::unpauseWithCountdown)
                             )
                         ).executes { this.unpauseWithCountdown(it, 10, MinecraftTimeUnit.Seconds) }
+                    ).then(
+                        Commands.literal("ready").then(
+                            Commands.literal("players").executes { this.readyUnpause(it, false) }
+                        ).then(
+                            Commands.literal("teams").executes { this.readyUnpause(it, true) }
+                        )
                     ).executes(this::unpauseMinigame)
                 )
             ).then(
@@ -390,6 +405,36 @@ internal object MinigameCommand: Command {
         }
         minigame.unpause()
         return context.source.success("Successfully unpaused minigame ${minigame.id}")
+    }
+
+    private fun readyUnpause(context: CommandContext<CommandSourceStack>, teams: Boolean): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        if (!minigame.paused) {
+            return context.source.fail("Minigame ${minigame.id} was already unpaused")
+        }
+        val callback: () -> Unit = {
+            val message = "All players are ready, click ".literal().apply {
+                append("[here]".literal().green().suggestCommand("/minigame unpause ${minigame.uuid} countdown 5 Seconds"))
+                append(" to start the unpause countdown!")
+            }
+            minigame.chat.broadcastTo(message, minigame.getAdminPlayers())
+        }
+        val awaiting = if (teams) {
+            val unready = minigame.ui.readier.areTeamsReady(minigame.teams.getPlayingTeams(), callback)
+            ({ unready.toComponent() })
+        } else {
+            val unready = minigame.ui.readier.arePlayersReady(minigame.getPlayingPlayers(), callback)
+            ({ unready.toComponent() })
+        }
+        return context.source.success {
+            "Successfully broadcasted unpause ready check click ".literal().apply {
+                append("[here]".literal().green().function {
+                    val message = "Awaiting the following ${if (teams) "teams" else "players"}:".literal().append(awaiting())
+                    minigame.chat.broadcastTo(message, it.player)
+                })
+                append(" to view the awaiting ${if (teams) "teams" else "players"}")
+            }
+        }
     }
 
     private fun unpauseWithCountdown(

@@ -13,6 +13,8 @@ import net.casual.arcade.utils.ExtensionUtils.getExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtensions
 import net.minecraft.ChatFormatting
 import net.minecraft.ChatFormatting.*
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
@@ -74,6 +76,18 @@ public object TeamUtils {
             }
         }
         return count
+    }
+
+    @JvmStatic
+    public fun Iterable<PlayerTeam>.toComponent(): MutableComponent {
+        val component = Component.empty()
+        for (team in this) {
+            if (component.siblings.isNotEmpty()) {
+                component.append(", ")
+            }
+            component.append(team.formattedDisplayName)
+        }
+        return component
     }
 
     @JvmStatic

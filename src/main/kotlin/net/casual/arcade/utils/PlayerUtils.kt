@@ -95,6 +95,18 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    public fun Iterable<ServerPlayer>.toComponent(): MutableComponent {
+        val component = Component.empty()
+        for (player in this) {
+            if (component.siblings.isNotEmpty()) {
+                component.append(", ")
+            }
+            component.append(player.displayName!!)
+        }
+        return component
+    }
+
+    @JvmStatic
     public fun ServerPlayer.hasPermission(permission: String, level: Int = 4): Boolean {
         return Permissions.check(this, permission, level)
     }

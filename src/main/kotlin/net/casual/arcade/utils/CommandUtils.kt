@@ -5,13 +5,17 @@ import net.casual.arcade.commands.hidden.HiddenCommand
 import net.casual.arcade.commands.hidden.HiddenCommandContext
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.player.PlayerCommandEvent
+import net.casual.arcade.scheduler.GlobalTickedScheduler
+import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.utils.ComponentUtils.literal
+import net.casual.arcade.utils.TimeUtils.Minutes
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Mth
 import net.minecraft.util.RandomSource
 import org.jetbrains.annotations.ApiStatus.Experimental
+import java.util.function.Supplier
 
 public object CommandUtils {
     private val removed = HashMap<String, (ServerPlayer) -> Component>()
@@ -22,9 +26,12 @@ public object CommandUtils {
 
     @Experimental
     @JvmStatic
-    public fun registerHiddenCommand(command: HiddenCommand): String {
+    public fun registerHiddenCommand(timeout: MinecraftTimeDuration = 10.Minutes, command: HiddenCommand): String {
         val name = "$ROOT ${Mth.createInsecureUUID(this.random)}"
         this.commands[name] = command
+        GlobalTickedScheduler.schedule(timeout) {
+            this.commands.remove(name)
+        }
         return "/$name"
     }
 
@@ -46,6 +53,10 @@ public object CommandUtils {
 
     public fun CommandSourceStack.success(component: Component, log: Boolean = false): Int {
         return this.sendSuccess({ component }, log).commandSuccess()
+    }
+
+    public fun CommandSourceStack.success(log: Boolean = false, generator: Supplier<Component>): Int {
+        return this.sendSuccess(generator, log).commandSuccess()
     }
 
     public fun CommandSourceStack.fail(literal: String): Int {

@@ -33,6 +33,8 @@ import net.casual.arcade.utils.PlayerUtils.clearPlayerInventory
 import net.casual.arcade.utils.PlayerUtils.resetExperience
 import net.casual.arcade.utils.PlayerUtils.resetHealth
 import net.casual.arcade.utils.PlayerUtils.resetHunger
+import net.casual.arcade.utils.PlayerUtils.toComponent
+import net.casual.arcade.utils.TeamUtils.toComponent
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
@@ -47,7 +49,7 @@ import net.minecraft.world.scores.Team
 public open class LobbyMinigame(
     server: MinecraftServer,
     public val lobby: Lobby,
-): Minigame<LobbyMinigame>(server), ReadyChecker {
+): Minigame<LobbyMinigame>(server) {
     private var awaiting: (() -> Component)? = null
     private var next: Minigame<*>? = null
 
@@ -108,28 +110,20 @@ public open class LobbyMinigame(
         return this.getPlayingPlayers()
     }
 
-    override fun onReady() {
-        this.awaiting = null
-        val component = "All players are ready, click to start!".literal().green().singleUseFunction {
-            this.setPhase(Phase.Countdown)
-        }
-        this.chat.broadcastTo(component, this.getAdminPlayers())
-    }
-
-    override fun broadcast(message: Component) {
-        this.chat.broadcast(message)
-    }
-
-    override fun broadcastTo(message: Component, player: ServerPlayer) {
-        this.chat.broadcastTo(message, player)
-    }
-
     public fun getNextMinigame(): Minigame<*>? {
         return this.next
     }
 
     public fun setNextMinigame(minigame: Minigame<*>) {
         this.next = minigame
+    }
+
+    private fun onReady() {
+        this.awaiting = null
+        val component = "All players are ready, click to start!".literal().green().singleUseFunction {
+            this.setPhase(Phase.Countdown)
+        }
+        this.chat.broadcastTo(component, this.getAdminPlayers())
     }
 
     private fun moveToNextMinigame() {
@@ -260,32 +254,18 @@ public open class LobbyMinigame(
 
     private fun readyPlayers(context: CommandContext<CommandSourceStack>): Int {
         this.next ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
-        val awaiting = this.arePlayersReady(this.getPlayersToReady())
+        val awaiting = this.ui.readier.arePlayersReady(this.getPlayersToReady(), this::onReady)
         this.awaiting = {
-            val component = "Awaiting the following players: ".literal()
-            for (player in awaiting) {
-                if (component.siblings.isNotEmpty()) {
-                    component.append(", ")
-                }
-                component.append(player.displayName!!)
-            }
-            component
+            "Awaiting the following players: ".literal().append(awaiting.toComponent())
         }
         return context.source.success("Successfully broadcasted ready check")
     }
 
     private fun readyTeams(context: CommandContext<CommandSourceStack>): Int {
         this.next ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
-        val awaiting = this.areTeamsReady(this.getTeamsToReady())
+        val awaiting = this.ui.readier.areTeamsReady(this.getTeamsToReady(), this::onReady)
         this.awaiting = {
-            val component = "Awaiting the following teams: ".literal()
-            for (team in awaiting) {
-                if (component.siblings.isNotEmpty()) {
-                    component.append(", ")
-                }
-                component.append(team.formattedDisplayName)
-            }
-            component
+            "Awaiting the following teams: ".literal().append(awaiting.toComponent())
         }
         return context.source.success("Successfully broadcasted ready check")
     }

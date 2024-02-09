@@ -11,6 +11,7 @@ import net.casual.arcade.gui.nametag.ArcadeNameTag
 import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.gui.tab.ArcadeTabDisplay
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.events.lobby.ReadyChecker
 
 /**
  * This manager handles all the UI elements that can be added
@@ -32,6 +33,7 @@ public class MinigameUIManager(
     private var display: ArcadeTabDisplay?
 
     public var countdown: Countdown
+    public var readier: ReadyChecker
 
     init {
         this.bossbars = ArrayList()
@@ -39,6 +41,7 @@ public class MinigameUIManager(
         this.tickables = LinkedHashSet()
 
         this.countdown = TitledCountdown.DEFAULT
+        this.readier = ReadyChecker.of(this.minigame)
         this.sidebar = null
         this.display = null
 
