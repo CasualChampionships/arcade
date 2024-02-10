@@ -18,9 +18,9 @@ public interface ReadyChecker {
     @OverrideOnly
     public fun getReadyMessage(ready: HiddenCommand, notReady: HiddenCommand): Component {
         return "Are you ready? ".literal()
-            .append("[Yes]".literal().function(ready).lime())
+            .append("[Yes]".literal().function(command = ready).lime())
             .append(" ")
-            .append("[No]".literal().function(notReady).red())
+            .append("[No]".literal().function(command = notReady).red())
     }
 
     @OverrideOnly

@@ -429,7 +429,7 @@ internal object MinigameCommand: Command {
         return context.source.success {
             "Successfully broadcasted unpause ready check click ".literal().apply {
                 append("[here]".literal().green().function {
-                    val message = "Awaiting the following ${if (teams) "teams" else "players"}:".literal().append(awaiting())
+                    val message = "Awaiting the following ${if (teams) "teams" else "players"}: ".literal().append(awaiting())
                     minigame.chat.broadcastTo(message, it.player)
                 })
                 append(" to view the awaiting ${if (teams) "teams" else "players"}")
