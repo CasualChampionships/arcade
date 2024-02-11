@@ -9,26 +9,31 @@ import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.events.lobby.Lobby
 import net.casual.arcade.minigame.events.lobby.LobbyMinigame
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
+import net.casual.arcade.resources.PackInfo
 import net.casual.arcade.utils.JsonUtils.int
 import net.casual.arcade.utils.JsonUtils.obj
 import net.casual.arcade.utils.JsonUtils.set
 import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.uuid
 import net.casual.arcade.utils.MinigameUtils.transferTo
+import net.casual.arcade.utils.ResourcePackUtils.sendResourcePack
+import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes
 import xyz.nucleoid.fantasy.Fantasy
 import xyz.nucleoid.fantasy.RuntimeWorldConfig
 import xyz.nucleoid.fantasy.RuntimeWorldHandle
 import xyz.nucleoid.fantasy.util.VoidChunkGenerator
 
-public class MinigamesEvent(
-    public var config: MinigamesEventConfig,
-    private val lobbyFactory: (MinecraftServer, Lobby) -> LobbyMinigame = ::LobbyMinigame
+public open class MinigamesEvent(
+    public var config: MinigamesEventConfig
 ) {
     public lateinit var current: Minigame<*>
+    private val parallel: MutableList<Minigame<*>> = ArrayList()
+    private var canStartParallel = false
     private var index: Int = 0
 
     public fun returnToLobby(server: MinecraftServer) {
@@ -40,7 +45,7 @@ public class MinigamesEvent(
             if (level == null) Either.left(createTemporaryLobbyLevel(server)) else Either.right(level)
         }
         val level = either.map({ it.asWorld() }, { it })
-        val lobby = this.lobbyFactory(server, this.config.lobby.create(level))
+        val lobby = this.createLobbyMinigame(server, this.config.lobby.create(level))
         either.ifLeft(lobby::addLevel)
 
         lobby.events.register<LobbyMoveToNextMinigameEvent> {
@@ -58,12 +63,64 @@ public class MinigamesEvent(
 
     public fun startNewMinigame(minigame: Minigame<*>) {
         this.incrementIndex(minigame)
+
+        for (parallel in this.parallel) {
+            parallel.transferTo(minigame)
+        }
+        this.parallel.clear()
+
         if (this::current.isInitialized) {
             this.current.transferTo(minigame)
         } else {
             minigame.start()
         }
         this.current = minigame
+    }
+
+    public fun canStartParallelMinigames(): Boolean {
+        return this.canStartParallel
+    }
+
+    public fun enableParallelMinigames() {
+        this.canStartParallel = true
+    }
+
+    public fun disableParallelMinigames() {
+        this.canStartParallel = false
+        for (parallel in this.parallel) {
+            parallel.transferTo(this.current)
+        }
+    }
+
+    public fun startParallelMinigame(minigame: Minigame<*>) {
+        if (!this.canStartParallel) {
+            throw IllegalStateException("Cannot start parallel minigame")
+        }
+        this.parallel.add(minigame)
+    }
+
+    public fun addPlayer(player: ServerPlayer) {
+        if (!this::current.isInitialized) {
+            Arcade.logger.warn("Tried adding player before minigames had started... Returning to lobby!")
+            this.returnToLobby(player.server)
+        }
+
+        val current = this.current
+        current.addPlayer(player)
+        if (this.config.operators.contains(player.scoreboardName)) {
+            current.makeAdmin(player)
+        }
+        for (pack in this.config.packs) {
+            player.sendResourcePack(this.getPackInfo(pack) ?: continue)
+        }
+    }
+
+    public fun getAllPlayers(): List<ServerPlayer> {
+        var players = this.current.getAllPlayers()
+        for (parallel in this.parallel) {
+            players = players.concat(parallel.getAllPlayers())
+        }
+        return players
     }
 
     public fun getNextMinigameId(): ResourceLocation? {
@@ -97,7 +154,7 @@ public class MinigamesEvent(
         this.config = config
     }
 
-    public fun deserialize(json: JsonObject, server: MinecraftServer) {
+    public open fun deserialize(json: JsonObject, server: MinecraftServer) {
         val current = json.obj("current_minigame")
         val id = ResourceLocation(current.string("id"))
         val index = current.int("index")
@@ -117,7 +174,7 @@ public class MinigamesEvent(
         this.current = minigame
     }
 
-    public fun serialize(): JsonObject {
+    public open fun serialize(): JsonObject {
         val json = JsonObject()
         JsonObject().also { minigame ->
             minigame["id"] = this.current.id.toString()
@@ -126,6 +183,21 @@ public class MinigamesEvent(
             json["current_minigame"] = minigame
         }
         return json
+    }
+
+    protected open fun getPackInfo(name: String): PackInfo? {
+        return null
+    }
+
+    protected open fun createLobbyMinigame(server: MinecraftServer, lobby: Lobby): LobbyMinigame {
+        return LobbyMinigame(server, lobby)
+    }
+
+    protected open fun createTemporaryLobbyLevel(server: MinecraftServer): RuntimeWorldHandle {
+        val config = RuntimeWorldConfig()
+            .setDimensionType(BuiltinDimensionTypes.OVERWORLD)
+            .setGenerator(VoidChunkGenerator(server))
+        return Fantasy.get(server).openTemporaryWorld(config)
     }
 
     private fun createNextMinigame(server: MinecraftServer): Minigame<*>? {
@@ -143,12 +215,5 @@ public class MinigamesEvent(
         if (nextId != null && next.id == nextId) {
             this.index++
         }
-    }
-
-    private fun createTemporaryLobbyLevel(server: MinecraftServer): RuntimeWorldHandle {
-        val config = RuntimeWorldConfig()
-            .setDimensionType(BuiltinDimensionTypes.OVERWORLD)
-            .setGenerator(VoidChunkGenerator(server))
-        return Fantasy.get(server).openTemporaryWorld(config)
     }
 }
