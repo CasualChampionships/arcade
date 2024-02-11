@@ -32,8 +32,6 @@ public open class MinigamesEvent(
     public var config: MinigamesEventConfig
 ) {
     public lateinit var current: Minigame<*>
-    private val parallel: MutableList<Minigame<*>> = ArrayList()
-    private var canStartParallel = false
     private var index: Int = 0
 
     public fun returnToLobby(server: MinecraftServer) {
@@ -64,39 +62,12 @@ public open class MinigamesEvent(
     public fun startNewMinigame(minigame: Minigame<*>) {
         this.incrementIndex(minigame)
 
-        for (parallel in this.parallel) {
-            parallel.transferTo(minigame)
-        }
-        this.parallel.clear()
-
         if (this::current.isInitialized) {
             this.current.transferTo(minigame)
         } else {
             minigame.start()
         }
         this.current = minigame
-    }
-
-    public fun canStartParallelMinigames(): Boolean {
-        return this.canStartParallel
-    }
-
-    public fun enableParallelMinigames() {
-        this.canStartParallel = true
-    }
-
-    public fun disableParallelMinigames() {
-        this.canStartParallel = false
-        for (parallel in this.parallel) {
-            parallel.transferTo(this.current)
-        }
-    }
-
-    public fun startParallelMinigame(minigame: Minigame<*>) {
-        if (!this.canStartParallel) {
-            throw IllegalStateException("Cannot start parallel minigame")
-        }
-        this.parallel.add(minigame)
     }
 
     public fun addPlayer(player: ServerPlayer) {
@@ -113,14 +84,6 @@ public open class MinigamesEvent(
         for (pack in this.config.packs) {
             player.sendResourcePack(this.getPackInfo(pack) ?: continue)
         }
-    }
-
-    public fun getAllPlayers(): List<ServerPlayer> {
-        var players = this.current.getAllPlayers()
-        for (parallel in this.parallel) {
-            players = players.concat(parallel.getAllPlayers())
-        }
-        return players
     }
 
     public fun getNextMinigameId(): ResourceLocation? {

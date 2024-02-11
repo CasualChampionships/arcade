@@ -22,8 +22,6 @@ import net.casual.arcade.minigame.MinigameResources.MultiMinigameResources
 import net.casual.arcade.minigame.managers.*
 import net.casual.arcade.minigame.serialization.MinigameDataTracker
 import net.casual.arcade.minigame.serialization.SavableMinigame
-import net.casual.arcade.minigame.task.impl.MinigameTask
-import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.stats.ArcadeStats
@@ -35,7 +33,6 @@ import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.toJsonObject
 import net.casual.arcade.utils.JsonUtils.toJsonStringArray
 import net.casual.arcade.utils.MinigameUtils
-import net.casual.arcade.utils.MinigameUtils.countdown
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.PlayerUtils
@@ -43,7 +40,6 @@ import net.casual.arcade.utils.PlayerUtils.getKillCreditWith
 import net.casual.arcade.utils.PlayerUtils.grantAdvancementSilently
 import net.casual.arcade.utils.PlayerUtils.revokeAdvancement
 import net.casual.arcade.utils.StatUtils.increment
-import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
