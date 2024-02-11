@@ -4,7 +4,8 @@ import net.casual.arcade.utils.ComponentUtils.colour
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.PlayerUtils.getChatPrefix
-import net.minecraft.ChatFormatting.*
+import net.minecraft.ChatFormatting.DARK_GRAY
+import net.minecraft.ChatFormatting.WHITE
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 

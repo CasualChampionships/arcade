@@ -4,7 +4,6 @@ import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.MinecraftScheduler
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.task.Completable
-import net.casual.arcade.utils.MinigameUtils.countdown
 import net.casual.arcade.utils.PlayerUtils
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.minecraft.server.level.ServerPlayer

@@ -2,7 +2,6 @@ package net.casual.arcade.utils
 
 import com.mojang.brigadier.builder.ArgumentBuilder
 import net.casual.arcade.Arcade
-import net.casual.arcade.commands.hidden.HiddenCommand
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.core.Event
@@ -14,25 +13,19 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigamePhase
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.annotation.MinigameEventListener
-import net.casual.arcade.minigame.events.lobby.ReadyChecker
 import net.casual.arcade.minigame.extensions.LevelMinigameExtension
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
-import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.MinecraftScheduler
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.task.Completable
-import net.casual.arcade.task.Task
 import net.casual.arcade.utils.LevelUtils.addExtension
 import net.casual.arcade.utils.LevelUtils.getExtension
 import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
-import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.scores.PlayerTeam
 import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier

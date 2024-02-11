@@ -12,7 +12,6 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.scheduler.GlobalTickedScheduler
-import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
@@ -20,19 +19,16 @@ import net.casual.arcade.utils.CommandUtils.success
 import net.casual.arcade.utils.ComponentUtils.function
 import net.casual.arcade.utils.ComponentUtils.green
 import net.casual.arcade.utils.ComponentUtils.literal
-import net.casual.arcade.utils.ComponentUtils.singleUseFunction
 import net.casual.arcade.utils.ComponentUtils.suggestCommand
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.MinigameUtils.countdown
 import net.casual.arcade.utils.MinigameUtils.getMinigame
-import net.casual.arcade.utils.PlayerUtils.player
 import net.casual.arcade.utils.PlayerUtils.toComponent
 import net.casual.arcade.utils.TeamUtils.toComponent
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.TeamArgument
-import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 
 internal object MinigameCommand: Command {
