@@ -21,10 +21,12 @@ import net.minecraft.world.scores.PlayerTeam
 public object ScreenUtils {
     public fun createSpectatorMenu(
         components: SelectionScreenComponents = DefaultSpectatorScreenComponent,
+        parent: MenuProvider? = null,
         teamFilter: (PlayerTeam) -> Boolean = { true },
         teamIcon: (PlayerTeam) -> ItemStack = TeamUtils::colouredHeadForTeam
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
+        builder.parent(parent)
         val teams = TeamUtils.teams()
         val provider = builder.build()
         for (team in teams) {
@@ -58,12 +60,14 @@ public object ScreenUtils {
     public fun createSettingsMenu(
         settings: DisplayableSettings,
         components: SelectionScreenComponents = DefaultSettingsComponent,
+        parent: MenuProvider? = null,
         style: SelectionScreenStyle = SelectionScreenStyle.DEFAULT,
         configComponents: (DisplayableGameSetting<*>) -> SelectionScreenComponents = ::DefaultSettingsComponents,
         configStyle: (DisplayableGameSetting<*>) -> SelectionScreenStyle = ::createCenteredSettingStyle,
         modifiable: (ServerPlayer) -> Boolean = { true }
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
+        builder.parent(parent)
         builder.style(style)
         val provider = builder.build()
         for (display in settings.displays()) {

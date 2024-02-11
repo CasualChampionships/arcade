@@ -298,8 +298,8 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
      *
      * @return The menu provider.
      */
-    override fun menu(): MenuProvider {
-        return ScreenUtils.createSettingsMenu(this, ScreenUtils.DefaultMinigameSettingsComponent)
+    override fun menu(parent: MenuProvider?): MenuProvider {
+        return ScreenUtils.createSettingsMenu(this, ScreenUtils.DefaultMinigameSettingsComponent, parent)
     }
 
     protected fun <T: Any> isAdminOverride(value: T): (ServerPlayer) -> T? {

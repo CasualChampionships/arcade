@@ -73,8 +73,8 @@ public open class DisplayableSettings {
      *
      * @return The menu provider.
      */
-    public open fun menu(): MenuProvider {
-        return ScreenUtils.createSettingsMenu(this)
+    public open fun menu(parent: MenuProvider? = null): MenuProvider {
+        return ScreenUtils.createSettingsMenu(this, parent = parent)
     }
 
     /**
@@ -84,8 +84,8 @@ public open class DisplayableSettings {
      *
      * @return The menu provider.
      */
-    public open fun unmodifiableMenu(): MenuProvider {
-        return ScreenUtils.createSettingsMenu(this, modifiable = { false })
+    public open fun unmodifiableMenu(parent: MenuProvider? = null): MenuProvider {
+        return ScreenUtils.createSettingsMenu(this, parent = parent, modifiable = { false })
     }
 
     public fun serialize(): JsonArray {
