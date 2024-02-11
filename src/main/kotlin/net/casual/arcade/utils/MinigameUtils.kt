@@ -99,7 +99,7 @@ public object MinigameUtils {
         parseMinigameEvents(this, listener)
     }
 
-    public fun Minigame<*>.transferTo(next: Minigame<*>) {
+    public fun Minigame<*>.transferTo(next: Minigame<*>, close: Boolean = true) {
         if (next.closed) {
             throw IllegalArgumentException("Cannot transfer to a closed minigame")
         }
@@ -126,7 +126,9 @@ public object MinigameUtils {
                 }
             }
         }
-        this.close()
+        if (close) {
+            this.close()
+        }
         delayed.forEach { it() }
 
         next.start()
