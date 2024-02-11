@@ -33,6 +33,13 @@ internal class PlayerNameTagExtension(
 ): PlayerExtension(owner) {
     private val tags = LinkedHashMap<ArcadeNameTag, Holder>()
 
+    fun respawn(player: ServerPlayer) {
+        for (holder in this.tags.values) {
+            EntityAttachment.ofTicking(holder, player)
+            VirtualEntityUtils.addVirtualPassenger(player, *holder.entityIds.toIntArray())
+        }
+    }
+
     internal fun addNameTag(tag: ArcadeNameTag) {
         val display = NameTagDisplay(tag)
         val holder = Holder(display, tag.observable)
