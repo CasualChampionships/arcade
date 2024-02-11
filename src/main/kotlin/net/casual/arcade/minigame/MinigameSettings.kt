@@ -264,9 +264,19 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
 
     public val tickFreezeOnPause: GameSetting<Boolean> = this.register(bool {
         name = "tick_freeze_on_pause"
-        display = Items.PACKED_ICE.named("Tick Freeze On Pause").setLore(
+        display = Items.BLUE_ICE.named("Tick Freeze On Pause").setLore(
             "When the minigame is paused the world will".literal(),
             "freeze all ticking, including players.".literal()
+        )
+        value = false
+        override = isAdminOverride(false)
+        defaultOptionsFor(this)
+    })
+
+    public val freezeEntities: GameSetting<Boolean> = this.register(bool {
+        name = "freeze_entities"
+        display = Items.PACKED_ICE.named("Tick Freeze On Pause").setLore(
+            "This will freeze all entities including players.".literal(),
         )
         value = false
         override = isAdminOverride(false)

@@ -26,6 +26,7 @@ import net.casual.arcade.utils.TimeUtils.Seconds
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.Entity
 import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
@@ -145,10 +146,33 @@ public object MinigameUtils {
     }
 
     @JvmStatic
+    public fun Entity.isTicking(): Boolean {
+        if (this is ServerPlayer) {
+            return this.isTicking()
+        }
+        val level = this.level()
+        if (level is ServerLevel) {
+            val minigame = level.getMinigame()
+            if (minigame != null) {
+                if (minigame.settings.freezeEntities.get()) {
+                    return false
+                }
+            }
+            return level.isTicking()
+        }
+        return true
+    }
+
+    @JvmStatic
     public fun ServerPlayer.isTicking(): Boolean {
         val minigame = this.getMinigame()
-        if (minigame != null && minigame.settings.tickFreezeOnPause.get(this)) {
-            return !minigame.paused
+        if (minigame != null) {
+            if (minigame.settings.tickFreezeOnPause.get(this) && minigame.paused) {
+                return false
+            }
+            if (minigame.settings.freezeEntities.get(this)) {
+                return false
+            }
         }
         return true
     }
