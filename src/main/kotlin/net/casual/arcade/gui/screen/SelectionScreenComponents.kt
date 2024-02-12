@@ -145,7 +145,7 @@ public interface SelectionScreenComponents {
         public fun build(): SelectionScreenComponents {
             return object: SelectionScreenComponents {
                 override fun getTitle(): Component {
-                    return this.getTitle()
+                    return title
                 }
 
                 override fun getPrevious(hasPrevious: Boolean): ItemStack {
