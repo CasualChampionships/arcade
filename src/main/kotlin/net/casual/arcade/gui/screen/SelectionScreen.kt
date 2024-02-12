@@ -109,7 +109,7 @@ public class SelectionScreen internal constructor(
                     player.closeContainer()
                 }
             }
-            val slot = Slot.fromOffset(slotId - 45)
+            val slot = Slot.fromOffset(slotId - 45) ?: return
             val selection = this.buttons[slot] ?: return
             selection.action(player)
             return
@@ -156,11 +156,11 @@ public class SelectionScreen internal constructor(
         }
 
         internal companion object {
-            fun fromOffset(offset: Int): Slot {
+            fun fromOffset(offset: Int): Slot? {
                 val shifted = if (offset >= 5) offset - 2 else offset - 1
                 val slots = Slot.values()
                 if (shifted !in slots.indices) {
-                    throw IllegalArgumentException()
+                    return null
                 }
                 return slots[shifted]
             }
