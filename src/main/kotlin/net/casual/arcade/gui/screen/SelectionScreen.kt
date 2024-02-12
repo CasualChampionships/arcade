@@ -1,7 +1,6 @@
 package net.casual.arcade.gui.screen
 
 import net.casual.arcade.Arcade
-import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.MenuProvider
@@ -9,6 +8,7 @@ import net.minecraft.world.SimpleMenuProvider
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.ClickType
 import net.minecraft.world.item.ItemStack
+import java.util.*
 
 /**
  * This [ArcadeGenericScreen] implementation is a customizable
@@ -34,18 +34,15 @@ import net.minecraft.world.item.ItemStack
  * @see ArcadeGenericScreen
  */
 public class SelectionScreen internal constructor(
-    private val title: Component,
+    private val components: SelectionScreenComponents,
     private val selections: List<Selection>,
     private val tickers: List<ItemStackTicker>,
     player: Player,
     syncId: Int,
     private val parent: MenuProvider?,
     private val style: SelectionScreenStyle,
+    private val buttons: EnumMap<Slot, Selection>,
     private val page: Int,
-    private val previous: ItemStack,
-    private val back: ItemStack,
-    private val next: ItemStack,
-    private val filler: ItemStack
 ): ArcadeGenericScreen(player, syncId, 6) {
     private val hasNextPage: Boolean
 
@@ -68,13 +65,15 @@ public class SelectionScreen internal constructor(
             inventory.setItem(slot, paged[i].display)
         }
 
-        inventory.setItem(45, this.previous)
-        inventory.setItem(49, this.back)
-        inventory.setItem(53, this.next)
+        inventory.setItem(45, this.components.getPrevious(this.page != 0))
+        inventory.setItem(49, this.components.getBack(this.parent != null))
+        inventory.setItem(53, this.components.getNext(this.hasNextPage))
 
-        for (i in 45 until inventory.containerSize) {
-            if (inventory.getItem(i).isEmpty) {
-                inventory.setItem(i, this.filler)
+        for (slot in Slot.values()) {
+            val index = slot.offsetFrom(45)
+            val selection = this.buttons[slot]
+            if (selection == null) {
+                inventory.setItem(index, this.components.getFiller())
             }
         }
     }
@@ -110,6 +109,9 @@ public class SelectionScreen internal constructor(
                     player.closeContainer()
                 }
             }
+            val slot = Slot.fromOffset(slotId - 45)
+            val selection = this.buttons[slot] ?: return
+            selection.action(player)
             return
         }
 
@@ -141,45 +143,63 @@ public class SelectionScreen internal constructor(
         }
     }
 
+    public enum class Slot(private val offset: Int) {
+        FIRST(1),
+        SECOND(2),
+        THIRD(3),
+        FOURTH(5),
+        FIFTH(6),
+        SIXTH(7);
+
+        internal fun offsetFrom(index: Int): Int {
+            return index + this.offset
+        }
+
+        internal companion object {
+            fun fromOffset(offset: Int): Slot {
+                val shifted = if (offset >= 5) offset - 2 else offset - 1
+                val slots = Slot.values()
+                if (shifted !in slots.indices) {
+                    throw IllegalArgumentException()
+                }
+                return slots[shifted]
+            }
+        }
+    }
+
     internal class Selection(
-        val display: ItemStack,
-        val action: (ServerPlayer) -> Unit
+        internal val display: ItemStack,
+        internal val action: (ServerPlayer) -> Unit
     )
 
     public companion object {
         internal fun createScreenFactory(previous: SelectionScreen, page: Int): SimpleMenuProvider? {
             return createScreenFactory(
-                previous.title,
+                previous.components,
                 previous.selections,
                 previous.tickers,
                 previous.parent,
                 previous.style,
-                page,
-                previous.previous,
-                previous.back,
-                previous.next,
-                previous.filler
+                previous.buttons,
+                page
             )
         }
 
         internal fun createScreenFactory(
-            title: Component,
+            components: SelectionScreenComponents,
             selections: List<Selection>,
             tickers: List<ItemStackTicker>,
             parent: MenuProvider?,
             style: SelectionScreenStyle,
+            buttons: EnumMap<Slot, Selection>,
             page: Int,
-            previous: ItemStack,
-            back: ItemStack,
-            next: ItemStack,
-            filler: ItemStack,
         ): SimpleMenuProvider? {
             if (page >= 0) {
                 return SimpleMenuProvider(
                     { syncId, _, player ->
-                        SelectionScreen(title, selections, tickers, player, syncId, parent, style, page, previous, back, next, filler)
+                        SelectionScreen(components, selections, tickers, player, syncId, parent, style, buttons, page)
                     },
-                    title
+                    components.getTitle()
                 )
             }
             return null

@@ -17,7 +17,7 @@ public class MinigameChatManager(
     public var teamChatFormatter: PlayerChatFormatter = PlayerChatFormatter.TEAM
     public var adminChatFormatter: PlayerChatFormatter = PlayerChatFormatter.ADMIN
     public var spectatorChatFormatter: PlayerChatFormatter = PlayerChatFormatter.SPECTATOR
-    public var regularChatFormatter: PlayerChatFormatter? = null
+    public var regularChatFormatter: PlayerChatFormatter? = PlayerChatFormatter.GLOBAL
 
     public var systemChatFormatter: ChatFormatter? = null
 

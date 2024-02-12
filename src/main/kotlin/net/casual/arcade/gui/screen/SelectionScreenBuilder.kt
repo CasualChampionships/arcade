@@ -5,6 +5,8 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
+import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * This class allows you to build your own [SelectionScreen]s.
@@ -22,31 +24,8 @@ public class SelectionScreenBuilder(
 ) {
     private val selections = ArrayList<Selection>()
     private val tickers = ArrayList<ItemStackTicker>()
-
-    /**
-     * The title of the selection screen.
-     */
-    public var title: Component = components.getTitle()
-
-    /**
-     * The previous [ItemStack] instance.
-     */
-    public var previous: ItemStack = components.getPrevious()
-
-    /**
-     * The back [ItemStack] instance.
-     */
-    public var back: ItemStack = components.getBack()
-
-    /**
-     * The next [ItemStack] instance.
-     */
-    public var next: ItemStack = components.getNext()
-
-    /**
-     * The filler [ItemStack] instance.
-     */
-    public var filler: ItemStack = components.getFiller()
+    private val components = SelectionScreenComponents.Builder(components)
+    private val buttons = EnumMap<SelectionScreen.Slot, Selection>(SelectionScreen.Slot::class.java)
 
     /**
      * The parent [MenuProvider], may be null.
@@ -59,61 +38,6 @@ public class SelectionScreenBuilder(
     public var style: SelectionScreenStyle = SelectionScreenStyle.DEFAULT
 
     /**
-     * Sets the [title] [Component].
-     *
-     * @param component The title.
-     * @return The current [SelectionScreenBuilder].
-     */
-    public fun title(component: Component): SelectionScreenBuilder {
-        this.title = component
-        return this
-    }
-
-    /**
-     * Sets the [previous] [ItemStack] instance.
-     *
-     * @param stack The title.
-     * @return The current [SelectionScreenBuilder].
-     */
-    public fun previous(stack: ItemStack): SelectionScreenBuilder {
-        this.previous = stack
-        return this
-    }
-
-    /**
-     * Sets the [back] [ItemStack] instance.
-     *
-     * @param stack The title.
-     * @return The current [SelectionScreenBuilder].
-     */
-    public fun back(stack: ItemStack): SelectionScreenBuilder {
-        this.back = stack
-        return this
-    }
-
-    /**
-     * Sets the [next] [ItemStack] instance.
-     *
-     * @param stack The title.
-     * @return The current [SelectionScreenBuilder].
-     */
-    public fun next(stack: ItemStack): SelectionScreenBuilder {
-        this.next = stack
-        return this
-    }
-
-    /**
-     * Sets the [filler] [ItemStack] instance.
-     *
-     * @param stack The title.
-     * @return The current [SelectionScreenBuilder].
-     */
-    public fun filler(stack: ItemStack): SelectionScreenBuilder {
-        this.filler = stack
-        return this
-    }
-
-    /**
      * Sets the parent screen of the [SelectionScreen].
      *
      * @param provider The parent screen provider.
@@ -121,6 +45,17 @@ public class SelectionScreenBuilder(
      */
     public fun parent(provider: MenuProvider?): SelectionScreenBuilder {
         this.parent = provider
+        return this
+    }
+
+    /**
+     * Lets you build the menu components of the selection screen.
+     *
+     * @param block The builder block.
+     * @return The current [SelectionScreenBuilder].
+     */
+    public fun components(block: SelectionScreenComponents.Builder.() -> Unit): SelectionScreenBuilder {
+        block(this.components)
         return this
     }
 
@@ -149,6 +84,23 @@ public class SelectionScreenBuilder(
     }
 
     /**
+     * Sets an additional button to the selection
+     * screen on the menu bar.
+     *
+     * @param slot The slot to add it to.
+     * @param stack The display stack.
+     * @param action The action to run when clicking the button.
+     */
+    public fun button(
+        slot: SelectionScreen.Slot,
+        stack: ItemStack,
+        action: (ServerPlayer) -> Unit
+    ): SelectionScreenBuilder {
+        this.buttons[slot] = Selection(stack, action)
+        return this
+    }
+
+    /**
      * This adds a [ticker] to the [SelectionScreenBuilder] which
      * can update any of the selectable [ItemStack].
      *
@@ -169,16 +121,13 @@ public class SelectionScreenBuilder(
      */
     public fun build(): MenuProvider {
         return SelectionScreen.createScreenFactory(
-            this.title,
+            this.components.build(),
             this.selections,
             this.tickers,
             this.parent,
             this.style,
-            0,
-            this.previous,
-            this.back,
-            this.next,
-            this.filler
+            this.buttons,
+            0
         )!!
     }
 }
