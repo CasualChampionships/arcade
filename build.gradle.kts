@@ -52,16 +52,16 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_version")}")
 
     // modImplementation("xyz.nucleoid:server-translations-api:${property("server_translations_api_version")}")
-    modImplementation("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin_version")}")
+    modApi("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin_version")}")
 
-    include(modImplementation("xyz.nucleoid:fantasy:${property("fantasy_version")}")!!)
+    include(modApi("xyz.nucleoid:fantasy:${property("fantasy_version")}")!!)
 
-    include(modImplementation("eu.pb4:polymer-core:${property("polymer_version")}")!!)
-    include(modImplementation("eu.pb4:polymer-blocks:${property("polymer_version")}")!!)
-    include(modImplementation("eu.pb4:polymer-resource-pack:${property("polymer_version")}")!!)
-    include(modImplementation("eu.pb4:polymer-virtual-entity:${property("polymer_version")}")!!)
+    include(modApi("eu.pb4:polymer-core:${property("polymer_version")}")!!)
+    include(modApi("eu.pb4:polymer-blocks:${property("polymer_version")}")!!)
+    include(modApi("eu.pb4:polymer-resource-pack:${property("polymer_version")}")!!)
+    include(modApi("eu.pb4:polymer-virtual-entity:${property("polymer_version")}")!!)
 
-    include(modImplementation("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")!!)
+    include(modApi("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")!!)
 
     "datagenImplementation"("org.apache.commons:commons-text:1.11.0")
 }
