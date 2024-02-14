@@ -33,6 +33,14 @@ repositories {
     }
 }
 
+sourceSets {
+    val datagen by creating {
+        compileClasspath += main.get().compileClasspath
+        runtimeClasspath += main.get().runtimeClasspath
+        compileClasspath += main.get().output
+    }
+}
+
 @Suppress("UnstableApiUsage")
 dependencies {
     minecraft("com.mojang:minecraft:${property("minecraft_version")}")
@@ -55,12 +63,17 @@ dependencies {
 
     include(modImplementation("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")!!)
 
-    // include(modImplementation("eu.pb4:sgui:1.2.1+1.19.3")!!)
-    // include(implementation(annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-fabric:${property("mixin_extras_version")}")!!)!!)
+    "datagenImplementation"("org.apache.commons:commons-text:1.11.0")
 }
 
 loom {
     accessWidenerPath.set(file("src/main/resources/arcade.accesswidener"))
+
+    mods {
+        create("datagen") {
+            sourceSet(sourceSets["datagen"])
+        }
+    }
 }
 
 tasks {

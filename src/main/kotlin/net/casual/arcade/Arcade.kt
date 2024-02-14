@@ -7,6 +7,7 @@ import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.utils.*
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
+import net.fabricmc.loader.api.ModContainer
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import org.apache.logging.log4j.LogManager
@@ -18,10 +19,15 @@ import kotlin.io.path.createDirectories
  * Arcade initializer class.
  */
 public object Arcade: ModInitializer {
-    private var server: MinecraftServer? = null
+    /**
+     * The mod identifier for Arcade.
+     */
+    public const val MOD_ID: String = "arcade"
 
-    @JvmField
-    internal val logger: Logger = LogManager.getLogger("Arcade")
+    /**
+     * The mod container for Arcade.
+     */
+    public val container: ModContainer = FabricLoader.getInstance().getModContainer(MOD_ID).get()
 
     /**
      * The path to the arcade config directory.
@@ -31,10 +37,10 @@ public object Arcade: ModInitializer {
         FabricLoader.getInstance().configDir.resolve(MOD_ID).apply { createDirectories() }
     }
 
-    /**
-     * The mod identifier for Arcade.
-     */
-    public const val MOD_ID: String = "arcade"
+    @JvmField
+    internal val logger: Logger = LogManager.getLogger("Arcade")
+
+    private var server: MinecraftServer? = null
 
     init {
         GlobalEventHandler.register<ServerCreatedEvent> {

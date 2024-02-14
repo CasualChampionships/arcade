@@ -275,7 +275,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
 
     public val freezeEntities: GameSetting<Boolean> = this.register(bool {
         name = "freeze_entities"
-        display = Items.PACKED_ICE.named("Tick Freeze On Pause").setLore(
+        display = Items.PACKED_ICE.named("Freeze Entities").setLore(
             "This will freeze all entities including players.".literal(),
         )
         value = false

@@ -1,6 +1,7 @@
 package net.casual.arcade.utils
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import net.casual.arcade.Arcade
 import net.casual.arcade.commands.hidden.HiddenCommand
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.utils.TimeUtils.Minutes
@@ -10,7 +11,10 @@ import net.minecraft.network.chat.*
 import net.minecraft.network.chat.HoverEvent.Action.*
 import net.minecraft.network.chat.HoverEvent.EntityTooltipInfo
 import net.minecraft.network.chat.HoverEvent.ItemStackInfo
+import net.minecraft.network.chat.contents.TranslatableContents
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
 import org.jetbrains.annotations.ApiStatus.Experimental
@@ -18,6 +22,13 @@ import java.util.*
 import java.util.function.Consumer
 
 public object ComponentUtils {
+    public val SPACES_FONT: ResourceLocation = ResourceLocation("space", "spaces")
+    public val DEFAULT_SHIFTED_DOWN_1_FONT: ResourceLocation = Arcade.id("default_shifted_down_1")
+    public val DEFAULT_SHIFTED_DOWN_2_FONT: ResourceLocation = Arcade.id("default_shifted_down_2")
+    public val DEFAULT_SHIFTED_DOWN_3_FONT: ResourceLocation = Arcade.id("default_shifted_down_3")
+    public val DEFAULT_SHIFTED_DOWN_4_FONT: ResourceLocation = Arcade.id("default_shifted_down_4")
+    public val DEFAULT_SHIFTED_DOWN_5_FONT: ResourceLocation = Arcade.id("default_shifted_down_5")
+
     private val formattingByColour = Int2ObjectOpenHashMap<ChatFormatting>()
     private val formattingToName = HashMap<ChatFormatting, String>()
 
@@ -44,6 +55,33 @@ public object ComponentUtils {
             put(YELLOW, "Yellow")
             put(WHITE, "White")
         }
+    }
+
+    public fun space(top: Int, bottom: Int): MutableComponent {
+        return Component.translatable("space.$top/$bottom").withStyle { it.withFont(SPACES_FONT) }
+    }
+
+    public fun space(space: Int = 4): MutableComponent {
+        val clamped = Mth.clamp(space, -8192, 8192)
+        return Component.translatable("space.$clamped").withStyle { it.withFont(SPACES_FONT) }
+    }
+
+    public fun offset(offset: Int, component: Component): MutableComponent {
+        val clamped = Mth.clamp(offset, -8192, 8192)
+        return Component.translatable("offset.${clamped}", arrayOf(component)).withStyle { it.withFont(SPACES_FONT) }
+    }
+
+    public fun negativeWidthOf(component: Component): MutableComponent {
+        val key = getTranslationKeyOf(component)
+        return Component.translatable("$key.negativeWidth").withSpacesFont()
+    }
+
+    public fun getTranslationKeyOf(component: Component): String {
+        val contents = component.contents
+        if (contents !is TranslatableContents) {
+            throw IllegalStateException()
+        }
+        return contents.key
     }
 
     @JvmStatic
@@ -263,6 +301,42 @@ public object ComponentUtils {
             formats.add(UNDERLINE)
         }
         return formats
+    }
+
+    public fun MutableComponent.withFont(font: ResourceLocation): MutableComponent {
+        return this.withStyle { it.withFont(font) }
+    }
+
+    public fun MutableComponent.withDefaultFont(): MutableComponent {
+        return this.withFont(Style.DEFAULT_FONT)
+    }
+
+    public fun MutableComponent.withShiftedDown1Font(): MutableComponent {
+        return this.withFont(DEFAULT_SHIFTED_DOWN_1_FONT)
+    }
+
+    public fun MutableComponent.withShiftedDown2Font(): MutableComponent {
+        return this.withFont(DEFAULT_SHIFTED_DOWN_2_FONT)
+    }
+
+    public fun MutableComponent.withShiftedDown3Font(): MutableComponent {
+        return this.withFont(DEFAULT_SHIFTED_DOWN_3_FONT)
+    }
+
+    public fun MutableComponent.withShiftedDown4Font(): MutableComponent {
+        return this.withFont(DEFAULT_SHIFTED_DOWN_4_FONT)
+    }
+
+    public fun MutableComponent.withShiftedDown5Font(): MutableComponent {
+        return this.withFont(DEFAULT_SHIFTED_DOWN_5_FONT)
+    }
+
+    public fun MutableComponent.withSpacesFont(): MutableComponent {
+        return this.withFont(SPACES_FONT)
+    }
+
+    public fun MutableComponent.shadowless(): MutableComponent {
+        return this.colour(0x4E5C24)
     }
 
     private class StringifyVisitor: FormattedText.StyledContentConsumer<Unit> {

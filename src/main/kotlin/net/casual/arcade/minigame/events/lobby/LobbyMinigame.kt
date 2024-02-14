@@ -10,6 +10,7 @@ import net.casual.arcade.commands.arguments.EnumArgument
 import net.casual.arcade.commands.arguments.MinigameArgument
 import net.casual.arcade.events.minigame.LobbyMoveToNextMinigameEvent
 import net.casual.arcade.events.minigame.MinigameAddNewPlayerEvent
+import net.casual.arcade.events.minigame.MinigameSetPhaseEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigamePhase
@@ -254,6 +255,7 @@ public open class LobbyMinigame(
 
     private fun readyPlayers(context: CommandContext<CommandSourceStack>): Int {
         this.next ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
+        this.setPhase(Phase.Readying)
         val awaiting = this.ui.readier.arePlayersReady(this.getPlayersToReady(), this::onReady)
         this.awaiting = {
             "Awaiting the following players: ".literal().append(awaiting.toComponent())
@@ -263,6 +265,7 @@ public open class LobbyMinigame(
 
     private fun readyTeams(context: CommandContext<CommandSourceStack>): Int {
         this.next ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
+        this.setPhase(Phase.Readying)
         val awaiting = this.ui.readier.areTeamsReady(this.getTeamsToReady(), this::onReady)
         this.awaiting = {
             "Awaiting the following teams: ".literal().append(awaiting.toComponent())
@@ -312,6 +315,7 @@ public open class LobbyMinigame(
                 }
             }
         },
+        Readying("readying"),
         Countdown("countdown") {
             override fun start(minigame: LobbyMinigame) {
                 val next = minigame.next
