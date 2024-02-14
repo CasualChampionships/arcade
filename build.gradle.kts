@@ -54,14 +54,12 @@ dependencies {
     // modImplementation("xyz.nucleoid:server-translations-api:${property("server_translations_api_version")}")
     modApi("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin_version")}")
 
-    include(modApi("xyz.nucleoid:fantasy:${property("fantasy_version")}")!!)
-
-    include(modApi("eu.pb4:polymer-core:${property("polymer_version")}")!!)
-    include(modApi("eu.pb4:polymer-blocks:${property("polymer_version")}")!!)
-    include(modApi("eu.pb4:polymer-resource-pack:${property("polymer_version")}")!!)
-    include(modApi("eu.pb4:polymer-virtual-entity:${property("polymer_version")}")!!)
-
-    include(modApi("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")!!)
+    modApi("xyz.nucleoid:fantasy:${property("fantasy_version")}")
+    modApi("eu.pb4:polymer-core:${property("polymer_version")}")
+    modApi("eu.pb4:polymer-blocks:${property("polymer_version")}")
+    modApi("eu.pb4:polymer-resource-pack:${property("polymer_version")}")
+    modApi("eu.pb4:polymer-virtual-entity:${property("polymer_version")}")
+    modApi("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")
 
     "datagenImplementation"("org.apache.commons:commons-text:1.11.0")
 }
