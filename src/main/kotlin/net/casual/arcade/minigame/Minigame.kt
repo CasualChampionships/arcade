@@ -6,10 +6,7 @@ import com.mojang.authlib.GameProfile
 import net.casual.arcade.Arcade
 import net.casual.arcade.events.EventHandler
 import net.casual.arcade.events.minigame.*
-import net.casual.arcade.events.player.PlayerDamageEvent
-import net.casual.arcade.events.player.PlayerDeathEvent
-import net.casual.arcade.events.player.PlayerJoinEvent
-import net.casual.arcade.events.player.PlayerLeaveEvent
+import net.casual.arcade.events.player.*
 import net.casual.arcade.events.server.ServerStoppingEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.gui.bossbar.CustomBossBar
@@ -861,6 +858,7 @@ public abstract class Minigame<M: Minigame<M>>(
 
     private fun registerEvents() {
         this.events.register<ServerTickEvent> { this.onServerTick() }
+        this.events.register<PlayerTickEvent> { this.onPlayerTick(it) }
         this.events.register<PlayerJoinEvent> { this.onPlayerJoin(it) }
         this.events.register<PlayerDeathEvent> { this.onPlayerDeath(it) }
         this.events.register<PlayerDamageEvent>(Int.MAX_VALUE) { this.onPlayerDamage(it) }
@@ -875,6 +873,13 @@ public abstract class Minigame<M: Minigame<M>>(
             this.uptime++
             this.ui.tick()
             this.scheduler.tick()
+        }
+    }
+
+    private fun onPlayerTick(event: PlayerTickEvent) {
+        val (player) = event
+        if (this.isPlaying(player)) {
+            this.stats.getOrCreateStat(player, ArcadeStats.PLAY_TIME).increment()
         }
     }
 
