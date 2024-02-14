@@ -3,6 +3,7 @@ package net.casual.arcade.minigame
 import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.settings.display.DisplayableGameSettingBuilder.Companion.bool
 import net.casual.arcade.settings.display.DisplayableSettings
+import net.casual.arcade.settings.display.DisplayableSettingsDefaults
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ItemUtils.hideTooltips
 import net.casual.arcade.utils.ItemUtils.named
@@ -29,7 +30,10 @@ import net.minecraft.world.item.Items
  * `/minigame settings <minigame-uuid> set <setting> from value <value>`
  *
  */
-public open class MinigameSettings(private val minigame: Minigame<*>): DisplayableSettings() {
+public open class MinigameSettings(
+    private val minigame: Minigame<*>,
+    defaults: DisplayableSettingsDefaults = DisplayableSettingsDefaults()
+): DisplayableSettings(defaults) {
     /**
      * Whether pvp is enabled for this minigame.
      */
@@ -41,7 +45,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
         )
         value = true
         override = isAdminOverride(true)
-        defaultOptionsFor(this)
+        defaults.options(this)
     })
 
     /**
@@ -54,7 +58,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
             "If enabled this will cause players to lose hunger over time.".literal()
         )
         value = true
-        defaultOptionsFor(this)
+        defaults.options(this)
     })
 
     /**
@@ -67,7 +71,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
             "If enabled players will be able to take damage.".literal()
         )
         value = true
-        defaultOptionsFor(this)
+        defaults.options(this)
     })
 
     /**
@@ -81,7 +85,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
         )
         value = true
         override = isAdminOverride(true)
-        defaultOptionsFor(this)
+        defaults.options(this)
     })
 
     /**
@@ -95,7 +99,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
         )
         value = true
         override = isAdminOverride(true)
-        defaultOptionsFor(this)
+        defaults.options(this)
     })
 
     /**
@@ -109,7 +113,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
         )
         value = true
         override = isAdminOverride(true)
-        defaultOptionsFor(this)
+        defaults.options(this)
     })
 
     /**
@@ -123,7 +127,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
         )
         value = true
         override = isAdminOverride(true)
-        defaultOptionsFor(this)
+        defaults.options(this)
     })
 
     /**
@@ -137,7 +141,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
         )
         value = true
         override = isAdminOverride(true)
-        defaultOptionsFor(this)
+        defaults.options(this)
     })
 
     /**
@@ -151,7 +155,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
         )
         value = true
         override = isAdminOverride(true)
-        defaultOptionsFor(this)
+        defaults.options(this)
         listener { _, value ->
             canInteractAllSetting.setQuietly(value && canInteractItems.get() && canInteractBlocks.get())
         }
@@ -168,7 +172,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
         )
         value = true
         override = isAdminOverride(true)
-        defaultOptionsFor(this)
+        defaults.options(this)
         listener { _, value ->
             canInteractAllSetting.setQuietly(value && canInteractItems.get() && canInteractEntities.get())
         }
@@ -185,7 +189,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
         )
         value = true
         override = isAdminOverride(true)
-        defaultOptionsFor(this)
+        defaults.options(this)
         listener { _, value ->
             canInteractAllSetting.setQuietly(value && canInteractBlocks.get() && canInteractEntities.get())
         }
@@ -198,7 +202,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
             "If disabled players will no longer be able to interact with them.".literal()
         )
         value = true
-        defaultOptionsFor(this)
+        defaults.options(this)
         listener { _, value ->
             canInteractBlocks.set(value)
             canInteractEntities.set(value)
@@ -218,7 +222,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
             "this determines if those worlds will be deleted.".literal()
         )
         value = true
-        defaultOptionsFor(this)
+        defaults.options(this)
     })
 
     public var isChatGlobal: Boolean by this.register(bool {
@@ -229,7 +233,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
             "players in the minigame can see global messages.".literal()
         )
         value = false
-        defaultOptionsFor(this)
+        defaults.options(this)
     })
 
     public var isTeamChat: Boolean by this.register(bool {
@@ -239,7 +243,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
             "To send messages to global players must prefix their message with !.".literal()
         )
         value = false
-        defaultOptionsFor(this)
+        defaults.options(this)
     })
 
     @JvmField
@@ -250,7 +254,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
         )
         value = false
         override = isAdminOverride(false)
-        defaultOptionsFor(this)
+        defaults.options(this)
     })
 
     public var mobsWithNoAIAreFlammable: Boolean by this.register(bool {
@@ -259,7 +263,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
             "If enabled mobs with no ai can be set on fire".literal()
         )
         value = false
-        defaultOptionsFor(this)
+        defaults.options(this)
     })
 
     public val tickFreezeOnPause: GameSetting<Boolean> = this.register(bool {
@@ -270,7 +274,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
         )
         value = false
         override = isAdminOverride(false)
-        defaultOptionsFor(this)
+        defaults.options(this)
     })
 
     public val freezeEntities: GameSetting<Boolean> = this.register(bool {
@@ -280,7 +284,7 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
         )
         value = false
         override = isAdminOverride(false)
-        defaultOptionsFor(this)
+        defaults.options(this)
     })
 
     public var pauseOnServerStop: Boolean by this.register(bool {
@@ -289,18 +293,8 @@ public open class MinigameSettings(private val minigame: Minigame<*>): Displayab
             "Pauses the minigame just before the server stops".literal()
         )
         value = true
-        defaultOptionsFor(this)
+        defaults.options(this)
     })
-
-    /**
-     * This creates a menu which can be displayed to a
-     * player to directly interact with the settings.
-     *
-     * @return The menu provider.
-     */
-    override fun menu(parent: MenuProvider?): MenuProvider {
-        return ScreenUtils.createSettingsMenu(this, ScreenUtils.DefaultMinigameSettingsComponent, parent)
-    }
 
     protected fun <T: Any> isAdminOverride(value: T): (ServerPlayer) -> T? {
         return { if (this.minigame.isAdmin(it)) value else null }
