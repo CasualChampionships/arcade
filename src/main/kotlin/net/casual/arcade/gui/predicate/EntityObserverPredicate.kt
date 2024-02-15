@@ -1,9 +1,11 @@
 package net.casual.arcade.gui.predicate
 
 import net.casual.arcade.minigame.managers.MinigameEffectsManager
+import net.casual.arcade.utils.PlayerUtils.isGameMode
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
+import net.minecraft.world.level.GameType
 
 /**
  * This interface is used to determine whether a given
@@ -57,6 +59,10 @@ public fun interface EntityObserverPredicate {
             return EntityObserverPredicate { observee, observer ->
                 observee.distanceToSqr(observer) < radius * radius
             }
+        }
+
+        public fun observerInGamemode(gamemode: GameType): EntityObserverPredicate {
+            return EntityObserverPredicate { _, observer -> observer.isGameMode(gamemode) }
         }
 
         public fun visibleObservee(): EntityObserverPredicate {
