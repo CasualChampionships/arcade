@@ -34,7 +34,7 @@ public class ResourcePackItemModeller(
             throw IllegalArgumentException("ArcadeModelledItem implementation must extend Item!")
         }
         this.server = modelledItem
-        this.client = modelledItem.getPolymerItem(modelledItem.defaultInstance, null)
+        this.client = modelledItem.getPolymerReplacement(null)
     }
 
     /**
@@ -53,10 +53,12 @@ public class ResourcePackItemModeller(
      * given resource pack creator.
      * @return The [ItemStack] generator.
      */
+    @Suppress("UnstableApiUsage")
     public fun model(location: ResourceLocation): ItemStackFactory {
         this.states.add(location)
         // Load it for pack
-        this.creator.requestModel(this.client, location)
+        val id = ItemModeller.getNextIdFor(this.client)
+        this.creator.forceDefineModel(this.client, id, location, true)
         return ItemStackFactory { this.create(location) }
     }
 
