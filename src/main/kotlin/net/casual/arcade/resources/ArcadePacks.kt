@@ -12,8 +12,8 @@ public object ArcadePacks {
     public val NO_SHADOW_CREATOR: ResourcePackCreator = ResourcePackCreator.create()
 
     init {
-        ACTION_BAR_FONT_CREATOR.addAssetSource(Arcade.container.findPath("packs/ActionBarFont/assets").get())
-        SPACES_PACK_CREATOR.addAssetSource(Arcade.container.findPath("packs/Spaces/assets").get())
-        NO_SHADOW_CREATOR.addAssetSource(Arcade.container.findPath("packs/NoShadow/assets").get())
+        ACTION_BAR_FONT_CREATOR.addAssetSource(Arcade.container.findPath("packs/ActionBarFont").get())
+        SPACES_PACK_CREATOR.addAssetSource(Arcade.container.findPath("packs/Spaces").get())
+        NO_SHADOW_CREATOR.addAssetSource(Arcade.container.findPath("packs/NoShadow").get())
     }
 }
