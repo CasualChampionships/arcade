@@ -3,17 +3,14 @@ package net.casual.arcade.minigame.managers
 import net.casual.arcade.Arcade
 import net.casual.arcade.events.minigame.MinigameAddPlayerEvent
 import net.casual.arcade.events.minigame.MinigameRemovePlayerEvent
-import net.casual.arcade.events.player.*
+import net.casual.arcade.events.player.PlayerClientboundPacketEvent
+import net.casual.arcade.events.player.PlayerDimensionChangeEvent
+import net.casual.arcade.events.player.PlayerRespawnEvent
 import net.casual.arcade.gui.predicate.EntityObserverPredicate
 import net.casual.arcade.minigame.Minigame
 import net.minecraft.network.protocol.Packet
-import net.minecraft.network.protocol.game.ClientGamePacketListener
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
-import net.minecraft.network.protocol.game.ClientboundBundlePacket
-import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
-import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket
-import net.minecraft.network.syncher.SynchedEntityData
+import net.minecraft.network.protocol.game.*
+import net.minecraft.network.syncher.SynchedEntityData.DataValue
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffectInstance.INFINITE_DURATION
@@ -23,7 +20,8 @@ import net.minecraft.world.entity.Entity
 public class MinigameEffectsManager(
     private val owner: Minigame<*>
 ) {
-    private var glowing: EntityObserverPredicate = EntityObserverPredicate { _, _ -> false }
+    private var glowing = EntityObserverPredicate.never()
+    private var invisible = EntityObserverPredicate.never()
 
     init {
         this.owner.events.register<PlayerClientboundPacketEvent> { this.onPlayerPacket(it) }
@@ -96,25 +94,27 @@ public class MinigameEffectsManager(
         // We need to check this packet also, because data won't be
         // sent to the client if there is no dirty data
         if (packet is ClientboundAddEntityPacket) {
-            val observee = player.level().getEntity(packet.id)
-            if (observee != null && this.glowing.observable(observee, player)) {
-                val dirty = listOf(this.modifyFlags(observee.entityData.get(Entity.DATA_SHARED_FLAGS_ID)))
+            val observee = player.level().getEntity(packet.id) ?: return packet
+
+            val flags = observee.entityData.get(Entity.DATA_SHARED_FLAGS_ID)
+            val modified = this.modifySharedEntityFlags(observee, player, flags)
+            if (modified != flags) {
+                val dirty = listOf(DataValue.create(Entity.DATA_SHARED_FLAGS_ID, modified))
                 return ClientboundBundlePacket(listOf(packet, ClientboundSetEntityDataPacket(observee.id, dirty)))
             }
             return packet
         }
 
         if (packet is ClientboundSetEntityDataPacket) {
-            val observee = player.serverLevel().getEntity(packet.id)
-            if (observee == null || !this.glowing.observable(observee, player)) {
-                return packet
-            }
+            val observee = player.serverLevel().getEntity(packet.id) ?: return packet
 
             val items = packet.packedItems
-            val data = ArrayList<SynchedEntityData.DataValue<*>>()
+            val data = ArrayList<DataValue<*>>()
             for (item in items) {
                 if (item.id == Entity.DATA_SHARED_FLAGS_ID.id) {
-                    data.add(this.modifyFlags(item.value as Byte))
+                    val flags = item.value as Byte
+                    val modified = this.modifySharedEntityFlags(observee, player, flags)
+                    data.add(DataValue.create(Entity.DATA_SHARED_FLAGS_ID, modified))
                 } else {
                     data.add(item)
                 }
@@ -126,11 +126,23 @@ public class MinigameEffectsManager(
         return packet as Packet<ClientGamePacketListener>
     }
 
-    private fun modifyFlags(flags: Byte): SynchedEntityData.DataValue<Byte> {
-        return SynchedEntityData.DataValue.create(
-            Entity.DATA_SHARED_FLAGS_ID,
-            (flags.toInt() or (1 shl Entity.FLAG_GLOWING)).toByte()
-        )
+    private fun enableFlag(flags: Byte, flag: Int): Byte {
+        return (flags.toInt() or (1 shl flag)).toByte()
+    }
+
+    private fun modifySharedEntityFlags(
+        observee: Entity,
+        observer: ServerPlayer,
+        flags: Byte
+    ): Byte {
+        var modified = flags
+        if (this.glowing.observable(observee, observer)) {
+            modified = this.enableFlag(flags, Entity.FLAG_GLOWING)
+        }
+        if (this.invisible.observable(observee, observer)) {
+            modified = this.enableFlag(flags, Entity.FLAG_INVISIBLE)
+        }
+        return modified
     }
 
     private companion object {

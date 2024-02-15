@@ -21,6 +21,24 @@ public fun interface PlayerObserverPredicate: EntityObserverPredicate {
      */
     public fun observable(observee: ServerPlayer, observer: ServerPlayer): Boolean
 
+    override fun inverted(): PlayerObserverPredicate {
+        return PlayerObserverPredicate { observee, observer ->
+            !this.observable(observee, observer)
+        }
+    }
+
+    override fun and(other: EntityObserverPredicate): PlayerObserverPredicate {
+        return PlayerObserverPredicate { observee, observer ->
+            this.observable(observee, observer) && other.observable(observee, observer)
+        }
+    }
+
+    override fun or(other: EntityObserverPredicate): PlayerObserverPredicate {
+        return PlayerObserverPredicate { observee, observer ->
+            this.observable(observee, observer) || other.observable(observee, observer)
+        }
+    }
+
     override fun observable(observee: Entity, observer: ServerPlayer): Boolean {
         return observee is ServerPlayer && this.observable(observee, observer)
     }
