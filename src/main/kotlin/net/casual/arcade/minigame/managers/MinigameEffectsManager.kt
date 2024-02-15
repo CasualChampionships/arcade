@@ -1,12 +1,11 @@
 package net.casual.arcade.minigame.managers
 
-import com.google.gson.JsonArray
+import net.casual.arcade.Arcade
 import net.casual.arcade.events.minigame.MinigameAddPlayerEvent
 import net.casual.arcade.events.minigame.MinigameRemovePlayerEvent
 import net.casual.arcade.events.player.*
 import net.casual.arcade.gui.predicate.EntityObserverPredicate
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.utils.JsonUtils.uuids
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
@@ -20,13 +19,10 @@ import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffectInstance.INFINITE_DURATION
 import net.minecraft.world.effect.MobEffects.NIGHT_VISION
 import net.minecraft.world.entity.Entity
-import java.util.UUID
 
 public class MinigameEffectsManager(
     private val owner: Minigame<*>
 ) {
-    private val fullbright = HashSet<UUID>()
-
     private var glowing: EntityObserverPredicate = EntityObserverPredicate { _, _ -> false }
 
     init {
@@ -38,13 +34,17 @@ public class MinigameEffectsManager(
     }
 
     public fun addFullbright(player: ServerPlayer) {
-        if (this.fullbright.add(player.uuid)) {
+        if (this.owner.tags.add(player, FULL_BRIGHT)) {
             player.connection.send(ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION))
         }
     }
 
+    public fun hasFullbright(player: ServerPlayer): Boolean {
+        return this.owner.tags.has(player, FULL_BRIGHT)
+    }
+
     public fun removeFullbright(player: ServerPlayer) {
-        if (this.fullbright.remove(player.uuid)) {
+        if (this.owner.tags.remove(player, FULL_BRIGHT)) {
             player.connection.send(ClientboundRemoveMobEffectPacket(player.id, NIGHT_VISION))
             val instance = player.getEffect(NIGHT_VISION)
             if (instance != null) {
@@ -62,22 +62,8 @@ public class MinigameEffectsManager(
         }
     }
 
-    internal fun serialize(): JsonArray {
-        val array = JsonArray()
-        for (uuid in this.fullbright) {
-            array.add(uuid.toString())
-        }
-        return array
-    }
-
-    internal fun deserialize(json: JsonArray) {
-        for (uuid in json.uuids()) {
-            this.fullbright.add(uuid)
-        }
-    }
-
     private fun updatePlayerFullbright(player: ServerPlayer) {
-        if (this.fullbright.contains(player.uuid)) {
+        if (this.hasFullbright(player)) {
             player.connection.send(ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION))
         }
     }
@@ -101,7 +87,7 @@ public class MinigameEffectsManager(
         }
 
         if (packet is ClientboundUpdateMobEffectPacket) {
-            if (packet.entityId == player.id && packet.effect == NIGHT_VISION && this.fullbright.contains(player.uuid)) {
+            if (packet.entityId == player.id && packet.effect == NIGHT_VISION && this.hasFullbright(player)) {
                 return ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION)
             }
             return packet
@@ -149,5 +135,7 @@ public class MinigameEffectsManager(
 
     private companion object {
         val INFINITE_NIGHT_VISION = MobEffectInstance(NIGHT_VISION, INFINITE_DURATION, 0, false, false, false)
+
+        val FULL_BRIGHT = Arcade.id("full_bright")
     }
 }
