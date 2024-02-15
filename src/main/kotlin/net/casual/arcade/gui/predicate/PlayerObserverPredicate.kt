@@ -42,4 +42,13 @@ public fun interface PlayerObserverPredicate: EntityObserverPredicate {
     override fun observable(observee: Entity, observer: ServerPlayer): Boolean {
         return observee is ServerPlayer && this.observable(observee, observer)
     }
+
+    public companion object {
+        public fun EntityObserverPredicate.toPlayer(): PlayerObserverPredicate {
+            val entity = this
+            return PlayerObserverPredicate { observee, observer ->
+                entity.observable(observee, observer)
+            }
+        }
+    }
 }
