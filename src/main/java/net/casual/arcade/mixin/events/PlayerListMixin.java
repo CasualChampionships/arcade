@@ -2,15 +2,17 @@ package net.casual.arcade.mixin.events;
 
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.network.PlayerLoginEvent;
 import net.casual.arcade.events.player.PlayerCanLoginEvent;
 import net.casual.arcade.events.player.PlayerJoinEvent;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -20,6 +22,8 @@ import java.net.SocketAddress;
 
 @Mixin(PlayerList.class)
 public class PlayerListMixin {
+	@Shadow @Final private MinecraftServer server;
+
 	@Inject(
 		method = "placeNewPlayer",
 		at = @At("TAIL")
@@ -42,7 +46,7 @@ public class PlayerListMixin {
 		GameProfile gameProfile,
 		CallbackInfoReturnable<Component> cir
 	) {
-		PlayerCanLoginEvent event = new PlayerCanLoginEvent(gameProfile, socketAddress);
+		PlayerCanLoginEvent event = new PlayerCanLoginEvent(this.server, gameProfile, socketAddress);
 		GlobalEventHandler.broadcast(event);
 		if (event.isCancelled()) {
 			cir.setReturnValue(event.result());
