@@ -41,6 +41,7 @@ public class MinigameDataTracker(
             }
             val display = advancement.value.display.getOrNull() ?: continue
             val data = JsonObject()
+            val item = display.icon.item
             data.addProperty("id", advancement.id.toString())
             data.addProperty("item", BuiltInRegistries.ITEM.getKey(display.icon.item).toString())
             data.addProperty("title", display.title.string)

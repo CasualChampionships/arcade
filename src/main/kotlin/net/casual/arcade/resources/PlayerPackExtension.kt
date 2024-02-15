@@ -11,6 +11,14 @@ internal class PlayerPackExtension: Extension {
     internal val futures = HashMap<UUID, MutableList<CompletableFuture<PackStatus>>>()
     private val packs = HashMap<UUID, PackState>()
 
+    internal fun getPackState(uuid: UUID): PackState? {
+        return this.packs[uuid]
+    }
+
+    internal fun getAllPacks(): MutableCollection<PackState> {
+        return this.packs.values
+    }
+
     internal fun addFuture(uuid: UUID): CompletableFuture<PackStatus> {
         val future = CompletableFuture<PackStatus>()
         this.futures.getOrPut(uuid) { ArrayList() }.add(future)
