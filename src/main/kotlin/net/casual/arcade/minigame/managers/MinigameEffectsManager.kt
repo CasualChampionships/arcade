@@ -61,7 +61,7 @@ MinigameEffectsManager(
         }
     }
 
-    public fun forceUpdateGlowing(
+    public fun forceUpdate(
         observee: Entity,
         observer: ServerPlayer,
         consumer: (ClientboundSetEntityDataPacket) -> Unit = observer.connection::send
@@ -111,7 +111,7 @@ MinigameEffectsManager(
             val observee = player.level().getEntity(packet.id) ?: return packet
 
             val list = ArrayList<Packet<ClientGamePacketListener>>(2)
-            this.forceUpdateGlowing(observee, player, list::add)
+            this.forceUpdate(observee, player, list::add)
             if (list.isNotEmpty()) {
                 list.add(0, packet)
                 return ClientboundBundlePacket(list)
