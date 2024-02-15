@@ -61,6 +61,19 @@ MinigameEffectsManager(
         }
     }
 
+    public fun forceUpdateGlowing(
+        observee: Entity,
+        observer: ServerPlayer,
+        consumer: (ClientboundSetEntityDataPacket) -> Unit = observer.connection::send
+    ) {
+        val flags = observee.entityData.get(Entity.DATA_SHARED_FLAGS_ID)
+        val modified = this.modifySharedEntityFlags(observee, observer, flags)
+        if (modified != flags) {
+            val dirty = listOf(DataValue.create(Entity.DATA_SHARED_FLAGS_ID, modified))
+            consumer(ClientboundSetEntityDataPacket(observee.id, dirty))
+        }
+    }
+
     private fun updatePlayerFullbright(player: ServerPlayer) {
         if (this.hasFullbright(player)) {
             player.connection.send(ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION))
@@ -97,11 +110,11 @@ MinigameEffectsManager(
         if (packet is ClientboundAddEntityPacket) {
             val observee = player.level().getEntity(packet.id) ?: return packet
 
-            val flags = observee.entityData.get(Entity.DATA_SHARED_FLAGS_ID)
-            val modified = this.modifySharedEntityFlags(observee, player, flags)
-            if (modified != flags) {
-                val dirty = listOf(DataValue.create(Entity.DATA_SHARED_FLAGS_ID, modified))
-                return ClientboundBundlePacket(listOf(packet, ClientboundSetEntityDataPacket(observee.id, dirty)))
+            val list = ArrayList<Packet<ClientGamePacketListener>>(2)
+            this.forceUpdateGlowing(observee, player, list::add)
+            if (list.isNotEmpty()) {
+                list.add(0, packet)
+                return ClientboundBundlePacket(list)
             }
             return packet
         }
