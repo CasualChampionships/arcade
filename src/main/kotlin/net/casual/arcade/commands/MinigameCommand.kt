@@ -3,6 +3,8 @@ package net.casual.arcade.commands
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.context.CommandContext
+import com.mojang.brigadier.suggestion.Suggestions
+import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.arguments.EnumArgument
 import net.casual.arcade.commands.arguments.MinigameArgument
 import net.casual.arcade.commands.arguments.MinigameArgument.PhaseName.Companion.INVALID_PHASE_NAME
@@ -27,9 +29,12 @@ import net.casual.arcade.utils.PlayerUtils.toComponent
 import net.casual.arcade.utils.TeamUtils.toComponent
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
+import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.EntityArgument
+import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.commands.arguments.TeamArgument
 import net.minecraft.server.level.ServerPlayer
+import java.util.concurrent.CompletableFuture
 
 internal object MinigameCommand: Command {
     override fun register(dispatcher: CommandDispatcher<CommandSourceStack>) {
@@ -113,6 +118,20 @@ internal object MinigameCommand: Command {
                             )
                         )
                     ).executes(this::openMinigameSettings)
+                )
+            ).then(
+                Commands.literal("tags").then(
+                    Commands.argument("minigame", MinigameArgument.minigame()).then(
+                        Commands.argument("player", EntityArgument.player()).then(
+                            Commands.literal("add").then(
+                                Commands.argument("tag", ResourceLocationArgument.id()).executes(this::addPlayerTag)
+                            )
+                        ).then(
+                            Commands.literal("remove").then(
+                                Commands.argument("tag", ResourceLocationArgument.id()).suggests(this::suggestExistingTags).executes(this::removePlayerTag)
+                            )
+                        ).executes(this::listPlayerTags)
+                    )
                 )
             ).then(
                 Commands.literal("phase").then(
@@ -369,6 +388,41 @@ internal object MinigameCommand: Command {
         val value = MinigameArgument.SettingsValue.getSettingsValue(context, "value")
         setting.deserializeAndSet(value)
         return context.source.success("Setting $name for minigame ${minigame.id} set to ${setting.get()}")
+    }
+
+    private fun listPlayerTags(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val player = EntityArgument.getPlayer(context, "player")
+        val tags = minigame.tags.get(player).joinToString()
+        return context.source.success("Tags for ${player.scoreboard}: ${tags}")
+    }
+
+    private fun addPlayerTag(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val player = EntityArgument.getPlayer(context, "player")
+        val tag = ResourceLocationArgument.getId(context, "tag")
+
+        if (!minigame.tags.add(player, tag)) {
+            return context.source.fail("${player.scoreboard} already had tag $tag")
+        }
+        return context.source.success("Successfully added tag $tag to ${player.scoreboard}")
+    }
+
+    private fun removePlayerTag(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val player = EntityArgument.getPlayer(context, "player")
+        val tag = ResourceLocationArgument.getId(context, "tag")
+
+        if (!minigame.tags.remove(player, tag)) {
+            return context.source.fail("${player.scoreboard} did not have tag $tag")
+        }
+        return context.source.success("Successfully removed tag $tag for ${player.scoreboard}")
+    }
+
+    private fun suggestExistingTags(context: CommandContext<CommandSourceStack>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val player = EntityArgument.getPlayer(context, "player")
+        return SharedSuggestionProvider.suggestResource(minigame.tags.get(player), builder)
     }
 
     private fun getMinigamePhase(context: CommandContext<CommandSourceStack>): Int {

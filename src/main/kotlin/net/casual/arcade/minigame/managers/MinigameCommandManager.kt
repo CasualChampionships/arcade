@@ -114,7 +114,9 @@ public class MinigameCommandManager(
     }
 
     private fun getGlobalMinigameCommand(): CommandNode<CommandSourceStack>? {
-        return this.minigame.server.commands.dispatcher.root.getChild("minigame")?.getChild("command")
+        return null
+        // FIXME:
+        // return this.minigame.server.commands.dispatcher.root.getChild("minigame")?.getChild("command")
     }
 
     private fun onCommand(event: PlayerCommandEvent) {

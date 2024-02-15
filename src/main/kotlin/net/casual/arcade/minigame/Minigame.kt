@@ -194,6 +194,13 @@ public abstract class Minigame<M: Minigame<M>>(
     public val stats: MinigameStatManager
 
     /**
+     * This manages player minigame tags.
+     *
+     * @see MinigameTagManager
+     */
+    public val tags: MinigameTagManager
+
+    /**
      * This manages a minigame's teams.
      *
      * @see MinigameStatManager
@@ -294,6 +301,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.teams = MinigameTeamManager(this.cast())
         this.chat = MinigameChatManager(this.cast())
         this.stats = MinigameStatManager()
+        this.tags = MinigameTagManager()
 
         this.phase = MinigamePhase.none()
         this.uptime = 0
