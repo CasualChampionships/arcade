@@ -4,6 +4,10 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
+import net.casual.arcade.events.minigame.MinigameAddTagEvent
+import net.casual.arcade.events.minigame.MinigameRemoveTagEvent
+import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.utils.EventUtils.broadcast
 import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.set
@@ -13,7 +17,9 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import java.util.UUID
 
-public class MinigameTagManager {
+public class MinigameTagManager(
+    private val minigame: Minigame<*>
+) {
     private val players = Object2ObjectOpenHashMap<UUID, MutableSet<ResourceLocation>>()
 
     public fun get(player: ServerPlayer): Collection<ResourceLocation> {
@@ -25,11 +31,19 @@ public class MinigameTagManager {
     }
 
     public fun add(player: ServerPlayer, tag: ResourceLocation): Boolean {
-        return this.players.getOrPut(player.uuid) { ObjectOpenHashSet() }.add(tag)
+        val result = this.players.getOrPut(player.uuid) { ObjectOpenHashSet() }.add(tag)
+        if (result) {
+            MinigameAddTagEvent(this.minigame, player, tag).broadcast()
+        }
+        return result
     }
 
     public fun remove(player: ServerPlayer, tag: ResourceLocation): Boolean {
-        return this.players[player.uuid]?.remove(tag) ?: false
+        val result = this.players[player.uuid]?.remove(tag) ?: false
+        if (result) {
+            MinigameRemoveTagEvent(this.minigame, player, tag).broadcast()
+        }
+        return result
     }
 
     internal fun serialize(): JsonArray {

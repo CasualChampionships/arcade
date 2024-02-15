@@ -29,6 +29,8 @@ import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.ai.attributes.AttributeModifier
+import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.GameType
 import net.minecraft.world.phys.Vec2
@@ -40,6 +42,8 @@ import java.util.function.Consumer
 import java.util.function.Predicate
 
 public object PlayerUtils {
+    private val HEALTH_BOOST: UUID = UUID.fromString("a61b8a4f-a4f5-4b7f-b787-d10ba4ad3d57")
+
     @JvmStatic
     public val ServerPlayer.location: Location
         get() = Location(this.serverLevel(), Vec3(this.x, this.y, this.z), Vec2(this.xRot, this.yRot))
@@ -164,6 +168,25 @@ public object PlayerUtils {
     @JvmStatic
     public fun ServerPlayer.resetHealth() {
         this.health = this.maxHealth
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.boostHealth(multiply: Double) {
+        val instance = this.attributes.getInstance(Attributes.MAX_HEALTH)
+        if (instance != null) {
+            instance.removeModifier(HEALTH_BOOST)
+            instance.addPermanentModifier(AttributeModifier(
+                HEALTH_BOOST,
+                "Health Boost",
+                multiply,
+                AttributeModifier.Operation.MULTIPLY_BASE
+            ))
+        }
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.unboostHealth() {
+        this.attributes.getInstance(Attributes.MAX_HEALTH)?.removeModifier(HEALTH_BOOST)
     }
 
     @JvmStatic

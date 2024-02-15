@@ -300,8 +300,8 @@ public abstract class Minigame<M: Minigame<M>>(
         this.data = MinigameDataTracker(this.cast())
         this.teams = MinigameTeamManager(this.cast())
         this.chat = MinigameChatManager(this.cast())
+        this.tags = MinigameTagManager(this.cast())
         this.stats = MinigameStatManager()
-        this.tags = MinigameTagManager()
 
         this.phase = MinigamePhase.none()
         this.uptime = 0
