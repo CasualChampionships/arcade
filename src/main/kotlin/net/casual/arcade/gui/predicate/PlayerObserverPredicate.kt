@@ -1,6 +1,8 @@
-package net.casual.arcade.gui.nametag
+package net.casual.arcade.gui.predicate
 
+import net.casual.arcade.gui.nametag.ArcadeNameTag
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.Entity
 
 /**
  * This interface is used to determine whether a given
@@ -8,7 +10,7 @@ import net.minecraft.server.level.ServerPlayer
  *
  * @see ArcadeNameTag
  */
-public fun interface ObserverPredicate {
+public fun interface PlayerObserverPredicate: EntityObserverPredicate {
     /**
      * This method determines whether the [observee] can be
      * observed by the [observer].
@@ -18,4 +20,8 @@ public fun interface ObserverPredicate {
      * @return Whether the [observer] can be observed.
      */
     public fun observable(observee: ServerPlayer, observer: ServerPlayer): Boolean
+
+    override fun observable(observee: Entity, observer: ServerPlayer): Boolean {
+        return observee is ServerPlayer && this.observable(observee, observer)
+    }
 }

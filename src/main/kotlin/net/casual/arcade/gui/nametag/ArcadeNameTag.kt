@@ -1,6 +1,7 @@
 package net.casual.arcade.gui.nametag
 
 import net.casual.arcade.gui.PlayerUI
+import net.casual.arcade.gui.predicate.PlayerObserverPredicate
 import net.casual.arcade.gui.suppliers.ComponentSupplier
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.NameTagUtils.nameTags
@@ -38,7 +39,7 @@ public class ArcadeNameTag(
      * The predicate to determine which players can see
      * the player's nametag.
      */
-    public val observable: ObserverPredicate = ObserverPredicate { _, _ -> true }
+    public val observable: PlayerObserverPredicate = PlayerObserverPredicate { _, _ -> true }
 ): PlayerUI() {
     override fun onAddPlayer(player: ServerPlayer) {
         player.nameTags.addNameTag(this)

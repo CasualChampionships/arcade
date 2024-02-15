@@ -204,6 +204,8 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         this.settings.deserialize(json.arrayOrDefault("settings"))
         this.stats.deserialize(json.arrayOrDefault("stats"))
 
+        this.effects.deserialize(json.arrayOrDefault("effects"))
+
         this.data.deserialize(json.obj("data_tracker"))
 
         val custom = json.objOrNull("custom")
@@ -259,6 +261,8 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         val settings = this.settings.serialize()
         val stats = this.stats.serialize()
 
+        val effects = this.effects.serialize()
+
         val data = this.data.serialize()
 
         val custom = JsonObject()
@@ -272,6 +276,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         json.add("admins", admins)
         json.add("settings", settings)
         json.add("stats", stats)
+        json.add("effects", effects)
         json.add("data_tracker", data)
         json.add("custom", custom)
         return json

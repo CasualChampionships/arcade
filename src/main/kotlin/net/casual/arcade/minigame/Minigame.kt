@@ -180,6 +180,13 @@ public abstract class Minigame<M: Minigame<M>>(
     public val recipes: MinigameRecipeManager
 
     /**
+     * This manages certain effects for this minigame.
+     *
+     * @see MinigameEffectsManager
+     */
+    public val effects: MinigameEffectsManager
+
+    /**
      * This manages minigame statistics.
      *
      * @see MinigameStatManager
@@ -282,6 +289,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.commands = MinigameCommandManager(this.cast())
         this.advancements = MinigameAdvancementManager(this.cast())
         this.recipes = MinigameRecipeManager(this.cast())
+        this.effects = MinigameEffectsManager(this.cast())
         this.data = MinigameDataTracker(this.cast())
         this.teams = MinigameTeamManager(this.cast())
         this.chat = MinigameChatManager(this.cast())
