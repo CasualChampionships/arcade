@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Either
 import net.casual.arcade.Arcade
 import net.casual.arcade.events.minigame.LobbyMoveToNextMinigameEvent
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.MinigameResources.Companion.sendTo
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.events.lobby.Lobby
 import net.casual.arcade.minigame.events.lobby.LobbyMinigame
@@ -16,6 +17,7 @@ import net.casual.arcade.utils.JsonUtils.set
 import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.uuid
 import net.casual.arcade.utils.MinigameUtils.transferTo
+import net.casual.arcade.utils.ResourcePackUtils.hasBeenSentPack
 import net.casual.arcade.utils.ResourcePackUtils.sendResourcePack
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.resources.ResourceLocation
@@ -81,10 +83,10 @@ public open class MinigamesEvent(
         if (this.config.operators.contains(player.scoreboardName)) {
             current.makeAdmin(player)
         }
-        this.sendResourcesTo(player)
+        this.sendResourcesTo(player, false)
     }
 
-    public fun sendResourcesTo(player: ServerPlayer) {
+    public fun sendResourcesTo(player: ServerPlayer, minigame: Boolean = true) {
         for (pack in this.getAdditionalPacks().concat(this.config.packs)) {
             val info = this.getPackInfo(pack)
             if (info == null) {
@@ -92,6 +94,9 @@ public open class MinigamesEvent(
                 continue
             }
             player.sendResourcePack(info)
+        }
+        if (minigame) {
+            this.current.getResources().sendTo(player)
         }
     }
 

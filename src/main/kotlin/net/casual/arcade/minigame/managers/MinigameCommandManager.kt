@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.tree.CommandNode
+import net.casual.arcade.Arcade
 import net.casual.arcade.ducks.`Arcade$DeletableCommand`
 import net.casual.arcade.events.minigame.*
 import net.casual.arcade.events.player.PlayerCommandEvent
@@ -145,6 +146,7 @@ public class MinigameCommandManager(
                 }
             } catch (e: Exception) {
                 source.fail("Command threw unexpected exception: ${e.message}".literal().hover(e.stackTraceToString()))
+                Arcade.logger.error("Command threw unexpected exception", e)
             }
             event.cancel()
         }

@@ -141,7 +141,7 @@ public open class LobbyMinigame(
     }
 
     final override fun getPhases(): List<Phase> {
-        return listOf(Phase.Waiting, Phase.Countdown)
+        return listOf(Phase.Waiting, Phase.Readying, Phase.Countdown)
     }
 
     override fun appendAdditionalDebugInfo(json: JsonObject) {
