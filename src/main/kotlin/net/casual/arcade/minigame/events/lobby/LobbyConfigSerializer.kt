@@ -14,6 +14,9 @@ import net.casual.arcade.utils.JsonUtils.set
 import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.stringOrNull
 import net.casual.arcade.utils.json.JsonSerializer
+import net.minecraft.core.registries.Registries
+import net.minecraft.resources.ResourceKey
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 
@@ -59,6 +62,10 @@ public class LobbyConfigSerializer: JsonSerializer<LobbyConfig> {
         val yaw = spawn.float("yaw")
         val pitch = spawn.float("pitch")
 
+        val dimension = json.stringOrNull("dimension")?.let {
+            runCatching { ResourceKey.create(Registries.DIMENSION, ResourceLocation(it)) }.getOrNull()
+        }
+
         val bossbar = json.objOrNull("bossbar")?.let { bossbar ->
             val type = bossbar.stringOrNull("type") ?: return@let null
             val factory = this.bossbarFactories[type]
@@ -72,7 +79,7 @@ public class LobbyConfigSerializer: JsonSerializer<LobbyConfig> {
             factory?.create(data)
         } ?: CountdownConfig.DEFAULT
 
-        return LobbyConfig(area, Vec3(x, y, z), Vec2(pitch, yaw), countdown, bossbar)
+        return LobbyConfig(area, Vec3(x, y, z), Vec2(pitch, yaw), dimension, countdown, bossbar)
     }
 
     override fun serialize(value: LobbyConfig): JsonElement {
@@ -92,6 +99,8 @@ public class LobbyConfigSerializer: JsonSerializer<LobbyConfig> {
             countdown["data"] = value.countdown.write()
             json["countdown"] = countdown
         }
+
+        json["dimension"] = value.dimension?.location()?.toString()
 
         val spawn = JsonObject()
         spawn["x"] = value.spawnPosition.x
