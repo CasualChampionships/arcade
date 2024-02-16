@@ -93,18 +93,34 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 	)
 	private void onHandleMovement(ServerboundMovePlayerPacket packet, CallbackInfo ci) {
 		if (!MinigameUtils.isTicking(this.player)) {
+			ci.cancel();
+
 			double x = this.player.getX();
 			double y = this.player.getY();
 			double z = this.player.getZ();
+			float xRot = this.player.getXRot();
+			float yRot = this.player.getYRot();
+
+			double newX = packet.getX(x);
+			double newY = packet.getY(y);
+			double newZ = packet.getZ(z);
+			double newXRot = packet.getXRot(xRot);
+			double newYRot = packet.getYRot(yRot);
+
+			boolean samePosition = x == newX && y == newY && z == newZ;
+			boolean sameRotation = xRot == newXRot && yRot == newYRot;
+
+			if (samePosition && sameRotation) {
+				return;
+			}
 
 			Minigame<?> minigame = MinigameUtils.getMinigame(this.player);
 			if (minigame != null && minigame.getSettings().getCanLookAroundWhenFrozen()) {
 				if (packet.hasRotation()) {
-					float yRot = packet.getYRot(0);
-					float xRot = packet.getXRot(0);
-
 					if (packet.hasPosition()) {
-						this.sendMovePacket(x, y, z);
+						if (!samePosition) {
+							this.sendMovePacket(x, y, z);
+						}
 					} else {
 						this.player.absMoveTo(x, y, z, yRot, xRot);
 					}
@@ -112,8 +128,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 				}
 			}
 
-			this.sendMovePacket(x, y, z, this.player.getYRot(), this.player.getXRot());
-			ci.cancel();
+			this.sendMovePacket(x, y, z, xRot, yRot);
 		}
 	}
 
