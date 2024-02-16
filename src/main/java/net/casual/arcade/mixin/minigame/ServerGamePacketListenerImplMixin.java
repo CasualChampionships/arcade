@@ -11,12 +11,16 @@ import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.RelativeMovement;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Set;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPacketListenerImpl {
@@ -96,12 +100,11 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 			Minigame<?> minigame = MinigameUtils.getMinigame(this.player);
 			if (minigame != null && minigame.getSettings().getCanLookAroundWhenFrozen()) {
 				if (packet.hasRotation()) {
-					float yRot = packet.getYRot(this.player.getYRot());
-					float xRot = packet.getXRot(this.player.getXRot());
+					float yRot = packet.getYRot(0);
+					float xRot = packet.getXRot(0);
 
 					if (packet.hasPosition()) {
-						// Keep player position fixed
-						this.teleport(x, y, z, yRot, xRot);
+						this.sendMovePacket(x, y, z);
 					} else {
 						this.player.absMoveTo(x, y, z, yRot, xRot);
 					}
@@ -109,7 +112,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 				}
 			}
 
-			this.teleport(x, y, z, this.player.getYRot(), this.player.getXRot());
+			this.sendMovePacket(x, y, z, this.player.getYRot(), this.player.getXRot());
 			ci.cancel();
 		}
 	}
@@ -185,5 +188,15 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		if (!MinigameUtils.isTicking(this.player)) {
 			ci.cancel();
 		}
+	}
+
+	@Unique
+	private void sendMovePacket(double x, double y, double z) {
+		this.send(new ClientboundPlayerPositionPacket(x, y, z, 0, 0, RelativeMovement.ROTATION, -1));
+	}
+
+	@Unique
+	private void sendMovePacket(double x, double y, double z, float yaw, float pitch) {
+		this.send(new ClientboundPlayerPositionPacket(x, y, z, yaw, pitch, Set.of(), -1));
 	}
 }
