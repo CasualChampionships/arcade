@@ -34,7 +34,7 @@ dependencies {
 
     implementation(project(mapOf("path" to ":", "configuration" to "namedElements")))
 
-    implementation("org.apache.commons:commons-text:1.11.0")
+    include(api("org.apache.commons:commons-text:1.11.0")!!)
 }
 
 tasks {
@@ -54,7 +54,7 @@ tasks {
             create<MavenPublication>("arcadeDatagen") {
                 groupId = "com.github.CasualChampionships"
                 artifactId = "arcade-datagen"
-                version = project.version.toString()
+                version = "1.0.3"
                 artifact(remapJar) {
                     builtBy(remapJar)
                 }

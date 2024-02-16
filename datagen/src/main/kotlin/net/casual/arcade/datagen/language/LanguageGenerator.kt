@@ -34,11 +34,15 @@ class LanguageGenerator(
     fun replaceLangs(client: Minecraft, langs: Path) {
         this.generate(client) { lang, entries ->
             val json = langs.resolve("${lang}.json")
-            var original = json.readText()
-            for (entry in entries) {
-                original = entry.replaceInJson(original)
+            try {
+                var original = json.readText()
+                for (entry in entries) {
+                    original = entry.replaceInJson(original)
+                }
+                json.writeText(original)
+            } catch (e: Exception) {
+                LOGGER.error("Failed to replace lang $lang", e)
             }
-            json.writeText(original)
         }
     }
 }
