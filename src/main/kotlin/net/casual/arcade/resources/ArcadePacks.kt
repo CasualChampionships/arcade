@@ -1,19 +1,25 @@
 package net.casual.arcade.resources
 
-import eu.pb4.polymer.resourcepack.api.ResourcePackCreator
 import net.casual.arcade.Arcade
 
 /**
  * Contains some commonly used resource packs.
  */
+@Suppress("JoinDeclarationAndAssignment", "MemberVisibilityCanBePrivate")
 public object ArcadePacks {
-    public val ACTION_BAR_FONT_CREATOR: ResourcePackCreator = ResourcePackCreator.create()
-    public val SPACES_PACK_CREATOR: ResourcePackCreator = ResourcePackCreator.create()
-    public val NO_SHADOW_CREATOR: ResourcePackCreator = ResourcePackCreator.create()
+    public val ACTION_BAR_FONT_PACK: NamedResourcePackCreator
+    public val SPACES_FONT_PACK: NamedResourcePackCreator
+    public val NO_SHADOW_PACK: NamedResourcePackCreator
 
     init {
-        ACTION_BAR_FONT_CREATOR.addAssetSource(Arcade.container.findPath("packs/ActionBarFont").get())
-        SPACES_PACK_CREATOR.addAssetSource(Arcade.container.findPath("packs/Spaces").get())
-        NO_SHADOW_CREATOR.addAssetSource(Arcade.container.findPath("packs/NoShadow").get())
+        ACTION_BAR_FONT_PACK = NamedResourcePackCreator.named("action_bar_font") {
+            addAssetSource(Arcade.container.findPath("packs/ActionBarFont").get())
+        }
+        SPACES_FONT_PACK = NamedResourcePackCreator.named("spaces_font") {
+            addAssetSource(Arcade.container.findPath("packs/SpacesFont").get())
+        }
+        NO_SHADOW_PACK = NamedResourcePackCreator.named("no_shadow") {
+            addAssetSource(Arcade.container.findPath("packs/NoShadow").get())
+        }
     }
 }

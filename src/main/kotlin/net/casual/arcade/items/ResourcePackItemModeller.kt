@@ -12,6 +12,14 @@ import net.minecraft.world.item.ItemStack
  * This is an implementation of [ItemModeller] that allows
  * you to create custom item models using a [ResourcePackCreator].
  *
+ * **An important thing to note:**
+ * If you have multiple [ArcadeModelledItem]s with different [ResourcePackCreator]s
+ * you must either make sure that you use different base items or merge all items
+ * that use the same base item into one [ResourcePackCreator].
+ *
+ * This is because Minecraft only allows for one override per item, so if you
+ * have multiple packs with model data, one will simply take precedence.
+ *
  * See [ArcadeModelledItem] for an example on how to create
  * custom-modelled items using this class.
  *
@@ -46,7 +54,7 @@ public class ResourcePackItemModeller(
         return this.server
     }
 
-    /**
+     /**
      * This registers a custom model for a given [location].
      *
      * @param location The location of the custom model in the
