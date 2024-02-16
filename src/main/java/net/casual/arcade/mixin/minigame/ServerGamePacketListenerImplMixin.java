@@ -1,5 +1,6 @@
 package net.casual.arcade.mixin.minigame;
 
+import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.utils.MinigameUtils;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.*;
@@ -8,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -87,13 +89,27 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 	)
 	private void onHandleMovement(ServerboundMovePlayerPacket packet, CallbackInfo ci) {
 		if (!MinigameUtils.isTicking(this.player)) {
-			this.teleport(
-				this.player.getX(),
-				this.player.getY(),
-				this.player.getZ(),
-				this.player.getYRot(),
-				this.player.getXRot()
-			);
+			double x = this.player.getX();
+			double y = this.player.getY();
+			double z = this.player.getZ();
+
+			Minigame<?> minigame = MinigameUtils.getMinigame(this.player);
+			if (minigame != null && minigame.getSettings().getCanLookAroundWhenFrozen()) {
+				if (packet.hasRotation()) {
+					float yRot = packet.getYRot(this.player.getYRot());
+					float xRot = packet.getXRot(this.player.getXRot());
+
+					if (packet.hasPosition()) {
+						// Keep player position fixed
+						this.teleport(x, y, z, yRot, xRot);
+					} else {
+						this.player.absMoveTo(x, y, z, yRot, xRot);
+					}
+					return;
+				}
+			}
+
+			this.teleport(x, y, z, this.player.getYRot(), this.player.getXRot());
 			ci.cancel();
 		}
 	}
