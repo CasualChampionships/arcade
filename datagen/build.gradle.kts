@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
-
 plugins {
     kotlin("jvm")
     id("fabric-loom")
@@ -9,6 +7,10 @@ plugins {
 
 group = property("maven_group")!!
 version = property("mod_version")!!
+
+kotlin {
+    explicitApi()
+}
 
 repositories {
     mavenLocal()

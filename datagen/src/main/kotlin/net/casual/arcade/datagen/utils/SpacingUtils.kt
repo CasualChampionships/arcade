@@ -7,8 +7,8 @@ import net.minecraft.network.chat.Component
 import net.minecraft.util.Mth
 import org.apache.commons.text.StringEscapeUtils
 
-object SpacingUtils {
-    fun getTranslatableCentreSpacing(
+public object SpacingUtils {
+    public fun getTranslatableCentreSpacing(
         font: Font,
         foreground: Component,
         background: Component,
@@ -18,7 +18,7 @@ object SpacingUtils {
         return LanguageEntry("${key}.space.1", first) to LanguageEntry("${key}.space.2", second)
     }
 
-    fun getTranslatableNegativeWidth(
+    public fun getTranslatableNegativeWidth(
         font: Font,
         component: Component,
         key: String = ComponentUtils.getTranslationKeyOf(component)
@@ -27,7 +27,7 @@ object SpacingUtils {
         return LanguageEntry("${key}.negativeWidth", unicode)
     }
 
-    fun getCentreSpacingUnicode(
+    public fun getCentreSpacingUnicode(
         font: Font,
         foreground: Component,
         background: Component
@@ -39,13 +39,13 @@ object SpacingUtils {
         return StringEscapeUtils.escapeJava(first.string) to StringEscapeUtils.escapeJava(second.string)
     }
 
-    fun getNegativeWidthUnicode(font: Font, component: Component): String {
+    public fun getNegativeWidthUnicode(font: Font, component: Component): String {
         val width = getWidth(font, component)
         val unicode = ComponentUtils.space(-width)
         return StringEscapeUtils.escapeJava(unicode.string)
     }
 
-    fun getCentreSpacing(
+    public fun getCentreSpacing(
         font: Font,
         foreground: Component,
         background: Component

@@ -7,6 +7,7 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.NONE
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
+import net.casual.arcade.utils.PlayerUtils.getChatPrefix
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 
@@ -50,6 +51,32 @@ public class MinigameChatManager(
     ) {
         val formatted = formatter?.format(message) ?: message
         player.sendSystemMessage(formatted)
+    }
+
+    public fun broadcastAsPlayerTo(
+        player: ServerPlayer,
+        message: Component,
+        receiver: ServerPlayer,
+        formatter: PlayerChatFormatter
+    ) {
+        val (decorated, prefix) = formatter.format(player, message)
+        val newPrefix = prefix ?: player.getChatPrefix(true)
+        val chat = Component.empty().append(newPrefix).append(decorated)
+        receiver.sendSystemMessage(chat)
+    }
+
+    public fun broadcastAsPlayerTo(
+        player: ServerPlayer,
+        message: Component,
+        receivers: Collection<ServerPlayer>,
+        formatter: PlayerChatFormatter
+    ) {
+        val (decorated, prefix) = formatter.format(player, message)
+        val newPrefix = prefix ?: player.getChatPrefix(true)
+        val chat = Component.empty().append(newPrefix).append(decorated)
+        for (receiver in receivers) {
+            receiver.sendSystemMessage(chat)
+        }
     }
 
     public fun isMessageGlobal(sender: ServerPlayer, message: String): Boolean {

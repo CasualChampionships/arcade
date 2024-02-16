@@ -7,17 +7,17 @@ import java.nio.file.Path
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
-class LanguageGenerator(
+public class LanguageGenerator(
     private val languages: List<String>
 ) {
     private val generators = ArrayList<LanguageEntryGenerator>()
 
-    fun add(generator: LanguageEntryGenerator): LanguageGenerator {
+    public fun add(generator: LanguageEntryGenerator): LanguageGenerator {
         this.generators.add(generator)
         return this
     }
 
-    fun generate(client: Minecraft, consumer: (lang: String, entries: List<LanguageEntry>) -> Unit) {
+    public fun generate(client: Minecraft, consumer: (lang: String, entries: List<LanguageEntry>) -> Unit) {
         LanguageUtils.setForeachLanguage(client, this.languages) { lang ->
             val entries = ArrayList<LanguageEntry>()
             for (entry in this.generators) {
@@ -31,7 +31,7 @@ class LanguageGenerator(
         }
     }
 
-    fun replaceLangs(client: Minecraft, langs: Path) {
+    public fun replaceLangs(client: Minecraft, langs: Path) {
         this.generate(client) { lang, entries ->
             val json = langs.resolve("${lang}.json")
             try {

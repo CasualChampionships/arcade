@@ -2,8 +2,8 @@ package net.casual.arcade.datagen.utils
 
 import net.minecraft.client.Minecraft
 
-object LanguageUtils {
-    fun setForeachLanguage(client: Minecraft, languages: Collection<String>, consumer: (String) -> Unit) {
+public object LanguageUtils {
+    public fun setForeachLanguage(client: Minecraft, languages: Collection<String>, consumer: (String) -> Unit) {
         val selected = client.languageManager.selected
 
         for (language in languages) {
@@ -13,7 +13,7 @@ object LanguageUtils {
         client.setLanguage(selected)
     }
 
-    fun Minecraft.setLanguage(lang: String) {
+    public fun Minecraft.setLanguage(lang: String) {
         try {
             this.languageManager.selected = lang
             this.reloadResourcePacks()

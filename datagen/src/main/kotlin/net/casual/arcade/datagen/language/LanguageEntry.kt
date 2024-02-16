@@ -1,6 +1,6 @@
 package net.casual.arcade.datagen.language
 
-data class LanguageEntry(
+public data class LanguageEntry(
     val key: String,
     val translation: String
 ) {
@@ -8,7 +8,7 @@ data class LanguageEntry(
         return """"${this.key}": "${this.translation}""""
     }
 
-    fun replaceInJson(json: String): String {
+    public fun replaceInJson(json: String): String {
         val regex = Regex("""\Q"${this.key}"\E\s*:\s*"(\\.|[^"\\])*"""")
         return if (json.contains(regex)) {
             json.replace(regex, this.toString().replace("\\", "\\\\"))
@@ -18,8 +18,8 @@ data class LanguageEntry(
         }
     }
 
-    companion object {
-        fun toJson(entries: Collection<LanguageEntry>): String {
+    public companion object {
+        public fun toJson(entries: Collection<LanguageEntry>): String {
             val builder = StringBuilder()
             builder.append("{\n")
             val iterator = entries.iterator()

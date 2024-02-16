@@ -4,11 +4,11 @@ import net.casual.arcade.datagen.utils.SpacingUtils
 import net.minecraft.client.gui.Font
 import net.minecraft.network.chat.Component
 
-interface LanguageEntryGenerator {
-    fun run(font: Font, collection: MutableCollection<LanguageEntry>)
+public interface LanguageEntryGenerator {
+    public fun run(font: Font, collection: MutableCollection<LanguageEntry>)
 }
 
-class CentredSpacingGenerator(
+public class CentredSpacingGenerator(
     private val foreground: Component,
     private val background: Component
 ): LanguageEntryGenerator {
@@ -19,7 +19,7 @@ class CentredSpacingGenerator(
     }
 }
 
-class NegativeWidthGenerator(
+public class NegativeWidthGenerator(
     private val component: Component
 ): LanguageEntryGenerator {
     override fun run(font: Font, collection: MutableCollection<LanguageEntry>) {
