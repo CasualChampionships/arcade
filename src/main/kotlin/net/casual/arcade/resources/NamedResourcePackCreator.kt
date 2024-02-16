@@ -7,9 +7,13 @@ import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 
 public class NamedResourcePackCreator(
-    public val name: String,
+    private val name: String,
     private val creator: ResourcePackCreator = ResourcePackCreator.create()
 ) {
+    public fun zippedName(): String {
+        return if (this.name.endsWith(".zip")) this.name else "${this.name}.zip"
+    }
+
     public fun getCreator(): ResourcePackCreator {
         return this.creator
     }
@@ -19,8 +23,7 @@ public class NamedResourcePackCreator(
             throw IllegalArgumentException("Must specify directory when building NamedResourcePack")
         }
         path.createDirectories()
-        val name = if (this.name.endsWith(".zip")) this.name else "${this.name}.zip"
-        this.creator.build(path.resolve(name))
+        this.creator.build(path.resolve(this.zippedName()))
     }
 
     public companion object {
