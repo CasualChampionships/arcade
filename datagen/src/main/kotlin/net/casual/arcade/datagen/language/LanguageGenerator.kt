@@ -1,5 +1,6 @@
 package net.casual.arcade.datagen.language
 
+import net.casual.arcade.datagen.utils.LOGGER
 import net.casual.arcade.datagen.utils.LanguageUtils
 import net.minecraft.client.Minecraft
 import java.nio.file.Path
@@ -20,7 +21,11 @@ class LanguageGenerator(
         LanguageUtils.setForeachLanguage(client, this.languages) { lang ->
             val entries = ArrayList<LanguageEntry>()
             for (entry in this.generators) {
-                entry.run(client.font, entries)
+                try {
+                    entry.run(client.font, entries)
+                } catch (e: Exception) {
+                    LOGGER.error("Failed to run entry ${entry::class.java.simpleName}", e)
+                }
             }
             consumer(lang, entries)
         }

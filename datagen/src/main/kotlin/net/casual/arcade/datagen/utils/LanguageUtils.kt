@@ -14,7 +14,11 @@ object LanguageUtils {
     }
 
     fun Minecraft.setLanguage(lang: String) {
-        this.languageManager.selected = lang
-        this.languageManager.onResourceManagerReload(this.resourceManager)
+        try {
+            this.languageManager.selected = lang
+            this.reloadResourcePacks()
+        } catch (e: Exception) {
+            LOGGER.error("Failed to set language to $lang", e)
+        }
     }
 }
