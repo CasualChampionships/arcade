@@ -703,6 +703,10 @@ public abstract class Minigame<M: Minigame<M>>(
      * have been removed.
      *
      * After a minigame has been closed, no more players are permitted to join.
+     *
+     * If your minigame has finished naturally you should call [complete] instead.
+     *
+     * @see complete
      */
     public fun close() {
         this.data.end()
@@ -789,9 +793,29 @@ public abstract class Minigame<M: Minigame<M>>(
         this.tryInitialize()
 
         this.data.start()
+
+        MinigameStartEvent(this).broadcast()
+
         // The first phase is MinigamePhase.none()
         // This will never IOOB because we always have at least 2 phases
         this.setPhase(this.phases[1])
+    }
+
+    /**
+     * Ends the minigame, the difference between [close] and
+     * [complete] is that this is only called after the minigame
+     * is that this is only called after the minigame is considered
+     * to be in its finished state.
+     *
+     * This should **only** be called the minigame implementation
+     * to signify when it has naturally ended.
+     *
+     * @see close
+     */
+    public fun complete() {
+        MinigameCompleteEvent(this).broadcast()
+
+        this.close()
     }
 
     /**
