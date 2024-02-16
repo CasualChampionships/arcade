@@ -1,4 +1,7 @@
 rootProject.name = "arcade"
+
+include("datagen")
+
 pluginManagement {
     repositories {
         maven("https://maven.fabricmc.net/") {

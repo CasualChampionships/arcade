@@ -9,6 +9,7 @@ import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Pose
+import org.jetbrains.annotations.ApiStatus.Internal
 
 public object NameTagUtils {
     internal val ServerPlayer.nameTags
@@ -16,6 +17,11 @@ public object NameTagUtils {
 
     public fun ElementHolder.isWatching(player: ServerPlayer): Boolean {
         return this.watchingPlayers.contains(player.connection)
+    }
+
+    @Internal
+    public fun respawn(dead: ServerPlayer, respawned: ServerPlayer) {
+        dead.nameTags.respawn(respawned)
     }
 
     internal fun registerEvents() {

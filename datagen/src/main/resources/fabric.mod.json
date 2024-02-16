@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "arcade-datagen",
+  "version": "${version}",
+  "name": "Arcade Datagen",
+  "description": "",
+  "authors": [
+    "Sensei"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "depends": {
+
+  }
+}

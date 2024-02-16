@@ -4,7 +4,6 @@ import net.casual.arcade.datagen.language.LanguageEntry
 import net.casual.arcade.utils.ComponentUtils
 import net.minecraft.client.gui.Font
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.contents.TranslatableContents
 import net.minecraft.util.Mth
 import org.apache.commons.text.StringEscapeUtils
 

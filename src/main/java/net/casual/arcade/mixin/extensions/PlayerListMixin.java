@@ -19,6 +19,6 @@ public class PlayerListMixin {
 		boolean keepEverything,
 		CallbackInfoReturnable<ServerPlayer> cir
 	) {
-		NameTagUtils.INSTANCE.getNameTags$arcade(player).respawn(cir.getReturnValue());
+		NameTagUtils.INSTANCE.respawn(player, cir.getReturnValue());
 	}
 }

@@ -1,4 +1,6 @@
+import net.fabricmc.loom.task.RemapJarTask
 import org.apache.commons.io.output.ByteArrayOutputStream
+import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
 import java.nio.charset.Charset
 
 plugins {
@@ -33,14 +35,6 @@ repositories {
     }
 }
 
-sourceSets {
-    val datagen by creating {
-        compileClasspath += main.get().compileClasspath
-        runtimeClasspath += main.get().runtimeClasspath
-        compileClasspath += main.get().output
-    }
-}
-
 @Suppress("UnstableApiUsage")
 dependencies {
     minecraft("com.mojang:minecraft:${property("minecraft_version")}")
@@ -62,18 +56,10 @@ dependencies {
     include(modApi("eu.pb4:polymer-virtual-entity:${property("polymer_version")}")!!)
 
     include(modApi("me.lucko:fabric-permissions-api:0.3-SNAPSHOT")!!)
-
-    "datagenImplementation"("org.apache.commons:commons-text:1.11.0")
 }
 
 loom {
     accessWidenerPath.set(file("src/main/resources/arcade.accesswidener"))
-
-    mods {
-        create("datagen") {
-            sourceSet(sourceSets["datagen"])
-        }
-    }
 }
 
 tasks {
@@ -90,7 +76,7 @@ tasks {
 
     publishing {
         publications {
-            create<MavenPublication>("mavenJava") {
+            create<MavenPublication>("arcade") {
                 groupId = "com.github.CasualChampionships"
                 artifactId = "arcade"
                 version = getGitHash()
