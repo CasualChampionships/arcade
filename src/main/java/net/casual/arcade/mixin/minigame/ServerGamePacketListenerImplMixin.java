@@ -9,7 +9,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.RelativeMovement;
 import org.jetbrains.annotations.Nullable;
@@ -26,8 +25,6 @@ import java.util.Set;
 public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPacketListenerImpl {
 	@Shadow public ServerPlayer player;
 	@Shadow @Nullable private Entity lastVehicle;
-
-	@Shadow public abstract void teleport(double x, double y, double z, float yaw, float pitch);
 
 	@Shadow public abstract void ackBlockChangesUpTo(int sequence);
 
@@ -104,8 +101,8 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 			double newX = packet.getX(x);
 			double newY = packet.getY(y);
 			double newZ = packet.getZ(z);
-			double newXRot = packet.getXRot(xRot);
-			double newYRot = packet.getYRot(yRot);
+			float newXRot = packet.getXRot(xRot);
+			float newYRot = packet.getYRot(yRot);
 
 			boolean samePosition = x == newX && y == newY && z == newZ;
 			boolean sameRotation = xRot == newXRot && yRot == newYRot;
