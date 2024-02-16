@@ -22,17 +22,20 @@ public object ScreenUtils {
     public fun createSpectatorMenu(
         components: SelectionScreenComponents = DefaultSpectatorScreenComponent,
         parent: MenuProvider? = null,
+        style: SelectionScreenStyle = SelectionScreenStyle.DEFAULT,
+        teamStyle: (PlayerTeam) -> SelectionScreenStyle = { SelectionScreenStyle.DEFAULT },
         teamFilter: (PlayerTeam) -> Boolean = { true },
         teamIcon: (PlayerTeam) -> ItemStack = TeamUtils::colouredHeadForTeam
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
         builder.parent(parent)
+        builder.style(style)
         val teams = TeamUtils.teams()
         val provider = builder.build()
         for (team in teams) {
             if (team.getOnlineCount() > 0 && teamFilter(team)) {
                 builder.selection(teamIcon(team)) { player ->
-                    player.openMenu(createTeamMenu(team, components, provider) { it.isSpectator })
+                    player.openMenu(createTeamMenu(team, components, provider, teamStyle(team)) { it.isSpectator })
                 }
             }
         }
@@ -43,10 +46,12 @@ public object ScreenUtils {
         team: PlayerTeam,
         components: SelectionScreenComponents = DefaultSpectatorScreenComponent,
         parent: MenuProvider? = null,
+        style: SelectionScreenStyle = SelectionScreenStyle.DEFAULT,
         predicate: (ServerPlayer) -> Boolean
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
         builder.parent(parent)
+        builder.style(style)
         for (teammate in team.getOnlinePlayers()) {
             builder.selection(ItemUtils.generatePlayerHead(teammate.scoreboardName)) { player ->
                 if (predicate(player)) {

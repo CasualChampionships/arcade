@@ -296,6 +296,15 @@ public open class MinigameSettings(
         defaults.options(this)
     })
 
+    public var canLookAroundWhenFrozen: Boolean by this.register(bool {
+        name = "can_look_around_when_frozen"
+        display = Items.PLAYER_HEAD.named("Can Look Around When Frozen").setLore(
+            "Allows players to look around while frozen".literal()
+        )
+        value = true
+        defaults.options(this)
+    })
+
     protected fun <T: Any> isAdminOverride(value: T): (ServerPlayer) -> T? {
         return { if (this.minigame.isAdmin(it)) value else null }
     }

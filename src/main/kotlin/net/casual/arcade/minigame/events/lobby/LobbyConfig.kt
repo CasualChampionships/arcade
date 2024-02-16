@@ -18,7 +18,6 @@ public class LobbyConfig(
     public val area: PlaceableAreaConfig,
     public val spawnPosition: Vec3,
     public val spawnRotation: Vec2,
-    public val dimension: ResourceKey<Level>? = null,
     public val countdown: CountdownConfig = CountdownConfig.DEFAULT,
     public val bossbar: TimerBossBarConfig = TimerBossBarConfig.DEFAULT
 ) {
