@@ -81,8 +81,17 @@ public open class MinigamesEvent(
         if (this.config.operators.contains(player.scoreboardName)) {
             current.makeAdmin(player)
         }
-        for (pack in this.config.packs) {
-            player.sendResourcePack(this.getPackInfo(pack) ?: continue)
+        this.sendResourcesTo(player)
+    }
+
+    public fun sendResourcesTo(player: ServerPlayer) {
+        for (pack in this.getAdditionalPacks().concat(this.config.packs)) {
+            val info = this.getPackInfo(pack)
+            if (info == null) {
+                Arcade.logger.warn("MinigamesEvent tried to send resources $pack which is not available")
+                continue
+            }
+            player.sendResourcePack(info)
         }
     }
 
@@ -150,6 +159,10 @@ public open class MinigamesEvent(
 
     protected open fun getPackInfo(name: String): PackInfo? {
         return null
+    }
+
+    protected open fun getAdditionalPacks(): List<String> {
+        return listOf()
     }
 
     protected open fun createLobbyMinigame(server: MinecraftServer, lobby: Lobby): LobbyMinigame {
