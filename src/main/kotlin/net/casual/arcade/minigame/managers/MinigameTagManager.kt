@@ -56,6 +56,7 @@ public class MinigameTagManager(
                 tagArray.add(tagArray.toString())
             }
             json["tags"] = tagArray
+            array.add(json)
         }
         return array
     }
