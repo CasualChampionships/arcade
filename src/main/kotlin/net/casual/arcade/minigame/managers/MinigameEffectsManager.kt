@@ -93,7 +93,12 @@ MinigameEffectsManager(
         if (packet is ClientboundBundlePacket) {
             val updated = ArrayList<Packet<ClientGamePacketListener>>()
             for (sub in packet.subPackets()) {
-                updated.add(this.updatePacket(player, sub))
+                val new = this.updatePacket(player, sub)
+                if (new is ClientboundBundlePacket) {
+                    updated.addAll(new.subPackets())
+                } else {
+                    updated.add(new)
+                }
             }
             return ClientboundBundlePacket(updated)
         }
