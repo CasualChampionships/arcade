@@ -1,10 +1,17 @@
 package net.casual.arcade
 
+import net.casual.arcade.border.custom.CustomWorldBorderLevelExtension
+import net.casual.arcade.border.custom.PlayerWorldBorderExtension
 import net.casual.arcade.commands.ArcadeCommands
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.level.LevelCreatedEvent
+import net.casual.arcade.events.player.PlayerCreatedEvent
 import net.casual.arcade.events.server.ServerCreatedEvent
+import net.casual.arcade.gui.extensions.PlayerNameTagExtension
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.utils.*
+import net.casual.arcade.utils.LevelUtils.addExtension
+import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
@@ -97,5 +104,14 @@ public object Arcade: ModInitializer {
         LevelUtils.registerEvents()
 
         ArcadeCommands.registerCommands()
+
+        //TODO: Move this
+        GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
+            player.addExtension(PlayerWorldBorderExtension(player.connection))
+        }
+        //TODO: Move this
+        GlobalEventHandler.register<LevelCreatedEvent> { (level) ->
+            level.addExtension(CustomWorldBorderLevelExtension())
+        }
     }
 }

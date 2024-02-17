@@ -86,7 +86,7 @@ internal class PlayerNameTagExtension(
     }
 
     // Okay, so I think I should write some implementation comments just
-    // encase, because this might look confusing.
+    // in case, because this might look confusing.
     // So a vanilla name tag is rendered twice - once for the 'background'
     // nametag (the see-through rectangle and text), and once for the
     // 'foreground' which is the non-see-through text, it has no rectangle.

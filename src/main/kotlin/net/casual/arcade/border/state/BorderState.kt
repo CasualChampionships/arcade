@@ -12,6 +12,8 @@ public interface BorderState {
 
     public fun getMaxZ(): Double
 
+
+    //Diameter
     public fun getSize(): Double
 
     public fun getLerpSpeed(): Double
