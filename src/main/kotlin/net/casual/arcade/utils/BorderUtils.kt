@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.border.BorderChangeListener
 import net.minecraft.world.level.border.BorderChangeListener.DelegateBorderChangeListener
 import org.jetbrains.annotations.ApiStatus.Internal
+import xyz.nucleoid.fantasy.RuntimeWorld
 
 public object BorderUtils {
     private val original = HashMap<ServerLevel, BorderChangeListener>()
@@ -36,7 +37,8 @@ public object BorderUtils {
 
         val border = LevelUtils.overworld().worldBorder
         for (level in LevelUtils.levels()) {
-            border.addListener(this.original.getOrPut(level) { DelegateBorderChangeListener(level.worldBorder) })
+            val broadcaster = this.original.getOrPut(level) { DelegateBorderChangeListener(level.worldBorder) }
+            border.addListener(broadcaster)
         }
         return true
     }
@@ -70,6 +72,18 @@ public object BorderUtils {
     internal fun registerEvents() {
         GlobalEventHandler.register<LevelCreatedEvent> { (level) ->
             level.addExtension(BorderSerializerExtension(level))
+            if (level is RuntimeWorld) {
+                val border = level.worldBorder
+                if (this.synced) {
+                    LevelUtils.overworld().worldBorder.addListener(this.original.getOrPut(level) {
+                        DelegateBorderChangeListener(level.worldBorder)
+                    })
+                } else {
+                    border.addListener(this.replacement.getOrPut(level) {
+                        LevelSpecificBorderBroadcaster(level)
+                    })
+                }
+            }
         }
         GlobalEventHandler.register<ServerLoadedEvent> {
             if (this.synced) {
