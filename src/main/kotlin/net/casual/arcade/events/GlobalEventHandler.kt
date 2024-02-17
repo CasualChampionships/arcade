@@ -1,5 +1,6 @@
 package net.casual.arcade.events
 
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.casual.arcade.Arcade
 import net.casual.arcade.events.GlobalEventHandler.addHandler
 import net.casual.arcade.events.GlobalEventHandler.broadcast
@@ -21,10 +22,12 @@ import java.util.function.Consumer
  * @see Event
  */
 public object GlobalEventHandler {
+    private const val MAX_RECURSIONS = 10
+
     private val logger = LogManager.getLogger("ArcadeEventHandler")
 
     private val suppressed = HashSet<Class<out Event>>()
-    private val stack = ArrayDeque<Class<out Event>>()
+    private val stack = Object2IntOpenHashMap<Class<out Event>>()
     private val handlers = HashSet<ListenerHandler>()
     private val handler = EventHandler()
 
@@ -69,7 +72,7 @@ public object GlobalEventHandler {
         @Suppress("UNCHECKED_CAST")
         val listeners = ArrayList(this.handler.getListenersFor(type)) as MutableList<EventListener<T>>
         try {
-            this.stack.push(type)
+            this.stack.addTo(type, 1)
 
             for (handler in this.handlers) {
                 @Suppress("UNCHECKED_CAST")
@@ -80,7 +83,7 @@ public object GlobalEventHandler {
                 listener.invoke(event)
             }
         } finally {
-            this.stack.pop()
+            this.stack.addTo(type, -1)
         }
     }
 
@@ -155,15 +158,14 @@ public object GlobalEventHandler {
     }
 
     private fun checkRecursive(type: Class<out Event>): Boolean {
-        for (within in this.stack) {
-            if (within === type) {
-                this.logger.warn(
-                    "Detected recursive event (type: {}), suppressing...\nStacktrace: \n{}",
-                    type.simpleName,
-                    Thread.currentThread().stackTrace.joinToString("\n")
-                )
-                return true
-            }
+        val count = this.stack.getInt(type)
+        if (count >= MAX_RECURSIONS) {
+            this.logger.warn(
+                "Detected recursive event (type: {}), suppressing...\nStacktrace: \n{}",
+                type.simpleName,
+                Thread.currentThread().stackTrace.joinToString("\n")
+            )
+            return true
         }
         return false
     }
