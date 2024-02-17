@@ -68,10 +68,8 @@ MinigameEffectsManager(
     ) {
         val flags = observee.entityData.get(Entity.DATA_SHARED_FLAGS_ID)
         val modified = this.modifySharedEntityFlags(observee, observer, flags)
-        if (modified != flags) {
-            val dirty = listOf(DataValue.create(Entity.DATA_SHARED_FLAGS_ID, modified))
-            consumer(ClientboundSetEntityDataPacket(observee.id, dirty))
-        }
+        val dirty = listOf(DataValue.create(Entity.DATA_SHARED_FLAGS_ID, modified))
+        consumer(ClientboundSetEntityDataPacket(observee.id, dirty))
     }
 
     private fun updatePlayerFullbright(player: ServerPlayer) {
