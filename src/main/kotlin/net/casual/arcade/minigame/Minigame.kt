@@ -118,8 +118,6 @@ public abstract class Minigame<M: Minigame<M>>(
      */
     public val server: MinecraftServer,
 ) {
-    private val handles: MutableSet<RuntimeWorldHandle>
-    private val levels: MutableSet<ServerLevel>
     private val connections: MutableSet<ServerGamePacketListenerImpl>
 
     private var resources: MultiMinigameResources
@@ -136,6 +134,13 @@ public abstract class Minigame<M: Minigame<M>>(
      * @see MinigameEventHandler
      */
     public val events: MinigameEventHandler<M>
+
+    /**
+     * This handles all the levels that will be used in the minigame.
+     *
+     * @see MinigameLevelManager
+     */
+    public val levels: MinigameLevelManager
 
     /**
      * The scheduler for scheduling tasks based on the minigames
@@ -273,8 +278,6 @@ public abstract class Minigame<M: Minigame<M>>(
     public abstract val id: ResourceLocation
 
     init {
-        this.handles = LinkedHashSet()
-        this.levels = LinkedHashSet()
         this.connections = LinkedHashSet()
         this.admins = LinkedHashSet()
         this.spectators = LinkedHashSet()
@@ -292,6 +295,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.scheduler = MinigameScheduler()
         // Events must be assigned first!
         this.events = MinigameEventHandler(this.cast())
+        this.levels = MinigameLevelManager(this.cast())
         this.ui = MinigameUIManager(this.cast())
         this.commands = MinigameCommandManager(this.cast())
         this.advancements = MinigameAdvancementManager(this.cast())
@@ -489,28 +493,6 @@ public abstract class Minigame<M: Minigame<M>>(
         return false
     }
 
-    /**
-     * This adds a level handle to the minigame.
-     *
-     * This will automatically delete the level after the
-     * minigame ends.
-     *
-     * @param handle The RuntimeWorldHandle to delete after the minigame closes.
-     */
-    public fun addLevel(handle: RuntimeWorldHandle) {
-        this.handles.add(handle)
-        this.addLevel(handle.asWorld())
-    }
-
-    /**
-     * This adds a level to the minigame.
-     *
-     * @param level The level to add.
-     */
-    public fun addLevel(level: ServerLevel) {
-        this.levels.add(level)
-        level.minigame.setMinigame(this)
-    }
 
     /**
      * This gets all the tracked players in this minigame.
@@ -582,15 +564,6 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     /**
-     * This gets all the levels that are part of the minigame.
-     *
-     * @return The collection of levels.
-     */
-    public fun getLevels(): Collection<ServerLevel> {
-        return this.levels
-    }
-
-    /**
      * This gets whether a given player is playing in the minigame.
      *
      * @param player The player to check whether they are playing.
@@ -624,16 +597,6 @@ public abstract class Minigame<M: Minigame<M>>(
 
     public fun isAdmin(player: ServerPlayer): Boolean {
         return this.admins.contains(player.uuid)
-    }
-
-    /**
-     * This checks whether a given level is part of this minigame.
-     *
-     * @param level The level to check whether is part of the minigame.
-     * @return Whether the level is part of the minigame.
-     */
-    public fun hasLevel(level: ServerLevel): Boolean {
-        return this.levels.contains(level)
     }
 
     /**
@@ -690,7 +653,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * @see GameRules
      */
     public fun setGameRules(modifier: GameRules.() -> Unit) {
-        for (level in this.levels) {
+        for (level in this.levels.all()) {
             modifier(level.gameRules)
         }
     }
@@ -715,17 +678,14 @@ public abstract class Minigame<M: Minigame<M>>(
         for (player in this.getAllPlayers()) {
             this.removePlayer(player)
         }
-        for (level in this.levels) {
+        for (level in this.levels.all()) {
             level.minigame.removeMinigame()
         }
         // Closed is true after remove player
         this.closed = true
         if (this.settings.shouldDeleteLevels) {
-            for (handle in this.handles) {
-                handle.delete()
-            }
+            this.levels.deleteHandles()
         }
-        this.handles.clear()
         this.levels.clear()
         this.events.unregisterHandler()
         this.events.minigame.clear()
@@ -762,7 +722,7 @@ public abstract class Minigame<M: Minigame<M>>(
         json.add("teams", this.teams.getAllTeams().toJsonStringArray { it.name })
         json.add("playing_teams", this.teams.getPlayingTeams().toJsonStringArray { it.name })
         json.add("eliminated_teams", this.teams.getEliminatedTeams().toJsonStringArray { it.name })
-        json.add("levels", this.levels.toJsonStringArray { it.dimension().location().toString() })
+        json.add("levels", this.levels.all().toJsonStringArray { it.dimension().location().toString() })
         json.add("phases", this.phases.toJsonStringArray { it.id })
         json.addProperty("phase", this.phase.id)
         json.addProperty("ticking", this.ticking)

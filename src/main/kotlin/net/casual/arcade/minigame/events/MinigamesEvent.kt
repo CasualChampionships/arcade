@@ -46,7 +46,7 @@ public open class MinigamesEvent(
         }
         val level = either.map({ it.asWorld() }, { it })
         val lobby = this.createLobbyMinigame(server, this.config.lobby.create(level))
-        either.ifLeft(lobby::addLevel)
+        either.ifLeft(lobby.levels::add)
 
         lobby.events.register<LobbyMoveToNextMinigameEvent> {
             this.incrementIndex(it.next)

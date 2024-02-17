@@ -405,7 +405,7 @@ public class MinigameEventHandler<M: Minigame<M>>(
         }
         if (LevelEvent::class.java.isAssignableFrom(type)) {
             if (this.hasFlag(flags, HAS_LEVEL)) {
-                predicates.add { this.owner.hasLevel((it as LevelEvent).level) }
+                predicates.add { this.owner.levels.has((it as LevelEvent).level) }
             }
         }
         if (MinigameEvent::class.java.isAssignableFrom(type)) {

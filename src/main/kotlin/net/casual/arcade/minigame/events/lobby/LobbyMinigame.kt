@@ -60,7 +60,7 @@ public open class LobbyMinigame(
 
     override fun initialize() {
         super.initialize()
-        this.addLevel(this.lobby.spawn.level)
+        this.levels.add(this.lobby.spawn.level)
 
         this.setGameRules {
             resetToDefault()
