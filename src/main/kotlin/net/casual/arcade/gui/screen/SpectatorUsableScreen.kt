@@ -1,5 +1,6 @@
 package net.casual.arcade.gui.screen
 
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.inventory.AbstractContainerMenu
 
 /**
@@ -12,7 +13,7 @@ public interface SpectatorUsableScreen {
      *
      * @return Whether spectators can use the screen.
      */
-    public fun isSpectatorUsable(): Boolean {
+    public fun isSpectatorUsable(player: ServerPlayer): Boolean {
         return true
     }
 }

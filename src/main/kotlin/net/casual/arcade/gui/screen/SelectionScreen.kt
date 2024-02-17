@@ -42,7 +42,7 @@ public class SelectionScreen internal constructor(
     private val parent: MenuProvider?,
     private val style: SelectionScreenStyle,
     private val buttons: EnumMap<Slot, Selection>,
-    private val page: Int,
+    private val page: Int
 ): ArcadeGenericScreen(player, syncId, 6) {
     private val hasNextPage: Boolean
 

@@ -20,6 +20,6 @@ public class ServerGamePacketListenerImplMixin {
 		)
 	)
 	private boolean canClick(ServerPlayer instance) {
-		return !(instance.containerMenu instanceof SpectatorUsableScreen screen && screen.isSpectatorUsable()) && instance.isSpectator();
+		return instance.isSpectator() && !(instance.containerMenu instanceof SpectatorUsableScreen screen && screen.isSpectatorUsable(instance));
 	}
 }

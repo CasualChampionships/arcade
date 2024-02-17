@@ -1,5 +1,6 @@
 package net.casual.arcade.mixin.minigame;
 
+import net.casual.arcade.gui.screen.FrozenUsableScreen;
 import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.utils.MinigameUtils;
 import net.minecraft.network.Connection;
@@ -11,6 +12,7 @@ import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.RelativeMovement;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -156,6 +158,12 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 	)
 	private void onHandleClick(ServerboundContainerClickPacket packet, CallbackInfo ci) {
 		if (!MinigameUtils.isTicking(this.player)) {
+			AbstractContainerMenu menu = this.player.containerMenu;
+			if (menu.containerId == packet.getContainerId() && menu instanceof FrozenUsableScreen frozen) {
+				if (frozen.isFrozenUsable(this.player)) {
+					return;
+				}
+			}
 			this.player.inventoryMenu.sendAllDataToRemote();
 			ci.cancel();
 		}

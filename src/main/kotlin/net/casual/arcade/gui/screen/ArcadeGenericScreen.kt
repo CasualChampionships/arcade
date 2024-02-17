@@ -35,7 +35,7 @@ public abstract class ArcadeGenericScreen(
     inventory: Inventory,
     syncId: Int,
     rows: Int
-): AbstractContainerMenu(rowsToType(rows), syncId), SpectatorUsableScreen {
+): AbstractContainerMenu(rowsToType(rows), syncId), SpectatorUsableScreen, FrozenUsableScreen {
     private val ticking: SingleEventHandler<ServerTickEvent>
 
     private val inventory: Inventory
