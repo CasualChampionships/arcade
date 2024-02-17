@@ -53,7 +53,7 @@ public class MinigameTagManager(
             json["uuid"] = uuid.toString()
             val tagArray = JsonArray()
             for (tag in tags) {
-                tagArray.add(tagArray.toString())
+                tagArray.add(tag.toString())
             }
             json["tags"] = tagArray
             array.add(json)
