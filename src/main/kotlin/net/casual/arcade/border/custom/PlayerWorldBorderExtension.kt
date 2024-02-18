@@ -8,6 +8,7 @@ import net.minecraft.core.Direction.*
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.phys.Vec3
 import org.joml.Vector3f
 import kotlin.math.max
 
@@ -57,12 +58,21 @@ public class PlayerWorldBorderExtension(owner: ServerGamePacketListenerImpl): Pl
 
         EntityAttachment.ofTicking(holder, this.player)
         //TODO: Hide from other players.
+        holder.watchingPlayers.forEach { player -> holder.stopWatching(player) }
         holder.startWatching(player)
 
     }
 
 
     private inner class BorderHolder: ElementHolder() {
+
+
+        override fun notifyElementsOfPositionUpdate(newPos: Vec3?, delta: Vec3?) {
+            if (newPos != null) {
+//                super.notifyElementsOfPositionUpdate(newPos.subtract(player.position()), delta)
+                super.notifyElementsOfPositionUpdate(newPos, delta)
+            }
+        }
 
         private fun relative_border_pos(vec: Vector3f): Vector3f {
             return vec.sub(player.position().toVector3f()).add(border_origin)
@@ -117,17 +127,12 @@ public class PlayerWorldBorderExtension(owner: ServerGamePacketListenerImpl): Pl
                 west.scale = Vector3f(0F, 200F, 2 * border_radius)
 
 
-                north.translation = relative_border_pos(
-                    NORTH.step().mul(border_radius).add(NORTH.counterClockWise.step().mul(border_radius))
-                )
-                south.translation =
-                    relative_border_pos(SOUTH.step().mul(border_radius).add(SOUTH.clockWise.step().mul(border_radius)))
-                east.translation = relative_border_pos(
-                    EAST.step().mul(border_radius).add(EAST.counterClockWise.step().mul(border_radius))
-                )
-                west.translation =
-                    relative_border_pos(WEST.step().mul(border_radius).add(WEST.clockWise.step().mul(border_radius)))
 
+                //TODO: Make this respect player position (Don't lerp)
+                north.translation = relative_border_pos(NORTH.step().mul(border_radius).add(NORTH.counterClockWise.step().mul(border_radius)))
+                south.translation = relative_border_pos(SOUTH.step().mul(border_radius).add(SOUTH.clockWise.step().mul(border_radius)))
+                east.translation = relative_border_pos(EAST.step().mul(border_radius).add(EAST.counterClockWise.step().mul(border_radius)))
+                west.translation = relative_border_pos(WEST.step().mul(border_radius).add(WEST.clockWise.step().mul(border_radius)))
 
             }
 
