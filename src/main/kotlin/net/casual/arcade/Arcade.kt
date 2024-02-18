@@ -105,7 +105,7 @@ public object Arcade: ModInitializer {
 
         ArcadeCommands.registerCommands()
 
-        //TODO: Move this
+        //TODO: Move this | TODO Make this work with respawning.
         GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
             player.addExtension(PlayerWorldBorderExtension(player.connection))
         }
