@@ -6,6 +6,7 @@ import eu.pb4.polymer.virtualentity.api.elements.BlockDisplayElement
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.minecraft.core.Direction.*
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.border.BorderStatus
@@ -58,6 +59,9 @@ public class PlayerWorldBorderExtension(owner: ServerGamePacketListenerImpl): Pl
     private fun updateScale() {
         val diameter = this.border.size.toFloat()
 
+        // TODO: We probably only want to scale to what the
+        //   player can actually see...
+        //   We don't want to send the north border if it's thousands of blocks away...
         this.north.scale = Vector3f(diameter, 200F, 0F)
         this.south.scale = Vector3f(diameter, 200F, 0F)
         this.east.scale = Vector3f(0F, 200F, diameter)
@@ -78,7 +82,15 @@ public class PlayerWorldBorderExtension(owner: ServerGamePacketListenerImpl): Pl
 
     private inner class BorderAttachment: EntityAttachment(this.holder, this.player, false) {
         init {
-            this.startWatching(player)
+            super.startWatching(player)
+        }
+
+        override fun startWatching(handler: ServerPlayer) {
+            // Do nothing...
+        }
+
+        override fun startWatching(handler: ServerGamePacketListenerImpl) {
+            // Do nothing...
         }
 
         override fun updateCurrentlyTracking(currentlyTracking: MutableCollection<ServerGamePacketListenerImpl>?) {
