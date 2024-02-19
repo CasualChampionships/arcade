@@ -1,5 +1,6 @@
 package net.casual.arcade.mixin.events;
 
+import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.core.CancellableEvent;
@@ -8,12 +9,15 @@ import net.casual.arcade.events.network.PackStatusEvent;
 import net.casual.arcade.events.network.PlayerDisconnectEvent;
 import net.casual.arcade.events.player.PlayerClientboundPacketEvent;
 import net.casual.arcade.resources.PackStatus;
+import net.minecraft.network.Connection;
+import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ServerboundResourcePackPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,6 +25,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.List;
 
 @Mixin(ServerCommonPacketListenerImpl.class)
 public abstract class ServerCommonPacketListenerImplMixin {
@@ -42,25 +48,28 @@ public abstract class ServerCommonPacketListenerImplMixin {
 		GlobalEventHandler.broadcast(event);
 	}
 
-	@ModifyVariable(
+	@WrapWithCondition(
 		method = "send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V",
-		at = @At("HEAD"),
-		argsOnly = true
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/network/Connection;send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;Z)V"
+		)
 	)
-	private Packet<?> onSendPacket(Packet<?> value) {
+	private boolean onSendPacket(Connection instance, Packet<?> packet, @Nullable PacketSendListener listener, boolean flush) {
 		ServerCommonPacketListenerImpl self = (ServerCommonPacketListenerImpl) (Object) this;
-		CancellableEvent.Typed<Packet<?>> event = new ClientboundPacketEvent(this.server, this.playerProfile(), value);
+		CancellableEvent.Default event = new ClientboundPacketEvent(this.server, this.playerProfile(), packet);
 		GlobalEventHandler.broadcast(event);
 
 		if (self instanceof ServerGamePacketListenerImpl connection) {
-			CancellableEvent.Typed<Packet<?>> old = event;
-			event = new PlayerClientboundPacketEvent(connection.player, value);
+			CancellableEvent.Default old = event;
+			event = new PlayerClientboundPacketEvent(connection.player, packet);
 			if (old.isCancelled()) {
-				event.cancel(old.result());
+				event.cancel();
 			}
 			GlobalEventHandler.broadcast(event);
 		}
-		return event.isCancelled() ? event.result() : value;
+
+		return !event.isCancelled();
 	}
 
 	@Inject(

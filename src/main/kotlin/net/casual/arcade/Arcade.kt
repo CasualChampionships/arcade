@@ -1,13 +1,13 @@
 package net.casual.arcade
 
-import net.casual.arcade.border.custom.CustomWorldBorderLevelExtension
 import net.casual.arcade.border.custom.PlayerWorldBorderExtension
 import net.casual.arcade.commands.ArcadeCommands
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.level.LevelCreatedEvent
+import net.casual.arcade.events.network.ClientboundPacketEvent
+import net.casual.arcade.events.player.PlayerClientboundPacketEvent
 import net.casual.arcade.events.player.PlayerCreatedEvent
 import net.casual.arcade.events.server.ServerCreatedEvent
-import net.casual.arcade.gui.extensions.PlayerNameTagExtension
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.utils.*
 import net.casual.arcade.utils.LevelUtils.addExtension
@@ -15,6 +15,11 @@ import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
+import net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket
+import net.minecraft.network.protocol.game.ClientboundSetBorderCenterPacket
+import net.minecraft.network.protocol.game.ClientboundSetBorderLerpSizePacket
+import net.minecraft.network.protocol.game.ClientboundSetBorderSizePacket
+import net.minecraft.network.protocol.game.ClientboundSetBorderWarningDistancePacket
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import org.apache.logging.log4j.LogManager
@@ -109,9 +114,15 @@ public object Arcade: ModInitializer {
         GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
             player.addExtension(PlayerWorldBorderExtension(player.connection))
         }
-        //TODO: Move this
-        GlobalEventHandler.register<LevelCreatedEvent> { (level) ->
-            level.addExtension(CustomWorldBorderLevelExtension())
+        GlobalEventHandler.register<PlayerClientboundPacketEvent> {
+            if (
+                it.packet is ClientboundInitializeBorderPacket ||
+                it.packet is ClientboundSetBorderSizePacket ||
+                it.packet is ClientboundSetBorderCenterPacket ||
+                it.packet is ClientboundSetBorderLerpSizePacket
+            ) {
+                it.cancel()
+            }
         }
     }
 }

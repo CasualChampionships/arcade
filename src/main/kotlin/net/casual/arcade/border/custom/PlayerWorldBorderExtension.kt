@@ -4,144 +4,97 @@ import eu.pb4.polymer.virtualentity.api.ElementHolder
 import eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment
 import eu.pb4.polymer.virtualentity.api.elements.BlockDisplayElement
 import net.casual.arcade.extensions.PlayerExtension
+import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.minecraft.core.Direction.*
 import net.minecraft.server.network.ServerGamePacketListenerImpl
-import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.phys.Vec3
+import net.minecraft.world.level.border.BorderStatus
+import net.minecraft.world.level.border.WorldBorder
 import org.joml.Vector3f
-import kotlin.math.max
 
 public class PlayerWorldBorderExtension(owner: ServerGamePacketListenerImpl): PlayerExtension(owner)  {
-
-
-    private val holder = BorderHolder()
-
+    private val holder = ElementHolder()
 
     private val north = BlockDisplayElement()
     private val south = BlockDisplayElement()
     private val east = BlockDisplayElement()
     private val west = BlockDisplayElement()
 
-
-    private var border_radius = 0F
-    private var border_origin = Vector3f()
-
-    private var border_mark_dirty = false
-
-
-    private var interpolation_ticks = 100
-
+    // TODO: Currently using the vanilla WB
+    //  - This actually may not be an issue?
+    //    As long as we are blocking the world border packets, we can use the
+    //    vanilla border for the actual calculations and such, just change rendering.
+    private val border: WorldBorder
+        get() = this.player.level().worldBorder
 
     init {
-
-
-
-        //TODO: make this stained glass, change it based on: net.minecraft.world.level.border.BorderStatus
-
-
-
-
-
-
-
-
-
-
-
         holder.addElement(north)
         holder.addElement(south)
         holder.addElement(east)
         holder.addElement(west)
 
+        this.updateState()
+        this.updateScale()
+        this.updateTranslation()
 
-
-        EntityAttachment.ofTicking(holder, this.player)
-        //TODO: Hide from other players.
-        holder.watchingPlayers.forEach { player -> holder.stopWatching(player) }
-        holder.startWatching(player)
-
+        GlobalTickedScheduler.later {
+            BorderAttachment()
+        }
     }
 
+    private fun updateState() {
+        val state = when (this.border.status) {
+            BorderStatus.SHRINKING -> Blocks.RED_STAINED_GLASS
+            BorderStatus.GROWING -> Blocks.LIME_STAINED_GLASS
+            else -> Blocks.LIGHT_BLUE_STAINED_GLASS
+        }.defaultBlockState()
 
-    private inner class BorderHolder: ElementHolder() {
-
-
-        override fun notifyElementsOfPositionUpdate(newPos: Vec3?, delta: Vec3?) {
-            if (newPos != null) {
-//                super.notifyElementsOfPositionUpdate(newPos.subtract(player.position()), delta)
-                super.notifyElementsOfPositionUpdate(newPos, delta)
-            }
-        }
-
-        private fun relative_border_pos(vec: Vector3f): Vector3f {
-            return vec.sub(player.position().toVector3f()).add(border_origin)
-        }
-
-        override fun onTick() {
-
-            if (player.isFallFlying) {
-                border_origin = player.position().toVector3f()
-            }
-
-            if(player.isSteppingCarefully) {
-                border_radius = 100F
-                border_mark_dirty = true
-            }
-            if (player.isHolding(Items.BEDROCK)) {
-                border_radius = 0F
-                border_mark_dirty = true
-            }
-
-            if (border_mark_dirty) {
-                border_mark_dirty = false
-
-
-
-
-                north.interpolationDuration = interpolation_ticks
-                south.interpolationDuration = interpolation_ticks
-                east.interpolationDuration = interpolation_ticks
-                west.interpolationDuration = interpolation_ticks
-
-
-                north.startInterpolation()
-                south.startInterpolation()
-                east.startInterpolation()
-                west.startInterpolation()
-
-
-                //TODO: Hook this into the level's custom world border.
-
-
-                //TODO: start translations if there is a new "goal" (marked dirty)
-
-                north.blockState = Blocks.BEDROCK.defaultBlockState()
-                south.blockState = Blocks.BEDROCK.defaultBlockState()
-                east.blockState = Blocks.BEDROCK.defaultBlockState()
-                west.blockState = Blocks.BEDROCK.defaultBlockState()
-
-                north.scale = Vector3f(2 * border_radius, 200F, 0F)
-                south.scale = Vector3f(2 * border_radius, 200F, 0F)
-                east.scale = Vector3f(0F, 200F, 2 * border_radius)
-                west.scale = Vector3f(0F, 200F, 2 * border_radius)
-
-
-
-                //TODO: Make this respect player position (Don't lerp)
-                north.translation = relative_border_pos(NORTH.step().mul(border_radius).add(NORTH.counterClockWise.step().mul(border_radius)))
-                south.translation = relative_border_pos(SOUTH.step().mul(border_radius).add(SOUTH.clockWise.step().mul(border_radius)))
-                east.translation = relative_border_pos(EAST.step().mul(border_radius).add(EAST.counterClockWise.step().mul(border_radius)))
-                west.translation = relative_border_pos(WEST.step().mul(border_radius).add(WEST.clockWise.step().mul(border_radius)))
-
-            }
-
-        }
-
-
-
+        this.north.blockState = state
+        this.south.blockState = state
+        this.east.blockState = state
+        this.west.blockState = state
     }
 
+    private fun updateScale() {
+        val diameter = this.border.size.toFloat()
 
+        this.north.scale = Vector3f(diameter, 200F, 0F)
+        this.south.scale = Vector3f(diameter, 200F, 0F)
+        this.east.scale = Vector3f(0F, 200F, diameter)
+        this.west.scale = Vector3f(0F, 200F, diameter)
+    }
 
+    private fun updateTranslation() {
+        val radius = this.border.size.toFloat() / 2.0F
+        val north = NORTH.step().mul(radius)
+        val west = WEST.step().mul(radius)
+        val position = this.player.position().toVector3f()
+
+        this.north.translation = north.add(west, Vector3f()).sub(position)
+        this.south.translation = north.negate(Vector3f()).add(west).sub(position)
+        this.east.translation = west.negate(Vector3f()).add(north).sub(position)
+        this.west.translation = west.add(north).sub(position)
+    }
+
+    private inner class BorderAttachment: EntityAttachment(this.holder, this.player, false) {
+        init {
+            this.startWatching(player)
+        }
+
+        override fun updateCurrentlyTracking(currentlyTracking: MutableCollection<ServerGamePacketListenerImpl>?) {
+            // Do nothing...
+        }
+
+        override fun tick() {
+            // TODO: Interpolate
+            updateState()
+            updateScale()
+            updateTranslation()
+            holder.tick()
+        }
+
+        override fun shouldTick(): Boolean {
+            return true
+        }
+    }
 }
