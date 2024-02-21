@@ -44,7 +44,6 @@ public open class MinigameSettings(
             "If enabled this will allow players to pvp with one another.".literal()
         )
         value = true
-        override = isAdminOverride(true)
         defaults.options(this)
     })
 
