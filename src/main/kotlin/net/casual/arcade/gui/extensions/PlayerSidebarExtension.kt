@@ -89,12 +89,11 @@ internal class PlayerSidebarExtension(
     }
 
     internal fun resend(sender: Consumer<Packet<ClientGamePacketListener>>) {
-        if (this.current != null) {
-            val title = this.previousTitle ?: return
-            SidebarUtils.sendSetObjectivePacket(this.player, METHOD_ADD, title, sender)
-            SidebarUtils.sendSetSidebarDisplayPacket(this.player, false, sender)
-            this.resendRows(0, sender)
-        }
+        val sidebar = this.current ?: return
+        val title = this.previousTitle ?: sidebar.title.getComponent(this.player)
+        SidebarUtils.sendSetObjectivePacket(this.player, METHOD_ADD, title, sender)
+        SidebarUtils.sendSetSidebarDisplayPacket(this.player, false, sender)
+        this.resendRows(0, sender)
     }
 
     internal fun disconnect() {

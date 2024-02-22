@@ -55,11 +55,10 @@ internal class PlayerTabDisplayExtension(
     }
 
     internal fun resend(sender: Consumer<Packet<ClientGamePacketListener>>) {
-        if (this.current != null) {
-            val header = this.previousHeader ?: return
-            val footer = this.previousFooter ?: return
-            sender.accept(ClientboundTabListPacket(header, footer))
-        }
+        val tab = this.current ?: return
+        val header = this.previousHeader ?: tab.header.getComponent(this.player)
+        val footer = this.previousFooter ?: tab.footer.getComponent(this.player)
+        sender.accept(ClientboundTabListPacket(header, footer))
     }
 
     internal fun disconnect() {
