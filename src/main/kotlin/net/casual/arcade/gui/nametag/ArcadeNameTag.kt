@@ -57,8 +57,8 @@ public class ArcadeNameTag(
     override fun resendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
         for (other in this.getPlayers()) {
             val holder = other.nameTags.getHolder(this) ?: continue
-            if (holder.isWatching(player) || other == player) {
-                holder.sendDataTo(player, sender)
+            if (holder.isWatching(player)) {
+                holder.sendDataTo(player, sender, true)
             }
         }
     }

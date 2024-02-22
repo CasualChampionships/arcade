@@ -277,7 +277,7 @@ internal class PlayerNameTagExtension(
         override fun startWatching(connection: ServerGamePacketListenerImpl): Boolean {
             if (this.predicate.observable(player, connection.player)) {
                 if (super.startWatching(connection)) {
-                    this.sendDataTo(connection.player, connection::send)
+                    this.sendDataTo(connection.player, connection::send, false)
                     return true
                 }
             } else {
@@ -294,11 +294,19 @@ internal class PlayerNameTagExtension(
             return false
         }
 
-        internal fun sendDataTo(observer: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
-            sender.accept(ClientboundSetPassengersPacket(player))
+        internal fun sendDataTo(
+            observer: ServerPlayer,
+            sender: Consumer<Packet<ClientGamePacketListener>>,
+            track: Boolean
+        ) {
             for (holder in tags.values) {
-                holder.element.sendChangedTrackerEntries(observer, sender)
+                if (track) {
+                    holder.element.startWatching(observer, sender)
+                } else {
+                    holder.element.sendChangedTrackerEntries(observer, sender)
+                }
             }
+            sender.accept(ClientboundSetPassengersPacket(player))
         }
     }
 }
