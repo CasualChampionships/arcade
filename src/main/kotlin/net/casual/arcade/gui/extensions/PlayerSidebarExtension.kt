@@ -5,8 +5,12 @@ import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.gui.sidebar.SidebarComponent
 import net.casual.arcade.utils.SidebarUtils
 import net.minecraft.network.chat.Component
+import net.minecraft.network.protocol.Packet
+import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket.*
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
+import java.util.function.Consumer
 
 internal class PlayerSidebarExtension(
     owner: ServerGamePacketListenerImpl
@@ -84,13 +88,25 @@ internal class PlayerSidebarExtension(
         SidebarUtils.sendSetSidebarDisplayPacket(this.player, true)
     }
 
+    internal fun resend(sender: Consumer<Packet<ClientGamePacketListener>>) {
+        if (this.current != null) {
+            val title = this.previousTitle ?: return
+            SidebarUtils.sendSetObjectivePacket(this.player, METHOD_ADD, title, sender)
+            SidebarUtils.sendSetSidebarDisplayPacket(this.player, false, sender)
+            this.resendRows(0, sender)
+        }
+    }
+
     internal fun disconnect() {
         this.current?.removePlayer(this.player)
     }
 
-    private fun resendRows(from: Int) {
+    private fun resendRows(
+        from: Int,
+        sender: Consumer<Packet<ClientGamePacketListener>> = Consumer(this.player.connection::send)
+    ) {
         for (i in from until this.previousRows.size) {
-            SidebarUtils.sendSetScorePacket(this.player, i, this.previousRows[i])
+            SidebarUtils.sendSetScorePacket(this.player, i, this.previousRows[i], sender)
         }
     }
 }

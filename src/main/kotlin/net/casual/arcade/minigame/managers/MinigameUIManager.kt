@@ -12,6 +12,10 @@ import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.gui.tab.ArcadeTabDisplay
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.lobby.ReadyChecker
+import net.minecraft.network.protocol.Packet
+import net.minecraft.network.protocol.game.ClientGamePacketListener
+import net.minecraft.server.level.ServerPlayer
+import java.util.function.Consumer
 
 /**
  * This manager handles all the UI elements that can be added
@@ -185,6 +189,13 @@ public class MinigameUIManager(
         for (tickable in this.tickables) {
             tickable.tick()
         }
+    }
+
+    internal fun resendUI(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
+        this.bossbars.forEach { it.resendToPlayer(player, sender) }
+        this.nameTags.forEach { it.resendToPlayer(player, sender) }
+        this.sidebar?.resendToPlayer(player, sender)
+        this.display?.resendToPlayer(player, sender)
     }
 
     private fun loadUI(ui: PlayerUI) {

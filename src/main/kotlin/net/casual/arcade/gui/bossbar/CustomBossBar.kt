@@ -2,9 +2,13 @@ package net.casual.arcade.gui.bossbar
 
 import net.casual.arcade.gui.PlayerUI
 import net.casual.arcade.utils.BossbarUtils.bossbars
+import net.minecraft.network.protocol.Packet
+import net.minecraft.network.protocol.game.ClientGamePacketListener
+import net.minecraft.network.protocol.game.ClientboundBossEventPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Mth
 import java.util.*
+import java.util.function.Consumer
 
 /**
  * A custom boss bar implementation that can be
@@ -38,5 +42,10 @@ public abstract class CustomBossBar: PlayerUI(), BossBarSupplier {
 
     final override fun onRemovePlayer(player: ServerPlayer) {
         player.bossbars.remove(this)
+    }
+
+    override fun resendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
+        val event = player.bossbars.getEvent(this) ?: return
+        sender.accept(ClientboundBossEventPacket.createAddPacket(event))
     }
 }

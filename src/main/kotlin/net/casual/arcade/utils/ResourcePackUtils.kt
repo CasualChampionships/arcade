@@ -17,15 +17,29 @@ import java.io.FileNotFoundException
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 import kotlin.io.path.readBytes
 
 public object ResourcePackUtils {
-    private val universe = HashMap<UUID, PlayerPackExtension>()
+    // May be accessed off the main thread.
+    // This is implemented like this since we cannot use PlayerExtensions.
+    // Packs may be sent before the player has spawned in the world.
+    private val universe = ConcurrentHashMap<UUID, PlayerPackExtension>()
 
     private val ServerPlayer.resourcePacks
         get() = getExtension(this.uuid)
+
+    @JvmStatic
+    public fun PackInfo.toPushPacket(): ClientboundResourcePackPushPacket {
+        return ClientboundResourcePackPushPacket(this.uuid, this.url, this.hash, this.required, this.prompt)
+    }
+
+    @JvmStatic
+    public fun PackInfo.toPopPacket(): ClientboundResourcePackPopPacket {
+        return ClientboundResourcePackPopPacket(Optional.of(this.uuid))
+    }
 
     @JvmStatic
     public fun ServerPlayer.hasBeenSentPack(pack: PackInfo): Boolean {
@@ -54,15 +68,13 @@ public object ResourcePackUtils {
             }
         }
 
-        this.connection.send(ClientboundResourcePackPushPacket(
-            pack.uuid, pack.url, pack.hash, pack.required, pack.prompt
-        ))
+        this.connection.send(pack.toPushPacket())
         return this.resourcePacks.addFuture(pack.uuid)
     }
 
     @JvmStatic
     public fun ServerPlayer.removeResourcePack(pack: PackInfo): CompletableFuture<PackStatus> {
-        this.connection.send(ClientboundResourcePackPopPacket(Optional.of(pack.uuid)))
+        this.connection.send(pack.toPopPacket())
         return this.resourcePacks.addFuture(pack.uuid)
     }
 

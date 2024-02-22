@@ -1,11 +1,16 @@
 package net.casual.arcade.gui.nametag
 
+import eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment
 import net.casual.arcade.gui.PlayerUI
 import net.casual.arcade.gui.predicate.PlayerObserverPredicate
 import net.casual.arcade.gui.suppliers.ComponentSupplier
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.utils.NameTagUtils.isWatching
 import net.casual.arcade.utils.NameTagUtils.nameTags
+import net.minecraft.network.protocol.Packet
+import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.server.level.ServerPlayer
+import java.util.function.Consumer
 
 /**
  * This class represents a custom player name tag.
@@ -47,5 +52,14 @@ public class ArcadeNameTag(
 
     override fun onRemovePlayer(player: ServerPlayer) {
         player.nameTags.removeNameTag(this)
+    }
+
+    override fun resendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
+        for (other in this.getPlayers()) {
+            val holder = other.nameTags.getHolder(this) ?: continue
+            if (holder.isWatching(player)) {
+                holder.sendDataTo(player, sender)
+            }
+        }
     }
 }

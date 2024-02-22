@@ -17,8 +17,7 @@ import net.minecraft.world.effect.MobEffectInstance.INFINITE_DURATION
 import net.minecraft.world.effect.MobEffects.NIGHT_VISION
 import net.minecraft.world.entity.Entity
 
-public class
-MinigameEffectsManager(
+public class MinigameEffectsManager(
     private val owner: Minigame<*>
 ) {
     private var glowing = EntityObserverPredicate.never()

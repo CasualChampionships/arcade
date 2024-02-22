@@ -4,7 +4,10 @@ import net.casual.arcade.gui.PlayerUI
 import net.casual.arcade.gui.suppliers.ComponentSupplier
 import net.casual.arcade.utils.SidebarUtils
 import net.casual.arcade.utils.SidebarUtils.sidebar
+import net.minecraft.network.protocol.Packet
+import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.server.level.ServerPlayer
+import java.util.function.Consumer
 
 public class ArcadeSidebar(title: ComponentSupplier): PlayerUI() {
     private val rows = ArrayList<SidebarSupplier>(SidebarUtils.MAX_SIZE)
@@ -71,6 +74,10 @@ public class ArcadeSidebar(title: ComponentSupplier): PlayerUI() {
 
     override fun onRemovePlayer(player: ServerPlayer) {
         player.sidebar.remove()
+    }
+
+    override fun resendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
+        player.sidebar.resend(sender)
     }
 
     private fun checkBounds(index: Int, upper: Int) {

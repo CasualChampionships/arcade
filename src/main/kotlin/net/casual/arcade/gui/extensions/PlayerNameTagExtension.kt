@@ -76,6 +76,10 @@ internal class PlayerNameTagExtension(
         }
     }
 
+    internal fun getHolder(tag: ArcadeNameTag): Holder? {
+        return this.tags[tag]
+    }
+
     private fun getElements(): List<NameTagDisplay> {
         return this.tags.values.map { it.element }
     }
@@ -91,7 +95,7 @@ internal class PlayerNameTagExtension(
     // nametag (the see-through rectangle and text), and once for the
     // 'foreground' which is the non-see-through text, it has no rectangle.
     // This class handles both of these as separate Display entities.
-    private inner class NameTagDisplay(private val tag: ArcadeNameTag): AbstractElement() {
+    internal inner class NameTagDisplay(private val tag: ArcadeNameTag): AbstractElement() {
         private val background = TextDisplayElement()
         private val foreground = TextDisplayElement()
 
@@ -258,7 +262,7 @@ internal class PlayerNameTagExtension(
         }
     }
 
-    private inner class Holder(
+    internal inner class Holder(
         val element: NameTagDisplay,
         val predicate: PlayerObserverPredicate
     ): ElementHolder() {
@@ -273,10 +277,7 @@ internal class PlayerNameTagExtension(
         override fun startWatching(connection: ServerGamePacketListenerImpl): Boolean {
             if (this.predicate.observable(player, connection.player)) {
                 if (super.startWatching(connection)) {
-                    connection.send(ClientboundSetPassengersPacket(player))
-                    for (holder in tags.values) {
-                        holder.element.sendChangedTrackerEntries(connection.player, connection::send)
-                    }
+                    this.sendDataTo(connection.player, connection::send)
                     return true
                 }
             } else {
@@ -291,6 +292,13 @@ internal class PlayerNameTagExtension(
                 return true
             }
             return false
+        }
+
+        internal fun sendDataTo(observer: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
+            sender.accept(ClientboundSetPassengersPacket(player))
+            for (holder in tags.values) {
+                holder.element.sendChangedTrackerEntries(observer, sender)
+            }
         }
     }
 }

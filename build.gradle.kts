@@ -56,6 +56,9 @@ dependencies {
     include(modApi("eu.pb4:polymer-virtual-entity:${property("polymer_version")}")!!)
 
     include(modApi("me.lucko:fabric-permissions-api:0.3-SNAPSHOT")!!)
+
+    // Add ServerReplayAPI
+    modImplementation("com.github.senseiwells:ServerReplay:${property("server_replay_version")}")
 }
 
 loom {

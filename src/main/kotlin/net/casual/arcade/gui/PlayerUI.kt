@@ -1,8 +1,11 @@
 package net.casual.arcade.gui
 
+import net.minecraft.network.protocol.Packet
+import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
+import java.util.function.Consumer
 
 /**
  * This is the base class for every server-side
@@ -78,4 +81,12 @@ public abstract class PlayerUI {
     public fun getPlayers(): List<ServerPlayer> {
         return this.connections.map { it.player }
     }
+
+    internal fun resendToPlayer(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
+        if (this.connections.contains(player.connection)) {
+            this.resendTo(player, sender)
+        }
+    }
+
+    protected abstract fun resendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>)
 }

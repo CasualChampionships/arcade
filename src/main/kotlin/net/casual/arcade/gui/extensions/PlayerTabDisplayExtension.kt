@@ -3,8 +3,11 @@ package net.casual.arcade.gui.extensions
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.gui.tab.ArcadeTabDisplay
 import net.minecraft.network.chat.Component
+import net.minecraft.network.protocol.Packet
+import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundTabListPacket
 import net.minecraft.server.network.ServerGamePacketListenerImpl
+import java.util.function.Consumer
 
 internal class PlayerTabDisplayExtension(
     owner: ServerGamePacketListenerImpl
@@ -49,6 +52,14 @@ internal class PlayerTabDisplayExtension(
         this.previousHeader = null
         this.previousFooter = null
         this.player.connection.send(ClientboundTabListPacket(Component.empty(), Component.empty()))
+    }
+
+    internal fun resend(sender: Consumer<Packet<ClientGamePacketListener>>) {
+        if (this.current != null) {
+            val header = this.previousHeader ?: return
+            val footer = this.previousFooter ?: return
+            sender.accept(ClientboundTabListPacket(header, footer))
+        }
     }
 
     internal fun disconnect() {

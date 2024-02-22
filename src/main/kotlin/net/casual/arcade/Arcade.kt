@@ -85,6 +85,8 @@ public object Arcade: ModInitializer {
     }
 
     override fun onInitialize() {
+        CompatabilityUtils.noop()
+
         SidebarUtils.registerEvents()
         BossbarUtils.registerEvents()
         MinigameUtils.registerEvents()
