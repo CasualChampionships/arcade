@@ -25,6 +25,8 @@ public class PlayerWorldBorderExtension(owner: ServerGamePacketListenerImpl): Pl
     //  - This actually may not be an issue?
     //    As long as we are blocking the world border packets, we can use the
     //    vanilla border for the actual calculations and such, just change rendering.
+
+    //TODO: Either don't block border warning packets, or handle them ourselves.
     private val border: WorldBorder
         get() = this.player.level().worldBorder
 
@@ -62,25 +64,46 @@ public class PlayerWorldBorderExtension(owner: ServerGamePacketListenerImpl): Pl
         // TODO: We probably only want to scale to what the
         //   player can actually see...
         //   We don't want to send the north border if it's thousands of blocks away...
-        this.north.scale = Vector3f(diameter, 200F, 0F)
-        this.south.scale = Vector3f(diameter, 200F, 0F)
-        this.east.scale = Vector3f(0F, 200F, diameter)
-        this.west.scale = Vector3f(0F, 200F, diameter)
+        this.north.scale = Vector3f(diameter, 300F, 0F)
+        this.south.scale = Vector3f(diameter, 300F, 0F)
+        this.east.scale = Vector3f(0F, 300F, diameter)
+        this.west.scale = Vector3f(0F, 300F, diameter)
     }
 
     private fun updateTranslation() {
+
         val radius = this.border.size.toFloat() / 2.0F
         val north = NORTH.step().mul(radius)
         val west = WEST.step().mul(radius)
-        val position = this.player.position().toVector3f()
+        val playerPos = this.player.position().toVector3f()
+        val borderPos = Vector3f(this.border.centerX.toFloat(), 0F, this.border.centerZ.toFloat())
 
-        this.north.translation = north.add(west, Vector3f()).sub(position)
-        this.south.translation = north.negate(Vector3f()).add(west).sub(position)
-        this.east.translation = west.negate(Vector3f()).add(north).sub(position)
-        this.west.translation = west.add(north).sub(position)
+
+        this.north.translation = north.add(west, Vector3f()).sub(playerPos).add(borderPos)
+        this.south.translation = north.negate(Vector3f()).add(west).sub(playerPos).add(borderPos)
+        this.east.translation = west.negate(Vector3f()).add(north).sub(playerPos).add(borderPos)
+        this.west.translation = west.add(north).sub(playerPos).add(borderPos)
     }
 
-    private inner class BorderAttachment: EntityAttachment(this.holder, this.player, false) {
+    private fun setupInterpolation() {
+        val lerpTime = this.border.lerpRemainingTime.toInt()
+        this.north.interpolationDuration = lerpTime
+        this.south.interpolationDuration = lerpTime
+        this.east.interpolationDuration = lerpTime
+        this.west.interpolationDuration = lerpTime
+
+        this.north.startInterpolation()
+        this.south.startInterpolation()
+        this.east.startInterpolation()
+        this.west.startInterpolation()
+
+    }
+
+    private fun isDirty(): Boolean {
+        return this.north.scale.x() != this.border.size.toFloat()
+    }
+
+    private inner class BorderAttachment: EntityAttachment(this.holder, this.player, true) {
         init {
             super.startWatching(player)
         }
@@ -99,14 +122,14 @@ public class PlayerWorldBorderExtension(owner: ServerGamePacketListenerImpl): Pl
 
         override fun tick() {
             // TODO: Interpolate
+
             updateState()
             updateScale()
             updateTranslation()
-            holder.tick()
-        }
 
-        override fun shouldTick(): Boolean {
-            return true
+
+
+            holder.tick()
         }
     }
 }
