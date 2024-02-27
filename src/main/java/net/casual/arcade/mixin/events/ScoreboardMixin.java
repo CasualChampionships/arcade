@@ -17,11 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class ScoreboardMixin {
 	@Inject(
 		method = "addPlayerToTeam",
-		at = @At(
-			value = "INVOKE",
-			target = "Lit/unimi/dsi/fastutil/objects/Object2ObjectMap;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
-			remap = false
-		)
+		at = @At(value = "RETURN")
 	)
 	private void onPlayerJoinTeam(String username, PlayerTeam team, CallbackInfoReturnable<Boolean> cir) {
 		ServerPlayer player = PlayerUtils.player(username);

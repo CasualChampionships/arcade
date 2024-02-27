@@ -45,7 +45,6 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.level.GameRules
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
-import xyz.nucleoid.fantasy.RuntimeWorldHandle
 import java.util.*
 
 /**
@@ -865,7 +864,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.events.register<PlayerLeaveEvent>(Int.MAX_VALUE) { this.onPlayerLeave(it) }
         this.events.register<MinigameAddPlayerEvent>(-1000) { this.onPlayerAdd(it) }
         this.events.register<MinigameRemovePlayerEvent>(2000) { this.onPlayerRemove(it) }
-        this.events.register<ServerStoppingEvent> { this.onServerStopping(it) }
+        this.events.register<ServerStoppingEvent> { this.onServerStopping() }
     }
 
     private fun onServerTick() {
@@ -935,7 +934,7 @@ public abstract class Minigame<M: Minigame<M>>(
         }
     }
 
-    private fun onServerStopping(event: ServerStoppingEvent) {
+    private fun onServerStopping() {
         if (this.settings.pauseOnServerStop && !this.paused) {
             this.pause()
         }
