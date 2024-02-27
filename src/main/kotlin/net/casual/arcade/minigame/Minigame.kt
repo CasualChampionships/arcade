@@ -461,7 +461,7 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     public fun makeSpectator(player: ServerPlayer): Boolean {
-        if (this.spectators.add(player.uuid)) {
+        if (this.hasPlayer(player) && this.spectators.add(player.uuid)) {
             MinigameAddSpectatorEvent(this, player).broadcast()
             return true
         }
@@ -477,7 +477,7 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     public fun makeAdmin(player: ServerPlayer): Boolean {
-        if (this.admins.add(player.uuid)) {
+        if (this.hasPlayer(player) && this.admins.add(player.uuid)) {
             MinigameAddAdminEvent(this, player).broadcast()
             return true
         }
