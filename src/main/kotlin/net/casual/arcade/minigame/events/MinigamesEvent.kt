@@ -37,6 +37,10 @@ public open class MinigamesEvent(
     private var index: Int = 0
 
     public fun returnToLobby(server: MinecraftServer) {
+        if (this::current.isInitialized && this.current is LobbyMinigame) {
+            return
+        }
+
         val lobbyConfig = this.config.lobby
         val either: Either<RuntimeWorldHandle, ServerLevel> = if (lobbyConfig.dimension == null) {
             Either.left(createTemporaryLobbyLevel(server))

@@ -268,6 +268,8 @@ public abstract class Minigame<M: Minigame<M>>(
     public var closed: Boolean
         private set
 
+    private var closing: Boolean
+
     public val ticking: Boolean
         get() = !this.paused && !this.isPhase(MinigamePhase.none())
 
@@ -284,6 +286,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.resources = MultiMinigameResources()
         this.initialized = false
         this.closed = false
+        this.closing = false
 
         this.offline = LinkedHashSet()
 
@@ -671,6 +674,11 @@ public abstract class Minigame<M: Minigame<M>>(
      * @see complete
      */
     public fun close() {
+        if (this.closing) {
+            return
+        }
+        this.closing = true
+
         this.data.end()
 
         MinigameCloseEvent(this).broadcast()
