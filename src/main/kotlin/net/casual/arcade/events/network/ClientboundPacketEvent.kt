@@ -10,4 +10,4 @@ public data class ClientboundPacketEvent(
     val server: MinecraftServer,
     val owner: GameProfile,
     val packet: Packet<*>
-): CancellableEvent.Typed<Packet<*>>(), ServerOffThreadEvent
+): CancellableEvent.Default(), ServerOffThreadEvent

@@ -82,7 +82,8 @@ public class MinigameEffectsManager(
 
         val updated = this.updatePacket(player, packet)
         if (updated !== packet) {
-            event.cancel(updated)
+            event.cancel()
+            event.player.connection.send(updated)
         }
     }
 
