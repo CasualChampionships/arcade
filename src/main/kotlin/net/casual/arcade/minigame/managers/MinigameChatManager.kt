@@ -2,6 +2,7 @@ package net.casual.arcade.minigame.managers
 
 import net.casual.arcade.chat.ChatFormatter
 import net.casual.arcade.chat.PlayerChatFormatter
+import net.casual.arcade.chat.PlayerFormattedChat
 import net.casual.arcade.events.player.PlayerChatEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.NONE
@@ -99,7 +100,7 @@ public class MinigameChatManager(
 
         if (this.minigame.settings.isChatGlobal) {
             if (!this.minigame.settings.useVanillaChat) {
-                val (decorated, prefix) = this.globalChatFormatter.format(player, message.decoratedContent())
+                val (decorated, prefix) = this.formatGlobalChatFor(player, message.decoratedContent())
                 event.replaceMessage(decorated, prefix)
             }
             return
@@ -112,7 +113,7 @@ public class MinigameChatManager(
         if (exclaimed || team == null || this.minigame.teams.isTeamIgnored(team)) {
             val trimmed = if (exclaimed) content.substring(1) else content
             if (trimmed.isNotBlank()) {
-                val (decorated, prefix) = this.globalChatFormatter.format(player, trimmed.trim().literal())
+                val (decorated, prefix) = this.formatGlobalChatFor(player, trimmed.trim().literal())
                 event.replaceMessage(decorated, prefix)
             } else {
                 event.cancel()
@@ -138,5 +139,15 @@ public class MinigameChatManager(
         event.replaceMessage(decorated, prefix)
         event.addFilter { team == it.team }
         return
+    }
+
+    private fun formatGlobalChatFor(player: ServerPlayer, message: Component): PlayerFormattedChat {
+        if (this.minigame.isAdmin(player)) {
+            return this.globalChatFormatter.format(this.adminChatFormatter.format(player, message))
+        }
+        if (this.minigame.isSpectating(player)) {
+            return this.globalChatFormatter.format(this.spectatorChatFormatter.format(player, message))
+        }
+        return this.globalChatFormatter.format(player, message)
     }
 }
