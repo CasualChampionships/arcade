@@ -350,7 +350,7 @@ public object ComponentUtils {
 
     public fun translatableWithArgs(key: String, modifier: (MutableComponent.() -> Unit)? = null): ComponentGenerator {
         return ComponentGenerator {
-            val component = Component.translatable(key, it)
+            val component = Component.translatable(key, *it)
             modifier?.invoke(component)
             component
         }
