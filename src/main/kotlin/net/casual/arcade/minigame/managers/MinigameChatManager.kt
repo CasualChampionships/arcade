@@ -18,7 +18,6 @@ public class MinigameChatManager(
     public var teamChatFormatter: PlayerChatFormatter = PlayerChatFormatter.TEAM
     public var adminChatFormatter: PlayerChatFormatter = PlayerChatFormatter.ADMIN
     public var spectatorChatFormatter: PlayerChatFormatter = PlayerChatFormatter.SPECTATOR
-    public var regularChatFormatter: PlayerChatFormatter? = PlayerChatFormatter.GLOBAL
 
     public var systemChatFormatter: ChatFormatter? = null
 
@@ -85,7 +84,7 @@ public class MinigameChatManager(
     }
 
     private fun onGlobalPlayerChat(event: PlayerChatEvent) {
-        if (!this.minigame.settings.isChatGlobal && !this.minigame.hasPlayer(event.player)) {
+        if (!this.minigame.settings.canCrossChat && !this.minigame.hasPlayer(event.player)) {
             event.addFilter { !this.minigame.hasPlayer(it) }
         }
     }
@@ -98,22 +97,9 @@ public class MinigameChatManager(
             return
         }
 
-        if (this.minigame.isAdmin(player)) {
-            val (decorated, prefix) = this.adminChatFormatter.format(player, message.decoratedContent())
-            event.replaceMessage(decorated, prefix)
-            return
-        }
-
-        if (this.minigame.isSpectating(player)) {
-            val (decorated, prefix) = this.spectatorChatFormatter.format(player, message.decoratedContent())
-            event.replaceMessage(decorated, prefix)
-            return
-        }
-
-        if (!this.minigame.settings.isTeamChat) {
-            val formatter = this.regularChatFormatter
-            if (formatter != null) {
-                val (decorated, prefix) = formatter.format(player, message.decoratedContent())
+        if (!this.minigame.settings.isChatGlobal) {
+            if (!this.minigame.settings.useVanillaChat) {
+                val (decorated, prefix) = this.globalChatFormatter.format(player, message.decoratedContent())
                 event.replaceMessage(decorated, prefix)
             }
             return
@@ -133,6 +119,21 @@ public class MinigameChatManager(
             }
             return
         }
+
+        if (this.minigame.isAdmin(player)) {
+            val (decorated, prefix) = this.adminChatFormatter.format(player, message.decoratedContent())
+            event.replaceMessage(decorated, prefix)
+            event.addFilter { this.minigame.isAdmin(it) }
+            return
+        }
+
+        if (this.minigame.isSpectating(player)) {
+            val (decorated, prefix) = this.spectatorChatFormatter.format(player, message.decoratedContent())
+            event.replaceMessage(decorated, prefix)
+            event.addFilter { this.minigame.isSpectating(it) }
+            return
+        }
+
         val (decorated, prefix) = this.teamChatFormatter.format(player, message.decoratedContent())
         event.replaceMessage(decorated, prefix)
         event.addFilter { team == it.team }

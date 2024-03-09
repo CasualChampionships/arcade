@@ -27,12 +27,12 @@ public object ItemUtils {
 
     @JvmStatic
     public fun ItemStack.named(text: Component): ItemStack {
-        return this.setHoverName(text)
+        return this.setHoverName(text.copy().unitalicise())
     }
 
     @JvmStatic
     public fun ItemStack.named(name: String): ItemStack {
-        return this.setHoverName(name.literal())
+        return this.setHoverName(name.literal().unitalicise())
     }
 
     @JvmStatic

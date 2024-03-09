@@ -222,9 +222,19 @@ public open class MinigameSettings(
         defaults.options(this)
     })
 
-    public var isChatGlobal: Boolean by this.register(bool {
-        name = "is_chat_global"
-        display = Items.PAPER.named("Global Chat").setLore(
+    public var useVanillaChat: Boolean by this.register(bool {
+        name = "use_vanilla_chat"
+        display = Items.WHITE_CONCRETE.named("Use Vanilla Chat").setLore(
+            "If this is enabled then vanilla chat is used for".literal(),
+            "the minigame chat. Global Chat must also be enabled.".literal()
+        )
+        value = false
+        defaults.options(this)
+    })
+
+    public var canCrossChat: Boolean by this.register(bool {
+        name = "can_cross_chat"
+        display = Items.PAPER.named("Cross Chat").setLore(
             "If this is enabled then the entire server can see".literal(),
             "chat messages from players in the minigame, and".literal(),
             "players in the minigame can see global messages.".literal()
@@ -233,9 +243,9 @@ public open class MinigameSettings(
         defaults.options(this)
     })
 
-    public var isTeamChat: Boolean by this.register(bool {
-        name = "is_team_chat"
-        display = Items.ACACIA_SIGN.named("Team Chat").setLore(
+    public var isChatGlobal: Boolean by this.register(bool {
+        name = "is_chat_global"
+        display = Items.ACACIA_SIGN.named("Global Chat").setLore(
             "If enabled then by default messages will be sent to teams.".literal(),
             "To send messages to global players must prefix their message with !.".literal()
         )
