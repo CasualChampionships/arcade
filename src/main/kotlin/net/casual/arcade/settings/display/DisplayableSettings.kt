@@ -11,7 +11,7 @@ import net.minecraft.world.MenuProvider
 public open class DisplayableSettings(
     protected val defaults: DisplayableSettingsDefaults
 ) {
-    private val displays = LinkedHashMap<String, DisplayableGameSetting<*>>()
+    private val displays = LinkedHashMap<String, MenuGameSetting<*>>()
 
     /**
      * This registers a setting to this collection.
@@ -19,7 +19,7 @@ public open class DisplayableSettings(
      * @param display The displayable setting.
      * @return The created [GameSetting].
      */
-    public fun <T: Any> register(display: DisplayableGameSetting<T>): GameSetting<T> {
+    public fun <T: Any> register(display: MenuGameSetting<T>): GameSetting<T> {
         val setting = display.setting
         this.displays[setting.name] = display
         return setting
@@ -81,23 +81,6 @@ public open class DisplayableSettings(
         )
     }
 
-    /**
-     * This creates a menu which can be displayed to a
-     * player to view the settings, without having the
-     * ability to modify any of the settings.
-     *
-     * @return The menu provider.
-     */
-    public open fun unmodifiableMenu(parent: MenuProvider? = null): MenuProvider {
-        return ScreenUtils.createSettingsMenu(
-            this,
-            this.defaults.components,
-            parent,
-            configComponents = this.defaults::createComponents,
-            modifiable = { false }
-        )
-    }
-
     public fun serialize(): JsonArray {
         val settings = JsonArray()
         for (setting in this.all()) {
@@ -120,7 +103,7 @@ public open class DisplayableSettings(
         }
     }
 
-    internal fun displays(): Collection<DisplayableGameSetting<*>> {
+    internal fun displays(): Collection<MenuGameSetting<*>> {
         return this.displays.values
     }
 }

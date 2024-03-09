@@ -10,7 +10,7 @@ import net.minecraft.world.item.Items
 public open class DisplayableSettingsDefaults{
     public open val components: SelectionScreenComponents = ScreenUtils.DefaultMinigameSettingsComponent
 
-    public open fun createComponents(setting: DisplayableGameSetting<*>): SelectionScreenComponents {
+    public open fun createComponents(setting: MenuGameSetting<*>): SelectionScreenComponents {
         return DefaultSettingsComponents(setting)
     }
 

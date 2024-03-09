@@ -1,6 +1,6 @@
 package net.casual.arcade.gui.screen
 
-import net.casual.arcade.Arcade
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.MenuProvider
@@ -19,31 +19,26 @@ import java.util.*
  *
  * You can create your own selection screens using [SelectionScreenBuilder].
  *
- * @param title The title of the screen.
  * @param selections The possible selections.
- * @param tickers The item tickers.
  * @param player The player opening the screen.
  * @param syncId The sync id.
  * @param parent The parent menu.
  * @param page The page of the screen.
- * @param previous The previous [ItemStack].
- * @param back The back [ItemStack].
- * @param next The next [ItemStack].
- * @param filler The filler [ItemStack].
  * @see SelectionScreenBuilder
  * @see ArcadeGenericScreen
  */
 public class SelectionScreen internal constructor(
     private val components: SelectionScreenComponents,
-    private val selections: List<Selection>,
-    private val tickers: List<ItemStackTicker>,
+    private val selections: List<SelectableMenuItem>,
     player: Player,
     syncId: Int,
     private val parent: MenuProvider?,
     private val style: SelectionScreenStyle,
-    private val buttons: EnumMap<Slot, Selection>,
+    private val buttons: EnumMap<Slot, SelectableMenuItem>,
     private val page: Int
 ): ArcadeGenericScreen(player, syncId, 6) {
+    private val pageSelections = Int2ObjectOpenHashMap<SelectableMenuItem>()
+    private val player: ServerPlayer = player as ServerPlayer
     private val hasNextPage: Boolean
 
     init {
@@ -62,14 +57,16 @@ public class SelectionScreen internal constructor(
             if (i >= paged.size) {
                 break
             }
-            inventory.setItem(slot, paged[i].display)
+            val selection = paged[i]
+            this.pageSelections[slot] = selection
+            inventory.setItem(slot, selection.default)
         }
 
         inventory.setItem(45, this.components.getPrevious(this.page != 0))
         inventory.setItem(49, this.components.getBack(this.parent != null))
         inventory.setItem(53, this.components.getNext(this.hasNextPage))
 
-        for (slot in Slot.values()) {
+        for (slot in Slot.entries) {
             val index = slot.offsetFrom(45)
             val selection = this.buttons[slot]
             if (selection == null) {
@@ -111,21 +108,11 @@ public class SelectionScreen internal constructor(
             }
             val slot = Slot.fromOffset(slotId - 45) ?: return
             val selection = this.buttons[slot] ?: return
-            selection.action(player)
+            selection.selected(player)
             return
         }
 
-        val slot = this.slots.getOrNull(slotId) ?: return
-        if (!slot.hasItem()) {
-            return
-        }
-
-        val selection = this.selections.find { it.display == slot.item }
-        if (selection === null) {
-            Arcade.logger.warn("SelectionScreen clicked item ${slot.item} but had no action!")
-            return
-        }
-        selection.action(player)
+        this.pageSelections[slotId]?.selected(player)
     }
 
     /**
@@ -135,10 +122,13 @@ public class SelectionScreen internal constructor(
      */
     override fun onTick(server: MinecraftServer) {
         val container = this.getContainer()
-        for (slot in this.style.getSlots()) {
-            val stack = container.getItem(slot)
-            if (!stack.isEmpty) {
-                this.tickers.forEach { ticker -> ticker.tick(stack) }
+        for ((slot, selection) in this.pageSelections) {
+            if (selection.shouldUpdate(this.player)) {
+                val previous = container.getItem(slot)
+                val updated = selection.update(previous, this.player)
+                if (updated !== previous) {
+                    container.setItem(slot, updated)
+                }
             }
         }
     }
@@ -158,7 +148,7 @@ public class SelectionScreen internal constructor(
         internal companion object {
             fun fromOffset(offset: Int): Slot? {
                 val shifted = if (offset >= 5) offset - 2 else offset - 1
-                val slots = Slot.values()
+                val slots = entries
                 if (shifted !in slots.indices) {
                     return null
                 }
@@ -177,7 +167,6 @@ public class SelectionScreen internal constructor(
             return createScreenFactory(
                 previous.components,
                 previous.selections,
-                previous.tickers,
                 previous.parent,
                 previous.style,
                 previous.buttons,
@@ -187,17 +176,16 @@ public class SelectionScreen internal constructor(
 
         internal fun createScreenFactory(
             components: SelectionScreenComponents,
-            selections: List<Selection>,
-            tickers: List<ItemStackTicker>,
+            selections: List<SelectableMenuItem>,
             parent: MenuProvider?,
             style: SelectionScreenStyle,
-            buttons: EnumMap<Slot, Selection>,
+            buttons: EnumMap<Slot, SelectableMenuItem>,
             page: Int,
         ): SimpleMenuProvider? {
             if (page >= 0) {
                 return SimpleMenuProvider(
                     { syncId, _, player ->
-                        SelectionScreen(components, selections, tickers, player, syncId, parent, style, buttons, page)
+                        SelectionScreen(components, selections, player, syncId, parent, style, buttons, page)
                     },
                     components.getTitle()
                 )

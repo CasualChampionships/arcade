@@ -1,9 +1,10 @@
 package net.casual.arcade.utils
 
+import net.casual.arcade.gui.screen.SelectableMenuItem
 import net.casual.arcade.gui.screen.SelectionScreenBuilder
 import net.casual.arcade.gui.screen.SelectionScreenComponents
 import net.casual.arcade.gui.screen.SelectionScreenStyle
-import net.casual.arcade.settings.display.DisplayableGameSetting
+import net.casual.arcade.settings.display.MenuGameSetting
 import net.casual.arcade.settings.display.DisplayableSettings
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ItemUtils.enableGlint
@@ -62,9 +63,8 @@ public object ScreenUtils {
         components: SelectionScreenComponents = DefaultSettingsComponent,
         parent: MenuProvider? = null,
         style: SelectionScreenStyle = SelectionScreenStyle.DEFAULT,
-        configComponents: (DisplayableGameSetting<*>) -> SelectionScreenComponents = ::DefaultSettingsComponents,
-        configStyle: (DisplayableGameSetting<*>) -> SelectionScreenStyle = ::createCenteredSettingStyle,
-        modifiable: (ServerPlayer) -> Boolean = { true }
+        configComponents: (MenuGameSetting<*>) -> SelectionScreenComponents = ::DefaultSettingsComponents,
+        configStyle: (MenuGameSetting<*>) -> SelectionScreenStyle = ::createCenteredSettingStyle
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
         builder.parent(parent)
@@ -72,42 +72,28 @@ public object ScreenUtils {
         val provider = builder.build()
         for (display in settings.displays()) {
             builder.selection(display.display) { player ->
-                player.openMenu(createSettingConfigMenu(display, configComponents(display), provider, configStyle(display), modifiable))
+                player.openMenu(createSettingConfigMenu(display, configComponents(display), provider, configStyle(display)))
             }
         }
         return provider
     }
 
     public fun <T: Any> createSettingConfigMenu(
-        display: DisplayableGameSetting<T>,
-        components: SelectionScreenComponents = DefaultSettingsComponents(display),
+        setting: MenuGameSetting<T>,
+        components: SelectionScreenComponents = DefaultSettingsComponents(setting),
         parent: MenuProvider? = null,
-        style: SelectionScreenStyle = SelectionScreenStyle.DEFAULT,
-        modifiable: (ServerPlayer) -> Boolean = { true }
+        style: SelectionScreenStyle = SelectionScreenStyle.DEFAULT
     ): MenuProvider {
         val builder = SelectionScreenBuilder(components)
         builder.style(style)
         builder.parent(parent)
-        display.forEachOption { option, value ->
-            builder.selection(option) {
-                if (modifiable(it)) {
-                    display.setting.set(value)
-                }
-            }
-        }
-        builder.ticker { stack ->
-            if (stack.isEnchanted) {
-                if (display.setting.get() != display.getValue(stack.copy().removeEnchantments())) {
-                    stack.removeEnchantments()
-                }
-            } else if (display.setting.get() == display.getValue(stack)) {
-                stack.enableGlint()
-            }
+        for (option in setting.options) {
+            builder.selection(option)
         }
         return builder.build()
     }
 
-    private fun createCenteredSettingStyle(setting: DisplayableGameSetting<*>): SelectionScreenStyle {
+    private fun createCenteredSettingStyle(setting: MenuGameSetting<*>): SelectionScreenStyle {
         return SelectionScreenStyle.centered(setting.optionCount)
     }
 
@@ -130,7 +116,7 @@ public object ScreenUtils {
     }
 
     public class DefaultSettingsComponents(
-        private val setting: DisplayableGameSetting<*>
+        private val setting: MenuGameSetting<*>
     ): SelectionScreenComponents {
         override fun getTitle(): Component {
             return setting.display.hoverName

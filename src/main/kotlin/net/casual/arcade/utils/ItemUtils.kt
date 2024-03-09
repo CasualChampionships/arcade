@@ -64,7 +64,7 @@ public object ItemUtils {
 
     @JvmStatic
     public fun ItemStack.hideTooltips(): ItemStack {
-        for (part in ItemStack.TooltipPart.values()) {
+        for (part in ItemStack.TooltipPart.entries) {
             this.hideTooltipPart(part)
         }
         return this

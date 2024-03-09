@@ -1,12 +1,9 @@
 package net.casual.arcade.gui.screen
 
-import net.casual.arcade.gui.screen.SelectionScreen.Selection
-import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * This class allows you to build your own [SelectionScreen]s.
@@ -22,10 +19,10 @@ import kotlin.collections.ArrayList
 public class SelectionScreenBuilder(
     components: SelectionScreenComponents = SelectionScreenComponents.DEFAULT
 ) {
-    private val selections = ArrayList<Selection>()
+    private val selections = ArrayList<SelectableMenuItem>()
     private val tickers = ArrayList<ItemStackTicker>()
     private val components = SelectionScreenComponents.Builder(components)
-    private val buttons = EnumMap<SelectionScreen.Slot, Selection>(SelectionScreen.Slot::class.java)
+    private val buttons = EnumMap<SelectionScreen.Slot, SelectableMenuItem>(SelectionScreen.Slot::class.java)
 
     /**
      * The parent [MenuProvider], may be null.
@@ -78,8 +75,23 @@ public class SelectionScreenBuilder(
      * @param action The action to run when [stack] is clicked.
      * @return The current [SelectionScreenBuilder].
      */
-    public fun selection(stack: ItemStack, action: (ServerPlayer) -> Unit): SelectionScreenBuilder {
-        this.selections.add(Selection(stack.copy(), action))
+    public fun selection(
+        stack: ItemStack,
+        action: (ServerPlayer) -> Unit
+    ): SelectionScreenBuilder {
+        this.selections.add(SelectableMenuItem.of(stack.copy(), action))
+        return this
+    }
+
+    /**
+     * This adds a selectable [ItemStack] that has an action when
+     * the player clicks on the item.
+     *
+     * @param selection The selection.
+     * @return The current [SelectionScreenBuilder].
+     */
+    public fun selection(selection: SelectableMenuItem): SelectionScreenBuilder {
+        this.selections.add(selection)
         return this
     }
 
@@ -90,13 +102,30 @@ public class SelectionScreenBuilder(
      * @param slot The slot to add it to.
      * @param stack The display stack.
      * @param action The action to run when clicking the button.
+     * @return The current [SelectionScreenBuilder].
      */
     public fun button(
         slot: SelectionScreen.Slot,
         stack: ItemStack,
         action: (ServerPlayer) -> Unit
     ): SelectionScreenBuilder {
-        this.buttons[slot] = Selection(stack, action)
+        this.buttons[slot] = SelectableMenuItem.of(stack, action)
+        return this
+    }
+
+    /**
+     * Sets an additional button to the selection
+     * screen on the menu bar.
+     *
+     * @param slot The slot to add it to.
+     * @param selection The selection.
+     * @return The current [SelectionScreenBuilder].
+     */
+    public fun button(
+        slot: SelectionScreen.Slot,
+        selection: SelectableMenuItem
+    ): SelectionScreenBuilder {
+        this.buttons[slot] = selection
         return this
     }
 
@@ -123,7 +152,6 @@ public class SelectionScreenBuilder(
         return SelectionScreen.createScreenFactory(
             this.components.build(),
             this.selections,
-            this.tickers,
             this.parent,
             this.style,
             this.buttons,
