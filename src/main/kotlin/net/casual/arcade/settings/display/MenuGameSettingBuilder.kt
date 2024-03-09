@@ -11,7 +11,7 @@ import net.casual.arcade.utils.json.*
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 
-public class DisplayableGameSettingBuilder<T: Any>(
+public class MenuGameSettingBuilder<T: Any>(
     private val constructor: (String, T, Map<String, T>) -> GameSetting<T>
 ) {
     private val options = LinkedHashMap<String, OptionData<T>>()
@@ -23,17 +23,17 @@ public class DisplayableGameSettingBuilder<T: Any>(
     public var value: T? = null
     public var override: (ServerPlayer) -> T? = { null }
 
-    public fun name(name: String): DisplayableGameSettingBuilder<T> {
+    public fun name(name: String): MenuGameSettingBuilder<T> {
         this.name = name
         return this
     }
 
-    public fun display(stack: ItemStack): DisplayableGameSettingBuilder<T> {
+    public fun display(stack: ItemStack): MenuGameSettingBuilder<T> {
         this.display = stack
         return this
     }
 
-    public fun value(value: T): DisplayableGameSettingBuilder<T> {
+    public fun value(value: T): MenuGameSettingBuilder<T> {
         this.value = value
         return this
     }
@@ -43,12 +43,12 @@ public class DisplayableGameSettingBuilder<T: Any>(
         stack: ItemStack,
         value: T,
         updater: (GameSetting<T>, ItemStack, ServerPlayer) -> ItemStack = defaultUpdater(value)
-    ): DisplayableGameSettingBuilder<T> {
+    ): MenuGameSettingBuilder<T> {
         this.options[name] = OptionData(stack, value, updater)
         return this
     }
 
-    public fun listener(listener: SettingListener<T>): DisplayableGameSettingBuilder<T> {
+    public fun listener(listener: SettingListener<T>): MenuGameSettingBuilder<T> {
         this.listeners.add(listener)
         return this
     }
@@ -99,62 +99,62 @@ public class DisplayableGameSettingBuilder<T: Any>(
         private val double = GameSetting.generator(DoubleSerializer)
         private val time = GameSetting.generator(TimeDurationSerializer)
 
-        public fun bool(): DisplayableGameSettingBuilder<Boolean> {
-            return DisplayableGameSettingBuilder(this.boolean)
+        public fun bool(): MenuGameSettingBuilder<Boolean> {
+            return MenuGameSettingBuilder(this.boolean)
         }
 
-        public fun bool(block: DisplayableGameSettingBuilder<Boolean>.() -> Unit): MenuGameSetting<Boolean> {
+        public fun bool(block: MenuGameSettingBuilder<Boolean>.() -> Unit): MenuGameSetting<Boolean> {
             return bool().apply(block).build()
         }
 
-        public fun int32(): DisplayableGameSettingBuilder<Int> {
-            return DisplayableGameSettingBuilder(this.integer)
+        public fun int32(): MenuGameSettingBuilder<Int> {
+            return MenuGameSettingBuilder(this.integer)
         }
 
-        public fun int32(block: DisplayableGameSettingBuilder<Int>.() -> Unit): MenuGameSetting<Int> {
+        public fun int32(block: MenuGameSettingBuilder<Int>.() -> Unit): MenuGameSetting<Int> {
             return int32().apply(block).build()
         }
 
-        public fun int64(): DisplayableGameSettingBuilder<Long> {
-            return DisplayableGameSettingBuilder(this.long)
+        public fun int64(): MenuGameSettingBuilder<Long> {
+            return MenuGameSettingBuilder(this.long)
         }
 
-        public fun int64(block: DisplayableGameSettingBuilder<Long>.() -> Unit): MenuGameSetting<Long> {
+        public fun int64(block: MenuGameSettingBuilder<Long>.() -> Unit): MenuGameSetting<Long> {
             return int64().apply(block).build()
         }
 
-        public fun float32(): DisplayableGameSettingBuilder<Float> {
-            return DisplayableGameSettingBuilder(this.float)
+        public fun float32(): MenuGameSettingBuilder<Float> {
+            return MenuGameSettingBuilder(this.float)
         }
 
-        public fun float32(block: DisplayableGameSettingBuilder<Float>.() -> Unit): MenuGameSetting<Float> {
+        public fun float32(block: MenuGameSettingBuilder<Float>.() -> Unit): MenuGameSetting<Float> {
             return float32().apply(block).build()
         }
 
-        public fun float64(): DisplayableGameSettingBuilder<Double> {
-            return DisplayableGameSettingBuilder(this.double)
+        public fun float64(): MenuGameSettingBuilder<Double> {
+            return MenuGameSettingBuilder(this.double)
         }
 
-        public fun float64(block: DisplayableGameSettingBuilder<Double>.() -> Unit): MenuGameSetting<Double> {
+        public fun float64(block: MenuGameSettingBuilder<Double>.() -> Unit): MenuGameSetting<Double> {
             return float64().apply(block).build()
         }
 
-        public fun time(): DisplayableGameSettingBuilder<MinecraftTimeDuration> {
-            return DisplayableGameSettingBuilder(this.time)
+        public fun time(): MenuGameSettingBuilder<MinecraftTimeDuration> {
+            return MenuGameSettingBuilder(this.time)
         }
 
         public fun time(
-            block: DisplayableGameSettingBuilder<MinecraftTimeDuration>.() -> Unit
+            block: MenuGameSettingBuilder<MinecraftTimeDuration>.() -> Unit
         ): MenuGameSetting<MinecraftTimeDuration> {
             return time().apply(block).build()
         }
 
-        public fun <E: Enum<E>> enumeration(): DisplayableGameSettingBuilder<E> {
-            return DisplayableGameSettingBuilder(::EnumGameSetting)
+        public fun <E: Enum<E>> enumeration(): MenuGameSettingBuilder<E> {
+            return MenuGameSettingBuilder(::EnumGameSetting)
         }
 
         public fun <E: Enum<E>> enumeration(
-            block: DisplayableGameSettingBuilder<E>.() -> Unit
+            block: MenuGameSettingBuilder<E>.() -> Unit
         ): MenuGameSetting<E> {
             return enumeration<E>().apply(block).build()
         }

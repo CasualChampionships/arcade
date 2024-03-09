@@ -31,7 +31,7 @@ public open class DisplayableSettings(
      * @param display The displayable settings builder.
      * @return The created [GameSetting].
      */
-    public fun <T: Any> register(display: DisplayableGameSettingBuilder<T>): GameSetting<T> {
+    public fun <T: Any> register(display: MenuGameSettingBuilder<T>): GameSetting<T> {
         return this.register(display.build())
     }
 

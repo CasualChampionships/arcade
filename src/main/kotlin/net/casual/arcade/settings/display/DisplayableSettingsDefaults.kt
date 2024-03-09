@@ -15,7 +15,7 @@ public open class DisplayableSettingsDefaults{
     }
 
     public open fun options(
-        builder: DisplayableGameSettingBuilder<Boolean>,
+        builder: MenuGameSettingBuilder<Boolean>,
         enabled: ItemStack = Items.GREEN_STAINED_GLASS_PANE.named("On"),
         disabled: ItemStack = Items.RED_STAINED_GLASS_PANE.named("Off")
     ) {
@@ -24,7 +24,7 @@ public open class DisplayableSettingsDefaults{
     }
 
     public open fun <E: Enum<E>> options(
-        builder: DisplayableGameSettingBuilder<E>,
+        builder: MenuGameSettingBuilder<E>,
         type: Class<E>,
         itemMapper: (enum: E) -> ItemStack = DefaultEnumItemMapper(),
         nameMapper: (enum: E) -> String = { it.name }

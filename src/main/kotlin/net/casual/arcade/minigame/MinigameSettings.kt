@@ -1,16 +1,14 @@
 package net.casual.arcade.minigame
 
 import net.casual.arcade.settings.GameSetting
-import net.casual.arcade.settings.display.DisplayableGameSettingBuilder.Companion.bool
+import net.casual.arcade.settings.display.MenuGameSettingBuilder.Companion.bool
 import net.casual.arcade.settings.display.DisplayableSettings
 import net.casual.arcade.settings.display.DisplayableSettingsDefaults
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ItemUtils.hideTooltips
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.utils.ItemUtils.setLore
-import net.casual.arcade.utils.ScreenUtils
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.Items
 
 /**
