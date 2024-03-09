@@ -24,7 +24,7 @@ public abstract class SelectableMenuItem {
         public fun build(): SelectableMenuItem {
             val stack = this.default
             val selected = this.onSelected
-            val shouldUpdate = this.onUpdate == null
+            val shouldUpdate = this.onUpdate != null
             val update = this.onUpdate
             return object: SelectableMenuItem() {
                 override val default: ItemStack = stack
