@@ -42,7 +42,7 @@ public class MenuGameSettingBuilder<T: Any>(
         name: String,
         stack: ItemStack,
         value: T,
-        updater: (GameSetting<T>, ItemStack, ServerPlayer) -> ItemStack = defaultUpdater(value)
+        updater: (GameSetting<T>, ItemStack, ServerPlayer) -> ItemStack = enchantWhenSetTo(value)
     ): MenuGameSettingBuilder<T> {
         this.options[name] = OptionData(stack, value, updater)
         return this
@@ -159,7 +159,7 @@ public class MenuGameSettingBuilder<T: Any>(
             return enumeration<E>().apply(block).build()
         }
 
-        private fun <T: Any> defaultUpdater(value: T): (GameSetting<T>, ItemStack, ServerPlayer) -> ItemStack {
+        public fun <T: Any> enchantWhenSetTo(value: T): (GameSetting<T>, ItemStack, ServerPlayer) -> ItemStack {
             return { setting, stack, _ ->
                 if (stack.isEnchanted) {
                     if (setting.get() != value) {
