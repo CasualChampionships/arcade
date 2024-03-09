@@ -97,7 +97,7 @@ public class MinigameChatManager(
             return
         }
 
-        if (!this.minigame.settings.isChatGlobal) {
+        if (this.minigame.settings.isChatGlobal) {
             if (!this.minigame.settings.useVanillaChat) {
                 val (decorated, prefix) = this.globalChatFormatter.format(player, message.decoratedContent())
                 event.replaceMessage(decorated, prefix)

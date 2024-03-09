@@ -246,7 +246,7 @@ public open class MinigameSettings(
     public var isChatGlobal: Boolean by this.register(bool {
         name = "is_chat_global"
         display = Items.ACACIA_SIGN.named("Global Chat").setLore(
-            "If enabled then by default messages will be sent to teams.".literal(),
+            "If disabled then by default messages will be sent to teams.".literal(),
             "To send messages to global players must prefix their message with !.".literal()
         )
         value = false
