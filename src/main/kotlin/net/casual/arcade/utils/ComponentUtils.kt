@@ -357,7 +357,7 @@ public object ComponentUtils {
     }
 
     public fun interface ComponentGenerator {
-        public fun generate(vararg args: Any?): Component
+        public fun generate(vararg args: Any?): MutableComponent
     }
 
     public class ConstantComponentGenerator(
