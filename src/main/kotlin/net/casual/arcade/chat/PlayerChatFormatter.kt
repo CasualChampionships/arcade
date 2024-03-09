@@ -32,8 +32,8 @@ public fun interface PlayerChatFormatter {
             }
 
             override fun format(message: PlayerFormattedChat): PlayerFormattedChat {
-                val prefix = this.globe.append(message.prefix ?: Component.empty())
-                return PlayerFormattedChat(prefix, message.message)
+                val prefix = Component.empty().append(this.globe).append(message.prefix ?: Component.empty())
+                return PlayerFormattedChat(message.message, prefix)
             }
         }
 

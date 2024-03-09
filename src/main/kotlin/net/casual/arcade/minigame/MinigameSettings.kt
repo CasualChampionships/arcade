@@ -249,7 +249,7 @@ public open class MinigameSettings(
             "If disabled then by default messages will be sent to teams.".literal(),
             "To send messages to global players must prefix their message with !.".literal()
         )
-        value = false
+        value = true
         defaults.options(this)
     })
 
