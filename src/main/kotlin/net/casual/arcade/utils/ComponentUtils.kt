@@ -20,6 +20,7 @@ import net.minecraft.world.item.ItemStack
 import org.jetbrains.annotations.ApiStatus.Experimental
 import java.util.*
 import java.util.function.Consumer
+import kotlin.reflect.KProperty
 
 public object ComponentUtils {
     public val SPACES_FONT: ResourceLocation = ResourceLocation("space", "spaces")
@@ -337,6 +338,38 @@ public object ComponentUtils {
 
     public fun MutableComponent.shadowless(): MutableComponent {
         return this.colour(0x4E5C24)
+    }
+
+    public fun literal(key: String, modifier: (MutableComponent.() -> Unit)? = null): ConstantComponentGenerator {
+        return ConstantComponentGenerator(key, Component::literal, modifier)
+    }
+
+    public fun translatable(key: String, modifier: (MutableComponent.() -> Unit)? = null): ConstantComponentGenerator {
+        return ConstantComponentGenerator(key, Component::translatable, modifier)
+    }
+
+    public fun translatableWithArgs(key: String, modifier: (MutableComponent.() -> Unit)? = null): ComponentGenerator {
+        return ComponentGenerator {
+            val component = Component.translatable(key, it)
+            modifier?.invoke(component)
+            component
+        }
+    }
+
+    public fun interface ComponentGenerator {
+        public fun generate(vararg args: Any?): Component
+    }
+
+    public class ConstantComponentGenerator(
+        private val key: String,
+        private val supplier: (String) -> MutableComponent,
+        private val consumer: (MutableComponent.() -> Unit)?,
+    ) {
+        public operator fun getValue(any: Any, property: KProperty<*>): MutableComponent {
+            val component = this.supplier(this.key)
+            this.consumer?.invoke(component)
+            return component
+        }
     }
 
     private class StringifyVisitor: FormattedText.StyledContentConsumer<Unit> {

@@ -5,6 +5,7 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.network.ClientboundPacketEvent
 import net.casual.arcade.events.network.PackStatusEvent
 import net.casual.arcade.events.network.PlayerDisconnectEvent
+import net.casual.arcade.font.BitmapFont
 import net.casual.arcade.resources.PackInfo
 import net.casual.arcade.resources.PackState
 import net.casual.arcade.resources.PackStatus
@@ -97,6 +98,13 @@ public object ResourcePackUtils {
             for (lang in langs.listDirectoryEntries()) {
                 builder.addData("assets/${namespace}/lang/${lang.name}", lang.readBytes())
             }
+        }
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addBitmapFont(font: BitmapFont) {
+        this.creationEvent.register { builder ->
+            builder.addData("assets/${font.id.namespace}/font/${font.id.path}.json", font.getData())
         }
     }
 

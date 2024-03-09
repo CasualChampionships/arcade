@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm")
+    kotlin("plugin.serialization") version "1.9.21"
     id("fabric-loom")
     `maven-publish`
     java
@@ -33,7 +34,7 @@ dependencies {
         parchment("org.parchmentmc.data:parchment-${property("parchment_version")}@zip")
     })
 
-
+    modImplementation("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin_version")}")
     implementation(project(mapOf("path" to ":", "configuration" to "namedElements")))
 
     include(api("org.apache.commons:commons-text:1.11.0")!!)

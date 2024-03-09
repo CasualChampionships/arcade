@@ -1,10 +1,9 @@
-import net.fabricmc.loom.task.RemapJarTask
 import org.apache.commons.io.output.ByteArrayOutputStream
-import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
 import java.nio.charset.Charset
 
 plugins {
     kotlin("jvm")
+    kotlin("plugin.serialization") version "1.9.21"
     id("fabric-loom")
     `maven-publish`
     java
@@ -55,7 +54,7 @@ dependencies {
     include(modApi("eu.pb4:polymer-resource-pack:${property("polymer_version")}")!!)
     include(modApi("eu.pb4:polymer-virtual-entity:${property("polymer_version")}")!!)
 
-    include(modApi("me.lucko:fabric-permissions-api:0.3-SNAPSHOT")!!)
+    include(modApi("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")!!)
 
     // Add ServerReplayAPI
     modImplementation("com.github.senseiwells:ServerReplay:${property("server_replay_version")}")
