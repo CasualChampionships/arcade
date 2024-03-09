@@ -27,6 +27,10 @@ public abstract class BitmapFont(
         }
     }
 
+    protected fun texture(path: String): ResourceLocation {
+        return ResourceLocation(this.id.namespace, "font/$path")
+    }
+
     internal fun getData(): ByteArray {
         val font = JsonObject()
         val providers = JsonArray()
