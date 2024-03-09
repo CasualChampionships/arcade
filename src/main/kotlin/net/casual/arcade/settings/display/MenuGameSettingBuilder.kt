@@ -10,6 +10,7 @@ import net.casual.arcade.utils.ItemUtils.removeEnchantments
 import net.casual.arcade.utils.json.*
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
+import org.apache.commons.lang3.mutable.MutableObject
 
 public class MenuGameSettingBuilder<T: Any>(
     private val constructor: (String, T, Map<String, T>) -> GameSetting<T>
@@ -63,12 +64,15 @@ public class MenuGameSettingBuilder<T: Any>(
         val display = this.value ?: throw IllegalStateException("No value to build GameSetting")
 
         val options = LinkedHashMap<String, T>()
-        val setting = this.constructor(this.name, display, options)
 
         val selectables = ArrayList<SelectableMenuItem>()
         for ((id, data) in this.options) {
+            options[id] = data.value
+        }
+
+        val setting = this.constructor(this.name, display, options)
+        for (data in this.options.values) {
             val (stack, value, action) = data
-            options[id] = value
             selectables.add(SelectableMenuItem.build {
                 default = stack
                 onUpdate = { stack, player -> action(setting, stack, player) }
