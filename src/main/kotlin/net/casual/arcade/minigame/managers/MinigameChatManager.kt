@@ -110,7 +110,7 @@ public class MinigameChatManager(
 
         val content = event.rawMessage
         val exclaimed = content.startsWith("!")
-        if (exclaimed || team == null || this.minigame.teams.isTeamIgnored(team)) {
+        if (exclaimed || team == null || this.minigame.teams.isTeamEliminated(team)) {
             val trimmed = if (exclaimed) content.substring(1) else content
             if (trimmed.isNotBlank()) {
                 val (decorated, prefix) = this.formatGlobalChatFor(player, trimmed.trim().literal())
