@@ -3,7 +3,7 @@ package net.casual.arcade.minigame.task.impl
 import com.google.gson.JsonObject
 import net.casual.arcade.Arcade
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.MinigamePhase
+import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.task.AnyMinigameTaskFactory
 import net.casual.arcade.task.SavableTask
 import net.casual.arcade.task.Task
@@ -14,7 +14,7 @@ import net.casual.arcade.utils.MinigameUtils.getPhase
 
 public class PhaseChangeTask<M: Minigame<M>>(
     private val minigame: Minigame<M>,
-    private val phase: MinigamePhase<M>
+    private val phase: Phase<M>
 ): SavableTask {
     override val id: String = "$${Arcade.MOD_ID}_phase_change"
 

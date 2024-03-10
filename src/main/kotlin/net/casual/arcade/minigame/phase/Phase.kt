@@ -1,4 +1,4 @@
-package net.casual.arcade.minigame
+package net.casual.arcade.minigame.phase
 
 import org.jetbrains.annotations.ApiStatus.NonExtendable
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  * Each phase is notified when it is starting, see [start], when it is
  * being initialized, see [initialize], or when it's ending, see [end].
  *
- * Here's an example of an implementation of some [MinigamePhase]s:
+ * Here's an example of an implementation of some [Phase]s:
  * ```kotlin
  * enum class MyMinigamePhases(override val id: String): MinigamePhase<MyMinigame> {
  *     Grace("grace") {
@@ -46,7 +46,7 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  * }
  * ```
  */
-public interface MinigamePhase<M: Minigame<M>> {
+public interface Phase<M> {
     /**
      * The identifier for the phase, this should be unique
      * to avoid overlapping phase names.
@@ -60,7 +60,7 @@ public interface MinigamePhase<M: Minigame<M>> {
      * This will be used to compare where the phase is in
      * relation to other phases.
      *
-     * If you use an [Enum] to represent your [MinigamePhase]s
+     * If you use an [Enum] to represent your [Phase]s
      * then you do not need to override this field.
      */
     public val ordinal: Int
@@ -142,31 +142,31 @@ public interface MinigamePhase<M: Minigame<M>> {
     // We don't implement Comparable<MinigamePhase<M>>
     // because it causes conflicts when inheriting with Enum.
     @NonExtendable
-    public operator fun compareTo(other: MinigamePhase<*>): Int {
+    public operator fun compareTo(other: Phase<*>): Int {
         return this.ordinal.compareTo(other.ordinal)
     }
 
-    private class None<M: Minigame<M>>: MinigamePhase<M> {
+    private class None<M>: Phase<M> {
         override val id: String = "core_none"
         override val ordinal: Int = Int.MIN_VALUE
 
-        override fun compareTo(other: MinigamePhase<*>): Int {
+        override fun compareTo(other: Phase<*>): Int {
             return Int.MIN_VALUE
         }
     }
 
-    private class End<M: Minigame<M>>: MinigamePhase<M> {
+    private class End<M>: Phase<M> {
         override val id: String = "core_end"
         override val ordinal: Int = Int.MAX_VALUE
 
-        override fun compareTo(other: MinigamePhase<*>): Int {
+        override fun compareTo(other: Phase<*>): Int {
             return Int.MAX_VALUE
         }
     }
 
     public companion object {
-        private val NONE: MinigamePhase<*> = None()
-        private val END: MinigamePhase<*> = End()
+        private val NONE: Phase<*> = None<Any>()
+        private val END: Phase<*> = End<Any>()
 
         /**
          * This gets the none minigame phase.
@@ -174,9 +174,9 @@ public interface MinigamePhase<M: Minigame<M>> {
          *
          * @return The none minigame phase instance.
          */
-        public fun <M: Minigame<M>> none(): MinigamePhase<M> {
+        public fun <M> none(): Phase<M> {
             @Suppress("UNCHECKED_CAST")
-            return NONE as MinigamePhase<M>
+            return NONE as Phase<M>
         }
 
         /**
@@ -186,9 +186,9 @@ public interface MinigamePhase<M: Minigame<M>> {
          *
          * @return The end minigame phase instance.
          */
-        public fun <M: Minigame<M>> end(): MinigamePhase<M> {
+        public fun <M> end(): Phase<M> {
             @Suppress("UNCHECKED_CAST")
-            return END as MinigamePhase<M>
+            return END as Phase<M>
         }
     }
 }

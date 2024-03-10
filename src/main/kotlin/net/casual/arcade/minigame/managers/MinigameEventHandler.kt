@@ -8,9 +8,12 @@ import net.casual.arcade.events.level.LevelEvent
 import net.casual.arcade.events.minigame.MinigameEvent
 import net.casual.arcade.events.player.PlayerEvent
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.MinigamePhase
 import net.casual.arcade.minigame.annotation.*
+import net.casual.arcade.minigame.phase.Phase
+import net.casual.arcade.minigame.phase.Phased
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
 import java.util.*
 import java.util.function.Consumer
 
@@ -34,7 +37,7 @@ import java.util.function.Consumer
  * playing in that minigame, this also goes for [LevelEvent]s
  * and [MinigameEvent]s:
  * - The [PlayerEvent]s check using [Minigame.hasPlayer]
- * - The [LevelEvent]s check using [Minigame.hasLevel]
+ * - The [LevelEvent]s check using [MinigameLevelManager.has]
  * - The [MinigameEvent]s check simply check whether the
  * current minigame is the one that fired the event.
  *
@@ -45,11 +48,12 @@ import java.util.function.Consumer
  * @see Minigame
  * @see Minigame.events
  */
-public class MinigameEventHandler<M: Minigame<M>>(
-    private val owner: Minigame<M>
+public class MinigameEventHandler<P>(
+    private val phased: Phased<P>,
+    private val filterer: Filterer
 ): EventRegisterer {
-    internal val minigame = EventHandler()
-    internal val phased = EventHandler()
+    internal val minigameHandler = EventHandler()
+    internal val phasedHandler = EventHandler()
 
     /**
      * This method gets all the [EventListener]s for a given
@@ -59,7 +63,7 @@ public class MinigameEventHandler<M: Minigame<M>>(
      * @return The list of [EventListener]s for the given [type].
      */
     override fun <T: Event> getListenersFor(type: Class<T>): List<EventListener<*>> {
-        return this.minigame.getListenersFor(type).concat(this.phased.getListenersFor(type))
+        return this.minigameHandler.getListenersFor(type).concat(this.phasedHandler.getListenersFor(type))
     }
 
     /**
@@ -116,7 +120,7 @@ public class MinigameEventHandler<M: Minigame<M>>(
      * @param listener The callback which will be invoked when the event is fired.
      */
     override fun <T: Event> register(type: Class<T>, listener: EventListener<T>) {
-        this.registerFiltered(type, listener, this.minigame)
+        this.registerFiltered(type, listener, this.minigameHandler)
     }
 
     /**
@@ -161,7 +165,7 @@ public class MinigameEventHandler<M: Minigame<M>>(
      * @param listener The callback which will be invoked when the event is fired.
      */
     public fun <T: Event> register(type: Class<T>, flags: Int = DEFAULT, listener: EventListener<T>) {
-        this.registerFiltered(type, listener, this.minigame, flags = flags)
+        this.registerFiltered(type, listener, this.minigameHandler, flags = flags)
     }
 
     /**
@@ -242,7 +246,7 @@ public class MinigameEventHandler<M: Minigame<M>>(
      * @param listener The callback which will be invoked when the event is fired.
      */
     public fun <T: Event> registerPhased(type: Class<T>, flags: Int = DEFAULT, listener: EventListener<T>) {
-        return this.registerFiltered(type, listener, this.phased, flags = flags)
+        return this.registerFiltered(type, listener, this.phasedHandler, flags = flags)
     }
 
     /**
@@ -256,7 +260,7 @@ public class MinigameEventHandler<M: Minigame<M>>(
      * @param phases The phases that you want this listener to trigger in.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public inline fun <reified T: Event> registerInPhases(vararg phases: MinigamePhase<M>, listener: Consumer<T>) {
+    public inline fun <reified T: Event> registerInPhases(vararg phases: Phase<P>, listener: Consumer<T>) {
         this.registerInPhases(1_000, phases = phases, listener = listener)
     }
 
@@ -275,7 +279,7 @@ public class MinigameEventHandler<M: Minigame<M>>(
     public inline fun <reified T: Event> registerInPhases(
         priority: Int,
         flags: Int = DEFAULT,
-        vararg phases: MinigamePhase<M>,
+        vararg phases: Phase<P>,
         listener: Consumer<T>
     ) {
         this.registerInPhases(T::class.java, flags, phases = phases, listener = EventListener.of(priority, listener))
@@ -296,7 +300,7 @@ public class MinigameEventHandler<M: Minigame<M>>(
     public fun <T: Event> registerInPhases(
         type: Class<T>,
         flags: Int = DEFAULT,
-        vararg phases: MinigamePhase<M>,
+        vararg phases: Phase<P>,
         listener: EventListener<T>
     ) {
         if (phases.isEmpty()) {
@@ -304,19 +308,19 @@ public class MinigameEventHandler<M: Minigame<M>>(
         }
         val predicates = LinkedList<(T) -> Boolean>()
         if (phases.size == 1) {
-            predicates.add { this.owner.isPhase(phases[0]) }
-            return this.registerFiltered(type, listener, this.minigame, predicates)
+            predicates.add { this.phased.isPhase(phases[0]) }
+            return this.registerFiltered(type, listener, this.minigameHandler, predicates)
         }
         predicates.add {
             for (phase in phases) {
-                if (this.owner.isPhase(phase)) {
+                if (this.phased.isPhase(phase)) {
                     return@add true
                 }
             }
             false
         }
 
-        return this.registerFiltered(type, listener, this.minigame, predicates, flags)
+        return this.registerFiltered(type, listener, this.minigameHandler, predicates, flags)
     }
 
     /**
@@ -329,8 +333,8 @@ public class MinigameEventHandler<M: Minigame<M>>(
      * @param listener The callback which will be invoked when the event is fired.
      */
     public inline fun <reified T: Event> registerBetweenPhases(
-        start: MinigamePhase<M>,
-        end: MinigamePhase<M>,
+        start: Phase<P>,
+        end: Phase<P>,
         flags: Int = DEFAULT,
         listener: Consumer<T>
     ) {
@@ -349,8 +353,8 @@ public class MinigameEventHandler<M: Minigame<M>>(
      */
     public inline fun <reified T: Event> registerBetweenPhases(
         priority: Int,
-        start: MinigamePhase<M>,
-        end: MinigamePhase<M>,
+        start: Phase<P>,
+        end: Phase<P>,
         flags: Int = DEFAULT,
         listener: Consumer<T>
     ) {
@@ -369,20 +373,20 @@ public class MinigameEventHandler<M: Minigame<M>>(
      */
     public fun <T: Event> registerBetweenPhases(
         type: Class<T>,
-        start: MinigamePhase<M>,
-        end: MinigamePhase<M>,
+        start: Phase<P>,
+        end: Phase<P>,
         flags: Int = DEFAULT,
         listener: EventListener<T>
     ) {
         val predicates = ArrayList<(T) -> Boolean>()
         predicates.add {
-            (this.owner.isAfterPhase(start) || this.owner.isPhase(start)) &&
-            (this.owner.isBeforePhase(end) || this.owner.isPhase(end))
+            (this.phased.isAfterPhase(start) || this.phased.isPhase(start)) &&
+            (this.phased.isBeforePhase(end) || this.phased.isPhase(end))
         }
-        return this.registerFiltered(type, listener, this.minigame, predicates, flags)
+        return this.registerFiltered(type, listener, this.minigameHandler, predicates, flags)
     }
 
-    private fun <T: Event> registerFiltered(
+    protected fun <T: Event> registerFiltered(
         type: Class<T>,
         listener: EventListener<T>,
         handler: EventRegisterer,
@@ -391,26 +395,26 @@ public class MinigameEventHandler<M: Minigame<M>>(
     ) {
         if (PlayerEvent::class.java.isAssignableFrom(type)) {
             if (this.hasFlag(flags, HAS_PLAYER)) {
-                predicates.add { this.owner.hasPlayer((it as PlayerEvent).player) }
+                predicates.add { this.filterer.hasPlayer((it as PlayerEvent).player) }
             }
             if (this.hasFlag(flags, IS_PLAYING)) {
-                predicates.add { this.owner.isPlaying((it as PlayerEvent).player) }
+                predicates.add { this.filterer.isPlaying((it as PlayerEvent).player) }
             }
             if (this.hasFlag(flags, IS_SPECTATOR)) {
-                predicates.add { this.owner.isSpectating((it as PlayerEvent).player) }
+                predicates.add { this.filterer.isSpectating((it as PlayerEvent).player) }
             }
             if (this.hasFlag(flags, IS_ADMIN)) {
-                predicates.add { this.owner.isAdmin((it as PlayerEvent).player) }
+                predicates.add { this.filterer.isAdmin((it as PlayerEvent).player) }
             }
         }
         if (LevelEvent::class.java.isAssignableFrom(type)) {
             if (this.hasFlag(flags, HAS_LEVEL)) {
-                predicates.add { this.owner.levels.has((it as LevelEvent).level) }
+                predicates.add { this.filterer.hasLevel((it as LevelEvent).level) }
             }
         }
         if (MinigameEvent::class.java.isAssignableFrom(type)) {
             if (this.hasFlag(flags, IS_MINIGAME)) {
-                predicates.add { (it as MinigameEvent).minigame === this.owner }
+                predicates.add { this.filterer.isMinigame((it as MinigameEvent).minigame) }
             }
         }
         if (predicates.isEmpty()) {
@@ -426,5 +430,33 @@ public class MinigameEventHandler<M: Minigame<M>>(
 
     private fun hasFlag(flags: Int, flag: Int): Boolean {
         return flags and flag == flag
+    }
+
+    public open class Filterer(
+        private val minigame: Minigame<*>
+    ) {
+        public open fun hasPlayer(player: ServerPlayer): Boolean {
+            return this.minigame.hasPlayer(player)
+        }
+
+        public open fun isPlaying(player: ServerPlayer): Boolean {
+            return this.minigame.isPlaying(player)
+        }
+
+        public open fun isSpectating(player: ServerPlayer): Boolean {
+            return this.minigame.isSpectating(player)
+        }
+
+        public open fun isAdmin(player: ServerPlayer): Boolean {
+            return this.minigame.isAdmin(player)
+        }
+
+        public open fun hasLevel(level: ServerLevel): Boolean {
+            return this.minigame.levels.has(level)
+        }
+
+        public open fun isMinigame(minigame: Minigame<*>): Boolean {
+            return this.minigame === minigame
+        }
     }
 }

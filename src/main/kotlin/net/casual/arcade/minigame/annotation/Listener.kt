@@ -1,7 +1,7 @@
 package net.casual.arcade.minigame.annotation
 
 import net.casual.arcade.events.core.Event
-import net.casual.arcade.minigame.MinigamePhase
+import net.casual.arcade.minigame.phase.Phase
 import kotlin.reflect.KClass
 
 public const val NONE: Int = 0
@@ -54,7 +54,7 @@ public annotation class Listener(
      * handler should be invoked in, this is inclusive.
      *
      * By default, if not specified will default to
-     * [MinigamePhase.none].
+     * [Phase.none].
      */
     val after: String = "",
 
@@ -63,7 +63,7 @@ public annotation class Listener(
      * handler should be invoked in, this is inclusive.
      *
      * By default, if not specified will default to
-     * [MinigamePhase.end].
+     * [Phase.end].
      */
     val before: String = ""
 )

@@ -17,6 +17,9 @@ import net.casual.arcade.minigame.MinigameResources.Companion.removeFrom
 import net.casual.arcade.minigame.MinigameResources.Companion.sendTo
 import net.casual.arcade.minigame.MinigameResources.MultiMinigameResources
 import net.casual.arcade.minigame.managers.*
+import net.casual.arcade.minigame.module.MinigameModule
+import net.casual.arcade.minigame.phase.Phase
+import net.casual.arcade.minigame.phase.Phased
 import net.casual.arcade.minigame.serialization.MinigameDataTracker
 import net.casual.arcade.minigame.serialization.SavableMinigame
 import net.casual.arcade.scheduler.TickedScheduler
@@ -30,6 +33,7 @@ import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.toJsonObject
 import net.casual.arcade.utils.JsonUtils.toJsonStringArray
 import net.casual.arcade.utils.MinigameUtils
+import net.casual.arcade.utils.MinigameUtils.addEventListener
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.PlayerUtils
@@ -67,7 +71,7 @@ import java.util.*
  *
  * As well as the minigames own state, see: [setPhase], [paused].
  *
- * See more info about phases here: [MinigamePhase].
+ * See more info about phases here: [Phase].
  *
  * You can implement your own minigame by extending this class:
  * ```kotlin
@@ -109,14 +113,14 @@ import java.util.*
  * @param M The type of the child class.
  * @param server The [MinecraftServer] that created the [Minigame].
  * @see SavableMinigame
- * @see MinigamePhase
+ * @see Phase
  */
 public abstract class Minigame<M: Minigame<M>>(
     /**
      * The [MinecraftServer] that created the [Minigame].
      */
     public val server: MinecraftServer,
-) {
+): Phased<M> {
     private val connections: MutableSet<ServerGamePacketListenerImpl>
 
     private var resources: MultiMinigameResources
@@ -125,7 +129,9 @@ public abstract class Minigame<M: Minigame<M>>(
     internal val admins: MutableSet<UUID>
     internal val spectators: MutableSet<UUID>
     internal val offline: MutableSet<GameProfile>
-    internal val phases: List<MinigamePhase<M>>
+    internal val phases: List<Phase<M>>
+
+    internal val modules: MutableList<MinigameModule<M, *>>
 
     /**
      * This handles registering and invoking events.
@@ -245,7 +251,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * @see setPhase
      * @see isPhase
      */
-    public var phase: MinigamePhase<M>
+    public final override var phase: Phase<M>
         internal set
 
     /**
@@ -265,13 +271,16 @@ public abstract class Minigame<M: Minigame<M>>(
     public var paused: Boolean
         internal set
 
+    public var started: Boolean
+        private set
+
     public var closed: Boolean
         private set
 
     private var closing: Boolean
 
     public val ticking: Boolean
-        get() = !this.paused && !this.isPhase(MinigamePhase.none())
+        get() = !this.paused && !this.isPhase(Phase.none())
 
     /**
      * The [ResourceLocation] of the [Minigame].
@@ -285,65 +294,40 @@ public abstract class Minigame<M: Minigame<M>>(
 
         this.resources = MultiMinigameResources()
         this.initialized = false
+        this.started = false
         this.closed = false
         this.closing = false
 
         this.offline = LinkedHashSet()
 
         this.phases = this.getAllPhases()
+        this.modules = ArrayList()
 
         this.uuid = UUID.randomUUID()
 
         this.scheduler = MinigameScheduler()
+
+        val self = this.cast()
         // Events must be assigned first!
-        this.events = MinigameEventHandler(this.cast())
-        this.levels = MinigameLevelManager(this.cast())
-        this.ui = MinigameUIManager(this.cast())
-        this.commands = MinigameCommandManager(this.cast())
-        this.advancements = MinigameAdvancementManager(this.cast())
-        this.recipes = MinigameRecipeManager(this.cast())
-        this.effects = MinigameEffectsManager(this.cast())
-        this.data = MinigameDataTracker(this.cast())
-        this.teams = MinigameTeamManager(this.cast())
-        this.chat = MinigameChatManager(this.cast())
-        this.tags = MinigameTagManager(this.cast())
+        this.events = MinigameEventHandler(self, MinigameEventHandler.Filterer(self))
+        this.levels = MinigameLevelManager(self)
+        this.ui = MinigameUIManager(self)
+        this.commands = MinigameCommandManager(self)
+        this.advancements = MinigameAdvancementManager(self)
+        this.recipes = MinigameRecipeManager(self)
+        this.effects = MinigameEffectsManager(self)
+        this.data = MinigameDataTracker(self)
+        this.teams = MinigameTeamManager(self)
+        this.chat = MinigameChatManager(self)
+        this.tags = MinigameTagManager(self)
         this.stats = MinigameStatManager()
 
-        this.phase = MinigamePhase.none()
+        this.phase = Phase.none()
         this.uptime = 0
 
         this.paused = false
     }
 
-    /**
-     * Checks whether the minigame is in a given phase.
-     *
-     * @param phase The phase to check whether the minigame is in.
-     * @return Whether the minigame is in that phase.
-     */
-    public fun isPhase(phase: MinigamePhase<M>): Boolean {
-        return this.phase == phase
-    }
-
-    /**
-     * Checks whether the minigame is before a given phase.
-     *
-     * @param phase The phase to check whether the minigame is before.
-     * @return Whether the minigame is before that phase.
-     */
-    public fun isBeforePhase(phase: MinigamePhase<M>): Boolean {
-        return this.phase < phase
-    }
-
-    /**
-     * Checks whether the minigame is past a given phase.
-     *
-     * @param phase The phase to check whether the minigame has past.
-     * @return Whether the minigame is past that phase.
-     */
-    public fun isAfterPhase(phase: MinigamePhase<M>): Boolean {
-        return this.phase > phase
-    }
 
     /**
      * This sets the phase of the minigame.
@@ -352,8 +336,8 @@ public abstract class Minigame<M: Minigame<M>>(
      * the [phases] set.
      *
      * All minigames will be able to be set to either
-     * [MinigamePhase.none] or [MinigamePhase.end].
-     * You can set the minigame's phase to [MinigamePhase.end]
+     * [Phase.none] or [Phase.end].
+     * You can set the minigame's phase to [Phase.end]
      * to end the final implemented minigame phase.
      *
      * When a phase is set, all previously scheduled
@@ -367,7 +351,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * @param phase The phase to set the minigame to.
      * @throws IllegalArgumentException If the [phase] is not in the [phases] set.
      */
-    public fun setPhase(phase: MinigamePhase<M>) {
+    public fun setPhase(phase: Phase<M>) {
         if (this.isPhase(phase)) {
             return
         }
@@ -375,7 +359,7 @@ public abstract class Minigame<M: Minigame<M>>(
             throw IllegalArgumentException("Cannot set minigame '${this.id}' phase to ${phase.id}")
         }
         this.scheduler.phased.cancelAll()
-        this.events.phased.clear()
+        this.events.phasedHandler.clear()
 
         val self = this.cast()
         this.phase.end(self)
@@ -601,6 +585,14 @@ public abstract class Minigame<M: Minigame<M>>(
         return this.admins.contains(player.uuid)
     }
 
+    public fun addModule(module: MinigameModule<M, *>) {
+        if (this.started) {
+            throw IllegalStateException("Cannot add module after minigame has started!")
+        }
+        this.modules.add(module)
+        this.addEventListener(module)
+    }
+
     /**
      * This gets the [MinigameResources] for this minigame which
      * will be applied when the player joins this minigame.
@@ -674,7 +666,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * @see complete
      */
     public fun close() {
-        if (this.closing) {
+        if (this.closing || this.closed) {
             return
         }
         this.closing = true
@@ -695,13 +687,13 @@ public abstract class Minigame<M: Minigame<M>>(
         }
         this.levels.clear()
         this.events.unregisterHandler()
-        this.events.minigame.clear()
-        this.events.phased.clear()
+        this.events.minigameHandler.clear()
+        this.events.phasedHandler.clear()
         this.scheduler.minigame.cancelAll()
         this.scheduler.phased.cancelAll()
 
         this.initialized = false
-        this.phase = MinigamePhase.none()
+        this.phase = Phase.none()
 
         Minigames.unregister(this)
     }
@@ -754,9 +746,14 @@ public abstract class Minigame<M: Minigame<M>>(
     /**
      * Starts the minigame.
      *
-     * This will not run if your minigame restart.
+     * This will not run if your minigame restarts.
      */
     public fun start() {
+        if (this.started) {
+            return
+        }
+        this.started = true
+
         this.tryInitialize()
 
         this.data.start()
@@ -816,13 +813,13 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     /**
-     * This gets all the [MinigamePhase]s that this [Minigame]
+     * This gets all the [Phase]s that this [Minigame]
      * allows.
      *
      * The phases **do not** have to be in order, any duplicates
      * will also be removed.
      * Further you do not need to include the default phases
-     * ([MinigamePhase.none] and [MinigamePhase.end]), they'll
+     * ([Phase.none] and [Phase.end]), they'll
      * be included automatically.
      *
      * This method will only be invoked **once**; when the
@@ -832,7 +829,7 @@ public abstract class Minigame<M: Minigame<M>>(
      * @return A collection of all the valid phases the minigame can be in.
      */
     @OverrideOnly
-    protected abstract fun getPhases(): Collection<MinigamePhase<M>>
+    protected abstract fun getPhases(): Collection<Phase<M>>
 
     /**
      * This returns `this` object but cast to its implementation
@@ -856,10 +853,10 @@ public abstract class Minigame<M: Minigame<M>>(
 
     }
 
-    private fun getAllPhases(): List<MinigamePhase<M>> {
+    private fun getAllPhases(): List<Phase<M>> {
         val phases = HashSet(this.getPhases())
-        phases.add(MinigamePhase.none())
-        phases.add(MinigamePhase.end())
+        phases.add(Phase.none())
+        phases.add(Phase.end())
         return phases.sortedWith { a, b -> a.compareTo(b) }
     }
 

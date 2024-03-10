@@ -10,7 +10,7 @@ import net.casual.arcade.events.player.PlayerCreatedEvent
 import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.MinigamePhase
+import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.annotation.MinigameEventListener
 import net.casual.arcade.minigame.extensions.LevelMinigameExtension
@@ -67,7 +67,7 @@ public object MinigameUtils {
     }
 
     @JvmStatic
-    public fun <M: Minigame<M>> Minigame<M>.getPhase(id: String): MinigamePhase<M>? {
+    public fun <M: Minigame<M>> Minigame<M>.getPhase(id: String): Phase<M>? {
         for (phase in this.phases) {
             if (phase.id == id) {
                 return phase
@@ -231,12 +231,12 @@ public object MinigameUtils {
             val start = if (event.after != "") {
                 minigame.getPhase(event.after) ?: throw IllegalArgumentException("Start phase does not exist")
             } else {
-                MinigamePhase.none()
+                Phase.none()
             }
             val end = if (event.after != "") {
                 minigame.getPhase(event.before) ?: throw IllegalArgumentException("End phase does not exist")
             } else {
-                MinigamePhase.end()
+                Phase.end()
             }
             minigame.events.registerBetweenPhases(
                 type = type,
