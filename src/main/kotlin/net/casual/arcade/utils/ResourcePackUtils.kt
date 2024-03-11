@@ -118,7 +118,7 @@ public object ResourcePackUtils {
     @JvmStatic
     @OptIn(ExperimentalPathApi::class)
     private fun ResourcePackCreator.addMissingItemModels(namespace: String, assets: Path) {
-        val itemTextures = assets.resolve(namespace).resolve("texture").resolve("item")
+        val itemTextures = assets.resolve(namespace).resolve("textures").resolve("item")
         val itemModels = assets.resolve(namespace).resolve("models")
         val itemTexturesDirectory = "$itemTextures/"
         this.creationEvent.register { builder ->
