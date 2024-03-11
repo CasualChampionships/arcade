@@ -34,6 +34,12 @@ repositories {
     }
 }
 
+configurations.all {
+    resolutionStrategy {
+        force("net.fabricmc:fabric-loader:${property("loader_version")}")
+    }
+}
+
 @Suppress("UnstableApiUsage")
 dependencies {
     minecraft("com.mojang:minecraft:${property("minecraft_version")}")
