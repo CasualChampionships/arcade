@@ -13,15 +13,15 @@ import net.casual.arcade.resources.PlayerPackExtension
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import java.io.FileNotFoundException
+import java.nio.file.FileVisitResult
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.io.path.listDirectoryEntries
-import kotlin.io.path.name
-import kotlin.io.path.readBytes
+import kotlin.io.path.*
 
 public object ResourcePackUtils {
     // May be accessed off the main thread.
@@ -106,6 +106,47 @@ public object ResourcePackUtils {
         this.creationEvent.register { builder ->
             builder.addData("assets/${font.id.namespace}/font/${font.id.path}.json", font.getData())
         }
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addMissingItemModels(namespace: String) {
+        val container = FabricLoader.getInstance().getModContainer(namespace).orElseThrow(::IllegalArgumentException)
+        val assets = container.findPath("assets").orElseThrow(::FileNotFoundException)
+        this.addMissingItemModels(namespace, assets)
+    }
+
+    @JvmStatic
+    @OptIn(ExperimentalPathApi::class)
+    private fun ResourcePackCreator.addMissingItemModels(namespace: String, assets: Path) {
+        val itemTextures = assets.resolve(namespace).resolve("texture").resolve("item")
+        val itemModels = assets.resolve(namespace).resolve("models")
+        val itemTexturesDirectory = "$itemTextures/"
+        this.creationEvent.register { builder ->
+            itemTextures.visitFileTree {
+                onVisitFile { path, _ ->
+                    val name = path.nameWithoutExtension
+                    val relative = path.parent.toString().removePrefix(itemTexturesDirectory)
+                    val model = "$relative/$name.json"
+                    if (itemModels.resolve(model).notExists()) {
+                        val location = ResourceLocation(namespace, "item/$relative/$name")
+                        builder.addData("assets/$namespace/models/$model", getDefaultItemModel(location))
+                    }
+
+                    FileVisitResult.CONTINUE
+                }
+            }
+        }
+    }
+
+    private fun getDefaultItemModel(location: ResourceLocation): ByteArray {
+        return """
+        {
+          "parent": "minecraft:item/generated",
+          "textures": {
+            "layer0": "$location"
+          }
+        }
+        """.trimIndent().encodeToByteArray()
     }
 
     private fun getExtension(uuid: UUID): PlayerPackExtension {
