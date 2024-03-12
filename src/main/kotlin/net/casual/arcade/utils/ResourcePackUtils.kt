@@ -6,6 +6,7 @@ import net.casual.arcade.events.network.ClientboundPacketEvent
 import net.casual.arcade.events.network.PackStatusEvent
 import net.casual.arcade.events.network.PlayerDisconnectEvent
 import net.casual.arcade.font.BitmapFont
+import net.casual.arcade.items.ItemModeller
 import net.casual.arcade.resources.PackInfo
 import net.casual.arcade.resources.PackState
 import net.casual.arcade.resources.PackStatus
@@ -15,6 +16,7 @@ import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.Item
 import java.io.FileNotFoundException
 import java.nio.file.FileVisitResult
 import java.nio.file.Path
@@ -82,6 +84,14 @@ public object ResourcePackUtils {
     @JvmStatic
     public fun ServerPlayer.removeAllResourcePacks() {
         this.connection.send(ClientboundResourcePackPopPacket(Optional.empty()))
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.registerNextModel(item: Item, location: ResourceLocation): Int {
+        val id = ItemModeller.getNextIdFor(item)
+        @Suppress("UnstableApiUsage")
+        this.forceDefineModel(item, id, location, true)
+        return id
     }
 
     @JvmStatic

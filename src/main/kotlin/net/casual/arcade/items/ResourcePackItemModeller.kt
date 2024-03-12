@@ -3,6 +3,7 @@ package net.casual.arcade.items
 import eu.pb4.polymer.resourcepack.api.PolymerModelData
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator
 import net.casual.arcade.utils.ItemUtils.putIntElement
+import net.casual.arcade.utils.ResourcePackUtils.registerNextModel
 import net.minecraft.nbt.Tag
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
@@ -61,12 +62,9 @@ public class ResourcePackItemModeller(
      * given resource pack creator.
      * @return The [ItemStack] generator.
      */
-    @Suppress("UnstableApiUsage")
     public fun model(location: ResourceLocation): ItemStackFactory {
         this.states.add(location)
-        // Load it for pack
-        val id = ItemModeller.getNextIdFor(this.client)
-        this.creator.forceDefineModel(this.client, id, location, true)
+        this.creator.registerNextModel(this.client, location)
         return ItemStackFactory { this.create(location) }
     }
 
