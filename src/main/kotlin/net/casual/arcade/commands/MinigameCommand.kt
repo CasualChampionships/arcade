@@ -21,6 +21,7 @@ import net.casual.arcade.utils.CommandUtils.success
 import net.casual.arcade.utils.ComponentUtils.function
 import net.casual.arcade.utils.ComponentUtils.green
 import net.casual.arcade.utils.ComponentUtils.literal
+import net.casual.arcade.utils.ComponentUtils.singleUseFunction
 import net.casual.arcade.utils.ComponentUtils.suggestCommand
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.MinigameUtils.countdown
@@ -477,7 +478,7 @@ internal object MinigameCommand: Command {
             ({ unready.toComponent() })
         }
         return context.source.success {
-            "Successfully broadcasted unpause ready check click ".literal().apply {
+            "Successfully broadcasted unpause ready check, click ".literal().apply {
                 append("[here]".literal().green().function {
                     val message = "Awaiting the following ${if (teams) "teams" else "players"}: ".literal().append(awaiting())
                     minigame.chat.broadcastTo(message, it.player)
@@ -497,10 +498,22 @@ internal object MinigameCommand: Command {
             return context.source.fail("Minigame ${minigame.id} was already unpaused")
         }
         val duration = unit.duration(time)
+        var cancelled = false
         // We must use the global scheduler, because the minigame scheduler is paused
-        minigame.ui.countdown.countdown(minigame, duration, scheduler = GlobalTickedScheduler.asScheduler())
-            .then(minigame::unpause)
-        return context.source.success("Successfully started countdown for minigame ${minigame.id}")
+        minigame.ui.countdown.countdown(minigame, duration, scheduler = GlobalTickedScheduler.asScheduler()).then {
+            if (!cancelled) {
+                minigame.unpause()
+            }
+        }
+        return context.source.success {
+            "Successfully started countdown, click ".literal().apply {
+                append("[here]".literal().green().singleUseFunction {
+                    cancelled = true
+                    minigame.chat.broadcastTo("Successfully cancelled the countdown".literal(), it)
+                })
+                append(" to cancel the countdown")
+            }
+        }
     }
 
     private fun createMinigame(context: CommandContext<CommandSourceStack>): Int {

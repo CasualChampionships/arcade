@@ -291,7 +291,7 @@ public object PlayerUtils {
     }
 
     @JvmStatic
-    public fun ServerPlayer.setTitleAnimation(fadeIn: Int = 10, stay: Int = 70, fadeOut: Int = 20) {
+    public fun ServerPlayer.setTitleAnimation(fadeIn: Int, stay: Int, fadeOut: Int) {
         this.connection.send(ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut))
     }
 
