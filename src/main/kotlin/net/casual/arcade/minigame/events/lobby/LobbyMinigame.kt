@@ -139,6 +139,7 @@ public open class LobbyMinigame(
 
         this.transferAdminAndSpectatorTeamsTo(next)
         this.transferPlayersTo(next)
+        next.start()
 
         this.next = null
         this.setPhase(LobbyPhase.Waiting)
