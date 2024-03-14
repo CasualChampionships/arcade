@@ -157,11 +157,6 @@ public class SelectionScreen internal constructor(
         }
     }
 
-    internal class Selection(
-        internal val display: ItemStack,
-        internal val action: (ServerPlayer) -> Unit
-    )
-
     public companion object {
         internal fun createScreenFactory(previous: SelectionScreen, page: Int): SimpleMenuProvider? {
             return createScreenFactory(

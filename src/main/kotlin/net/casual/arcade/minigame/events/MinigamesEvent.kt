@@ -16,8 +16,8 @@ import net.casual.arcade.utils.JsonUtils.obj
 import net.casual.arcade.utils.JsonUtils.set
 import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.uuid
-import net.casual.arcade.utils.MinigameUtils.transferTo
-import net.casual.arcade.utils.ResourcePackUtils.hasBeenSentPack
+import net.casual.arcade.utils.MinigameUtils.transferAdminAndSpectatorTeamsTo
+import net.casual.arcade.utils.MinigameUtils.transferPlayersTo
 import net.casual.arcade.utils.ResourcePackUtils.sendResourcePack
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.resources.ResourceLocation
@@ -34,46 +34,55 @@ public open class MinigamesEvent(
     public var config: MinigamesEventConfig
 ) {
     public lateinit var current: Minigame<*>
+    private lateinit var lobby: LobbyMinigame
     private var index: Int = 0
 
     public fun returnToLobby(server: MinecraftServer) {
-        if (this::current.isInitialized && this.current is LobbyMinigame) {
+        if (this::current.isInitialized && this::lobby.isInitialized && this.current === this.lobby) {
             return
         }
 
-        val lobbyConfig = this.config.lobby
-        val either: Either<RuntimeWorldHandle, ServerLevel> = if (lobbyConfig.dimension == null) {
-            Either.left(createTemporaryLobbyLevel(server))
-        } else {
-            val level = server.getLevel(lobbyConfig.dimension)
-            if (level == null) Either.left(createTemporaryLobbyLevel(server)) else Either.right(level)
-        }
-        val level = either.map({ it.asWorld() }, { it })
-        val lobby = this.createLobbyMinigame(server, this.config.lobby.create(level))
-        either.ifLeft(lobby.levels::add)
+        if (!this::lobby.isInitialized) {
+            val lobbyConfig = this.config.lobby
+            val either: Either<RuntimeWorldHandle, ServerLevel> = if (lobbyConfig.dimension == null) {
+                Either.left(createTemporaryLobbyLevel(server))
+            } else {
+                val level = server.getLevel(lobbyConfig.dimension)
+                if (level == null) Either.left(createTemporaryLobbyLevel(server)) else Either.right(level)
+            }
+            val level = either.map({ it.asWorld() }, { it })
+            this.lobby = this.createLobbyMinigame(server, this.config.lobby.create(level))
+            either.ifLeft(this.lobby.levels::add)
 
-        lobby.events.register<LobbyMoveToNextMinigameEvent> {
-            this.incrementIndex(it.next)
-            this.current = it.next
+            this.lobby.events.register<LobbyMoveToNextMinigameEvent> {
+                this.incrementIndex(it.next)
+                this.current = it.next
+            }
         }
 
-        this.startNewMinigame(lobby)
+        this.startNewMinigame(this.lobby)
 
         val next = this.createNextMinigame(server)
         if (next != null) {
-            lobby.setNextMinigame(next)
+            this.lobby.setNextMinigame(next)
         }
     }
 
     public fun startNewMinigame(minigame: Minigame<*>) {
+        if (this::current.isInitialized) {
+            if (this.current === minigame) {
+                throw IllegalArgumentException("Cannot start current minigame!")
+            }
+
+            this.current.transferAdminAndSpectatorTeamsTo(minigame)
+            this.current.transferPlayersTo(minigame)
+            this.current.close()
+        }
+
         this.incrementIndex(minigame)
 
-        if (this::current.isInitialized) {
-            this.current.transferTo(minigame)
-        } else {
-            minigame.start()
-        }
         this.current = minigame
+        this.current.start()
     }
 
     public fun addPlayer(player: ServerPlayer) {

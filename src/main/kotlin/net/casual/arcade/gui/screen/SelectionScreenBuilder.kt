@@ -10,8 +10,6 @@ import java.util.*
  *
  * A selection screen allows you to add items that when clicked
  * will run an action.
- * You can also add an [ItemStackTicker] to update any items that
- * are currently on the screen.
  *
  * @param components The default [SelectionScreenComponents].
  * @see SelectionScreen
@@ -20,7 +18,6 @@ public class SelectionScreenBuilder(
     components: SelectionScreenComponents = SelectionScreenComponents.DEFAULT
 ) {
     private val selections = ArrayList<SelectableMenuItem>()
-    private val tickers = ArrayList<ItemStackTicker>()
     private val components = SelectionScreenComponents.Builder(components)
     private val buttons = EnumMap<SelectionScreen.Slot, SelectableMenuItem>(SelectionScreen.Slot::class.java)
 
@@ -126,18 +123,6 @@ public class SelectionScreenBuilder(
         selection: SelectableMenuItem
     ): SelectionScreenBuilder {
         this.buttons[slot] = selection
-        return this
-    }
-
-    /**
-     * This adds a [ticker] to the [SelectionScreenBuilder] which
-     * can update any of the selectable [ItemStack].
-     *
-     * @param ticker The [ItemStackTicker].
-     * @return The current [SelectionScreenBuilder].
-     */
-    public fun ticker(ticker: ItemStackTicker): SelectionScreenBuilder {
-        this.tickers.add(ticker)
         return this
     }
 

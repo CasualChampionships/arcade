@@ -28,7 +28,8 @@ import net.casual.arcade.utils.GameRuleUtils.resetToDefault
 import net.casual.arcade.utils.GameRuleUtils.set
 import net.casual.arcade.utils.MinigameUtils.countdown
 import net.casual.arcade.utils.MinigameUtils.requiresAdminOrPermission
-import net.casual.arcade.utils.MinigameUtils.transferTo
+import net.casual.arcade.utils.MinigameUtils.transferAdminAndSpectatorTeamsTo
+import net.casual.arcade.utils.MinigameUtils.transferPlayersTo
 import net.casual.arcade.utils.PlayerUtils.clearPlayerInventory
 import net.casual.arcade.utils.PlayerUtils.resetExperience
 import net.casual.arcade.utils.PlayerUtils.resetHealth
@@ -136,11 +137,15 @@ public open class LobbyMinigame(
 
         LobbyMoveToNextMinigameEvent(this, next).broadcast()
 
-        this.transferTo(next)
+        this.transferAdminAndSpectatorTeamsTo(next)
+        this.transferPlayersTo(next)
+
+        this.next = null
+        this.setPhase(LobbyPhase.Waiting)
     }
 
     final override fun getPhases(): List<LobbyPhase> {
-        return listOf(LobbyPhase.Waiting, LobbyPhase.Readying, LobbyPhase.Countdown)
+        return LobbyPhase.entries.toList()
     }
 
     override fun appendAdditionalDebugInfo(json: JsonObject) {
@@ -300,8 +305,7 @@ public open class LobbyMinigame(
         public val ID: ResourceLocation = Arcade.id("lobby")
     }
 
-    public enum class LobbyPhase(override val id: String):
-        net.casual.arcade.minigame.phase.Phase<LobbyMinigame> {
+    public enum class LobbyPhase(override val id: String): Phase<LobbyMinigame> {
         Waiting("waiting") {
             override fun start(minigame: LobbyMinigame) {
                 minigame.lobby.area.replace()

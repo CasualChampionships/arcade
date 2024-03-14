@@ -99,40 +99,31 @@ public object MinigameUtils {
         parseMinigameEvents(this, listener)
     }
 
-    public fun Minigame<*>.transferTo(next: Minigame<*>, start: Boolean = true, close: Boolean = true) {
-        if (next.closed) {
-            throw IllegalArgumentException("Cannot transfer to a closed minigame")
+    public fun Minigame<*>.transferPlayersTo(
+        next: Minigame<*>,
+        transferAdminStatus: Boolean = true,
+        transferSpectatorStatus: Boolean = true
+    ) {
+        val players = this.getAllPlayers()
+        for (player in players) {
+            val wasAdmin = this.isAdmin(player)
+            val wasSpectating = this.isSpectating(player)
+            next.addPlayer(player)
+            if (transferAdminStatus && wasAdmin) {
+                next.makeAdmin(player)
+            }
+            if (transferSpectatorStatus && wasSpectating) {
+                next.makeSpectator(player)
+            }
         }
+    }
 
+    public fun Minigame<*>.transferAdminAndSpectatorTeamsTo(next: Minigame<*>) {
         if (this.teams.hasSpectatorTeam()) {
             next.teams.setSpectatorTeam(this.teams.getSpectatorTeam())
         }
         if (this.teams.hasAdminTeam()) {
             next.teams.setAdminTeam(this.teams.getAdminTeam())
-        }
-
-        val players = this.getAllPlayers()
-        val delayed = ArrayList<() -> Unit>()
-        for (player in players) {
-            val wasAdmin = this.isAdmin(player)
-            val wasSpectating = this.isSpectating(player)
-            delayed.add {
-                next.addPlayer(player)
-                if (wasAdmin) {
-                    next.makeAdmin(player)
-                }
-                if (wasSpectating) {
-                    next.makeSpectator(player)
-                }
-            }
-        }
-        if (close) {
-            this.close()
-        }
-        delayed.forEach { it() }
-
-        if (start) {
-            next.start()
         }
     }
 
