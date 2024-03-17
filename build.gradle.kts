@@ -60,9 +60,10 @@ dependencies {
     include(modApi("eu.pb4:polymer-resource-pack:${property("polymer_version")}")!!)
     include(modApi("eu.pb4:polymer-virtual-entity:${property("polymer_version")}")!!)
 
+    include(modApi("com.github.senseiwells:CustomNameTags:${property("custom_nametags_version")}")!!)
+
     include(modApi("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")!!)
 
-    // Add ServerReplayAPI
     modImplementation("com.github.senseiwells:ServerReplay:${property("server_replay_version")}")
 }
 

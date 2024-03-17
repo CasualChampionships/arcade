@@ -193,7 +193,6 @@ public class MinigameUIManager(
 
     internal fun resendUI(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
         this.bossbars.forEach { it.resendToPlayer(player, sender) }
-        this.nameTags.forEach { it.resendToPlayer(player, sender) }
         this.sidebar?.resendToPlayer(player, sender)
         this.display?.resendToPlayer(player, sender)
     }

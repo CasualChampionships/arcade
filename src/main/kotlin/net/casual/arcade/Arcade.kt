@@ -85,14 +85,11 @@ public object Arcade: ModInitializer {
     }
 
     override fun onInitialize() {
-        CompatabilityUtils.noop()
-
         SidebarUtils.registerEvents()
         BossbarUtils.registerEvents()
         MinigameUtils.registerEvents()
         Minigames.registerEvents()
         TabUtils.registerEvents()
-        NameTagUtils.registerEvents()
         ResourcePackUtils.registerEvents()
         CommandUtils.registerEvents()
         BorderUtils.registerEvents()

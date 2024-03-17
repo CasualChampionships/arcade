@@ -1,12 +1,14 @@
 package net.casual.arcade.gui.nametag
 
-import eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment
+import me.senseiwells.nametag.api.NameTag
+import me.senseiwells.nametag.impl.NameTagUtils.addNameTag
+import me.senseiwells.nametag.impl.NameTagUtils.removeNameTag
+import me.senseiwells.nametag.impl.ShiftHeight
 import net.casual.arcade.gui.PlayerUI
 import net.casual.arcade.gui.predicate.PlayerObserverPredicate
 import net.casual.arcade.gui.suppliers.ComponentSupplier
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.utils.NameTagUtils.isWatching
-import net.casual.arcade.utils.NameTagUtils.nameTags
+import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.server.level.ServerPlayer
@@ -44,22 +46,32 @@ public class ArcadeNameTag(
      * The predicate to determine which players can see
      * the player's nametag.
      */
-    public val observable: PlayerObserverPredicate = PlayerObserverPredicate { _, _ -> true }
-): PlayerUI() {
+    public val observable: PlayerObserverPredicate = PlayerObserverPredicate { _, _ -> true },
+): PlayerUI(), NameTag {
+    override val updateInterval: Int
+        get() = this.interval
+
+    override fun getComponent(player: ServerPlayer): Component {
+        return this.tag.getComponent(player)
+    }
+
+    override fun getShift(): ShiftHeight {
+        return ShiftHeight.Medium
+    }
+
+    override fun isObservable(observee: ServerPlayer, observer: ServerPlayer): Boolean {
+        return this.observable.observable(observee, observer)
+    }
+
     override fun onAddPlayer(player: ServerPlayer) {
-        player.nameTags.addNameTag(this)
+        player.addNameTag(this)
     }
 
     override fun onRemovePlayer(player: ServerPlayer) {
-        player.nameTags.removeNameTag(this)
+        player.removeNameTag(this)
     }
 
     override fun resendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
-        for (other in this.getPlayers()) {
-            val holder = other.nameTags.getHolder(this) ?: continue
-            if (holder.isWatching(player)) {
-                holder.sendDataTo(player, sender, true)
-            }
-        }
+        // We do not need to handle this, CustomNameTags already handles it for us :)
     }
 }

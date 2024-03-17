@@ -19,6 +19,9 @@
         "adapter": "kotlin",
         "value": "net.casual.arcade.Arcade"
       }
+    ],
+    "server_replay": [
+      "net.casual.arcade.compat.ArcadeReplayPlugin"
     ]
   },
   "mixins": [

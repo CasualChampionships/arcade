@@ -40,7 +40,6 @@
     "events.ServerPlayerGameModeMixin",
     "events.ServerPlayerMixin",
     "events.TntBlockMixin",
-    "extensions.PlayerListMixin",
     "extensions.PlayerTeamMixin",
     "extensions.ScoreboardSaveDataMixin",
     "extensions.ServerGamePacketListenerImplMixin",
