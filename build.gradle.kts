@@ -17,6 +17,7 @@ kotlin {
 }
 
 repositories {
+    mavenLocal()
     maven {
         url = uri("https://maven.parchmentmc.org/")
     }
@@ -89,12 +90,7 @@ tasks {
                 groupId = "com.github.CasualChampionships"
                 artifactId = "arcade"
                 version = getGitHash()
-                artifact(remapJar) {
-                    builtBy(remapJar)
-                }
-                artifact(kotlinSourcesJar) {
-                    builtBy(remapSourcesJar)
-                }
+                from(project.components.getByName("java"))
             }
         }
 
