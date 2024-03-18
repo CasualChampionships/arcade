@@ -179,6 +179,16 @@ public object ComponentUtils {
     }
 
     @JvmStatic
+    public fun MutableComponent.strikethrough(): MutableComponent {
+        return this.withStyle(STRIKETHROUGH)
+    }
+
+    @JvmStatic
+    public fun MutableComponent.unstrikethrough(): MutableComponent {
+        return this.withStyle { it.withStrikethrough(false) }
+    }
+
+    @JvmStatic
     public fun ChatFormatting.prettyName(): String {
         return formattingToName[this] ?: this.getName()
     }
