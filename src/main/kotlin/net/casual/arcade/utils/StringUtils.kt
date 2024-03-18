@@ -1,7 +1,7 @@
 package net.casual.arcade.utils
 
 public object StringUtils {
-    private val SMALL_CAPS_ALPHABET = "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴩqʀꜱᴛᴜᴠᴡxyᴢ".toCharArray()
+    private val SMALL_CAPS_ALPHABET = "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘqʀꜱᴛᴜᴠᴡxyᴢ".toCharArray()
 
     public fun String.toSmallCaps(): String {
         val builder = StringBuilder()
