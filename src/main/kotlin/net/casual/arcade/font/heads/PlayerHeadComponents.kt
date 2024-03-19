@@ -67,7 +67,7 @@ public object PlayerHeadComponents {
         // I think it's more appropriate to make everything futures
         val future = runBlocking {
             future {
-                Kojang.getMojangUserProfile(name)
+                kotlin.runCatching { Kojang.getMojangUserProfile(name) }.getOrNull()
             }
         }.thenApply { profile ->
             if (profile == null) {
