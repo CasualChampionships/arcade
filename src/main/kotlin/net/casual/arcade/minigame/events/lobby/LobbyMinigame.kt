@@ -101,6 +101,8 @@ public open class LobbyMinigame(
         this.settings.canTakeDamage.set(false)
         this.settings.canAttackEntities.set(false)
         this.settings.canInteractAll = false
+
+        this.lobby.area.replace()
     }
 
     public open fun getTeamsToReady(): Collection<PlayerTeam> {
@@ -141,8 +143,8 @@ public open class LobbyMinigame(
         this.transferPlayersTo(next)
         next.start()
 
-        this.next = null
         this.setPhase(LobbyPhase.Waiting)
+        this.next = null
     }
 
     final override fun getPhases(): List<LobbyPhase> {
@@ -309,8 +311,6 @@ public open class LobbyMinigame(
     public enum class LobbyPhase(override val id: String): Phase<LobbyMinigame> {
         Waiting("waiting") {
             override fun start(minigame: LobbyMinigame) {
-                minigame.lobby.area.replace()
-
                 minigame.ui.addBossbar(minigame.bossbar)
                 for (player in minigame.getNonAdminPlayers()) {
                     player.setGameMode(GameType.ADVENTURE)

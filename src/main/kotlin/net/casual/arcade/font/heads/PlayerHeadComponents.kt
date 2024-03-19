@@ -98,6 +98,7 @@ public object PlayerHeadComponents {
                     if (x != 0) {
                         component.append(ComponentUtils.space(-1))
                     }
+                    // TODO: Hats on a different layer
                     val hat = Color(image.getRGB(x + 40, y + 8), true)
                     val base = Color(image.getRGB(x + 8, y + 8), true)
                     component.append(PlayerHeadFont.pixel(y).colour(base.overlayWith(hat).rgb))
