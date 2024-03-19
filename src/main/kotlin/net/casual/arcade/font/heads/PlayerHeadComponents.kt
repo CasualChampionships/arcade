@@ -1,7 +1,9 @@
 package net.casual.arcade.font.heads
 
 import dev.fruxz.kojang.Kojang
-import kotlinx.coroutines.future.future
+import kotlinx.coroutines.async
+import kotlinx.coroutines.future.asCompletableFuture
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import net.casual.arcade.Arcade
 import net.casual.arcade.utils.ComponentUtils
@@ -66,27 +68,28 @@ public object PlayerHeadComponents {
         // make this library Java friendly.
         // I think it's more appropriate to make everything futures
         val future = runBlocking {
-            future {
-                kotlin.runCatching { Kojang.getMojangUserProfile(name) }.getOrNull()
-            }
-        }.thenApply { profile ->
-            if (profile == null) {
-                this.invalidNames.add(name)
-                PlayerHeadFont.STEVE_HEAD
-            } else {
-                val uuid = UUID.fromString(profile.uuid)
-                this.nameToUUIDCache[name] = uuid
-                val cached = this.cache[uuid]
-                if (cached != null) {
-                    cached.join()
+            async {
+                val profile = kotlin.runCatching {
+                    Kojang.getMojangUserProfile(name)
+                }.getOrNull()
+                if (profile != null) {
+                    val uuid = UUID.fromString(profile.uuid)
+                    nameToUUIDCache[name] = uuid
+                    val cached = cache[uuid]
+                    if (cached != null) {
+                        cached.await()
+                    } else {
+                        val component = generateHead(profile.textures.skin.url)
+                        cache[uuid] = CompletableFuture.completedFuture(component)
+                        component
+                    }
                 } else {
-                    val component = this.generateHead(profile.textures.skin.url)
-                    this.cache[uuid] = CompletableFuture.completedFuture(component)
-                    component
+                    invalidNames.add(name)
+                    PlayerHeadFont.STEVE_HEAD
                 }
             }
         }
-        return future
+        return future.asCompletableFuture()
     }
 
     private fun generateHead(skinTextureUrl: String): Component {
