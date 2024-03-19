@@ -9,6 +9,7 @@ import net.casual.arcade.utils.ComponentUtils.colour
 import net.casual.arcade.utils.PlayerUtils
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
+import java.awt.Color
 import java.io.IOException
 import java.net.URL
 import java.util.*
@@ -97,7 +98,9 @@ public object PlayerHeadComponents {
                     if (x != 0) {
                         component.append(ComponentUtils.space(-1))
                     }
-                    component.append(PlayerHeadFont.pixel(y).colour(image.getRGB(x + 8, y + 8)))
+                    val hat = Color(image.getRGB(x + 40, y + 8), true)
+                    val base = Color(image.getRGB(x + 8, y + 8), true)
+                    component.append(PlayerHeadFont.pixel(y).colour(base.overlayWith(hat).rgb))
                 }
                 if (y != 7) {
                     component.append(ComponentUtils.space(-9))
@@ -108,5 +111,17 @@ public object PlayerHeadComponents {
             Arcade.logger.error("Failed to generate head texture from url: $skinTextureUrl", e)
             return PlayerHeadFont.STEVE_HEAD
         }
+    }
+
+    private fun Color.overlayWith(overlay: Color): Color {
+        val alphaRatio = overlay.alpha.toFloat() / 255
+        val invAlphaRatio = 1 - alphaRatio
+
+        val r = (overlay.red * alphaRatio + this.red * invAlphaRatio).toInt()
+        val g = (overlay.green * alphaRatio + this.green * invAlphaRatio).toInt()
+        val b = (overlay.blue * alphaRatio + this.blue * invAlphaRatio).toInt()
+        val a = maxOf(overlay.alpha, this.alpha)
+
+        return Color(r, g, b, a)
     }
 }
