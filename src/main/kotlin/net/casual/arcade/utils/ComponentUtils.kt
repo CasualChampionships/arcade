@@ -375,10 +375,14 @@ public object ComponentUtils {
         private val supplier: (String) -> MutableComponent,
         private val consumer: (MutableComponent.() -> Unit)?,
     ) {
-        public operator fun getValue(any: Any, property: KProperty<*>): MutableComponent {
+        public fun generate(): MutableComponent {
             val component = this.supplier(this.key)
             this.consumer?.invoke(component)
             return component
+        }
+
+        public operator fun getValue(any: Any, property: KProperty<*>): MutableComponent {
+            return this.generate()
         }
     }
 

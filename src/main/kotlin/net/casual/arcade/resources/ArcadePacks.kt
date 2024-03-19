@@ -2,6 +2,7 @@ package net.casual.arcade.resources
 
 import net.casual.arcade.Arcade
 import net.casual.arcade.utils.ComponentUtils.literal
+import kotlin.io.path.readBytes
 
 /**
  * Contains some commonly used resource packs.
@@ -11,6 +12,7 @@ public object ArcadePacks {
     public val ACTION_BAR_FONT_PACK: NamedResourcePackCreator
     public val SPACES_FONT_PACK: NamedResourcePackCreator
     public val NO_SHADOW_PACK: NamedResourcePackCreator
+    public val PLAYER_HEADS_PACK: NamedResourcePackCreator
 
     init {
         ACTION_BAR_FONT_PACK = NamedResourcePackCreator.named("action_bar_font") {
@@ -24,6 +26,12 @@ public object ArcadePacks {
         NO_SHADOW_PACK = NamedResourcePackCreator.named("no_shadow") {
             addAssetSource(Arcade.container.findPath("packs/NoShadow").get())
             packDescription = "Resource pack which provides utilities for removing text shadows".literal()
+        }
+        PLAYER_HEADS_PACK = NamedResourcePackCreator.named("player_heads") {
+            val path = Arcade.container.findPath("packs/PlayerHeads").get()
+            addAssetSource(path)
+            packIcon = path.resolve("assets/arcade/textures/font/steve.png").readBytes()
+            packDescription = "Resource pack which provides utilities for render player heads".literal()
         }
     }
 }
