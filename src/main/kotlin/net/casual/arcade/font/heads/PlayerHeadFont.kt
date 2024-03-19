@@ -6,9 +6,9 @@ import net.casual.arcade.utils.ComponentUtils
 import net.minecraft.network.chat.MutableComponent
 
 public object PlayerHeadFont: BitmapFont(Arcade.id("player_heads")) {
-    private val PIXEL_TEXTURE = texture("pixel")
     private val PIXELS = Array(8, ::register)
 
+    public val STEVE_HEAD: MutableComponent by add(texture("steve.png"), 8, 8)
     public val PIXEL_0: MutableComponent by PIXELS[0]
     public val PIXEL_1: MutableComponent by PIXELS[1]
     public val PIXEL_2: MutableComponent by PIXELS[2]
@@ -23,6 +23,6 @@ public object PlayerHeadFont: BitmapFont(Arcade.id("player_heads")) {
     }
 
     private fun register(index: Int): ComponentUtils.ConstantComponentGenerator {
-        return add(PIXEL_TEXTURE, index, 1)
+        return add(texture("pixel${index}.png"), 8, 8)
     }
 }

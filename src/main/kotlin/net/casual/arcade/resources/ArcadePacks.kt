@@ -1,7 +1,9 @@
 package net.casual.arcade.resources
 
 import net.casual.arcade.Arcade
+import net.casual.arcade.font.heads.PlayerHeadFont
 import net.casual.arcade.utils.ComponentUtils.literal
+import net.casual.arcade.utils.ResourcePackUtils.addBitmapFont
 import kotlin.io.path.readBytes
 
 /**
@@ -30,6 +32,7 @@ public object ArcadePacks {
         PLAYER_HEADS_PACK = NamedResourcePackCreator.named("player_heads") {
             val path = Arcade.container.findPath("packs/PlayerHeads").get()
             addAssetSource(path)
+            addBitmapFont(PlayerHeadFont)
             packIcon = path.resolve("assets/arcade/textures/font/steve.png").readBytes()
             packDescription = "Resource pack which provides utilities for render player heads".literal()
         }

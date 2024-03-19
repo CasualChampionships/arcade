@@ -18,21 +18,11 @@ kotlin {
 
 repositories {
     mavenLocal()
-    maven {
-        url = uri("https://maven.parchmentmc.org/")
-    }
-    maven {
-        url = uri("https://jitpack.io")
-    }
-    maven {
-        url = uri("https://ueaj.dev/maven")
-    }
-    maven {
-        url = uri("https://maven.nucleoid.xyz")
-    }
-    maven {
-        url = uri("https://oss.sonatype.org/content/repositories/snapshots")
-    }
+    maven("https://maven.parchmentmc.org/")
+    maven("https://jitpack.io")
+    maven("https://ueaj.dev/maven")
+    maven("https://maven.nucleoid.xyz")
+    maven("https://oss.sonatype.org/content/repositories/snapshots")
 }
 
 configurations.all {
