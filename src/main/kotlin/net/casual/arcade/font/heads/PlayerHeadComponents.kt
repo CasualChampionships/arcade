@@ -3,7 +3,6 @@ package net.casual.arcade.font.heads
 import dev.fruxz.kojang.Kojang
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.asCompletableFuture
-import kotlinx.coroutines.future.await
 import net.casual.arcade.Arcade
 import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.colour
@@ -18,8 +17,8 @@ import java.util.concurrent.ConcurrentHashMap
 import javax.imageio.ImageIO
 
 public object PlayerHeadComponents {
-    private val cache = ConcurrentHashMap<UUID, CompletableFuture<Component>>()
-    private val nameToUUIDCache = ConcurrentHashMap<String, UUID>()
+    private val uuidCache = ConcurrentHashMap<UUID, CompletableFuture<Component>>()
+    private val nameCache = ConcurrentHashMap<String, CompletableFuture<Component>>()
     private val invalidNames = ConcurrentHashMap.newKeySet<String>()
 
     private val default = CompletableFuture.completedFuture<Component>(PlayerHeadFont.STEVE_HEAD)
@@ -34,14 +33,15 @@ public object PlayerHeadComponents {
 
     public fun getHead(player: ServerPlayer): CompletableFuture<Component> {
         val uuid = player.uuid
-        if (this.cache.containsKey(uuid)) {
-            return this.cache[uuid]!!
+        if (this.uuidCache.containsKey(uuid)) {
+            return this.uuidCache[uuid]!!
         }
         val skinUrl = player.server.sessionService.getTextures(player.gameProfile).skin?.url ?: return this.default
         val future = CompletableFuture.supplyAsync {
             this.generateHead(skinUrl)
         }
-        this.cache[uuid] = future
+        this.uuidCache[uuid] = future
+        this.nameCache[player.scoreboardName] = future
         return future
     }
 
@@ -49,38 +49,34 @@ public object PlayerHeadComponents {
         if (this.invalidNames.contains(name)) {
             return this.default
         }
+        val cachedFuture = this.nameCache[name]
+        if (cachedFuture != null) {
+            return cachedFuture
+        }
 
         val player = PlayerUtils.player(name)
         if (player != null) {
             // This is faster since we don't have to look up uuid
             return this.getHead(player)
         }
-        val cachedUUID = this.nameToUUIDCache[name]
-        if (cachedUUID != null) {
-            val cached = this.cache[cachedUUID]
-            if (cached != null) {
-                return cached
-            }
-        }
 
         // I would use co-routines for everything, but I want to
         // make this library Java friendly.
         // I think it's more appropriate to make everything futures
         @OptIn(DelicateCoroutinesApi::class)
-        return GlobalScope.async {
+        val future = GlobalScope.async {
             kotlin.runCatching {
                 Kojang.getMojangUserProfile(name)
             }.getOrNull()
         }.asCompletableFuture().thenApply { profile ->
             if (profile != null) {
                 val uuid = UUID.fromString(profile.uuid)
-                nameToUUIDCache[name] = uuid
-                val cached = cache[uuid]
+                val cached = uuidCache[uuid]
                 if (cached != null) {
                     cached.join()
                 } else {
                     val component = generateHead(profile.textures.skin.url)
-                    cache[uuid] = CompletableFuture.completedFuture(component)
+                    uuidCache[uuid] = CompletableFuture.completedFuture(component)
                     component
                 }
             } else {
@@ -88,6 +84,8 @@ public object PlayerHeadComponents {
                 PlayerHeadFont.STEVE_HEAD
             }
         }
+        this.nameCache[name] = future
+        return future
     }
 
     private fun generateHead(skinTextureUrl: String): Component {
