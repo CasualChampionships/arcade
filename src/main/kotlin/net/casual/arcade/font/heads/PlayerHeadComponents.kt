@@ -65,8 +65,7 @@ public object PlayerHeadComponents {
         // I would use co-routines for everything, but I want to
         // make this library Java friendly.
         // I think it's more appropriate to make everything futures
-        var future: CompletableFuture<Component>? = null
-        future = runBlocking {
+        val future = runBlocking {
             future {
                 Kojang.getMojangUserProfile(name)
             }
@@ -81,8 +80,8 @@ public object PlayerHeadComponents {
                 if (cached != null) {
                     cached.join()
                 } else {
-                    this.cache[uuid] = future!!
                     val component = this.generateHead(profile.textures.skin.url)
+                    this.cache[uuid] = CompletableFuture.completedFuture(component)
                     component
                 }
             }
