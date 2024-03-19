@@ -10,7 +10,7 @@ public fun interface ChatFormatter {
     public fun format(message: Component): Component
 
     public companion object {
-        private val separator = Component.literal(" ".repeat(53)).strikethrough()
+        private val separator = Component.literal(" ".repeat(80)).strikethrough()
 
         public val SYSTEM: ChatFormatter = ChatFormatter {
             Component.empty().append("[\uD83D\uDCBB] ".literal().colour(0xA9A9A9)).append(it)
