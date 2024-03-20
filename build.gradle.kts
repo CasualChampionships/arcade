@@ -9,54 +9,78 @@ plugins {
     java
 }
 
-group = property("maven_group")!!
-version = property("mod_version")!!
+val modVersion: String by project
+version = modVersion
+group = "net.casual"
 
-kotlin {
-    explicitApi()
-}
+val minecraftVersion: String by project
+val parchmentVersion: String by project
+val loaderVersion: String by project
+val fabricVersion: String by project
+val fabricKotlinVersion: String by project
 
-repositories {
-    mavenLocal()
-    maven("https://maven.parchmentmc.org/")
-    maven("https://jitpack.io")
-    maven("https://ueaj.dev/maven")
-    maven("https://maven.nucleoid.xyz")
-    maven("https://oss.sonatype.org/content/repositories/snapshots")
-    maven("https://repo.fruxz.dev/releases/")
+val fantasyVersion: String by project
+val polymerVersion: String by project
+val permissionsVersion: String by project
+val customNametagsVersion: String by project
+val serverReplayVersion: String by project
+
+allprojects {
+    apply(plugin = "fabric-loom")
+    apply(plugin = "maven-publish")
+    apply(plugin = "org.jetbrains.kotlin.jvm")
+
+    repositories {
+        mavenLocal()
+        maven("https://maven.parchmentmc.org/")
+        maven("https://jitpack.io")
+        maven("https://ueaj.dev/maven")
+        maven("https://maven.nucleoid.xyz")
+        maven("https://oss.sonatype.org/content/repositories/snapshots")
+        maven("https://repo.fruxz.dev/releases/")
+    }
+
+    dependencies {
+        minecraft("com.mojang:minecraft:$minecraftVersion")
+        @Suppress("UnstableApiUsage")
+        mappings(loom.layered {
+            officialMojangMappings()
+            parchment("org.parchmentmc.data:parchment-$parchmentVersion@zip")
+        })
+        modImplementation("net.fabricmc:fabric-loader:$loaderVersion")
+        modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
+
+        modImplementation("net.fabricmc:fabric-language-kotlin:$fabricKotlinVersion")
+    }
+
+    kotlin {
+        explicitApi()
+    }
+
+    java {
+        withSourcesJar()
+    }
 }
 
 configurations.all {
     resolutionStrategy {
-        force("net.fabricmc:fabric-loader:${property("loader_version")}")
+        force("net.fabricmc:fabric-loader:$loaderVersion")
     }
 }
 
-@Suppress("UnstableApiUsage")
 dependencies {
-    minecraft("com.mojang:minecraft:${property("minecraft_version")}")
-    mappings(loom.layered {
-        officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-${property("parchment_version")}@zip")
-    })
-    modImplementation("net.fabricmc:fabric-loader:${property("loader_version")}")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_version")}")
+    include(modApi("xyz.nucleoid:fantasy:$fantasyVersion")!!)
 
-    // modImplementation("xyz.nucleoid:server-translations-api:${property("server_translations_api_version")}")
-    modImplementation("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin_version")}")
+    include(modApi("eu.pb4:polymer-core:$polymerVersion")!!)
+    include(modApi("eu.pb4:polymer-blocks:$polymerVersion")!!)
+    include(modApi("eu.pb4:polymer-resource-pack:$polymerVersion")!!)
+    include(modApi("eu.pb4:polymer-virtual-entity:$polymerVersion")!!)
 
-    include(modApi("xyz.nucleoid:fantasy:${property("fantasy_version")}")!!)
+    include(modApi("com.github.senseiwells:CustomNameTags:$customNametagsVersion")!!)
 
-    include(modApi("eu.pb4:polymer-core:${property("polymer_version")}")!!)
-    include(modApi("eu.pb4:polymer-blocks:${property("polymer_version")}")!!)
-    include(modApi("eu.pb4:polymer-resource-pack:${property("polymer_version")}")!!)
-    include(modApi("eu.pb4:polymer-virtual-entity:${property("polymer_version")}")!!)
+    include(modApi("me.lucko:fabric-permissions-api:$permissionsVersion")!!)
 
-    include(modApi("com.github.senseiwells:CustomNameTags:${property("custom_nametags_version")}")!!)
-
-    include(modApi("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")!!)
-
-    modImplementation("com.github.senseiwells:ServerReplay:${property("server_replay_version")}")
+    modImplementation("com.github.senseiwells:ServerReplay:$serverReplayVersion")
 }
 
 loom {
@@ -75,28 +99,20 @@ tasks {
         from("LICENSE")
     }
 
-    publishing {
-        publications {
-            create<MavenPublication>("arcade") {
-                groupId = "com.github.CasualChampionships"
-                artifactId = "arcade"
-                version = getGitHash()
-                from(project.components.getByName("java"))
-            }
-        }
-
-        repositories {
-
-        }
-    }
-
     compileKotlin {
         kotlinOptions.jvmTarget = "17"
     }
 }
 
-java {
-    withSourcesJar()
+publishing {
+    publications {
+        create<MavenPublication>("arcade") {
+            groupId = "com.github.CasualChampionships"
+            artifactId = "arcade"
+            version = getGitHash()
+            from(project.components.getByName("java"))
+        }
+    }
 }
 
 fun getGitHash(): String {
