@@ -38,6 +38,7 @@ allprojects {
         maven("https://maven.nucleoid.xyz")
         maven("https://oss.sonatype.org/content/repositories/snapshots")
         maven("https://repo.fruxz.dev/releases/")
+        mavenCentral()
     }
 
     dependencies {
@@ -59,6 +60,23 @@ allprojects {
 
     java {
         withSourcesJar()
+    }
+
+    tasks {
+        processResources {
+            inputs.property("version", version)
+            filesMatching("fabric.mod.json") {
+                expand(mutableMapOf("version" to version))
+            }
+        }
+
+        jar {
+            from("LICENSE")
+        }
+
+        compileKotlin {
+            kotlinOptions.jvmTarget = "17"
+        }
     }
 }
 
@@ -110,7 +128,7 @@ publishing {
             groupId = "com.github.CasualChampionships"
             artifactId = "arcade"
             version = getGitHash()
-            from(project.components.getByName("java"))
+            from(components["java"])
         }
     }
 }

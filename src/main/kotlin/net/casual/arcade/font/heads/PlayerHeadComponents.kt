@@ -87,12 +87,17 @@ public object PlayerHeadComponents {
                 invalidNames.add(name)
                 return@thenApply PlayerHeadFont.STEVE_HEAD
             }
-            val profile = optional.get()
-            val uuid = profile.id
+            val uuid = optional.get().id
+            // If they're in the uuid cache, they should've been
+            // in the nameCache too, but we might as well check...
             val cached = uuidCache[uuid]
             if (!force && cached != null) {
                 return@thenApply cached.join()
             }
+
+            // The previous profile didn't have textures
+            val profile = server.sessionService.fetchProfile(uuid, true)?.profile
+                ?: return@thenApply PlayerHeadFont.STEVE_HEAD
             val skinUrl = this.getSkinUrl(profile, server) ?: return@thenApply PlayerHeadFont.STEVE_HEAD
             val component = generateHead(skinUrl)
             if (exists) {
