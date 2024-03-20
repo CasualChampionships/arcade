@@ -56,12 +56,6 @@ dependencies {
 
     include(modApi("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")!!)
 
-    include(implementation("dev.fruxz:kojang:${property("kojang_version")}")!!)
-    include(implementation("io.ktor:ktor-client-cio:${property("ktor_version")}")!!)
-    include(implementation("io.ktor:ktor-client-core-jvm:${property("ktor_version")}")!!)
-    include(implementation("io.ktor:ktor-serialization-kotlinx-json:${property("ktor_version")}")!!)
-    include(implementation("io.ktor:ktor-client-content-negotiation:${property("ktor_version")}")!!)
-
     modImplementation("com.github.senseiwells:ServerReplay:${property("server_replay_version")}")
 }
 

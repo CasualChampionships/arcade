@@ -1,13 +1,12 @@
 package net.casual.arcade.font.heads
 
-import dev.fruxz.kojang.Kojang
-import kotlinx.coroutines.*
-import kotlinx.coroutines.future.asCompletableFuture
+import com.mojang.authlib.GameProfile
 import net.casual.arcade.Arcade
 import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.colour
 import net.casual.arcade.utils.PlayerUtils
 import net.minecraft.network.chat.Component
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import java.awt.Color
 import java.io.IOException
@@ -37,7 +36,7 @@ public object PlayerHeadComponents {
         if (this.uuidCache.containsKey(uuid)) {
             return this.uuidCache[uuid]!!
         }
-        val skinUrl = player.server.sessionService.getTextures(player.gameProfile).skin?.url ?: return this.default
+        val skinUrl = this.getSkinUrl(player.gameProfile, player.server) ?: return this.default
         val future = CompletableFuture.supplyAsync {
             this.generateHead(skinUrl)
         }
@@ -46,7 +45,7 @@ public object PlayerHeadComponents {
         return future
     }
 
-    public fun getHead(name: String): CompletableFuture<Component> {
+    public fun getHead(name: String, server: MinecraftServer = Arcade.getServer()): CompletableFuture<Component> {
         if (this.invalidNames.contains(name)) {
             return this.default
         }
@@ -61,32 +60,28 @@ public object PlayerHeadComponents {
             return this.getHead(player)
         }
 
-        // I would use co-routines for everything, but I want to
-        // make this library Java friendly.
-        // I think it's more appropriate to make everything futures
-        @OptIn(DelicateCoroutinesApi::class)
-        val future = GlobalScope.async {
-            kotlin.runCatching {
-                Kojang.getMojangUserProfile(name)
-            }.getOrNull()
-        }.asCompletableFuture().thenApply { profile ->
-            if (profile != null) {
-                val uuid = UUID.fromString(profile.uuid)
-                val cached = uuidCache[uuid]
-                if (cached != null) {
-                    cached.join()
-                } else {
-                    val component = generateHead(profile.textures.skin.url)
-                    uuidCache[uuid] = CompletableFuture.completedFuture(component)
-                    component
-                }
-            } else {
+        val future = server.profileCache!!.getAsync(name).thenApply { optional ->
+            if (optional.isEmpty) {
                 invalidNames.add(name)
-                PlayerHeadFont.STEVE_HEAD
+                return@thenApply PlayerHeadFont.STEVE_HEAD
             }
+            val profile = optional.get()
+            val uuid = profile.id
+            val cached = uuidCache[uuid]
+            if (cached != null) {
+                return@thenApply cached.join()
+            }
+            val skinUrl = this.getSkinUrl(profile, server) ?: return@thenApply PlayerHeadFont.STEVE_HEAD
+            val component = generateHead(skinUrl)
+            uuidCache[uuid] = CompletableFuture.completedFuture(component)
+            component
         }
         this.nameCache[name] = future
         return future
+    }
+
+    private fun getSkinUrl(profile: GameProfile, server: MinecraftServer): String? {
+        return server.sessionService.getTextures(profile).skin?.url
     }
 
     private fun generateHead(skinTextureUrl: String): Component {
@@ -98,7 +93,6 @@ public object PlayerHeadComponents {
                     if (x != 0) {
                         component.append(ComponentUtils.space(-1))
                     }
-                    // TODO: Hats on a different layer
                     val hat = Color(image.getRGB(x + 40, y + 8), true)
                     val base = Color(image.getRGB(x + 8, y + 8), true)
                     component.append(PlayerHeadFont.pixel(y).colour(base.overlayWith(hat).rgb))
