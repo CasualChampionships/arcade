@@ -341,8 +341,6 @@ public open class LobbyMinigame(
 
             override fun end(minigame: LobbyMinigame) {
                 minigame.moveToNextMinigame()
-
-                minigame.lobby.area.removeAllButPlayers()
             }
         }
     }
