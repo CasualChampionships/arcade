@@ -156,6 +156,7 @@ public class ArcadePlayerListDisplay(
                 entry.display,
                 null
             ))
+            this.sendToAllPlayers(packet)
         }
         return null
     }
