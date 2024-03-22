@@ -24,6 +24,7 @@ import kotlin.reflect.KProperty
 
 public object ComponentUtils {
     public val SPACES_FONT: ResourceLocation = ResourceLocation("space", "spaces")
+    public val MINI_FONT: ResourceLocation = Arcade.id("mini_minecraft")
     public val DEFAULT_SHIFTED_DOWN_1_FONT: ResourceLocation = Arcade.id("default_shifted_down_1")
     public val DEFAULT_SHIFTED_DOWN_2_FONT: ResourceLocation = Arcade.id("default_shifted_down_2")
     public val DEFAULT_SHIFTED_DOWN_3_FONT: ResourceLocation = Arcade.id("default_shifted_down_3")
@@ -348,6 +349,10 @@ public object ComponentUtils {
 
     public fun MutableComponent.shadowless(): MutableComponent {
         return this.colour(0x4E5C24)
+    }
+
+    public fun MutableComponent.mini(): MutableComponent {
+        return this.withFont(MINI_FONT)
     }
 
     public fun literal(key: String, modifier: (MutableComponent.() -> Unit)? = null): ConstantComponentGenerator {
