@@ -187,7 +187,7 @@ public class ArcadePlayerListDisplay(
     private fun createProfileForIndex(index: Int): GameProfile {
         return GameProfile(
             this.createUUIDForIndex(index),
-            index.toString()
+            index.toString().padStart(4, '0')
         )
     }
 

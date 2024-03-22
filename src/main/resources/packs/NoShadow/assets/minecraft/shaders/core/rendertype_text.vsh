@@ -26,9 +26,9 @@ void main() {
     texCoord0 = UV0;
 
     // NoShadow behavior (https://github.com/PuckiSilver/NoShadow)
-    if (Color.xyz == vec3(78/255., 92/255., 36/255.) && (Position.z == 0.03 || Position.z == 0.06 || Position.z == 0.12)) {
+    if (Color.xyz == vec3(78 / 255.0, 92 / 255.0, 36 / 255.0) && (Position.z == 0.03 || Position.z == 0.06 || Position.z == 0.12)) {
         vertexColor.rgb = texelFetch(Sampler2, UV2 / 16, 0).rgb; // remove color from no shadow marker
-    } else if (Color.xyz == vec3(19/255., 23/255., 9/255.) && Position.z == 0) {
+    } else if (Color.xyz == vec3(19 / 255.0, 23 / 255.0, 9 / 255.0) && Position.z == 0) {
         gl_Position = vec4(2,2,2,1); // move shadow off screen
     }
 }
