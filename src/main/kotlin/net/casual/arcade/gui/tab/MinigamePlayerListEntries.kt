@@ -4,17 +4,20 @@ import net.casual.arcade.minigame.Minigame
 import net.minecraft.server.level.ServerPlayer
 
 public class MinigamePlayerListEntries(
-    public val minigame: Minigame<*>
+    public val minigame: Minigame<*>,
+    private val order: Comparator<ServerPlayer> = VanillaPlayerListEntries.DEFAULT_ORDER
 ): PlayerListEntries {
-    private var cached: List<ServerPlayer> = listOf()
+    private var entries: List<ServerPlayer> = listOf()
+
     override val size: Int
-        get() {
-            this.cached = this.minigame.getAllPlayers()
-            return this.cached.size
-        }
+        get() = this.minigame.getTotalPlayerCount()
 
     override fun getEntryAt(index: Int): PlayerListEntries.Entry {
-        val player = this.cached[index]
+        val player = this.entries[index]
         return PlayerListEntries.Entry.fromPlayer(player)
+    }
+
+    override fun updateEntries() {
+        this.entries = this.minigame.getAllPlayers().sortedWith(this.order)
     }
 }

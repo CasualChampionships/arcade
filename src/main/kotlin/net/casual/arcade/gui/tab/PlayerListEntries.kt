@@ -5,11 +5,18 @@ import com.mojang.authlib.properties.Property
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
+import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 public interface PlayerListEntries {
     public val size: Int
 
+    @OverrideOnly
     public fun getEntryAt(index: Int): Entry
+
+    @OverrideOnly
+    public fun updateEntries() {
+
+    }
 
     public data class Entry(
         val display: Component,

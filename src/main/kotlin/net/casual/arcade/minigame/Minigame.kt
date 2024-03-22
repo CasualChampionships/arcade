@@ -480,6 +480,9 @@ public abstract class Minigame<M: Minigame<M>>(
         return false
     }
 
+    public fun getTotalPlayerCount(): Int {
+        return this.connections.size
+    }
 
     /**
      * This gets all the tracked players in this minigame.
