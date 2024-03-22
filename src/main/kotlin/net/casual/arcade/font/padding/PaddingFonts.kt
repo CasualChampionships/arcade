@@ -15,12 +15,13 @@ private val SIZE_RANGE = -SIZE..SIZE
 public object PaddingSplitFont: IndexedBitmapFont(Arcade.id("padding_split")) {
     init {
         for (i in SIZE_RANGE) {
-            indexed(SPLIT_TEXTURE, ASCENT, i)
+            if (i != 0) {
+                indexed(SPLIT_TEXTURE, ASCENT, i)
+            }
         }
     }
 
     public fun padding(amount: Int): MutableComponent {
-        require(amount in SIZE_RANGE) { "Cannot get padding outside of range $amount" }
         return this.get(amount + SIZE - 2)
     }
 }
@@ -28,12 +29,13 @@ public object PaddingSplitFont: IndexedBitmapFont(Arcade.id("padding_split")) {
 public object PaddingNoSplitFont: IndexedBitmapFont(Arcade.id("padding_no_split")) {
     init {
         for (i in SIZE_RANGE) {
-            indexed(NO_SPLIT_TEXTURE, ASCENT, i)
+            if (i != 0) {
+                indexed(NO_SPLIT_TEXTURE, ASCENT, i)
+            }
         }
     }
 
     public fun padding(amount: Int): MutableComponent {
-        require(amount in SIZE_RANGE) { "Cannot get padding outside of range $amount" }
         return this.get(amount + SIZE - 2)
     }
 }
