@@ -21,7 +21,7 @@ public object PaddingSplitFont: IndexedBitmapFont(Arcade.id("padding_split")) {
 
     public fun padding(amount: Int): MutableComponent {
         require(amount in SIZE_RANGE) { "Cannot get padding outside of range $amount" }
-        return this.get(amount)
+        return this.get(amount + SIZE - 2)
     }
 }
 
@@ -34,6 +34,6 @@ public object PaddingNoSplitFont: IndexedBitmapFont(Arcade.id("padding_no_split"
 
     public fun padding(amount: Int): MutableComponent {
         require(amount in SIZE_RANGE) { "Cannot get padding outside of range $amount" }
-        return this.get(amount)
+        return this.get(amount + SIZE - 2)
     }
 }
