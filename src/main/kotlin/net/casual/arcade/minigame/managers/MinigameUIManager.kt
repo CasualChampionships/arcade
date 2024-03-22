@@ -2,6 +2,7 @@ package net.casual.arcade.minigame.managers
 
 import net.casual.arcade.events.minigame.MinigameAddPlayerEvent
 import net.casual.arcade.events.minigame.MinigameRemovePlayerEvent
+import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.gui.PlayerUI
 import net.casual.arcade.gui.TickableUI
 import net.casual.arcade.gui.bossbar.CustomBossBar
@@ -62,6 +63,9 @@ public class MinigameUIManager(
             this.bossbars.forEach { it.removePlayer(player) }
             this.sidebar?.removePlayer(player)
             this.display?.removePlayer(player)
+        }
+        this.minigame.events.register<PlayerJoinEvent> {
+            this.display?.onPlayerJoin(it.player)
         }
     }
 

@@ -3,6 +3,7 @@ package net.casual.arcade.gui.tab
 import com.mojang.authlib.GameProfile
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils
 import net.casual.arcade.gui.PlayerUI
+import net.casual.arcade.gui.TickableUI
 import net.casual.arcade.gui.suppliers.ComponentSupplier
 import net.casual.arcade.gui.tab.PlayerListEntries.Entry
 import net.casual.arcade.utils.TabUtils.tabDisplay
@@ -20,7 +21,7 @@ import kotlin.collections.ArrayList
 
 public class ArcadePlayerListDisplay(
     private val display: PlayerListEntries
-): PlayerUI() {
+): PlayerUI(), TickableUI {
     private val previous = ArrayList<Entry>()
 
     public var header: ComponentSupplier = ComponentSupplier.empty()
@@ -37,7 +38,7 @@ public class ArcadePlayerListDisplay(
         }
     }
 
-    public fun tick() {
+    public override fun tick() {
         // We try to be as efficient as possible with these packets
         val adding = PolymerEntityUtils.createMutablePlayerListPacket(EnumSet.allOf(Action::class.java))
         val removing = ClientboundPlayerInfoRemovePacket(ArrayList())
@@ -72,6 +73,12 @@ public class ArcadePlayerListDisplay(
         if (entries.isNotEmpty()) {
             this.sendToAllPlayers(adding)
         }
+    }
+
+    public fun onPlayerJoin(player: ServerPlayer) {
+        val hiding = PolymerEntityUtils.createMutablePlayerListPacket(EnumSet.of(Action.UPDATE_LISTED))
+        hiding.entries().add(this.hidingClientboundEntry(player, true))
+        this.sendToAllPlayers(hiding)
     }
 
     override fun onAddPlayer(player: ServerPlayer) {
