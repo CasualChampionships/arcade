@@ -34,7 +34,7 @@ public object ComponentUtils {
     private val formattingToName = HashMap<ChatFormatting, String>()
 
     init {
-        for (formatting in ChatFormatting.values()) {
+        for (formatting in entries) {
             val colour = formatting.color ?: continue
             this.formattingByColour[colour] = formatting
         }

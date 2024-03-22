@@ -71,7 +71,6 @@ public class ArcadePlayerListDisplay(
         if (uuids.isNotEmpty()) {
             this.sendToAllPlayers(removing)
         }
-        // TODO: Debug why this doesn't work with textures!?
         if (entries.isNotEmpty()) {
             this.sendToAllPlayers(adding)
         }
