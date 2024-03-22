@@ -1,7 +1,7 @@
 package net.casual.arcade.gui.extensions
 
 import net.casual.arcade.extensions.PlayerExtension
-import net.casual.arcade.gui.tab.ArcadeTabDisplay
+import net.casual.arcade.gui.tab.ArcadePlayerListDisplay
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
@@ -14,7 +14,7 @@ internal class PlayerTabDisplayExtension(
 ): PlayerExtension(owner) {
     private var previousHeader: Component? = null
     private var previousFooter: Component? = null
-    private var current: ArcadeTabDisplay? = null
+    private var current: ArcadePlayerListDisplay? = null
 
     private var ticks = 0
 
@@ -37,7 +37,7 @@ internal class PlayerTabDisplayExtension(
         this.player.connection.send(ClientboundTabListPacket(header, footer))
     }
 
-    internal fun set(display: ArcadeTabDisplay) {
+    internal fun set(display: ArcadePlayerListDisplay) {
         val current = this.current
         if (current !== null) {
             current.removePlayer(this.player)

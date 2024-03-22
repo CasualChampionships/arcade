@@ -27,4 +27,14 @@ public object CollectionUtils {
             this.add(sorted[j++])
         }
     }
+
+    public fun <T> MutableList<T>.resizeAndFill(newSize: Int, defaultValue: T) {
+        if (newSize > this.size) {
+            for (i in this.size ..< newSize) {
+                this.add(defaultValue)
+            }
+        } else if (newSize < this.size) {
+            this.subList(newSize, this.size).clear()
+        }
+    }
 }

@@ -82,6 +82,17 @@ public abstract class PlayerUI {
         return this.connections.map { it.player }
     }
 
+    /**
+     * This sends a given packet to all watching players.
+     *
+     * @param packet The packet to send.
+     */
+    public fun sendToAllPlayers(packet: Packet<*>) {
+        for (connection in this.connections) {
+            connection.send(packet)
+        }
+    }
+
     internal fun resendToPlayer(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
         if (this.connections.contains(player.connection)) {
             this.resendTo(player, sender)

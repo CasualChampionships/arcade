@@ -9,7 +9,7 @@ import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.gui.countdown.TitledCountdown
 import net.casual.arcade.gui.nametag.ArcadeNameTag
 import net.casual.arcade.gui.sidebar.ArcadeSidebar
-import net.casual.arcade.gui.tab.ArcadeTabDisplay
+import net.casual.arcade.gui.tab.ArcadePlayerListDisplay
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.lobby.ReadyChecker
 import net.minecraft.network.protocol.Packet
@@ -34,7 +34,7 @@ public class MinigameUIManager(
     private val tickables: MutableSet<TickableUI>
 
     private var sidebar: ArcadeSidebar?
-    private var display: ArcadeTabDisplay?
+    private var display: ArcadePlayerListDisplay?
 
     public var countdown: Countdown
     public var readier: ReadyChecker
@@ -161,15 +161,15 @@ public class MinigameUIManager(
     }
 
     /**
-     * This sets the [ArcadeTabDisplay] for the minigame.
+     * This sets the [ArcadePlayerListDisplay] for the minigame.
      *
      * This tab display will be displayed to all the players
      * in the minigame.
      *
      * @param display The tab display to set.
      */
-    public fun setTabDisplay(display: ArcadeTabDisplay) {
-        this.removeTabDisplay()
+    public fun setPlayerListDisplay(display: ArcadePlayerListDisplay) {
+        this.removePlayerListDisplay()
         this.display = display
         this.loadUI(display)
     }
@@ -180,7 +180,7 @@ public class MinigameUIManager(
      * All players who were displayed the tab display
      * will no longer be displayed the tab display.
      */
-    public fun removeTabDisplay() {
+    public fun removePlayerListDisplay() {
         this.removeUI(this.display)
         this.display = null
     }

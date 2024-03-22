@@ -12,7 +12,6 @@ import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.gui.bossbar.CustomBossBar
 import net.casual.arcade.gui.nametag.ArcadeNameTag
 import net.casual.arcade.gui.sidebar.ArcadeSidebar
-import net.casual.arcade.gui.tab.ArcadeTabDisplay
 import net.casual.arcade.minigame.MinigameResources.Companion.removeFrom
 import net.casual.arcade.minigame.MinigameResources.Companion.sendTo
 import net.casual.arcade.minigame.MinigameResources.MultiMinigameResources
@@ -62,7 +61,7 @@ import java.util.*
  * has its own [EventHandler], and own [TickedScheduler].
  * Minigames also provide a way to display the UI to all
  * the currently playing players, through [CustomBossBar]s,
- * [ArcadeSidebar], [ArcadeTabDisplay], and [ArcadeNameTag]s.
+ * [ArcadeSidebar], [ArcadePlayerList], and [ArcadeNameTag]s.
  *
  * The minigame keeps track of who is currently playing,
  * this can be accessed through [getAllPlayers].
