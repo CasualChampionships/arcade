@@ -63,7 +63,7 @@ public class ArcadePlayerListDisplay(
             val entry = this.checkEntryUpdate(i) ?: continue
             val clientbound = this.toClientboundEntry(i, entry)
             entries.add(clientbound)
-            if (i <= previousSize) {
+            if (i < previousSize) {
                 uuids.add(clientbound.profileId)
             }
         }
@@ -71,6 +71,7 @@ public class ArcadePlayerListDisplay(
         if (uuids.isNotEmpty()) {
             this.sendToAllPlayers(removing)
         }
+        // TODO: Debug why this doesn't work with textures!?
         if (entries.isNotEmpty()) {
             this.sendToAllPlayers(adding)
         }

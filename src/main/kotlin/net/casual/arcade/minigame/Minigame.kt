@@ -433,7 +433,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.tryInitialize()
 
         val wasOffline = this.offline.remove(player.gameProfile)
-        if (wasOffline || this.connections.remove(player.connection)) {
+        if (wasOffline || this.connections.contains(player.connection)) {
             if (wasOffline) {
                 Arcade.logger.warn("Removed offline player?!")
             }
@@ -442,6 +442,7 @@ public abstract class Minigame<M: Minigame<M>>(
             this.removeAdmin(player)
 
             MinigameRemovePlayerEvent(this, player).broadcast()
+            this.connections.remove(player.connection)
             player.minigame.removeMinigame()
             return true
         }
