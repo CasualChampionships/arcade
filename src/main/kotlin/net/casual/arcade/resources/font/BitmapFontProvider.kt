@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceLocation
 @Serializable
 @SerialName("bitmap")
 public data class BitmapFontProvider(
+    @SerialName("file")
     @Serializable(with = ResourceLocationSerializer::class)
     val texture: ResourceLocation,
     val ascent: Int = 8,

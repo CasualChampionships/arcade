@@ -125,7 +125,7 @@ public object ResourcePackUtils {
     public fun ResourcePackCreator.addSounds(sounds: SoundResources) {
         this.creationEvent.register { builder ->
             // We can only have 1 sounds.json
-            val path = "assets/${sounds.id.namespace}/sounds.json"
+            val path = "assets/${sounds.namespace}/sounds.json"
             val gson = Gson()
             val json = JsonObject()
             val existing = builder.getData(path)
@@ -141,7 +141,7 @@ public object ResourcePackUtils {
                 json.add(string, element)
             }
 
-            builder.addData("assets/${sounds.id.namespace}/sounds.json", gson.toJson(json).encodeToByteArray())
+            builder.addData("assets/${sounds.namespace}/sounds.json", gson.toJson(json).encodeToByteArray())
         }
     }
 
