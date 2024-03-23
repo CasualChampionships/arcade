@@ -57,7 +57,7 @@ public abstract class SoundResources(
     }
 
     protected fun at(path: String): ResourceLocation {
-        return ResourceLocation(this.namespace, if (path.endsWith(".ogg")) path else "$path.ogg")
+        return ResourceLocation(this.namespace, path)
     }
 
     internal fun getJson(): String {
