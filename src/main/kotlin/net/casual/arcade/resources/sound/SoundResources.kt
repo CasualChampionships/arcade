@@ -10,7 +10,7 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceLocation
 
 public abstract class SoundResources(
-    public val id: ResourceLocation
+    public val namespace: String
 ) {
     private val providers = LinkedHashMap<String, List<SoundProvider>>()
 
@@ -26,7 +26,7 @@ public abstract class SoundResources(
     ): PolymerSoundEvent {
         val provider = SoundProvider(location, volume, pitch, 1, stream, attenuationDistance, preload, Sound)
         this.providers[id] = listOf(provider)
-        return this.register(ResourceLocation(this.id.namespace, id), attenuationDistance, isStatic)
+        return this.register(ResourceLocation(this.namespace, id), attenuationDistance, isStatic)
     }
 
     protected fun event(
@@ -41,7 +41,7 @@ public abstract class SoundResources(
     ): PolymerSoundEvent {
         val provider = SoundProvider(location, volume, pitch, 1, stream, attenuationDistance, preload, Event)
         this.providers[id] = listOf(provider)
-        return this.register(ResourceLocation(this.id.namespace, id), attenuationDistance, isStatic)
+        return this.register(ResourceLocation(this.namespace, id), attenuationDistance, isStatic)
     }
 
     protected fun group(
@@ -53,11 +53,11 @@ public abstract class SoundResources(
         val grouped = GroupedSoundProvider()
         grouped.builder()
         this.providers[id] = grouped.getProviders()
-        return this.register(ResourceLocation(this.id.namespace, id), attenuationDistance, isStatic)
+        return this.register(ResourceLocation(this.namespace, id), attenuationDistance, isStatic)
     }
 
     protected fun at(path: String): ResourceLocation {
-        return ResourceLocation(this.id.namespace, if (path.endsWith(".ogg")) path else "$path.ogg")
+        return ResourceLocation(this.namespace, if (path.endsWith(".ogg")) path else "$path.ogg")
     }
 
     internal fun getJson(): String {
