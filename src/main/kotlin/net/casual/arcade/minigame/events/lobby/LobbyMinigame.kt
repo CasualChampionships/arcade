@@ -15,6 +15,7 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.scheduler.MinecraftTimeUnit
+import net.casual.arcade.task.impl.CancellableTask
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.success
@@ -53,6 +54,7 @@ public open class LobbyMinigame(
 ): Minigame<LobbyMinigame>(server) {
     private var awaiting: (() -> Component)? = null
     private var next: Minigame<*>? = null
+    private var transferring: Boolean = false
 
     private val bossbar = this.lobby.createBossbar().apply { then(::completeBossBar) }
 
@@ -130,6 +132,10 @@ public open class LobbyMinigame(
     }
 
     private fun moveToNextMinigame() {
+        if (this.transferring) {
+            return
+        }
+
         val next = this.next!!
         if (next.closed) {
             Arcade.logger.warn("Failed to move to next minigame ${next.id}, it was closed before starting!")
@@ -137,14 +143,28 @@ public open class LobbyMinigame(
             return
         }
 
-        LobbyMoveToNextMinigameEvent(this, next).broadcast()
+        this.transferring = true
+        val event = LobbyMoveToNextMinigameEvent(this, next)
+        event.broadcast()
 
-        this.transferAdminAndSpectatorTeamsTo(next)
-        this.transferPlayersTo(next)
-        next.start()
+        val task = CancellableTask.of {
+            this.transferAdminAndSpectatorTeamsTo(next)
+            this.transferPlayersTo(next)
+            next.start()
 
-        this.setPhase(LobbyPhase.Waiting)
-        this.next = null
+            this.setPhase(LobbyPhase.Waiting)
+            this.next = null
+            this.transferring = false
+        }
+        task.cancelled {
+            this.transferring = false
+        }
+
+        if (!event.delay.isZero()) {
+            this.scheduler.schedulePhased(event.delay, task)
+        } else {
+            task.run()
+        }
     }
 
     final override fun getPhases(): List<LobbyPhase> {
