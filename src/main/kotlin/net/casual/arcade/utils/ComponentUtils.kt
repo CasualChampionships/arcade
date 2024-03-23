@@ -275,6 +275,32 @@ public object ComponentUtils {
     }
 
     @JvmStatic
+    public fun Component.greyscale(): MutableComponent {
+        return this.mapColours { colour ->
+            colour ?: return@mapColours null
+            val value = colour.value
+            val red = (value shr 16) and 0xFF
+            val green = (value shr 8) and 0xFF
+            val blue = value and 0xFF
+
+            val grayLevel = (0.21 * red + 0.72 * green + 0.07 * blue).toInt()
+
+            TextColor.fromRgb((grayLevel shl 16) or (grayLevel shl 8) or grayLevel)
+        }
+    }
+
+    @JvmStatic
+    public fun Component.mapColours(mapper: (TextColor?) -> TextColor?): MutableComponent {
+        val copy = this.plainCopy()
+        copy.style = this.style.withColor(mapper(this.style.color))
+        for (sibling in this.siblings) {
+            val mapped = sibling.mapColours(mapper)
+            copy.append(mapped)
+        }
+        return copy
+    }
+
+    @JvmStatic
     public fun Component.toFormattedString(): String {
         val visitor = StringifyVisitor()
         this.visit(visitor, Style.EMPTY)

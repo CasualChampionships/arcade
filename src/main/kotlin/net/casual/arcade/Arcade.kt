@@ -9,6 +9,7 @@ import net.casual.arcade.font.heads.PlayerHeadComponents
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.resources.ArcadePacks
 import net.casual.arcade.utils.*
+import net.casual.arcade.utils.ComponentUtils.greyscale
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
