@@ -1,5 +1,6 @@
-package net.casual.arcade.resources
+package net.casual.arcade.resources.hosting
 
+import net.casual.arcade.resources.PackInfo
 import net.minecraft.network.chat.Component
 
 /**

@@ -1,4 +1,4 @@
-package net.casual.arcade.resources
+package net.casual.arcade.resources.hosting
 
 import org.apache.commons.io.FilenameUtils
 import java.io.InputStream

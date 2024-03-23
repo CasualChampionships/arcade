@@ -1,16 +1,19 @@
 package net.casual.arcade.utils
 
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.network.ClientboundPacketEvent
 import net.casual.arcade.events.network.PackStatusEvent
 import net.casual.arcade.events.network.PlayerDisconnectEvent
-import net.casual.arcade.font.BitmapFont
 import net.casual.arcade.items.ItemModeller
 import net.casual.arcade.resources.PackInfo
 import net.casual.arcade.resources.PackState
 import net.casual.arcade.resources.PackStatus
-import net.casual.arcade.resources.PlayerPackExtension
+import net.casual.arcade.resources.extensions.PlayerPackExtension
+import net.casual.arcade.resources.font.FontResources
+import net.casual.arcade.resources.sound.SoundResources
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
@@ -112,9 +115,33 @@ public object ResourcePackUtils {
     }
 
     @JvmStatic
-    public fun ResourcePackCreator.addBitmapFont(font: BitmapFont) {
+    public fun ResourcePackCreator.addFont(font: FontResources) {
         this.creationEvent.register { builder ->
-            builder.addData("assets/${font.id.namespace}/font/${font.id.path}.json", font.getData())
+            builder.addData("assets/${font.id.namespace}/font/${font.id.path}.json", font.getJson().encodeToByteArray())
+        }
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addSounds(sounds: SoundResources) {
+        this.creationEvent.register { builder ->
+            // We can only have 1 sounds.json
+            val path = "assets/${sounds.id.namespace}/sounds.json"
+            val gson = Gson()
+            val json = JsonObject()
+            val existing = builder.getData(path)
+            if (existing != null) {
+                val existingJson = gson.fromJson(existing.decodeToString(), JsonObject::class.java)
+                for ((string, element) in existingJson.entrySet()) {
+                    json.add(string, element)
+                }
+            }
+
+            val data = gson.fromJson(sounds.getJson(), JsonObject::class.java)
+            for ((string, element) in data.entrySet()) {
+                json.add(string, element)
+            }
+
+            builder.addData("assets/${sounds.id.namespace}/sounds.json", gson.toJson(json).encodeToByteArray())
         }
     }
 

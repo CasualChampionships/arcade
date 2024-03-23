@@ -1,20 +1,21 @@
-package net.casual.arcade.font
+package net.casual.arcade.resources.font
 
-import com.google.gson.Gson
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.encodeToJsonElement
 import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.withFont
 import net.minecraft.resources.ResourceLocation
 import org.apache.commons.lang3.mutable.MutableInt
 
-public abstract class BitmapFont(
+public abstract class FontResources(
     public val id: ResourceLocation
 ) {
     private val bitmapIndex = MutableInt(0xE000)
-    private val providers = ArrayList<BitmapFontProvider>()
+    private val providers = ArrayList<FontProvider>()
 
-    protected fun add(
+    protected fun bitmap(
         texture: ResourceLocation,
         ascent: Int = 8,
         height: Int = 8
@@ -27,18 +28,15 @@ public abstract class BitmapFont(
         }
     }
 
-    protected fun texture(path: String): ResourceLocation {
+    protected fun at(path: String): ResourceLocation {
         return ResourceLocation(this.id.namespace, "font/$path")
     }
 
-    internal fun getData(): ByteArray {
-        val font = JsonObject()
-        val providers = JsonArray()
-        for (provider in this.providers) {
-            providers.add(provider.serialize())
+    internal fun getJson(): String {
+        val font = buildJsonObject {
+            put("providers", Json.encodeToJsonElement(providers))
         }
-        font.add("providers", providers)
-        return Gson().toJson(font).encodeToByteArray()
+        return Json.encodeToString(font)
     }
 
     private fun nextBitmapChar(): Char {

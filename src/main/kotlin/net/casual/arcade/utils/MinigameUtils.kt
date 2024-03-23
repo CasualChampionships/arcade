@@ -10,11 +10,11 @@ import net.casual.arcade.events.player.PlayerCreatedEvent
 import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.annotation.MinigameEventListener
 import net.casual.arcade.minigame.extensions.LevelMinigameExtension
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
+import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.scheduler.MinecraftScheduler
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.task.Completable

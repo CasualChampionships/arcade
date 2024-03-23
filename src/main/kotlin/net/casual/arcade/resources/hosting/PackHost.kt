@@ -1,4 +1,4 @@
-package net.casual.arcade.resources
+package net.casual.arcade.resources.hosting
 
 import com.google.common.hash.Hashing
 import com.google.common.util.concurrent.ThreadFactoryBuilder

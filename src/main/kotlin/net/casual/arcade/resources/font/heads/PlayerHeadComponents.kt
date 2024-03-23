@@ -1,4 +1,4 @@
-package net.casual.arcade.font.heads
+package net.casual.arcade.resources.font.heads
 
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.Arcade
@@ -27,16 +27,16 @@ public object PlayerHeadComponents {
 
     init {
         GlobalEventHandler.register<PlayerJoinEvent> {
-            this.invalidateHead(it.player)
+            invalidateHead(it.player)
         }
     }
 
     public fun getHeadOrDefault(player: ServerPlayer): Component {
-        return this.getHead(player).getNow(PlayerHeadFont.STEVE_HEAD)
+        return getHead(player).getNow(PlayerHeadFont.STEVE_HEAD)
     }
 
     public fun getHeadOrDefault(name: String): Component {
-        return this.getHead(name).getNow(PlayerHeadFont.STEVE_HEAD)
+        return getHead(name).getNow(PlayerHeadFont.STEVE_HEAD)
     }
 
     public fun getHead(
@@ -45,20 +45,20 @@ public object PlayerHeadComponents {
     ): CompletableFuture<Component> {
         val uuid = player.uuid
         val name = player.scoreboardName
-        val exists = this.uuidCache.containsKey(uuid)
+        val exists = uuidCache.containsKey(uuid)
         if (!force && exists) {
-            return this.uuidCache[uuid]!!
+            return uuidCache[uuid]!!
         }
-        val skinUrl = this.getSkinUrl(player.gameProfile, player.server) ?: return this.default
+        val skinUrl = getSkinUrl(player.gameProfile, player.server) ?: return default
         val future = CompletableFuture.supplyAsync {
-            val component = this.generateHead(skinUrl)
+            val component = generateHead(skinUrl)
             if (exists) {
-                this.cacheHead(name, uuid, CompletableFuture.completedFuture(component))
+                cacheHead(name, uuid, CompletableFuture.completedFuture(component))
             }
             component
         }
         if (!exists) {
-            this.cacheHead(name, uuid, future)
+            cacheHead(name, uuid, future)
         }
         return future
     }
@@ -68,18 +68,18 @@ public object PlayerHeadComponents {
         server: MinecraftServer = Arcade.getServer(),
         force: Boolean = false
     ): CompletableFuture<Component> {
-        if (this.invalidNames.contains(name)) {
-            return this.default
+        if (invalidNames.contains(name)) {
+            return default
         }
-        val exists = this.nameCache.containsKey(name)
+        val exists = nameCache.containsKey(name)
         if (!force && exists) {
-            return this.nameCache[name]!!
+            return nameCache[name]!!
         }
 
         val player = PlayerUtils.player(name)
         if (player != null) {
             // This is faster since we don't have to look up uuid
-            return this.getHead(player, force)
+            return getHead(player, force)
         }
 
         val future = server.profileCache!!.getAsync(name).thenApply { optional ->
@@ -98,30 +98,30 @@ public object PlayerHeadComponents {
             // The previous profile didn't have textures
             val profile = server.sessionService.fetchProfile(uuid, true)?.profile
                 ?: return@thenApply PlayerHeadFont.STEVE_HEAD
-            val skinUrl = this.getSkinUrl(profile, server) ?: return@thenApply PlayerHeadFont.STEVE_HEAD
+            val skinUrl = getSkinUrl(profile, server) ?: return@thenApply PlayerHeadFont.STEVE_HEAD
             val component = generateHead(skinUrl)
             if (exists) {
-                this.cacheHead(name, uuid, CompletableFuture.completedFuture(component))
+                cacheHead(name, uuid, CompletableFuture.completedFuture(component))
             }
             component
         }
         if (!exists) {
-            this.nameCache[name] = future
+            nameCache[name] = future
         }
         return future
     }
 
 
     internal fun invalidateHead(player: ServerPlayer) {
-        if (this.uuidCache.containsKey(player.uuid)) {
+        if (uuidCache.containsKey(player.uuid)) {
             // This will overwrite any head that was previously generated...
-            this.getHead(player, true)
+            getHead(player, true)
         }
     }
 
     private fun cacheHead(name: String, uuid: UUID, future: CompletableFuture<Component>) {
-        this.nameCache[name] = future
-        this.uuidCache[uuid] = future
+        nameCache[name] = future
+        uuidCache[uuid] = future
     }
 
     private fun getSkinUrl(profile: GameProfile, server: MinecraftServer): String? {

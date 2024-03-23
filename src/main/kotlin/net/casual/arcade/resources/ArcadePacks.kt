@@ -1,11 +1,12 @@
 package net.casual.arcade.resources
 
 import net.casual.arcade.Arcade
-import net.casual.arcade.font.heads.PlayerHeadFont
-import net.casual.arcade.font.padding.PaddingNoSplitFont
-import net.casual.arcade.font.padding.PaddingSplitFont
+import net.casual.arcade.resources.creator.NamedResourcePackCreator
+import net.casual.arcade.resources.font.heads.PlayerHeadFont
+import net.casual.arcade.resources.font.padding.PaddingNoSplitFontResources
+import net.casual.arcade.resources.font.padding.PaddingSplitFontResources
 import net.casual.arcade.utils.ComponentUtils.literal
-import net.casual.arcade.utils.ResourcePackUtils.addBitmapFont
+import net.casual.arcade.utils.ResourcePackUtils.addFont
 import java.nio.file.Path
 import kotlin.io.path.readBytes
 
@@ -34,8 +35,8 @@ public object ArcadePacks {
         }
         PADDING_FONT_PACK = NamedResourcePackCreator.named("padding_font") {
             addAssetSource(path("packs/PaddingFont"))
-            addBitmapFont(PaddingSplitFont)
-            addBitmapFont(PaddingNoSplitFont)
+            addFont(PaddingSplitFontResources)
+            addFont(PaddingNoSplitFontResources)
             packDescription = "Provides padding utilities for text".literal()
         }
         NO_SHADOW_PACK = NamedResourcePackCreator.named("no_shadow") {
@@ -45,7 +46,7 @@ public object ArcadePacks {
         PLAYER_HEADS_PACK = NamedResourcePackCreator.named("player_heads") {
             val location = path("packs/PlayerHeads")
             addAssetSource(location)
-            addBitmapFont(PlayerHeadFont)
+            addFont(PlayerHeadFont)
             packIcon = location.resolve("assets/arcade/textures/font/steve.png").readBytes()
             packDescription = "Utilities for rendering player heads".literal()
         }

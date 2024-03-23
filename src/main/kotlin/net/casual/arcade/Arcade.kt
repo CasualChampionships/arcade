@@ -2,18 +2,12 @@ package net.casual.arcade
 
 import net.casual.arcade.commands.ArcadeCommands
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.player.PlayerChatEvent
-import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.events.server.ServerCreatedEvent
-import net.casual.arcade.font.heads.PlayerHeadComponents
 import net.casual.arcade.minigame.Minigames
-import net.casual.arcade.resources.ArcadePacks
 import net.casual.arcade.utils.*
-import net.casual.arcade.utils.ComponentUtils.greyscale
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
-import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import org.apache.logging.log4j.LogManager

@@ -10,7 +10,6 @@ import net.casual.arcade.utils.ItemUtils.removeEnchantments
 import net.casual.arcade.utils.json.*
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
-import org.apache.commons.lang3.mutable.MutableObject
 
 public class MenuGameSettingBuilder<T: Any>(
     private val constructor: (String, T, Map<String, T>) -> GameSetting<T>

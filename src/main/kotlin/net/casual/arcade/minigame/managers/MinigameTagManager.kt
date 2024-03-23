@@ -15,7 +15,7 @@ import net.casual.arcade.utils.JsonUtils.strings
 import net.casual.arcade.utils.JsonUtils.uuid
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
-import java.util.UUID
+import java.util.*
 
 public class MinigameTagManager(
     private val minigame: Minigame<*>

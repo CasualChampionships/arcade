@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.casual.arcade.Arcade
 import net.casual.arcade.commands.hidden.HiddenCommand
 import net.casual.arcade.scheduler.MinecraftTimeDuration
+import net.casual.arcade.utils.ComponentUtils.ComponentGenerator
 import net.casual.arcade.utils.TimeUtils.Minutes
 import net.minecraft.ChatFormatting
 import net.minecraft.ChatFormatting.*

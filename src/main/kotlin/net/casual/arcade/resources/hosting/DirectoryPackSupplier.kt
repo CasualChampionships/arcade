@@ -1,4 +1,4 @@
-package net.casual.arcade.resources
+package net.casual.arcade.resources.hosting
 
 import java.nio.file.Path
 import kotlin.io.path.listDirectoryEntries

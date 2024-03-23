@@ -1,7 +1,7 @@
-package net.casual.arcade.font.padding
+package net.casual.arcade.resources.font.padding
 
 import net.casual.arcade.Arcade
-import net.casual.arcade.font.IndexedBitmapFont
+import net.casual.arcade.resources.font.IndexedBitmapFontResources
 import net.minecraft.network.chat.MutableComponent
 
 private val SPLIT_TEXTURE = Arcade.id("font/split.png")
@@ -12,7 +12,7 @@ private const val SIZE = 255
 
 private val SIZE_RANGE = -SIZE..SIZE
 
-public object PaddingSplitFont: IndexedBitmapFont(Arcade.id("padding_split")) {
+public object PaddingSplitFontResources: IndexedBitmapFontResources(Arcade.id("padding_split")) {
     init {
         for (i in SIZE_RANGE) {
             if (i != 0) {
@@ -26,7 +26,7 @@ public object PaddingSplitFont: IndexedBitmapFont(Arcade.id("padding_split")) {
     }
 }
 
-public object PaddingNoSplitFont: IndexedBitmapFont(Arcade.id("padding_no_split")) {
+public object PaddingNoSplitFontResources: IndexedBitmapFontResources(Arcade.id("padding_no_split")) {
     init {
         for (i in SIZE_RANGE) {
             if (i != 0) {

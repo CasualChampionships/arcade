@@ -1,7 +1,10 @@
-package net.casual.arcade.resources
+package net.casual.arcade.resources.extensions
 
 import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.Extension
+import net.casual.arcade.resources.PackInfo
+import net.casual.arcade.resources.PackState
+import net.casual.arcade.resources.PackStatus
 import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import java.util.*

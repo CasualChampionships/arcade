@@ -1,14 +1,11 @@
 package net.casual.arcade.utils
 
-import net.casual.arcade.gui.screen.SelectableMenuItem
 import net.casual.arcade.gui.screen.SelectionScreenBuilder
 import net.casual.arcade.gui.screen.SelectionScreenComponents
 import net.casual.arcade.gui.screen.SelectionScreenStyle
-import net.casual.arcade.settings.display.MenuGameSetting
 import net.casual.arcade.settings.display.DisplayableSettings
+import net.casual.arcade.settings.display.MenuGameSetting
 import net.casual.arcade.utils.ComponentUtils.literal
-import net.casual.arcade.utils.ItemUtils.enableGlint
-import net.casual.arcade.utils.ItemUtils.removeEnchantments
 import net.casual.arcade.utils.PlayerUtils.location
 import net.casual.arcade.utils.PlayerUtils.teleportTo
 import net.casual.arcade.utils.TeamUtils.getOnlineCount

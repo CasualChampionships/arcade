@@ -17,7 +17,6 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.level.GameType
 import java.util.*
 import java.util.function.Consumer
-import kotlin.collections.ArrayList
 
 public class ArcadePlayerListDisplay(
     private val display: PlayerListEntries

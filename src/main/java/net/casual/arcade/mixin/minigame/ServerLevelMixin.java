@@ -3,7 +3,6 @@ package net.casual.arcade.mixin.minigame;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.casual.arcade.utils.MinigameUtils;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.TickRateManager;
 import net.minecraft.world.entity.Entity;

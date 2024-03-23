@@ -1,4 +1,4 @@
-package net.casual.arcade.resources
+package net.casual.arcade.resources.hosting
 
 /**
  * This interface provides a method for getting

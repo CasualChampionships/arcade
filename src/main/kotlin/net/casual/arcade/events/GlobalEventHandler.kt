@@ -10,7 +10,6 @@ import net.casual.arcade.events.server.SafeServerlessEvent
 import net.casual.arcade.events.server.ServerOffThreadEvent
 import net.casual.arcade.utils.CollectionUtils.addSorted
 import org.apache.logging.log4j.LogManager
-import java.util.*
 import java.util.function.Consumer
 
 /**

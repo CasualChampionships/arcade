@@ -5,10 +5,10 @@ import com.google.gson.JsonObject
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.Arcade
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.module.MinigameModule
 import net.casual.arcade.minigame.module.SavableMinigameModule
+import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.task.AnyMinigameTaskFactory
 import net.casual.arcade.minigame.task.MinigameTaskFactory
 import net.casual.arcade.minigame.task.MinigameTaskGenerator

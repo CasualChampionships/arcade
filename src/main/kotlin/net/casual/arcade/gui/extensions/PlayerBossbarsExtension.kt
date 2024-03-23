@@ -3,14 +3,10 @@ package net.casual.arcade.gui.extensions
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.gui.bossbar.CustomBossBar
 import net.minecraft.network.chat.Component
-import net.minecraft.network.protocol.Packet
-import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.BossEvent
 import java.util.*
-import java.util.function.Consumer
 
 internal class PlayerBossbarsExtension(
     owner: ServerGamePacketListenerImpl

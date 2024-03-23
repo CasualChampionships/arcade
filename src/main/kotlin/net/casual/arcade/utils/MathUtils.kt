@@ -1,8 +1,6 @@
 package net.casual.arcade.utils
 
-import net.minecraft.core.Direction
 import net.minecraft.core.Direction8
-import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.Vec3
 import kotlin.math.ceil
 import kotlin.math.floor

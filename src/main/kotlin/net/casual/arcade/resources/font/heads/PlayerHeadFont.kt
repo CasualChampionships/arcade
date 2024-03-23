@@ -1,14 +1,14 @@
-package net.casual.arcade.font.heads
+package net.casual.arcade.resources.font.heads
 
 import net.casual.arcade.Arcade
-import net.casual.arcade.font.BitmapFont
+import net.casual.arcade.resources.font.FontResources
 import net.casual.arcade.utils.ComponentUtils
 import net.minecraft.network.chat.MutableComponent
 
-public object PlayerHeadFont: BitmapFont(Arcade.id("player_heads")) {
-    private val PIXELS = Array(8, ::register)
+public object PlayerHeadFont: FontResources(Arcade.id("player_heads")) {
+    private val PIXELS = Array(8, PlayerHeadFont::register)
 
-    public val STEVE_HEAD: MutableComponent by add(texture("steve.png"), 8, 8)
+    public val STEVE_HEAD: MutableComponent by bitmap(at("steve.png"), 8, 8)
     public val PIXEL_0: MutableComponent by PIXELS[0]
     public val PIXEL_1: MutableComponent by PIXELS[1]
     public val PIXEL_2: MutableComponent by PIXELS[2]
@@ -23,6 +23,6 @@ public object PlayerHeadFont: BitmapFont(Arcade.id("player_heads")) {
     }
 
     private fun register(index: Int): ComponentUtils.ConstantComponentGenerator {
-        return add(texture("pixel${index}.png"), 8, 8)
+        return bitmap(at("pixel${index}.png"), 8, 8)
     }
 }
