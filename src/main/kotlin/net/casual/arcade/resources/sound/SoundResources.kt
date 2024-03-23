@@ -2,7 +2,7 @@ package net.casual.arcade.resources.sound
 
 import eu.pb4.polymer.core.api.other.PolymerSoundEvent
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 import net.casual.arcade.resources.sound.SoundProvider.Type.Event
 import net.casual.arcade.resources.sound.SoundProvider.Type.Sound
 import net.minecraft.core.Registry
@@ -61,7 +61,19 @@ public abstract class SoundResources(
     }
 
     internal fun getJson(): String {
-        return Json.encodeToString(this.providers)
+        val json = buildJsonObject {
+            for ((key, providers) in providers) {
+                putJsonObject(key) {
+                    putJsonArray("sounds") {
+                        for (provider in providers) {
+                            add(Json.encodeToJsonElement(provider))
+                        }
+                    }
+                }
+            }
+        }
+
+        return Json.encodeToString(json)
     }
 
     private fun register(id: ResourceLocation, distance: Int, isStatic: Boolean): PolymerSoundEvent {
