@@ -5,6 +5,8 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.casual.arcade.resources.sound.SoundProvider.Type.Event
 import net.casual.arcade.resources.sound.SoundProvider.Type.Sound
+import net.minecraft.core.Registry
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceLocation
 
 public abstract class SoundResources(
@@ -24,13 +26,7 @@ public abstract class SoundResources(
     ): PolymerSoundEvent {
         val provider = SoundProvider(location, volume, pitch, 1, stream, attenuationDistance, preload, Sound)
         this.providers[id] = listOf(provider)
-        return PolymerSoundEvent(
-            null,
-            ResourceLocation(this.id.namespace, id),
-            attenuationDistance.toFloat(),
-            !isStatic,
-            null
-        )
+        return this.register(ResourceLocation(this.id.namespace, id), attenuationDistance, isStatic)
     }
 
     protected fun event(
@@ -45,13 +41,7 @@ public abstract class SoundResources(
     ): PolymerSoundEvent {
         val provider = SoundProvider(location, volume, pitch, 1, stream, attenuationDistance, preload, Event)
         this.providers[id] = listOf(provider)
-        return PolymerSoundEvent(
-            null,
-            ResourceLocation(this.id.namespace, id),
-            attenuationDistance.toFloat(),
-            !isStatic,
-            null
-        )
+        return this.register(ResourceLocation(this.id.namespace, id), attenuationDistance, isStatic)
     }
 
     protected fun group(
@@ -63,13 +53,7 @@ public abstract class SoundResources(
         val grouped = GroupedSoundProvider()
         grouped.builder()
         this.providers[id] = grouped.getProviders()
-        return PolymerSoundEvent(
-            null,
-            ResourceLocation(this.id.namespace, id),
-            attenuationDistance.toFloat(),
-            !isStatic,
-            null
-        )
+        return this.register(ResourceLocation(this.id.namespace, id), attenuationDistance, isStatic)
     }
 
     protected fun at(path: String): ResourceLocation {
@@ -78,5 +62,11 @@ public abstract class SoundResources(
 
     internal fun getJson(): String {
         return Json.encodeToString(this.providers)
+    }
+
+    private fun register(id: ResourceLocation, distance: Int, isStatic: Boolean): PolymerSoundEvent {
+        val sound = PolymerSoundEvent(null, id, distance.toFloat(), !isStatic, null)
+        Registry.register(BuiltInRegistries.SOUND_EVENT, id, sound)
+        return sound
     }
 }
