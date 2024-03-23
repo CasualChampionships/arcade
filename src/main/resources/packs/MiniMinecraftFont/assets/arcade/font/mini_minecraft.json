@@ -8,7 +8,7 @@
       "type": "bitmap",
       "file": "arcade:font/mini_minecraft.png",
       "height": 6,
-      "ascent": 5,
+      "ascent": 6,
       "chars": [
         "ABCDEFGHIJ",
         "KLMNOPQRST",
