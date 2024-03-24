@@ -49,7 +49,7 @@ public class ArcadeDataGenerator: ClientModInitializer {
 
         val entrypoint = entrypoints[index]
         LOGGER.info("Started datagen for ${entrypoint.id()}")
-        this.loadPacksFor(client, entrypoint).thenRunAsync {
+        this.loadPacksFor(client, entrypoint).thenRun {
             LOGGER.info("Loaded resource packs for ${entrypoint.id()}")
             entrypoint.run(client)
             LOGGER.info("Finished datagen for ${entrypoint.id()}")
