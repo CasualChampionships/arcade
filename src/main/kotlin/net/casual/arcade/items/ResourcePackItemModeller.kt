@@ -56,16 +56,24 @@ public class ResourcePackItemModeller(
     }
 
      /**
-     * This registers a custom model for a given [location].
-     *
-     * @param location The location of the custom model in the
-     * given resource pack creator.
-     * @return The [ItemStack] generator.
-     */
-    public fun model(location: ResourceLocation): ItemStackFactory {
+      * This registers a custom model for a given [location].
+      *
+      * @param location The location of the custom model in the
+      * given resource pack creator.
+      * @param modifier A function that modifies the stack.
+      * @return The [ItemStack] generator.
+      */
+    public fun model(
+         location: ResourceLocation,
+         modifier: ItemStack.() -> Unit = {}
+    ): ItemStackFactory {
         this.states.add(location)
         this.creator.registerNextModel(this.client, location)
-        return ItemStackFactory { this.create(location) }
+        return ItemStackFactory {
+            val stack = this.create(location)
+            stack.modifier()
+            stack
+        }
     }
 
     /**

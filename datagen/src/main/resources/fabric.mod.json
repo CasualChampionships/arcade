@@ -9,6 +9,11 @@
   ],
   "license": "MIT",
   "environment": "*",
+  "entrypoints": {
+    "client": [
+      "net.casual.arcade.datagen.ArcadeDataGenerator"
+    ]
+  },
   "depends": {
     "fabricloader": ">=0.15.0",
     "minecraft": "1.20.x",
