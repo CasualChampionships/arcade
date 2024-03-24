@@ -1,5 +1,7 @@
 package net.casual.arcade.datagen
 
+import joptsimple.OptionParser
+import joptsimple.OptionSpec
 import net.casual.arcade.datagen.resource.ArcadeResourceGenerator
 import net.casual.arcade.datagen.utils.LOGGER
 import net.fabricmc.api.ClientModInitializer
@@ -10,6 +12,17 @@ import java.util.concurrent.CompletableFuture
 
 public class ArcadeDataGenerator: ClientModInitializer {
     public override fun onInitializeClient() {
+        val args = FabricLoader.getInstance().getLaunchArguments(true)
+
+        val parser = OptionParser()
+        val spec: OptionSpec<Void> = parser.accepts("arcade-datagen")
+        parser.allowsUnrecognizedOptions()
+        val options = parser.parse(*args)
+
+        if (!options.has(spec)) {
+            return
+        }
+
         val entrypoints = FabricLoader.getInstance()
             .getEntrypoints("arcade-datagen", ArcadeResourceGenerator::class.java)
 

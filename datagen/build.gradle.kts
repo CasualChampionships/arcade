@@ -14,6 +14,12 @@ tasks {
             expand(mutableMapOf("version" to project.version))
         }
     }
+
+    register("runDatagenClient") {
+        group = "fabric"
+        runClient.get().args("--arcade-datagen")
+        dependsOn(runClient)
+    }
 }
 
 publishing {
@@ -21,7 +27,7 @@ publishing {
         create<MavenPublication>("arcadeDatagen") {
             groupId = "com.github.CasualChampionships"
             artifactId = "arcade-datagen"
-            version = "1.0.4"
+            version = "1.0.7"
             from(components["java"])
         }
     }
