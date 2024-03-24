@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.client.Minecraft
 import java.util.concurrent.CompletableFuture
+import kotlin.system.exitProcess
 
 public class ArcadeDataGenerator: ClientModInitializer {
     public override fun onInitializeClient() {
@@ -26,15 +27,33 @@ public class ArcadeDataGenerator: ClientModInitializer {
         val entrypoints = FabricLoader.getInstance()
             .getEntrypoints("arcade-datagen", ArcadeResourceGenerator::class.java)
 
+        if (entrypoints.isEmpty()) {
+            LOGGER.warn("Started datagen without any entrypoints!")
+            exitProcess(0)
+        }
+
         ClientLifecycleEvents.CLIENT_STARTED.register { client ->
-            for (entrypoint in entrypoints) {
-                LOGGER.info("Started datagen for ${entrypoint.id()}")
-                this.loadPacksFor(client, entrypoint).join()
-                LOGGER.info("Loaded resource packs for ${entrypoint.id()}")
-                entrypoint.run(client)
-                LOGGER.info("Finished datagen for ${entrypoint.id()}")
-            }
+            this.processEntrypoint(client, entrypoints, 0)
+        }
+    }
+
+    private fun processEntrypoint(
+        client: Minecraft,
+        entrypoints: List<ArcadeResourceGenerator>,
+        index: Int
+    ) {
+        if (index !in entrypoints.indices) {
             client.stop()
+            return
+        }
+
+        val entrypoint = entrypoints[index]
+        LOGGER.info("Started datagen for ${entrypoint.id()}")
+        this.loadPacksFor(client, entrypoint).thenRunAsync {
+            LOGGER.info("Loaded resource packs for ${entrypoint.id()}")
+            entrypoint.run(client)
+            LOGGER.info("Finished datagen for ${entrypoint.id()}")
+            this.processEntrypoint(client, entrypoints, index + 1)
         }
     }
 
