@@ -39,7 +39,7 @@ public class ArcadeDataGenerator: ClientModInitializer {
     }
 
     private fun loadPacksFor(client: Minecraft, generator: ArcadeResourceGenerator): CompletableFuture<Void> {
-        val packs = generator.resources().associateBy { it.hashCode().toString(16) }
+        val packs = generator.resources().associateBy { "${it.hashCode().toString(16)}.zip" }
 
         for (selected in client.resourcePackRepository.selectedIds) {
             client.resourcePackRepository.removePack(selected)

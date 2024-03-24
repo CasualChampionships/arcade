@@ -27,7 +27,7 @@ publishing {
         create<MavenPublication>("arcadeDatagen") {
             groupId = "com.github.CasualChampionships"
             artifactId = "arcade-datagen"
-            version = "1.0.7"
+            version = "1.0.8"
             from(components["java"])
         }
     }
