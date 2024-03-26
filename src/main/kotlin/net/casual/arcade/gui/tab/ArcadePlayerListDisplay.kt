@@ -63,7 +63,7 @@ public class ArcadePlayerListDisplay(
             }
         }
 
-        this.display.updateEntries()
+        this.display.tick()
         for (i in 0..< size) {
             val entry = this.checkEntryUpdate(i) ?: continue
             val clientbound = this.toClientboundEntry(i, entry)
@@ -123,7 +123,6 @@ public class ArcadePlayerListDisplay(
 
         val adding = PolymerEntityUtils.createMutablePlayerListPacket(EnumSet.allOf(Action::class.java))
         val entries = adding.entries()
-        this.display.updateEntries()
         for (i in 0..< this.display.size) {
             val entry = this.display.getEntryAt(i)
             entries.add(this.toClientboundEntry(i, entry))

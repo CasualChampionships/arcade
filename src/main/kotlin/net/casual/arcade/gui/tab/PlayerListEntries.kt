@@ -15,7 +15,7 @@ public interface PlayerListEntries {
     public fun getEntryAt(index: Int): Entry
 
     @OverrideOnly
-    public fun updateEntries() {
+    public fun tick() {
 
     }
 

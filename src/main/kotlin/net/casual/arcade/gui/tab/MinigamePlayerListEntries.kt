@@ -10,14 +10,14 @@ public class MinigamePlayerListEntries(
     private var entries: List<ServerPlayer> = listOf()
 
     override val size: Int
-        get() = this.minigame.getTotalPlayerCount()
+        get() = this.entries.size
 
     override fun getEntryAt(index: Int): PlayerListEntries.Entry {
         val player = this.entries[index]
         return PlayerListEntries.Entry.fromPlayer(player)
     }
 
-    override fun updateEntries() {
+    override fun tick() {
         this.entries = this.minigame.getAllPlayers().sortedWith(this.order)
     }
 }

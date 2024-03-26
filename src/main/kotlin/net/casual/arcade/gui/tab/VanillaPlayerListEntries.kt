@@ -10,14 +10,14 @@ public class VanillaPlayerListEntries(
     private var entries: List<ServerPlayer> = listOf()
 
     override val size: Int
-        get() = this.server.playerList.playerCount
+        get() = this.entries.size
 
     override fun getEntryAt(index: Int): PlayerListEntries.Entry {
         val player = this.entries[index]
         return PlayerListEntries.Entry.fromPlayer(player)
     }
 
-    override fun updateEntries() {
+    override fun tick() {
         this.entries = this.server.playerList.players.sortedWith(this.order)
     }
 
