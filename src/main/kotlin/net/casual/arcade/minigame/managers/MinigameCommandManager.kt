@@ -35,13 +35,13 @@ public class MinigameCommandManager(
     private val registered = LinkedList<String>()
 
     init {
-        this.minigame.events.register<PlayerSendCommandsEvent>(1_000, HAS_PLAYER) {
+        this.minigame.events.register<PlayerSendCommandsEvent>(1_000, flags = HAS_PLAYER) {
             it.addCustomCommandNode(this.dispatcher.root)
         }
-        this.minigame.events.register<PlayerCommandEvent>(1_000, HAS_PLAYER) {
+        this.minigame.events.register<PlayerCommandEvent>(1_000, flags = HAS_PLAYER) {
             this.onCommand(it)
         }
-        this.minigame.events.register<PlayerCommandSuggestionsEvent>(1_000, HAS_PLAYER) {
+        this.minigame.events.register<PlayerCommandSuggestionsEvent>(1_000, flags = HAS_PLAYER) {
             this.onCommandSuggestions(it)
         }
         this.minigame.events.register<MinigameCloseEvent> {

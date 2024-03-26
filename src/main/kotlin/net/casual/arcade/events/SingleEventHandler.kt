@@ -1,5 +1,6 @@
 package net.casual.arcade.events
 
+import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.core.Event
 import java.util.function.Consumer
 
@@ -24,8 +25,8 @@ public class SingleEventHandler<T: Event>(
     }
 
     public companion object {
-        public inline fun <reified T: Event> of(priority: Int = 1_000, listener: Consumer<T>): SingleEventHandler<T> {
-            return SingleEventHandler(T::class.java, EventListener.of(priority, listener))
+        public inline fun <reified T: Event> of(priority: Int = 1_000, phase: String = DEFAULT, listener: Consumer<T>): SingleEventHandler<T> {
+            return SingleEventHandler(T::class.java, EventListener.of(priority, phase, listener))
         }
     }
 }

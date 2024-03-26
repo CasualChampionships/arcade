@@ -3,6 +3,8 @@ package net.casual.arcade.minigame.managers
 import net.casual.arcade.chat.ChatFormatter
 import net.casual.arcade.chat.PlayerChatFormatter
 import net.casual.arcade.chat.PlayerFormattedChat
+import net.casual.arcade.events.BuiltInEventPhases
+import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.player.PlayerChatEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.NONE
@@ -25,7 +27,7 @@ public class MinigameChatManager(
     public var mutedMessage: Component = "Currently chat is muted".literal().red()
 
     init {
-        this.minigame.events.register<PlayerChatEvent>(1_000, NONE, this::onGlobalPlayerChat)
+        this.minigame.events.register<PlayerChatEvent>(1_000, DEFAULT, NONE, this::onGlobalPlayerChat)
         this.minigame.events.register<PlayerChatEvent> { this.onPlayerChat(it) }
     }
 

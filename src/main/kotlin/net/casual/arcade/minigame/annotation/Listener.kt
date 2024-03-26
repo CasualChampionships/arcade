@@ -1,5 +1,6 @@
 package net.casual.arcade.minigame.annotation
 
+import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.core.Event
 import net.casual.arcade.minigame.phase.Phase
 import kotlin.reflect.KClass
@@ -37,6 +38,12 @@ public annotation class Listener(
      * The flags for setting the minigame event.
      */
     val flags: Int = DEFAULT,
+
+    /**
+     * This is the phase of the event that this handler
+     * will be invoked in.
+     */
+    val eventPhase: String = BuiltInEventPhases.DEFAULT,
 
     /**
      * These will be the phases of the minigame that
