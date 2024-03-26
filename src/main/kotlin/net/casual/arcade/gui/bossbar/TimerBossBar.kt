@@ -13,6 +13,7 @@ import net.casual.arcade.utils.JsonUtils.boolean
 import net.casual.arcade.utils.JsonUtils.int
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.TimeUtils.Ticks
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 
 public abstract class TimerBossBar: CustomBossBar(), TickableUI, Completable {
@@ -27,7 +28,7 @@ public abstract class TimerBossBar: CustomBossBar(), TickableUI, Completable {
     public val hasDuration: Boolean
         get() = this.ticks != -1
 
-    override fun tick() {
+    override fun tick(server: MinecraftServer) {
         if (this.ticks == -1) {
             return
         }

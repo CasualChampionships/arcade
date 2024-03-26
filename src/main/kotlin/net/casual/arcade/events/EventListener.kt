@@ -7,6 +7,8 @@ import java.util.function.Consumer
 public fun interface EventListener<T: Event>: Comparable<EventListener<T>> {
     public val priority: Int
         get() = 1_000
+    public val phase: String
+        get() = BuiltInEventPhases.DEFAULT
 
     public fun invoke(event: T)
 
@@ -17,6 +19,7 @@ public fun interface EventListener<T: Event>: Comparable<EventListener<T>> {
 
     private class Impl<T: Event>(
         override val priority: Int,
+        override val phase: String,
         private val listener: Consumer<T>
     ): EventListener<T> {
         override fun invoke(event: T) {
@@ -25,8 +28,12 @@ public fun interface EventListener<T: Event>: Comparable<EventListener<T>> {
     }
 
     public companion object {
-        public fun <T: Event> of(priority: Int, listener: Consumer<T>): EventListener<T> {
-            return Impl(priority, listener)
+        public fun <T: Event> of(
+            priority: Int = 1_000,
+            phase: String = BuiltInEventPhases.DEFAULT,
+            listener: Consumer<T>
+        ): EventListener<T> {
+            return Impl(priority, phase, listener)
         }
     }
 }

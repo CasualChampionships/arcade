@@ -1,6 +1,7 @@
 package net.casual.arcade.mixin.events;
 
 import com.mojang.datafixers.DataFixer;
+import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.*;
 import net.minecraft.server.MinecraftServer;
@@ -58,11 +59,20 @@ public class MinecraftServerMixin {
 
 	@Inject(
 		method = "tickServer",
+		at = @At("HEAD")
+	)
+	private void preTick(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
+		ServerTickEvent event = new ServerTickEvent((MinecraftServer) (Object) this);
+		GlobalEventHandler.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+	}
+
+	@Inject(
+		method = "tickServer",
 		at = @At("TAIL")
 	)
-	private void onTick(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
+	private void postTick(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
 		ServerTickEvent event = new ServerTickEvent((MinecraftServer) (Object) this);
-		GlobalEventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
 	}
 
 	@Inject(

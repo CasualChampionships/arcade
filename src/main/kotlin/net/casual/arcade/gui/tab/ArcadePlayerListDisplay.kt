@@ -4,14 +4,17 @@ import com.mojang.authlib.GameProfile
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils
 import net.casual.arcade.gui.PlayerUI
 import net.casual.arcade.gui.TickableUI
-import net.casual.arcade.gui.suppliers.ComponentSupplier
+import net.casual.arcade.gui.elements.ComponentElements
+import net.casual.arcade.gui.elements.PlayerSpecificElement
 import net.casual.arcade.gui.tab.PlayerListEntries.Entry
 import net.casual.arcade.utils.TabUtils.tabDisplay
+import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket.Action
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.level.GameType
@@ -23,21 +26,24 @@ public class ArcadePlayerListDisplay(
 ): PlayerUI(), TickableUI {
     private val previous = ArrayList<Entry>()
 
-    public var header: ComponentSupplier = ComponentSupplier.empty()
+    public var header: PlayerSpecificElement<Component> = ComponentElements.empty()
         private set
-    public var footer: ComponentSupplier = ComponentSupplier.empty()
+    public var footer: PlayerSpecificElement<Component> = ComponentElements.empty()
         private set
 
-    public fun setDisplay(header: ComponentSupplier, footer: ComponentSupplier) {
+    public fun setDisplay(header: PlayerSpecificElement<Component>, footer: PlayerSpecificElement<Component>) {
         this.header = header
         this.footer = footer
 
         for (player in this.getPlayers()) {
-            player.tabDisplay.setDisplay(header.getComponent(player), footer.getComponent(player))
+            player.tabDisplay.setDisplay(header.get(player), footer.get(player))
         }
     }
 
-    public override fun tick() {
+    public override fun tick(server: MinecraftServer) {
+        this.header.tick(server)
+        this.footer.tick(server)
+
         // We try to be as efficient as possible with these packets
         val adding = PolymerEntityUtils.createMutablePlayerListPacket(EnumSet.allOf(Action::class.java))
         val removing = ClientboundPlayerInfoRemovePacket(ArrayList())

@@ -1,5 +1,6 @@
 package net.casual.arcade.scheduler
 
+import net.casual.arcade.events.BuiltInEventPhases.POST
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.Minigame
@@ -26,7 +27,7 @@ public object GlobalTickedScheduler {
     private val scheduler = TickedScheduler()
 
     init {
-        GlobalEventHandler.register<ServerTickEvent> { this.scheduler.tick() }
+        GlobalEventHandler.register<ServerTickEvent>(phase = POST) { this.scheduler.tick() }
     }
 
     public fun asScheduler(): MinecraftScheduler {

@@ -16,12 +16,16 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  * multiple listeners call [invoke] on the
  * same event.
  */
-public abstract class InvokableEvent<T>: CancellableEvent.Typed<T>() {
+public abstract class InvokableEvent<T>(
+    private val recursive: Boolean = true
+): CancellableEvent.Typed<T>() {
     /**
      * The result of the invocation.
      */
     private val result = lazy {
-        this.suppress()
+        if (this.recursive) {
+            this.suppress()
+        }
         this.execute()
     }
 
@@ -59,8 +63,7 @@ public abstract class InvokableEvent<T>: CancellableEvent.Typed<T>() {
      * a broadcast of this event then you should override this
      * method and remove the suppression.
      */
-    @OverrideOnly
-    protected open fun suppress() {
+    private fun suppress() {
         GlobalEventHandler.suppressNextEvent(this::class.java)
     }
 

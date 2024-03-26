@@ -24,8 +24,8 @@ internal class PlayerTabDisplayExtension(
             return
         }
 
-        val header = current.header.getComponent(this.player)
-        val footer = current.footer.getComponent(this.player)
+        val header = current.header.get(this.player)
+        val footer = current.footer.get(this.player)
         if (header != this.previousHeader || footer != this.previousFooter) {
             this.setDisplay(header, footer)
         }
@@ -44,7 +44,7 @@ internal class PlayerTabDisplayExtension(
         }
         this.current = display
         this.ticks = 0
-        this.setDisplay(display.header.getComponent(this.player), display.footer.getComponent(this.player))
+        this.setDisplay(display.header.get(this.player), display.footer.get(this.player))
     }
 
     internal fun remove() {
@@ -56,8 +56,8 @@ internal class PlayerTabDisplayExtension(
 
     internal fun resend(sender: Consumer<Packet<ClientGamePacketListener>>) {
         val tab = this.current ?: return
-        val header = this.previousHeader ?: tab.header.getComponent(this.player)
-        val footer = this.previousFooter ?: tab.footer.getComponent(this.player)
+        val header = this.previousHeader ?: tab.header.get(this.player)
+        val footer = this.previousFooter ?: tab.footer.get(this.player)
         sender.accept(ClientboundTabListPacket(header, footer))
     }
 

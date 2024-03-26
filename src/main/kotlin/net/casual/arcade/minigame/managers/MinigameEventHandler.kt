@@ -1,5 +1,6 @@
 package net.casual.arcade.minigame.managers
 
+import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.EventHandler
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.EventRegisterer
@@ -84,8 +85,13 @@ public class MinigameEventHandler<P>(
      * @param priority The priority of your event listener.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public inline fun <reified T: Event> register(priority: Int, flags: Int = DEFAULT, listener: Consumer<T>) {
-        this.register(T::class.java, priority, flags, listener)
+    public inline fun <reified T: Event> register(
+        priority: Int,
+        phase: String = BuiltInEventPhases.DEFAULT,
+        flags: Int = DEFAULT,
+        listener: Consumer<T>
+    ) {
+        this.register(T::class.java, priority, phase, flags, listener)
     }
 
     /**
@@ -102,7 +108,7 @@ public class MinigameEventHandler<P>(
      * @param listener The callback which will be invoked when the event is fired.
      */
     public inline fun <reified T: Event> register(listener: Consumer<T>) {
-        this.register(T::class.java, 1_000, listener)
+        this.register(T::class.java, 1_000, BuiltInEventPhases.DEFAULT, listener)
     }
 
     /**
@@ -144,10 +150,11 @@ public class MinigameEventHandler<P>(
     public fun <T: Event> register(
         type: Class<T>,
         priority: Int = 1_000,
+        phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         listener: Consumer<T>
     ) {
-        this.register(type, flags, EventListener.of(priority, listener))
+        this.register(type, flags, EventListener.of(priority, phase, listener))
     }
 
     /**
@@ -183,8 +190,8 @@ public class MinigameEventHandler<P>(
      * @param priority The priority of your event listener.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public inline fun <reified T: Event> registerPhased(priority: Int, flags: Int = DEFAULT, listener: Consumer<T>) {
-        this.registerPhased(T::class.java, priority, flags, listener)
+    public inline fun <reified T: Event> registerPhased(priority: Int, phase: String = BuiltInEventPhases.DEFAULT, flags: Int = DEFAULT, listener: Consumer<T>) {
+        this.registerPhased(T::class.java, priority, phase, flags, listener)
     }
 
     /**
@@ -202,7 +209,7 @@ public class MinigameEventHandler<P>(
      * @param listener The callback which will be invoked when the event is fired.
      */
     public inline fun <reified T: Event> registerPhased(listener: Consumer<T>) {
-        this.registerPhased(T::class.java, 1_000, DEFAULT, listener)
+        this.registerPhased(T::class.java, 1_000, BuiltInEventPhases.DEFAULT, DEFAULT, listener)
     }
 
     /**
@@ -224,10 +231,11 @@ public class MinigameEventHandler<P>(
     public fun <T: Event> registerPhased(
         type: Class<T>,
         priority: Int = 1_000,
+        phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         listener: Consumer<T>
     ) {
-        this.registerPhased(type, flags, EventListener.of(priority, listener))
+        this.registerPhased(type, flags, EventListener.of(priority, phase, listener))
     }
 
     /**
@@ -278,11 +286,12 @@ public class MinigameEventHandler<P>(
      */
     public inline fun <reified T: Event> registerInPhases(
         priority: Int,
+        phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         vararg phases: Phase<P>,
         listener: Consumer<T>
     ) {
-        this.registerInPhases(T::class.java, flags, phases = phases, listener = EventListener.of(priority, listener))
+        this.registerInPhases(T::class.java, flags, phases = phases, listener = EventListener.of(priority, phase, listener))
     }
 
     /**
@@ -335,10 +344,11 @@ public class MinigameEventHandler<P>(
     public inline fun <reified T: Event> registerBetweenPhases(
         start: Phase<P>,
         end: Phase<P>,
+        phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         listener: Consumer<T>
     ) {
-        this.registerBetweenPhases(1_000, start, end, flags, listener)
+        this.registerBetweenPhases(1_000, start, end, phase, flags, listener)
     }
 
     /**
@@ -355,10 +365,11 @@ public class MinigameEventHandler<P>(
         priority: Int,
         start: Phase<P>,
         end: Phase<P>,
+        phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         listener: Consumer<T>
     ) {
-        this.registerBetweenPhases(T::class.java, start, end, flags, EventListener.of(priority, listener))
+        this.registerBetweenPhases(T::class.java, start, end, flags, EventListener.of(priority, phase, listener))
     }
 
     /**

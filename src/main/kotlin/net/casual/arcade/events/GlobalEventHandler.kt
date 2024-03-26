@@ -2,6 +2,7 @@ package net.casual.arcade.events
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.casual.arcade.Arcade
+import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.GlobalEventHandler.addHandler
 import net.casual.arcade.events.GlobalEventHandler.broadcast
 import net.casual.arcade.events.core.CancellableEvent
@@ -52,7 +53,8 @@ public object GlobalEventHandler {
      * @param event The event that is being fired.
      */
     @JvmStatic
-    public fun <T: Event> broadcast(event: T) {
+    @JvmOverloads
+    public fun <T: Event> broadcast(event: T, phases: Set<String> = BuiltInEventPhases.DEFAULT_PHASES) {
         val type = event::class.java
 
         if (this.checkThread(event, type)) {
@@ -79,7 +81,9 @@ public object GlobalEventHandler {
             }
 
             for (listener in listeners) {
-                listener.invoke(event)
+                if (phases.contains(listener.phase)) {
+                    listener.invoke(event)
+                }
             }
         } finally {
             this.stack.addTo(type, -1)
@@ -101,8 +105,8 @@ public object GlobalEventHandler {
      * @param priority The priority of your event listener.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public inline fun <reified T: Event> register(priority: Int = 1_000, listener: Consumer<T>) {
-        this.register(T::class.java, priority, listener)
+    public inline fun <reified T: Event> register(priority: Int = 1_000, phase: String = DEFAULT, listener: Consumer<T>) {
+        this.register(T::class.java, priority, phase, listener)
     }
 
     /**
@@ -123,8 +127,8 @@ public object GlobalEventHandler {
      */
     @JvmStatic
     @JvmOverloads
-    public fun <T: Event> register(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
-        this.handler.register(type, priority, listener)
+    public fun <T: Event> register(type: Class<T>, priority: Int = 1_000, phase: String = DEFAULT, listener: Consumer<T>) {
+        this.handler.register(type, priority, phase, listener)
     }
 
     /**

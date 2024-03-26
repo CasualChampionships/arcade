@@ -26,13 +26,13 @@ internal class PlayerSidebarExtension(
             return
         }
 
-        val title = current.title.getComponent(this.player)
+        val title = current.title.get(this.player)
         if (title != this.previousTitle) {
             this.setTitle(title)
         }
 
         for ((index, previous) in this.previousRows.withIndex()) {
-            val replacement = current.getRow(index).getComponent(this.player)
+            val replacement = current.getRow(index).get(this.player)
             if (previous == replacement) {
                 continue
             }
@@ -72,10 +72,10 @@ internal class PlayerSidebarExtension(
         this.current = sidebar
         this.ticks = 0
 
-        SidebarUtils.sendSetObjectivePacket(this.player, METHOD_ADD, sidebar.title.getComponent(this.player))
+        SidebarUtils.sendSetObjectivePacket(this.player, METHOD_ADD, sidebar.title.get(this.player))
         SidebarUtils.sendSetSidebarDisplayPacket(this.player, false)
         for (i in 0 until sidebar.size()) {
-            this.addRow(i, sidebar.getRow(i).getComponent(this.player))
+            this.addRow(i, sidebar.getRow(i).get(this.player))
         }
     }
 
@@ -89,7 +89,7 @@ internal class PlayerSidebarExtension(
 
     internal fun resend(sender: Consumer<Packet<ClientGamePacketListener>>) {
         val sidebar = this.current ?: return
-        val title = this.previousTitle ?: sidebar.title.getComponent(this.player)
+        val title = this.previousTitle ?: sidebar.title.get(this.player)
         SidebarUtils.sendSetObjectivePacket(this.player, METHOD_ADD, title, sender)
         SidebarUtils.sendSetSidebarDisplayPacket(this.player, false, sender)
         this.resendRows(0, sender)

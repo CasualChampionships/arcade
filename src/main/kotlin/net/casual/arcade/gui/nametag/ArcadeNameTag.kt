@@ -6,7 +6,8 @@ import me.senseiwells.nametag.impl.NameTagUtils.removeNameTag
 import me.senseiwells.nametag.impl.ShiftHeight
 import net.casual.arcade.gui.PlayerUI
 import net.casual.arcade.gui.predicate.PlayerObserverPredicate
-import net.casual.arcade.gui.suppliers.ComponentSupplier
+import net.casual.arcade.gui.elements.ComponentElements
+import net.casual.arcade.gui.elements.PlayerSpecificElement
 import net.casual.arcade.minigame.Minigame
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
@@ -31,7 +32,7 @@ import java.util.function.Consumer
  * a player's health to their teammates and spectators but
  * not to enemies.
  *
- * @param tag The [ComponentSupplier] to get the player's nametag.
+ * @param tag The [ComponentElements] to get the player's nametag.
  * @param observable The predicate to determine which
  * players can see the player's nametag.
  * @see Minigame.addNameTag
@@ -39,9 +40,9 @@ import java.util.function.Consumer
  */
 public class ArcadeNameTag(
     /**
-     * The [ComponentSupplier] to get the player's nametag.
+     * The [ComponentElements] to get the player's nametag.
      */
-    public var tag: ComponentSupplier,
+    public var tag: PlayerSpecificElement<Component>,
     /**
      * The predicate to determine which players can see
      * the player's nametag.
@@ -52,7 +53,7 @@ public class ArcadeNameTag(
         get() = this.interval
 
     override fun getComponent(player: ServerPlayer): Component {
-        return this.tag.getComponent(player)
+        return this.tag.get(player)
     }
 
     override fun getShift(): ShiftHeight {

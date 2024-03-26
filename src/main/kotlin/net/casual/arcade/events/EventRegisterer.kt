@@ -1,5 +1,6 @@
 package net.casual.arcade.events
 
+import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.core.Event
 import java.util.function.Consumer
 
@@ -20,8 +21,8 @@ public interface EventRegisterer: ListenerHandler {
      * @param priority The priority of your event listener.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public fun <T: Event> register(type: Class<T>, priority: Int = 1_000, listener: Consumer<T>) {
-        this.register(type, EventListener.of(priority, listener))
+    public fun <T: Event> register(type: Class<T>, priority: Int = 1_000, phase: String = DEFAULT, listener: Consumer<T>) {
+        this.register(type, EventListener.of(priority, phase, listener))
     }
 
     /**

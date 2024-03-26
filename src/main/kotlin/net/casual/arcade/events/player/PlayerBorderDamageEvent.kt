@@ -8,11 +8,7 @@ public data class PlayerBorderDamageEvent(
     override val player: ServerPlayer,
     val source: DamageSource,
     val amount: Float
-): InvokableEvent<Boolean>(), PlayerEvent {
-    override fun suppress() {
-
-    }
-
+): InvokableEvent<Boolean>(false), PlayerEvent {
     override fun execute(): Boolean {
         return this.player.hurt(this.source, this.amount)
     }

@@ -15,6 +15,7 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.lobby.ReadyChecker
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import java.util.function.Consumer
 
@@ -189,9 +190,9 @@ public class MinigameUIManager(
         this.display = null
     }
 
-    internal fun tick() {
+    internal fun tick(server: MinecraftServer) {
         for (tickable in this.tickables) {
-            tickable.tick()
+            tickable.tick(server)
         }
     }
 

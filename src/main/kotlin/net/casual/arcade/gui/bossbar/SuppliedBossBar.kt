@@ -1,23 +1,25 @@
 package net.casual.arcade.gui.bossbar
 
-import net.casual.arcade.gui.suppliers.*
+import net.casual.arcade.gui.TickableUI
+import net.casual.arcade.gui.elements.*
 import net.casual.arcade.utils.BossbarUtils.bossbars
 import net.minecraft.network.chat.Component
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.BossEvent.BossBarColor
 import net.minecraft.world.BossEvent.BossBarOverlay
 
 public class SuppliedBossBar(
-    private var title: ComponentSupplier,
-    private var progress: ProgressSupplier,
-    private var colour: ColourSupplier,
-    private var overlay: OverlaySupplier
-): CustomBossBar() {
-    private var dark = BooleanSupplier.alwaysFalse()
-    private var music = BooleanSupplier.alwaysFalse()
-    private var fog = BooleanSupplier.alwaysFalse()
+    private var title: PlayerSpecificElement<Component>,
+    private var progress: PlayerSpecificElement<Float>,
+    private var colour: PlayerSpecificElement<BossBarColor>,
+    private var overlay: PlayerSpecificElement<BossBarOverlay>
+): CustomBossBar(), TickableUI {
+    private var dark = BooleanElements.alwaysFalse()
+    private var music = BooleanElements.alwaysFalse()
+    private var fog = BooleanElements.alwaysFalse()
 
-    public fun setTitle(title: ComponentSupplier) {
+    public fun setTitle(title: PlayerSpecificElement<Component>) {
         this.title = title
 
         for (player in this.getPlayers()) {
@@ -25,7 +27,7 @@ public class SuppliedBossBar(
         }
     }
 
-    public fun setProgress(progress: ProgressSupplier) {
+    public fun setProgress(progress: PlayerSpecificElement<Float>) {
         this.progress = progress
 
         for (player in this.getPlayers()) {
@@ -34,8 +36,8 @@ public class SuppliedBossBar(
     }
 
     public fun setStyle(
-        colour: ColourSupplier? = null,
-        overlay: OverlaySupplier? = null
+        colour: PlayerSpecificElement<BossBarColor>? = null,
+        overlay: PlayerSpecificElement<BossBarOverlay>? = null
     ) {
         if (colour != null) {
             this.colour = colour
@@ -50,9 +52,9 @@ public class SuppliedBossBar(
     }
 
     public fun setProperties(
-        dark: BooleanSupplier? = null,
-        music: BooleanSupplier? = null,
-        fog: BooleanSupplier? = null
+        dark: PlayerSpecificElement<Boolean>? = null,
+        music: PlayerSpecificElement<Boolean>? = null,
+        fog: PlayerSpecificElement<Boolean>? = null
     ) {
         if (dark != null) {
             this.dark = dark
@@ -77,7 +79,7 @@ public class SuppliedBossBar(
      * @return The [Component] to display as the title of the [CustomBossBar].
      */
     override fun getTitle(player: ServerPlayer): Component {
-        return this.title.getComponent(player)
+        return this.title.get(player)
     }
 
     /**
@@ -88,7 +90,7 @@ public class SuppliedBossBar(
      * @return The progress to display the bossbar as having.
      */
     override fun getProgress(player: ServerPlayer): Float {
-        return this.progress.getProgress(player)
+        return this.progress.get(player)
     }
 
     /**
@@ -99,7 +101,7 @@ public class SuppliedBossBar(
      * @return The [BossBarColor] to set the bossbar to.
      */
     override fun getColour(player: ServerPlayer): BossBarColor {
-        return this.colour.getColour(player)
+        return this.colour.get(player)
     }
 
     /**
@@ -110,7 +112,7 @@ public class SuppliedBossBar(
      * @return The [BossBarOverlay] to set the bossbar to.
      */
     override fun getOverlay(player: ServerPlayer): BossBarOverlay {
-        return this.overlay.getOverlay(player)
+        return this.overlay.get(player)
     }
 
     /**
@@ -142,5 +144,15 @@ public class SuppliedBossBar(
      */
     override fun hasFog(player: ServerPlayer): Boolean {
         return this.fog.get(player)
+    }
+
+    override fun tick(server: MinecraftServer) {
+        this.title.tick(server)
+        this.progress.tick(server)
+        this.colour.tick(server)
+        this.overlay.tick(server)
+        this.dark.tick(server)
+        this.music.tick(server)
+        this.fog.tick(server)
     }
 }

@@ -866,7 +866,7 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     private fun registerEvents() {
-        this.events.register<ServerTickEvent> { this.onServerTick() }
+        this.events.register<ServerTickEvent> { this.onServerTick(it) }
         this.events.register<PlayerTickEvent> { this.onPlayerTick(it) }
         this.events.register<PlayerJoinEvent> { this.onPlayerJoin(it) }
         this.events.register<PlayerDeathEvent> { this.onPlayerDeath(it) }
@@ -877,10 +877,10 @@ public abstract class Minigame<M: Minigame<M>>(
         this.events.register<ServerStoppingEvent> { this.onServerStopping() }
     }
 
-    private fun onServerTick() {
+    private fun onServerTick(event: ServerTickEvent) {
         if (this.ticking) {
             this.uptime++
-            this.ui.tick()
+            this.ui.tick(event.server)
             this.scheduler.tick()
         }
     }
