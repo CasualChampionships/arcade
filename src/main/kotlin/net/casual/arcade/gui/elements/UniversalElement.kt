@@ -58,12 +58,8 @@ public fun interface UniversalElement<E: Any>: PlayerSpecificElement<E> {
         private lateinit var cached: E
 
         override fun get(server: MinecraftServer): E {
-            return this.wrapped.get(server)
-        }
-
-        override fun get(player: ServerPlayer): E {
             if (!this::cached.isInitialized) {
-                this.cached = this.get(player.server)
+                this.cached = this.wrapped.get(server)
             }
             return this.cached
         }
