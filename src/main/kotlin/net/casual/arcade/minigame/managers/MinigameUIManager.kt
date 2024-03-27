@@ -191,7 +191,7 @@ public class MinigameUIManager(
     }
 
     internal fun tick(server: MinecraftServer) {
-        for (tickable in this.tickables) {
+        for (tickable in this.tickables.toList()) {
             tickable.tick(server)
         }
     }

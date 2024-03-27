@@ -878,9 +878,9 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     private fun onServerTick(event: ServerTickEvent) {
+        this.ui.tick(event.server)
         if (this.ticking) {
             this.uptime++
-            this.ui.tick(event.server)
             this.scheduler.tick()
         }
     }
