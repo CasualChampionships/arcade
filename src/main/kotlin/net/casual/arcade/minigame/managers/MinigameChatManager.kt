@@ -32,7 +32,7 @@ public class MinigameChatManager(
     }
 
     public fun broadcast(message: Component, formatter: ChatFormatter? = this.systemChatFormatter) {
-        this.broadcastTo(message, this.minigame.getAllPlayers(), formatter)
+        this.broadcastTo(message, this.getAllPlayers(), formatter)
     }
 
     public fun broadcastTo(
@@ -84,6 +84,10 @@ public class MinigameChatManager(
     public fun isMessageGlobal(sender: ServerPlayer, message: String): Boolean {
         val team = sender.team
         return team == null || this.minigame.teams.isTeamIgnored(team) || message.startsWith("!")
+    }
+
+    public fun getAllPlayers(): List<ServerPlayer> {
+        return this.minigame.getAllPlayers()
     }
 
     private fun onGlobalPlayerChat(event: PlayerChatEvent) {
