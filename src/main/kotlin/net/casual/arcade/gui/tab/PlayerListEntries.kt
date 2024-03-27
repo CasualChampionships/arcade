@@ -3,7 +3,9 @@ package net.casual.arcade.gui.tab
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.Property
 import net.casual.arcade.resources.ArcadePacks
+import net.casual.arcade.resources.font.padding.PaddingNoSplitFontResources
 import net.minecraft.network.chat.Component
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
@@ -15,7 +17,7 @@ public interface PlayerListEntries {
     public fun getEntryAt(index: Int): Entry
 
     @OverrideOnly
-    public fun tick() {
+    public fun tick(server: MinecraftServer) {
 
     }
 
@@ -25,6 +27,7 @@ public interface PlayerListEntries {
         val latency: Int = 0
     ) {
         public companion object {
+            private val HIDDEN_PADDING = PaddingNoSplitFontResources.padding(-8)
             public val DEFAULT: Entry = Entry(Component.empty())
 
             /**
@@ -40,6 +43,22 @@ public interface PlayerListEntries {
                     Texture.fromProfile(player.gameProfile) ?: Texture.DEFAULT,
                     player.connection.latency()
                 )
+            }
+
+            /**
+             * This creates an entry for a component that completely
+             * hides the player's head and shifts the component to the
+             * start of the player list box allowing for a clean display.
+             *
+             * Using this entry requires the use of the resource packs
+             * [ArcadePacks.HIDE_PLAYER_LIST_PING_PACK], [ArcadePacks.HIDE_PLAYER_LIST_HEADS_PACK],
+             * and [ArcadePacks.PADDING_FONT_PACK].
+             *
+             * @param component The component to use in the entry.
+             * @return The Entry.
+             */
+            public fun fromComponent(component: Component): Entry {
+                return Entry(Component.empty().append(HIDDEN_PADDING).append(component), Texture.HIDDEN, -1)
             }
         }
     }

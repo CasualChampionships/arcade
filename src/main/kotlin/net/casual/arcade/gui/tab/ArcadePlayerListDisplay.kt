@@ -43,6 +43,7 @@ public class ArcadePlayerListDisplay(
     public override fun tick(server: MinecraftServer) {
         this.header.tick(server)
         this.footer.tick(server)
+        this.display.tick(server)
 
         // We try to be as efficient as possible with these packets
         val adding = PolymerEntityUtils.createMutablePlayerListPacket(EnumSet.allOf(Action::class.java))
@@ -63,7 +64,6 @@ public class ArcadePlayerListDisplay(
             }
         }
 
-        this.display.tick()
         for (i in 0..< size) {
             val entry = this.checkEntryUpdate(i) ?: continue
             val clientbound = this.toClientboundEntry(i, entry)

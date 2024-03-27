@@ -4,7 +4,6 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 
 public class VanillaPlayerListEntries(
-    private val server: MinecraftServer,
     private val order: Comparator<ServerPlayer> = DEFAULT_ORDER
 ): PlayerListEntries {
     private var entries: List<ServerPlayer> = listOf()
@@ -17,8 +16,8 @@ public class VanillaPlayerListEntries(
         return PlayerListEntries.Entry.fromPlayer(player)
     }
 
-    override fun tick() {
-        this.entries = this.server.playerList.players.sortedWith(this.order)
+    override fun tick(server: MinecraftServer) {
+        this.entries = server.playerList.players.sortedWith(this.order)
     }
 
     public companion object {

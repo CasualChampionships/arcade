@@ -1,6 +1,7 @@
 package net.casual.arcade.gui.tab
 
 import net.casual.arcade.minigame.Minigame
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 
 public class MinigamePlayerListEntries(
@@ -17,7 +18,7 @@ public class MinigamePlayerListEntries(
         return PlayerListEntries.Entry.fromPlayer(player)
     }
 
-    override fun tick() {
+    override fun tick(server: MinecraftServer) {
         this.entries = this.minigame.getAllPlayers().sortedWith(this.order)
     }
 }

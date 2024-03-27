@@ -84,7 +84,7 @@ public class MinigameTeamManager(
     }
 
     public fun isTeamIgnored(team: PlayerTeam): Boolean {
-        return this.isTeamEliminated(team) || team == this.admins || team == this.spectators
+        return this.isTeamEliminated(team) || this.isAdminTeam(team) || this.isSpectatorTeam(team)
     }
 
     public fun removeEliminatedTeam(team: PlayerTeam) {
@@ -105,6 +105,14 @@ public class MinigameTeamManager(
 
     public fun getSpectatorTeam(): PlayerTeam {
         return this.spectators ?: throw IllegalStateException("Cannot get null spectator team")
+    }
+
+    public fun isAdminTeam(team: Team): Boolean {
+        return this.hasAdminTeam() && this.getAdminTeam().isAlliedTo(team)
+    }
+
+    public fun isSpectatorTeam(team: Team): Boolean {
+        return this.hasSpectatorTeam() && this.getSpectatorTeam().isAlliedTo(team)
     }
 
     /**
@@ -150,6 +158,13 @@ public class MinigameTeamManager(
         for (profile in this.minigame.getAllPlayerProfiles()) {
             teams.add(this.minigame.server.scoreboard.getPlayersTeam(profile.name) ?: continue)
         }
+        return teams
+    }
+
+    public fun getAllNonSpectatorOrAdmin(): Collection<PlayerTeam> {
+        val teams = this.getAllTeams() as HashSet<PlayerTeam>
+        teams.remove(this.admins)
+        teams.remove(this.spectators)
         return teams
     }
 
