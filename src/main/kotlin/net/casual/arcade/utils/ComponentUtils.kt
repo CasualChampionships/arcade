@@ -26,11 +26,6 @@ import kotlin.reflect.KProperty
 public object ComponentUtils {
     public val SPACES_FONT: ResourceLocation = ResourceLocation("space", "spaces")
     public val MINI_FONT: ResourceLocation = Arcade.id("mini_minecraft")
-    public val DEFAULT_SHIFTED_DOWN_1_FONT: ResourceLocation = Arcade.id("default_shifted_down_1")
-    public val DEFAULT_SHIFTED_DOWN_2_FONT: ResourceLocation = Arcade.id("default_shifted_down_2")
-    public val DEFAULT_SHIFTED_DOWN_3_FONT: ResourceLocation = Arcade.id("default_shifted_down_3")
-    public val DEFAULT_SHIFTED_DOWN_4_FONT: ResourceLocation = Arcade.id("default_shifted_down_4")
-    public val DEFAULT_SHIFTED_DOWN_5_FONT: ResourceLocation = Arcade.id("default_shifted_down_5")
 
     private val formattingByColour = Int2ObjectOpenHashMap<ChatFormatting>()
     private val formattingToName = HashMap<ChatFormatting, String>()
@@ -350,25 +345,20 @@ public object ComponentUtils {
         return this.withFont(Style.DEFAULT_FONT)
     }
 
-    public fun MutableComponent.withShiftedDown1Font(): MutableComponent {
-        return this.withFont(DEFAULT_SHIFTED_DOWN_1_FONT)
+    public fun MutableComponent.withShiftedDownFont(shift: Int): MutableComponent {
+        if (shift !in 1..5) {
+            throw IllegalArgumentException("Cannot shift down component by $shift")
+        }
+        return this.withFont(Arcade.id("default_shifted_down_${shift}"))
     }
 
-    public fun MutableComponent.withShiftedDown2Font(): MutableComponent {
-        return this.withFont(DEFAULT_SHIFTED_DOWN_2_FONT)
+    public fun MutableComponent.withMiniShiftedDownFont(shift: Int): MutableComponent {
+        if (shift !in 1..7) {
+            throw IllegalArgumentException("Cannot shift down component by $shift")
+        }
+        return this.withFont(Arcade.id("mini_shifted_down_${shift}"))
     }
 
-    public fun MutableComponent.withShiftedDown3Font(): MutableComponent {
-        return this.withFont(DEFAULT_SHIFTED_DOWN_3_FONT)
-    }
-
-    public fun MutableComponent.withShiftedDown4Font(): MutableComponent {
-        return this.withFont(DEFAULT_SHIFTED_DOWN_4_FONT)
-    }
-
-    public fun MutableComponent.withShiftedDown5Font(): MutableComponent {
-        return this.withFont(DEFAULT_SHIFTED_DOWN_5_FONT)
-    }
 
     public fun MutableComponent.withSpacesFont(): MutableComponent {
         return this.withFont(SPACES_FONT)

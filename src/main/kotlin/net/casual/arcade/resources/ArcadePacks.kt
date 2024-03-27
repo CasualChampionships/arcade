@@ -16,6 +16,7 @@ import kotlin.io.path.readBytes
 @Suppress("MemberVisibilityCanBePrivate")
 public object ArcadePacks {
     public val ACTION_BAR_FONT_PACK: NamedResourcePackCreator
+    public val MINI_ACTION_BAR_FONT_PACK: NamedResourcePackCreator
     public val SPACES_FONT_PACK: NamedResourcePackCreator
     public val PADDING_FONT_PACK: NamedResourcePackCreator
     public val NO_SHADOW_PACK: NamedResourcePackCreator
@@ -28,6 +29,10 @@ public object ArcadePacks {
         ACTION_BAR_FONT_PACK = NamedResourcePackCreator.named("action_bar_font") {
             addAssetSource(path("packs/ActionBarFont"))
             packDescription = "Shifts text on the action bar".literal()
+        }
+        MINI_ACTION_BAR_FONT_PACK = NamedResourcePackCreator.named("mini_action_bar_font") {
+            addAssetSource(path("packs/MiniActionBarFont"))
+            packDescription = "Shifts mini text on the action bar".literal()
         }
         SPACES_FONT_PACK = NamedResourcePackCreator.named("spaces_font") {
             addAssetSource(path("packs/SpacesFont"))
