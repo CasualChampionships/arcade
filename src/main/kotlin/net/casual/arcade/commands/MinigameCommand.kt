@@ -3,10 +3,9 @@ package net.casual.arcade.commands
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.context.CommandContext
-import com.mojang.brigadier.suggestion.Suggestions
-import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.arguments.EnumArgument
 import net.casual.arcade.commands.arguments.MinigameArgument
+import net.casual.arcade.commands.arguments.MinigameArgument.*
 import net.casual.arcade.commands.arguments.MinigameArgument.PhaseName.Companion.INVALID_PHASE_NAME
 import net.casual.arcade.commands.arguments.MinigameArgument.SettingsName.Companion.INVALID_SETTING_NAME
 import net.casual.arcade.commands.arguments.MinigameArgument.SettingsOption.Companion.INVALID_SETTING_OPTION
@@ -15,9 +14,14 @@ import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.MinecraftTimeUnit
+import net.casual.arcade.utils.CommandUtils.argument
+import net.casual.arcade.utils.CommandUtils.buildLiteral
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
+import net.casual.arcade.utils.CommandUtils.literal
+import net.casual.arcade.utils.CommandUtils.requiresPermission
 import net.casual.arcade.utils.CommandUtils.success
+import net.casual.arcade.utils.CommandUtils.suggests
 import net.casual.arcade.utils.ComponentUtils.function
 import net.casual.arcade.utils.ComponentUtils.green
 import net.casual.arcade.utils.ComponentUtils.literal
@@ -29,169 +33,192 @@ import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.PlayerUtils.toComponent
 import net.casual.arcade.utils.TeamUtils.toComponent
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.commands.Commands
-import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.commands.arguments.TeamArgument
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
-import java.util.concurrent.CompletableFuture
 
 internal object MinigameCommand: Command {
     override fun register(dispatcher: CommandDispatcher<CommandSourceStack>) {
-        dispatcher.register(
-            Commands.literal("minigame").requires {
-                it.hasPermission(4)
-            }.then(
-                Commands.literal("list").executes(this::listMinigames)
-            ).then(
-                Commands.literal("join").then(
-                    Commands.argument("minigame", MinigameArgument.minigame()).then(
-                        Commands.argument("players", EntityArgument.players()).executes(this::addPlayersToMinigame)
-                    ).executes(this::selfJoinMinigame)
-                )
-            ).then(
-                Commands.literal("team").then(
-                    Commands.argument("minigame", MinigameArgument.minigame()).then(
-                        Commands.argument("team", TeamArgument.team()).then(
-                            Commands.literal("admin").executes(this::makeTeamAdmin)
-                        ).then(
-                            Commands.literal("spectator").executes(this::makeTeamSpectator)
-                        ).then(
-                            Commands.literal("eliminated").executes(this::setTeamEliminated)
-                        ).then(
-                            Commands.literal("playing").executes(this::setTeamPlaying)
-                        )
-                    )
-                )
-            ).then(
-                Commands.literal("chat").then(
-                    Commands.literal("spy").then(
-                        Commands.literal("add").then(
-                            Commands.argument("players", EntityArgument.players()).executes(this::addSpies)
-                        ).executes(this::selfAddSpy)
-                    ).then(
-                        Commands.literal("remove").then(
-                            Commands.argument("players", EntityArgument.players()).executes(this::removeSpies)
-                        ).executes(this::selfRemoveSpy)
-                    )
-                )
-            ).then(
-                Commands.literal("spectate").then(
-                    Commands.argument("minigame", MinigameArgument.minigame()).then(
-                        Commands.argument("players", EntityArgument.players()).executes(this::addPlayersToSpectate)
-                    ).executes(this::selfSpectateMinigame)
-                )
-            ).then(
-                Commands.literal("playing").then(
-                    Commands.argument("minigame", MinigameArgument.minigame()).then(
-                        Commands.argument("players", EntityArgument.players()).executes(this::addPlayersToPlaying)
-                    ).executes(this::selfPlayingMinigame)
-                )
-            ).then(
-                Commands.literal("admin").then(
-                    Commands.argument("minigame", MinigameArgument.minigame()).then(
-                        Commands.argument("players", EntityArgument.players()).executes(this::addPlayersToAdmin)
-                    ).executes(this::selfAdminMinigame)
-                )
-            ).then(
-                Commands.literal("unadmin").then(
-                    Commands.argument("minigame", MinigameArgument.minigame()).then(
-                        Commands.argument("players", EntityArgument.players()).executes(this::removePlayersFromAdmin)
-                    ).executes(this::selfUnAdminMinigame)
-                )
-            ).then(
-                Commands.literal("leave").then(
-                    Commands.argument("players", EntityArgument.players()).executes(this::otherLeaveMinigame)
-                ).executes(this::selfLeaveMinigame)
-            ).then(
-                Commands.literal("info").then(
-                    Commands.argument("minigame", MinigameArgument.minigame()).then(
-                        Commands.argument("path", MinigameArgument.InfoPath.path("minigame")).executes(this::infoPathMinigame)
-                    ).executes(this::infoMinigame)
-                )
-            ).then(
-                Commands.literal("settings").then(
-                    Commands.argument("minigame", MinigameArgument.minigame()).then(
-                        Commands.literal("get").then(
-                            Commands.argument("setting", MinigameArgument.SettingsName.name("minigame")).executes(this::getMinigameSetting)
-                        )
-                    ).then(
-                        Commands.literal("set").then(
-                            Commands.argument("setting", MinigameArgument.SettingsName.name("minigame")).then(
-                                Commands.literal("from").then(
-                                    Commands.literal("option").then(
-                                        Commands.argument("option", MinigameArgument.SettingsOption.option("minigame", "setting")).executes(this::setMinigameSettingFromOption)
-                                    )
-                                ).then(
-                                    Commands.literal("value").then(
-                                        Commands.argument("value", MinigameArgument.SettingsValue.value()).executes(this::setMinigameSettingFromValue)
-                                    )
-                                )
-                            )
-                        )
-                    ).executes(this::openMinigameSettings)
-                )
-            ).then(
-                Commands.literal("tags").then(
-                    Commands.argument("minigame", MinigameArgument.minigame()).then(
-                        Commands.argument("player", EntityArgument.player()).then(
-                            Commands.literal("add").then(
-                                Commands.argument("tag", ResourceLocationArgument.id()).executes(this::addPlayerTag)
-                            )
-                        ).then(
-                            Commands.literal("remove").then(
-                                Commands.argument("tag", ResourceLocationArgument.id()).suggests(this::suggestExistingTags).executes(this::removePlayerTag)
-                            )
-                        ).executes(this::listPlayerTags)
-                    )
-                )
-            ).then(
-                Commands.literal("phase").then(
-                    Commands.argument("minigame", MinigameArgument.minigame()).then(
-                        Commands.literal("get").executes(this::getMinigamePhase)
-                    ).then(
-                        Commands.literal("set").then(
-                            Commands.argument("phase", MinigameArgument.PhaseName.name("minigame")).executes(this::setMinigamePhase)
-                        )
-                    )
-                )
-            ).then(
-                Commands.literal("pause").then(
-                    Commands.argument("minigame", MinigameArgument.minigame()).executes(this::pauseMinigame)
-                )
-            ).then(
-                Commands.literal("unpause").then(
-                    Commands.argument("minigame", MinigameArgument.minigame()).then(
-                        Commands.literal("countdown").then(
-                            Commands.argument("time", IntegerArgumentType.integer(1)).then(
-                                Commands.argument("unit", EnumArgument.enumeration(MinecraftTimeUnit::class.java)).executes(this::unpauseWithCountdown)
-                            )
-                        ).executes { this.unpauseWithCountdown(it, 10, MinecraftTimeUnit.Seconds) }
-                    ).then(
-                        Commands.literal("ready").then(
-                            Commands.literal("players").executes { this.readyUnpause(it, false) }
-                        ).then(
-                            Commands.literal("teams").executes { this.readyUnpause(it, true) }
-                        )
-                    ).executes(this::unpauseMinigame)
-                )
-            ).then(
-                Commands.literal("create").then(
-                    Commands.argument("factory", MinigameArgument.Factory.factory()).executes(this::createMinigame)
-                )
-            ).then(
-                Commands.literal("close").then(
-                    Commands.argument("minigame", MinigameArgument.minigame()).executes(this::closeMinigame)
-                )
-            ).then(
-                Commands.literal("start").then(
-                    Commands.argument("minigame", MinigameArgument.minigame()).executes(this::startMinigame)
-                )
-            ).then(
-                Commands.literal("command")
-            )
-        )
+        dispatcher.buildLiteral("minigame") {
+            requiresPermission(4)
+
+            literal("list") {
+                executes(::listMinigames)
+            }
+            literal("create") {
+                argument("factory", Factory.factory()) {
+                    executes(::createMinigame)
+                }
+            }
+            literal("join") {
+                executes(::selfJoinMinigame)
+                argument("minigame", MinigameArgument.minigame()) {
+                    argument("players", EntityArgument.players()) {
+                        executes(::addPlayersToMinigame)
+                    }
+                }
+            }
+            literal("leave") {
+                executes(::selfLeaveMinigame)
+                argument("players", EntityArgument.players()) {
+                    executes(::removePlayersFromMinigame)
+                }
+            }
+            literal("modify") {
+                argument("minigame", MinigameArgument.minigame()) {
+                    literal("start") {
+                        executes(::startMinigame)
+                    }
+                    literal("close") {
+                        executes(::closeMinigame)
+                    }
+                    literal("info") {
+                        executes(::infoMinigame)
+                        argument("path", InfoPath.path("minigame")) {
+                            executes(::infoPathMinigame)
+                        }
+                    }
+                    literal("team") {
+                        literal("spectators", "set") {
+                            argument("team", TeamArgument.team()) {
+                                executes(::makeTeamSpectator)
+                            }
+                        }
+                        literal("admins", "set") {
+                            argument("team", TeamArgument.team()) {
+                                executes(::makeTeamAdmin)
+                            }
+                        }
+                        literal("eliminated") {
+                            literal("add") {
+                                argument("team", TeamArgument.team()) {
+                                    executes(::setTeamEliminated)
+                                }
+                            }
+                            literal("remove") {
+                                argument("team", TeamArgument.team()) {
+                                    executes(::setTeamPlaying)
+                                }
+                            }
+                        }
+                    }
+                    literal("chat", "spies") {
+                        literal("add") {
+                            executes(::selfAddSpy)
+                            argument("players", EntityArgument.players()) {
+                                executes(::addChatSpies)
+                            }
+                        }
+                        literal("remove") {
+                            executes(::selfRemoveSpy)
+                            argument("players", EntityArgument.players()) {
+                                executes(::removeChatSpies)
+                            }
+                        }
+                    }
+                    literal("spectating") {
+                        literal("add") {
+                            executes(::selfSpectateMinigame)
+                            argument("players", EntityArgument.players()) {
+                                executes(::addPlayersToSpectate)
+                            }
+                        }
+                        literal("remove") {
+                            executes(::selfPlayingMinigame)
+                            argument("players", EntityArgument.players()) {
+                                executes(::addPlayersToPlaying)
+                            }
+                        }
+                    }
+                    literal("admin") {
+                        literal("add") {
+                            executes(::selfAdminMinigame)
+                            argument("players", EntityArgument.players()) {
+                                executes(::addPlayersToAdmin)
+                            }
+                        }
+                        literal("remove") {
+                            executes(::selfUnAdminMinigame)
+                            argument("players", EntityArgument.players()) {
+                                executes(::removePlayersFromAdmin)
+                            }
+                        }
+                    }
+                    literal("settings") {
+                        executes(::openMinigameSettings)
+                        argument("setting", SettingsName.name("minigame")) {
+                            executes(::getMinigameSetting)
+                            literal("set", "from") {
+                                literal("option") {
+                                    argument("option", SettingsOption.option("minigame", "setting")) {
+                                        executes(::setMinigameSettingFromOption)
+                                    }
+                                }
+                                literal("value") {
+                                    argument("value", SettingsValue.value()) {
+                                        executes(::setMinigameSettingFromValue)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    literal("tags") {
+                        argument("player", EntityArgument.player()) {
+                            literal("add") {
+                                argument("tag", ResourceLocationArgument.id()) {
+                                    executes(::addPlayerTag)
+                                }
+                            }
+                            literal("remove") {
+                                argument("tag", ResourceLocationArgument.id()) {
+                                    suggests { context ->
+                                        val minigame = MinigameArgument.getMinigame(context, "minigame")
+                                        val player = EntityArgument.getPlayer(context, "player")
+                                        minigame.tags.get(player).map(ResourceLocation::toString)
+                                    }
+                                    executes(::removePlayerTag)
+                                }
+                            }
+                            literal("list") {
+                                executes(::listPlayerTags)
+                            }
+                        }
+                    }
+                    literal("phase") {
+                        executes(::getMinigamePhase)
+                        literal("set") {
+                            argument("phase", PhaseName.name("minigame")) {
+                                executes(::setMinigamePhase)
+                            }
+                        }
+                    }
+                    literal("pause") {
+                        executes(::pauseMinigame)
+                    }
+                    literal("unpause") {
+                        executes(::unpauseMinigame)
+                        literal("countdown") {
+                            executes { unpauseWithCountdown(it, 10, MinecraftTimeUnit.Seconds) }
+                            argument("time", IntegerArgumentType.integer(1)) {
+                                argument("unit", EnumArgument.enumeration(MinecraftTimeUnit::class.java)) {
+                                    executes(::unpauseWithCountdown)
+                                }
+                            }
+                        }
+                        literal("ready") {
+                            literal("players") {
+                                executes { readyUnpause(it, false) }
+                            }
+                            literal("teams") {
+                                executes { readyUnpause(it, true) }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun listMinigames(context: CommandContext<CommandSourceStack>): Int {
@@ -232,10 +259,10 @@ internal object MinigameCommand: Command {
     }
 
     private fun selfAddSpy(context: CommandContext<CommandSourceStack>): Int {
-        return this.addSpies(context, listOf(context.source.playerOrException))
+        return this.addChatSpies(context, listOf(context.source.playerOrException))
     }
 
-    private fun addSpies(
+    private fun addChatSpies(
         context: CommandContext<CommandSourceStack>,
         players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
     ): Int {
@@ -247,10 +274,10 @@ internal object MinigameCommand: Command {
     }
 
     private fun selfRemoveSpy(context: CommandContext<CommandSourceStack>): Int {
-        return this.removeSpies(context, listOf(context.source.playerOrException))
+        return this.removeChatSpies(context, listOf(context.source.playerOrException))
     }
 
-    private fun removeSpies(
+    private fun removeChatSpies(
         context: CommandContext<CommandSourceStack>,
         players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
     ): Int {
@@ -368,7 +395,7 @@ internal object MinigameCommand: Command {
         return this.removePlayersFromMinigame(listOf(context.source.playerOrException), context)
     }
 
-    private fun otherLeaveMinigame(context: CommandContext<CommandSourceStack>): Int {
+    private fun removePlayersFromMinigame(context: CommandContext<CommandSourceStack>): Int {
         val players = EntityArgument.getPlayers(context, "players")
         return this.removePlayersFromMinigame(players, context)
     }
@@ -397,7 +424,7 @@ internal object MinigameCommand: Command {
 
     private fun infoPathMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val path = MinigameArgument.InfoPath.getPath(context, "path")
+        val path = InfoPath.getPath(context, "path")
         val info = JsonUtils.GSON.toJson(minigame.getDebugInfo().get(path))
         return context.source.success(info)
     }
@@ -409,16 +436,16 @@ internal object MinigameCommand: Command {
 
     private fun getMinigameSetting(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val name = MinigameArgument.SettingsName.getSettingsName(context, "setting")
+        val name = SettingsName.getSettingsName(context, "setting")
         val setting = minigame.settings.get(name) ?: throw INVALID_SETTING_NAME.create()
         return context.source.success("Setting $name for minigame ${minigame.id} is set to ${setting.get()}")
     }
 
     private fun setMinigameSettingFromOption(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val name = MinigameArgument.SettingsName.getSettingsName(context, "setting")
+        val name = SettingsName.getSettingsName(context, "setting")
         val setting = minigame.settings.get(name) ?: throw INVALID_SETTING_NAME.create()
-        val option = MinigameArgument.SettingsOption.getSettingsOption(context, "option")
+        val option = SettingsOption.getSettingsOption(context, "option")
         val value = setting.getOption(option) ?: throw INVALID_SETTING_OPTION.create()
         setting.setFromOption(option)
         return context.source.success("Setting $name for minigame ${minigame.id} set to option $option ($value)")
@@ -426,9 +453,9 @@ internal object MinigameCommand: Command {
 
     private fun setMinigameSettingFromValue(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val name = MinigameArgument.SettingsName.getSettingsName(context, "setting")
+        val name = SettingsName.getSettingsName(context, "setting")
         val setting = minigame.settings.get(name) ?: throw INVALID_SETTING_NAME.create()
-        val value = MinigameArgument.SettingsValue.getSettingsValue(context, "value")
+        val value = SettingsValue.getSettingsValue(context, "value")
         setting.deserializeAndSet(value)
         return context.source.success("Setting $name for minigame ${minigame.id} set to ${setting.get()}")
     }
@@ -437,7 +464,7 @@ internal object MinigameCommand: Command {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val player = EntityArgument.getPlayer(context, "player")
         val tags = minigame.tags.get(player).joinToString()
-        return context.source.success("Tags for ${player.scoreboard}: ${tags}")
+        return context.source.success("Tags for ${player.scoreboard}: $tags")
     }
 
     private fun addPlayerTag(context: CommandContext<CommandSourceStack>): Int {
@@ -462,12 +489,6 @@ internal object MinigameCommand: Command {
         return context.source.success("Successfully removed tag $tag for ${player.scoreboard}")
     }
 
-    private fun suggestExistingTags(context: CommandContext<CommandSourceStack>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
-        val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val player = EntityArgument.getPlayer(context, "player")
-        return SharedSuggestionProvider.suggestResource(minigame.tags.get(player), builder)
-    }
-
     private fun getMinigamePhase(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         return context.source.success("The phase of minigame ${minigame.id} is ${minigame.phase.id}")
@@ -476,7 +497,7 @@ internal object MinigameCommand: Command {
     private fun <M: Minigame<M>> setMinigamePhase(context: CommandContext<CommandSourceStack>): Int {
         @Suppress("UNCHECKED_CAST")
         val minigame = MinigameArgument.getMinigame(context, "minigame") as Minigame<M>
-        val name = MinigameArgument.PhaseName.getPhaseName(context, "phase")
+        val name = PhaseName.getPhaseName(context, "phase")
         val phase = minigame.phases.find { it.id == name } ?: throw INVALID_PHASE_NAME.create()
         minigame.setPhase(phase)
         return context.source.success("Successfully set phase of minigame ${minigame.id} to ${phase.id}")
@@ -507,7 +528,7 @@ internal object MinigameCommand: Command {
         }
         val callback: () -> Unit = {
             val message = "All players are ready, click ".literal().apply {
-                append("[here]".literal().green().suggestCommand("/minigame unpause ${minigame.uuid} countdown 5 Seconds"))
+                append("[here]".literal().green().suggestCommand("/minigame modify ${minigame.uuid} unpause countdown 5 Seconds"))
                 append(" to start the unpause countdown!")
             }
             minigame.chat.broadcastTo(message, minigame.getAdminPlayers())
@@ -540,17 +561,16 @@ internal object MinigameCommand: Command {
             return context.source.fail("Minigame ${minigame.id} was already unpaused")
         }
         val duration = unit.duration(time)
-        var cancelled = false
+
         // We must use the global scheduler, because the minigame scheduler is paused
-        minigame.ui.countdown.countdown(minigame, duration, scheduler = GlobalTickedScheduler.asScheduler()).then {
-            if (!cancelled) {
-                minigame.unpause()
-            }
+        val scheduler = GlobalTickedScheduler.temporaryScheduler(duration)
+        minigame.ui.countdown.countdown(minigame, duration, scheduler = scheduler).then {
+            minigame.unpause()
         }
         return context.source.success {
             "Successfully started countdown, click ".literal().apply {
                 append("[here]".literal().green().singleUseFunction {
-                    cancelled = true
+                    scheduler.cancelAll()
                     minigame.chat.broadcastTo("Successfully cancelled the countdown".literal(), it)
                 })
                 append(" to cancel the countdown")
@@ -559,7 +579,7 @@ internal object MinigameCommand: Command {
     }
 
     private fun createMinigame(context: CommandContext<CommandSourceStack>): Int {
-        val factory = MinigameArgument.Factory.getFactory(context, "factory")
+        val factory = Factory.getFactory(context, "factory")
         val minigame = factory.create(MinigameCreationContext(context.source.server))
         minigame.tryInitialize()
         return context.source.success("Successfully created minigame ${minigame.id} with uuid ${minigame.uuid}")

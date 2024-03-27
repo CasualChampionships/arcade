@@ -9,8 +9,6 @@ internal object ArcadeCommands {
             MinigameCommand.register(it.dispatcher)
             TeamCommandModifier.register(it.dispatcher)
             WorldBorderCommandModifier.register(it.dispatcher)
-
-            ArcadeCommand.register(it.dispatcher)
         }
     }
 }

@@ -1,6 +1,13 @@
 package net.casual.arcade.utils
 
 import com.mojang.brigadier.Command
+import com.mojang.brigadier.CommandDispatcher
+import com.mojang.brigadier.arguments.ArgumentType
+import com.mojang.brigadier.builder.ArgumentBuilder
+import com.mojang.brigadier.builder.LiteralArgumentBuilder
+import com.mojang.brigadier.builder.RequiredArgumentBuilder
+import com.mojang.brigadier.context.CommandContext
+import com.mojang.brigadier.tree.LiteralCommandNode
 import net.casual.arcade.commands.hidden.HiddenCommand
 import net.casual.arcade.commands.hidden.HiddenCommandContext
 import net.casual.arcade.events.GlobalEventHandler
@@ -10,7 +17,9 @@ import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.TimeUtils.Minutes
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Mth
 import net.minecraft.util.RandomSource
@@ -65,6 +74,87 @@ public object CommandUtils {
 
     public fun CommandSourceStack.fail(component: Component): Int {
         return this.sendFailure(component).commandFailure()
+    }
+
+    public fun <S> buildLiteral(
+        literal: String,
+        builder: LiteralArgumentBuilder<S>.() -> Unit
+    ): LiteralCommandNode<S> {
+        val root = LiteralArgumentBuilder.literal<S>(literal)
+        root.builder()
+        return root.build()
+    }
+
+    public fun <S> CommandDispatcher<S>.buildLiteral(
+        literal: String,
+        builder: LiteralArgumentBuilder<S>.() -> Unit
+    ): LiteralCommandNode<S> {
+        val root = LiteralArgumentBuilder.literal<S>(literal)
+        root.builder()
+        return this.register(root)
+    }
+
+    public fun <S, T: ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.literal(
+        literal: String,
+        builder: LiteralArgumentBuilder<S>.() -> Unit = { }
+    ): T {
+        val argument = LiteralArgumentBuilder.literal<S>(literal)
+        argument.builder()
+        return this.then(argument)
+    }
+
+    public fun <S, T: ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.literal(
+        root: String,
+        vararg literals: String,
+        builder: LiteralArgumentBuilder<S>.() -> Unit = { }
+    ): T {
+        val first = LiteralArgumentBuilder.literal<S>(root)
+        var argument = first
+        for (literal in literals) {
+            argument = argument.literal(literal)
+        }
+        argument.builder()
+        return this.then(first)
+    }
+
+    public fun <A, S, T: ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.argument(
+        name: String,
+        type: ArgumentType<A>,
+        builder: RequiredArgumentBuilder<S, A>.() -> Unit = { }
+    ): T {
+        val argument = RequiredArgumentBuilder.argument<S, A>(name, type)
+        argument.builder()
+        return this.then(argument)
+    }
+
+    public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
+        permission: Int
+    ): T {
+        return this.requires { it.hasPermission(permission) }
+    }
+
+    public fun <S, T: RequiredArgumentBuilder<S, T>> RequiredArgumentBuilder<S, T>.suggests(
+        suggestions: Iterable<String>
+    ): RequiredArgumentBuilder<S, T> {
+        return this.suggests { _, builder ->
+            SharedSuggestionProvider.suggest(suggestions, builder)
+        }
+    }
+
+    public fun <S, T: RequiredArgumentBuilder<S, T>> RequiredArgumentBuilder<S, T>.suggests(
+        supplier: (CommandContext<S>) -> Iterable<String>
+    ): RequiredArgumentBuilder<S, T> {
+        return this.suggests { context, builder ->
+            SharedSuggestionProvider.suggest(supplier(context), builder)
+        }
+    }
+
+    public fun RequiredArgumentBuilder<CommandSourceStack, ResourceLocation>.suggests(
+        supplier: (CommandContext<CommandSourceStack>) -> Iterable<String>
+    ): RequiredArgumentBuilder<CommandSourceStack, ResourceLocation> {
+        return this.suggests { context, builder ->
+            SharedSuggestionProvider.suggest(supplier(context), builder)
+        }
     }
 
     internal fun registerEvents() {

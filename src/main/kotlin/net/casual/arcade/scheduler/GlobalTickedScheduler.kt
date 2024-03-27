@@ -7,6 +7,7 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.managers.MinigameScheduler
 import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
 import net.casual.arcade.task.Task
+import net.casual.arcade.utils.TimeUtils.Ticks
 
 /**
  * This is a global implementation of a [TickedScheduler], you
@@ -24,10 +25,16 @@ import net.casual.arcade.task.Task
  * @see MinigameScheduler
  */
 public object GlobalTickedScheduler {
+    private val schedulers = ArrayList<TickedScheduler>()
     private val scheduler = TickedScheduler()
 
     init {
-        GlobalEventHandler.register<ServerTickEvent>(phase = POST) { this.scheduler.tick() }
+        GlobalEventHandler.register<ServerTickEvent>(phase = POST) {
+            this.scheduler.tick()
+            for (scheduler in this.schedulers) {
+                scheduler.tick()
+            }
+        }
     }
 
     public fun asScheduler(): MinecraftScheduler {
@@ -112,5 +119,17 @@ public object GlobalTickedScheduler {
         task: Task
     ) {
         this.scheduler.scheduleInLoop(delay, interval, duration, unit, task)
+    }
+
+    @JvmStatic
+    public fun temporaryScheduler(
+        lifetime: MinecraftTimeDuration
+    ): TickedScheduler {
+        val temporary = TickedScheduler()
+        this.schedulers.add(temporary)
+        this.schedule(lifetime + 1.Ticks) {
+            this.schedulers.remove(temporary)
+        }
+        return temporary
     }
 }
