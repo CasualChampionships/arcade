@@ -13,6 +13,7 @@ import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.PlayerUtils.getChatPrefix
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
+import java.util.UUID
 
 public class MinigameChatManager(
     private val minigame: Minigame<*>
@@ -25,6 +26,8 @@ public class MinigameChatManager(
     public var systemChatFormatter: ChatFormatter? = null
 
     public var mutedMessage: Component = "Currently chat is muted".literal().red()
+
+    internal val spies = HashSet<UUID>()
 
     init {
         this.minigame.events.register<PlayerChatEvent>(1_000, DEFAULT, NONE, this::onGlobalPlayerChat)
@@ -86,6 +89,18 @@ public class MinigameChatManager(
         return team == null || this.minigame.teams.isTeamIgnored(team) || message.startsWith("!")
     }
 
+    public fun addSpy(player: ServerPlayer) {
+        this.spies.add(player.uuid)
+    }
+
+    public fun removeSpy(player: ServerPlayer) {
+        this.spies.remove(player.uuid)
+    }
+
+    public fun isSpy(player: ServerPlayer): Boolean {
+        return this.spies.contains(player.uuid)
+    }
+
     public fun getAllPlayers(): List<ServerPlayer> {
         return this.minigame.getAllPlayers()
     }
@@ -130,20 +145,20 @@ public class MinigameChatManager(
         if (this.minigame.isAdmin(player)) {
             val (decorated, prefix) = this.adminChatFormatter.format(player, message.decoratedContent())
             event.replaceMessage(decorated, prefix)
-            event.addFilter { this.minigame.isAdmin(it) }
+            event.addFilter { this.minigame.isAdmin(it) || this.isSpy(it) }
             return
         }
 
         if (this.minigame.isSpectating(player)) {
             val (decorated, prefix) = this.spectatorChatFormatter.format(player, message.decoratedContent())
             event.replaceMessage(decorated, prefix)
-            event.addFilter { this.minigame.isSpectating(it) }
+            event.addFilter { this.minigame.isSpectating(it) || this.isSpy(it) }
             return
         }
 
         val (decorated, prefix) = this.teamChatFormatter.format(player, message.decoratedContent())
         event.replaceMessage(decorated, prefix)
-        event.addFilter { team == it.team }
+        event.addFilter { team == it.team || this.isSpy(it) }
         return
     }
 

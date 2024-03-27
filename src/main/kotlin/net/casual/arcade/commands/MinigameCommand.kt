@@ -65,6 +65,18 @@ internal object MinigameCommand: Command {
                     )
                 )
             ).then(
+                Commands.literal("chat").then(
+                    Commands.literal("spy").then(
+                        Commands.literal("add").then(
+                            Commands.argument("players", EntityArgument.players()).executes(this::addSpies)
+                        ).executes(this::selfAddSpy)
+                    ).then(
+                        Commands.literal("remove").then(
+                            Commands.argument("players", EntityArgument.players()).executes(this::removeSpies)
+                        ).executes(this::selfRemoveSpy)
+                    )
+                )
+            ).then(
                 Commands.literal("spectate").then(
                     Commands.argument("minigame", MinigameArgument.minigame()).then(
                         Commands.argument("players", EntityArgument.players()).executes(this::addPlayersToSpectate)
@@ -217,6 +229,36 @@ internal object MinigameCommand: Command {
         val team = TeamArgument.getTeam(context, "team")
         minigame.teams.removeEliminatedTeam(team)
         return context.source.success("Successfully set ${team.name} to be playing")
+    }
+
+    private fun selfAddSpy(context: CommandContext<CommandSourceStack>): Int {
+        return this.addSpies(context, listOf(context.source.playerOrException))
+    }
+
+    private fun addSpies(
+        context: CommandContext<CommandSourceStack>,
+        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
+    ): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        for (player in players) {
+            minigame.chat.addSpy(player)
+        }
+        return context.source.success("Successfully added players as spies!")
+    }
+
+    private fun selfRemoveSpy(context: CommandContext<CommandSourceStack>): Int {
+        return this.removeSpies(context, listOf(context.source.playerOrException))
+    }
+
+    private fun removeSpies(
+        context: CommandContext<CommandSourceStack>,
+        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
+    ): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        for (player in players) {
+            minigame.chat.removeSpy(player)
+        }
+        return context.source.success("Successfully removed players as spies!")
     }
 
     private fun addPlayersToMinigame(

@@ -208,6 +208,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
 
         this.spectators.addAll(json.arrayOrDefault("spectators").uuids())
         this.admins.addAll(json.arrayOrDefault("admins").uuids())
+        this.chat.spies.addAll(json.arrayOrDefault("spies").uuids())
 
         this.settings.deserialize(json.arrayOrDefault("settings"))
         this.stats.deserialize(json.arrayOrDefault("stats"))
@@ -272,6 +273,11 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
             admins.add(admin.toString())
         }
 
+        val spies = JsonArray()
+        for (spy in this.chat.spies) {
+            spies.add(spy.toString())
+        }
+
         val settings = this.settings.serialize()
         val stats = this.stats.serialize()
 
@@ -298,6 +304,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         json.add("players", players)
         json.add("spectators", spectators)
         json.add("admins", admins)
+        json.add("spies", spies)
         json.add("settings", settings)
         json.add("stats", stats)
         json.add("tags", tags)

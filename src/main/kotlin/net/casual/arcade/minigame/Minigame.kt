@@ -724,6 +724,7 @@ public abstract class Minigame<M: Minigame<M>>(
         json.add("admins", this.getAdminPlayers().toJsonStringArray { it.scoreboardName })
         json.add("spectating", this.getSpectatingPlayers().toJsonStringArray { it.scoreboardName })
         json.add("teams", this.teams.getAllTeams().toJsonStringArray { it.name })
+        json.add("spies", this.chat.spies.toJsonStringArray { it.toString() })
         json.add("playing_teams", this.teams.getPlayingTeams().toJsonStringArray { it.name })
         json.add("eliminated_teams", this.teams.getEliminatedTeams().toJsonStringArray { it.name })
         json.add("levels", this.levels.all().toJsonStringArray { it.dimension().location().toString() })
