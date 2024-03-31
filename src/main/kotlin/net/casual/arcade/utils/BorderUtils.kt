@@ -4,7 +4,7 @@ import net.casual.arcade.border.LevelSpecificBorderBroadcaster
 import net.casual.arcade.border.extensions.BorderSerializerExtension
 import net.casual.arcade.config.ArcadeConfig
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.level.LevelCreatedEvent
+import net.casual.arcade.events.level.LevelExtensionEvent
 import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.utils.LevelUtils.addExtension
 import net.minecraft.server.level.ServerLevel
@@ -70,7 +70,7 @@ public object BorderUtils {
     }
 
     internal fun registerEvents() {
-        GlobalEventHandler.register<LevelCreatedEvent> { (level) ->
+        GlobalEventHandler.register<LevelExtensionEvent> { (level) ->
             level.addExtension(BorderSerializerExtension(level))
             if (level is RuntimeWorld) {
                 val border = level.worldBorder

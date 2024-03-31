@@ -9,6 +9,7 @@ import net.casual.arcade.gui.predicate.PlayerObserverPredicate
 import net.casual.arcade.gui.elements.ComponentElements
 import net.casual.arcade.gui.elements.PlayerSpecificElement
 import net.casual.arcade.minigame.Minigame
+import net.minecraft.client.Minecraft
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener

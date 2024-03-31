@@ -41,14 +41,21 @@ public object GlobalEventHandler {
      * See the implementation details of the firing event.
      *
      * In the unlikely case that an event is fired within
-     * one of its listeners, it will **not** recurse, and instead
-     * the recursive event will simply just be logged and suppressed.
+     * one of its listeners, it will recurse, however, there is
+     * a hard-limit to the number of times a recursive event
+     * can be fired.
+     * After this limit is reached, the event will be suppressed.
      *
-     * It is also possible to register to the firing event,
-     * however, these listeners will be deferred and will not
-     * be fired in the same event where they were registered.
-     * The reasoning for this is because we cannot guarantee
-     * priority preservation.
+     * This method *may* be called off the main thread,
+     * however it must be defined behaviour; the event you're
+     * broadcasting must implement [ServerOffThreadEvent].
+     * The event will then be pushed to the main thread.
+     *
+     * It is also possible to register to the firing event
+     * as it's being broadcast.
+     * These listeners will be deferred and will not
+     * be invoked, the reasoning for this is because we
+     * cannot guarantee priority preservation.
      *
      * @param event The event that is being fired.
      */
@@ -103,6 +110,7 @@ public object GlobalEventHandler {
      *
      * @param T The type of event.
      * @param priority The priority of your event listener.
+     * @param phase The phase of the event, [DEFAULT] by default.
      * @param listener The callback which will be invoked when the event is fired.
      */
     public inline fun <reified T: Event> register(priority: Int = 1_000, phase: String = DEFAULT, listener: Consumer<T>) {
@@ -123,6 +131,7 @@ public object GlobalEventHandler {
      * @param T The type of event.
      * @param type The class of the event that you want to listen to.
      * @param priority The priority of your event listener.
+     * @param phase The phase of the event, [DEFAULT] by default.
      * @param listener The callback which will be invoked when the event is fired.
      */
     @JvmStatic

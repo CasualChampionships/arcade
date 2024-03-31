@@ -5,8 +5,8 @@ import net.casual.arcade.Arcade
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.core.Event
-import net.casual.arcade.events.level.LevelCreatedEvent
-import net.casual.arcade.events.player.PlayerCreatedEvent
+import net.casual.arcade.events.level.LevelExtensionEvent
+import net.casual.arcade.events.player.PlayerExtensionEvent
 import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.minigame.Minigame
@@ -183,13 +183,13 @@ public object MinigameUtils {
     }
 
     internal fun registerEvents() {
-        GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
+        GlobalEventHandler.register<PlayerExtensionEvent> { (player) ->
             player.addExtension(PlayerMinigameExtension(player.connection))
         }
         GlobalEventHandler.register<PlayerJoinEvent>(Int.MIN_VALUE) { (player) ->
             player.getMinigame()?.addPlayer(player)
         }
-        GlobalEventHandler.register<LevelCreatedEvent> { (level) ->
+        GlobalEventHandler.register<LevelExtensionEvent> { (level) ->
             level.addExtension(LevelMinigameExtension(level))
         }
     }

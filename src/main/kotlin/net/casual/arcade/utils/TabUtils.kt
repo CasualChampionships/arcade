@@ -1,7 +1,7 @@
 package net.casual.arcade.utils
 
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.player.PlayerCreatedEvent
+import net.casual.arcade.events.player.PlayerExtensionEvent
 import net.casual.arcade.events.player.PlayerLeaveEvent
 import net.casual.arcade.events.player.PlayerTickEvent
 import net.casual.arcade.gui.extensions.PlayerTabDisplayExtension
@@ -14,7 +14,7 @@ internal object TabUtils {
         get() = this.getExtension(PlayerTabDisplayExtension::class.java)
 
     internal fun registerEvents() {
-        GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
+        GlobalEventHandler.register<PlayerExtensionEvent> { (player) ->
             player.addExtension(PlayerTabDisplayExtension(player.connection))
         }
         GlobalEventHandler.register<PlayerLeaveEvent> { (player) ->

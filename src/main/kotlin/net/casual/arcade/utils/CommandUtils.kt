@@ -19,7 +19,6 @@ import net.casual.arcade.utils.TimeUtils.Minutes
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Mth
 import net.minecraft.util.RandomSource
@@ -133,7 +132,7 @@ public object CommandUtils {
         return this.requires { it.hasPermission(permission) }
     }
 
-    public fun <S, T: RequiredArgumentBuilder<S, T>> RequiredArgumentBuilder<S, T>.suggests(
+    public fun <S, T> RequiredArgumentBuilder<S, T>.suggests(
         suggestions: Iterable<String>
     ): RequiredArgumentBuilder<S, T> {
         return this.suggests { _, builder ->
@@ -141,17 +140,9 @@ public object CommandUtils {
         }
     }
 
-    public fun <S, T: RequiredArgumentBuilder<S, T>> RequiredArgumentBuilder<S, T>.suggests(
+    public fun <S, T> RequiredArgumentBuilder<S, T>.suggests(
         supplier: (CommandContext<S>) -> Iterable<String>
     ): RequiredArgumentBuilder<S, T> {
-        return this.suggests { context, builder ->
-            SharedSuggestionProvider.suggest(supplier(context), builder)
-        }
-    }
-
-    public fun RequiredArgumentBuilder<CommandSourceStack, ResourceLocation>.suggests(
-        supplier: (CommandContext<CommandSourceStack>) -> Iterable<String>
-    ): RequiredArgumentBuilder<CommandSourceStack, ResourceLocation> {
         return this.suggests { context, builder ->
             SharedSuggestionProvider.suggest(supplier(context), builder)
         }

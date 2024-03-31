@@ -13,6 +13,12 @@ import net.minecraft.server.MinecraftServer
  * see [PlayerJoinEvent].
  */
 public data class PlayerLoginEvent(
+    /**
+     * The [MinecraftServer] instance.
+     */
     val server: MinecraftServer,
+    /**
+     * The profile of the player that is logging in.
+     */
     val profile: GameProfile
 ): ServerOffThreadEvent

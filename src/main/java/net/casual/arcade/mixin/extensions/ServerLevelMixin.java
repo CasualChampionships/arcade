@@ -3,7 +3,7 @@ package net.casual.arcade.mixin.extensions;
 import net.casual.arcade.Arcade;
 import net.casual.arcade.ducks.Arcade$ExtensionHolder;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.level.LevelCreatedEvent;
+import net.casual.arcade.events.level.LevelExtensionEvent;
 import net.casual.arcade.extensions.ExtensionMap;
 import net.casual.arcade.utils.ExtensionUtils;
 import net.minecraft.core.Holder;
@@ -78,7 +78,7 @@ public abstract class ServerLevelMixin extends Level implements Arcade$Extension
 	) {
 		this.arcade$savePath = levelStorageAccess.getDimensionPath(this.dimension()).resolve("arcade.nbt");
 
-		LevelCreatedEvent event = new LevelCreatedEvent((ServerLevel) (Object) this);
+		LevelExtensionEvent event = new LevelExtensionEvent((ServerLevel) (Object) this);
 		GlobalEventHandler.broadcast(event);
 
 		try {

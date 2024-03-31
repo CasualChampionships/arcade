@@ -4,6 +4,11 @@ import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.core.Event
 import java.util.function.Consumer
 
+/**
+ * This interface lets you register event listeners.
+ *
+ * @see EventHandler
+ */
 public interface EventRegisterer: ListenerHandler {
     /**
      * Registers an event listener with a given priority.
@@ -16,9 +21,14 @@ public interface EventRegisterer: ListenerHandler {
      * in what order the listener will be invoked. Lower values
      * of [priority] will result in being invoked earlier.
      *
+     * The phase depends on the event, and can be used to determine
+     * when the listener is invoked, see the event implementation
+     * you are listening to for more information.
+     *
      * @param T The type of event.
      * @param type The class of the event that you want to listen to.
      * @param priority The priority of your event listener.
+     * @param phase The phase of the event, [DEFAULT] by default.
      * @param listener The callback which will be invoked when the event is fired.
      */
     public fun <T: Event> register(type: Class<T>, priority: Int = 1_000, phase: String = DEFAULT, listener: Consumer<T>) {

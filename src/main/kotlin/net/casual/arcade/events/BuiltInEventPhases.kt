@@ -1,5 +1,11 @@
 package net.casual.arcade.events
 
+/**
+ * This object contains the built-in event phases.
+ *
+ * @see EventRegisterer
+ * @see EventListener
+ */
 public object BuiltInEventPhases {
     public const val PRE: String = "pre"
     public const val POST: String = "post"

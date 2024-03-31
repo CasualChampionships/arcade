@@ -3,7 +3,7 @@ package net.casual.arcade.utils
 import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer
 import net.casual.arcade.Arcade
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.level.LevelCreatedEvent
+import net.casual.arcade.events.level.LevelExtensionEvent
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
 import net.casual.arcade.level.DragonDataExtension
@@ -97,7 +97,7 @@ public object LevelUtils {
     }
 
     internal fun registerEvents() {
-        GlobalEventHandler.register<LevelCreatedEvent> { (level) ->
+        GlobalEventHandler.register<LevelExtensionEvent> { (level) ->
             level.addExtension(DragonDataExtension(level))
         }
     }

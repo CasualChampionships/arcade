@@ -16,29 +16,31 @@ import net.minecraft.world.scores.PlayerTeam
  * data can be serialized and deserialize with the
  * use of a [DataExtension].
  *
- * Here's an example of an extension for a [ServerPlayer], which keeps
- * track of the last-sent message from the player.
+ * Here's an example of an extension for a [ServerLevel], which keeps
+ * track of the last modified block position in the world.
  * You can then use this data elsewhere in your code.
  * ```kotlin
- * class MyPlayerExtension: Extension {
- *     var lastSentMessage = ""
+ * class MyLevelExtension: Extension {
+ *     var lastModifiedBlockPos: BlockPos? = null
  *
  *     companion object {
- *         val ServerPlayer.myExtension
- *             get() = this.getExtension(MyPlayerExtension::class.java)
+ *         val ServerLevel.myExtension
+ *             get() = this.getExtension(MyLevelExtension::class.java)
  *
  *         // This must be called in your ModInitializer
  *         fun registerEvents() {
- *             GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
- *                 player.addExtension(MyPlayerExtension())
+ *             GlobalEventHandler.register<LevelCreatedEvent> { (level) ->
+ *                 level.addExtension(MyLevelExtension())
  *             }
- *             GlobalEventHandler.register<PlayerChatEvent> { (player, message) ->
- *                 player.myExtension.lastSentMessage = message.signedContent()
+ *             GlobalEventHandler.register<LevelBlockChangedEvent> { (level, pos, _, _) ->
+ *                 level.myExtension.lastModifiedBlockPos = pos
  *             }
  *         }
  *     }
  * }
  * ```
+ *
+ * For Player related extensions please use [PlayerExtension].
  *
  * @see DataExtension
  * @see ExtensionHolder

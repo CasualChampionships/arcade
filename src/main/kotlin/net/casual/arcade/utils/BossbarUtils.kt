@@ -1,7 +1,7 @@
 package net.casual.arcade.utils
 
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.player.PlayerCreatedEvent
+import net.casual.arcade.events.player.PlayerExtensionEvent
 import net.casual.arcade.events.player.PlayerLeaveEvent
 import net.casual.arcade.events.player.PlayerTickEvent
 import net.casual.arcade.gui.bossbar.TimerBossBar
@@ -44,7 +44,7 @@ public object BossbarUtils {
     }
 
     internal fun registerEvents() {
-        GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
+        GlobalEventHandler.register<PlayerExtensionEvent> { (player) ->
             player.addExtension(PlayerBossbarsExtension(player.connection))
         }
         GlobalEventHandler.register<PlayerLeaveEvent> { (player) ->

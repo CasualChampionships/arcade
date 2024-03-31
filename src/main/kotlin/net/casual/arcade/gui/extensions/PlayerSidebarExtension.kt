@@ -8,11 +8,12 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket.*
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import java.util.function.Consumer
 
 internal class PlayerSidebarExtension(
-    owner: ServerGamePacketListenerImpl
+    owner: ServerPlayer
 ): PlayerExtension(owner) {
     private val previousRows = ArrayList<SidebarComponent>()
     private var previousTitle: Component? = null

@@ -1,7 +1,7 @@
 package net.casual.arcade.utils
 
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.player.PlayerCreatedEvent
+import net.casual.arcade.events.player.PlayerExtensionEvent
 import net.casual.arcade.events.player.PlayerLeaveEvent
 import net.casual.arcade.events.player.PlayerTickEvent
 import net.casual.arcade.events.server.ServerLoadedEvent
@@ -85,7 +85,7 @@ internal object SidebarUtils {
                 this.players.add(player)
             }
         }
-        GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
+        GlobalEventHandler.register<PlayerExtensionEvent> { (player) ->
             player.addExtension(PlayerSidebarExtension(player.connection))
         }
         GlobalEventHandler.register<PlayerLeaveEvent> { (player) ->

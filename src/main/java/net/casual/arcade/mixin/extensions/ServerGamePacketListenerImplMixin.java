@@ -3,7 +3,7 @@ package net.casual.arcade.mixin.extensions;
 import net.casual.arcade.ducks.Arcade$ExtensionDataHolder;
 import net.casual.arcade.ducks.Arcade$ExtensionHolder;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.player.PlayerCreatedEvent;
+import net.casual.arcade.events.player.PlayerExtensionEvent;
 import net.casual.arcade.extensions.ExtensionMap;
 import net.minecraft.network.Connection;
 import net.minecraft.server.MinecraftServer;
@@ -21,14 +21,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ServerGamePacketListenerImplMixin implements Arcade$ExtensionHolder {
 	@Shadow public ServerPlayer player;
 
-	@Unique private ExtensionMap arcade$extensionMap = new ExtensionMap();
+	@Unique private final ExtensionMap arcade$extensionMap = new ExtensionMap();
 
 	@Inject(
 		method = "<init>",
 		at = @At("TAIL")
 	)
-	private void onCreatePlayer(MinecraftServer server, Connection connection, ServerPlayer player, CommonListenerCookie cookie, CallbackInfo ci) {
-		PlayerCreatedEvent event = new PlayerCreatedEvent(player);
+	private void onCreatePlayer(
+		MinecraftServer server,
+		Connection connection,
+		ServerPlayer player,
+		CommonListenerCookie cookie,
+		CallbackInfo ci
+	) {
+		PlayerExtensionEvent event = new PlayerExtensionEvent(player);
 		GlobalEventHandler.broadcast(event);
 
 		((Arcade$ExtensionDataHolder) player).arcade$deserializeExtensionData();

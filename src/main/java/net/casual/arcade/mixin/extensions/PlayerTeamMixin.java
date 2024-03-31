@@ -2,7 +2,7 @@ package net.casual.arcade.mixin.extensions;
 
 import net.casual.arcade.ducks.Arcade$ExtensionHolder;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.team.TeamCreatedEvent;
+import net.casual.arcade.events.team.TeamExtensionEvent;
 import net.casual.arcade.extensions.ExtensionMap;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
@@ -22,7 +22,7 @@ public class PlayerTeamMixin implements Arcade$ExtensionHolder {
 		at = @At("TAIL")
 	)
 	private void onCreateTeam(Scoreboard scoreboard, String string, CallbackInfo ci) {
-		TeamCreatedEvent event = new TeamCreatedEvent((PlayerTeam) (Object) this);
+		TeamExtensionEvent event = new TeamExtensionEvent((PlayerTeam) (Object) this);
 		GlobalEventHandler.broadcast(event);
 	}
 
