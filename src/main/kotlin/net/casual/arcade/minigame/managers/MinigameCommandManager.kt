@@ -28,6 +28,15 @@ import net.minecraft.network.chat.ComponentUtils
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
 
+/**
+ * This class manages the commands of a minigame.
+ *
+ * All commands added to this manager are local to the
+ * minigame only and do not exist outside the context
+ * of the minigame.
+ *
+ * @see Minigame.commands
+ */
 public class MinigameCommandManager(
     private val minigame: Minigame<*>,
 ) {
@@ -63,6 +72,11 @@ public class MinigameCommandManager(
         }
     }
 
+    /**
+     * This method registers a command to the minigame.
+     *
+     * @param literal The command builder to register.
+     */
     public fun register(literal: LiteralArgumentBuilder<CommandSourceStack>) {
         this.registered.add(literal.literal)
         this.dispatcher.register(literal)
@@ -74,6 +88,11 @@ public class MinigameCommandManager(
         this.resendGlobalCommands()
     }
 
+    /**
+     * This method unregisters a command from the minigame.
+     *
+     * @param name The name of the command to unregister.
+     */
     public fun unregister(name: String) {
         if (this.registered.remove(name)) {
             (this.dispatcher as `Arcade$DeletableCommand`).`arcade$delete`(name)
@@ -83,6 +102,9 @@ public class MinigameCommandManager(
         }
     }
 
+    /**
+     * This method unregisters all commands from the minigame.
+     */
     public fun unregisterAll() {
         val dispatcher = this.dispatcher as `Arcade$DeletableCommand`
         for (name in this.registered) {
@@ -94,6 +116,11 @@ public class MinigameCommandManager(
         this.resendGlobalCommands()
     }
 
+    /**
+     * This method gets all the root commands registered to the minigame.
+     *
+     * @return The collection of root commands.
+     */
     public fun getAllRootCommands(): Collection<String> {
         return this.registered
     }

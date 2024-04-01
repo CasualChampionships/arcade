@@ -373,10 +373,10 @@ public abstract class Minigame<M: Minigame<M>>(
 
     /**
      * This adds a player to the minigame.
-     * The player may be rejected from joining the minigame.
-     * The minigame must be [initialized], and must not yet
-     * be tracking the given player.
-     * The player may also be rejected by the [MinigameAddNewPlayerEvent].
+     * In order for this method to be successful the minigame must be
+     * [initialized], and must not yet be tracking the given player.
+     * The player may be rejected by the [MinigameAddNewPlayerEvent],
+     * in which case this method will also return `false`.
      *
      * If the player is accepted this method will return `true`.
      *
@@ -387,10 +387,20 @@ public abstract class Minigame<M: Minigame<M>>(
      * In both cases of the player joining a singular other event
      * will be broadcasted [MinigameAddPlayerEvent].
      *
+     * You can specify whether the player should join as a spectator.
+     * If the player was not previously part of the minigame then
+     * if [spectating] is `null` or `false` then they will be marked
+     * as playing, if `true` then they will join as a spectator.
+     * If the player was peviously part of the minigame then if
+     * [spectating] is `null` then the player will keep their previous
+     * state, if `true` then they will try to start spectating and if
+     * `false` then they will be removed from the spectators.
+     *
      * @param player The player to add to the minigame.
+     * @param spectating Whether the player should be spectating, `null` for default.
      * @return Whether the player was successfully accepted.
      */
-    public fun addPlayer(player: ServerPlayer): Boolean {
+    public fun addPlayer(player: ServerPlayer, spectating: Boolean? = null): Boolean {
         this.tryInitialize()
         if (this.hasPlayer(player)) {
             return false
@@ -406,6 +416,10 @@ public abstract class Minigame<M: Minigame<M>>(
             this.connections.add(player.connection)
             MinigameAddExistingPlayerEvent(this, player).broadcast()
             MinigameAddPlayerEvent(this, player).broadcast()
+
+            if (spectating != null) {
+                if (spectating) this.makeSpectator(player) else this.removeSpectator(player)
+            }
             return true
         }
 
@@ -414,6 +428,12 @@ public abstract class Minigame<M: Minigame<M>>(
         if (!event.isCancelled()) {
             player.minigame.setMinigame(this)
             MinigameAddPlayerEvent(this, player).broadcast()
+
+            if (spectating != null && spectating) {
+                this.makeSpectator(player)
+            } else {
+                MinigameSetPlayingEvent(this, player).broadcast()
+            }
             return true
         }
         this.connections.remove(player.connection)
@@ -451,7 +471,7 @@ public abstract class Minigame<M: Minigame<M>>(
 
     public fun makeSpectator(player: ServerPlayer): Boolean {
         if (this.hasPlayer(player) && this.spectators.add(player.uuid)) {
-            MinigameAddSpectatorEvent(this, player).broadcast()
+            MinigameSetSpectatingEvent(this, player).broadcast()
             return true
         }
         return false
@@ -459,7 +479,7 @@ public abstract class Minigame<M: Minigame<M>>(
 
     public fun removeSpectator(player: ServerPlayer): Boolean {
         if (this.spectators.remove(player.uuid)) {
-            MinigameRemoveSpectatorEvent(this, player).broadcast()
+            MinigameSetPlayingEvent(this, player).broadcast()
             return true
         }
         return false

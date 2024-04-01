@@ -13,6 +13,15 @@ import net.minecraft.world.Container
 import net.minecraft.world.inventory.CraftingContainer
 import net.minecraft.world.item.crafting.*
 
+/**
+ * This class manages the recipes of a minigame.
+ *
+ * All recipes added to this manager are local to the
+ * minigame only and do not exist outside the context
+ * of the minigame.
+ *
+ * @see Minigame.recipes
+ */
 public class MinigameRecipeManager(
     private val minigame: Minigame<*>
 ) {

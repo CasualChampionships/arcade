@@ -2,7 +2,7 @@ package net.casual.arcade.mixin.events;
 
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.player.PlayerCanLoginEvent;
+import net.casual.arcade.events.player.PlayerRequestLoginEvent;
 import net.casual.arcade.events.player.PlayerJoinEvent;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
@@ -46,7 +46,7 @@ public class PlayerListMixin {
 		GameProfile gameProfile,
 		CallbackInfoReturnable<Component> cir
 	) {
-		PlayerCanLoginEvent event = new PlayerCanLoginEvent(this.server, gameProfile, socketAddress);
+		PlayerRequestLoginEvent event = new PlayerRequestLoginEvent(this.server, gameProfile, socketAddress);
 		GlobalEventHandler.broadcast(event);
 		if (event.isCancelled()) {
 			cir.setReturnValue(event.result());

@@ -3,9 +3,9 @@ package net.casual.arcade.minigame.managers
 import com.google.gson.JsonObject
 import net.casual.arcade.Arcade
 import net.casual.arcade.events.minigame.MinigameAddAdminEvent
-import net.casual.arcade.events.minigame.MinigameAddSpectatorEvent
+import net.casual.arcade.events.minigame.MinigameSetSpectatingEvent
 import net.casual.arcade.events.minigame.MinigameRemoveAdminEvent
-import net.casual.arcade.events.minigame.MinigameRemoveSpectatorEvent
+import net.casual.arcade.events.minigame.MinigameSetPlayingEvent
 import net.casual.arcade.events.player.PlayerTeamJoinEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.JsonUtils.stringOrNull
@@ -26,10 +26,10 @@ public class MinigameTeamManager(
     private val eliminated = HashSet<PlayerTeam>()
 
     init {
-        this.minigame.events.register<MinigameAddSpectatorEvent> { (_, player) ->
+        this.minigame.events.register<MinigameSetSpectatingEvent> { (_, player) ->
             this.addToSpectatorTeam(player)
         }
-        this.minigame.events.register<MinigameRemoveSpectatorEvent> { (_, player) ->
+        this.minigame.events.register<MinigameSetPlayingEvent> { (_, player) ->
             if (player.team != null && player.team == this.spectators) {
                 player.removeFromTeam()
             }

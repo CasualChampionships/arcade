@@ -5,12 +5,27 @@ import net.casual.arcade.utils.MinigameUtils.minigame
 import net.minecraft.server.level.ServerLevel
 import xyz.nucleoid.fantasy.RuntimeWorldHandle
 
+/**
+ * This class manages the levels of a minigame.
+ *
+ * This also handles any [RuntimeWorldHandle]'s from
+ * fantasy if you are using them and will close them
+ * when the minigame ends.
+ *
+ * @see Minigame.levels
+ */
 public class MinigameLevelManager(
     private val minigame: Minigame<*>
 ) {
     private val handles = HashSet<RuntimeWorldHandle>()
     private val levels = HashSet<ServerLevel>()
 
+    /**
+     * The default spawn level for the minigame.
+     *
+     * If this is not set and a player dies without a respawn
+     *  point, then the player will respawn in the overworld.
+     */
     public var spawn: ServerLevel? = null
 
     /**

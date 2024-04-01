@@ -17,6 +17,14 @@ import net.minecraft.world.effect.MobEffectInstance.INFINITE_DURATION
 import net.minecraft.world.effect.MobEffects.NIGHT_VISION
 import net.minecraft.world.entity.Entity
 
+/**
+ * This class manages custom effects on players in a minigame.
+ *
+ * This includes whether entities are glowing or invisible,
+ * as well as whether a player has fullbright (night vision).
+ *
+ * @see Minigame.effects
+ */
 public class MinigameEffectsManager(
     private val owner: Minigame<*>
 ) {
@@ -31,16 +39,32 @@ public class MinigameEffectsManager(
         this.owner.events.register<MinigameRemovePlayerEvent> { this.removeFullbright(it.player) }
     }
 
+    /**
+     * This marks a player as having fullbright (night vision).
+     *
+     * @param player The player to mark as having fullbright.
+     */
     public fun addFullbright(player: ServerPlayer) {
         if (this.owner.tags.add(player, FULL_BRIGHT)) {
             player.connection.send(ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION))
         }
     }
 
+    /**
+     * This checks whether a player has fullbright (night vision).
+     *
+     * @param player The player to check whether it has fullbright.
+     * @return Whether the player has fullbright.
+     */
     public fun hasFullbright(player: ServerPlayer): Boolean {
         return this.owner.tags.has(player, FULL_BRIGHT)
     }
 
+    /**
+     * This removes fullbright (night vision) from a player.
+     *
+     * @param player The player to remove fullbright from.
+     */
     public fun removeFullbright(player: ServerPlayer) {
         if (this.owner.tags.remove(player, FULL_BRIGHT)) {
             player.connection.send(ClientboundRemoveMobEffectPacket(player.id, NIGHT_VISION))
@@ -51,6 +75,11 @@ public class MinigameEffectsManager(
         }
     }
 
+    /**
+     * This sets the predicate for whether an entity is glowing.
+     *
+     * @param predicate The predicate to set for glowing entities.
+     */
     public fun setGlowingPredicate(predicate: EntityObserverPredicate) {
         this.glowing = predicate
         for (player in this.owner.getAllPlayers()) {
@@ -60,6 +89,29 @@ public class MinigameEffectsManager(
         }
     }
 
+    /**
+     * This sets the predicate for whether an entity is invisible.
+     *
+     * @param predicate The predicate to set for invisible entities.
+     */
+    public fun setInvisiblePredicate(predicate: EntityObserverPredicate) {
+        this.invisible = predicate
+        for (player in this.owner.getAllPlayers()) {
+            // Mark entity data dirty
+            player.isInvisible = !player.isInvisible
+            player.isInvisible = !player.isInvisible
+        }
+    }
+
+    /**
+     * This force updates the glowing and invisible flags for an entity for
+     * a specific observer.
+     *
+     * @param observee The entity to update the flags for.
+     * @param observer The observer to update the flags for.
+     * @param consumer The consumer to send the updated flags to the observer, by
+     *   default this just sends the packets to the observer.
+     */
     public fun forceUpdate(
         observee: Entity,
         observer: ServerPlayer,

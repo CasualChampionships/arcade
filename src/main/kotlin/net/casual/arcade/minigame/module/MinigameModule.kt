@@ -7,8 +7,10 @@ import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.phase.Phased
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
+import org.jetbrains.annotations.ApiStatus.Experimental
 import java.util.*
 
+@Experimental
 public abstract class MinigameModule<M: Minigame<M>, P: MinigameModule<M, P>>(
     public val minigame: M
 ): Phased<P>, MinigameEventListener {

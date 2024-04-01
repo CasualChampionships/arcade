@@ -9,6 +9,15 @@ import net.casual.arcade.utils.AdvancementUtils.removeAdvancement
 import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.resources.ResourceLocation
 
+/**
+ * This class manages the advancements of a minigame.
+ *
+ * All advancements added to this manager are local to the
+ * minigame only and do not exist outside the context
+ * of the minigame.
+ *
+ * @see Minigame.advancements
+ */
 public class MinigameAdvancementManager(
     private val minigame: Minigame<*>
 ) {
@@ -23,6 +32,11 @@ public class MinigameAdvancementManager(
         }
     }
 
+    /**
+     * This adds a collection of advancements to the minigame.
+     *
+     * @param advancements The advancements to add.
+     */
     public fun addAll(advancements: Collection<AdvancementHolder>) {
         var modified = false
         for (advancement in advancements) {
@@ -35,22 +49,43 @@ public class MinigameAdvancementManager(
         }
     }
 
+    /**
+     * This adds an advancement to the minigame.
+     *
+     * @param advancement The advancement to add.
+     */
     public fun add(advancement: AdvancementHolder) {
         if (this.advancements.put(advancement.id, advancement) != advancement) {
             this.minigame.server.advancements.addAdvancement(advancement)
         }
     }
 
+    /**
+     * This gets an advancement by its [ResourceLocation].
+     *
+     * @param id The [ResourceLocation] of the advancement.
+     * @return The advancement or null if it does not exist.
+     */
     public fun get(id: ResourceLocation): AdvancementHolder? {
         return this.advancements[id]
     }
 
+    /**
+     * This removes an advancement from the minigame.
+     *
+     * @param advancement The advancement to remove.
+     */
     public fun remove(advancement: AdvancementHolder) {
         if (this.advancements.remove(advancement.id) != null) {
             this.minigame.server.advancements.removeAdvancement(advancement)
         }
     }
 
+    /**
+     * This removes an advancement from the minigame.
+     *
+     * @param id The [ResourceLocation] of the advancement to remove.
+     */
     public fun removeAll() {
         for (advancement in this.advancements.values) {
             this.minigame.server.advancements.removeAdvancement(advancement)
