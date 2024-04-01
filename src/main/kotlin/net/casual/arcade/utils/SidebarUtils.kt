@@ -86,7 +86,7 @@ internal object SidebarUtils {
             }
         }
         GlobalEventHandler.register<PlayerExtensionEvent> { (player) ->
-            player.addExtension(PlayerSidebarExtension(player.connection))
+            player.addExtension(PlayerSidebarExtension(player))
         }
         GlobalEventHandler.register<PlayerLeaveEvent> { (player) ->
             player.sidebar.disconnect()

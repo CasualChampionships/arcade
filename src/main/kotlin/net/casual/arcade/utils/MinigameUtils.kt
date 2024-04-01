@@ -108,12 +108,9 @@ public object MinigameUtils {
         for (player in players) {
             val wasAdmin = this.isAdmin(player)
             val wasSpectating = this.isSpectating(player)
-            next.addPlayer(player)
+            next.addPlayer(player, transferSpectatorStatus && wasSpectating)
             if (transferAdminStatus && wasAdmin) {
                 next.makeAdmin(player)
-            }
-            if (transferSpectatorStatus && wasSpectating) {
-                next.makeSpectator(player)
             }
         }
     }
