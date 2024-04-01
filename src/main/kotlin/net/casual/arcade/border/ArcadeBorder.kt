@@ -60,7 +60,7 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
     }
 
     public fun lerpCenterTo(x: Double, z: Double, duration: MinecraftTimeDuration) {
-        this.lerpCenterBetween(this.centerX, this.centerZ, x, z, duration.toMilliseconds().toLong())
+        this.lerpCenterBetween(this.centerX, this.centerZ, x, z, duration.milliseconds.toLong())
     }
 
     final override fun getSize(): Double {
@@ -101,7 +101,7 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
     }
 
     public fun lerpSizeBetween(start: Double, end: Double, duration: MinecraftTimeDuration) {
-        this.lerpSizeBetween(start, end, duration.toMilliseconds().toLong())
+        this.lerpSizeBetween(start, end, duration.milliseconds.toLong())
     }
 
     override fun setAbsoluteMaxSize(size: Int) {

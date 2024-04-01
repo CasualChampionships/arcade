@@ -29,8 +29,8 @@ import net.minecraft.world.scores.PlayerTeam
  *
  *         // This must be called in your ModInitializer
  *         fun registerEvents() {
- *             GlobalEventHandler.register<LevelCreatedEvent> { (level) ->
- *                 level.addExtension(MyLevelExtension())
+ *             GlobalEventHandler.register<LevelExtensionEvent> { event ->
+ *                 event.addExtension(MyLevelExtension())
  *             }
  *             GlobalEventHandler.register<LevelBlockChangedEvent> { (level, pos, _, _) ->
  *                 level.myExtension.lastModifiedBlockPos = pos

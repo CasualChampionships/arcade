@@ -184,7 +184,7 @@ public object MinigameUtils {
 
     internal fun registerEvents() {
         GlobalEventHandler.register<PlayerExtensionEvent> { (player) ->
-            player.addExtension(PlayerMinigameExtension(player.connection))
+            player.addExtension(PlayerMinigameExtension(player))
         }
         GlobalEventHandler.register<PlayerJoinEvent>(Int.MIN_VALUE) { (player) ->
             player.getMinigame()?.addPlayer(player)
@@ -205,8 +205,9 @@ public object MinigameUtils {
         }
         val (type, listener) = this.createEventListener(declarer, method, event)
 
-        if (event.phases.isNotEmpty()) {
-            val phases = event.phases.map { id ->
+        val during = event.during
+        if (during.phases.isNotEmpty()) {
+            val phases = during.phases.map { id ->
                 val phase = minigame.getPhase(id)
                 phase ?: throw IllegalArgumentException("Phase with id $id does not exist")
             }
@@ -218,14 +219,14 @@ public object MinigameUtils {
             )
             return
         }
-        if (event.after != "" || event.before != "") {
-            val start = if (event.after != "") {
-                minigame.getPhase(event.after) ?: throw IllegalArgumentException("Start phase does not exist")
+        if (during.after != "" || during.before != "") {
+            val start = if (during.after != "") {
+                minigame.getPhase(during.after) ?: throw IllegalArgumentException("Start phase does not exist")
             } else {
                 Phase.none()
             }
-            val end = if (event.after != "") {
-                minigame.getPhase(event.before) ?: throw IllegalArgumentException("End phase does not exist")
+            val end = if (during.after != "") {
+                minigame.getPhase(during.before) ?: throw IllegalArgumentException("End phase does not exist")
             } else {
                 Phase.end()
             }
@@ -262,6 +263,6 @@ public object MinigameUtils {
 
         method.isAccessible = true
         val handle = MethodHandles.lookup().unreflect(method)
-        return type to EventListener.of(priority, event.eventPhase) { handle.invoke(declarer, it) }
+        return type to EventListener.of(priority, event.phase) { handle.invoke(declarer, it) }
     }
 }

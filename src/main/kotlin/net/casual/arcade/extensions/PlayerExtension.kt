@@ -12,6 +12,8 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl
  * This handles the case where the player instance is replaced
  * as a result of the player respawning.
  *
+ * You can also implement [DataExtension].
+ *
  * @param connection The connection of the player.
  * @see Extension
  */

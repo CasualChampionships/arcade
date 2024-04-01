@@ -34,13 +34,13 @@ public object TimeUtils {
     }
 
     public fun MinecraftTimeDuration.formatHHMMSS(): String {
-        val seconds = this.toSeconds().toInt()
+        val seconds = this.seconds
         val hours = seconds / 3600
         return "%02d:".format(hours) + this.formatMMSS()
     }
 
     public fun MinecraftTimeDuration.formatMMSS(): String {
-        val seconds = this.toSeconds().toInt()
+        val seconds = this.seconds
         val minutes = seconds % 3600 / 60
         val secs = seconds % 60
         return "%02d:%02d".format(minutes, secs)

@@ -43,8 +43,21 @@ public annotation class Listener(
      * This is the phase of the event that this handler
      * will be invoked in.
      */
-    val eventPhase: String = BuiltInEventPhases.DEFAULT,
+    val phase: String = BuiltInEventPhases.DEFAULT,
 
+    /**
+     * This specified during when this listener will be invoked.
+     *
+     * @see During
+     */
+    val during: During = During()
+)
+
+/**
+ * This annotation is used to specify the minigame-phases that
+ * the event handler will be invoked in.
+ */
+public annotation class During(
     /**
      * These will be the phases of the minigame that
      * this event handler will be invoked in.
@@ -74,3 +87,4 @@ public annotation class Listener(
      */
     val before: String = ""
 )
+

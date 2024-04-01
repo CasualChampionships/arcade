@@ -9,7 +9,7 @@ import java.util.function.IntFunction
 
 /**
  * This class is an implementation of [MinecraftScheduler] which
- * allows you to schedule [Runnable]s for a later time on the
+ * allows you to schedule [Task]s for a later time on the
  * main server thread.
  *
  * @see MinecraftScheduler
@@ -22,7 +22,7 @@ public class TickedScheduler: MinecraftScheduler {
     /**
      * This advances the scheduler by one tick.
      *
-     * All [Runnable]s that were scheduled for this
+     * All [Task]s that were scheduled for this
      * tick will be run then removed.
      */
     public fun tick() {
@@ -71,6 +71,6 @@ public class TickedScheduler: MinecraftScheduler {
      * @param task The task to be scheduled.
      */
     override fun schedule(duration: MinecraftTimeDuration, task: Task) {
-        this.tasks.computeIfAbsent(this.tickCount + duration.toTicks(), IntFunction { ArrayDeque() }).add(task)
+        this.tasks.computeIfAbsent(this.tickCount + duration.ticks, IntFunction { ArrayDeque() }).add(task)
     }
 }

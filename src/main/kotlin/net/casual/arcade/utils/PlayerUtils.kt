@@ -287,7 +287,7 @@ public object PlayerUtils {
         stay: MinecraftTimeDuration = 70.Ticks,
         fadeOut: MinecraftTimeDuration = 20.Ticks
     ) {
-        this.setTitleAnimation(fadeIn.toTicks(), stay.toTicks(), fadeOut.toTicks())
+        this.setTitleAnimation(fadeIn.ticks, stay.ticks, fadeOut.ticks)
     }
 
     @JvmStatic

@@ -1,13 +1,13 @@
 package net.casual.arcade.resources.font
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.encodeToJsonElement
 import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.withFont
 import net.minecraft.resources.ResourceLocation
 import org.apache.commons.lang3.mutable.MutableInt
-import java.io.ByteArrayOutputStream
 
 public abstract class FontResources(
     public val id: ResourceLocation

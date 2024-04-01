@@ -57,7 +57,9 @@ public object GlobalEventHandler {
      * be invoked, the reasoning for this is because we
      * cannot guarantee priority preservation.
      *
+     * @param T The type of event.
      * @param event The event that is being fired.
+     * @param phases The phases of the event that should be invoked.
      */
     @JvmStatic
     @JvmOverloads

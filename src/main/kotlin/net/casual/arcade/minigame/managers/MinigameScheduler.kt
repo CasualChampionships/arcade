@@ -70,21 +70,6 @@ public class MinigameScheduler internal constructor(): MinecraftScheduler {
     }
 
     /**
-     * This method will schedule a [task] to be run
-     * after a given [time] with units [unit].
-     *
-     * If the minigame's phase changes before the [time]
-     * the task will no longer run.
-     *
-     * @param time The amount of time to wait before running the [task].
-     * @param unit The units of time.
-     * @param task The runnable to be scheduled.
-     */
-    public fun schedulePhased(time: Int, unit: MinecraftTimeUnit, task: Task) {
-        this.phased.schedule(time, unit, task)
-    }
-
-    /**
      * This method will schedule a task which will be made cancellable.
      * The user can cancel the task, *or* the minigame may cancel the event
      * in the case that the phase changes.
@@ -133,29 +118,5 @@ public class MinigameScheduler internal constructor(): MinecraftScheduler {
         task: Task
     ) {
         this.phased.scheduleInLoop(delay, interval, duration, task)
-    }
-
-    /**
-     * This schedules a [task] in a loop with a given
-     * initial [delay] and with a given [interval] between
-     * each invocation of the [task] for a given [duration].
-     *
-     * If the minigame's phase changes, some of the scheduled
-     * tasks will not be run.
-     *
-     * @param delay The initial delay before the first [task] is scheduled.
-     * @param interval The amount of time between each [task].
-     * @param duration The total duration the loop should be running for.
-     * @param unit The units of time for [delay], [interval], and [duration].
-     * @param task The runnable to be scheduled.
-     */
-    public fun schedulePhasedInLoop(
-        delay: Int,
-        interval: Int,
-        duration: Int,
-        unit: MinecraftTimeUnit,
-        task: Task
-    ) {
-        this.phased.scheduleInLoop(delay, interval, duration, unit, task)
     }
 }

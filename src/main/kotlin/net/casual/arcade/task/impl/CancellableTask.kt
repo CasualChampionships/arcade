@@ -51,7 +51,7 @@ public sealed class CancellableTask(
      * @param task The task to add.
      * @return The cancellable task.
      */
-    public fun cancelled(task: Task): CancellableTask {
+    public fun ifCancelled(task: Task): CancellableTask {
         this.cancelled.add(task)
         return this
     }
@@ -62,8 +62,8 @@ public sealed class CancellableTask(
      *
      * @return The cancellable task.
      */
-    public fun runOnCancel(): CancellableTask {
-        return this.cancelled(this.wrapped)
+    public fun runIfCancelled(): CancellableTask {
+        return this.ifCancelled(this.wrapped)
     }
 
     /**
@@ -129,7 +129,7 @@ public sealed class CancellableTask(
                         val message = "Cancellable\$Savable task failed to create on_cancel task with data ${JsonUtils.GSON.toJson(onCancelData)}"
                         throw IllegalStateException(message)
                     }
-                    savable.cancelled(task)
+                    savable.ifCancelled(task)
                 }
                 return savable
             }
@@ -154,7 +154,7 @@ public sealed class CancellableTask(
         /**
          * This method creates a [CancellableTask] with a given runnable
          * similar to the [of] method *however* this method will also
-         * make the runnable be called when the task is [cancelled].
+         * make the runnable be called when the task is [ifCancelled].
          *
          * @param runnable The task to wrap in a cancellable task.
          * @return The cancellable task.
@@ -162,7 +162,7 @@ public sealed class CancellableTask(
          */
         @JvmStatic
         public fun cancellable(task: Task): CancellableTask {
-            return of(task).runOnCancel()
+            return of(task).runIfCancelled()
         }
     }
 }

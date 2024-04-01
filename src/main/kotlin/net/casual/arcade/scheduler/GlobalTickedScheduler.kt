@@ -5,7 +5,6 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.managers.MinigameScheduler
-import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
 import net.casual.arcade.task.Task
 import net.casual.arcade.utils.TimeUtils.Ticks
 
@@ -67,19 +66,6 @@ public object GlobalTickedScheduler {
     }
 
     /**
-     * This method will schedule a [task] to be run
-     * after a given [time] with units [unit].
-     *
-     * @param time The amount of time to wait before running the [task].
-     * @param unit The units of time, by default [Ticks].
-     * @param task The runnable to be scheduled.
-     */
-    @JvmStatic
-    public fun schedule(time: Int, unit: MinecraftTimeUnit, task: Task) {
-        this.scheduler.schedule(time, unit, task)
-    }
-
-    /**
      * This schedules a [task] in a loop with a given
      * initial [delay] and with a given [interval] between
      * each invocation of the [task] for a given [duration].
@@ -97,28 +83,6 @@ public object GlobalTickedScheduler {
         task: Task
     ) {
         this.scheduler.scheduleInLoop(delay, interval, duration, task)
-    }
-
-    /**
-     * This schedules a [task] in a loop with a given
-     * initial [delay] and with a given [interval] between
-     * each invocation of the [task] for a given [duration].
-     *
-     * @param delay The initial delay before the first [task] is scheduled.
-     * @param interval The amount of time between each [task].
-     * @param duration The total duration the loop should be running for.
-     * @param unit The units of time for [delay], [interval], and [duration].
-     * @param task The runnable to be scheduled.
-     */
-    @JvmStatic
-    public fun scheduleInLoop(
-        delay: Int,
-        interval: Int,
-        duration: Int,
-        unit: MinecraftTimeUnit,
-        task: Task
-    ) {
-        this.scheduler.scheduleInLoop(delay, interval, duration, unit, task)
     }
 
     @JvmStatic

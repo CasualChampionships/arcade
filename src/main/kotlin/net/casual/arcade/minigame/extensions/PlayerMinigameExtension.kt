@@ -8,7 +8,6 @@ import net.casual.arcade.minigame.Minigames
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.server.network.ServerGamePacketListenerImpl
 
 internal class PlayerMinigameExtension(
     owner: ServerPlayer

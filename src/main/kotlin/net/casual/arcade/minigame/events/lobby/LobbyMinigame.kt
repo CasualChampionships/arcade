@@ -155,12 +155,11 @@ public open class LobbyMinigame(
             this.setPhase(LobbyPhase.Waiting)
             this.next = null
             this.transferring = false
-        }
-        task.cancelled {
+        }.ifCancelled {
             this.transferring = false
         }
 
-        if (!event.delay.isZero()) {
+        if (!event.delay.isZero) {
             this.scheduler.schedulePhased(event.delay, task)
         } else {
             task.run()

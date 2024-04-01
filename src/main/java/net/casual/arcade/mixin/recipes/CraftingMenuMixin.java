@@ -21,12 +21,12 @@ public class CraftingMenuMixin {
 	)
 	private static boolean onGetRecipe(
 		boolean original,
-		@Local Player player,
+		@Local ServerPlayer player,
 		@Local CraftingRecipe craftingRecipe
 	) {
 		if (original) {
 			if (craftingRecipe instanceof PlayerPredicatedRecipe predicated) {
-				return predicated.canUse((ServerPlayer) player);
+				return predicated.canUse(player);
 			}
 			return true;
 		}

@@ -10,32 +10,33 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  * Building off the previous example in [Extension] to now
  * make it a DataExtension:
  * ```kotlin
- * class MyPlayerExtension: DataExtension {
- *     var lastSentMessage = ""
+ * public class MyLevelExtension: DataExtension {
+ *     public var lastModifiedBlockPos: BlockPos? = null
  *
  *     override fun getName(): String {
- *         return "arcade_my_player_extension"
+ *         return "arcade_my_level_extension"
  *     }
  *
- *     override fun serialize(): Tag {
- *         return StringTag.valueOf(this.lastSentMessage)
+ *     override fun serialize(): Tag? {
+ *         val pos = this.lastModifiedBlockPos ?: return null
+ *         return NbtUtils.writeBlockPos(pos)
  *     }
  *
  *     override fun deserialize(element: Tag) {
- *         this.lastSentMessage = (element as StringTag).asString
+ *         this.lastModifiedBlockPos = NbtUtils.readBlockPos(element as CompoundTag)
  *     }
  *
- *     companion object {
- *         val ServerPlayer.myExtension
- *             get() = this.getExtension(MyPlayerExtension::class.java)
+ *     public companion object {
+ *         public val ServerLevel.myExtension: MyLevelExtension
+ *             get() = this.getExtension(MyLevelExtension::class.java)
  *
  *         // This must be called in your ModInitializer
- *         fun registerEvents() {
- *             GlobalEventHandler.register<PlayerCreatedEvent> { (player) ->
- *                 player.addExtension(MyPlayerExtension())
+ *         public fun registerEvents() {
+ *             GlobalEventHandler.register<LevelExtensionEvent> { event ->
+ *                 event.addExtension(MyLevelExtension())
  *             }
- *             GlobalEventHandler.register<PlayerChatEvent> { (player, message) ->
- *                 player.myExtension.lastSentMessage = message.signedContent()
+ *             GlobalEventHandler.register<LevelBlockChangedEvent> { (level, pos, _, _) ->
+ *                 level.myExtension.lastModifiedBlockPos = pos
  *             }
  *         }
  *     }

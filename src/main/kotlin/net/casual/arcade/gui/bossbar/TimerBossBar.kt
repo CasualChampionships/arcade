@@ -46,14 +46,14 @@ public abstract class TimerBossBar: CustomBossBar(), TickableUI, Completable {
     public fun setDuration(duration: MinecraftTimeDuration) {
         this.completable.complete = false
         this.tick = 0
-        this.ticks = duration.toTicks()
+        this.ticks = duration.ticks
     }
 
     public fun setRemainingDuration(duration: MinecraftTimeDuration) {
         if (!this.hasDuration) {
             return
         }
-        this.tick = this.ticks - duration.toTicks()
+        this.tick = this.ticks - duration.ticks
     }
 
     public fun removeDuration() {

@@ -15,6 +15,8 @@ public abstract class MinigameModule<M: Minigame<M>, P: MinigameModule<M, P>>(
     internal val players: MutableSet<UUID>
     internal val phases: List<Phase<P>>
 
+    // TODO: Scheduler
+
     public val events: MinigameEventHandler<P>
 
     public final override var phase: Phase<P>

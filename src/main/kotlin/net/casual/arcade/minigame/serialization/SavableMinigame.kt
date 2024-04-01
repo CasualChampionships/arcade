@@ -39,6 +39,7 @@ import net.casual.arcade.utils.JsonUtils.uuids
 import net.casual.arcade.utils.MinigameUtils.getPhase
 import net.casual.arcade.utils.StringUtils.decodeHexToBytes
 import net.casual.arcade.utils.StringUtils.encodeToHexString
+import net.casual.arcade.utils.TimeUtils.Ticks
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import org.jetbrains.annotations.ApiStatus.Internal
@@ -320,7 +321,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         val id = json.stringOrDefault("id", "[Anonymous]")
         if (task !== null) {
             Arcade.logger.info("Successfully loaded task $id for minigame ${this.id}, scheduled for $delay ticks")
-            scheduler.schedule(delay, MinecraftTimeUnit.Ticks, task)
+            scheduler.schedule(delay.Ticks, task)
         } else {
             Arcade.logger.warn("Saved task $id for minigame ${this.id} could not be reloaded!")
         }

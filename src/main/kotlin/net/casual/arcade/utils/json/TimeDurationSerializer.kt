@@ -7,7 +7,7 @@ import net.casual.arcade.utils.TimeUtils.Ticks
 
 public object TimeDurationSerializer: JsonSerializer<MinecraftTimeDuration> {
     override fun serialize(value: MinecraftTimeDuration): JsonElement {
-        return JsonPrimitive(value.toTicks())
+        return JsonPrimitive(value.ticks)
     }
 
     override fun deserialize(json: JsonElement): MinecraftTimeDuration {
