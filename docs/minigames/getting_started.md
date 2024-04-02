@@ -122,7 +122,7 @@ enum class ExamplePhases(
 - The `start` method will be called when the minigame is changing to `this` phase.
 - The `initialize` method will always be called *after* the `start` method and
 it will also be called when a minigame is deserialized, this will be discussed 
-in further detail later in the [Serialization](#Serialization) section.
+in further detail later in the [Serialization](serialization.md) section.
 For now, we will stick to using the `start` method.
 - The `end` method will be called when the minigame is changing from `this` phase
 into a later phase (greater ordinal).
@@ -205,3 +205,38 @@ class ExampleMinigame(server: MinecraftServer): Minigame<ExampleMinigame>(server
     }
 }
 ```
+
+Now we have everything set up we can register our minigame, so we can run it on the server!
+We need to create a minigame factory which can generate instances of our minigame.
+
+We can do this in our `DedicatedServerModInitializer`:
+```kotlin
+object ExampleMinigameMod: DedicatedServerModInitializer {
+    override fun onInitializeServer() {
+        Minigames.registerFactory(ResourceLocation("modid", "example")) { context ->
+            ExampleMinigame(context.server)
+        }
+    }
+}
+```
+
+Now we have registered our minigame factory we can hop in-game.
+Ensure that you have operator permissions.
+
+You can then run the following command:
+```
+/minigame create <minigame-id>
+```
+This will create an instance of your minigame.
+
+You can then add players by running the following command:
+```
+/minigame join <minigame-id> <player(s)>
+```
+
+And then start the minigame:
+```
+/minigame modify <minigame-id> start
+```
+
+For more information about the `/minigame` command, see the [Minigame Command Section](minigame_command.md)

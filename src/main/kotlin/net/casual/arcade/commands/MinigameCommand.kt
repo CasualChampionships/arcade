@@ -53,8 +53,8 @@ internal object MinigameCommand: Command {
                 }
             }
             literal("join") {
-                executes(::selfJoinMinigame)
                 argument("minigame", MinigameArgument.minigame()) {
+                    executes(::selfJoinMinigame)
                     argument("players", EntityArgument.players()) {
                         executes(::addPlayersToMinigame)
                     }
