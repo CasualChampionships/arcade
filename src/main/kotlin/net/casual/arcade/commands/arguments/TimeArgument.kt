@@ -10,7 +10,7 @@ import net.minecraft.commands.SharedSuggestionProvider
 import java.time.LocalTime
 import java.util.concurrent.CompletableFuture
 
-public class TimeArgument: CustomArgumentType(), ArgumentType<LocalTime>  {
+public class TimeArgument: CustomArgumentType<LocalTime>() {
     override fun parse(reader: StringReader): LocalTime {
         return LocalTime.parse(reader.readString())
     }

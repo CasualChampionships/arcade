@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture
 
 public open class MappedArgument<T>(
     private val options: Map<String, T>
-): CustomArgumentType(), ArgumentType<T> {
+): CustomArgumentType<T>() {
     init {
         for (name in this.options.keys) {
             if (!CustomStringArgumentInfo.isAllowedWord(name)) {

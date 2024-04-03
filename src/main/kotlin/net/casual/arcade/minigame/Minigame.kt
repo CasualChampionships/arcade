@@ -47,6 +47,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.level.GameRules
+import org.jetbrains.annotations.ApiStatus.Experimental
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.util.*
 
@@ -610,6 +611,7 @@ public abstract class Minigame<M: Minigame<M>>(
         return this.admins.contains(player.uuid)
     }
 
+    @Experimental
     public fun addModule(module: MinigameModule<M, *>) {
         if (this.started) {
             throw IllegalStateException("Cannot add module after minigame has started!")

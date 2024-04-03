@@ -7,7 +7,8 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import net.casual.arcade.Arcade
 import net.casual.arcade.commands.arguments.EnumArgument
-import net.casual.arcade.commands.arguments.MinigameArgument
+import net.casual.arcade.commands.arguments.minigame.MinigameArgument
+import net.casual.arcade.commands.arguments.minigame.MinigameFactoryArgument
 import net.casual.arcade.events.minigame.LobbyMoveToNextMinigameEvent
 import net.casual.arcade.events.minigame.MinigameAddNewPlayerEvent
 import net.casual.arcade.events.server.ServerTickEvent
@@ -189,7 +190,7 @@ public open class LobbyMinigame(
                     )
                 ).then(
                     Commands.literal("new").then(
-                        Commands.argument("minigame", MinigameArgument.Factory.factory()).executes(this::setNextNewMinigame)
+                        Commands.argument("minigame", MinigameFactoryArgument.factory()).executes(this::setNextNewMinigame)
                     )
                 )
             ).then(
@@ -238,7 +239,7 @@ public open class LobbyMinigame(
     }
 
     private fun setNextNewMinigame(context: CommandContext<CommandSourceStack>): Int {
-        val factory = MinigameArgument.Factory.getFactory(context, "minigame")
+        val factory = MinigameFactoryArgument.getFactory(context, "minigame")
         this.next?.close()
         val next = factory.create(MinigameCreationContext(context.source.server))
         next.tryInitialize()

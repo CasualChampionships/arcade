@@ -4,6 +4,9 @@ import net.casual.arcade.commands.ArcadeCommands
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerCreatedEvent
 import net.casual.arcade.minigame.Minigames
+import net.casual.arcade.minigame.events.lobby.Lobby
+import net.casual.arcade.minigame.events.lobby.LobbyConfig
+import net.casual.arcade.minigame.events.lobby.LobbyMinigame
 import net.casual.arcade.utils.*
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
@@ -96,5 +99,9 @@ public object Arcade: ModInitializer {
         LevelUtils.registerEvents()
 
         ArcadeCommands.registerCommands()
+
+        Minigames.registerFactory(id("lobby")) {
+            LobbyMinigame(it.server, LobbyConfig.DEFAULT.create(it.server.overworld()))
+        }
     }
 }

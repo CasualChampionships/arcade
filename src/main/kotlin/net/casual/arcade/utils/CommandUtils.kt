@@ -14,6 +14,7 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.player.PlayerCommandEvent
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.MinecraftTimeDuration
+import net.casual.arcade.utils.CommandUtils.literal
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.TimeUtils.Minutes
 import net.minecraft.commands.CommandSourceStack
@@ -119,11 +120,16 @@ public object CommandUtils {
     public fun <A, S, T: ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.argument(
         name: String,
         type: ArgumentType<A>,
+        vararg literals: String,
         builder: RequiredArgumentBuilder<S, A>.() -> Unit = { }
     ): T {
-        val argument = RequiredArgumentBuilder.argument<S, A>(name, type)
+        val first = RequiredArgumentBuilder.argument<S, A>(name, type)
+        var argument = first
+        for (literal in literals) {
+            argument = argument.literal(literal)
+        }
         argument.builder()
-        return this.then(argument)
+        return this.then(first)
     }
 
     public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(

@@ -10,7 +10,7 @@ import net.minecraft.commands.SharedSuggestionProvider
 import java.time.ZoneId
 import java.util.concurrent.CompletableFuture
 
-public class TimeZoneArgument: CustomArgumentType(), ArgumentType<ZoneId> {
+public class TimeZoneArgument: CustomArgumentType<ZoneId>() {
     override fun parse(reader: StringReader): ZoneId {
         return ZoneId.of(reader.readUnquotedString())
     }

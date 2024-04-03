@@ -19,7 +19,7 @@ public class ClientboundCommandsPacketMixin {
 		)
 	)
 	private static SuggestionProvider<?> getCustomSuggestions(ArgumentCommandNode<?, ?> instance) {
-		if (instance.getType() instanceof CustomArgumentType custom) {
+		if (instance.getType() instanceof CustomArgumentType<?> custom) {
 			return custom.getSuggestionProvider();
 		}
 		return instance.getCustomSuggestions();

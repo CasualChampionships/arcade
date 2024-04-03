@@ -4,11 +4,8 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.commands.arguments.EnumArgument
-import net.casual.arcade.commands.arguments.MinigameArgument
-import net.casual.arcade.commands.arguments.MinigameArgument.*
-import net.casual.arcade.commands.arguments.MinigameArgument.PhaseName.Companion.INVALID_PHASE_NAME
-import net.casual.arcade.commands.arguments.MinigameArgument.SettingsName.Companion.INVALID_SETTING_NAME
-import net.casual.arcade.commands.arguments.MinigameArgument.SettingsOption.Companion.INVALID_SETTING_OPTION
+import net.casual.arcade.commands.arguments.minigame.*
+import net.casual.arcade.commands.arguments.minigame.MinigameSettingsOptionArgument.Companion.INVALID_SETTING_OPTION
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
@@ -36,6 +33,7 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.commands.arguments.TeamArgument
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 
@@ -48,7 +46,7 @@ internal object MinigameCommand: Command {
                 executes(::listMinigames)
             }
             literal("create") {
-                argument("factory", Factory.factory()) {
+                argument("factory", MinigameFactoryArgument.factory()) {
                     executes(::createMinigame)
                 }
             }
@@ -66,154 +64,174 @@ internal object MinigameCommand: Command {
                     executes(::removePlayersFromMinigame)
                 }
             }
-            literal("modify") {
+            literal("start") {
                 argument("minigame", MinigameArgument.minigame()) {
-                    literal("start") {
-                        executes(::startMinigame)
+                    executes(::startMinigame)
+                }
+            }
+            literal("close") {
+                argument("minigame", MinigameArgument.minigame()) {
+                    executes(::closeMinigame)
+                }
+            }
+            literal("info") {
+                argument("minigame", MinigameArgument.minigame()) {
+                    executes(::infoMinigame)
+                    argument("path", MinigameInfoPathArgument.path("minigame")) {
+                        executes(::infoPathMinigame)
                     }
-                    literal("close") {
-                        executes(::closeMinigame)
-                    }
-                    literal("info") {
-                        executes(::infoMinigame)
-                        argument("path", InfoPath.path("minigame")) {
-                            executes(::infoPathMinigame)
+                }
+            }
+            literal("team") {
+                argument("minigame", MinigameArgument.minigame()) {
+                    literal("spectators", "set") {
+                        argument("team", TeamArgument.team()) {
+                            executes(::makeTeamSpectator)
                         }
                     }
-                    literal("team") {
-                        literal("spectators", "set") {
+                    literal("admins", "set") {
+                        argument("team", TeamArgument.team()) {
+                            executes(::makeTeamAdmin)
+                        }
+                    }
+                    literal("eliminated") {
+                        literal("add") {
                             argument("team", TeamArgument.team()) {
-                                executes(::makeTeamSpectator)
+                                executes(::setTeamEliminated)
                             }
                         }
-                        literal("admins", "set") {
+                        literal("remove") {
                             argument("team", TeamArgument.team()) {
-                                executes(::makeTeamAdmin)
+                                executes(::setTeamPlaying)
                             }
                         }
-                        literal("eliminated") {
-                            literal("add") {
-                                argument("team", TeamArgument.team()) {
-                                    executes(::setTeamEliminated)
+                    }
+                }
+            }
+            literal("chat") {
+                argument("minigame", MinigameArgument.minigame(), "spies") {
+                    literal("add") {
+                        executes(::selfAddSpy)
+                        argument("players", EntityArgument.players()) {
+                            executes(::addChatSpies)
+                        }
+                    }
+                    literal("remove") {
+                        executes(::selfRemoveSpy)
+                        argument("players", EntityArgument.players()) {
+                            executes(::removeChatSpies)
+                        }
+                    }
+                }
+            }
+            literal("spectating") {
+                argument("minigame", MinigameArgument.minigame()) {
+                    literal("add") {
+                        executes(::selfSpectateMinigame)
+                        argument("players", EntityArgument.players()) {
+                            executes(::addPlayersToSpectate)
+                        }
+                    }
+                    literal("remove") {
+                        executes(::selfPlayingMinigame)
+                        argument("players", EntityArgument.players()) {
+                            executes(::addPlayersToPlaying)
+                        }
+                    }
+                }
+            }
+            literal("admin") {
+                argument("minigame", MinigameArgument.minigame()) {
+                    literal("add") {
+                        executes(::selfAdminMinigame)
+                        argument("players", EntityArgument.players()) {
+                            executes(::addPlayersToAdmin)
+                        }
+                    }
+                    literal("remove") {
+                        executes(::selfUnAdminMinigame)
+                        argument("players", EntityArgument.players()) {
+                            executes(::removePlayersFromAdmin)
+                        }
+                    }
+                }
+            }
+            literal("settings") {
+                argument("minigame", MinigameArgument.minigame()) {
+                    executes(::openMinigameSettings)
+                    argument("setting", MinigameSettingArgument.setting("minigame")) {
+                        executes(::getMinigameSetting)
+                        literal("set", "from") {
+                            literal("option") {
+                                argument("option", MinigameSettingsOptionArgument.option("minigame", "setting")) {
+                                    executes(::setMinigameSettingFromOption)
                                 }
                             }
-                            literal("remove") {
-                                argument("team", TeamArgument.team()) {
-                                    executes(::setTeamPlaying)
+                            literal("value") {
+                                argument("value", MinigameSettingValueArgument.value()) {
+                                    executes(::setMinigameSettingFromValue)
                                 }
                             }
                         }
                     }
-                    literal("chat", "spies") {
+                }
+            }
+            literal("tags") {
+                argument("minigame", MinigameArgument.minigame()) {
+                    argument("player", EntityArgument.player()) {
                         literal("add") {
-                            executes(::selfAddSpy)
-                            argument("players", EntityArgument.players()) {
-                                executes(::addChatSpies)
+                            argument("tag", ResourceLocationArgument.id()) {
+                                executes(::addPlayerTag)
                             }
                         }
                         literal("remove") {
-                            executes(::selfRemoveSpy)
-                            argument("players", EntityArgument.players()) {
-                                executes(::removeChatSpies)
-                            }
-                        }
-                    }
-                    literal("spectating") {
-                        literal("add") {
-                            executes(::selfSpectateMinigame)
-                            argument("players", EntityArgument.players()) {
-                                executes(::addPlayersToSpectate)
-                            }
-                        }
-                        literal("remove") {
-                            executes(::selfPlayingMinigame)
-                            argument("players", EntityArgument.players()) {
-                                executes(::addPlayersToPlaying)
-                            }
-                        }
-                    }
-                    literal("admin") {
-                        literal("add") {
-                            executes(::selfAdminMinigame)
-                            argument("players", EntityArgument.players()) {
-                                executes(::addPlayersToAdmin)
-                            }
-                        }
-                        literal("remove") {
-                            executes(::selfUnAdminMinigame)
-                            argument("players", EntityArgument.players()) {
-                                executes(::removePlayersFromAdmin)
-                            }
-                        }
-                    }
-                    literal("settings") {
-                        executes(::openMinigameSettings)
-                        argument("setting", SettingsName.name("minigame")) {
-                            executes(::getMinigameSetting)
-                            literal("set", "from") {
-                                literal("option") {
-                                    argument("option", SettingsOption.option("minigame", "setting")) {
-                                        executes(::setMinigameSettingFromOption)
-                                    }
+                            argument("tag", ResourceLocationArgument.id()) {
+                                suggests { context ->
+                                    val minigame = MinigameArgument.getMinigame(context, "minigame")
+                                    val player = EntityArgument.getPlayer(context, "player")
+                                    minigame.tags.get(player).map(ResourceLocation::toString)
                                 }
-                                literal("value") {
-                                    argument("value", SettingsValue.value()) {
-                                        executes(::setMinigameSettingFromValue)
-                                    }
-                                }
+                                executes(::removePlayerTag)
+                            }
+                        }
+                        literal("list") {
+                            executes(::listPlayerTags)
+                        }
+                    }
+                }
+            }
+            literal("phase") {
+                argument("minigame", MinigameArgument.minigame()) {
+                    executes(::getMinigamePhase)
+                    literal("set") {
+                        argument("phase", MinigamePhaseArgument.name("minigame")) {
+                            executes(::setMinigamePhase)
+                        }
+                    }
+                }
+            }
+            literal("pause") {
+                argument("minigame", MinigameArgument.minigame()) {
+                    executes(::pauseMinigame)
+                }
+            }
+            literal("unpause") {
+                argument("minigame", MinigameArgument.minigame()) {
+                    executes(::unpauseMinigame)
+                    literal("countdown") {
+                        executes { unpauseWithCountdown(it, 10, MinecraftTimeUnit.Seconds) }
+                        argument("time", IntegerArgumentType.integer(1)) {
+                            argument("unit", EnumArgument.enumeration(MinecraftTimeUnit::class.java)) {
+                                executes(::unpauseWithCountdown)
                             }
                         }
                     }
-                    literal("tags") {
-                        argument("player", EntityArgument.player()) {
-                            literal("add") {
-                                argument("tag", ResourceLocationArgument.id()) {
-                                    executes(::addPlayerTag)
-                                }
-                            }
-                            literal("remove") {
-                                argument("tag", ResourceLocationArgument.id()) {
-                                    suggests { context ->
-                                        val minigame = MinigameArgument.getMinigame(context, "minigame")
-                                        val player = EntityArgument.getPlayer(context, "player")
-                                        minigame.tags.get(player).map(ResourceLocation::toString)
-                                    }
-                                    executes(::removePlayerTag)
-                                }
-                            }
-                            literal("list") {
-                                executes(::listPlayerTags)
-                            }
+                    literal("ready") {
+                        literal("players") {
+                            executes { readyUnpause(it, false) }
                         }
-                    }
-                    literal("phase") {
-                        executes(::getMinigamePhase)
-                        literal("set") {
-                            argument("phase", PhaseName.name("minigame")) {
-                                executes(::setMinigamePhase)
-                            }
-                        }
-                    }
-                    literal("pause") {
-                        executes(::pauseMinigame)
-                    }
-                    literal("unpause") {
-                        executes(::unpauseMinigame)
-                        literal("countdown") {
-                            executes { unpauseWithCountdown(it, 10, MinecraftTimeUnit.Seconds) }
-                            argument("time", IntegerArgumentType.integer(1)) {
-                                argument("unit", EnumArgument.enumeration(MinecraftTimeUnit::class.java)) {
-                                    executes(::unpauseWithCountdown)
-                                }
-                            }
-                        }
-                        literal("ready") {
-                            literal("players") {
-                                executes { readyUnpause(it, false) }
-                            }
-                            literal("teams") {
-                                executes { readyUnpause(it, true) }
-                            }
+                        literal("teams") {
+                            executes { readyUnpause(it, true) }
                         }
                     }
                 }
@@ -222,7 +240,11 @@ internal object MinigameCommand: Command {
     }
 
     private fun listMinigames(context: CommandContext<CommandSourceStack>): Int {
-        val formatted = Minigames.all().joinToString("\n") { "ID: ${it.id}, UUID: ${it.uuid}" }
+        val minigames = Minigames.all()
+        if (minigames.isEmpty()) {
+            return context.source.success("There are no running minigames!")
+        }
+        val formatted = minigames.joinToString("\n") { "ID: ${it.id}, UUID: ${it.uuid}" }
         return context.source.success(formatted)
     }
 
@@ -424,7 +446,7 @@ internal object MinigameCommand: Command {
 
     private fun infoPathMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val path = InfoPath.getPath(context, "path")
+        val path = MinigameInfoPathArgument.getPath(context, "path")
         val info = JsonUtils.GSON.toJson(minigame.getDebugInfo().get(path))
         return context.source.success(info)
     }
@@ -436,28 +458,25 @@ internal object MinigameCommand: Command {
 
     private fun getMinigameSetting(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val name = SettingsName.getSettingsName(context, "setting")
-        val setting = minigame.settings.get(name) ?: throw INVALID_SETTING_NAME.create()
-        return context.source.success("Setting $name for minigame ${minigame.id} is set to ${setting.get()}")
+        val setting = MinigameSettingArgument.getSetting(context, "setting", minigame)
+        return context.source.success("Setting ${setting.name} for minigame ${minigame.id} is set to ${setting.get()}")
     }
 
     private fun setMinigameSettingFromOption(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val name = SettingsName.getSettingsName(context, "setting")
-        val setting = minigame.settings.get(name) ?: throw INVALID_SETTING_NAME.create()
-        val option = SettingsOption.getSettingsOption(context, "option")
+        val setting= MinigameSettingArgument.getSetting(context, "setting", minigame)
+        val option = MinigameSettingsOptionArgument.getSettingsOption(context, "option")
         val value = setting.getOption(option) ?: throw INVALID_SETTING_OPTION.create()
         setting.setFromOption(option)
-        return context.source.success("Setting $name for minigame ${minigame.id} set to option $option ($value)")
+        return context.source.success("Setting ${setting.name} for minigame ${minigame.id} set to option $option ($value)")
     }
 
     private fun setMinigameSettingFromValue(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val name = SettingsName.getSettingsName(context, "setting")
-        val setting = minigame.settings.get(name) ?: throw INVALID_SETTING_NAME.create()
-        val value = SettingsValue.getSettingsValue(context, "value")
+        val setting = MinigameSettingArgument.getSetting(context, "setting", minigame)
+        val value = MinigameSettingValueArgument.getSettingsValue(context, "value")
         setting.deserializeAndSet(value)
-        return context.source.success("Setting $name for minigame ${minigame.id} set to ${setting.get()}")
+        return context.source.success("Setting ${setting.name} for minigame ${minigame.id} set to ${setting.get()}")
     }
 
     private fun listPlayerTags(context: CommandContext<CommandSourceStack>): Int {
@@ -497,8 +516,7 @@ internal object MinigameCommand: Command {
     private fun <M: Minigame<M>> setMinigamePhase(context: CommandContext<CommandSourceStack>): Int {
         @Suppress("UNCHECKED_CAST")
         val minigame = MinigameArgument.getMinigame(context, "minigame") as Minigame<M>
-        val name = PhaseName.getPhaseName(context, "phase")
-        val phase = minigame.phases.find { it.id == name } ?: throw INVALID_PHASE_NAME.create()
+        val phase = MinigamePhaseArgument.getPhase(context, "phase", minigame)
         minigame.setPhase(phase)
         return context.source.success("Successfully set phase of minigame ${minigame.id} to ${phase.id}")
     }
@@ -579,7 +597,7 @@ internal object MinigameCommand: Command {
     }
 
     private fun createMinigame(context: CommandContext<CommandSourceStack>): Int {
-        val factory = Factory.getFactory(context, "factory")
+        val factory = MinigameFactoryArgument.getFactory(context, "factory")
         val minigame = factory.create(MinigameCreationContext(context.source.server))
         minigame.tryInitialize()
         return context.source.success("Successfully created minigame ${minigame.id} with uuid ${minigame.uuid}")

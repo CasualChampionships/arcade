@@ -23,15 +23,8 @@ public object WorldBorderCommandModifier: Command {
     private val ERROR_TOO_FAR_OUT = SimpleCommandExceptionType(Component.translatable("commands.worldborder.set.failed.far", 2.9999984E7))
 
     override fun register(dispatcher: CommandDispatcher<CommandSourceStack>) {
-        val previous = dispatcher.root.getChild("worldborder")
         dispatcher.register(
             Commands.literal("worldborder").then(
-                Commands.literal("in").then(
-                    Commands.argument("level", DimensionArgument.dimension()).redirect(
-                        previous, this::withLevel
-                    )
-                )
-            ).then(
                 Commands.literal("center").then(
                     Commands.argument("pos", Vec2Argument.vec2()).then(
                         Commands.argument("time", IntegerArgumentType.integer(0)).then(
@@ -45,10 +38,6 @@ public object WorldBorderCommandModifier: Command {
                 Commands.literal("join").executes(this::joinBorders)
             )
         )
-    }
-
-    private fun withLevel(context: CommandContext<CommandSourceStack>): CommandSourceStack {
-        return context.source.withLevel(DimensionArgument.getDimension(context, "level"))
     }
 
     private fun lerpCenter(context: CommandContext<CommandSourceStack>): Int {

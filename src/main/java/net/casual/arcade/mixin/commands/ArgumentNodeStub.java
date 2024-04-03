@@ -25,7 +25,7 @@ public class ArgumentNodeStub {
 		)
 	)
 	private static SuggestionProvider<?> getCustomSuggestions(ArgumentCommandNode<?, ?> instance) {
-		if (instance.getType() instanceof CustomArgumentType custom) {
+		if (instance.getType() instanceof CustomArgumentType<?> custom) {
 			return custom.getSuggestionProvider();
 		}
 		return instance.getCustomSuggestions();
@@ -42,7 +42,7 @@ public class ArgumentNodeStub {
 		T argumentInfoTemplate,
 		CallbackInfo ci
 	) {
-		if (argumentInfo instanceof CustomArgumentTypeInfo customInfo) {
+		if (argumentInfo instanceof CustomArgumentTypeInfo<?> customInfo) {
 			ArgumentTypeInfo<?, ?> typeInfo = ArgumentTypeInfosAccessor.getClassMap().get(customInfo.getFacadeType());
 			buffer.writeVarInt(BuiltInRegistries.COMMAND_ARGUMENT_TYPE.getId(typeInfo));
 			argumentInfo.serializeToNetwork(argumentInfoTemplate, buffer);

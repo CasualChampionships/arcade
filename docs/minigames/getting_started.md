@@ -239,4 +239,4 @@ And then start the minigame:
 /minigame modify <minigame-id> start
 ```
 
-For more information about the `/minigame` command, see the [Minigame Command Section](minigame_command.md)
+For more information about the `/minigame` command, see the [User Command Section](user_commands)
