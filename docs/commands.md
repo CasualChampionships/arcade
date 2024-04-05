@@ -1,4 +1,4 @@
-# User Commands
+# Commands
 
 This section of the documentation goes through the different commands that come built-in with Arcade.
 

@@ -22,8 +22,6 @@ minigames and all the features that will be made available to you.
 > ### [Effects](./minigames/effects.md)
 > ### [Stats](./minigames/stats.md)
 
-
 > ### [Lobby](./minigames/lobby.md)
-
 
 > ### [Serialization](./minigames/serialization.md)

@@ -1,5 +1,8 @@
 # Players
 
+
+
+
 Now that we have our basic minigame implementation, let's look at how we
 can handle players. The minigame will keep track of all players that are
 playing the minigame automatically.

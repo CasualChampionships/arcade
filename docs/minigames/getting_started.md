@@ -1,5 +1,7 @@
 # Getting Started
 
+> Return to [table of contents](../minigames.md)
+
 ## Creating a Minigame
 
 Firstly we will take a look at the `Minigame` class. This is the heart
@@ -154,9 +156,10 @@ enum class ExamplePhases(
     },
     DeathMatch("death_match") {
         override fun start(minigame: ExampleMinigame) {
+            // Change to location of the arena
+            val location = Location.of()
             for (player in minigame.getPlayingPlayers()) {
-                // Teleport players to the area!
-                player.teleportTo(/* ... */)
+                player.teleportTo(location)
             }
         }
     }
@@ -189,9 +192,10 @@ enum class ExamplePhases(
     },
     DeathMatch("death_match") {
         override fun start(minigame: ExampleMinigame) {
+            // Change to location of the arena
+            val location = Location.of()
             for (player in minigame.getPlayingPlayers()) {
-                // Teleport players to the area!
-                player.teleportTo(/* ... */)
+                player.teleportTo(location)
             }
         }
     }
@@ -239,4 +243,6 @@ And then start the minigame:
 /minigame modify <minigame-id> start
 ```
 
-For more information about the `/minigame` command, see the [User Command Section](user_commands)
+For more information about the `/minigame` command, see the [User Command Section](../commands.md)
+
+> See the next section on [Players](players.md)
