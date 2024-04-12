@@ -141,22 +141,22 @@ public class MinigamePlayerManager(
             }
 
             this.connections.add(player.connection)
-            MinigameAddExistingPlayerEvent(this.minigame, player).broadcast()
-            MinigameAddPlayerEvent(this.minigame, player).broadcast()
+            var isSpectating = MinigameAddExistingPlayerEvent(this.minigame, player, spectating).broadcast().spectating
+            isSpectating = MinigameAddPlayerEvent(this.minigame, player, isSpectating).broadcast().spectating
 
-            if (spectating != null) {
-                if (spectating) this.setSpectating(player) else this.setPlaying(player)
+            if (isSpectating != null) {
+                if (isSpectating) this.setSpectating(player) else this.setPlaying(player)
             }
             return true
         }
 
         this.connections.add(player.connection)
-        val event = MinigameAddNewPlayerEvent(this.minigame, player).broadcast()
+        val event = MinigameAddNewPlayerEvent(this.minigame, player, spectating).broadcast()
         if (!event.isCancelled()) {
             player.minigame.setMinigame(this.minigame)
-            MinigameAddPlayerEvent(this.minigame, player).broadcast()
+            val isSpectating = MinigameAddPlayerEvent(this.minigame, player, event.spectating).broadcast().spectating
 
-            if (spectating != null && spectating) {
+            if (isSpectating != null && isSpectating) {
                 this.setSpectating(player)
             } else {
                 MinigameSetPlayingEvent(this.minigame, player).broadcast()
