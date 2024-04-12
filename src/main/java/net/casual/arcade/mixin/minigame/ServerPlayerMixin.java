@@ -1,15 +1,12 @@
 package net.casual.arcade.mixin.minigame;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.mojang.authlib.GameProfile;
 import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.utils.MinigameUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

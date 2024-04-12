@@ -273,7 +273,7 @@ public class MinigamePlayerManager(
     }
 
     override fun iterator(): Iterator<ServerPlayer> {
-        return this.streamPlayers().iterator()
+        return this.all.iterator()
     }
 
     private fun onPlayerLeave(event: PlayerLeaveEvent) {
