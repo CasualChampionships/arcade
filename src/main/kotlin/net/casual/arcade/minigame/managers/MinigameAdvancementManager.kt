@@ -82,9 +82,7 @@ public class MinigameAdvancementManager(
     }
 
     /**
-     * This removes an advancement from the minigame.
-     *
-     * @param id The [ResourceLocation] of the advancement to remove.
+     * This removes all advancements from the minigame.
      */
     public fun removeAll() {
         for (advancement in this.advancements.values) {

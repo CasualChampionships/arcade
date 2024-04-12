@@ -204,11 +204,11 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         this.teams.deserialize(json.objOrDefault("teams"), this.server.scoreboard)
 
         for (player in json.arrayOrDefault("players").objects()) {
-            this.offline.add(GameProfile(player.uuidOrNull("uuid"), player.stringOrNull("name")))
+            this.players.offlineGameProfiles.add(GameProfile(player.uuidOrNull("uuid"), player.stringOrNull("name")))
         }
 
-        this.spectators.addAll(json.arrayOrDefault("spectators").uuids())
-        this.admins.addAll(json.arrayOrDefault("admins").uuids())
+        this.players.spectatorUUIDs.addAll(json.arrayOrDefault("spectators").uuids())
+        this.players.adminUUIDs.addAll(json.arrayOrDefault("admins").uuids())
         this.chat.spies.addAll(json.arrayOrDefault("spies").uuids())
 
         this.settings.deserialize(json.arrayOrDefault("settings"))
@@ -257,7 +257,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         val teams = this.teams.serialize()
 
         val players = JsonArray()
-        for (player in this.getAllPlayerProfiles()) {
+        for (player in this.players.allProfiles) {
             val data = JsonObject()
             data.addProperty("name", player.name)
             data.addProperty("uuid", player.id?.toString())
@@ -265,12 +265,12 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         }
 
         val spectators = JsonArray()
-        for (spectator in this.spectators) {
+        for (spectator in this.players.spectatorUUIDs) {
             spectators.add(spectator.toString())
         }
 
         val admins = JsonArray()
-        for (admin in this.admins) {
+        for (admin in this.players.adminUUIDs) {
             admins.add(admin.toString())
         }
 

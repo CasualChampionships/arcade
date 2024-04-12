@@ -82,7 +82,7 @@ public class MinigameEffectsManager(
      */
     public fun setGlowingPredicate(predicate: EntityObserverPredicate) {
         this.glowing = predicate
-        for (player in this.owner.getAllPlayers()) {
+        for (player in this.owner.players) {
             // Mark entity data dirty
             player.setGlowingTag(!player.hasGlowingTag())
             player.setGlowingTag(!player.hasGlowingTag())
@@ -96,7 +96,7 @@ public class MinigameEffectsManager(
      */
     public fun setInvisiblePredicate(predicate: EntityObserverPredicate) {
         this.invisible = predicate
-        for (player in this.owner.getAllPlayers()) {
+        for (player in this.owner.players) {
             // Mark entity data dirty
             player.isInvisible = !player.isInvisible
             player.isInvisible = !player.isInvisible

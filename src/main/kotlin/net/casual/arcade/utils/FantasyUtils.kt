@@ -6,9 +6,11 @@ import net.casual.arcade.level.VanillaLikeDimensions
 import net.casual.arcade.level.VanillaLikeRuntimeLevel
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes
 import xyz.nucleoid.fantasy.Fantasy
 import xyz.nucleoid.fantasy.RuntimeWorldConfig
 import xyz.nucleoid.fantasy.RuntimeWorldHandle
+import kotlin.random.Random
 
 public object FantasyUtils {
     public fun createTemporaryVanillaLikeLevels(
@@ -28,8 +30,7 @@ public object FantasyUtils {
         return Triple(overworld, nether, end)
     }
 
-    @JvmName("createNullableTemporaryVanillaLikeLevels")
-    public fun createTemporaryVanillaLikeLevels(
+    public fun createNullableTemporaryVanillaLikeLevels(
         server: MinecraftServer = Arcade.getServer(),
         overworldConfig: RuntimeWorldConfig? = null,
         netherConfig: RuntimeWorldConfig? = null,
@@ -63,8 +64,7 @@ public object FantasyUtils {
         return Triple(overworld, nether, end)
     }
 
-    @JvmName("createNullablePersistentVanillaLikeLevels")
-    public fun createPersistentVanillaLikeLevels(
+    public fun createNullablePersistentVanillaLikeLevels(
         server: MinecraftServer = Arcade.getServer(),
         overworldConfig: PersistentConfig? = null,
         netherConfig: PersistentConfig? = null,
@@ -79,6 +79,28 @@ public object FantasyUtils {
 
         this.setOtherDimensions(dimensions, overworld, nether, end)
         return Triple(overworld, nether, end)
+    }
+
+    public fun createOverworldConfig(seed: Long = 0L): RuntimeWorldConfig {
+        return RuntimeWorldConfig()
+            .setSeed(seed)
+            .setShouldTickTime(true)
+            .setDimensionType(BuiltinDimensionTypes.OVERWORLD)
+            .setGenerator(LevelUtils.overworld().chunkSource.generator)
+    }
+
+    public fun createNetherConfig(seed: Long = 0L): RuntimeWorldConfig {
+        return RuntimeWorldConfig()
+            .setSeed(seed)
+            .setDimensionType(BuiltinDimensionTypes.NETHER)
+            .setGenerator(LevelUtils.nether().chunkSource.generator)
+    }
+
+    public fun createEndConfig(seed: Long = 0L): RuntimeWorldConfig {
+        return RuntimeWorldConfig()
+            .setSeed(seed)
+            .setDimensionType(BuiltinDimensionTypes.END)
+            .setGenerator(LevelUtils.end().chunkSource.generator)
     }
 
     private fun setWorldConstructors(

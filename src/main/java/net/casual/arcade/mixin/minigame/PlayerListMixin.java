@@ -21,7 +21,7 @@ public class PlayerListMixin {
 	private ServerLevel getDefaultRespawnDimension(ServerLevel original, ServerPlayer player) {
 		Minigame<?> minigame = MinigameUtils.getMinigame(player);
 		if (minigame != null) {
-			ServerLevel spawn = minigame.getLevels().getSpawn();
+			ServerLevel spawn = minigame.getLevels().getSpawn().level(player);
 			if (spawn != null) {
 				return spawn;
 			}

@@ -44,9 +44,9 @@ public class MinigameTeamManager(
         }
         this.minigame.events.register<PlayerTeamJoinEvent> { (player, team) ->
             if (team == this.spectators) {
-                this.minigame.makeSpectator(player)
+                this.minigame.players.setSpectating(player)
             } else if (team == this.admins) {
-                this.minigame.makeAdmin(player)
+                this.minigame.players.addAdmin(player)
             }
         }
     }
@@ -54,9 +54,9 @@ public class MinigameTeamManager(
     public fun setAdminTeam(team: PlayerTeam) {
         this.admins = team
         for (player in team.getOnlinePlayers()) {
-            this.minigame.makeAdmin(player)
+            this.minigame.players.addAdmin(player)
         }
-        for (admin in this.minigame.getAdminPlayers()) {
+        for (admin in this.minigame.players.admins) {
             this.addToAdminTeam(admin)
         }
     }
@@ -64,9 +64,9 @@ public class MinigameTeamManager(
     public fun setSpectatorTeam(team: PlayerTeam) {
         this.spectators = team
         for (player in team.getOnlinePlayers()) {
-            this.minigame.makeSpectator(player)
+            this.minigame.players.setSpectating(player)
         }
-        for (spectator in this.minigame.getSpectatingPlayers()) {
+        for (spectator in this.minigame.players.spectating) {
             this.addToSpectatorTeam(spectator)
         }
     }
@@ -121,7 +121,7 @@ public class MinigameTeamManager(
      * @return The collection of player teams.
      */
     public fun getOnlineTeams(): Collection<PlayerTeam> {
-        return this.getPlayerTeamsFor(this.minigame.getAllPlayers())
+        return this.getPlayerTeamsFor(this.minigame.players)
     }
 
     /**
@@ -132,7 +132,7 @@ public class MinigameTeamManager(
      * @return The collecting of playing players teams.
      */
     public fun getPlayingTeams(): Collection<PlayerTeam> {
-        val teams = this.getPlayerTeamsFor(this.minigame.getPlayingPlayers())
+        val teams = this.getPlayerTeamsFor(this.minigame.players.playing)
         val admins = this.admins
         if (admins != null && teams.remove(admins)) {
             Arcade.logger.warn("MinigameTeamManager.getPlayingTeams included admins")
@@ -155,7 +155,7 @@ public class MinigameTeamManager(
      */
     public fun getAllTeams(): Collection<PlayerTeam> {
         val teams = HashSet<PlayerTeam>()
-        for (profile in this.minigame.getAllPlayerProfiles()) {
+        for (profile in this.minigame.players.allProfiles) {
             teams.add(this.minigame.server.scoreboard.getPlayersTeam(profile.name) ?: continue)
         }
         return teams
@@ -216,7 +216,7 @@ public class MinigameTeamManager(
         }
     }
 
-    private fun getPlayerTeamsFor(players: Collection<ServerPlayer>): HashSet<PlayerTeam> {
+    private fun getPlayerTeamsFor(players: Iterable<ServerPlayer>): HashSet<PlayerTeam> {
         val teams = HashSet<PlayerTeam>()
         for (player in players) {
             teams.add(this.minigame.server.scoreboard.getPlayersTeam(player.scoreboardName) ?: continue)

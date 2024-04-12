@@ -2,8 +2,6 @@ package net.casual.arcade.minigame
 
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
-import com.mojang.authlib.GameProfile
-import net.casual.arcade.Arcade
 import net.casual.arcade.events.EventHandler
 import net.casual.arcade.events.minigame.*
 import net.casual.arcade.events.player.*
@@ -33,19 +31,15 @@ import net.casual.arcade.utils.JsonUtils.toJsonObject
 import net.casual.arcade.utils.JsonUtils.toJsonStringArray
 import net.casual.arcade.utils.MinigameUtils
 import net.casual.arcade.utils.MinigameUtils.addEventListener
-import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.MinigameUtils.minigame
-import net.casual.arcade.utils.PlayerUtils
 import net.casual.arcade.utils.PlayerUtils.getKillCreditWith
 import net.casual.arcade.utils.PlayerUtils.grantAdvancementSilently
 import net.casual.arcade.utils.PlayerUtils.revokeAdvancement
 import net.casual.arcade.utils.StatUtils.increment
-import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.level.GameRules
 import org.jetbrains.annotations.ApiStatus.Experimental
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
@@ -62,10 +56,10 @@ import java.util.*
  * has its own [EventHandler], and own [TickedScheduler].
  * Minigames also provide a way to display the UI to all
  * the currently playing players, through [CustomBossBar]s,
- * [ArcadeSidebar], [ArcadePlayerList], and [ArcadeNameTag]s.
+ * [ArcadeSidebar], [ArcadePlayerListDisplay], and [ArcadeNameTag]s.
  *
  * The minigame keeps track of who is currently playing,
- * this can be accessed through [getAllPlayers].
+ * this can be accessed through [players].
  * It also keeps track of the [ServerLevel]s which are
  * part of the minigame.
  *
@@ -115,23 +109,24 @@ import java.util.*
  * @see SavableMinigame
  * @see Phase
  */
+@Suppress("JoinDeclarationAndAssignment")
 public abstract class Minigame<M: Minigame<M>>(
     /**
      * The [MinecraftServer] that created the [Minigame].
      */
     public val server: MinecraftServer,
 ): Phased<M> {
-    private val connections: MutableSet<ServerGamePacketListenerImpl>
-
     private var resources: MultiMinigameResources
     private var initialized: Boolean
 
-    internal val admins: MutableSet<UUID>
-    internal val spectators: MutableSet<UUID>
-    internal val offline: MutableSet<GameProfile>
     internal val phases: List<Phase<M>>
 
     internal val modules: MutableList<MinigameModule<M, *>>
+
+    /**
+     * This handles all the players for this minigame.
+     */
+    public val players: MinigamePlayerManager
 
     /**
      * This handles registering and invoking events.
@@ -288,17 +283,11 @@ public abstract class Minigame<M: Minigame<M>>(
     public abstract val id: ResourceLocation
 
     init {
-        this.connections = LinkedHashSet()
-        this.admins = LinkedHashSet()
-        this.spectators = LinkedHashSet()
-
         this.resources = MultiMinigameResources()
         this.initialized = false
         this.started = false
         this.closed = false
         this.closing = false
-
-        this.offline = LinkedHashSet()
 
         this.phases = this.getAllPhases()
         this.modules = ArrayList()
@@ -310,6 +299,7 @@ public abstract class Minigame<M: Minigame<M>>(
         val self = this.cast()
         // Events must be assigned first!
         this.events = MinigameEventHandler(self, MinigameEventHandler.Filterer(self))
+        this.players = MinigamePlayerManager(self)
         this.levels = MinigameLevelManager(self)
         this.ui = MinigameUIManager(self)
         this.commands = MinigameCommandManager(self)
@@ -372,245 +362,6 @@ public abstract class Minigame<M: Minigame<M>>(
         MinigameSetPhaseEvent(self, phase).broadcast()
     }
 
-    /**
-     * This adds a player to the minigame.
-     * In order for this method to be successful the minigame must be
-     * [initialized], and must not yet be tracking the given player.
-     * The player may be rejected by the [MinigameAddNewPlayerEvent],
-     * in which case this method will also return `false`.
-     *
-     * If the player is accepted this method will return `true`.
-     *
-     * If the player previously logged out (or the server restarted),
-     * the player will automatically rejoin the minigame and the
-     * [MinigameAddExistingPlayerEvent] will be broadcast instead.
-     *
-     * In both cases of the player joining a singular other event
-     * will be broadcasted [MinigameAddPlayerEvent].
-     *
-     * You can specify whether the player should join as a spectator.
-     * If the player was not previously part of the minigame then
-     * if [spectating] is `null` or `false` then they will be marked
-     * as playing, if `true` then they will join as a spectator.
-     * If the player was peviously part of the minigame then if
-     * [spectating] is `null` then the player will keep their previous
-     * state, if `true` then they will try to start spectating and if
-     * `false` then they will be removed from the spectators.
-     *
-     * @param player The player to add to the minigame.
-     * @param spectating Whether the player should be spectating, `null` for default.
-     * @return Whether the player was successfully accepted.
-     */
-    public fun addPlayer(player: ServerPlayer, spectating: Boolean? = null): Boolean {
-        this.tryInitialize()
-        if (this.hasPlayer(player)) {
-            return false
-        }
-
-        val hasMinigame = player.getMinigame() === this
-        if (this.offline.remove(player.gameProfile) || hasMinigame) {
-            if (!hasMinigame) {
-                Arcade.logger.warn("Player's minigame UUID didn't work?!")
-                player.minigame.setMinigame(this)
-            }
-
-            this.connections.add(player.connection)
-            MinigameAddExistingPlayerEvent(this, player).broadcast()
-            MinigameAddPlayerEvent(this, player).broadcast()
-
-            if (spectating != null) {
-                if (spectating) this.makeSpectator(player) else this.removeSpectator(player)
-            }
-            return true
-        }
-
-        this.connections.add(player.connection)
-        val event = MinigameAddNewPlayerEvent(this, player).broadcast()
-        if (!event.isCancelled()) {
-            player.minigame.setMinigame(this)
-            MinigameAddPlayerEvent(this, player).broadcast()
-
-            if (spectating != null && spectating) {
-                this.makeSpectator(player)
-            } else {
-                MinigameSetPlayingEvent(this, player).broadcast()
-            }
-            return true
-        }
-        this.connections.remove(player.connection)
-        return false
-    }
-
-    /**
-     * This removes a given player from the minigame.
-     * This also removes the player from all the minigame UI.
-     *
-     * If successful then the [MinigameRemovePlayerEvent] is
-     * broadcast.
-     *
-     * @param player The player to remove.
-     */
-    public fun removePlayer(player: ServerPlayer): Boolean {
-        this.tryInitialize()
-
-        val wasOffline = this.offline.remove(player.gameProfile)
-        if (wasOffline || this.connections.contains(player.connection)) {
-            if (wasOffline) {
-                Arcade.logger.warn("Removed offline player?!")
-            }
-            this.data.updatePlayer(player)
-            this.removeSpectator(player)
-            this.removeAdmin(player)
-
-            MinigameRemovePlayerEvent(this, player).broadcast()
-            this.connections.remove(player.connection)
-            player.minigame.removeMinigame()
-            return true
-        }
-        return false
-    }
-
-    public fun makeSpectator(player: ServerPlayer): Boolean {
-        if (this.hasPlayer(player) && this.spectators.add(player.uuid)) {
-            MinigameSetSpectatingEvent(this, player).broadcast()
-            return true
-        }
-        return false
-    }
-
-    public fun removeSpectator(player: ServerPlayer): Boolean {
-        if (this.spectators.remove(player.uuid)) {
-            MinigameSetPlayingEvent(this, player).broadcast()
-            return true
-        }
-        return false
-    }
-
-    public fun makeAdmin(player: ServerPlayer): Boolean {
-        if (this.hasPlayer(player) && this.admins.add(player.uuid)) {
-            MinigameAddAdminEvent(this, player).broadcast()
-            return true
-        }
-        return false
-    }
-
-    public fun removeAdmin(player: ServerPlayer): Boolean {
-        if (this.admins.remove(player.uuid)) {
-            MinigameRemoveAdminEvent(this, player).broadcast()
-            return true
-        }
-        return false
-    }
-
-    public fun getTotalPlayerCount(): Int {
-        return this.connections.size
-    }
-
-    /**
-     * This gets all the tracked players in this minigame.
-     * This includes spectating and playing players.
-     *
-     * @return All the players.
-     */
-    public fun getAllPlayers(): List<ServerPlayer> {
-        return this.connections.map { it.player }
-    }
-
-    /**
-     * This gets all the players that are currently
-     * playing in the minigame, i.e. not spectating.
-     *
-     * @return The list of playing players.
-     */
-    public fun getPlayingPlayers(): List<ServerPlayer> {
-        return this.connections.stream().filter { this.isPlaying(it.player) }.map { it.player }.toList()
-    }
-
-    /**
-     * This gets all the players that are currently
-     * spectating in the minigame.
-     *
-     * @return The list of spectating players.
-     */
-    public fun getSpectatingPlayers(): List<ServerPlayer> {
-        return this.connections.stream().filter { this.isSpectating(it.player) }.map { it.player }.toList()
-    }
-
-    /**
-     * This gets a list of all the players that are
-     * admins, they may be either spectating or playing.
-     *
-     * @return The list of admin players.
-     */
-    public fun getAdminPlayers(): List<ServerPlayer> {
-        return this.connections.stream().filter { this.isAdmin(it.player) }.map { it.player }.toList()
-    }
-
-    /**
-     * Gets a list of all the non-admin players, they may be either spectating or playing.
-     *
-     * @return The list of all non-admin players.
-     */
-    public fun getNonAdminPlayers(): List<ServerPlayer> {
-        return this.connections.stream().filter { !this.isAdmin(it.player) }.map { it.player }.toList()
-    }
-
-    /**
-     * This gets all profiles of the player's that
-     * were playing the minigame but are now offline.
-     *
-     * @return All the offline player's profiles.
-     */
-    public fun getOfflinePlayerProfiles(): List<GameProfile> {
-        return this.offline.toList()
-    }
-
-    /**
-     * This gets all the player profiles that are playing this minigame,
-     * whether online or offline.
-     *
-     * @return All the player's profiles.
-     */
-    public fun getAllPlayerProfiles(): List<GameProfile> {
-        return this.getAllPlayers().map { it.gameProfile }.concat(this.getOfflinePlayerProfiles())
-    }
-
-    /**
-     * This gets whether a given player is playing in the minigame.
-     *
-     * @param player The player to check whether they are playing.
-     * @return Whether the player is playing.
-     */
-    public fun hasPlayer(player: ServerPlayer): Boolean {
-        return this.connections.contains(player.connection)
-    }
-
-    /**
-     * This checks whether a given player uuid is playing in the minigame.
-     *
-     * @param uuid The uuid of the player you want to check.
-     * @return Whether the player is playing.
-     */
-    public fun hasPlayer(uuid: UUID): Boolean {
-        val player = PlayerUtils.player(uuid)
-        if (player != null) {
-            return this.hasPlayer(player)
-        }
-        return this.offline.any { it.id == uuid }
-    }
-
-    public fun isPlaying(player: ServerPlayer): Boolean {
-        return !this.isSpectating(player)
-    }
-
-    public fun isSpectating(player: ServerPlayer): Boolean {
-        return this.spectators.contains(player.uuid)
-    }
-
-    public fun isAdmin(player: ServerPlayer): Boolean {
-        return this.admins.contains(player.uuid)
-    }
-
     @Experimental
     public fun addModule(module: MinigameModule<M, *>) {
         if (this.started) {
@@ -630,13 +381,13 @@ public abstract class Minigame<M: Minigame<M>>(
 
     public fun addResources(resources: MinigameResources) {
         if (this.resources.addResources(resources)) {
-            resources.sendTo(this.getAllPlayers())
+            resources.sendTo(this.players)
         }
     }
 
     public fun removeResources(resources: MinigameResources) {
         if (this.resources.removeResources(resources)) {
-            resources.removeFrom(this.getAllPlayers())
+            resources.removeFrom(this.players)
         }
     }
 
@@ -701,8 +452,8 @@ public abstract class Minigame<M: Minigame<M>>(
         this.data.end()
 
         MinigameCloseEvent(this).broadcast()
-        for (player in this.getAllPlayers()) {
-            this.removePlayer(player)
+        for (player in this.players) {
+            this.players.remove(player)
         }
         for (level in this.levels.all()) {
             level.minigame.removeMinigame()
@@ -741,10 +492,10 @@ public abstract class Minigame<M: Minigame<M>>(
         json.addProperty("uuid", this.uuid.toString())
         json.addProperty("id", this.id.toString())
         json.addProperty("uptime", this.uptime)
-        json.add("players", this.getAllPlayers().toJsonStringArray { it.scoreboardName })
-        json.add("offline_players", this.offline.toJsonObject { it.name to JsonPrimitive(it.id?.toString()) })
-        json.add("admins", this.getAdminPlayers().toJsonStringArray { it.scoreboardName })
-        json.add("spectating", this.getSpectatingPlayers().toJsonStringArray { it.scoreboardName })
+        json.add("players", this.players.all.toJsonStringArray { it.scoreboardName })
+        json.add("offline_players", this.players.offlineProfiles.toJsonObject { it.name to JsonPrimitive(it.id?.toString()) })
+        json.add("admins", this.players.admins.toJsonStringArray { it.scoreboardName })
+        json.add("spectating", this.players.spectating.toJsonStringArray { it.scoreboardName })
         json.add("teams", this.teams.getAllTeams().toJsonStringArray { it.name })
         json.add("spies", this.chat.spies.toJsonStringArray { it.toString() })
         json.add("playing_teams", this.teams.getPlayingTeams().toJsonStringArray { it.name })
@@ -894,7 +645,6 @@ public abstract class Minigame<M: Minigame<M>>(
         this.events.register<PlayerJoinEvent> { this.onPlayerJoin(it) }
         this.events.register<PlayerDeathEvent> { this.onPlayerDeath(it) }
         this.events.register<PlayerDamageEvent>(Int.MAX_VALUE) { this.onPlayerDamage(it) }
-        this.events.register<PlayerLeaveEvent>(Int.MAX_VALUE) { this.onPlayerLeave(it) }
         this.events.register<MinigameAddPlayerEvent>(-1000) { this.onPlayerAdd(it) }
         this.events.register<MinigameRemovePlayerEvent>(2000) { this.onPlayerRemove(it) }
         this.events.register<ServerStoppingEvent> { this.onServerStopping() }
@@ -910,7 +660,7 @@ public abstract class Minigame<M: Minigame<M>>(
 
     private fun onPlayerTick(event: PlayerTickEvent) {
         val (player) = event
-        if (this.isPlaying(player)) {
+        if (this.players.has(player)) {
             this.stats.getOrCreateStat(player, ArcadeStats.PLAY_TIME).increment()
         }
     }
@@ -924,7 +674,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.stats.getOrCreateStat(event.player, ArcadeStats.DEATHS).increment()
 
         val killer = event.player.getKillCreditWith(event.source)
-        if (killer is ServerPlayer && this.hasPlayer(killer)) {
+        if (killer is ServerPlayer && this.players.has(killer)) {
             this.stats.getOrCreateStat(killer, ArcadeStats.KILLS).increment()
         }
     }
@@ -935,18 +685,8 @@ public abstract class Minigame<M: Minigame<M>>(
         this.stats.getOrCreateStat(player, ArcadeStats.DAMAGE_TAKEN).increment(amount)
 
         val attacker = source.entity
-        if (attacker is ServerPlayer && this.hasPlayer(attacker)) {
+        if (attacker is ServerPlayer && this.players.has(attacker)) {
             this.stats.getOrCreateStat(attacker, ArcadeStats.DAMAGE_DEALT).increment(amount)
-        }
-    }
-
-    private fun onPlayerLeave(event: PlayerLeaveEvent) {
-        val (player) = event
-
-        if (this.connections.remove(player.connection)) {
-            this.offline.add(player.gameProfile)
-
-            this.data.updatePlayer(player)
         }
     }
 

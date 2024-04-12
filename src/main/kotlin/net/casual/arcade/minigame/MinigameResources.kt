@@ -96,7 +96,7 @@ public interface MinigameResources {
          * @see sendTo
          */
         @JvmStatic
-        public fun MinigameResources.sendTo(players: Collection<ServerPlayer>) {
+        public fun MinigameResources.sendTo(players: Iterable<ServerPlayer>) {
             for (player in players) {
                 this.sendTo(player)
             }
@@ -108,7 +108,7 @@ public interface MinigameResources {
          * @param players The players to remove the resources from.
          */
         @JvmStatic
-        public fun MinigameResources.removeFrom(players: Collection<ServerPlayer>) {
+        public fun MinigameResources.removeFrom(players: Iterable<ServerPlayer>) {
             for (player in players) {
                 this.removeFrom(player)
             }

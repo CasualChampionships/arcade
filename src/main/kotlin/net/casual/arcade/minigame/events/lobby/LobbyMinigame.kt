@@ -33,6 +33,7 @@ import net.casual.arcade.utils.MinigameUtils.requiresAdminOrPermission
 import net.casual.arcade.utils.MinigameUtils.transferAdminAndSpectatorTeamsTo
 import net.casual.arcade.utils.MinigameUtils.transferPlayersTo
 import net.casual.arcade.utils.PlayerUtils.clearPlayerInventory
+import net.casual.arcade.utils.PlayerUtils.ops
 import net.casual.arcade.utils.PlayerUtils.resetExperience
 import net.casual.arcade.utils.PlayerUtils.resetHealth
 import net.casual.arcade.utils.PlayerUtils.resetHunger
@@ -88,7 +89,7 @@ public open class LobbyMinigame(
             player.clearPlayerInventory()
         }
         this.events.register<ServerTickEvent> {
-            for (player in this.getNonAdminPlayers()) {
+            for (player in this.players.nonAdmins) {
                 this.lobby.tryTeleportToSpawn(player)
             }
         }
@@ -113,7 +114,7 @@ public open class LobbyMinigame(
     }
 
     public open fun getPlayersToReady(): Collection<ServerPlayer> {
-        return this.getPlayingPlayers()
+        return this.players.playing
     }
 
     public fun getNextMinigame(): Minigame<*>? {
@@ -129,7 +130,9 @@ public open class LobbyMinigame(
         val component = "All players are ready, click to start!".literal().green().singleUseFunction {
             this.setPhase(LobbyPhase.Countdown)
         }
-        this.chat.broadcastTo(component, this.getAdminPlayers())
+        val admins = HashSet(this.players.admins)
+        admins.addAll(this.players.ops())
+        this.chat.broadcastTo(component, admins)
     }
 
     private fun moveToNextMinigame() {
@@ -319,7 +322,7 @@ public open class LobbyMinigame(
         val players = "[Click to ready players]".literal().lime().command("/lobby ready players")
         val component = message.append(teams).append(" or ").append(players)
 
-        this.chat.broadcastTo(component, this.getAdminPlayers())
+        this.chat.broadcastTo(component, this.players.admins)
     }
 
     public companion object {
@@ -332,7 +335,7 @@ public open class LobbyMinigame(
         Waiting("waiting") {
             override fun start(minigame: LobbyMinigame) {
                 minigame.ui.addBossbar(minigame.bossbar)
-                for (player in minigame.getNonAdminPlayers()) {
+                for (player in minigame.players.nonAdmins) {
                     player.setGameMode(GameType.ADVENTURE)
                 }
                 for (team in minigame.teams.getAllTeams()) {

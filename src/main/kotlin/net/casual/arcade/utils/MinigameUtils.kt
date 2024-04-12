@@ -61,7 +61,7 @@ public object MinigameUtils {
         duration: MinecraftTimeDuration = 10.Seconds,
         interval: MinecraftTimeDuration = 1.Seconds,
         scheduler: MinecraftScheduler = minigame.scheduler.asPhasedScheduler(),
-        players: () -> Collection<ServerPlayer> = minigame::getAllPlayers
+        players: () -> Collection<ServerPlayer> = minigame.players::all
     ): Completable {
         return this.countdown(duration, interval, scheduler, players)
     }
@@ -86,7 +86,7 @@ public object MinigameUtils {
 
     public fun ServerPlayer.isMinigameAdminOrHasPermission(level: Int = 4): Boolean {
         val minigame = this.getMinigame()
-        if (minigame != null && minigame.isAdmin(this)) {
+        if (minigame != null && minigame.players.isAdmin(this)) {
             return true
         }
         return this.hasPermissions(level)
@@ -104,13 +104,13 @@ public object MinigameUtils {
         transferAdminStatus: Boolean = true,
         transferSpectatorStatus: Boolean = true
     ) {
-        val players = this.getAllPlayers()
+        val players = this.players
         for (player in players) {
-            val wasAdmin = this.isAdmin(player)
-            val wasSpectating = this.isSpectating(player)
-            next.addPlayer(player, transferSpectatorStatus && wasSpectating)
+            val wasAdmin = players.isAdmin(player)
+            val wasSpectating = players.isSpectating(player)
+            next.players.add(player, transferSpectatorStatus && wasSpectating)
             if (transferAdminStatus && wasAdmin) {
-                next.makeAdmin(player)
+                next.players.addAdmin(player)
             }
         }
     }
@@ -184,7 +184,7 @@ public object MinigameUtils {
             player.addExtension(PlayerMinigameExtension(player))
         }
         GlobalEventHandler.register<PlayerJoinEvent>(Int.MIN_VALUE) { (player) ->
-            player.getMinigame()?.addPlayer(player)
+            player.getMinigame()?.players?.add(player)
         }
         GlobalEventHandler.register<LevelExtensionEvent> { (level) ->
             level.addExtension(LevelMinigameExtension(level))

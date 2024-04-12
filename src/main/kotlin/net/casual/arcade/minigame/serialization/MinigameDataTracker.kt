@@ -68,7 +68,7 @@ public class MinigameDataTracker(
     }
 
     internal fun serialize(modifier: ((UUID, JsonObject) -> Unit)? = null): JsonObject {
-        for (player in this.minigame.getAllPlayers()) {
+        for (player in this.minigame.players) {
             this.updatePlayer(player)
         }
 

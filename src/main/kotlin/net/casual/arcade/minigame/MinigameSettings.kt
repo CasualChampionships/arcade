@@ -313,6 +313,6 @@ public open class MinigameSettings(
     })
 
     protected fun <T: Any> isAdminOverride(value: T): (ServerPlayer) -> T? {
-        return { if (this.minigame.isAdmin(it)) value else null }
+        return { if (this.minigame.players.isAdmin(it)) value else null }
     }
 }

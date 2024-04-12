@@ -41,7 +41,7 @@ public abstract class MinigameModule<M: Minigame<M>, P: MinigameModule<M, P>>(
     }
 
     public fun addPlayer(player: ServerPlayer): Boolean {
-        if (!this.minigame.hasPlayer(player) || !this.minigame.isPlaying(player)) {
+        if (!this.minigame.players.has(player) || !this.minigame.players.isPlaying(player)) {
             return false
         }
         return this.players.add(player.uuid)

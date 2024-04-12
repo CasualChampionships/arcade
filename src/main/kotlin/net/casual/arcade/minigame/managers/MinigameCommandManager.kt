@@ -126,7 +126,7 @@ public class MinigameCommandManager(
     }
 
     private fun resendCommands() {
-        for (player in this.minigame.getAllPlayers()) {
+        for (player in this.minigame.players) {
             this.resendCommandsTo(player)
         }
     }

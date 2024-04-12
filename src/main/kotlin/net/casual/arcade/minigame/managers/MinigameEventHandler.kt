@@ -447,19 +447,19 @@ public class MinigameEventHandler<P>(
         private val minigame: Minigame<*>
     ) {
         public open fun hasPlayer(player: ServerPlayer): Boolean {
-            return this.minigame.hasPlayer(player)
+            return this.minigame.players.has(player)
         }
 
         public open fun isPlaying(player: ServerPlayer): Boolean {
-            return this.minigame.isPlaying(player)
+            return this.minigame.players.isPlaying(player)
         }
 
         public open fun isSpectating(player: ServerPlayer): Boolean {
-            return this.minigame.isSpectating(player)
+            return this.minigame.players.isSpectating(player)
         }
 
         public open fun isAdmin(player: ServerPlayer): Boolean {
-            return this.minigame.isAdmin(player)
+            return this.minigame.players.isAdmin(player)
         }
 
         public open fun hasLevel(level: ServerLevel): Boolean {

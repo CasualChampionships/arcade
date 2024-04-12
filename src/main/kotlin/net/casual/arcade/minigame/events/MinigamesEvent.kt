@@ -92,9 +92,9 @@ public open class MinigamesEvent(
         }
 
         val current = this.current
-        current.addPlayer(player)
+        current.players.add(player)
         if (this.config.operators.contains(player.scoreboardName)) {
-            current.makeAdmin(player)
+            current.players.addAdmin(player)
         }
         this.sendResourcesTo(player, false)
     }

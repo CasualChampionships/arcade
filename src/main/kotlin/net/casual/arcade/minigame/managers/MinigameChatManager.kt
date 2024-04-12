@@ -90,7 +90,7 @@ public class MinigameChatManager(
      */
     public fun broadcastTo(
         message: Component,
-        players: Collection<ServerPlayer>,
+        players: Iterable<ServerPlayer>,
         formatter: ChatFormatter? = this.systemChatFormatter
     ) {
         val formatted = formatter?.format(message) ?: message
@@ -205,13 +205,13 @@ public class MinigameChatManager(
      *
      * @return The list of players.
      */
-    public fun getAllPlayers(): List<ServerPlayer> {
-        return this.minigame.getAllPlayers()
+    public fun getAllPlayers(): Iterable<ServerPlayer> {
+        return this.minigame.players
     }
 
     private fun onGlobalPlayerChat(event: PlayerChatEvent) {
-        if (!this.minigame.settings.canCrossChat && !this.minigame.hasPlayer(event.player)) {
-            event.addFilter { !this.minigame.hasPlayer(it) }
+        if (!this.minigame.settings.canCrossChat && !this.minigame.players.has(event.player)) {
+            event.addFilter { !this.minigame.players.has(it) }
         }
     }
 
@@ -246,17 +246,17 @@ public class MinigameChatManager(
             return
         }
 
-        if (this.minigame.isAdmin(player)) {
+        if (this.minigame.players.isAdmin(player)) {
             val (decorated, prefix) = this.adminChatFormatter.format(player, message.decoratedContent())
             event.replaceMessage(decorated, prefix)
-            event.addFilter { this.minigame.isAdmin(it) || this.isSpy(it) }
+            event.addFilter { this.minigame.players.isAdmin(it) || this.isSpy(it) }
             return
         }
 
-        if (this.minigame.isSpectating(player)) {
+        if (this.minigame.players.isSpectating(player)) {
             val (decorated, prefix) = this.spectatorChatFormatter.format(player, message.decoratedContent())
             event.replaceMessage(decorated, prefix)
-            event.addFilter { this.minigame.isSpectating(it) || this.isSpy(it) }
+            event.addFilter { this.minigame.players.isSpectating(it) || this.isSpy(it) }
             return
         }
 
@@ -267,10 +267,10 @@ public class MinigameChatManager(
     }
 
     private fun formatGlobalChatFor(player: ServerPlayer, message: Component): PlayerFormattedChat {
-        if (this.minigame.isAdmin(player)) {
+        if (this.minigame.players.isAdmin(player)) {
             return this.globalChatFormatter.format(this.adminChatFormatter.format(player, message))
         }
-        if (this.minigame.isSpectating(player)) {
+        if (this.minigame.players.isSpectating(player)) {
             return this.globalChatFormatter.format(this.spectatorChatFormatter.format(player, message))
         }
         return this.globalChatFormatter.format(player, message)

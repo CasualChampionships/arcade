@@ -19,7 +19,7 @@ internal class PlayerMinigameExtension(
     }
 
     internal fun setMinigame(minigame: Minigame<*>) {
-        this.minigame?.removePlayer(this.player)
+        this.minigame?.players?.remove(this.player)
         this.minigame = minigame
     }
 

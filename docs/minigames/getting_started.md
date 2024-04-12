@@ -158,7 +158,7 @@ enum class ExamplePhases(
         override fun start(minigame: ExampleMinigame) {
             // Change to location of the arena
             val location = Location.of()
-            for (player in minigame.getPlayingPlayers()) {
+            for (player in minigame.players.playing) {
                 player.teleportTo(location)
             }
         }
@@ -194,7 +194,7 @@ enum class ExamplePhases(
         override fun start(minigame: ExampleMinigame) {
             // Change to location of the arena
             val location = Location.of()
-            for (player in minigame.getPlayingPlayers()) {
+            for (player in minigame.players.playing) {
                 player.teleportTo(location)
             }
         }

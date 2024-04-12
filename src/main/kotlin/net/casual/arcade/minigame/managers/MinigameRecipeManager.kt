@@ -83,7 +83,7 @@ public class MinigameRecipeManager(
         wrapped: Recipe<C>
     ): WrappedRecipe<C>(wrapped), PlayerPredicatedRecipe {
         override fun canUse(player: ServerPlayer): Boolean {
-            return minigame.hasPlayer(player) &&
+            return minigame.players.has(player) &&
                 ((this.wrapped !is PlayerPredicatedRecipe) || this.wrapped.canUse(player))
         }
     }

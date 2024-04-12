@@ -2,7 +2,9 @@ package net.casual.arcade.minigame.managers
 
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.MinigameUtils.minigame
+import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
 import xyz.nucleoid.fantasy.RuntimeWorldHandle
 
 /**
@@ -21,12 +23,13 @@ public class MinigameLevelManager(
     private val levels = HashSet<ServerLevel>()
 
     /**
-     * The default spawn level for the minigame.
+     * The default spawn location for the minigame.
      *
      * If this is not set and a player dies without a respawn
-     *  point, then the player will respawn in the overworld.
+     * point, then the player will respawn in the overworld
+     * at the default world spawn.
      */
-    public var spawn: ServerLevel? = null
+    public var spawn: SpawnLocation = SpawnLocation.global()
 
     /**
      * This adds a level handle to the minigame.
@@ -79,5 +82,25 @@ public class MinigameLevelManager(
     internal fun clear() {
         this.levels.clear()
         this.handles.clear()
+    }
+
+    public interface SpawnLocation {
+        public fun level(player: ServerPlayer): ServerLevel?
+
+        public fun position(player: ServerPlayer): BlockPos?
+
+        public companion object {
+            public fun global(level: ServerLevel? = null, position: BlockPos? = null): SpawnLocation {
+                return object: SpawnLocation {
+                    override fun level(player: ServerPlayer): ServerLevel? {
+                        return level
+                    }
+
+                    override fun position(player: ServerPlayer): BlockPos? {
+                        return position
+                    }
+                }
+            }
+        }
     }
 }
