@@ -1,18 +1,26 @@
 package net.casual.arcade.mixin.minigame;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.mojang.authlib.GameProfile;
 import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.utils.MinigameUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerPlayer.class)
 public class ServerPlayerMixin {
+	@Shadow @Final public MinecraftServer server;
+
 	@ModifyExpressionValue(
 		method = "isPvpAllowed",
 		at = @At(
@@ -61,7 +69,11 @@ public class ServerPlayerMixin {
 	)
 	private BlockPos getSharedSpawnPosition(BlockPos original) {
 		ServerPlayer player = (ServerPlayer) (Object) this;
-		Minigame<?> minigame = MinigameUtils.getMinigame(player);
+		ServerPlayer old = this.server.getPlayerList().getPlayer(player.getUUID());
+		if (old == null) {
+			return original;
+		}
+		Minigame<?> minigame = MinigameUtils.getMinigame(old);
 		if (minigame != null) {
 			BlockPos spawnPosition = minigame.getLevels().getSpawn().position(player);
 			if (spawnPosition != null) {

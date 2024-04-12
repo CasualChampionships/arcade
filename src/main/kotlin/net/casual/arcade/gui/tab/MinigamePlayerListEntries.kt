@@ -19,6 +19,6 @@ public class MinigamePlayerListEntries(
     }
 
     override fun tick(server: MinecraftServer) {
-        this.entries = this.minigame.getAllPlayers().sortedWith(this.order)
+        this.entries = this.minigame.players.all.sortedWith(this.order)
     }
 }

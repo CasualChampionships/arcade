@@ -317,7 +317,7 @@ internal object MinigameCommand: Command {
         return applyToPlayersInMinigame(
             context,
             players,
-            { player, minigame -> minigame.addPlayer(player) },
+            { player, minigame -> minigame.players.add(player) },
             "Failed to add any players to minigame",
             { "Successfully added $it players to minigame" }
         )
@@ -334,7 +334,7 @@ internal object MinigameCommand: Command {
         return applyToPlayersInMinigame(
             context,
             players,
-            { player, minigame -> minigame.hasPlayer(player) && minigame.makeSpectator(player) },
+            { player, minigame -> minigame.players.setSpectating(player) },
             "Failed to make players spectate",
             { "Successfully made $it players spectate" }
         )
@@ -351,7 +351,7 @@ internal object MinigameCommand: Command {
         return applyToPlayersInMinigame(
             context,
             players,
-            { player, minigame -> minigame.hasPlayer(player) && minigame.removeSpectator(player) },
+            { player, minigame -> minigame.players.setPlaying(player) },
             "Failed to make players playing",
             { "Successfully made $it players playing" }
         )
@@ -368,7 +368,7 @@ internal object MinigameCommand: Command {
         return applyToPlayersInMinigame(
             context,
             players,
-            { player, minigame -> minigame.hasPlayer(player) && minigame.makeAdmin(player) },
+            { player, minigame -> minigame.players.addAdmin(player) },
             "Failed to make players admin",
             { "Successfully made $it players admin" }
         )
@@ -385,7 +385,7 @@ internal object MinigameCommand: Command {
         return applyToPlayersInMinigame(
             context,
             players,
-            { player, minigame -> minigame.hasPlayer(player) && minigame.removeAdmin(player) },
+            { player, minigame -> minigame.players.removeAdmin(player) },
             "Failed to remove players admin",
             { "Successfully removed $it players admin" }
         )
@@ -428,7 +428,7 @@ internal object MinigameCommand: Command {
         for (player in players) {
             val minigame = player.getMinigame()
             if (minigame !== null) {
-                minigame.removePlayer(player)
+                minigame.players.remove(player)
                 successes++
             }
         }
@@ -549,13 +549,13 @@ internal object MinigameCommand: Command {
                 append("[here]".literal().green().suggestCommand("/minigame modify ${minigame.uuid} unpause countdown 5 Seconds"))
                 append(" to start the unpause countdown!")
             }
-            minigame.chat.broadcastTo(message, minigame.getAdminPlayers())
+            minigame.chat.broadcastTo(message, minigame.players.admins)
         }
         val awaiting = if (teams) {
             val unready = minigame.ui.readier.areTeamsReady(minigame.teams.getPlayingTeams(), callback)
             ({ unready.toComponent() })
         } else {
-            val unready = minigame.ui.readier.arePlayersReady(minigame.getPlayingPlayers(), callback)
+            val unready = minigame.ui.readier.arePlayersReady(minigame.players.playing, callback)
             ({ unready.toComponent() })
         }
         return context.source.success {
