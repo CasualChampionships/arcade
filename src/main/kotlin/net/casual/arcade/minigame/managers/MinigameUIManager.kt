@@ -192,7 +192,9 @@ public class MinigameUIManager(
 
     internal fun tick(server: MinecraftServer) {
         for (tickable in this.tickables.toList()) {
-            tickable.tick(server)
+            if (!this.minigame.paused || tickable.shouldTickWhenPaused()) {
+                tickable.tick(server)
+            }
         }
     }
 

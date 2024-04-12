@@ -81,6 +81,10 @@ public class ArcadePlayerListDisplay(
         }
     }
 
+    override fun shouldTickWhenPaused(): Boolean {
+        return true
+    }
+
     public fun onPlayerJoin(player: ServerPlayer) {
         val hiding = PolymerEntityUtils.createMutablePlayerListPacket(EnumSet.of(Action.UPDATE_LISTED))
         hiding.entries().add(this.hidingClientboundEntry(player, true))

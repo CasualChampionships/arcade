@@ -10,4 +10,8 @@ public interface TickableUI {
      * This method is called every tick.
      */
     public fun tick(server: MinecraftServer)
+
+    public fun shouldTickWhenPaused(): Boolean {
+        return false
+    }
 }
