@@ -26,3 +26,12 @@ public class NegativeWidthGenerator(
         collection.add(SpacingUtils.getTranslatableNegativeWidth(font, this.component))
     }
 }
+
+public class WidthDifferenceGenerator(
+    private val first: Component,
+    private val second: Component
+): LanguageEntryGenerator {
+    override fun run(font: Font, collection: MutableCollection<LanguageEntry>) {
+        collection.add(SpacingUtils.getTranslatableWidthDifference(font, this.first, this.second))
+    }
+}
