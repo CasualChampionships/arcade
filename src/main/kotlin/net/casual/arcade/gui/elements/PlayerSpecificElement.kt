@@ -40,10 +40,10 @@ public fun interface PlayerSpecificElement<E: Any> {
     }
 
     @NonExtendable
-    public fun merge(
-        other: PlayerSpecificElement<E>,
-        merger: (a: E, b: E) -> E
-    ): PlayerSpecificElement<E> {
+    public fun <S: Any, T: Any> merge(
+        other: PlayerSpecificElement<S>,
+        merger: (a: E, b: S) -> T
+    ): PlayerSpecificElement<T> {
         return Merged(this, other, merger)
     }
 
@@ -62,12 +62,12 @@ public fun interface PlayerSpecificElement<E: Any> {
         }
     }
 
-    private class Merged<E: Any>(
-        private val first: PlayerSpecificElement<E>,
-        private val second: PlayerSpecificElement<E>,
-        private val merger: (E, E) -> E
-    ): PlayerSpecificElement<E> {
-        override fun get(player: ServerPlayer): E {
+    private class Merged<A: Any, B: Any, C: Any>(
+        private val first: PlayerSpecificElement<A>,
+        private val second: PlayerSpecificElement<B>,
+        private val merger: (A, B) -> C
+    ): PlayerSpecificElement<C> {
+        override fun get(player: ServerPlayer): C {
             return this.merger.invoke(this.first.get(player), this.second.get(player))
         }
 

@@ -30,10 +30,10 @@ public fun interface UniversalElement<E: Any>: PlayerSpecificElement<E> {
     }
 
     @NonExtendable
-    public fun merge(
-        other: UniversalElement<E>,
-        merger: (a: E, b: E) -> E
-    ): UniversalElement<E> {
+    public fun <S: Any, T: Any> merge(
+        other: UniversalElement<S>,
+        merger: (a: E, b: S) -> T
+    ): UniversalElement<T> {
         return Merged(this, other, merger)
     }
 
@@ -86,12 +86,12 @@ public fun interface UniversalElement<E: Any>: PlayerSpecificElement<E> {
         }
     }
 
-    private class Merged<E: Any>(
-        private val first: UniversalElement<E>,
-        private val second: UniversalElement<E>,
-        private val merger: (E, E) -> E
-    ): UniversalElement<E> {
-        override fun get(server: MinecraftServer): E {
+    private class Merged<A: Any, B: Any, C: Any>(
+        private val first: UniversalElement<A>,
+        private val second: UniversalElement<B>,
+        private val merger: (A, B) -> C
+    ): UniversalElement<C> {
+        override fun get(server: MinecraftServer): C {
             return this.merger.invoke(this.first.get(server), this.second.get(server))
         }
 
