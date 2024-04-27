@@ -71,12 +71,26 @@ public open class DisplayableSettings(
      * This creates a menu which can be displayed to a
      * player to directly interact with the settings.
      *
-     * @return The menu provider.
+     * @param player The player being displayed to gui.
+     * @return The gui interface.
      */
-    public open fun menuFor(player: ServerPlayer): GuiInterface {
+    public fun gui(player: ServerPlayer): GuiInterface {
         val builder = this.defaults.createSettingsGuiBuilder(player)
         builder.addSettings(this, this.defaults::createOptionsGuiBuilder)
         return builder.build()
+    }
+
+    /**
+     * This creates a menu which can be displayed to a
+     * player to directly interact with the settings.
+     *
+     * @param parent The parent ui.
+     * @return The gui interface.
+     */
+    public fun gui(parent: GuiInterface): GuiInterface {
+        val builder = this.defaults.createSettingsGuiBuilder(parent.player)
+        builder.addSettings(this, this.defaults::createOptionsGuiBuilder)
+        return builder.parent(parent).build()
     }
 
     public fun serialize(): JsonArray {
