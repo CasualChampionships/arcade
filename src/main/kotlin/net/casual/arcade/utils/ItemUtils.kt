@@ -27,7 +27,7 @@ public object ItemUtils {
 
     @JvmStatic
     public fun ItemStack.named(text: Component): ItemStack {
-        return this.setHoverName(text.copy().unitalicise())
+        return this.setHoverName(text.copy())
     }
 
     @JvmStatic

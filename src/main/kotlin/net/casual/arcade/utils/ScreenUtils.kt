@@ -71,6 +71,7 @@ public object ScreenUtils {
     ): SimpleGui {
         val setting = settings[index]
         val builder = generator.invoke(root, setting)
+        builder.addSettingOptions(setting)
 
         val previous = settings.getOrNull(index - 1)
         if (previous != null) {
