@@ -10,6 +10,7 @@
     "advancements.ServerAdvancementManagerMixin",
     "bugfixes.BaseFireBlockMixin",
     "bugfixes.GameRuleCommandMixin",
+    "bugfixes.RequiredArgumentBuilderMixin",
     "bugfixes.ServerPlayerMixin",
     "commands.ArgumentNodeStub",
     "commands.ArgumentTypeInfosAccessor",
