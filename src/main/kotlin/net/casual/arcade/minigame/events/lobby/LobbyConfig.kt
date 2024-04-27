@@ -16,16 +16,16 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
 
+public typealias SerializableDimension = @Serializable(with = DimensionSerializer::class) ResourceKey<@Contextual Level>
+
 @Serializable
-@SerialName("default")
-public open class LobbyConfig(
-    public val area: PlaceableAreaConfig = BoxedAreaConfig.DEFAULT,
-    public val spawn: SpawnConfig = SpawnConfig.DEFAULT,
-    @Serializable(with = DimensionSerializer::class)
-    public val dimension: ResourceKey<@Contextual Level>? = null,
-    public val countdown: Countdown = TitledCountdown.DEFAULT,
-    public val bossbar: TimerBossBarConfig = TimerBossBarConfig.DEFAULT
-) {
+public abstract class LobbyConfig {
+    public abstract val area: PlaceableAreaConfig
+    public abstract val spawn: SpawnConfig
+    public abstract val dimension: SerializableDimension?
+    public abstract val countdown: Countdown
+    public abstract val bossbar: TimerBossBarConfig
+
     public fun create(level: ServerLevel): Lobby {
         val area = this.area.create(level)
         val spawn = this.spawn.location(level)
@@ -45,6 +45,16 @@ public open class LobbyConfig(
     }
 
     public companion object {
-        public val DEFAULT: LobbyConfig = LobbyConfig()
+        public val DEFAULT: LobbyConfig = SimpleLobbyConfig()
     }
 }
+
+@Serializable
+@SerialName("simple")
+public class SimpleLobbyConfig(
+    override val area: PlaceableAreaConfig = BoxedAreaConfig.DEFAULT,
+    override val spawn: SpawnConfig = SpawnConfig.DEFAULT,
+    override val dimension: SerializableDimension? = null,
+    override val countdown: Countdown = TitledCountdown.DEFAULT,
+    override val bossbar: TimerBossBarConfig = TimerBossBarConfig.DEFAULT
+): LobbyConfig()
