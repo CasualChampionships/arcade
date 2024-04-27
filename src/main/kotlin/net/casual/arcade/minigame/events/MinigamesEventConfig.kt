@@ -1,17 +1,21 @@
 package net.casual.arcade.minigame.events
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import net.casual.arcade.minigame.events.lobby.LobbyConfig
+import net.casual.arcade.utils.serialization.ResourceLocationSerializer
 import net.minecraft.resources.ResourceLocation
 
-public data class MinigamesEventConfig(
-    val teamSize: Int,
-    val lobby: LobbyConfig,
-    val packs: List<String>,
-    val operators: List<String>,
-    val minigames: List<ResourceLocation>,
-    val repeat: Boolean
+@Serializable
+@SerialName("default")
+public open class MinigamesEventConfig(
+    public val lobby: LobbyConfig = LobbyConfig.DEFAULT,
+    public val packs: List<String> = listOf(),
+    public val operators: List<String> = listOf(),
+    public val minigames: List<@Serializable(with = ResourceLocationSerializer::class) ResourceLocation> = listOf(),
+    public val repeat: Boolean = true
 ) {
     public companion object {
-        public val DEFAULT: MinigamesEventConfig = MinigamesEventConfig(5, LobbyConfig.DEFAULT, listOf(), listOf(), listOf(), true)
+        public val DEFAULT: MinigamesEventConfig = MinigamesEventConfig()
     }
 }

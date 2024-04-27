@@ -71,14 +71,10 @@ public interface TitledCountdown: Countdown {
         public val DEFAULT_TITLE: Component = "Starting In:".literal().bold()
 
         @JvmField
-        public val DEFAULT: TitledCountdown = object: TitledCountdown { }
+        public val DEFAULT: TitledCountdown = StaticTitledCountdown()
 
         public fun titled(title: Component): Countdown {
-            return object: TitledCountdown {
-                override fun getCountdownTitle(current: Int): Component {
-                    return title
-                }
-            }
+            return StaticTitledCountdown(title)
         }
     }
 }
