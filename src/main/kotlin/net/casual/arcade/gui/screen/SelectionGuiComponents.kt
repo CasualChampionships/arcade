@@ -12,7 +12,7 @@ import net.minecraft.world.item.Items
  *
  * @see SelectionGuiBuilder
  */
-public interface SelectionScreenComponents {
+public interface SelectionGuiComponents {
     /**
      * Gets the default title.
      */
@@ -59,12 +59,12 @@ public interface SelectionScreenComponents {
 
     public companion object {
         /**
-         * The default implementation of the [SelectionScreenComponents].
+         * The default implementation of the [SelectionGuiComponents].
          */
-        public val DEFAULT: SelectionScreenComponents = object: SelectionScreenComponents { }
+        public val DEFAULT: SelectionGuiComponents = object: SelectionGuiComponents { }
     }
 
-    public class Builder(defaults: SelectionScreenComponents = DEFAULT): SelectionScreenComponents {
+    public class Builder(defaults: SelectionGuiComponents = DEFAULT): SelectionGuiComponents {
         public override var title: Component = defaults.title
 
         public var previous: ItemStack = defaults.getPrevious(true)

@@ -6,6 +6,7 @@ import eu.pb4.sgui.api.gui.GuiInterface
 import eu.pb4.sgui.api.gui.SimpleGui
 import eu.pb4.sgui.api.gui.SimpleGuiBuilder
 import eu.pb4.sgui.api.gui.SlotGuiInterface
+import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
@@ -20,9 +21,9 @@ import kotlin.math.min
  */
 public class SelectionGuiBuilder(
     private val player: ServerPlayer,
-    components: SelectionScreenComponents = SelectionScreenComponents.DEFAULT
+    components: SelectionGuiComponents = SelectionGuiComponents.DEFAULT
 ) {
-    private val components = SelectionScreenComponents.Builder(components)
+    private val components = SelectionGuiComponents.Builder(components)
     private val elements = ArrayList<GuiElementInterface>()
     private val menuElements = EnumMap<MenuSlot, GuiElementInterface>(MenuSlot::class.java)
 
@@ -45,7 +46,7 @@ public class SelectionGuiBuilder(
      */
     public constructor(
         parent: GuiInterface,
-        components: SelectionScreenComponents = SelectionScreenComponents.DEFAULT
+        components: SelectionGuiComponents = SelectionGuiComponents.DEFAULT
     ): this(parent.player, components) {
         this.parent = parent
     }
@@ -71,7 +72,7 @@ public class SelectionGuiBuilder(
      * @param block The builder block.
      * @return The current [SelectionGuiBuilder].
      */
-    public fun components(block: SelectionScreenComponents.Builder.() -> Unit): SelectionGuiBuilder {
+    public fun components(block: SelectionGuiComponents.Builder.() -> Unit): SelectionGuiBuilder {
         block(this.components)
         return this
     }
@@ -149,6 +150,7 @@ public class SelectionGuiBuilder(
 
     private fun create(page: Int): SimpleGui {
         val builder = SimpleGuiBuilder(MenuType.GENERIC_9x6, false)
+        builder.title = this.components.title
         val slots = this.style.getSlots()
         val count = min(builder.size, slots.size)
 
@@ -159,7 +161,7 @@ public class SelectionGuiBuilder(
 
         val hasNextPage = this.elements.size > count * (page + 1)
         for ((i, slot) in slots.withIndex()) {
-            if (i >= paged.size || slot !in 0..< count) {
+            if (i >= paged.size || slot !in 0..< builder.size) {
                 break
             }
             val element = paged[i]
@@ -185,6 +187,12 @@ public class SelectionGuiBuilder(
             }
         })
 
+        for (slot in MenuSlot.entries) {
+            val element = this.menuElements.getOrElse(slot) {
+                GuiElement(this.components.getFiller(), GuiElementInterface.EMPTY_CALLBACK)
+            }
+            builder.setSlot(45 + slot.offset, element)
+        }
         for ((slot, element) in this.menuElements) {
              builder.setSlot(45 + slot.offset, element)
         }

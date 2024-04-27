@@ -4,7 +4,7 @@ import eu.pb4.sgui.api.elements.GuiElement
 import eu.pb4.sgui.api.gui.GuiInterface
 import eu.pb4.sgui.api.gui.SimpleGui
 import net.casual.arcade.gui.screen.SelectionGuiBuilder
-import net.casual.arcade.gui.screen.SelectionScreenComponents
+import net.casual.arcade.gui.screen.SelectionGuiComponents
 import net.casual.arcade.settings.display.DisplayableSettings
 import net.casual.arcade.settings.display.MenuGameSetting
 import net.casual.arcade.utils.ComponentUtils.literal
@@ -87,21 +87,21 @@ public object ScreenUtils {
         return builder.build()
     }
 
-    public object DefaultSpectatorScreenComponent: SelectionScreenComponents {
+    public object DefaultSpectatorScreenComponent: SelectionGuiComponents {
         override val title: Component = "Spectator Screen".literal()
     }
 
-    public object DefaultSettingsComponent: SelectionScreenComponents {
+    public object DefaultSettingsComponent: SelectionGuiComponents {
         override val title: Component = "Settings Screen".literal()
     }
 
-    public object DefaultMinigameSettingsComponent: SelectionScreenComponents {
+    public object DefaultMinigameSettingsComponent: SelectionGuiComponents {
         override val title: Component = "Minigame Settings Screen".literal()
     }
 
     public class DefaultSettingsComponents(
         private val setting: MenuGameSetting<*>
-    ): SelectionScreenComponents {
+    ): SelectionGuiComponents {
         override val title: Component = this.setting.display.hoverName
     }
 }

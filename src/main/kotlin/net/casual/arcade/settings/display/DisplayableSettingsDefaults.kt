@@ -2,7 +2,6 @@ package net.casual.arcade.settings.display
 
 import eu.pb4.sgui.api.gui.GuiInterface
 import net.casual.arcade.gui.screen.SelectionGuiBuilder
-import net.casual.arcade.gui.screen.SelectionScreenComponents
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.utils.ScreenUtils
 import net.casual.arcade.utils.ScreenUtils.DefaultSettingsComponents
