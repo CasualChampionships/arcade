@@ -101,13 +101,13 @@ public object MinigameUtils {
 
     public fun Minigame<*>.transferPlayersTo(
         next: Minigame<*>,
+        players: Iterable<ServerPlayer> = this.players,
         transferAdminStatus: Boolean = true,
         transferSpectatorStatus: Boolean = true
     ) {
-        val players = this.players
         for (player in players) {
-            val wasAdmin = players.isAdmin(player)
-            val wasSpectating = players.isSpectating(player)
+            val wasAdmin = this.players.isAdmin(player)
+            val wasSpectating = this.players.isSpectating(player)
             next.players.add(player, transferSpectatorStatus && wasSpectating)
             if (transferAdminStatus && wasAdmin) {
                 next.players.addAdmin(player)
