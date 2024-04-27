@@ -9,6 +9,10 @@ import net.casual.arcade.area.PlaceableAreaConfig
 import net.casual.arcade.area.StructuredAreaConfig
 import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.gui.countdown.StaticTitledCountdown
+import net.casual.arcade.minigame.events.MinigamesEventConfig
+import net.casual.arcade.minigame.events.SimpleMinigamesEventConfig
+import net.casual.arcade.minigame.events.lobby.LobbyConfig
+import net.casual.arcade.minigame.events.lobby.SimpleLobbyConfig
 import net.casual.arcade.minigame.events.lobby.ui.SimpleTimerBossbarConfig
 import net.casual.arcade.minigame.events.lobby.ui.TimerBossBarConfig
 
@@ -33,6 +37,18 @@ public object ArcadeSerializerModules {
     }
 
     public fun lobbyModules(): SerializersModule {
-        return areaModules() + countdownModules() + bossbarModules()
+        return areaModules() + countdownModules() + bossbarModules() + SerializersModule {
+            polymorphic(LobbyConfig::class) {
+                subclass(SimpleLobbyConfig::class)
+            }
+        }
+    }
+
+    public fun eventModules(): SerializersModule {
+        return lobbyModules() + SerializersModule {
+            polymorphic(MinigamesEventConfig::class) {
+                subclass(SimpleMinigamesEventConfig::class)
+            }
+        }
     }
 }
