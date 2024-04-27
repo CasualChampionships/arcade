@@ -2,11 +2,12 @@ package net.casual.arcade.settings.display
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import eu.pb4.sgui.api.gui.GuiInterface
 import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
-import net.casual.arcade.utils.ScreenUtils
-import net.minecraft.world.MenuProvider
+import net.casual.arcade.utils.ScreenUtils.addSettings
+import net.minecraft.server.level.ServerPlayer
 
 public open class DisplayableSettings(
     protected val defaults: DisplayableSettingsDefaults
@@ -72,13 +73,10 @@ public open class DisplayableSettings(
      *
      * @return The menu provider.
      */
-    public open fun menu(parent: MenuProvider? = null): MenuProvider {
-        return ScreenUtils.createSettingsMenu(
-            this,
-            this.defaults.components,
-            parent = parent,
-            configComponents = this.defaults::createComponents,
-        )
+    public open fun menuFor(player: ServerPlayer): GuiInterface {
+        val builder = this.defaults.createSettingsGuiBuilder(player)
+        builder.addSettings(this, this.defaults::createOptionsGuiBuilder)
+        return builder.build()
     }
 
     public fun serialize(): JsonArray {

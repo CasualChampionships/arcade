@@ -28,9 +28,10 @@ import net.minecraft.world.item.ItemStack
  * @param inventory The player's inventory.
  * @param syncId The syncId provided by the [MenuProvider].
  * @param rows The number of rows the screen should have.
- * @see SelectionScreenBuilder
+ * @see SelectionGuiBuilder
  * @see SpectatorUsableScreen
  */
+@Deprecated("Use the sgui library instead!")
 public abstract class ArcadeGenericScreen(
     inventory: Inventory,
     syncId: Int,

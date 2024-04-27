@@ -33,7 +33,6 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.commands.arguments.TeamArgument
-import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 
@@ -453,7 +452,7 @@ internal object MinigameCommand: Command {
 
     private fun openMinigameSettings(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        return context.source.playerOrException.openMenu(minigame.settings.menu()).commandSuccess()
+        return minigame.settings.menuFor(context.source.playerOrException).open().commandSuccess()
     }
 
     private fun getMinigameSetting(context: CommandContext<CommandSourceStack>): Int {

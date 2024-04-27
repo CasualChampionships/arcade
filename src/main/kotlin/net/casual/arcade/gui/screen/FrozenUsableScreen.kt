@@ -8,6 +8,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu
  * to indicate that the player can use this menu even
  * if they are frozen.
  */
+@Deprecated("Use sgui instead!")
 public interface FrozenUsableScreen {
     public fun isFrozenUsable(player: ServerPlayer): Boolean {
         return false

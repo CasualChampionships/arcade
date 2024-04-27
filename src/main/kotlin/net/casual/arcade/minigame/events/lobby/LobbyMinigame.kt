@@ -231,7 +231,7 @@ public open class LobbyMinigame(
     private fun nextMinigameSettings(context: CommandContext<CommandSourceStack>): Int {
         val next = this.next ?: throw NO_MINIGAME.create()
         val player = context.source.playerOrException
-        player.openMenu(next.settings.menu())
+        next.settings.menuFor(player).open()
         return this.commandSuccess()
     }
 

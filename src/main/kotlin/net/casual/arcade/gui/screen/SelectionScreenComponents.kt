@@ -8,19 +8,16 @@ import net.minecraft.world.item.Items
 
 /**
  * This interface provides methods for getting default components
- * for a [SelectionScreenBuilder].
+ * for a [SelectionGuiBuilder].
  *
- * @see SelectionScreenBuilder
+ * @see SelectionGuiBuilder
  */
 public interface SelectionScreenComponents {
     /**
      * Gets the default title.
-     *
-     * @return The default title [Component].
      */
-    public fun getTitle(): Component {
-        return "Selection Screen".literal()
-    }
+    public val title: Component
+        get() = "Selection Screen".literal()
 
     /**
      * Gets the previous [ItemStack] instance.
@@ -67,8 +64,8 @@ public interface SelectionScreenComponents {
         public val DEFAULT: SelectionScreenComponents = object: SelectionScreenComponents { }
     }
 
-    public class Builder(defaults: SelectionScreenComponents = DEFAULT) {
-        public var title: Component = defaults.getTitle()
+    public class Builder(defaults: SelectionScreenComponents = DEFAULT): SelectionScreenComponents {
+        public override var title: Component = defaults.title
 
         public var previous: ItemStack = defaults.getPrevious(true)
         public var noPrevious: ItemStack = defaults.getPrevious(false)
@@ -79,7 +76,7 @@ public interface SelectionScreenComponents {
         public var back: ItemStack = defaults.getBack(true)
         public var exit: ItemStack = defaults.getBack(false)
 
-        public var filler: ItemStack = defaults.getFiller()
+        public var fillerItem: ItemStack = defaults.getFiller()
 
         /**
          * Sets the [title] [Component].
@@ -132,38 +129,30 @@ public interface SelectionScreenComponents {
         }
 
         /**
-         * Sets the [filler] [ItemStack] instance.
+         * Sets the [fillerItem] [ItemStack] instance.
          *
          * @param stack The filler item.
          * @return The current [Builder].
          */
         public fun filler(stack: ItemStack): Builder {
-            this.filler = stack
+            this.fillerItem = stack
             return this
         }
 
-        public fun build(): SelectionScreenComponents {
-            return object: SelectionScreenComponents {
-                override fun getTitle(): Component {
-                    return title
-                }
+        override fun getPrevious(hasPrevious: Boolean): ItemStack {
+            return if (hasPrevious) this.previous else this.noPrevious
+        }
 
-                override fun getPrevious(hasPrevious: Boolean): ItemStack {
-                    return if (hasPrevious) previous else noPrevious
-                }
+        override fun getBack(hasParent: Boolean): ItemStack {
+            return if (hasParent) this.back else this.exit
+        }
 
-                override fun getBack(hasParent: Boolean): ItemStack {
-                    return if (hasParent) back else exit
-                }
+        override fun getNext(hasNext: Boolean): ItemStack {
+            return if (hasNext) this.next else this.noNext
+        }
 
-                override fun getNext(hasNext: Boolean): ItemStack {
-                    return if (hasNext) next else noNext
-                }
-
-                override fun getFiller(): ItemStack {
-                    return filler
-                }
-            }
+        override fun getFiller(): ItemStack {
+            return this.fillerItem
         }
     }
 }

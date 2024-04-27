@@ -24,6 +24,7 @@ val polymerVersion: String by project
 val permissionsVersion: String by project
 val customNametagsVersion: String by project
 val serverReplayVersion: String by project
+val sguiVersion: String by project
 
 allprojects {
     apply(plugin = "fabric-loom")
@@ -93,6 +94,8 @@ dependencies {
     include(modApi("eu.pb4:polymer-blocks:$polymerVersion")!!)
     include(modApi("eu.pb4:polymer-resource-pack:$polymerVersion")!!)
     include(modApi("eu.pb4:polymer-virtual-entity:$polymerVersion")!!)
+
+    include(modApi("eu.pb4:sgui:$sguiVersion")!!)
 
     include(modApi("com.github.senseiwells:CustomNameTags:$customNametagsVersion")!!)
 

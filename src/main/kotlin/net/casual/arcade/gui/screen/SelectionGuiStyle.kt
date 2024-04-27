@@ -6,15 +6,15 @@ import net.minecraft.util.Mth
  * This interface allows you to configure how
  * items are laid out in a selection screen.
  *
- * @see SelectionScreen
+ * @see SelectionGuiBuilder
  */
-public interface SelectionScreenStyle {
+public interface SelectionGuiStyle {
     public fun getSlots(): Collection<Int>
 
     private class CenteredStyle(
         private val width: Int,
         private val height: Int
-    ): SelectionScreenStyle {
+    ): SelectionGuiStyle {
         private val slots by lazy {
             val slots = ArrayList<Int>(this.width * this.height)
             val startHeight = (5 - this.height) / 2
@@ -33,7 +33,7 @@ public interface SelectionScreenStyle {
     }
 
     public companion object {
-        public val DEFAULT: SelectionScreenStyle = object: SelectionScreenStyle {
+        public val DEFAULT: SelectionGuiStyle = object: SelectionGuiStyle {
             private val slots = (0 until 45).toList()
 
             override fun getSlots(): Collection<Int> {
@@ -41,7 +41,7 @@ public interface SelectionScreenStyle {
             }
         }
 
-        public fun centered(width: Int, height: Int): SelectionScreenStyle {
+        public fun centered(width: Int, height: Int): SelectionGuiStyle {
             if (width > 9 || width < 0) {
                 throw IllegalArgumentException("Invalid width argument $width")
             }
@@ -51,7 +51,7 @@ public interface SelectionScreenStyle {
             return CenteredStyle(width, height)
         }
 
-        public fun centered(elements: Int): SelectionScreenStyle {
+        public fun centered(elements: Int): SelectionGuiStyle {
             if (elements == 2) {
                 return bool()
             }
@@ -65,8 +65,8 @@ public interface SelectionScreenStyle {
             return DEFAULT
         }
 
-        public fun bool(): SelectionScreenStyle {
-            return object: SelectionScreenStyle {
+        public fun bool(): SelectionGuiStyle {
+            return object: SelectionGuiStyle {
                 override fun getSlots(): Collection<Int> {
                     return listOf(21, 23)
                 }

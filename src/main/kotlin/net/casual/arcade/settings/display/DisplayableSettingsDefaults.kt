@@ -1,17 +1,22 @@
 package net.casual.arcade.settings.display
 
+import eu.pb4.sgui.api.gui.GuiInterface
+import net.casual.arcade.gui.screen.SelectionGuiBuilder
 import net.casual.arcade.gui.screen.SelectionScreenComponents
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.utils.ScreenUtils
 import net.casual.arcade.utils.ScreenUtils.DefaultSettingsComponents
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 
-public open class DisplayableSettingsDefaults{
-    public open val components: SelectionScreenComponents = ScreenUtils.DefaultMinigameSettingsComponent
+public open class DisplayableSettingsDefaults {
+    public open fun createSettingsGuiBuilder(player: ServerPlayer): SelectionGuiBuilder {
+        return SelectionGuiBuilder(player, ScreenUtils.DefaultMinigameSettingsComponent)
+    }
 
-    public open fun createComponents(setting: MenuGameSetting<*>): SelectionScreenComponents {
-        return DefaultSettingsComponents(setting)
+    public open fun createOptionsGuiBuilder(parent: GuiInterface, setting: MenuGameSetting<*>): SelectionGuiBuilder {
+        return SelectionGuiBuilder(parent, DefaultSettingsComponents(setting))
     }
 
     public open fun options(

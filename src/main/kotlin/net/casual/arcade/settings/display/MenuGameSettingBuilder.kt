@@ -1,6 +1,7 @@
 package net.casual.arcade.settings.display
 
-import net.casual.arcade.gui.screen.SelectableMenuItem
+import eu.pb4.sgui.api.elements.GuiElementInterface
+import eu.pb4.sgui.api.gui.GuiInterface
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.settings.SettingListener
@@ -64,21 +65,14 @@ public class MenuGameSettingBuilder<T: Any>(
 
         val options = LinkedHashMap<String, T>()
 
-        val selectables = ArrayList<SelectableMenuItem>()
+        val selectables = ArrayList<GuiElementInterface>()
         for ((id, data) in this.options) {
             options[id] = data.value
         }
 
         val setting = this.constructor(this.name, display, options)
         for (data in this.options.values) {
-            val (stack, value, action) = data
-            selectables.add(SelectableMenuItem.build {
-                default = stack
-                onUpdate = { stack, player -> action(setting, stack, player) }
-                onSelected = {
-                    setting.set(value)
-                }
-            })
+            selectables.add(SettingGuiElement(setting, data))
         }
 
         setting.override = this.override
@@ -86,6 +80,29 @@ public class MenuGameSettingBuilder<T: Any>(
             setting.addListener(listener)
         }
         return MenuGameSetting(this.display, setting, selectables)
+    }
+
+    private class SettingGuiElement<T: Any>(
+        private val setting: GameSetting<T>,
+        private val data: OptionData<T>
+    ): GuiElementInterface {
+        private var previous: ItemStack = this.data.default
+
+        override fun getItemStack(): ItemStack {
+            return this.previous
+        }
+
+        override fun getItemStackForDisplay(gui: GuiInterface): ItemStack {
+            val next = this.data.updater(this.setting, this.previous, gui.player)
+            this.previous = next
+            return next
+        }
+
+        override fun getGuiCallback(): GuiElementInterface.ClickCallback {
+            return GuiElementInterface.ClickCallback { _, _, _, _ ->
+                this.setting.set(this.data.value)
+            }
+        }
     }
 
     private data class OptionData<T: Any>(
