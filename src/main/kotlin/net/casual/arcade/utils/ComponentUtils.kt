@@ -74,6 +74,11 @@ public object ComponentUtils {
         return Component.translatable("$key.negativeWidth").withSpacesFont()
     }
 
+    public fun widthDifferenceBetween(first: Component, second: Component): MutableComponent {
+        val key = "${getTranslationKeyOf(first)}.difference.${getTranslationKeyOf(second).substringAfterLast('.')}"
+        return Component.translatable(key).withSpacesFont()
+    }
+
     public fun getTranslationKeyOf(component: Component): String {
         val contents = component.contents
         if (contents !is TranslatableContents) {
