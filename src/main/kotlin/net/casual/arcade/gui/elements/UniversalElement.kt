@@ -65,8 +65,8 @@ public fun interface UniversalElement<E: Any>: PlayerSpecificElement<E> {
         }
 
         override fun tick(server: MinecraftServer) {
-            this.cached = this.get(server)
             this.wrapped.tick(server)
+            this.cached = this.wrapped.get(server)
         }
     }
 }
