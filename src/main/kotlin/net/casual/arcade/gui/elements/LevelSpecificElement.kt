@@ -15,6 +15,11 @@ public fun interface LevelSpecificElement<E: Any>: PlayerSpecificElement<E> {
         return this.get(player.serverLevel())
     }
 
+    @NonExtendable
+    override fun cached(): LevelSpecificElement<E> {
+        return Cached(this)
+    }
+
     public companion object {
         public fun <E: Any> cached(element: LevelSpecificElement<E>): LevelSpecificElement<E> {
             return Cached(element)

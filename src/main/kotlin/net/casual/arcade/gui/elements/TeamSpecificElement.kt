@@ -13,6 +13,10 @@ public interface TeamSpecificElement<E: Any>: PlayerSpecificElement<E> {
         return this.get(player.server, player.team)
     }
 
+    override fun cached(): TeamSpecificElement<E> {
+        return Cached(this)
+    }
+
     public companion object {
         public fun <E: Any> cached(element: TeamSpecificElement<E>): TeamSpecificElement<E> {
             return Cached(element)

@@ -1,7 +1,10 @@
 package net.casual.arcade.gui.elements
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
+import org.jetbrains.annotations.ApiStatus.NonExtendable
+import java.util.UUID
 
 /**
  * This is a functional interface that represents an
@@ -29,5 +32,48 @@ public fun interface PlayerSpecificElement<E: Any> {
      */
     public fun tick(server: MinecraftServer) {
 
+    }
+
+    @NonExtendable
+    public fun cached(): PlayerSpecificElement<E> {
+        return Cached(this)
+    }
+
+    @NonExtendable
+    public fun merge(
+        other: PlayerSpecificElement<E>,
+        merger: (a: E, b: E) -> E
+    ): PlayerSpecificElement<E> {
+        return Merged(this, other, merger)
+    }
+
+    private class Cached<E: Any>(private val wrapped: PlayerSpecificElement<E>): PlayerSpecificElement<E> {
+        private var cached = Object2ObjectOpenHashMap<UUID, E>()
+
+        override fun get(player: ServerPlayer): E {
+            return this.cached.getOrPut(player.uuid) {
+                this.wrapped.get(player)
+            }
+        }
+
+        override fun tick(server: MinecraftServer) {
+            this.cached.clear()
+            this.wrapped.tick(server)
+        }
+    }
+
+    private class Merged<E: Any>(
+        private val first: PlayerSpecificElement<E>,
+        private val second: PlayerSpecificElement<E>,
+        private val merger: (E, E) -> E
+    ): PlayerSpecificElement<E> {
+        override fun get(player: ServerPlayer): E {
+            return this.merger.invoke(this.first.get(player), this.second.get(player))
+        }
+
+        override fun tick(server: MinecraftServer) {
+            this.first.tick(server)
+            this.second.tick(server)
+        }
     }
 }

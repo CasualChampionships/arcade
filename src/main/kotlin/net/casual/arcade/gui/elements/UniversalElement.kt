@@ -24,6 +24,19 @@ public fun interface UniversalElement<E: Any>: PlayerSpecificElement<E> {
         return this.get(player.server)
     }
 
+    @NonExtendable
+    override fun cached(): UniversalElement<E> {
+        return Cached(this)
+    }
+
+    @NonExtendable
+    public fun merge(
+        other: UniversalElement<E>,
+        merger: (a: E, b: E) -> E
+    ): UniversalElement<E> {
+        return Merged(this, other, merger)
+    }
+
     public companion object {
         /**
          * This creates a wrapper around the provided [universal] that
@@ -55,18 +68,36 @@ public fun interface UniversalElement<E: Any>: PlayerSpecificElement<E> {
      * same element for each player which it's called for.
      */
     private class Cached<E: Any>(private val wrapped: UniversalElement<E>): UniversalElement<E> {
-        private lateinit var cached: E
+        private var cached: E? = null
 
         override fun get(server: MinecraftServer): E {
-            if (!this::cached.isInitialized) {
-                this.cached = this.wrapped.get(server)
+            val cached = this.cached
+            if (cached == null) {
+                val element = this.wrapped.get(server)
+                this.cached = element
+                return element
             }
-            return this.cached
+            return cached
         }
 
         override fun tick(server: MinecraftServer) {
+            this.cached = null
             this.wrapped.tick(server)
-            this.cached = this.wrapped.get(server)
+        }
+    }
+
+    private class Merged<E: Any>(
+        private val first: UniversalElement<E>,
+        private val second: UniversalElement<E>,
+        private val merger: (E, E) -> E
+    ): UniversalElement<E> {
+        override fun get(server: MinecraftServer): E {
+            return this.merger.invoke(this.first.get(server), this.second.get(server))
+        }
+
+        override fun tick(server: MinecraftServer) {
+            this.first.tick(server)
+            this.second.tick(server)
         }
     }
 }
