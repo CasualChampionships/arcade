@@ -5,7 +5,7 @@ import net.casual.arcade.utils.impl.Location
 import net.minecraft.server.level.ServerLevel
 
 @Serializable
-public data class SpawnConfig(
+public class SpawnConfig(
     public val x: Double = 0.0,
     public val y: Double = 1.0,
     public val z: Double = 0.0,

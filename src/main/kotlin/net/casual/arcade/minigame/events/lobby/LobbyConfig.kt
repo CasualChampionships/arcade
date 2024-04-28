@@ -26,7 +26,7 @@ public abstract class LobbyConfig {
     public abstract val countdown: Countdown
     public abstract val bossbar: TimerBossBarConfig
 
-    public fun create(level: ServerLevel): Lobby {
+    public open fun create(level: ServerLevel): Lobby {
         val area = this.area.create(level)
         val spawn = this.spawn.location(level)
         return object: Lobby {
