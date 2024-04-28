@@ -21,7 +21,7 @@ public typealias SerializableDimension = @Serializable(with = DimensionSerialize
 @Serializable
 public abstract class LobbyConfig {
     public abstract val area: PlaceableAreaConfig
-    public abstract val spawn: SpawnConfig
+    public abstract val spawn: LocationConfig
     public abstract val dimension: SerializableDimension?
     public abstract val countdown: Countdown
     public abstract val bossbar: TimerBossBarConfig
@@ -53,7 +53,7 @@ public abstract class LobbyConfig {
 @SerialName("simple")
 public class SimpleLobbyConfig(
     override val area: PlaceableAreaConfig = BoxedAreaConfig.DEFAULT,
-    override val spawn: SpawnConfig = SpawnConfig.DEFAULT,
+    override val spawn: LocationConfig = LocationConfig(),
     override val dimension: SerializableDimension? = null,
     override val countdown: Countdown = TitledCountdown.DEFAULT,
     override val bossbar: TimerBossBarConfig = TimerBossBarConfig.DEFAULT
