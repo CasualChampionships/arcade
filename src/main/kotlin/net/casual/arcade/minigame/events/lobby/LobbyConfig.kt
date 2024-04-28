@@ -28,7 +28,7 @@ public abstract class LobbyConfig {
 
     public open fun create(level: ServerLevel): Lobby {
         val area = this.area.create(level)
-        val spawn = this.spawn.location(level)
+        val spawn = Location.of(this.spawn.x, this.spawn.y, this.spawn.z, this.spawn.yaw, this.spawn.pitch, level)
         return object: Lobby {
             override val area: PlaceableArea = area
 
