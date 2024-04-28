@@ -34,37 +34,52 @@ public open class MinigamesEvent(
     public var config: MinigamesEventConfig
 ) {
     public lateinit var current: Minigame<*>
-    private lateinit var lobby: LobbyMinigame
+    private var lobby: LobbyMinigame? = null
     private var index: Int = 0
 
+    public fun reloadLobby() {
+        val lobby = this.lobby
+        if (lobby != null) {
+            this.lobby = null
+            if (this::current.isInitialized && this.current === lobby) {
+                this.returnToLobby(lobby.server)
+            } else {
+                lobby.close()
+            }
+        }
+    }
+
     public fun returnToLobby(server: MinecraftServer) {
-        if (this::current.isInitialized && this::lobby.isInitialized && this.current === this.lobby) {
+        if (this::current.isInitialized && this.lobby != null && this.current === this.lobby) {
             return
         }
 
-        if (!this::lobby.isInitialized) {
+        var lobby = this.lobby
+        if (lobby == null) {
             val lobbyConfig = this.config.lobby
-            val either: Either<RuntimeWorldHandle, ServerLevel> = if (lobbyConfig.dimension == null) {
+            val dimension = lobbyConfig.dimension
+            val either: Either<RuntimeWorldHandle, ServerLevel> = if (dimension == null) {
                 Either.left(createTemporaryLobbyLevel(server))
             } else {
-                val level = server.getLevel(lobbyConfig.dimension)
+                val level = server.getLevel(dimension)
                 if (level == null) Either.left(createTemporaryLobbyLevel(server)) else Either.right(level)
             }
             val level = either.map({ it.asWorld() }, { it })
-            this.lobby = this.createLobbyMinigame(server, this.config.lobby.create(level))
-            either.ifLeft(this.lobby.levels::add)
+            lobby = this.createLobbyMinigame(server, this.config.lobby.create(level))
+            this.lobby = lobby
+            either.ifLeft(lobby.levels::add)
 
-            this.lobby.events.register<LobbyMoveToNextMinigameEvent> {
+            lobby.events.register<LobbyMoveToNextMinigameEvent> {
                 this.incrementIndex(it.next)
                 this.current = it.next
             }
         }
 
-        this.startNewMinigame(this.lobby)
+        this.startNewMinigame(lobby)
 
         val next = this.createNextMinigame(server)
         if (next != null) {
-            this.lobby.setNextMinigame(next)
+            lobby.setNextMinigame(next)
         }
     }
 
