@@ -108,10 +108,5 @@ public object Arcade: ModInitializer {
         Minigames.registerFactory(id("lobby")) {
             LobbyMinigame(it.server, LobbyTemplate.DEFAULT.create(it.server.overworld()))
         }
-
-        val x = MinigamesEvent.CODEC.encodeStart(JsonOps.INSTANCE, MinigamesEvent.DEFAULT)
-            .getOrThrow(false) {}
-        println(x)
-        exitProcess(0)
     }
 }
