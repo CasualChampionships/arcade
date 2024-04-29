@@ -9,7 +9,7 @@ import net.casual.arcade.gui.bossbar.TimerBossBar
 import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.gui.countdown.templates.CountdownTemplate
 import net.casual.arcade.minigame.events.lobby.Lobby
-import net.casual.arcade.minigame.events.lobby.LocationConfig
+import net.casual.arcade.minigame.events.lobby.LocationTemplate
 import net.casual.arcade.gui.bossbar.templates.TimerBossBarTemplate
 import net.casual.arcade.utils.CodecUtils.encodedOptionalFieldOf
 import net.casual.arcade.utils.impl.Location
@@ -19,7 +19,7 @@ import net.minecraft.server.level.ServerLevel
 
 public open class SimpleLobbyTemplate(
     public val area: PlaceableAreaTemplate = PlaceableAreaTemplate.DEFAULT,
-    public val spawn: LocationConfig = LocationConfig.DEFAULT,
+    public val spawn: LocationTemplate = LocationTemplate.DEFAULT,
     public val countdown: CountdownTemplate = CountdownTemplate.DEFAULT,
     public val bossbar: TimerBossBarTemplate = TimerBossBarTemplate.DEFAULT
 ): LobbyTemplate {
@@ -51,7 +51,7 @@ public open class SimpleLobbyTemplate(
         override val CODEC: Codec<SimpleLobbyTemplate> = RecordCodecBuilder.create { instance ->
             instance.group(
                 PlaceableAreaTemplate.CODEC.encodedOptionalFieldOf("area", PlaceableAreaTemplate.DEFAULT).forGetter(SimpleLobbyTemplate::area),
-                LocationConfig.CODEC.encodedOptionalFieldOf("spawn", LocationConfig.DEFAULT).forGetter(SimpleLobbyTemplate::spawn),
+                LocationTemplate.CODEC.encodedOptionalFieldOf("spawn", LocationTemplate.DEFAULT).forGetter(SimpleLobbyTemplate::spawn),
                 CountdownTemplate.CODEC.encodedOptionalFieldOf("countdown", CountdownTemplate.DEFAULT).forGetter(SimpleLobbyTemplate::countdown),
                 TimerBossBarTemplate.CODEC.encodedOptionalFieldOf("bossbar", TimerBossBarTemplate.DEFAULT).forGetter(SimpleLobbyTemplate::bossbar)
             ).apply(instance, ::SimpleLobbyTemplate)
