@@ -17,7 +17,7 @@ import net.casual.arcade.utils.serialization.CodecProvider
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 
-public class SimpleLobbyTemplate(
+public open class SimpleLobbyTemplate(
     public val area: PlaceableAreaTemplate = PlaceableAreaTemplate.DEFAULT,
     public val spawn: LocationConfig = LocationConfig.DEFAULT,
     public val countdown: CountdownTemplate = CountdownTemplate.DEFAULT,
