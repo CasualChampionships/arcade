@@ -1,13 +1,15 @@
 package net.casual.arcade
 
+import com.mojang.serialization.JsonOps
 import net.casual.arcade.commands.ArcadeCommands
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerCreatedEvent
 import net.casual.arcade.minigame.Minigames
-import net.casual.arcade.minigame.events.lobby.Lobby
-import net.casual.arcade.minigame.events.lobby.LobbyConfig
+import net.casual.arcade.minigame.events.MinigamesEvent
+import net.casual.arcade.minigame.events.lobby.templates.LobbyTemplate
 import net.casual.arcade.minigame.events.lobby.LobbyMinigame
 import net.casual.arcade.utils.*
+import net.casual.arcade.utils.registries.ArcadeRegistries
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
@@ -17,6 +19,7 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
+import kotlin.system.exitProcess
 
 /**
  * Arcade initializer class.
@@ -88,6 +91,8 @@ public object Arcade: ModInitializer {
     }
 
     override fun onInitialize() {
+        ArcadeRegistries.noop()
+
         SidebarUtils.registerEvents()
         BossbarUtils.registerEvents()
         MinigameUtils.registerEvents()
@@ -101,7 +106,12 @@ public object Arcade: ModInitializer {
         ArcadeCommands.registerCommands()
 
         Minigames.registerFactory(id("lobby")) {
-            LobbyMinigame(it.server, LobbyConfig.DEFAULT.create(it.server.overworld()))
+            LobbyMinigame(it.server, LobbyTemplate.DEFAULT.create(it.server.overworld()))
         }
+
+        val x = MinigamesEvent.CODEC.encodeStart(JsonOps.INSTANCE, MinigamesEvent.DEFAULT)
+            .getOrThrow(false) {}
+        println(x)
+        exitProcess(0)
     }
 }

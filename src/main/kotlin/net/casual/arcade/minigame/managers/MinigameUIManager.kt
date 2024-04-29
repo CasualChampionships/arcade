@@ -46,7 +46,7 @@ public class MinigameUIManager(
         this.nameTags = ArrayList()
         this.tickables = LinkedHashSet()
 
-        this.countdown = TitledCountdown.DEFAULT
+        this.countdown = TitledCountdown.titled()
         this.readier = ReadyChecker.of(this.minigame)
         this.sidebar = null
         this.display = null
