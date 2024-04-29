@@ -25,9 +25,9 @@ import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
 public open class SimpleMinigamesEvent(
-    private val lobby: LobbyTemplate = LobbyTemplate.DEFAULT,
-    private val dimension: Optional<ResourceKey<Level>> = Optional.empty(),
-    private val operators: List<String> = listOf(),
+    public val lobby: LobbyTemplate = LobbyTemplate.DEFAULT,
+    public val dimension: Optional<ResourceKey<Level>> = Optional.empty(),
+    public val operators: List<String> = listOf(),
     override val minigames: List<ResourceLocation> = listOf(),
     override val repeat: Boolean = true
 ): MinigamesEvent {
