@@ -20,7 +20,7 @@ import org.jetbrains.annotations.ApiStatus.Experimental
 import java.util.*
 
 @Experimental
-public class Minigames(
+public class SequentialMinigames(
     public var event: MinigamesEvent,
     public val server: MinecraftServer
 ) {
