@@ -4,10 +4,32 @@ import com.google.gson.*
 import net.casual.arcade.utils.json.JsonSerializer
 import net.minecraft.Util
 import net.minecraft.nbt.*
+import java.io.Reader
+import java.lang.Appendable
 import java.util.*
 
 public object JsonUtils {
     public val GSON: Gson = GsonBuilder().setPrettyPrinting().serializeNulls().disableHtmlEscaping().create()
+
+    public inline fun <reified T: Any> decode(reader: Reader): T {
+        return GSON.fromJson(reader, T::class.java)
+    }
+
+    public fun decodeToJsonElement(reader: Reader): JsonElement {
+        return GSON.fromJson(reader, JsonElement::class.java)
+    }
+
+    public fun decodeToJsonObject(reader: Reader): JsonObject {
+        return GSON.fromJson(reader, JsonObject::class.java)
+    }
+
+    public fun encode(json: JsonElement, writer: Appendable) {
+        return GSON.toJson(json, writer)
+    }
+
+    public fun encode(any: Any, writer: Appendable) {
+        return GSON.toJson(any, writer)
+    }
 
     public fun JsonObject.getWithNull(key: String): JsonElement? {
         val value = this.get(key) ?: return null
