@@ -2,6 +2,7 @@ package net.casual.arcade.settings.display
 
 import eu.pb4.sgui.api.gui.GuiInterface
 import net.casual.arcade.gui.screen.SelectionGuiBuilder
+import net.casual.arcade.gui.screen.SelectionGuiStyle
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.utils.ScreenUtils
 import net.casual.arcade.utils.ScreenUtils.DefaultSettingsComponents
@@ -16,6 +17,7 @@ public open class DisplayableSettingsDefaults {
 
     public open fun createOptionsGuiBuilder(parent: GuiInterface, setting: MenuGameSetting<*>): SelectionGuiBuilder {
         return SelectionGuiBuilder(parent, DefaultSettingsComponents(setting))
+            .style(SelectionGuiStyle.centered(setting.optionCount))
     }
 
     public open fun options(

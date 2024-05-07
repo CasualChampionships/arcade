@@ -46,7 +46,7 @@ public open class CustomisableConfig(
     public fun read() {
         if (this.path.exists()) {
             this.path.bufferedReader().use {
-                this.json = JsonUtils.GSON.fromJson(it, JsonObject::class.java)
+                this.json = JsonUtils.decodeToJsonObject(it)
             }
         }
     }

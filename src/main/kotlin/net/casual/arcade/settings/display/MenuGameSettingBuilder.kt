@@ -1,14 +1,14 @@
 package net.casual.arcade.settings.display
 
+import com.mojang.serialization.Codec
 import eu.pb4.sgui.api.elements.GuiElementInterface
 import eu.pb4.sgui.api.gui.GuiInterface
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.settings.SettingListener
-import net.casual.arcade.settings.impl.EnumGameSetting
 import net.casual.arcade.utils.ItemUtils.enableGlint
 import net.casual.arcade.utils.ItemUtils.removeEnchantments
-import net.casual.arcade.utils.json.*
+import net.casual.arcade.utils.serialization.ArcadeExtraCodecs
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 
@@ -112,12 +112,12 @@ public class MenuGameSettingBuilder<T: Any>(
     )
 
     public companion object {
-        private val boolean = GameSetting.generator(BooleanSerializer)
-        private val integer = GameSetting.generator(IntSerializer)
-        private val long = GameSetting.generator(LongSerializer)
-        private val float = GameSetting.generator(FloatSerializer)
-        private val double = GameSetting.generator(DoubleSerializer)
-        private val time = GameSetting.generator(TimeDurationSerializer)
+        private val boolean = GameSetting.generator(Codec.BOOL)
+        private val integer = GameSetting.generator(Codec.INT)
+        private val long = GameSetting.generator(Codec.LONG)
+        private val float = GameSetting.generator(Codec.FLOAT)
+        private val double = GameSetting.generator(Codec.DOUBLE)
+        private val time = GameSetting.generator(ArcadeExtraCodecs.TIME_DURATION)
 
         public fun bool(): MenuGameSettingBuilder<Boolean> {
             return MenuGameSettingBuilder(this.boolean)
@@ -170,7 +170,9 @@ public class MenuGameSettingBuilder<T: Any>(
         }
 
         public fun <E: Enum<E>> enumeration(): MenuGameSettingBuilder<E> {
-            return MenuGameSettingBuilder(::EnumGameSetting)
+            return MenuGameSettingBuilder { name, value, options ->
+                GameSetting(name, value, options, ArcadeExtraCodecs.enum(options))
+            }
         }
 
         public fun <E: Enum<E>> enumeration(

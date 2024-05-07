@@ -161,7 +161,7 @@ public class MinigameTeamManager(
         return teams
     }
 
-    public fun getAllNonSpectatorOrAdmin(): Collection<PlayerTeam> {
+    public fun getAllNonSpectatorOrAdminTeams(): Collection<PlayerTeam> {
         val teams = this.getAllTeams() as HashSet<PlayerTeam>
         teams.remove(this.admins)
         teams.remove(this.spectators)

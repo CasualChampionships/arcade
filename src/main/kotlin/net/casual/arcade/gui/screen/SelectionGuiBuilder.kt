@@ -6,7 +6,6 @@ import eu.pb4.sgui.api.gui.GuiInterface
 import eu.pb4.sgui.api.gui.SimpleGui
 import eu.pb4.sgui.api.gui.SimpleGuiBuilder
 import eu.pb4.sgui.api.gui.SlotGuiInterface
-import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack

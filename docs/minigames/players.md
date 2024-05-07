@@ -59,7 +59,8 @@ It allows you to designate a spectating team as well as a spectating chat for yo
 A player **must** either be spectating or playing. You can specify this when adding the player to the minigame as discussed in the [Adding Players Section](#adding-players).
 You can also do this later by calling `MinigamePlayerManager#setSpectating` and `MinigamePlayerManager#setPlaying`. These methods will return true of the player successfully changed their type. 
 
-> Note: that you can only set this for players who are part of the minigame.
+> [!NOTE]
+> You can only set this for players who are part of the minigame.
 
 ```kotlin
 val minigame: Minigame<*> = // ...

@@ -14,7 +14,6 @@ import net.casual.arcade.minigame.MinigameResources.Companion.removeFrom
 import net.casual.arcade.minigame.MinigameResources.Companion.sendTo
 import net.casual.arcade.minigame.MinigameResources.MultiMinigameResources
 import net.casual.arcade.minigame.managers.*
-import net.casual.arcade.minigame.module.MinigameModule
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.phase.Phased
 import net.casual.arcade.minigame.serialization.MinigameDataTracker
@@ -30,7 +29,6 @@ import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.toJsonObject
 import net.casual.arcade.utils.JsonUtils.toJsonStringArray
 import net.casual.arcade.utils.MinigameUtils
-import net.casual.arcade.utils.MinigameUtils.addEventListener
 import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.PlayerUtils.getKillCreditWith
 import net.casual.arcade.utils.PlayerUtils.grantAdvancementSilently
@@ -41,7 +39,6 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.GameRules
-import org.jetbrains.annotations.ApiStatus.Experimental
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.util.*
 
@@ -120,8 +117,6 @@ public abstract class Minigame<M: Minigame<M>>(
     private var initialized: Boolean
 
     internal val phases: List<Phase<M>>
-
-    internal val modules: MutableList<MinigameModule<M, *>>
 
     /**
      * This handles all the players for this minigame.
@@ -290,7 +285,6 @@ public abstract class Minigame<M: Minigame<M>>(
         this.closing = false
 
         this.phases = this.getAllPhases()
-        this.modules = ArrayList()
 
         this.uuid = UUID.randomUUID()
 
@@ -360,15 +354,6 @@ public abstract class Minigame<M: Minigame<M>>(
         this.phase.initialize(self)
 
         MinigameSetPhaseEvent(self, phase).broadcast()
-    }
-
-    @Experimental
-    public fun addModule(module: MinigameModule<M, *>) {
-        if (this.started) {
-            throw IllegalStateException("Cannot add module after minigame has started!")
-        }
-        this.modules.add(module)
-        this.addEventListener(module)
     }
 
     /**

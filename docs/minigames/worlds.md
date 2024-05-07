@@ -28,7 +28,7 @@ minigame.levels.add(level)
 
 ### Custom Dimensions
 
-It's very likely that you'll want to continuously generate new temporary worlds for your minigames, especially if you're running minigames concurrently and do not know the number of minigames that will be running at the same time.
+It's very likely that you'll want to continuously generate new temporary worlds for your minigames, especially if you're running minigames in parallel and do not know the number of minigames that will be running at the same time.
 
 When registering temporary worlds, it then becomes Arcade's responsibility and you do not need to worry about closing the worlds after the minigame has ended; this is all handled for you.
 

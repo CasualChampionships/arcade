@@ -1,29 +1,24 @@
 # Events
 
-Events are a key part of making your minigame work.
+> Return to [table of contents](../minigames.md)
 
-If you have not already, you should read the [Events](./events.md)
-documentation. This covers all the basics as well as what events are
-available to you.
+Events are fundamental for implementing minigame logic. The goal of the event system is to provide hooks that are commonly used in minigames, to reduce the number of mixins you need to add yourself.
 
-However, minigames handle events slightly differently. Each minigame will
-have its own `MinigameEventHandler` which is responsible for handling all
-the events that happen during a minigame's lifetime.
+The list of events is not exhaustive, and it is likely that you will need to supplement the events with your own.
 
-The special thing about this event handler is that it will *filter* events
-and will only invoke your registered listeners to those events that are
-relevant to the minigame.
+This documentation will focus on the application of Arcade's event system for Minigames, for an overview of Arcade's overall event system see the [Event Documentation](../events.md).
 
-As we know, minigames keep track of players and which levels our minigame
-is in. The `MinigameEventHandler` uses this information to filter out
-`PlayerEvent`s and `LevelEvent`s that are only applicable to our minigame's
-players and levels.
+## Motivation
+
+Minigames have a finite lifetime; we do not want the events registered in a minigame to be invoked for the entirety of the server's lifetime, for this reason minigame's have their own event handler which register at the start of a minigame and unregister when the minigame closes.
+
+Additionally, when listening to events we typically only want to listen to events that are relevant to our minigame: We don't care if a player outside our minigame takes damage. The `MinigameEventHandler`, which is the implementation of the minigame's event handler, filters events based on relevance, this will be covered in more detail below.
 
 ## Registering Listeners
 
-There are two ways to register listeners to the `MinigameEventHandler`:
+There are two main ways to register events, one using the `MinigameEventHandler` directly and Arcade also provides annotations for a nicer way of registering events. We will first cover using the `MinigameEventHandler`.
 
-The first way is directly through the `MinigameEventHandler`:
+This is the same as registering to the `GlobalEventHandler`, however instead reference the `MinigameEventHandler`, similarly to the other register method you can specify your own priority and event phase.
 ```kotlin
 val minigame: Minigame = // ...
 minigame.events.register<ServerTickEvent> {
@@ -31,18 +26,45 @@ minigame.events.register<ServerTickEvent> {
 }
 ```
 
-Same as regular event handlers you can specify your own `EventListeners`
-as well as provide your own priority to define what order you want your
-listeners to be called in, read more about this in the [Events](./events.md)
-documentation.
+Typically, you register any events your `initialize` method in your minigame implementation. These event listeners will be registered for the entirety of the minigame's lifetime.
 
-Minigames gives you more control over your listeners, however, as previously mentioned,
-we already know that it will filter for only events that are relevant to the minigame:
+### Filtered Events
+
+As previously mentioned in the [Motivation Section](#motivation) minigames will automatically filter events by relevance. By default this will filter any events that implement the following:
+- `PlayerEvent` - The minigame will ensure the player related to the event is part of the minigame.
+- `LevelEvent` - The minigame will ensure the level related to the event is part of the minigame.
+- `MinigameEvent` - The minigame will ensure the minigame related to the event is the same as the current minigame.
+
+This means that you require fewer checks in your event listeners to get the behaviour you desire. However, these filters are configurable to allow for more flexibility.
+
+Some flags determine the filters when registering your event:
 ```kotlin
-minigame.events.register<PlayerTickEvent> {
+val minigame: Minigame = // ...
+    
+// Setting flags to NONE will result in no filter at all
+minigame.events.register<PlayerTickEvent>(flags = ListenerFlags.NONE) {
     // ...
 }
 ```
+
+There are also additional flags that we can use:
+```kotlin
+val minigame: Minigame = // ...
+    
+// Setting flags to IS_PLAYING will result in only accepting events
+// from players who are playing in this minigame
+minigame.events.register<PlayerTickEvent>(flags = ListenerFlags.IS_PLAYING) {
+    // ...
+}
+
+// Now we will only accept events from players who are spectating
+minigame.events.register<PlayerTickEvent>(flags = ListenerFlags.IS_SPECTATING) {
+    // ...
+}
+```
+
+### During Minigame Phases
+
 This listener will only be invoked for all players that are playing in the current minigame.
 
 However, we can have even more control over when our listeners are invoked, specifically
@@ -79,6 +101,8 @@ minigame.events.registerPhased<ServerTickEvent> {
 ```
 This listener will be deleted after the minigames phase changes.
 
+### Listener Annotation
+
 These ways are nice for defining a couple listeners, and it also allows you
 to define listeners outside your actual minigame class. However, it can get
 messy when you need to define tens of listeners to define your minigame
@@ -90,33 +114,33 @@ class MyMinigame(
 ): Minigame<MyMinigame>(server) {
     // ...
     
-    @MinigameEvent
+    @Listener
     private fun onServerTick(event: ServerTickEvent) {
         // ...
     }
 
-    @MinigameEvent
+    @Listener
     private fun onMinigameAddPlayer(event: MinigameAddPlayerEvent) {
         // ...
     }
 }
 ```
 
-We can instead use the `@MinigameEvent` annotation which allows us to declare
+We can instead use the `@Listener` annotation which allows us to declare
 a method with the parameter defining which event that it will be listening to;
 there are no restrictions to what you name your method. By default this will be
 permanent for the lifetime of the minigame.
 
-If you are using IntelliJ you can add `net.casual.arcade.minigame.annotation.MinigameEvent`
+If you are using IntelliJ you can add `net.casual.arcade.minigame.annotation.Listener`
 in `Settings > Editor > Inspections > Java > Declaration redudancy > Unused declaration > Entry points > Annotations...`
 as an entry point and IntelliJ will stop giving you warnings that it is unused.
 
 Similarly to the control we have with the `register` methods we can do the same with
 the annotation:
 ```kotlin
-@MinigameEvent(
-    priority = 2_000,
-    phases = ["grace", "death_match"]
+@Listener(
+    priority = 2_000, 
+    during = During(phases = ["grace", "death_match"])
 )
 private fun onMinigameAddPlayer(event: MinigameAddPlayerEvent) {
     // ...
@@ -127,15 +151,18 @@ all the phases that we want this listened to be called during. This uses the `id
 minigame phases (as we cannot pass enums into annotations), so you may also want to create
 constant variables with the ids to make this easier.
 
-And further, we can define bounds so that our listener is only called when our minigame
-is between the given phases (inclusive):
+And further, we can define bounds so that our listener is only called when our minigame is between the given phases, after (inclusive) and before (exclusive):
 ```kotlin
-@MinigameEvent(
-    priority = 2_000,
-    start = "grace",
-    end = "death_match"
+@Listener(
+    priority = 2_000, 
+    during = During(
+        after = "grace", 
+        before = "death_match"
+    )
 )
 private fun onMinigameAddPlayer(event: MinigameAddPlayerEvent) {
     // ...
 }
 ```
+
+> See the next section on [Scheduling](scheduling.md)

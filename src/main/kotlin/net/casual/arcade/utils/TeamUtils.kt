@@ -29,7 +29,7 @@ public object TeamUtils {
     private val ANIMALS = HashMap<ChatFormatting, List<String>>()
 
     init {
-        TEAM_COLOURS = ChatFormatting.values().copyOfRange(0, 16).toSet()
+        TEAM_COLOURS = entries.slice(0..< 16).toSet()
         TEAM_COLOURS_NO_GREY = TEAM_COLOURS.toMutableSet().apply {
             removeAll(listOf(BLACK, GRAY, DARK_GRAY, WHITE))
         }

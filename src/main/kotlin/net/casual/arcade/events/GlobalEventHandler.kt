@@ -11,6 +11,7 @@ import net.casual.arcade.events.server.SafeServerlessEvent
 import net.casual.arcade.events.server.ServerOffThreadEvent
 import net.casual.arcade.utils.CollectionUtils.addSorted
 import org.apache.logging.log4j.LogManager
+import org.jetbrains.annotations.ApiStatus.Experimental
 import java.util.function.Consumer
 
 /**
@@ -30,6 +31,8 @@ public object GlobalEventHandler {
     private val stack = Object2IntOpenHashMap<Class<out Event>>()
     private val handlers = HashSet<ListenerHandler>()
     private val handler = EventHandler()
+
+    private var recursion = false
 
     private var stopping = false
 
@@ -75,7 +78,7 @@ public object GlobalEventHandler {
             return
         }
 
-        if (this.checkRecursive(type)) {
+        if (!this.recursion && this.checkRecursive(type)) {
             return
         }
 
@@ -163,6 +166,36 @@ public object GlobalEventHandler {
     @JvmStatic
     public fun removeHandler(handler: ListenerHandler) {
         this.handlers.remove(handler)
+    }
+
+    /**
+     * This enables the recursion flag which allows you to have
+     * recursive events.
+     * This bypasses recursion safety implemented by this event handler.
+     *
+     * @param block The function to execute while recursion is allowed.
+     */
+    @JvmStatic
+    public fun recursive(block: () -> Unit) {
+        val previous = this.recursion
+        try {
+            this.recursion = true
+            block()
+        } finally {
+            this.recursion = previous
+        }
+    }
+
+    @JvmStatic
+    @Experimental
+    public fun enableRecursiveEvents() {
+        this.recursion = true
+    }
+
+    @JvmStatic
+    @Experimental
+    public fun disableRecursiveEvents() {
+        this.recursion = true
     }
 
     internal fun suppressNextEvent(type: Class<out Event>) {

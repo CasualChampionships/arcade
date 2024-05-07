@@ -1,5 +1,7 @@
 # Scheduling
 
+> Return to [table of contents](../minigames.md)
+
 Scheduling is key to implementing a minigame, there are lots of things that you will
 want to do in the future, and the scheduling API allows you to do this. If you have not
 already taken a look at the [Scheduling](./scheduling.md) Documentation, this part of

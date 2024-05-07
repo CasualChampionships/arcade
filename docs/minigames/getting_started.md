@@ -42,7 +42,7 @@ enabled, and where the border starts shrinking, and finally a `DeathMatch` phase
 where all players are teleported into an area to fight to the death.
 
 To implement your phases, you need to implement the `Phase` interface.
-This can be done a multitude of ways, but the recommended way is to use an
+This can be done in a multitude of ways, but the recommended way is to use an
 enum class, for example:
 
 ```kotlin
@@ -80,8 +80,9 @@ object ExamplePhases {
 ```
 
 Now we have our phases we can return them in our `getPhases` method in our minigame class.
-It is important to note that the order in which you return these doesn't matter,
-they will be sorted by their ordinal position later.
+
+> [!NOTE]
+> The order in which you return these doesn't matter, they will be sorted by their ordinal position later.
 
 ```kotlin
 class ExampleMinigame(server: MinecraftServer): Minigame<ExampleMinigame>(server) {
@@ -217,6 +218,7 @@ We can do this in our `DedicatedServerModInitializer`:
 ```kotlin
 object ExampleMinigameMod: DedicatedServerModInitializer {
     override fun onInitializeServer() {
+        // This should be the same id that your minigame uses
         Minigames.registerFactory(ResourceLocation("modid", "example")) { context ->
             ExampleMinigame(context.server)
         }
@@ -229,18 +231,18 @@ Ensure that you have operator permissions.
 
 You can then run the following command:
 ```
-/minigame create <minigame-id>
+/minigame create <factory-id>
 ```
 This will create an instance of your minigame.
 
 You can then add players by running the following command:
 ```
-/minigame join <minigame-id> <player(s)>
+/minigame join <minigame-id> <player(s)?>
 ```
 
 And then start the minigame:
 ```
-/minigame modify <minigame-id> start
+/minigame start <minigame-id>
 ```
 
 For more information about the `/minigame` command, see the [User Command Section](../commands.md)

@@ -6,8 +6,6 @@ import com.mojang.authlib.GameProfile
 import net.casual.arcade.Arcade
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
-import net.casual.arcade.minigame.module.MinigameModule
-import net.casual.arcade.minigame.module.SavableMinigameModule
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.task.AnyMinigameTaskFactory
 import net.casual.arcade.minigame.task.MinigameTaskFactory
@@ -90,7 +88,6 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
     server: MinecraftServer
 ): Minigame<M>(server) {
     private val taskGenerator = MinigameTaskGenerator(this.cast())
-    private val moduleGenerator = HashMap<ResourceLocation, (M, JsonObject) -> MinigameModule<M, *>>()
 
     init {
         // Add default task factories
@@ -141,10 +138,6 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
      */
     protected fun addTaskFactory(factory: AnyMinigameTaskFactory) {
         this.addTaskFactory(factory.cast())
-    }
-
-    protected fun addModuleFactory(id: ResourceLocation, generator: (M, JsonObject) -> MinigameModule<M, *>) {
-        this.moduleGenerator[id] = generator
     }
 
     /**
@@ -218,12 +211,6 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
 
         this.data.deserialize(json.obj("data_tracker"))
 
-        for (module in json.arrayOrDefault("modules").objects()) {
-            val id = ResourceLocation(module.string("id"))
-            val generator = this.moduleGenerator[id] ?: continue
-            this.addModule(generator(this.cast(), module.obj("data")))
-        }
-
         val custom = json.objOrNull("custom")
         if (custom != null) {
             this.readData(custom)
@@ -284,16 +271,6 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
 
         val tags = this.tags.serialize()
 
-        val modules = JsonArray()
-        for (module in this.modules) {
-            if (module is SavableMinigameModule) {
-                val data = JsonObject()
-                data.addProperty("id", module.id.toString())
-                data.add("data", module.serialize())
-                modules.add(data)
-            }
-        }
-
         val data = this.data.serialize()
 
         val custom = JsonObject()
@@ -310,7 +287,6 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         json.add("stats", stats)
         json.add("tags", tags)
         json.add("data_tracker", data)
-        json.add("modules", modules)
         json.add("custom", custom)
         return json
     }

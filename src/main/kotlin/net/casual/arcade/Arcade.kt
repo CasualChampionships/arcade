@@ -1,25 +1,26 @@
 package net.casual.arcade
 
-import com.mojang.serialization.JsonOps
 import net.casual.arcade.commands.ArcadeCommands
+import net.casual.arcade.config.ArcadeConfig
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerCreatedEvent
 import net.casual.arcade.minigame.Minigames
-import net.casual.arcade.minigame.events.MinigamesEvent
-import net.casual.arcade.minigame.events.lobby.templates.LobbyTemplate
 import net.casual.arcade.minigame.events.lobby.LobbyMinigame
+import net.casual.arcade.minigame.events.lobby.templates.LobbyTemplate
 import net.casual.arcade.utils.*
 import net.casual.arcade.utils.registries.ArcadeRegistries
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
+import net.fabricmc.loader.impl.lib.sat4j.core.Vec
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
+import net.minecraft.world.phys.AABB
+import net.minecraft.world.phys.Vec3
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
-import kotlin.system.exitProcess
 
 /**
  * Arcade initializer class.
@@ -102,6 +103,7 @@ public object Arcade: ModInitializer {
         CommandUtils.registerEvents()
         BorderUtils.registerEvents()
         LevelUtils.registerEvents()
+        ArcadeConfig.registerEvents()
 
         ArcadeCommands.registerCommands()
 

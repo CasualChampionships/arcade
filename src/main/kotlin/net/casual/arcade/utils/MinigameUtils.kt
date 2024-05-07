@@ -229,8 +229,8 @@ public object MinigameUtils {
             }
             minigame.events.registerBetweenPhases(
                 type = type,
-                start = start,
-                end = end,
+                after = start,
+                before = end,
                 flags = event.flags,
                 listener = listener
             )

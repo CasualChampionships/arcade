@@ -1,6 +1,9 @@
 package net.casual.arcade.settings
 
 import com.google.gson.JsonElement
+import com.mojang.serialization.Codec
+import com.mojang.serialization.JsonOps
+import net.casual.arcade.Arcade
 import net.casual.arcade.utils.json.JsonSerializer
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
@@ -10,7 +13,7 @@ public open class GameSetting<T: Any>(
     public val name: String,
     private var value: T,
     private val options: Map<String, T>,
-    private val serializer: JsonSerializer<T>
+    private val serializer: Codec<T>
 ) {
     private val listeners by lazy { ArrayList<SettingListener<T>>() }
     public var override: (ServerPlayer) -> T? = { null }
@@ -56,20 +59,23 @@ public open class GameSetting<T: Any>(
     }
 
     public fun serializeValue(): JsonElement {
-        return this.serializer.serialize(this.get())
+        return this.serializer.encodeStart(JsonOps.INSTANCE, this.get())
+            .getOrThrow(false, Arcade.logger::error)
     }
 
     public fun deserializeAndSet(json: JsonElement): Boolean {
-        this.runCatching {
-            this.set(this.serializer.deserialize(json))
+        val result = this.serializer.parse(JsonOps.INSTANCE, json).result()
+        if (result.isPresent) {
+            this.set(result.get())
             return true
         }
         return false
     }
 
     public fun deserializeAndSetQuietly(json: JsonElement): Boolean {
-        this.runCatching {
-            this.setQuietly(this.serializer.deserialize(json))
+        val result = this.serializer.parse(JsonOps.INSTANCE, json).result()
+        if (result.isPresent) {
+            this.setQuietly(result.get())
             return true
         }
         return false
@@ -84,7 +90,7 @@ public open class GameSetting<T: Any>(
     }
 
     public companion object {
-        public fun <T: Any> generator(serializer: JsonSerializer<T>): (String, T, Map<String, T>) -> GameSetting<T> {
+        public fun <T: Any> generator(serializer: Codec<T>): (String, T, Map<String, T>) -> GameSetting<T> {
             return { id, value, options -> GameSetting(id, value, options, serializer) }
         }
     }

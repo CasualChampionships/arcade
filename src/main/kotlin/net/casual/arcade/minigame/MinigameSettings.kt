@@ -23,9 +23,9 @@ import net.minecraft.world.item.Items
  *
  * Alternatively you can do it directly with commands:
  *
- * `/minigame settings <minigame-uuid> set <setting> from option <option>`
+ * `/minigame settings <minigame-uuid> <setting> set from option <option>`
  *
- * `/minigame settings <minigame-uuid> set <setting> from value <value>`
+ * `/minigame settings <minigame-uuid> <setting> set from value <value>`
  *
  */
 public open class MinigameSettings(

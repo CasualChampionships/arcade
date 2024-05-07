@@ -5,17 +5,6 @@ import net.casual.arcade.events.core.Event
 import net.casual.arcade.minigame.phase.Phase
 import kotlin.reflect.KClass
 
-public const val NONE: Int = 0
-public const val HAS_PLAYER: Int = 1 shl 1
-public const val IS_PLAYING: Int = 1 shl 2
-public const val IS_SPECTATOR: Int = 1 shl 3
-public const val IS_ADMIN: Int = 1 shl 4
-public const val HAS_LEVEL: Int = 1 shl 5
-public const val IS_MINIGAME: Int = 1 shl 6
-public const val HAS_PLAYER_PLAYING: Int = HAS_PLAYER or IS_PLAYING
-public const val HAS_PLAYER_SPECTATING: Int = HAS_PLAYER or IS_SPECTATOR
-public const val DEFAULT: Int = HAS_PLAYER or HAS_LEVEL or IS_MINIGAME
-
 /**
  * This annotation is used to mark a method as an event handler.
  */
@@ -37,7 +26,7 @@ public annotation class Listener(
     /**
      * The flags for setting the minigame event.
      */
-    val flags: Int = DEFAULT,
+    val flags: Int = ListenerFlags.DEFAULT,
 
     /**
      * This is the phase of the event that this handler
@@ -80,7 +69,7 @@ public annotation class During(
 
     /**
      * This is the id of the end phase that this
-     * handler should be invoked in, this is inclusive.
+     * handler should be invoked in, this is exclusive.
      *
      * By default, if not specified will default to
      * [Phase.end].
@@ -88,3 +77,15 @@ public annotation class During(
     val before: String = ""
 )
 
+public object ListenerFlags {
+    public const val NONE: Int = 0
+    public const val HAS_PLAYER: Int = 1 shl 1
+    public const val IS_PLAYING: Int = 1 shl 2
+    public const val IS_SPECTATOR: Int = 1 shl 3
+    public const val IS_ADMIN: Int = 1 shl 4
+    public const val HAS_LEVEL: Int = 1 shl 5
+    public const val IS_MINIGAME: Int = 1 shl 6
+    public const val HAS_PLAYER_PLAYING: Int = HAS_PLAYER or IS_PLAYING
+    public const val HAS_PLAYER_SPECTATING: Int = HAS_PLAYER or IS_SPECTATOR
+    public const val DEFAULT: Int = HAS_PLAYER or HAS_LEVEL or IS_MINIGAME
+}

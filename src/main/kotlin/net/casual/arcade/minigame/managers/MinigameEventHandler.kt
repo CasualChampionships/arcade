@@ -10,6 +10,13 @@ import net.casual.arcade.events.minigame.MinigameEvent
 import net.casual.arcade.events.player.PlayerEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.*
+import net.casual.arcade.minigame.annotation.ListenerFlags.DEFAULT
+import net.casual.arcade.minigame.annotation.ListenerFlags.HAS_LEVEL
+import net.casual.arcade.minigame.annotation.ListenerFlags.HAS_PLAYER
+import net.casual.arcade.minigame.annotation.ListenerFlags.IS_ADMIN
+import net.casual.arcade.minigame.annotation.ListenerFlags.IS_MINIGAME
+import net.casual.arcade.minigame.annotation.ListenerFlags.IS_PLAYING
+import net.casual.arcade.minigame.annotation.ListenerFlags.IS_SPECTATOR
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.phase.Phased
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
@@ -337,18 +344,18 @@ public class MinigameEventHandler<P>(
      * to specify phase ranges in which to trigger your listener.
      *
      * @param T The type of event.
-     * @param start The start phase of the range, inclusive.
-     * @param end The end phase of the range, inclusive.
+     * @param after The start phase of the range, inclusive.
+     * @param before The end phase of the range, exclusive.
      * @param listener The callback which will be invoked when the event is fired.
      */
     public inline fun <reified T: Event> registerBetweenPhases(
-        start: Phase<P>,
-        end: Phase<P>,
+        after: Phase<P>,
+        before: Phase<P>,
         phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         listener: Consumer<T>
     ) {
-        this.registerBetweenPhases(1_000, start, end, phase, flags, listener)
+        this.registerBetweenPhases(1_000, after, before, phase, flags, listener)
     }
 
     /**
@@ -357,19 +364,19 @@ public class MinigameEventHandler<P>(
      *
      * @param T The type of event.
      * @param priority The priority of your event listener.
-     * @param start The start phase of the range, inclusive.
-     * @param end The end phase of the range, inclusive.
+     * @param after The start phase of the range, inclusive.
+     * @param before The end phase of the range, exclusive.
      * @param listener The callback which will be invoked when the event is fired.
      */
     public inline fun <reified T: Event> registerBetweenPhases(
         priority: Int,
-        start: Phase<P>,
-        end: Phase<P>,
+        after: Phase<P>,
+        before: Phase<P>,
         phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         listener: Consumer<T>
     ) {
-        this.registerBetweenPhases(T::class.java, start, end, flags, EventListener.of(priority, phase, listener))
+        this.registerBetweenPhases(T::class.java, after, before, flags, EventListener.of(priority, phase, listener))
     }
 
     /**
@@ -378,26 +385,25 @@ public class MinigameEventHandler<P>(
      *
      * @param T The type of event.
      * @param type The class of the event that you want to listen to.
-     * @param start The start phase of the range, inclusive.
-     * @param end The end phase of the range, inclusive.
+     * @param after The start phase of the range, inclusive.
+     * @param before The end phase of the range, exclusive.
      * @param listener The callback which will be invoked when the event is fired.
      */
     public fun <T: Event> registerBetweenPhases(
         type: Class<T>,
-        start: Phase<P>,
-        end: Phase<P>,
+        after: Phase<P>,
+        before: Phase<P>,
         flags: Int = DEFAULT,
         listener: EventListener<T>
     ) {
         val predicates = ArrayList<(T) -> Boolean>()
         predicates.add {
-            (this.phased.isAfterPhase(start) || this.phased.isPhase(start)) &&
-            (this.phased.isBeforePhase(end) || this.phased.isPhase(end))
+            (this.phased.isAfterPhase(after) || this.phased.isPhase(after)) && this.phased.isBeforePhase(before)
         }
         return this.registerFiltered(type, listener, this.minigameHandler, predicates, flags)
     }
 
-    protected fun <T: Event> registerFiltered(
+    private fun <T: Event> registerFiltered(
         type: Class<T>,
         listener: EventListener<T>,
         handler: EventRegisterer,
@@ -440,7 +446,7 @@ public class MinigameEventHandler<P>(
     }
 
     private fun hasFlag(flags: Int, flag: Int): Boolean {
-        return flags and flag == flag
+        return (flags and flag) == flag
     }
 
     public open class Filterer(
