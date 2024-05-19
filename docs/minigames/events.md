@@ -65,11 +65,7 @@ minigame.events.register<PlayerTickEvent>(flags = ListenerFlags.IS_SPECTATING) {
 
 ### During Minigame Phases
 
-This listener will only be invoked for all players that are playing in the current minigame.
-
-However, we can have even more control over when our listeners are invoked, specifically
-during which phases. We can for example declare an event listener that will only be invoked
-in specified phases:
+We can have even more control over when our listeners are invoked, specifically what minigame phases we want our listeners to be invoked in. It's likely that there are some behaviours that you only wish to have during certain minigame phases, we can do this by using the `registerInPhases` method, this takes a variable about of phases in as a parameter:
 ```kotlin
 val minigame: MyMinigame = // ...
 val grace = MyMinigamePhase.Grace
@@ -78,10 +74,9 @@ minigame.events.registerInPhases<ServerTickEvent>(grace, active) {
     // ...
 }
 ```
-In this case, our listener will only be invoked in the given minigame phases.
+In this case, our listener will only be invoked during the `Grace` and `Active` phases of our minigame.
 
-If you want it to be between a larger selection of phases, we can do that too, and instead
-only invoke our listener if the minigame is between two phases (inclusive):
+If you want it to be between a large section of your minigame, you can use the `registerBetweenPhases` method to register an after phase (inclusive) and before phase (exclusive):
 ```kotlin
 val minigame: MyMinigame = // ...
 val grace = MyMinigamePhase.Grace
@@ -90,6 +85,7 @@ minigame.events.registerBetweenPhases<ServerTickEvent>(grace, deathMatch) {
     // ...
 }
 ```
+In this case, our listener will be invoked in all phases after (and including) the `Grace` phase and before the `DeathMatch` phase.
 
 Something to note about these last two is that they are permanent for the lifetime of
 the minigame. However, if we want to register a phased specific event that only

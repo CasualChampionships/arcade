@@ -13,6 +13,7 @@ public interface TeamSpecificElement<E: Any>: PlayerSpecificElement<E> {
         return this.get(player.server, player.team)
     }
 
+    @NonExtendable
     override fun cached(): TeamSpecificElement<E> {
         return Cached(this)
     }

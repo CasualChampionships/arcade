@@ -25,9 +25,9 @@ dependencies {
 ## Documentation
 
 > ### [Minigames](./docs/minigames.md)
+> ### [Commands](./docs/commands.md)
 > ### [Events](./docs/events.md)
 > ### [Scheduling](./docs/scheduling.md)
 > ### [UI](./docs/ui.md)
 > ### [Resources](./docs/resources.md)
-> ### [Miscellaneous](./docs/miscellaneous.md)
 

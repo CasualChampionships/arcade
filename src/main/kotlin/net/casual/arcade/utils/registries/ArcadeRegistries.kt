@@ -20,7 +20,6 @@ public object ArcadeRegistries {
     public val LOBBY_TEMPLATE: Registry<Codec<out LobbyTemplate>> = create(ArcadeRegistryKeys.LOBBY_TEMPLATE, LobbyTemplate::bootstrap)
     public val MINIGAMES_EVENT: Registry<Codec<out MinigamesEvent>> = create(ArcadeRegistryKeys.MINIGAMES_EVENT, MinigamesEvent::bootstrap)
 
-
     init {
         for (load in LOADERS) {
             load.invoke()

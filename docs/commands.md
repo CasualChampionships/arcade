@@ -8,9 +8,11 @@ The minigame command lets you control all aspects of minigames in Arcade.
 
 The first thing to note is that you must be an operator with a permission level of 4 to run this command.
 
+> [!NOTE]
 > In the following section anything wrapped in `< >` indicated that it's an argument.
 
-> **Note:** `<minigame-id>` can be specified by the `uuid` of the minigame, or by the `id` of the minigame (given that there is only one instance), or by `-` which refers to the minigame of the player executing the command.
+> [!NOTE]
+> `<minigame-id>` can be specified by the `uuid` of the minigame, or by the `id` of the minigame (given that there is only one instance), or by `-` which refers to the minigame of the player executing the command.
 
 - `/minigame list` This lists all minigame instances.
 - `/minigame create <factory-id>` This allows you to create a minigame instance using a registered minigame factory.

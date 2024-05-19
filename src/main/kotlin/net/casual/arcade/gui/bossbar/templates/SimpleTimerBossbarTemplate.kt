@@ -52,6 +52,5 @@ public class SimpleTimerBossbarTemplate(
                 ArcadeExtraCodecs.enum<BossBarColor>().encodedOptionalFieldOf("colour", BossBarColor.YELLOW).forGetter(SimpleTimerBossbarTemplate::colour),
             ).apply(instance, ::SimpleTimerBossbarTemplate)
         }
-
     }
 }
