@@ -5,11 +5,10 @@ import me.senseiwells.nametag.impl.NameTagUtils.addNameTag
 import me.senseiwells.nametag.impl.NameTagUtils.removeNameTag
 import me.senseiwells.nametag.impl.ShiftHeight
 import net.casual.arcade.gui.PlayerUI
-import net.casual.arcade.gui.predicate.PlayerObserverPredicate
 import net.casual.arcade.gui.elements.ComponentElements
 import net.casual.arcade.gui.elements.PlayerSpecificElement
-import net.casual.arcade.minigame.Minigame
-import net.minecraft.client.Minecraft
+import net.casual.arcade.gui.predicate.PlayerObserverPredicate
+import net.casual.arcade.minigame.managers.MinigameUIManager
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
@@ -36,7 +35,7 @@ import java.util.function.Consumer
  * @param tag The [ComponentElements] to get the player's nametag.
  * @param observable The predicate to determine which
  * players can see the player's nametag.
- * @see Minigame.addNameTag
+ * @see MinigameUIManager.addNameTag
  * @see PlayerUI
  */
 public class ArcadeNameTag(

@@ -34,6 +34,9 @@ public open class TeamListEntries: PlayerListEntries {
             val max = teams.maxOf { it.players.size }
             for ((column, team) in teams.withIndex()) {
                 var row = previousRow
+                if (row !in this.entries.indices) {
+                    break
+                }
                 this.entries[row++][column] = this.createTeamEntry(server, team)
 
                 for (username in team.players) {

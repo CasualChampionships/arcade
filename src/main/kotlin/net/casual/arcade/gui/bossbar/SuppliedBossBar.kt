@@ -10,10 +10,10 @@ import net.minecraft.world.BossEvent.BossBarColor
 import net.minecraft.world.BossEvent.BossBarOverlay
 
 public class SuppliedBossBar(
-    private var title: PlayerSpecificElement<Component>,
-    private var progress: PlayerSpecificElement<Float>,
-    private var colour: PlayerSpecificElement<BossBarColor>,
-    private var overlay: PlayerSpecificElement<BossBarOverlay>
+    private var title: PlayerSpecificElement<Component> = ComponentElements.empty(),
+    private var progress: PlayerSpecificElement<Float> = UniversalElement.constant(0.0F),
+    private var colour: PlayerSpecificElement<BossBarColor> = ColourElements.white(),
+    private var overlay: PlayerSpecificElement<BossBarOverlay> = OverlayElements.progress()
 ): CustomBossBar(), TickableUI {
     private var dark = BooleanElements.alwaysFalse()
     private var music = BooleanElements.alwaysFalse()
