@@ -11,7 +11,7 @@ import net.casual.arcade.events.player.PlayerCommandEvent
 import net.casual.arcade.events.player.PlayerCommandSuggestionsEvent
 import net.casual.arcade.events.player.PlayerSendCommandsEvent
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.annotation.HAS_PLAYER
+import net.casual.arcade.minigame.annotation.ListenerFlags
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.ComponentUtils.command
 import net.casual.arcade.utils.ComponentUtils.grey
@@ -44,13 +44,13 @@ public class MinigameCommandManager(
     private val registered = LinkedList<String>()
 
     init {
-        this.minigame.events.register<PlayerSendCommandsEvent>(1_000, flags = HAS_PLAYER) {
+        this.minigame.events.register<PlayerSendCommandsEvent>(1_000, flags = ListenerFlags.HAS_PLAYER) {
             it.addCustomCommandNode(this.dispatcher.root)
         }
-        this.minigame.events.register<PlayerCommandEvent>(1_000, flags = HAS_PLAYER) {
+        this.minigame.events.register<PlayerCommandEvent>(1_000, flags = ListenerFlags.HAS_PLAYER) {
             this.onCommand(it)
         }
-        this.minigame.events.register<PlayerCommandSuggestionsEvent>(1_000, flags = HAS_PLAYER) {
+        this.minigame.events.register<PlayerCommandSuggestionsEvent>(1_000, flags = ListenerFlags.HAS_PLAYER) {
             this.onCommandSuggestions(it)
         }
         this.minigame.events.register<MinigameCloseEvent> {

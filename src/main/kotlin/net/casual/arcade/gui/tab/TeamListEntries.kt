@@ -78,7 +78,10 @@ public open class TeamListEntries: PlayerListEntries {
     }
 
     protected open fun getTeams(server: MinecraftServer): Collection<PlayerTeam> {
-        return server.scoreboard.playerTeams.sortedWith(NAME_ORDER)
+        return server.scoreboard.playerTeams.stream()
+            .filter { it.players.isNotEmpty() }
+            .sorted(NAME_ORDER)
+            .toList()
     }
 
     public companion object {

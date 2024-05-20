@@ -3,18 +3,17 @@ package net.casual.arcade.minigame.managers
 import net.casual.arcade.chat.ChatFormatter
 import net.casual.arcade.chat.PlayerChatFormatter
 import net.casual.arcade.chat.PlayerFormattedChat
-import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.player.PlayerChatEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigameSettings
-import net.casual.arcade.minigame.annotation.NONE
+import net.casual.arcade.minigame.annotation.ListenerFlags
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.PlayerUtils.getChatPrefix
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
-import java.util.UUID
+import java.util.*
 
 /**
  * This class manages the chat of a minigame.
@@ -67,7 +66,7 @@ public class MinigameChatManager(
     internal val spies = HashSet<UUID>()
 
     init {
-        this.minigame.events.register<PlayerChatEvent>(1_000, DEFAULT, NONE, this::onGlobalPlayerChat)
+        this.minigame.events.register<PlayerChatEvent>(1_000, DEFAULT, ListenerFlags.NONE, this::onGlobalPlayerChat)
         this.minigame.events.register<PlayerChatEvent> { this.onPlayerChat(it) }
     }
 
