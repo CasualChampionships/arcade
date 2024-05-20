@@ -167,6 +167,9 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
 
     @Internal
     public fun read(json: JsonObject): Boolean {
+        this.initialized = json.booleanOrDefault("initialized")
+        this.started = json.booleanOrDefault("started")
+
         val phaseId = json.stringOrNull("phase")
         var setPhase = false
         if (phaseId != null) {
@@ -216,6 +219,9 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
             this.readData(custom)
         }
 
+        if (this.initialized) {
+            this.tryInitialize()
+        }
         if (setPhase) {
             // Ordered phases
             for (phase in this.phases) {
@@ -233,6 +239,8 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
     public fun save(): JsonObject {
         val json = JsonObject()
 
+        json.addProperty("initialized", this.initialized)
+        json.addProperty("started", this.started)
         json.addProperty("phase", this.phase.id)
         json.addProperty("uptime", this.uptime)
         json.addProperty("paused", this.paused)

@@ -251,6 +251,6 @@ class CustomSettingsDefaults: DisplayableSettingsDefaults() {
 
 The `createSettingsGuiBuilder` returns the builder responsible for creating the gui listing all the minigame settings, and the `createOptionsGuiBuilder` returns the builder responsible for creating the gui listing all the options for a given minigame setting.
 
-The specifics on how to customize these are discussed in the [UI Section](./ui.md).
+The specifics on how to customize these are discussed in the [GUI Section](../gui).
 
 > See the next section on [Teams](teams.md)

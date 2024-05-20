@@ -105,13 +105,13 @@ public interface SelectionGuiComponents {
         /**
          * Sets the [next] [ItemStack] instance.
          *
-         * @param present The stack for when there is a back button.
-         * @param absent The stack for when there is not a back button.
+         * @param back The stack for when there is a back button.
+         * @param exit The stack for when there is not a back button.
          * @return The current [Builder].
          */
-        public fun back(present: ItemStack, absent: ItemStack = present): Builder {
-            this.back = present
-            this.exit = absent
+        public fun back(back: ItemStack, exit: ItemStack = back): Builder {
+            this.back = back
+            this.exit = exit
             return this
         }
 

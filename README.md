@@ -28,6 +28,6 @@ dependencies {
 > ### [Commands](./docs/commands.md)
 > ### [Events](./docs/events.md)
 > ### [Scheduling](./docs/scheduling.md)
-> ### [UI](./docs/ui.md)
+> ### [GUI](./docs/gui)
 > ### [Resources](./docs/resources.md)
 

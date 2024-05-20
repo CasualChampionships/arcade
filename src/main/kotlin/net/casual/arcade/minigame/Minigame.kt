@@ -114,7 +114,7 @@ public abstract class Minigame<M: Minigame<M>>(
     public val server: MinecraftServer,
 ): Phased<M> {
     private var resources: MultiMinigameResources
-    private var initialized: Boolean
+    internal var initialized: Boolean
 
     internal val phases: List<Phase<M>>
 
@@ -262,7 +262,7 @@ public abstract class Minigame<M: Minigame<M>>(
         internal set
 
     public var started: Boolean
-        private set
+        internal set
 
     public var closed: Boolean
         private set

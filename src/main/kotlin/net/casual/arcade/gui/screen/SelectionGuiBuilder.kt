@@ -1,5 +1,6 @@
 package net.casual.arcade.gui.screen
 
+import eu.pb4.sgui.api.ClickType
 import eu.pb4.sgui.api.elements.GuiElement
 import eu.pb4.sgui.api.elements.GuiElementInterface
 import eu.pb4.sgui.api.gui.GuiInterface
@@ -11,6 +12,7 @@ import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
 import java.util.*
 import kotlin.math.min
+import net.minecraft.world.inventory.ClickType as ActionType
 
 /**
  * This class allows you to build your own gui's with selectable elements.
@@ -111,11 +113,11 @@ public class SelectionGuiBuilder(
     public fun <T> elements(
         elements: Iterable<T>,
         elementToIconMapper: (T) -> ItemStack,
-        callback: (gui: SlotGuiInterface, T) -> Unit
+        callback: (slot: Int, click: ClickType, action: ActionType, gui: SlotGuiInterface, T) -> Unit
     ): SelectionGuiBuilder {
         for (element in elements) {
-            this.element(GuiElement(elementToIconMapper.invoke(element)) { _, _, _, gui ->
-                callback.invoke(gui, element)
+            this.element(GuiElement(elementToIconMapper.invoke(element)) { slot, click, action, gui ->
+                callback.invoke(slot, click, action, gui, element)
             })
         }
         return this
@@ -143,11 +145,7 @@ public class SelectionGuiBuilder(
      *
      * @return The built [SimpleGui].
      */
-    public fun build(): SimpleGui {
-        return this.create(0)
-    }
-
-    private fun create(page: Int): SimpleGui {
+    public fun build(page: Int = 0): SimpleGui {
         val builder = SimpleGuiBuilder(MenuType.GENERIC_9x6, false)
         builder.title = this.components.title
         val slots = this.style.getSlots()
@@ -169,7 +167,7 @@ public class SelectionGuiBuilder(
 
         builder.setSlot(45, GuiElement(this.components.getPrevious(page != 0)) { _, _, _, _ ->
             if (page > 0) {
-                this.create(page - 1).open()
+                this.build(page - 1).open()
             }
         })
         builder.setSlot(49, GuiElement(this.components.getBack(this.parent != null)) { _, _, _, gui ->
@@ -182,7 +180,7 @@ public class SelectionGuiBuilder(
         })
         builder.setSlot(53, GuiElement(this.components.getNext(hasNextPage)) { _, _, _, _ ->
             if (hasNextPage) {
-                this.create(page + 1).open()
+                this.build(page + 1).open()
             }
         })
 

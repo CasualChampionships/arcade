@@ -22,7 +22,7 @@ public object ScreenUtils {
         players: Iterable<ServerPlayer> = PlayerUtils.players(),
         mapper: (ServerPlayer) -> ItemStack = { ItemUtils.generatePlayerHead(it.scoreboardName) }
     ): SelectionGuiBuilder {
-        this.elements(players, mapper) { gui, player ->
+        this.elements(players, mapper) { _, _, _, gui, player ->
             if (!player.isRemoved) {
                 gui.player.teleportTo(player.location)
             }
@@ -35,7 +35,7 @@ public object ScreenUtils {
         mapper: (PlayerTeam) -> ItemStack = { TeamUtils.colouredHeadForTeam(it) },
         generator: (GuiInterface, PlayerTeam) -> SelectionGuiBuilder = { gui, _ -> SelectionGuiBuilder(gui) }
     ): SelectionGuiBuilder {
-        this.elements(teams, mapper) { gui, team ->
+        this.elements(teams, mapper) { _, _, _, gui, team ->
             val builder = generator.invoke(gui, team)
             builder.addSpectatablePlayers(team.getOnlinePlayers())
             builder.build().open()
@@ -48,7 +48,7 @@ public object ScreenUtils {
         generator: (GuiInterface, MenuGameSetting<*>) -> SelectionGuiBuilder = { gui, _ -> SelectionGuiBuilder(gui) }
     ): SelectionGuiBuilder {
         val settings = displays.displays().toList()
-        this.elements(settings.indices, { settings[it].display }) { gui, index ->
+        this.elements(settings.indices, { settings[it].display }) { _, _, _, gui, index ->
             createSettingsGui(gui, settings, index, generator).open()
         }
         return this

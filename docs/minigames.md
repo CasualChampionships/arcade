@@ -14,7 +14,7 @@ minigames and all the features that will be made available to you.
 > ### [Events](./minigames/events.md)
 > ### [Scheduling](./minigames/scheduling.md)
 > ### [Commands](./minigames/commands.md)
-> ### [UI](./minigames/ui.md)
+> ### [GUI](./minigames/gui.md)
 > ### [Resource Packs](./minigames/resource_packs.md)
 > ### [Chat](./minigames/chat.md)
 > ### [Advancements](./minigames/advancements.md)
