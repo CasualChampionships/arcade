@@ -333,7 +333,7 @@ public open class LobbyMinigame(
 
     public enum class LobbyPhase(override val id: String): Phase<LobbyMinigame> {
         Waiting("waiting") {
-            override fun start(minigame: LobbyMinigame) {
+            override fun start(minigame: LobbyMinigame, previous: Phase<LobbyMinigame>) {
                 minigame.ui.addBossbar(minigame.bossbar)
                 for (player in minigame.players.nonAdmins) {
                     player.setGameMode(GameType.ADVENTURE)
@@ -345,7 +345,7 @@ public open class LobbyMinigame(
         },
         Readying("readying"),
         Countdown("countdown") {
-            override fun start(minigame: LobbyMinigame) {
+            override fun start(minigame: LobbyMinigame, previous: Phase<LobbyMinigame>) {
                 val next = minigame.next
                 if (next == null) {
                     Arcade.logger.warn("Tried counting down in lobby when there is no next minigame!")
@@ -362,8 +362,10 @@ public open class LobbyMinigame(
                 }
             }
 
-            override fun end(minigame: LobbyMinigame) {
-                minigame.moveToNextMinigame()
+            override fun end(minigame: LobbyMinigame, next: Phase<LobbyMinigame>) {
+                if (next > this) {
+                    minigame.moveToNextMinigame()
+                }
             }
         }
     }

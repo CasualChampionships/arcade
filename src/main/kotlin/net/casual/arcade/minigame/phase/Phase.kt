@@ -78,10 +78,11 @@ public interface Phase<M> {
      * information.
      *
      * @param minigame The minigame which as set its phase to `this`.
+     * @param previous The previous phase.
      * @see initialize
      */
     @OverrideOnly
-    public fun start(minigame: M) {
+    public fun start(minigame: M, previous: Phase<M>) {
 
     }
 
@@ -127,15 +128,16 @@ public interface Phase<M> {
 
     /**
      * This method is called when the [minigame] is changing phase
-     * from the current one.
+     * from the current one to the [next] phase.
      * This is called before the minigame has changed phase,
      * so [Minigame.phase] will still reference `this`.
      *
      * @param minigame The minigame that is changing phase.
+     * @param next The next phase.
      * @see start
      */
     @OverrideOnly
-    public fun end(minigame: M) {
+    public fun end(minigame: M, next: Phase<M>) {
 
     }
 

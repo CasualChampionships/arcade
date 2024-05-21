@@ -346,14 +346,13 @@ public abstract class Minigame<M: Minigame<M>>(
         this.events.phasedHandler.clear()
 
         val self = this.cast()
-        if (phase > this.phase) {
-            this.phase.end(self)
-        }
+        this.phase.end(self, phase)
+        val previous = this.phase
         this.phase = phase
-        this.phase.start(self)
+        this.phase.start(self, previous)
         this.phase.initialize(self)
 
-        MinigameSetPhaseEvent(self, phase).broadcast()
+        MinigameSetPhaseEvent(self, phase, previous).broadcast()
     }
 
     /**

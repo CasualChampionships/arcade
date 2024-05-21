@@ -26,6 +26,8 @@ If we call `foobar` and wait one tick nothing will happen, this is because we sc
 
 This behaviour is the same for `schedulePhasedInLoop`, and it works how you expect.
 
+## Cancellable Tasks
+
 Now let's have a look at `schedulePhasedCancellable`, this further gives us control of our task as it lets you run a task if the original task you scheduled was cancelled (by a phase change). Calling this method with a task will return a `CancellableTask`, which essentially just
 wraps our original task.
 
@@ -69,5 +71,7 @@ enum class MyMinigamePhases(
 }
 ```
 In the above example we schedule the `BossbarTask` and tell it to `runIfCancelled()`, so in the case that 10 minutes have not passed, but we change phases then the bossbar will still be removed.
+
+There are many custom implementations of tasks; however, we will discuss them later in the documentation when their purpose becomes clear.
 
 > See the next section on [Commands](commands.md)

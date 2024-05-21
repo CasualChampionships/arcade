@@ -105,7 +105,7 @@ enum class ExamplePhases(
     override val id: String
 ): Phase<ExampleMinigame> {
     Grace("grace") {
-        override fun start(minigame: ExampleMinigame) {
+        override fun start(minigame: ExampleMinigame, previous: Phase<ExampleMinigame>) {
             
         }
 
@@ -113,7 +113,7 @@ enum class ExamplePhases(
             
         }
         
-        override fun end(minigame: ExampleMinigame) {
+        override fun end(minigame: ExampleMinigame, next: Phase<ExampleMinigame>) {
             
         }
     },
@@ -128,7 +128,7 @@ it will also be called when a minigame is deserialized, this will be discussed
 in further detail later in the [Serialization](serialization.md) section.
 For now, we will stick to using the `start` method.
 - The `end` method will be called when the minigame is changing from `this` phase
-into a later phase (greater ordinal).
+into another phase.
 
 For most of your logic you will mostly be using the `start` method, there are some 
 cases where you need the other methods.
@@ -140,7 +140,7 @@ enum class ExamplePhases(
     override val id: String
 ): Phase<ExampleMinigame> {
     Grace("grace") {
-        override fun start(minigame: ExampleMinigame) {
+        override fun start(minigame: ExampleMinigame, previous: Phase<ExampleMinigame>) {
             minigame.settings.canPvp.set(false)
 
             // In 10 minutes we will move to the next phase
@@ -148,7 +148,7 @@ enum class ExamplePhases(
         }
     },
     Active("active") {
-        override fun start(minigame: ExampleMinigame) {
+        override fun start(minigame: ExampleMinigame, previous: Phase<ExampleMinigame>) {
             minigame.settings.canPvp.set(true)
 
             // In 30 minutes we will move to the next phase
@@ -156,7 +156,7 @@ enum class ExamplePhases(
         }
     },
     DeathMatch("death_match") {
-        override fun start(minigame: ExampleMinigame) {
+        override fun start(minigame: ExampleMinigame, previous: Phase<ExampleMinigame>) {
             // Change to location of the arena
             val location = Location.of()
             for (player in minigame.players.playing) {
@@ -176,7 +176,7 @@ enum class ExamplePhases(
     override val id: String
 ): Phase<ExampleMinigame> {
     Grace("grace") {
-        override fun start(minigame: ExampleMinigame) {
+        override fun start(minigame: ExampleMinigame, previous: Phase<ExampleMinigame>) {
             minigame.settings.canPvp.set(false)
 
             // In 10 minutes we will move to the next phase
@@ -184,7 +184,7 @@ enum class ExamplePhases(
         }
     },
     Active("active") {
-        override fun start(minigame: ExampleMinigame) {
+        override fun start(minigame: ExampleMinigame, previous: Phase<ExampleMinigame>) {
             minigame.settings.canPvp.set(true)
 
             // In 30 minutes we will move to the next phase
@@ -192,7 +192,7 @@ enum class ExamplePhases(
         }
     },
     DeathMatch("death_match") {
-        override fun start(minigame: ExampleMinigame) {
+        override fun start(minigame: ExampleMinigame, previous: Phase<ExampleMinigame>) {
             // Change to location of the arena
             val location = Location.of()
             for (player in minigame.players.playing) {
