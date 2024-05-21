@@ -33,4 +33,4 @@ minigame.commands.unregister("example")
 minigame.commands.unregisterAll()
 ```
 
-> See the next section on [GUI](gui)
+> See the next section on [GUI](gui.md)

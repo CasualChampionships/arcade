@@ -1,4 +1,4 @@
-# UI
+# GUI
 
 > Return to [table of contents](../minigames.md)
 
