@@ -25,7 +25,7 @@ public interface RandomizbleContainerMixin extends Container {
 	)
 	private void afterLootGenerated(Player player, CallbackInfo ci) {
 		if (player instanceof ServerPlayer serverPlayer) {
-			PlayerLootEvent event = new PlayerLootEvent(serverPlayer, InventoryUtils.getAllItems(this), (RandomizableContainerBlockEntity) (Object) this);
+			PlayerLootEvent event = new PlayerLootEvent(serverPlayer, InventoryUtils.getAllItems(this), (RandomizableContainerBlockEntity) this);
 			GlobalEventHandler.broadcast(event);
 		}
 	}

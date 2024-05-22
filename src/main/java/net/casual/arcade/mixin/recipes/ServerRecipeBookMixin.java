@@ -1,6 +1,6 @@
 package net.casual.arcade.mixin.recipes;
 
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.casual.arcade.Arcade;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.ServerRecipeBook;

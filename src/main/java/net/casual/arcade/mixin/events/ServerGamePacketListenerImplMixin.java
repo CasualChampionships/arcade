@@ -1,6 +1,6 @@
 package net.casual.arcade.mixin.events;
 
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.PlayerChatEvent;
 import net.casual.arcade.events.player.PlayerLeaveEvent;
@@ -45,7 +45,7 @@ public class ServerGamePacketListenerImplMixin {
 				Component decorated;
 				Component prefix = event.getMessagePrefix();
 				if (prefix == null) {
-					decorated = bound.chatType().chat().decorate(replacement, bound);
+					decorated = bound.chatType().value().chat().decorate(replacement, bound);
 					prefix = Component.empty();
 				} else {
 					decorated = replacement;

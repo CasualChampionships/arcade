@@ -23,7 +23,7 @@ import java.util.Optional;
 @Mixin(BuiltInRegistries.class)
 public abstract class BuiltInRegistriesMixin {
 	@Shadow
-	private static <T, R extends WritableRegistry<T>> R internalRegister(ResourceKey<? extends Registry<T>> key, R registry, BuiltInRegistries.RegistryBootstrap<T> bootstrap, Lifecycle lifecycle) {
+	private static <T, R extends WritableRegistry<T>> R internalRegister(ResourceKey<? extends Registry<T>> key, R registry, BuiltInRegistries.RegistryBootstrap<T> bootstrap) {
 		return null;
 	}
 
@@ -69,6 +69,6 @@ public abstract class BuiltInRegistriesMixin {
 				return value;
 			}
 		};
-		return internalRegister(key, registry, bootstrap, Lifecycle.stable());
+		return internalRegister(key, registry, bootstrap);
 	}
 }

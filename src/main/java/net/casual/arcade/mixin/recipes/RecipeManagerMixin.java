@@ -1,6 +1,7 @@
 package net.casual.arcade.mixin.recipes;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.gson.JsonElement;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.casual.arcade.ducks.Arcade$MutableRecipeManager;
@@ -29,6 +30,7 @@ public abstract class RecipeManagerMixin implements Arcade$MutableRecipeManager 
 
 	@Shadow public abstract void replaceRecipes(Iterable<RecipeHolder<?>> recipes);
 
+	@SuppressWarnings("UnreachableCode")
 	@Inject(
 		method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
 		at = @At(
@@ -44,14 +46,14 @@ public abstract class RecipeManagerMixin implements Arcade$MutableRecipeManager 
 		ResourceManager resourceManager,
 		ProfilerFiller profiler,
 		CallbackInfo ci,
-		@Local(ordinal = 1) Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>>> recipesByType,
+		@Local ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> recipesByType,
 		@Local ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> recipesByName
 	) {
 		ServerRecipeReloadEvent event = new ServerRecipeReloadEvent((RecipeManager) (Object) this, resourceManager);
 		GlobalEventHandler.broadcast(event);
 
 		for (RecipeHolder<?> recipe : event.getRecipes()) {
-			recipesByType.computeIfAbsent(recipe.value().getType(), recipeType -> ImmutableMap.builder()).put(recipe.id(), recipe);
+			recipesByType.put(recipe.value().getType(), recipe);
 			recipesByName.put(recipe.id(), recipe);
 		}
 	}

@@ -1,6 +1,6 @@
 package net.casual.arcade.mixin.advancements;
 
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.casual.arcade.ducks.Arcade$MutableAdvancements;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementNode;

@@ -1,6 +1,6 @@
 package net.casual.arcade.mixin.worldborder;
 
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.casual.arcade.border.ArcadeBorder;
 import net.minecraft.world.level.border.WorldBorder;
 import org.spongepowered.asm.mixin.Final;

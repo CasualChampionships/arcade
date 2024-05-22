@@ -3,6 +3,7 @@ package net.casual.arcade.mixin.extensions;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.utils.ExtensionUtils;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.scores.PlayerTeam;
@@ -25,6 +26,7 @@ public class ScoreboardSaveDataMixin {
 	)
 	private void onLoadTeam(
 		ListTag tagList,
+		HolderLookup.Provider registry,
 		CallbackInfo ci,
 		@Local PlayerTeam team,
 		@Local CompoundTag tag

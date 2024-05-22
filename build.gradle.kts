@@ -23,7 +23,7 @@ val fantasyVersion: String by project
 val polymerVersion: String by project
 val permissionsVersion: String by project
 val customNametagsVersion: String by project
-val serverReplayVersion: String by project
+// val serverReplayVersion: String by project
 val sguiVersion: String by project
 
 allprojects {
@@ -74,10 +74,6 @@ allprojects {
         jar {
             from("LICENSE")
         }
-
-        compileKotlin {
-            kotlinOptions.jvmTarget = "17"
-        }
     }
 }
 
@@ -101,7 +97,7 @@ dependencies {
 
     include(modApi("me.lucko:fabric-permissions-api:$permissionsVersion")!!)
 
-    modImplementation("com.github.senseiwells:ServerReplay:$serverReplayVersion")
+    // modImplementation("com.github.senseiwells:ServerReplay:$serverReplayVersion")
 }
 
 loom {
@@ -118,10 +114,6 @@ tasks {
 
     jar {
         from("LICENSE")
-    }
-
-    compileKotlin {
-        kotlinOptions.jvmTarget = "17"
     }
 }
 

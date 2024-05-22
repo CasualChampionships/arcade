@@ -1,27 +1,34 @@
 package net.casual.arcade.mixin.recipes;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Mixin(ClientboundUpdateRecipesPacket.class)
 public class ClientboundUpdateRecipesPacketMixin {
-	@ModifyExpressionValue(
+	@Redirect(
 		method = "<init>(Ljava/util/Collection;)V",
 		at = @At(
 			value = "INVOKE",
-			target = "Lcom/google/common/collect/Lists;newArrayList(Ljava/lang/Iterable;)Ljava/util/ArrayList;",
+			target = "Ljava/util/List;copyOf(Ljava/util/Collection;)Ljava/util/List;",
 			remap = false
 		)
 	)
 	@SuppressWarnings("ConstantValue")
-	private ArrayList<RecipeHolder<?>> onSetRecipes(ArrayList<RecipeHolder<?>> recipes) {
+	private List<RecipeHolder<?>> onSetRecipes(Collection<RecipeHolder<?>> recipes) {
 		// Our recipes have no serializer!
-		recipes.removeIf(recipe -> recipe.value().getSerializer() == null);
-		return recipes;
+		ArrayList<RecipeHolder<?>> copy = new ArrayList<>(recipes);
+		for (RecipeHolder<?> recipe : recipes) {
+			if (recipe.value().getSerializer() != null) {
+				copy.add(recipe);
+			}
+		}
+		return copy;
 	}
 }

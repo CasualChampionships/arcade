@@ -1,6 +1,7 @@
 package net.casual.arcade.utils.serialization
 
 import com.mojang.serialization.Codec
+import com.mojang.serialization.MapCodec
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceLocation
 

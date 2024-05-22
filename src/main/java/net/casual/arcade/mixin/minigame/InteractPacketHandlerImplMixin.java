@@ -1,6 +1,6 @@
 package net.casual.arcade.mixin.minigame;
 
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.utils.MinigameUtils;
 import net.minecraft.server.level.ServerPlayer;
