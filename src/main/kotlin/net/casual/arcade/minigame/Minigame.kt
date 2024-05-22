@@ -68,7 +68,7 @@ import java.util.*
  * ```kotlin
  * enum class MyMinigamePhase(
  *     override val id: String
- * ): MinigamePhase<MyMinigame> {
+ * ): Phase<MyMinigame> {
  *     Grace("grace"),
  *     Active("active"),
  *     DeathMatch("death_match")
@@ -79,23 +79,15 @@ import java.util.*
  * ): Minigame<MyMinigame>(server) {
  *     override val id = ResourceLocation("modid", "my_minigame")
  *
- *     init {
- *         this.initialise()
- *     }
- *
- *     override fun initialise() {
- *         super.initialise()
- *         this.addLevel(LevelUtils.overworld())
+ *     override fun initialize() {
+ *         super.initialize()
+ *         this.levels.add(LevelUtils.overworld())
  *         this.events.register<MinigameAddPlayerEvent> { (_, player) ->
  *             player.sendSystemMessage(Component.literal("Welcome to My Minigame!"))
  *         }
  *     }
  *
- *     override fun start() {
- *         this.setPhase(MyMinigamePhase.Grace)
- *     }
- *
- *     override fun getPhases(): List<MinigamePhase<MyMinigame>> {
+ *     override fun getPhases(): List<Phase<MyMinigame>> {
  *         return MyMinigamePhase.values().toList()
  *     }
  * }

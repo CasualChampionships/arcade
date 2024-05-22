@@ -1,5 +1,7 @@
 package net.casual.arcade.minigame.phase
 
+import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.serialization.SavableMinigame
 import org.jetbrains.annotations.ApiStatus.NonExtendable
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
@@ -13,24 +15,24 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  *
  * Here's an example of an implementation of some [Phase]s:
  * ```kotlin
- * enum class MyMinigamePhases(override val id: String): MinigamePhase<MyMinigame> {
+ * enum class MyMinigamePhases(override val id: String): Phase<MyMinigame> {
  *     Grace("grace") {
- *         override fun initialise(minigame: MyMinigame) {
- *             minigame.pvp = false
+ *         override fun initialize(minigame: MyMinigame) {
+ *             minigame.settings.canPvp.set(false)
  *         }
  *
- *         override fun end(minigame: MyMinigame) {
- *             minigame.getPlayers().broadcast(/* ... */)
+ *         override fun end(minigame: MyMinigame, next: Phase<MyMinigame>) {
+ *             minigame.chat.broadcast(Component.literal("Grace period is over"))
  *         }
  *     },
  *     Active("active") {
- *         override fun initialise(minigame: MyMinigame) {
- *             minigame.pvp = true
+ *         override fun initialize(minigame: MyMinigame) {
+ *             minigame.settings.canPvp.set(true)
  *         }
  *     },
  *     DeathMatch("death_match") {
- *         override fun start(minigame: MyMinigame) {
- *             for (player in minigame.getPlayers()) {
+ *         override fun start(minigame: MyMinigame, previous: Phase<MyMinigame>) {
+ *             for (player in minigame.players.playing) {
  *                 player.teleportTo(/* ... */)
  *             }
  *         }
@@ -38,7 +40,7 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  * }
  *
  * class MyMinigame: Minigame<MyMinigame>(/* ... */) {
- *     override fun getPhases(): Collection<MinigamePhase<MyMinigame>> {
+ *     override fun getPhases(): Collection<Phase<MyMinigame>> {
  *         return MyMinigamePhases.values().toList()
  *     }
  *
@@ -141,7 +143,7 @@ public interface Phase<M> {
 
     }
 
-    // We don't implement Comparable<MinigamePhase<M>>
+    // We don't implement Comparable<Phase<M>>
     // because it causes conflicts when inheriting with Enum.
     @NonExtendable
     public operator fun compareTo(other: Phase<*>): Int {

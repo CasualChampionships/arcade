@@ -64,6 +64,21 @@ public interface MinigameResources {
         public val NONE: MinigameResources = object: MinigameResources { }
 
         /**
+         * Creates an instance of [MinigameResources] from a list of [PackInfo].
+         *
+         * @param packs The list of packs.
+         */
+        @JvmStatic
+        public fun of(vararg packs: PackInfo): MinigameResources {
+            val collection = packs.toList()
+            return object: MinigameResources {
+                override fun getPacks(): Collection<PackInfo> {
+                    return collection
+                }
+            }
+        }
+
+        /**
          * Tries to send the [MinigameResources] to the player.
          *
          * @param player The player to send the resources to.
