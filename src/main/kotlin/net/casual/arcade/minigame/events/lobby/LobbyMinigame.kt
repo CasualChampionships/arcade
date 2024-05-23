@@ -12,6 +12,7 @@ import net.casual.arcade.commands.arguments.minigame.MinigameFactoryArgument
 import net.casual.arcade.events.minigame.LobbyMoveToNextMinigameEvent
 import net.casual.arcade.events.minigame.MinigameAddNewPlayerEvent
 import net.casual.arcade.events.server.ServerTickEvent
+import net.casual.arcade.gui.bossbar.TimerBossBar
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
@@ -58,7 +59,7 @@ public open class LobbyMinigame(
     private var next: Minigame<*>? = null
     private var transferring: Boolean = false
 
-    private val bossbar = this.lobby.createBossbar().apply { then(::completeBossBar) }
+    public val bossbar: TimerBossBar = this.lobby.createBossbar().apply { then(::completeBossBar) }
 
     override val id: ResourceLocation = ID
 
