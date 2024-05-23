@@ -26,7 +26,9 @@ public class ClientboundUpdateRecipesPacketMixin {
 		ArrayList<RecipeHolder<?>> copy = new ArrayList<>();
 		for (RecipeHolder<?> recipe : recipes) {
 			if (recipe.value() instanceof WrappedRecipe<?> wrapped) {
-				copy.add(new RecipeHolder<>(recipe.id(), wrapped));
+				copy.add(new RecipeHolder<>(recipe.id(), wrapped.getWrapped()));
+			} else {
+				copy.add(recipe);
 			}
 		}
 		return copy;
