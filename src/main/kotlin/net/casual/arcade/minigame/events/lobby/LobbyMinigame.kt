@@ -126,10 +126,14 @@ public open class LobbyMinigame(
         this.next = minigame
     }
 
+    protected open fun startNextMinigame() {
+        this.setPhase(LobbyPhase.Countdown)
+    }
+
     private fun onReady() {
         this.awaiting = null
         val component = "All players are ready, click to start!".literal().green().singleUseFunction {
-            this.setPhase(LobbyPhase.Countdown)
+            this.startNextMinigame()
         }
         val admins = HashSet(this.players.admins)
         admins.addAll(this.players.ops())
