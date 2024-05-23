@@ -78,6 +78,7 @@ public class SequentialMinigames(
         var lobby = this.lobby
         if (lobby == null) {
             lobby = this.event.createLobby(this.server)
+            this.lobby = lobby
 
             lobby.events.register<LobbyMoveToNextMinigameEvent> {
                 this.incrementIndex(it.next)
