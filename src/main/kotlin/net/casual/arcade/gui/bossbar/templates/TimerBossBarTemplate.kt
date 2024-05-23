@@ -1,6 +1,7 @@
 package net.casual.arcade.gui.bossbar.templates
 
 import com.mojang.serialization.Codec
+import com.mojang.serialization.MapCodec
 import net.casual.arcade.gui.bossbar.TimerBossBar
 import net.casual.arcade.utils.registries.ArcadeRegistries
 import net.casual.arcade.utils.serialization.CodecProvider.Companion.register
@@ -10,7 +11,7 @@ import java.util.function.Function
 public interface TimerBossBarTemplate {
     public fun create(): TimerBossBar
 
-    public fun codec(): Codec<out TimerBossBarTemplate>
+    public fun codec(): MapCodec<out TimerBossBarTemplate>
 
     public companion object {
         public val DEFAULT: SimpleTimerBossbarTemplate = SimpleTimerBossbarTemplate()
@@ -20,7 +21,7 @@ public interface TimerBossBarTemplate {
                 .dispatch(TimerBossBarTemplate::codec, Function.identity())
         }
 
-        internal fun bootstrap(registry: Registry<Codec<out TimerBossBarTemplate>>) {
+        internal fun bootstrap(registry: Registry<MapCodec<out TimerBossBarTemplate>>) {
             SimpleTimerBossbarTemplate.register(registry)
         }
     }

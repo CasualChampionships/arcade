@@ -20,7 +20,7 @@ import net.minecraft.world.scores.PlayerTeam
 public object ScreenUtils {
     public fun SelectionGuiBuilder.addSpectatablePlayers(
         players: Iterable<ServerPlayer> = PlayerUtils.players(),
-        mapper: (ServerPlayer) -> ItemStack = { ItemUtils.generatePlayerHead(it.scoreboardName) }
+        mapper: (ServerPlayer) -> ItemStack = { ItemUtils.createPlayerHead(it.scoreboardName) }
     ): SelectionGuiBuilder {
         this.elements(players, mapper) { _, _, _, gui, player ->
             if (!player.isRemoved) {

@@ -59,8 +59,7 @@ public open class GameSetting<T: Any>(
     }
 
     public fun serializeValue(): JsonElement {
-        return this.serializer.encodeStart(JsonOps.INSTANCE, this.get())
-            .getOrThrow(false, Arcade.logger::error)
+        return this.serializer.encodeStart(JsonOps.INSTANCE, this.get()).orThrow
     }
 
     public fun deserializeAndSet(json: JsonElement): Boolean {

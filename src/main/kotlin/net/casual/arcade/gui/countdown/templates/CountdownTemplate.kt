@@ -1,6 +1,7 @@
 package net.casual.arcade.gui.countdown.templates
 
 import com.mojang.serialization.Codec
+import com.mojang.serialization.MapCodec
 import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.utils.registries.ArcadeRegistries
 import net.casual.arcade.utils.serialization.CodecProvider.Companion.register
@@ -10,7 +11,7 @@ import java.util.function.Function
 public interface CountdownTemplate {
     public fun create(): Countdown
 
-    public fun codec(): Codec<out CountdownTemplate>
+    public fun codec(): MapCodec<out CountdownTemplate>
 
     public companion object {
         public val DEFAULT: TitledCountdownTemplate = TitledCountdownTemplate()
@@ -20,7 +21,7 @@ public interface CountdownTemplate {
                 .dispatch(CountdownTemplate::codec, Function.identity())
         }
 
-        internal fun bootstrap(registry: Registry<Codec<out CountdownTemplate>>) {
+        internal fun bootstrap(registry: Registry<MapCodec<out CountdownTemplate>>) {
             TitledCountdownTemplate.register(registry)
         }
     }

@@ -103,12 +103,6 @@ public object ComponentUtils {
 
     @Experimental
     @JvmStatic
-    public fun MutableComponent.function(consumer: Consumer<ServerPlayer>): MutableComponent {
-        return this.function { consumer.accept(it.player) }
-    }
-
-    @Experimental
-    @JvmStatic
     public fun MutableComponent.function(timeout: MinecraftTimeDuration = 10.Minutes, command: HiddenCommand): MutableComponent {
         return this.command(CommandUtils.registerHiddenCommand(timeout, command))
     }

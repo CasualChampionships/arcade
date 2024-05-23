@@ -179,7 +179,7 @@ public object PlayerUtils {
                 HEALTH_BOOST,
                 "Health Boost",
                 multiply,
-                AttributeModifier.Operation.MULTIPLY_BASE
+                AttributeModifier.Operation.ADD_MULTIPLIED_BASE
             ))
         }
     }

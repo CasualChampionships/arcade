@@ -1,5 +1,6 @@
 package net.casual.arcade.recipes
 
+import net.minecraft.core.HolderLookup
 import net.minecraft.core.RegistryAccess
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
@@ -50,7 +51,7 @@ public abstract class ArcadeCustomRecipe(
      * @param access Access to all the registries.
      * @return The item being crafted.
      */
-    abstract override fun assemble(container: CraftingContainer, access: RegistryAccess): ItemStack
+    abstract override fun assemble(container: CraftingContainer, access: HolderLookup.Provider): ItemStack
 
     /**
      * This method is called to see if this recipe is able to fit

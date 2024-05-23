@@ -11,6 +11,7 @@ import net.casual.arcade.utils.ComponentUtils.unitalicise
 import net.casual.arcade.utils.ExtensionUtils.addExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtensions
+import net.casual.arcade.utils.ItemUtils.named
 import net.minecraft.ChatFormatting
 import net.minecraft.ChatFormatting.*
 import net.minecraft.network.chat.Component
@@ -93,7 +94,7 @@ public object TeamUtils {
     @JvmStatic
     public fun colouredHeadForTeam(team: Team): ItemStack {
         val head = ItemUtils.colouredHeadForFormatting(team.color)
-        head.setHoverName(team.name.literal().unitalicise())
+        head.named(team.name)
         return head
     }
 

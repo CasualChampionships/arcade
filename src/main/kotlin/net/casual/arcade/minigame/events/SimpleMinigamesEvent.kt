@@ -2,6 +2,7 @@ package net.casual.arcade.minigame.events
 
 import com.mojang.datafixers.util.Either
 import com.mojang.serialization.Codec
+import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.Arcade
 import net.casual.arcade.minigame.events.lobby.Lobby
@@ -53,7 +54,7 @@ public open class SimpleMinigamesEvent(
         return listOf()
     }
 
-    override fun codec(): Codec<out MinigamesEvent> {
+    override fun codec(): MapCodec<out MinigamesEvent> {
         return CODEC
     }
 
@@ -71,7 +72,7 @@ public open class SimpleMinigamesEvent(
     public companion object: CodecProvider<SimpleMinigamesEvent> {
         override val ID: ResourceLocation = Arcade.id("simple")
 
-        override val CODEC: Codec<out SimpleMinigamesEvent> = RecordCodecBuilder.create { instance ->
+        override val CODEC: MapCodec<out SimpleMinigamesEvent> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 LobbyTemplate.CODEC.encodedOptionalFieldOf("lobby", LobbyTemplate.DEFAULT).forGetter(SimpleMinigamesEvent::lobby),
                 Level.RESOURCE_KEY_CODEC.encodedOptionalFieldOf("lobby_dimension").forGetter(SimpleMinigamesEvent::dimension),

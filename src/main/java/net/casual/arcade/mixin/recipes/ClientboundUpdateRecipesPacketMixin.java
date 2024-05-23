@@ -23,7 +23,7 @@ public class ClientboundUpdateRecipesPacketMixin {
 	@SuppressWarnings("ConstantValue")
 	private List<RecipeHolder<?>> onSetRecipes(Collection<RecipeHolder<?>> recipes) {
 		// Our recipes have no serializer!
-		ArrayList<RecipeHolder<?>> copy = new ArrayList<>(recipes);
+		ArrayList<RecipeHolder<?>> copy = new ArrayList<>();
 		for (RecipeHolder<?> recipe : recipes) {
 			if (recipe.value().getSerializer() != null) {
 				copy.add(recipe);

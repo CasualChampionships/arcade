@@ -29,6 +29,7 @@ import net.casual.arcade.utils.MinigameUtils.countdown
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.PlayerUtils.toComponent
 import net.casual.arcade.utils.TeamUtils.toComponent
+import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
@@ -37,7 +38,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 
 internal object MinigameCommand: Command {
-    override fun register(dispatcher: CommandDispatcher<CommandSourceStack>) {
+    override fun register(dispatcher: CommandDispatcher<CommandSourceStack>, buildContext: CommandBuildContext) {
         dispatcher.buildLiteral("minigame") {
             requiresPermission(4)
 
@@ -167,7 +168,7 @@ internal object MinigameCommand: Command {
                                 }
                             }
                             literal("value") {
-                                argument("value", MinigameSettingValueArgument.value()) {
+                                argument("value", MinigameSettingValueArgument.value(buildContext)) {
                                     executes(::setMinigameSettingFromValue)
                                 }
                             }

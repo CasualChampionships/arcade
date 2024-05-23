@@ -1,6 +1,6 @@
 package net.casual.arcade.area.templates
 
-import com.mojang.serialization.Codec
+import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.Arcade
 import net.casual.arcade.area.PlaceableArea
@@ -33,14 +33,14 @@ public class StructuredAreaTemplate(
         return StructureArea(structure, this.position, level)
     }
 
-    override fun codec(): Codec<out PlaceableAreaTemplate> {
+    override fun codec(): MapCodec<out PlaceableAreaTemplate> {
         return CODEC
     }
 
     public companion object: CodecProvider<StructuredAreaTemplate> {
         override val ID: ResourceLocation = Arcade.id("structured")
 
-        override val CODEC: Codec<StructuredAreaTemplate> = RecordCodecBuilder.create { instance ->
+        override val CODEC: MapCodec<StructuredAreaTemplate> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 ArcadeExtraCodecs.PATH.fieldOf("path").forGetter(StructuredAreaTemplate::path),
                 Vec3i.CODEC.optionalFieldOf("position", Vec3i.ZERO).forGetter(StructuredAreaTemplate::position)

@@ -32,7 +32,7 @@ internal class DragonDataExtension(
         }
 
         val result = EndDragonFight.Data.CODEC.encodeStart(NbtOps.INSTANCE, fight.saveData())
-        return Util.getOrThrow(result, ::IllegalStateException)
+        return result.getOrThrow(::IllegalStateException)
     }
 
     override fun deserialize(element: Tag) {

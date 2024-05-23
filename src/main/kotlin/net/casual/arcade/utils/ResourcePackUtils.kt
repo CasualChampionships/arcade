@@ -39,7 +39,7 @@ public object ResourcePackUtils {
 
     @JvmStatic
     public fun PackInfo.toPushPacket(): ClientboundResourcePackPushPacket {
-        return ClientboundResourcePackPushPacket(this.uuid, this.url, this.hash, this.required, this.prompt)
+        return ClientboundResourcePackPushPacket(this.uuid, this.url, this.hash, this.required, Optional.ofNullable(this.prompt))
     }
 
     @JvmStatic

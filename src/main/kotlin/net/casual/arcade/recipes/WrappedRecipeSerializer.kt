@@ -1,24 +1,20 @@
 package net.casual.arcade.recipes
 
-import com.mojang.serialization.Codec
-import net.minecraft.network.FriendlyByteBuf
+import com.mojang.serialization.MapCodec
+import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.network.codec.StreamCodec
 import net.minecraft.world.Container
 import net.minecraft.world.item.crafting.Recipe
 import net.minecraft.world.item.crafting.RecipeSerializer
 
 public class WrappedRecipeSerializer<C: Container>(
     public val wrapped: RecipeSerializer<*>
-): RecipeSerializer<WrappedRecipe<C>> {
-    override fun codec(): Codec<WrappedRecipe<C>>? {
-        return null
+): RecipeSerializer<Recipe<C>> {
+    override fun codec(): MapCodec<Recipe<C>> {
+        return wrapped.codec() as MapCodec<Recipe<C>>
     }
 
-    override fun fromNetwork(buffer: FriendlyByteBuf): WrappedRecipe<C>? {
-        return null
-    }
-
-    override fun toNetwork(buffer: FriendlyByteBuf, recipe: WrappedRecipe<C>) {
-        @Suppress("UNCHECKED_CAST")
-        return (recipe.wrapped.serializer as RecipeSerializer<Recipe<C>>).toNetwork(buffer, recipe.wrapped)
+    override fun streamCodec(): StreamCodec<RegistryFriendlyByteBuf, Recipe<C>> {
+        return wrapped.streamCodec() as StreamCodec<RegistryFriendlyByteBuf, Recipe<C>>
     }
 }

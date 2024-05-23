@@ -2,6 +2,7 @@ package net.casual.arcade.utils.registries
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.Lifecycle
+import com.mojang.serialization.MapCodec
 import net.casual.arcade.area.templates.PlaceableAreaTemplate
 import net.casual.arcade.gui.countdown.templates.CountdownTemplate
 import net.casual.arcade.minigame.events.MinigamesEvent
@@ -14,11 +15,11 @@ import net.minecraft.resources.ResourceKey
 public object ArcadeRegistries {
     private val LOADERS = ArrayList<() -> Unit>()
 
-    public val PLACEABLE_AREA_TEMPLATE: Registry<Codec<out PlaceableAreaTemplate>> = create(ArcadeRegistryKeys.PLACEABLE_AREA_TEMPLATE, PlaceableAreaTemplate::bootstrap)
-    public val COUNTDOWN_TEMPLATE: Registry<Codec<out CountdownTemplate>> = create(ArcadeRegistryKeys.COUNTDOWN_TEMPLATE, CountdownTemplate::bootstrap)
-    public val TIMER_BOSSBAR_TEMPLATE: Registry<Codec<out TimerBossBarTemplate>> = create(ArcadeRegistryKeys.TIMER_BOSSBAR_TEMPLATE, TimerBossBarTemplate::bootstrap)
-    public val LOBBY_TEMPLATE: Registry<Codec<out LobbyTemplate>> = create(ArcadeRegistryKeys.LOBBY_TEMPLATE, LobbyTemplate::bootstrap)
-    public val MINIGAMES_EVENT: Registry<Codec<out MinigamesEvent>> = create(ArcadeRegistryKeys.MINIGAMES_EVENT, MinigamesEvent::bootstrap)
+    public val PLACEABLE_AREA_TEMPLATE: Registry<MapCodec<out PlaceableAreaTemplate>> = create(ArcadeRegistryKeys.PLACEABLE_AREA_TEMPLATE, PlaceableAreaTemplate::bootstrap)
+    public val COUNTDOWN_TEMPLATE: Registry<MapCodec<out CountdownTemplate>> = create(ArcadeRegistryKeys.COUNTDOWN_TEMPLATE, CountdownTemplate::bootstrap)
+    public val TIMER_BOSSBAR_TEMPLATE: Registry<MapCodec<out TimerBossBarTemplate>> = create(ArcadeRegistryKeys.TIMER_BOSSBAR_TEMPLATE, TimerBossBarTemplate::bootstrap)
+    public val LOBBY_TEMPLATE: Registry<MapCodec<out LobbyTemplate>> = create(ArcadeRegistryKeys.LOBBY_TEMPLATE, LobbyTemplate::bootstrap)
+    public val MINIGAMES_EVENT: Registry<MapCodec<out MinigamesEvent>> = create(ArcadeRegistryKeys.MINIGAMES_EVENT, MinigamesEvent::bootstrap)
 
     init {
         for (load in LOADERS) {

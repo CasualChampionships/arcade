@@ -1,6 +1,7 @@
 package net.casual.arcade.minigame.events
 
 import com.mojang.serialization.Codec
+import com.mojang.serialization.MapCodec
 import net.casual.arcade.minigame.events.lobby.LobbyMinigame
 import net.casual.arcade.resources.PackInfo
 import net.casual.arcade.utils.registries.ArcadeRegistries
@@ -23,7 +24,7 @@ public interface MinigamesEvent {
 
     public fun getAdditionalPacks(): Iterable<PackInfo>
 
-    public fun codec(): Codec<out MinigamesEvent>
+    public fun codec(): MapCodec<out MinigamesEvent>
 
     public companion object {
         public val DEFAULT: MinigamesEvent = SimpleMinigamesEvent()
@@ -33,7 +34,7 @@ public interface MinigamesEvent {
                 .dispatch(MinigamesEvent::codec, Function.identity())
         }
 
-        internal fun bootstrap(registry: Registry<Codec<out MinigamesEvent>>) {
+        internal fun bootstrap(registry: Registry<MapCodec<out MinigamesEvent>>) {
             SimpleMinigamesEvent.register(registry)
         }
     }

@@ -1,16 +1,16 @@
 package net.casual.arcade.minigame.events.lobby.templates
 
-import com.mojang.serialization.Codec
+import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.Arcade
 import net.casual.arcade.area.PlaceableArea
 import net.casual.arcade.area.templates.PlaceableAreaTemplate
 import net.casual.arcade.gui.bossbar.TimerBossBar
+import net.casual.arcade.gui.bossbar.templates.TimerBossBarTemplate
 import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.gui.countdown.templates.CountdownTemplate
 import net.casual.arcade.minigame.events.lobby.Lobby
 import net.casual.arcade.minigame.events.lobby.LocationTemplate
-import net.casual.arcade.gui.bossbar.templates.TimerBossBarTemplate
 import net.casual.arcade.utils.CodecUtils.encodedOptionalFieldOf
 import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.serialization.CodecProvider
@@ -41,14 +41,14 @@ public open class SimpleLobbyTemplate(
         }
     }
 
-    override fun codec(): Codec<out LobbyTemplate> {
+    override fun codec(): MapCodec<out LobbyTemplate> {
         return CODEC
     }
 
     public companion object: CodecProvider<SimpleLobbyTemplate> {
         override val ID: ResourceLocation = Arcade.id("simple")
 
-        override val CODEC: Codec<SimpleLobbyTemplate> = RecordCodecBuilder.create { instance ->
+        override val CODEC: MapCodec<SimpleLobbyTemplate> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 PlaceableAreaTemplate.CODEC.encodedOptionalFieldOf("area", PlaceableAreaTemplate.DEFAULT).forGetter(SimpleLobbyTemplate::area),
                 LocationTemplate.CODEC.encodedOptionalFieldOf("spawn", LocationTemplate.DEFAULT).forGetter(SimpleLobbyTemplate::spawn),

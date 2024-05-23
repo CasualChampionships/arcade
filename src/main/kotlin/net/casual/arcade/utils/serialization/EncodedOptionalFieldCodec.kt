@@ -9,7 +9,7 @@ import java.util.*
 public class EncodedOptionalFieldCodec<A>(
     private val name: String,
     private val elementCodec: Codec<A>
-): OptionalFieldCodec<A>(name, elementCodec) {
+): OptionalFieldCodec<A>(name, elementCodec, true) {
     override fun <T> encode(
         input: Optional<A>,
         ops: DynamicOps<T>,

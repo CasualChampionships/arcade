@@ -1,6 +1,7 @@
 package net.casual.arcade.minigame.events.lobby.templates
 
 import com.mojang.serialization.Codec
+import com.mojang.serialization.MapCodec
 import net.casual.arcade.minigame.events.lobby.Lobby
 import net.casual.arcade.utils.registries.ArcadeRegistries
 import net.casual.arcade.utils.serialization.CodecProvider.Companion.register
@@ -11,7 +12,7 @@ import java.util.function.Function
 public interface LobbyTemplate {
     public fun create(level: ServerLevel): Lobby
 
-    public fun codec(): Codec<out LobbyTemplate>
+    public fun codec(): MapCodec<out LobbyTemplate>
 
     public companion object {
         public val DEFAULT: LobbyTemplate = SimpleLobbyTemplate()
@@ -21,7 +22,7 @@ public interface LobbyTemplate {
                 .dispatch(LobbyTemplate::codec, Function.identity())
         }
 
-        internal fun bootstrap(registry: Registry<Codec<out LobbyTemplate>>) {
+        internal fun bootstrap(registry: Registry<MapCodec<out LobbyTemplate>>) {
             SimpleLobbyTemplate.register(registry)
         }
     }

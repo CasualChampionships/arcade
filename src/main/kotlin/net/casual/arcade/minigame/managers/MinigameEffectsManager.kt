@@ -46,7 +46,7 @@ public class MinigameEffectsManager(
      */
     public fun addFullbright(player: ServerPlayer) {
         if (this.owner.tags.add(player, FULL_BRIGHT)) {
-            player.connection.send(ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION))
+            player.connection.send(ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION, false))
         }
     }
 
@@ -70,7 +70,7 @@ public class MinigameEffectsManager(
             player.connection.send(ClientboundRemoveMobEffectPacket(player.id, NIGHT_VISION))
             val instance = player.getEffect(NIGHT_VISION)
             if (instance != null) {
-                player.connection.send(ClientboundUpdateMobEffectPacket(player.id, instance))
+                player.connection.send(ClientboundUpdateMobEffectPacket(player.id, instance, false))
             }
         }
     }
@@ -125,7 +125,7 @@ public class MinigameEffectsManager(
 
     private fun updatePlayerFullbright(player: ServerPlayer) {
         if (this.hasFullbright(player)) {
-            player.connection.send(ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION))
+            player.connection.send(ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION, false))
         }
     }
 
@@ -140,7 +140,7 @@ public class MinigameEffectsManager(
 
     private fun updatePacket(player: ServerPlayer, packet: Packet<*>): Packet<ClientGamePacketListener> {
         if (packet is ClientboundBundlePacket) {
-            val updated = ArrayList<Packet<ClientGamePacketListener>>()
+            val updated = ArrayList<Packet<in ClientGamePacketListener>>()
             for (sub in packet.subPackets()) {
                 val new = this.updatePacket(player, sub)
                 if (new is ClientboundBundlePacket) {
@@ -154,7 +154,7 @@ public class MinigameEffectsManager(
 
         if (packet is ClientboundUpdateMobEffectPacket) {
             if (packet.entityId == player.id && packet.effect == NIGHT_VISION && this.hasFullbright(player)) {
-                return ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION)
+                return ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION, false)
             }
             return packet
         }

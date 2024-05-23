@@ -9,6 +9,7 @@ import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import kotlin.jvm.optionals.getOrNull
 
 internal class PlayerPackExtension: Extension {
     internal val futures = HashMap<UUID, MutableList<CompletableFuture<PackStatus>>>()
@@ -49,7 +50,7 @@ internal class PlayerPackExtension: Extension {
     }
 
     internal fun onPushPack(packet: ClientboundResourcePackPushPacket) {
-        val info = PackInfo(packet.url, packet.hash, packet.required, packet.prompt, packet.id)
+        val info = PackInfo(packet.url, packet.hash, packet.required, packet.prompt.getOrNull(), packet.id)
         val state = PackState(info, PackStatus.WAITING)
         this.packs[info.uuid] = state
     }
