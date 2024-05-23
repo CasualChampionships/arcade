@@ -1,5 +1,6 @@
 package net.casual.arcade.minigame.managers
 
+import net.casual.arcade.Arcade
 import net.casual.arcade.chat.ChatFormatter
 import net.casual.arcade.chat.PlayerChatFormatter
 import net.casual.arcade.chat.PlayerFormattedChat
@@ -12,6 +13,7 @@ import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.PlayerUtils.getChatPrefix
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
 
@@ -200,6 +202,36 @@ public class MinigameChatManager(
     }
 
     /**
+     * Mutes a player from talking in chat.
+     *
+     * @param player The player to mute.
+     * @return Whether the mute was successful.
+     */
+    public fun mute(player: ServerPlayer): Boolean {
+        return this.minigame.tags.add(player, MUTED)
+    }
+
+    /**
+     * Checks whether a player is muted.
+     *
+     * @param player The player to check.
+     * @return Whether they are muted.
+     */
+    public fun isMuted(player: ServerPlayer): Boolean {
+        return this.minigame.tags.has(player, MUTED)
+    }
+
+    /**
+     * Unmutes a player from talking in chat.
+     *
+     * @param player The player to unmute.
+     * @return Whether unmuting was successful.
+     */
+    public fun unmute(player: ServerPlayer): Boolean {
+        return this.minigame.tags.remove(player, MUTED)
+    }
+
+    /**
      * Gets all players in the minigame.
      *
      * @return The list of players.
@@ -273,5 +305,9 @@ public class MinigameChatManager(
             return this.globalChatFormatter.format(this.spectatorChatFormatter.format(player, message))
         }
         return this.globalChatFormatter.format(player, message)
+    }
+
+    public companion object {
+        public val MUTED: ResourceLocation = Arcade.id("muted")
     }
 }

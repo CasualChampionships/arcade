@@ -1,5 +1,6 @@
 package net.casual.arcade.minigame
 
+import net.casual.arcade.minigame.managers.MinigameChatManager
 import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.settings.display.DisplayableSettings
 import net.casual.arcade.settings.display.DisplayableSettingsDefaults
@@ -260,7 +261,7 @@ public open class MinigameSettings(
             "If enabled, players will not be able to talk in chat".literal()
         )
         value = false
-        override = isAdminOverride(false)
+        override = ::muteOverride
         defaults.options(this)
     })
 
@@ -314,5 +315,15 @@ public open class MinigameSettings(
 
     protected fun <T: Any> isAdminOverride(value: T): (ServerPlayer) -> T? {
         return { if (this.minigame.players.isAdmin(it)) value else null }
+    }
+
+    protected fun muteOverride(player: ServerPlayer): Boolean? {
+        if (this.minigame.players.isAdmin(player)) {
+            return false
+        }
+        if (this.minigame.tags.has(player, MinigameChatManager.MUTED)) {
+            return true
+        }
+        return null
     }
 }

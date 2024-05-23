@@ -110,17 +110,29 @@ internal object MinigameCommand: Command {
                 }
             }
             literal("chat") {
-                argument("minigame", MinigameArgument.minigame(), "spies") {
-                    literal("add") {
-                        executes(::selfAddSpy)
-                        argument("players", EntityArgument.players()) {
-                            executes(::addChatSpies)
+                argument("minigame", MinigameArgument.minigame()) {
+                    literal("spies") {
+                        literal("add") {
+                            executes(::selfAddSpy)
+                            argument("players", EntityArgument.players()) {
+                                executes(::addChatSpies)
+                            }
+                        }
+                        literal("remove") {
+                            executes(::selfRemoveSpy)
+                            argument("players", EntityArgument.players()) {
+                                executes(::removeChatSpies)
+                            }
                         }
                     }
-                    literal("remove") {
-                        executes(::selfRemoveSpy)
+                    literal("mute") {
                         argument("players", EntityArgument.players()) {
-                            executes(::removeChatSpies)
+                            executes(::mute)
+                        }
+                    }
+                    literal("unmute") {
+                        argument("players", EntityArgument.players()) {
+                            executes(::unmute)
                         }
                     }
                 }
@@ -283,6 +295,30 @@ internal object MinigameCommand: Command {
 
     private fun selfAddSpy(context: CommandContext<CommandSourceStack>): Int {
         return this.addChatSpies(context, listOf(context.source.playerOrException))
+    }
+
+    private fun mute(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val players = EntityArgument.getPlayers(context, "players")
+        var i = 0
+        for (player in players) {
+            if (minigame.chat.mute(player)) {
+                i++
+            }
+        }
+        return context.source.success("Successfully muted ${i}/${players.size} players")
+    }
+
+    private fun unmute(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val players = EntityArgument.getPlayers(context, "players")
+        var i = 0
+        for (player in players) {
+            if (minigame.chat.unmute(player)) {
+                i++
+            }
+        }
+        return context.source.success("Successfully unmuted ${i}/${players.size} players")
     }
 
     private fun addChatSpies(
