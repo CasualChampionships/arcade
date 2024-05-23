@@ -1,5 +1,6 @@
 package net.casual.arcade.recipes
 
+import eu.pb4.polymer.core.api.item.PolymerRecipe
 import net.minecraft.core.HolderLookup
 import net.minecraft.core.RegistryAccess
 import net.minecraft.server.level.ServerLevel
@@ -29,7 +30,7 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  */
 public abstract class ArcadeCustomRecipe(
     category: CraftingBookCategory
-): CustomRecipe(category), PlayerPredicatedRecipe {
+): CustomRecipe(category), PolymerRecipe, PlayerPredicatedRecipe {
     /**
      * This method is used to check whether a player can
      * craft this recipe.

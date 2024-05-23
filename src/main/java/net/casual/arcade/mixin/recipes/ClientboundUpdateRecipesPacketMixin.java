@@ -1,5 +1,6 @@
 package net.casual.arcade.mixin.recipes;
 
+import net.casual.arcade.recipes.WrappedRecipe;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,13 +21,12 @@ public class ClientboundUpdateRecipesPacketMixin {
 			remap = false
 		)
 	)
-	@SuppressWarnings("ConstantValue")
 	private List<RecipeHolder<?>> onSetRecipes(Collection<RecipeHolder<?>> recipes) {
 		// Our recipes have no serializer!
 		ArrayList<RecipeHolder<?>> copy = new ArrayList<>();
 		for (RecipeHolder<?> recipe : recipes) {
-			if (recipe.value().getSerializer() != null) {
-				copy.add(recipe);
+			if (recipe.value() instanceof WrappedRecipe<?> wrapped) {
+				copy.add(new RecipeHolder<>(recipe.id(), wrapped));
 			}
 		}
 		return copy;
