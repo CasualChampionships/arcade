@@ -38,7 +38,7 @@ public open class MinigameSettings(
     @JvmField
     public val canPvp: GameSetting<Boolean> = this.register(bool {
         name = "pvp"
-        display = Items.IRON_SWORD.named("PvP").hideTooltips().styledLore(
+        display = Items.IRON_SWORD.named("PvP").styledLore(
             "If enabled this will allow players to pvp with one another.".literal()
         )
         value = true
@@ -77,7 +77,7 @@ public open class MinigameSettings(
     @JvmField
     public val canBreakBlocks: GameSetting<Boolean> = this.register(bool {
         name = "can_break_blocks"
-        display = Items.DIAMOND_PICKAXE.named("Break Blocks").hideTooltips().styledLore(
+        display = Items.DIAMOND_PICKAXE.named("Break Blocks").styledLore(
             "If enabled players will be able to break blocks.".literal()
         )
         value = true
@@ -133,7 +133,7 @@ public open class MinigameSettings(
     @JvmField
     public val canAttackEntities: GameSetting<Boolean> = this.register(bool {
         name = "can_attack_entities"
-        display = Items.DIAMOND_AXE.named("Attack Entities").hideTooltips().styledLore(
+        display = Items.DIAMOND_AXE.named("Attack Entities").styledLore(
             "If enabled players will be able to attack all other entities.".literal()
         )
         value = true
@@ -181,7 +181,7 @@ public open class MinigameSettings(
     @JvmField
     public val canInteractItems: GameSetting<Boolean> = this.register(bool {
         name = "can_interact_items"
-        display = Items.WRITTEN_BOOK.named("Interact With Items").hideTooltips().styledLore(
+        display = Items.WRITTEN_BOOK.named("Interact With Items").styledLore(
             "If enabled players will be able to interact with all items".literal()
         )
         value = true

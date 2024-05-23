@@ -153,7 +153,7 @@ public class MinigameEffectsManager(
         }
 
         if (packet is ClientboundUpdateMobEffectPacket) {
-            if (packet.entityId == player.id && packet.effect == NIGHT_VISION && this.hasFullbright(player)) {
+            if (packet.entityId == player.id && packet.effect.value() == NIGHT_VISION.value() && this.hasFullbright(player)) {
                 return ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION, false)
             }
             return packet

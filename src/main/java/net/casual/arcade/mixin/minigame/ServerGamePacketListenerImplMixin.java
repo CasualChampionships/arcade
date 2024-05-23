@@ -120,6 +120,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 						this.sendMovePacket(x, y, z);
 					}
 					this.player.absMoveTo(x, y, z, newYRot, newXRot);
+					this.player.yHeadRot = newYRot;
 					return;
 				}
 			}

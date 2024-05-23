@@ -29,6 +29,7 @@ import net.casual.arcade.utils.MinigameUtils.countdown
 import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.PlayerUtils.toComponent
 import net.casual.arcade.utils.TeamUtils.toComponent
+import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument
@@ -546,10 +547,12 @@ internal object MinigameCommand: Command {
         }
         val callback: () -> Unit = {
             val message = "All players are ready, click ".literal().apply {
-                append("[here]".literal().green().suggestCommand("/minigame modify ${minigame.uuid} unpause countdown 5 Seconds"))
+                append("[here]".literal().green().suggestCommand("/minigame unpause ${minigame.uuid} countdown 5 Seconds"))
                 append(" to start the unpause countdown!")
             }
-            minigame.chat.broadcastTo(message, minigame.players.admins)
+            val player = context.source.player
+            val admins = if (player == null) minigame.players.admins else minigame.players.admins.concat(player)
+            minigame.chat.broadcastTo(message, admins)
         }
         val awaiting = if (teams) {
             val unready = minigame.ui.readier.areTeamsReady(minigame.teams.getPlayingTeams(), callback)

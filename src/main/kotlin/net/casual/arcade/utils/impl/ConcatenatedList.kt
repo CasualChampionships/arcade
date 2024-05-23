@@ -41,5 +41,19 @@ public class ConcatenatedList<E> private constructor(
             }
             return ConcatenatedList(mutableListOf(this, other))
         }
+
+        /**
+         * Concatenates a vararg number of other elements.
+         *
+         * @param E The type of elements in the list.
+         * @param other The other elements to concatenate with.
+         * @return The concatenated view of the lists.
+         */
+        public fun <E> List<E>.concat(vararg other: E): List<E> {
+            if (other.isEmpty()) {
+                return this
+            }
+            return this.concat(other.toList())
+        }
     }
 }
