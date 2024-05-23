@@ -500,8 +500,6 @@ public abstract class Minigame<M: Minigame<M>>(
 
     /**
      * Starts the minigame.
-     *
-     * This will not run if your minigame restarts.
      */
     public fun start() {
         if (this.started) {

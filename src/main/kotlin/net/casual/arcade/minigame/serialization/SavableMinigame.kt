@@ -167,7 +167,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
 
     @Internal
     public fun read(json: JsonObject): Boolean {
-        this.initialized = json.booleanOrDefault("initialized")
+        val initialized = json.booleanOrDefault("initialized")
         this.started = json.booleanOrDefault("started")
 
         val phaseId = json.stringOrNull("phase")
@@ -219,7 +219,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
             this.readData(custom)
         }
 
-        if (this.initialized) {
+        if (initialized) {
             this.tryInitialize()
         }
         if (setPhase) {
