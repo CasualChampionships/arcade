@@ -1,6 +1,8 @@
 package net.casual.arcade.resources.extensions
 
 import net.casual.arcade.Arcade
+import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.player.PlayerClientboundPacketEvent
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.resources.PackInfo
 import net.casual.arcade.resources.PackState
@@ -12,7 +14,7 @@ import java.util.concurrent.CompletableFuture
 import kotlin.jvm.optionals.getOrNull
 
 internal class PlayerPackExtension: Extension {
-    internal val futures = HashMap<UUID, MutableList<CompletableFuture<PackStatus>>>()
+    internal val futures = HashMap<UUID, CompletableFuture<PackStatus>>()
     private val packs = HashMap<UUID, PackState>()
 
     internal fun getPackState(uuid: UUID): PackState? {
@@ -24,9 +26,7 @@ internal class PlayerPackExtension: Extension {
     }
 
     internal fun addFuture(uuid: UUID): CompletableFuture<PackStatus> {
-        val future = CompletableFuture<PackStatus>()
-        this.futures.getOrPut(uuid) { ArrayList() }.add(future)
-        return future
+        return this.futures.getOrPut(uuid) { CompletableFuture() }
     }
 
     internal fun onPackStatus(uuid: UUID, status: PackStatus) {
@@ -34,7 +34,7 @@ internal class PlayerPackExtension: Extension {
             if (this.packs.remove(uuid) != null) {
                 Arcade.logger.warn("Client removed resource pack without server telling it to!")
             }
-            this.futures.remove(uuid)?.forEach { it.complete(status) }
+            this.futures.remove(uuid)?.complete(status)
             return
         }
         val state = this.packs[uuid]
@@ -45,7 +45,7 @@ internal class PlayerPackExtension: Extension {
         state.setStatus(status)
 
         if (!status.isLoadingPack()) {
-            this.futures.remove(uuid)?.forEach { it.complete(status) }
+            this.futures.remove(uuid)?.complete(status)
         }
     }
 
@@ -53,6 +53,8 @@ internal class PlayerPackExtension: Extension {
         val info = PackInfo(packet.url, packet.hash, packet.required, packet.prompt.getOrNull(), packet.id)
         val state = PackState(info, PackStatus.WAITING)
         this.packs[info.uuid] = state
+
+        this.addFuture(packet.id)
     }
 
     internal fun onPopPack(packet: ClientboundResourcePackPopPacket) {
@@ -62,5 +64,6 @@ internal class PlayerPackExtension: Extension {
             return
         }
         this.packs.remove(uuid.get())
+        this.futures.remove(uuid.get())
     }
 }

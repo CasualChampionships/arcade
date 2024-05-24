@@ -63,6 +63,11 @@ public object ResourcePackUtils {
     }
 
     @JvmStatic
+    public fun ServerPlayer.afterPacksLoad(block: () -> Unit) {
+        CompletableFuture.allOf(*this.resourcePacks.futures.values.toTypedArray()).thenRunAsync(block, this.server)
+    }
+
+    @JvmStatic
     public fun ServerPlayer.sendResourcePack(pack: PackInfo, replace: Boolean = true): CompletableFuture<PackStatus> {
         val current = this.getPackState(pack)
         if (!replace && current != null) {
