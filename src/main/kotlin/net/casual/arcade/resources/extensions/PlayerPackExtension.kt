@@ -34,7 +34,7 @@ internal class PlayerPackExtension: Extension {
             if (this.packs.remove(uuid) != null) {
                 Arcade.logger.warn("Client removed resource pack without server telling it to!")
             }
-            this.futures.remove(uuid)?.complete(status)
+            this.futures[uuid]?.complete(status)
             return
         }
         val state = this.packs[uuid]
@@ -45,7 +45,7 @@ internal class PlayerPackExtension: Extension {
         state.setStatus(status)
 
         if (!status.isLoadingPack()) {
-            this.futures.remove(uuid)?.complete(status)
+            this.futures[uuid]?.complete(status)
         }
     }
 
@@ -61,6 +61,7 @@ internal class PlayerPackExtension: Extension {
         val uuid = packet.id
         if (uuid.isEmpty) {
             this.packs.clear()
+            this.futures.clear()
             return
         }
         this.packs.remove(uuid.get())
