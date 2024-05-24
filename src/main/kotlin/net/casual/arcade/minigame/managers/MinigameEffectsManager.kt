@@ -8,6 +8,7 @@ import net.casual.arcade.events.player.PlayerDimensionChangeEvent
 import net.casual.arcade.events.player.PlayerRespawnEvent
 import net.casual.arcade.gui.predicate.EntityObserverPredicate
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.annotation.ListenerFlags
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
 import net.minecraft.network.syncher.SynchedEntityData.DataValue
@@ -32,7 +33,7 @@ public class MinigameEffectsManager(
     private var invisible = EntityObserverPredicate.never()
 
     init {
-        this.owner.events.register<PlayerClientboundPacketEvent> { this.onPlayerPacket(it) }
+        this.owner.events.register<PlayerClientboundPacketEvent>(1_000, flags = ListenerFlags.HAS_PLAYER) { this.onPlayerPacket(it) }
         this.owner.events.register<MinigameAddPlayerEvent> { this.updatePlayerFullbright(it.player) }
         this.owner.events.register<PlayerDimensionChangeEvent> { this.updatePlayerFullbright(it.player) }
         this.owner.events.register<PlayerRespawnEvent> { this.updatePlayerFullbright(it.player) }
