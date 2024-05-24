@@ -34,8 +34,8 @@ public class MinigameEffectsManager(
 
     init {
         this.owner.events.register<PlayerClientboundPacketEvent>(1_000, flags = ListenerFlags.HAS_PLAYER) { this.onPlayerPacket(it) }
+        this.owner.events.register<PlayerDimensionChangeEvent>(1_000, flags = ListenerFlags.HAS_PLAYER) { this.updatePlayerFullbright(it.player) }
         this.owner.events.register<MinigameAddPlayerEvent> { this.updatePlayerFullbright(it.player) }
-        this.owner.events.register<PlayerDimensionChangeEvent> { this.updatePlayerFullbright(it.player) }
         this.owner.events.register<PlayerRespawnEvent> { this.updatePlayerFullbright(it.player) }
         this.owner.events.register<MinigameRemovePlayerEvent> { this.removeFullbright(it.player) }
     }
