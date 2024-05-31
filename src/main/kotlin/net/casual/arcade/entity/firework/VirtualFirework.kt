@@ -32,7 +32,7 @@ public class VirtualFirework internal constructor(
     }
 
     public companion object {
-        public fun builder(block: VirtualFireworkBuilder.() -> Unit): VirtualFirework {
+        public fun build(block: VirtualFireworkBuilder.() -> Unit): VirtualFirework {
             val builder = VirtualFireworkBuilder()
             builder.block()
             return builder.build()

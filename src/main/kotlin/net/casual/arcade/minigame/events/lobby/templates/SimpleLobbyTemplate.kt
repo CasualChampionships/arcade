@@ -25,11 +25,12 @@ public open class SimpleLobbyTemplate(
 ): LobbyTemplate {
     override fun create(level: ServerLevel): Lobby {
         val area = this.area.create(level)
-        val spawn = this.spawn.get(level)
+        val spawnTemplate = this.spawn
 
         return object: Lobby {
             override val area: PlaceableArea = area
-            override val spawn: Location = spawn
+            override val spawn: Location
+                get() = spawnTemplate.get(level)
 
             override fun getCountdown(): Countdown {
                 return countdown.create()
