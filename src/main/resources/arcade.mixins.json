@@ -47,6 +47,7 @@
     "extensions.ServerGamePacketListenerImplMixin",
     "extensions.ServerLevelMixin",
     "extensions.ServerPlayerMixin",
+    "fantasy.FantasyInvoker",
     "fantasy.RequiredArgumentBuilderMixin",
     "level.BaseFireBlockMixin",
     "level.EndPortalBlockMixin",

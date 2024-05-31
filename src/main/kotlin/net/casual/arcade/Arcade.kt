@@ -101,6 +101,7 @@ public object Arcade: ModInitializer {
         BorderUtils.registerEvents()
         LevelUtils.registerEvents()
         ArcadeConfig.registerEvents()
+        FantasyUtils.registerEvents()
 
         ArcadeCommands.registerCommands()
 

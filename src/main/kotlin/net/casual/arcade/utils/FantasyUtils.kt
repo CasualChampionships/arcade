@@ -1,9 +1,12 @@
 package net.casual.arcade.utils
 
 import net.casual.arcade.Arcade
+import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.server.ServerStoppingEvent
 import net.casual.arcade.level.VanillaDimension.*
 import net.casual.arcade.level.VanillaLikeDimensions
 import net.casual.arcade.level.VanillaLikeRuntimeLevel
+import net.casual.arcade.mixin.fantasy.FantasyInvoker
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes
@@ -130,4 +133,10 @@ public object FantasyUtils {
         public val location: ResourceLocation,
         public val config: RuntimeWorldConfig
     )
+
+    internal fun registerEvents() {
+        GlobalEventHandler.register<ServerStoppingEvent>(priority = Int.MAX_VALUE) {
+            (Fantasy.get(it.server) as FantasyInvoker).doTick()
+        }
+    }
 }
