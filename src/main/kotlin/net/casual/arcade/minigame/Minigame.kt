@@ -558,6 +558,7 @@ public abstract class Minigame<M: Minigame<M>>(
     protected open fun initialize() {
         this.registerEvents()
         this.events.registerHandler()
+        this.levels.unregisterHandler()
         MinigameUtils.parseMinigameEvents(this)
 
         Minigames.register(this)
