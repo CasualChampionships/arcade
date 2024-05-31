@@ -1,6 +1,8 @@
 package net.casual.arcade.mixin.events;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.PlayerBlockInteractionEvent;
 import net.casual.arcade.events.player.PlayerBlockMinedEvent;
@@ -16,11 +18,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerPlayerGameMode.class)
@@ -50,7 +54,7 @@ public class ServerPlayerGameModeMixin {
 		method = "useItemOn",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/level/block/state/BlockState;useItemOn(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/ItemInteractionResult;",
+			target = "Lnet/minecraft/server/level/ServerPlayer;getMainHandItem()Lnet/minecraft/world/item/ItemStack;",
 			shift = At.Shift.BEFORE
 		),
 		cancellable = true
@@ -61,13 +65,28 @@ public class ServerPlayerGameModeMixin {
 		ItemStack stack,
 		InteractionHand hand,
 		BlockHitResult hitResult,
-		CallbackInfoReturnable<InteractionResult> cir
+		CallbackInfoReturnable<InteractionResult> cir,
+		@Share("blockInteractionEvent") LocalRef<PlayerBlockInteractionEvent> eventRef
 	) {
 		PlayerBlockInteractionEvent event = new PlayerBlockInteractionEvent(player, stack, hand, hitResult);
 		GlobalEventHandler.broadcast(event);
 		if (event.isCancelled()) {
 			cir.setReturnValue(event.result());
 		}
+		eventRef.set(event);
+	}
+
+	@ModifyVariable(
+		method = "useItemOn",
+		at = @At(value = "STORE"),
+		ordinal = 1
+	)
+	private boolean shouldPreventUsingOnBlock(
+		boolean value,
+		@Share("blockInteractionEvent") LocalRef<PlayerBlockInteractionEvent> eventRef
+	) {
+		PlayerBlockInteractionEvent event = eventRef.get();
+		return event.getPreventUsingOnBlock() || value;
 	}
 
 	@Inject(

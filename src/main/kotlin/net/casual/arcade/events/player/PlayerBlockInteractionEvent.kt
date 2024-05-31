@@ -12,4 +12,11 @@ public data class PlayerBlockInteractionEvent(
     val stack: ItemStack,
     val hand: InteractionHand,
     val result: BlockHitResult
-): CancellableEvent.Typed<InteractionResult>(), PlayerEvent
+): CancellableEvent.Typed<InteractionResult>(), PlayerEvent {
+    var preventUsingOnBlock: Boolean = false
+        private set
+
+    public fun preventUsingOnBlock() {
+        this.preventUsingOnBlock = true
+    }
+}
