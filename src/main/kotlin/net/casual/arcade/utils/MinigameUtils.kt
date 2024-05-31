@@ -222,7 +222,7 @@ public object MinigameUtils {
             } else {
                 Phase.none()
             }
-            val end = if (during.after != "") {
+            val end = if (during.before != "") {
                 minigame.getPhase(during.before) ?: throw IllegalArgumentException("End phase does not exist")
             } else {
                 Phase.end()
