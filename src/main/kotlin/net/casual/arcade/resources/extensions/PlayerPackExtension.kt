@@ -17,6 +17,8 @@ internal class PlayerPackExtension: Extension {
     internal val futures = HashMap<UUID, CompletableFuture<PackStatus>>()
     private val packs = HashMap<UUID, PackState>()
 
+    internal var allLoadedFuture = CompletableFuture<Void>()
+
     internal fun getPackState(uuid: UUID): PackState? {
         return this.packs[uuid]
     }
@@ -26,6 +28,9 @@ internal class PlayerPackExtension: Extension {
     }
 
     internal fun addFuture(uuid: UUID): CompletableFuture<PackStatus> {
+        if (this.allLoadedFuture.isDone) {
+            this.allLoadedFuture = CompletableFuture()
+        }
         return this.futures.getOrPut(uuid) { CompletableFuture() }
     }
 
@@ -35,6 +40,7 @@ internal class PlayerPackExtension: Extension {
                 Arcade.logger.warn("Client removed resource pack without server telling it to!")
             }
             this.futures[uuid]?.complete(status)
+            this.checkAllFutures()
             return
         }
         val state = this.packs[uuid]
@@ -46,6 +52,7 @@ internal class PlayerPackExtension: Extension {
 
         if (!status.isLoadingPack()) {
             this.futures[uuid]?.complete(status)
+            this.checkAllFutures()
         }
     }
 
@@ -66,5 +73,14 @@ internal class PlayerPackExtension: Extension {
         }
         this.packs.remove(uuid.get())
         this.futures.remove(uuid.get())
+    }
+
+    private fun checkAllFutures() {
+        for (future in this.futures.values) {
+            if (!future.isDone) {
+                return
+            }
+        }
+        this.allLoadedFuture.complete(null)
     }
 }

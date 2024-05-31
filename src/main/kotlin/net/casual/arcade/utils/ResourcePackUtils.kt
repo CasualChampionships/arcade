@@ -64,7 +64,7 @@ public object ResourcePackUtils {
 
     @JvmStatic
     public fun ServerPlayer.afterPacksLoad(block: () -> Unit) {
-        CompletableFuture.allOf(*this.resourcePacks.futures.values.toTypedArray()).thenRunAsync(block, this.server)
+        this.resourcePacks.allLoadedFuture.thenRunAsync(block, this.server)
     }
 
     @JvmStatic
