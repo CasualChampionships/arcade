@@ -11,6 +11,17 @@ public class VirtualFirework internal constructor(
     private val entity: FireworkRocketEntity,
     private val duration: MinecraftTimeDuration
 ) {
+    public fun sendTo(player: ServerPlayer) {
+        player.connection.send(this.entity.addEntityPacket)
+        val changed = this.entity.entityData.nonDefaultValues
+        if (changed != null) {
+            player.connection.send(ClientboundSetEntityDataPacket(this.entity.id, changed))
+        }
+        GlobalTickedScheduler.schedule(this.duration) {
+            player.connection.send(ClientboundEntityEventPacket(this.entity, 17))
+        }
+    }
+
     public fun sendTo(players: List<ServerPlayer>) {
         val spawn = this.entity.addEntityPacket
         for (player in players) {
