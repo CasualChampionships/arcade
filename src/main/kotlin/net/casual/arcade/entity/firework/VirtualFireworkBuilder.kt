@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.component.FireworkExplosion
 import net.minecraft.world.item.component.Fireworks
+import net.minecraft.world.phys.Vec3
 
 public class VirtualFireworkBuilder {
     private val explosions = ArrayList<FireworkExplosion>()
@@ -16,6 +17,7 @@ public class VirtualFireworkBuilder {
     public var location: Location = Location.of()
     public var angled: Boolean = false
     public var duration: MinecraftTimeDuration = 10.Ticks
+    public var velocity: Vec3? = null
 
     public fun location(location: Location): VirtualFireworkBuilder {
         this.location = location
@@ -32,6 +34,11 @@ public class VirtualFireworkBuilder {
         return this
     }
 
+    public fun velocity(velocity: Vec3): VirtualFireworkBuilder {
+        this.velocity = velocity
+        return this
+    }
+
     public fun explosion(block: FireworkExplosionBuilder.() -> Unit): VirtualFireworkBuilder {
         val builder = FireworkExplosionBuilder()
         builder.block()
@@ -43,6 +50,10 @@ public class VirtualFireworkBuilder {
         val stack = ItemStack(Items.FIREWORK_ROCKET)
         stack.set(DataComponents.FIREWORKS, Fireworks(0, this.explosions))
         val entity = FireworkRocketEntity(this.location.level, stack, this.location.x, this.location.y, this.location.z, this.angled)
+        val velocity = this.velocity
+        if (velocity != null) {
+            entity.deltaMovement = velocity
+        }
         return VirtualFirework(entity, this.duration)
     }
 }
