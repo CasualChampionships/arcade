@@ -17,9 +17,9 @@ public class AroundLocationTemplate(
 ): LocationTemplate {
     override fun get(level: ServerLevel): Location {
         val location = this.location.get(level)
-        val randomX = Random.nextDouble(-this.horizontalRadius, this.horizontalRadius)
-        val randomY = Random.nextDouble(-this.verticalRadius, this.verticalRadius)
-        val randomZ = Random.nextDouble(-this.horizontalRadius, this.horizontalRadius)
+        val randomX = if (this.horizontalRadius == 0.0) 0.0 else Random.nextDouble(-this.horizontalRadius, this.horizontalRadius)
+        val randomY = if (this.verticalRadius == 0.0) 0.0 else Random.nextDouble(-this.verticalRadius, this.verticalRadius)
+        val randomZ = if (this.horizontalRadius == 0.0) 0.0 else Random.nextDouble(-this.horizontalRadius, this.horizontalRadius)
         return location.copy(position = location.position.add(randomX, randomY, randomZ))
     }
 
