@@ -17,13 +17,13 @@ public class FireworkExplosionBuilder {
         return this
     }
 
-    public fun trail(hasTrail: Boolean): FireworkExplosionBuilder {
-        this.hasTrail = hasTrail
+    public fun trail(): FireworkExplosionBuilder {
+        this.hasTrail = true
         return this
     }
 
-    public fun twinkle(hasTwinkle: Boolean): FireworkExplosionBuilder {
-        this.hasTwinkle = hasTwinkle
+    public fun twinkle(): FireworkExplosionBuilder {
+        this.hasTwinkle = true
         return this
     }
 
