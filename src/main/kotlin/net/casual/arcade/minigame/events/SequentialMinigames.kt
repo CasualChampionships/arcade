@@ -45,11 +45,13 @@ public class SequentialMinigames(
 
     public fun addPlayer(player: ServerPlayer) {
         val current = this.getCurrent()
+        // We start sending packs before player is added this
+        // way listeners can hook into the #afterPacksLoad event
+        this.sendResourcesTo(player, false)
         current.players.add(player)
         if (this.event.isAdmin(player)) {
             current.players.addAdmin(player)
         }
-        this.sendResourcesTo(player, false)
     }
 
     public fun startNewMinigame(minigame: Minigame<*>) {
