@@ -50,7 +50,7 @@ public class ServerPlayerGameModeMixin {
 		method = "useItemOn",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/item/ItemStack;copy()Lnet/minecraft/world/item/ItemStack;",
+			target = "Lnet/minecraft/world/level/block/state/BlockState;useItemOn(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/ItemInteractionResult;",
 			shift = At.Shift.BEFORE
 		),
 		cancellable = true
