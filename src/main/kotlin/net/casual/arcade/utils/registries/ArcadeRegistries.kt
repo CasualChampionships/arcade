@@ -18,8 +18,8 @@ public object ArcadeRegistries {
     public val PLACEABLE_AREA_TEMPLATE: Registry<MapCodec<out PlaceableAreaTemplate>> = create(ArcadeRegistryKeys.PLACEABLE_AREA_TEMPLATE, PlaceableAreaTemplate::bootstrap)
     public val COUNTDOWN_TEMPLATE: Registry<MapCodec<out CountdownTemplate>> = create(ArcadeRegistryKeys.COUNTDOWN_TEMPLATE, CountdownTemplate::bootstrap)
     public val TIMER_BOSSBAR_TEMPLATE: Registry<MapCodec<out TimerBossBarTemplate>> = create(ArcadeRegistryKeys.TIMER_BOSSBAR_TEMPLATE, TimerBossBarTemplate::bootstrap)
-    public val LOBBY_TEMPLATE: Registry<MapCodec<out LobbyTemplate>> = create(ArcadeRegistryKeys.LOBBY_TEMPLATE, LobbyTemplate::bootstrap)
     public val LOCATION_TEMPLATE: Registry<MapCodec<out LocationTemplate>> = create(ArcadeRegistryKeys.LOCATION_TEMPLATE, LocationTemplate::bootstrap)
+    public val LOBBY_TEMPLATE: Registry<MapCodec<out LobbyTemplate>> = create(ArcadeRegistryKeys.LOBBY_TEMPLATE, LobbyTemplate::bootstrap)
     public val MINIGAMES_EVENT: Registry<MapCodec<out MinigamesEvent>> = create(ArcadeRegistryKeys.MINIGAMES_EVENT, MinigamesEvent::bootstrap)
 
     init {
