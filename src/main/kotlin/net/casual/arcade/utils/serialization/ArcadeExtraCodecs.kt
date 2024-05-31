@@ -5,9 +5,11 @@ import com.mojang.serialization.Codec
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
 import net.minecraft.Util
+import net.minecraft.util.ExtraCodecs
 import net.minecraft.world.phys.Vec2
-import net.minecraft.world.phys.Vec3
 import java.nio.file.Path
+import java.util.*
+import kotlin.enums.enumEntries
 import kotlin.io.path.pathString
 
 public object ArcadeExtraCodecs {
@@ -21,12 +23,35 @@ public object ArcadeExtraCodecs {
     public inline fun <reified E: Enum<E>> enum(
         mapper: (E) -> String = { it.name.lowercase() }
     ): Codec<E> {
-        return enum(E::class.java.enumConstants.associateBy(mapper))
+        return enum(enumEntries<E>().associateBy(mapper))
     }
 
     public fun <E: Enum<E>> enum(constants: Map<String, E>): Codec<E> {
         val map = HashBiMap.create<String, E>(constants)
         val inverse = map.inverse()
         return Codec.STRING.xmap(map::get, inverse::get)
+    }
+
+    public inline fun <reified E: Enum<E>> optionalEnum(
+        mapper: (E) -> String = { it.name.lowercase() }
+    ): Codec<Optional<E>> {
+        return optionalEnum(enumEntries<E>().associateBy(mapper).mapValues { Optional.of(it.value) })
+    }
+
+    public fun <E: Enum<E>> optionalEnum(constants: Map<String, Optional<E>>): Codec<Optional<E>> {
+        val map = HashBiMap.create<Optional<String>, Optional<E>>(constants.size)
+        var hasEmpty = false
+        for ((key, value) in constants) {
+            map[Optional.of(key)] = value
+            if (value.isEmpty) {
+                hasEmpty = true
+            }
+        }
+        if (!hasEmpty) {
+            map[Optional.empty()] = Optional.empty()
+        }
+
+        val inverse = map.inverse()
+        return ExtraCodecs.optionalEmptyMap(Codec.STRING).xmap(map::get, inverse::get)
     }
 }
