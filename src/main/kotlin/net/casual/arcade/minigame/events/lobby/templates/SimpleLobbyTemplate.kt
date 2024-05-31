@@ -12,14 +12,16 @@ import net.casual.arcade.gui.countdown.templates.CountdownTemplate
 import net.casual.arcade.minigame.events.lobby.Lobby
 import net.casual.arcade.utils.CodecUtils.encodedOptionalFieldOf
 import net.casual.arcade.utils.location.Location
+import net.casual.arcade.utils.location.template.ExactLocationTemplate
 import net.casual.arcade.utils.location.template.LocationTemplate
 import net.casual.arcade.utils.serialization.CodecProvider
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.phys.Vec3
 
 public open class SimpleLobbyTemplate(
     public val area: PlaceableAreaTemplate = PlaceableAreaTemplate.DEFAULT,
-    public val spawn: LocationTemplate = LocationTemplate.DEFAULT,
+    public val spawn: LocationTemplate = DEFAULT_SPAWN,
     public val countdown: CountdownTemplate = CountdownTemplate.DEFAULT,
     public val bossbar: TimerBossBarTemplate = TimerBossBarTemplate.DEFAULT
 ): LobbyTemplate {
@@ -47,12 +49,14 @@ public open class SimpleLobbyTemplate(
     }
 
     public companion object: CodecProvider<SimpleLobbyTemplate> {
+        private val DEFAULT_SPAWN = ExactLocationTemplate(Vec3(0.0, 1.0, 0.0))
+
         override val ID: ResourceLocation = Arcade.id("simple")
 
         override val CODEC: MapCodec<SimpleLobbyTemplate> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 PlaceableAreaTemplate.CODEC.encodedOptionalFieldOf("area", PlaceableAreaTemplate.DEFAULT).forGetter(SimpleLobbyTemplate::area),
-                LocationTemplate.CODEC.encodedOptionalFieldOf("spawn", LocationTemplate.DEFAULT).forGetter(SimpleLobbyTemplate::spawn),
+                LocationTemplate.CODEC.encodedOptionalFieldOf("spawn", DEFAULT_SPAWN).forGetter(SimpleLobbyTemplate::spawn),
                 CountdownTemplate.CODEC.encodedOptionalFieldOf("countdown", CountdownTemplate.DEFAULT).forGetter(SimpleLobbyTemplate::countdown),
                 TimerBossBarTemplate.CODEC.encodedOptionalFieldOf("bossbar", TimerBossBarTemplate.DEFAULT).forGetter(SimpleLobbyTemplate::bossbar)
             ).apply(instance, ::SimpleLobbyTemplate)
