@@ -10,9 +10,9 @@ import net.casual.arcade.gui.bossbar.templates.TimerBossBarTemplate
 import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.gui.countdown.templates.CountdownTemplate
 import net.casual.arcade.minigame.events.lobby.Lobby
-import net.casual.arcade.minigame.events.lobby.LocationTemplate
 import net.casual.arcade.utils.CodecUtils.encodedOptionalFieldOf
-import net.casual.arcade.utils.impl.Location
+import net.casual.arcade.utils.location.Location
+import net.casual.arcade.utils.location.template.LocationTemplate
 import net.casual.arcade.utils.serialization.CodecProvider
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
@@ -25,7 +25,7 @@ public open class SimpleLobbyTemplate(
 ): LobbyTemplate {
     override fun create(level: ServerLevel): Lobby {
         val area = this.area.create(level)
-        val spawn = this.spawn.toLocation(level)
+        val spawn = this.spawn.get(level)
 
         return object: Lobby {
             override val area: PlaceableArea = area

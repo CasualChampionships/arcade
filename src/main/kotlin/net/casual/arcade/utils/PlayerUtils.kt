@@ -14,7 +14,7 @@ import net.casual.arcade.utils.ExtensionUtils.getExtensions
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
-import net.casual.arcade.utils.impl.Location
+import net.casual.arcade.utils.location.Location
 import net.casual.arcade.utils.impl.Sound
 import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.commands.SharedSuggestionProvider
@@ -46,7 +46,7 @@ public object PlayerUtils {
 
     @JvmStatic
     public val ServerPlayer.location: Location
-        get() = Location(this.serverLevel(), Vec3(this.x, this.y, this.z), Vec2(this.xRot, this.yRot))
+        get() = Location.of(this)
 
     @JvmStatic
     public val ServerPlayer.isSurvival: Boolean
