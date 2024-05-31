@@ -121,6 +121,7 @@ public class MenuGameSettingBuilder<T: Any>(
         private val long = GameSetting.generator(Codec.LONG)
         private val float = GameSetting.generator(Codec.FLOAT)
         private val double = GameSetting.generator(Codec.DOUBLE)
+        private val string = GameSetting.generator(Codec.STRING)
         private val id = GameSetting.generator(ResourceLocation.CODEC)
         private val time = GameSetting.generator(ArcadeExtraCodecs.TIME_DURATION)
 
@@ -162,6 +163,14 @@ public class MenuGameSettingBuilder<T: Any>(
 
         public fun float64(block: MenuGameSettingBuilder<Double>.() -> Unit): MenuGameSetting<Double> {
             return float64().apply(block).build()
+        }
+
+        public fun string(): MenuGameSettingBuilder<String> {
+            return MenuGameSettingBuilder(this.string)
+        }
+
+        public fun string(block: MenuGameSettingBuilder<String>.() -> Unit): MenuGameSetting<String> {
+            return string().apply(block).build()
         }
 
         public fun id(): MenuGameSettingBuilder<ResourceLocation> {
