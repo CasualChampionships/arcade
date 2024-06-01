@@ -438,7 +438,7 @@ public class MinigameEventHandler<P>(
             handler.register(type, listener)
             return
         }
-        handler.register(type, EventListener.of(listener.priority) { event ->
+        handler.register(type, EventListener.of(listener.priority, listener.phase) { event ->
             if (predicates.all { it(event) }) {
                 listener.invoke(event)
             }
