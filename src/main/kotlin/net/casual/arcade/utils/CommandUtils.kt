@@ -14,7 +14,6 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.player.PlayerCommandEvent
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.MinecraftTimeDuration
-import net.casual.arcade.utils.CommandUtils.literal
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.TimeUtils.Minutes
 import net.minecraft.commands.CommandSourceStack
@@ -79,13 +78,20 @@ public object CommandUtils {
     public fun <S> buildLiteral(
         literal: String,
         builder: LiteralArgumentBuilder<S>.() -> Unit
-    ): LiteralCommandNode<S> {
+    ): LiteralArgumentBuilder<S> {
         val root = LiteralArgumentBuilder.literal<S>(literal)
         root.builder()
-        return root.build()
+        return root
     }
 
-    public fun <S> CommandDispatcher<S>.buildLiteral(
+    public fun <S> createLiteral(
+        literal: String,
+        builder: LiteralArgumentBuilder<S>.() -> Unit
+    ): LiteralCommandNode<S> {
+        return this.buildLiteral(literal, builder).build()
+    }
+
+    public fun <S> CommandDispatcher<S>.registerLiteral(
         literal: String,
         builder: LiteralArgumentBuilder<S>.() -> Unit
     ): LiteralCommandNode<S> {

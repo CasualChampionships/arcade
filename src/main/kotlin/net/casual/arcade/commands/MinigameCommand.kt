@@ -12,7 +12,7 @@ import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.utils.CommandUtils.argument
-import net.casual.arcade.utils.CommandUtils.buildLiteral
+import net.casual.arcade.utils.CommandUtils.registerLiteral
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.literal
@@ -40,7 +40,7 @@ import net.minecraft.server.level.ServerPlayer
 
 internal object MinigameCommand: Command {
     override fun register(dispatcher: CommandDispatcher<CommandSourceStack>, buildContext: CommandBuildContext) {
-        dispatcher.buildLiteral("minigame") {
+        dispatcher.registerLiteral("minigame") {
             requiresPermission(4)
 
             literal("list") {
