@@ -42,8 +42,9 @@ public class MinigameRecipeManager(
     }
 
     public fun add(recipe: RecipeHolder<*>) {
-        if (this.recipes.add(this.wrap(recipe))) {
-            this.minigame.server.recipeManager.addRecipes(listOf(recipe))
+        val wrapped = this.wrap(recipe)
+        if (this.recipes.add(wrapped)) {
+            this.minigame.server.recipeManager.addRecipes(listOf(wrapped))
         }
     }
 
