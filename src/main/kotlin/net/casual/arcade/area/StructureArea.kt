@@ -28,7 +28,7 @@ public class StructureArea(
             corner,
             StructurePlaceSettings().setKnownShape(true),
             RandomSource.create(),
-            Block.UPDATE_CLIENTS
+            Block.UPDATE_CLIENTS or Block.UPDATE_KNOWN_SHAPE
         )
     }
 
