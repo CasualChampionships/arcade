@@ -1,13 +1,9 @@
 package net.casual.arcade.gui.tab
 
-import net.casual.arcade.minigame.Minigame
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 
-public class MinigamePlayerListEntries(
-    public val minigame: Minigame<*>,
-    private val order: Comparator<ServerPlayer> = VanillaPlayerListEntries.DEFAULT_ORDER
-): PlayerListEntries {
+public open class SuppliedPlayerListEntries: PlayerListEntries {
     private var entries: List<ServerPlayer> = listOf()
 
     override val size: Int
@@ -19,6 +15,10 @@ public class MinigamePlayerListEntries(
     }
 
     override fun tick(server: MinecraftServer) {
-        this.entries = this.minigame.players.all.sortedWith(this.order)
+        this.entries = this.getPlayers(server)
+    }
+
+    protected open fun getPlayers(server: MinecraftServer): List<ServerPlayer> {
+        return server.playerList.players
     }
 }
