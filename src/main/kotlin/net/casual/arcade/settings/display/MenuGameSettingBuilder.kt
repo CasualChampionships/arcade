@@ -7,7 +7,9 @@ import eu.pb4.sgui.api.gui.GuiInterface
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.settings.SettingListener
+import net.casual.arcade.utils.ItemUtils.disableGlint
 import net.casual.arcade.utils.ItemUtils.enableGlint
+import net.casual.arcade.utils.ItemUtils.hasGlint
 import net.casual.arcade.utils.ItemUtils.removeEnchantments
 import net.casual.arcade.utils.serialization.ArcadeExtraCodecs
 import net.minecraft.resources.ResourceLocation
@@ -217,9 +219,9 @@ public class MenuGameSettingBuilder<T: Any>(
 
         public fun <T: Any> enchantWhenSetTo(value: T): (GameSetting<T>, ItemStack, ServerPlayer) -> ItemStack {
             return { setting, stack, _ ->
-                if (stack.isEnchanted) {
+                if (stack.hasGlint()) {
                     if (setting.get() != value) {
-                        stack.removeEnchantments()
+                        stack.disableGlint()
                     }
                 } else if (setting.get() == value) {
                     stack.enableGlint()

@@ -6,7 +6,6 @@ import net.casual.arcade.settings.display.DisplayableSettings
 import net.casual.arcade.settings.display.DisplayableSettingsDefaults
 import net.casual.arcade.settings.display.MenuGameSettingBuilder.Companion.bool
 import net.casual.arcade.utils.ComponentUtils.literal
-import net.casual.arcade.utils.ItemUtils.hideTooltips
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.utils.ItemUtils.styledLore
 import net.minecraft.server.level.ServerPlayer

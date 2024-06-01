@@ -15,6 +15,7 @@ import net.minecraft.world.item.*
 import net.minecraft.world.item.alchemy.Potion
 import net.minecraft.world.item.alchemy.PotionContents
 import net.minecraft.world.item.component.CustomData
+import net.minecraft.world.item.component.ItemAttributeModifiers
 import net.minecraft.world.item.component.ItemLore
 import net.minecraft.world.item.component.ResolvableProfile
 import net.minecraft.world.item.enchantment.Enchantment
@@ -75,8 +76,26 @@ public object ItemUtils {
     }
 
     @JvmStatic
-    public fun ItemStack.hideTooltips(): ItemStack {
+    public fun ItemStack.hideTooltip(): ItemStack {
         this.set(DataComponents.HIDE_TOOLTIP, Unit.INSTANCE)
+        return this
+    }
+
+    @JvmStatic
+    public fun ItemStack.hideAttributeTooltips(): ItemStack {
+        val modifiers = this.get(DataComponents.ATTRIBUTE_MODIFIERS)
+        if (modifiers != null && modifiers.showInTooltip) {
+            this.set(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers(modifiers.modifiers, false))
+        }
+        return this
+    }
+
+    @JvmStatic
+    public fun ItemStack.hideTrimTooltips(): ItemStack {
+        val trim = this.get(DataComponents.TRIM)
+        if (trim != null) {
+            this.set(DataComponents.TRIM, trim.withTooltip(false))
+        }
         return this
     }
 
@@ -135,6 +154,11 @@ public object ItemUtils {
     public fun ItemStack.potion(potion: Holder<Potion>): ItemStack {
         this.set(DataComponents.POTION_CONTENTS, PotionContents(potion))
         return this
+    }
+
+    @JvmStatic
+    public fun ItemStack.hasGlint(): Boolean {
+        return this.get(DataComponents.ENCHANTMENT_GLINT_OVERRIDE) ?: false
     }
 
     @JvmStatic
