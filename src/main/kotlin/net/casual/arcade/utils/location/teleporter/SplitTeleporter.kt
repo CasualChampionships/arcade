@@ -14,7 +14,8 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.scores.PlayerTeam
 
 public class SplitTeleporter(
-    private val threshold: Int,
+    private val entityThreshold: Int,
+    private val teamThreshold: Int,
     private val primaryWeight: Int,
     private val secondaryWeight: Int,
     private val primary: EntityTeleporter,
@@ -23,7 +24,7 @@ public class SplitTeleporter(
     private val primaryMultiplier = this.primaryWeight / (this.primaryWeight + this.secondaryWeight).toDouble()
 
     override fun teleportEntities(level: ServerLevel, entities: List<Entity>) {
-        if (entities.size < this.threshold) {
+        if (entities.size < this.entityThreshold) {
             return this.primary.teleportEntities(level, entities)
         }
         val primaryCount = Mth.ceil(entities.size * this.primaryMultiplier)
@@ -32,20 +33,20 @@ public class SplitTeleporter(
     }
 
     override fun teleportTeams(level: ServerLevel, teams: Multimap<PlayerTeam, Entity>) {
-        val total = teams.values().size
-        if (total < this.threshold) {
+        val total = teams.keySet().size
+        if (total < this.teamThreshold) {
             return this.primary.teleportTeams(level, teams)
         }
-        val secondaryCount = total - Mth.ceil(total * this.primaryMultiplier)
+        val primaryCount = Mth.ceil(total * this.primaryMultiplier)
 
         val primaryTeams = HashMultimap.create<PlayerTeam, Entity>()
         val secondaryTeams = HashMultimap.create<PlayerTeam, Entity>()
 
         for ((team, entities) in teams.asMap()) {
-            if (secondaryTeams.values().size + entities.size <= secondaryCount) {
-                secondaryTeams.putAll(team, entities)
-            } else {
+            if (primaryTeams.keySet().size < primaryCount) {
                 primaryTeams.putAll(team, entities)
+            } else {
+                secondaryTeams.putAll(team, entities)
             }
         }
         this.primary.teleportTeams(level, primaryTeams)
@@ -61,7 +62,8 @@ public class SplitTeleporter(
 
         override val CODEC: MapCodec<out SplitTeleporter> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
-                Codec.INT.fieldOf("entity_threshold").forGetter(SplitTeleporter::threshold),
+                Codec.INT.fieldOf("entity_threshold").forGetter(SplitTeleporter::entityThreshold),
+                Codec.INT.fieldOf("team_threshold").forGetter(SplitTeleporter::teamThreshold),
                 Codec.INT.optionalFieldOf("primary_weight", 1).forGetter(SplitTeleporter::primaryWeight),
                 Codec.INT.optionalFieldOf("secondary_weight", 1).forGetter(SplitTeleporter::secondaryWeight),
                 EntityTeleporter.CODEC.fieldOf("primary").forGetter(SplitTeleporter::primary),
