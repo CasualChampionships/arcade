@@ -12,6 +12,7 @@ import net.casual.arcade.gui.nametag.ArcadeNameTag
 import net.casual.arcade.gui.sidebar.ArcadeSidebar
 import net.casual.arcade.gui.tab.ArcadePlayerListDisplay
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.annotation.ListenerFlags
 import net.casual.arcade.minigame.events.lobby.ReadyChecker
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
@@ -65,7 +66,7 @@ public class MinigameUIManager(
             this.sidebar?.removePlayer(player)
             this.display?.removePlayer(player)
         }
-        this.minigame.events.register<PlayerJoinEvent> {
+        this.minigame.events.register<PlayerJoinEvent>(priority = 1_000, flags = ListenerFlags.NONE) {
             this.display?.onPlayerJoin(it.player)
         }
     }
