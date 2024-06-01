@@ -1,6 +1,12 @@
 package net.casual.arcade.utils
 
+import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Iterators
+import com.google.common.collect.LinkedHashMultimap
+import com.google.common.collect.ListMultimap
+import com.google.common.collect.Multimap
+import com.google.common.collect.MultimapBuilder.ListMultimapBuilder
+import com.google.common.collect.Multimaps
 import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer
 import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.Extension
@@ -18,6 +24,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Scoreboard
@@ -48,6 +55,26 @@ public object TeamUtils {
         for (team in this.teams()) {
             consumer.accept(team)
         }
+    }
+
+    @JvmStatic
+    public fun getTeamsFor(entities: Iterable<Entity>): MutableSet<PlayerTeam> {
+        val teams = HashSet<PlayerTeam>()
+        for (entity in entities) {
+            val team = entity.team ?: continue
+            teams.add(team)
+        }
+        return teams
+    }
+
+    @JvmStatic
+    public fun getMappedTeamsFor(entities: Iterable<Entity>): LinkedHashMultimap<PlayerTeam, Entity> {
+        val teams = LinkedHashMultimap.create<PlayerTeam, Entity>()
+        for (entity in entities) {
+            val team = entity.team ?: continue
+            teams.put(team, entity)
+        }
+        return teams
     }
 
     @JvmStatic

@@ -11,6 +11,7 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.JsonUtils.stringOrNull
 import net.casual.arcade.utils.PlayerUtils.addToTeam
 import net.casual.arcade.utils.PlayerUtils.removeFromTeam
+import net.casual.arcade.utils.TeamUtils
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
@@ -121,7 +122,7 @@ public class MinigameTeamManager(
      * @return The collection of player teams.
      */
     public fun getOnlineTeams(): Collection<PlayerTeam> {
-        return this.getPlayerTeamsFor(this.minigame.players)
+        return TeamUtils.getTeamsFor(this.minigame.players)
     }
 
     /**
@@ -132,7 +133,7 @@ public class MinigameTeamManager(
      * @return The collecting of playing players teams.
      */
     public fun getPlayingTeams(): Collection<PlayerTeam> {
-        val teams = this.getPlayerTeamsFor(this.minigame.players.playing)
+        val teams = TeamUtils.getTeamsFor(this.minigame.players.playing)
         val admins = this.admins
         if (admins != null && teams.remove(admins)) {
             Arcade.logger.warn("MinigameTeamManager.getPlayingTeams included admins")
@@ -214,13 +215,5 @@ public class MinigameTeamManager(
         if (spectators != null) {
             this.spectators = scoreboard.getPlayerTeam(spectators)
         }
-    }
-
-    private fun getPlayerTeamsFor(players: Iterable<ServerPlayer>): HashSet<PlayerTeam> {
-        val teams = HashSet<PlayerTeam>()
-        for (player in players) {
-            teams.add(this.minigame.server.scoreboard.getPlayersTeam(player.scoreboardName) ?: continue)
-        }
-        return teams
     }
 }

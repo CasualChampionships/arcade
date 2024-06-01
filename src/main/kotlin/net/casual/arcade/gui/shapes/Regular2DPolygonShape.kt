@@ -8,7 +8,7 @@ import kotlin.math.sin
 
 public class Regular2DPolygonShape(
     private val center: Vec3,
-    private val radius: Float,
+    private val radius: Double,
     private val vertices: Int,
     private val rotation: Quaterniond
 ): ArcadeShape {
@@ -37,7 +37,7 @@ public class Regular2DPolygonShape(
     }
 
     public companion object {
-        public fun createHorizontal(center: Vec3, radius: Float, vertices: Int): Regular2DPolygonShape {
+        public fun createHorizontal(center: Vec3, radius: Double, vertices: Int): Regular2DPolygonShape {
             return Regular2DPolygonShape(center, radius, vertices, Quaterniond().rotateXYZ(Math.PI / 2, 0.0, 0.0))
         }
     }
