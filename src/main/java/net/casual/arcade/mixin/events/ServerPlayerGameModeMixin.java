@@ -1,13 +1,17 @@
 package net.casual.arcade.mixin.events;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.PlayerBlockInteractionEvent;
 import net.casual.arcade.events.player.PlayerBlockMinedEvent;
+import net.casual.arcade.events.player.PlayerBlockStartMiningEvent;
 import net.casual.arcade.events.player.PlayerGameModeChangeEvent;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.world.InteractionHand;
@@ -18,7 +22,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -109,5 +112,26 @@ public class ServerPlayerGameModeMixin {
 		if (event.isCancelled()) {
 			cir.setReturnValue(false);
 		}
+	}
+
+	@ModifyExpressionValue(
+		method = "handleBlockBreakAction",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/level/ServerPlayer;blockActionRestricted(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/GameType;)Z"
+		)
+	)
+	private boolean isBreakingRestricted(
+		boolean original,
+		BlockPos pos,
+		ServerboundPlayerActionPacket.Action action,
+		Direction face
+	) {
+		if (original) {
+			return true;
+		}
+		PlayerBlockStartMiningEvent event = new PlayerBlockStartMiningEvent(this.player, pos, face);
+		GlobalEventHandler.broadcast(event);
+		return event.isCancelled();
 	}
 }
