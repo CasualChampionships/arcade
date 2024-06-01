@@ -36,14 +36,36 @@ public class MinigameRecipeManager(
         }
     }
 
+    @Deprecated("Use addAll instead", ReplaceWith("this.addAll(recipes)"))
     public fun add(recipes: Collection<RecipeHolder<*>>) {
+        this.addAll(recipes)
+    }
+
+    public fun add(recipe: RecipeHolder<*>) {
+        if (this.recipes.add(this.wrap(recipe))) {
+            this.minigame.server.recipeManager.addRecipes(listOf(recipe))
+        }
+    }
+
+    public fun addAll(recipes: Collection<RecipeHolder<*>>) {
         val minigameRecipes = recipes.map { this.wrap(it) }
         if (this.recipes.addAll(minigameRecipes)) {
             this.minigame.server.recipeManager.addRecipes(minigameRecipes)
         }
     }
 
+    public fun remove(recipe: RecipeHolder<*>) {
+        if (this.recipes.remove(recipe)) {
+            this.minigame.server.recipeManager.removeRecipes(listOf(recipe))
+        }
+    }
+
+    @Deprecated("Use removeAll instead", ReplaceWith("this.removeAll(recipes)"))
     public fun remove(recipes: Collection<RecipeHolder<*>>) {
+        this.removeAll(recipes)
+    }
+
+    public fun removeAll(recipes: Collection<RecipeHolder<*>>) {
         if (this.recipes.removeAll(recipes.toSet())) {
             this.minigame.server.recipeManager.removeRecipes(recipes)
         }

@@ -144,6 +144,12 @@ public object ItemUtils {
     }
 
     @JvmStatic
+    public fun ItemStack.disableGlint(): ItemStack {
+        this.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, false)
+        return this
+    }
+
+    @JvmStatic
     public fun ItemStack.addEnchantment(enchantment: Enchantment, level: Int): ItemStack {
         var stack = this
         if (this.isOf(Items.BOOK)) {
