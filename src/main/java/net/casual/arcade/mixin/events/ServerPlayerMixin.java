@@ -1,5 +1,6 @@
 package net.casual.arcade.mixin.events;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
@@ -78,6 +79,19 @@ public abstract class ServerPlayerMixin extends Player {
 	private void onDeathPost(DamageSource source, CallbackInfo ci) {
 		PlayerDeathEvent event = new PlayerDeathEvent((ServerPlayer) (Object) this, source);
 		GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
+	}
+
+	@ModifyReturnValue(
+		method = "canHarmPlayer",
+		at = @At("RETURN")
+	)
+	private boolean onCanHarmPlayer(boolean original, Player other) {
+		if (other instanceof ServerPlayer player) {
+			PlayerTryHarmEvent event = new PlayerTryHarmEvent((ServerPlayer) (Object) this, player, original);
+			GlobalEventHandler.broadcast(event);
+			return event.getCanHarmOtherBoolean();
+		}
+		return original;
 	}
 
 	@Override
