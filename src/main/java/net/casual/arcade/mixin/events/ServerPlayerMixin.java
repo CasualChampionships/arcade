@@ -1,6 +1,7 @@
 package net.casual.arcade.mixin.events;
 
 import com.mojang.authlib.GameProfile;
+import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.*;
 import net.minecraft.core.BlockPos;
@@ -63,15 +64,20 @@ public abstract class ServerPlayerMixin extends Player {
 
 	@Inject(
 		method = "die",
-		at = @At("HEAD"),
-		cancellable = true
+		at = @At("HEAD")
 	)
-	private void onDeath(DamageSource source, CallbackInfo ci) {
+	private void onDeathPre(DamageSource source, CallbackInfo ci) {
 		PlayerDeathEvent event = new PlayerDeathEvent((ServerPlayer) (Object) this, source);
-		GlobalEventHandler.broadcast(event);
-		if (event.isCancelled()) {
-			ci.cancel();
-		}
+		GlobalEventHandler.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+	}
+
+	@Inject(
+		method = "die",
+		at = @At("TAIL")
+	)
+	private void onDeathPost(DamageSource source, CallbackInfo ci) {
+		PlayerDeathEvent event = new PlayerDeathEvent((ServerPlayer) (Object) this, source);
+		GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
 	}
 
 	@Override
