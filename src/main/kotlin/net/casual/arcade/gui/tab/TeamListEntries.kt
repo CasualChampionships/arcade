@@ -12,6 +12,7 @@ import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Team
+import kotlin.math.max
 
 public open class TeamListEntries: PlayerListEntries {
     private val entries = Array(20) { Array(4) { this.getEmptyEntry() } }
@@ -31,7 +32,7 @@ public open class TeamListEntries: PlayerListEntries {
 
         var previousRow = 0
         for (teams in Iterables.partition(this.getTeams(server), 4)) {
-            val max = teams.maxOf { it.players.size }
+            var most = 0
             for ((column, team) in teams.withIndex()) {
                 var row = previousRow
                 if (row !in this.entries.indices) {
@@ -39,15 +40,21 @@ public open class TeamListEntries: PlayerListEntries {
                 }
                 this.entries[row++][column] = this.createTeamEntry(server, team)
 
-                for (username in team.players) {
+                val teammates = this.getTeammates(team)
+                most = max(teammates.size, most)
+                for (username in teammates) {
                     if (row !in this.entries.indices) {
                         break
                     }
                     this.entries[row++][column] = this.createPlayerEntry(server, username, team)
                 }
             }
-            previousRow += max + 2
+            previousRow += most + 2
         }
+    }
+
+    protected open fun getTeammates(team: PlayerTeam): MutableCollection<String> {
+        return team.players
     }
 
     protected open fun getEmptyEntry(): PlayerListEntries.Entry {
