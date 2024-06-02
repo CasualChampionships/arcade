@@ -12,5 +12,6 @@ import net.minecraft.server.level.ServerPlayer
 public data class MinigameAddExistingPlayerEvent(
     override val minigame: Minigame<*>,
     val player: ServerPlayer,
-    var spectating: Boolean?
+    var spectating: Boolean?,
+    var admin: Boolean?
 ): MinigameEvent

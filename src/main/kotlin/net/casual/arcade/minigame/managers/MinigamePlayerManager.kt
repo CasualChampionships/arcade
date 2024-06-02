@@ -125,9 +125,14 @@ public class MinigamePlayerManager(
      *
      * @param player The player to add to the minigame.
      * @param spectating Whether the player should be spectating, `null` for default.
+     * @param admin Whether the player should be an admin, `null` for default
      * @return Whether the player was successfully accepted.
      */
-    public fun add(player: ServerPlayer, spectating: Boolean? = null): Boolean {
+    public fun add(
+        player: ServerPlayer,
+        spectating: Boolean? = null,
+        admin: Boolean? = null
+    ): Boolean {
         this.minigame.tryInitialize()
         if (this.has(player)) {
             return false
@@ -141,25 +146,37 @@ public class MinigamePlayerManager(
             }
 
             this.connections.add(player.connection)
-            var isSpectating = MinigameAddExistingPlayerEvent(this.minigame, player, spectating).broadcast().spectating
-            isSpectating = MinigameAddPlayerEvent(this.minigame, player, isSpectating).broadcast().spectating
+            val existing = MinigameAddExistingPlayerEvent(this.minigame, player, spectating, admin).broadcast()
+            var isSpectating = existing.spectating
+            var isAdmin = existing.admin
+            val default = MinigameAddPlayerEvent(this.minigame, player, isSpectating, isAdmin).broadcast()
+            isSpectating = default.spectating
+            isAdmin = default.admin
 
             if (isSpectating != null) {
                 if (isSpectating) this.setSpectating(player) else this.setPlaying(player)
+            }
+            if (isAdmin != null) {
+                if (isAdmin) this.addAdmin(player) else this.removeAdmin(player)
             }
             return true
         }
 
         this.connections.add(player.connection)
-        val event = MinigameAddNewPlayerEvent(this.minigame, player, spectating).broadcast()
+        val event = MinigameAddNewPlayerEvent(this.minigame, player, spectating, admin).broadcast()
         if (!event.isCancelled()) {
             player.minigame.setMinigame(this.minigame)
-            val isSpectating = MinigameAddPlayerEvent(this.minigame, player, event.spectating).broadcast().spectating
+            val default = MinigameAddPlayerEvent(this.minigame, player, event.spectating, event.admin).broadcast()
+            val isSpectating = default.spectating
+            val isAdmin = default.admin
 
             if (isSpectating != null && isSpectating) {
                 this.setSpectating(player)
             } else {
                 MinigameSetPlayingEvent(this.minigame, player).broadcast()
+            }
+            if (isAdmin != null && isAdmin) {
+                this.addAdmin(player)
             }
             return true
         }
