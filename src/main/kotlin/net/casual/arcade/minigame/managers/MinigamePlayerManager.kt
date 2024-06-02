@@ -292,7 +292,7 @@ public class MinigamePlayerManager(
         keepAdmin: Boolean = true,
     ) {
         for (player in players) {
-            this.transferTo(next, players, keepSpectating, keepAdmin)
+            this.transferTo(next, player, keepSpectating, keepAdmin)
         }
     }
 
