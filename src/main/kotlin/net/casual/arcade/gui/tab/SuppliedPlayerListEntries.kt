@@ -10,12 +10,16 @@ public open class SuppliedPlayerListEntries: PlayerListEntries {
         get() = this.entries.size
 
     override fun getEntryAt(index: Int): PlayerListEntries.Entry {
-        val player = this.entries[index]
+        val player = this.getPlayerAt(index)
         return PlayerListEntries.Entry.fromPlayer(player)
     }
 
     override fun tick(server: MinecraftServer) {
         this.entries = this.getPlayers(server)
+    }
+
+    protected fun getPlayerAt(index: Int): ServerPlayer {
+        return this.entries[index]
     }
 
     protected open fun getPlayers(server: MinecraftServer): List<ServerPlayer> {
