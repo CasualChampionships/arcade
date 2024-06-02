@@ -68,13 +68,9 @@ internal class PlayerPackExtension: Extension {
         val uuid = packet.id
         if (uuid.isEmpty) {
             this.packs.clear()
-            this.futures.clear()
-            this.checkAllFutures()
             return
         }
         this.packs.remove(uuid.get())
-        this.futures.remove(uuid.get())
-        this.checkAllFutures()
     }
 
     private fun checkAllFutures() {
