@@ -39,7 +39,7 @@ internal class PlayerPackExtension: Extension {
             if (this.packs.remove(uuid) != null) {
                 Arcade.logger.warn("Client removed resource pack without server telling it to!")
             }
-            this.futures[uuid]?.complete(status)
+            this.futures.remove(uuid)?.complete(status)
             this.checkAllFutures()
             return
         }
