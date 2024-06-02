@@ -14,6 +14,7 @@ import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.annotation.MinigameEventListener
 import net.casual.arcade.minigame.extensions.LevelMinigameExtension
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
+import net.casual.arcade.minigame.managers.MinigamePlayerManager
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.scheduler.MinecraftScheduler
 import net.casual.arcade.scheduler.MinecraftTimeDuration
@@ -99,21 +100,18 @@ public object MinigameUtils {
         parseMinigameEvents(this, listener)
     }
 
+    @Deprecated("Use player manager instead", ReplaceWith(
+        "this.players.transferTo(next, players, transferSpectatorStatus, transferAdminStatus)",
+        "net.casual.arcade.utils.MinigameUtils.transferTo"
+    ))
     public fun Minigame<*>.transferPlayersTo(
         next: Minigame<*>,
         players: Iterable<ServerPlayer> = this.players,
         transferAdminStatus: Boolean = true,
         transferSpectatorStatus: Boolean = true
     ) {
-        for (player in players) {
-            next.players.add(
-                player,
-                transferSpectatorStatus && this.players.isSpectating(player),
-                transferAdminStatus && this.players.isAdmin(player)
-            )
-        }
+        this.players.transferTo(next, players, transferSpectatorStatus, transferAdminStatus)
     }
-
     public fun Minigame<*>.transferAdminAndSpectatorTeamsTo(next: Minigame<*>) {
         if (this.teams.hasSpectatorTeam()) {
             next.teams.setSpectatorTeam(this.teams.getSpectatorTeam())

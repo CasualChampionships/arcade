@@ -285,6 +285,31 @@ public class MinigamePlayerManager(
         return this.adminUUIDs.contains(player.uuid)
     }
 
+    public fun transferTo(
+        next: Minigame<*>,
+        players: Iterable<ServerPlayer> = this,
+        keepSpectating: Boolean = true,
+        keepAdmin: Boolean = true,
+    ) {
+        for (player in players) {
+            this.transferTo(next, players, keepSpectating, keepAdmin)
+        }
+    }
+
+    public fun transferTo(
+        next: Minigame<*>,
+        player: ServerPlayer,
+        keepSpectating: Boolean = true,
+        keepAdmin: Boolean = true,
+    ): Boolean {
+        if (!this.has(player)) {
+            return false
+        }
+        val spectating = if (keepSpectating) this.isSpectating(player) else null
+        val admin = if (keepAdmin) this.isAdmin(player) else null
+        return next.players.add(player, spectating, admin)
+    }
+
     private fun streamPlayers(): Stream<ServerPlayer> {
         return this.connections.stream().map { it.player }
     }
