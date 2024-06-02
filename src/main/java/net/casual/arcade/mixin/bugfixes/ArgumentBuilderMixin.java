@@ -29,7 +29,9 @@ public class ArgumentBuilderMixin<S, T extends ArgumentBuilder<S, T>> {
 		}
 		if (builder instanceof RequiredArgumentBuilder<?, ?> argument && argument.getType() instanceof EntityArgument) {
 			this.arcade$askingServerForSuggestions = true;
-			argument.suggests(argument.getType()::listSuggestions);
+			if (argument.getSuggestionsProvider() == null) {
+				argument.suggests(argument.getType()::listSuggestions);
+			}
 		}
 		return builder;
 	}
@@ -48,7 +50,9 @@ public class ArgumentBuilderMixin<S, T extends ArgumentBuilder<S, T>> {
 		if (node instanceof ArgumentCommandNode<S, ?> argument && argument.getType() instanceof EntityArgument) {
 			this.arcade$askingServerForSuggestions = true;
 			RequiredArgumentBuilder<S, ?> builder = argument.createBuilder();
-			builder.suggests(argument.getType()::listSuggestions);
+			if (builder.getSuggestionsProvider() == null) {
+				builder.suggests(argument.getType()::listSuggestions);
+			}
 			return builder.build();
 		}
 		return node;
