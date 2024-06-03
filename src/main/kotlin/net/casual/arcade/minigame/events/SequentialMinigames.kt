@@ -56,19 +56,19 @@ public class SequentialMinigames(
 
     public fun startNewMinigame(minigame: Minigame<*>) {
         val current = this.current
+        this.current = minigame
         if (current != null) {
             if (current === minigame) {
                 throw IllegalArgumentException("Cannot start current minigame!")
             }
 
             current.transferAdminAndSpectatorTeamsTo(minigame)
-            current.transferPlayersTo(minigame)
+            current.players.transferTo(minigame)
             current.close()
         }
 
         this.incrementIndex(minigame)
 
-        this.current = minigame
         minigame.start()
     }
 
