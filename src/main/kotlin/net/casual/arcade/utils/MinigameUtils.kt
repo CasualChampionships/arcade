@@ -128,15 +128,15 @@ public object MinigameUtils {
         }
     }
 
-    public fun <T: Any> MinigameSettings.broadcastChangesToAdmin() {
+    public fun MinigameSettings.broadcastChangesToAdmin() {
         for (setting in this.all()) {
             @Suppress("UNCHECKED_CAST")
-            (setting as GameSetting<T>).addListener { _, value ->
+            (setting as GameSetting<Any>).addListener { _, previous, value ->
                 this.minigame.chat.broadcastTo(
                     "Setting ".literal()
                         .append(setting.name.literal().gold())
                         .append(" changed from ")
-                        .append(setting.get().toString().literal().red())
+                        .append(previous.toString().literal().red())
                         .append(" to ")
                         .append(value.toString().literal().lime()),
                     this.minigame.players.admins

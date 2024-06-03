@@ -27,8 +27,9 @@ public open class GameSetting<T: Any>(
     }
 
     public fun set(value: T) {
+        val previous = this.get()
         for (listener in this.listeners) {
-            listener.onSet(this, value)
+            listener.onSet(this, previous, value)
         }
         this.setQuietly(value)
     }

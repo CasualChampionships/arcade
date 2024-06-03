@@ -153,7 +153,7 @@ public open class MinigameSettings(
         value = true
         override = isAdminOverride(true)
         defaults.options(this)
-        listener { _, value ->
+        listener { _, _, value ->
             canInteractAllSetting.setQuietly(value && canInteractItems.get() && canInteractBlocks.get())
         }
     })
@@ -170,7 +170,7 @@ public open class MinigameSettings(
         value = true
         override = isAdminOverride(true)
         defaults.options(this)
-        listener { _, value ->
+        listener { _, _, value ->
             canInteractAllSetting.setQuietly(value && canInteractItems.get() && canInteractEntities.get())
         }
     })
@@ -187,7 +187,7 @@ public open class MinigameSettings(
         value = true
         override = isAdminOverride(true)
         defaults.options(this)
-        listener { _, value ->
+        listener { _, _, value ->
             canInteractAllSetting.setQuietly(value && canInteractBlocks.get() && canInteractEntities.get())
         }
     })
@@ -200,7 +200,7 @@ public open class MinigameSettings(
         )
         value = true
         defaults.options(this)
-        listener { _, value ->
+        listener { _, _, value ->
             canInteractBlocks.set(value)
             canInteractEntities.set(value)
             canInteractItems.set(value)
