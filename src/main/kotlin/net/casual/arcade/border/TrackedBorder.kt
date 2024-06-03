@@ -56,13 +56,17 @@ public class TrackedBorder(size: Double, centerX: Double, centerZ: Double): Arca
             return
         }
         this.isTracking = true
+        val previousSize = this.size
         val wasStationary = this.isStationary()
         block()
-        if (!wasStationary && this.isStationary()) {
+        if (wasStationary) {
+            if (!this.isStationary()) {
+                this.trackers.forEach { it.onBorderActive(this) }
+            } else if (previousSize != this.size) {
+                this.trackers.forEach { it.onBorderComplete(this) }
+            }
+        } else if (this.isStationary()) {
             this.trackers.forEach { it.onBorderComplete(this) }
-        }
-        if (wasStationary && !this.isStationary()) {
-            this.trackers.forEach { it.onBorderActive(this) }
         }
         this.isTracking = false
     }
