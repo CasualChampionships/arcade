@@ -10,6 +10,7 @@ import net.casual.arcade.events.player.PlayerExtensionEvent
 import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.MinigameSettings
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.annotation.MinigameEventListener
 import net.casual.arcade.minigame.extensions.LevelMinigameExtension
@@ -18,13 +19,19 @@ import net.casual.arcade.minigame.managers.MinigamePlayerManager
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.scheduler.MinecraftScheduler
 import net.casual.arcade.scheduler.MinecraftTimeDuration
+import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.task.Completable
+import net.casual.arcade.utils.ComponentUtils.gold
+import net.casual.arcade.utils.ComponentUtils.lime
+import net.casual.arcade.utils.ComponentUtils.literal
+import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.LevelUtils.addExtension
 import net.casual.arcade.utils.LevelUtils.getExtension
 import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
@@ -118,6 +125,23 @@ public object MinigameUtils {
         }
         if (this.teams.hasAdminTeam()) {
             next.teams.setAdminTeam(this.teams.getAdminTeam())
+        }
+    }
+
+    public fun <T: Any> MinigameSettings.broadcastChangesToAdmin() {
+        for (setting in this.all()) {
+            @Suppress("UNCHECKED_CAST")
+            (setting as GameSetting<T>).addListener { _, value ->
+                this.minigame.chat.broadcastTo(
+                    "Setting ".literal()
+                        .append(setting.name.literal().gold())
+                        .append(" changed from ")
+                        .append(setting.get().toString().literal().red())
+                        .append(" to ")
+                        .append(value.toString().literal().lime()),
+                    this.minigame.players.admins
+                )
+            }
         }
     }
 

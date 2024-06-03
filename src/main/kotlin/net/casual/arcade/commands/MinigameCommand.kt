@@ -32,6 +32,7 @@ import net.casual.arcade.utils.TeamUtils.toComponent
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.Commands
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.commands.arguments.TeamArgument
@@ -520,7 +521,7 @@ internal object MinigameCommand: Command {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val player = EntityArgument.getPlayer(context, "player")
         val tags = minigame.tags.get(player).joinToString()
-        return context.source.success("Tags for ${player.scoreboard}: $tags")
+        return context.source.success("Tags for ${player.scoreboardName}: $tags")
     }
 
     private fun addPlayerTag(context: CommandContext<CommandSourceStack>): Int {
@@ -529,9 +530,9 @@ internal object MinigameCommand: Command {
         val tag = ResourceLocationArgument.getId(context, "tag")
 
         if (!minigame.tags.add(player, tag)) {
-            return context.source.fail("${player.scoreboard} already had tag $tag")
+            return context.source.fail("${player.scoreboardName} already had tag $tag")
         }
-        return context.source.success("Successfully added tag $tag to ${player.scoreboard}")
+        return context.source.success("Successfully added tag $tag to ${player.scoreboardName}")
     }
 
     private fun removePlayerTag(context: CommandContext<CommandSourceStack>): Int {
@@ -540,9 +541,9 @@ internal object MinigameCommand: Command {
         val tag = ResourceLocationArgument.getId(context, "tag")
 
         if (!minigame.tags.remove(player, tag)) {
-            return context.source.fail("${player.scoreboard} did not have tag $tag")
+            return context.source.fail("${player.scoreboardName} did not have tag $tag")
         }
-        return context.source.success("Successfully removed tag $tag for ${player.scoreboard}")
+        return context.source.success("Successfully removed tag $tag for ${player.scoreboardName}")
     }
 
     private fun getMinigamePhase(context: CommandContext<CommandSourceStack>): Int {
