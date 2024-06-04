@@ -667,11 +667,6 @@ public abstract class Minigame<M: Minigame<M>>(
 
     private fun onPlayerAdd(event: MinigameAddPlayerEvent) {
         this.getResources().sendTo(event.player)
-
-        val advancements = this.data.getAdvancements(event.player)
-        for (advancement in advancements) {
-            event.player.grantAdvancementSilently(advancement)
-        }
     }
 
     private fun onPlayerRemove(event: MinigameRemovePlayerEvent) {
