@@ -71,8 +71,6 @@
     "minigame.ServerLevelMixin",
     "minigame.ServerPlayerGameModeMixin",
     "minigame.ServerPlayerMixin",
-    "recipes.ClientboundUpdateRecipesPacketMixin",
-    "recipes.CraftingMenuMixin",
     "recipes.RecipeManagerMixin",
     "recipes.ServerRecipeBookMixin",
     "screen.ServerGamePacketListenerImplMixin",
