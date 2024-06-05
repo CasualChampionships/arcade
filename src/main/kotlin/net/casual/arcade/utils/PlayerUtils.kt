@@ -11,6 +11,8 @@ import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ExtensionUtils.addExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtensions
+import net.casual.arcade.utils.MinigameUtils.getMinigame
+import net.casual.arcade.utils.PlayerUtils.grantAllRecipes
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -269,11 +271,28 @@ public object PlayerUtils {
     @JvmStatic
     public fun ServerPlayer.grantAllRecipes() {
         this.awardRecipes(this.server.recipeManager.recipes)
+        val minigame = this.getMinigame() ?: return
+        this.awardRecipes(minigame.recipes.all())
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.grantAllRecipesSilently() {
+        for (recipe in this.server.recipeManager.recipes) {
+            this.recipeBook.add(recipe)
+        }
+        val minigame = this.getMinigame()
+        if (minigame != null) {
+            minigame.recipes.grantSilently(this, minigame.recipes.all())
+            return
+        }
+        this.recipeBook.sendInitialRecipeBook(this)
     }
 
     @JvmStatic
     public fun ServerPlayer.revokeAllRecipes() {
         this.resetRecipes(this.server.recipeManager.recipes)
+        val minigame = this.getMinigame() ?: return
+        this.resetRecipes(minigame.recipes.all())
     }
 
     @JvmStatic

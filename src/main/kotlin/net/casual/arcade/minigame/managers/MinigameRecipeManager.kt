@@ -87,6 +87,12 @@ public class MinigameRecipeManager(
         ))
     }
 
+    public fun grantSilently(player: ServerPlayer, recipes: Collection<RecipeHolder<*>>) {
+        val mapped = recipes.map { it.id }
+        this.players.putAll(player.uuid, mapped)
+        player.recipeBook.sendInitialRecipeBook(player)
+    }
+
     public fun revoke(player: ServerPlayer, recipes: Collection<RecipeHolder<*>>) {
         for (recipe in recipes) {
             this.players.remove(player.uuid, recipe.id)
