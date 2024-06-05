@@ -7,6 +7,7 @@ import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.long
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
+import net.casual.arcade.utils.JsonUtils.strings
 import net.casual.arcade.utils.JsonUtils.uuid
 import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.core.registries.BuiltInRegistries
@@ -34,7 +35,7 @@ public class MinigameDataTracker(
         val json = JsonObject()
         json.addProperty("uuid", player.stringUUID)
         // json.add("stats", this.minigame.stats.serialize(player))
-        val array = JsonArray()
+        val advancements = JsonArray()
         for (advancement in this.minigame.advancements.all()) {
             if (!player.advancements.getOrStartProgress(advancement).isDone) {
                 continue
@@ -44,9 +45,9 @@ public class MinigameDataTracker(
             data.addProperty("id", advancement.id.toString())
             data.addProperty("item", BuiltInRegistries.ITEM.getKey(display.icon.item).toString())
             data.addProperty("title", display.title.string)
-            array.add(data)
+            advancements.add(data)
         }
-        json.add("advancements", array)
+        json.add("advancements", advancements)
 
         this.players[player.uuid] = json
     }

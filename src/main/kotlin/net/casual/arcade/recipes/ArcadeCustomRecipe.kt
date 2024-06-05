@@ -30,18 +30,7 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  */
 public abstract class ArcadeCustomRecipe(
     category: CraftingBookCategory
-): CustomRecipe(category), PolymerRecipe, PlayerPredicatedRecipe {
-    /**
-     * This method is used to check whether a player can
-     * craft this recipe.
-     *
-     * @param player The player to check.
-     * @return Whether the player can craft this recipe.
-     */
-    override fun canUse(player: ServerPlayer): Boolean {
-        return true
-    }
-
+): CustomRecipe(category), PolymerRecipe {
     /**
      * This method is called when the recipe is being assembled.
      *

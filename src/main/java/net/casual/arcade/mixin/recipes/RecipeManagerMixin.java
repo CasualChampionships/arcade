@@ -3,26 +3,31 @@ package net.casual.arcade.mixin.recipes;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.gson.JsonElement;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.casual.arcade.ducks.Arcade$MutableRecipeManager;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.ServerRecipeReloadEvent;
+import net.casual.arcade.minigame.Minigame;
+import net.casual.arcade.utils.MinigameUtils;
+import net.casual.arcade.utils.impl.ConcatenatedList;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Mixin(RecipeManager.class)
 public abstract class RecipeManagerMixin implements Arcade$MutableRecipeManager {
@@ -30,7 +35,6 @@ public abstract class RecipeManagerMixin implements Arcade$MutableRecipeManager 
 
 	@Shadow public abstract void replaceRecipes(Iterable<RecipeHolder<?>> recipes);
 
-	@SuppressWarnings("UnreachableCode")
 	@Inject(
 		method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
 		at = @At(
@@ -70,5 +74,48 @@ public abstract class RecipeManagerMixin implements Arcade$MutableRecipeManager 
 		List<RecipeHolder<?>> mutable = new LinkedList<>(this.byName.values());
 		mutable.removeAll(recipes);
 		this.replaceRecipes(mutable);
+	}
+
+	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+	@ModifyReturnValue(
+		method = "getRecipeFor(Lnet/minecraft/world/item/crafting/RecipeType;Lnet/minecraft/world/Container;Lnet/minecraft/world/level/Level;)Ljava/util/Optional;",
+		at = @At("RETURN")
+	)
+	private <C extends Container, T extends Recipe<C>> Optional<RecipeHolder<T>> modifyRecipe(
+		Optional<RecipeHolder<T>> original,
+		RecipeType<T> type,
+		C inventory,
+		Level level
+	) {
+		if (original.isPresent() || !(level instanceof ServerLevel serverLevel)) {
+			return original;
+		}
+		Minigame<?> minigame = MinigameUtils.getMinigame(serverLevel);
+		if (minigame == null) {
+			return original;
+		}
+
+		return minigame.getRecipes().find(type, inventory, serverLevel);
+ 	}
+
+
+	@ModifyReturnValue(
+		method = "getRecipesFor",
+		at = @At("RETURN")
+	)
+	private <C extends Container, T extends Recipe<C>> List<RecipeHolder<T>> modifyRecipes(
+		List<RecipeHolder<T>> original,
+		RecipeType<T> type,
+		C inventory,
+		Level level
+	) {
+		if (!(level instanceof ServerLevel serverLevel)) {
+			return original;
+		}
+		Minigame<?> minigame = MinigameUtils.getMinigame(serverLevel);
+		if (minigame == null) {
+			return original;
+		}
+		return ConcatenatedList.concat(original, minigame.getRecipes().findAll(type, inventory, serverLevel));
 	}
 }

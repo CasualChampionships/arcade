@@ -1,17 +1,29 @@
 package net.casual.arcade.minigame.managers
 
-import net.casual.arcade.Arcade
-import net.casual.arcade.events.minigame.MinigameCloseEvent
-import net.casual.arcade.events.server.ServerRecipeReloadEvent
+import com.google.common.collect.HashMultimap
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import net.casual.arcade.events.minigame.MinigameAddPlayerEvent
+import net.casual.arcade.events.minigame.MinigameRemovePlayerEvent
+import net.casual.arcade.events.player.PlayerClientboundPacketEvent
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.recipes.PlayerPredicatedRecipe
-import net.casual.arcade.recipes.WrappedRecipe
-import net.casual.arcade.utils.RecipeUtils.addRecipes
-import net.casual.arcade.utils.RecipeUtils.removeRecipes
+import net.casual.arcade.minigame.annotation.ListenerFlags
+import net.casual.arcade.utils.JsonUtils.array
+import net.casual.arcade.utils.JsonUtils.objects
+import net.casual.arcade.utils.JsonUtils.strings
+import net.casual.arcade.utils.JsonUtils.toJsonStringArray
+import net.casual.arcade.utils.JsonUtils.uuid
+import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
+import net.minecraft.network.protocol.game.ClientboundRecipePacket
+import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Container
-import net.minecraft.world.inventory.CraftingContainer
-import net.minecraft.world.item.crafting.*
+import net.minecraft.world.item.crafting.Recipe
+import net.minecraft.world.item.crafting.RecipeHolder
+import net.minecraft.world.item.crafting.RecipeType
+import java.util.*
 
 /**
  * This class manages the recipes of a minigame.
@@ -25,89 +37,143 @@ import net.minecraft.world.item.crafting.*
 public class MinigameRecipeManager(
     private val minigame: Minigame<*>
 ) {
-    private val recipes = ArrayList<RecipeHolder<*>>()
+    private val recipes = HashMultimap.create<RecipeType<*>, RecipeHolder<*>>()
+    internal val players = HashMultimap.create<UUID, ResourceLocation>()
 
     init {
-        this.minigame.events.register<ServerRecipeReloadEvent> {
-            it.addAll(this.recipes)
+        this.minigame.events.register<PlayerClientboundPacketEvent>(1_000, flags = ListenerFlags.HAS_PLAYER) {
+            this.onClientboundPacket(it)
         }
-        this.minigame.events.register<MinigameCloseEvent> {
-            this.removeAll()
+        this.minigame.events.register<MinigameAddPlayerEvent> {
+            it.player.connection.send(this.createRecipesPacket())
+            it.player.recipeBook.sendInitialRecipeBook(it.player)
         }
-    }
-
-    @Deprecated("Use addAll instead", ReplaceWith("this.addAll(recipes)"))
-    public fun add(recipes: Collection<RecipeHolder<*>>) {
-        this.addAll(recipes)
+        this.minigame.events.register<MinigameRemovePlayerEvent> {
+            it.player.connection.send(ClientboundUpdateRecipesPacket(this.minigame.server.recipeManager.recipes))
+        }
     }
 
     public fun add(recipe: RecipeHolder<*>) {
-        val wrapped = this.wrap(recipe)
-        if (this.recipes.add(wrapped)) {
-            this.minigame.server.recipeManager.addRecipes(listOf(wrapped))
-        }
+        this.recipes.put(recipe.value.type, recipe)
+
+        this.refreshRecipes()
     }
 
     public fun addAll(recipes: Collection<RecipeHolder<*>>) {
-        val minigameRecipes = recipes.map { this.wrap(it) }
-        if (this.recipes.addAll(minigameRecipes)) {
-            this.minigame.server.recipeManager.addRecipes(minigameRecipes)
+        for (recipe in recipes) {
+            this.recipes.put(recipe.value.type, recipe)
         }
-    }
 
-    public fun remove(recipe: RecipeHolder<*>) {
-        if (this.recipes.remove(recipe)) {
-            this.minigame.server.recipeManager.removeRecipes(listOf(recipe))
-        }
-    }
-
-    @Deprecated("Use removeAll instead", ReplaceWith("this.removeAll(recipes)"))
-    public fun remove(recipes: Collection<RecipeHolder<*>>) {
-        this.removeAll(recipes)
-    }
-
-    public fun removeAll(recipes: Collection<RecipeHolder<*>>) {
-        if (this.recipes.removeAll(recipes.toSet())) {
-            this.minigame.server.recipeManager.removeRecipes(recipes)
-        }
-    }
-
-    public fun removeAll() {
-        this.minigame.server.recipeManager.removeRecipes(this.recipes)
-        this.recipes.clear()
+        this.refreshRecipes()
     }
 
     public fun all(): Collection<RecipeHolder<*>> {
-        return this.recipes
+        return this.recipes.values()
     }
 
-    private fun wrap(holder: RecipeHolder<*>): RecipeHolder<*> {
-        val wrapper = when (val recipe = holder.value) {
-            is CraftingRecipe -> {
-                object: MinigameRecipe<CraftingContainer>(recipe), CraftingRecipe {
-                    override fun getType(): RecipeType<*> {
-                        return RecipeType.CRAFTING
-                    }
+    public fun <C: Container, R: Recipe<C>> all(type: RecipeType<R>): Set<RecipeHolder<R>> {
+        @Suppress("UNCHECKED_CAST")
+        return this.recipes.get(type) as Set<RecipeHolder<R>>
+    }
 
-                    override fun category(): CraftingBookCategory {
-                        return recipe.category()
-                    }
-                }
-            }
-            else -> MinigameRecipe(recipe)
+    public fun grant(player: ServerPlayer, recipes: Collection<RecipeHolder<*>>) {
+        val mapped = recipes.map { it.id }
+        this.players.putAll(player.uuid, mapped)
+        player.connection.send(ClientboundRecipePacket(
+            ClientboundRecipePacket.State.ADD,
+            mapped,
+            listOf(),
+            player.recipeBook.bookSettings
+        ))
+    }
+
+    public fun revoke(player: ServerPlayer, recipes: Collection<RecipeHolder<*>>) {
+        for (recipe in recipes) {
+            this.players.remove(player.uuid, recipe.id)
         }
-        return RecipeHolder(
-            Arcade.id("${this.minigame.uuid}.${holder.id.path}.${holder.id.namespace}"),
-            wrapper
-        )
+        player.connection.send(ClientboundRecipePacket(
+            ClientboundRecipePacket.State.REMOVE,
+            recipes.map { it.id },
+            listOf(),
+            player.recipeBook.bookSettings
+        ))
     }
 
-    private open inner class MinigameRecipe<C: Container>(
-        wrapped: Recipe<C>
-    ): WrappedRecipe<C>(wrapped), PlayerPredicatedRecipe {
-        override fun canUse(player: ServerPlayer): Boolean {
-            return minigame.players.has(player) &&
-                ((this.wrapped !is PlayerPredicatedRecipe) || this.wrapped.canUse(player))
+    public fun <C: Container, R: Recipe<C>> find(
+        type: RecipeType<R>,
+        inventory: C,
+        level: ServerLevel
+    ): Optional<RecipeHolder<R>> {
+        return this.all(type).stream()
+            .filter { holder -> holder.value.matches(inventory, level) }
+            .findFirst()
+    }
+
+    public fun <C: Container, R: Recipe<C>> findAll(
+        type: RecipeType<R>,
+        inventory: C,
+        level: ServerLevel
+    ): List<RecipeHolder<R>> {
+        return this.all(type).stream()
+            .filter { holder -> holder.value.matches(inventory, level) }
+            .sorted(Comparator.comparing { holder -> holder.value.getResultItem(level.registryAccess()).descriptionId })
+            .toList()
+    }
+
+    internal fun serialize(): JsonArray {
+        val array = JsonArray()
+        for ((player, recipes) in this.players.asMap()) {
+            val json = JsonObject()
+            json.addProperty("uuid", player.toString())
+            json.add("recipes", recipes.toJsonStringArray { it.toString() })
+        }
+        return array
+    }
+
+    internal fun deserialize(array: JsonArray) {
+        for (player in array.objects()) {
+            val uuid = player.uuid("uuid")
+            this.players.putAll(uuid, player.array("recipes").strings().map { ResourceLocation(it) })
+        }
+    }
+
+    private fun refreshRecipes() {
+        val packet = this.createRecipesPacket()
+        for (player in this.minigame.players) {
+            player.connection.send(packet)
+        }
+    }
+
+    private fun createRecipesPacket(): ClientboundUpdateRecipesPacket {
+        val recipes = this.minigame.server.recipeManager.recipes.toList()
+        val packet = ClientboundUpdateRecipesPacket(recipes.concat(this.all().toList()))
+        return packet
+    }
+
+    private fun onClientboundPacket(event: PlayerClientboundPacketEvent) {
+        val packet = event.packet
+        if (packet is ClientboundUpdateRecipesPacket) {
+            val recipes = this.all()
+            if (packet.recipes.containsAll(recipes)) {
+                return
+            }
+
+            event.cancel(ClientboundUpdateRecipesPacket(packet.recipes.concat(recipes.toList())))
+            return
+        }
+
+        if (packet is ClientboundRecipePacket && packet.state == ClientboundRecipePacket.State.INIT) {
+            val unlocked = this.players[event.player.uuid]
+            if (packet.recipes.containsAll(unlocked)) {
+                return
+            }
+
+            event.cancel(ClientboundRecipePacket(
+                ClientboundRecipePacket.State.INIT,
+                packet.recipes.concat(unlocked.toList()),
+                packet.highlights,
+                packet.bookSettings
+            ))
         }
     }
 }
