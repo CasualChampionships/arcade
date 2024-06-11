@@ -11,6 +11,7 @@ import net.casual.arcade.commands.arguments.minigame.MinigameArgument
 import net.casual.arcade.commands.arguments.minigame.MinigameFactoryArgument
 import net.casual.arcade.events.minigame.LobbyMoveToNextMinigameEvent
 import net.casual.arcade.events.minigame.MinigameAddNewPlayerEvent
+import net.casual.arcade.events.minigame.MinigameCloseEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.gui.bossbar.TimerBossBar
 import net.casual.arcade.minigame.Minigame
@@ -56,10 +57,11 @@ public open class LobbyMinigame(
     public val lobby: Lobby,
 ): Minigame<LobbyMinigame>(server) {
     private var awaiting: (() -> Component)? = null
-    private var next: Minigame<*>? = null
     private var transferring: Boolean = false
 
     public val bossbar: TimerBossBar = this.lobby.createBossbar().apply { then(::completeBossBar) }
+
+    public var nextMinigame: Minigame<*>? = null
 
     override val id: ResourceLocation = ID
 
@@ -94,6 +96,12 @@ public open class LobbyMinigame(
                 this.lobby.tryTeleportToSpawn(player)
             }
         }
+        this.events.register<MinigameCloseEvent> {
+            val next = this.nextMinigame
+            if (next != null && !next.initialized) {
+                next.close()
+            }
+        }
 
         this.commands.register(this.createLobbyCommand())
 
@@ -118,14 +126,6 @@ public open class LobbyMinigame(
         return this.players.playing
     }
 
-    public fun getNextMinigame(): Minigame<*>? {
-        return this.next
-    }
-
-    public fun setNextMinigame(minigame: Minigame<*>) {
-        this.next = minigame
-    }
-
     protected open fun startNextMinigame() {
         this.setPhase(LobbyPhase.Countdown)
     }
@@ -145,10 +145,10 @@ public open class LobbyMinigame(
             return
         }
 
-        val next = this.next!!
+        val next = this.nextMinigame!!
         if (next.closed) {
             Arcade.logger.warn("Failed to move to next minigame ${next.id}, it was closed before starting!")
-            this.next = null
+            this.nextMinigame = null
             return
         }
 
@@ -162,7 +162,7 @@ public open class LobbyMinigame(
             next.start()
 
             this.setPhase(LobbyPhase.Waiting)
-            this.next = null
+            this.nextMinigame = null
             this.transferring = false
         }.ifCancelled {
             this.transferring = false
@@ -181,7 +181,7 @@ public open class LobbyMinigame(
 
     override fun appendAdditionalDebugInfo(json: JsonObject) {
         super.appendAdditionalDebugInfo(json)
-        val next = this.next
+        val next = this.nextMinigame
         if (next != null) {
             json.add("next_minigame", next.getDebugInfo())
         }
@@ -234,7 +234,7 @@ public open class LobbyMinigame(
     }
 
     private fun nextMinigameSettings(context: CommandContext<CommandSourceStack>): Int {
-        val next = this.next ?: throw NO_MINIGAME.create()
+        val next = this.nextMinigame ?: throw NO_MINIGAME.create()
         val player = context.source.playerOrException
         next.settings.gui(player).open()
         return this.commandSuccess()
@@ -242,22 +242,22 @@ public open class LobbyMinigame(
 
     private fun setNextMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        this.next = minigame
+        this.nextMinigame = minigame
         return context.source.success("Successfully set the next minigame to ${minigame.id}")
     }
 
     private fun setNextNewMinigame(context: CommandContext<CommandSourceStack>): Int {
         val factory = MinigameFactoryArgument.getFactory(context, "minigame")
-        this.next?.close()
+        this.nextMinigame?.close()
         val next = factory.create(MinigameCreationContext(context.source.server))
         next.tryInitialize()
-        this.next = next
+        this.nextMinigame = next
         return context.source.success("Successfully set the next minigame to ${next.id}")
     }
 
     private fun unsetNextMinigame(context: CommandContext<CommandSourceStack>): Int {
-        this.next?.close()
-        this.next = null
+        this.nextMinigame?.close()
+        this.nextMinigame = null
         return context.source.success("Successfully unset the next minigame")
     }
 
@@ -283,13 +283,13 @@ public open class LobbyMinigame(
     }
 
     private fun startCountdown(context: CommandContext<CommandSourceStack>): Int {
-        this.next ?: return context.source.fail("Cannot move to next minigame, it has not been set!")
+        this.nextMinigame ?: return context.source.fail("Cannot move to next minigame, it has not been set!")
         this.setPhase(LobbyPhase.Countdown)
         return context.source.success("Successfully started the countdown")
     }
 
     private fun readyPlayers(context: CommandContext<CommandSourceStack>): Int {
-        this.next ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
+        this.nextMinigame ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
         this.setPhase(LobbyPhase.Readying)
         val awaiting = this.ui.readier.arePlayersReady(this.getPlayersToReady(), this::onReady)
         this.awaiting = {
@@ -299,7 +299,7 @@ public open class LobbyMinigame(
     }
 
     private fun readyTeams(context: CommandContext<CommandSourceStack>): Int {
-        this.next ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
+        this.nextMinigame ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
         this.setPhase(LobbyPhase.Readying)
         val awaiting = this.ui.readier.areTeamsReady(this.getTeamsToReady(), this::onReady)
         this.awaiting = {
@@ -351,7 +351,7 @@ public open class LobbyMinigame(
         Readying("readying"),
         Countdown("countdown") {
             override fun start(minigame: LobbyMinigame, previous: Phase<LobbyMinigame>) {
-                val next = minigame.next
+                val next = minigame.nextMinigame
                 if (next == null) {
                     Arcade.logger.warn("Tried counting down in lobby when there is no next minigame!")
                     minigame.setPhase(Waiting)

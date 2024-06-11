@@ -10,7 +10,6 @@ import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.events.lobby.LobbyMinigame
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.utils.MinigameUtils.transferAdminAndSpectatorTeamsTo
-import net.casual.arcade.utils.MinigameUtils.transferPlayersTo
 import net.casual.arcade.utils.ResourcePackUtils.sendResourcePack
 import net.minecraft.core.UUIDUtil
 import net.minecraft.resources.ResourceLocation
@@ -38,7 +37,7 @@ public class SequentialMinigames(
     public fun getNext(): Minigame<*>? {
         val current = this.getCurrent()
         if (current === this.lobby) {
-            return current.getNextMinigame()
+            return current.nextMinigame
         }
         return this.lobby
     }
@@ -92,7 +91,7 @@ public class SequentialMinigames(
 
         val next = this.createNextMinigame()
         if (next != null) {
-            lobby.setNextMinigame(next)
+            lobby.nextMinigame = next
         }
     }
 
