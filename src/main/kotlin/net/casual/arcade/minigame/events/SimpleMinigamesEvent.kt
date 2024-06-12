@@ -26,11 +26,12 @@ import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
 public open class SimpleMinigamesEvent(
+    override val name: String = "default",
     public val lobby: LobbyTemplate = LobbyTemplate.DEFAULT,
     public val dimension: Optional<ResourceKey<Level>> = Optional.empty(),
     public val operators: List<String> = listOf(),
     override val minigames: List<ResourceLocation> = listOf(),
-    override val repeat: Boolean = true
+    override val repeat: Boolean = true,
 ): MinigamesEvent {
     override fun createLobby(server: MinecraftServer): LobbyMinigame {
         val dimension = this.dimension.getOrNull()
@@ -74,6 +75,7 @@ public open class SimpleMinigamesEvent(
 
         override val CODEC: MapCodec<out SimpleMinigamesEvent> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
+                Codec.STRING.encodedOptionalFieldOf("name", "default").forGetter(SimpleMinigamesEvent::name),
                 LobbyTemplate.CODEC.encodedOptionalFieldOf("lobby", LobbyTemplate.DEFAULT).forGetter(SimpleMinigamesEvent::lobby),
                 Level.RESOURCE_KEY_CODEC.encodedOptionalFieldOf("lobby_dimension").forGetter(SimpleMinigamesEvent::dimension),
                 Codec.STRING.listOf().encodedOptionalFieldOf("operators", listOf()).forGetter(SimpleMinigamesEvent::operators),

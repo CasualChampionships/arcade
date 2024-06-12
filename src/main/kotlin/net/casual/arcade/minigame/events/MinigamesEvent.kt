@@ -15,6 +15,7 @@ import java.util.function.Function
 
 @Experimental
 public interface MinigamesEvent {
+    public val name: String
     public val minigames: List<ResourceLocation>
     public val repeat: Boolean
 
