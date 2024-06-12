@@ -12,6 +12,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -52,13 +53,12 @@ public class PlayerMixin {
 	@Inject(
 		method = "actuallyHurt",
 		at = @At(
-			value = "INVOKE",
-			target = "Ljava/lang/Math;max(FF)F",
-			shift = At.Shift.AFTER,
-			remap = false
+			value = "INVOKE_ASSIGN",
+			target = "Lnet/minecraft/world/entity/player/Player;getDamageAfterMagicAbsorb(Lnet/minecraft/world/damagesource/DamageSource;F)F",
+			shift = At.Shift.AFTER
 		)
 	)
-	private void onDamage(DamageSource source, float damageAmount, CallbackInfo ci, @Local(ordinal = 1) LocalFloatRef damage) {
+	private void onDamage(DamageSource source, float damageAmount, CallbackInfo ci, @Local(argsOnly = true) LocalFloatRef damage) {
 		if ((Object) this instanceof ServerPlayer player) {
 			PlayerDamageEvent event = new PlayerDamageEvent(player, damage.get(), source);
 			GlobalEventHandler.broadcast(event, BuiltInEventPhases.PRE_PHASES);
@@ -79,12 +79,10 @@ public class PlayerMixin {
 	private void onDamagePost(
 		DamageSource source,
 		float damageAmount,
-		CallbackInfo ci,
-		@Local(ordinal = 1)
-		float damage
+		CallbackInfo ci
 	) {
 		if ((Object) this instanceof ServerPlayer player) {
-			PlayerDamageEvent event = new PlayerDamageEvent(player, damage, source);
+			PlayerDamageEvent event = new PlayerDamageEvent(player, damageAmount, source);
 			GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
 		}
 	}
