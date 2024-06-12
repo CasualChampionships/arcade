@@ -3,6 +3,8 @@ package net.casual.arcade.scheduler
 import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
 import net.casual.arcade.utils.TimeUtils.Ticks
 import kotlin.math.max
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * This class represents a time duration with a give [MinecraftTimeUnit].
@@ -63,6 +65,9 @@ public value class MinecraftTimeDuration private constructor(
      */
     public val days: Int
         get() = Ticks.toDays(this.ticks)
+
+    public val duration: Duration
+        get() = milliseconds.milliseconds
 
 
     @Deprecated(

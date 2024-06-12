@@ -27,6 +27,17 @@ public class StatTracker {
         }
     }
 
+    public fun <T> getStatValueOrDefault(type: StatType<T>): T {
+        val unprocessed = this.unprocessed[type.id]
+        if (unprocessed != null) {
+            return type.serializer.deserialize(unprocessed.first)
+        }
+
+        val stat = this.stats[type] ?: return type.default
+        @Suppress("UNCHECKED_CAST")
+        return (stat as Stat<T>).value
+    }
+
     public fun <T> getOrCreateStat(type: StatType<T>): Stat<T> {
         this.unprocessed.remove(type.id)?.let { (data, _) ->
             val stat = this.createStat(type)
