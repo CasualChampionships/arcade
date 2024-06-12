@@ -9,6 +9,10 @@ public class StatType<T>(
     public val serializer: JsonSerializer<T>
 ) {
     public companion object {
+        public fun bool(id: ResourceLocation, default: Boolean = false): StatType<Boolean> {
+            return StatType(id, default, BooleanSerializer)
+        }
+
         public fun int32(id: ResourceLocation, default: Int = 0): StatType<Int> {
             return StatType(id, default, IntSerializer)
         }
