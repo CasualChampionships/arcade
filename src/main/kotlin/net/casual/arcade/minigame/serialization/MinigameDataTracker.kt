@@ -2,6 +2,8 @@ package net.casual.arcade.minigame.serialization
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.long
@@ -20,15 +22,17 @@ public class MinigameDataTracker(
     private val minigame: Minigame<*>
 ) {
     private val players = HashMap<UUID, JsonObject>()
-    private var startTime = 0L
-    private var endTime = 0L
+    public var startTime: Instant = Instant.fromEpochSeconds(0L)
+        private set
+    public var endTime: Instant = Instant.fromEpochSeconds(0L)
+        private set
 
     public fun start() {
-        this.startTime = System.currentTimeMillis()
+        this.startTime = Clock.System.now()
     }
 
     public fun end() {
-        this.endTime = System.currentTimeMillis()
+        this.endTime = Clock.System.now()
     }
 
     public fun updatePlayer(player: ServerPlayer) {
@@ -74,8 +78,8 @@ public class MinigameDataTracker(
         }
 
         val json = JsonObject()
-        json.addProperty("minigame_start_ms", this.startTime)
-        json.addProperty("minigame_end_ms", this.endTime)
+        json.addProperty("minigame_start_ms", this.startTime.toEpochMilliseconds())
+        json.addProperty("minigame_end_ms", this.endTime.toEpochMilliseconds())
         json.addProperty("id", this.minigame.id.toString())
         json.addProperty("uuid", this.minigame.uuid.toString())
         val players = JsonArray()
@@ -88,8 +92,8 @@ public class MinigameDataTracker(
     }
 
     internal fun deserialize(json: JsonObject) {
-        this.startTime = json.long("minigame_start_ms")
-        this.endTime = json.long("minigame_end_ms")
+        this.startTime = Instant.fromEpochMilliseconds(json.long("minigame_start_ms"))
+        this.endTime = Instant.fromEpochMilliseconds(json.long("minigame_end_ms"))
 
         for (player in json.array("players").objects()) {
             this.players[player.uuid("uuid")] = player
