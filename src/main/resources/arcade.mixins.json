@@ -72,6 +72,8 @@
     "minigame.ServerPlayerGameModeMixin",
     "minigame.ServerPlayerMixin",
     "recipes.RecipeManagerMixin",
+    "recipes.ServerGamePacketListenerImplMixin",
+    "recipes.ServerPlaceRecipeMixin",
     "recipes.ServerRecipeBookMixin",
     "screen.ServerGamePacketListenerImplMixin",
     "worldborder.LevelMixin",

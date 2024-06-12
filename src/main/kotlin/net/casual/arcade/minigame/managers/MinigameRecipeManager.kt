@@ -24,6 +24,7 @@ import net.minecraft.world.item.crafting.Recipe
 import net.minecraft.world.item.crafting.RecipeHolder
 import net.minecraft.world.item.crafting.RecipeType
 import java.util.*
+import kotlin.collections.HashMap
 
 /**
  * This class manages the recipes of a minigame.
@@ -37,7 +38,8 @@ import java.util.*
 public class MinigameRecipeManager(
     private val minigame: Minigame<*>
 ) {
-    private val recipes = HashMultimap.create<RecipeType<*>, RecipeHolder<*>>()
+    private val recipesByType = HashMultimap.create<RecipeType<*>, RecipeHolder<*>>()
+    private val recipesById = HashMap<ResourceLocation, RecipeHolder<*>>()
     internal val players = HashMultimap.create<UUID, ResourceLocation>()
 
     init {
@@ -54,26 +56,28 @@ public class MinigameRecipeManager(
     }
 
     public fun add(recipe: RecipeHolder<*>) {
-        this.recipes.put(recipe.value.type, recipe)
+        this.recipesByType.put(recipe.value.type, recipe)
+        this.recipesById[recipe.id] = recipe
 
         this.refreshRecipes()
     }
 
     public fun addAll(recipes: Collection<RecipeHolder<*>>) {
         for (recipe in recipes) {
-            this.recipes.put(recipe.value.type, recipe)
+            this.recipesByType.put(recipe.value.type, recipe)
+            this.recipesById[recipe.id] = recipe
         }
 
         this.refreshRecipes()
     }
 
     public fun all(): Collection<RecipeHolder<*>> {
-        return this.recipes.values()
+        return this.recipesByType.values()
     }
 
     public fun <C: Container, R: Recipe<C>> all(type: RecipeType<R>): Set<RecipeHolder<R>> {
         @Suppress("UNCHECKED_CAST")
-        return this.recipes.get(type) as Set<RecipeHolder<R>>
+        return this.recipesByType.get(type) as Set<RecipeHolder<R>>
     }
 
     public fun grant(player: ServerPlayer, recipes: Collection<RecipeHolder<*>>) {
@@ -103,6 +107,14 @@ public class MinigameRecipeManager(
             listOf(),
             player.recipeBook.bookSettings
         ))
+    }
+
+    public fun has(player: ServerPlayer, recipe: RecipeHolder<*>): Boolean {
+        return this.players[player.uuid].contains(recipe.id)
+    }
+
+    public fun get(id: ResourceLocation): RecipeHolder<*>? {
+        return this.recipesById[id]
     }
 
     public fun <C: Container, R: Recipe<C>> find(
