@@ -29,6 +29,7 @@ import net.casual.arcade.utils.JsonUtils.objOrNull
 import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.stringOrDefault
 import net.casual.arcade.utils.JsonUtils.stringOrNull
+import net.casual.arcade.utils.impl.Wrapper
 import net.casual.arcade.utils.json.*
 import net.minecraft.Util
 import java.nio.file.Path
@@ -103,15 +104,28 @@ public open class CustomisableConfig(
 
     public fun <T: Any> any(name: String? = null, default: T, serializer: JsonSerializer<T>): Configurable<T> {
         return object: Configurable<T> {
+            private var cached: T? = null
+            private var last: JsonObject? = null
+
             override fun setValue(any: Any, property: KProperty<*>, value: T) {
                 json.add(name ?: property.name, serializer.serialize(value))
+                this.cached = value
+                this.last = json
             }
 
             override fun getValue(any: Any, property: KProperty<*>): T {
+                if (this.last == json) {
+                    val cached = this.cached
+                    if (cached != null) {
+                        return cached
+                    }
+                }
                 val key = name ?: property.name
                 val element = json.get(key)
                 if (element == null) {
                     json.add(key, serializer.serialize(default))
+                    this.last = json
+                    this.cached = default
                     return default
                 }
                 return serializer.deserialize(element)
@@ -141,15 +155,28 @@ public open class CustomisableConfig(
 
     public fun <T: Any> anyOrNull(name: String? = null, serializer: JsonSerializer<T>): Configurable<T?> {
         return object: Configurable<T?> {
+            private var cached: Wrapper<T?>? = null
+            private var last: JsonObject? = null
+
             override fun setValue(any: Any, property: KProperty<*>, value: T?) {
                 json.add(name ?: property.name, if (value == null) null else serializer.serialize(value))
+                this.cached = Wrapper(value)
+                this.last = json
             }
 
             override fun getValue(any: Any, property: KProperty<*>): T? {
+                if (this.last == json) {
+                    val cached = this.cached
+                    if (cached != null) {
+                        return cached.value
+                    }
+                }
                 val key = name ?: property.name
                 val element = json.getWithNull(key)
                 if (element == null) {
                     json.add(key, null)
+                    this.last = json
+                    this.cached = Wrapper(null)
                     return null
                 }
                 return serializer.deserialize(element)
