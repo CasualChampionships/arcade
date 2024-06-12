@@ -24,6 +24,7 @@ import net.minecraft.world.item.crafting.Recipe
 import net.minecraft.world.item.crafting.RecipeHolder
 import net.minecraft.world.item.crafting.RecipeType
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 /**
@@ -81,14 +82,21 @@ public class MinigameRecipeManager(
     }
 
     public fun grant(player: ServerPlayer, recipes: Collection<RecipeHolder<*>>) {
-        val mapped = recipes.map { it.id }
-        this.players.putAll(player.uuid, mapped)
-        player.connection.send(ClientboundRecipePacket(
-            ClientboundRecipePacket.State.ADD,
-            mapped,
-            listOf(),
-            player.recipeBook.bookSettings
-        ))
+        val awarded = ArrayList<ResourceLocation>()
+        for (recipe in recipes) {
+            this.players.put(player.uuid, recipe.id)
+            awarded.add(recipe.id)
+        }
+        if (awarded.isNotEmpty()) {
+            player.connection.send(
+                ClientboundRecipePacket(
+                    ClientboundRecipePacket.State.ADD,
+                    awarded,
+                    listOf(),
+                    player.recipeBook.bookSettings
+                )
+            )
+        }
     }
 
     public fun grantSilently(player: ServerPlayer, recipes: Collection<RecipeHolder<*>>) {
