@@ -16,12 +16,13 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.jvm.optionals.getOrNull
 
 public class MinigameDataTracker(
     private val minigame: Minigame<*>
 ) {
-    private val players = HashMap<UUID, JsonObject>()
+    private val players = ConcurrentHashMap<UUID, JsonObject>()
     public var startTime: Instant = Instant.fromEpochSeconds(0L)
         private set
     public var endTime: Instant = Instant.fromEpochSeconds(0L)

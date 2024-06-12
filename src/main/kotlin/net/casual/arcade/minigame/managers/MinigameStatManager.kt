@@ -10,9 +10,10 @@ import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 public class MinigameStatManager {
-    private val stats = HashMap<UUID, StatTracker>()
+    private val stats = ConcurrentHashMap<UUID, StatTracker>()
     private var frozen: Boolean = false
 
     public fun freeze() {

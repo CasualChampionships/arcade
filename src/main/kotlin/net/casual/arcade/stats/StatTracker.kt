@@ -6,10 +6,11 @@ import com.google.gson.JsonObject
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
 import net.minecraft.resources.ResourceLocation
+import java.util.concurrent.ConcurrentHashMap
 
 public class StatTracker {
-    private val unprocessed = HashMap<ResourceLocation, Pair<JsonElement, String>>()
-    private val stats = HashMap<StatType<*>, Stat<*>>()
+    private val unprocessed = ConcurrentHashMap<ResourceLocation, Pair<JsonElement, String>>()
+    private val stats = ConcurrentHashMap<StatType<*>, Stat<*>>()
     private var frozen: Boolean = false
 
     public fun freeze() {
