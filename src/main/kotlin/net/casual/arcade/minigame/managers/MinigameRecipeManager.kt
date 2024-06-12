@@ -84,8 +84,9 @@ public class MinigameRecipeManager(
     public fun grant(player: ServerPlayer, recipes: Collection<RecipeHolder<*>>) {
         val awarded = ArrayList<ResourceLocation>()
         for (recipe in recipes) {
-            this.players.put(player.uuid, recipe.id)
-            awarded.add(recipe.id)
+            if (this.players.put(player.uuid, recipe.id)) {
+                awarded.add(recipe.id)
+            }
         }
         if (awarded.isNotEmpty()) {
             player.connection.send(
@@ -152,6 +153,7 @@ public class MinigameRecipeManager(
             val json = JsonObject()
             json.addProperty("uuid", player.toString())
             json.add("recipes", recipes.toJsonStringArray { it.toString() })
+            array.add(json)
         }
         return array
     }
