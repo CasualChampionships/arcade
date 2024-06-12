@@ -2,6 +2,7 @@ package net.casual.arcade.minigame
 
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
+import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.EventHandler
 import net.casual.arcade.events.minigame.*
 import net.casual.arcade.events.player.*
@@ -619,7 +620,8 @@ public abstract class Minigame<M: Minigame<M>>(
         this.events.register<PlayerTickEvent> { this.onPlayerTick(it) }
         this.events.register<PlayerJoinEvent> { this.onPlayerJoin(it) }
         this.events.register<PlayerDeathEvent> { this.onPlayerDeath(it) }
-        this.events.register<PlayerDamageEvent>(Int.MAX_VALUE) { this.onPlayerDamage(it) }
+        this.events.register<PlayerDamageEvent>(1_000, BuiltInEventPhases.POST) { this.onPlayerDamage(it) }
+        this.events.register<PlayerHealEvent>(1_000, BuiltInEventPhases.POST) { this.onPlayerHeal(it) }
         this.events.register<MinigameAddPlayerEvent>(-1000) { this.onPlayerAdd(it) }
         this.events.register<MinigameRemovePlayerEvent>(2000) { this.onPlayerRemove(it) }
         this.events.register<ServerStoppingEvent> { this.onServerStopping() }
@@ -663,6 +665,11 @@ public abstract class Minigame<M: Minigame<M>>(
         if (attacker is ServerPlayer && this.players.has(attacker)) {
             this.stats.getOrCreateStat(attacker, ArcadeStats.DAMAGE_DEALT).increment(amount)
         }
+    }
+
+    private fun onPlayerHeal(event: PlayerHealEvent) {
+        val (player, healAmount) = event
+        this.stats.getOrCreateStat(player, ArcadeStats.DAMAGE_HEALED).increment(healAmount)
     }
 
     private fun onPlayerAdd(event: MinigameAddPlayerEvent) {

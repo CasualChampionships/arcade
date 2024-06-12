@@ -13,4 +13,5 @@ public object ArcadeStats {
     public val PLAY_TIME: StatType<Int> = StatType.int32(Arcade.id("play_time"))
     public val DAMAGE_TAKEN: StatType<Float> = StatType.float32(Arcade.id("damage_taken"))
     public val DAMAGE_DEALT: StatType<Float> = StatType.float32(Arcade.id("damage_dealt"))
+    public val DAMAGE_HEALED: StatType<Float> = StatType.float32(Arcade.id("damage_healed"))
 }
