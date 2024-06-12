@@ -80,7 +80,7 @@ public class MinigameAdvancementManager(
     }
 
     public fun reloadFor(player: ServerPlayer) {
-        val advancements = this.minigame.data.getAdvancements(player)
+        val advancements = this.minigame.data.getAdvancements(player.uuid)
         for (advancement in advancements) {
             player.grantAdvancementSilently(advancement)
         }

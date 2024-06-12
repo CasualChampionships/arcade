@@ -23,9 +23,9 @@ public class MinigameDataTracker(
     private val minigame: Minigame<*>
 ) {
     private val players = ConcurrentHashMap<UUID, JsonObject>()
-    public var startTime: Instant = Instant.fromEpochSeconds(0L)
+    public var startTime: Instant = Instant.DISTANT_PAST
         private set
-    public var endTime: Instant = Instant.fromEpochSeconds(0L)
+    public var endTime: Instant = Instant.DISTANT_FUTURE
         private set
 
     public fun start() {
@@ -33,10 +33,18 @@ public class MinigameDataTracker(
     }
 
     public fun end() {
+        for (player in this.minigame.players) {
+            this.updatePlayer(player)
+        }
+
         this.endTime = Clock.System.now()
     }
 
     public fun updatePlayer(player: ServerPlayer) {
+        if (this.endTime != Instant.DISTANT_FUTURE) {
+            return
+        }
+
         val json = JsonObject()
         json.addProperty("uuid", player.stringUUID)
         // json.add("stats", this.minigame.stats.serialize(player))
@@ -57,8 +65,8 @@ public class MinigameDataTracker(
         this.players[player.uuid] = json
     }
 
-    public fun getAdvancements(player: ServerPlayer): List<AdvancementHolder> {
-        val json = this.players[player.uuid] ?: return listOf()
+    public fun getAdvancements(uuid: UUID): List<AdvancementHolder> {
+        val json = this.players[uuid] ?: return listOf()
         val list = ArrayList<AdvancementHolder>()
         for (data in json.array("advancements").objects()) {
             val id = ResourceLocation(data.string("id"))
