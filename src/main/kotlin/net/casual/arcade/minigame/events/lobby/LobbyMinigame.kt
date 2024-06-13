@@ -67,6 +67,10 @@ public open class LobbyMinigame(
     public val bossbar: TimerBossBar = this.lobby.createBossbar().apply { then(::completeBossBar) }
 
     public var nextMinigame: Minigame<*>? = null
+        set(value) {
+            value?.tryInitialize()
+            field = value
+        }
 
     override val id: ResourceLocation = ID
 
