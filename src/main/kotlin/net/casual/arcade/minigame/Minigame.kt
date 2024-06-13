@@ -685,7 +685,7 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     private fun onServerStopping() {
-        if (this.settings.pauseOnServerStop && !this.paused) {
+        if (this.settings.pauseOnServerStop && !this.paused && this.started) {
             this.pause()
         }
     }

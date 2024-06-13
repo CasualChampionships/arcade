@@ -117,6 +117,7 @@ public open class LobbyMinigame(
 
         this.commands.register(this.createLobbyCommand())
 
+        this.settings.pauseOnServerStop = false
         this.settings.canPvp.set(false)
         this.settings.canGetHungry.set(false)
         this.settings.canBreakBlocks.set(false)
