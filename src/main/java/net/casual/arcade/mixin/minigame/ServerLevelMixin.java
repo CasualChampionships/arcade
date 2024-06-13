@@ -1,16 +1,23 @@
 package net.casual.arcade.mixin.minigame;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.utils.MinigameUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.TickRateManager;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.storage.ServerLevelData;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(ServerLevel.class)
 public class ServerLevelMixin {
+	@Shadow @Final private ServerLevelData serverLevelData;
+
 	@ModifyExpressionValue(
 		method = "tick",
 		at = @At(
@@ -36,5 +43,20 @@ public class ServerLevelMixin {
 		Entity entity
 	) {
 		return !MinigameUtils.isTicking(entity);
+	}
+
+	@ModifyArg(
+		method = "tickTime",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/level/ServerLevel;setDayTime(J)V"
+		)
+	)
+	private long onSetDayTime(long time) {
+		Minigame<?> minigame = MinigameUtils.getMinigame((ServerLevel) (Object) this);
+		if (minigame == null) {
+			return time;
+		}
+		return this.serverLevelData.getDayTime() + minigame.getSettings().getDaylightCycle();
 	}
 }

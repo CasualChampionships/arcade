@@ -5,11 +5,16 @@ import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.settings.display.DisplayableSettings
 import net.casual.arcade.settings.display.DisplayableSettingsDefaults
 import net.casual.arcade.settings.display.MenuGameSettingBuilder.Companion.bool
+import net.casual.arcade.settings.display.MenuGameSettingBuilder.Companion.float32
+import net.casual.arcade.settings.display.MenuGameSettingBuilder.Companion.int32
 import net.casual.arcade.utils.ComponentUtils.literal
+import net.casual.arcade.utils.ItemUtils
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.utils.ItemUtils.styledLore
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
+import net.minecraft.world.level.block.LightBlock
 
 /**
  * This class is the base class for all minigame settings.
@@ -310,6 +315,18 @@ public open class MinigameSettings(
         )
         value = true
         defaults.options(this)
+    })
+
+    public var daylightCycle: Int by this.register(int32 {
+        name = "daylight_cycle"
+        display = Items.CLOCK.named("Daylight Cycle").styledLore(
+            "Configures how fast the daylight cycle is".literal()
+        )
+        value = 1
+        option("none", ItemUtils.light(0).named("Off"), 0)
+        option("normal", ItemUtils.light(1).named("Normal Speed"), 1)
+        option("double", ItemUtils.light(2).named("Double Speed"), 2)
+        option("triple", ItemUtils.light(3).named("Triple Speed"), 3)
     })
 
     protected fun <T: Any> isAdminOverride(value: T): (ServerPlayer) -> T? {

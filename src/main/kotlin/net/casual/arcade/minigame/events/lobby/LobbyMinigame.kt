@@ -15,8 +15,11 @@ import net.casual.arcade.events.minigame.MinigameCloseEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.gui.bossbar.TimerBossBar
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
+import net.casual.arcade.minigame.serialization.SavableMinigame
+import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.task.impl.CancellableTask
 import net.casual.arcade.utils.CommandUtils.commandSuccess
@@ -30,6 +33,8 @@ import net.casual.arcade.utils.ComponentUtils.singleUseFunction
 import net.casual.arcade.utils.EventUtils.broadcast
 import net.casual.arcade.utils.GameRuleUtils.resetToDefault
 import net.casual.arcade.utils.GameRuleUtils.set
+import net.casual.arcade.utils.JsonUtils.uuid
+import net.casual.arcade.utils.JsonUtils.uuidOrNull
 import net.casual.arcade.utils.MinigameUtils.countdown
 import net.casual.arcade.utils.MinigameUtils.requiresAdminOrPermission
 import net.casual.arcade.utils.MinigameUtils.transferAdminAndSpectatorTeamsTo
@@ -55,7 +60,7 @@ import net.minecraft.world.scores.Team
 public open class LobbyMinigame(
     server: MinecraftServer,
     public val lobby: Lobby,
-): Minigame<LobbyMinigame>(server) {
+): SavableMinigame<LobbyMinigame>(server) {
     private var awaiting: (() -> Component)? = null
     private var transferring: Boolean = false
 
@@ -158,7 +163,7 @@ public open class LobbyMinigame(
 
         val task = CancellableTask.of {
             this.transferAdminAndSpectatorTeamsTo(next)
-            this.transferPlayersTo(next)
+            this.players.transferTo(next, players)
             next.start()
 
             this.setPhase(LobbyPhase.Waiting)
@@ -177,6 +182,23 @@ public open class LobbyMinigame(
 
     final override fun getPhases(): List<LobbyPhase> {
         return LobbyPhase.entries.toList()
+    }
+
+    override fun readData(json: JsonObject) {
+        val uuid = json.uuidOrNull("next_minigame")
+        if (uuid != null) {
+            // Our minigame may not be deserialized yet
+            GlobalTickedScheduler.later {
+                this.nextMinigame = Minigames.get(uuid)
+            }
+        }
+    }
+
+    override fun writeData(json: JsonObject) {
+        val next = this.nextMinigame
+        if (next != null) {
+            json.addProperty("next_minigame", next.uuid.toString())
+        }
     }
 
     override fun appendAdditionalDebugInfo(json: JsonObject) {

@@ -20,6 +20,7 @@ import net.minecraft.world.item.component.ItemLore
 import net.minecraft.world.item.component.ResolvableProfile
 import net.minecraft.world.item.enchantment.Enchantment
 import net.minecraft.world.item.enchantment.EnchantmentHelper
+import net.minecraft.world.level.block.LightBlock
 import java.util.*
 
 public object ItemUtils {
@@ -148,6 +149,11 @@ public object ItemUtils {
     @Deprecated("Use DataComponents")
     public fun ItemStack.putStringElement(key: String, string: String): ItemStack {
         return this.putElement(key, StringTag.valueOf(string))
+    }
+
+    @JvmStatic
+    public fun light(level: Int): ItemStack {
+        return LightBlock.setLightOnStack(ItemStack(Items.LIGHT), level)
     }
 
     @JvmStatic
