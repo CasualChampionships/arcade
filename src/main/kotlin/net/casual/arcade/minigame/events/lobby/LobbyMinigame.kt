@@ -11,6 +11,7 @@ import net.casual.arcade.commands.arguments.minigame.MinigameArgument
 import net.casual.arcade.commands.arguments.minigame.MinigameFactoryArgument
 import net.casual.arcade.events.minigame.LobbyMoveToNextMinigameEvent
 import net.casual.arcade.events.minigame.MinigameAddNewPlayerEvent
+import net.casual.arcade.events.minigame.MinigameAddPlayerEvent
 import net.casual.arcade.events.minigame.MinigameCloseEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.gui.bossbar.TimerBossBar
@@ -94,11 +95,13 @@ public open class LobbyMinigame(
             set(GameRules.RULE_RANDOMTICKING, 0)
         }
         this.events.register<MinigameAddNewPlayerEvent> { (_, player) ->
-            this.lobby.forceTeleportToSpawn(player)
             player.resetHealth()
             player.resetExperience()
             player.resetHunger()
             player.clearPlayerInventory()
+        }
+        this.events.register<MinigameAddPlayerEvent> { (_, player) ->
+            this.lobby.tryTeleportToSpawn(player)
         }
         this.events.register<ServerTickEvent> {
             for (player in this.players.nonAdmins) {
