@@ -30,7 +30,7 @@ public open class SimpleMinigamesEvent(
     public val lobby: LobbyTemplate = LobbyTemplate.DEFAULT,
     public val dimension: Optional<ResourceKey<Level>> = Optional.empty(),
     public val operators: List<String> = listOf(),
-    override val minigames: List<ResourceLocation> = listOf(),
+    override val minigames: List<MinigameData> = listOf(),
     override val repeat: Boolean = true,
 ): MinigamesEvent {
     override fun createLobby(server: MinecraftServer): LobbyMinigame {
@@ -79,7 +79,7 @@ public open class SimpleMinigamesEvent(
                 LobbyTemplate.CODEC.encodedOptionalFieldOf("lobby", LobbyTemplate.DEFAULT).forGetter(SimpleMinigamesEvent::lobby),
                 Level.RESOURCE_KEY_CODEC.encodedOptionalFieldOf("lobby_dimension").forGetter(SimpleMinigamesEvent::dimension),
                 Codec.STRING.listOf().encodedOptionalFieldOf("operators", listOf()).forGetter(SimpleMinigamesEvent::operators),
-                ResourceLocation.CODEC.listOf().encodedOptionalFieldOf("minigames", listOf()).forGetter(SimpleMinigamesEvent::minigames),
+                MinigameData.CODEC.listOf().encodedOptionalFieldOf("minigames", listOf()).forGetter(SimpleMinigamesEvent::minigames),
                 Codec.BOOL.encodedOptionalFieldOf("repeat", true).forGetter(SimpleMinigamesEvent::repeat)
             ).apply(instance, ::SimpleMinigamesEvent)
         }

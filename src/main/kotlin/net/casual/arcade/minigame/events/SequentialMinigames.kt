@@ -17,6 +17,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import org.jetbrains.annotations.ApiStatus.Experimental
 import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 @Experimental
 public class SequentialMinigames(
@@ -116,7 +117,7 @@ public class SequentialMinigames(
         }
     }
 
-    public fun getNextMinigameId(): ResourceLocation? {
+    public fun getNextMinigameData(): MinigameData? {
         val minigames = this.event.minigames
 
         if (this.index in minigames.indices) {
@@ -124,7 +125,7 @@ public class SequentialMinigames(
         }
         if (this.event.repeat && minigames.isNotEmpty()) {
             this.index = 0
-            return this.getNextMinigameId()
+            return this.getNextMinigameData()
         }
         return null
     }
@@ -160,18 +161,18 @@ public class SequentialMinigames(
     }
 
     private fun createNextMinigame(): Minigame<*>? {
-        val minigameId = this.getNextMinigameId() ?: return null
+        val (minigameId, customData) = this.getNextMinigameData() ?: return null
         val factory = Minigames.getFactory(minigameId)
         if (factory == null) {
             Arcade.logger.error("Failed to create next minigame, non-existent factory")
             return null
         }
-        return factory.create(MinigameCreationContext(this.server))
+        return factory.create(MinigameCreationContext(this.server, customData.getOrNull()))
     }
 
     private fun incrementIndex(next: Minigame<*>) {
-        val nextId = this.getNextMinigameId()
-        if (nextId != null && next.id == nextId) {
+        val data = this.getNextMinigameData()
+        if (data != null && next.id == data.id) {
             this.index++
         }
     }

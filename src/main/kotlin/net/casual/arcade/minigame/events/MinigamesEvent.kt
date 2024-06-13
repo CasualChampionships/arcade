@@ -16,7 +16,7 @@ import java.util.function.Function
 @Experimental
 public interface MinigamesEvent {
     public val name: String
-    public val minigames: List<ResourceLocation>
+    public val minigames: List<MinigameData>
     public val repeat: Boolean
 
     public fun createLobby(server: MinecraftServer): LobbyMinigame

@@ -1,7 +1,9 @@
 package net.casual.arcade.utils.serialization
 
 import com.google.common.collect.HashBiMap
+import com.google.gson.JsonObject
 import com.mojang.serialization.Codec
+import com.mojang.serialization.DataResult
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
 import net.minecraft.Util
@@ -18,6 +20,10 @@ public object ArcadeExtraCodecs {
     public val VEC2: Codec<Vec2> = Codec.FLOAT.listOf().comapFlatMap(
         { Util.fixedSize(it, 2).map { vec -> Vec2(vec[0], vec[1]) } },
         { vec -> listOf(vec.x, vec.y) }
+    )
+    public val JSON_OBJECT: Codec<JsonObject> = ExtraCodecs.JSON.comapFlatMap(
+        { json -> if (json !is JsonObject) DataResult.error { "Input wasn't JsonObject" } else DataResult.success(json) },
+        { json -> json }
     )
 
     public inline fun <reified E: Enum<E>> enum(
