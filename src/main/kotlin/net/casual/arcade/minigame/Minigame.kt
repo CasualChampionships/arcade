@@ -637,9 +637,7 @@ public abstract class Minigame<M: Minigame<M>>(
 
     private fun onPlayerTick(event: PlayerTickEvent) {
         val (player) = event
-        if (this.players.has(player)) {
-            this.stats.getOrCreateStat(player, ArcadeStats.PLAY_TIME).increment()
-        }
+        this.stats.getOrCreateStat(player, ArcadeStats.PLAY_TIME).increment()
     }
 
     private fun onPlayerJoin(event: PlayerJoinEvent) {
@@ -657,13 +655,14 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     private fun onPlayerDamage(event: PlayerDamageEvent) {
-        val (player, _, source) = event
-        val amount = event.resultOrElse { event.amount }
-        this.stats.getOrCreateStat(player, ArcadeStats.DAMAGE_TAKEN).increment(amount)
+        val (player, amount, source) = event
+        if (amount > 0 && amount < 3.4028235E37F) {
+            this.stats.getOrCreateStat(player, ArcadeStats.DAMAGE_TAKEN).increment(amount)
 
-        val attacker = source.entity
-        if (attacker is ServerPlayer && this.players.has(attacker)) {
-            this.stats.getOrCreateStat(attacker, ArcadeStats.DAMAGE_DEALT).increment(amount)
+            val attacker = source.entity
+            if (attacker is ServerPlayer && this.players.has(attacker)) {
+                this.stats.getOrCreateStat(attacker, ArcadeStats.DAMAGE_DEALT).increment(amount)
+            }
         }
     }
 
