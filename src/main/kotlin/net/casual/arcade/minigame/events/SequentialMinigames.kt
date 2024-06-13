@@ -80,12 +80,7 @@ public class SequentialMinigames(
         var lobby = this.lobby
         if (lobby == null) {
             lobby = this.event.createLobby(this.server)
-            this.lobby = lobby
-
-            lobby.events.register<LobbyMoveToNextMinigameEvent> {
-                this.incrementIndex(it.next)
-                this.current = it.next
-            }
+            this.setLobby(lobby)
         }
 
         this.startNewMinigame(lobby)
@@ -136,11 +131,12 @@ public class SequentialMinigames(
         val minigame = Minigames.get(data.currentUUID)
         val lobby = data.currentLobbyUUID.map { Minigames.get(it) as? LobbyMinigame }.orElse(null)
 
+        if (lobby != null) {
+            this.setLobby(lobby)
+        }
         if (minigame != null) {
-            this.lobby = lobby
             this.startNewMinigame(minigame)
         } else if (lobby != null) {
-            this.lobby = lobby
             this.returnToLobby()
         } else {
             return
@@ -158,6 +154,15 @@ public class SequentialMinigames(
             current.id,
             this.index
         )
+    }
+
+    private fun setLobby(lobby: LobbyMinigame) {
+        this.lobby = lobby
+
+        lobby.events.register<LobbyMoveToNextMinigameEvent> {
+            this.incrementIndex(it.next)
+            this.current = it.next
+        }
     }
 
     private fun createNextMinigame(): Minigame<*>? {

@@ -368,8 +368,11 @@ public open class LobbyMinigame(
 
     public enum class LobbyPhase(override val id: String): Phase<LobbyMinigame> {
         Waiting("waiting") {
-            override fun start(minigame: LobbyMinigame, previous: Phase<LobbyMinigame>) {
+            override fun initialize(minigame: LobbyMinigame) {
                 minigame.ui.addBossbar(minigame.bossbar)
+            }
+
+            override fun start(minigame: LobbyMinigame, previous: Phase<LobbyMinigame>) {
                 for (player in minigame.players.nonAdmins) {
                     player.setGameMode(GameType.ADVENTURE)
                 }
@@ -380,6 +383,10 @@ public open class LobbyMinigame(
         },
         Readying("readying"),
         Countdown("countdown") {
+            override fun initialize(minigame: LobbyMinigame) {
+                minigame.ui.removeBossbar(minigame.bossbar)
+            }
+
             override fun start(minigame: LobbyMinigame, previous: Phase<LobbyMinigame>) {
                 val next = minigame.nextMinigame
                 if (next == null) {
@@ -391,7 +398,6 @@ public open class LobbyMinigame(
                 minigame.lobby.getCountdown().countdown(minigame).then {
                     minigame.setPhase(Phase.end())
                 }
-                minigame.ui.removeBossbar(minigame.bossbar)
                 for (team in minigame.teams.getAllTeams()) {
                     team.collisionRule = Team.CollisionRule.ALWAYS
                 }
