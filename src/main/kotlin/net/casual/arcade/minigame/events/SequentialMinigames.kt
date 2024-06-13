@@ -131,12 +131,19 @@ public class SequentialMinigames(
 
     public fun setData(data: Data) {
         this.index = data.currentIndex
-        if (data.currentId == LobbyMinigame.ID) {
+
+        val minigame = Minigames.get(data.currentUUID)
+        val lobby = data.currentLobbyUUID.map { Minigames.get(it) as? LobbyMinigame }.orElse(null)
+
+        if (minigame != null) {
+            this.lobby = lobby
+            this.startNewMinigame(minigame)
+        } else if (lobby != null) {
+            this.lobby = lobby
+            this.returnToLobby()
+        } else {
             return
         }
-
-        val minigame = Minigames.get(data.currentUUID) ?: return
-        this.startNewMinigame(minigame)
 
         // This must be re-set after
         this.index = data.currentIndex
@@ -146,6 +153,7 @@ public class SequentialMinigames(
         val current = this.getCurrent()
         return Data(
             current.uuid,
+            Optional.ofNullable(lobby?.uuid),
             current.id,
             this.index
         )
@@ -170,6 +178,7 @@ public class SequentialMinigames(
 
     public data class Data(
         val currentUUID: UUID,
+        val currentLobbyUUID: Optional<UUID>,
         val currentId: ResourceLocation,
         val currentIndex: Int
     ) {
@@ -177,6 +186,7 @@ public class SequentialMinigames(
             public val CODEC: Codec<Data> = RecordCodecBuilder.create { instance ->
                 instance.group(
                     UUIDUtil.CODEC.fieldOf("current_uuid").forGetter(Data::currentUUID),
+                    UUIDUtil.CODEC.optionalFieldOf("current_lobby_uuid").forGetter(Data::currentLobbyUUID),
                     ResourceLocation.CODEC.fieldOf("current_id").forGetter(Data::currentId),
                     Codec.INT.fieldOf("current_index").forGetter(Data::currentIndex)
                 ).apply(instance, ::Data)
