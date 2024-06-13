@@ -34,12 +34,10 @@ import net.casual.arcade.utils.ComponentUtils.singleUseFunction
 import net.casual.arcade.utils.EventUtils.broadcast
 import net.casual.arcade.utils.GameRuleUtils.resetToDefault
 import net.casual.arcade.utils.GameRuleUtils.set
-import net.casual.arcade.utils.JsonUtils.uuid
 import net.casual.arcade.utils.JsonUtils.uuidOrNull
 import net.casual.arcade.utils.MinigameUtils.countdown
 import net.casual.arcade.utils.MinigameUtils.requiresAdminOrPermission
 import net.casual.arcade.utils.MinigameUtils.transferAdminAndSpectatorTeamsTo
-import net.casual.arcade.utils.MinigameUtils.transferPlayersTo
 import net.casual.arcade.utils.PlayerUtils.clearPlayerInventory
 import net.casual.arcade.utils.PlayerUtils.ops
 import net.casual.arcade.utils.PlayerUtils.resetExperience
@@ -109,10 +107,7 @@ public open class LobbyMinigame(
             }
         }
         this.events.register<MinigameCloseEvent> {
-            val next = this.nextMinigame
-            if (next != null && !next.initialized) {
-                next.close()
-            }
+            this.nextMinigame?.close()
         }
 
         this.commands.register(this.createLobbyCommand())
