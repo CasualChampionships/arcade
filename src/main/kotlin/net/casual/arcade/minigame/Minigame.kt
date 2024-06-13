@@ -428,13 +428,14 @@ public abstract class Minigame<M: Minigame<M>>(
 
         this.data.end()
 
+        for (level in this.levels.all()) {
+            level.minigame.removeMinigame(this)
+        }
         MinigameCloseEvent(this).broadcast()
         for (player in this.players) {
             this.players.remove(player)
         }
-        for (level in this.levels.all()) {
-            level.minigame.removeMinigame()
-        }
+
         // Closed is true after remove player
         this.closed = true
         if (this.settings.shouldDeleteLevels) {
