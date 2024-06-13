@@ -141,7 +141,7 @@ public class SequentialMinigames(
             this.startNewMinigame(minigame)
         } else if (lobby != null) {
             this.lobby = lobby
-            this.startNewMinigame(lobby)
+            this.returnToLobby()
         } else {
             return
         }
