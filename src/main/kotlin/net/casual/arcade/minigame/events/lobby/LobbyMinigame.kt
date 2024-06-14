@@ -88,6 +88,7 @@ public open class LobbyMinigame(
             set(GameRules.RULE_DOENTITYDROPS, false)
             set(GameRules.RULE_WEATHER_CYCLE, false)
             set(GameRules.RULE_DO_TRADER_SPAWNING, false)
+            set(GameRules.RULE_DOMOBLOOT, false)
             set(GameRules.RULE_DOBLOCKDROPS, false)
             set(GameRules.RULE_SNOW_ACCUMULATION_HEIGHT, 0)
             set(GameRules.RULE_RANDOMTICKING, 0)
