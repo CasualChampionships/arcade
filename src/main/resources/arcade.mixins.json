@@ -11,6 +11,7 @@
     "bugfixes.ArgumentBuilderMixin",
     "bugfixes.BaseFireBlockMixin",
     "bugfixes.GameRuleCommandMixin",
+    "bugfixes.MobMixin",
     "bugfixes.ServerPlayerMixin",
     "commands.ArgumentNodeStub",
     "commands.ArgumentTypeInfosAccessor",
