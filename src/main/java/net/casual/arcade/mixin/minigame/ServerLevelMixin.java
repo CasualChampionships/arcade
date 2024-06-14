@@ -64,7 +64,7 @@ public class ServerLevelMixin {
 		int speed = minigame.getSettings().getDaylightCycle();
 		long newTime = this.serverLevelData.getDayTime() + speed;
 		if (speed > 1 && this.server.getTickCount() % 20 != 0) {
-			this.server.getPlayerList().broadcastAll(new ClientboundSetTimePacket(
+			minigame.getPlayers().broadcast(new ClientboundSetTimePacket(
 				this.serverLevelData.getGameTime(), newTime, true
 			));
 		}

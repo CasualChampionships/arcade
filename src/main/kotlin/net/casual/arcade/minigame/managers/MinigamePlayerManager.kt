@@ -10,6 +10,7 @@ import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.PlayerUtils
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
+import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import java.util.*
@@ -308,6 +309,12 @@ public class MinigamePlayerManager(
         val spectating = if (keepSpectating) this.isSpectating(player) else null
         val admin = if (keepAdmin) this.isAdmin(player) else null
         return next.players.add(player, spectating, admin)
+    }
+
+    public fun broadcast(packet: Packet<*>) {
+        for (connection in this.connections) {
+            connection.send(packet)
+        }
     }
 
     private fun streamPlayers(): Stream<ServerPlayer> {

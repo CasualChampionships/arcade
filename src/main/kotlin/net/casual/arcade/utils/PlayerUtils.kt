@@ -299,12 +299,6 @@ public object PlayerUtils {
     @JvmStatic
     public fun ServerPlayer.teleportTo(location: Location) {
         this.teleportTo(location.level, location.x, location.y, location.z, location.yaw, location.pitch)
-        if (location.level != this.level()) {
-            // FIXME: This is such a hack-fix
-            GlobalTickedScheduler.later {
-                this.teleportTo(location.level, location.x, location.y, location.z, location.yaw, location.pitch)
-            }
-        }
     }
 
     @JvmStatic
