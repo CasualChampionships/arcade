@@ -3,6 +3,8 @@ package net.casual.arcade.mixin.minigame;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.utils.MinigameUtils;
+import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.TickRateManager;
@@ -17,6 +19,8 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(ServerLevel.class)
 public class ServerLevelMixin {
 	@Shadow @Final private ServerLevelData serverLevelData;
+
+	@Shadow @Final private MinecraftServer server;
 
 	@ModifyExpressionValue(
 		method = "tick",
@@ -57,6 +61,13 @@ public class ServerLevelMixin {
 		if (minigame == null) {
 			return time;
 		}
-		return this.serverLevelData.getDayTime() + minigame.getSettings().getDaylightCycle();
+		int speed = minigame.getSettings().getDaylightCycle();
+		long newTime = this.serverLevelData.getDayTime() + speed;
+		if (speed > 1 && this.server.getTickCount() % 20 != 0) {
+			this.server.getPlayerList().broadcastAll(new ClientboundSetTimePacket(
+				this.serverLevelData.getGameTime(), newTime, true
+			));
+		}
+		return newTime;
 	}
 }

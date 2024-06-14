@@ -82,7 +82,6 @@ public open class LobbyMinigame(
             set(GameRules.RULE_DOINSOMNIA, false)
             set(GameRules.RULE_DOFIRETICK, false)
             set(GameRules.RULE_DOMOBSPAWNING, false)
-            set(GameRules.RULE_DAYLIGHT, false)
             set(GameRules.RULE_FALL_DAMAGE, false)
             set(GameRules.RULE_DROWNING_DAMAGE, false)
             set(GameRules.RULE_DOENTITYDROPS, false)
@@ -124,6 +123,7 @@ public open class LobbyMinigame(
         this.settings.canTakeDamage.set(false)
         this.settings.canAttackEntities.set(false)
         this.settings.canInteractAll = false
+        this.settings.daylightCycle = 0
 
         this.lobby.area.replace()
     }
