@@ -298,7 +298,10 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.teleportTo(location: Location) {
-        this.teleportTo(location.level, location.x, location.y, location.z, location.yaw, location.pitch)
+        if (location.level != this.level()) {
+            this.connection.teleport(this.x, this.y, this.z, location.yaw, location.pitch)
+        }
+        this.teleportTo(location.level, location.x, location.y, location.z, setOf(), location.yaw, location.pitch)
     }
 
     @JvmStatic
