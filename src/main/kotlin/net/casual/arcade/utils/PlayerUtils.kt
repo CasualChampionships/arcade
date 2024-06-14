@@ -6,6 +6,7 @@ import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
 import net.casual.arcade.mixin.advancements.PlayerAdvancementsAccessor
+import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ExtensionUtils.addExtension
@@ -297,10 +298,13 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.teleportTo(location: Location) {
-        if (location.level != this.level()) {
-            this.connection.teleport(this.x, this.y, this.z, location.yaw, location.pitch)
-        }
         this.teleportTo(location.level, location.x, location.y, location.z, location.yaw, location.pitch)
+        if (location.level != this.level()) {
+            // FIXME: This is such a hack-fix
+            GlobalTickedScheduler.later {
+                this.teleportTo(location.level, location.x, location.y, location.z, location.yaw, location.pitch)
+            }
+        }
     }
 
     @JvmStatic

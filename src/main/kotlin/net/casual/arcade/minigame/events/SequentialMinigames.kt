@@ -4,11 +4,13 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.Arcade
 import net.casual.arcade.events.minigame.LobbyMoveToNextMinigameEvent
+import net.casual.arcade.events.minigame.SequentialMinigameStartEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigameResources.Companion.sendTo
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.events.lobby.LobbyMinigame
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
+import net.casual.arcade.utils.EventUtils.broadcast
 import net.casual.arcade.utils.MinigameUtils.transferAdminAndSpectatorTeamsTo
 import net.casual.arcade.utils.ResourcePackUtils.sendResourcePack
 import net.minecraft.core.UUIDUtil
@@ -70,6 +72,7 @@ public class SequentialMinigames(
         this.incrementIndex(minigame)
 
         minigame.start()
+        SequentialMinigameStartEvent(minigame, this).broadcast()
     }
 
     public fun returnToLobby() {
