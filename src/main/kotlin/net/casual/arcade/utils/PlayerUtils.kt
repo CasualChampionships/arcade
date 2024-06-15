@@ -6,19 +6,17 @@ import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
 import net.casual.arcade.mixin.advancements.PlayerAdvancementsAccessor
-import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ExtensionUtils.addExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtensions
 import net.casual.arcade.utils.MinigameUtils.getMinigame
-import net.casual.arcade.utils.PlayerUtils.grantAllRecipes
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
-import net.casual.arcade.utils.location.Location
 import net.casual.arcade.utils.impl.Sound
+import net.casual.arcade.utils.location.Location
 import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.core.Direction8
@@ -30,6 +28,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
+import net.minecraft.util.Mth
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
@@ -298,13 +297,15 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.teleportTo(location: Location) {
-        this.teleportTo(location.level, location.x, location.y, location.z, setOf(), location.yaw, location.pitch)
-        if (this.level() != location.level) {
-            GlobalTickedScheduler.later {
-                // FIXME: THIS IS SUCH A HACK-FIX
-                this.teleportTo(location.level, location.x, location.y, location.z, setOf(), location.yaw, location.pitch)
-            }
-        }
+        this.teleportTo(
+            location.level,
+            location.x,
+            location.y,
+            location.z,
+            setOf(),
+            Mth.wrapDegrees(location.yaw),
+            Mth.wrapDegrees(location.pitch)
+        )
     }
 
     @JvmStatic
