@@ -3,24 +3,41 @@ package net.casual.arcade.mixin.minigame;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.utils.MinigameUtils;
+import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.TickRateManager;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.ServerLevelData;
+import net.minecraft.world.level.storage.WritableLevelData;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
+import java.util.List;
+import java.util.function.Supplier;
+
 @Mixin(ServerLevel.class)
-public class ServerLevelMixin {
+public abstract class ServerLevelMixin extends Level {
 	@Shadow @Final private ServerLevelData serverLevelData;
 
 	@Shadow @Final private MinecraftServer server;
+
+	protected ServerLevelMixin(WritableLevelData levelData, ResourceKey<Level> dimension, RegistryAccess registryAccess, Holder<DimensionType> dimensionTypeRegistration, Supplier<ProfilerFiller> profiler, boolean isClientSide, boolean isDebug, long biomeZoomSeed, int maxChainedNeighborUpdates) {
+		super(levelData, dimension, registryAccess, dimensionTypeRegistration, profiler, isClientSide, isDebug, biomeZoomSeed, maxChainedNeighborUpdates);
+	}
+
+	@Shadow public abstract List<ServerPlayer> players();
 
 	@ModifyExpressionValue(
 		method = "tick",
@@ -64,9 +81,14 @@ public class ServerLevelMixin {
 		int speed = minigame.getSettings().getDaylightCycle();
 		long newTime = this.serverLevelData.getDayTime() + speed;
 		if (speed > 1 && this.server.getTickCount() % 20 != 0) {
-			minigame.getPlayers().broadcast(new ClientboundSetTimePacket(
+			Packet<?> packet = new ClientboundSetTimePacket(
 				this.serverLevelData.getGameTime(), newTime, true
-			));
+			);
+			for (ServerPlayer player : minigame.getPlayers()) {
+				if (player.level().dimension() == this.dimension()) {
+					player.connection.send(packet);
+				}
+			}
 		}
 		return newTime;
 	}
