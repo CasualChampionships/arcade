@@ -1,19 +1,13 @@
 package net.casual.arcade.utils
 
-import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Iterators
 import com.google.common.collect.LinkedHashMultimap
-import com.google.common.collect.ListMultimap
-import com.google.common.collect.Multimap
-import com.google.common.collect.MultimapBuilder.ListMultimapBuilder
-import com.google.common.collect.Multimaps
 import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer
 import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.prettyName
-import net.casual.arcade.utils.ComponentUtils.unitalicise
 import net.casual.arcade.utils.ExtensionUtils.addExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtensions
@@ -39,7 +33,7 @@ public object TeamUtils {
     init {
         TEAM_COLOURS = entries.slice(0..< 16).toSet()
         TEAM_COLOURS_NO_GREY = TEAM_COLOURS.toMutableSet().apply {
-            removeAll(listOf(BLACK, GRAY, DARK_GRAY, WHITE))
+            removeAll(setOf(BLACK, GRAY, DARK_GRAY, WHITE))
         }
 
         this.addAnimals()

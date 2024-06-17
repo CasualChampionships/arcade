@@ -19,13 +19,11 @@ import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.Container
 import net.minecraft.world.item.crafting.Recipe
 import net.minecraft.world.item.crafting.RecipeHolder
+import net.minecraft.world.item.crafting.RecipeInput
 import net.minecraft.world.item.crafting.RecipeType
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 /**
  * This class manages the recipes of a minigame.
@@ -76,7 +74,7 @@ public class MinigameRecipeManager(
         return this.recipesByType.values()
     }
 
-    public fun <C: Container, R: Recipe<C>> all(type: RecipeType<R>): Set<RecipeHolder<R>> {
+    public fun <I: RecipeInput, R: Recipe<I>> all(type: RecipeType<R>): Set<RecipeHolder<R>> {
         @Suppress("UNCHECKED_CAST")
         return this.recipesByType.get(type) as Set<RecipeHolder<R>>
     }
@@ -126,19 +124,19 @@ public class MinigameRecipeManager(
         return this.recipesById[id]
     }
 
-    public fun <C: Container, R: Recipe<C>> find(
+    public fun <I: RecipeInput, R: Recipe<I>> find(
         type: RecipeType<R>,
-        inventory: C,
+        input: I,
         level: ServerLevel
     ): Optional<RecipeHolder<R>> {
         return this.all(type).stream()
-            .filter { holder -> holder.value.matches(inventory, level) }
+            .filter { holder -> holder.value.matches(input, level) }
             .findFirst()
     }
 
-    public fun <C: Container, R: Recipe<C>> findAll(
+    public fun <I: RecipeInput, R: Recipe<I>> findAll(
         type: RecipeType<R>,
-        inventory: C,
+        inventory: I,
         level: ServerLevel
     ): List<RecipeHolder<R>> {
         return this.all(type).stream()
@@ -161,7 +159,7 @@ public class MinigameRecipeManager(
     internal fun deserialize(array: JsonArray) {
         for (player in array.objects()) {
             val uuid = player.uuid("uuid")
-            this.players.putAll(uuid, player.array("recipes").strings().map { ResourceLocation(it) })
+            this.players.putAll(uuid, player.array("recipes").strings().map { ResourceLocation.parse(it) })
         }
     }
 

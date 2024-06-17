@@ -17,7 +17,6 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.DisplaySlot
 import java.util.*
 import java.util.function.Consumer
-import kotlin.collections.ArrayList
 
 internal object SidebarUtils {
     const val MAX_SIZE = 14

@@ -5,7 +5,6 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.utils.TeamUtils
 import net.casual.arcade.utils.location.template.ExactLocationTemplate
-import net.casual.arcade.utils.location.template.LocationTemplate
 import net.casual.arcade.utils.registries.ArcadeRegistries
 import net.casual.arcade.utils.serialization.CodecProvider.Companion.register
 import net.minecraft.core.Registry

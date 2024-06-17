@@ -2,8 +2,8 @@ package net.casual.arcade.mixin.events;
 
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.player.PlayerRequestLoginEvent;
 import net.casual.arcade.events.player.PlayerJoinEvent;
+import net.casual.arcade.events.player.PlayerRequestLoginEvent;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;

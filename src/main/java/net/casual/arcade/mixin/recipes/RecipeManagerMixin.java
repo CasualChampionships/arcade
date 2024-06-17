@@ -15,11 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -78,13 +74,13 @@ public abstract class RecipeManagerMixin implements Arcade$MutableRecipeManager 
 
 	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 	@ModifyReturnValue(
-		method = "getRecipeFor(Lnet/minecraft/world/item/crafting/RecipeType;Lnet/minecraft/world/Container;Lnet/minecraft/world/level/Level;)Ljava/util/Optional;",
+		method = "getRecipeFor(Lnet/minecraft/world/item/crafting/RecipeType;Lnet/minecraft/world/item/crafting/RecipeInput;Lnet/minecraft/world/level/Level;)Ljava/util/Optional;",
 		at = @At("RETURN")
 	)
-	private <C extends Container, T extends Recipe<C>> Optional<RecipeHolder<T>> modifyRecipe(
+	private <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> modifyRecipe(
 		Optional<RecipeHolder<T>> original,
 		RecipeType<T> type,
-		C inventory,
+		I input,
 		Level level
 	) {
 		if (original.isPresent() || !(level instanceof ServerLevel serverLevel)) {
@@ -95,7 +91,7 @@ public abstract class RecipeManagerMixin implements Arcade$MutableRecipeManager 
 			return original;
 		}
 
-		return minigame.getRecipes().find(type, inventory, serverLevel);
+		return minigame.getRecipes().find(type, input, serverLevel);
  	}
 
 
@@ -103,10 +99,10 @@ public abstract class RecipeManagerMixin implements Arcade$MutableRecipeManager 
 		method = "getRecipesFor",
 		at = @At("RETURN")
 	)
-	private <C extends Container, T extends Recipe<C>> List<RecipeHolder<T>> modifyRecipes(
+	private <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> modifyRecipes(
 		List<RecipeHolder<T>> original,
 		RecipeType<T> type,
-		C inventory,
+		I input,
 		Level level
 	) {
 		if (!(level instanceof ServerLevel serverLevel)) {
@@ -116,6 +112,6 @@ public abstract class RecipeManagerMixin implements Arcade$MutableRecipeManager 
 		if (minigame == null) {
 			return original;
 		}
-		return ConcatenatedList.concat(original, minigame.getRecipes().findAll(type, inventory, serverLevel));
+		return ConcatenatedList.concat(original, minigame.getRecipes().findAll(type, input, serverLevel));
 	}
 }

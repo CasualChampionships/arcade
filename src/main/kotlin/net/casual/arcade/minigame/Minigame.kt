@@ -32,7 +32,6 @@ import net.casual.arcade.utils.JsonUtils.toJsonStringArray
 import net.casual.arcade.utils.MinigameUtils
 import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.PlayerUtils.getKillCreditWith
-import net.casual.arcade.utils.PlayerUtils.grantAdvancementSilently
 import net.casual.arcade.utils.PlayerUtils.revokeAdvancement
 import net.casual.arcade.utils.StatUtils.increment
 import net.minecraft.resources.ResourceLocation

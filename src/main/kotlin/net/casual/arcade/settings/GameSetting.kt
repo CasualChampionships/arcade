@@ -3,8 +3,6 @@ package net.casual.arcade.settings
 import com.google.gson.JsonElement
 import com.mojang.serialization.Codec
 import com.mojang.serialization.JsonOps
-import net.casual.arcade.Arcade
-import net.casual.arcade.utils.json.JsonSerializer
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
 import kotlin.reflect.KProperty

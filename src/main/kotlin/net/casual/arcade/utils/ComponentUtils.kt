@@ -24,7 +24,7 @@ import java.util.function.Consumer
 import kotlin.reflect.KProperty
 
 public object ComponentUtils {
-    public val SPACES_FONT: ResourceLocation = ResourceLocation("space", "spaces")
+    public val SPACES_FONT: ResourceLocation = ResourceLocation.fromNamespaceAndPath("space", "spaces")
     public val MINI_FONT: ResourceLocation = Arcade.id("mini_minecraft")
 
     private val formattingByColour = Int2ObjectOpenHashMap<ChatFormatting>()

@@ -44,7 +44,7 @@ import java.util.function.Consumer
 import java.util.function.Predicate
 
 public object PlayerUtils {
-    private val HEALTH_BOOST: UUID = UUID.fromString("a61b8a4f-a4f5-4b7f-b787-d10ba4ad3d57")
+    private val HEALTH_BOOST = Arcade.id("health_boost")
 
     @JvmStatic
     public val ServerPlayer.location: Location
@@ -179,7 +179,6 @@ public object PlayerUtils {
             instance.removeModifier(HEALTH_BOOST)
             instance.addPermanentModifier(AttributeModifier(
                 HEALTH_BOOST,
-                "Health Boost",
                 multiply,
                 AttributeModifier.Operation.ADD_MULTIPLIED_BASE
             ))

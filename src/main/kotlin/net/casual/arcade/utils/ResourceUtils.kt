@@ -7,11 +7,11 @@ import org.apache.commons.lang3.RandomStringUtils
 public object ResourceUtils {
     public fun random(): ResourceLocation {
         val key = RandomStringUtils.random(16, "abcdefghijklmnopqrstuvwxyz0123456789")
-        return ResourceLocation(Arcade.MOD_ID, key)
+        return ResourceLocation.fromNamespaceAndPath(Arcade.MOD_ID, key)
     }
 
     public fun random(modifier: (String) -> String): ResourceLocation {
         val key = RandomStringUtils.random(16, "abcdefghijklmnopqrstuvwxyz0123456789")
-        return ResourceLocation(Arcade.MOD_ID, modifier(key))
+        return ResourceLocation.fromNamespaceAndPath(Arcade.MOD_ID, modifier(key))
     }
 }

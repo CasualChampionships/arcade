@@ -53,7 +53,7 @@ public class AdvancementBuilder {
     public var background: ResourceLocation? = null
 
     /**
-     * The [FrameType] for the advancement.
+     * The [AdvancementType] for the advancement.
      */
     public var type: AdvancementType = AdvancementType.TASK
 

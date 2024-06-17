@@ -5,22 +5,22 @@ import net.casual.arcade.utils.LevelUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.EndPortalBlock;
+import net.minecraft.world.level.block.NetherPortalBlock;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(EndPortalBlock.class)
-public class EndPortalBlockMixin {
+@Mixin(NetherPortalBlock.class)
+public class NetherPortalBlockMixin {
 	@ModifyExpressionValue(
 		method = "getPortalDestination",
 		at = {
 			@At(
 				value = "FIELD",
-				target = "Lnet/minecraft/world/level/Level;END:Lnet/minecraft/resources/ResourceKey;"
+				target = "Lnet/minecraft/world/level/Level;OVERWORLD:Lnet/minecraft/resources/ResourceKey;"
 			),
 			@At(
 				value = "FIELD",
-				target = "Lnet/minecraft/world/level/Level;OVERWORLD:Lnet/minecraft/resources/ResourceKey;"
+				target = "Lnet/minecraft/world/level/Level;NETHER:Lnet/minecraft/resources/ResourceKey;"
 			)
 		}
 	)

@@ -3,9 +3,9 @@ package net.casual.arcade.minigame.managers
 import com.google.gson.JsonObject
 import net.casual.arcade.Arcade
 import net.casual.arcade.events.minigame.MinigameAddAdminEvent
-import net.casual.arcade.events.minigame.MinigameSetSpectatingEvent
 import net.casual.arcade.events.minigame.MinigameRemoveAdminEvent
 import net.casual.arcade.events.minigame.MinigameSetPlayingEvent
+import net.casual.arcade.events.minigame.MinigameSetSpectatingEvent
 import net.casual.arcade.events.player.PlayerTeamJoinEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.JsonUtils.stringOrNull

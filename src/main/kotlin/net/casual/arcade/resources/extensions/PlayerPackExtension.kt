@@ -1,8 +1,6 @@
 package net.casual.arcade.resources.extensions
 
 import net.casual.arcade.Arcade
-import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.player.PlayerClientboundPacketEvent
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.resources.PackInfo
 import net.casual.arcade.resources.PackState

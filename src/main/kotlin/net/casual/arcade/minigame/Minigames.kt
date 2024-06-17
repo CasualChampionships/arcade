@@ -131,7 +131,7 @@ public object Minigames {
             return
         }
         for (game in games) {
-            val id = ResourceLocation(game.string("id"))
+            val id = ResourceLocation.parse(game.string("id"))
             val factory = FACTORIES_BY_ID[id]
             if (factory == null) {
                 Arcade.logger.warn("Failed to reload minigame with id $id, no factory found!")

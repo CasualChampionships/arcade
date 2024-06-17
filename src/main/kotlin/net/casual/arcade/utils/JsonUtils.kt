@@ -5,7 +5,6 @@ import net.casual.arcade.utils.json.JsonSerializer
 import net.minecraft.Util
 import net.minecraft.nbt.*
 import java.io.Reader
-import java.lang.Appendable
 import java.util.*
 
 public object JsonUtils {

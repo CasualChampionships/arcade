@@ -3,7 +3,8 @@ package net.casual.arcade.task.impl
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import net.casual.arcade.Arcade
-import net.casual.arcade.task.*
+import net.casual.arcade.task.SavableTask
+import net.casual.arcade.task.Task
 import net.casual.arcade.task.serialization.TaskCreationContext
 import net.casual.arcade.task.serialization.TaskFactory
 import net.casual.arcade.task.serialization.TaskWriteContext
@@ -156,7 +157,7 @@ public sealed class CancellableTask(
          * similar to the [of] method *however* this method will also
          * make the runnable be called when the task is [ifCancelled].
          *
-         * @param runnable The task to wrap in a cancellable task.
+         * @param task The task to wrap in a cancellable task.
          * @return The cancellable task.
          * @see of
          */

@@ -9,7 +9,6 @@ import net.casual.arcade.events.level.LevelEvent
 import net.casual.arcade.events.minigame.MinigameEvent
 import net.casual.arcade.events.player.PlayerEvent
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.annotation.*
 import net.casual.arcade.minigame.annotation.ListenerFlags.DEFAULT
 import net.casual.arcade.minigame.annotation.ListenerFlags.HAS_LEVEL
 import net.casual.arcade.minigame.annotation.ListenerFlags.HAS_PLAYER
@@ -44,7 +43,7 @@ import java.util.function.Consumer
  * listeners if the player that caused the event isn't
  * playing in that minigame, this also goes for [LevelEvent]s
  * and [MinigameEvent]s:
- * - The [PlayerEvent]s check using [Minigame.hasPlayer]
+ * - The [PlayerEvent]s check using [MinigamePlayerManager.has]
  * - The [LevelEvent]s check using [MinigameLevelManager.has]
  * - The [MinigameEvent]s check simply check whether the
  * current minigame is the one that fired the event.

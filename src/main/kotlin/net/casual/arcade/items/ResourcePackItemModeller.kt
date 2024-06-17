@@ -1,7 +1,7 @@
 package net.casual.arcade.items
 
 import com.mojang.serialization.Codec
-import eu.pb4.polymer.core.api.item.PolymerItemUtils
+import eu.pb4.polymer.core.api.other.PolymerComponent
 import eu.pb4.polymer.resourcepack.api.PolymerModelData
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator
 import net.casual.arcade.Arcade
@@ -13,7 +13,6 @@ import net.minecraft.network.codec.ByteBufCodecs
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.component.CustomModelData
 
 /**
  * This is an implementation of [ItemModeller] that allows
@@ -146,7 +145,7 @@ public class ResourcePackItemModeller(
         )
 
         init {
-            PolymerItemUtils.markAsPolymer(PACKED_CUSTOM_MODEL)
+            PolymerComponent.registerDataComponent(PACKED_CUSTOM_MODEL)
         }
     }
 }

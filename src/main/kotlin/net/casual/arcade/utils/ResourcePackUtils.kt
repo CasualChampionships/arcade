@@ -170,7 +170,7 @@ public object ResourcePackUtils {
                     val relative = path.parent.toString().removePrefix(itemTexturesDirectory)
                     val model = "$relative/$name.json"
                     if (itemModels.resolve(model).notExists()) {
-                        val location = ResourceLocation(namespace, "item/$relative/$name")
+                        val location = ResourceLocation.fromNamespaceAndPath(namespace, "item/$relative/$name")
                         builder.addData("assets/$namespace/models/$model", getDefaultItemModel(location))
                     }
 

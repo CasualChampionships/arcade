@@ -13,7 +13,6 @@ import net.minecraft.world.level.dimension.BuiltinDimensionTypes
 import xyz.nucleoid.fantasy.Fantasy
 import xyz.nucleoid.fantasy.RuntimeWorldConfig
 import xyz.nucleoid.fantasy.RuntimeWorldHandle
-import kotlin.random.Random
 
 public object FantasyUtils {
     public fun createTemporaryVanillaLikeLevels(

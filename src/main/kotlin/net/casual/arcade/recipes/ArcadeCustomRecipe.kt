@@ -2,10 +2,7 @@ package net.casual.arcade.recipes
 
 import eu.pb4.polymer.core.api.item.PolymerRecipe
 import net.minecraft.core.HolderLookup
-import net.minecraft.core.RegistryAccess
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.inventory.CraftingContainer
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.crafting.*
 import net.minecraft.world.level.Level
@@ -37,11 +34,11 @@ public abstract class ArcadeCustomRecipe(
      * You have access to all the items in the crafting container
      * allowing you to determine what the output item is.
      *
-     * @param container The crafting container holding the recipe items.
+     * @param input The crafting container holding the recipe items.
      * @param access Access to all the registries.
      * @return The item being crafted.
      */
-    abstract override fun assemble(container: CraftingContainer, access: HolderLookup.Provider): ItemStack
+    abstract override fun assemble(input: CraftingInput, access: HolderLookup.Provider): ItemStack
 
     /**
      * This method is called to see if this recipe is able to fit
@@ -59,24 +56,24 @@ public abstract class ArcadeCustomRecipe(
      *
      * This method is called only if [canCraftInDimensions] returns `true`.
      *
-     * @param container The crafting container to match against.
+     * @param input The crafting container to match against.
      * @param level The level the player is currently in.
      * @return Whether the recipe is a match.
      */
     @OverrideOnly
-    protected abstract fun isMatch(container: CraftingContainer, level: ServerLevel): Boolean
+    protected abstract fun isMatch(input: CraftingInput, level: ServerLevel): Boolean
 
     /**
      * This method is used to check whether the recipe matches
      * what is currently in a crafting container.
      *
-     * @param container The crafting container to match against.
+     * @param input The crafting container to match against.
      * @param level The level the player is currently in.
      * @return Whether the recipe is a match.
      * @see isMatch
      */
-    final override fun matches(container: CraftingContainer, level: Level): Boolean {
-        return this.canCraftInDimensions(container.width, container.height) && this.isMatch(container, level as ServerLevel)
+    final override fun matches(input: CraftingInput, level: Level): Boolean {
+        return this.canCraftInDimensions(input.width(), input.height()) && this.isMatch(input, level as ServerLevel)
     }
 
     /**

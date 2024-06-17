@@ -71,7 +71,7 @@ public class StatTracker {
 
     public fun deserialize(stats: JsonArray) {
         for (statData in stats.objects()) {
-            val location = ResourceLocation(statData.string("type"))
+            val location = ResourceLocation.parse(statData.string("type"))
             val value = statData["value"]
             val type = statData.string("value_type")
             this.unprocessed[location] = value to type

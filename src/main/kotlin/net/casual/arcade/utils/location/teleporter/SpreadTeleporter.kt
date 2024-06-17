@@ -7,7 +7,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.Arcade
 import net.casual.arcade.gui.shapes.Regular2DPolygonShape
 import net.casual.arcade.utils.EntityUtils.teleportTo
-import net.casual.arcade.utils.TeamUtils
 import net.casual.arcade.utils.location.Location
 import net.casual.arcade.utils.serialization.CodecProvider
 import net.minecraft.commands.arguments.EntityAnchorArgument

@@ -75,7 +75,7 @@ public class ServerGamePacketListenerImplMixin {
 		method = "handleClientCommand",
 		at = @At(
 			value = "INVOKE_ASSIGN",
-			target = "Lnet/minecraft/server/players/PlayerList;respawn(Lnet/minecraft/server/level/ServerPlayer;Z)Lnet/minecraft/server/level/ServerPlayer;",
+			target = "Lnet/minecraft/server/players/PlayerList;respawn(Lnet/minecraft/server/level/ServerPlayer;ZLnet/minecraft/world/entity/Entity$RemovalReason;)Lnet/minecraft/server/level/ServerPlayer;",
 			ordinal = 1,
 			shift = At.Shift.AFTER
 		)

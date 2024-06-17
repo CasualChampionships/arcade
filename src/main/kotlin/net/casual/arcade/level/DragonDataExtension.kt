@@ -3,7 +3,6 @@ package net.casual.arcade.level
 import com.mojang.serialization.Dynamic
 import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.DataExtension
-import net.minecraft.Util
 import net.minecraft.nbt.NbtOps
 import net.minecraft.nbt.Tag
 import net.minecraft.server.level.ServerLevel

@@ -11,7 +11,9 @@ import net.minecraft.nbt.*
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Unit
-import net.minecraft.world.item.*
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import net.minecraft.world.item.alchemy.Potion
 import net.minecraft.world.item.alchemy.PotionContents
 import net.minecraft.world.item.component.CustomData
@@ -180,7 +182,7 @@ public object ItemUtils {
     }
 
     @JvmStatic
-    public fun ItemStack.addEnchantment(enchantment: Enchantment, level: Int): ItemStack {
+    public fun ItemStack.addEnchantment(enchantment: Holder<Enchantment>, level: Int): ItemStack {
         var stack = this
         if (this.isOf(Items.BOOK)) {
             val copy = this.transmuteCopy(Items.ENCHANTED_BOOK, this.count)

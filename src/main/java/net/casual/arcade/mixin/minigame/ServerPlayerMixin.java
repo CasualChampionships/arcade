@@ -5,6 +5,7 @@ import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.utils.MinigameUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import org.spongepowered.asm.mixin.Final;
@@ -58,10 +59,11 @@ public class ServerPlayerMixin {
 	}
 
 	@ModifyExpressionValue(
-		method = "fudgeSpawnLocation",
+		method = "<init>",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/server/level/ServerLevel;getSharedSpawnPos()Lnet/minecraft/core/BlockPos;"
+			target = "Lnet/minecraft/server/level/ServerLevel;getSharedSpawnPos()Lnet/minecraft/core/BlockPos;",
+			ordinal = 1
 		)
 	)
 	private BlockPos getSharedSpawnPosition(BlockPos original) {
@@ -75,6 +77,25 @@ public class ServerPlayerMixin {
 			BlockPos spawnPosition = minigame.getLevels().getSpawn().position(player);
 			if (spawnPosition != null) {
 				return spawnPosition;
+			}
+		}
+		return original;
+	}
+
+	@ModifyExpressionValue(
+		method = "findRespawnPositionAndUseSpawnBlock",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/MinecraftServer;overworld()Lnet/minecraft/server/level/ServerLevel;"
+		)
+	)
+	private ServerLevel getDefaultRespawnDimension(ServerLevel original) {
+		ServerPlayer player = (ServerPlayer) (Object) this;
+		Minigame<?> minigame = MinigameUtils.getMinigame(player);
+		if (minigame != null) {
+			ServerLevel spawn = minigame.getLevels().getSpawn().level(player);
+			if (spawn != null) {
+				return spawn;
 			}
 		}
 		return original;

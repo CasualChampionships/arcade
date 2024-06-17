@@ -2,7 +2,6 @@ package net.casual.arcade.minigame.managers
 
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.SingleEventHandler
-import net.casual.arcade.events.minigame.MinigameStartEvent
 import net.casual.arcade.events.server.ServerStoppingEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.MinigameUtils.minigame

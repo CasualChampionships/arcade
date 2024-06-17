@@ -3,10 +3,10 @@ package net.casual.arcade.utils.registries
 import com.mojang.serialization.Lifecycle
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.area.templates.PlaceableAreaTemplate
+import net.casual.arcade.gui.bossbar.templates.TimerBossBarTemplate
 import net.casual.arcade.gui.countdown.templates.CountdownTemplate
 import net.casual.arcade.minigame.events.MinigamesEvent
 import net.casual.arcade.minigame.events.lobby.templates.LobbyTemplate
-import net.casual.arcade.gui.bossbar.templates.TimerBossBarTemplate
 import net.casual.arcade.utils.location.teleporter.EntityTeleporter
 import net.casual.arcade.utils.location.template.LocationTemplate
 import net.minecraft.core.MappedRegistry

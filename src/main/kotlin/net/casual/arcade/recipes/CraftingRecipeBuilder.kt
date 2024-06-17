@@ -2,13 +2,11 @@ package net.casual.arcade.recipes
 
 import net.minecraft.core.NonNullList
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.crafting.*
 import java.util.*
-import java.util.function.Predicate
 
 public object CraftingRecipeBuilder {
     public fun shaped(block: Shaped.() -> Unit): Shaped {

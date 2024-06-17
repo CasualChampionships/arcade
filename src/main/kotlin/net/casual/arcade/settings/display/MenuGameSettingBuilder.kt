@@ -1,7 +1,6 @@
 package net.casual.arcade.settings.display
 
 import com.mojang.serialization.Codec
-import com.mojang.serialization.codecs.EitherCodec
 import eu.pb4.sgui.api.elements.GuiElementInterface
 import eu.pb4.sgui.api.gui.GuiInterface
 import net.casual.arcade.scheduler.MinecraftTimeDuration
@@ -10,13 +9,11 @@ import net.casual.arcade.settings.SettingListener
 import net.casual.arcade.utils.ItemUtils.disableGlint
 import net.casual.arcade.utils.ItemUtils.enableGlint
 import net.casual.arcade.utils.ItemUtils.hasGlint
-import net.casual.arcade.utils.ItemUtils.removeEnchantments
 import net.casual.arcade.utils.serialization.ArcadeExtraCodecs
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.util.ExtraCodecs
 import net.minecraft.world.item.ItemStack
-import java.util.Optional
+import java.util.*
 
 public class MenuGameSettingBuilder<T: Any>(
     private val constructor: (String, T, Map<String, T>) -> GameSetting<T>

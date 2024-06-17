@@ -156,7 +156,7 @@ public class MinigameCommandManager(
             }  catch (syntax: CommandSyntaxException) {
                 source.fail(ComponentUtils.fromMessage(syntax.rawMessage))
                 if (syntax.input != null && syntax.cursor >= 0) {
-                    val i = syntax.input.length.coerceAtMost(syntax.cursor);
+                    val i = syntax.input.length.coerceAtMost(syntax.cursor)
                     val command = Component.empty().grey().command("/${event.command}")
                     if (i > 10) {
                         command.append(CommonComponents.ELLIPSIS)

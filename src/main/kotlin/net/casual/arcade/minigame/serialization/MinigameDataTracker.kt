@@ -9,7 +9,6 @@ import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.long
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
-import net.casual.arcade.utils.JsonUtils.strings
 import net.casual.arcade.utils.JsonUtils.uuid
 import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.core.registries.BuiltInRegistries
@@ -69,7 +68,7 @@ public class MinigameDataTracker(
         val json = this.players[uuid] ?: return listOf()
         val list = ArrayList<AdvancementHolder>()
         for (data in json.array("advancements").objects()) {
-            val id = ResourceLocation(data.string("id"))
+            val id = ResourceLocation.parse(data.string("id"))
             list.add(this.minigame.advancements.get(id) ?: continue)
         }
         return list

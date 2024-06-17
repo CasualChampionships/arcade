@@ -5,7 +5,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.utils.serialization.ArcadeExtraCodecs
 import net.minecraft.resources.ResourceLocation
-import java.util.Optional
+import java.util.*
 
 public data class MinigameData(
     val id: ResourceLocation,

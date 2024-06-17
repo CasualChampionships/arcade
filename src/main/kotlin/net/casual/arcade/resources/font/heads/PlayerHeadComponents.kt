@@ -12,7 +12,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import java.awt.Color
 import java.io.IOException
-import java.net.URL
+import java.net.URI
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
@@ -130,7 +130,7 @@ public object PlayerHeadComponents {
 
     private fun generateHead(skinTextureUrl: String): Component {
         try {
-            val image = ImageIO.read(URL(skinTextureUrl))
+            val image = ImageIO.read(URI(skinTextureUrl).toURL())
             val component = Component.empty()
             for (y in 0..7) {
                 for (x in 0..7) {

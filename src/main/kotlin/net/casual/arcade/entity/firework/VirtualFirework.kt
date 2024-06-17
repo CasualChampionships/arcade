@@ -2,10 +2,7 @@ package net.casual.arcade.entity.firework
 
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.MinecraftTimeDuration
-import net.minecraft.network.protocol.game.ClientboundEntityEventPacket
-import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
-import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket
+import net.minecraft.network.protocol.game.*
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.projectile.FireworkRocketEntity
 
@@ -14,7 +11,7 @@ public class VirtualFirework internal constructor(
     private val duration: MinecraftTimeDuration
 ) {
     public fun sendTo(player: ServerPlayer) {
-        player.connection.send(this.entity.addEntityPacket)
+        player.connection.send(this.createSpawnPacket())
         player.connection.send(ClientboundSetEntityMotionPacket(this.entity))
         val changed = this.entity.entityData.nonDefaultValues
         if (changed != null) {
@@ -27,7 +24,7 @@ public class VirtualFirework internal constructor(
     }
 
     public fun sendTo(players: List<ServerPlayer>) {
-        val spawn = this.entity.addEntityPacket
+        val spawn = this.createSpawnPacket()
         val motion = ClientboundSetEntityMotionPacket(this.entity)
         for (player in players) {
             player.connection.send(spawn)
@@ -48,6 +45,22 @@ public class VirtualFirework internal constructor(
                 player.connection.send(remove)
             }
         }
+    }
+
+    private fun createSpawnPacket(): ClientboundAddEntityPacket {
+        return ClientboundAddEntityPacket(
+            this.entity.id,
+            this.entity.uuid,
+            this.entity.x,
+            this.entity.y,
+            this.entity.z,
+            this.entity.xRot,
+            this.entity.yRot,
+            this.entity.type,
+            0,
+            this.entity.deltaMovement,
+            this.entity.yHeadRot.toDouble()
+        )
     }
 
     public companion object {

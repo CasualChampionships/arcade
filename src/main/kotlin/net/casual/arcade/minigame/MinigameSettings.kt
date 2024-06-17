@@ -5,16 +5,13 @@ import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.settings.display.DisplayableSettings
 import net.casual.arcade.settings.display.DisplayableSettingsDefaults
 import net.casual.arcade.settings.display.MenuGameSettingBuilder.Companion.bool
-import net.casual.arcade.settings.display.MenuGameSettingBuilder.Companion.float32
 import net.casual.arcade.settings.display.MenuGameSettingBuilder.Companion.int32
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ItemUtils
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.utils.ItemUtils.styledLore
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
-import net.minecraft.world.level.block.LightBlock
 
 /**
  * This class is the base class for all minigame settings.

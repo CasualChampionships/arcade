@@ -12,10 +12,10 @@ import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.utils.CommandUtils.argument
-import net.casual.arcade.utils.CommandUtils.registerLiteral
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.literal
+import net.casual.arcade.utils.CommandUtils.registerLiteral
 import net.casual.arcade.utils.CommandUtils.requiresPermission
 import net.casual.arcade.utils.CommandUtils.success
 import net.casual.arcade.utils.CommandUtils.suggests
@@ -32,7 +32,6 @@ import net.casual.arcade.utils.TeamUtils.toComponent
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.commands.Commands
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.commands.arguments.TeamArgument

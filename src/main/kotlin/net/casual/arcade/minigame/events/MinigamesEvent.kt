@@ -7,7 +7,6 @@ import net.casual.arcade.resources.PackInfo
 import net.casual.arcade.utils.registries.ArcadeRegistries
 import net.casual.arcade.utils.serialization.CodecProvider.Companion.register
 import net.minecraft.core.Registry
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import org.jetbrains.annotations.ApiStatus.Experimental

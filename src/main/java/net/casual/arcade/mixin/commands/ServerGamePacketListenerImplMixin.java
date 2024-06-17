@@ -7,7 +7,6 @@ import net.casual.arcade.events.player.PlayerCommandSuggestionsEvent;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.LastSeenMessages;
 import net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket;
-import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundChatCommandSignedPacket;
 import net.minecraft.network.protocol.game.ServerboundCommandSuggestionPacket;
 import net.minecraft.server.MinecraftServer;

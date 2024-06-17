@@ -1,10 +1,10 @@
 package net.casual.arcade.utils
 
-import net.casual.arcade.utils.PlayerUtils.teleportTo as teleportPlayerTo
 import net.casual.arcade.utils.location.Location
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
+import net.casual.arcade.utils.PlayerUtils.teleportTo as teleportPlayerTo
 
 public object EntityUtils {
     @JvmStatic
