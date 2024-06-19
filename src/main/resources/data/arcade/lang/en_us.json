@@ -1,0 +1,7 @@
+{
+  "minigame.chat.mode.switch.specificTeam": "You are now chatting in %s's team chat",
+  "minigame.chat.mode.switch.ownTeam": "You are now chatting in your team's chat",
+  "minigame.chat.mode.switch.admin": "You are now chatting in the admins' chat",
+  "minigame.chat.mode.switch.spectator": "You are now chatting in the spectators' chat",
+  "minigame.chat.mode.switch.global": "You are now chatting in the global chat"
+}

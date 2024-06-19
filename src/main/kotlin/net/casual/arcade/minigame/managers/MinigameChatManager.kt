@@ -1,5 +1,11 @@
 package net.casual.arcade.minigame.managers
 
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import com.mojang.brigadier.context.CommandContext
+import com.mojang.serialization.JsonOps
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.Arcade
 import net.casual.arcade.chat.ChatFormatter
 import net.casual.arcade.chat.PlayerChatFormatter
@@ -10,9 +16,24 @@ import net.casual.arcade.events.player.PlayerSystemMessageEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigameSettings
 import net.casual.arcade.minigame.annotation.ListenerFlags
+import net.casual.arcade.minigame.managers.chat.MinigameChatMode
+import net.casual.arcade.utils.CommandUtils
+import net.casual.arcade.utils.CommandUtils.argument
+import net.casual.arcade.utils.CommandUtils.commandSuccess
+import net.casual.arcade.utils.CommandUtils.success
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
+import net.casual.arcade.utils.JsonUtils.arrayOrDefault
+import net.casual.arcade.utils.JsonUtils.obj
+import net.casual.arcade.utils.JsonUtils.objects
+import net.casual.arcade.utils.JsonUtils.uuid
+import net.casual.arcade.utils.JsonUtils.uuids
+import net.casual.arcade.utils.MinigameUtils.isMinigameAdminOrHasPermission
+import net.casual.arcade.utils.MinigameUtils.isPlayerAnd
+import net.casual.arcade.utils.MinigameUtils.requiresAdminOrPermission
 import net.casual.arcade.utils.PlayerUtils.getChatPrefix
+import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.arguments.TeamArgument
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
@@ -66,12 +87,17 @@ public class MinigameChatManager(
      */
     public var mutedMessage: Component = "Currently chat is muted".literal().red()
 
-    internal val spies = HashSet<UUID>()
+    internal val modes = Object2ObjectOpenHashMap<UUID, MinigameChatMode>()
+    internal val spies = ObjectOpenHashSet<UUID>()
 
     init {
         this.minigame.events.register<PlayerChatEvent>(1_000, DEFAULT, ListenerFlags.NONE, this::onGlobalPlayerChat)
         this.minigame.events.register<PlayerSystemMessageEvent>(1_000, DEFAULT, ListenerFlags.NONE, this::onGlobalSystemChat)
         this.minigame.events.register<PlayerChatEvent> { this.onPlayerChat(it) }
+
+        this.modes.defaultReturnValue(MinigameChatMode.OwnTeam)
+
+        this.registerCommand()
     }
 
     /**
@@ -278,11 +304,11 @@ public class MinigameChatManager(
             return
         }
 
-        val team = player.team
+        val mode = this.modes[player.uuid]
 
         val content = event.rawMessage
         val exclaimed = content.startsWith("!")
-        if (exclaimed || team == null || this.minigame.teams.isTeamEliminated(team)) {
+        if (exclaimed || mode == null) {
             val trimmed = if (exclaimed) content.substring(1) else content
             if (trimmed.isNotBlank()) {
                 val (decorated, prefix) = this.formatGlobalChatFor(player, trimmed.trim().literal())
@@ -293,24 +319,10 @@ public class MinigameChatManager(
             return
         }
 
-        if (this.minigame.players.isAdmin(player)) {
-            val (decorated, prefix) = this.adminChatFormatter.format(player, message.decoratedContent())
-            event.replaceMessage(decorated, prefix)
-            event.addFilter { this.minigame.players.isAdmin(it) || this.isSpy(it) }
-            return
-        }
-
-        if (this.minigame.players.isSpectating(player)) {
-            val (decorated, prefix) = this.spectatorChatFormatter.format(player, message.decoratedContent())
-            event.replaceMessage(decorated, prefix)
-            event.addFilter { this.minigame.players.isSpectating(it) || this.isSpy(it) }
-            return
-        }
-
-        val (decorated, prefix) = this.teamChatFormatter.format(player, message.decoratedContent())
+        val formatter = mode.getChatFormatter(this)
+        val (decorated, prefix) = formatter.format(player, message.decoratedContent())
         event.replaceMessage(decorated, prefix)
-        event.addFilter { team == it.team || this.isSpy(it) }
-        return
+        event.addFilter { this.isSpy(it) || mode.canSendTo(it, player, this.minigame) }
     }
 
     private fun formatGlobalChatFor(player: ServerPlayer, message: Component): PlayerFormattedChat {
@@ -321,6 +333,117 @@ public class MinigameChatManager(
             return this.globalChatFormatter.format(this.spectatorChatFormatter.format(player, message))
         }
         return this.globalChatFormatter.format(player, message)
+    }
+
+    internal fun serialize(): JsonObject {
+        val spies = JsonArray()
+        for (spy in this.spies) {
+            spies.add(spy.toString())
+        }
+
+        val modes = JsonArray()
+        for ((uuid, mode) in this.modes) {
+            val result = MinigameChatMode.CODEC.encodeStart(JsonOps.INSTANCE, mode)
+            result.ifSuccess {
+                val data = JsonObject()
+                data.addProperty("uuid", uuid.toString())
+                data.add("mode", it)
+                modes.add(data)
+            }
+        }
+
+        val json = JsonObject()
+        json.add("spies", spies)
+        json.add("selected_modes", modes)
+        return json
+    }
+
+    internal fun deserialize(json: JsonObject) {
+        this.spies.addAll(json.arrayOrDefault("spies").uuids())
+
+        val modes = json.arrayOrDefault("selected_modes").objects()
+        for (mode in modes) {
+            val result = MinigameChatMode.CODEC.parse(JsonOps.INSTANCE, mode.obj("mode"))
+            result.ifSuccess {
+                this.modes[mode.uuid("uuid")] = it
+            }
+        }
+    }
+
+    private fun registerCommand() {
+        this.minigame.commands.register(CommandUtils.buildLiteral("chat") {
+            literal("team") {
+                argument("team", TeamArgument.team()) {
+                    requiresAdminOrPermission()
+                    executes(::selectSpecificTeamChat)
+                }
+                executes(::selectOwnTeamChat)
+            }
+            literal("global") {
+                executes(::selectGlobalChat)
+            }
+            literal("spectator") {
+                requires { source ->
+                    source.isMinigameAdminOrHasPermission() || source.isPlayerAnd(minigame.players::isSpectating)
+                }
+                executes(::selectSpectatorChat)
+            }
+            literal("admin") {
+                requiresAdminOrPermission()
+                executes(::selectAdminChat)
+            }
+        })
+    }
+
+    private fun selectSpecificTeamChat(context: CommandContext<CommandSourceStack>): Int {
+        val team = TeamArgument.getTeam(context, "team")
+        return this.selectChat(
+            context,
+            MinigameChatMode.Team.getOrCreate(team),
+            Component.translatable("minigame.chat.mode.switch.specificTeam", team.formattedDisplayName)
+        )
+    }
+
+    private fun selectOwnTeamChat(context: CommandContext<CommandSourceStack>): Int {
+        return this.selectChat(
+            context,
+            MinigameChatMode.OwnTeam,
+            Component.translatable("minigame.chat.mode.switch.ownTeam")
+        )
+    }
+
+    private fun selectSpectatorChat(context: CommandContext<CommandSourceStack>): Int {
+        return this.selectChat(
+            context,
+            MinigameChatMode.Spectator,
+            Component.translatable("minigame.chat.mode.switch.spectator")
+        )
+    }
+
+    private fun selectAdminChat(context: CommandContext<CommandSourceStack>): Int {
+        return this.selectChat(
+            context,
+            MinigameChatMode.Admin,
+            Component.translatable("minigame.chat.mode.switch.admin")
+        )
+    }
+
+    private fun selectGlobalChat(context: CommandContext<CommandSourceStack>): Int {
+        return this.selectChat(
+            context,
+            null,
+            Component.translatable("minigame.chat.mode.switch.global")
+        )
+    }
+
+    private fun selectChat(
+        context: CommandContext<CommandSourceStack>,
+        mode: MinigameChatMode?,
+        component: Component
+    ): Int {
+        val player = context.source.playerOrException
+        this.modes[player.uuid] = mode
+        return this.broadcastTo(component, player).commandSuccess()
     }
 
     public companion object {

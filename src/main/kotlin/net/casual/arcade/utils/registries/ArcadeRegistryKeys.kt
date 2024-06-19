@@ -7,6 +7,7 @@ import net.casual.arcade.gui.bossbar.templates.TimerBossBarTemplate
 import net.casual.arcade.gui.countdown.templates.CountdownTemplate
 import net.casual.arcade.minigame.events.MinigamesEvent
 import net.casual.arcade.minigame.events.lobby.templates.LobbyTemplate
+import net.casual.arcade.minigame.managers.chat.MinigameChatMode
 import net.casual.arcade.utils.location.teleporter.EntityTeleporter
 import net.casual.arcade.utils.location.template.LocationTemplate
 import net.minecraft.core.Registry
@@ -19,6 +20,7 @@ public object ArcadeRegistryKeys {
     public val LOBBY_TEMPLATE: ResourceKey<Registry<MapCodec<out LobbyTemplate>>> = create("lobby_template")
     public val LOCATION_TEMPLATE: ResourceKey<Registry<MapCodec<out LocationTemplate>>> = create("location_template")
     public val ENTITY_TELEPORTER: ResourceKey<Registry<MapCodec<out EntityTeleporter>>> = create("entity_teleporter")
+    public val MINIGAME_CHAT_MODE: ResourceKey<Registry<MapCodec<out MinigameChatMode>>> = create("minigame_chat_mode")
     public val MINIGAMES_EVENT: ResourceKey<Registry<MapCodec<out MinigamesEvent>>> = create("minigames_event")
 
     private fun <T> create(path: String): ResourceKey<Registry<T>> {

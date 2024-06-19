@@ -26,6 +26,7 @@ import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.LevelUtils.addExtension
 import net.casual.arcade.utils.LevelUtils.getExtension
+import net.casual.arcade.utils.MinigameUtils.isMinigameAdminOrHasPermission
 import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
 import net.casual.arcade.utils.TimeUtils.Seconds
@@ -36,6 +37,7 @@ import net.minecraft.world.entity.Entity
 import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import java.util.function.Predicate
 
 public object MinigameUtils {
     internal val ServerPlayer.minigame
@@ -83,11 +85,18 @@ public object MinigameUtils {
     }
 
     public fun <T: ArgumentBuilder<CommandSourceStack, T>> T.requiresAdminOrPermission(level: Int = 4): T {
-        return this.requires { source ->
-            if (source.isPlayer) {
-                source.playerOrException.isMinigameAdminOrHasPermission(level)
-            } else source.hasPermission(level)
+        return this.requires { source -> source.isMinigameAdminOrHasPermission(level) }
+    }
+
+    public fun CommandSourceStack.isMinigameAdminOrHasPermission(level: Int = 4): Boolean {
+        if (!this.isPlayer) {
+            return this.hasPermission(level)
         }
+        return this.playerOrException.isMinigameAdminOrHasPermission(level)
+    }
+
+    public fun CommandSourceStack.isPlayerAnd(predicate: Predicate<ServerPlayer>): Boolean {
+        return this.isPlayer && predicate.test(this.playerOrException)
     }
 
     public fun ServerPlayer.isMinigameAdminOrHasPermission(level: Int = 4): Boolean {
