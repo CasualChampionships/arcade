@@ -93,7 +93,7 @@ public class MinigameChatManager(
      */
     public var mutedMessage: Component = "Currently chat is muted".literal().red()
 
-    internal val modes = Object2ObjectOpenHashMap<UUID, MinigameChatMode>()
+    internal val modes = Object2ObjectOpenHashMap<UUID, MinigameChatMode?>()
     internal val spies = ObjectOpenHashSet<UUID>()
 
     init {
@@ -101,9 +101,7 @@ public class MinigameChatManager(
         this.minigame.events.register<PlayerSystemMessageEvent>(this::onGlobalSystemChat)
         this.minigame.events.register<PlayerChatEvent> { this.onPlayerChat(it) }
         this.minigame.events.register<MinigameSetPlayingEvent> { (_, player) ->
-            if (this.modes[player.uuid] == MinigameChatMode.Spectator) {
-                this.selectOwnTeamChat(player)
-            }
+            this.selectOwnTeamChat(player)
         }
         this.minigame.events.register<MinigameSetSpectatingEvent> { (_, player) ->
             this.selectSpectatorChat(player)
@@ -420,50 +418,58 @@ public class MinigameChatManager(
         return this.selectChat(
             context.source.playerOrException,
             MinigameChatMode.Team.getOrCreate(team),
-            Component.translatable("minigame.chat.mode.switch.specificTeam", team.formattedDisplayName)
+            Component.translatable("minigame.chat.mode.switch.specificTeam", team.formattedDisplayName),
+            true
         )
     }
 
-    private fun selectOwnTeamChat(player: ServerPlayer): Int {
+    private fun selectOwnTeamChat(player: ServerPlayer, feedback: Boolean = true): Int {
         return this.selectChat(
             player,
             MinigameChatMode.OwnTeam,
-            Component.translatable("minigame.chat.mode.switch.ownTeam")
+            Component.translatable("minigame.chat.mode.switch.ownTeam"),
+            feedback
         )
     }
 
-    private fun selectSpectatorChat(player: ServerPlayer): Int {
+    private fun selectSpectatorChat(player: ServerPlayer, feedback: Boolean = true): Int {
         return this.selectChat(
             player,
             MinigameChatMode.Spectator,
-            Component.translatable("minigame.chat.mode.switch.spectator")
+            Component.translatable("minigame.chat.mode.switch.spectator"),
+            feedback
         )
     }
 
-    private fun selectAdminChat(player: ServerPlayer): Int {
+    private fun selectAdminChat(player: ServerPlayer, feedback: Boolean = true): Int {
         return this.selectChat(
             player,
             MinigameChatMode.Admin,
-            Component.translatable("minigame.chat.mode.switch.admin")
+            Component.translatable("minigame.chat.mode.switch.admin"),
+            feedback
         )
     }
 
-    private fun selectGlobalChat(player: ServerPlayer): Int {
+    private fun selectGlobalChat(player: ServerPlayer, feedback: Boolean = true): Int {
         return this.selectChat(
             player,
             null,
-            Component.translatable("minigame.chat.mode.switch.global")
+            Component.translatable("minigame.chat.mode.switch.global"),
+            feedback
         )
     }
 
     private fun selectChat(
         player: ServerPlayer,
         mode: MinigameChatMode?,
-        component: Component
+        component: Component,
+        feedback: Boolean
     ): Int {
         if (this.modes.put(player.uuid, mode) != mode) {
-            this.broadcastTo(component, player)
-        } else {
+            if (!this.minigame.settings.isChatGlobal && feedback) {
+                this.broadcastTo(component, player)
+            }
+        } else if (feedback) {
             this.broadcastTo(Component.translatable("minigame.chat.mode.switch.alreadySelected"), player)
         }
         return Command.SINGLE_SUCCESS

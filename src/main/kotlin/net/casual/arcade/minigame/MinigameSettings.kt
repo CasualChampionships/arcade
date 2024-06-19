@@ -252,7 +252,8 @@ public open class MinigameSettings(
             "To send messages to global players must prefix their message with !.".literal()
         )
         value = true
-        listener { _, _, _ ->
+        listener { setting, _, value ->
+            setting.setQuietly(value)
             minigame.commands.resendCommands()
         }
         defaults.options(this)
