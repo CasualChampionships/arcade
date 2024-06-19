@@ -268,8 +268,8 @@ public class MinigamePlayerManager(
      */
     public fun has(uuid: UUID): Boolean {
         val player = PlayerUtils.player(uuid)
-        if (player != null) {
-            return this.has(player)
+        if (player != null && this.has(player)) {
+            return true
         }
         return this.offlineGameProfiles.any { it.id == uuid }
     }
