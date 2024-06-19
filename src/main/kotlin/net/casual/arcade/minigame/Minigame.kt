@@ -622,7 +622,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.events.register<PlayerDeathEvent> { this.onPlayerDeath(it) }
         this.events.register<PlayerDamageEvent>(1_000, BuiltInEventPhases.POST) { this.onPlayerDamage(it) }
         this.events.register<PlayerHealEvent>(1_000, BuiltInEventPhases.POST) { this.onPlayerHeal(it) }
-        this.events.register<MinigameAddPlayerEvent>(-1000) { this.onPlayerAdd(it) }
+        this.events.register<MinigameAddPlayerEvent>(Int.MAX_VALUE) { this.onPlayerAdd(it) }
         this.events.register<MinigameRemovePlayerEvent>(2000) { this.onPlayerRemove(it) }
         this.events.register<ServerStoppingEvent> { this.onServerStopping() }
     }
