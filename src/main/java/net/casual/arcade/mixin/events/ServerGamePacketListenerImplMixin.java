@@ -1,10 +1,13 @@
 package net.casual.arcade.mixin.events;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.PlayerChatEvent;
 import net.casual.arcade.events.player.PlayerLeaveEvent;
 import net.casual.arcade.events.player.PlayerRespawnEvent;
+import net.casual.arcade.events.player.PlayerSystemMessageEvent;
 import net.casual.arcade.utils.PlayerUtils;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
@@ -83,5 +86,21 @@ public class ServerGamePacketListenerImplMixin {
 	private void onRespawn(ServerboundClientCommandPacket packet, CallbackInfo ci) {
 		PlayerRespawnEvent event = new PlayerRespawnEvent(this.player);
 		GlobalEventHandler.broadcast(event);
+	}
+
+	@WrapOperation(
+		method = "removePlayerFromWorld",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"
+		)
+	)
+	private void onBroadcastLeaveMessage(
+		PlayerList instance,
+		Component message,
+		boolean bypassHiddenChat,
+		Operation<Void> original
+	) {
+		PlayerSystemMessageEvent.broadcast(this.player, instance, message, bypassHiddenChat, original);
 	}
 }

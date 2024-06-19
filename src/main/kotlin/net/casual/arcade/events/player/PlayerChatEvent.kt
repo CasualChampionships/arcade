@@ -17,7 +17,6 @@ public data class PlayerChatEvent(
     val rawMessage: String
         get() = this.message.signedContent()
 
-
     public fun replaceMessage(component: Component, prefix: Component? = null) {
         this.replacement = component
         this.prefix = prefix

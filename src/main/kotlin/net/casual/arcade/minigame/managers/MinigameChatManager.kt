@@ -6,6 +6,7 @@ import net.casual.arcade.chat.PlayerChatFormatter
 import net.casual.arcade.chat.PlayerFormattedChat
 import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.player.PlayerChatEvent
+import net.casual.arcade.events.player.PlayerSystemMessageEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigameSettings
 import net.casual.arcade.minigame.annotation.ListenerFlags
@@ -69,6 +70,7 @@ public class MinigameChatManager(
 
     init {
         this.minigame.events.register<PlayerChatEvent>(1_000, DEFAULT, ListenerFlags.NONE, this::onGlobalPlayerChat)
+        this.minigame.events.register<PlayerSystemMessageEvent>(1_000, DEFAULT, ListenerFlags.NONE, this::onGlobalSystemChat)
         this.minigame.events.register<PlayerChatEvent> { this.onPlayerChat(it) }
     }
 
@@ -243,6 +245,20 @@ public class MinigameChatManager(
     private fun onGlobalPlayerChat(event: PlayerChatEvent) {
         if (!this.minigame.settings.canCrossChat && !this.minigame.players.has(event.player)) {
             event.addFilter { !this.minigame.players.has(it) }
+        }
+    }
+
+    private fun onGlobalSystemChat(event: PlayerSystemMessageEvent) {
+        if (this.minigame.settings.isChatMuted.get(event.player)) {
+            event.cancel()
+            return
+        }
+
+        val causer = event.causer
+        if (causer != null) {
+            if (!this.minigame.settings.canCrossChat && !this.minigame.players.has(causer)) {
+                event.cancel()
+            }
         }
     }
 

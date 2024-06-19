@@ -3,6 +3,7 @@ package net.casual.arcade.minigame.managers
 import net.casual.arcade.events.minigame.MinigameAddPlayerEvent
 import net.casual.arcade.events.minigame.MinigameRemovePlayerEvent
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.utils.AdvancementUtils.copyWithoutToast
 import net.casual.arcade.utils.PlayerUtils.grantAdvancementSilently
 import net.casual.arcade.utils.PlayerUtils.revokeAdvancement
 import net.minecraft.advancements.AdvancementHolder
@@ -80,9 +81,9 @@ public class MinigameAdvancementManager(
     }
 
     public fun reloadFor(player: ServerPlayer) {
-        val advancements = this.minigame.data.getAdvancements(player.uuid)
-        for (advancement in advancements) {
-            player.grantAdvancementSilently(advancement)
+        val holders = this.minigame.data.getAdvancements(player.uuid)
+        for (holder in holders) {
+            player.grantAdvancementSilently(holder.copyWithoutToast())
         }
     }
 

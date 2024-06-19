@@ -1,13 +1,17 @@
 package net.casual.arcade.mixin.events;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.*;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
@@ -92,6 +96,22 @@ public abstract class ServerPlayerMixin extends Player {
 			return event.getCanHarmOtherBoolean();
 		}
 		return original;
+	}
+
+	@WrapOperation(
+		method = "die",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"
+		)
+	)
+	private void onSendDeathMessage(
+		PlayerList instance,
+		Component message,
+		boolean bypassHiddenChat,
+		Operation<Void> original
+	) {
+		PlayerSystemMessageEvent.broadcast((ServerPlayer) (Object) this, instance, message, bypassHiddenChat, original);
 	}
 
 	@Override
