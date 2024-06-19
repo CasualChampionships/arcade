@@ -41,7 +41,9 @@ import net.minecraft.commands.arguments.TeamArgument
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.util.ExtraCodecs
 import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * This class manages the chat of a minigame.
@@ -360,7 +362,7 @@ public class MinigameChatManager(
 
         val modes = JsonArray()
         for ((uuid, mode) in this.modes) {
-            val result = MinigameChatMode.CODEC.encodeStart(JsonOps.INSTANCE, mode)
+            val result = MinigameChatMode.OPTIONAL_CODEC.encodeStart(JsonOps.INSTANCE, Optional.ofNullable(mode))
             result.ifSuccess {
                 val data = JsonObject()
                 data.addProperty("uuid", uuid.toString())
@@ -380,9 +382,9 @@ public class MinigameChatManager(
 
         val modes = json.arrayOrDefault("selected_modes").objects()
         for (mode in modes) {
-            val result = MinigameChatMode.CODEC.parse(JsonOps.INSTANCE, mode.obj("mode"))
+            val result = MinigameChatMode.OPTIONAL_CODEC.parse(JsonOps.INSTANCE, mode.obj("mode"))
             result.ifSuccess {
-                this.modes[mode.uuid("uuid")] = it
+                this.modes[mode.uuid("uuid")] = it.getOrNull()
             }
         }
     }

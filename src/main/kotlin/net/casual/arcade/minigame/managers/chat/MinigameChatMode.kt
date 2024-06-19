@@ -13,8 +13,9 @@ import net.casual.arcade.utils.serialization.CodecProvider.Companion.register
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.util.ExtraCodecs
 import net.minecraft.world.scores.PlayerTeam
-import java.util.WeakHashMap
+import java.util.*
 import java.util.function.Function
 
 public sealed interface MinigameChatMode {
@@ -28,6 +29,10 @@ public sealed interface MinigameChatMode {
         public val CODEC: Codec<MinigameChatMode> by lazy {
             ArcadeRegistries.MINIGAME_CHAT_MODES.byNameCodec()
                 .dispatch(MinigameChatMode::codec, Function.identity())
+        }
+
+        public val OPTIONAL_CODEC: Codec<Optional<MinigameChatMode>> by lazy {
+            ExtraCodecs.optionalEmptyMap(CODEC)
         }
 
         public fun bootstrap(registry: Registry<MapCodec<out MinigameChatMode>>) {
