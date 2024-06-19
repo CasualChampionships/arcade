@@ -302,7 +302,7 @@ public class MinigameChatManager(
 
         val causer = event.causer
         if (causer != null) {
-            if (!this.minigame.settings.canCrossChat && !this.minigame.players.has(causer)) {
+            if (!this.minigame.settings.canCrossChat && !this.minigame.players.has(causer.uuid)) {
                 event.cancel()
             }
         }
