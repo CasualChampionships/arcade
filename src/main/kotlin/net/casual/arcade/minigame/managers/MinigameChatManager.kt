@@ -24,6 +24,7 @@ import net.casual.arcade.minigame.annotation.ListenerFlags
 import net.casual.arcade.minigame.managers.chat.MinigameChatMode
 import net.casual.arcade.utils.CommandUtils
 import net.casual.arcade.utils.CommandUtils.argument
+import net.casual.arcade.utils.CommandUtils.literal
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.JsonUtils.arrayOrDefault
