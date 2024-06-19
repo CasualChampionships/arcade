@@ -25,8 +25,10 @@ public sealed interface MinigameChatMode {
     public fun codec(): MapCodec<out MinigameChatMode>
 
     public companion object {
-        public val CODEC: Codec<MinigameChatMode> = ArcadeRegistries.MINIGAME_CHAT_MODES.byNameCodec()
-            .dispatch(MinigameChatMode::codec, Function.identity())
+        public val CODEC: Codec<MinigameChatMode> by lazy {
+            ArcadeRegistries.MINIGAME_CHAT_MODES.byNameCodec()
+                .dispatch(MinigameChatMode::codec, Function.identity())
+        }
 
         public fun bootstrap(registry: Registry<MapCodec<out MinigameChatMode>>) {
             Spectator.register(registry)
