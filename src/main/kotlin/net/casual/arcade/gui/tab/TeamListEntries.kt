@@ -6,10 +6,10 @@ import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.colour
 import net.casual.arcade.utils.ComponentUtils.italicise
 import net.casual.arcade.utils.ComponentUtils.literal
-import net.casual.arcade.utils.PlayerUtils
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Team
 import kotlin.math.max
@@ -46,7 +46,8 @@ public open class TeamListEntries: PlayerListEntries {
                     if (row !in this.entries.indices) {
                         break
                     }
-                    this.entries[row++][column] = this.createPlayerEntry(server, username, team)
+                    val player = server.playerList.getPlayerByName(username)
+                    this.entries[row++][column] = this.createPlayerEntry(server, username, team, player)
                 }
             }
             previousRow += most + 2
@@ -69,9 +70,13 @@ public open class TeamListEntries: PlayerListEntries {
         return PlayerListEntries.Entry.fromComponent(this.formatTeamName(server, team))
     }
 
-    protected open fun createPlayerEntry(server: MinecraftServer, username: String, team: PlayerTeam): PlayerListEntries.Entry {
+    protected open fun createPlayerEntry(
+        server: MinecraftServer,
+        username: String,
+        team: PlayerTeam,
+        player: ServerPlayer?
+    ): PlayerListEntries.Entry {
         val head = PlayerHeadComponents.getHeadOrDefault(username)
-        val player = PlayerUtils.player(username)
         val name = when {
             player == null -> username.literal().colour(0x808080)
             player.isSpectator -> username.literal().withStyle(team.color).italicise()
