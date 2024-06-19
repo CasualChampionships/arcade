@@ -66,7 +66,6 @@
     "minigame.ItemEntityMixin",
     "minigame.ItemStackMixin",
     "minigame.LevelMixin",
-    "minigame.PlayerListMixin",
     "minigame.PlayerMixin",
     "minigame.PlayerTeamMixin",
     "minigame.ScoreboardMixin",
