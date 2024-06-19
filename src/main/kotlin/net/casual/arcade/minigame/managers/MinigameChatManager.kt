@@ -95,7 +95,7 @@ public class MinigameChatManager(
 
     init {
         this.minigame.events.register<PlayerChatEvent>(1_000, DEFAULT, ListenerFlags.NONE, this::onGlobalPlayerChat)
-        this.minigame.events.register<PlayerSystemMessageEvent>(1_000, DEFAULT, ListenerFlags.NONE, this::onGlobalSystemChat)
+        this.minigame.events.register<PlayerSystemMessageEvent>(this::onGlobalSystemChat)
         this.minigame.events.register<PlayerChatEvent> { this.onPlayerChat(it) }
         this.minigame.events.register<MinigameSetPlayingEvent> { (_, player) ->
             if (this.modes[player.uuid] == MinigameChatMode.Spectator) {
@@ -294,7 +294,7 @@ public class MinigameChatManager(
     }
 
     private fun onGlobalSystemChat(event: PlayerSystemMessageEvent) {
-        if (this.minigame.settings.isChatMuted.get(event.player)) {
+        if (this.minigame.settings.isChatMuted.get()) {
             event.cancel()
             return
         }
