@@ -3,5 +3,6 @@
   "minigame.chat.mode.switch.ownTeam": "You are now chatting in your team's chat",
   "minigame.chat.mode.switch.admin": "You are now chatting in the admins' chat",
   "minigame.chat.mode.switch.spectator": "You are now chatting in the spectators' chat",
-  "minigame.chat.mode.switch.global": "You are now chatting in the global chat"
+  "minigame.chat.mode.switch.global": "You are now chatting in the global chat",
+  "minigame.chat.mode.switch.alreadySelected": "You are already chatting in that chat!"
 }

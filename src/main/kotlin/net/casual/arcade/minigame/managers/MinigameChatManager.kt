@@ -106,9 +106,6 @@ public class MinigameChatManager(
         this.minigame.events.register<MinigameSetSpectatingEvent> { (_, player) ->
             this.selectSpectatorChat(player)
         }
-        this.minigame.events.register<MinigameAddAdminEvent> { (_, player) ->
-            this.selectAdminChat(player)
-        }
         this.minigame.events.register<MinigameRemoveAdminEvent> { (_, player) ->
             if (this.modes[player.uuid] == MinigameChatMode.Admin) {
                 this.selectOwnTeamChat(player)
@@ -342,7 +339,7 @@ public class MinigameChatManager(
         val formatter = mode.getChatFormatter(this)
         val (decorated, prefix) = formatter.format(player, message.decoratedContent())
         event.replaceMessage(decorated, prefix)
-        event.addFilter { this.isSpy(it) || mode.canSendTo(it, player, this.minigame) }
+        event.addFilter { this.isSpy(it) || mode.canSendTo(it, player, this.minigame) || this.modes[it.uuid] == mode }
     }
 
     private fun formatGlobalChatFor(player: ServerPlayer, message: Component): PlayerFormattedChat {
@@ -392,6 +389,7 @@ public class MinigameChatManager(
 
     private fun registerCommand() {
         this.minigame.commands.register(CommandUtils.buildLiteral("chat") {
+            requires { !minigame.settings.isChatGlobal }
             literal("team") {
                 argument("team", TeamArgument.team()) {
                     requiresAdminOrPermission()
@@ -463,6 +461,8 @@ public class MinigameChatManager(
     ): Int {
         if (this.modes.put(player.uuid, mode) != mode) {
             this.broadcastTo(component, player)
+        } else {
+            this.broadcastTo(Component.translatable("minigame.chat.mode.switch.alreadySelected"), player)
         }
         return Command.SINGLE_SUCCESS
     }
