@@ -2,6 +2,7 @@ package net.casual.arcade.minigame.managers
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import com.mojang.brigadier.Command
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.serialization.JsonOps
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
@@ -11,6 +12,10 @@ import net.casual.arcade.chat.ChatFormatter
 import net.casual.arcade.chat.PlayerChatFormatter
 import net.casual.arcade.chat.PlayerFormattedChat
 import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
+import net.casual.arcade.events.minigame.MinigameAddAdminEvent
+import net.casual.arcade.events.minigame.MinigameRemoveAdminEvent
+import net.casual.arcade.events.minigame.MinigameSetPlayingEvent
+import net.casual.arcade.events.minigame.MinigameSetSpectatingEvent
 import net.casual.arcade.events.player.PlayerChatEvent
 import net.casual.arcade.events.player.PlayerSystemMessageEvent
 import net.casual.arcade.minigame.Minigame
@@ -19,8 +24,6 @@ import net.casual.arcade.minigame.annotation.ListenerFlags
 import net.casual.arcade.minigame.managers.chat.MinigameChatMode
 import net.casual.arcade.utils.CommandUtils
 import net.casual.arcade.utils.CommandUtils.argument
-import net.casual.arcade.utils.CommandUtils.commandSuccess
-import net.casual.arcade.utils.CommandUtils.success
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.JsonUtils.arrayOrDefault
@@ -94,6 +97,22 @@ public class MinigameChatManager(
         this.minigame.events.register<PlayerChatEvent>(1_000, DEFAULT, ListenerFlags.NONE, this::onGlobalPlayerChat)
         this.minigame.events.register<PlayerSystemMessageEvent>(1_000, DEFAULT, ListenerFlags.NONE, this::onGlobalSystemChat)
         this.minigame.events.register<PlayerChatEvent> { this.onPlayerChat(it) }
+        this.minigame.events.register<MinigameSetPlayingEvent> { (_, player) ->
+            if (this.modes[player.uuid] == MinigameChatMode.Spectator) {
+                this.selectOwnTeamChat(player)
+            }
+        }
+        this.minigame.events.register<MinigameSetSpectatingEvent> { (_, player) ->
+            this.selectSpectatorChat(player)
+        }
+        this.minigame.events.register<MinigameAddAdminEvent> { (_, player) ->
+            this.selectAdminChat(player)
+        }
+        this.minigame.events.register<MinigameRemoveAdminEvent> { (_, player) ->
+            if (this.modes[player.uuid] == MinigameChatMode.Admin) {
+                this.selectOwnTeamChat(player)
+            }
+        }
 
         this.modes.defaultReturnValue(MinigameChatMode.OwnTeam)
 
@@ -377,20 +396,20 @@ public class MinigameChatManager(
                     requiresAdminOrPermission()
                     executes(::selectSpecificTeamChat)
                 }
-                executes(::selectOwnTeamChat)
+                executes { selectOwnTeamChat(it.source.playerOrException) }
             }
             literal("global") {
-                executes(::selectGlobalChat)
+                executes { selectGlobalChat(it.source.playerOrException) }
             }
             literal("spectator") {
                 requires { source ->
                     source.isMinigameAdminOrHasPermission() || source.isPlayerAnd(minigame.players::isSpectating)
                 }
-                executes(::selectSpectatorChat)
+                executes { selectSpectatorChat(it.source.playerOrException) }
             }
             literal("admin") {
                 requiresAdminOrPermission()
-                executes(::selectAdminChat)
+                executes { selectAdminChat(it.source.playerOrException) }
             }
         })
     }
@@ -398,52 +417,53 @@ public class MinigameChatManager(
     private fun selectSpecificTeamChat(context: CommandContext<CommandSourceStack>): Int {
         val team = TeamArgument.getTeam(context, "team")
         return this.selectChat(
-            context,
+            context.source.playerOrException,
             MinigameChatMode.Team.getOrCreate(team),
             Component.translatable("minigame.chat.mode.switch.specificTeam", team.formattedDisplayName)
         )
     }
 
-    private fun selectOwnTeamChat(context: CommandContext<CommandSourceStack>): Int {
+    private fun selectOwnTeamChat(player: ServerPlayer): Int {
         return this.selectChat(
-            context,
+            player,
             MinigameChatMode.OwnTeam,
             Component.translatable("minigame.chat.mode.switch.ownTeam")
         )
     }
 
-    private fun selectSpectatorChat(context: CommandContext<CommandSourceStack>): Int {
+    private fun selectSpectatorChat(player: ServerPlayer): Int {
         return this.selectChat(
-            context,
+            player,
             MinigameChatMode.Spectator,
             Component.translatable("minigame.chat.mode.switch.spectator")
         )
     }
 
-    private fun selectAdminChat(context: CommandContext<CommandSourceStack>): Int {
+    private fun selectAdminChat(player: ServerPlayer): Int {
         return this.selectChat(
-            context,
+            player,
             MinigameChatMode.Admin,
             Component.translatable("minigame.chat.mode.switch.admin")
         )
     }
 
-    private fun selectGlobalChat(context: CommandContext<CommandSourceStack>): Int {
+    private fun selectGlobalChat(player: ServerPlayer): Int {
         return this.selectChat(
-            context,
+            player,
             null,
             Component.translatable("minigame.chat.mode.switch.global")
         )
     }
 
     private fun selectChat(
-        context: CommandContext<CommandSourceStack>,
+        player: ServerPlayer,
         mode: MinigameChatMode?,
         component: Component
     ): Int {
-        val player = context.source.playerOrException
-        this.modes[player.uuid] = mode
-        return this.broadcastTo(component, player).commandSuccess()
+        if (this.modes.put(player.uuid, mode) != mode) {
+            this.broadcastTo(component, player)
+        }
+        return Command.SINGLE_SUCCESS
     }
 
     public companion object {

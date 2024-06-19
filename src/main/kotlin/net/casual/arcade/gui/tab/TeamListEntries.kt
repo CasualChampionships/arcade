@@ -69,7 +69,7 @@ public open class TeamListEntries: PlayerListEntries {
         return PlayerListEntries.Entry.fromComponent(this.formatTeamName(server, team))
     }
 
-    protected open fun formatPlayerName(server: MinecraftServer, username: String, team: PlayerTeam): MutableComponent {
+    protected open fun createPlayerEntry(server: MinecraftServer, username: String, team: PlayerTeam): PlayerListEntries.Entry {
         val head = PlayerHeadComponents.getHeadOrDefault(username)
         val player = PlayerUtils.player(username)
         val name = when {
@@ -77,11 +77,12 @@ public open class TeamListEntries: PlayerListEntries {
             player.isSpectator -> username.literal().withStyle(team.color).italicise()
             else -> username.literal().withStyle(team.color)
         }
-        return Component.empty().append(head).append(ComponentUtils.space(2)).append(name)
-    }
-
-    protected open fun createPlayerEntry(server: MinecraftServer, username: String, team: PlayerTeam): PlayerListEntries.Entry {
-        return PlayerListEntries.Entry.fromComponent(this.formatPlayerName(server, username, team))
+        if (player != null) {
+            return PlayerListEntries.Entry.fromComponent(name, player)
+        }
+        return PlayerListEntries.Entry.fromComponent(
+            Component.empty().append(head).append(ComponentUtils.space(2)).append(name)
+        )
     }
 
     protected open fun getTeams(server: MinecraftServer): Collection<PlayerTeam> {

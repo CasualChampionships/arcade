@@ -66,7 +66,7 @@ public class MinigameUIManager(
             this.sidebar?.removePlayer(player)
             this.display?.removePlayer(player)
         }
-        this.minigame.events.register<PlayerJoinEvent>(priority = 1_000, flags = ListenerFlags.HAS_PLAYER) {
+        this.minigame.events.register<PlayerJoinEvent>(priority = 1_000, flags = ListenerFlags.NONE) {
             this.display?.onPlayerJoin(it.player)
         }
     }
