@@ -469,7 +469,7 @@ public class MinigameChatManager(
             if (!this.minigame.settings.isChatGlobal && feedback) {
                 this.broadcastTo(component, player)
             }
-        } else if (feedback) {
+        } else if (!this.minigame.settings.isChatGlobal && feedback) {
             this.broadcastTo(Component.translatable("minigame.chat.mode.switch.alreadySelected"), player)
         }
         return Command.SINGLE_SUCCESS
