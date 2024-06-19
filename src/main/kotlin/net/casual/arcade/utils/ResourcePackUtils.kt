@@ -7,6 +7,7 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.network.ClientboundPacketEvent
 import net.casual.arcade.events.network.PackStatusEvent
 import net.casual.arcade.events.network.PlayerDisconnectEvent
+import net.casual.arcade.events.player.PlayerDimensionChangeEvent
 import net.casual.arcade.items.ItemModeller
 import net.casual.arcade.resources.PackInfo
 import net.casual.arcade.resources.PackState
@@ -209,6 +210,13 @@ public object ResourcePackUtils {
         }
         GlobalEventHandler.register<PackStatusEvent> { (_, profile, uuid, status) ->
             this.getExtension(profile.id).onPackStatus(uuid, status)
+        }
+        GlobalEventHandler.register<PlayerDimensionChangeEvent> { (player) ->
+            for (pack in this.getExtension(player.uuid).getAllPacks()) {
+                if (pack.isWaitingForResponse()) {
+                    player.sendResourcePack(pack.info, true)
+                }
+            }
         }
     }
 }

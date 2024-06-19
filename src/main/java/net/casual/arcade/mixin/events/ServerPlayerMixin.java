@@ -18,12 +18,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player {
+	@Shadow public abstract ServerLevel serverLevel();
+
 	public ServerPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
 		super(level, blockPos, f, gameProfile);
 	}
@@ -51,8 +54,10 @@ public abstract class ServerPlayerMixin extends Player {
 		at = @At("HEAD")
 	)
 	private void onChangeDimension(ServerLevel level, CallbackInfo ci) {
-		PlayerDimensionChangeEvent event = new PlayerDimensionChangeEvent((ServerPlayer) (Object) this, level);
-		GlobalEventHandler.broadcast(event);
+		if (this.serverLevel() != level) {
+			PlayerDimensionChangeEvent event = new PlayerDimensionChangeEvent((ServerPlayer) (Object) this, level);
+			GlobalEventHandler.broadcast(event);
+		}
 	}
 
 	@Inject(
