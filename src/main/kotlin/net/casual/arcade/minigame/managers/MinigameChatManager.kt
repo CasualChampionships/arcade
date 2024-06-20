@@ -15,6 +15,7 @@ import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.minigame.*
 import net.casual.arcade.events.player.PlayerChatEvent
 import net.casual.arcade.events.player.PlayerSystemMessageEvent
+import net.casual.arcade.events.player.PlayerTeamChatEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigameSettings
 import net.casual.arcade.minigame.annotation.ListenerFlags
@@ -33,6 +34,7 @@ import net.casual.arcade.utils.JsonUtils.uuids
 import net.casual.arcade.utils.MinigameUtils.isMinigameAdminOrHasPermission
 import net.casual.arcade.utils.MinigameUtils.isPlayerAnd
 import net.casual.arcade.utils.MinigameUtils.requiresAdminOrPermission
+import net.casual.arcade.utils.PlayerUtils
 import net.casual.arcade.utils.PlayerUtils.getChatPrefix
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.TeamArgument
@@ -97,7 +99,8 @@ public class MinigameChatManager(
     init {
         this.minigame.events.register<PlayerChatEvent>(1_000, DEFAULT, ListenerFlags.NONE, this::onGlobalPlayerChat)
         this.minigame.events.register<PlayerSystemMessageEvent>(this::onGlobalSystemChat)
-        this.minigame.events.register<PlayerChatEvent> { this.onPlayerChat(it) }
+        this.minigame.events.register<PlayerChatEvent>(this::onPlayerChat)
+        this.minigame.events.register<PlayerTeamChatEvent>(this::onPlayerTeamChat)
         this.minigame.events.register<MinigameSetPlayingEvent> { (_, player) ->
             this.selectChat(player, MinigameChatMode.OwnTeam)
         }
@@ -341,7 +344,7 @@ public class MinigameChatManager(
             if (trimmed.isNotBlank()) {
                 val (decorated, prefix) = this.formatGlobalChatFor(player, trimmed.trim().literal())
                 event.replaceMessage(decorated, prefix)
-                event.addFilter { MinigameChatMode.Global.canSendTo(it, player, this.minigame) }
+                event.addFilter { MinigameChatMode.Global.canSendTo(player, it, null, this.minigame) }
             } else {
                 event.cancel()
             }
@@ -351,7 +354,24 @@ public class MinigameChatManager(
         val formatter = mode.getChatFormatter(this)
         val (decorated, prefix) = formatter.format(player, message.decoratedContent())
         event.replaceMessage(decorated, prefix)
-        event.addFilter { this.isSpy(it) || mode.canSendTo(it, player, this.minigame) || this.modes[it.uuid] == mode }
+        event.addFilter { this.isSpy(it) || mode.canSendTo(player, it, this.modes[it.uuid], this.minigame) }
+    }
+
+    private fun onPlayerTeamChat(event: PlayerTeamChatEvent) {
+        val formatter = MinigameChatMode.OwnTeam.getChatFormatter(this)
+        val (decorated, prefix) = formatter.format(event.player, event.message.decoratedContent())
+        event.replaceMessage(decorated, prefix)
+
+        for (spy in this.spies) {
+            val player = PlayerUtils.player(spy) ?: continue
+            event.addReceiver(player)
+        }
+        for ((uuid, mode) in this.modes) {
+            val player = PlayerUtils.player(uuid) ?: continue
+            if (MinigameChatMode.OwnTeam.canSendTo(event.player, player, mode, this.minigame)) {
+                event.addReceiver(player)
+            }
+        }
     }
 
     private fun formatGlobalChatFor(player: ServerPlayer, message: Component): PlayerFormattedChat {

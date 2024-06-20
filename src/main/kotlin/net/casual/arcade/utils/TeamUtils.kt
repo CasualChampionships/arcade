@@ -2,7 +2,6 @@ package net.casual.arcade.utils
 
 import com.google.common.collect.Iterators
 import com.google.common.collect.LinkedHashMultimap
-import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer
 import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
@@ -23,6 +22,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Scoreboard
 import net.minecraft.world.scores.Team
+import java.util.function.Consumer
 
 public object TeamUtils {
     public val TEAM_COLOURS: Set<ChatFormatting>

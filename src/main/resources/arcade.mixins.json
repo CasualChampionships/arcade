@@ -42,6 +42,7 @@
     "events.ServerLoginPacketListenerImplMixin",
     "events.ServerPlayerGameModeMixin",
     "events.ServerPlayerMixin",
+    "events.TeamMsgCommandMixin",
     "events.TntBlockMixin",
     "extensions.MinecraftServerMixin",
     "extensions.PlayerTeamMixin",

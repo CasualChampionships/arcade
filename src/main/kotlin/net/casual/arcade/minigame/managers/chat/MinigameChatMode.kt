@@ -22,11 +22,20 @@ import java.util.function.Function
 public sealed interface MinigameChatMode {
     public fun getChatFormatter(manager: MinigameChatManager): PlayerChatFormatter
     
-    public fun canSendTo(receiver: ServerPlayer, sender: ServerPlayer, minigame: Minigame<*>): Boolean
+    public fun canSendTo(
+        sender: ServerPlayer,
+        receiver: ServerPlayer,
+        mode: MinigameChatMode?,
+        minigame: Minigame<*>
+    ): Boolean
 
     public fun switchedToMessage(): Component
 
     public fun codec(): MapCodec<out MinigameChatMode>
+
+    public fun isEquivalent(mode: MinigameChatMode, sender: ServerPlayer, receiver: ServerPlayer): Boolean {
+        return mode == this
+    }
 
     public companion object {
         public val CODEC: Codec<MinigameChatMode> by lazy {
@@ -54,7 +63,12 @@ public sealed interface MinigameChatMode {
             return manager.globalChatFormatter
         }
 
-        override fun canSendTo(receiver: ServerPlayer, sender: ServerPlayer, minigame: Minigame<*>): Boolean {
+        override fun canSendTo(
+            sender: ServerPlayer,
+            receiver: ServerPlayer,
+            mode: MinigameChatMode?,
+            minigame: Minigame<*>
+        ): Boolean {
             return minigame.players.has(receiver) || minigame.settings.canCrossChat
         }
 
@@ -75,7 +89,12 @@ public sealed interface MinigameChatMode {
             return manager.spectatorChatFormatter
         }
 
-        override fun canSendTo(receiver: ServerPlayer, sender: ServerPlayer, minigame: Minigame<*>): Boolean {
+        override fun canSendTo(
+            sender: ServerPlayer,
+            receiver: ServerPlayer,
+            mode: MinigameChatMode?,
+            minigame: Minigame<*>
+        ): Boolean {
             return minigame.players.isSpectating(receiver)
         }
 
@@ -96,7 +115,12 @@ public sealed interface MinigameChatMode {
             return manager.adminChatFormatter
         }
 
-        override fun canSendTo(receiver: ServerPlayer, sender: ServerPlayer, minigame: Minigame<*>): Boolean {
+        override fun canSendTo(
+            sender: ServerPlayer,
+            receiver: ServerPlayer,
+            mode: MinigameChatMode?,
+            minigame: Minigame<*>
+        ): Boolean {
             return minigame.players.isAdmin(receiver)
         }
 
@@ -117,8 +141,14 @@ public sealed interface MinigameChatMode {
             return manager.teamChatFormatter
         }
 
-        override fun canSendTo(receiver: ServerPlayer, sender: ServerPlayer, minigame: Minigame<*>): Boolean {
-            return receiver.team?.isAlliedTo(sender.team) ?: false
+        override fun canSendTo(
+            sender: ServerPlayer,
+            receiver: ServerPlayer,
+            mode: MinigameChatMode?,
+            minigame: Minigame<*>
+        ): Boolean {
+            val team = receiver.team
+            return team != null && (team.isAlliedTo(sender.team) || (mode is Team && mode.team.isAlliedTo(team)))
         }
 
         override fun switchedToMessage(): Component {
@@ -130,15 +160,20 @@ public sealed interface MinigameChatMode {
         }
     }
 
-    public class Team private constructor(private val team: PlayerTeam): MinigameChatMode {
+    public class Team private constructor(internal val team: PlayerTeam): MinigameChatMode {
         private val formatter = PlayerChatFormatter.createTeamFormatter { this.team }
 
         override fun getChatFormatter(manager: MinigameChatManager): PlayerChatFormatter {
             return this.formatter
         }
 
-        override fun canSendTo(receiver: ServerPlayer, sender: ServerPlayer, minigame: Minigame<*>): Boolean {
-            return this.team.isAlliedTo(receiver.team)
+        override fun canSendTo(
+            sender: ServerPlayer,
+            receiver: ServerPlayer,
+            mode: MinigameChatMode?,
+            minigame: Minigame<*>
+        ): Boolean {
+            return this.team.isAlliedTo(receiver.team) || mode == this
         }
 
         override fun switchedToMessage(): Component {

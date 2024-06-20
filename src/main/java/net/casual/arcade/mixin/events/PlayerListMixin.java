@@ -84,6 +84,7 @@ public class PlayerListMixin {
 		GlobalEventHandler.broadcast(event);
 		if (event.isCancelled()) {
 			ci.cancel();
+			return;
 		}
 
 		Predicate<ServerPlayer> filter = event.getFilter();
