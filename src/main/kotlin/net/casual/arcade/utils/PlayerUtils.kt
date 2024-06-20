@@ -258,6 +258,7 @@ public object PlayerUtils {
                 this.advancements.revoke(advancement, string)
             }
         }
+        (this.advancements as PlayerAdvancementsAccessor).progress.remove(advancement)
     }
 
     @JvmStatic
