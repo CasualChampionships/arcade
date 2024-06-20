@@ -2,6 +2,8 @@ package net.casual.arcade.minigame.managers
 
 import net.casual.arcade.events.minigame.MinigameAddPlayerEvent
 import net.casual.arcade.events.minigame.MinigameRemovePlayerEvent
+import net.casual.arcade.events.player.PlayerClientboundPacketEvent
+import net.casual.arcade.events.player.PlayerLeaveEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.AdvancementUtils.copyWithoutToast
 import net.casual.arcade.utils.PlayerUtils.grantAdvancementSilently
@@ -10,8 +12,12 @@ import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.advancements.AdvancementNode
 import net.minecraft.advancements.AdvancementTree
 import net.minecraft.advancements.TreeNodePosition
+import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
 
 /**
  * This class manages the advancements of a minigame.
@@ -26,6 +32,7 @@ public class MinigameAdvancementManager(
     private val minigame: Minigame<*>
 ) {
     private val tree = AdvancementTree()
+    private val reloaded = HashMap<UUID, Set<ResourceLocation>>()
 
     init {
         this.minigame.events.register<MinigameAddPlayerEvent> { event ->
@@ -34,6 +41,10 @@ public class MinigameAdvancementManager(
         this.minigame.events.register<MinigameRemovePlayerEvent> { event ->
             this.unloadFor(event.player)
         }
+        this.minigame.events.register<PlayerLeaveEvent> { (player) ->
+            this.reloaded.remove(player.uuid)
+        }
+        this.minigame.events.register<PlayerClientboundPacketEvent>(this::onPlayerClientboundPacket)
     }
 
     /**
@@ -82,14 +93,36 @@ public class MinigameAdvancementManager(
 
     public fun reloadFor(player: ServerPlayer) {
         val holders = this.minigame.data.getAdvancements(player.uuid)
-        for (holder in holders) {
-            player.grantAdvancementSilently(holder.copyWithoutToast())
+        if (holders.isNotEmpty()) {
+            this.reloaded[player.uuid] = holders.mapTo(HashSet()) { it.id }
+            for (holder in holders) {
+                player.grantAdvancementSilently(holder)
+            }
         }
     }
 
     private fun unloadFor(player: ServerPlayer) {
+        this.reloaded.remove(player.uuid)
         for (advancement in this.tree.nodes()) {
             player.revokeAdvancement(advancement.holder())
         }
+    }
+
+    private fun onPlayerClientboundPacket(event: PlayerClientboundPacketEvent) {
+        val (player, packet) = event
+        if (packet !is ClientboundUpdateAdvancementsPacket) {
+            return
+        }
+
+        val reloaded = this.reloaded.remove(player.uuid) ?: return
+        val copy = ArrayList<AdvancementHolder>()
+        for (added in packet.added) {
+            if (!reloaded.contains(added.id)) {
+                copy.add(added)
+                continue
+            }
+            copy.add(added.copyWithoutToast())
+        }
+        event.cancel(ClientboundUpdateAdvancementsPacket(packet.shouldReset(), copy, packet.removed, packet.progress))
     }
 }
