@@ -9,7 +9,7 @@ import org.jetbrains.annotations.ApiStatus.Internal
 
 public data class PlayerSystemMessageEvent(
     override val player: ServerPlayer,
-    val message: Component,
+    var message: Component,
     val isActionBar: Boolean
 ): CancellableEvent.Default(), PlayerEvent {
     val causer: ServerPlayer? = PlayerSystemMessageEvent.causer

@@ -11,6 +11,7 @@ import net.casual.arcade.utils.registries.ArcadeRegistries
 import net.casual.arcade.utils.serialization.CodecProvider
 import net.casual.arcade.utils.serialization.CodecProvider.Companion.register
 import net.minecraft.core.Registry
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.ExtraCodecs
@@ -22,6 +23,8 @@ public sealed interface MinigameChatMode {
     public fun getChatFormatter(manager: MinigameChatManager): PlayerChatFormatter
     
     public fun canSendTo(receiver: ServerPlayer, sender: ServerPlayer, minigame: Minigame<*>): Boolean
+
+    public fun switchedToMessage(): Component
 
     public fun codec(): MapCodec<out MinigameChatMode>
 
@@ -43,6 +46,27 @@ public sealed interface MinigameChatMode {
         }
     }
 
+    public data object Global: MinigameChatMode, CodecProvider<Global> {
+        override val ID: ResourceLocation = Arcade.id("spectator")
+        override val CODEC: MapCodec<Global> = MapCodec.unit(Global)
+
+        override fun getChatFormatter(manager: MinigameChatManager): PlayerChatFormatter {
+            return manager.globalChatFormatter
+        }
+
+        override fun canSendTo(receiver: ServerPlayer, sender: ServerPlayer, minigame: Minigame<*>): Boolean {
+            return minigame.players.has(receiver) || minigame.settings.canCrossChat
+        }
+
+        override fun switchedToMessage(): Component {
+            return Component.translatable("minigame.chat.mode.switch.global")
+        }
+
+        override fun codec(): MapCodec<out MinigameChatMode> {
+            return CODEC
+        }
+    }
+
     public data object Spectator: MinigameChatMode, CodecProvider<Spectator> {
         override val ID: ResourceLocation = Arcade.id("spectator")
         override val CODEC: MapCodec<Spectator> = MapCodec.unit(Spectator)
@@ -53,6 +77,10 @@ public sealed interface MinigameChatMode {
 
         override fun canSendTo(receiver: ServerPlayer, sender: ServerPlayer, minigame: Minigame<*>): Boolean {
             return minigame.players.isSpectating(receiver)
+        }
+
+        override fun switchedToMessage(): Component {
+            return Component.translatable("minigame.chat.mode.switch.spectator")
         }
 
         override fun codec(): MapCodec<out MinigameChatMode> {
@@ -72,6 +100,10 @@ public sealed interface MinigameChatMode {
             return minigame.players.isAdmin(receiver)
         }
 
+        override fun switchedToMessage(): Component {
+            return Component.translatable("minigame.chat.mode.switch.admin")
+        }
+
         override fun codec(): MapCodec<out MinigameChatMode> {
             return CODEC
         }
@@ -89,6 +121,10 @@ public sealed interface MinigameChatMode {
             return receiver.team?.isAlliedTo(sender.team) ?: false
         }
 
+        override fun switchedToMessage(): Component {
+            return Component.translatable("minigame.chat.mode.switch.ownTeam")
+        }
+
         override fun codec(): MapCodec<out MinigameChatMode> {
             return CODEC
         }
@@ -103,6 +139,10 @@ public sealed interface MinigameChatMode {
 
         override fun canSendTo(receiver: ServerPlayer, sender: ServerPlayer, minigame: Minigame<*>): Boolean {
             return this.team.isAlliedTo(receiver.team)
+        }
+
+        override fun switchedToMessage(): Component {
+            return Component.translatable("minigame.chat.mode.switch.specificTeam", this.team.formattedDisplayName)
         }
 
         override fun codec(): MapCodec<out MinigameChatMode> {

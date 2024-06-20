@@ -254,7 +254,7 @@ public open class MinigameSettings(
         value = true
         listener { setting, _, value ->
             setting.setQuietly(value)
-            minigame.commands.resendCommands()
+            minigame.chat.onGlobalChatToggle()
         }
         defaults.options(this)
     })
@@ -267,6 +267,15 @@ public open class MinigameSettings(
         )
         value = false
         override = ::muteOverride
+        defaults.options(this)
+    })
+
+    public var formatGlobalSystemChat: Boolean by this.register(bool {
+        name = "format_global_system_chat"
+        display = Items.YELLOW_DYE.named("Format Global System Chat").styledLore(
+            "If enabled, system messages will be formatted using the minigame's formatting".literal()
+        )
+        value = true
         defaults.options(this)
     })
 

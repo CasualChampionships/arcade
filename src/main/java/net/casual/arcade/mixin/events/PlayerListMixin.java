@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.PlayerChatEvent;
@@ -119,10 +120,12 @@ public class PlayerListMixin {
 	private boolean onSendSystemMessage(
 		ServerPlayer instance,
 		Component component,
-		boolean bypassHiddenChat
+		boolean bypassHiddenChat,
+		@Local(ordinal = 1) LocalRef<Component> message
 	) {
 		PlayerSystemMessageEvent event = new PlayerSystemMessageEvent(instance, component, bypassHiddenChat);
 		GlobalEventHandler.broadcast(event);
+		message.set(event.getMessage());
 		return !event.isCancelled();
 	}
 
