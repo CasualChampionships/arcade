@@ -297,7 +297,7 @@ public class MinigameChatManager(
     }
 
     private fun onGlobalSystemChat(event: PlayerSystemMessageEvent) {
-        if (this.minigame.settings.isChatMuted.get()) {
+        if (this.minigame.settings.isChatMuted.get() && !event.isActionBar) {
             event.cancel()
             return
         }
@@ -311,7 +311,7 @@ public class MinigameChatManager(
         }
 
         val formatter = this.systemChatFormatter
-        if (this.minigame.settings.formatGlobalSystemChat && formatter != null) {
+        if (!event.isActionBar && this.minigame.settings.formatGlobalSystemChat && formatter != null) {
             event.message = formatter.format(event.message)
         }
     }

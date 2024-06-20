@@ -1,10 +1,8 @@
 package net.casual.arcade.mixin.events;
 
-import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.PlayerChatEvent;
@@ -21,6 +19,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -110,23 +109,25 @@ public class PlayerListMixin {
 		}
 	}
 
-	@WrapWithCondition(
+	@WrapOperation(
 		method = "broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Ljava/util/function/Function;Z)V",
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/server/level/ServerPlayer;sendSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"
 		)
 	)
-	private boolean onSendSystemMessage(
+	private void onSendSystemMessage(
 		ServerPlayer instance,
 		Component component,
 		boolean bypassHiddenChat,
-		@Local(ordinal = 1) LocalRef<Component> message
+		Operation<Void> original
 	) {
 		PlayerSystemMessageEvent event = new PlayerSystemMessageEvent(instance, component, bypassHiddenChat);
 		GlobalEventHandler.broadcast(event);
-		message.set(event.getMessage());
-		return !event.isCancelled();
+		component = event.getMessage();
+		if (!event.isCancelled()) {
+			original.call(instance, component, bypassHiddenChat);
+		}
 	}
 
 	@WrapOperation(
