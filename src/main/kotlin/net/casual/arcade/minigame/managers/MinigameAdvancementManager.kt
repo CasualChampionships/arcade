@@ -115,6 +115,10 @@ public class MinigameAdvancementManager(
         }
 
         val reloaded = this.reloaded.remove(player.uuid) ?: return
+        if (packet.shouldReset()) {
+            return
+        }
+
         val copy = ArrayList<AdvancementHolder>()
         for (added in packet.added) {
             if (!reloaded.contains(added.id)) {
@@ -123,6 +127,6 @@ public class MinigameAdvancementManager(
             }
             copy.add(added.copyWithoutToast())
         }
-        event.cancel(ClientboundUpdateAdvancementsPacket(packet.shouldReset(), copy, packet.removed, packet.progress))
+        event.cancel(ClientboundUpdateAdvancementsPacket(false, copy, packet.removed, packet.progress))
     }
 }

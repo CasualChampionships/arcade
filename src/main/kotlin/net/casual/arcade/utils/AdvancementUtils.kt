@@ -35,6 +35,7 @@ public object AdvancementUtils {
             display.shouldAnnounceChat(),
             display.isHidden
         )
+        withoutToast.setLocation(display.x, display.y)
         val copy = Advancement(
             advancement.parent,
             Optional.of(withoutToast),
