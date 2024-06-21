@@ -95,7 +95,7 @@ public sealed interface MinigameChatMode {
             mode: MinigameChatMode?,
             minigame: Minigame<*>
         ): Boolean {
-            return minigame.players.isSpectating(receiver)
+            return minigame.players.isSpectating(receiver) || mode == this
         }
 
         override fun switchedToMessage(): Component {
@@ -121,7 +121,7 @@ public sealed interface MinigameChatMode {
             mode: MinigameChatMode?,
             minigame: Minigame<*>
         ): Boolean {
-            return minigame.players.isAdmin(receiver)
+            return minigame.players.isAdmin(receiver) || mode == this
         }
 
         override fun switchedToMessage(): Component {
