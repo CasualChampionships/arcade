@@ -24,13 +24,15 @@ public class BlockItemMixin {
 	)
 	private boolean onPlaceBlock(BlockItem instance, BlockPlaceContext context, BlockState state, Operation<Boolean> operation) {
 		if (context.getPlayer() instanceof ServerPlayer player) {
-			PlayerBlockPlacedEvent event = new PlayerBlockPlacedEvent(player, instance, state, context, TriState.DEFAULT);
+			PlayerBlockPlacedEvent event = new PlayerBlockPlacedEvent(player, instance, state, context);
 			GlobalEventHandler.broadcast(event, BuiltInEventPhases.PRE_PHASES);
 
-			boolean success = !event.isCancelled() && operation.call(instance, context, state);
-			event = new PlayerBlockPlacedEvent(player, instance, state, context, TriState.of(success));
-			GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
-			return success;
+			if (!event.isCancelled() && operation.call(instance, context, state)) {
+				event = new PlayerBlockPlacedEvent(player, instance, state, context);
+				GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
+				return true;
+			}
+			return false;
 		}
 		return operation.call(instance, context, state);
 	}

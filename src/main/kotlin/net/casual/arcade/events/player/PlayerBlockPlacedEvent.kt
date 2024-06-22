@@ -14,6 +14,5 @@ public data class PlayerBlockPlacedEvent(
     override val player: ServerPlayer,
     val item: BlockItem,
     val state: BlockState,
-    val context: BlockPlaceContext,
-    val successful: TriState
+    val context: BlockPlaceContext
 ): CancellableEvent.Default(), PlayerEvent

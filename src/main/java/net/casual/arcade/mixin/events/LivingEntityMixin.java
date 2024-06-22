@@ -8,10 +8,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.entity.EntityDeathEvent;
-import net.casual.arcade.events.player.PlayerBorderDamageEvent;
-import net.casual.arcade.events.player.PlayerHealEvent;
-import net.casual.arcade.events.player.PlayerLandEvent;
-import net.casual.arcade.events.player.PlayerVoidDamageEvent;
+import net.casual.arcade.events.player.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -117,5 +114,20 @@ public class LivingEntityMixin {
 	private void onDeathPost(DamageSource source, CallbackInfo ci) {
 		EntityDeathEvent event = new EntityDeathEvent((LivingEntity) (Object) this, source);
 		GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
+	}
+
+	@Inject(
+		method = "checkTotemDeathProtection",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/level/Level;broadcastEntityEvent(Lnet/minecraft/world/entity/Entity;B)V",
+			shift = At.Shift.AFTER
+		)
+	)
+	private void onEntityPoppedTotem(DamageSource source, CallbackInfoReturnable<Boolean> cir) {
+		if ((Object) this instanceof ServerPlayer player) {
+			PlayerTotemEvent event = new PlayerTotemEvent(player, source);
+			GlobalEventHandler.broadcast(event);
+		}
 	}
 }
