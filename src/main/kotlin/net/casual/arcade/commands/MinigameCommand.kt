@@ -3,6 +3,7 @@ package net.casual.arcade.commands
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.context.CommandContext
+import net.casual.arcade.advancements.AdvancementModifier
 import net.casual.arcade.commands.arguments.EnumArgument
 import net.casual.arcade.commands.arguments.minigame.*
 import net.casual.arcade.commands.arguments.minigame.MinigameSettingsOptionArgument.Companion.INVALID_SETTING_OPTION
@@ -27,11 +28,13 @@ import net.casual.arcade.utils.ComponentUtils.suggestCommand
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.MinigameUtils.countdown
 import net.casual.arcade.utils.MinigameUtils.getMinigame
+import net.casual.arcade.utils.PlayerUtils.grantAdvancement
 import net.casual.arcade.utils.PlayerUtils.toComponent
 import net.casual.arcade.utils.TeamUtils.toComponent
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.commands.arguments.TeamArgument
@@ -184,6 +187,28 @@ internal object MinigameCommand: Command {
                                 argument("value", MinigameSettingValueArgument.value(buildContext)) {
                                     executes(::setMinigameSettingFromValue)
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+            literal("advancement") {
+                argument("minigame", MinigameArgument.minigame()) {
+                    argument("modifier", EnumArgument.enumeration<AdvancementModifier>()) {
+                        literal("only") {
+                            argument("advancement", ResourceLocationArgument.id()) {
+                                suggests { context, builder ->
+                                    val minigame = MinigameArgument.getMinigame(context, "minigame")
+                                    SharedSuggestionProvider.suggestResource(minigame.advancements.all().map { it.id }, builder)
+                                }
+                                argument("player", EntityArgument.players()) {
+                                    executes(::modifyMinigameAdvancement)
+                                }
+                            }
+                        }
+                        literal("all") {
+                            argument("player", EntityArgument.players()) {
+                                executes(::modifyAllMinigameAdvancements)
                             }
                         }
                     }
@@ -514,6 +539,27 @@ internal object MinigameCommand: Command {
         val value = MinigameSettingValueArgument.getSettingsValue(context, "value")
         setting.deserializeAndSet(value)
         return context.source.success("Setting ${setting.name} for minigame ${minigame.id} set to ${setting.get()}")
+    }
+
+    private fun modifyMinigameAdvancement(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val modifier = EnumArgument.getEnumeration<AdvancementModifier>(context, "modifier")
+        val id = ResourceLocationArgument.getId(context, "advancement")
+        val player = EntityArgument.getPlayer(context, "player")
+        val advancement = minigame.advancements.get(id)
+            ?: return context.source.fail("No such advancement $id exists")
+        modifier.modify(player, advancement)
+        return context.source.success(modifier.singleSuccessMessage(player, advancement))
+    }
+
+    private fun modifyAllMinigameAdvancements(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val modifier = EnumArgument.getEnumeration<AdvancementModifier>(context, "modifier")
+        val player = EntityArgument.getPlayer(context, "player")
+        for (advancement in minigame.advancements.all()) {
+            modifier.modify(player, advancement)
+        }
+        return context.source.success(modifier.allSuccessMessage(player))
     }
 
     private fun listPlayerTags(context: CommandContext<CommandSourceStack>): Int {

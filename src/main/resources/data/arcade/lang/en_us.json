@@ -4,5 +4,10 @@
   "minigame.chat.mode.switch.admin": "You are now chatting in the admins' chat",
   "minigame.chat.mode.switch.spectator": "You are now chatting in the spectators' chat",
   "minigame.chat.mode.switch.global": "You are now chatting in the global chat",
-  "minigame.chat.mode.switch.alreadySelected": "You are already chatting in that chat!"
+  "minigame.chat.mode.switch.alreadySelected": "You are already chatting in that chat!",
+
+  "minigame.command.advancement.grant.single": "Successfully granted advancement %s to %s",
+  "minigame.command.advancement.grant.all": "Successfully granted all advancements to %s",
+  "minigame.command.advancement.revoke.single": "Successfully revoked advancement %s from %s",
+  "minigame.command.advancement.revoke.all": "Successfully revoked all advancements from %s"
 }
