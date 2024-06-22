@@ -26,6 +26,7 @@
     "events.BrewingStandBlockEntityMixin",
     "events.CommandsMixin",
     "events.EntityCallbacksMixin",
+    "events.EntityMixin",
     "events.FlowingFluidMixin",
     "events.ItemStackMixin",
     "events.LivingEntityMixin",

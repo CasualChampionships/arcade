@@ -6,6 +6,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
+import net.casual.arcade.events.entity.EntityDeathEvent;
 import net.casual.arcade.events.player.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -77,8 +78,14 @@ public abstract class ServerPlayerMixin extends Player {
 		at = @At("HEAD")
 	)
 	private void onDeathPre(DamageSource source, CallbackInfo ci) {
-		PlayerDeathEvent event = new PlayerDeathEvent((ServerPlayer) (Object) this, source);
-		GlobalEventHandler.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+		ServerPlayer player = (ServerPlayer) (Object) this;
+
+		// This doesn't call super.die, so we must manually call this event here
+		EntityDeathEvent entityDeathEvent = new EntityDeathEvent(player, source);
+		GlobalEventHandler.broadcast(entityDeathEvent, BuiltInEventPhases.PRE_PHASES);
+
+		PlayerDeathEvent playerDeathEvent = new PlayerDeathEvent(player, source);
+		GlobalEventHandler.broadcast(playerDeathEvent, BuiltInEventPhases.PRE_PHASES);
 	}
 
 	@Inject(
@@ -86,8 +93,13 @@ public abstract class ServerPlayerMixin extends Player {
 		at = @At("TAIL")
 	)
 	private void onDeathPost(DamageSource source, CallbackInfo ci) {
-		PlayerDeathEvent event = new PlayerDeathEvent((ServerPlayer) (Object) this, source);
-		GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
+		ServerPlayer player = (ServerPlayer) (Object) this;
+
+		EntityDeathEvent entityDeathEvent = new EntityDeathEvent(player, source);
+		GlobalEventHandler.broadcast(entityDeathEvent, BuiltInEventPhases.POST_PHASES);
+
+		PlayerDeathEvent playerDeathEvent = new PlayerDeathEvent(player, source);
+		GlobalEventHandler.broadcast(playerDeathEvent, BuiltInEventPhases.POST_PHASES);
 	}
 
 	@ModifyReturnValue(

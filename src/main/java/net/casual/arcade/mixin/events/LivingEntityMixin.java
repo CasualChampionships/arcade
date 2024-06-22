@@ -7,6 +7,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
+import net.casual.arcade.events.entity.EntityDeathEvent;
 import net.casual.arcade.events.player.PlayerBorderDamageEvent;
 import net.casual.arcade.events.player.PlayerHealEvent;
 import net.casual.arcade.events.player.PlayerLandEvent;
@@ -17,6 +18,7 @@ import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
@@ -97,5 +99,23 @@ public class LivingEntityMixin {
 		}
 
 		original.call(instance, health);
+	}
+
+	@Inject(
+		method = "die",
+		at = @At("HEAD")
+	)
+	private void onDeathPre(DamageSource source, CallbackInfo ci) {
+		EntityDeathEvent event = new EntityDeathEvent((LivingEntity) (Object) this, source);
+		GlobalEventHandler.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+	}
+
+	@Inject(
+		method = "die",
+		at = @At("TAIL")
+	)
+	private void onDeathPost(DamageSource source, CallbackInfo ci) {
+		EntityDeathEvent event = new EntityDeathEvent((LivingEntity) (Object) this, source);
+		GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
 	}
 }

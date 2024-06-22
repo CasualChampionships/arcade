@@ -3,11 +3,9 @@ package net.casual.arcade.mixin.events;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.player.PlayerChatEvent;
-import net.casual.arcade.events.player.PlayerLeaveEvent;
-import net.casual.arcade.events.player.PlayerRespawnEvent;
-import net.casual.arcade.events.player.PlayerSystemMessageEvent;
+import net.casual.arcade.events.player.*;
 import net.casual.arcade.utils.PlayerUtils;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
@@ -16,6 +14,9 @@ import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -102,5 +103,30 @@ public class ServerGamePacketListenerImplMixin {
 		Operation<Void> original
 	) {
 		PlayerSystemMessageEvent.broadcast(this.player, instance, message, bypassHiddenChat, original);
+	}
+
+	@WrapOperation(
+		method = "handleContainerClick",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;clicked(IILnet/minecraft/world/inventory/ClickType;Lnet/minecraft/world/entity/player/Player;)V"
+		)
+	)
+	private void onSlotClicked(
+		AbstractContainerMenu instance,
+		int slotId,
+		int button,
+		ClickType action,
+		Player player,
+		Operation<Void> original
+	) {
+		eu.pb4.sgui.api.ClickType type = eu.pb4.sgui.api.ClickType.toClickType(action, button, slotId);
+		PlayerSlotClickedEvent event = new PlayerSlotClickedEvent(this.player, instance, slotId, type, action);
+		GlobalEventHandler.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+		if (event.isCancelled()) {
+			return;
+		}
+		original.call(instance, slotId, button, action, player);
+		GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
 	}
 }

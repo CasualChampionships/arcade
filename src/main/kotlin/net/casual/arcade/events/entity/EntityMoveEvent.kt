@@ -1,9 +1,9 @@
 package net.casual.arcade.events.entity
 
-import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.phys.Vec3
 
-public data class EntityStartTrackingEvent(
+public data class EntityMoveEvent(
     override val entity: Entity,
-    override val level: ServerLevel
+    val position: Vec3
 ): EntityEvent
