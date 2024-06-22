@@ -13,7 +13,7 @@ public enum class AdvancementModifier {
         }
 
         override fun singleSuccessMessage(player: ServerPlayer, advancement: AdvancementHolder): Component {
-            return Component.translatable("minigame.command.advancement.grant.single", advancement.id, player.scoreboardName)
+            return Component.translatable("minigame.command.advancement.grant.single", advancement.id.toString(), player.scoreboardName)
         }
 
         override fun allSuccessMessage(player: ServerPlayer): Component {
@@ -26,7 +26,7 @@ public enum class AdvancementModifier {
         }
 
         override fun singleSuccessMessage(player: ServerPlayer, advancement: AdvancementHolder): Component {
-            return Component.translatable("minigame.command.advancement.revoke.single", advancement.id, player.scoreboardName)
+            return Component.translatable("minigame.command.advancement.revoke.single", advancement.id.toString(), player.scoreboardName)
         }
 
         override fun allSuccessMessage(player: ServerPlayer): Component {

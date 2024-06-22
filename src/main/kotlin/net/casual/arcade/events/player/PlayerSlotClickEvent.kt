@@ -9,7 +9,7 @@ import net.minecraft.world.inventory.ClickType as ClickAction
 /**
  * Supports PRE, POST.
  */
-public data class PlayerSlotClickedEvent(
+public data class PlayerSlotClickEvent(
     override val player: ServerPlayer,
     val menu: AbstractContainerMenu,
     val index: Int,

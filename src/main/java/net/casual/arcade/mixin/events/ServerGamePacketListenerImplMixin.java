@@ -121,7 +121,7 @@ public class ServerGamePacketListenerImplMixin {
 		Operation<Void> original
 	) {
 		eu.pb4.sgui.api.ClickType type = eu.pb4.sgui.api.ClickType.toClickType(action, button, slotId);
-		PlayerSlotClickedEvent event = new PlayerSlotClickedEvent(this.player, instance, slotId, type, action);
+		PlayerSlotClickEvent event = new PlayerSlotClickEvent(this.player, instance, slotId, type, action);
 		GlobalEventHandler.broadcast(event, BuiltInEventPhases.PRE_PHASES);
 		if (event.isCancelled()) {
 			return;
