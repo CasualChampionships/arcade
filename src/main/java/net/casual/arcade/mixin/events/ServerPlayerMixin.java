@@ -14,15 +14,18 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.portal.DimensionTransition;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player {
@@ -51,10 +54,17 @@ public abstract class ServerPlayerMixin extends Player {
 	}
 
 	@Inject(
-		method = "setServerLevel",
-		at = @At("HEAD")
+		method = "changeDimension",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/level/ServerPlayer;setServerLevel(Lnet/minecraft/server/level/ServerLevel;)V"
+		)
 	)
-	private void onChangeDimension(ServerLevel level, CallbackInfo ci) {
+	private void onChangeDimension(
+		DimensionTransition dimensionTransition,
+		CallbackInfoReturnable<Entity> cir
+	) {
+		ServerLevel level = dimensionTransition.newLevel();
 		if (this.serverLevel() != level) {
 			PlayerDimensionChangeEvent event = new PlayerDimensionChangeEvent((ServerPlayer) (Object) this, level);
 			GlobalEventHandler.broadcast(event);
