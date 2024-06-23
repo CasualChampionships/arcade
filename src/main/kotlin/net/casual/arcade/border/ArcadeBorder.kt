@@ -54,7 +54,7 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
         this.setCenterUntracked(x, z)
     }
 
-    protected fun setCenterUntracked(x: Double, z: Double) {
+    public fun setCenterUntracked(x: Double, z: Double) {
         this.centerState = StillCenterBorderState(x, z)
         this.changeCenter(x, z)
     }
@@ -91,7 +91,7 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
         this.setSizeUntracked(size)
     }
 
-    protected fun setSizeUntracked(size: Double) {
+    public fun setSizeUntracked(size: Double) {
         this.borderState = StillBorderState(this, size)
 
         for (borderChangeListener in listeners) {
@@ -103,7 +103,7 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
         this.lerpSizeBetweenUntracked(start, end, time)
     }
 
-    protected fun lerpSizeBetweenUntracked(start: Double, end: Double, time: Long) {
+    public fun lerpSizeBetweenUntracked(start: Double, end: Double, time: Long) {
         if (start == end) {
             this.size = end
             return
