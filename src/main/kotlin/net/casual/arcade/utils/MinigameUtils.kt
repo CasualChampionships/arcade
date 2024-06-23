@@ -5,6 +5,7 @@ import net.casual.arcade.Arcade
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.core.Event
+import net.casual.arcade.events.core.ExtensionEvent
 import net.casual.arcade.events.level.LevelEvent
 import net.casual.arcade.events.level.LevelExtensionEvent
 import net.casual.arcade.events.minigame.MinigameEvent
@@ -222,6 +223,9 @@ public object MinigameUtils {
 
         // This allows us to inject listener providers
         GlobalEventHandler.addInjectedProvider { event, consumer ->
+            if (event is ExtensionEvent) {
+                return@addInjectedProvider
+            }
             val minigames = HashSet<Minigame<*>>(3)
             if (event is PlayerEvent) {
                 val minigame = event.player.getMinigame()
