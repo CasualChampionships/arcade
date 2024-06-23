@@ -1,7 +1,7 @@
 package net.casual.arcade.border
 
 import net.casual.arcade.border.state.*
-import net.casual.arcade.ducks.`Arcade$SerializableBorder`
+import net.casual.arcade.ducks.SerializableBorder
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.border.BorderChangeListener
@@ -9,7 +9,7 @@ import net.minecraft.world.level.border.BorderStatus
 import net.minecraft.world.level.border.WorldBorder
 import net.minecraft.world.phys.shapes.VoxelShape
 
-public abstract class ArcadeBorder: WorldBorder(), `Arcade$SerializableBorder` {
+public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
     protected abstract var borderState: BorderState
     protected abstract var centerState: CenterBorderState
 
@@ -145,8 +145,16 @@ public abstract class ArcadeBorder: WorldBorder(), `Arcade$SerializableBorder` {
     }
 
     override fun `arcade$serialize`(): CompoundTag {
-        // This essentially calls super.serialize() (WorldBorer#serialize())
-        val compound =  (this as `Arcade$SerializableBorder`).`arcade$serialize`()
+        val compound = CompoundTag()
+        compound.putDouble("center_x", this.centerX)
+        compound.putDouble("center_z", this.centerZ)
+        compound.putDouble("size", this.size)
+        compound.putDouble("damage_safe_zone", this.damageSafeZone)
+        compound.putDouble("damage_per_block", this.damagePerBlock)
+        compound.putLong("lerp_time", this.lerpRemainingTime)
+        compound.putDouble("lerp_target", this.lerpTarget)
+        compound.putInt("warning_blocks", this.warningBlocks)
+        compound.putInt("warning_time", this.warningTime)
         compound.putLong("center_lerp_time", this.centerState.getLerpRemainingTime())
         compound.putDouble("center_lerp_target_x", this.centerState.getTargetCenterX())
         compound.putDouble("center_lerp_target_z", this.centerState.getTargetCenterZ())

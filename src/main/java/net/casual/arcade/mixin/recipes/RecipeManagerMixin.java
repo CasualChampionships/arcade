@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.gson.JsonElement;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.casual.arcade.ducks.Arcade$MutableRecipeManager;
+import net.casual.arcade.ducks.MutableRecipeManager;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.ServerRecipeReloadEvent;
 import net.casual.arcade.minigame.Minigame;
@@ -26,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.*;
 
 @Mixin(RecipeManager.class)
-public abstract class RecipeManagerMixin implements Arcade$MutableRecipeManager {
+public abstract class RecipeManagerMixin implements MutableRecipeManager {
 	@Shadow private Map<ResourceLocation, RecipeHolder<?>> byName;
 
 	@Shadow public abstract void replaceRecipes(Iterable<RecipeHolder<?>> recipes);

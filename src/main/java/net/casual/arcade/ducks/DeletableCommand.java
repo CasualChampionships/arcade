@@ -1,5 +1,5 @@
 package net.casual.arcade.ducks;
 
-public interface Arcade$DeletableCommand {
+public interface DeletableCommand {
 	void arcade$delete(String name);
 }

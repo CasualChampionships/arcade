@@ -1,7 +1,7 @@
 package net.casual.arcade.mixin.advancements;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
-import net.casual.arcade.ducks.Arcade$MutableAdvancements;
+import net.casual.arcade.ducks.MutableAdvancements;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementNode;
 import net.minecraft.advancements.AdvancementTree;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @Mixin(AdvancementTree.class)
-public abstract class AdvancementTreeMixin implements Arcade$MutableAdvancements {
+public abstract class AdvancementTreeMixin implements MutableAdvancements {
 	@Shadow @Final private Map<ResourceLocation, AdvancementNode> nodes;
 	@Unique private boolean arcade$suppressLogs = false;
 

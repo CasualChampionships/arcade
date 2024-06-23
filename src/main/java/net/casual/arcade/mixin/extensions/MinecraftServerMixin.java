@@ -1,7 +1,7 @@
 package net.casual.arcade.mixin.extensions;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.casual.arcade.ducks.Arcade$CustomMOTD;
+import net.casual.arcade.ducks.CustomMOTD;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.status.ServerStatus;
@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(MinecraftServer.class)
-public abstract class MinecraftServerMixin implements Arcade$CustomMOTD {
+public abstract class MinecraftServerMixin implements CustomMOTD {
 	@Shadow @Nullable private ServerStatus status;
 	@Shadow private long lastServerStatus;
 
