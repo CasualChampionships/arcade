@@ -3,7 +3,7 @@ package net.casual.arcade.events
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.casual.arcade.Arcade
 import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
-import net.casual.arcade.events.GlobalEventHandler.addHandler
+import net.casual.arcade.events.GlobalEventHandler.addProvider
 import net.casual.arcade.events.GlobalEventHandler.broadcast
 import net.casual.arcade.events.core.CancellableEvent
 import net.casual.arcade.events.core.Event
@@ -19,7 +19,7 @@ import java.util.function.Consumer
  * events and announcing events to registered listeners.
  *
  * @see broadcast
- * @see addHandler
+ * @see addProvider
  * @see Event
  */
 public object GlobalEventHandler {
@@ -29,8 +29,10 @@ public object GlobalEventHandler {
 
     private val suppressed = HashSet<Class<out Event>>()
     private val stack = Object2IntOpenHashMap<Class<out Event>>()
-    private val handlers = HashSet<ListenerHandler>()
-    private val handler = EventHandler()
+    private val registries = HashSet<ListenerProvider>()
+    private val registry = ListenerRegistryImpl()
+
+    private val injected = HashSet<InjectedListenerProvider>()
 
     private var recursion = false
 
@@ -83,13 +85,19 @@ public object GlobalEventHandler {
         }
 
         @Suppress("UNCHECKED_CAST")
-        val listeners = ArrayList(this.handler.getListenersFor(type)) as MutableList<EventListener<T>>
+        val listeners = ArrayList(this.registry.getListenersFor(type)) as MutableList<EventListener<T>>
         try {
             this.stack.addTo(type, 1)
 
-            for (handler in this.handlers) {
+            for (handler in this.registries) {
                 @Suppress("UNCHECKED_CAST")
                 listeners.addSorted(handler.getListenersFor(type) as List<EventListener<T>>)
+            }
+            for (injected in this.injected) {
+                injected.injectListenerProviders(event) { handler ->
+                    @Suppress("UNCHECKED_CAST")
+                    listeners.addSorted(handler.getListenersFor(type) as List<EventListener<T>>)
+                }
             }
 
             for (listener in listeners) {
@@ -142,30 +150,40 @@ public object GlobalEventHandler {
     @JvmStatic
     @JvmOverloads
     public fun <T: Event> register(type: Class<T>, priority: Int = 1_000, phase: String = DEFAULT, listener: Consumer<T>) {
-        this.handler.register(type, priority, phase, listener)
+        this.registry.register(type, priority, phase, listener)
     }
 
     /**
-     * This adds a [ListenerHandler] to the [GlobalEventHandler].
+     * This adds a [ListenerProvider] to the [GlobalEventHandler].
      *
-     * This will call [ListenerHandler.getListenersFor] whenever
+     * This will call [ListenerProvider.getListenersFor] whenever
      * an [Event] is broadcasted and invoke the listeners.
      *
-     * @param handler The [ListenerHandler] to add.
+     * @param handler The [ListenerProvider] to add.
      */
     @JvmStatic
-    public fun addHandler(handler: ListenerHandler) {
-        this.handlers.add(handler)
+    public fun addProvider(handler: ListenerProvider) {
+        this.registries.add(handler)
     }
 
     /**
-     * This removes a [ListenerHandler] to the [GlobalEventHandler].
+     * This removes a [ListenerProvider] to the [GlobalEventHandler].
      *
-     * @param handler The [ListenerHandler] to remove.
+     * @param handler The [ListenerProvider] to remove.
      */
     @JvmStatic
-    public fun removeHandler(handler: ListenerHandler) {
-        this.handlers.remove(handler)
+    public fun removeProvider(handler: ListenerProvider) {
+        this.registries.remove(handler)
+    }
+
+    @JvmStatic
+    public fun addInjectedProvider(injected: InjectedListenerProvider) {
+        this.injected.add(injected)
+    }
+
+    @JvmStatic
+    public fun removeInjectedProvider(injected: InjectedListenerProvider) {
+        this.injected.remove(injected)
     }
 
     /**

@@ -1,7 +1,7 @@
 package net.casual.arcade.minigame.managers
 
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.SingleEventHandler
+import net.casual.arcade.events.SingleListenerProvider
 import net.casual.arcade.events.server.ServerStoppingEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.MinigameUtils.minigame
@@ -25,10 +25,10 @@ public class MinigameLevelManager(
     private val handles = HashSet<RuntimeWorldHandle>()
     private val levels = HashSet<ServerLevel>()
 
-    private val handler = SingleEventHandler.of<ServerStoppingEvent> { this.deleteHandles() }
+    private val handler = SingleListenerProvider.of<ServerStoppingEvent> { this.deleteHandles() }
 
     init {
-        GlobalEventHandler.addHandler(this.handler)
+        GlobalEventHandler.addProvider(this.handler)
     }
 
     /**
@@ -94,7 +94,7 @@ public class MinigameLevelManager(
     }
 
     internal fun unregisterHandler() {
-        GlobalEventHandler.removeHandler(this.handler)
+        GlobalEventHandler.removeProvider(this.handler)
     }
 
     public interface SpawnLocation {

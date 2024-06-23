@@ -5,7 +5,10 @@ import net.casual.arcade.Arcade
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.core.Event
+import net.casual.arcade.events.level.LevelEvent
 import net.casual.arcade.events.level.LevelExtensionEvent
+import net.casual.arcade.events.minigame.MinigameEvent
+import net.casual.arcade.events.player.PlayerEvent
 import net.casual.arcade.events.player.PlayerExtensionEvent
 import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.gui.countdown.Countdown
@@ -26,7 +29,6 @@ import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.LevelUtils.addExtension
 import net.casual.arcade.utils.LevelUtils.getExtension
-import net.casual.arcade.utils.MinigameUtils.isMinigameAdminOrHasPermission
 import net.casual.arcade.utils.PlayerUtils.addExtension
 import net.casual.arcade.utils.PlayerUtils.getExtension
 import net.casual.arcade.utils.TimeUtils.Seconds
@@ -216,6 +218,29 @@ public object MinigameUtils {
         }
         GlobalEventHandler.register<LevelExtensionEvent> { (level) ->
             level.addExtension(LevelMinigameExtension(level))
+        }
+
+        // This allows us to inject listener providers
+        GlobalEventHandler.addInjectedProvider { event, consumer ->
+            val minigames = HashSet<Minigame<*>>(3)
+            if (event is PlayerEvent) {
+                val minigame = event.player.getMinigame()
+                if (minigame != null) {
+                    minigames.add(minigame)
+                }
+            }
+            if (event is LevelEvent) {
+                val minigame = event.level.getMinigame()
+                if (minigame != null) {
+                    minigames.add(minigame)
+                }
+            }
+            if (event is MinigameEvent) {
+                minigames.add(event.minigame)
+            }
+            for (minigame in minigames) {
+                consumer.accept(minigame.events.getInjectedProvider())
+            }
         }
     }
 

@@ -163,8 +163,7 @@ public open class LobbyMinigame(
         }
 
         this.transferring = true
-        val event = LobbyMoveToNextMinigameEvent(this, next)
-        event.broadcast()
+        val event = LobbyMoveToNextMinigameEvent(this, next).broadcast()
 
         val task = CancellableTask.of {
             this.transferAdminAndSpectatorTeamsTo(next)

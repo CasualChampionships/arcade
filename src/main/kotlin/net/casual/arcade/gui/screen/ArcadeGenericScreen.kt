@@ -1,10 +1,10 @@
 package net.casual.arcade.gui.screen
 
-import net.casual.arcade.events.SingleEventHandler
+import net.casual.arcade.events.SingleListenerProvider
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.scheduler.GlobalTickedScheduler
-import net.casual.arcade.utils.EventUtils.registerHandler
-import net.casual.arcade.utils.EventUtils.unregisterHandler
+import net.casual.arcade.utils.EventUtils.registerProvider
+import net.casual.arcade.utils.EventUtils.unregisterProvider
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
@@ -37,13 +37,13 @@ public abstract class ArcadeGenericScreen(
     syncId: Int,
     rows: Int
 ): AbstractContainerMenu(rowsToType(rows), syncId), SpectatorUsableScreen, FrozenUsableScreen {
-    private val ticking: SingleEventHandler<ServerTickEvent>
+    private val ticking: SingleListenerProvider<ServerTickEvent>
 
     private val inventory: Inventory
     private val container: Container
 
     init {
-        this.ticking = SingleEventHandler.of { (server) ->
+        this.ticking = SingleListenerProvider.of { (server) ->
             this.onTick(server)
         }
 
@@ -64,7 +64,7 @@ public abstract class ArcadeGenericScreen(
             this.addSlot(Slot(inventory, j, 8 + j * 18, 161 + i))
         }
 
-        this.ticking.registerHandler()
+        this.ticking.registerProvider()
     }
 
     /**
@@ -144,7 +144,7 @@ public abstract class ArcadeGenericScreen(
     final override fun removed(player: Player) {
         this.onRemove(player as ServerPlayer)
         super.removed(player)
-        this.ticking.unregisterHandler()
+        this.ticking.unregisterProvider()
         GlobalTickedScheduler.schedule(1.Ticks) {
             player.containerMenu.sendAllDataToRemote()
         }

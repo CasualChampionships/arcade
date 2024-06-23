@@ -85,7 +85,9 @@ public object ListenerFlags {
     public const val IS_ADMIN: Int = 1 shl 4
     public const val HAS_LEVEL: Int = 1 shl 5
     public const val IS_MINIGAME: Int = 1 shl 6
+    @Deprecated("This is the same as IS_PLAYING", replaceWith = ReplaceWith("IS_PLAYING"))
     public const val HAS_PLAYER_PLAYING: Int = HAS_PLAYER or IS_PLAYING
+    @Deprecated("This is the same as IS_SPECTATOR", replaceWith = ReplaceWith("IS_SPECTATOR"))
     public const val HAS_PLAYER_SPECTATING: Int = HAS_PLAYER or IS_SPECTATOR
     public const val DEFAULT: Int = HAS_PLAYER or HAS_LEVEL or IS_MINIGAME
 }

@@ -3,7 +3,7 @@ package net.casual.arcade.minigame
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import net.casual.arcade.events.BuiltInEventPhases
-import net.casual.arcade.events.EventHandler
+import net.casual.arcade.events.ListenerRegistryImpl
 import net.casual.arcade.events.minigame.*
 import net.casual.arcade.events.player.*
 import net.casual.arcade.events.server.ServerStoppingEvent
@@ -24,8 +24,8 @@ import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.stats.ArcadeStats
 import net.casual.arcade.task.SavableTask
 import net.casual.arcade.utils.EventUtils.broadcast
-import net.casual.arcade.utils.EventUtils.registerHandler
-import net.casual.arcade.utils.EventUtils.unregisterHandler
+import net.casual.arcade.utils.EventUtils.registerProvider
+import net.casual.arcade.utils.EventUtils.unregisterProvider
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.toJsonObject
 import net.casual.arcade.utils.JsonUtils.toJsonStringArray
@@ -50,7 +50,7 @@ import java.util.*
  * has common utilities used in minigames.
  *
  * Each minigame has its own set of [GameSetting]s,
- * has its own [EventHandler], and own [TickedScheduler].
+ * has its own [ListenerRegistryImpl], and own [TickedScheduler].
  * Minigames also provide a way to display the UI to all
  * the currently playing players, through [CustomBossBar]s,
  * [ArcadeSidebar], [ArcadePlayerListDisplay], and [ArcadeNameTag]s.
@@ -335,7 +335,6 @@ public abstract class Minigame<M: Minigame<M>>(
             throw IllegalArgumentException("Cannot set minigame '${this.id}' phase to ${phase.id}")
         }
         this.scheduler.phased.cancelAll()
-        this.events.phasedHandler.clear()
 
         val self = this.cast()
         this.phase.end(self, phase)
@@ -441,9 +440,8 @@ public abstract class Minigame<M: Minigame<M>>(
             this.levels.deleteHandles()
         }
         this.levels.clear()
-        this.events.unregisterHandler()
-        this.events.minigameHandler.clear()
-        this.events.phasedHandler.clear()
+        this.events.unregisterProvider()
+        this.events.clear()
         this.scheduler.minigame.cancelAll()
         this.scheduler.phased.cancelAll()
 
@@ -558,7 +556,7 @@ public abstract class Minigame<M: Minigame<M>>(
      */
     protected open fun initialize() {
         this.registerEvents()
-        this.events.registerHandler()
+        this.events.registerProvider()
         this.levels.unregisterHandler()
         MinigameUtils.parseMinigameEvents(this)
 

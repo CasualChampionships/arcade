@@ -5,29 +5,31 @@ import net.casual.arcade.events.core.Event
 /**
  * This interface allows you to add your own
  * [EventListener]s to the [GlobalEventHandler]
- * by using the [GlobalEventHandler.addHandler],
- * and [GlobalEventHandler.removeHandler] methods.
+ * by using the [GlobalEventHandler.addProvider],
+ * and [GlobalEventHandler.removeProvider] methods.
  *
  * This interface serves the purpose of being able
  * to provide [EventListener]s for a given [Event]
  * type.
  *
- * The implementation of this interface is [EventHandler]
+ * The implementation of this interface is [ListenerRegistryImpl]
  * where you can register multiple event types with
  * multiple [EventListener]s.
  *
  * Alternatively if you just want to register a
- * singular [EventListener] see [SingleEventHandler].
+ * singular [EventListener] see [SingleListenerProvider].
  *
  * @see getListenersFor
- * @see EventHandler
+ * @see ListenerRegistryImpl
  * @see GlobalEventHandler
- * @see SingleEventHandler
+ * @see SingleListenerProvider
  */
-public interface ListenerHandler {
+public interface ListenerProvider {
     /**
      * This method gets all the [EventListener]s for a given
      * [Event] type, given by [type].
+     *
+     * The listeners **must** be sorted by their priority.
      *
      * @param type The type of the [Event] to get listeners for.
      * @return The list of [EventListener]s for the given [type].

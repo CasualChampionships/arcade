@@ -3,7 +3,7 @@ package net.casual.arcade.events
 /**
  * This object contains the built-in event phases.
  *
- * @see EventRegisterer
+ * @see ListenerRegistry
  * @see EventListener
  */
 public object BuiltInEventPhases {

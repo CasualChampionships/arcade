@@ -11,10 +11,10 @@ import java.util.function.Consumer
  * event but not for the lifetime of your mod so registering it
  * with the [GlobalEventHandler] is not wanted.
  */
-public class SingleEventHandler<T: Event>(
+public class SingleListenerProvider<T: Event>(
     public val type: Class<T>,
     listener: EventListener<T>
-): ListenerHandler {
+): ListenerProvider {
     private val listener = listOf(listener)
 
     /**
@@ -33,20 +33,20 @@ public class SingleEventHandler<T: Event>(
 
     public companion object {
         /**
-         * Creates a new [SingleEventHandler] for the given event type.
+         * Creates a new [SingleListenerProvider] for the given event type.
          *
          * @param T The type of event.
          * @param priority The priority of your event listener.
          * @param phase The phase of the event, [DEFAULT] by default.
          * @param listener The callback which will be invoked when the event is fired.
-         * @return A new [SingleEventHandler] for the given event type.
+         * @return A new [SingleListenerProvider] for the given event type.
          */
         public inline fun <reified T: Event> of(
             priority: Int = 1_000,
             phase: String = DEFAULT,
             listener: Consumer<T>
-        ): SingleEventHandler<T> {
-            return SingleEventHandler(T::class.java, EventListener.of(priority, phase, listener))
+        ): SingleListenerProvider<T> {
+            return SingleListenerProvider(T::class.java, EventListener.of(priority, phase, listener))
         }
     }
 }
