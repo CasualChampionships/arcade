@@ -51,11 +51,19 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
     }
 
     override fun setCenter(x: Double, z: Double) {
+        this.setCenterUntracked(x, z)
+    }
+
+    protected fun setCenterUntracked(x: Double, z: Double) {
         this.centerState = StillCenterBorderState(x, z)
         this.changeCenter(x, z)
     }
 
     public open fun lerpCenterBetween(fromX: Double, fromZ: Double, toX: Double, toZ: Double, time: Long) {
+        this.lerpCenterBetweenUntracked(fromX, fromZ, toX, toZ, time)
+    }
+
+    public open fun lerpCenterBetweenUntracked(fromX: Double, fromZ: Double, toX: Double, toZ: Double, time: Long) {
         this.centerState = MovingCenterBorderState(this, fromX, fromZ, toX, toZ, time)
     }
 
@@ -80,6 +88,10 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
     }
 
     override fun setSize(size: Double) {
+        this.setSizeUntracked(size)
+    }
+
+    protected fun setSizeUntracked(size: Double) {
         this.borderState = StillBorderState(this, size)
 
         for (borderChangeListener in listeners) {
@@ -88,6 +100,10 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
     }
 
     override fun lerpSizeBetween(start: Double, end: Double, time: Long) {
+        this.lerpSizeBetweenUntracked(start, end, time)
+    }
+
+    protected fun lerpSizeBetweenUntracked(start: Double, end: Double, time: Long) {
         if (start == end) {
             this.size = end
             return
@@ -145,16 +161,16 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
         val remaining = compound.getLong("lerp_time")
         val size = compound.getDouble("size")
         if (remaining > 0L) {
-            this.lerpSizeBetween(size, compound.getDouble("lerp_target"), remaining)
+            this.lerpSizeBetweenUntracked(size, compound.getDouble("lerp_target"), remaining)
         } else {
-            setSize(size)
+            this.setSizeUntracked(size)
         }
 
         val centerRemaining = compound.getLong("center_lerp_time")
         val centerX = compound.getDouble("center_x")
         val centerZ = compound.getDouble("center_z")
         if (centerRemaining > 0L) {
-            this.lerpCenterBetween(
+            this.lerpCenterBetweenUntracked(
                 centerX,
                 centerZ,
                 compound.getDouble("center_lerp_target_x"),
@@ -162,7 +178,7 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
                 compound.getLong("center_lerp_time")
             )
         } else {
-            this.setCenter(centerX, centerZ)
+            this.setCenterUntracked(centerX, centerZ)
         }
     }
 }
