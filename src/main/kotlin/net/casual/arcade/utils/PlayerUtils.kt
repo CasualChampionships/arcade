@@ -11,11 +11,12 @@ import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ExtensionUtils.addExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtensions
+import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
-import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.impl.Sound
+import net.casual.arcade.utils.location.Location
 import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.core.Direction8
@@ -27,6 +28,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
+import net.minecraft.util.Mth
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
@@ -42,11 +44,11 @@ import java.util.function.Consumer
 import java.util.function.Predicate
 
 public object PlayerUtils {
-    private val HEALTH_BOOST: UUID = UUID.fromString("a61b8a4f-a4f5-4b7f-b787-d10ba4ad3d57")
+    private val HEALTH_BOOST = Arcade.id("health_boost")
 
     @JvmStatic
     public val ServerPlayer.location: Location
-        get() = Location(this.serverLevel(), Vec3(this.x, this.y, this.z), Vec2(this.xRot, this.yRot))
+        get() = Location.of(this)
 
     @JvmStatic
     public val ServerPlayer.isSurvival: Boolean
@@ -177,9 +179,8 @@ public object PlayerUtils {
             instance.removeModifier(HEALTH_BOOST)
             instance.addPermanentModifier(AttributeModifier(
                 HEALTH_BOOST,
-                "Health Boost",
                 multiply,
-                AttributeModifier.Operation.MULTIPLY_BASE
+                AttributeModifier.Operation.ADD_MULTIPLIED_BASE
             ))
         }
     }
@@ -257,6 +258,7 @@ public object PlayerUtils {
                 this.advancements.revoke(advancement, string)
             }
         }
+        (this.advancements as PlayerAdvancementsAccessor).progress.remove(advancement)
     }
 
     @JvmStatic
@@ -269,16 +271,41 @@ public object PlayerUtils {
     @JvmStatic
     public fun ServerPlayer.grantAllRecipes() {
         this.awardRecipes(this.server.recipeManager.recipes)
+        val minigame = this.getMinigame() ?: return
+        this.awardRecipes(minigame.recipes.all())
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.grantAllRecipesSilently() {
+        for (recipe in this.server.recipeManager.recipes) {
+            this.recipeBook.add(recipe)
+        }
+        val minigame = this.getMinigame()
+        if (minigame != null) {
+            minigame.recipes.grantSilently(this, minigame.recipes.all())
+            return
+        }
+        this.recipeBook.sendInitialRecipeBook(this)
     }
 
     @JvmStatic
     public fun ServerPlayer.revokeAllRecipes() {
         this.resetRecipes(this.server.recipeManager.recipes)
+        val minigame = this.getMinigame() ?: return
+        this.resetRecipes(minigame.recipes.all())
     }
 
     @JvmStatic
     public fun ServerPlayer.teleportTo(location: Location) {
-        this.teleportTo(location.level, location.x, location.y, location.z, location.yaw, location.pitch)
+        this.teleportTo(
+            location.level,
+            location.x,
+            location.y,
+            location.z,
+            setOf(),
+            Mth.wrapDegrees(location.yaw),
+            Mth.wrapDegrees(location.pitch)
+        )
     }
 
     @JvmStatic

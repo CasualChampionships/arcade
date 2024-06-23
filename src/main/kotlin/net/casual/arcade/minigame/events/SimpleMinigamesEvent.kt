@@ -2,6 +2,7 @@ package net.casual.arcade.minigame.events
 
 import com.mojang.datafixers.util.Either
 import com.mojang.serialization.Codec
+import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.Arcade
 import net.casual.arcade.minigame.events.lobby.Lobby
@@ -25,11 +26,12 @@ import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
 public open class SimpleMinigamesEvent(
+    override val name: String = "default",
     public val lobby: LobbyTemplate = LobbyTemplate.DEFAULT,
     public val dimension: Optional<ResourceKey<Level>> = Optional.empty(),
     public val operators: List<String> = listOf(),
-    override val minigames: List<ResourceLocation> = listOf(),
-    override val repeat: Boolean = true
+    override val minigames: List<MinigameData> = listOf(),
+    override val repeat: Boolean = true,
 ): MinigamesEvent {
     override fun createLobby(server: MinecraftServer): LobbyMinigame {
         val dimension = this.dimension.getOrNull()
@@ -53,7 +55,7 @@ public open class SimpleMinigamesEvent(
         return listOf()
     }
 
-    override fun codec(): Codec<out MinigamesEvent> {
+    override fun codec(): MapCodec<out MinigamesEvent> {
         return CODEC
     }
 
@@ -71,12 +73,13 @@ public open class SimpleMinigamesEvent(
     public companion object: CodecProvider<SimpleMinigamesEvent> {
         override val ID: ResourceLocation = Arcade.id("simple")
 
-        override val CODEC: Codec<out SimpleMinigamesEvent> = RecordCodecBuilder.create { instance ->
+        override val CODEC: MapCodec<out SimpleMinigamesEvent> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
+                Codec.STRING.encodedOptionalFieldOf("name", "default").forGetter(SimpleMinigamesEvent::name),
                 LobbyTemplate.CODEC.encodedOptionalFieldOf("lobby", LobbyTemplate.DEFAULT).forGetter(SimpleMinigamesEvent::lobby),
                 Level.RESOURCE_KEY_CODEC.encodedOptionalFieldOf("lobby_dimension").forGetter(SimpleMinigamesEvent::dimension),
                 Codec.STRING.listOf().encodedOptionalFieldOf("operators", listOf()).forGetter(SimpleMinigamesEvent::operators),
-                ResourceLocation.CODEC.listOf().encodedOptionalFieldOf("minigames", listOf()).forGetter(SimpleMinigamesEvent::minigames),
+                MinigameData.CODEC.listOf().encodedOptionalFieldOf("minigames", listOf()).forGetter(SimpleMinigamesEvent::minigames),
                 Codec.BOOL.encodedOptionalFieldOf("repeat", true).forGetter(SimpleMinigamesEvent::repeat)
             ).apply(instance, ::SimpleMinigamesEvent)
         }

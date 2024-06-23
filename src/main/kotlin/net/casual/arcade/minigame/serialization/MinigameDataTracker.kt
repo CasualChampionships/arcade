@@ -2,6 +2,8 @@ package net.casual.arcade.minigame.serialization
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.long
@@ -13,28 +15,39 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.jvm.optionals.getOrNull
 
 public class MinigameDataTracker(
     private val minigame: Minigame<*>
 ) {
-    private val players = HashMap<UUID, JsonObject>()
-    private var startTime = 0L
-    private var endTime = 0L
+    private val players = ConcurrentHashMap<UUID, JsonObject>()
+    public var startTime: Instant = Instant.DISTANT_PAST
+        private set
+    public var endTime: Instant = Instant.DISTANT_FUTURE
+        private set
 
     public fun start() {
-        this.startTime = System.currentTimeMillis()
+        this.startTime = Clock.System.now()
     }
 
     public fun end() {
-        this.endTime = System.currentTimeMillis()
+        for (player in this.minigame.players) {
+            this.updatePlayer(player)
+        }
+
+        this.endTime = Clock.System.now()
     }
 
     public fun updatePlayer(player: ServerPlayer) {
+        if (this.endTime != Instant.DISTANT_FUTURE) {
+            return
+        }
+
         val json = JsonObject()
         json.addProperty("uuid", player.stringUUID)
         // json.add("stats", this.minigame.stats.serialize(player))
-        val array = JsonArray()
+        val advancements = JsonArray()
         for (advancement in this.minigame.advancements.all()) {
             if (!player.advancements.getOrStartProgress(advancement).isDone) {
                 continue
@@ -44,18 +57,18 @@ public class MinigameDataTracker(
             data.addProperty("id", advancement.id.toString())
             data.addProperty("item", BuiltInRegistries.ITEM.getKey(display.icon.item).toString())
             data.addProperty("title", display.title.string)
-            array.add(data)
+            advancements.add(data)
         }
-        json.add("advancements", array)
+        json.add("advancements", advancements)
 
         this.players[player.uuid] = json
     }
 
-    public fun getAdvancements(player: ServerPlayer): List<AdvancementHolder> {
-        val json = this.players[player.uuid] ?: return listOf()
+    public fun getAdvancements(uuid: UUID): List<AdvancementHolder> {
+        val json = this.players[uuid] ?: return listOf()
         val list = ArrayList<AdvancementHolder>()
         for (data in json.array("advancements").objects()) {
-            val id = ResourceLocation(data.string("id"))
+            val id = ResourceLocation.parse(data.string("id"))
             list.add(this.minigame.advancements.get(id) ?: continue)
         }
         return list
@@ -73,8 +86,8 @@ public class MinigameDataTracker(
         }
 
         val json = JsonObject()
-        json.addProperty("minigame_start_ms", this.startTime)
-        json.addProperty("minigame_end_ms", this.endTime)
+        json.addProperty("minigame_start_ms", this.startTime.toEpochMilliseconds())
+        json.addProperty("minigame_end_ms", this.endTime.toEpochMilliseconds())
         json.addProperty("id", this.minigame.id.toString())
         json.addProperty("uuid", this.minigame.uuid.toString())
         val players = JsonArray()
@@ -87,8 +100,8 @@ public class MinigameDataTracker(
     }
 
     internal fun deserialize(json: JsonObject) {
-        this.startTime = json.long("minigame_start_ms")
-        this.endTime = json.long("minigame_end_ms")
+        this.startTime = Instant.fromEpochMilliseconds(json.long("minigame_start_ms"))
+        this.endTime = Instant.fromEpochMilliseconds(json.long("minigame_end_ms"))
 
         for (player in json.array("players").objects()) {
             this.players[player.uuid("uuid")] = player

@@ -3,8 +3,6 @@ package net.casual.arcade.settings
 import com.google.gson.JsonElement
 import com.mojang.serialization.Codec
 import com.mojang.serialization.JsonOps
-import net.casual.arcade.Arcade
-import net.casual.arcade.utils.json.JsonSerializer
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
 import kotlin.reflect.KProperty
@@ -27,8 +25,9 @@ public open class GameSetting<T: Any>(
     }
 
     public fun set(value: T) {
+        val previous = this.get()
         for (listener in this.listeners) {
-            listener.onSet(this, value)
+            listener.onSet(this, previous, value)
         }
         this.setQuietly(value)
     }
@@ -59,8 +58,7 @@ public open class GameSetting<T: Any>(
     }
 
     public fun serializeValue(): JsonElement {
-        return this.serializer.encodeStart(JsonOps.INSTANCE, this.get())
-            .getOrThrow(false, Arcade.logger::error)
+        return this.serializer.encodeStart(JsonOps.INSTANCE, this.get()).orThrow
     }
 
     public fun deserializeAndSet(json: JsonElement): Boolean {

@@ -1,7 +1,7 @@
 package net.casual.arcade.utils
 
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerHandler
+import net.casual.arcade.events.ListenerProvider
 import net.casual.arcade.events.core.Event
 
 public object EventUtils {
@@ -10,11 +10,11 @@ public object EventUtils {
         return this
     }
 
-    public fun ListenerHandler.registerHandler() {
-        GlobalEventHandler.addHandler(this)
+    public fun ListenerProvider.registerProvider() {
+        GlobalEventHandler.addProvider(this)
     }
 
-    public fun ListenerHandler.unregisterHandler() {
-        GlobalEventHandler.removeHandler(this)
+    public fun ListenerProvider.unregisterProvider() {
+        GlobalEventHandler.removeProvider(this)
     }
 }

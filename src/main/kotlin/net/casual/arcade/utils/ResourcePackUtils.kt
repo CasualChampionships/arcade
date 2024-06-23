@@ -7,6 +7,7 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.network.ClientboundPacketEvent
 import net.casual.arcade.events.network.PackStatusEvent
 import net.casual.arcade.events.network.PlayerDisconnectEvent
+import net.casual.arcade.events.player.PlayerDimensionChangeEvent
 import net.casual.arcade.items.ItemModeller
 import net.casual.arcade.resources.PackInfo
 import net.casual.arcade.resources.PackState
@@ -39,7 +40,7 @@ public object ResourcePackUtils {
 
     @JvmStatic
     public fun PackInfo.toPushPacket(): ClientboundResourcePackPushPacket {
-        return ClientboundResourcePackPushPacket(this.uuid, this.url, this.hash, this.required, this.prompt)
+        return ClientboundResourcePackPushPacket(this.uuid, this.url, this.hash, this.required, Optional.ofNullable(this.prompt))
     }
 
     @JvmStatic
@@ -60,6 +61,11 @@ public object ResourcePackUtils {
     @JvmStatic
     public fun ServerPlayer.getPackState(pack: PackInfo): PackState? {
         return this.resourcePacks.getPackState(pack.uuid)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.afterPacksLoad(block: () -> Unit) {
+        this.resourcePacks.allLoadedFuture.thenRunAsync(block, this.server)
     }
 
     @JvmStatic
@@ -165,7 +171,7 @@ public object ResourcePackUtils {
                     val relative = path.parent.toString().removePrefix(itemTexturesDirectory)
                     val model = "$relative/$name.json"
                     if (itemModels.resolve(model).notExists()) {
-                        val location = ResourceLocation(namespace, "item/$relative/$name")
+                        val location = ResourceLocation.fromNamespaceAndPath(namespace, "item/$relative/$name")
                         builder.addData("assets/$namespace/models/$model", getDefaultItemModel(location))
                     }
 
@@ -204,6 +210,13 @@ public object ResourcePackUtils {
         }
         GlobalEventHandler.register<PackStatusEvent> { (_, profile, uuid, status) ->
             this.getExtension(profile.id).onPackStatus(uuid, status)
+        }
+        GlobalEventHandler.register<PlayerDimensionChangeEvent> { (player) ->
+            for (pack in this.getExtension(player.uuid).getAllPacks()) {
+                if (pack.isWaitingForResponse()) {
+                    player.sendResourcePack(pack.info, true)
+                }
+            }
         }
     }
 }

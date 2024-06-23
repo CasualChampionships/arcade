@@ -1,6 +1,7 @@
 package net.casual.arcade.area.templates
 
 import com.mojang.serialization.Codec
+import com.mojang.serialization.MapCodec
 import net.casual.arcade.area.PlaceableArea
 import net.casual.arcade.utils.registries.ArcadeRegistries
 import net.casual.arcade.utils.serialization.CodecProvider.Companion.register
@@ -11,7 +12,7 @@ import java.util.function.Function
 public interface PlaceableAreaTemplate {
     public fun create(level: ServerLevel): PlaceableArea
 
-    public fun codec(): Codec<out PlaceableAreaTemplate>
+    public fun codec(): MapCodec<out PlaceableAreaTemplate>
 
     public companion object {
         public val DEFAULT: BoxedAreaTemplate = BoxedAreaTemplate()
@@ -21,7 +22,7 @@ public interface PlaceableAreaTemplate {
                 .dispatch(PlaceableAreaTemplate::codec, Function.identity())
         }
 
-        internal fun bootstrap(registry: Registry<Codec<out PlaceableAreaTemplate>>) {
+        internal fun bootstrap(registry: Registry<MapCodec<out PlaceableAreaTemplate>>) {
             StructuredAreaTemplate.register(registry)
             BoxedAreaTemplate.register(registry)
         }

@@ -26,7 +26,7 @@ public abstract class SoundResources(
     ): PolymerSoundEvent {
         val provider = SoundProvider(location, volume, pitch, 1, stream, attenuationDistance, preload, Sound)
         this.providers[id] = listOf(provider)
-        return this.register(ResourceLocation(this.namespace, id), attenuationDistance, isStatic)
+        return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, isStatic)
     }
 
     protected fun event(
@@ -41,7 +41,7 @@ public abstract class SoundResources(
     ): PolymerSoundEvent {
         val provider = SoundProvider(location, volume, pitch, 1, stream, attenuationDistance, preload, Event)
         this.providers[id] = listOf(provider)
-        return this.register(ResourceLocation(this.namespace, id), attenuationDistance, isStatic)
+        return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, isStatic)
     }
 
     protected fun group(
@@ -53,11 +53,11 @@ public abstract class SoundResources(
         val grouped = GroupedSoundProvider()
         grouped.builder()
         this.providers[id] = grouped.getProviders()
-        return this.register(ResourceLocation(this.namespace, id), attenuationDistance, isStatic)
+        return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, isStatic)
     }
 
     protected fun at(path: String): ResourceLocation {
-        return ResourceLocation(this.namespace, path)
+        return ResourceLocation.fromNamespaceAndPath(this.namespace, path)
     }
 
     internal fun getJson(): String {

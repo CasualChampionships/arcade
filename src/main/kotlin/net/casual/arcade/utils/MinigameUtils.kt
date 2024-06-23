@@ -5,11 +5,16 @@ import net.casual.arcade.Arcade
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.core.Event
+import net.casual.arcade.events.core.ExtensionEvent
+import net.casual.arcade.events.level.LevelEvent
 import net.casual.arcade.events.level.LevelExtensionEvent
+import net.casual.arcade.events.minigame.MinigameEvent
+import net.casual.arcade.events.player.PlayerEvent
 import net.casual.arcade.events.player.PlayerExtensionEvent
 import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.MinigameSettings
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.annotation.MinigameEventListener
 import net.casual.arcade.minigame.extensions.LevelMinigameExtension
@@ -17,7 +22,12 @@ import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.scheduler.MinecraftScheduler
 import net.casual.arcade.scheduler.MinecraftTimeDuration
+import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.task.Completable
+import net.casual.arcade.utils.ComponentUtils.gold
+import net.casual.arcade.utils.ComponentUtils.lime
+import net.casual.arcade.utils.ComponentUtils.literal
+import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.LevelUtils.addExtension
 import net.casual.arcade.utils.LevelUtils.getExtension
 import net.casual.arcade.utils.PlayerUtils.addExtension
@@ -30,6 +40,7 @@ import net.minecraft.world.entity.Entity
 import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import java.util.function.Predicate
 
 public object MinigameUtils {
     internal val ServerPlayer.minigame
@@ -77,11 +88,18 @@ public object MinigameUtils {
     }
 
     public fun <T: ArgumentBuilder<CommandSourceStack, T>> T.requiresAdminOrPermission(level: Int = 4): T {
-        return this.requires { source ->
-            if (source.isPlayer) {
-                source.playerOrException.isMinigameAdminOrHasPermission(level)
-            } else source.hasPermission(level)
+        return this.requires { source -> source.isMinigameAdminOrHasPermission(level) }
+    }
+
+    public fun CommandSourceStack.isMinigameAdminOrHasPermission(level: Int = 4): Boolean {
+        if (!this.isPlayer) {
+            return this.hasPermission(level)
         }
+        return this.playerOrException.isMinigameAdminOrHasPermission(level)
+    }
+
+    public fun CommandSourceStack.isPlayerAnd(predicate: Predicate<ServerPlayer>): Boolean {
+        return this.isPlayer && predicate.test(this.playerOrException)
     }
 
     public fun ServerPlayer.isMinigameAdminOrHasPermission(level: Int = 4): Boolean {
@@ -99,28 +117,41 @@ public object MinigameUtils {
         parseMinigameEvents(this, listener)
     }
 
+    @Deprecated("Use player manager instead", ReplaceWith(
+        "this.players.transferTo(next, players, transferSpectatorStatus, transferAdminStatus)",
+        "net.casual.arcade.utils.MinigameUtils.transferTo"
+    ))
     public fun Minigame<*>.transferPlayersTo(
         next: Minigame<*>,
         players: Iterable<ServerPlayer> = this.players,
         transferAdminStatus: Boolean = true,
         transferSpectatorStatus: Boolean = true
     ) {
-        for (player in players) {
-            val wasAdmin = this.players.isAdmin(player)
-            val wasSpectating = this.players.isSpectating(player)
-            next.players.add(player, transferSpectatorStatus && wasSpectating)
-            if (transferAdminStatus && wasAdmin) {
-                next.players.addAdmin(player)
-            }
-        }
+        this.players.transferTo(next, players, transferSpectatorStatus, transferAdminStatus)
     }
-
     public fun Minigame<*>.transferAdminAndSpectatorTeamsTo(next: Minigame<*>) {
         if (this.teams.hasSpectatorTeam()) {
             next.teams.setSpectatorTeam(this.teams.getSpectatorTeam())
         }
         if (this.teams.hasAdminTeam()) {
             next.teams.setAdminTeam(this.teams.getAdminTeam())
+        }
+    }
+
+    public fun MinigameSettings.broadcastChangesToAdmin() {
+        for (setting in this.all()) {
+            @Suppress("UNCHECKED_CAST")
+            (setting as GameSetting<Any>).addListener { _, previous, value ->
+                this.minigame.chat.broadcastTo(
+                    "Setting ".literal()
+                        .append(setting.name.literal().gold())
+                        .append(" changed from ")
+                        .append(previous.toString().literal().red())
+                        .append(" to ")
+                        .append(value.toString().literal().lime()),
+                    this.minigame.players.admins
+                )
+            }
         }
     }
 
@@ -189,6 +220,32 @@ public object MinigameUtils {
         GlobalEventHandler.register<LevelExtensionEvent> { (level) ->
             level.addExtension(LevelMinigameExtension(level))
         }
+
+        // This allows us to inject listener providers
+        GlobalEventHandler.addInjectedProvider { event, consumer ->
+            if (event is ExtensionEvent) {
+                return@addInjectedProvider
+            }
+            val minigames = HashSet<Minigame<*>>(3)
+            if (event is PlayerEvent) {
+                val minigame = event.player.getMinigame()
+                if (minigame != null) {
+                    minigames.add(minigame)
+                }
+            }
+            if (event is LevelEvent) {
+                val minigame = event.level.getMinigame()
+                if (minigame != null) {
+                    minigames.add(minigame)
+                }
+            }
+            if (event is MinigameEvent) {
+                minigames.add(event.minigame)
+            }
+            for (minigame in minigames) {
+                consumer.accept(minigame.events.getInjectedProvider())
+            }
+        }
     }
 
     private fun <M: Minigame<M>> parseMinigameEventMethod(
@@ -222,7 +279,7 @@ public object MinigameUtils {
             } else {
                 Phase.none()
             }
-            val end = if (during.after != "") {
+            val end = if (during.before != "") {
                 minigame.getPhase(during.before) ?: throw IllegalArgumentException("End phase does not exist")
             } else {
                 Phase.end()

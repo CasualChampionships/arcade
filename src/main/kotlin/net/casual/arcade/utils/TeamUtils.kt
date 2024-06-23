@@ -1,26 +1,28 @@
 package net.casual.arcade.utils
 
 import com.google.common.collect.Iterators
-import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer
+import com.google.common.collect.LinkedHashMultimap
 import net.casual.arcade.Arcade
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.prettyName
-import net.casual.arcade.utils.ComponentUtils.unitalicise
 import net.casual.arcade.utils.ExtensionUtils.addExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtension
 import net.casual.arcade.utils.ExtensionUtils.getExtensions
+import net.casual.arcade.utils.ItemUtils.named
 import net.minecraft.ChatFormatting
 import net.minecraft.ChatFormatting.*
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Scoreboard
 import net.minecraft.world.scores.Team
+import java.util.function.Consumer
 
 public object TeamUtils {
     public val TEAM_COLOURS: Set<ChatFormatting>
@@ -31,7 +33,7 @@ public object TeamUtils {
     init {
         TEAM_COLOURS = entries.slice(0..< 16).toSet()
         TEAM_COLOURS_NO_GREY = TEAM_COLOURS.toMutableSet().apply {
-            removeAll(listOf(BLACK, GRAY, DARK_GRAY, WHITE))
+            removeAll(setOf(BLACK, GRAY, DARK_GRAY, WHITE))
         }
 
         this.addAnimals()
@@ -47,6 +49,26 @@ public object TeamUtils {
         for (team in this.teams()) {
             consumer.accept(team)
         }
+    }
+
+    @JvmStatic
+    public fun getTeamsFor(entities: Iterable<Entity>): MutableSet<PlayerTeam> {
+        val teams = HashSet<PlayerTeam>()
+        for (entity in entities) {
+            val team = entity.team ?: continue
+            teams.add(team)
+        }
+        return teams
+    }
+
+    @JvmStatic
+    public fun getMappedTeamsFor(entities: Iterable<Entity>): LinkedHashMultimap<PlayerTeam, Entity> {
+        val teams = LinkedHashMultimap.create<PlayerTeam, Entity>()
+        for (entity in entities) {
+            val team = entity.team ?: continue
+            teams.put(team, entity)
+        }
+        return teams
     }
 
     @JvmStatic
@@ -93,7 +115,7 @@ public object TeamUtils {
     @JvmStatic
     public fun colouredHeadForTeam(team: Team): ItemStack {
         val head = ItemUtils.colouredHeadForFormatting(team.color)
-        head.setHoverName(team.name.literal().unitalicise())
+        head.named(team.name)
         return head
     }
 

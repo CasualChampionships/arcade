@@ -30,16 +30,8 @@ public class TrackedBorder(size: Double, centerX: Double, centerZ: Double): Arca
         this.trackChanges { super.setSize(size) }
     }
 
-    public fun setSizeUntracked(size: Double) {
-        super.setSize(size)
-    }
-
     override fun setCenter(x: Double, z: Double) {
         this.trackChanges { super.setCenter(x, z) }
-    }
-
-    public fun setCenterUntracked(x: Double, z: Double) {
-        super.setCenter(x, z)
     }
 
     internal fun addTracker(tracker: MultiLevelBorderTracker) {
@@ -56,13 +48,17 @@ public class TrackedBorder(size: Double, centerX: Double, centerZ: Double): Arca
             return
         }
         this.isTracking = true
+        val previousSize = this.size
         val wasStationary = this.isStationary()
         block()
-        if (!wasStationary && this.isStationary()) {
+        if (wasStationary) {
+            if (!this.isStationary()) {
+                this.trackers.forEach { it.onBorderActive(this) }
+            } else if (previousSize != this.size) {
+                this.trackers.forEach { it.onBorderComplete(this) }
+            }
+        } else if (this.isStationary()) {
             this.trackers.forEach { it.onBorderComplete(this) }
-        }
-        if (wasStationary && !this.isStationary()) {
-            this.trackers.forEach { it.onBorderActive(this) }
         }
         this.isTracking = false
     }

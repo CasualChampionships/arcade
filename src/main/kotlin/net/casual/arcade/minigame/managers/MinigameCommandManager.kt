@@ -5,7 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.tree.CommandNode
 import net.casual.arcade.Arcade
-import net.casual.arcade.ducks.`Arcade$DeletableCommand`
+import net.casual.arcade.ducks.DeletableCommand
 import net.casual.arcade.events.minigame.*
 import net.casual.arcade.events.player.PlayerCommandEvent
 import net.casual.arcade.events.player.PlayerCommandSuggestionsEvent
@@ -95,9 +95,9 @@ public class MinigameCommandManager(
      */
     public fun unregister(name: String) {
         if (this.registered.remove(name)) {
-            (this.dispatcher as `Arcade$DeletableCommand`).`arcade$delete`(name)
+            (this.dispatcher as DeletableCommand).`arcade$delete`(name)
             val command = this.getGlobalMinigameCommand()?.getChild(this.minigame.uuid.toString()) ?: return
-            (command as `Arcade$DeletableCommand`).`arcade$delete`(name)
+            (command as DeletableCommand).`arcade$delete`(name)
             this.resendGlobalCommands()
         }
     }
@@ -106,11 +106,11 @@ public class MinigameCommandManager(
      * This method unregisters all commands from the minigame.
      */
     public fun unregisterAll() {
-        val dispatcher = this.dispatcher as `Arcade$DeletableCommand`
+        val dispatcher = this.dispatcher as DeletableCommand
         for (name in this.registered) {
             dispatcher.`arcade$delete`(name)
             val command = this.getGlobalMinigameCommand()?.getChild(this.minigame.uuid.toString()) ?: return
-            (command as `Arcade$DeletableCommand`).`arcade$delete`(name)
+            (command as DeletableCommand).`arcade$delete`(name)
         }
         this.registered.clear()
         this.resendGlobalCommands()
@@ -125,7 +125,7 @@ public class MinigameCommandManager(
         return this.registered
     }
 
-    private fun resendCommands() {
+    public fun resendCommands() {
         for (player in this.minigame.players) {
             this.resendCommandsTo(player)
         }
@@ -156,7 +156,7 @@ public class MinigameCommandManager(
             }  catch (syntax: CommandSyntaxException) {
                 source.fail(ComponentUtils.fromMessage(syntax.rawMessage))
                 if (syntax.input != null && syntax.cursor >= 0) {
-                    val i = syntax.input.length.coerceAtMost(syntax.cursor);
+                    val i = syntax.input.length.coerceAtMost(syntax.cursor)
                     val command = Component.empty().grey().command("/${event.command}")
                     if (i > 10) {
                         command.append(CommonComponents.ELLIPSIS)

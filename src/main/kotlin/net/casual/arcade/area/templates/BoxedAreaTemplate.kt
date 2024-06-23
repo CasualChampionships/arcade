@@ -1,6 +1,7 @@
 package net.casual.arcade.area.templates
 
 import com.mojang.serialization.Codec
+import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.Arcade
 import net.casual.arcade.area.BoxedArea
@@ -24,14 +25,14 @@ public class BoxedAreaTemplate(
         return BoxedArea(this.position, this.radius, this.height, level, this.block)
     }
 
-    override fun codec(): Codec<BoxedAreaTemplate> {
+    override fun codec(): MapCodec<BoxedAreaTemplate> {
         return CODEC
     }
 
     public companion object: CodecProvider<BoxedAreaTemplate> {
         override val ID: ResourceLocation = Arcade.id("boxed")
 
-        override val CODEC: Codec<BoxedAreaTemplate> = RecordCodecBuilder.create { instance ->
+        override val CODEC: MapCodec<BoxedAreaTemplate> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 Vec3i.CODEC.encodedOptionalFieldOf("position", Vec3i.ZERO).forGetter(BoxedAreaTemplate::position),
                 Codec.INT.encodedOptionalFieldOf("radius", 20).forGetter(BoxedAreaTemplate::radius),

@@ -1,5 +1,6 @@
 package net.casual.arcade.events.player
 
+import net.casual.arcade.events.core.ExtensionEvent
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.utils.PlayerUtils.addExtension
@@ -15,14 +16,14 @@ public data class PlayerExtensionEvent(
      * The [player] that is tied to the event.
      */
     override val player: ServerPlayer
-): PlayerEvent {
+): PlayerEvent, ExtensionEvent {
     /**
      * This adds an extension to the player.
      *
      * @param extension The extension to add.
      * @see PlayerExtension
      */
-    public fun addExtension(extension: Extension) {
+    override fun addExtension(extension: Extension) {
         this.player.addExtension(extension)
     }
 }

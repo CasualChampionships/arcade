@@ -2,13 +2,11 @@ package net.casual.arcade.recipes
 
 import net.minecraft.core.NonNullList
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.crafting.*
 import java.util.*
-import java.util.function.Predicate
 
 public object CraftingRecipeBuilder {
     public fun shaped(block: Shaped.() -> Unit): Shaped {
@@ -27,7 +25,6 @@ public object CraftingRecipeBuilder {
         public var width: Int = 0
         public var height: Int = 0
         public var result: ItemStack = ItemStack.EMPTY
-        public var canPlayerUse: Predicate<ServerPlayer> = Predicate { _ -> true }
 
         public fun id(id: ResourceLocation): Shaped {
             this.id = id
@@ -59,14 +56,9 @@ public object CraftingRecipeBuilder {
             return this
         }
 
-        public fun canPlayerUse(canPlayerUse: Predicate<ServerPlayer>): Shaped {
-            this.canPlayerUse = canPlayerUse
-            return this
-        }
-
         public fun build(): RecipeHolder<ShapedRecipe> {
             val id = requireNotNull(this.id)
-            val recipe = object: ShapedRecipe(
+            val recipe = ShapedRecipe(
                 this.group,
                 this.category,
                 ShapedRecipePattern(
@@ -76,11 +68,7 @@ public object CraftingRecipeBuilder {
                     Optional.empty()
                 ),
                 this.result
-            ), PlayerPredicatedRecipe {
-                override fun canUse(player: ServerPlayer): Boolean {
-                    return canPlayerUse.test(player)
-                }
-            }
+            )
             return RecipeHolder(id, recipe)
         }
     }
@@ -91,7 +79,6 @@ public object CraftingRecipeBuilder {
         public var category: CraftingBookCategory = CraftingBookCategory.MISC
         public var group: String = ""
         public var result: ItemStack = ItemStack.EMPTY
-        public var canPlayerUse: Predicate<ServerPlayer> = Predicate { _ -> true }
 
         public fun id(id: ResourceLocation): Shapeless {
             this.id = id
@@ -123,23 +110,14 @@ public object CraftingRecipeBuilder {
             return this
         }
 
-        public fun canPlayerUse(canPlayerUse: Predicate<ServerPlayer>): Shapeless {
-            this.canPlayerUse = canPlayerUse
-            return this
-        }
-
         public fun build(): RecipeHolder<ShapelessRecipe> {
             val id = requireNotNull(this.id)
-            val recipe = object: ShapelessRecipe(
+            val recipe = ShapelessRecipe(
                 this.group,
                 this.category,
                 this.result,
                 this.ingredients,
-            ), PlayerPredicatedRecipe {
-                override fun canUse(player: ServerPlayer): Boolean {
-                    return canPlayerUse.test(player)
-                }
-            }
+            )
             return RecipeHolder(id, recipe)
         }
     }

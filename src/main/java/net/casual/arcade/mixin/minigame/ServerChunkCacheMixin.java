@@ -17,7 +17,7 @@ public class ServerChunkCacheMixin {
 		method = "tickChunks",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/server/ServerTickRateManager;runsNormally()Z"
+			target = "Lnet/minecraft/world/TickRateManager;runsNormally()Z"
 		)
 	)
 	private boolean isTicking(boolean original) {

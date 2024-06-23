@@ -11,12 +11,12 @@ import net.minecraft.world.phys.Vec3
  */
 public interface ArcadeShape: Iterable<Vec3> {
     /**
-     * Returns an iterator with the default step of `10`.
+     * Returns an iterator with the default step of `1`.
      *
      * @return An [Iterator] with elements of [Vec3].
      */
     override fun iterator(): Iterator<Vec3> {
-        return this.iterator(10)
+        return this.iterator(1)
     }
 
     /**

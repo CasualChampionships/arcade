@@ -15,6 +15,7 @@ import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.DisplaySlot
+import java.util.*
 import java.util.function.Consumer
 
 internal object SidebarUtils {
@@ -51,8 +52,8 @@ internal object SidebarUtils {
             this.players[index],
             OBJECTIVE_NAME,
             index,
-            component.display,
-            component.score
+            Optional.ofNullable(component.display),
+            Optional.ofNullable(component.score)
         ))
     }
 

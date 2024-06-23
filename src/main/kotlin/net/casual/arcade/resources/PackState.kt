@@ -7,19 +7,29 @@ package net.casual.arcade.resources
  * Containing the pack that they were last sent and their
  * status on that last sent pack.
  *
- * @param pack The pack that the player was last sent.
+ * @param info The pack that the player was last sent.
  * @param status The current status of the pack.
  */
 public class PackState(
     /**
      * The pack that the player was last sent.
      */
-    public val pack: PackInfo,
+    public val info: PackInfo,
     /**
      * The current status of the pack.
      */
     private var status: PackStatus
 ) {
+    /**
+     * Checks whether the server is still waiting for the client
+     * to respond to the pack status request.
+     *
+     * @return Whether the server is still waiting for the client.
+     */
+    public fun isWaitingForResponse(): Boolean {
+        return this.status == PackStatus.WAITING
+    }
+
     /**
      * Checks whether the player has successfully loaded
      * the pack on their client.
@@ -66,7 +76,7 @@ public class PackState(
         return this.status.hasFailedToLoadPack()
     }
 
-    public fun setStatus(status: PackStatus) {
+    internal fun setStatus(status: PackStatus) {
         this.status = status
     }
 }

@@ -12,11 +12,8 @@ import net.casual.arcade.utils.registries.ArcadeRegistries
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
-import net.fabricmc.loader.impl.lib.sat4j.core.Vec
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
-import net.minecraft.world.phys.AABB
-import net.minecraft.world.phys.Vec3
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.nio.file.Path
@@ -88,7 +85,7 @@ public object Arcade: ModInitializer {
      */
     @JvmStatic
     public fun id(path: String): ResourceLocation {
-        return ResourceLocation(MOD_ID, path)
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path)
     }
 
     override fun onInitialize() {
@@ -104,6 +101,7 @@ public object Arcade: ModInitializer {
         BorderUtils.registerEvents()
         LevelUtils.registerEvents()
         ArcadeConfig.registerEvents()
+        FantasyUtils.registerEvents()
 
         ArcadeCommands.registerCommands()
 

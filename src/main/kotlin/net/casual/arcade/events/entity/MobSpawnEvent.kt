@@ -8,6 +8,6 @@ import net.minecraft.world.entity.SpawnGroupData
 
 public data class MobSpawnEvent(
     override val level: ServerLevel,
-    val mob: Mob,
+    override val entity: Mob,
     val data: SpawnGroupData?
-): CancellableEvent.Default(), LevelEvent
+): CancellableEvent.Default(), EntityEvent

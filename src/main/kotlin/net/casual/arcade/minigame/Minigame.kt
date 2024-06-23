@@ -2,7 +2,8 @@ package net.casual.arcade.minigame
 
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
-import net.casual.arcade.events.EventHandler
+import net.casual.arcade.events.BuiltInEventPhases
+import net.casual.arcade.events.ListenerRegistryImpl
 import net.casual.arcade.events.minigame.*
 import net.casual.arcade.events.player.*
 import net.casual.arcade.events.server.ServerStoppingEvent
@@ -23,15 +24,14 @@ import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.stats.ArcadeStats
 import net.casual.arcade.task.SavableTask
 import net.casual.arcade.utils.EventUtils.broadcast
-import net.casual.arcade.utils.EventUtils.registerHandler
-import net.casual.arcade.utils.EventUtils.unregisterHandler
+import net.casual.arcade.utils.EventUtils.registerProvider
+import net.casual.arcade.utils.EventUtils.unregisterProvider
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.toJsonObject
 import net.casual.arcade.utils.JsonUtils.toJsonStringArray
 import net.casual.arcade.utils.MinigameUtils
 import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.PlayerUtils.getKillCreditWith
-import net.casual.arcade.utils.PlayerUtils.grantAdvancementSilently
 import net.casual.arcade.utils.PlayerUtils.revokeAdvancement
 import net.casual.arcade.utils.StatUtils.increment
 import net.minecraft.resources.ResourceLocation
@@ -50,7 +50,7 @@ import java.util.*
  * has common utilities used in minigames.
  *
  * Each minigame has its own set of [GameSetting]s,
- * has its own [EventHandler], and own [TickedScheduler].
+ * has its own [ListenerRegistryImpl], and own [TickedScheduler].
  * Minigames also provide a way to display the UI to all
  * the currently playing players, through [CustomBossBar]s,
  * [ArcadeSidebar], [ArcadePlayerListDisplay], and [ArcadeNameTag]s.
@@ -335,7 +335,6 @@ public abstract class Minigame<M: Minigame<M>>(
             throw IllegalArgumentException("Cannot set minigame '${this.id}' phase to ${phase.id}")
         }
         this.scheduler.phased.cancelAll()
-        this.events.phasedHandler.clear()
 
         val self = this.cast()
         this.phase.end(self, phase)
@@ -427,22 +426,22 @@ public abstract class Minigame<M: Minigame<M>>(
 
         this.data.end()
 
+        for (level in this.levels.all()) {
+            level.minigame.removeMinigame(this)
+        }
         MinigameCloseEvent(this).broadcast()
         for (player in this.players) {
             this.players.remove(player)
         }
-        for (level in this.levels.all()) {
-            level.minigame.removeMinigame()
-        }
+
         // Closed is true after remove player
         this.closed = true
         if (this.settings.shouldDeleteLevels) {
             this.levels.deleteHandles()
         }
         this.levels.clear()
-        this.events.unregisterHandler()
-        this.events.minigameHandler.clear()
-        this.events.phasedHandler.clear()
+        this.events.unregisterProvider()
+        this.events.clear()
         this.scheduler.minigame.cancelAll()
         this.scheduler.phased.cancelAll()
 
@@ -500,8 +499,6 @@ public abstract class Minigame<M: Minigame<M>>(
 
     /**
      * Starts the minigame.
-     *
-     * This will not run if your minigame restarts.
      */
     public fun start() {
         if (this.started) {
@@ -559,7 +556,8 @@ public abstract class Minigame<M: Minigame<M>>(
      */
     protected open fun initialize() {
         this.registerEvents()
-        this.events.registerHandler()
+        this.events.registerProvider()
+        this.levels.unregisterHandler()
         MinigameUtils.parseMinigameEvents(this)
 
         Minigames.register(this)
@@ -620,8 +618,9 @@ public abstract class Minigame<M: Minigame<M>>(
         this.events.register<PlayerTickEvent> { this.onPlayerTick(it) }
         this.events.register<PlayerJoinEvent> { this.onPlayerJoin(it) }
         this.events.register<PlayerDeathEvent> { this.onPlayerDeath(it) }
-        this.events.register<PlayerDamageEvent>(Int.MAX_VALUE) { this.onPlayerDamage(it) }
-        this.events.register<MinigameAddPlayerEvent>(-1000) { this.onPlayerAdd(it) }
+        this.events.register<PlayerDamageEvent>(1_000, BuiltInEventPhases.POST) { this.onPlayerDamage(it) }
+        this.events.register<PlayerHealEvent>(1_000, BuiltInEventPhases.POST) { this.onPlayerHeal(it) }
+        this.events.register<MinigameAddPlayerEvent>(Int.MAX_VALUE) { this.onPlayerAdd(it) }
         this.events.register<MinigameRemovePlayerEvent>(2000) { this.onPlayerRemove(it) }
         this.events.register<ServerStoppingEvent> { this.onServerStopping() }
     }
@@ -636,9 +635,7 @@ public abstract class Minigame<M: Minigame<M>>(
 
     private fun onPlayerTick(event: PlayerTickEvent) {
         val (player) = event
-        if (this.players.has(player)) {
-            this.stats.getOrCreateStat(player, ArcadeStats.PLAY_TIME).increment()
-        }
+        this.stats.getOrCreateStat(player, ArcadeStats.PLAY_TIME).increment()
     }
 
     private fun onPlayerJoin(event: PlayerJoinEvent) {
@@ -656,23 +653,24 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     private fun onPlayerDamage(event: PlayerDamageEvent) {
-        val (player, _, source) = event
-        val amount = event.resultOrElse { event.amount }
-        this.stats.getOrCreateStat(player, ArcadeStats.DAMAGE_TAKEN).increment(amount)
+        val (player, amount, source) = event
+        if (amount > 0 && amount < 3.4028235E37F) {
+            this.stats.getOrCreateStat(player, ArcadeStats.DAMAGE_TAKEN).increment(amount)
 
-        val attacker = source.entity
-        if (attacker is ServerPlayer && this.players.has(attacker)) {
-            this.stats.getOrCreateStat(attacker, ArcadeStats.DAMAGE_DEALT).increment(amount)
+            val attacker = source.entity
+            if (attacker is ServerPlayer && this.players.has(attacker)) {
+                this.stats.getOrCreateStat(attacker, ArcadeStats.DAMAGE_DEALT).increment(amount)
+            }
         }
+    }
+
+    private fun onPlayerHeal(event: PlayerHealEvent) {
+        val (player, healAmount) = event
+        this.stats.getOrCreateStat(player, ArcadeStats.DAMAGE_HEALED).increment(healAmount)
     }
 
     private fun onPlayerAdd(event: MinigameAddPlayerEvent) {
         this.getResources().sendTo(event.player)
-
-        val advancements = this.data.getAdvancements(event.player)
-        for (advancement in advancements) {
-            event.player.grantAdvancementSilently(advancement)
-        }
     }
 
     private fun onPlayerRemove(event: MinigameRemovePlayerEvent) {
@@ -684,7 +682,7 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     private fun onServerStopping() {
-        if (this.settings.pauseOnServerStop && !this.paused) {
+        if (this.settings.pauseOnServerStop && !this.paused && this.started) {
             this.pause()
         }
     }

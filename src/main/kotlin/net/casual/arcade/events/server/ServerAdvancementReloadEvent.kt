@@ -5,6 +5,7 @@ import net.minecraft.server.ServerAdvancementManager
 import net.minecraft.server.packs.resources.ResourceManager
 import java.util.*
 
+@Deprecated("Use the minigame advancement manager instead!")
 public data class ServerAdvancementReloadEvent(
     val advancementManager: ServerAdvancementManager,
     val resourceManager: ResourceManager

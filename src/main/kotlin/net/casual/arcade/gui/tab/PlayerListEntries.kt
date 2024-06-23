@@ -60,6 +60,14 @@ public interface PlayerListEntries {
             public fun fromComponent(component: Component): Entry {
                 return Entry(Component.empty().append(HIDDEN_PADDING).append(component), Texture.HIDDEN, -1)
             }
+
+            public fun fromComponent(component: Component, player: ServerPlayer, latency: Boolean = true): Entry {
+                return Entry(
+                    component,
+                    Texture.fromProfile(player.gameProfile)!!,
+                    if (latency) player.connection.latency() else -1
+                )
+            }
         }
     }
 

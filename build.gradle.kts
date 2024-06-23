@@ -23,8 +23,8 @@ val fantasyVersion: String by project
 val polymerVersion: String by project
 val permissionsVersion: String by project
 val customNametagsVersion: String by project
-val serverReplayVersion: String by project
 val sguiVersion: String by project
+val serverTranslationsVersion: String by project
 
 allprojects {
     apply(plugin = "fabric-loom")
@@ -74,10 +74,6 @@ allprojects {
         jar {
             from("LICENSE")
         }
-
-        compileKotlin {
-            kotlinOptions.jvmTarget = "17"
-        }
     }
 }
 
@@ -100,8 +96,7 @@ dependencies {
     include(modApi("com.github.senseiwells:CustomNameTags:$customNametagsVersion")!!)
 
     include(modApi("me.lucko:fabric-permissions-api:$permissionsVersion")!!)
-
-    modImplementation("com.github.senseiwells:ServerReplay:$serverReplayVersion")
+    include(modImplementation("xyz.nucleoid:server-translations-api:$serverTranslationsVersion")!!)
 }
 
 loom {
@@ -118,10 +113,6 @@ tasks {
 
     jar {
         from("LICENSE")
-    }
-
-    compileKotlin {
-        kotlinOptions.jvmTarget = "17"
     }
 }
 

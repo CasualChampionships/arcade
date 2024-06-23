@@ -6,10 +6,11 @@ import com.google.gson.JsonObject
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
 import net.minecraft.resources.ResourceLocation
+import java.util.concurrent.ConcurrentHashMap
 
 public class StatTracker {
-    private val unprocessed = HashMap<ResourceLocation, Pair<JsonElement, String>>()
-    private val stats = HashMap<StatType<*>, Stat<*>>()
+    private val unprocessed = ConcurrentHashMap<ResourceLocation, Pair<JsonElement, String>>()
+    private val stats = ConcurrentHashMap<StatType<*>, Stat<*>>()
     private var frozen: Boolean = false
 
     public fun freeze() {
@@ -24,6 +25,17 @@ public class StatTracker {
         for (stat in this.stats.values) {
             stat.frozen = false
         }
+    }
+
+    public fun <T> getStatValueOrDefault(type: StatType<T>): T {
+        val unprocessed = this.unprocessed[type.id]
+        if (unprocessed != null) {
+            return type.serializer.deserialize(unprocessed.first)
+        }
+
+        val stat = this.stats[type] ?: return type.default
+        @Suppress("UNCHECKED_CAST")
+        return (stat as Stat<T>).value
     }
 
     public fun <T> getOrCreateStat(type: StatType<T>): Stat<T> {
@@ -59,7 +71,7 @@ public class StatTracker {
 
     public fun deserialize(stats: JsonArray) {
         for (statData in stats.objects()) {
-            val location = ResourceLocation(statData.string("type"))
+            val location = ResourceLocation.parse(statData.string("type"))
             val value = statData["value"]
             val type = statData.string("value_type")
             this.unprocessed[location] = value to type

@@ -1,6 +1,6 @@
 package net.casual.arcade.utils.serialization
 
-import com.mojang.serialization.Codec
+import com.mojang.serialization.MapCodec
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceLocation
 
@@ -8,10 +8,10 @@ import net.minecraft.resources.ResourceLocation
 public interface CodecProvider<T> {
     public val ID: ResourceLocation
 
-    public val CODEC: Codec<out T>
+    public val CODEC: MapCodec<out T>
 
     public companion object {
-        public fun <T> CodecProvider<out T>.register(registry: Registry<Codec<out T>>) {
+        public fun <T> CodecProvider<out T>.register(registry: Registry<MapCodec<out T>>) {
             Registry.register(registry, this.ID, this.CODEC)
         }
     }

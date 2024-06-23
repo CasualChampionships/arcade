@@ -21,7 +21,7 @@ public class EntityCallbacksMixin {
 		at = @At("HEAD")
 	)
 	private void onTrackEntity(Entity entity, CallbackInfo ci) {
-		EntityStartTrackingEvent event = new EntityStartTrackingEvent(this.field_26936, entity);
+		EntityStartTrackingEvent event = new EntityStartTrackingEvent(entity, this.field_26936);
 		GlobalEventHandler.broadcast(event);
 	}
 
@@ -30,7 +30,7 @@ public class EntityCallbacksMixin {
 		at = @At("HEAD")
 	)
 	private void onStopTrackingEntity(Entity entity, CallbackInfo ci) {
-		EntityStopTrackingEvent event = new EntityStopTrackingEvent(this.field_26936, entity);
+		EntityStopTrackingEvent event = new EntityStopTrackingEvent(entity, this.field_26936);
 		GlobalEventHandler.broadcast(event);
 	}
 }

@@ -5,7 +5,6 @@ import net.casual.arcade.gui.bossbar.CustomBossBar
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.BossEvent
 import java.util.*
 

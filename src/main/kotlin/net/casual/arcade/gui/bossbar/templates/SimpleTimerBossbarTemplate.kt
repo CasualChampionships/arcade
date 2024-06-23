@@ -1,6 +1,7 @@
 package net.casual.arcade.gui.bossbar.templates
 
 import com.mojang.serialization.Codec
+import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.Arcade
 import net.casual.arcade.gui.bossbar.TimerBossBar
@@ -36,7 +37,7 @@ public class SimpleTimerBossbarTemplate(
         }
     }
 
-    override fun codec(): Codec<out TimerBossBarTemplate> {
+    override fun codec(): MapCodec<out TimerBossBarTemplate> {
         return CODEC
     }
 
@@ -45,7 +46,7 @@ public class SimpleTimerBossbarTemplate(
 
         override val ID: ResourceLocation = Arcade.id("simple")
 
-        override val CODEC: Codec<out SimpleTimerBossbarTemplate> = RecordCodecBuilder.create { instance ->
+        override val CODEC: MapCodec<out SimpleTimerBossbarTemplate> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 Codec.STRING.encodedOptionalFieldOf("title", DEFAULT_TITLE).forGetter(SimpleTimerBossbarTemplate::title),
                 ArcadeExtraCodecs.enum<BossBarOverlay>().encodedOptionalFieldOf("overlay", BossBarOverlay.PROGRESS).forGetter(SimpleTimerBossbarTemplate::overlay),

@@ -1,17 +1,14 @@
 package net.casual.arcade.mixin.worldborder;
 
-import net.casual.arcade.ducks.Arcade$SerializableBorder;
+import net.casual.arcade.ducks.SerializableBorder;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.border.WorldBorder;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(WorldBorder.class)
-public abstract class WorldBorderMixin implements Arcade$SerializableBorder {
+public abstract class WorldBorderMixin implements SerializableBorder {
 	@Shadow private double damagePerBlock;
 	@Shadow private double damageSafeZone;
 	@Shadow private int warningBlocks;

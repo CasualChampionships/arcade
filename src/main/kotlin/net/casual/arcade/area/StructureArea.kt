@@ -22,7 +22,14 @@ public class StructureArea(
         val halfY = dimensions.y / 2 + 1
         val halfZ = dimensions.z / 2 + 1
         val corner = BlockPos(this.centre.x - halfX, this.centre.y - halfY, this.centre.z - halfZ)
-        return this.structure.placeInWorld(this.level, corner, corner, StructurePlaceSettings(), RandomSource.create(), Block.UPDATE_CLIENTS)
+        return this.structure.placeInWorld(
+            this.level,
+            corner,
+            corner,
+            StructurePlaceSettings().setKnownShape(true),
+            RandomSource.create(),
+            Block.UPDATE_CLIENTS or Block.UPDATE_KNOWN_SHAPE
+        )
     }
 
     override fun getBoundingBox(): BoundingBox {

@@ -17,7 +17,7 @@ private object LevelSerializer: CaptureSerializer<ResourceKey<Level>, String> {
     }
 
     override fun deserialize(serialized: String): ResourceKey<Level> {
-        return ResourceKey.create(Registries.DIMENSION, ResourceLocation(serialized))
+        return ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(serialized))
     }
 
     private fun readResolve(): Any {

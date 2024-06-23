@@ -1,13 +1,23 @@
 package net.casual.arcade.minigame.managers
 
-import net.casual.arcade.events.minigame.MinigameCloseEvent
-import net.casual.arcade.events.server.ServerAdvancementReloadEvent
+import net.casual.arcade.events.minigame.MinigameAddPlayerEvent
+import net.casual.arcade.events.minigame.MinigameRemovePlayerEvent
+import net.casual.arcade.events.player.PlayerClientboundPacketEvent
+import net.casual.arcade.events.player.PlayerLeaveEvent
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.utils.AdvancementUtils.addAdvancement
-import net.casual.arcade.utils.AdvancementUtils.addAllAdvancements
-import net.casual.arcade.utils.AdvancementUtils.removeAdvancement
+import net.casual.arcade.utils.AdvancementUtils.copyWithoutToast
+import net.casual.arcade.utils.PlayerUtils.grantAdvancementSilently
+import net.casual.arcade.utils.PlayerUtils.revokeAdvancement
 import net.minecraft.advancements.AdvancementHolder
+import net.minecraft.advancements.AdvancementNode
+import net.minecraft.advancements.AdvancementTree
+import net.minecraft.advancements.TreeNodePosition
+import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerPlayer
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
 
 /**
  * This class manages the advancements of a minigame.
@@ -21,15 +31,20 @@ import net.minecraft.resources.ResourceLocation
 public class MinigameAdvancementManager(
     private val minigame: Minigame<*>
 ) {
-    private val advancements = LinkedHashMap<ResourceLocation, AdvancementHolder>()
+    private val tree = AdvancementTree()
+    private val reloaded = HashMap<UUID, Set<ResourceLocation>>()
 
     init {
-        this.minigame.events.register<ServerAdvancementReloadEvent> {
-            it.addAll(this.advancements.values)
+        this.minigame.events.register<MinigameAddPlayerEvent> { event ->
+            this.reloadFor(event.player)
         }
-        this.minigame.events.register<MinigameCloseEvent> {
-            this.removeAll()
+        this.minigame.events.register<MinigameRemovePlayerEvent> { event ->
+            this.unloadFor(event.player)
         }
+        this.minigame.events.register<PlayerLeaveEvent> { (player) ->
+            this.reloaded.remove(player.uuid)
+        }
+        this.minigame.events.register<PlayerClientboundPacketEvent>(this::onPlayerClientboundPacket)
     }
 
     /**
@@ -38,14 +53,12 @@ public class MinigameAdvancementManager(
      * @param advancements The advancements to add.
      */
     public fun addAll(advancements: Collection<AdvancementHolder>) {
-        var modified = false
-        for (advancement in advancements) {
-            if (this.advancements.put(advancement.id, advancement) != advancement) {
-                modified = true
+        this.tree.addAll(advancements)
+
+        for (node in this.tree.roots()) {
+            if (node.holder().value().display().isPresent) {
+                TreeNodePosition.run(node)
             }
-        }
-        if (modified) {
-            this.minigame.server.advancements.addAllAdvancements(advancements)
         }
     }
 
@@ -55,9 +68,9 @@ public class MinigameAdvancementManager(
      * @param advancement The advancement to add.
      */
     public fun add(advancement: AdvancementHolder) {
-        if (this.advancements.put(advancement.id, advancement) != advancement) {
-            this.minigame.server.advancements.addAdvancement(advancement)
-        }
+        this.tree.addAll(listOf(advancement))
+        val node = this.tree.get(advancement) ?: return
+        TreeNodePosition.run(node.root())
     }
 
     /**
@@ -67,31 +80,53 @@ public class MinigameAdvancementManager(
      * @return The advancement or null if it does not exist.
      */
     public fun get(id: ResourceLocation): AdvancementHolder? {
-        return this.advancements[id]
+        return this.getNode(id)?.holder()
     }
 
-    /**
-     * This removes an advancement from the minigame.
-     *
-     * @param advancement The advancement to remove.
-     */
-    public fun remove(advancement: AdvancementHolder) {
-        if (this.advancements.remove(advancement.id) != null) {
-            this.minigame.server.advancements.removeAdvancement(advancement)
-        }
-    }
-
-    /**
-     * This removes all advancements from the minigame.
-     */
-    public fun removeAll() {
-        for (advancement in this.advancements.values) {
-            this.minigame.server.advancements.removeAdvancement(advancement)
-        }
-        this.advancements.clear()
+    public fun getNode(id: ResourceLocation): AdvancementNode? {
+        return this.tree.get(id)
     }
 
     public fun all(): Collection<AdvancementHolder> {
-        return this.advancements.values
+        return this.tree.nodes().map { it.holder() }
+    }
+
+    public fun reloadFor(player: ServerPlayer) {
+        val holders = this.minigame.data.getAdvancements(player.uuid)
+        if (holders.isNotEmpty()) {
+            this.reloaded[player.uuid] = holders.mapTo(HashSet()) { it.id }
+            for (holder in holders) {
+                player.grantAdvancementSilently(holder)
+            }
+        }
+    }
+
+    private fun unloadFor(player: ServerPlayer) {
+        this.reloaded.remove(player.uuid)
+        for (advancement in this.tree.nodes()) {
+            player.revokeAdvancement(advancement.holder())
+        }
+    }
+
+    private fun onPlayerClientboundPacket(event: PlayerClientboundPacketEvent) {
+        val (player, packet) = event
+        if (packet !is ClientboundUpdateAdvancementsPacket) {
+            return
+        }
+
+        val reloaded = this.reloaded.remove(player.uuid) ?: return
+        if (packet.shouldReset()) {
+            return
+        }
+
+        val copy = ArrayList<AdvancementHolder>()
+        for (added in packet.added) {
+            if (!reloaded.contains(added.id)) {
+                copy.add(added)
+                continue
+            }
+            copy.add(added.copyWithoutToast())
+        }
+        event.cancel(ClientboundUpdateAdvancementsPacket(false, copy, packet.removed, packet.progress))
     }
 }

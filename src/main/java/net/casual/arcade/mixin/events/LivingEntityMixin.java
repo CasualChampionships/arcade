@@ -1,18 +1,21 @@
 package net.casual.arcade.mixin.events;
 
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
+import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.player.PlayerBorderDamageEvent;
-import net.casual.arcade.events.player.PlayerLandEvent;
-import net.casual.arcade.events.player.PlayerVoidDamageEvent;
+import net.casual.arcade.events.entity.EntityDeathEvent;
+import net.casual.arcade.events.player.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
@@ -66,5 +69,65 @@ public class LivingEntityMixin {
 			return !event.isCancelled();
 		}
 		return true;
+	}
+
+	@WrapOperation(
+		method = "heal",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/entity/LivingEntity;setHealth(F)V"
+		)
+	)
+	private void onHeal(
+		LivingEntity instance,
+		float health,
+		Operation<Void> original,
+		float healAmount
+	) {
+		if (instance instanceof ServerPlayer player) {
+			PlayerHealEvent event = new PlayerHealEvent(player, healAmount);
+			GlobalEventHandler.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+			if (event.isCancelled()) {
+				return;
+			}
+			original.call(instance, health);
+			GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
+			return;
+		}
+
+		original.call(instance, health);
+	}
+
+	@Inject(
+		method = "die",
+		at = @At("HEAD")
+	)
+	private void onDeathPre(DamageSource source, CallbackInfo ci) {
+		EntityDeathEvent event = new EntityDeathEvent((LivingEntity) (Object) this, source);
+		GlobalEventHandler.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+	}
+
+	@Inject(
+		method = "die",
+		at = @At("TAIL")
+	)
+	private void onDeathPost(DamageSource source, CallbackInfo ci) {
+		EntityDeathEvent event = new EntityDeathEvent((LivingEntity) (Object) this, source);
+		GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
+	}
+
+	@Inject(
+		method = "checkTotemDeathProtection",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/level/Level;broadcastEntityEvent(Lnet/minecraft/world/entity/Entity;B)V",
+			shift = At.Shift.AFTER
+		)
+	)
+	private void onEntityPoppedTotem(DamageSource source, CallbackInfoReturnable<Boolean> cir) {
+		if ((Object) this instanceof ServerPlayer player) {
+			PlayerTotemEvent event = new PlayerTotemEvent(player, source);
+			GlobalEventHandler.broadcast(event);
+		}
 	}
 }

@@ -8,6 +8,7 @@ import net.minecraft.ChatFormatting.DARK_GRAY
 import net.minecraft.ChatFormatting.WHITE
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.scores.PlayerTeam
 
 public fun interface PlayerChatFormatter {
     public fun format(player: ServerPlayer, message: Component): PlayerFormattedChat
@@ -36,14 +37,6 @@ public fun interface PlayerChatFormatter {
             }
         }
 
-        public val TEAM: PlayerChatFormatter = PlayerChatFormatter { player, message ->
-            val team = player.team
-            val colour = if (team == null) WHITE else team.color
-            val prefix = Component.empty().append("[⚐] ".literal().withStyle(colour))
-            prefix.append(player.getChatPrefix(false))
-            PlayerFormattedChat(message, prefix)
-        }
-
         public val SPECTATOR: PlayerChatFormatter = PlayerChatFormatter { player, message ->
             val prefix = Component.empty().append("[\uD83D\uDD76] ".literal().withStyle(DARK_GRAY))
             prefix.append(player.getChatPrefix(false))
@@ -54,6 +47,18 @@ public fun interface PlayerChatFormatter {
             val prefix = Component.empty().append("[\uD83D\uDC64] ".literal().red())
             prefix.append(player.getChatPrefix(false))
             PlayerFormattedChat(message, prefix)
+        }
+
+        public val TEAM: PlayerChatFormatter = createTeamFormatter()
+
+        public fun createTeamFormatter(supplier: (ServerPlayer) -> PlayerTeam? = ServerPlayer::getTeam): PlayerChatFormatter {
+            return PlayerChatFormatter { player, message ->
+                val team = supplier.invoke(player)
+                val colour = if (team == null) WHITE else team.color
+                val prefix = Component.empty().append("[⚐] ".literal().withStyle(colour))
+                prefix.append(player.getChatPrefix(false))
+                PlayerFormattedChat(message, prefix)
+            }
         }
     }
 }

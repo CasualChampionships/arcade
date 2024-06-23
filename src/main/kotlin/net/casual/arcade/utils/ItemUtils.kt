@@ -1,37 +1,51 @@
 package net.casual.arcade.utils
 
+import com.mojang.authlib.GameProfile
+import com.mojang.authlib.properties.Property
+import com.mojang.authlib.properties.PropertyMap
 import net.casual.arcade.utils.ComponentUtils.literal
-import net.casual.arcade.utils.ComponentUtils.unitalicise
 import net.minecraft.ChatFormatting
-import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.core.Holder
+import net.minecraft.core.component.DataComponents
 import net.minecraft.nbt.*
 import net.minecraft.network.chat.Component
-import net.minecraft.world.item.*
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.util.Unit
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import net.minecraft.world.item.alchemy.Potion
-import net.minecraft.world.item.alchemy.PotionUtils
+import net.minecraft.world.item.alchemy.PotionContents
+import net.minecraft.world.item.component.CustomData
+import net.minecraft.world.item.component.ItemAttributeModifiers
+import net.minecraft.world.item.component.ItemLore
+import net.minecraft.world.item.component.ResolvableProfile
 import net.minecraft.world.item.enchantment.Enchantment
 import net.minecraft.world.item.enchantment.EnchantmentHelper
-import net.minecraft.world.item.enchantment.EnchantmentInstance
+import net.minecraft.world.level.block.LightBlock
+import java.util.*
 
 public object ItemUtils {
     @JvmStatic
     public fun Item.named(text: Component): ItemStack {
-        return this.defaultInstance.setHoverName(text)
+        return ItemStack(this).named(text)
     }
 
     @JvmStatic
     public fun Item.named(name: String): ItemStack {
-        return this.defaultInstance.named(name)
+        return ItemStack(this).named(name)
     }
 
     @JvmStatic
     public fun ItemStack.named(text: Component): ItemStack {
-        return this.setHoverName(text.copy())
+        this.set(DataComponents.ITEM_NAME, text)
+        return this
     }
 
     @JvmStatic
     public fun ItemStack.named(name: String): ItemStack {
-        return this.setHoverName(name.literal().unitalicise())
+        this.set(DataComponents.ITEM_NAME, name.literal())
+        return this
     }
 
     @JvmStatic
@@ -40,132 +54,193 @@ public object ItemUtils {
     }
 
     @JvmStatic
-    public fun ItemStack.setLore(vararg lore: Component): ItemStack {
-        val list = ListTag()
-        for (component in lore) {
-            list.add(StringTag.valueOf(Component.Serializer.toJson(component)))
-        }
-        val display = this.getOrCreateTagElement(ItemStack.TAG_DISPLAY)
-        display.put(ItemStack.TAG_LORE, list)
+    public fun ItemStack.styledLore(vararg lore: Component): ItemStack {
+        this.set(DataComponents.LORE, ItemLore(lore.toList()))
         return this
     }
 
     @JvmStatic
-    public fun ItemStack.setLore(lore: Iterable<Component>): ItemStack {
-        val list = ListTag()
-        for (component in lore) {
-            list.add(StringTag.valueOf(Component.Serializer.toJson(component)))
-        }
-        val display = this.getOrCreateTagElement(ItemStack.TAG_DISPLAY)
-        display.put(ItemStack.TAG_LORE, list)
+    public fun ItemStack.styledLore(lore: List<Component>): ItemStack {
+        this.set(DataComponents.LORE, ItemLore(lore))
         return this
     }
 
     @JvmStatic
-    public fun ItemStack.hideTooltips(): ItemStack {
-        for (part in ItemStack.TooltipPart.entries) {
-            this.hideTooltipPart(part)
+    public fun ItemStack.lore(vararg lore: Component): ItemStack {
+        val list = lore.toList()
+        this.set(DataComponents.LORE, ItemLore(list, list))
+        return this
+    }
+
+    @JvmStatic
+    public fun ItemStack.lore(lore: List<Component>): ItemStack {
+        this.set(DataComponents.LORE, ItemLore(lore, lore))
+        return this
+    }
+
+    @JvmStatic
+    public fun ItemStack.hideTooltip(): ItemStack {
+        this.set(DataComponents.HIDE_TOOLTIP, Unit.INSTANCE)
+        return this
+    }
+
+    @JvmStatic
+    public fun ItemStack.hideAttributeTooltips(): ItemStack {
+        val modifiers = this.get(DataComponents.ATTRIBUTE_MODIFIERS)
+        if (modifiers != null && modifiers.showInTooltip) {
+            this.set(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers(modifiers.modifiers, false))
         }
         return this
     }
 
     @JvmStatic
+    public fun ItemStack.hideTrimTooltips(): ItemStack {
+        val trim = this.get(DataComponents.TRIM)
+        if (trim != null) {
+            this.set(DataComponents.TRIM, trim.withTooltip(false))
+        }
+        return this
+    }
+
+    @JvmStatic
+    @Deprecated("Use DataComponents")
     public fun ItemStack.putElement(key: String, tag: Tag): ItemStack {
-        this.addTagElement(key, tag)
+        CustomData.update(DataComponents.CUSTOM_DATA, this) { compound ->
+            compound.put(key, tag)
+        }
         return this
     }
 
     @JvmStatic
+    @Deprecated("Use DataComponents")
     public fun ItemStack.putIntElement(key: String, int: Int): ItemStack {
         return this.putElement(key, IntTag.valueOf(int))
     }
 
     @JvmStatic
+    @Deprecated("Use DataComponents")
     public fun ItemStack.putByteElement(key: String, byte: Byte): ItemStack {
         return this.putElement(key, ByteTag.valueOf(byte))
     }
 
     @JvmStatic
+    @Deprecated("Use DataComponents")
     public fun ItemStack.putShortElement(key: String, short: Short): ItemStack {
         return this.putElement(key, ShortTag.valueOf(short))
     }
 
     @JvmStatic
+    @Deprecated("Use DataComponents")
     public fun ItemStack.putLongElement(key: String, long: Long): ItemStack {
         return this.putElement(key, LongTag.valueOf(long))
     }
 
     @JvmStatic
+    @Deprecated("Use DataComponents")
     public fun ItemStack.putFloatElement(key: String, float: Float): ItemStack {
         return this.putElement(key, FloatTag.valueOf(float))
     }
 
     @JvmStatic
+    @Deprecated("Use DataComponents")
     public fun ItemStack.putDoubleElement(key: String, double: Double): ItemStack {
         return this.putElement(key, DoubleTag.valueOf(double))
     }
 
     @JvmStatic
+    @Deprecated("Use DataComponents")
     public fun ItemStack.putStringElement(key: String, string: String): ItemStack {
         return this.putElement(key, StringTag.valueOf(string))
     }
 
     @JvmStatic
-    public fun ItemStack.potion(potion: Potion): ItemStack {
-        return PotionUtils.setPotion(this, potion)
+    public fun light(level: Int): ItemStack {
+        return LightBlock.setLightOnStack(ItemStack(Items.LIGHT), level)
+    }
+
+    @JvmStatic
+    public fun ItemStack.potion(potion: Holder<Potion>): ItemStack {
+        this.set(DataComponents.POTION_CONTENTS, PotionContents(potion))
+        return this
+    }
+
+    @JvmStatic
+    public fun ItemStack.hasGlint(): Boolean {
+        return this.get(DataComponents.ENCHANTMENT_GLINT_OVERRIDE) ?: false
     }
 
     @JvmStatic
     public fun ItemStack.enableGlint(): ItemStack {
-        val tag = this.getOrCreateTag()
-        val enchants = ListTag()
-        enchants.add(CompoundTag())
-        tag.put(ItemStack.TAG_ENCH, enchants)
+        this.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true)
         return this
     }
 
     @JvmStatic
-    public fun ItemStack.addEnchantment(enchantment: Enchantment, level: Int): ItemStack {
-        val id = BuiltInRegistries.ENCHANTMENT.getKey(enchantment) ?: return this
-        val enchants = this.enchantmentTags
-        enchants.add(EnchantmentHelper.storeEnchantment(id, level))
-        this.addTagElement(ItemStack.TAG_ENCH, enchants)
-        if (this.`is`(Items.ENCHANTED_BOOK)) {
-            EnchantedBookItem.addEnchantment(this, EnchantmentInstance(enchantment, level))
-        }
+    public fun ItemStack.disableGlint(): ItemStack {
+        this.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, false)
         return this
+    }
+
+    @JvmStatic
+    public fun ItemStack.addEnchantment(enchantment: Holder<Enchantment>, level: Int): ItemStack {
+        var stack = this
+        if (this.isOf(Items.BOOK)) {
+            val copy = this.transmuteCopy(Items.ENCHANTED_BOOK, this.count)
+            copy.set(DataComponents.STORED_ENCHANTMENTS, this.remove(DataComponents.ENCHANTMENTS))
+            stack = copy
+        }
+
+        EnchantmentHelper.updateEnchantments(stack) { mutable ->
+            mutable.set(enchantment, level)
+        }
+        return stack
     }
 
     @JvmStatic
     public fun ItemStack.removeEnchantments(): ItemStack {
-        this.removeTagKey(ItemStack.TAG_ENCH)
+        EnchantmentHelper.updateEnchantments(this) { mutable ->
+            mutable.keySet().clear()
+        }
         return this
     }
 
     @JvmStatic
-    public fun generatePlayerHead(playerName: String, texture: String? = null): ItemStack {
-        val compound = CompoundTag()
-        compound.putString("id", "player_head")
-        compound.putByte("Count", 1.toByte())
-        if (texture != null) {
-            val skullData = CompoundTag()
-            skullData.putString("Name", playerName)
-            val textureCompound = CompoundTag()
-            textureCompound.putString("Value", texture)
-            val textures = ListTag()
-            textures.add(textureCompound)
-            val properties = CompoundTag()
-            properties.put("textures", textures)
-            skullData.put("Properties", properties)
-            val playerData = CompoundTag()
-            playerData.put(PlayerHeadItem.TAG_SKULL_OWNER, skullData)
-            compound.put("tag", playerData)
-        } else {
-            val playerData = CompoundTag()
-            playerData.putString(PlayerHeadItem.TAG_SKULL_OWNER, playerName)
-            compound.put("tag", playerData)
-        }
-        return ItemStack.of(compound)
+    public fun createTexturedHead(texture: String): ItemStack {
+        val stack = ItemStack(Items.PLAYER_HEAD)
+        val properties = PropertyMap()
+        properties.put("textures", Property("textures", texture))
+        val profile = ResolvableProfile(Optional.empty(), Optional.empty(), properties)
+
+        stack.set(DataComponents.PROFILE, profile)
+        return stack
+    }
+
+    @JvmStatic
+    public fun createPlayerHead(name: String): ItemStack {
+        val stack = ItemStack(Items.PLAYER_HEAD)
+        val profile = ResolvableProfile(Optional.of(name), Optional.empty(), PropertyMap())
+        stack.set(DataComponents.PROFILE, profile)
+        return stack
+    }
+
+    @JvmStatic
+    public fun createPlayerHead(uuid: UUID): ItemStack {
+        val stack = ItemStack(Items.PLAYER_HEAD)
+        val profile = ResolvableProfile(Optional.empty(), Optional.of(uuid), PropertyMap())
+        stack.set(DataComponents.PROFILE, profile)
+        return stack
+    }
+
+    @JvmStatic
+    public fun createPlayerHead(profile: GameProfile): ItemStack {
+        val stack = ItemStack(Items.PLAYER_HEAD)
+        stack.set(DataComponents.PROFILE, ResolvableProfile(profile))
+        return stack
+    }
+
+    @JvmStatic
+    public fun createPlayerHead(player: ServerPlayer): ItemStack {
+        return this.createPlayerHead(player)
     }
 
     @JvmStatic
@@ -188,7 +263,8 @@ public object ItemUtils {
             ChatFormatting.YELLOW -> HeadTextures.YELLOW
             else -> HeadTextures.WHITE
         }
-        val item = generatePlayerHead("Dummy", texture)
-        return item.setHoverName(formatting.getName().literal().unitalicise())
+        val stack = createTexturedHead(texture)
+        stack.set(DataComponents.ITEM_NAME, formatting.getName().literal())
+        return stack
     }
 }

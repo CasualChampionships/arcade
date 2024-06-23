@@ -1,5 +1,8 @@
 package net.casual.arcade.minigame.managers
 
+import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.SingleListenerProvider
+import net.casual.arcade.events.server.ServerStoppingEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.MinigameUtils.minigame
 import net.minecraft.core.BlockPos
@@ -21,6 +24,12 @@ public class MinigameLevelManager(
 ) {
     private val handles = HashSet<RuntimeWorldHandle>()
     private val levels = HashSet<ServerLevel>()
+
+    private val handler = SingleListenerProvider.of<ServerStoppingEvent> { this.deleteHandles() }
+
+    init {
+        GlobalEventHandler.addProvider(this.handler)
+    }
 
     /**
      * The default spawn location for the minigame.
@@ -82,6 +91,10 @@ public class MinigameLevelManager(
     internal fun clear() {
         this.levels.clear()
         this.handles.clear()
+    }
+
+    internal fun unregisterHandler() {
+        GlobalEventHandler.removeProvider(this.handler)
     }
 
     public interface SpawnLocation {

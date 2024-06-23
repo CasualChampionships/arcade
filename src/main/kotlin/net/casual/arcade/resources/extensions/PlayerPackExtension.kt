@@ -9,10 +9,13 @@ import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import kotlin.jvm.optionals.getOrNull
 
 internal class PlayerPackExtension: Extension {
-    internal val futures = HashMap<UUID, MutableList<CompletableFuture<PackStatus>>>()
+    internal val futures = HashMap<UUID, CompletableFuture<PackStatus>>()
     private val packs = HashMap<UUID, PackState>()
+
+    internal var allLoadedFuture = CompletableFuture<Void>()
 
     internal fun getPackState(uuid: UUID): PackState? {
         return this.packs[uuid]
@@ -23,9 +26,10 @@ internal class PlayerPackExtension: Extension {
     }
 
     internal fun addFuture(uuid: UUID): CompletableFuture<PackStatus> {
-        val future = CompletableFuture<PackStatus>()
-        this.futures.getOrPut(uuid) { ArrayList() }.add(future)
-        return future
+        if (this.allLoadedFuture.isDone) {
+            this.allLoadedFuture = CompletableFuture()
+        }
+        return this.futures.getOrPut(uuid) { CompletableFuture() }
     }
 
     internal fun onPackStatus(uuid: UUID, status: PackStatus) {
@@ -33,7 +37,8 @@ internal class PlayerPackExtension: Extension {
             if (this.packs.remove(uuid) != null) {
                 Arcade.logger.warn("Client removed resource pack without server telling it to!")
             }
-            this.futures.remove(uuid)?.forEach { it.complete(status) }
+            this.futures.remove(uuid)?.complete(status)
+            this.checkAllFutures()
             return
         }
         val state = this.packs[uuid]
@@ -44,14 +49,17 @@ internal class PlayerPackExtension: Extension {
         state.setStatus(status)
 
         if (!status.isLoadingPack()) {
-            this.futures.remove(uuid)?.forEach { it.complete(status) }
+            this.futures[uuid]?.complete(status)
+            this.checkAllFutures()
         }
     }
 
     internal fun onPushPack(packet: ClientboundResourcePackPushPacket) {
-        val info = PackInfo(packet.url, packet.hash, packet.required, packet.prompt, packet.id)
+        val info = PackInfo(packet.url, packet.hash, packet.required, packet.prompt.getOrNull(), packet.id)
         val state = PackState(info, PackStatus.WAITING)
         this.packs[info.uuid] = state
+
+        this.addFuture(packet.id)
     }
 
     internal fun onPopPack(packet: ClientboundResourcePackPopPacket) {
@@ -61,5 +69,14 @@ internal class PlayerPackExtension: Extension {
             return
         }
         this.packs.remove(uuid.get())
+    }
+
+    private fun checkAllFutures() {
+        for (future in this.futures.values) {
+            if (!future.isDone) {
+                return
+            }
+        }
+        this.allLoadedFuture.complete(null)
     }
 }

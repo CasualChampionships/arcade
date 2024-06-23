@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.Entity
 import java.util.function.Consumer
 
 /**
@@ -52,15 +53,18 @@ public class ArcadeNameTag(
     override val updateInterval: Int
         get() = this.interval
 
-    override fun getComponent(player: ServerPlayer): Component {
-        return this.tag.get(player)
+    override fun getComponent(entity: Entity): Component {
+        if (entity !is ServerPlayer) {
+            throw IllegalArgumentException("Cannot get ArcadeNameTag component for non-player!")
+        }
+        return this.tag.get(entity)
     }
 
     override fun getShift(): ShiftHeight {
-        return ShiftHeight.Medium
+        return ShiftHeight.SMALL
     }
 
-    override fun isObservable(observee: ServerPlayer, observer: ServerPlayer): Boolean {
+    override fun isObservable(observee: Entity, observer: ServerPlayer): Boolean {
         return this.observable.observable(observee, observer)
     }
 

@@ -1,7 +1,7 @@
 package net.casual.arcade.border
 
 import net.casual.arcade.border.state.*
-import net.casual.arcade.ducks.`Arcade$SerializableBorder`
+import net.casual.arcade.ducks.SerializableBorder
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.border.BorderChangeListener
@@ -51,11 +51,19 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
     }
 
     override fun setCenter(x: Double, z: Double) {
+        this.setCenterUntracked(x, z)
+    }
+
+    public fun setCenterUntracked(x: Double, z: Double) {
         this.centerState = StillCenterBorderState(x, z)
         this.changeCenter(x, z)
     }
 
     public open fun lerpCenterBetween(fromX: Double, fromZ: Double, toX: Double, toZ: Double, time: Long) {
+        this.lerpCenterBetweenUntracked(fromX, fromZ, toX, toZ, time)
+    }
+
+    public open fun lerpCenterBetweenUntracked(fromX: Double, fromZ: Double, toX: Double, toZ: Double, time: Long) {
         this.centerState = MovingCenterBorderState(this, fromX, fromZ, toX, toZ, time)
     }
 
@@ -80,6 +88,10 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
     }
 
     override fun setSize(size: Double) {
+        this.setSizeUntracked(size)
+    }
+
+    public fun setSizeUntracked(size: Double) {
         this.borderState = StillBorderState(this, size)
 
         for (borderChangeListener in listeners) {
@@ -88,6 +100,10 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
     }
 
     override fun lerpSizeBetween(start: Double, end: Double, time: Long) {
+        this.lerpSizeBetweenUntracked(start, end, time)
+    }
+
+    public fun lerpSizeBetweenUntracked(start: Double, end: Double, time: Long) {
         if (start == end) {
             this.size = end
             return
@@ -128,16 +144,24 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
         }
     }
 
-    override fun serialize(): CompoundTag {
-        // This essentially calls super.serialize() (WorldBorer#serialize())
-        val compound =  (this as `Arcade$SerializableBorder`).`arcade$serialize`()
+    override fun `arcade$serialize`(): CompoundTag {
+        val compound = CompoundTag()
+        compound.putDouble("center_x", this.centerX)
+        compound.putDouble("center_z", this.centerZ)
+        compound.putDouble("size", this.size)
+        compound.putDouble("damage_safe_zone", this.damageSafeZone)
+        compound.putDouble("damage_per_block", this.damagePerBlock)
+        compound.putLong("lerp_time", this.lerpRemainingTime)
+        compound.putDouble("lerp_target", this.lerpTarget)
+        compound.putInt("warning_blocks", this.warningBlocks)
+        compound.putInt("warning_time", this.warningTime)
         compound.putLong("center_lerp_time", this.centerState.getLerpRemainingTime())
         compound.putDouble("center_lerp_target_x", this.centerState.getTargetCenterX())
         compound.putDouble("center_lerp_target_z", this.centerState.getTargetCenterZ())
         return compound
     }
 
-    override fun deserialize(compound: CompoundTag) {
+    override fun `arcade$deserialize`(compound: CompoundTag) {
         this.damagePerBlock = compound.getDouble("damage_per_block")
         this.damageSafeZone = compound.getDouble("damage_safe_zone")
         this.warningBlocks = compound.getInt("warning_blocks")
@@ -145,16 +169,16 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
         val remaining = compound.getLong("lerp_time")
         val size = compound.getDouble("size")
         if (remaining > 0L) {
-            this.lerpSizeBetween(size, compound.getDouble("lerp_target"), remaining)
+            this.lerpSizeBetweenUntracked(size, compound.getDouble("lerp_target"), remaining)
         } else {
-            setSize(size)
+            this.setSizeUntracked(size)
         }
 
         val centerRemaining = compound.getLong("center_lerp_time")
         val centerX = compound.getDouble("center_x")
         val centerZ = compound.getDouble("center_z")
         if (centerRemaining > 0L) {
-            this.lerpCenterBetween(
+            this.lerpCenterBetweenUntracked(
                 centerX,
                 centerZ,
                 compound.getDouble("center_lerp_target_x"),
@@ -162,7 +186,7 @@ public abstract class ArcadeBorder: WorldBorder(), SerializableBorder {
                 compound.getLong("center_lerp_time")
             )
         } else {
-            this.setCenter(centerX, centerZ)
+            this.setCenterUntracked(centerX, centerZ)
         }
     }
 }

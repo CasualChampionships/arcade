@@ -1,6 +1,6 @@
 package net.casual.arcade.mixin.events;
 
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.*;
 import net.minecraft.server.level.ServerPlayer;

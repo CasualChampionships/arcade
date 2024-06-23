@@ -10,9 +10,10 @@ import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 public class MinigameStatManager {
-    private val stats = HashMap<UUID, StatTracker>()
+    private val stats = ConcurrentHashMap<UUID, StatTracker>()
     private var frozen: Boolean = false
 
     public fun freeze() {
@@ -30,7 +31,17 @@ public class MinigameStatManager {
     }
 
     public fun <T> getOrCreateStat(player: ServerPlayer, type: StatType<T>): Stat<T> {
-        return this.getOrCreateTracker(player.uuid).getOrCreateStat(type)
+        return this.getOrCreateStat(player.uuid, type)
+    }
+
+    public fun <T> getOrCreateStat(uuid: UUID, type: StatType<T>): Stat<T> {
+        return this.getOrCreateTracker(uuid).getOrCreateStat(type)
+    }
+
+    public fun getOrCreateTracker(uuid: UUID): StatTracker {
+        return this.stats.getOrPut(uuid) {
+            StatTracker().also { if (this.frozen) it.freeze() }
+        }
     }
 
     public fun serialize(): JsonArray {
@@ -56,12 +67,6 @@ public class MinigameStatManager {
         for (tracker in array.objects()) {
             val uuid = UUID.fromString(tracker.string("uuid"))
             this.getOrCreateTracker(uuid).deserialize(tracker.array("stats"))
-        }
-    }
-
-    private fun getOrCreateTracker(uuid: UUID): StatTracker {
-        return this.stats.getOrPut(uuid) {
-            StatTracker().also { if (this.frozen) it.freeze() }
         }
     }
 }

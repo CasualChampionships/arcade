@@ -5,6 +5,7 @@ import net.minecraft.world.item.crafting.RecipeHolder
 import net.minecraft.world.item.crafting.RecipeManager
 import java.util.*
 
+@Deprecated("Use the minigame recipe manager instead!")
 public data class ServerRecipeReloadEvent(
     val recipeManager: RecipeManager,
     val resourceManager: ResourceManager

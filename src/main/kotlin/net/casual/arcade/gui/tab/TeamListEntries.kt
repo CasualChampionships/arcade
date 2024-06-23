@@ -6,12 +6,13 @@ import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.colour
 import net.casual.arcade.utils.ComponentUtils.italicise
 import net.casual.arcade.utils.ComponentUtils.literal
-import net.casual.arcade.utils.PlayerUtils
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Team
+import kotlin.math.max
 
 public open class TeamListEntries: PlayerListEntries {
     private val entries = Array(20) { Array(4) { this.getEmptyEntry() } }
@@ -31,7 +32,7 @@ public open class TeamListEntries: PlayerListEntries {
 
         var previousRow = 0
         for (teams in Iterables.partition(this.getTeams(server), 4)) {
-            val max = teams.maxOf { it.players.size }
+            var most = 0
             for ((column, team) in teams.withIndex()) {
                 var row = previousRow
                 if (row !in this.entries.indices) {
@@ -39,15 +40,22 @@ public open class TeamListEntries: PlayerListEntries {
                 }
                 this.entries[row++][column] = this.createTeamEntry(server, team)
 
-                for (username in team.players) {
+                val teammates = this.getTeammates(team)
+                most = max(teammates.size, most)
+                for (username in teammates) {
                     if (row !in this.entries.indices) {
                         break
                     }
-                    this.entries[row++][column] = this.createPlayerEntry(server, username, team)
+                    val player = server.playerList.getPlayerByName(username)
+                    this.entries[row++][column] = this.createPlayerEntry(server, username, team, player)
                 }
             }
-            previousRow += max + 2
+            previousRow += most + 2
         }
+    }
+
+    protected open fun getTeammates(team: PlayerTeam): MutableCollection<String> {
+        return team.players
     }
 
     protected open fun getEmptyEntry(): PlayerListEntries.Entry {
@@ -62,19 +70,24 @@ public open class TeamListEntries: PlayerListEntries {
         return PlayerListEntries.Entry.fromComponent(this.formatTeamName(server, team))
     }
 
-    protected open fun formatPlayerName(server: MinecraftServer, username: String, team: PlayerTeam): MutableComponent {
+    protected open fun createPlayerEntry(
+        server: MinecraftServer,
+        username: String,
+        team: PlayerTeam,
+        player: ServerPlayer?
+    ): PlayerListEntries.Entry {
         val head = PlayerHeadComponents.getHeadOrDefault(username)
-        val player = PlayerUtils.player(username)
         val name = when {
             player == null -> username.literal().colour(0x808080)
             player.isSpectator -> username.literal().withStyle(team.color).italicise()
             else -> username.literal().withStyle(team.color)
         }
-        return Component.empty().append(head).append(ComponentUtils.space(2)).append(name)
-    }
-
-    protected open fun createPlayerEntry(server: MinecraftServer, username: String, team: PlayerTeam): PlayerListEntries.Entry {
-        return PlayerListEntries.Entry.fromComponent(this.formatPlayerName(server, username, team))
+        if (player != null) {
+            return PlayerListEntries.Entry.fromComponent(name, player)
+        }
+        return PlayerListEntries.Entry.fromComponent(
+            Component.empty().append(head).append(ComponentUtils.space(2)).append(name)
+        )
     }
 
     protected open fun getTeams(server: MinecraftServer): Collection<PlayerTeam> {

@@ -67,7 +67,7 @@ public class MinigameTagManager(
             val tags = json.array("tags").strings()
             val set = this.players.getOrPut(uuid) { ObjectOpenHashSet() }
             for (tag in tags) {
-                set.add(ResourceLocation(tag))
+                set.add(ResourceLocation.parse(tag))
             }
         }
     }

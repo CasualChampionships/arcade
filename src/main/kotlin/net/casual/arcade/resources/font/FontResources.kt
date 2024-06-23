@@ -29,7 +29,7 @@ public abstract class FontResources(
     }
 
     protected fun at(path: String): ResourceLocation {
-        return ResourceLocation(this.id.namespace, "font/$path")
+        return ResourceLocation.fromNamespaceAndPath(this.id.namespace, "font/$path")
     }
 
     internal fun getJson(): String {

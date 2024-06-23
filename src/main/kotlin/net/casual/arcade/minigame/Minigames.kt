@@ -1,5 +1,6 @@
 package net.casual.arcade.minigame
 
+import com.google.common.collect.LinkedHashMultimap
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
@@ -30,7 +31,7 @@ public object Minigames {
     private val PATH = Arcade.path.resolve("minigames.json")
 
     private val ALL = LinkedHashMap<UUID, Minigame<*>>()
-    private val BY_ID = LinkedHashMap<ResourceLocation, ArrayList<Minigame<*>>>()
+    private val BY_ID = LinkedHashMultimap.create<ResourceLocation, Minigame<*>>()
     private val FACTORIES_BY_ID = LinkedHashMap<ResourceLocation, MinigameFactory>()
 
     /**
@@ -97,21 +98,21 @@ public object Minigames {
      * @return All the minigames with the given id.
      */
     public fun get(id: ResourceLocation): List<Minigame<*>> {
-        return Collections.unmodifiableList(this.BY_ID[id] ?: return emptyList())
+        return this.BY_ID.get(id).toList()
     }
 
-    internal fun allById(): Map<ResourceLocation, ArrayList<Minigame<*>>> {
-        return this.BY_ID
+    internal fun allById(): Map<ResourceLocation, Collection<Minigame<*>>> {
+        return this.BY_ID.asMap()
     }
 
     internal fun register(minigame: Minigame<*>) {
         this.ALL[minigame.uuid] = minigame
-        this.BY_ID.getOrPut(minigame.id) { ArrayList() }.add(minigame)
+        this.BY_ID.put(minigame.id, minigame)
     }
 
     internal fun unregister(minigame: Minigame<*>) {
         this.ALL.remove(minigame.uuid)
-        this.BY_ID[minigame.id]?.removeIf { it.uuid == minigame.uuid }
+        this.BY_ID[minigame.id].remove(minigame)
     }
 
     internal fun registerEvents() {
@@ -130,7 +131,7 @@ public object Minigames {
             return
         }
         for (game in games) {
-            val id = ResourceLocation(game.string("id"))
+            val id = ResourceLocation.parse(game.string("id"))
             val factory = FACTORIES_BY_ID[id]
             if (factory == null) {
                 Arcade.logger.warn("Failed to reload minigame with id $id, no factory found!")

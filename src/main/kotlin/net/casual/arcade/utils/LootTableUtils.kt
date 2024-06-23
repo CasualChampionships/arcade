@@ -1,5 +1,6 @@
 package net.casual.arcade.utils
 
+import net.minecraft.core.HolderLookup
 import net.minecraft.world.level.ItemLike
 import net.minecraft.world.level.storage.loot.LootPool
 import net.minecraft.world.level.storage.loot.LootTable
@@ -58,11 +59,11 @@ public object LootTableUtils {
         this.apply(SetItemDamageFunction.setDamage(provider))
     }
 
-    public fun LootPoolSingletonContainer.Builder<*>.enchant() {
-        this.apply(EnchantRandomlyFunction.randomApplicableEnchantment())
+    public fun LootPoolSingletonContainer.Builder<*>.enchant(lookup: HolderLookup.Provider) {
+        this.apply(EnchantRandomlyFunction.randomApplicableEnchantment(lookup))
     }
 
-    public fun LootPoolSingletonContainer.Builder<*>.enchant(levels: NumberProvider) {
-        this.apply(EnchantWithLevelsFunction.enchantWithLevels(levels))
+    public fun LootPoolSingletonContainer.Builder<*>.enchant(lookup: HolderLookup.Provider, levels: NumberProvider) {
+        this.apply(EnchantWithLevelsFunction.enchantWithLevels(lookup, levels))
     }
 }

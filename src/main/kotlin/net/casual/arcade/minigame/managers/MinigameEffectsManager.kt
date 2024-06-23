@@ -8,6 +8,7 @@ import net.casual.arcade.events.player.PlayerDimensionChangeEvent
 import net.casual.arcade.events.player.PlayerRespawnEvent
 import net.casual.arcade.gui.predicate.EntityObserverPredicate
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.annotation.ListenerFlags
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
 import net.minecraft.network.syncher.SynchedEntityData.DataValue
@@ -32,9 +33,9 @@ public class MinigameEffectsManager(
     private var invisible = EntityObserverPredicate.never()
 
     init {
-        this.owner.events.register<PlayerClientboundPacketEvent> { this.onPlayerPacket(it) }
+        this.owner.events.register<PlayerClientboundPacketEvent>(1_000, flags = ListenerFlags.HAS_PLAYER) { this.onPlayerPacket(it) }
+        this.owner.events.register<PlayerDimensionChangeEvent>(1_000, flags = ListenerFlags.HAS_PLAYER) { this.updatePlayerFullbright(it.player) }
         this.owner.events.register<MinigameAddPlayerEvent> { this.updatePlayerFullbright(it.player) }
-        this.owner.events.register<PlayerDimensionChangeEvent> { this.updatePlayerFullbright(it.player) }
         this.owner.events.register<PlayerRespawnEvent> { this.updatePlayerFullbright(it.player) }
         this.owner.events.register<MinigameRemovePlayerEvent> { this.removeFullbright(it.player) }
     }
@@ -46,7 +47,7 @@ public class MinigameEffectsManager(
      */
     public fun addFullbright(player: ServerPlayer) {
         if (this.owner.tags.add(player, FULL_BRIGHT)) {
-            player.connection.send(ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION))
+            player.connection.send(ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION, false))
         }
     }
 
@@ -70,7 +71,7 @@ public class MinigameEffectsManager(
             player.connection.send(ClientboundRemoveMobEffectPacket(player.id, NIGHT_VISION))
             val instance = player.getEffect(NIGHT_VISION)
             if (instance != null) {
-                player.connection.send(ClientboundUpdateMobEffectPacket(player.id, instance))
+                player.connection.send(ClientboundUpdateMobEffectPacket(player.id, instance, false))
             }
         }
     }
@@ -125,7 +126,7 @@ public class MinigameEffectsManager(
 
     private fun updatePlayerFullbright(player: ServerPlayer) {
         if (this.hasFullbright(player)) {
-            player.connection.send(ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION))
+            player.connection.send(ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION, false))
         }
     }
 
@@ -140,7 +141,7 @@ public class MinigameEffectsManager(
 
     private fun updatePacket(player: ServerPlayer, packet: Packet<*>): Packet<ClientGamePacketListener> {
         if (packet is ClientboundBundlePacket) {
-            val updated = ArrayList<Packet<ClientGamePacketListener>>()
+            val updated = ArrayList<Packet<in ClientGamePacketListener>>()
             for (sub in packet.subPackets()) {
                 val new = this.updatePacket(player, sub)
                 if (new is ClientboundBundlePacket) {
@@ -153,8 +154,8 @@ public class MinigameEffectsManager(
         }
 
         if (packet is ClientboundUpdateMobEffectPacket) {
-            if (packet.entityId == player.id && packet.effect == NIGHT_VISION && this.hasFullbright(player)) {
-                return ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION)
+            if (packet.entityId == player.id && packet.effect.value() == NIGHT_VISION.value() && this.hasFullbright(player)) {
+                return ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION, false)
             }
             return packet
         }

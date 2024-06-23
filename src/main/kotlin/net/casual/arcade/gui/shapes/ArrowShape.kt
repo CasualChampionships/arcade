@@ -55,11 +55,11 @@ public class ArrowShape(
     }
 
     public companion object {
-        public fun createCentred(x: Int, y: Double, z: Int, scale: Double, rotation: Double): ArrowShape {
-            return create(x + 0.5, y, z + 0.5, scale, rotation)
+        public fun createHorizontalCentred(x: Int, y: Double, z: Int, scale: Double, rotation: Double): ArrowShape {
+            return createHorizontal(x + 0.5, y, z + 0.5, scale, rotation)
         }
 
-        public fun create(x: Double, y: Double, z: Double, scale: Double, rotation: Double): ArrowShape {
+        public fun createHorizontal(x: Double, y: Double, z: Double, scale: Double, rotation: Double): ArrowShape {
             val size = scale / 2.0
 
             val tip = Vec3(size * sin(rotation), 0.0, size * cos(rotation))

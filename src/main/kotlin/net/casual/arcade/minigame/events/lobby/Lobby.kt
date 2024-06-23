@@ -4,7 +4,7 @@ import net.casual.arcade.area.PlaceableArea
 import net.casual.arcade.gui.bossbar.TimerBossBar
 import net.casual.arcade.gui.countdown.Countdown
 import net.casual.arcade.utils.PlayerUtils.teleportTo
-import net.casual.arcade.utils.impl.Location
+import net.casual.arcade.utils.location.Location
 import net.minecraft.server.level.ServerPlayer
 
 public interface Lobby {

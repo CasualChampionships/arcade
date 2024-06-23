@@ -3,6 +3,7 @@ package net.casual.arcade.commands
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.context.CommandContext
+import net.casual.arcade.advancements.AdvancementModifier
 import net.casual.arcade.commands.arguments.EnumArgument
 import net.casual.arcade.commands.arguments.minigame.*
 import net.casual.arcade.commands.arguments.minigame.MinigameSettingsOptionArgument.Companion.INVALID_SETTING_OPTION
@@ -12,10 +13,10 @@ import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.utils.CommandUtils.argument
-import net.casual.arcade.utils.CommandUtils.buildLiteral
 import net.casual.arcade.utils.CommandUtils.commandSuccess
 import net.casual.arcade.utils.CommandUtils.fail
 import net.casual.arcade.utils.CommandUtils.literal
+import net.casual.arcade.utils.CommandUtils.registerLiteral
 import net.casual.arcade.utils.CommandUtils.requiresPermission
 import net.casual.arcade.utils.CommandUtils.success
 import net.casual.arcade.utils.CommandUtils.suggests
@@ -27,9 +28,13 @@ import net.casual.arcade.utils.ComponentUtils.suggestCommand
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.MinigameUtils.countdown
 import net.casual.arcade.utils.MinigameUtils.getMinigame
+import net.casual.arcade.utils.PlayerUtils.grantAdvancement
 import net.casual.arcade.utils.PlayerUtils.toComponent
 import net.casual.arcade.utils.TeamUtils.toComponent
+import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
+import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.commands.arguments.TeamArgument
@@ -37,8 +42,8 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 
 internal object MinigameCommand: Command {
-    override fun register(dispatcher: CommandDispatcher<CommandSourceStack>) {
-        dispatcher.buildLiteral("minigame") {
+    override fun register(dispatcher: CommandDispatcher<CommandSourceStack>, buildContext: CommandBuildContext) {
+        dispatcher.registerLiteral("minigame") {
             requiresPermission(4)
 
             literal("list") {
@@ -108,17 +113,29 @@ internal object MinigameCommand: Command {
                 }
             }
             literal("chat") {
-                argument("minigame", MinigameArgument.minigame(), "spies") {
-                    literal("add") {
-                        executes(::selfAddSpy)
-                        argument("players", EntityArgument.players()) {
-                            executes(::addChatSpies)
+                argument("minigame", MinigameArgument.minigame()) {
+                    literal("spies") {
+                        literal("add") {
+                            executes(::selfAddSpy)
+                            argument("players", EntityArgument.players()) {
+                                executes(::addChatSpies)
+                            }
+                        }
+                        literal("remove") {
+                            executes(::selfRemoveSpy)
+                            argument("players", EntityArgument.players()) {
+                                executes(::removeChatSpies)
+                            }
                         }
                     }
-                    literal("remove") {
-                        executes(::selfRemoveSpy)
+                    literal("mute") {
                         argument("players", EntityArgument.players()) {
-                            executes(::removeChatSpies)
+                            executes(::mute)
+                        }
+                    }
+                    literal("unmute") {
+                        argument("players", EntityArgument.players()) {
+                            executes(::unmute)
                         }
                     }
                 }
@@ -167,9 +184,31 @@ internal object MinigameCommand: Command {
                                 }
                             }
                             literal("value") {
-                                argument("value", MinigameSettingValueArgument.value()) {
+                                argument("value", MinigameSettingValueArgument.value(buildContext)) {
                                     executes(::setMinigameSettingFromValue)
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+            literal("advancement") {
+                argument("minigame", MinigameArgument.minigame()) {
+                    argument("modifier", EnumArgument.enumeration<AdvancementModifier>()) {
+                        literal("only") {
+                            argument("advancement", ResourceLocationArgument.id()) {
+                                suggests { context, builder ->
+                                    val minigame = MinigameArgument.getMinigame(context, "minigame")
+                                    SharedSuggestionProvider.suggestResource(minigame.advancements.all().map { it.id }, builder)
+                                }
+                                argument("player", EntityArgument.players()) {
+                                    executes(::modifyMinigameAdvancement)
+                                }
+                            }
+                        }
+                        literal("all") {
+                            argument("player", EntityArgument.players()) {
+                                executes(::modifyAllMinigameAdvancements)
                             }
                         }
                     }
@@ -281,6 +320,30 @@ internal object MinigameCommand: Command {
 
     private fun selfAddSpy(context: CommandContext<CommandSourceStack>): Int {
         return this.addChatSpies(context, listOf(context.source.playerOrException))
+    }
+
+    private fun mute(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val players = EntityArgument.getPlayers(context, "players")
+        var i = 0
+        for (player in players) {
+            if (minigame.chat.mute(player)) {
+                i++
+            }
+        }
+        return context.source.success("Successfully muted ${i}/${players.size} players")
+    }
+
+    private fun unmute(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val players = EntityArgument.getPlayers(context, "players")
+        var i = 0
+        for (player in players) {
+            if (minigame.chat.unmute(player)) {
+                i++
+            }
+        }
+        return context.source.success("Successfully unmuted ${i}/${players.size} players")
     }
 
     private fun addChatSpies(
@@ -478,11 +541,32 @@ internal object MinigameCommand: Command {
         return context.source.success("Setting ${setting.name} for minigame ${minigame.id} set to ${setting.get()}")
     }
 
+    private fun modifyMinigameAdvancement(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val modifier = EnumArgument.getEnumeration<AdvancementModifier>(context, "modifier")
+        val id = ResourceLocationArgument.getId(context, "advancement")
+        val player = EntityArgument.getPlayer(context, "player")
+        val advancement = minigame.advancements.get(id)
+            ?: return context.source.fail("No such advancement $id exists")
+        modifier.modify(player, advancement)
+        return context.source.success(modifier.singleSuccessMessage(player, advancement))
+    }
+
+    private fun modifyAllMinigameAdvancements(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val modifier = EnumArgument.getEnumeration<AdvancementModifier>(context, "modifier")
+        val player = EntityArgument.getPlayer(context, "player")
+        for (advancement in minigame.advancements.all()) {
+            modifier.modify(player, advancement)
+        }
+        return context.source.success(modifier.allSuccessMessage(player))
+    }
+
     private fun listPlayerTags(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val player = EntityArgument.getPlayer(context, "player")
         val tags = minigame.tags.get(player).joinToString()
-        return context.source.success("Tags for ${player.scoreboard}: $tags")
+        return context.source.success("Tags for ${player.scoreboardName}: $tags")
     }
 
     private fun addPlayerTag(context: CommandContext<CommandSourceStack>): Int {
@@ -491,9 +575,9 @@ internal object MinigameCommand: Command {
         val tag = ResourceLocationArgument.getId(context, "tag")
 
         if (!minigame.tags.add(player, tag)) {
-            return context.source.fail("${player.scoreboard} already had tag $tag")
+            return context.source.fail("${player.scoreboardName} already had tag $tag")
         }
-        return context.source.success("Successfully added tag $tag to ${player.scoreboard}")
+        return context.source.success("Successfully added tag $tag to ${player.scoreboardName}")
     }
 
     private fun removePlayerTag(context: CommandContext<CommandSourceStack>): Int {
@@ -502,9 +586,9 @@ internal object MinigameCommand: Command {
         val tag = ResourceLocationArgument.getId(context, "tag")
 
         if (!minigame.tags.remove(player, tag)) {
-            return context.source.fail("${player.scoreboard} did not have tag $tag")
+            return context.source.fail("${player.scoreboardName} did not have tag $tag")
         }
-        return context.source.success("Successfully removed tag $tag for ${player.scoreboard}")
+        return context.source.success("Successfully removed tag $tag for ${player.scoreboardName}")
     }
 
     private fun getMinigamePhase(context: CommandContext<CommandSourceStack>): Int {
@@ -545,10 +629,12 @@ internal object MinigameCommand: Command {
         }
         val callback: () -> Unit = {
             val message = "All players are ready, click ".literal().apply {
-                append("[here]".literal().green().suggestCommand("/minigame modify ${minigame.uuid} unpause countdown 5 Seconds"))
+                append("[here]".literal().green().suggestCommand("/minigame unpause ${minigame.uuid} countdown 5 Seconds"))
                 append(" to start the unpause countdown!")
             }
-            minigame.chat.broadcastTo(message, minigame.players.admins)
+            val player = context.source.player
+            val admins = if (player == null) minigame.players.admins else minigame.players.admins.concat(player)
+            minigame.chat.broadcastTo(message, admins)
         }
         val awaiting = if (teams) {
             val unready = minigame.ui.readier.areTeamsReady(minigame.teams.getPlayingTeams(), callback)

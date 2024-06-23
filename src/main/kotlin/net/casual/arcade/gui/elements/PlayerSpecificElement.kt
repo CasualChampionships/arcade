@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import org.jetbrains.annotations.ApiStatus.NonExtendable
-import java.util.UUID
+import java.util.*
 
 /**
  * This is a functional interface that represents an

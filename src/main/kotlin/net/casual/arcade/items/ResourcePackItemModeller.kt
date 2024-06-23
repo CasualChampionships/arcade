@@ -1,10 +1,15 @@
 package net.casual.arcade.items
 
+import com.mojang.serialization.Codec
+import eu.pb4.polymer.core.api.other.PolymerComponent
 import eu.pb4.polymer.resourcepack.api.PolymerModelData
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator
-import net.casual.arcade.utils.ItemUtils.putIntElement
+import net.casual.arcade.Arcade
 import net.casual.arcade.utils.ResourcePackUtils.registerNextModel
-import net.minecraft.nbt.Tag
+import net.minecraft.core.Registry
+import net.minecraft.core.component.DataComponentType
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.network.codec.ByteBufCodecs
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -89,7 +94,7 @@ public class ResourcePackItemModeller(
      */
     public fun create(location: ResourceLocation): ItemStack {
         val stack = ItemStack(this.item())
-        stack.putIntElement(ID, this.getModelData(location).value())
+        stack.set(PACKED_CUSTOM_MODEL, this.getModelData(location).value())
         return stack
     }
 
@@ -118,12 +123,7 @@ public class ResourcePackItemModeller(
         if (!stack.`is`(this.item())) {
             throw IllegalArgumentException("Cannot get model ID for incorrect stack '${stack}'")
         }
-        val tag = stack.tag ?: return -1
-        if (tag.contains(ID, Tag.TAG_INT.toInt())) {
-            return tag.getInt(ID)
-        }
-        // Probably changed valid states??
-        return -1
+        return stack.get(PACKED_CUSTOM_MODEL) ?: -1
     }
 
     private fun getLocation(state: Int): ResourceLocation {
@@ -138,6 +138,14 @@ public class ResourcePackItemModeller(
     }
 
     private companion object {
-        private const val ID = "arcade_packed_custom_model"
+        private val PACKED_CUSTOM_MODEL = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            Arcade.id("packed_custom_model"),
+            DataComponentType.builder<Int>().persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT).build()
+        )
+
+        init {
+            PolymerComponent.registerDataComponent(PACKED_CUSTOM_MODEL)
+        }
     }
 }

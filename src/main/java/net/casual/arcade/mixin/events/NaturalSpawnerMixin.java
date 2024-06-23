@@ -1,7 +1,7 @@
 package net.casual.arcade.mixin.events;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.entity.MobCategorySpawnEvent;
@@ -46,7 +46,7 @@ public class NaturalSpawnerMixin {
 			target = "Lnet/minecraft/world/level/NaturalSpawner;isValidPositionForMob(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/Mob;D)Z"
 		)
 	)
-	private static boolean canMobSpawn(boolean original, @Local ServerLevel level, @Local Mob mob, @Local SpawnGroupData data) {
+	private static boolean canMobSpawn(boolean original, @Local(argsOnly = true) ServerLevel level, @Local Mob mob, @Local SpawnGroupData data) {
 		if (!original) {
 			return false;
 		}

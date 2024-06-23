@@ -1,8 +1,9 @@
 package net.casual.arcade.mixin.commands;
 
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,7 +31,8 @@ public abstract class PlayerListMixin {
 	)
 	private void afterAddRespawnPlayer(
 		ServerPlayer player,
-		boolean keepEverything,
+		boolean bl,
+		Entity.RemovalReason removalReason,
 		CallbackInfoReturnable<ServerPlayer> cir
 	) {
 		// We delay the sending of player permissions until

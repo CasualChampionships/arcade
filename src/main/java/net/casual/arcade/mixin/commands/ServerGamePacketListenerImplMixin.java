@@ -7,7 +7,7 @@ import net.casual.arcade.events.player.PlayerCommandSuggestionsEvent;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.LastSeenMessages;
 import net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket;
-import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
+import net.minecraft.network.protocol.game.ServerboundChatCommandSignedPacket;
 import net.minecraft.network.protocol.game.ServerboundCommandSuggestionPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -34,12 +34,25 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 	}
 
 	@Inject(
-		method = "performChatCommand",
+		method = "performSignedChatCommand",
 		at = @At("HEAD"),
 		cancellable = true
 	)
-	private void onChatCommand(ServerboundChatCommandPacket packet, LastSeenMessages lastSeenMessages, CallbackInfo ci) {
+	private void onChatCommand(ServerboundChatCommandSignedPacket packet, LastSeenMessages lastSeenMessages, CallbackInfo ci) {
 		PlayerCommandEvent event = new PlayerCommandEvent(this.player, packet.command());
+		GlobalEventHandler.broadcast(event);
+		if (event.isCancelled()) {
+			ci.cancel();
+		}
+	}
+
+	@Inject(
+		method = "performUnsignedChatCommand",
+		at = @At("HEAD"),
+		cancellable = true
+	)
+	private void onChatCommand(String command, CallbackInfo ci) {
+		PlayerCommandEvent event = new PlayerCommandEvent(this.player, command);
 		GlobalEventHandler.broadcast(event);
 		if (event.isCancelled()) {
 			ci.cancel();

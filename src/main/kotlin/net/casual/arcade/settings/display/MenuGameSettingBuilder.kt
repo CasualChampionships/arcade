@@ -6,11 +6,14 @@ import eu.pb4.sgui.api.gui.GuiInterface
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.settings.GameSetting
 import net.casual.arcade.settings.SettingListener
+import net.casual.arcade.utils.ItemUtils.disableGlint
 import net.casual.arcade.utils.ItemUtils.enableGlint
-import net.casual.arcade.utils.ItemUtils.removeEnchantments
+import net.casual.arcade.utils.ItemUtils.hasGlint
 import net.casual.arcade.utils.serialization.ArcadeExtraCodecs
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
+import java.util.*
 
 public class MenuGameSettingBuilder<T: Any>(
     private val constructor: (String, T, Map<String, T>) -> GameSetting<T>
@@ -117,6 +120,8 @@ public class MenuGameSettingBuilder<T: Any>(
         private val long = GameSetting.generator(Codec.LONG)
         private val float = GameSetting.generator(Codec.FLOAT)
         private val double = GameSetting.generator(Codec.DOUBLE)
+        private val string = GameSetting.generator(Codec.STRING)
+        private val id = GameSetting.generator(ResourceLocation.CODEC)
         private val time = GameSetting.generator(ArcadeExtraCodecs.TIME_DURATION)
 
         public fun bool(): MenuGameSettingBuilder<Boolean> {
@@ -159,6 +164,22 @@ public class MenuGameSettingBuilder<T: Any>(
             return float64().apply(block).build()
         }
 
+        public fun string(): MenuGameSettingBuilder<String> {
+            return MenuGameSettingBuilder(this.string)
+        }
+
+        public fun string(block: MenuGameSettingBuilder<String>.() -> Unit): MenuGameSetting<String> {
+            return string().apply(block).build()
+        }
+
+        public fun id(): MenuGameSettingBuilder<ResourceLocation> {
+            return MenuGameSettingBuilder(this.id)
+        }
+
+        public fun id(block: MenuGameSettingBuilder<ResourceLocation>.() -> Unit): MenuGameSetting<ResourceLocation> {
+            return id().apply(block).build()
+        }
+
         public fun time(): MenuGameSettingBuilder<MinecraftTimeDuration> {
             return MenuGameSettingBuilder(this.time)
         }
@@ -181,11 +202,23 @@ public class MenuGameSettingBuilder<T: Any>(
             return enumeration<E>().apply(block).build()
         }
 
+        public fun <E: Enum<E>> optionalEnumeration(): MenuGameSettingBuilder<Optional<E>> {
+            return MenuGameSettingBuilder { name, value, options ->
+                GameSetting(name, value, options, ArcadeExtraCodecs.optionalEnum(options))
+            }
+        }
+
+        public fun <E: Enum<E>> optionalEnumeration(
+            block: MenuGameSettingBuilder<Optional<E>>.() -> Unit
+        ): MenuGameSetting<Optional<E>> {
+            return optionalEnumeration<E>().apply(block).build()
+        }
+
         public fun <T: Any> enchantWhenSetTo(value: T): (GameSetting<T>, ItemStack, ServerPlayer) -> ItemStack {
             return { setting, stack, _ ->
-                if (stack.isEnchanted) {
+                if (stack.hasGlint()) {
                     if (setting.get() != value) {
-                        stack.removeEnchantments()
+                        stack.disableGlint()
                     }
                 } else if (setting.get() == value) {
                     stack.enableGlint()

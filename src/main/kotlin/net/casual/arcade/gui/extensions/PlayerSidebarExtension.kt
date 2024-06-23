@@ -9,7 +9,6 @@ import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket.*
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.server.network.ServerGamePacketListenerImpl
 import java.util.function.Consumer
 
 internal class PlayerSidebarExtension(

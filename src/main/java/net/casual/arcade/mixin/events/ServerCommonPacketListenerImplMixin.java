@@ -8,7 +8,7 @@ import net.casual.arcade.events.network.PackStatusEvent;
 import net.casual.arcade.events.network.PlayerDisconnectEvent;
 import net.casual.arcade.events.player.PlayerClientboundPacketEvent;
 import net.casual.arcade.resources.PackStatus;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ServerboundResourcePackPacket;
 import net.minecraft.server.MinecraftServer;
@@ -67,7 +67,7 @@ public abstract class ServerCommonPacketListenerImplMixin {
 		method = "onDisconnect",
 		at = @At("HEAD")
 	)
-	private void onDisconnect(Component reason, CallbackInfo ci) {
+	private void onDisconnect(DisconnectionDetails details, CallbackInfo ci) {
 		PlayerDisconnectEvent event = new PlayerDisconnectEvent(this.server, this.playerProfile());
 		GlobalEventHandler.broadcast(event);
 	}

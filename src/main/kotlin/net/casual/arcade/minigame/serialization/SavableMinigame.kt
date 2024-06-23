@@ -3,15 +3,16 @@ package net.casual.arcade.minigame.serialization
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.mojang.authlib.GameProfile
+import com.mojang.serialization.JsonOps
 import net.casual.arcade.Arcade
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
+import net.casual.arcade.minigame.managers.chat.MinigameChatMode
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.task.AnyMinigameTaskFactory
 import net.casual.arcade.minigame.task.MinigameTaskFactory
 import net.casual.arcade.minigame.task.MinigameTaskGenerator
 import net.casual.arcade.minigame.task.impl.PhaseChangeTask
-import net.casual.arcade.scheduler.MinecraftTimeUnit
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.task.SavableTask
 import net.casual.arcade.task.Task
@@ -38,7 +39,6 @@ import net.casual.arcade.utils.MinigameUtils.getPhase
 import net.casual.arcade.utils.StringUtils.decodeHexToBytes
 import net.casual.arcade.utils.StringUtils.encodeToHexString
 import net.casual.arcade.utils.TimeUtils.Ticks
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import org.jetbrains.annotations.ApiStatus.Internal
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
@@ -167,7 +167,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
 
     @Internal
     public fun read(json: JsonObject): Boolean {
-        this.initialized = json.booleanOrDefault("initialized")
+        val initialized = json.booleanOrDefault("initialized")
         this.started = json.booleanOrDefault("started")
 
         val phaseId = json.stringOrNull("phase")
@@ -205,12 +205,14 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
 
         this.players.spectatorUUIDs.addAll(json.arrayOrDefault("spectators").uuids())
         this.players.adminUUIDs.addAll(json.arrayOrDefault("admins").uuids())
-        this.chat.spies.addAll(json.arrayOrDefault("spies").uuids())
+
+        this.chat.deserialize(json.obj("chat_manager"))
 
         this.settings.deserialize(json.arrayOrDefault("settings"))
         this.stats.deserialize(json.arrayOrDefault("stats"))
 
         this.tags.deserialize(json.arrayOrDefault("tags"))
+        this.recipes.deserialize(json.arrayOrDefault("recipes"))
 
         this.data.deserialize(json.obj("data_tracker"))
 
@@ -219,7 +221,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
             this.readData(custom)
         }
 
-        if (this.initialized) {
+        if (initialized) {
             this.tryInitialize()
         }
         if (setPhase) {
@@ -269,15 +271,13 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
             admins.add(admin.toString())
         }
 
-        val spies = JsonArray()
-        for (spy in this.chat.spies) {
-            spies.add(spy.toString())
-        }
+        val chatManager = this.chat.serialize()
 
         val settings = this.settings.serialize()
         val stats = this.stats.serialize()
 
         val tags = this.tags.serialize()
+        val recipes = this.recipes.serialize()
 
         val data = this.data.serialize()
 
@@ -290,10 +290,11 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         json.add("players", players)
         json.add("spectators", spectators)
         json.add("admins", admins)
-        json.add("spies", spies)
+        json.add("chat_manager", chatManager)
         json.add("settings", settings)
         json.add("stats", stats)
         json.add("tags", tags)
+        json.add("recipes", recipes)
         json.add("data_tracker", data)
         json.add("custom", custom)
         return json

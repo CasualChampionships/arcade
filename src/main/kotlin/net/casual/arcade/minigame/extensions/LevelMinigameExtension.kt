@@ -21,7 +21,9 @@ internal class LevelMinigameExtension(
         this.minigame = minigame
     }
 
-    internal fun removeMinigame() {
-        this.minigame = null
+    internal fun removeMinigame(minigame: Minigame<*>) {
+        if (this.minigame === minigame) {
+            this.minigame = null
+        }
     }
 }

@@ -6,7 +6,7 @@ import net.minecraft.network.chat.numbers.FixedFormat
 import net.minecraft.network.chat.numbers.NumberFormat
 
 public data class SidebarComponent(
-    val display: Component,
+    val display: Component? = null,
     val score: NumberFormat? = null
 ) {
     public companion object {

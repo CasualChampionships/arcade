@@ -10,6 +10,7 @@ import net.casual.arcade.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.PlayerUtils
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
+import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import java.util.*
@@ -125,9 +126,14 @@ public class MinigamePlayerManager(
      *
      * @param player The player to add to the minigame.
      * @param spectating Whether the player should be spectating, `null` for default.
+     * @param admin Whether the player should be an admin, `null` for default
      * @return Whether the player was successfully accepted.
      */
-    public fun add(player: ServerPlayer, spectating: Boolean? = null): Boolean {
+    public fun add(
+        player: ServerPlayer,
+        spectating: Boolean? = null,
+        admin: Boolean? = null
+    ): Boolean {
         this.minigame.tryInitialize()
         if (this.has(player)) {
             return false
@@ -141,25 +147,37 @@ public class MinigamePlayerManager(
             }
 
             this.connections.add(player.connection)
-            var isSpectating = MinigameAddExistingPlayerEvent(this.minigame, player, spectating).broadcast().spectating
-            isSpectating = MinigameAddPlayerEvent(this.minigame, player, isSpectating).broadcast().spectating
+            val existing = MinigameAddExistingPlayerEvent(this.minigame, player, spectating, admin).broadcast()
+            var isSpectating = existing.spectating
+            var isAdmin = existing.admin
+            val default = MinigameAddPlayerEvent(this.minigame, player, isSpectating, isAdmin).broadcast()
+            isSpectating = default.spectating
+            isAdmin = default.admin
 
             if (isSpectating != null) {
                 if (isSpectating) this.setSpectating(player) else this.setPlaying(player)
+            }
+            if (isAdmin != null) {
+                if (isAdmin) this.addAdmin(player) else this.removeAdmin(player)
             }
             return true
         }
 
         this.connections.add(player.connection)
-        val event = MinigameAddNewPlayerEvent(this.minigame, player, spectating).broadcast()
+        val event = MinigameAddNewPlayerEvent(this.minigame, player, spectating, admin).broadcast()
         if (!event.isCancelled()) {
             player.minigame.setMinigame(this.minigame)
-            val isSpectating = MinigameAddPlayerEvent(this.minigame, player, event.spectating).broadcast().spectating
+            val default = MinigameAddPlayerEvent(this.minigame, player, event.spectating, event.admin).broadcast()
+            val isSpectating = default.spectating
+            val isAdmin = default.admin
 
             if (isSpectating != null && isSpectating) {
                 this.setSpectating(player)
             } else {
                 MinigameSetPlayingEvent(this.minigame, player).broadcast()
+            }
+            if (isAdmin != null && isAdmin) {
+                this.addAdmin(player)
             }
             return true
         }
@@ -250,8 +268,8 @@ public class MinigamePlayerManager(
      */
     public fun has(uuid: UUID): Boolean {
         val player = PlayerUtils.player(uuid)
-        if (player != null) {
-            return this.has(player)
+        if (player != null && this.has(player)) {
+            return true
         }
         return this.offlineGameProfiles.any { it.id == uuid }
     }
@@ -266,6 +284,37 @@ public class MinigamePlayerManager(
 
     public fun isAdmin(player: ServerPlayer): Boolean {
         return this.adminUUIDs.contains(player.uuid)
+    }
+
+    public fun transferTo(
+        next: Minigame<*>,
+        players: Iterable<ServerPlayer> = this,
+        keepSpectating: Boolean = true,
+        keepAdmin: Boolean = true,
+    ) {
+        for (player in players) {
+            this.transferTo(next, player, keepSpectating, keepAdmin)
+        }
+    }
+
+    public fun transferTo(
+        next: Minigame<*>,
+        player: ServerPlayer,
+        keepSpectating: Boolean = true,
+        keepAdmin: Boolean = true,
+    ): Boolean {
+        if (!this.has(player)) {
+            return false
+        }
+        val spectating = if (keepSpectating) this.isSpectating(player) else null
+        val admin = if (keepAdmin) this.isAdmin(player) else null
+        return next.players.add(player, spectating, admin)
+    }
+
+    public fun broadcast(packet: Packet<*>) {
+        for (connection in this.connections) {
+            connection.send(packet)
+        }
     }
 
     private fun streamPlayers(): Stream<ServerPlayer> {
