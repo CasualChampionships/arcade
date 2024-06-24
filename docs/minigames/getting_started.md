@@ -24,7 +24,7 @@ The first thing you should specify is the id of your minigame:
 
 ```kotlin
 class ExampleMinigame(server: MinecraftServer): Minigame<ExampleMinigame>(server) {
-    override val id: ResourceLocation = ResourceLocation("modid", "example")
+    override val id: ResourceLocation = ResourceLocation.fromNamespaceAndPath("modid", "example")
 
     override fun getPhases(): Collection<Phase<ExampleMinigame>> {
         TODO("Not yet implemented")
@@ -86,7 +86,7 @@ Now we have our phases we can return them in our `getPhases` method in our minig
 
 ```kotlin
 class ExampleMinigame(server: MinecraftServer): Minigame<ExampleMinigame>(server) {
-    override val id: ResourceLocation = ResourceLocation("modid", "example")
+    override val id: ResourceLocation = ResourceLocation.fromNamespaceAndPath("modid", "example")
 
     override fun getPhases(): Collection<Phase<ExampleMinigame>> {
         return listOf(ExamplePhases.Grace, ExamplePhases.Active, ExamplePhases.DeathMatch)
@@ -123,7 +123,7 @@ enum class ExamplePhases(
 ```
 
 - The `start` method will be called when the minigame is changing to `this` phase.
-- The `initialize` method will always be called *after* the `start` method and
+- The `initialize` method will always be called *after* the `start` method, and
 it will also be called when a minigame is deserialized, this will be discussed 
 in further detail later in the [Serialization](serialization.md) section.
 For now, we will stick to using the `start` method.
@@ -203,7 +203,7 @@ enum class ExamplePhases(
 }
 
 class ExampleMinigame(server: MinecraftServer): Minigame<ExampleMinigame>(server) {
-    override val id: ResourceLocation = ResourceLocation("modid", "example")
+    override val id: ResourceLocation = ResourceLocation.fromNamespaceAndPath("modid", "example")
 
     override fun getPhases(): Collection<Phase<ExampleMinigame>> {
         return listOf(ExamplePhases.Grace, ExamplePhases.Active, ExamplePhases.DeathMatch)
@@ -219,7 +219,7 @@ We can do this in our `DedicatedServerModInitializer`:
 object ExampleMinigameMod: DedicatedServerModInitializer {
     override fun onInitializeServer() {
         // This should be the same id that your minigame uses
-        Minigames.registerFactory(ResourceLocation("modid", "example")) { context ->
+        Minigames.registerFactory(ResourceLocation.fromNamespaceAndPath("modid", "example")) { context ->
             ExampleMinigame(context.server)
         }
     }

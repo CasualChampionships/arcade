@@ -4,7 +4,7 @@
 
 Minigame settings are super easy to configure and allow for quite a lot of control over the behaviour of your minigame.
 
-In addition to the built-in default settings you are able to implement your own settings using this system, all the settings are accessible and configurable in-game through a gui.
+In addition to the built-in default settings, you are able to implement your own settings using this system, all the settings are accessible and configurable in-game through a gui.
 
 ![Image of Settings gui](../assets/settings_gui.png)
 
@@ -251,6 +251,6 @@ class CustomSettingsDefaults: DisplayableSettingsDefaults() {
 
 The `createSettingsGuiBuilder` returns the builder responsible for creating the gui listing all the minigame settings, and the `createOptionsGuiBuilder` returns the builder responsible for creating the gui listing all the options for a given minigame setting.
 
-The specifics on how to customize these are discussed in the [GUI Section](../gui).
+The specifics on how to customize these are discussed in the [GUI Section](../gui.md).
 
 > See the next section on [Teams](teams.md)

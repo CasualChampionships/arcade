@@ -272,7 +272,7 @@ Bossbars are great for displaying ui at the top of the player's screen, they're 
 
 ### Static Bossbars
 
-The most simply bossbar we can create would be static, that is everything about the bossbar is constant. We can create one of these by constructing a `StaticBossBar`:
+The most simple bossbar we can create would be static, that is everything about the bossbar is constant. We can create one of these by constructing a `StaticBossBar`:
 
 ```kotlin
 val bossbar = StaticBossBar(

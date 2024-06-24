@@ -101,7 +101,7 @@ NamedResourcePackCreator.named("my-resource-pack") {
 }
 ```
 
-There are a few more but these will be discussed in the sections below:
+There are a few more, but these will be discussed in the sections below:
 
 ### Font Resources
 

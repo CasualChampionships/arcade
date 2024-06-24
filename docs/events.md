@@ -136,7 +136,7 @@ GlobalEventHandler.register<PlayerClientboundPacketEvent> { (player, packet) ->
 
 ## Broadcasting Events
 
-You may want to broadcast your own events, which Arcade makes basic. To get started you need to implement your `Event` class, this is a class that contains all the data for a given event. This class must implement the `Event` interface:
+You may want to broadcast your own events, which Arcade makes simple. To get started you need to implement your `Event` class, this is a class that contains all the data for a given event. This class must implement the `Event` interface:
 ```kotlin
 class MyEvent(
     val foo: String,
