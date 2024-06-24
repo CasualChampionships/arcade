@@ -8,6 +8,8 @@ import net.minecraft.nbt.Tag
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.jetbrains.annotations.Contract
+import org.joml.Vector3f
+import org.joml.Vector3fc
 
 public object TagUtils {
     public fun CompoundTag.contains(key: String, type: Byte): Boolean {
@@ -47,6 +49,24 @@ public object TagUtils {
             return this.getString(key)
         }
         return fallback
+    }
+
+    public fun CompoundTag.putVector3f(key: String, vec: Vector3fc) {
+        val list = ListTag()
+        list.add(FloatTag.valueOf(vec.x()))
+        list.add(FloatTag.valueOf(vec.y()))
+        list.add(FloatTag.valueOf(vec.z()))
+        this.put(key, list)
+    }
+
+    public fun CompoundTag.getVector3fOrNull(key: String): Vector3f? {
+        if (this.contains(key, Tag.TAG_LIST)) {
+            val list = this.getList(key, Tag.TAG_ANY_NUMERIC.toInt())
+            if (list.size == 3) {
+                return Vector3f(list.getFloat(0), list.getFloat(1), list.getFloat(2))
+            }
+        }
+        return null
     }
 
     public fun CompoundTag.putVec3(key: String, vec: Vec3) {
