@@ -1,6 +1,8 @@
 package net.casual.arcade.utils
 
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.DoubleTag
+import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.Tag
 import net.minecraft.world.phys.Vec3
 import org.jetbrains.annotations.Contract
@@ -43,6 +45,14 @@ public object TagUtils {
             return this.getString(key)
         }
         return fallback
+    }
+
+    public fun CompoundTag.writeVec3(key: String, vec: Vec3) {
+        val list = ListTag()
+        list.add(DoubleTag.valueOf(vec.x))
+        list.add(DoubleTag.valueOf(vec.y))
+        list.add(DoubleTag.valueOf(vec.z))
+        this.put(key, list)
     }
 
     public fun CompoundTag.readVec3OrNull(key: String): Vec3? {
