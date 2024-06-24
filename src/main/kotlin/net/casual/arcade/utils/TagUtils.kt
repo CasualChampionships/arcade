@@ -2,6 +2,8 @@ package net.casual.arcade.utils
 
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
+import net.minecraft.world.phys.Vec3
+import org.jetbrains.annotations.Contract
 
 public object TagUtils {
     public fun CompoundTag.contains(key: String, type: Byte): Boolean {
@@ -41,5 +43,15 @@ public object TagUtils {
             return this.getString(key)
         }
         return fallback
+    }
+
+    public fun CompoundTag.readVec3OrNull(key: String): Vec3? {
+        if (this.contains(key, Tag.TAG_LIST)) {
+            val list = this.getList(key, Tag.TAG_DOUBLE.toInt())
+            if (list.size == 3) {
+                return Vec3(list.getDouble(0), list.getDouble(0), list.getDouble(0))
+            }
+        }
+        return null
     }
 }
