@@ -129,7 +129,7 @@ public object ResourcePackUtils {
 
     @JvmStatic
     public fun ResourcePackCreator.addSounds(sounds: SoundResources) {
-        this.creationEvent.register { builder ->
+        this.afterInitialCreationEvent.register { builder ->
             // We can only have 1 sounds.json
             val path = "assets/${sounds.namespace}/sounds.json"
             val gson = Gson()
