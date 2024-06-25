@@ -61,7 +61,7 @@ public object TagUtils {
 
     public fun CompoundTag.getVector3fOrNull(key: String): Vector3f? {
         if (this.contains(key, Tag.TAG_LIST)) {
-            val list = this.getList(key, Tag.TAG_ANY_NUMERIC.toInt())
+            val list = this.getList(key, Tag.TAG_FLOAT.toInt())
             if (list.size == 3) {
                 return Vector3f(list.getFloat(0), list.getFloat(1), list.getFloat(2))
             }
@@ -79,7 +79,7 @@ public object TagUtils {
 
     public fun CompoundTag.getVec3OrNull(key: String): Vec3? {
         if (this.contains(key, Tag.TAG_LIST)) {
-            val list = this.getList(key, Tag.TAG_ANY_NUMERIC.toInt())
+            val list = this.getList(key, Tag.TAG_DOUBLE.toInt())
             if (list.size == 3) {
                 return Vec3(list.getDouble(0), list.getDouble(1), list.getDouble(2))
             }
@@ -96,7 +96,7 @@ public object TagUtils {
 
     public fun CompoundTag.getVec2OrNull(key: String): Vec2? {
         if (this.contains(key, Tag.TAG_LIST)) {
-            val list = this.getList(key, Tag.TAG_ANY_NUMERIC.toInt())
+            val list = this.getList(key, Tag.TAG_FLOAT.toInt())
             if (list.size == 2) {
                 return Vec2(list.getFloat(0), list.getFloat(1))
             }
