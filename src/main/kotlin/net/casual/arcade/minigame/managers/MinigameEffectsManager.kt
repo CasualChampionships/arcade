@@ -1,5 +1,6 @@
 package net.casual.arcade.minigame.managers
 
+import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket
 import net.casual.arcade.Arcade
 import net.casual.arcade.events.minigame.MinigameAddPlayerEvent
 import net.casual.arcade.events.minigame.MinigameRemovePlayerEvent
@@ -179,16 +180,25 @@ public class MinigameEffectsManager(
 
             val items = packet.packedItems
             val data = ArrayList<DataValue<*>>()
+            var changed = false
             for (item in items) {
                 if (item.id == Entity.DATA_SHARED_FLAGS_ID.id) {
                     val flags = item.value as Byte
                     val modified = this.modifySharedEntityFlags(observee, player, flags)
                     data.add(DataValue.create(Entity.DATA_SHARED_FLAGS_ID, modified))
+                    changed = true
                 } else {
                     data.add(item)
                 }
             }
-            return ClientboundSetEntityDataPacket(packet.id, data)
+            if (!changed) {
+                return packet
+            }
+
+            val replacement = ClientboundSetEntityDataPacket(packet.id, data)
+            // For polymer compatability
+            EntityAttachedPacket.set(replacement, observee)
+            return replacement
         }
 
         @Suppress("UNCHECKED_CAST")
