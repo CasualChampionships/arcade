@@ -55,7 +55,7 @@ public object TimeUtils {
             return this.formatMMSS()
         }
         val secs = (milliseconds % 60_000) / 1_000
-        val millis = milliseconds % 1_000
+        val millis = (milliseconds % 1_000) / 10
         if (milliseconds < 60_000) {
             return "%d.%02d".format(secs, millis)
         }
