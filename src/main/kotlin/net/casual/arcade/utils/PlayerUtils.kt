@@ -21,6 +21,7 @@ import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.core.Direction8
 import net.minecraft.core.particles.ParticleOptions
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.*
 import net.minecraft.network.protocol.game.*
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.Action.ADD
@@ -348,7 +349,7 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.sendSound(sound: Sound) {
-        this.sendSound(sound.sound, sound.source, sound.volume, sound.pitch)
+        this.sendSound(sound.sound, sound.source, sound.volume, sound.pitch, sound.static)
     }
 
     @JvmStatic
@@ -357,9 +358,22 @@ public object PlayerUtils {
         sound: SoundEvent,
         source: SoundSource = SoundSource.MASTER,
         volume: Float = 1.0F,
-        pitch: Float = 1.0F
+        pitch: Float = 1.0F,
+        static: Boolean = false
     ) {
-        this.playNotifySound(sound, source, volume, pitch)
+        if (!static) {
+            this.playNotifySound(sound, source, volume, pitch)
+            return
+        }
+        val packet = ClientboundSoundEntityPacket(
+            BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound),
+            source,
+            this,
+            volume,
+            pitch,
+            this.random.nextLong()
+        )
+        this.connection.send(packet)
     }
 
     @JvmStatic

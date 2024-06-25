@@ -20,13 +20,13 @@ public abstract class SoundResources(
         pitch: Float = 1.0F,
         stream: Boolean = false,
         attenuationDistance: Int = 16,
-        isStatic: Boolean = false,
+        constantVolume: Boolean = false,
         preload: Boolean = false,
         id: String = location.path
     ): PolymerSoundEvent {
         val provider = SoundProvider(location, volume, pitch, 1, stream, attenuationDistance, preload, Sound)
         this.providers[id] = listOf(provider)
-        return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, isStatic)
+        return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, constantVolume)
     }
 
     protected fun event(
@@ -35,25 +35,25 @@ public abstract class SoundResources(
         pitch: Float = 1.0F,
         stream: Boolean = false,
         attenuationDistance: Int = 16,
-        isStatic: Boolean = false,
+        constantVolume: Boolean = false,
         preload: Boolean = false,
         id: String = location.path
     ): PolymerSoundEvent {
         val provider = SoundProvider(location, volume, pitch, 1, stream, attenuationDistance, preload, Event)
         this.providers[id] = listOf(provider)
-        return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, isStatic)
+        return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, constantVolume)
     }
 
     protected fun group(
         id: String,
         attenuationDistance: Int = 16,
-        isStatic: Boolean = false,
+        constantVolume: Boolean = false,
         builder: GroupedSoundProvider.() -> Unit
     ): PolymerSoundEvent {
         val grouped = GroupedSoundProvider()
         grouped.builder()
         this.providers[id] = grouped.getProviders()
-        return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, isStatic)
+        return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, constantVolume)
     }
 
     protected fun at(path: String): ResourceLocation {
