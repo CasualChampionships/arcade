@@ -45,4 +45,21 @@ public object TimeUtils {
         val secs = seconds % 60
         return "%02d:%02d".format(minutes, secs)
     }
+
+    public fun MinecraftTimeDuration.format(): String {
+        val milliseconds = this.milliseconds
+        if (milliseconds >= 3_600_000) {
+            return this.formatHHMMSS()
+        }
+        if (milliseconds >= 600_000) {
+            return this.formatMMSS()
+        }
+        val secs = (milliseconds % 60_000) / 1_000
+        val millis = milliseconds % 1_000
+        if (milliseconds < 60_000) {
+            return "%d.%02d".format(secs, millis)
+        }
+        val minutes = milliseconds / 60_000
+        return "%d:%02d.%02d".format(minutes, secs, millis)
+    }
 }
