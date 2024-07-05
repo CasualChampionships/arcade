@@ -13,7 +13,7 @@ import net.casual.arcade.utils.location.template.LocationTemplate
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 
-public object ArcadeRegistryKeys {
+public object ArcadeRegistryKeys: RegistryKeySupplier(Arcade.MOD_ID) {
     public val PLACEABLE_AREA_TEMPLATE: ResourceKey<Registry<MapCodec<out PlaceableAreaTemplate>>> = create("placeable_area_template")
     public val COUNTDOWN_TEMPLATE: ResourceKey<Registry<MapCodec<out CountdownTemplate>>> = create("countdown_template")
     public val TIMER_BOSSBAR_TEMPLATE: ResourceKey<Registry<MapCodec<out TimerBossBarTemplate>>> = create("timer_bossbar_template")
@@ -22,8 +22,4 @@ public object ArcadeRegistryKeys {
     public val ENTITY_TELEPORTER: ResourceKey<Registry<MapCodec<out EntityTeleporter>>> = create("entity_teleporter")
     public val MINIGAME_CHAT_MODE: ResourceKey<Registry<MapCodec<out MinigameChatMode>>> = create("minigame_chat_mode")
     public val MINIGAMES_EVENT: ResourceKey<Registry<MapCodec<out MinigamesEvent>>> = create("minigames_event")
-
-    private fun <T> create(path: String): ResourceKey<Registry<T>> {
-        return ResourceKey.createRegistryKey(Arcade.id(path))
-    }
 }
