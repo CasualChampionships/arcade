@@ -27,7 +27,7 @@ public class ExactLocationTemplate(
     public companion object: CodecProvider<ExactLocationTemplate> {
         override val ID: ResourceLocation = Arcade.id("exact")
 
-        override val CODEC: MapCodec<out ExactLocationTemplate> = RecordCodecBuilder.mapCodec { instance ->
+        override val CODEC: MapCodec<ExactLocationTemplate> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 Vec3.CODEC.encodedOptionalFieldOf("position", Vec3.ZERO).forGetter(ExactLocationTemplate::position),
                 ArcadeExtraCodecs.VEC2.encodedOptionalFieldOf("rotation", Vec2.ZERO).forGetter(ExactLocationTemplate::rotation)

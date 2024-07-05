@@ -23,7 +23,7 @@ public class RandomLocationTemplate(
     public companion object: CodecProvider<RandomLocationTemplate> {
         override val ID: ResourceLocation = Arcade.id("random")
 
-        override val CODEC: MapCodec<out RandomLocationTemplate> = RecordCodecBuilder.mapCodec { instance ->
+        override val CODEC: MapCodec<RandomLocationTemplate> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 LocationTemplate.CODEC.listOf(1, Int.MAX_VALUE).fieldOf("locations").forGetter(RandomLocationTemplate::locations)
             ).apply(instance, ::RandomLocationTemplate)

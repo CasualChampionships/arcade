@@ -29,7 +29,7 @@ public class AroundLocationTemplate(
 
     public companion object: CodecProvider<AroundLocationTemplate> {
         override val ID: ResourceLocation = Arcade.id("around")
-        override val CODEC: MapCodec<out AroundLocationTemplate> = RecordCodecBuilder.mapCodec { instance ->
+        override val CODEC: MapCodec<AroundLocationTemplate> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 Codec.DOUBLE.fieldOf("horizontal_radius").forGetter(AroundLocationTemplate::horizontalRadius),
                 Codec.DOUBLE.fieldOf("vertical_radius").forGetter(AroundLocationTemplate::verticalRadius),
