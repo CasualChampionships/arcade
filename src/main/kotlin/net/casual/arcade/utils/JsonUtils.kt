@@ -1,9 +1,15 @@
 package net.casual.arcade.utils
 
 import com.google.gson.*
+import com.mojang.serialization.Codec
+import com.mojang.serialization.DataResult
+import com.mojang.serialization.Decoder
+import com.mojang.serialization.Encoder
+import com.mojang.serialization.JsonOps
 import net.casual.arcade.utils.json.JsonSerializer
 import net.minecraft.Util
 import net.minecraft.nbt.*
+import java.io.InputStream
 import java.io.Reader
 import java.util.*
 
@@ -14,6 +20,14 @@ public object JsonUtils {
         return GSON.fromJson(reader, T::class.java)
     }
 
+    public fun <T> decodeWith(decoder: Decoder<T>, stream: InputStream): DataResult<T> {
+        return stream.reader().use { decoder.parse(JsonOps.INSTANCE, decodeToJsonElement(it)) }
+    }
+
+    public fun <T> decodeWith(decoder: Decoder<T>, reader: Reader): DataResult<T> {
+        return decoder.parse(JsonOps.INSTANCE, decodeToJsonElement(reader))
+    }
+
     public fun decodeToJsonElement(reader: Reader): JsonElement {
         return GSON.fromJson(reader, JsonElement::class.java)
     }
@@ -22,12 +36,21 @@ public object JsonUtils {
         return GSON.fromJson(reader, JsonObject::class.java)
     }
 
+    public fun <T> encodeWith(encoder: Encoder<T>, any: T, writer: Appendable): Boolean {
+        val result = encoder.encodeStart(JsonOps.INSTANCE, any).result()
+        if (result.isPresent) {
+            encode(result.get(), writer)
+            return true
+        }
+        return false
+    }
+
     public fun encode(json: JsonElement, writer: Appendable) {
-        return GSON.toJson(json, writer)
+        GSON.toJson(json, writer)
     }
 
     public fun encode(any: Any, writer: Appendable) {
-        return GSON.toJson(any, writer)
+        GSON.toJson(any, writer)
     }
 
     public fun JsonObject.getWithNull(key: String): JsonElement? {
