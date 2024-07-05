@@ -4,11 +4,14 @@ import com.google.common.collect.HashBiMap
 import com.google.gson.JsonObject
 import com.mojang.serialization.Codec
 import com.mojang.serialization.DataResult
+import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.scheduler.MinecraftTimeDuration
 import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
 import net.minecraft.Util
 import net.minecraft.util.ExtraCodecs
+import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec2
+import net.minecraft.world.phys.Vec3
 import java.nio.file.Path
 import java.util.*
 import kotlin.enums.enumEntries
@@ -21,6 +24,12 @@ public object ArcadeExtraCodecs {
         { Util.fixedSize(it, 2).map { vec -> Vec2(vec[0], vec[1]) } },
         { vec -> listOf(vec.x, vec.y) }
     )
+    public val AABB: Codec<AABB> = RecordCodecBuilder.create { instance ->
+        instance.group(
+            Vec3.CODEC.fieldOf("from").forGetter { it.minPosition },
+            Vec3.CODEC.fieldOf("to").forGetter { it.maxPosition }
+        ).apply(instance, ::AABB)
+    }
     public val JSON_OBJECT: Codec<JsonObject> = ExtraCodecs.JSON.comapFlatMap(
         { json -> if (json !is JsonObject) DataResult.error { "Input wasn't JsonObject" } else DataResult.success(json) },
         { json -> json }
