@@ -25,4 +25,8 @@ public object BoundingBoxUtils {
             position.z + radius
         )
     }
+
+    public fun AABB.getSizeVec(): Vec3 {
+        return Vec3(this.xsize, this.ysize, this.zsize)
+    }
 }
