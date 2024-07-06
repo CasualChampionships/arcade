@@ -8,15 +8,11 @@ import net.minecraft.resources.ResourceKey
 public abstract class RegistrySupplier {
     private val loaders = ArrayList<() -> Unit>()
 
-    init {
+    public fun load() {
         for (load in this.loaders) {
             load.invoke()
         }
         this.loaders.clear()
-    }
-
-    public fun noop() {
-
     }
 
     protected fun <T> create(key: ResourceKey<Registry<T>>, bootstrap: (Registry<T>) -> Unit): Registry<T> {

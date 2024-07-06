@@ -89,7 +89,7 @@ public object Arcade: ModInitializer {
     }
 
     override fun onInitialize() {
-        ArcadeRegistries.noop()
+        ArcadeRegistries.load()
 
         SidebarUtils.registerEvents()
         BossbarUtils.registerEvents()
