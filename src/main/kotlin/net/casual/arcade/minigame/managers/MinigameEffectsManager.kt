@@ -18,6 +18,7 @@ import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffectInstance.INFINITE_DURATION
 import net.minecraft.world.effect.MobEffects.NIGHT_VISION
 import net.minecraft.world.entity.Entity
+import java.util.UUID
 
 /**
  * This class manages custom effects on players in a minigame.
@@ -32,6 +33,8 @@ public class MinigameEffectsManager(
 ) {
     private var glowing = EntityObserverPredicate.never()
     private var invisible = EntityObserverPredicate.never()
+
+    private val frozen = HashSet<UUID>()
 
     init {
         this.owner.events.register<PlayerClientboundPacketEvent>(1_000, flags = ListenerFlags.HAS_PLAYER) { this.onPlayerPacket(it) }
@@ -103,6 +106,18 @@ public class MinigameEffectsManager(
             player.isInvisible = !player.isInvisible
             player.isInvisible = !player.isInvisible
         }
+    }
+
+    public fun freeze(entity: Entity) {
+        this.frozen.add(entity.uuid)
+    }
+
+    public fun unfreeze(entity: Entity) {
+        this.frozen.remove(entity.uuid)
+    }
+
+    public fun isFrozen(entity: Entity): Boolean {
+        return this.frozen.contains(entity.uuid)
     }
 
     /**

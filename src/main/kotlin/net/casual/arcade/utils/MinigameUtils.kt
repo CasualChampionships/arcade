@@ -180,6 +180,9 @@ public object MinigameUtils {
                 if (minigame.settings.freezeEntities.get()) {
                     return false
                 }
+                if (minigame.effects.isFrozen(this)) {
+                    return false
+                }
             }
             return level.isTicking()
         }
@@ -194,6 +197,9 @@ public object MinigameUtils {
                 return false
             }
             if (minigame.settings.freezeEntities.get(this)) {
+                return false
+            }
+            if (minigame.effects.isFrozen(this)) {
                 return false
             }
         }
