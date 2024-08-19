@@ -23,6 +23,7 @@ val fantasyVersion: String by project
 val polymerVersion: String by project
 val permissionsVersion: String by project
 val customNametagsVersion: String by project
+val serverReplayVersion: String by project
 val sguiVersion: String by project
 val serverTranslationsVersion: String by project
 
@@ -37,6 +38,7 @@ allprojects {
         maven("https://jitpack.io")
         maven("https://ueaj.dev/maven")
         maven("https://maven.nucleoid.xyz")
+        maven("https://maven.maxhenkel.de/repository/public")
         maven("https://oss.sonatype.org/content/repositories/snapshots")
         maven("https://repo.fruxz.dev/releases/")
         mavenCentral()
@@ -94,6 +96,7 @@ dependencies {
     include(modApi("eu.pb4:sgui:$sguiVersion")!!)
 
     include(modApi("com.github.senseiwells:CustomNameTags:$customNametagsVersion")!!)
+    modImplementation("com.github.senseiwells:ServerReplay:${serverReplayVersion}")
 
     include(modApi("me.lucko:fabric-permissions-api:$permissionsVersion")!!)
     include(modImplementation("xyz.nucleoid:server-translations-api:$serverTranslationsVersion")!!)
