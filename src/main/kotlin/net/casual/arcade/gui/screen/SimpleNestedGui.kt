@@ -5,7 +5,7 @@ import eu.pb4.sgui.api.gui.SimpleGui
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.inventory.MenuType
 
-public class SimpleNestedGui(
+public open class SimpleNestedGui(
     type: MenuType<*>,
     player: ServerPlayer,
     manipulatePlayerSlots: Boolean
