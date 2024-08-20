@@ -1,8 +1,10 @@
 package net.casual.arcade.utils
 
+import eu.pb4.sgui.api.ClickType
 import eu.pb4.sgui.api.elements.GuiElement
 import eu.pb4.sgui.api.gui.GuiInterface
 import eu.pb4.sgui.api.gui.SimpleGui
+import eu.pb4.sgui.api.gui.SlotGuiInterface
 import net.casual.arcade.gui.screen.SelectionGuiBuilder
 import net.casual.arcade.gui.screen.SelectionGuiComponents
 import net.casual.arcade.settings.display.DisplayableSettings
@@ -18,6 +20,14 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.scores.PlayerTeam
 
 public object ScreenUtils {
+    public fun SlotGuiInterface.setSlot(index: Int, stack: ItemStack, callback: () -> Unit) {
+        this.setSlot(index, stack) { _, _, _, _ -> callback.invoke() }
+    }
+
+    public fun SlotGuiInterface.setSlot(index: Int, stack: ItemStack, callback: (ClickType) -> Unit) {
+        this.setSlot(index, stack) { _, type, _, _ -> callback.invoke(type) }
+    }
+
     public fun SelectionGuiBuilder.addSpectatablePlayers(
         players: Iterable<ServerPlayer> = PlayerUtils.players(),
         mapper: (ServerPlayer) -> ItemStack = { ItemUtils.createPlayerHead(it.scoreboardName) }
