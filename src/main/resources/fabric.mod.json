@@ -20,7 +20,10 @@
       }
     ],
     "server_replay": [
-      "net.casual.arcade.compat.ArcadeReplayPlugin"
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.compat.ArcadeReplayPlugin"
+      }
     ]
   },
   "mixins": [
