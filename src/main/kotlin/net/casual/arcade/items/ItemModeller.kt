@@ -28,14 +28,17 @@ public interface ItemModeller {
         }
 
         public fun getNextIdFor(item: Item): Int {
-            val next = CUSTOM_MODEL_DATA.getInt(item) + 1
-            CUSTOM_MODEL_DATA.put(item, next)
-            return next
+            var id = CUSTOM_MODEL_DATA.getInt(item)
+            if (++id == 0) {
+                id = 1
+            }
+            CUSTOM_MODEL_DATA.put(item, id)
+            return id
         }
 
         public fun hasIdFor(item: Item, id: Int): Boolean {
             val max = CUSTOM_MODEL_DATA.getInt(item)
-            return id in 0..max
+            return id in 1..max
         }
     }
 }
