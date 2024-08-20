@@ -205,8 +205,9 @@ public object ItemUtils {
     }
 
     @JvmStatic
-    public fun createTexturedHead(texture: String): ItemStack {
-        val stack = ItemStack(Items.PLAYER_HEAD)
+    @JvmOverloads
+    public fun createTexturedHead(texture: String, item: Item = Items.PLAYER_HEAD): ItemStack {
+        val stack = ItemStack(item)
         val properties = PropertyMap()
         properties.put("textures", Property("textures", texture))
         val profile = ResolvableProfile(Optional.empty(), Optional.empty(), properties)
@@ -248,7 +249,8 @@ public object ItemUtils {
     }
 
     @JvmStatic
-    public fun colouredHeadForFormatting(formatting: ChatFormatting): ItemStack {
+    @JvmOverloads
+    public fun colouredHeadForFormatting(formatting: ChatFormatting, item: Item = Items.PLAYER_HEAD): ItemStack {
         val texture = when (formatting) {
             ChatFormatting.BLACK -> HeadTextures.BLACK
             ChatFormatting.DARK_BLUE -> HeadTextures.DARK_BLUE
@@ -267,8 +269,8 @@ public object ItemUtils {
             ChatFormatting.YELLOW -> HeadTextures.YELLOW
             else -> HeadTextures.WHITE
         }
-        val stack = createTexturedHead(texture)
-        stack.set(DataComponents.ITEM_NAME, formatting.getName().literal())
+        val stack = createTexturedHead(texture, item)
+        stack.set(DataComponents.CUSTOM_NAME, formatting.getName().literal())
         return stack
     }
 }
