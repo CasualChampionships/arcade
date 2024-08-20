@@ -216,31 +216,35 @@ public object ItemUtils {
     }
 
     @JvmStatic
-    public fun createPlayerHead(name: String): ItemStack {
-        val stack = ItemStack(Items.PLAYER_HEAD)
+    @JvmOverloads
+    public fun createPlayerHead(name: String, item: Item = Items.PLAYER_HEAD): ItemStack {
+        val stack = ItemStack(item)
         val profile = ResolvableProfile(Optional.of(name), Optional.empty(), PropertyMap())
         stack.set(DataComponents.PROFILE, profile)
         return stack
     }
 
     @JvmStatic
-    public fun createPlayerHead(uuid: UUID): ItemStack {
-        val stack = ItemStack(Items.PLAYER_HEAD)
+    @JvmOverloads
+    public fun createPlayerHead(uuid: UUID, item: Item = Items.PLAYER_HEAD): ItemStack {
+        val stack = ItemStack(item)
         val profile = ResolvableProfile(Optional.empty(), Optional.of(uuid), PropertyMap())
         stack.set(DataComponents.PROFILE, profile)
         return stack
     }
 
     @JvmStatic
-    public fun createPlayerHead(profile: GameProfile): ItemStack {
-        val stack = ItemStack(Items.PLAYER_HEAD)
+    @JvmOverloads
+    public fun createPlayerHead(profile: GameProfile, item: Item = Items.PLAYER_HEAD): ItemStack {
+        val stack = ItemStack(item)
         stack.set(DataComponents.PROFILE, ResolvableProfile(profile))
         return stack
     }
 
     @JvmStatic
-    public fun createPlayerHead(player: ServerPlayer): ItemStack {
-        return this.createPlayerHead(player)
+    @JvmOverloads
+    public fun createPlayerHead(player: ServerPlayer, item: Item = Items.PLAYER_HEAD): ItemStack {
+        return this.createPlayerHead(player.gameProfile, item)
     }
 
     @JvmStatic
