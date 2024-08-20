@@ -155,12 +155,17 @@ public object ResourcePackUtils {
     public fun ResourcePackCreator.addMissingItemModels(namespace: String) {
         val container = FabricLoader.getInstance().getModContainer(namespace).orElseThrow(::IllegalArgumentException)
         val assets = container.findPath("assets").orElseThrow(::FileNotFoundException)
-        this.addMissingItemModels(namespace, assets)
+        this.addMissingItemModelsInternal(namespace, assets)
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addMissingItemModels(namespace: String, source: Path) {
+        this.addMissingItemModelsInternal(namespace, source.resolve("assets"))
     }
 
     @JvmStatic
     @OptIn(ExperimentalPathApi::class)
-    private fun ResourcePackCreator.addMissingItemModels(namespace: String, assets: Path) {
+    private fun ResourcePackCreator.addMissingItemModelsInternal(namespace: String, assets: Path) {
         val itemTextures = assets.resolve(namespace).resolve("textures").resolve("item")
         val itemModels = assets.resolve(namespace).resolve("models")
         val itemTexturesDirectory = "$itemTextures/"
