@@ -25,6 +25,15 @@ public open class SimpleNestedGui(
         this.parent?.open()
     }
 
+    public fun openParentOrClose() {
+        val parent = this.parent
+        if (parent != null) {
+            parent.open()
+        } else {
+            this.close()
+        }
+    }
+
     override fun onClose() {
         this.openParent()
     }
