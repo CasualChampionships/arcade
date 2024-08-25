@@ -12,6 +12,9 @@ public class Regular2DPolygonShape(
     private val vertices: Int,
     private val rotation: Quaterniond
 ): ShapePoints {
+    public val sideLength: Double
+        get() = 2 * this.radius * sin(Math.PI / this.vertices)
+
     override fun iterator(steps: Int): Iterator<Vec3> {
         if (steps == 1) {
             return PolygonIterator()
