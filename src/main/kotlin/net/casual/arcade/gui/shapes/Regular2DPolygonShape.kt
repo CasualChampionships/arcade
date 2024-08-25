@@ -11,7 +11,7 @@ public class Regular2DPolygonShape(
     private val radius: Double,
     private val vertices: Int,
     private val rotation: Quaterniond
-): ArcadeShape {
+): ShapePoints {
     override fun iterator(steps: Int): Iterator<Vec3> {
         if (steps == 1) {
             return PolygonIterator()

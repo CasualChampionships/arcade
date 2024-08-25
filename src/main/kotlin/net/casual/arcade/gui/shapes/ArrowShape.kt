@@ -9,7 +9,7 @@ public class ArrowShape(
     private val left: Vec3,
     private val right: Vec3,
     private val back: Vec3
-): ArcadeShape {
+): ShapePoints {
     override fun iterator(steps: Int): Iterator<Vec3> {
         return ArrowIterator(steps)
     }
