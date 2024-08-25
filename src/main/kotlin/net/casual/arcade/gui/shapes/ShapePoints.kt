@@ -9,7 +9,7 @@ import net.minecraft.world.phys.Vec3
  * can be iterated and then displayed with particles.
  * See [ShapeUtils.drawAsParticlesFor].
  */
-public interface ShapePoints: Iterable<Vec3> {
+public fun interface ShapePoints: Iterable<Vec3> {
     /**
      * Returns an iterator with the default step of `1`.
      *
