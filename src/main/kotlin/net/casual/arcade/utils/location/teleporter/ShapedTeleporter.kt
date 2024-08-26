@@ -15,6 +15,12 @@ public abstract class ShapedTeleporter: EntityTeleporter {
         entity.teleportTo(location)
     }
 
+    protected open fun teleportTeam(entities: Collection<Entity>, location: Location) {
+        for (entity in entities) {
+            this.teleportEntity(entity, location)
+        }
+    }
+
     override fun teleportEntities(level: ServerLevel, entities: List<Entity>) {
         val shape = this.createShape(level, entities.size)
         for ((i, position) in shape.withIndex()) {
@@ -25,9 +31,7 @@ public abstract class ShapedTeleporter: EntityTeleporter {
     override fun teleportTeams(level: ServerLevel, teams: Multimap<PlayerTeam, Entity>) {
         val shape = this.createShape(level, teams.keySet().size)
         for ((team, position) in teams.keySet().zip(shape)) {
-            for (entity in teams[team]) {
-                this.teleportEntity(entity, Location.of(position, level = level))
-            }
+            this.teleportTeam(teams[team], Location.of(position, level = level))
         }
     }
 }
