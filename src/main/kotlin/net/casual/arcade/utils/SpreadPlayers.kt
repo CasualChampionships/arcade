@@ -1,5 +1,6 @@
 package net.casual.arcade.utils
 
+import net.casual.arcade.utils.BlockUtils.isOf
 import net.minecraft.core.BlockPos
 import net.minecraft.core.BlockPos.MutableBlockPos
 import net.minecraft.core.Direction
@@ -197,7 +198,7 @@ internal object SpreadPlayers {
             val blockPos = BlockPos.containing(x, (getSpawnY(level, y) - 1).toDouble(), z)
             val blockState = level.getBlockState(blockPos)
             @Suppress("DEPRECATION")
-            return blockPos.y < y && !blockState.liquid() && !blockState.`is`(BlockTags.FIRE)
+            return blockPos.y < y && !blockState.liquid() && !blockState.isOf(BlockTags.FIRE)
         }
 
         fun randomize(random: RandomSource, minX: Double, minZ: Double, maxX: Double, maxZ: Double): Position {

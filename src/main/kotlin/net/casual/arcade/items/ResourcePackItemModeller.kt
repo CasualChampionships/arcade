@@ -5,6 +5,7 @@ import eu.pb4.polymer.core.api.other.PolymerComponent
 import eu.pb4.polymer.resourcepack.api.PolymerModelData
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator
 import net.casual.arcade.Arcade
+import net.casual.arcade.utils.ItemUtils.isOf
 import net.casual.arcade.utils.ResourcePackUtils.registerNextModel
 import net.minecraft.core.Registry
 import net.minecraft.core.component.DataComponentType
@@ -120,7 +121,7 @@ public class ResourcePackItemModeller(
      * @return The custom model id.
      */
     override fun getModelId(stack: ItemStack): Int {
-        if (!stack.`is`(this.item())) {
+        if (!stack.isOf(this.item())) {
             throw IllegalArgumentException("Cannot get model ID for incorrect stack '${stack}'")
         }
         return stack.get(PACKED_CUSTOM_MODEL) ?: -1

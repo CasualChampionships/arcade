@@ -10,6 +10,7 @@ import net.minecraft.core.component.DataComponents
 import net.minecraft.nbt.*
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.tags.TagKey
 import net.minecraft.util.Unit
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -51,6 +52,16 @@ public object ItemUtils {
     @JvmStatic
     public fun ItemStack.isOf(item: Item): Boolean {
         return this.`is`(item)
+    }
+
+    @JvmStatic
+    public fun ItemStack.isOf(tag: TagKey<Item>): Boolean {
+        return this.`is`(tag)
+    }
+
+    @JvmStatic
+    public fun ItemStack.isOf(holder: Holder<Item>): Boolean {
+        return this.`is`(holder)
     }
 
     @JvmStatic
