@@ -1,5 +1,6 @@
 package net.casual.arcade.utils
 
+import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction8
 import net.minecraft.world.phys.Vec3
 import kotlin.math.ceil
@@ -32,7 +33,7 @@ public object MathUtils {
     }
 
     public fun Double.wholeOrNull(): Int? {
-        if (ceil(this) == floor(this)) {
+        if (ceil(this) == this) {
             return this.toInt()
         }
         return null

@@ -11,6 +11,10 @@ public object BiomeUtils {
         return this.isOf(BiomeTags.IS_OCEAN) || this.isOf(BiomeTags.IS_DEEP_OCEAN)
     }
 
+    public fun Holder<Biome>.isOceanOrRiver(): Boolean {
+        return this.isOcean() || this.isOf(BiomeTags.IS_RIVER)
+    }
+
     public fun Biome.hasFeature(feature: Feature<*>): Boolean {
         val placedFeatures = this.generationSettings.features().stream().flatMap { it.stream() }
         for (placedFeature in placedFeatures) {
