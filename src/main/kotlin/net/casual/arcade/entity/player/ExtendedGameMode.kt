@@ -39,6 +39,7 @@ public enum class ExtendedGameMode {
         override fun set(player: ServerPlayer) {
             player.setGameMode(GameType.ADVENTURE)
             player.abilities.mayfly = true
+            player.abilities.flying = true
             player.abilities.invulnerable = true
             player.onUpdateAbilities()
         }
