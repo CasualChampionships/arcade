@@ -11,6 +11,7 @@ import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.players.PlayerList;
@@ -24,6 +25,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Predicate;
+
+import static net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket.Action.PRESS_SHIFT_KEY;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public class ServerGamePacketListenerImplMixin {
@@ -128,5 +131,17 @@ public class ServerGamePacketListenerImplMixin {
 		}
 		original.call(instance, slotId, button, action, player);
 		GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
+	}
+
+	@Inject(
+		method = "handlePlayerCommand",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/level/ServerPlayer;setShiftKeyDown(Z)V"
+		)
+	)
+	private void onSetSneaking(ServerboundPlayerCommandPacket packet, CallbackInfo ci) {
+		PlayerSetSneakingEvent event = new PlayerSetSneakingEvent(this.player, packet.getAction() == PRESS_SHIFT_KEY);
+		GlobalEventHandler.broadcast(event);
 	}
 }
