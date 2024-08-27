@@ -53,6 +53,7 @@ public enum class ExtendedGameMode {
             get() = this.getExtension(ExtendedGameModePlayerExtension::class.java).getGameMode()
             set(value) = this.getExtension(ExtendedGameModePlayerExtension::class.java).setGameMode(value)
 
+        @JvmStatic
         public fun fromVanilla(type: GameType): ExtendedGameMode {
             return when (type) {
                 GameType.SURVIVAL -> Survival

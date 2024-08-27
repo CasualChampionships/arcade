@@ -13,21 +13,36 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static net.casual.arcade.entity.player.ExtendedGameMode.AdventureSpectator;
-import static net.casual.arcade.entity.player.ExtendedGameMode.getExtendedGameMode;
+import static net.casual.arcade.entity.player.ExtendedGameMode.*;
 
 @Mixin(ServerPlayerGameMode.class)
 public class ServerPlayerGameModeMixin {
 	@Shadow @Final protected ServerPlayer player;
+
+	@ModifyExpressionValue(
+		method = "changeGameModeForPlayer",
+		at = @At(
+			value = "FIELD",
+			target = "Lnet/minecraft/server/level/ServerPlayerGameMode;gameModeForPlayer:Lnet/minecraft/world/level/GameType;"
+		)
+	)
+	private GameType currentGameType(GameType original) {
+		return null;
+	}
 
 	@Inject(
 		method = "changeGameModeForPlayer",
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/server/level/ServerPlayerGameMode;setGameModeForPlayer(Lnet/minecraft/world/level/GameType;Lnet/minecraft/world/level/GameType;)V"
-		)
+		),
+		cancellable = true
 	)
 	private void onChangeGameMode(GameType gameModeForPlayer, CallbackInfoReturnable<Boolean> cir) {
+		if (fromVanilla(gameModeForPlayer) == getExtendedGameMode(this.player)) {
+			cir.setReturnValue(false);
+			return;
+		}
 		ExtendedGameMode.setGameModeFromVanilla(this.player, gameModeForPlayer);
 	}
 
