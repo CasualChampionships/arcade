@@ -10,6 +10,7 @@ import net.casual.arcade.events.player.PlayerRespawnEvent
 import net.casual.arcade.gui.predicate.EntityObserverPredicate
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.ListenerFlags
+import net.casual.arcade.utils.NetworkUtils
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
 import net.minecraft.network.syncher.SynchedEntityData.DataValue
@@ -18,7 +19,7 @@ import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffectInstance.INFINITE_DURATION
 import net.minecraft.world.effect.MobEffects.NIGHT_VISION
 import net.minecraft.world.entity.Entity
-import java.util.UUID
+import java.util.*
 
 /**
  * This class manages custom effects on players in a minigame.
@@ -147,9 +148,8 @@ public class MinigameEffectsManager(
     }
 
     private fun onPlayerPacket(event: PlayerClientboundPacketEvent) {
-        val (player, packet) = event
-
-        val updated = this.updatePacket(player, packet)
+        val packet = event.resultOrElse { event.packet }
+        val updated = this.updatePacket(event.player, packet)
         if (updated !== packet) {
             event.cancel(updated)
         }
@@ -157,16 +157,7 @@ public class MinigameEffectsManager(
 
     private fun updatePacket(player: ServerPlayer, packet: Packet<*>): Packet<ClientGamePacketListener> {
         if (packet is ClientboundBundlePacket) {
-            val updated = ArrayList<Packet<in ClientGamePacketListener>>()
-            for (sub in packet.subPackets()) {
-                val new = this.updatePacket(player, sub)
-                if (new is ClientboundBundlePacket) {
-                    updated.addAll(new.subPackets())
-                } else {
-                    updated.add(new)
-                }
-            }
-            return ClientboundBundlePacket(updated)
+            return NetworkUtils.modifyBundlePacket(player, packet, this::updatePacket)
         }
 
         if (packet is ClientboundUpdateMobEffectPacket) {
@@ -191,29 +182,7 @@ public class MinigameEffectsManager(
         }
 
         if (packet is ClientboundSetEntityDataPacket) {
-            val observee = player.serverLevel().getEntity(packet.id) ?: return packet
-
-            val items = packet.packedItems
-            val data = ArrayList<DataValue<*>>()
-            var changed = false
-            for (item in items) {
-                if (item.id == Entity.DATA_SHARED_FLAGS_ID.id) {
-                    val flags = item.value as Byte
-                    val modified = this.modifySharedEntityFlags(observee, player, flags)
-                    data.add(DataValue.create(Entity.DATA_SHARED_FLAGS_ID, modified))
-                    changed = true
-                } else {
-                    data.add(item)
-                }
-            }
-            if (!changed) {
-                return packet
-            }
-
-            val replacement = ClientboundSetEntityDataPacket(packet.id, data)
-            // For polymer compatability
-            EntityAttachedPacket.set(replacement, observee)
-            return replacement
+            return NetworkUtils.modifySetEntityDataSharedFlagsPacket(player, packet, this::modifySharedEntityFlags)
         }
 
         @Suppress("UNCHECKED_CAST")

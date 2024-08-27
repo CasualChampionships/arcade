@@ -34,6 +34,7 @@ import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
 import net.minecraft.world.entity.ai.attributes.Attributes
+import net.minecraft.world.inventory.InventoryMenu
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.GameType
 import net.minecraft.world.phys.Vec2
@@ -209,6 +210,15 @@ public object PlayerUtils {
         this.inventory.clearContent()
         this.inventoryMenu.clearCraftingContent()
         this.inventoryMenu.carried = ItemStack.EMPTY
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.updateSelectedSlot() {
+        val menu = this.inventoryMenu
+        val slot = this.inventory.selected + 36
+        val item = menu.getSlot(slot).item
+        val update = ClientboundContainerSetSlotPacket(menu.containerId, menu.incrementStateId(), slot, item)
+        this.connection.send(update)
     }
 
     @JvmStatic

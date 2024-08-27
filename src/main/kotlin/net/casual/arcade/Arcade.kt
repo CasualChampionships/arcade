@@ -2,6 +2,7 @@ package net.casual.arcade
 
 import net.casual.arcade.commands.ArcadeCommands
 import net.casual.arcade.config.ArcadeConfig
+import net.casual.arcade.entity.player.ExtendedGameMode
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerCreatedEvent
 import net.casual.arcade.minigame.Minigames
@@ -102,6 +103,7 @@ public object Arcade: ModInitializer {
         LevelUtils.registerEvents()
         ArcadeConfig.registerEvents()
         FantasyUtils.registerEvents()
+        ExtendedGameMode.registerEvents()
 
         ArcadeCommands.registerCommands()
 

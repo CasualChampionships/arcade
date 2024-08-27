@@ -5,13 +5,12 @@ import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import com.mojang.datafixers.util.Either;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.player.PlayerAttackEvent;
-import net.casual.arcade.events.player.PlayerDamageEvent;
-import net.casual.arcade.events.player.PlayerJumpEvent;
-import net.casual.arcade.events.player.PlayerSleepEvent;
+import net.casual.arcade.events.player.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -52,6 +51,25 @@ public class PlayerMixin {
 			}
 		}
 		return entity.hurt(source, amount);
+	}
+
+	@Inject(
+		method = "interactOn",
+		at = @At("HEAD"),
+		cancellable = true
+	)
+	private void onInteractOn(
+		Entity entity,
+		InteractionHand hand,
+		CallbackInfoReturnable<InteractionResult> cir
+	) {
+		if ((Object) this instanceof ServerPlayer player) {
+			PlayerEntityInteractionEvent event = new PlayerEntityInteractionEvent(player, entity, hand);
+			GlobalEventHandler.broadcast(event);
+			if (event.isCancelled()) {
+				cir.setReturnValue(event.result());
+			}
+		}
 	}
 
 	@Inject(
