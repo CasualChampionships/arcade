@@ -155,7 +155,19 @@ public class MinigamePlayerManager(
             isAdmin = default.admin
 
             if (isSpectating != null) {
-                if (isSpectating) this.setSpectating(player) else this.setPlaying(player)
+                if (isSpectating) {
+                    if (!this.setSpectating(player)) {
+                        MinigameLoadSpectatingEvent(this.minigame, player).broadcast()
+                    }
+                } else if (!this.setPlaying(player)) {
+                    MinigameLoadPlayingEvent(this.minigame, player).broadcast()
+                }
+            } else {
+                if (this.isSpectating(player)) {
+                    MinigameLoadSpectatingEvent(this.minigame, player).broadcast()
+                } else {
+                    MinigameLoadPlayingEvent(this.minigame, player).broadcast()
+                }
             }
             if (isAdmin != null) {
                 if (isAdmin) this.addAdmin(player) else this.removeAdmin(player)
@@ -217,6 +229,7 @@ public class MinigamePlayerManager(
     public fun setSpectating(player: ServerPlayer): Boolean {
         if (this.has(player) && this.spectatorUUIDs.add(player.uuid)) {
             MinigameSetSpectatingEvent(this.minigame, player).broadcast()
+            MinigameLoadSpectatingEvent(this.minigame, player).broadcast()
             return true
         }
         return false
@@ -225,6 +238,7 @@ public class MinigamePlayerManager(
     public fun setPlaying(player: ServerPlayer): Boolean {
         if (this.spectatorUUIDs.remove(player.uuid)) {
             MinigameSetPlayingEvent(this.minigame, player).broadcast()
+            MinigameLoadPlayingEvent(this.minigame, player).broadcast()
             return true
         }
         return false
