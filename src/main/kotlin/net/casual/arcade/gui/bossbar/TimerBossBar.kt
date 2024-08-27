@@ -11,6 +11,7 @@ import net.casual.arcade.task.serialization.TaskWriteContext
 import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.boolean
 import net.casual.arcade.utils.JsonUtils.int
+import net.casual.arcade.utils.JsonUtils.ints
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.minecraft.server.MinecraftServer
@@ -101,7 +102,7 @@ public abstract class TimerBossBar: CustomBossBar(), TickableUI, Completable {
         this.ticks = data.int("ticks")
         this.completable.complete = data.boolean("complete")
 
-        for (taskData in data.array("tasks").objects()) {
+        for (taskData in data.array("tasks").ints()) {
             val task = context.createTask(taskData) ?: continue
             this.completable.then(task)
         }

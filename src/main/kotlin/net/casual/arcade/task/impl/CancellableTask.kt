@@ -10,6 +10,8 @@ import net.casual.arcade.task.serialization.TaskFactory
 import net.casual.arcade.task.serialization.TaskWriteContext
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.boolean
+import net.casual.arcade.utils.JsonUtils.int
+import net.casual.arcade.utils.JsonUtils.ints
 import net.casual.arcade.utils.JsonUtils.objects
 
 /**
@@ -85,20 +87,20 @@ public sealed class CancellableTask(
 
         override fun writeCustomData(context: TaskWriteContext): JsonObject {
             val data = JsonObject()
-            val wrappedData = context.writeTask(this.wrapped)
-            if (wrappedData == null) {
+            val wrappedRef = context.writeTask(this.wrapped)
+            if (wrappedRef == null) {
                 val message = "Cancellable\$Savable task failed to write wrapped task ${this.wrapped::class.simpleName}"
                 throw IllegalStateException(message)
             }
-            data.add("wrapped", wrappedData)
+            data.addProperty("wrapped", wrappedRef)
             val onCancel = JsonArray()
             for (cancel in this.cancelled) {
-                val onCancelData = context.writeTask(cancel)
-                if (onCancelData == null) {
+                val onCancelRef = context.writeTask(cancel)
+                if (onCancelRef == null) {
                     val message = "Cancellable\$Savable task failed to write on_cancel task ${cancel::class.simpleName}"
                     throw IllegalStateException(message)
                 }
-                onCancel.add(onCancelData)
+                onCancel.add(onCancelRef)
             }
             data.add("on_cancel", onCancel)
             data.addProperty("is_cancelled", this.isCancelled)
@@ -110,7 +112,7 @@ public sealed class CancellableTask(
 
             override fun create(context: TaskCreationContext): Task {
                 val data = context.getCustomData()
-                val wrappedData = data.getAsJsonObject("wrapped")
+                val wrappedData = data.int("wrapped")
                 val wrapped = context.createTask(wrappedData)
                 if (wrapped == null) {
                     val message = "Cancellable\$Savable task failed to create wrapped task with data: ${JsonUtils.GSON.toJson(wrappedData)}"
@@ -124,7 +126,7 @@ public sealed class CancellableTask(
                 }
 
                 val onCancelArray = data.getAsJsonArray("on_cancel")
-                for (onCancelData in onCancelArray.objects()) {
+                for (onCancelData in onCancelArray.ints()) {
                     val task = context.createTask(onCancelData)
                     if (task == null) {
                         val message = "Cancellable\$Savable task failed to create on_cancel task with data ${JsonUtils.GSON.toJson(onCancelData)}"

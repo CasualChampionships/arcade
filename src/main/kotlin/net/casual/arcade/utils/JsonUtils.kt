@@ -32,6 +32,10 @@ public object JsonUtils {
         return GSON.fromJson(reader, JsonElement::class.java)
     }
 
+    public fun decodeToJsonArray(reader: Reader): JsonArray {
+        return GSON.fromJson(reader, JsonArray::class.java)
+    }
+
     public fun decodeToJsonObject(reader: Reader): JsonObject {
         return GSON.fromJson(reader, JsonObject::class.java)
     }
@@ -65,6 +69,14 @@ public object JsonUtils {
             json.add(key, value)
         }
         return json
+    }
+
+    public fun Collection<JsonElement>.toJsonArray(): JsonArray {
+        val array = JsonArray(this.size)
+        for (element in this) {
+            array.add(element)
+        }
+        return array
     }
 
     public fun <T> Collection<T>.toJsonArray(serializer: (T) -> JsonElement): JsonArray {

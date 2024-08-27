@@ -41,7 +41,7 @@ public interface TaskCreationContext {
      * @param data The data to create another task.
      * @return The created task, null if it could not be created.
      */
-    public fun createTask(data: JsonObject): Task?
+    public fun createTask(uid: Int): Task?
 
     private class Child(
         private val parent: TaskCreationContext,
@@ -51,8 +51,8 @@ public interface TaskCreationContext {
             return this.data
         }
 
-        override fun createTask(data: JsonObject): Task? {
-            return this.parent.createTask(data)
+        override fun createTask(uid: Int): Task? {
+            return this.parent.createTask(uid)
         }
     }
 

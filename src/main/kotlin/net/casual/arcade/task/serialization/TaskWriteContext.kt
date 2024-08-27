@@ -26,5 +26,5 @@ public interface TaskWriteContext {
      * @param task The task to serialize.
      * @return The serialized task; may be null.
      */
-    public fun writeTask(task: Task): JsonObject?
+    public fun writeTask(task: Task): Int?
 }

@@ -1,34 +1,33 @@
 package net.casual.arcade.minigame
 
 import com.google.common.collect.LinkedHashMultimap
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import net.casual.arcade.Arcade
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.events.server.ServerSaveEvent
+import net.casual.arcade.minigame.exception.MinigameCreationException
+import net.casual.arcade.minigame.exception.MinigameSerializationException
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.serialization.SavableMinigame
-import net.casual.arcade.utils.JsonUtils.obj
-import net.casual.arcade.utils.JsonUtils.objOrNull
-import net.casual.arcade.utils.JsonUtils.objects
+import net.casual.arcade.utils.JsonUtils
+import net.casual.arcade.utils.JsonUtils.objOrDefault
 import net.casual.arcade.utils.JsonUtils.string
+import net.minecraft.Util
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
+import java.io.IOException
+import java.nio.file.Path
 import java.util.*
-import kotlin.io.path.bufferedReader
-import kotlin.io.path.bufferedWriter
-import kotlin.io.path.exists
+import kotlin.io.path.*
 
 /**
  * This object is used for registering and holding
  * all the current minigames that are running.
  */
 public object Minigames {
-    private val GSON = GsonBuilder().disableHtmlEscaping().serializeNulls().setPrettyPrinting().create()
-    private val PATH = Arcade.path.resolve("minigames.json")
+    private val PATH = Arcade.path.resolve("minigames")
 
     private val ALL = LinkedHashMap<UUID, Minigame<*>>()
     private val BY_ID = LinkedHashMultimap.create<ResourceLocation, Minigame<*>>()
@@ -101,6 +100,54 @@ public object Minigames {
         return this.BY_ID.get(id).toList()
     }
 
+    public fun create(id: ResourceLocation, context: MinigameCreationContext): Minigame<*> {
+        val factory = FACTORIES_BY_ID[id]
+            ?: throw MinigameCreationException("Cannot create Minigame $id, no such factory found")
+        try {
+            return factory.create(context)
+        } catch (e: Exception) {
+            throw MinigameCreationException("Failed to create Minigame $id", e)
+        }
+    }
+
+    public fun read(path: Path, server: MinecraftServer): Minigame<*> {
+        val minigamePath = path.resolve("minigame.json")
+        if (!minigamePath.isRegularFile()) {
+            throw MinigameCreationException("Cannot create Minigame, no such file $path")
+        }
+
+        val core = try {
+            minigamePath.reader().use(JsonUtils::decodeToJsonObject)
+        } catch (e: IOException) {
+            throw MinigameCreationException("Cannot create Minigame, failed to read $path")
+        }
+        val rawId = core.string("id")
+        val id = ResourceLocation.tryParse(rawId)
+            ?: throw MinigameCreationException("Cannot create Minigame $rawId, invalid ResourceLocation")
+        val factory = FACTORIES_BY_ID[id]
+            ?: throw MinigameCreationException("Cannot create Minigame $id, no such factory found")
+
+        try {
+            val minigame = factory.create(MinigameCreationContext(server, core.objOrDefault("parameters")))
+            if (minigame !is SavableMinigame) {
+                throw MinigameCreationException("Factory created non-savable Minigame $id")
+            }
+            minigame.loadFrom(path, core)
+            return minigame
+        } catch (e: Exception) {
+            throw MinigameCreationException("Failed to create Minigame $id", e)
+        }
+    }
+
+    public fun write(path: Path, minigame: SavableMinigame<*>) {
+        try {
+            path.createDirectories()
+            minigame.saveTo(path)
+        } catch (e: IOException) {
+            throw MinigameSerializationException("Failed to write Minigame ${minigame.id} to $path", e)
+        }
+    }
+
     internal fun allById(): Map<ResourceLocation, Collection<Minigame<*>>> {
         return this.BY_ID.asMap()
     }
@@ -113,63 +160,56 @@ public object Minigames {
     internal fun unregister(minigame: Minigame<*>) {
         this.ALL.remove(minigame.uuid)
         this.BY_ID[minigame.id].remove(minigame)
+
+        if (minigame is SavableMinigame) {
+            Util.ioPool().execute {
+                val path = this.getPathFor(minigame)
+                if (path.exists()) {
+                    @OptIn(ExperimentalPathApi::class)
+                    path.deleteRecursively()
+                }
+            }
+        }
     }
 
     internal fun registerEvents() {
-        GlobalEventHandler.register<ServerLoadedEvent> { this.readMinigames(it.server) }
+        GlobalEventHandler.register<ServerLoadedEvent> { this.loadMinigames(it.server) }
         GlobalEventHandler.register<ServerSaveEvent> { this.saveMinigames() }
     }
 
-    private fun readMinigames(server: MinecraftServer) {
-        if (!PATH.exists()) {
-            return
-        }
-        val games = try {
-            PATH.bufferedReader().use { GSON.fromJson(it, JsonArray::class.java).objects() }
-        } catch (e: Exception) {
-            Arcade.logger.error("Failed to read minigames from json!", e)
-            return
-        }
-        for (game in games) {
-            val id = ResourceLocation.parse(game.string("id"))
-            val factory = FACTORIES_BY_ID[id]
-            if (factory == null) {
-                Arcade.logger.warn("Failed to reload minigame with id $id, no factory found!")
+    private fun loadMinigames(server: MinecraftServer) {
+        PATH.createDirectories()
+        for (types in PATH.listDirectoryEntries()) {
+            if (!types.isDirectory()) {
                 continue
             }
-
-            val data = game.obj("data")
-            val context = MinigameCreationContext(server, data.objOrNull("custom"))
-            try {
-                val minigame = factory.create(context)
-                register(minigame)
-                if (minigame is SavableMinigame) {
-                    minigame.read(data)
-                } else {
-                    Arcade.logger.warn("Minigame with id $id loaded but was not Savable?!?")
+            for (minigame in types.listDirectoryEntries()) {
+                if (!minigame.isDirectory()) {
+                    continue
                 }
-            } catch (e: Exception) {
-                Arcade.logger.error("Failed to reload minigame (${id}) on restart", e)
+                try {
+                    this.read(minigame, server)
+                } catch (e: MinigameCreationException) {
+                    Arcade.logger.error(e)
+                }
             }
         }
     }
 
     private fun saveMinigames() {
-        val games = JsonArray()
         for (minigame in ALL.values) {
-            if (minigame is SavableMinigame) {
-                val game = JsonObject()
-                game.addProperty("id", minigame.id.toString())
-                game.addProperty("uuid", minigame.uuid.toString())
-                game.add("data", minigame.save())
-                games.add(game)
+            if (minigame !is SavableMinigame) {
+                continue
+            }
+            try {
+                this.write(this.getPathFor(minigame), minigame)
+            } catch (e: MinigameSerializationException) {
+                Arcade.logger.error(e)
             }
         }
+    }
 
-        try {
-            PATH.bufferedWriter().use { GSON.toJson(games, it) }
-        } catch (e: Exception) {
-            Arcade.logger.error("Failed to write minigames as json!\n\n${GSON.toJson(games)}", e)
-        }
+    private fun getPathFor(minigame: Minigame<*>): Path {
+        return PATH.resolve("${minigame.id.namespace}.${minigame.id.path}").resolve(minigame.uuid.toString())
     }
 }

@@ -9,6 +9,7 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigameResources.Companion.sendTo
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.events.lobby.LobbyMinigame
+import net.casual.arcade.minigame.exception.MinigameCreationException
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.utils.EventUtils.broadcast
 import net.casual.arcade.utils.MinigameUtils.transferAdminAndSpectatorTeamsTo
@@ -167,12 +168,12 @@ public class SequentialMinigames(
 
     private fun createNextMinigame(): Minigame<*>? {
         val (minigameId, customData) = this.getNextMinigameData() ?: return null
-        val factory = Minigames.getFactory(minigameId)
-        if (factory == null) {
-            Arcade.logger.error("Failed to create next minigame, non-existent factory")
+        try {
+            return Minigames.create(minigameId, this.server, customData.getOrNull())
+        } catch (e: MinigameCreationException) {
+            Arcade.logger.error("Failed to create next minigame", e)
             return null
         }
-        return factory.create(MinigameCreationContext(this.server, customData.getOrNull()))
     }
 
     private fun incrementIndex(next: Minigame<*>) {

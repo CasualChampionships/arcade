@@ -188,7 +188,7 @@ public open class LobbyMinigame(
         return LobbyPhase.entries.toList()
     }
 
-    override fun readData(json: JsonObject) {
+    override fun loadData(json: JsonObject) {
         val uuid = json.uuidOrNull("next_minigame")
         if (uuid != null) {
             // Our minigame may not be deserialized yet
@@ -198,7 +198,7 @@ public open class LobbyMinigame(
         }
     }
 
-    override fun writeData(json: JsonObject) {
+    override fun saveData(json: JsonObject) {
         val next = this.nextMinigame
         if (next != null) {
             json.addProperty("next_minigame", next.uuid.toString())
