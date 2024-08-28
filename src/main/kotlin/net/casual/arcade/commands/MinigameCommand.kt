@@ -1,7 +1,11 @@
 package net.casual.arcade.commands
 
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import com.google.gson.JsonParseException
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType
+import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.advancements.AdvancementModifier
 import net.casual.arcade.commands.arguments.EnumArgument
@@ -51,7 +55,10 @@ internal object MinigameCommand: Command {
             }
             literal("create") {
                 argument("factory", MinigameFactoryArgument.factory()) {
-                    executes(::createMinigame)
+                    executes { createMinigame(it, null) }
+                    argument("parameters", StringArgumentType.greedyString()) {
+                        executes(::createMinigame)
+                    }
                 }
             }
             literal("join") {
@@ -681,9 +688,22 @@ internal object MinigameCommand: Command {
         }
     }
 
-    private fun createMinigame(context: CommandContext<CommandSourceStack>): Int {
+    private fun createMinigame(
+        context: CommandContext<CommandSourceStack>,
+        raw: String? = StringArgumentType.getString(context, "parameters")
+    ): Int {
         val factory = MinigameFactoryArgument.getFactory(context, "factory")
-        val minigame = factory.create(MinigameCreationContext(context.source.server))
+        val parameters = if (raw != null) {
+            try {
+                JsonUtils.GSON.fromJson(raw, JsonObject::class.java)
+            } catch (_: JsonParseException) {
+                return context.source.fail("Failed to parse parameters, invalid JSON object")
+            }
+        } else {
+            JsonObject()
+        }
+
+        val minigame = factory.create(MinigameCreationContext(context.source.server, parameters))
         minigame.tryInitialize()
         return context.source.success("Successfully created minigame ${minigame.id} with uuid ${minigame.uuid}")
     }
