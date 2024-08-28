@@ -1,5 +1,6 @@
 package net.casual.arcade.scheduler
 
+import com.mojang.serialization.Codec
 import net.casual.arcade.scheduler.MinecraftTimeUnit.Ticks
 import net.casual.arcade.utils.TimeUtils.Ticks
 import kotlin.math.max
@@ -160,6 +161,8 @@ public value class MinecraftTimeDuration private constructor(
 
     public companion object {
         public val ZERO: MinecraftTimeDuration = 0.Ticks
+
+        public val CODEC: Codec<MinecraftTimeDuration> = Codec.INT.xmap(Ticks::duration, MinecraftTimeDuration::ticks)
 
         @JvmStatic
         public fun of(duration: Int, unit: MinecraftTimeUnit): MinecraftTimeDuration {
