@@ -47,6 +47,8 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.ObjectStreamException
 import java.nio.file.Path
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.reader
 import kotlin.io.path.writer
@@ -294,7 +296,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         }
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
+    @OptIn(ExperimentalEncodingApi::class)
     private fun deserializeTask(identity: Int, context: MinigameTaskCreationContext): Task? {
         if (context.generated.containsKey(identity)) {
             return context.generated.get(identity)
@@ -303,7 +305,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         val definition = context.definitions.get(identity) ?: return null
         val task = if (definition.has("raw")) {
             try {
-                definition.string("raw").hexToByteArray().inputStream().use { bytes ->
+                Base64.decode(definition.string("raw")).inputStream().use { bytes ->
                     ObjectInputStream(bytes).use { it.readObject() as Task }
                 }
             } catch (_: ObjectStreamException) {
@@ -402,7 +404,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         return tasks
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
+    @OptIn(ExperimentalEncodingApi::class)
     private fun serializeTask(task: Task, context: MinigameTaskWriteContext): Int? {
         val identity = System.identityHashCode(task)
         if (context.definitions.containsKey(identity)) {
@@ -430,7 +432,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
                 }
                 val definition = JsonObject()
                 definition.addProperty("uid", identity)
-                definition.addProperty("raw", bytes.toByteArray().toHexString())
+                definition.addProperty("raw", Base64.encode(bytes.toByteArray()))
                 context.definitions.put(identity, definition)
                 return identity
             }

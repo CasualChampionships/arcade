@@ -1,5 +1,6 @@
 package net.casual.arcade.minigame.events
 
+import com.google.gson.JsonObject
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.Arcade
@@ -169,7 +170,7 @@ public class SequentialMinigames(
     private fun createNextMinigame(): Minigame<*>? {
         val (minigameId, customData) = this.getNextMinigameData() ?: return null
         try {
-            return Minigames.create(minigameId, this.server, customData.getOrNull())
+            return Minigames.create(minigameId, MinigameCreationContext(this.server, customData.orElseGet(::JsonObject)))
         } catch (e: MinigameCreationException) {
             Arcade.logger.error("Failed to create next minigame", e)
             return null
