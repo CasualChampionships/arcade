@@ -187,6 +187,7 @@ public class MinigamePlayerManager(
                 this.setSpectating(player)
             } else {
                 MinigameSetPlayingEvent(this.minigame, player).broadcast()
+                MinigameLoadPlayingEvent(this.minigame, player).broadcast()
             }
             if (isAdmin != null && isAdmin) {
                 this.addAdmin(player)
