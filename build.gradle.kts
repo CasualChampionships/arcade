@@ -2,30 +2,19 @@ import org.apache.commons.io.output.ByteArrayOutputStream
 import java.nio.charset.Charset
 
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.serialization") version "1.9.21"
-    id("fabric-loom")
+    val jvmVersion = libs.versions.fabric.kotlin.get()
+        .split("+kotlin.")[1]
+        .split("+")[0]
+
+    kotlin("jvm").version(jvmVersion)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.fabric.loom)
     `maven-publish`
     java
 }
 
-val modVersion: String by project
-version = modVersion
+version = "1.0.0"
 group = "net.casual"
-
-val minecraftVersion: String by project
-val parchmentVersion: String by project
-val loaderVersion: String by project
-val fabricVersion: String by project
-val fabricKotlinVersion: String by project
-
-val fantasyVersion: String by project
-val polymerVersion: String by project
-val permissionsVersion: String by project
-val customNametagsVersion: String by project
-val serverReplayVersion: String by project
-val sguiVersion: String by project
-val serverTranslationsVersion: String by project
 
 allprojects {
     apply(plugin = "fabric-loom")
@@ -45,16 +34,18 @@ allprojects {
     }
 
     dependencies {
-        minecraft("com.mojang:minecraft:$minecraftVersion")
+        val libs = rootProject.libs
+
+        minecraft(libs.minecraft)
         @Suppress("UnstableApiUsage")
         mappings(loom.layered {
             officialMojangMappings()
-            parchment("org.parchmentmc.data:parchment-$parchmentVersion@zip")
+            parchment("org.parchmentmc.data:parchment-${libs.versions.parchment.get()}@zip")
         })
-        modImplementation("net.fabricmc:fabric-loader:$loaderVersion")
-        modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
 
-        modImplementation("net.fabricmc:fabric-language-kotlin:$fabricKotlinVersion")
+        modImplementation(libs.fabric.loader)
+        modImplementation(libs.fabric.api)
+        modImplementation(libs.fabric.kotlin)
     }
 
     kotlin {
@@ -79,27 +70,20 @@ allprojects {
     }
 }
 
-configurations.all {
-    resolutionStrategy {
-        force("net.fabricmc:fabric-loader:$loaderVersion")
-    }
-}
-
 dependencies {
-    include(modApi("xyz.nucleoid:fantasy:$fantasyVersion")!!)
+    includeModApi(libs.polymer.core)
+    includeModApi(libs.polymer.blocks)
+    includeModApi(libs.polymer.resource.pack)
+    includeModApi(libs.polymer.virtual.entity)
 
-    include(modApi("eu.pb4:polymer-core:$polymerVersion")!!)
-    include(modApi("eu.pb4:polymer-blocks:$polymerVersion")!!)
-    include(modApi("eu.pb4:polymer-resource-pack:$polymerVersion")!!)
-    include(modApi("eu.pb4:polymer-virtual-entity:$polymerVersion")!!)
+    includeModApi(libs.fantasy)
 
-    include(modApi("eu.pb4:sgui:$sguiVersion")!!)
+    includeModApi(libs.permissions)
+    includeModApi(libs.sgui)
+    includeModApi(libs.server.translations)
 
-    include(modApi("com.github.senseiwells:CustomNameTags:$customNametagsVersion")!!)
-    modImplementation("com.github.senseiwells:ServerReplay:${serverReplayVersion}")
-
-    include(modApi("me.lucko:fabric-permissions-api:$permissionsVersion")!!)
-    include(modImplementation("xyz.nucleoid:server-translations-api:$serverTranslationsVersion")!!)
+    includeModApi(libs.custom.nametags)
+    modApi(libs.server.replay)
 }
 
 loom {
@@ -137,4 +121,9 @@ fun getGitHash(): String {
         standardOutput = out
     }
     return out.toString(Charset.defaultCharset()).trim()
+}
+
+private fun DependencyHandler.includeModApi(dependencyNotation: Any) {
+    include(dependencyNotation)
+    modApi(dependencyNotation)
 }

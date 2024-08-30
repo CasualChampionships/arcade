@@ -1,0 +1,35 @@
+[versions]
+fabric-loom          = "1.7-SNAPSHOT"
+kotlin-serialization = "1.9.21"
+minecraft            = "1.21.1"
+fabric-loader        = "0.16.3"
+parchment            = "1.21:2024.07.28"
+fabric-api           = "0.103.0+1.21.1"
+fabric-kotlin        = "1.11.0+kotlin.2.0.0"
+polymer              = "0.9.12+1.21.1"
+sgui                 = "1.6.0+1.21"
+fantasy              = "0.6.4+1.21"
+permissions          = "0.3.1"
+server-translations  = "2.3.1+1.21-pre2"
+custom-nametags      = "038a9c8853a828f8f89b91397ddd031435f067c0"
+server-replay        = "a82ce79bdc"
+
+[libraries]
+minecraft               = { module = "com.mojang:minecraft"                 , version.ref = "minecraft" }
+fabric-loader           = { module = "net.fabricmc:fabric-loader"           , version.ref = "fabric-loader" }
+fabric-api              = { module = "net.fabricmc.fabric-api:fabric-api"   , version.ref = "fabric-api" }
+fabric-kotlin           = { module = "net.fabricmc:fabric-language-kotlin"  , version.ref = "fabric-kotlin" }
+polymer-core            = { module = "eu.pb4:polymer-core"                  , version.ref = "polymer" }
+polymer-blocks          = { module = "eu.pb4:polymer-blocks"                , version.ref = "polymer" }
+polymer-resource-pack   = { module = "eu.pb4:polymer-resource-pack"         , version.ref = "polymer" }
+polymer-virtual-entity  = { module = "eu.pb4:polymer-virtual-entity"        , version.ref = "polymer" }
+fantasy                 = { module = "xyz.nucleoid:fantasy"                 , version.ref = "fantasy" }
+permissions             = { module = "me.lucko:fabric-permissions-api"      , version.ref = "permissions" }
+sgui                    = { module = "eu.pb4:sgui"                          , version.ref = "sgui" }
+server-translations     = { module = "xyz.nucleoid:server-translations-api" , version.ref = "server-translations" }
+custom-nametags         = { module = "com.github.senseiwells:CustomNameTags", version.ref = "custom-nametags" }
+server-replay           = { module = "com.github.senseiwells:ServerReplay"  , version.ref = "server-replay" }
+
+[plugins]
+fabric-loom   = { id = "fabric-loom", version.ref = "fabric-loom" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-serialization" }
