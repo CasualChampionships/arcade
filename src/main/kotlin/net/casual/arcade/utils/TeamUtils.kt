@@ -16,6 +16,7 @@ import net.minecraft.ChatFormatting.*
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.ServerScoreboard
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
@@ -69,6 +70,18 @@ public object TeamUtils {
             teams.put(team, entity)
         }
         return teams
+    }
+
+    @JvmStatic
+    public fun getOrCreateTeam(name: String, modifier: PlayerTeam.() -> Unit = {}): PlayerTeam {
+        return Arcade.getServer().scoreboard.getOrCreateTeam(name, modifier)
+    }
+
+    @JvmStatic
+    public fun ServerScoreboard.getOrCreateTeam(name: String, modifier: PlayerTeam.() -> Unit = {}): PlayerTeam {
+        val team = this.getPlayerTeam(name) ?: this.addPlayerTeam(name)
+        team.modifier()
+        return team
     }
 
     @JvmStatic
