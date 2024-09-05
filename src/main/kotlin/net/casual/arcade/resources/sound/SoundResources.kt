@@ -60,7 +60,7 @@ public abstract class SoundResources(
         return ResourceLocation.fromNamespaceAndPath(this.namespace, path)
     }
 
-    internal fun getJson(): String {
+    internal fun toJson(): String {
         val json = buildJsonObject {
             for ((key, providers) in providers) {
                 putJsonObject(key) {

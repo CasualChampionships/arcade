@@ -1,5 +1,7 @@
 package net.casual.arcade.resources.lang
 
+import com.google.gson.JsonObject
+
 public data class LanguageEntry(
     val key: String,
     val translation: String
@@ -31,6 +33,14 @@ public data class LanguageEntry(
             }
             builder.append("\n}")
             return builder.toString()
+        }
+
+        public fun toJsonObject(entries: Collection<LanguageEntry>): JsonObject {
+            val json = JsonObject()
+            for (entry in entries) {
+                json.addProperty(entry.key, entry.translation)
+            }
+            return json
         }
     }
 }

@@ -1,7 +1,7 @@
 package net.casual.arcade.utils
 
-import com.google.gson.Gson
 import com.google.gson.JsonObject
+import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.network.ClientboundPacketEvent
@@ -115,7 +115,8 @@ public object ResourcePackUtils {
     public fun ResourcePackCreator.addLangsFrom(namespace: String, langs: Path) {
         this.creationEvent.register { builder ->
             for (lang in langs.listDirectoryEntries()) {
-                builder.addData("assets/${namespace}/lang/${lang.name}", lang.readBytes())
+                val translations = JsonUtils.decodeToJsonObject(lang.reader())
+                mergeJsons(builder, "assets/${namespace}/lang/${lang.name}", translations)
             }
         }
     }
@@ -123,7 +124,11 @@ public object ResourcePackUtils {
     @JvmStatic
     public fun ResourcePackCreator.addFont(font: FontResources) {
         this.creationEvent.register { builder ->
-            builder.addData("assets/${font.id.namespace}/font/${font.id.path}.json", font.getJson().encodeToByteArray())
+            val fontDefinition = font.toJson().encodeToByteArray()
+            builder.addData("assets/${font.id.namespace}/font/${font.id.path}.json", fontDefinition)
+            for ((lang, translations) in font.getLangJsons()) {
+                mergeJsons(builder, "assets/${font.id.namespace}/lang/${lang}.json", translations)
+            }
         }
     }
 
@@ -131,23 +136,8 @@ public object ResourcePackUtils {
     public fun ResourcePackCreator.addSounds(sounds: SoundResources) {
         this.afterInitialCreationEvent.register { builder ->
             // We can only have 1 sounds.json
-            val path = "assets/${sounds.namespace}/sounds.json"
-            val gson = Gson()
-            val json = JsonObject()
-            val existing = builder.getData(path)
-            if (existing != null) {
-                val existingJson = gson.fromJson(existing.decodeToString(), JsonObject::class.java)
-                for ((string, element) in existingJson.entrySet()) {
-                    json.add(string, element)
-                }
-            }
-
-            val data = gson.fromJson(sounds.getJson(), JsonObject::class.java)
-            for ((string, element) in data.entrySet()) {
-                json.add(string, element)
-            }
-
-            builder.addData("assets/${sounds.namespace}/sounds.json", gson.toJson(json).encodeToByteArray())
+            val additional = JsonUtils.decodeToJsonObject(sounds.toJson())
+            mergeJsons(builder, "assets/${sounds.namespace}/sounds.json", additional)
         }
     }
 
@@ -184,6 +174,21 @@ public object ResourcePackUtils {
                 }
             }
         }
+    }
+
+    private fun mergeJsons(builder: ResourcePackBuilder, path: String, additional: JsonObject) {
+        val existing = builder.getData(path)
+        val json = if (existing != null) {
+            JsonUtils.decodeToJsonObject(existing.decodeToString())
+        } else {
+            JsonObject()
+        }
+
+        for ((string, element) in additional.entrySet()) {
+            json.add(string, element)
+        }
+
+        builder.addData(path, JsonUtils.GSON.toJson(json).encodeToByteArray())
     }
 
     private fun getDefaultItemModel(location: ResourceLocation): ByteArray {

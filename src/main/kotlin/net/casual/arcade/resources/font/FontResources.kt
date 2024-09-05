@@ -3,6 +3,7 @@ package net.casual.arcade.resources.font
 import com.google.common.collect.HashMultimap
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 import net.casual.arcade.resources.lang.LanguageEntry
@@ -10,6 +11,7 @@ import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.withFont
 import net.minecraft.resources.ResourceLocation
 import org.apache.commons.lang3.mutable.MutableInt
+import com.google.gson.JsonObject as GsonObject
 
 public abstract class FontResources(
     public val id: ResourceLocation
@@ -45,11 +47,23 @@ public abstract class FontResources(
         return ResourceLocation.fromNamespaceAndPath(this.id.namespace, "font/$path")
     }
 
-    internal fun getJson(): String {
+    internal fun toJson(): String {
         val font = buildJsonObject {
             put("providers", json.encodeToJsonElement(providers))
         }
         return json.encodeToString(font)
+    }
+
+    internal fun getLangJsons(): Map<String, GsonObject> {
+        val langs = HashMap<String, GsonObject>()
+        for (lang in this.languages.keySet()) {
+            val translations = GsonObject()
+            for (entry in this.languages.get(lang)) {
+                translations.addProperty(entry.key, entry.translation)
+            }
+            langs[lang] = translations
+        }
+        return langs
     }
 
     private fun nextBitmapChar(): Char {

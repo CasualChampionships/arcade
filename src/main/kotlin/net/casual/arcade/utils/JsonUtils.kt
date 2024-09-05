@@ -40,6 +40,10 @@ public object JsonUtils {
         return GSON.fromJson(reader, JsonObject::class.java)
     }
 
+    public fun decodeToJsonObject(string: String): JsonObject {
+        return GSON.fromJson(string, JsonObject::class.java)
+    }
+
     public fun <T> encodeWith(encoder: Encoder<T>, any: T, writer: Appendable): Boolean {
         val result = encoder.encodeStart(JsonOps.INSTANCE, any).result()
         if (result.isPresent) {
