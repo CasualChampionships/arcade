@@ -45,9 +45,8 @@ public fun interface PlayerObserverPredicate: EntityObserverPredicate {
 
     public companion object {
         public fun EntityObserverPredicate.toPlayer(): PlayerObserverPredicate {
-            val entity = this
             return PlayerObserverPredicate { observee, observer ->
-                entity.observable(observee, observer)
+                this.observable(observee, observer)
             }
         }
     }

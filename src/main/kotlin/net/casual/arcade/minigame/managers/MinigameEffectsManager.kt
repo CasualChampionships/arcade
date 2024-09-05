@@ -1,19 +1,25 @@
 package net.casual.arcade.minigame.managers
 
-import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket
+import com.google.common.collect.HashMultimap
+import com.google.common.collect.Multimap
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.Arcade
 import net.casual.arcade.events.minigame.MinigameAddPlayerEvent
 import net.casual.arcade.events.minigame.MinigameRemovePlayerEvent
 import net.casual.arcade.events.player.PlayerClientboundPacketEvent
 import net.casual.arcade.events.player.PlayerDimensionChangeEvent
 import net.casual.arcade.events.player.PlayerRespawnEvent
+import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.gui.predicate.EntityObserverPredicate
+import net.casual.arcade.gui.predicate.PlayerObserverPredicate
+import net.casual.arcade.gui.predicate.PlayerObserverPredicate.Companion.toPlayer
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.ListenerFlags
 import net.casual.arcade.utils.NetworkUtils
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
 import net.minecraft.network.syncher.SynchedEntityData.DataValue
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffectInstance.INFINITE_DURATION
@@ -32,8 +38,11 @@ import java.util.*
 public class MinigameEffectsManager(
     private val owner: Minigame<*>
 ) {
-    private var glowing = EntityObserverPredicate.never()
-    private var invisible = EntityObserverPredicate.never()
+    private var glowingTracker: Multimap<UUID, UUID>? = null
+    private var invisibleTracker: Multimap<UUID, UUID>? = null
+
+    private var glowing = EntityObserverPredicate.never().toPlayer()
+    private var invisible = EntityObserverPredicate.never().toPlayer()
 
     private val frozen = HashSet<UUID>()
 
@@ -43,6 +52,7 @@ public class MinigameEffectsManager(
         this.owner.events.register<MinigameAddPlayerEvent> { this.updatePlayerFullbright(it.player) }
         this.owner.events.register<PlayerRespawnEvent> { this.updatePlayerFullbright(it.player) }
         this.owner.events.register<MinigameRemovePlayerEvent> { this.removeFullbright(it.player) }
+        this.owner.events.register<ServerTickEvent> { this.tickTrackers() }
     }
 
     /**
@@ -86,12 +96,17 @@ public class MinigameEffectsManager(
      *
      * @param predicate The predicate to set for glowing entities.
      */
-    public fun setGlowingPredicate(predicate: EntityObserverPredicate) {
+    public fun setGlowingPredicate(predicate: PlayerObserverPredicate, tick: Boolean = false) {
         this.glowing = predicate
         for (player in this.owner.players) {
             // Mark entity data dirty
             player.setGlowingTag(!player.hasGlowingTag())
             player.setGlowingTag(!player.hasGlowingTag())
+        }
+        if (tick) {
+            this.glowingTracker = HashMultimap.create()
+        } else {
+            this.glowingTracker = null
         }
     }
 
@@ -100,12 +115,17 @@ public class MinigameEffectsManager(
      *
      * @param predicate The predicate to set for invisible entities.
      */
-    public fun setInvisiblePredicate(predicate: EntityObserverPredicate) {
+    public fun setInvisiblePredicate(predicate: PlayerObserverPredicate, tick: Boolean = false) {
         this.invisible = predicate
         for (player in this.owner.players) {
             // Mark entity data dirty
             player.isInvisible = !player.isInvisible
             player.isInvisible = !player.isInvisible
+        }
+        if (tick) {
+            this.invisibleTracker = HashMultimap.create()
+        } else {
+            this.invisibleTracker = null
         }
     }
 
@@ -139,6 +159,43 @@ public class MinigameEffectsManager(
         val modified = this.modifySharedEntityFlags(observee, observer, flags)
         val dirty = listOf(DataValue.create(Entity.DATA_SHARED_FLAGS_ID, modified))
         consumer(ClientboundSetEntityDataPacket(observee.id, dirty))
+    }
+
+    private fun tickTrackers() {
+        val glowing = this.glowingTracker
+        val players = lazy { this.owner.players.all }
+        val updated = HashMultimap.create<UUID, UUID>()
+        if (glowing != null) {
+            this.glowingTracker = this.tickTracker(this.glowing, glowing, players, updated)
+        }
+        val invisible = this.invisibleTracker
+        if (invisible != null) {
+            this.invisibleTracker = this.tickTracker(this.invisible, invisible, players, updated)
+        }
+    }
+
+    private fun tickTracker(
+        predicate: PlayerObserverPredicate,
+        previous: Multimap<UUID, UUID>,
+        players: Lazy<List<ServerPlayer>>,
+        updated: Multimap<UUID, UUID>
+    ): HashMultimap<UUID, UUID> {
+        val next = HashMultimap.create<UUID, UUID>()
+        for (observee in players.value) {
+            for (observer in players.value) {
+                val bool = predicate.observable(observee, observer)
+                if (bool) {
+                    next.put(observee.uuid, observer.uuid)
+                }
+                if (bool != previous.containsEntry(observee.uuid, observer.uuid)) {
+                    if (!updated.containsEntry(observee.uuid, observer.uuid)) {
+                        this.forceUpdate(observee, observer)
+                        updated.put(observee.uuid, observer.uuid)
+                    }
+                }
+            }
+        }
+        return next
     }
 
     private fun updatePlayerFullbright(player: ServerPlayer) {
