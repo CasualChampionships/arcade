@@ -402,6 +402,18 @@ public object ComponentUtils {
             return component
         }
 
+        public fun with(mutator: MutableComponent.() -> Unit): ConstantComponentGenerator {
+            val consumer = this.consumer
+            return if (consumer != null) {
+                ConstantComponentGenerator(this.key, this.supplier) {
+                    consumer()
+                    mutator()
+                }
+            } else {
+                ConstantComponentGenerator(this.key, this.supplier, mutator)
+            }
+        }
+
         public operator fun getValue(any: Any, property: KProperty<*>): MutableComponent {
             return this.generate()
         }

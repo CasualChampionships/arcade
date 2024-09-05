@@ -1,4 +1,4 @@
-package net.casual.arcade.datagen.language
+package net.casual.arcade.resources.lang
 
 public data class LanguageEntry(
     val key: String,

@@ -1,9 +1,11 @@
 package net.casual.arcade.resources.font
 
+import com.google.common.collect.HashMultimap
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.encodeToJsonElement
+import net.casual.arcade.resources.lang.LanguageEntry
 import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.withFont
 import net.minecraft.resources.ResourceLocation
@@ -12,6 +14,7 @@ import org.apache.commons.lang3.mutable.MutableInt
 public abstract class FontResources(
     public val id: ResourceLocation
 ) {
+    private val languages = HashMultimap.create<String, LanguageEntry>()
     private val bitmapIndex = MutableInt(0xE000)
     private val providers = ArrayList<FontProvider>()
 
@@ -24,6 +27,16 @@ public abstract class FontResources(
         val bitmap = BitmapFontProvider(texture, ascent, height, listOf(key))
         this.providers.add(bitmap)
         return ComponentUtils.literal(key) {
+            withFont(id)
+        }
+    }
+
+    protected fun translatable(
+        key: String,
+        translations: Translatable.() -> Unit
+    ): ComponentUtils.ConstantComponentGenerator {
+        Translatable(this, key).translations()
+        return ComponentUtils.translatable(key) {
             withFont(id)
         }
     }
@@ -41,6 +54,23 @@ public abstract class FontResources(
 
     private fun nextBitmapChar(): Char {
         return bitmapIndex.andIncrement.toChar()
+    }
+
+    protected class Translatable(
+        private val resources: FontResources,
+        private val key: String
+    ) {
+        public fun bitmap(
+            lang: String,
+            texture: ResourceLocation,
+            ascent: Int = 8,
+            height: Int = 8
+        ) {
+            val key = this.resources.nextBitmapChar().toString()
+            val bitmap = BitmapFontProvider(texture, ascent, height, listOf(key))
+            this.resources.providers.add(bitmap)
+            this.resources.languages.put(lang, LanguageEntry(this.key, key))
+        }
     }
 
     private companion object {

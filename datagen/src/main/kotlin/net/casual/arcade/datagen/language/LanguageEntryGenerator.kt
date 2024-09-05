@@ -1,6 +1,7 @@
 package net.casual.arcade.datagen.language
 
 import net.casual.arcade.datagen.utils.SpacingUtils
+import net.casual.arcade.resources.lang.LanguageEntry
 import net.minecraft.client.gui.Font
 import net.minecraft.network.chat.Component
 

@@ -22,7 +22,7 @@ allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
 
     repositories {
-        mavenLocal()
+        // mavenLocal()
         maven("https://maven.parchmentmc.org/")
         maven("https://jitpack.io")
         maven("https://ueaj.dev/maven")
