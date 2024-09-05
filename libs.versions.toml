@@ -12,7 +12,7 @@ fantasy              = "0.6.4+1.21"
 permissions          = "0.3.1"
 server-translations  = "2.3.1+1.21-pre2"
 custom-nametags      = "038a9c8853a828f8f89b91397ddd031435f067c0"
-server-replay        = "a82ce79bdc"
+server-replay        = "8867e45f83"
 
 [libraries]
 minecraft               = { module = "com.mojang:minecraft"                 , version.ref = "minecraft" }
