@@ -1,5 +1,6 @@
 package net.casual.arcade.datagen.utils
 
+import net.casual.arcade.resources.lang.LanguageEntry
 import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.getTranslationKeyOf
 import net.minecraft.client.gui.Font
