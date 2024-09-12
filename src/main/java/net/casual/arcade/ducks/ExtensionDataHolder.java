@@ -1,5 +1,5 @@
 package net.casual.arcade.ducks;
 
-public interface Arcade$ExtensionDataHolder {
+public interface ExtensionDataHolder {
 	void arcade$deserializeExtensionData();
 }

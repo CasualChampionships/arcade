@@ -74,7 +74,7 @@ public abstract class RecipeManagerMixin implements MutableRecipeManager {
 
 	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 	@ModifyReturnValue(
-		method = "getRecipeFor(Lnet/minecraft/world/item/crafting/RecipeType;Lnet/minecraft/world/item/crafting/RecipeInput;Lnet/minecraft/world/level/Level;)Ljava/util/Optional;",
+		method = "getRecipeFor(Lnet/minecraft/world/item/crafting/RecipeType;Lnet/minecraft/world/item/crafting/RecipeInput;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/item/crafting/RecipeHolder;)Ljava/util/Optional;",
 		at = @At("RETURN")
 	)
 	private <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> modifyRecipe(

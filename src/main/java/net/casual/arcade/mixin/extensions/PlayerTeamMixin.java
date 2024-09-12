@@ -1,6 +1,6 @@
 package net.casual.arcade.mixin.extensions;
 
-import net.casual.arcade.ducks.Arcade$ExtensionHolder;
+import net.casual.arcade.ducks.ExtensionHolder;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.team.TeamExtensionEvent;
 import net.casual.arcade.extensions.ExtensionMap;
@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerTeam.class)
-public class PlayerTeamMixin implements Arcade$ExtensionHolder {
+public class PlayerTeamMixin implements ExtensionHolder {
 	@Unique
 	private final ExtensionMap arcade$extensionMap = new ExtensionMap();
 

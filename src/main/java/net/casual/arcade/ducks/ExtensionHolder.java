@@ -1,13 +1,12 @@
 package net.casual.arcade.ducks;
 
 import net.casual.arcade.extensions.Extension;
-import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.ExtensionMap;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Extension of {@link ExtensionHolder } which is can be
+ * Extension of {@link net.casual.arcade.extensions.ExtensionHolder } which is can be
  * implemented using Mixins following the appropriate
  * naming schemes.
  * <p>
@@ -17,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
  * @see Extension
  * @see ExtensionMap
  */
-public interface Arcade$ExtensionHolder extends ExtensionHolder {
+public interface ExtensionHolder extends net.casual.arcade.extensions.ExtensionHolder {
 	/**
 	 * This gets all the extensions that are being held.
 	 *

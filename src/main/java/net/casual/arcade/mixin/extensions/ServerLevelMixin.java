@@ -1,7 +1,7 @@
 package net.casual.arcade.mixin.extensions;
 
 import net.casual.arcade.Arcade;
-import net.casual.arcade.ducks.Arcade$ExtensionHolder;
+import net.casual.arcade.ducks.ExtensionHolder;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.level.LevelExtensionEvent;
 import net.casual.arcade.extensions.ExtensionMap;
@@ -39,7 +39,7 @@ import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 @Mixin(ServerLevel.class)
-public abstract class ServerLevelMixin extends Level implements Arcade$ExtensionHolder {
+public abstract class ServerLevelMixin extends Level implements ExtensionHolder {
 	@Unique private final ExtensionMap arcade$extensionMap = new ExtensionMap();
 	@Unique private Path arcade$savePath;
 

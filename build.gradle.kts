@@ -10,7 +10,7 @@ plugins {
     java
 }
 
-val modVersion = "0.1.0-alpha.1"
+val modVersion = "0.1.0-alpha.3"
 version = "${modVersion}+mc${libs.versions.minecraft.get()}"
 group = "net.casual-championships"
 

@@ -1,8 +1,7 @@
 package net.casual.arcade.mixin.extensions;
 
-import net.casual.arcade.ducks.Arcade$ExtensionDataHolder;
-import net.casual.arcade.ducks.Arcade$ExtensionHolder;
-import net.casual.arcade.extensions.ExtensionHolder;
+import net.casual.arcade.ducks.ExtensionDataHolder;
+import net.casual.arcade.ducks.ExtensionHolder;
 import net.casual.arcade.extensions.ExtensionMap;
 import net.casual.arcade.utils.ExtensionUtils;
 import net.minecraft.nbt.CompoundTag;
@@ -17,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
-public class ServerPlayerMixin implements Arcade$ExtensionHolder, Arcade$ExtensionDataHolder {
+public class ServerPlayerMixin implements ExtensionHolder, ExtensionDataHolder {
 	@Shadow public ServerGamePacketListenerImpl connection;
 
 	@Unique private CompoundTag arcade$data;

@@ -1,7 +1,7 @@
 package net.casual.arcade.mixin.extensions;
 
-import net.casual.arcade.ducks.Arcade$ExtensionDataHolder;
-import net.casual.arcade.ducks.Arcade$ExtensionHolder;
+import net.casual.arcade.ducks.ExtensionDataHolder;
+import net.casual.arcade.ducks.ExtensionHolder;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.PlayerExtensionEvent;
 import net.casual.arcade.extensions.ExtensionMap;
@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerGamePacketListenerImpl.class)
-public class ServerGamePacketListenerImplMixin implements Arcade$ExtensionHolder {
+public class ServerGamePacketListenerImplMixin implements ExtensionHolder {
 	@Shadow public ServerPlayer player;
 
 	@Unique private final ExtensionMap arcade$extensionMap = new ExtensionMap();
@@ -37,7 +37,7 @@ public class ServerGamePacketListenerImplMixin implements Arcade$ExtensionHolder
 		PlayerExtensionEvent event = new PlayerExtensionEvent(player);
 		GlobalEventHandler.broadcast(event);
 
-		((Arcade$ExtensionDataHolder) player).arcade$deserializeExtensionData();
+		((ExtensionDataHolder) player).arcade$deserializeExtensionData();
 	}
 
 	@Override
