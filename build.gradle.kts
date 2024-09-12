@@ -1,6 +1,3 @@
-import org.apache.commons.io.output.ByteArrayOutputStream
-import java.nio.charset.Charset
-
 plugins {
     val jvmVersion = libs.versions.fabric.kotlin.get()
         .split("+kotlin.")[1]
@@ -13,8 +10,9 @@ plugins {
     java
 }
 
-version = "1.0.0"
-group = "net.casual"
+val modVersion = "0.1.0-alpha.1"
+version = "${modVersion}+mc${libs.versions.minecraft.get()}"
+group = "net.casual-championships"
 
 allprojects {
     apply(plugin = "fabric-loom")
@@ -23,6 +21,7 @@ allprojects {
 
     repositories {
         mavenLocal()
+        maven("https://maven.supersanta.me/snapshots")
         maven("https://maven.parchmentmc.org/")
         maven("https://jitpack.io")
         maven("https://ueaj.dev/maven")
@@ -68,6 +67,25 @@ allprojects {
             from("LICENSE")
         }
     }
+
+    publishing {
+        repositories {
+            val mavenUrl = System.getenv("MAVEN_URL")
+            if (mavenUrl != null) {
+                maven {
+                    url = uri(mavenUrl)
+                    val mavenUsername = System.getenv("MAVEN_USERNAME")
+                    val mavenPassword = System.getenv("MAVEN_PASSWORD")
+                    if (mavenUsername != null && mavenPassword != null) {
+                        credentials {
+                            username = mavenUsername
+                            password = mavenPassword
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 dependencies {
@@ -106,24 +124,27 @@ tasks {
 publishing {
     publications {
         create<MavenPublication>("arcade") {
-            groupId = "com.github.CasualChampionships"
+            groupId = "net.casual-championships"
             artifactId = "arcade"
-            version = getGitHash()
+            version = "${modVersion}+${libs.versions.minecraft.get()}"
             from(components["java"])
+
+            updateReadme("./README.md")
         }
     }
-}
-
-fun getGitHash(): String {
-    val out = ByteArrayOutputStream()
-    exec {
-        commandLine("git", "rev-parse", "HEAD")
-        standardOutput = out
-    }
-    return out.toString(Charset.defaultCharset()).trim()
 }
 
 private fun DependencyHandler.includeModApi(dependencyNotation: Any) {
     include(dependencyNotation)
     modApi(dependencyNotation)
+}
+
+private fun MavenPublication.updateReadme(vararg readmes: String) {
+    val location = "${groupId}:${artifactId}"
+    val regex = Regex("""${Regex.escape(location)}:[\d\.\-a-zA-Z+]+""")
+    val locationWithVersion = "${location}:${version}"
+    for (path in readmes) {
+        val readme = file(path)
+        readme.writeText(readme.readText().replace(regex, locationWithVersion))
+    }
 }

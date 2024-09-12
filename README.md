@@ -12,13 +12,11 @@ following to your `build.gradle.kts`
 
 ```kts
 repositories {
-    maven("https://jitpack.io")
+    maven("https://maven.supersanta.me/snapshots")
 }
 
 dependencies {
-    // For the most recent version, use the latest commit hash
-    val arcadeVersion = "5275ccf13e"
-    modImplementation("com.github.CasualChampionships:arcade:$arcadeVersion")
+    modImplementation("net.casual-championships:arcade:0.1.0-alpha.1+1.21.1")
 }
 ```
 

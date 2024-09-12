@@ -11,8 +11,8 @@ sgui                 = "1.6.0+1.21"
 fantasy              = "0.6.4+1.21"
 permissions          = "0.3.1"
 server-translations  = "2.3.1+1.21-pre2"
-custom-nametags      = "038a9c8853a828f8f89b91397ddd031435f067c0"
-server-replay        = "8867e45f83"
+custom-nametags      = "0.2.3+1.21.1"
+server-replay        = "1.1.2+1.21.1"
 
 [libraries]
 minecraft               = { module = "com.mojang:minecraft"                 , version.ref = "minecraft" }
@@ -27,8 +27,8 @@ fantasy                 = { module = "xyz.nucleoid:fantasy"                 , ve
 permissions             = { module = "me.lucko:fabric-permissions-api"      , version.ref = "permissions" }
 sgui                    = { module = "eu.pb4:sgui"                          , version.ref = "sgui" }
 server-translations     = { module = "xyz.nucleoid:server-translations-api" , version.ref = "server-translations" }
-custom-nametags         = { module = "com.github.senseiwells:CustomNameTags", version.ref = "custom-nametags" }
-server-replay           = { module = "com.github.senseiwells:ServerReplay"  , version.ref = "server-replay" }
+custom-nametags         = { module = "me.senseiwells:custom-nametags"       , version.ref = "custom-nametags" }
+server-replay           = { module = "me.senseiwells:server-replay"         , version.ref = "server-replay" }
 
 [plugins]
 fabric-loom   = { id = "fabric-loom", version.ref = "fabric-loom" }

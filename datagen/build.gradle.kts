@@ -1,5 +1,7 @@
 base.archivesName.set("arcade-datagen")
-version = rootProject.version
+
+val modVersion = "1.0.15"
+version = "${modVersion}+mc${libs.versions.minecraft.get()}"
 
 dependencies {
     implementation(project(mapOf("path" to ":", "configuration" to "namedElements")))
@@ -25,9 +27,9 @@ tasks {
 publishing {
     publications {
         create<MavenPublication>("arcadeDatagen") {
-            groupId = "com.github.CasualChampionships"
+            groupId = "net.casual-championships"
             artifactId = "arcade-datagen"
-            version = "1.0.14"
+            version = "${modVersion}+${libs.versions.minecraft.get()}"
             from(components["java"])
         }
     }
