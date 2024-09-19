@@ -10,7 +10,7 @@ import net.casual.arcade.minigame.events.lobby.LobbyMinigame
 import net.casual.arcade.minigame.events.lobby.templates.LobbyTemplate
 import net.casual.arcade.resources.PackInfo
 import net.casual.arcade.utils.CodecUtils.encodedOptionalFieldOf
-import net.casual.arcade.utils.serialization.CodecProvider
+import net.casual.arcade.utils.codec.CodecProvider
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer

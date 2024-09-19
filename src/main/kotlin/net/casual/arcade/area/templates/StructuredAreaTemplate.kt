@@ -6,8 +6,8 @@ import net.casual.arcade.Arcade
 import net.casual.arcade.area.PlaceableArea
 import net.casual.arcade.area.StructureArea
 import net.casual.arcade.utils.StructureUtils
-import net.casual.arcade.utils.serialization.ArcadeExtraCodecs
-import net.casual.arcade.utils.serialization.CodecProvider
+import net.casual.arcade.utils.codec.ArcadeExtraCodecs
+import net.casual.arcade.utils.codec.CodecProvider
 import net.minecraft.core.Vec3i
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel

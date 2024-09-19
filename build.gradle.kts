@@ -11,13 +11,22 @@ plugins {
 }
 
 val modVersion = "0.1.0-alpha.3"
-version = "${modVersion}+mc${libs.versions.minecraft.get()}"
+version = "${modVersion}+${libs.versions.minecraft.get()}"
 group = "net.casual-championships"
+
+val moduleDependencies: Project.(List<String>) -> Unit by extra { { names ->
+    dependencies {
+        for (name in names) {
+            api(project(path = ":arcade-$name", configuration = "namedElements"))
+        }
+    }
+} }
 
 allprojects {
     apply(plugin = "fabric-loom")
     apply(plugin = "maven-publish")
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
 
     repositories {
         mavenLocal()
@@ -59,7 +68,11 @@ allprojects {
         processResources {
             inputs.property("version", version)
             filesMatching("fabric.mod.json") {
-                expand(mutableMapOf("version" to version))
+                val minecraftDependency = libs.versions.minecraft.get().replaceAfterLast('.', "x")
+                expand(mutableMapOf(
+                    "version" to version,
+                    "minecraft_dependency" to minecraftDependency,
+                ))
             }
         }
 
@@ -88,6 +101,16 @@ allprojects {
     }
 }
 
+subprojects {
+    publishing {
+        publications {
+            create<MavenPublication>("mavenJava") {
+                from(components["java"])
+            }
+        }
+    }
+}
+
 dependencies {
     includeModApi(libs.polymer.core)
     includeModApi(libs.polymer.blocks)
@@ -108,25 +131,9 @@ loom {
     accessWidenerPath.set(file("src/main/resources/arcade.accesswidener"))
 }
 
-tasks {
-    processResources {
-        inputs.property("version", project.version)
-        filesMatching("fabric.mod.json") {
-            expand(mutableMapOf("version" to project.version))
-        }
-    }
-
-    jar {
-        from("LICENSE")
-    }
-}
-
 publishing {
     publications {
-        create<MavenPublication>("arcade") {
-            groupId = "net.casual-championships"
-            artifactId = "arcade"
-            version = "${modVersion}+${libs.versions.minecraft.get()}"
+        create<MavenPublication>("mavenJava") {
             from(components["java"])
 
             updateReadme("./README.md")

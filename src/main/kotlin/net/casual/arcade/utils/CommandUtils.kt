@@ -56,7 +56,7 @@ public object CommandUtils {
     }
 
     public fun CommandSourceStack.success(literal: String, log: Boolean = false): Int {
-        return this.success(literal.literal(), log)
+        return this.success(Component.literal(literal), log)
     }
 
     public fun CommandSourceStack.success(component: Component, log: Boolean = false): Int {
@@ -68,30 +68,30 @@ public object CommandUtils {
     }
 
     public fun CommandSourceStack.fail(literal: String): Int {
-        return this.fail(literal.literal())
+        return this.fail(Component.literal(literal))
     }
 
     public fun CommandSourceStack.fail(component: Component): Int {
         return this.sendFailure(component).commandFailure()
     }
 
-    public fun <S> buildLiteral(
-        literal: String,
+    public inline fun <S> buildLiteral(
+        name: String,
         builder: LiteralArgumentBuilder<S>.() -> Unit
     ): LiteralArgumentBuilder<S> {
-        val root = LiteralArgumentBuilder.literal<S>(literal)
+        val root = LiteralArgumentBuilder.literal<S>(name)
         root.builder()
         return root
     }
 
-    public fun <S> createLiteral(
-        literal: String,
+    public inline fun <S> createLiteral(
+        name: String,
         builder: LiteralArgumentBuilder<S>.() -> Unit
     ): LiteralCommandNode<S> {
-        return this.buildLiteral(literal, builder).build()
+        return this.buildLiteral(name, builder).build()
     }
 
-    public fun <S> CommandDispatcher<S>.registerLiteral(
+    public inline fun <S> CommandDispatcher<S>.registerLiteral(
         literal: String,
         builder: LiteralArgumentBuilder<S>.() -> Unit
     ): LiteralCommandNode<S> {
@@ -100,7 +100,7 @@ public object CommandUtils {
         return this.register(root)
     }
 
-    public fun <S, T: ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.literal(
+    public inline fun <S, T: ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.literal(
         literal: String,
         builder: LiteralArgumentBuilder<S>.() -> Unit = { }
     ): T {
@@ -109,12 +109,12 @@ public object CommandUtils {
         return this.then(argument)
     }
 
-    public fun <S, T: ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.literal(
-        root: String,
+    public inline fun <S, T: ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.literal(
+        name: String,
         vararg literals: String,
         builder: LiteralArgumentBuilder<S>.() -> Unit = { }
     ): T {
-        val first = LiteralArgumentBuilder.literal<S>(root)
+        val first = LiteralArgumentBuilder.literal<S>(name)
         var argument = first
         for (literal in literals) {
             argument = argument.literal(literal)
@@ -123,7 +123,7 @@ public object CommandUtils {
         return this.then(first)
     }
 
-    public fun <A, S, T: ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.argument(
+    public inline fun <A, S, T: ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.argument(
         name: String,
         type: ArgumentType<A>,
         vararg literals: String,
@@ -136,6 +136,27 @@ public object CommandUtils {
         }
         argument.builder()
         return this.then(first)
+    }
+
+    public inline fun <E, S, T: ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.option(
+        options: Iterable<E>,
+        stringifier: (E) -> String = { it.toString() },
+        builder: LiteralArgumentBuilder<S>.(E) -> Unit = { }
+    ): ArgumentBuilder<S, T> {
+        for (option in options) {
+            val name = stringifier.invoke(option)
+            val literal = LiteralArgumentBuilder.literal<S>(name)
+            literal.builder(option)
+            this.then(literal)
+        }
+        return this
+    }
+
+    public inline fun <reified E: Enum<E>, S, T: ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.option(
+        stringifier: (E) -> String = { it.name.lowercase() },
+        builder: LiteralArgumentBuilder<S>.(E) -> Unit = { }
+    ): ArgumentBuilder<S, T> {
+        return this.option(enumValues<E>().toList(), stringifier, builder)
     }
 
     public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(

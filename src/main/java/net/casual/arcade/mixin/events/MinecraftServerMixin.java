@@ -1,22 +1,15 @@
 package net.casual.arcade.mixin.events;
 
-import com.mojang.datafixers.DataFixer;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.*;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.Services;
-import net.minecraft.server.WorldStem;
-import net.minecraft.server.level.progress.ChunkProgressListenerFactory;
-import net.minecraft.server.packs.repository.PackRepository;
-import net.minecraft.world.level.storage.LevelStorageSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.net.Proxy;
 import java.util.function.BooleanSupplier;
 
 @Mixin(MinecraftServer.class)
@@ -29,17 +22,7 @@ public class MinecraftServerMixin {
 			shift = At.Shift.AFTER
 		)
 	)
-	private void onCreateServerInstance(
-		Thread thread,
-		LevelStorageSource.LevelStorageAccess levelStorageAccess,
-		PackRepository packRepository,
-		WorldStem worldStem,
-		Proxy proxy,
-		DataFixer dataFixer,
-		Services services,
-		ChunkProgressListenerFactory chunkProgressListenerFactory,
-		CallbackInfo ci
-	) {
+	private void onCreateServerInstance(CallbackInfo ci) {
 		ServerCreatedEvent event = new ServerCreatedEvent((MinecraftServer) (Object) this);
 		GlobalEventHandler.broadcast(event);
 	}

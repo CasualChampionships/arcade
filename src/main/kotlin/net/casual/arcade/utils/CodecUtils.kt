@@ -2,7 +2,7 @@ package net.casual.arcade.utils
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
-import net.casual.arcade.utils.serialization.EncodedOptionalFieldCodec
+import net.casual.arcade.utils.codec.EncodedOptionalFieldCodec
 import java.util.*
 
 public object CodecUtils {

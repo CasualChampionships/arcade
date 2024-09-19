@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "arcade-minigames",
+  "version": "${version}",
+  "name": "Arcade Minigames",
+  "description": "",
+  "authors": [
+    "Sensei"
+  ],
+  "contact": {
+
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+
+  },
+  "mixins": [
+    "arcade-minigames.mixins.json"
+  ],
+  "depends": {
+    "minecraft": "${minecraft_dependency}"
+  }
+}

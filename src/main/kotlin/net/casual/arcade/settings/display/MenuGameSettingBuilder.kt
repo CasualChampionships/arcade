@@ -9,7 +9,7 @@ import net.casual.arcade.settings.SettingListener
 import net.casual.arcade.utils.ItemUtils.disableGlint
 import net.casual.arcade.utils.ItemUtils.enableGlint
 import net.casual.arcade.utils.ItemUtils.hasGlint
-import net.casual.arcade.utils.serialization.ArcadeExtraCodecs
+import net.casual.arcade.utils.codec.ArcadeExtraCodecs
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack

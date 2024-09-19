@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "arcade-events",
+  "version": "${version}",
+  "name": "Arcade Events",
+  "description": "",
+  "authors": [
+    "Sensei"
+  ],
+  "contact": {
+
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+
+  },
+  "mixins": [
+    "arcade-events.mixins.json"
+  ],
+  "depends": {
+    "minecraft": "${minecraft_dependency}"
+  }
+}

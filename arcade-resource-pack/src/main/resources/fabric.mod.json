@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "arcade-resource-pack",
+  "version": "${version}",
+  "name": "Arcade Resource Pack",
+  "description": "",
+  "authors": [
+    "Sensei"
+  ],
+  "contact": {
+
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.casual.arcade.resources.ArcadeResourcePacks"
+    ]
+  },
+  "mixins": [
+    "arcade-resource-pack.mixins.json"
+  ],
+  "depends": {
+    "minecraft": "${minecraft_dependency}"
+  }
+}

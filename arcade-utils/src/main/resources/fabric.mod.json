@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "arcade-utils",
+  "version": "${version}",
+  "name": "Arcade Utils",
+  "description": "",
+  "authors": [
+    "Sensei"
+  ],
+  "contact": {
+
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+
+  },
+  "mixins": [
+    "arcade-utils.mixins.json"
+  ],
+  "depends": {
+    "minecraft": "${minecraft_dependency}"
+  }
+}

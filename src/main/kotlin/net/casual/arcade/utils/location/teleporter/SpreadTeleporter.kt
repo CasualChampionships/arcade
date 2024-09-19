@@ -7,7 +7,7 @@ import net.casual.arcade.Arcade
 import net.casual.arcade.gui.shapes.ShapePoints
 import net.casual.arcade.gui.shapes.Regular2DPolygonShape
 import net.casual.arcade.utils.location.Location
-import net.casual.arcade.utils.serialization.CodecProvider
+import net.casual.arcade.utils.codec.CodecProvider
 import net.minecraft.commands.arguments.EntityAnchorArgument
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel

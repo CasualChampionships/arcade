@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "arcade-extensions",
+  "version": "${version}",
+  "name": "Arcade Exentensions",
+  "description": "",
+  "authors": [
+    "Sensei"
+  ],
+  "contact": {
+
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+
+  },
+  "mixins": [
+    "arcade-extensions.mixins.json"
+  ],
+  "depends": {
+    "minecraft": "${minecraft_dependency}"
+  }
+}

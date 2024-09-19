@@ -1,16 +1,9 @@
 package net.casual.arcade.entity.player
 
-import eu.pb4.sgui.virtual.VirtualScreenHandlerInterface
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.player.*
-import net.casual.arcade.utils.NetworkUtils
+import net.casual.arcade.events.player.PlayerExtensionEvent
 import net.casual.arcade.utils.PlayerUtils.getExtension
-import net.minecraft.network.protocol.Packet
-import net.minecraft.network.protocol.game.ClientGamePacketListener
-import net.minecraft.network.protocol.game.ClientboundBundlePacket
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.InteractionResult
 import net.minecraft.world.level.GameType
 import org.jetbrains.annotations.ApiStatus.Internal
 

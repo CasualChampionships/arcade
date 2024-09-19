@@ -1,0 +1,41 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.casual.arcade.minigame.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "AbstractContainerMenuMixin",
+    "BaseFireBlockMixin",
+    "FarmBlockMixin",
+    "FoodDataMixin",
+    "InteractPacketHandlerImplMixin",
+    "ItemEntityMixin",
+    "ItemStackMixin",
+    "LevelMixin",
+    "PlayerMixin",
+    "PlayerTeamMixin",
+    "ScoreboardMixin",
+    "ServerChunkCacheMixin",
+    "ServerGamePacketListenerImplMixin",
+    "ServerLevelMixin",
+    "ServerPlayerGameModeMixin",
+    "ServerPlayerMixin",
+    "advancement.PlayerAdvancementMixin",
+    "bugfixes.HotbarGuiMixin",
+    "bugfixes.LeashableMixin",
+    "bugfixes.LeashDataInvoker",
+    "gamemode.EntityMixin",
+    "gamemode.InteractionHandlerMixin",
+    "gamemode.PlayerMixin",
+    "gamemode.ServerGamePacketListenerImplMixin",
+    "gamemode.ServerPlayerGameModeMixin",
+    "gamemode.ServerPlayerMixin",
+    "recipe.RecipeManagerMixin",
+    "recipe.ServerGamePacketListenerImplMixin",
+    "recipe.ServerPlaceRecipeMixin",
+    "recipe.ServerRecipeBookMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

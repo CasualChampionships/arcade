@@ -7,7 +7,7 @@ import net.casual.arcade.Arcade
 import net.casual.arcade.area.BoxedArea
 import net.casual.arcade.area.PlaceableArea
 import net.casual.arcade.utils.CodecUtils.encodedOptionalFieldOf
-import net.casual.arcade.utils.serialization.CodecProvider
+import net.casual.arcade.utils.codec.CodecProvider
 import net.minecraft.core.Vec3i
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceLocation

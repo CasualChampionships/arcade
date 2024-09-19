@@ -1,0 +1,26 @@
+{
+  "providers": [
+    {
+      "type": "reference",
+      "id": "minecraft:include/space"
+    },
+    {
+      "type": "bitmap",
+      "file": "arcade:font/mini_minecraft.png",
+      "height": 6,
+      "ascent": -57,
+      "chars": [
+        "ABCDEFGHIJ",
+        "KLMNOPQRST",
+        "UVWXYZ\u0000\u0000\u0000\u0000",
+        "abcdefghij",
+        "klmnopqrst",
+        "uvwxyz\u0000\u0000\u0000\u0000",
+        "1234567890",
+        "_?!()[]/\\#",
+        "+-*^=%:;,.",
+        "<>'\"@£&`|~"
+      ]
+    }
+  ]
+}

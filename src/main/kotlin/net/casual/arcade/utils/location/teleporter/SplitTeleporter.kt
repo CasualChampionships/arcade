@@ -6,7 +6,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.Arcade
-import net.casual.arcade.utils.serialization.CodecProvider
+import net.casual.arcade.utils.codec.CodecProvider
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.Mth

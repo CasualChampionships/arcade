@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "arcade-gui",
+  "version": "${version}",
+  "name": "Arcade Gui",
+  "description": "",
+  "authors": [
+    "Sensei"
+  ],
+  "contact": {
+
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+
+  },
+  "mixins": [
+
+  ],
+  "depends": {
+    "minecraft": "${minecraft_dependency}"
+  }
+}

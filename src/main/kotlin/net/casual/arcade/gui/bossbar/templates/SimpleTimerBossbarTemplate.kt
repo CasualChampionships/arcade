@@ -8,8 +8,8 @@ import net.casual.arcade.gui.bossbar.TimerBossBar
 import net.casual.arcade.utils.CodecUtils.encodedOptionalFieldOf
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.TimeUtils.formatHHMMSS
-import net.casual.arcade.utils.serialization.ArcadeExtraCodecs
-import net.casual.arcade.utils.serialization.CodecProvider
+import net.casual.arcade.utils.codec.ArcadeExtraCodecs
+import net.casual.arcade.utils.codec.CodecProvider
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer

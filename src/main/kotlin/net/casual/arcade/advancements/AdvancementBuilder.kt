@@ -1,6 +1,5 @@
 package net.casual.arcade.advancements
 
-import net.casual.arcade.events.server.ServerAdvancementReloadEvent
 import net.minecraft.advancements.*
 import net.minecraft.advancements.critereon.ImpossibleTrigger
 import net.minecraft.network.chat.Component
@@ -12,14 +11,11 @@ import java.util.*
 /**
  * This class is a builder for building [Advancement]s.
  *
- * You can then register your advancements using the event
- * [ServerAdvancementReloadEvent].
- *
  * @see Advancement
  */
 public class AdvancementBuilder {
-    private val criterion = java.util.Map.of<String, Criterion<*>>(
-        "Impossible", CriteriaTriggers.IMPOSSIBLE.createCriterion(ImpossibleTrigger.TriggerInstance())
+    private val criterion = mapOf<String, Criterion<*>>(
+        "Impossible" to CriteriaTriggers.IMPOSSIBLE.createCriterion(ImpossibleTrigger.TriggerInstance())
     )
 
     /**

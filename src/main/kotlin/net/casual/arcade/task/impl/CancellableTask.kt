@@ -12,7 +12,6 @@ import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.boolean
 import net.casual.arcade.utils.JsonUtils.int
 import net.casual.arcade.utils.JsonUtils.ints
-import net.casual.arcade.utils.JsonUtils.objects
 
 /**
  * This extension of the [Task] interface allows

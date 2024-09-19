@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(value = ArgumentBuilder.class, remap = false)
-public class ArgumentBuilderMixin<S, T extends ArgumentBuilder<S, T>> {
+public class ArgumentBuilderMixin<S> {
 	@Unique
 	private boolean arcade$askingServerForSuggestions = false;
 

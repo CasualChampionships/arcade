@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.utils.location.Location
 import net.casual.arcade.utils.registries.ArcadeRegistries
-import net.casual.arcade.utils.serialization.CodecProvider.Companion.register
+import net.casual.arcade.utils.codec.CodecProvider.Companion.register
 import net.minecraft.core.Registry
 import net.minecraft.server.level.ServerLevel
 import java.util.function.Function

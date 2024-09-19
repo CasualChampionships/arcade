@@ -14,7 +14,7 @@ import net.casual.arcade.utils.CodecUtils.encodedOptionalFieldOf
 import net.casual.arcade.utils.location.Location
 import net.casual.arcade.utils.location.template.ExactLocationTemplate
 import net.casual.arcade.utils.location.template.LocationTemplate
-import net.casual.arcade.utils.serialization.CodecProvider
+import net.casual.arcade.utils.codec.CodecProvider
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.phys.Vec3
