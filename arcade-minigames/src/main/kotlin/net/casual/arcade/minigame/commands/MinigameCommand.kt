@@ -14,6 +14,7 @@ import net.casual.arcade.minigame.commands.arguments.*
 import net.casual.arcade.minigame.commands.arguments.MinigameSettingsOptionArgument.Companion.INVALID_SETTING_OPTION
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.utils.AdvancementModifier
+import net.casual.arcade.minigame.utils.MinigameUtils.countdown
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.ComponentUtils.green
@@ -629,6 +630,7 @@ internal object MinigameCommand: CommandTree {
             val admins = if (player == null) minigame.players.admins else minigame.players.admins.concat(player)
             minigame.chat.broadcastTo(message, admins)
         }
+        // FIXME:
         val awaiting = if (teams) {
             val unready = minigame.ui.readier.areTeamsReady(minigame.teams.getPlayingTeams(), callback)
             // ({ unready.toComponent() })

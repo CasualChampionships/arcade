@@ -1,9 +1,9 @@
 package net.casual.arcade.minigame.template.teleporter
 
 import com.google.common.collect.Multimap
-import net.casual.arcade.gui.shapes.ShapePoints
-import net.casual.arcade.utils.EntityUtils.teleportTo
-import net.casual.arcade.utils.location.Location
+import net.casual.arcade.utils.impl.Location
+import net.casual.arcade.utils.teleportTo
+import net.casual.arcade.visuals.shapes.ShapePoints
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.scores.PlayerTeam

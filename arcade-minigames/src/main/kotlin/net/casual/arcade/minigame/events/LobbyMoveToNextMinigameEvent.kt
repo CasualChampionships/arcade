@@ -1,8 +1,8 @@
 package net.casual.arcade.minigame.events
 
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.events.lobby.LobbyMinigame
-import net.casual.arcade.scheduler.MinecraftTimeDuration
+import net.casual.arcade.minigame.lobby.LobbyMinigame
+import net.casual.arcade.utils.time.MinecraftTimeDuration
 
 public data class LobbyMoveToNextMinigameEvent(
     override val minigame: LobbyMinigame,

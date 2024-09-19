@@ -1,3 +1,5 @@
+version = rootProject.version
+
 dependencies {
     implementation(project(path = ":", configuration = "namedElements"))
 

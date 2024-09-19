@@ -10,7 +10,7 @@ plugins {
     java
 }
 
-val modVersion = "0.1.0-alpha.3"
+val modVersion = "0.2.0-alpha.1"
 version = "${modVersion}+${libs.versions.minecraft.get()}"
 group = "net.casual-championships"
 
@@ -112,23 +112,24 @@ subprojects {
 }
 
 dependencies {
-    includeModApi(libs.polymer.core)
-    includeModApi(libs.polymer.blocks)
-    includeModApi(libs.polymer.resource.pack)
-    includeModApi(libs.polymer.virtual.entity)
+    include(libs.polymer.core)
+    include(libs.polymer.blocks)
+    include(libs.polymer.resource.pack)
+    include(libs.polymer.virtual.entity)
 
-    includeModApi(libs.fantasy)
+    include(libs.fantasy)
 
-    includeModApi(libs.permissions)
-    includeModApi(libs.sgui)
-    includeModApi(libs.server.translations)
+    include(libs.permissions)
+    include(libs.sgui)
+    include(libs.server.translations)
 
-    includeModApi(libs.custom.nametags)
-    modApi(libs.server.replay)
-}
+    include(libs.custom.nametags)
 
-loom {
-    accessWidenerPath.set(file("src/main/resources/arcade.accesswidener"))
+    for (subproject in project.subprojects) {
+        if (subproject.path != ":arcade-datagen") {
+            include(api(project(path = subproject.path, configuration = "namedElements"))!!)
+        }
+    }
 }
 
 publishing {
@@ -139,11 +140,6 @@ publishing {
             updateReadme("./README.md")
         }
     }
-}
-
-private fun DependencyHandler.includeModApi(dependencyNotation: Any) {
-    include(dependencyNotation)
-    modApi(dependencyNotation)
 }
 
 private fun MavenPublication.updateReadme(vararg readmes: String) {

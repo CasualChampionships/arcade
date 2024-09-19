@@ -13,7 +13,12 @@
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
-
+    "server_replay": [
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.minigame.compat.ArcadeReplayPlugin"
+      }
+    ]
   },
   "mixins": [
     "arcade-minigames.mixins.json"

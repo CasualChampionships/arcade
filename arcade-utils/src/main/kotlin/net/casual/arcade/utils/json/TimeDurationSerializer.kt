@@ -2,7 +2,8 @@ package net.casual.arcade.utils.json
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
-import net.casual.arcade.scheduler.MinecraftTimeDuration
+import net.casual.arcade.utils.TimeUtils.Ticks
+import net.casual.arcade.utils.time.MinecraftTimeDuration
 
 public object TimeDurationSerializer: JsonSerializer<MinecraftTimeDuration> {
     override fun serialize(value: MinecraftTimeDuration): JsonElement {

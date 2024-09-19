@@ -8,8 +8,8 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.phase.Phase
+import net.casual.arcade.minigame.utils.MinigameUtils.getPhase
 import net.casual.arcade.utils.ComponentUtils.literal
-import net.casual.arcade.utils.MinigameUtils.getPhase
 import net.minecraft.commands.SharedSuggestionProvider
 import java.util.concurrent.CompletableFuture
 

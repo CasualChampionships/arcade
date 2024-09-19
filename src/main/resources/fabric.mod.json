@@ -18,22 +18,12 @@
         "adapter": "kotlin",
         "value": "net.casual.arcade.Arcade"
       }
-    ],
-    "server_replay": [
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.compat.ArcadeReplayPlugin"
-      }
     ]
   },
   "mixins": [
-    "arcade.mixins.json"
+
   ],
-  "accessWidener": "arcade.accesswidener",
   "depends": {
-    "fabricloader": ">=0.15.0",
-    "minecraft": "1.21.x",
-    "java": ">=21",
-    "fabric-language-kotlin": ">=1.11.0+kotlin.2.0.0"
+
   }
 }

@@ -5,7 +5,6 @@ import com.mojang.serialization.MapCodec
 import net.casual.arcade.minigame.lobby.LobbyMinigame
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.resources.pack.PackInfo
-import net.casual.arcade.utils.registries.ArcadeRegistries
 import net.casual.arcade.utils.codec.CodecProvider.Companion.register
 import net.minecraft.core.Registry
 import net.minecraft.server.MinecraftServer

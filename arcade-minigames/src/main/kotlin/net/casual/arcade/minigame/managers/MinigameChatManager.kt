@@ -115,7 +115,7 @@ public class MinigameChatManager(
         this.minigame.events.register<MinigameAddNewPlayerEvent> { (_, player) ->
             GlobalTickedScheduler.later {
                 if (!this.modes.containsKey(player.uuid) && !this.minigame.settings.isChatGlobal) {
-                    this.broadcastTo(MinigameChatMode.OwnTeam.switchedToMessage(), player)
+                    this.broadcastTo(MinigameChatMode.OwnTeam.switchedToMessage(player), player)
                 }
             }
         }
@@ -426,9 +426,9 @@ public class MinigameChatManager(
             val mode = this.modes[player.uuid]
             if (mode != null && mode != MinigameChatMode.Global) {
                 if (this.minigame.settings.isChatGlobal) {
-                    this.broadcastTo(MinigameChatMode.Global.switchedToMessage(), player)
+                    this.broadcastTo(MinigameChatMode.Global.switchedToMessage(player), player)
                 } else {
-                    this.broadcastTo(mode.switchedToMessage(), player)
+                    this.broadcastTo(mode.switchedToMessage(player), player)
                 }
             }
         }
@@ -476,7 +476,7 @@ public class MinigameChatManager(
     ): Int {
         if (this.modes.put(player.uuid, mode) != mode) {
             if (!this.minigame.settings.isChatGlobal && feedback) {
-                this.broadcastTo(mode.switchedToMessage(), player)
+                this.broadcastTo(mode.switchedToMessage(player), player)
             }
         } else if (!this.minigame.settings.isChatGlobal && feedback) {
             this.broadcastTo(Component.translatable("minigame.chat.mode.switch.alreadySelected"), player)

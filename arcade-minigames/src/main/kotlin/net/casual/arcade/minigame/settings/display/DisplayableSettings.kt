@@ -4,6 +4,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import eu.pb4.sgui.api.gui.GuiInterface
 import net.casual.arcade.minigame.settings.GameSetting
+import net.casual.arcade.minigame.utils.SettingsGuiUtils.addSettings
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
 import net.minecraft.server.level.ServerPlayer
