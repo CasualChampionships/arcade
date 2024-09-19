@@ -1,5 +1,3 @@
-version = rootProject.version
-
 val moduleDependencies: (Project, List<String>) -> Unit by project
 
 moduleDependencies(project, listOf("utils", "events", "extensions", "scheduler", "commands"))
@@ -9,5 +7,5 @@ loom {
 }
 
 dependencies {
-    modApi(rootProject.libs.fantasy)
+    include(modApi(rootProject.libs.fantasy.get())!!)
 }

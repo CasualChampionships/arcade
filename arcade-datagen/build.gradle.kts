@@ -1,8 +1,8 @@
-version = rootProject.version
+val moduleDependencies: (Project, List<String>) -> Unit by project
+
+moduleDependencies(project, listOf("resource-pack", "utils"))
 
 dependencies {
-    implementation(project(path = ":", configuration = "namedElements"))
-
     include(implementation("org.apache.commons:commons-text:1.11.0")!!)
 }
 

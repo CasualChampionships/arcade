@@ -1,5 +1,3 @@
-version = rootProject.version
-
 val moduleDependencies: (Project, List<String>) -> Unit by project
 
 moduleDependencies(project, listOf(
@@ -7,6 +5,6 @@ moduleDependencies(project, listOf(
 ))
 
 dependencies {
-    modApi(rootProject.libs.sgui)
-    modApi(rootProject.libs.custom.nametags)
+    include(modApi(rootProject.libs.sgui.get())!!)
+    include(modApi(rootProject.libs.custom.nametags.get())!!)
 }

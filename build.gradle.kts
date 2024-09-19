@@ -10,23 +10,18 @@ plugins {
     java
 }
 
-val modVersion = "0.2.0-alpha.1"
-version = "${modVersion}+${libs.versions.minecraft.get()}"
-group = "net.casual-championships"
-
-val moduleDependencies: Project.(List<String>) -> Unit by extra { { names ->
-    dependencies {
-        for (name in names) {
-            api(project(path = ":arcade-$name", configuration = "namedElements"))
-        }
-    }
-} }
+val modVersion = "0.2.0-alpha.2"
 
 allprojects {
     apply(plugin = "fabric-loom")
     apply(plugin = "maven-publish")
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
+
+    val libs = rootProject.libs
+
+    group = "net.casual-championships"
+    version = "${modVersion}+${libs.versions.minecraft.get()}"
 
     repositories {
         mavenLocal()
@@ -42,7 +37,6 @@ allprojects {
     }
 
     dependencies {
-        val libs = rootProject.libs
 
         minecraft(libs.minecraft)
         @Suppress("UnstableApiUsage")
@@ -117,13 +111,8 @@ dependencies {
     include(libs.polymer.resource.pack)
     include(libs.polymer.virtual.entity)
 
-    include(libs.fantasy)
-
     include(libs.permissions)
-    include(libs.sgui)
     include(libs.server.translations)
-
-    include(libs.custom.nametags)
 
     for (subproject in project.subprojects) {
         if (subproject.path != ":arcade-datagen") {
@@ -141,6 +130,14 @@ publishing {
         }
     }
 }
+
+val moduleDependencies: Project.(List<String>) -> Unit by extra { { names ->
+    dependencies {
+        for (name in names) {
+            api(project(path = ":arcade-$name", configuration = "namedElements"))
+        }
+    }
+} }
 
 private fun MavenPublication.updateReadme(vararg readmes: String) {
     val location = "${groupId}:${artifactId}"
