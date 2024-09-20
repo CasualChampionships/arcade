@@ -15,9 +15,6 @@
     ]
   },
   "depends": {
-    "fabricloader": ">=0.15.0",
-    "minecraft": ">=1.20",
-    "java": ">=17",
-    "fabric-language-kotlin": ">=1.9.0+kotlin.1.8.0"
+    "minecraft": "${minecraft_dependency}"
   }
 }

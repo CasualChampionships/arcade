@@ -1,5 +1,6 @@
 package net.casual.arcade.utils
 
+import net.casual.arcade.util.ducks.SilentRecipeSender
 import net.casual.arcade.util.mixins.PlayerAdvancementsAccessor
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
@@ -208,6 +209,24 @@ public object PlayerUtils {
         for (advancement in this.server.advancements.allAdvancements) {
             this.revokeAdvancement(advancement)
         }
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.grantAllRecipesSilently() {
+        for (recipe in this.server.recipeManager.recipes) {
+            this.recipeBook.add(recipe)
+        }
+        this.markSilentRecipesDirty()
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.revokeAllRecipes() {
+        this.resetRecipes(this.server.recipeManager.recipes)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.markSilentRecipesDirty() {
+        (this as SilentRecipeSender).`arcade$markSilentRecipesDirty`()
     }
 
     @JvmStatic

@@ -6,7 +6,8 @@
   "mixins": [
     "ClientboundPlayerInfoUpdatePacketAccessor",
     "MinecraftServerMixin",
-    "PlayerAdvancementsAccessor"
+    "PlayerAdvancementsAccessor",
+    "ServerPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

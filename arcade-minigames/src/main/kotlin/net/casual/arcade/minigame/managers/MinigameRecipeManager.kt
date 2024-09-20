@@ -13,6 +13,7 @@ import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.strings
 import net.casual.arcade.utils.JsonUtils.toJsonStringArray
 import net.casual.arcade.utils.JsonUtils.uuid
+import net.casual.arcade.utils.PlayerUtils.markSilentRecipesDirty
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.network.protocol.game.ClientboundRecipePacket
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket
@@ -47,7 +48,7 @@ public class MinigameRecipeManager(
         }
         this.minigame.events.register<MinigameAddPlayerEvent> { (_, player) ->
             player.connection.send(this.createRecipesPacket())
-            player.recipeBook.sendInitialRecipeBook(player)
+            player.markSilentRecipesDirty()
         }
         this.minigame.events.register<MinigameRemovePlayerEvent> {
             it.player.connection.send(ClientboundUpdateRecipesPacket(this.minigame.server.recipeManager.recipes))
@@ -101,7 +102,15 @@ public class MinigameRecipeManager(
     public fun grantSilently(player: ServerPlayer, recipes: Collection<RecipeHolder<*>>) {
         val mapped = recipes.map { it.id }
         this.players.putAll(player.uuid, mapped)
-        player.recipeBook.sendInitialRecipeBook(player)
+        player.markSilentRecipesDirty()
+    }
+
+    public fun grantAll(player: ServerPlayer) {
+        this.grant(player, this.all())
+    }
+
+    public fun grantAllSilently(player: ServerPlayer) {
+        this.grantSilently(player, this.all())
     }
 
     public fun revoke(player: ServerPlayer, recipes: Collection<RecipeHolder<*>>) {
