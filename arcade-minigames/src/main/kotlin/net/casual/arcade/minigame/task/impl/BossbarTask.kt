@@ -7,7 +7,7 @@ import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.bossbar.CustomBossbar
 import net.casual.arcade.visuals.bossbar.TimerBossbar
 
-public open class BossBarTask<T: CustomBossbar>(
+public open class BossbarTask<T: CustomBossbar>(
     private val minigame: Minigame<*>,
     public val bar: T
 ): Task {
@@ -20,22 +20,22 @@ public open class BossBarTask<T: CustomBossbar>(
     }
 
     public companion object {
-        public fun <T: TimerBossbar> BossBarTask<T>.withDuration(duration: MinecraftTimeDuration): BossBarTask<T> {
+        public fun <T: TimerBossbar> BossbarTask<T>.withDuration(duration: MinecraftTimeDuration): BossbarTask<T> {
             this.bar.setDuration(duration)
             return this
         }
 
-        public fun <T: TimerBossbar> BossBarTask<T>.withRemainingDuration(duration: MinecraftTimeDuration): BossBarTask<T> {
+        public fun <T: TimerBossbar> BossbarTask<T>.withRemainingDuration(duration: MinecraftTimeDuration): BossbarTask<T> {
             this.bar.setRemainingDuration(duration)
             return this
         }
 
-        public fun <T: TimerBossbar> BossBarTask<T>.readData(context: TaskCreationContext): BossBarTask<T> {
+        public fun <T: TimerBossbar> BossbarTask<T>.readData(context: TaskCreationContext): BossbarTask<T> {
             this.bar.readData(context)
             return this
         }
 
-        public fun <T: TimerBossbar> BossBarTask<T>.then(task: Task): BossBarTask<T> {
+        public fun <T: TimerBossbar> BossbarTask<T>.then(task: Task): BossbarTask<T> {
             this.bar.then(task)
             return this
         }
