@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    modImplementation("net.casual-championships:arcade:0.2.0-alpha.30+1.21.1")
+    modImplementation("net.casual-championships:arcade:0.2.0-alpha.32+1.21.1")
 }
 ```
 

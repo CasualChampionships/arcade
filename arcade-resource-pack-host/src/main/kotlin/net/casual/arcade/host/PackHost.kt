@@ -15,11 +15,11 @@ public class PackHost(ip: String?, port: Int = DEFAULT_PORT, threads: Int = 1): 
     private val hostedByName = ConcurrentHashMap<String, HostedPack>()
     private val hostedByHash = ConcurrentHashMap<String, HostedPack>()
 
-    private val packs = ArrayList<ReadablePack>()
+    private val packs = HashMap<String, ReadablePack>()
     private val suppliers = ArrayList<ReadablePackSupplier>()
 
     public fun addPack(pack: ReadablePack): HostedPackRef {
-        this.packs.add(pack)
+        this.packs[pack.name] = pack
         val future = this.hostPack(pack)
         return HostedPackRef(pack.name, future)
     }
@@ -38,7 +38,7 @@ public class PackHost(ip: String?, port: Int = DEFAULT_PORT, threads: Int = 1): 
         this.hostedByHash.clear()
 
         val futures = ArrayList<CompletableFuture<*>>()
-        for (pack in this.packs) {
+        for (pack in this.packs.values) {
             futures.add(this.hostPack(pack))
         }
         for (supplier in this.suppliers) {
