@@ -122,7 +122,7 @@ public object TeamUtils {
     @JvmStatic
     public fun createRandomTeams(
         server: MinecraftServer,
-        collection: Collection<ServerPlayer>,
+        collection: Collection<Entity>,
         teamSize: Int,
         friendlyFire: Boolean,
         collision: Team.CollisionRule

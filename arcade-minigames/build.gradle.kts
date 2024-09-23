@@ -9,5 +9,6 @@ dependencies {
     modApi(rootProject.libs.custom.nametags)
     modApi(rootProject.libs.fantasy)
 
+    modImplementation(rootProject.libs.server.translations)
     modImplementation(rootProject.libs.server.replay)
 }

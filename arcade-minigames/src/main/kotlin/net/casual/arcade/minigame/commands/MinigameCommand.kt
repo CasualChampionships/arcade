@@ -5,6 +5,7 @@ import com.google.gson.JsonParseException
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
+import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.commands.*
 import net.casual.arcade.commands.arguments.EnumArgument
@@ -31,12 +32,13 @@ import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.commands.arguments.TeamArgument
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 
 internal object MinigameCommand: CommandTree {
-    override fun register(dispatcher: CommandDispatcher<CommandSourceStack>, buildContext: CommandBuildContext) {
-        dispatcher.registerLiteral("minigame") {
+    override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
+        return CommandTree.buildLiteral("minigame") {
             requiresPermission(4)
 
             literal("list") {
@@ -191,15 +193,13 @@ internal object MinigameCommand: CommandTree {
             literal("advancement") {
                 argument("minigame", MinigameArgument.minigame()) {
                     argument("modifier", EnumArgument.enumeration<AdvancementModifier>()) {
-                        literal("only") {
-                            argument("advancement", ResourceLocationArgument.id()) {
-                                suggests { context, builder ->
-                                    val minigame = MinigameArgument.getMinigame(context, "minigame")
-                                    SharedSuggestionProvider.suggestResource(minigame.advancements.all().map { it.id }, builder)
-                                }
-                                argument("player", EntityArgument.players()) {
-                                    executes(::modifyMinigameAdvancement)
-                                }
+                        literal("only").argument("advancement", ResourceLocationArgument.id()) {
+                            suggests { context, builder ->
+                                val minigame = MinigameArgument.getMinigame(context, "minigame")
+                                SharedSuggestionProvider.suggestResource(minigame.advancements.all().map { it.id }, builder)
+                            }
+                            argument("player", EntityArgument.players()) {
+                                executes(::modifyMinigameAdvancement)
                             }
                         }
                         literal("all") {
@@ -276,7 +276,7 @@ internal object MinigameCommand: CommandTree {
     private fun listMinigames(context: CommandContext<CommandSourceStack>): Int {
         val minigames = Minigames.all()
         if (minigames.isEmpty()) {
-            return context.source.success("There are no running minigames!")
+            return context.source.success(Component.translatable("minigame.command.list.none"))
         }
         val formatted = minigames.joinToString("\n") { "ID: ${it.id}, UUID: ${it.uuid}" }
         return context.source.success(formatted)
@@ -284,88 +284,6 @@ internal object MinigameCommand: CommandTree {
 
     private fun selfJoinMinigame(context: CommandContext<CommandSourceStack>): Int {
         return this.addPlayersToMinigame(context, listOf(context.source.playerOrException))
-    }
-
-    private fun makeTeamAdmin(context: CommandContext<CommandSourceStack>): Int {
-        val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val team = TeamArgument.getTeam(context, "team")
-        minigame.teams.setAdminTeam(team)
-        return context.source.success("Successfully set ${team.name} to be the admin team")
-    }
-
-    private fun makeTeamSpectator(context: CommandContext<CommandSourceStack>): Int {
-        val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val team = TeamArgument.getTeam(context, "team")
-        minigame.teams.setSpectatorTeam(team)
-        return context.source.success("Successfully set ${team.name} to be the spectator team")
-    }
-
-    private fun setTeamEliminated(context: CommandContext<CommandSourceStack>): Int {
-        val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val team = TeamArgument.getTeam(context, "team")
-        minigame.teams.addEliminatedTeam(team)
-        return context.source.success("Successfully set ${team.name} to be eliminated")
-    }
-
-    private fun setTeamPlaying(context: CommandContext<CommandSourceStack>): Int {
-        val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val team = TeamArgument.getTeam(context, "team")
-        minigame.teams.removeEliminatedTeam(team)
-        return context.source.success("Successfully set ${team.name} to be playing")
-    }
-
-    private fun selfAddSpy(context: CommandContext<CommandSourceStack>): Int {
-        return this.addChatSpies(context, listOf(context.source.playerOrException))
-    }
-
-    private fun mute(context: CommandContext<CommandSourceStack>): Int {
-        val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val players = EntityArgument.getPlayers(context, "players")
-        var i = 0
-        for (player in players) {
-            if (minigame.chat.mute(player)) {
-                i++
-            }
-        }
-        return context.source.success("Successfully muted ${i}/${players.size} players")
-    }
-
-    private fun unmute(context: CommandContext<CommandSourceStack>): Int {
-        val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val players = EntityArgument.getPlayers(context, "players")
-        var i = 0
-        for (player in players) {
-            if (minigame.chat.unmute(player)) {
-                i++
-            }
-        }
-        return context.source.success("Successfully unmuted ${i}/${players.size} players")
-    }
-
-    private fun addChatSpies(
-        context: CommandContext<CommandSourceStack>,
-        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
-    ): Int {
-        val minigame = MinigameArgument.getMinigame(context, "minigame")
-        for (player in players) {
-            minigame.chat.addSpy(player)
-        }
-        return context.source.success("Successfully added players as spies!")
-    }
-
-    private fun selfRemoveSpy(context: CommandContext<CommandSourceStack>): Int {
-        return this.removeChatSpies(context, listOf(context.source.playerOrException))
-    }
-
-    private fun removeChatSpies(
-        context: CommandContext<CommandSourceStack>,
-        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
-    ): Int {
-        val minigame = MinigameArgument.getMinigame(context, "minigame")
-        for (player in players) {
-            minigame.chat.removeSpy(player)
-        }
-        return context.source.success("Successfully removed players as spies!")
     }
 
     private fun addPlayersToMinigame(
@@ -376,99 +294,9 @@ internal object MinigameCommand: CommandTree {
             context,
             players,
             { player, minigame -> minigame.players.add(player) },
-            "Failed to add any players to minigame",
-            { "Successfully added $it players to minigame" }
+            Component.translatable("minigame.command.players.add.fail"),
+            { Component.translatable("minigame.command.players.add.success", it) }
         )
-    }
-
-    private fun selfSpectateMinigame(context: CommandContext<CommandSourceStack>): Int {
-        return this.addPlayersToSpectate(context, listOf(context.source.playerOrException))
-    }
-
-    private fun addPlayersToSpectate(
-        context: CommandContext<CommandSourceStack>,
-        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
-    ): Int {
-        return applyToPlayersInMinigame(
-            context,
-            players,
-            { player, minigame -> minigame.players.setSpectating(player) },
-            "Failed to make players spectate",
-            { "Successfully made $it players spectate" }
-        )
-    }
-
-    private fun selfPlayingMinigame(context: CommandContext<CommandSourceStack>): Int {
-        return this.addPlayersToPlaying(context, listOf(context.source.playerOrException))
-    }
-
-    private fun addPlayersToPlaying(
-        context: CommandContext<CommandSourceStack>,
-        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
-    ): Int {
-        return applyToPlayersInMinigame(
-            context,
-            players,
-            { player, minigame -> minigame.players.setPlaying(player) },
-            "Failed to make players playing",
-            { "Successfully made $it players playing" }
-        )
-    }
-
-    private fun selfAdminMinigame(context: CommandContext<CommandSourceStack>): Int {
-        return this.addPlayersToAdmin(context, listOf(context.source.playerOrException))
-    }
-
-    private fun addPlayersToAdmin(
-        context: CommandContext<CommandSourceStack>,
-        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
-    ): Int {
-        return applyToPlayersInMinigame(
-            context,
-            players,
-            { player, minigame -> minigame.players.addAdmin(player) },
-            "Failed to make players admin",
-            { "Successfully made $it players admin" }
-        )
-    }
-
-    private fun selfUnAdminMinigame(context: CommandContext<CommandSourceStack>): Int {
-        return this.removePlayersFromAdmin(context, listOf(context.source.playerOrException))
-    }
-
-    private fun removePlayersFromAdmin(
-        context: CommandContext<CommandSourceStack>,
-        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
-    ): Int {
-        return applyToPlayersInMinigame(
-            context,
-            players,
-            { player, minigame -> minigame.players.removeAdmin(player) },
-            "Failed to remove players admin",
-            { "Successfully removed $it players admin" }
-        )
-    }
-
-    private fun applyToPlayersInMinigame(
-        context: CommandContext<CommandSourceStack>,
-        players: Collection<ServerPlayer>,
-        function: (ServerPlayer, Minigame<*>) -> Boolean,
-        fail: String,
-        success: (String) -> String
-    ): Int {
-        val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val total = players.size
-        var successes = 0
-        for (player in players) {
-            if (function(player, minigame)) {
-                successes++
-            }
-        }
-        if (successes == 0) {
-            return context.source.fail(fail)
-        }
-        context.source.success(success("$successes/$total"))
-        return successes
     }
 
     private fun selfLeaveMinigame(context: CommandContext<CommandSourceStack>): Int {
@@ -491,9 +319,201 @@ internal object MinigameCommand: CommandTree {
             }
         }
         if (successes == 0) {
-            return context.source.fail("Failed to remove any players from minigames")
+            return context.source.fail(
+                Component.translatable("minigame.command.players.remove.fail")
+            )
         }
-        context.source.success("Successfully removed $successes/$total players from minigames")
+        context.source.success(
+            Component.translatable("minigame.command.players.remove.success", "$successes/$total")
+        )
+        return successes
+    }
+
+    private fun makeTeamAdmin(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val team = TeamArgument.getTeam(context, "team")
+        minigame.teams.setAdminTeam(team)
+        return context.source.success(
+            Component.translatable("minigame.command.team.admin", team.formattedDisplayName)
+        )
+    }
+
+    private fun makeTeamSpectator(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val team = TeamArgument.getTeam(context, "team")
+        minigame.teams.setSpectatorTeam(team)
+        return context.source.success(
+            Component.translatable("minigame.command.team.spectator", team.formattedDisplayName)
+        )
+    }
+
+    private fun setTeamEliminated(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val team = TeamArgument.getTeam(context, "team")
+        minigame.teams.addEliminatedTeam(team)
+        return context.source.success(
+            Component.translatable("minigame.command.team.eliminated.add", team.formattedDisplayName)
+        )
+    }
+
+    private fun setTeamPlaying(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val team = TeamArgument.getTeam(context, "team")
+        minigame.teams.removeEliminatedTeam(team)
+        return context.source.success(
+            Component.translatable("minigame.command.team.eliminated.remove", team.formattedDisplayName)
+        )
+    }
+
+    private fun mute(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val players = EntityArgument.getPlayers(context, "players")
+        var i = 0
+        for (player in players) {
+            if (minigame.chat.mute(player)) {
+                i++
+            }
+        }
+        return context.source.success(
+            Component.translatable("minigame.command.chat.mute", "${i}/${players.size}")
+        )
+    }
+
+    private fun unmute(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val players = EntityArgument.getPlayers(context, "players")
+        var i = 0
+        for (player in players) {
+            if (minigame.chat.unmute(player)) {
+                i++
+            }
+        }
+        return context.source.success(
+            Component.translatable("minigame.command.chat.unmute", "${i}/${players.size}")
+        )
+    }
+
+    private fun selfAddSpy(context: CommandContext<CommandSourceStack>): Int {
+        return this.addChatSpies(context, listOf(context.source.playerOrException))
+    }
+
+    private fun addChatSpies(
+        context: CommandContext<CommandSourceStack>,
+        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
+    ): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        for (player in players) {
+            minigame.chat.addSpy(player)
+        }
+        return context.source.success(
+            Component.translatable("minigame.command.chat.spies.add")
+        )
+    }
+
+    private fun selfRemoveSpy(context: CommandContext<CommandSourceStack>): Int {
+        return this.removeChatSpies(context, listOf(context.source.playerOrException))
+    }
+
+    private fun removeChatSpies(
+        context: CommandContext<CommandSourceStack>,
+        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
+    ): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        for (player in players) {
+            minigame.chat.removeSpy(player)
+        }
+        return context.source.success(
+            Component.translatable("minigame.command.chat.spies.remove")
+        )
+    }
+
+    private fun selfSpectateMinigame(context: CommandContext<CommandSourceStack>): Int {
+        return this.addPlayersToSpectate(context, listOf(context.source.playerOrException))
+    }
+
+    private fun addPlayersToSpectate(
+        context: CommandContext<CommandSourceStack>,
+        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
+    ): Int {
+        return applyToPlayersInMinigame(
+            context,
+            players,
+            { player, minigame -> minigame.players.setSpectating(player) },
+            Component.translatable("minigame.command.spectators.add.fail"),
+            { Component.translatable("minigame.command.spectators.add.success", it) }
+        )
+    }
+
+    private fun selfPlayingMinigame(context: CommandContext<CommandSourceStack>): Int {
+        return this.addPlayersToPlaying(context, listOf(context.source.playerOrException))
+    }
+
+    private fun addPlayersToPlaying(
+        context: CommandContext<CommandSourceStack>,
+        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
+    ): Int {
+        return applyToPlayersInMinigame(
+            context,
+            players,
+            { player, minigame -> minigame.players.setPlaying(player) },
+            Component.translatable("minigame.command.spectators.remove.fail"),
+            { Component.translatable("minigame.command.spectators.remove.success", it) }
+        )
+    }
+
+    private fun selfAdminMinigame(context: CommandContext<CommandSourceStack>): Int {
+        return this.addPlayersToAdmin(context, listOf(context.source.playerOrException))
+    }
+
+    private fun addPlayersToAdmin(
+        context: CommandContext<CommandSourceStack>,
+        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
+    ): Int {
+        return applyToPlayersInMinigame(
+            context,
+            players,
+            { player, minigame -> minigame.players.addAdmin(player) },
+            Component.translatable("minigame.command.admins.add.fail"),
+            { Component.translatable("minigame.command.admins.add.success", it) }
+        )
+    }
+
+    private fun selfUnAdminMinigame(context: CommandContext<CommandSourceStack>): Int {
+        return this.removePlayersFromAdmin(context, listOf(context.source.playerOrException))
+    }
+
+    private fun removePlayersFromAdmin(
+        context: CommandContext<CommandSourceStack>,
+        players: Collection<ServerPlayer> = EntityArgument.getPlayers(context, "players")
+    ): Int {
+        return applyToPlayersInMinigame(
+            context,
+            players,
+            { player, minigame -> minigame.players.removeAdmin(player) },
+            Component.translatable("minigame.command.admins.remove.fail"),
+            { Component.translatable("minigame.command.admins.remove.success", it) }
+        )
+    }
+
+    private fun applyToPlayersInMinigame(
+        context: CommandContext<CommandSourceStack>,
+        players: Collection<ServerPlayer>,
+        function: (ServerPlayer, Minigame<*>) -> Boolean,
+        fail: Component,
+        success: (String) -> Component
+    ): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val total = players.size
+        var successes = 0
+        for (player in players) {
+            if (function(player, minigame)) {
+                successes++
+            }
+        }
+        if (successes == 0) {
+            return context.source.fail(fail)
+        }
+        context.source.success(success("$successes/$total"))
         return successes
     }
 
@@ -509,24 +529,28 @@ internal object MinigameCommand: CommandTree {
         return context.source.success(info)
     }
 
-    private fun openMinigameSettings(context: CommandContext<CommandSourceStack>): Int {
+    private fun openMinigameSettings(context: CommandContext<CommandSourceStack>) {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        return minigame.settings.gui(context.source.playerOrException).open().commandSuccess()
+        minigame.settings.gui(context.source.playerOrException).open()
     }
 
     private fun getMinigameSetting(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val setting = MinigameSettingArgument.getSetting(context, "setting", minigame)
-        return context.source.success("Setting ${setting.name} for minigame ${minigame.id} is set to ${setting.get()}")
+        return context.source.success(
+            Component.translatable("minigame.command.setting.get", setting.name, setting.get().toString())
+        )
     }
 
     private fun setMinigameSettingFromOption(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val setting= MinigameSettingArgument.getSetting(context, "setting", minigame)
+        val setting = MinigameSettingArgument.getSetting(context, "setting", minigame)
         val option = MinigameSettingsOptionArgument.getSettingsOption(context, "option")
         val value = setting.getOption(option) ?: throw INVALID_SETTING_OPTION.create()
         setting.setFromOption(option)
-        return context.source.success("Setting ${setting.name} for minigame ${minigame.id} set to option $option ($value)")
+        return context.source.success(
+            Component.translatable("minigame.command.setting.set.option", setting.name, option, value.toString())
+        )
     }
 
     private fun setMinigameSettingFromValue(context: CommandContext<CommandSourceStack>): Int {
@@ -534,7 +558,9 @@ internal object MinigameCommand: CommandTree {
         val setting = MinigameSettingArgument.getSetting(context, "setting", minigame)
         val value = MinigameSettingValueArgument.getSettingsValue(context, "value")
         setting.deserializeAndSet(value)
-        return context.source.success("Setting ${setting.name} for minigame ${minigame.id} set to ${setting.get()}")
+        return context.source.success(
+            Component.translatable("minigame.command.setting.set.value", setting.get().toString())
+        )
     }
 
     private fun modifyMinigameAdvancement(context: CommandContext<CommandSourceStack>): Int {
@@ -543,7 +569,7 @@ internal object MinigameCommand: CommandTree {
         val id = ResourceLocationArgument.getId(context, "advancement")
         val player = EntityArgument.getPlayer(context, "player")
         val advancement = minigame.advancements.get(id)
-            ?: return context.source.fail("No such advancement $id exists")
+            ?: return context.source.fail(Component.translatable("minigame.command.advancement.unknown"))
         modifier.modify(player, advancement)
         return context.source.success(modifier.singleSuccessMessage(player, advancement))
     }
@@ -562,7 +588,9 @@ internal object MinigameCommand: CommandTree {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val player = EntityArgument.getPlayer(context, "player")
         val tags = minigame.tags.get(player).joinToString()
-        return context.source.success("Tags for ${player.scoreboardName}: $tags")
+        return context.source.success(
+            Component.translatable("minigame.command.tags.list", player.displayName, tags)
+        )
     }
 
     private fun addPlayerTag(context: CommandContext<CommandSourceStack>): Int {
@@ -571,9 +599,13 @@ internal object MinigameCommand: CommandTree {
         val tag = ResourceLocationArgument.getId(context, "tag")
 
         if (!minigame.tags.add(player, tag)) {
-            return context.source.fail("${player.scoreboardName} already had tag $tag")
+            return context.source.fail(
+                Component.translatable("minigame.command.tags.add.fail", player.displayName, tag.toString())
+            )
         }
-        return context.source.success("Successfully added tag $tag to ${player.scoreboardName}")
+        return context.source.success(
+            Component.translatable("minigame.command.tags.add.success", tag.toString(), player.displayName)
+        )
     }
 
     private fun removePlayerTag(context: CommandContext<CommandSourceStack>): Int {
@@ -582,14 +614,20 @@ internal object MinigameCommand: CommandTree {
         val tag = ResourceLocationArgument.getId(context, "tag")
 
         if (!minigame.tags.remove(player, tag)) {
-            return context.source.fail("${player.scoreboardName} did not have tag $tag")
+            return context.source.fail(
+                Component.translatable("minigame.command.tags.remove.fail", player.displayName, tag.toString())
+            )
         }
-        return context.source.success("Successfully removed tag $tag for ${player.scoreboardName}")
+        return context.source.success(
+            Component.translatable("minigame.command.tags.remove.success", tag.toString(), player.displayName)
+        )
     }
 
     private fun getMinigamePhase(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        return context.source.success("The phase of minigame ${minigame.id} is ${minigame.phase.id}")
+        return context.source.success(
+            Component.translatable("minigame.command.phase.get", minigame.id.toString(), minigame.phase.id)
+        )
     }
 
     private fun <M: Minigame<M>> setMinigamePhase(context: CommandContext<CommandSourceStack>): Int {
@@ -597,54 +635,69 @@ internal object MinigameCommand: CommandTree {
         val minigame = MinigameArgument.getMinigame(context, "minigame") as Minigame<M>
         val phase = MinigamePhaseArgument.getPhase(context, "phase", minigame)
         minigame.setPhase(phase)
-        return context.source.success("Successfully set phase of minigame ${minigame.id} to ${phase.id}")
+        return context.source.success(
+            Component.translatable("minigame.command.phase.set", minigame.id.toString(), phase.id)
+        )
     }
 
     private fun pauseMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         if (minigame.paused) {
-            return context.source.fail("Minigame ${minigame.id} was already paused")
+            return context.source.fail(
+                Component.translatable("minigame.command.pause.fail", minigame.id.toString())
+            )
         }
         minigame.pause()
-        return context.source.success("Successfully paused minigame ${minigame.id}")
+        return context.source.success(
+            Component.translatable("minigame.command.pause.success", minigame.id.toString())
+        )
     }
 
     private fun unpauseMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         if (!minigame.paused) {
-            return context.source.fail("Minigame ${minigame.id} was already unpaused")
+            return context.source.fail(
+                Component.translatable("minigame.command.unpause.fail", minigame.id.toString())
+            )
         }
         minigame.unpause()
-        return context.source.success("Successfully unpaused minigame ${minigame.id}")
+        return context.source.success(
+            Component.translatable("minigame.command.unpause.success", minigame.id.toString())
+        )
     }
 
     private fun readyUnpause(context: CommandContext<CommandSourceStack>, teams: Boolean): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         if (!minigame.paused) {
-            return context.source.fail("Minigame ${minigame.id} was already unpaused")
+            return context.source.fail(
+                Component.translatable("minigame.command.unpause.fail", minigame.id.toString())
+            )
         }
         val callback = Task {
-            val message = "Click ".literal().apply {
-                append("[here]".literal().green().suggestCommand("/minigame unpause ${minigame.uuid} countdown 5 Seconds"))
-                append(" to start the unpause countdown!")
-            }
+            val here = Component.translatable("minigame.command.unpause.here")
+                .green().suggestCommand("/minigame unpause ${minigame.uuid} countdown 5 Seconds")
+
             val player = context.source.player
             val admins = if (player == null) minigame.players.admins else minigame.players.admins.concat(player)
-            minigame.chat.broadcastTo(message, admins)
+            minigame.chat.broadcastTo(Component.translatable("minigame.command.unpause.countdown", here), admins)
         }
         if (teams) {
             minigame.ui.readier.areTeamsReady(minigame.teams.getPlayingTeams()).then(callback)
         } else {
             minigame.ui.readier.arePlayersReady(minigame.players.playing).then(callback)
         }
+        context.source.success(Component.translatable("minigame.command.unpause.ready.success"))
+
         return context.source.success {
-            "Successfully broadcasted unpause ready check, click ".literal().apply {
-                append("[here]".literal().green().function { context ->
-                    val awaiting = minigame.ui.readier.getUnreadyFormatted(context.server).join()
-                    val message = "Awaiting the following ${if (teams) "teams" else "players"}: ".literal().append(awaiting)
-                    minigame.chat.broadcastTo(message, context.player)
-                })
-                append(" to view the awaiting ${if (teams) "teams" else "players"}")
+            val here = Component.translatable("minigame.command.unpause.here").green().function { context ->
+                val awaiting = minigame.ui.readier.getUnreadyFormatted(context.server).join()
+                val message = Component.translatable("minigame.command.unpause.ready.awaiting", awaiting)
+                minigame.chat.broadcastTo(message, context.player)
+            }
+            if (teams) {
+                Component.translatable("minigame.command.unpause.ready.teams", here)
+            } else {
+                Component.translatable("minigame.command.unpause.ready.players", here)
             }
         }
     }
@@ -656,7 +709,9 @@ internal object MinigameCommand: CommandTree {
     ): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         if (!minigame.paused) {
-            return context.source.fail("Minigame ${minigame.id} was already unpaused")
+            return context.source.fail(
+                Component.translatable("minigame.command.unpause.fail", minigame.id.toString())
+            )
         }
         val duration = unit.duration(time)
 
@@ -665,15 +720,17 @@ internal object MinigameCommand: CommandTree {
         minigame.ui.countdown.countdown(minigame, duration, scheduler = scheduler).then {
             minigame.unpause()
         }
+        context.source.success(Component.translatable("minigame.command.unpause.countdown.success"))
         return context.source.success {
-            "Successfully started countdown, click ".literal().apply {
-                append("[here]".literal().green().singleUseFunction { context ->
-                    if (scheduler.cancelAll()) {
-                        minigame.chat.broadcastTo("Successfully cancelled the countdown".literal(), context.player)
-                    }
-                })
-                append(" to cancel the countdown")
+            val here = Component.translatable("minigame.command.unpause.here").green().singleUseFunction { context ->
+                if (scheduler.cancelAll()) {
+                    minigame.chat.broadcastTo(
+                        Component.translatable("minigame.command.unpause.countdown.cancel.success"),
+                        context.player
+                    )
+                }
             }
+            Component.translatable("minigame.command.unpause.countdown.cancel", here)
         }
     }
 
@@ -686,7 +743,9 @@ internal object MinigameCommand: CommandTree {
             try {
                 JsonUtils.GSON.fromJson(raw, JsonObject::class.java)
             } catch (_: JsonParseException) {
-                return context.source.fail("Failed to parse parameters, invalid JSON object")
+                return context.source.fail(
+                    Component.translatable("minigame.command.create.fail")
+                )
             }
         } else {
             JsonObject()
@@ -694,18 +753,24 @@ internal object MinigameCommand: CommandTree {
 
         val minigame = factory.create(MinigameCreationContext(context.source.server, parameters))
         minigame.tryInitialize()
-        return context.source.success("Successfully created minigame ${minigame.id} with uuid ${minigame.uuid}")
+        return context.source.success(
+            Component.translatable("minigame.command.create.success", minigame.id.toString(), minigame.uuid.toString())
+        )
     }
 
     private fun closeMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         minigame.close()
-        return context.source.success("Successfully closed minigame ${minigame.id}")
+        return context.source.success(
+            Component.translatable("minigame.command.close.success", minigame.uuid.toString())
+        )
     }
 
     private fun startMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         minigame.start()
-        return context.source.success("Successfully started minigame ${minigame.id}")
+        return context.source.success(
+            Component.translatable("minigame.command.start.success", minigame.uuid.toString())
+        )
     }
 }

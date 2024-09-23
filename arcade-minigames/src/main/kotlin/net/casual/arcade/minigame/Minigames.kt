@@ -8,6 +8,7 @@ import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.minigame.commands.ExtendedGameModeCommand
 import net.casual.arcade.minigame.commands.MinigameCommand
+import net.casual.arcade.minigame.commands.PauseCommand
 import net.casual.arcade.minigame.commands.TeamCommandModifier
 import net.casual.arcade.minigame.exception.MinigameCreationException
 import net.casual.arcade.minigame.exception.MinigameSerializationException
@@ -171,7 +172,7 @@ public object Minigames: ModInitializer {
             this.saveMinigames()
         }
         GlobalEventHandler.register<ServerRegisterCommandEvent> { event ->
-            event.register(ExtendedGameModeCommand, MinigameCommand, TeamCommandModifier)
+            event.register(ExtendedGameModeCommand, MinigameCommand, PauseCommand, TeamCommandModifier)
         }
 
         registerFactory(ResourceUtils.arcade("lobby")) {

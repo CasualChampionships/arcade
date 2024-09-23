@@ -1,5 +1,6 @@
 package net.casual.arcade.commands
 
+import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.builder.ArgumentBuilder
@@ -19,16 +20,6 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import java.util.function.Supplier
 
-@Suppress("UnusedReceiverParameter")
-public fun Any?.commandSuccess(): Int {
-    return 1
-}
-
-@Suppress("UnusedReceiverParameter")
-public fun Any?.commandFailure(): Int {
-    return 0
-}
-
 public fun MutableComponent.singleUseFunction(command: HiddenCommand): MutableComponent {
     return this.function { context ->
         command.run(context)
@@ -45,11 +36,13 @@ public fun CommandSourceStack.success(literal: String, log: Boolean = false): In
 }
 
 public fun CommandSourceStack.success(component: Component, log: Boolean = false): Int {
-    return this.sendSuccess({ component }, log).commandSuccess()
+    this.sendSuccess({ component }, log)
+    return Command.SINGLE_SUCCESS
 }
 
 public fun CommandSourceStack.success(log: Boolean = false, generator: Supplier<Component>): Int {
-    return this.sendSuccess(generator, log).commandSuccess()
+    this.sendSuccess(generator, log)
+    return Command.SINGLE_SUCCESS
 }
 
 public fun CommandSourceStack.fail(literal: String): Int {
@@ -57,7 +50,8 @@ public fun CommandSourceStack.fail(literal: String): Int {
 }
 
 public fun CommandSourceStack.fail(component: Component): Int {
-    return this.sendFailure(component).commandFailure()
+    this.sendFailure(component)
+    return 0
 }
 
 public inline fun <S> CommandDispatcher<S>.registerLiteral(
@@ -67,6 +61,16 @@ public inline fun <S> CommandDispatcher<S>.registerLiteral(
     val root = LiteralArgumentBuilder.literal<S>(literal)
     root.builder()
     return this.register(root)
+}
+
+public inline fun <S, T: ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.executes(
+    crossinline command: (CommandContext<S>) -> Unit
+): ArgumentBuilder<S, T> {
+    this.executes { context ->
+        command.invoke(context)
+        Command.SINGLE_SUCCESS
+    }
+    return this
 }
 
 public inline fun <S, T: ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.literal(
@@ -135,6 +139,6 @@ public fun <S, T> RequiredArgumentBuilder<S, T>.suggests(
 
 public fun ServerRegisterCommandEvent.register(vararg commands: CommandTree) {
     for (command in commands) {
-        command.register(this.dispatcher, this.context)
+        this.dispatcher.register(command.create(this.context))
     }
 }

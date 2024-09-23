@@ -258,13 +258,23 @@ public object ComponentUtils {
         prefix: Component? = null,
         postfix: Component? = null
     ): MutableComponent {
+        return this.joinToComponent(separator, prefix, postfix) { it }
+    }
+
+    @JvmStatic
+    public fun <T> Iterable<T>.joinToComponent(
+        separator: Component = Component.literal(", "),
+        prefix: Component? = null,
+        postfix: Component? = null,
+        transformer: (T) -> Component
+    ): MutableComponent {
         val component = Component.empty()
         if (prefix != null) {
             component.append(prefix)
         }
         val iterator = this.iterator()
         while (iterator.hasNext()) {
-            component.append(iterator.next())
+            component.append(transformer(iterator.next()))
             if (iterator.hasNext()) {
                 component.append(separator)
             }

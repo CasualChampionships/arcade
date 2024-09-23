@@ -103,6 +103,12 @@ subprojects {
             }
         }
     }
+
+    afterEvaluate {
+        tasks.getByName("genSourcesWithVineflower").enabled = false
+        tasks.getByName("genSourcesWithFernFlower").enabled = false
+        tasks.getByName("genSourcesWithCfr").enabled = false
+    }
 }
 
 dependencies {
