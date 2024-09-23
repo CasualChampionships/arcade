@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "arcade-scheduler",
+  "version": "${version}",
+  "name": "Arcade Scheduler",
+  "description": "",
+  "authors": [
+    "Sensei"
+  ],
+  "contact": {
+
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+
+  },
+  "mixins": [
+
+  ],
+  "depends": {
+    "minecraft": "${minecraft_dependency}"
+  }
+}

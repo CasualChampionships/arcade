@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "arcade-minigames",
+  "version": "${version}",
+  "name": "Arcade Minigames",
+  "description": "",
+  "authors": [
+    "Sensei"
+  ],
+  "contact": {
+
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.minigame.Minigames"
+      }
+    ],
+    "server_replay": [
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.minigame.compat.ArcadeReplayPlugin"
+      }
+    ]
+  },
+  "mixins": [
+    "arcade-minigames.mixins.json"
+  ],
+  "depends": {
+    "minecraft": "${minecraft_dependency}"
+  }
+}

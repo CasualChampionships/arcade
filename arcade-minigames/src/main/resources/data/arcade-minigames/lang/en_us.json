@@ -1,0 +1,30 @@
+{
+  "minigame.chat.mode.switch.specificTeam": "You are now chatting in %s's team chat",
+  "minigame.chat.mode.switch.ownTeam": "You are now chatting in your team's chat",
+  "minigame.chat.mode.switch.admin": "You are now chatting in the admins' chat",
+  "minigame.chat.mode.switch.spectator": "You are now chatting in the spectators' chat",
+  "minigame.chat.mode.switch.global": "You are now chatting in the global chat",
+  "minigame.chat.mode.switch.alreadySelected": "You are already chatting in that chat!",
+  "minigame.chat.mode.switch.unknown": "Unknown",
+
+  "minigame.command.advancement.grant.single": "Successfully granted advancement %s to %s",
+  "minigame.command.advancement.grant.all": "Successfully granted all advancements to %s",
+  "minigame.command.advancement.revoke.single": "Successfully revoked advancement %s from %s",
+  "minigame.command.advancement.revoke.all": "Successfully revoked all advancements from %s",
+
+  "minigame.ready.yes": "[Yes]",
+  "minigame.ready.no": "[No]",
+
+  "minigame.ready.player.broadcast": "Are you ready? %s %s",
+  "minigame.ready.player.ready": "%s is ready!",
+  "minigame.ready.player.notReady": "%s is not ready!",
+  "minigame.ready.player.all": "All players are ready!",
+
+
+  "minigame.ready.team.broadcast": "Is your team ready? %s %s",
+  "minigame.ready.team.ready": "%s is ready!",
+  "minigame.ready.team.notReady": "%s is not ready!",
+  "minigame.ready.team.all": "All teams are ready!",
+
+  "minigame.gui.settings": "Minigame Settings Screen"
+}

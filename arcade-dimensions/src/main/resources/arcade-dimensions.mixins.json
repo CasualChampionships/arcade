@@ -1,0 +1,27 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.casual.arcade.dimensions.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "RequiredArgumentBuilderMixin",
+    "border.LevelMixin",
+    "border.PlayerListMixin",
+    "border.StaticBorderExtentMixin",
+    "border.WorldBorderCommandMixin",
+    "border.WorldBorderMixin",
+    "fantasy.FantasyInvoker",
+    "vanilla.BaseFireBlockMixin",
+    "vanilla.EndPortalBlockMixin",
+    "vanilla.FallingBlockEntityMixin",
+    "vanilla.GameRuleCommandMixin",
+    "vanilla.NetherPortalBlockMixin",
+    "vanilla.ServerLevelMixin",
+    "vanilla.ServerPlayerMixin",
+    "vanilla.TheEndGatewayBlockEntityMixin",
+    "vanilla.ThrownEnderpearlMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

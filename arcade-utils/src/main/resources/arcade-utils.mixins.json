@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.casual.arcade.util.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "ClientboundPlayerInfoUpdatePacketAccessor",
+    "MinecraftServerMixin",
+    "PlayerAdvancementsAccessor",
+    "ServerPlayerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "arcade-datagen",
+  "version": "${version}",
+  "name": "Arcade Datagen",
+  "description": "",
+  "authors": [
+    "Sensei"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "net.casual.arcade.datagen.ArcadeDataGenerator"
+    ]
+  },
+  "depends": {
+    "minecraft": "${minecraft_dependency}"
+  }
+}

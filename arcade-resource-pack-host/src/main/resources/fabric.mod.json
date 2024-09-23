@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "arcade-resource-pack-host",
+  "version": "${version}",
+  "name": "Arcade Resource Pack Host",
+  "description": "",
+  "authors": [
+    "Sensei"
+  ],
+  "contact": {
+
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+
+  },
+  "mixins": [
+
+  ],
+  "depends": {
+    "minecraft": "${minecraft_dependency}"
+  }
+}

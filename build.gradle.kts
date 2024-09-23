@@ -10,14 +10,18 @@ plugins {
     java
 }
 
-val modVersion = "0.1.0-alpha.3"
-version = "${modVersion}+mc${libs.versions.minecraft.get()}"
-group = "net.casual-championships"
+val modVersion = "0.2.0-alpha.32"
 
 allprojects {
     apply(plugin = "fabric-loom")
     apply(plugin = "maven-publish")
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
+
+    val libs = rootProject.libs
+
+    group = "net.casual-championships"
+    version = "${modVersion}+${libs.versions.minecraft.get()}"
 
     repositories {
         mavenLocal()
@@ -33,7 +37,6 @@ allprojects {
     }
 
     dependencies {
-        val libs = rootProject.libs
 
         minecraft(libs.minecraft)
         @Suppress("UnstableApiUsage")
@@ -59,7 +62,11 @@ allprojects {
         processResources {
             inputs.property("version", version)
             filesMatching("fabric.mod.json") {
-                expand(mutableMapOf("version" to version))
+                val minecraftDependency = libs.versions.minecraft.get().replaceAfterLast('.', "x")
+                expand(mutableMapOf(
+                    "version" to version,
+                    "minecraft_dependency" to minecraftDependency,
+                ))
             }
         }
 
@@ -88,45 +95,35 @@ allprojects {
     }
 }
 
-dependencies {
-    includeModApi(libs.polymer.core)
-    includeModApi(libs.polymer.blocks)
-    includeModApi(libs.polymer.resource.pack)
-    includeModApi(libs.polymer.virtual.entity)
-
-    includeModApi(libs.fantasy)
-
-    includeModApi(libs.permissions)
-    includeModApi(libs.sgui)
-    includeModApi(libs.server.translations)
-
-    includeModApi(libs.custom.nametags)
-    modApi(libs.server.replay)
-}
-
-loom {
-    accessWidenerPath.set(file("src/main/resources/arcade.accesswidener"))
-}
-
-tasks {
-    processResources {
-        inputs.property("version", project.version)
-        filesMatching("fabric.mod.json") {
-            expand(mutableMapOf("version" to project.version))
+subprojects {
+    publishing {
+        publications {
+            create<MavenPublication>("mavenJava") {
+                from(components["java"])
+            }
         }
     }
+}
 
-    jar {
-        from("LICENSE")
+dependencies {
+    include(libs.polymer.core)
+    include(libs.polymer.blocks)
+    include(libs.polymer.resource.pack)
+    include(libs.polymer.virtual.entity)
+
+    include(libs.permissions)
+    include(modImplementation(libs.server.translations.get())!!)
+
+    for (subproject in project.subprojects) {
+        if (subproject.path != ":arcade-datagen") {
+            include(api(project(path = subproject.path, configuration = "namedElements"))!!)
+        }
     }
 }
 
 publishing {
     publications {
-        create<MavenPublication>("arcade") {
-            groupId = "net.casual-championships"
-            artifactId = "arcade"
-            version = "${modVersion}+${libs.versions.minecraft.get()}"
+        create<MavenPublication>("mavenJava") {
             from(components["java"])
 
             updateReadme("./README.md")
@@ -134,10 +131,13 @@ publishing {
     }
 }
 
-private fun DependencyHandler.includeModApi(dependencyNotation: Any) {
-    include(dependencyNotation)
-    modApi(dependencyNotation)
-}
+val moduleDependencies: Project.(List<String>) -> Unit by extra { { names ->
+    dependencies {
+        for (name in names) {
+            api(project(path = ":arcade-$name", configuration = "namedElements"))
+        }
+    }
+} }
 
 private fun MavenPublication.updateReadme(vararg readmes: String) {
     val location = "${groupId}:${artifactId}"

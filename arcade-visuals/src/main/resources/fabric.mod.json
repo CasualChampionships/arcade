@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "arcade-gui",
+  "version": "${version}",
+  "name": "Arcade Gui",
+  "description": "",
+  "authors": [
+    "Sensei"
+  ],
+  "contact": {
+
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.visuals.ArcadeVisuals"
+      }
+    ]
+  },
+  "mixins": [
+
+  ],
+  "depends": {
+    "minecraft": "${minecraft_dependency}"
+  }
+}

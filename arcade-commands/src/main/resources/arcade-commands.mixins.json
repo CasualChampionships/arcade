@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.casual.arcade.commands.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "ArgumentBuilderMixin",
+    "ArgumentNodeStub",
+    "ArgumentTypeInfosAccessor",
+    "ClientboundCommandsPacketMixin",
+    "CommandDispatcherMixin",
+    "CommandNodeMixin",
+    "MinecraftServerMixin",
+    "PlayerListMixin",
+    "ServerGamePacketListenerImplMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
