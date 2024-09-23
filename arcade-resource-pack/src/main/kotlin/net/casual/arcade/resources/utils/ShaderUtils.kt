@@ -47,7 +47,7 @@ public object ShaderUtils {
 
             vec3 glow = Color.rgb;
             $builder
-            vertexColor = Vec4(glow, Color.a);
+            vertexColor = vec4(glow, Color.a);
             texCoord0 = UV0;
         }
         """.trimIndent()
