@@ -17,7 +17,9 @@ import net.casual.arcade.minigame.utils.AdvancementModifier
 import net.casual.arcade.minigame.utils.MinigameUtils.countdown
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.scheduler.GlobalTickedScheduler
+import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.utils.ComponentUtils.green
+import net.casual.arcade.utils.ComponentUtils.join
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.suggestCommand
 import net.casual.arcade.utils.JsonUtils
@@ -621,8 +623,8 @@ internal object MinigameCommand: CommandTree {
         if (!minigame.paused) {
             return context.source.fail("Minigame ${minigame.id} was already unpaused")
         }
-        val callback: () -> Unit = {
-            val message = "All players are ready, click ".literal().apply {
+        val callback = Task {
+            val message = "Click ".literal().apply {
                 append("[here]".literal().green().suggestCommand("/minigame unpause ${minigame.uuid} countdown 5 Seconds"))
                 append(" to start the unpause countdown!")
             }
@@ -630,20 +632,18 @@ internal object MinigameCommand: CommandTree {
             val admins = if (player == null) minigame.players.admins else minigame.players.admins.concat(player)
             minigame.chat.broadcastTo(message, admins)
         }
-        // FIXME:
-        val awaiting = if (teams) {
-            val unready = minigame.ui.readier.areTeamsReady(minigame.teams.getPlayingTeams(), callback)
-            // ({ unready.toComponent() })
+        if (teams) {
+            minigame.ui.readier.areTeamsReady(minigame.teams.getPlayingTeams()).then(callback)
         } else {
-            val unready = minigame.ui.readier.arePlayersReady(minigame.players.playing, callback)
-            // ({ unready.toComponent() })
+            minigame.ui.readier.arePlayersReady(minigame.players.playing).then(callback)
         }
         return context.source.success {
             "Successfully broadcasted unpause ready check, click ".literal().apply {
-                append("[here]".literal().green()/*.function {
-                    // val message = "Awaiting the following ${if (teams) "teams" else "players"}: ".literal().append(awaiting())
-                    // minigame.chat.broadcastTo(message, it.player)
-                }*/)
+                append("[here]".literal().green().function { context ->
+                    val awaiting = minigame.ui.readier.getUnreadyFormatted(context.server).join()
+                    val message = "Awaiting the following ${if (teams) "teams" else "players"}: ".literal().append(awaiting)
+                    minigame.chat.broadcastTo(message, context.player)
+                })
                 append(" to view the awaiting ${if (teams) "teams" else "players"}")
             }
         }
@@ -667,10 +667,11 @@ internal object MinigameCommand: CommandTree {
         }
         return context.source.success {
             "Successfully started countdown, click ".literal().apply {
-                append("[here]".literal().green()/*.singleUseFunction {
-                    scheduler.cancelAll()
-                    minigame.chat.broadcastTo("Successfully cancelled the countdown".literal(), it)
-                }*/)
+                append("[here]".literal().green().singleUseFunction { context ->
+                    if (scheduler.cancelAll()) {
+                        minigame.chat.broadcastTo("Successfully cancelled the countdown".literal(), context.player)
+                    }
+                })
                 append(" to cancel the countdown")
             }
         }

@@ -6,7 +6,6 @@ import net.casual.arcade.extensions.ExtensionHolder
 import net.casual.arcade.extensions.ExtensionHolder.Companion.add
 import net.casual.arcade.extensions.ExtensionHolder.Companion.get
 import net.casual.arcade.extensions.PlayerExtension
-import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 
 /**

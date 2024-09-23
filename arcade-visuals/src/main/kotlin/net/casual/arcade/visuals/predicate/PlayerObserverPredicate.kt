@@ -1,7 +1,6 @@
-package net.casual.arcade.gui.predicate
+package net.casual.arcade.visuals.predicate
 
 import net.casual.arcade.visuals.nametag.PlayerNameTag
-import net.casual.arcade.visuals.predicate.EntityObserverPredicate
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 

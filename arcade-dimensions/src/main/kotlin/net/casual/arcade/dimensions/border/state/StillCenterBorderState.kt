@@ -1,8 +1,5 @@
 package net.casual.arcade.dimensions.border.state
 
-import net.casual.arcade.dimensions.border.state.CenterBorderState
-import net.casual.arcade.dimensions.border.state.CenterBorderStatus
-
 public class StillCenterBorderState(
     private var centerX: Double,
     private var centerZ: Double

@@ -5,7 +5,9 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.ListenerFlags
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
-import net.casual.arcade.minigame.lobby.ReadyChecker
+import net.casual.arcade.minigame.ready.MinigamePlayerReadyHandler
+import net.casual.arcade.minigame.ready.MinigameTeamReadyHandler
+import net.casual.arcade.minigame.ready.ReadyChecker
 import net.casual.arcade.visuals.bossbar.CustomBossbar
 import net.casual.arcade.visuals.core.PlayerUI
 import net.casual.arcade.visuals.core.TickableUI
@@ -48,7 +50,10 @@ public class MinigameUIManager(
         this.tickables = LinkedHashSet()
 
         this.countdown = TitledCountdown.titled()
-        this.readier = ReadyChecker.of(this.minigame)
+        this.readier = ReadyChecker(
+            MinigamePlayerReadyHandler(this.minigame),
+            MinigameTeamReadyHandler(this.minigame)
+        )
         this.sidebar = null
         this.display = null
 

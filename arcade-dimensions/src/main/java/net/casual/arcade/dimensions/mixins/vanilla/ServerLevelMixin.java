@@ -50,9 +50,10 @@ public abstract class ServerLevelMixin extends Level {
 		// We need to do this later because we haven't initialized our world fully
 		GlobalTickedScheduler.later(() -> {
 			if (this.dragonFight == null && VanillaLikeLevel.getLikeDimension(this) == Level.END && this.dimensionTypeRegistration().is(BuiltinDimensionTypes.END)) {
+				ServerLevel level = (ServerLevel) (Object) this;
 				// We use an extension here because dragon data by default is stored for the entire server. We need it per level
-				DragonDataExtension extension = LevelExtensionEvent.getExtension((ServerLevel) (Object) this, DragonDataExtension.class);
-				this.dragonFight = new EndDragonFight((ServerLevel) (Object) this, this.getSeed(), extension.getDataOrDefault());
+				DragonDataExtension extension = LevelExtensionEvent.getExtension(level, DragonDataExtension.class);
+				this.dragonFight = new EndDragonFight(level, this.getSeed(), extension.getDataOrDefault());
 			}
 		});
 	}

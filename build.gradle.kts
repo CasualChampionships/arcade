@@ -10,7 +10,7 @@ plugins {
     java
 }
 
-val modVersion = "0.2.0-alpha.3"
+val modVersion = "0.2.0-alpha.25"
 
 allprojects {
     apply(plugin = "fabric-loom")
@@ -112,7 +112,7 @@ dependencies {
     include(libs.polymer.virtual.entity)
 
     include(libs.permissions)
-    include(libs.server.translations)
+    include(modImplementation(libs.server.translations.get())!!)
 
     for (subproject in project.subprojects) {
         if (subproject.path != ":arcade-datagen") {

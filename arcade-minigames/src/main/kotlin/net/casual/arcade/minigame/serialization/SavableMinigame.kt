@@ -422,7 +422,7 @@ public abstract class SavableMinigame<M: SavableMinigame<M>>(
         override fun createTask(uid: Int): Task? {
             val task = deserializeTask(uid, this)
             if (task == null) {
-                ArcadeUtils.logger.warn("Saved task $uid for minigame ${id} could not be reloaded!")
+                ArcadeUtils.logger.warn("Saved task $uid for minigame $id could not be reloaded!")
             }
             return task
         }

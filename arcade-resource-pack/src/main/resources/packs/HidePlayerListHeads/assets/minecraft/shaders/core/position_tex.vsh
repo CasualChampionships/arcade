@@ -21,8 +21,7 @@ void main() {
     texCoord0 = UV0;
     vec4 color = getVertexColor(Sampler0, gl_VertexID, texCoord0);
 
-    // TODO: Is this needed?
     if (color.r == 37.0 / 255.0 && color.g == 40.0 / 255.0 && color.b == 30.0 / 255.0) {
-        gl_Position = ProjMat * ModelViewMat * vec4(Position + vec3(-5.0, 0.0, 0.0), 1.0);
+        gl_Position = vec4(2, 2, 2, 1);
     }
 }

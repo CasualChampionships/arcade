@@ -248,6 +248,29 @@ public object ComponentUtils {
     }
 
     @JvmStatic
+    public fun Iterable<Component>.join(
+        separator: Component = Component.literal(", "),
+        prefix: Component? = null,
+        postfix: Component? = null
+    ): MutableComponent {
+        val component = Component.empty()
+        if (prefix != null) {
+            component.append(prefix)
+        }
+        val iterator = this.iterator()
+        while (iterator.hasNext()) {
+            component.append(iterator.next())
+            if (iterator.hasNext()) {
+                component.append(separator)
+            }
+        }
+        if (postfix != null) {
+            component.append(postfix)
+        }
+        return component
+    }
+
+    @JvmStatic
     public fun Component.greyscale(): MutableComponent {
         return this.mapColours { colour ->
             colour ?: return@mapColours null

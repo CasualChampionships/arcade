@@ -7,8 +7,8 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.commands.type.CustomStringArgumentInfo
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.minecraft.commands.SharedSuggestionProvider
+import net.minecraft.network.chat.Component
 import java.util.concurrent.CompletableFuture
 
 public open class MappedArgument<T>(
@@ -36,7 +36,7 @@ public open class MappedArgument<T>(
     }
 
     public companion object {
-        private val INVALID_ELEMENT = DynamicCommandExceptionType { "$it is not a valid argument option".literal() }
+        private val INVALID_ELEMENT = DynamicCommandExceptionType { Component.literal("$it is not a valid argument option") }
 
         @JvmStatic
         public fun <T> mapped(map: Map<String, T>): MappedArgument<T> {

@@ -9,11 +9,9 @@ import net.casual.arcade.host.pack.ReadablePackSupplier
 import java.io.InputStream
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Future
-import kotlin.collections.ArrayList
 import kotlin.reflect.KProperty
 
-public class PackHost(ip: String?, port: Int, threads: Int): HttpHost(ip, port, threads) {
+public class PackHost(ip: String?, port: Int = DEFAULT_PORT, threads: Int = 1): HttpHost(ip, port, threads) {
     private val hostedByName = ConcurrentHashMap<String, HostedPack>()
     private val hostedByHash = ConcurrentHashMap<String, HostedPack>()
 
@@ -35,18 +33,20 @@ public class PackHost(ip: String?, port: Int, threads: Int): HttpHost(ip, port, 
         return this.hostedByName[zipped]
     }
 
-    public fun reload() {
+    public fun reload(): CompletableFuture<Void> {
         this.hostedByName.clear()
         this.hostedByHash.clear()
 
+        val futures = ArrayList<CompletableFuture<*>>()
         for (pack in this.packs) {
-            this.hostPack(pack)
+            futures.add(this.hostPack(pack))
         }
         for (supplier in this.suppliers) {
             for (pack in supplier.getPacks()) {
-                this.hostPack(pack)
+                futures.add(this.hostPack(pack))
             }
         }
+        return CompletableFuture.allOf(*futures.toTypedArray())
     }
 
     override fun getName(): String {
@@ -103,8 +103,15 @@ public class PackHost(ip: String?, port: Int, threads: Int): HttpHost(ip, port, 
         private val name: String,
         private val future: CompletableFuture<HostedPack>
     ) {
+        public val value: HostedPack
+            get() = getHostedPack(this.name) ?: this.future.join()
+
         public operator fun getValue(any: Any?, property: KProperty<*>): HostedPack {
-            return getHostedPack(this.name) ?: this.future.join()
+            return this.value
         }
+    }
+
+    public companion object {
+        public const val DEFAULT_PORT: Int = 24464
     }
 }

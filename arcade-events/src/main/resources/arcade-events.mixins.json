@@ -21,7 +21,13 @@
     "RandomizbleContainerMixin",
     "ScoreboardMixin",
     "ServerCommonPacketListenerImplMixin",
-    "ServerGamePacketListenerImplMixin"
+    "ServerGamePacketListenerImplMixin",
+    "ServerLevelMixin",
+    "ServerLoginPacketListenerImplMixin",
+    "ServerPlayerGameModeMixin",
+    "ServerPlayerMixin",
+    "TeamMsgCommandMixin",
+    "TntBlockMixin"
   ],
   "injectors": {
     "defaultRequire": 1

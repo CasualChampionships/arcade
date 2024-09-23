@@ -7,8 +7,8 @@ import net.casual.arcade.events.player.PlayerClientboundPacketEvent
 import net.casual.arcade.events.player.PlayerDimensionChangeEvent
 import net.casual.arcade.events.player.PlayerRespawnEvent
 import net.casual.arcade.events.server.ServerTickEvent
-import net.casual.arcade.gui.predicate.PlayerObserverPredicate
-import net.casual.arcade.gui.predicate.PlayerObserverPredicate.Companion.toPlayer
+import net.casual.arcade.visuals.predicate.PlayerObserverPredicate
+import net.casual.arcade.visuals.predicate.PlayerObserverPredicate.Companion.toPlayer
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.ListenerFlags
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent

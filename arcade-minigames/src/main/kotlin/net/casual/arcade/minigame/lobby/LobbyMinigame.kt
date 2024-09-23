@@ -8,6 +8,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import net.casual.arcade.commands.arguments.EnumArgument
 import net.casual.arcade.commands.commandSuccess
 import net.casual.arcade.commands.fail
+import net.casual.arcade.commands.function
 import net.casual.arcade.commands.success
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerTickEvent
@@ -30,6 +31,7 @@ import net.casual.arcade.scheduler.task.impl.CancellableTask
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.ComponentUtils.command
 import net.casual.arcade.utils.ComponentUtils.green
+import net.casual.arcade.utils.ComponentUtils.join
 import net.casual.arcade.utils.ComponentUtils.lime
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.JsonUtils.uuidOrNull
@@ -38,16 +40,13 @@ import net.casual.arcade.utils.PlayerUtils.ops
 import net.casual.arcade.utils.PlayerUtils.resetExperience
 import net.casual.arcade.utils.PlayerUtils.resetHealth
 import net.casual.arcade.utils.PlayerUtils.resetHunger
-import net.casual.arcade.utils.PlayerUtils.toComponent
 import net.casual.arcade.utils.ResourceUtils
-import net.casual.arcade.utils.TeamUtils.toComponent
 import net.casual.arcade.utils.resetToDefault
 import net.casual.arcade.utils.set
 import net.casual.arcade.utils.time.MinecraftTimeUnit
 import net.casual.arcade.visuals.bossbar.TimerBossbar
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
-import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
@@ -60,7 +59,6 @@ public open class LobbyMinigame(
     server: MinecraftServer,
     public val lobby: Lobby,
 ): SavableMinigame<LobbyMinigame>(server) {
-    private var awaiting: (() -> Component)? = null
     private var transferring: Boolean = false
 
     public val bossbar: TimerBossbar = this.lobby.createBossbar().apply { then(::completeBossBar) }
@@ -141,8 +139,9 @@ public open class LobbyMinigame(
     }
 
     private fun onReady() {
-        this.awaiting = null
-        val component = "All players are ready, click to start!".literal().green().command("/lobby start")
+        val component = "Click to start!".literal().green().function {
+            this.startNextMinigame()
+        }
         val admins = HashSet(this.players.admins)
         admins.addAll(this.players.ops())
         this.chat.broadcastTo(component, admins)
@@ -316,26 +315,23 @@ public open class LobbyMinigame(
     private fun readyPlayers(context: CommandContext<CommandSourceStack>): Int {
         this.nextMinigame ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
         this.setPhase(LobbyPhase.Readying)
-        val awaiting = this.ui.readier.arePlayersReady(this.getPlayersToReady(), this::onReady)
-        this.awaiting = {
-            "Awaiting the following players: ".literal().append(awaiting.toComponent())
-        }
+        this.ui.readier.arePlayersReady(this.getPlayersToReady()).then(this::onReady)
         return context.source.success("Successfully broadcasted ready check")
     }
 
     private fun readyTeams(context: CommandContext<CommandSourceStack>): Int {
         this.nextMinigame ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
         this.setPhase(LobbyPhase.Readying)
-        val awaiting = this.ui.readier.areTeamsReady(this.getTeamsToReady(), this::onReady)
-        this.awaiting = {
-            "Awaiting the following teams: ".literal().append(awaiting.toComponent())
-        }
+        this.ui.readier.areTeamsReady(this.getTeamsToReady()).then(this::onReady)
         return context.source.success("Successfully broadcasted ready check")
     }
 
     private fun awaitingReady(context: CommandContext<CommandSourceStack>): Int {
-        val awaiting = this.awaiting ?: return context.source.fail("Not currently awaiting any players or teams to be ready")
-        return context.source.success(awaiting())
+        if (!this.ui.readier.isRunning()) {
+            return context.source.fail("Not currently awaiting any players or teams to be ready")
+        }
+        val awaiting = this.ui.readier.getUnreadyFormatted(context.source.server)
+        return context.source.success("Currently awaiting: ".literal().append(awaiting.join()))
     }
 
     private fun setTime(context: CommandContext<CommandSourceStack>): Int {

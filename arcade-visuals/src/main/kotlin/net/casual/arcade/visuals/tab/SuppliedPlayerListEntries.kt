@@ -1,6 +1,5 @@
 package net.casual.arcade.visuals.tab
 
-import net.casual.arcade.visuals.tab.PlayerListEntries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 

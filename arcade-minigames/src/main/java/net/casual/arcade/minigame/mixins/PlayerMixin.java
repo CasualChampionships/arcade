@@ -2,12 +2,9 @@ package net.casual.arcade.minigame.mixins;
 
 import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.minigame.utils.MinigameUtils;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

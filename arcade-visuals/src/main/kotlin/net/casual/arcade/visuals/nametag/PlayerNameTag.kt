@@ -7,7 +7,7 @@ import me.senseiwells.nametag.impl.ShiftHeight
 import net.casual.arcade.visuals.core.PlayerUI
 import net.casual.arcade.visuals.elements.ComponentElements
 import net.casual.arcade.visuals.elements.PlayerSpecificElement
-import net.casual.arcade.gui.predicate.PlayerObserverPredicate
+import net.casual.arcade.visuals.predicate.PlayerObserverPredicate
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener

@@ -1,6 +1,5 @@
 package net.casual.arcade.resources.font
 
-import net.casual.arcade.resources.font.FontResources
 import net.casual.arcade.utils.ComponentUtils
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.resources.ResourceLocation

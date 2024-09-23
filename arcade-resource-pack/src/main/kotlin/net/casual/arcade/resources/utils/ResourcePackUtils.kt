@@ -3,6 +3,7 @@ package net.casual.arcade.resources.utils
 import com.google.gson.JsonObject
 import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator
+import it.unimi.dsi.fastutil.ints.Int2IntMap
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.network.ClientboundPacketEvent
 import net.casual.arcade.events.network.PlayerDisconnectEvent
@@ -11,14 +12,14 @@ import net.casual.arcade.host.HostedPack
 import net.casual.arcade.host.PackHost
 import net.casual.arcade.host.pack.PathPack
 import net.casual.arcade.resources.creator.NamedResourcePackCreator
-import net.casual.arcade.resources.pack.PackInfo
-import net.casual.arcade.resources.pack.PackState
-import net.casual.arcade.resources.pack.PackStatus
 import net.casual.arcade.resources.event.PackStatusEvent
 import net.casual.arcade.resources.extensions.PlayerPackExtension
 import net.casual.arcade.resources.font.FontResources
+import net.casual.arcade.resources.pack.PackInfo
+import net.casual.arcade.resources.pack.PackState
+import net.casual.arcade.resources.pack.PackStatus
 import net.casual.arcade.resources.sound.SoundResources
-import net.casual.arcade.resources.utils.ResourcePackUtils.toPackInfo
+import net.casual.arcade.resources.utils.ShaderUtils.ColorReplacer
 import net.casual.arcade.utils.JsonUtils
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.network.chat.Component
@@ -26,6 +27,7 @@ import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.util.FastColor
 import java.io.FileNotFoundException
 import java.nio.file.FileVisitResult
 import java.nio.file.Path
@@ -70,8 +72,23 @@ public object ResourcePackUtils {
     }
 
     @JvmStatic
+    public fun afterPacksLoad(players: Iterable<ServerPlayer>, block: () -> Unit) {
+        getPackLoadingFuture(players).thenRun(block)
+    }
+
+    @JvmStatic
+    public fun getPackLoadingFuture(players: Iterable<ServerPlayer>): CompletableFuture<Void> {
+        return CompletableFuture.allOf(*players.map { it.getPackLoadingFuture() }.toTypedArray())
+    }
+
+    @JvmStatic
     public fun ServerPlayer.afterPacksLoad(block: () -> Unit) {
-        this.resourcePacks.allLoadedFuture.thenRunAsync(block, this.server)
+        this.getPackLoadingFuture().thenRun(block)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.getPackLoadingFuture(): CompletableFuture<Void> {
+        return this.resourcePacks.allLoadedFuture
     }
 
     @JvmStatic
@@ -158,6 +175,14 @@ public object ResourcePackUtils {
             // We can only have 1 sounds.json
             val additional = JsonUtils.decodeToJsonObject(sounds.toJson())
             mergeJsons(builder, "assets/${sounds.namespace}/sounds.json", additional)
+        }
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addCustomOutlineColors(block: ColorReplacer.() -> Unit) {
+        this.creationEvent.register { builder ->
+            val shader = ShaderUtils.createOutlineShader(block)
+            builder.addData("assets/minecraft/shaders/core/rendertype_outline.vsh", shader.encodeToByteArray())
         }
     }
 

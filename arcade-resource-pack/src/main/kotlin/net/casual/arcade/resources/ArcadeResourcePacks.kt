@@ -1,14 +1,16 @@
 package net.casual.arcade.resources
 
 import net.casual.arcade.resources.creator.NamedResourcePackCreator
-import net.casual.arcade.rp.font.heads.PlayerHeadFont
+import net.casual.arcade.resources.font.heads.PlayerHeadFont
 import net.casual.arcade.resources.font.padding.PaddingNoSplitFontResources
 import net.casual.arcade.resources.font.padding.PaddingSplitFontResources
 import net.casual.arcade.resources.utils.ResourcePackUtils
+import net.casual.arcade.resources.utils.ResourcePackUtils.addCustomOutlineColors
 import net.casual.arcade.resources.utils.ResourcePackUtils.addFont
-import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.resources.utils.ShaderUtils
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.loader.api.FabricLoader
 import java.nio.file.Path
 import kotlin.io.path.readBytes
 
@@ -16,6 +18,8 @@ import kotlin.io.path.readBytes
  * Contains some commonly used resource packs.
  */
 public object ArcadeResourcePacks: ModInitializer {
+    private val container = FabricLoader.getInstance().getModContainer("arcade-resource-pack").get()
+
     public val ACTION_BAR_FONT_PACK: NamedResourcePackCreator by lazy {
         NamedResourcePackCreator.named("action_bar_font") {
             addAssetSource(path("packs/ActionBarFont"))
@@ -88,7 +92,14 @@ public object ArcadeResourcePacks: ModInitializer {
         ResourcePackUtils.registerEvents()
     }
 
+    public fun createCustomGlowColorPack(replacer: ShaderUtils.ColorReplacer.() -> Unit): NamedResourcePackCreator {
+        return NamedResourcePackCreator.named("custom_glow_colors") {
+            addCustomOutlineColors(replacer)
+            packDescription = "Custom team glowing colors".literal()
+        }
+    }
+
     private fun path(file: String): Path {
-        return ArcadeUtils.container.findPath(file).get()
+        return this.container.findPath(file).get()
     }
 }

@@ -1,7 +1,6 @@
 package net.casual.arcade.utils
 
 import com.google.gson.*
-import com.mojang.serialization.Codec
 import com.mojang.serialization.DataResult
 import com.mojang.serialization.Decoder
 import com.mojang.serialization.Encoder

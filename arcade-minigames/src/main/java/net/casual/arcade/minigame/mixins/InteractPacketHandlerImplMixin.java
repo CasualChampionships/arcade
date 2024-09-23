@@ -5,7 +5,6 @@ import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.minigame.utils.MinigameUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;

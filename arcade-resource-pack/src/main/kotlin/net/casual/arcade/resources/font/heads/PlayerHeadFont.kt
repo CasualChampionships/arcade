@@ -1,4 +1,4 @@
-package net.casual.arcade.rp.font.heads
+package net.casual.arcade.resources.font.heads
 
 import net.casual.arcade.resources.font.FontResources
 import net.casual.arcade.utils.ComponentUtils

@@ -16,7 +16,11 @@ public interface Completable {
     /**
      * Appends more tasks to the completable object.
      *
+     * If the task is already complete, then this will do nothing.
+     *
      * @param task The task to run when the object completes.
+     *
+     * @see thenOrNow
      */
     public fun then(task: Task): Completable
 
@@ -24,8 +28,10 @@ public interface Completable {
         private val tasks: MutableList<Task> = LinkedList()
         override var complete: Boolean = false
 
-        override fun then(task: Task): Completable {
-            this.tasks.add(task)
+        override fun then(task: Task): Impl {
+            if (!this.complete) {
+                this.tasks.add(task)
+            }
             return this
         }
 
@@ -40,6 +46,29 @@ public interface Completable {
                     task.run()
                 }
             }
+        }
+    }
+
+    public companion object {
+        private val COMPLETE = object: Completable {
+            override val complete: Boolean
+                get() = true
+
+            override fun then(task: Task): Completable {
+                return this
+            }
+        }
+
+        public fun Completable.thenOrNow(task: Task): Completable {
+            if (this.complete) {
+                task.run()
+                return this
+            }
+            return this.then(task)
+        }
+
+        public fun complete(): Completable {
+            return COMPLETE
         }
     }
 }

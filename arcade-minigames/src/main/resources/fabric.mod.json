@@ -13,6 +13,12 @@
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.minigame.Minigames"
+      }
+    ],
     "server_replay": [
       {
         "adapter": "kotlin",

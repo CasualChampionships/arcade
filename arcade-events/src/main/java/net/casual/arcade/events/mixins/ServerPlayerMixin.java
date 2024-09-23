@@ -65,7 +65,7 @@ public abstract class ServerPlayerMixin extends Player {
 		CallbackInfoReturnable<Entity> cir
 	) {
 		ServerLevel level = dimensionTransition.newLevel();
-		if (this.serverLevel() != level) {
+		if (this.serverLevel().dimension() != level.dimension()) {
 			PlayerDimensionChangeEvent event = new PlayerDimensionChangeEvent((ServerPlayer) (Object) this, level);
 			GlobalEventHandler.broadcast(event);
 		}

@@ -3,7 +3,6 @@ package net.casual.arcade.resources.font.heads
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.player.PlayerJoinEvent
-import net.casual.arcade.rp.font.heads.PlayerHeadFont
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.colour

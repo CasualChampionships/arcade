@@ -8,7 +8,6 @@ import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.impl.CancellableTask
 import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
 import net.casual.arcade.scheduler.task.serialization.TaskWriteContext
-import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.JsonUtils.int
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -61,7 +60,10 @@ public class TickedScheduler: MinecraftScheduler {
      * This cancels all the tasks that are currently
      * scheduled in the scheduler.
      */
-    public fun cancelAll() {
+    public fun cancelAll(): Boolean {
+        if (this.tasks.isEmpty()) {
+            return false
+        }
         for (ticked in this.tasks.values) {
             for (task in ticked) {
                 if (task is CancellableTask) {
@@ -70,6 +72,7 @@ public class TickedScheduler: MinecraftScheduler {
             }
         }
         this.tasks.clear()
+        return true
     }
 
     /**

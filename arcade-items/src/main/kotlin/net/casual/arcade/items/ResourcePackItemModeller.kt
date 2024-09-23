@@ -5,7 +5,6 @@ import eu.pb4.polymer.core.api.other.PolymerComponent
 import eu.pb4.polymer.resourcepack.api.PolymerModelData
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator
 import net.casual.arcade.items.ItemModeller.Companion.registerNextModel
-import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.ItemUtils.isOf
 import net.casual.arcade.utils.ResourceUtils
 import net.minecraft.core.Registry

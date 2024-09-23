@@ -13,7 +13,12 @@
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
-
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.visuals.ArcadeVisuals"
+      }
+    ]
   },
   "mixins": [
 

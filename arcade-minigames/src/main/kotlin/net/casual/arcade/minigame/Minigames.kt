@@ -11,12 +11,14 @@ import net.casual.arcade.minigame.commands.MinigameCommand
 import net.casual.arcade.minigame.commands.TeamCommandModifier
 import net.casual.arcade.minigame.exception.MinigameCreationException
 import net.casual.arcade.minigame.exception.MinigameSerializationException
+import net.casual.arcade.minigame.gamemode.ExtendedGameMode
 import net.casual.arcade.minigame.lobby.LobbyMinigame
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.serialization.SavableMinigame
 import net.casual.arcade.minigame.template.lobby.LobbyTemplate
 import net.casual.arcade.minigame.utils.MinigameRegistries
+import net.casual.arcade.minigame.utils.MinigameUtils
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.objOrDefault
@@ -159,6 +161,9 @@ public object Minigames: ModInitializer {
 
     override fun onInitialize() {
         MinigameRegistries.load()
+        MinigameUtils.registerEvents()
+        ExtendedGameMode.registerEvents()
+
         GlobalEventHandler.register<ServerLoadedEvent> { (server) ->
             this.loadMinigames(server)
         }

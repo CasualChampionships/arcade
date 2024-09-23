@@ -12,5 +12,19 @@
   "minigame.command.advancement.revoke.single": "Successfully revoked advancement %s from %s",
   "minigame.command.advancement.revoke.all": "Successfully revoked all advancements from %s",
 
+  "minigame.ready.yes": "[Yes]",
+  "minigame.ready.no": "[No]",
+
+  "minigame.ready.player.broadcast": "Are you ready? %s %s",
+  "minigame.ready.player.ready": "%s is ready!",
+  "minigame.ready.player.notReady": "%s is not ready!",
+  "minigame.ready.player.all": "All players are ready!",
+
+
+  "minigame.ready.team.broadcast": "Is your team ready? %s %s",
+  "minigame.ready.team.ready": "%s is ready!",
+  "minigame.ready.team.notReady": "%s is not ready!",
+  "minigame.ready.team.all": "All teams are ready!",
+
   "minigame.gui.settings": "Minigame Settings Screen"
 }

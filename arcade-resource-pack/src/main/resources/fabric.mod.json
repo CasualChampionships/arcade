@@ -14,7 +14,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.casual.arcade.resources.ArcadeResourcePacks"
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.resources.ArcadeResourcePacks"
+      }
     ]
   },
   "mixins": [
