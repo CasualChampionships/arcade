@@ -8,25 +8,43 @@ import net.minecraft.util.FastColor
 public object ShaderUtils {
     private const val NL_INDENT = "\n            "
 
-    public fun createOutlineShader(block: ColorReplacer.() -> Unit): String {
-        val replacer = ColorReplacer()
-        replacer.block()
-        return this.getOutlineShader(replacer.getMap())
+    internal fun getOutlineJsonShader(): String {
+        return """
+        {
+            "vertex": "rendertype_outline",
+            "fragment": "rendertype_outline",
+            "samplers": [
+                { "name": "Sampler0" }
+            ],
+            "uniforms": [
+                { "name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
+                { "name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
+                { "name": "GameTime", "type": "float", "count": 1, "values": [ 0.0 ] },
+                { "name": "ColorModulator", "type": "float", "count": 4, "values": [ 1.0, 1.0, 1.0, 1.0 ] }
+            ]
+        }
+        """.trimIndent()
     }
-
-    private fun getOutlineShader(colors: Int2IntMap): String {
+    
+    internal fun getOutlineVertexShader(
+        colors: Int2IntMap,
+        rainbow: Int?
+    ): String {
         var first = true
         val builder = StringBuilder()
         for (entry in colors.int2IntEntrySet()) {
-            val (originalR, originalG, originalB) = this.intToFloatColor(entry.intKey)
-            val (replacementR, replacementG, replacementB) = this.intToFloatColor(entry.intValue)
-            if (!first) {
-                builder.append(" else ")
+            this.appendConditional(builder, !first, entry.intKey) {
+                val (r, g, b) = this.intToFloatColor(entry.intValue)
+                builder.append("    glow = vec3($r, $g, $b);$NL_INDENT")
             }
             first = false
-            builder.append("if (glow.r == $originalR && glow.g == $originalG && glow.b == $originalB) {$NL_INDENT")
-            builder.append("    glow = vec3($replacementR, $replacementG, $replacementB);$NL_INDENT")
-            builder.append("}")
+        }
+        if (rainbow != null) {
+            this.appendConditional(builder, !first, rainbow) {
+                builder.append("    float animation = GameTime * 1000.0;$NL_INDENT")
+                builder.append("    vec3 offset = vec3(0.0, -0.33333, 0.33333);$NL_INDENT")
+                builder.append("    glow = 0.5 * cos(6.283 * (animation + offset)) + 0.5;$NL_INDENT")
+            }
         }
 
         return """
@@ -38,6 +56,7 @@ public object ShaderUtils {
 
         uniform mat4 ModelViewMat;
         uniform mat4 ProjMat;
+        ${if (rainbow != null) "uniform float GameTime;" else ""}
 
         out vec4 vertexColor;
         out vec2 texCoord0;
@@ -53,6 +72,21 @@ public object ShaderUtils {
         """.trimIndent()
     }
 
+    private inline fun appendConditional(
+        builder: StringBuilder,
+        isElse: Boolean,
+        color: Int,
+        block: () -> Unit
+    ) {
+        if (isElse) {
+            builder.append(" else ")
+        }
+        val (r, g, b) = this.intToFloatColor(color)
+        builder.append("if (glow.r == $r && glow.g == $g && glow.b == $b) {$NL_INDENT")
+        block()
+        builder.append("}")
+    }
+
     private fun intToFloatColor(color: Int): FloatColor {
         return FloatColor(
             FastColor.ARGB32.red(color) / 255.0F,
@@ -65,6 +99,7 @@ public object ShaderUtils {
 
     public class ColorReplacer {
         private val map = Int2IntOpenHashMap()
+        private var rainbow: Int? = null
 
         public fun set(formatting: ChatFormatting, replacement: Int) {
             val original = formatting.color ?:
@@ -72,8 +107,17 @@ public object ShaderUtils {
             this.map[original] = replacement
         }
 
+        public fun rainbow(formatting: ChatFormatting) {
+            this.rainbow = formatting.color ?:
+                throw IllegalArgumentException("Invalid color provided: $formatting")
+        }
+
         internal fun getMap(): Int2IntMap {
             return this.map
+        }
+
+        internal fun getRainbow(): Int? {
+            return this.rainbow
         }
     }
 }

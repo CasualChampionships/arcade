@@ -3,7 +3,6 @@ package net.casual.arcade.resources.utils
 import com.google.gson.JsonObject
 import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator
-import it.unimi.dsi.fastutil.ints.Int2IntMap
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.network.ClientboundPacketEvent
 import net.casual.arcade.events.network.PlayerDisconnectEvent
@@ -27,7 +26,6 @@ import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.util.FastColor
 import java.io.FileNotFoundException
 import java.nio.file.FileVisitResult
 import java.nio.file.Path
@@ -181,8 +179,13 @@ public object ResourcePackUtils {
     @JvmStatic
     public fun ResourcePackCreator.addCustomOutlineColors(block: ColorReplacer.() -> Unit) {
         this.creationEvent.register { builder ->
-            val shader = ShaderUtils.createOutlineShader(block)
+            val replacer = ColorReplacer()
+            replacer.block()
+            val shader = ShaderUtils.getOutlineVertexShader(replacer.getMap(), replacer.getRainbow())
             builder.addData("assets/minecraft/shaders/core/rendertype_outline.vsh", shader.encodeToByteArray())
+            if (replacer.getRainbow() != null) {
+                builder.addData("assets/minecraft/shaders/core/rendertype_outline.json", ShaderUtils.getOutlineJsonShader().encodeToByteArray())
+            }
         }
     }
 
