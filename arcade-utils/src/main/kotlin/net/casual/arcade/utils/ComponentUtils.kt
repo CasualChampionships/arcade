@@ -168,6 +168,11 @@ public object ComponentUtils {
     }
 
     @JvmStatic
+    public fun colorToFormatting(color: Int): ChatFormatting? {
+        return this.formattingByColour[color]
+    }
+
+    @JvmStatic
     public fun MutableComponent.red(): MutableComponent {
         return this.withStyle(RED)
     }
@@ -310,10 +315,10 @@ public object ComponentUtils {
         }
 
         val formats = HashSet<ChatFormatting>()
-        val colour = this.color
-        if (colour !== null) {
+        val color = this.color
+        if (color !== null) {
             // Technically we could use the name, but this is probably better...
-            val formatting = formattingByColour[colour.value]
+            val formatting = colorToFormatting(color.value)
             if (formatting != null) {
                 formats.add(formatting)
             }
