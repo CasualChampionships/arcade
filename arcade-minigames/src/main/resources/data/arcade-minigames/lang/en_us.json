@@ -36,6 +36,7 @@
   "minigame.command.chat.unmute": "Successfully un-muted %s players",
   "minigame.command.chat.spies.add": "Successfully added players as spies!",
   "minigame.command.chat.spies.remove": "Successfully removed players as spies!",
+  "minigame.command.chat.announce.success": "Successfully broadcasted announcement",
   "minigame.command.spectators.add.fail": "Players were already spectating",
   "minigame.command.spectators.add.success": "Successfully made %s players spectate",
   "minigame.command.spectators.remove.fail": "Players were not spectating",

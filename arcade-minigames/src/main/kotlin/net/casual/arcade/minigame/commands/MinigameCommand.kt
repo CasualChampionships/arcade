@@ -11,6 +11,7 @@ import net.casual.arcade.commands.*
 import net.casual.arcade.commands.arguments.EnumArgument
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
+import net.casual.arcade.minigame.chat.ChatFormatter
 import net.casual.arcade.minigame.commands.arguments.*
 import net.casual.arcade.minigame.commands.arguments.MinigameSettingsOptionArgument.Companion.INVALID_SETTING_OPTION
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
@@ -29,6 +30,7 @@ import net.casual.arcade.utils.time.MinecraftTimeUnit
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
+import net.minecraft.commands.arguments.ComponentArgument
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.commands.arguments.TeamArgument
@@ -134,6 +136,14 @@ internal object MinigameCommand: CommandTree {
                     literal("unmute") {
                         argument("players", EntityArgument.players()) {
                             executes(::unmute)
+                        }
+                    }
+                    literal("announce") {
+                        argument("announcement", ComponentArgument.textComponent(buildContext)) {
+                            argument("title", ComponentArgument.textComponent(buildContext)) {
+                                executes(::announce)
+                            }
+                            executes { announce(it, null) }
                         }
                     }
                 }
@@ -391,6 +401,16 @@ internal object MinigameCommand: CommandTree {
         return context.source.success(
             Component.translatable("minigame.command.chat.unmute", "${i}/${players.size}")
         )
+    }
+
+    private fun announce(
+        context: CommandContext<CommandSourceStack>,
+        title: Component? = ComponentArgument.getComponent(context, "title")
+    ): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val announcement = ComponentArgument.getComponent(context, "announcement")
+        minigame.chat.broadcast(announcement, ChatFormatter.createAnnouncement(title))
+        return context.source.success(Component.translatable("minigame.command.chat.announce.success"))
     }
 
     private fun selfAddSpy(context: CommandContext<CommandSourceStack>): Int {
