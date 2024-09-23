@@ -1,6 +1,7 @@
 package net.casual.arcade.minigame.chat
 
 import net.casual.arcade.utils.ComponentUtils.colour
+import net.casual.arcade.utils.ComponentUtils.hover
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.PlayerUtils.getChatPrefix
@@ -19,7 +20,10 @@ public fun interface PlayerChatFormatter {
 
     public companion object {
         public val GLOBAL: PlayerChatFormatter = object: PlayerChatFormatter {
-            private val globe by literal("[\uD83C\uDF10] ") { colour(0xADD8E6) }
+            private val globe by literal("[\uD83C\uDF10] ") {
+                hover(Component.translatable("minigame.chat.mode.global"))
+                colour(0xADD8E6)
+            }
 
             override fun format(player: ServerPlayer, message: Component): PlayerFormattedChat {
                 val prefix = Component.empty().append(this.globe)
@@ -38,13 +42,17 @@ public fun interface PlayerChatFormatter {
         }
 
         public val SPECTATOR: PlayerChatFormatter = PlayerChatFormatter { player, message ->
-            val prefix = Component.empty().append("[\uD83D\uDD76] ".literal().withStyle(DARK_GRAY))
+            val icon = "[\uD83D\uDD76] ".literal().withStyle(DARK_GRAY)
+                .hover(Component.translatable("minigame.chat.mode.spectator"))
+            val prefix = Component.empty().append(icon)
             prefix.append(player.getChatPrefix(false))
             PlayerFormattedChat(message, prefix)
         }
 
         public val ADMIN: PlayerChatFormatter = PlayerChatFormatter { player, message ->
-            val prefix = Component.empty().append("[\uD83D\uDC64] ".literal().red())
+            val icon = "[\uD83D\uDC64] ".literal().red()
+                .hover(Component.translatable("minigame.chat.mode.admin"))
+            val prefix = Component.empty().append(icon)
             prefix.append(player.getChatPrefix(false))
             PlayerFormattedChat(message, prefix)
         }
@@ -55,7 +63,14 @@ public fun interface PlayerChatFormatter {
             return PlayerChatFormatter { player, message ->
                 val team = supplier.invoke(player)
                 val colour = if (team == null) WHITE else team.color
-                val prefix = Component.empty().append("[⚐] ".literal().withStyle(colour))
+                val name = if (team == null) {
+                    Component.translatable("minigame.chat.mode.team.unknown")
+                } else {
+                    Component.translatable("minigame.chat.mode.team", team.displayName)
+                }
+                val icon = "[⚐] ".literal().withStyle(colour)
+                    .hover(name)
+                val prefix = Component.empty().append(icon)
                 prefix.append(player.getChatPrefix(false))
                 PlayerFormattedChat(message, prefix)
             }
