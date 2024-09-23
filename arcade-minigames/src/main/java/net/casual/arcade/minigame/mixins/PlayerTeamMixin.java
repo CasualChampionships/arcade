@@ -38,11 +38,7 @@ public class PlayerTeamMixin implements OverridableColor {
 		at = @At("RETURN")
 	)
 	private MutableComponent modifyTeamColor(MutableComponent original) {
-		Integer color = TeamUtilsKt.getHexColor((PlayerTeam) (Object) this);
-		if (color != null) {
-			original.withColor(color);
-		}
-		return original;
+		return TeamUtilsKt.color(original, (PlayerTeam) (Object) this);
 	}
 
 	@Override

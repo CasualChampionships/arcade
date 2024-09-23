@@ -8,6 +8,7 @@ import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.*;
 import net.casual.arcade.utils.PlayerUtils;
+import net.minecraft.Util;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
@@ -201,11 +202,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		GlobalEventHandler.broadcast(event);
 
 		List<CompletableFuture<Suggestions>> all = event.getAllSuggestions();
-		CompletableFuture<Void> futures = CompletableFuture.allOf(all.toArray(CompletableFuture[]::new));
-
-		CompletableFuture<List<Suggestions>> collected = futures.thenApply(v -> all.stream().map(CompletableFuture::join).toList());
-
-		return collected.thenAccept(suggestions -> {
+		return Util.sequenceFailFast(all).thenAccept(suggestions -> {
 			Suggestions merged = Suggestions.merge(packet.getCommand(), suggestions);
 			this.connection.send(new ClientboundCommandSuggestionsPacket(packet.getId(), merged));
 		});

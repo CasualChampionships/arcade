@@ -45,7 +45,7 @@ public object ShaderUtils {
         void main() {
             gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
 
-            vec3 glow = Color.rgb
+            vec3 glow = Color.rgb;
             $builder
             vertexColor = Vec4(glow, Color.a);
             texCoord0 = UV0;
