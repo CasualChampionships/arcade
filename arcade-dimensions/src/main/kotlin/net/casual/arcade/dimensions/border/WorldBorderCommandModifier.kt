@@ -1,12 +1,16 @@
 package net.casual.arcade.dimensions.border
 
-import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType
+import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
-import net.casual.arcade.commands.*
+import net.casual.arcade.commands.CommandTree
+import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.arguments.EnumArgument
+import net.casual.arcade.commands.literal
+import net.casual.arcade.commands.success
 import net.casual.arcade.utils.time.MinecraftTimeUnit
+import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.coordinates.Vec2Argument
 import net.minecraft.network.chat.Component
@@ -17,8 +21,8 @@ public object WorldBorderCommandModifier: CommandTree {
     private val CANNOT_LERP_CENTER = SimpleCommandExceptionType(Component.literal("World border doesn't support moving center"))
     private val ERROR_TOO_FAR_OUT = SimpleCommandExceptionType(Component.translatable("commands.worldborder.set.failed.far", 2.9999984E7))
 
-    override fun register(dispatcher: CommandDispatcher<CommandSourceStack>) {
-        dispatcher.registerLiteral("worldborder") {
+    override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
+        return CommandTree.buildLiteral("worldborder") {
             literal("center").argument("pos", Vec2Argument.vec2()) {
                 argument("time", IntegerArgumentType.integer(0)) {
                     argument("unit", EnumArgument.enumeration<MinecraftTimeUnit>()) {
