@@ -15,18 +15,20 @@ import net.minecraft.world.scores.Team.CollisionRule.ALWAYS
 
 internal object TeamCommandModifier: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
-        return CommandTree.buildLiteral<CommandSourceStack>("team").literal("randomize") {
-            literal("with") {
-                argument("players", EntityArgument.entities()) {
-                    argument("size", IntegerArgumentType.integer(1)) {
-                        argument("friendly-fire", BoolArgumentType.bool()) {
-                            executes(::createRandomTeams)
+        return CommandTree.buildLiteral("team"){
+            literal("randomize") {
+                literal("with") {
+                    argument("players", EntityArgument.entities()) {
+                        argument("size", IntegerArgumentType.integer(1)) {
+                            argument("friendly-fire", BoolArgumentType.bool()) {
+                                executes(::createRandomTeams)
+                            }
+                            executes { createRandomTeams(it, false) }
                         }
-                        executes { createRandomTeams(it, false) }
                     }
                 }
+                literal("delete").executes(::deleteRandomTeams)
             }
-            literal("delete").executes(::deleteRandomTeams)
         }
     }
 

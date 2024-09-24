@@ -23,10 +23,12 @@ public object WorldBorderCommandModifier: CommandTree {
 
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("worldborder") {
-            literal("center").argument("pos", Vec2Argument.vec2()) {
-                argument("time", IntegerArgumentType.integer(0)) {
-                    argument("unit", EnumArgument.enumeration<MinecraftTimeUnit>()) {
-                        executes(::lerpCenter)
+            literal("center") {
+                argument("pos", Vec2Argument.vec2()) {
+                    argument("time", IntegerArgumentType.integer(0)) {
+                        argument("unit", EnumArgument.enumeration<MinecraftTimeUnit>()) {
+                            executes(::lerpCenter)
+                        }
                     }
                 }
             }

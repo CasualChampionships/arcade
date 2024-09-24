@@ -87,14 +87,18 @@ internal object MinigameCommand: CommandTree {
             }
             literal("team") {
                 argument("minigame", MinigameArgument.minigame()) {
-                    literal("spectators").literal("set") {
-                        argument("team", TeamArgument.team()) {
-                            executes(::makeTeamSpectator)
+                    literal("spectators") {
+                        literal("set") {
+                            argument("team", TeamArgument.team()) {
+                                executes(::makeTeamSpectator)
+                            }
                         }
                     }
-                    literal("admins").literal("set") {
-                        argument("team", TeamArgument.team()) {
-                            executes(::makeTeamAdmin)
+                    literal("admins") {
+                        literal("set") {
+                            argument("team", TeamArgument.team()) {
+                                executes(::makeTeamAdmin)
+                            }
                         }
                     }
                     literal("eliminated") {
@@ -184,15 +188,17 @@ internal object MinigameCommand: CommandTree {
                     executes(::openMinigameSettings)
                     argument("setting", MinigameSettingArgument.setting("minigame")) {
                         executes(::getMinigameSetting)
-                        literal("set").literal("from") {
-                            literal("option") {
-                                argument("option", MinigameSettingsOptionArgument.option("minigame", "setting")) {
-                                    executes(::setMinigameSettingFromOption)
+                        literal("set") {
+                            literal("from") {
+                                literal("option") {
+                                    argument("option", MinigameSettingsOptionArgument.option("minigame", "setting")) {
+                                        executes(::setMinigameSettingFromOption)
+                                    }
                                 }
-                            }
-                            literal("value") {
-                                argument("value", MinigameSettingValueArgument.value(buildContext)) {
-                                    executes(::setMinigameSettingFromValue)
+                                literal("value") {
+                                    argument("value", MinigameSettingValueArgument.value(buildContext)) {
+                                        executes(::setMinigameSettingFromValue)
+                                    }
                                 }
                             }
                         }
@@ -202,13 +208,15 @@ internal object MinigameCommand: CommandTree {
             literal("advancement") {
                 argument("minigame", MinigameArgument.minigame()) {
                     argument("modifier", EnumArgument.enumeration<AdvancementModifier>()) {
-                        literal("only").argument("advancement", ResourceLocationArgument.id()) {
-                            suggests { context, builder ->
-                                val minigame = MinigameArgument.getMinigame(context, "minigame")
-                                SharedSuggestionProvider.suggestResource(minigame.advancements.all().map { it.id }, builder)
-                            }
-                            argument("player", EntityArgument.players()) {
-                                executes(::modifyMinigameAdvancement)
+                        literal("only") {
+                            argument("advancement", ResourceLocationArgument.id()) {
+                                suggests { context, builder ->
+                                    val minigame = MinigameArgument.getMinigame(context, "minigame")
+                                    SharedSuggestionProvider.suggestResource(minigame.advancements.all().map { it.id }, builder)
+                                }
+                                argument("player", EntityArgument.players()) {
+                                    executes(::modifyMinigameAdvancement)
+                                }
                             }
                         }
                         literal("all") {
@@ -222,13 +230,15 @@ internal object MinigameCommand: CommandTree {
             literal("recipe") {
                 argument("minigame", MinigameArgument.minigame()) {
                     argument("modifier", EnumArgument.enumeration<RecipeModifier>()) {
-                        literal("only").argument("recipe", ResourceLocationArgument.id()) {
-                            suggests { context, builder ->
-                                val minigame = MinigameArgument.getMinigame(context, "minigame")
-                                SharedSuggestionProvider.suggestResource(minigame.recipes.all().map { it.id }, builder)
-                            }
-                            argument("player", EntityArgument.players()) {
-                                executes(::modifyMinigameRecipe)
+                        literal("only") {
+                            argument("recipe", ResourceLocationArgument.id()) {
+                                suggests { context, builder ->
+                                    val minigame = MinigameArgument.getMinigame(context, "minigame")
+                                    SharedSuggestionProvider.suggestResource(minigame.recipes.all().map { it.id }, builder)
+                                }
+                                argument("player", EntityArgument.players()) {
+                                    executes(::modifyMinigameRecipe)
+                                }
                             }
                         }
                         literal("all") {
