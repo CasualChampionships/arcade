@@ -2,6 +2,7 @@ package net.casual.arcade.utils
 
 import com.google.common.collect.Iterators
 import com.google.common.collect.LinkedHashMultimap
+import net.casual.arcade.util.ducks.OverridableColor
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.prettyName
 import net.casual.arcade.utils.ItemUtils.named
@@ -98,6 +99,25 @@ public object TeamUtils {
             }
         }
         return count
+    }
+
+    @JvmStatic
+    public fun PlayerTeam.setHexColor(color: Int?) {
+        (this as OverridableColor).`arcade$setColor`(color)
+    }
+
+    @JvmStatic
+    public fun PlayerTeam.getHexColor(): Int? {
+        return (this as OverridableColor).`arcade$getColor`() ?: this.color.color
+    }
+
+    @JvmStatic
+    public fun MutableComponent.color(team: PlayerTeam): MutableComponent {
+        val color = team.getHexColor()
+        if (color != null) {
+            this.withColor(color)
+        }
+        return this
     }
 
     @JvmStatic

@@ -7,11 +7,16 @@
   "minigame.chat.mode.switch.alreadySelected": "You are already chatting in that chat!",
   "minigame.chat.mode.switch.unknown": "Unknown",
 
-  "minigame.chat.mode.global": "Global Chat",
-  "minigame.chat.mode.spectator": "Spectators Chat",
-  "minigame.chat.mode.admin": "Admins Chat",
-  "minigame.chat.mode.team": "%s Team Chat",
-  "minigame.chat.mode.team.unknown": "Team Chat",
+  "minigame.chat.global": "Global Chat",
+  "minigame.chat.spectator": "Spectators Chat",
+  "minigame.chat.admin": "Admins Chat",
+  "minigame.chat.team": "%s Team Chat",
+  "minigame.chat.team.unknown": "Team Chat",
+
+  "minigame.chat.mode.global": "Global",
+  "minigame.chat.mode.spectator": "Spectator",
+  "minigame.chat.mode.admin": "Admin",
+  "minigame.chat.mode.team": "Team",
 
   "minigame.ready.yes": "[Yes]",
   "minigame.ready.no": "[No]",

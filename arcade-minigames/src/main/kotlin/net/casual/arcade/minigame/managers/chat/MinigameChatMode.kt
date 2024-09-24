@@ -21,6 +21,8 @@ import java.util.*
 import java.util.function.Function
 
 public sealed interface MinigameChatMode {
+    public val name: Component
+
     public fun getChatFormatter(manager: MinigameChatManager): PlayerChatFormatter
     
     public fun canSendTo(
@@ -60,6 +62,8 @@ public sealed interface MinigameChatMode {
         override val ID: ResourceLocation = ResourceUtils.arcade("spectator")
         override val CODEC: MapCodec<Global> = MapCodec.unit(Global)
 
+        override val name: Component = Component.translatable("minigame.chat.mode.global")
+
         override fun getChatFormatter(manager: MinigameChatManager): PlayerChatFormatter {
             return manager.globalChatFormatter
         }
@@ -85,6 +89,8 @@ public sealed interface MinigameChatMode {
     public data object Spectator: MinigameChatMode, CodecProvider<Spectator> {
         override val ID: ResourceLocation = ResourceUtils.arcade("spectator")
         override val CODEC: MapCodec<Spectator> = MapCodec.unit(Spectator)
+
+        override val name: Component = Component.translatable("minigame.chat.mode.spectator")
 
         override fun getChatFormatter(manager: MinigameChatManager): PlayerChatFormatter {
             return manager.spectatorChatFormatter
@@ -112,6 +118,8 @@ public sealed interface MinigameChatMode {
         override val ID: ResourceLocation = ResourceUtils.arcade("admin")
         override val CODEC: MapCodec<Admin> = MapCodec.unit(Admin)
 
+        override val name: Component = Component.translatable("minigame.chat.mode.admin")
+
         override fun getChatFormatter(manager: MinigameChatManager): PlayerChatFormatter {
             return manager.adminChatFormatter
         }
@@ -138,6 +146,8 @@ public sealed interface MinigameChatMode {
         override val ID: ResourceLocation = ResourceUtils.arcade("own_team")
         override val CODEC: MapCodec<OwnTeam> = MapCodec.unit(OwnTeam)
 
+        override val name: Component = Component.translatable("minigame.chat.mode.team")
+
         override fun getChatFormatter(manager: MinigameChatManager): PlayerChatFormatter {
             return manager.teamChatFormatter
         }
@@ -161,11 +171,13 @@ public sealed interface MinigameChatMode {
         }
     }
 
-    public class Team private constructor(internal val name: String): MinigameChatMode {
+    public class Team private constructor(internal val teamName: String): MinigameChatMode {
         private val formatter = PlayerChatFormatter.createTeamFormatter { this.getTeam(it.server) }
 
+        override val name: Component = OwnTeam.name
+
         public fun getTeam(server: MinecraftServer): PlayerTeam? {
-            return server.scoreboard.getPlayerTeam(this.name)
+            return server.scoreboard.getPlayerTeam(this.teamName)
         }
 
         override fun getChatFormatter(manager: MinigameChatManager): PlayerChatFormatter {
@@ -200,7 +212,7 @@ public sealed interface MinigameChatMode {
 
             override val CODEC: MapCodec<Team> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(
-                    Codec.STRING.fieldOf("team_name").forGetter { it.name }
+                    Codec.STRING.fieldOf("team_name").forGetter { it.teamName }
                 ).apply(instance, ::Team)
             }
 

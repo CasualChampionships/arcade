@@ -248,8 +248,17 @@ public object ComponentUtils {
     }
 
     @JvmStatic
+    @Deprecated(
+        "Use this.color instead",
+        ReplaceWith("this.color(colour)")
+    )
     public fun MutableComponent.colour(colour: Int): MutableComponent {
-        return this.withStyle { it.withColor(colour) }
+        return this.color(colour)
+    }
+
+    @JvmStatic
+    public fun MutableComponent.color(color: Int): MutableComponent {
+        return this.withStyle { it.withColor(color) }
     }
 
     @JvmStatic
@@ -380,7 +389,7 @@ public object ComponentUtils {
     }
 
     public fun MutableComponent.shadowless(): MutableComponent {
-        return this.colour(0x4E5C24)
+        return this.color(0x4E5C24)
     }
 
     public fun MutableComponent.mini(): MutableComponent {

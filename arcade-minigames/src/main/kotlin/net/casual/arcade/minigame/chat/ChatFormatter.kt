@@ -1,6 +1,6 @@
 package net.casual.arcade.minigame.chat
 
-import net.casual.arcade.utils.ComponentUtils.colour
+import net.casual.arcade.utils.ComponentUtils.color
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.strikethrough
 import net.minecraft.network.chat.Component
@@ -25,7 +25,7 @@ public fun interface ChatFormatter {
          * It prefixes the given message with [💻].
          */
         public val SYSTEM: ChatFormatter = ChatFormatter {
-            Component.empty().append("[\uD83D\uDCBB] ".literal().colour(0xA9A9A9)).append(it)
+            Component.empty().append("[\uD83D\uDCBB] ".literal().color(0xA9A9A9)).append(it)
         }
 
         /**

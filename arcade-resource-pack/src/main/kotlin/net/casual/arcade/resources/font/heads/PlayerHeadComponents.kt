@@ -5,7 +5,7 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.ComponentUtils
-import net.casual.arcade.utils.ComponentUtils.colour
+import net.casual.arcade.utils.ComponentUtils.color
 import net.casual.arcade.utils.PlayerUtils.player
 import net.casual.arcade.utils.ServerUtils
 import net.minecraft.network.chat.Component
@@ -141,7 +141,7 @@ public object PlayerHeadComponents {
                     }
                     val hat = Color(image.getRGB(x + 40, y + 8), true)
                     val base = Color(image.getRGB(x + 8, y + 8), true)
-                    component.append(PlayerHeadFont.pixel(y).colour(base.overlayWith(hat).rgb))
+                    component.append(PlayerHeadFont.pixel(y).color(base.overlayWith(hat).rgb))
                 }
                 if (y != 7) {
                     component.append(ComponentUtils.space(-9))

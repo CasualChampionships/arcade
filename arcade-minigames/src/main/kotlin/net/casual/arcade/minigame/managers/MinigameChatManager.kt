@@ -293,6 +293,10 @@ public class MinigameChatManager(
         return this.minigame.players
     }
 
+    public fun getChatModeFor(player: ServerPlayer): MinigameChatMode {
+        return this.modes[player.uuid] ?: MinigameChatMode.Global
+    }
+
     private fun onGlobalPlayerChat(event: PlayerChatEvent) {
         if (!this.minigame.settings.canCrossChat && !this.minigame.players.has(event.player)) {
             event.addFilter { !this.minigame.players.has(it) }

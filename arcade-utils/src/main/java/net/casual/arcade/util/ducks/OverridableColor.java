@@ -1,4 +1,4 @@
-package net.casual.arcade.minigame.ducks;
+package net.casual.arcade.util.ducks;
 
 import org.jetbrains.annotations.Nullable;
 

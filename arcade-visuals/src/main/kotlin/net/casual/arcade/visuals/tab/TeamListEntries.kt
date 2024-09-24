@@ -3,9 +3,10 @@ package net.casual.arcade.visuals.tab
 import com.google.common.collect.Iterables
 import net.casual.arcade.resources.font.heads.PlayerHeadComponents
 import net.casual.arcade.utils.ComponentUtils
-import net.casual.arcade.utils.ComponentUtils.colour
+import net.casual.arcade.utils.ComponentUtils.color
 import net.casual.arcade.utils.ComponentUtils.italicise
 import net.casual.arcade.utils.ComponentUtils.literal
+import net.casual.arcade.utils.TeamUtils.color
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer
@@ -63,7 +64,7 @@ public open class TeamListEntries: PlayerListEntries {
     }
 
     protected open fun formatTeamName(server: MinecraftServer, team: PlayerTeam): MutableComponent {
-        return "-- ".literal().append(team.displayName).append(" --").withStyle(team.color)
+        return "-- ".literal().append(team.displayName).append(" --").color(team)
     }
 
     protected open fun createTeamEntry(server: MinecraftServer, team: PlayerTeam): PlayerListEntries.Entry {
@@ -78,9 +79,9 @@ public open class TeamListEntries: PlayerListEntries {
     ): PlayerListEntries.Entry {
         val head = PlayerHeadComponents.getHeadOrDefault(username)
         val name = when {
-            player == null -> username.literal().colour(0x808080)
-            player.isSpectator -> username.literal().withStyle(team.color).italicise()
-            else -> username.literal().withStyle(team.color)
+            player == null -> username.literal().color(0x808080)
+            player.isSpectator -> username.literal().color(team).italicise()
+            else -> username.literal().color(team)
         }
         if (player != null) {
             return PlayerListEntries.Entry.fromComponent(name, player)
