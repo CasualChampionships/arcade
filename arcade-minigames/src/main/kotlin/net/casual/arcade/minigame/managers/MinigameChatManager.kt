@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.argument
+import net.casual.arcade.commands.literal
 import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.player.PlayerChatEvent
 import net.casual.arcade.events.player.PlayerSystemMessageEvent

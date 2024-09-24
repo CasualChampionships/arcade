@@ -36,3 +36,14 @@ public class WidthDifferenceGenerator(
         collection.add(SpacingUtils.getTranslatableWidthDifference(font, this.first, this.second))
     }
 }
+
+public class MaxWidthGenerator(
+    private val key: String,
+    private val components: List<Component>
+): LanguageEntryGenerator {
+    public constructor(key: String, vararg components: Component): this(key, components.toList())
+
+    override fun run(font: Font, collection: MutableCollection<LanguageEntry>) {
+        collection.add(LanguageEntry(this.key, SpacingUtils.getMaxWidthUnicode(font, this.components)))
+    }
+}

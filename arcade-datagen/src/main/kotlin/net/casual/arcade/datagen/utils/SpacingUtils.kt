@@ -50,6 +50,12 @@ public object SpacingUtils {
         return StringEscapeUtils.escapeJava(first.string) to StringEscapeUtils.escapeJava(second.string)
     }
 
+    public fun getMaxWidthUnicode(font: Font, component: List<Component>): String {
+        val width = component.maxOf { getWidth(font, it) }
+        val unicode = ComponentUtils.space(width)
+        return StringEscapeUtils.escapeJava(unicode.string)
+    }
+
     public fun getNegativeWidthUnicode(font: Font, component: Component): String {
         val width = getWidth(font, component)
         val unicode = ComponentUtils.space(-width)
