@@ -1,15 +1,13 @@
 package net.casual.arcade.minigame.lobby
 
 import com.google.gson.JsonObject
+import com.mojang.brigadier.Command
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
+import net.casual.arcade.commands.*
 import net.casual.arcade.commands.arguments.EnumArgument
-import net.casual.arcade.commands.commandSuccess
-import net.casual.arcade.commands.fail
-import net.casual.arcade.commands.function
-import net.casual.arcade.commands.success
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.Minigame
@@ -261,7 +259,7 @@ public open class LobbyMinigame(
         val next = this.nextMinigame ?: throw NO_MINIGAME.create()
         val player = context.source.playerOrException
         next.settings.gui(player).open()
-        return this.commandSuccess()
+        return Command.SINGLE_SUCCESS
     }
 
     private fun setNextMinigame(context: CommandContext<CommandSourceStack>): Int {

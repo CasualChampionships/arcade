@@ -1,7 +1,9 @@
 package net.casual.arcade.minigame.ducks;
 
-public interface OverridableColor {
-	void arcade$setColor(int color);
+import org.jetbrains.annotations.Nullable;
 
-	int arcade$getColor();
+public interface OverridableColor {
+	void arcade$setColor(@Nullable Integer color);
+
+	@Nullable Integer arcade$getColor();
 }
