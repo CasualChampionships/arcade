@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec
 import eu.pb4.polymer.core.api.other.PolymerComponent
 import eu.pb4.polymer.resourcepack.api.PolymerModelData
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.items.ItemModeller.Companion.registerNextModel
 import net.casual.arcade.utils.ItemUtils.isOf
 import net.casual.arcade.utils.ResourceUtils
@@ -39,7 +41,7 @@ public class ResourcePackItemModeller(
     modelledItem: ArcadeModelledItem,
     private val creator: ResourcePackCreator
 ): ItemModeller {
-    private val states = ArrayList<ResourceLocation>()
+    private val states = Object2ObjectLinkedOpenHashMap<ResourceLocation, ItemStack.() -> Unit>()
 
     private val server: Item
     private val client: Item
@@ -61,6 +63,15 @@ public class ResourcePackItemModeller(
         return this.server
     }
 
+    /**
+     * Gets a list of all the different item models.
+     *
+     * @return All the different models.
+     */
+    public fun all(): List<ItemStack> {
+        return this.states.keys.map(this::create)
+    }
+
      /**
       * This registers a custom model for a given [location].
       *
@@ -73,12 +84,10 @@ public class ResourcePackItemModeller(
          location: ResourceLocation,
          modifier: ItemStack.() -> Unit = {}
     ): ItemStackFactory {
-        this.states.add(location)
+        this.states[location] = modifier
         this.creator.registerNextModel(this.client, location)
         return ItemStackFactory {
-            val stack = this.create(location)
-            stack.modifier()
-            stack
+            this.create(location)
         }
     }
 
@@ -95,22 +104,11 @@ public class ResourcePackItemModeller(
      */
     public fun create(location: ResourceLocation): ItemStack {
         val stack = ItemStack(this.item())
+        val modifier = this.states[location]
+            ?: throw IllegalArgumentException("No state '$location' has been defined")
         stack.set(PACKED_CUSTOM_MODEL, this.getModelData(location).value())
+        stack.modifier()
         return stack
-    }
-
-    /**
-     * This creates a modelled version of [item]
-     * using the given [id].
-     *
-     * This may throw [IllegalArgumentException] if the
-     * index of the modelled item is out of bounds.
-     *
-     * @param id The state id.
-     * @return The modelled [ItemStack].
-     */
-    public fun create(id: Int): ItemStack {
-        return this.create(this.getLocation(id))
     }
 
     /**
@@ -127,14 +125,7 @@ public class ResourcePackItemModeller(
         return stack.get(PACKED_CUSTOM_MODEL) ?: -1
     }
 
-    private fun getLocation(state: Int): ResourceLocation {
-        return this.states[state]
-    }
-
     private fun getModelData(id: ResourceLocation): PolymerModelData {
-        if (!this.states.contains(id)) {
-            throw IllegalArgumentException("No state '$id' has been defined")
-        }
         return this.creator.requestModel(this.client, id)
     }
 
