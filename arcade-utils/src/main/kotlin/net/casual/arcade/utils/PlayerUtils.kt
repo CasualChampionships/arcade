@@ -11,6 +11,7 @@ import net.casual.arcade.utils.impl.Sound
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.core.Direction8
+import net.minecraft.core.Holder
 import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.*
@@ -292,20 +293,25 @@ public object PlayerUtils {
         source: SoundSource = SoundSource.MASTER,
         volume: Float = 1.0F,
         pitch: Float = 1.0F,
-        static: Boolean = false
+        static: Boolean = true
     ) {
-        if (!static) {
-            this.playNotifySound(sound, source, volume, pitch)
-            return
+        this.sendSound(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound), source, volume, pitch, static)
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    public fun ServerPlayer.sendSound(
+        sound: Holder<SoundEvent>,
+        source: SoundSource = SoundSource.MASTER,
+        volume: Float = 1.0F,
+        pitch: Float = 1.0F,
+        static: Boolean = true
+    ) {
+        val packet = if (!static) {
+            ClientboundSoundPacket(sound, source, this.x, this.y, this.z, volume, pitch, this.random.nextLong())
+        } else {
+            ClientboundSoundEntityPacket(sound, source, this, volume, pitch, this.random.nextLong())
         }
-        val packet = ClientboundSoundEntityPacket(
-            BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound),
-            source,
-            this,
-            volume,
-            pitch,
-            this.random.nextLong()
-        )
         this.connection.send(packet)
     }
 

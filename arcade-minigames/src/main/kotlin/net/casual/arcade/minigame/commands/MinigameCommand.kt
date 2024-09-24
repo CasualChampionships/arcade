@@ -2,7 +2,6 @@ package net.casual.arcade.minigame.commands
 
 import com.google.gson.JsonObject
 import com.google.gson.JsonParseException
-import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
@@ -18,11 +17,11 @@ import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.utils.AdvancementModifier
 import net.casual.arcade.minigame.utils.MinigameUtils.countdown
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
+import net.casual.arcade.minigame.utils.RecipeModifier
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.utils.ComponentUtils.green
 import net.casual.arcade.utils.ComponentUtils.join
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.suggestCommand
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
@@ -215,6 +214,26 @@ internal object MinigameCommand: CommandTree {
                         literal("all") {
                             argument("player", EntityArgument.players()) {
                                 executes(::modifyAllMinigameAdvancements)
+                            }
+                        }
+                    }
+                }
+            }
+            literal("recipe") {
+                argument("minigame", MinigameArgument.minigame()) {
+                    argument("modifier", EnumArgument.enumeration<RecipeModifier>()) {
+                        literal("only").argument("recipe", ResourceLocationArgument.id()) {
+                            suggests { context, builder ->
+                                val minigame = MinigameArgument.getMinigame(context, "minigame")
+                                SharedSuggestionProvider.suggestResource(minigame.recipes.all().map { it.id }, builder)
+                            }
+                            argument("player", EntityArgument.players()) {
+                                executes(::modifyMinigameRecipe)
+                            }
+                        }
+                        literal("all") {
+                            argument("player", EntityArgument.players()) {
+                                executes(::modifyAllMinigameRecipes)
                             }
                         }
                     }
@@ -590,18 +609,31 @@ internal object MinigameCommand: CommandTree {
         val player = EntityArgument.getPlayer(context, "player")
         val advancement = minigame.advancements.get(id)
             ?: return context.source.fail(Component.translatable("minigame.command.advancement.unknown"))
-        modifier.modify(player, advancement)
-        return context.source.success(modifier.singleSuccessMessage(player, advancement))
+        return context.source.success(modifier.modifySingle(minigame, player, advancement))
     }
 
     private fun modifyAllMinigameAdvancements(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val modifier = EnumArgument.getEnumeration<AdvancementModifier>(context, "modifier")
         val player = EntityArgument.getPlayer(context, "player")
-        for (advancement in minigame.advancements.all()) {
-            modifier.modify(player, advancement)
-        }
-        return context.source.success(modifier.allSuccessMessage(player))
+        return context.source.success(modifier.modifyAll(minigame, player))
+    }
+
+    private fun modifyMinigameRecipe(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val modifier = EnumArgument.getEnumeration<RecipeModifier>(context, "modifier")
+        val id = ResourceLocationArgument.getId(context, "recipe")
+        val player = EntityArgument.getPlayer(context, "player")
+        val recipe = minigame.recipes.get(id)
+            ?: return context.source.fail(Component.translatable("minigame.command.recipe.unknown"))
+        return context.source.success(modifier.modifySingle(minigame, player, recipe))
+    }
+
+    private fun modifyAllMinigameRecipes(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val modifier = EnumArgument.getEnumeration<RecipeModifier>(context, "modifier")
+        val player = EntityArgument.getPlayer(context, "player")
+        return context.source.success(modifier.modifyAll(minigame, player))
     }
 
     private fun listPlayerTags(context: CommandContext<CommandSourceStack>): Int {

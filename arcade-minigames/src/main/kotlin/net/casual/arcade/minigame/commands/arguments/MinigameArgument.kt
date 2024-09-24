@@ -82,7 +82,8 @@ public class MinigameArgument: CustomArgumentType<MinigameArgument.Result>() {
             }
             val source = context.source
             if (source is CommandSourceStack && source.isPlayer) {
-                return source.playerOrException.getMinigame() ?: throw NOT_PARTICIPATING.create()
+                val minigame = source.player?.getMinigame() ?: source.level.getMinigame()
+                return minigame ?: throw NOT_PARTICIPATING.create()
             }
             throw NOT_PARTICIPATING.create()
         }
