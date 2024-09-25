@@ -13,7 +13,6 @@ import kotlin.reflect.KProperty
 
 public class PackHost(ip: String?, port: Int = DEFAULT_PORT, threads: Int = 1): HttpHost(ip, port, threads) {
     private val hostedByName = ConcurrentHashMap<String, HostedPack>()
-    private val hostedByHash = ConcurrentHashMap<String, HostedPack>()
 
     private val packs = HashMap<String, ReadablePack>()
     private val suppliers = ArrayList<ReadablePackSupplier>()
@@ -33,9 +32,17 @@ public class PackHost(ip: String?, port: Int = DEFAULT_PORT, threads: Int = 1): 
         return this.hostedByName[zipped]
     }
 
+    public fun removePack(name: String) {
+        this.packs.remove(name)
+        this.hostedByName.remove(name)
+    }
+
+    public fun removeSupplier(supplier: ReadablePackSupplier) {
+        this.suppliers.remove(supplier)
+    }
+
     public fun reload(): CompletableFuture<Void> {
         this.hostedByName.clear()
-        this.hostedByHash.clear()
 
         val futures = ArrayList<CompletableFuture<*>>()
         for (pack in this.packs.values) {
@@ -50,7 +57,7 @@ public class PackHost(ip: String?, port: Int = DEFAULT_PORT, threads: Int = 1): 
     }
 
     override fun getName(): String {
-        return "ResourcePackHost"
+        return "resource-pack-host"
     }
 
     override fun onStart(server: HttpServer) {
@@ -61,30 +68,28 @@ public class PackHost(ip: String?, port: Int = DEFAULT_PORT, threads: Int = 1): 
         this.packs.clear()
         this.suppliers.clear()
         this.hostedByName.clear()
-        this.hostedByHash.clear()
     }
 
     private fun hostPack(pack: ReadablePack): CompletableFuture<HostedPack> {
         return this.async {
             @Suppress("DEPRECATION")
             val hash = Hashing.sha1().hashBytes(pack.stream().use(InputStream::readBytes)).toString()
-            val hosted = HostedPack(pack, "${this.getUrl()}/$hash", hash)
-            this.hostedByHash[hash] = hosted
 
             val zipped = if (pack.name.endsWith(".zip")) pack.name else "${pack.name}.zip"
+            val hosted = HostedPack(pack, "${this.getUrl()}/$zipped", hash)
             this.hostedByName[zipped] = hosted
             hosted
         }
     }
 
     private fun handleRequest(exchange: HttpExchange) {
-        val hash = exchange.requestURI.path.substring(1)
-        if ("GET" != exchange.requestMethod || hash.length != 40) {
+        val name = exchange.requestURI.path.substring(1)
+        if ("GET" != exchange.requestMethod) {
             exchange.sendResponseHeaders(400, -1)
             return
         }
 
-        val hosted = this.hostedByHash[hash]
+        val hosted = this.getHostedPack(name)
         if (hosted == null || !hosted.pack.readable()) {
             exchange.sendResponseHeaders(400, -1)
             return

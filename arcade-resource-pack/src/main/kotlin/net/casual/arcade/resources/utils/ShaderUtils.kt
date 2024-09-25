@@ -35,7 +35,8 @@ public object ShaderUtils {
         for (entry in colors.int2IntEntrySet()) {
             this.appendConditional(builder, !first, entry.intKey) {
                 val (r, g, b) = this.intToFloatColor(entry.intValue)
-                builder.append("    glow = vec3($r, $g, $b); // #${entry.intValue.toString(16)} $NL_INDENT")
+                val hex = "#%06X".format(entry.intValue)
+                builder.append("    glow = vec3($r, $g, $b); // #$hex $NL_INDENT")
             }
             first = false
         }
@@ -82,7 +83,8 @@ public object ShaderUtils {
             builder.append(" else ")
         }
         val (r, g, b) = this.intToFloatColor(color)
-        builder.append("if (glow.r == $r && glow.g == $g && glow.b == $b) { // #${color.toString(16)} $NL_INDENT")
+        val hex = "#%06X".format(color)
+        builder.append("if (glow.r == $r && glow.g == $g && glow.b == $b) { // #${hex} $NL_INDENT")
         block()
         builder.append("}")
     }
