@@ -17,7 +17,7 @@ import net.minecraft.world.level.storage.ServerLevelData
 public abstract class SingletonSpawnerFactory(name: String): CustomSpawnerFactory, CodecProvider<SingletonSpawnerFactory> {
     override val ID: ResourceLocation = ResourceUtils.arcade(name)
 
-    @Suppress("LeakingThis")
+    // @Suppress("LeakingThis")
     override val CODEC: MapCodec<SingletonSpawnerFactory> = MapCodec.unit(this)
 
     override fun codec(): MapCodec<out CustomSpawnerFactory> {

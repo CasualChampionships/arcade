@@ -1,5 +1,6 @@
 package net.casual.arcade.dimensions.utils.impl
 
+import net.casual.arcade.dimensions.level.LevelGenerationOptions
 import net.casual.arcade.dimensions.level.LevelProperties
 import net.minecraft.world.Difficulty
 import net.minecraft.world.level.GameRules
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.ApiStatus.Internal
 @Internal
 internal class DerivedLevelData(
     val properties: LevelProperties,
+    val options: LevelGenerationOptions,
     worldData: WorldData,
     levelData: ServerLevelData
 ): DerivedLevelData(worldData, levelData) {

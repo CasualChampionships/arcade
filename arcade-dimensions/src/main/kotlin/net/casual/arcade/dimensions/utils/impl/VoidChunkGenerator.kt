@@ -28,12 +28,29 @@ import net.minecraft.world.level.levelgen.blending.Blender
 import net.minecraft.world.level.levelgen.structure.Structure
 import java.util.concurrent.CompletableFuture
 
+/**
+ * A [ChunkGenerator] implementation which creates a void world.
+ *
+ * @param biome The biome source.
+ */
 public class VoidChunkGenerator(biome: BiomeSource): ChunkGenerator(biome) {
+    /**
+     * @param biome The desired biome holder.
+     */
     public constructor(biome: Holder<Biome>): this(FixedBiomeSource(biome))
 
+    /**
+     * @param server The [MinecraftServer] instance.
+     * @param key The key for the desired biome.
+     */
     public constructor(server: MinecraftServer, key: ResourceKey<Biome>):
         this(server.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(key))
 
+    /**
+     * Creates an instance of this class with the [Biomes.THE_VOID] biome.
+     *
+     * @param server The [MinecraftServer] instance.
+     */
     public constructor(server: MinecraftServer): this(server, Biomes.THE_VOID)
 
     override fun codec(): MapCodec<out ChunkGenerator> {

@@ -14,6 +14,15 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
 
+/**
+ * Mod initializer for arcade's dimensions api.
+ *
+ * Also contains methods for adding, loading,
+ * removing, and deleting custom worlds, which
+ * can be called from Java.
+ *
+ * Kotlin extension functions are also provided.
+ */
 public object ArcadeDimensions: ModInitializer {
     override fun onInitialize() {
         DimensionRegistries.load()
