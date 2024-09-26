@@ -6,13 +6,13 @@ import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.mixins.level.MinecraftServerAccessor
 import net.casual.arcade.utils.ArcadeUtils
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents
+import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceKey
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
-import net.minecraft.world.level.dimension.DimensionType
-import org.apache.commons.io.FileUtils
 import org.apache.commons.io.file.PathUtils
 import java.io.IOException
 import java.nio.file.Path
@@ -42,6 +42,10 @@ public inline fun MinecraftServer.addCustomLevel(block: CustomLevelBuilder.() ->
     return this.addCustomLevel(builder)
 }
 
+public fun MinecraftServer.loadCustomLevel(location: ResourceLocation): ServerLevel? {
+    return this.loadCustomLevel(ResourceKey.create(Registries.DIMENSION, location))
+}
+
 public fun MinecraftServer.loadCustomLevel(key: ResourceKey<Level>): ServerLevel? {
     val loaded = this.getLevel(key)
     if (loaded != null) {
@@ -49,6 +53,13 @@ public fun MinecraftServer.loadCustomLevel(key: ResourceKey<Level>): ServerLevel
     }
     val custom = CustomLevel.read(this, key) ?: return null
     return this.addCustomLevel(custom)
+}
+
+public inline fun MinecraftServer.loadOrAddCustomLevel(
+    location: ResourceLocation,
+    block: CustomLevelBuilder.() -> Unit
+): ServerLevel {
+    return this.loadCustomLevel(location) ?: this.addCustomLevel { dimensionKey(location).block() }
 }
 
 public inline fun MinecraftServer.loadOrAddCustomLevel(
@@ -66,6 +77,7 @@ public fun MinecraftServer.removeCustomLevel(level: CustomLevel, save: Boolean =
 
         if (save) {
             level.save(null, flush = true, skip = false)
+            level.close()
         }
         ServerWorldEvents.UNLOAD.invoker().onWorldUnload(this, level)
         return true

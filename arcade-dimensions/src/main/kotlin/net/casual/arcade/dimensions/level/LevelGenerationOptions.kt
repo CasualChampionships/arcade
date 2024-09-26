@@ -2,6 +2,7 @@ package net.casual.arcade.dimensions.level
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import net.casual.arcade.dimensions.level.spawner.CustomSpawnerFactory
 import net.minecraft.world.level.dimension.LevelStem
 
 public class LevelGenerationOptions(
@@ -11,6 +12,7 @@ public class LevelGenerationOptions(
     public val tickTime: Boolean,
     public val generateStructures: Boolean,
     public val debug: Boolean,
+    public val customSpawners: List<CustomSpawnerFactory>
 ) {
     public companion object {
         @JvmField
@@ -21,7 +23,8 @@ public class LevelGenerationOptions(
                 Codec.BOOL.fieldOf("flat").forGetter(LevelGenerationOptions::flat),
                 Codec.BOOL.fieldOf("tick_time").forGetter(LevelGenerationOptions::tickTime),
                 Codec.BOOL.fieldOf("generate_structures").forGetter(LevelGenerationOptions::generateStructures),
-                Codec.BOOL.fieldOf("debug").forGetter(LevelGenerationOptions::debug)
+                Codec.BOOL.fieldOf("debug").forGetter(LevelGenerationOptions::debug),
+                CustomSpawnerFactory.CODEC.listOf().fieldOf("custom_spawners").forGetter(LevelGenerationOptions::customSpawners)
             ).apply(instance, ::LevelGenerationOptions)
         }
     }

@@ -4,6 +4,8 @@ import net.casual.arcade.dimensions.level.LevelPersistence
 import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
 import net.casual.arcade.dimensions.level.vanilla.VanillaLikeLevelsBuilder
 import net.casual.arcade.dimensions.utils.addCustomLevel
+import net.casual.arcade.dimensions.utils.impl.VoidChunkGenerator
+import net.casual.arcade.dimensions.utils.loadOrAddCustomLevel
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.utils.ResourceUtils
@@ -29,6 +31,14 @@ object ArcadeTest: ModInitializer {
             }
             for (level in levels.all()) {
                 server.addCustomLevel(level)
+            }
+
+            server.loadOrAddCustomLevel(ResourceUtils.arcade("custom_dimension")) {
+                dimensionType {
+                    bedWorks = false
+                    piglinSafe = true
+                }
+                chunkGenerator = VoidChunkGenerator(server)
             }
         }
     }

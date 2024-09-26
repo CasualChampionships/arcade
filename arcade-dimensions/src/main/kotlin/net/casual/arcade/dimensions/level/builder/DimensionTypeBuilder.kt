@@ -3,6 +3,7 @@ package net.casual.arcade.dimensions.level.builder
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.BlockTags
 import net.minecraft.tags.TagKey
+import net.minecraft.util.valueproviders.IntProvider
 import net.minecraft.util.valueproviders.UniformInt
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes
@@ -25,7 +26,11 @@ public class DimensionTypeBuilder {
     public var infiniburn: TagKey<Block> = BlockTags.INFINIBURN_OVERWORLD
     public var effects: ResourceLocation = BuiltinDimensionTypes.OVERWORLD_EFFECTS
     public var ambientLight: Float = 0.0F
-    public var monsterSettings: MonsterSettings = MonsterSettings(false, true, UniformInt.of(0, 7), 0)
+
+    public var piglinSafe: Boolean = false
+    public var hasRaids: Boolean = true
+    public var monsterSpawnLightLevel: IntProvider = UniformInt.of(0, 7)
+    public var monsterSpawnBlockLightLimit: Int = 0
 
     public fun fixedTime(fixedTime: Long): DimensionTypeBuilder {
         this.fixedTime = OptionalLong.of(fixedTime)
@@ -97,8 +102,23 @@ public class DimensionTypeBuilder {
         return this
     }
 
-    public fun monsterSettings(monsterSettings: MonsterSettings): DimensionTypeBuilder {
-        this.monsterSettings = monsterSettings
+    public fun piglinSafe(piglinSafe: Boolean): DimensionTypeBuilder {
+        this.piglinSafe = piglinSafe
+        return this
+    }
+
+    public fun hasRaids(hasRaids: Boolean): DimensionTypeBuilder {
+        this.hasRaids = hasRaids
+        return this
+    }
+
+    public fun monsterSpawnLightLevel(light: IntProvider): DimensionTypeBuilder {
+        this.monsterSpawnLightLevel = light
+        return this
+    }
+
+    public fun monsterSpawnBlockLightLimit(light: Int): DimensionTypeBuilder {
+        this.monsterSpawnBlockLightLimit = light
         return this
     }
 
@@ -118,7 +138,12 @@ public class DimensionTypeBuilder {
             this.infiniburn,
             this.effects,
             this.ambientLight,
-            this.monsterSettings
+            MonsterSettings(
+                this.piglinSafe,
+                this.hasRaids,
+                this.monsterSpawnLightLevel,
+                this.monsterSpawnBlockLightLimit
+            )
         )
     }
 

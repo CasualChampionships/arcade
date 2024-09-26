@@ -3,6 +3,7 @@ package net.casual.arcade.dimensions.level
 import net.casual.arcade.dimensions.level.factory.CustomLevelFactory
 import net.casual.arcade.dimensions.level.factory.SimpleCustomLevelFactory
 import net.casual.arcade.dimensions.mixins.level.MinecraftServerAccessor
+import net.casual.arcade.dimensions.mixins.level.ServerLevelAccessor
 import net.casual.arcade.dimensions.utils.GenerationOptionsContext
 import net.casual.arcade.dimensions.utils.getDimensionPath
 import net.casual.arcade.dimensions.utils.impl.DerivedLevelData
@@ -18,7 +19,6 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.ProgressListener
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.Level
-import org.apache.commons.io.FileUtils
 import org.apache.commons.io.file.PathUtils
 import java.io.IOException
 import java.nio.file.Path
@@ -43,12 +43,13 @@ public open class CustomLevel(
     NullChunkProgressListener,
     options.debug,
     GenerationOptionsContext.set(server, options),
-    listOf(), // TODO: Implement CustomSpawner support
+    ArrayList(),
     options.tickTime,
     null
 ) {
     init {
         GenerationOptionsContext.reset(server)
+        this.loadCustomSpawners()
 
         // In case of server crash, we should still delete temporary levels
         if (!this.persistence.shouldSave()) {
@@ -93,6 +94,13 @@ public open class CustomLevel(
             ArcadeUtils.logger.error("Failed to encode custom level data", e)
         } catch (e: IOException) {
             ArcadeUtils.logger.error("Failed to write custom level data", e)
+        }
+    }
+
+    protected open fun loadCustomSpawners() {
+        val spawners = (this as ServerLevelAccessor).customSpawners
+        for (factory in this.options.customSpawners) {
+            spawners.add(factory.create(this))
         }
     }
 

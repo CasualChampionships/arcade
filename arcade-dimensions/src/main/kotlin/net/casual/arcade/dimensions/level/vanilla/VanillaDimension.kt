@@ -1,6 +1,7 @@
 package net.casual.arcade.dimensions.level.vanilla
 
 import com.mojang.serialization.Codec
+import net.casual.arcade.dimensions.level.spawner.*
 import net.minecraft.resources.ResourceKey
 import net.minecraft.util.StringRepresentable
 import net.minecraft.world.level.Level
@@ -25,6 +26,19 @@ public enum class VanillaDimension: StringRepresentable {
             Nether -> LevelStem.NETHER
             End -> LevelStem.END
         }
+    }
+
+    public fun getCustomSpawners(): List<CustomSpawnerFactory> {
+        if (this != Overworld) {
+            return listOf()
+        }
+        return listOf(
+            PhantomSpawnerFactory,
+            PatrolSpawnerFactory,
+            CatSpawnerFactory,
+            VillageSiegeFactory,
+            WanderingTraderSpawnerFactory
+        )
     }
 
     public fun doesTimeTick(): Boolean {

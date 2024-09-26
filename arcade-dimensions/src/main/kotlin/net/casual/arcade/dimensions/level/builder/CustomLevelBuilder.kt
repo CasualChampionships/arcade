@@ -4,8 +4,8 @@ import net.casual.arcade.dimensions.level.*
 import net.casual.arcade.dimensions.level.LevelProperties.DifficultyProperties
 import net.casual.arcade.dimensions.level.LevelProperties.WeatherProperties
 import net.casual.arcade.dimensions.level.factory.CustomLevelFactoryConstructor
+import net.casual.arcade.dimensions.level.spawner.CustomSpawnerFactory
 import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
-import net.casual.arcade.dimensions.utils.impl.VoidChunkGenerator
 import net.casual.arcade.utils.ResourceUtils
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.Registries
@@ -21,11 +21,12 @@ import net.minecraft.world.level.levelgen.WorldOptions
 import org.apache.commons.lang3.mutable.MutableLong
 import org.jetbrains.annotations.ApiStatus.Experimental
 import java.util.*
-import kotlin.jvm.optionals.getOrDefault
+import kotlin.collections.ArrayList
 import kotlin.jvm.optionals.getOrNull
 
 public class CustomLevelBuilder {
-    private var properties: LevelProperties = LevelProperties()
+    private val properties = LevelProperties()
+    private val spawners = ArrayList<CustomSpawnerFactory>()
 
     private var constructor = CustomLevelFactoryConstructor.DEFAULT
 
@@ -35,6 +36,7 @@ public class CustomLevelBuilder {
     private var type: Holder<DimensionType>? = null
     private var typeKey: ResourceKey<DimensionType>? = null
     private var generator: ChunkGenerator? = null
+
 
     public var seed: Long = 0
     public var flat: Boolean = false
@@ -153,13 +155,13 @@ public class CustomLevelBuilder {
      * client may de-sync under certain circumstances.
      *
      * ```
-     * Re
+     *
      * ```
      *
      * @param block The method to build your dimension type.
      * @see dimensionType
      */
-    @Deprecated("You should register your DimensionType instead")
+    @Experimental
     public fun dimensionType(block: DimensionTypeBuilder.() -> Unit): CustomLevelBuilder {
         val type = DimensionTypeBuilder.build(block)
         return this.dimensionType(Holder.direct(type))
@@ -200,13 +202,37 @@ public class CustomLevelBuilder {
         return this
     }
 
+    public fun customSpawners(vararg spawners: CustomSpawnerFactory): CustomLevelBuilder {
+        this.spawners.clear()
+        this.spawners.addAll(spawners)
+        return this
+    }
+
+    public fun customSpawners(spawners: List<CustomSpawnerFactory>): CustomLevelBuilder {
+        this.spawners.clear()
+        this.spawners.addAll(spawners)
+        return this
+    }
+
+    public fun addCustomSpawners(vararg spawners: CustomSpawnerFactory): CustomLevelBuilder {
+        this.spawners.addAll(spawners)
+        return this
+    }
+
+    public fun addCustomSpawners(spawners: Collection<CustomSpawnerFactory>): CustomLevelBuilder {
+        this.spawners.addAll(spawners)
+        return this
+    }
+
     public fun persistence(persistence: LevelPersistence): CustomLevelBuilder {
         this.persistence = persistence
         return this
     }
 
     public fun vanillaDefaults(dimension: VanillaDimension): CustomLevelBuilder {
-        return this.levelStem(dimension.getStemKey()).tickTime(dimension.doesTimeTick())
+        return this.levelStem(dimension.getStemKey())
+            .tickTime(dimension.doesTimeTick())
+            .addCustomSpawners(dimension.getCustomSpawners())
     }
 
     public fun build(server: MinecraftServer): CustomLevel {
@@ -222,7 +248,9 @@ public class CustomLevelBuilder {
             stem = LevelStem(dimensionType, generator)
         }
 
-        val options = LevelGenerationOptions(stem, this.seed, this.flat, this.tickTime, this.generateStructures, this.debug)
+        val options = LevelGenerationOptions(
+            stem, this.seed, this.flat, this.tickTime, this.generateStructures, this.debug, this.spawners
+        )
         return this.constructor.construct(this.properties, options, this.persistence).create(server, key)
     }
 

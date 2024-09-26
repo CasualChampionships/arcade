@@ -7,6 +7,7 @@ import net.casual.arcade.events.GlobalEventHandler.broadcast
 import net.casual.arcade.events.core.CancellableEvent
 import net.casual.arcade.events.core.Event
 import net.casual.arcade.events.server.SafeServerlessEvent
+import net.casual.arcade.events.server.ServerCreatedEvent
 import net.casual.arcade.events.server.ServerOffThreadEvent
 import net.casual.arcade.utils.ServerUtils
 import net.casual.arcade.utils.addSorted
@@ -237,7 +238,7 @@ public object GlobalEventHandler {
 
     private fun checkThread(event: Event, type: Class<out Event>): Boolean {
         val server = ServerUtils.getServerOrNull()
-        if (server == null) {
+        if (server == null || type == ServerCreatedEvent::class.java) {
             if (event !is SafeServerlessEvent) {
                 this.logger.warn(
                     "Detected broadcasted event (type: {}), before server created, may be unsafe...",
