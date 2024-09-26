@@ -3,10 +3,13 @@ package net.casual.arcade.dimensions.level
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.dimensions.level.spawner.CustomSpawnerFactory
+import net.minecraft.core.Holder
+import net.minecraft.core.registries.Registries
+import net.minecraft.resources.RegistryFileCodec
 import net.minecraft.world.level.dimension.LevelStem
 
 public class LevelGenerationOptions(
-    public val stem: LevelStem,
+    public val stem: Holder<LevelStem>,
     public val seed: Long,
     public val flat: Boolean,
     public val tickTime: Boolean,
@@ -18,7 +21,7 @@ public class LevelGenerationOptions(
         @JvmField
         public val CODEC: Codec<LevelGenerationOptions> = RecordCodecBuilder.create { instance ->
             instance.group(
-                LevelStem.CODEC.fieldOf("stem").forGetter(LevelGenerationOptions::stem),
+                RegistryFileCodec.create(Registries.LEVEL_STEM, LevelStem.CODEC).fieldOf("stem").forGetter(LevelGenerationOptions::stem),
                 Codec.LONG.fieldOf("seed").forGetter(LevelGenerationOptions::seed),
                 Codec.BOOL.fieldOf("flat").forGetter(LevelGenerationOptions::flat),
                 Codec.BOOL.fieldOf("tick_time").forGetter(LevelGenerationOptions::tickTime),

@@ -31,12 +31,11 @@ public class CustomLevelBuilder {
     private var constructor = CustomLevelFactoryConstructor.DEFAULT
 
     private var key: ResourceKey<Level>? = null
-    private var stem: LevelStem? = null
+    private var stem: Holder<LevelStem>? = null
     private var stemKey: ResourceKey<LevelStem>? = null
     private var type: Holder<DimensionType>? = null
     private var typeKey: ResourceKey<DimensionType>? = null
     private var generator: ChunkGenerator? = null
-
 
     public var seed: Long = 0
     public var flat: Boolean = false
@@ -54,7 +53,7 @@ public class CustomLevelBuilder {
         set(value) { this.dimensionKey(value) }
         get() = throw UnsupportedOperationException()
 
-    public var levelStem: LevelStem
+    public var levelStem: Holder<LevelStem>
         set(value) { this.levelStem(value) }
         get() = throw UnsupportedOperationException()
 
@@ -124,7 +123,7 @@ public class CustomLevelBuilder {
         return this
     }
 
-    public fun levelStem(stem: LevelStem): CustomLevelBuilder {
+    public fun levelStem(stem: Holder<LevelStem>): CustomLevelBuilder {
         this.stem = stem
         return this
     }
@@ -233,19 +232,21 @@ public class CustomLevelBuilder {
         return this.levelStem(dimension.getStemKey())
             .tickTime(dimension.doesTimeTick())
             .addCustomSpawners(dimension.getCustomSpawners())
+            .generateStructures(true)
     }
 
     public fun build(server: MinecraftServer): CustomLevel {
         val key = requireNotNull(this.key) { "Dimension key must be specified" }
-        var stem = this.stem ?: server.registryAccess().registry(Registries.LEVEL_STEM)
-            .flatMap { it.getOptional(this.stemKey) }.getOrNull()
+        var stem = this.stem ?: Optional.ofNullable(this.stemKey).flatMap { stemKey ->
+            server.registryAccess().registry(Registries.LEVEL_STEM).flatMap { it.getHolder(stemKey) }
+        }.orElse(null)
         if (stem == null) {
             val dimensionType = this.type ?: Optional.ofNullable(this.typeKey).flatMap { typeKey ->
                 server.registryAccess().registry(Registries.DIMENSION_TYPE).flatMap { it.getHolder(typeKey) }
             }.orElseThrow { IllegalArgumentException("Unknown dimension type specified") }
 
             val generator = this.generator ?: throw IllegalArgumentException("Chunk generator must be specified")
-            stem = LevelStem(dimensionType, generator)
+            stem = Holder.direct(LevelStem(dimensionType, generator))
         }
 
         val options = LevelGenerationOptions(

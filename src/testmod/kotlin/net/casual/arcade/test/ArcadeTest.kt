@@ -22,11 +22,11 @@ object ArcadeTest: ModInitializer {
                         rainTime = 20.Minutes.ticks
                         raining = true
                     }
-                    persistence = LevelPersistence.Persistent
+                    persistence = LevelPersistence.Permanent
                 }
                 set(VanillaDimension.Nether) {
                     dimensionKey(ResourceUtils.arcade("custom_nether"))
-                    persistence = LevelPersistence.Persistent
+                    persistence = LevelPersistence.Permanent
                 }
             }
             for (level in levels.all()) {

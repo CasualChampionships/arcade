@@ -13,7 +13,8 @@ import net.minecraft.world.level.levelgen.PatrolSpawner
 import net.minecraft.world.level.levelgen.PhantomSpawner
 import net.minecraft.world.level.storage.ServerLevelData
 
-public sealed class SingletonSpawnerFactory(name: String): CustomSpawnerFactory, CodecProvider<SingletonSpawnerFactory> {
+// For some reason, making this class sealed makes intellij have a fit
+public abstract class SingletonSpawnerFactory(name: String): CustomSpawnerFactory, CodecProvider<SingletonSpawnerFactory> {
     override val ID: ResourceLocation = ResourceUtils.arcade(name)
 
     @Suppress("LeakingThis")

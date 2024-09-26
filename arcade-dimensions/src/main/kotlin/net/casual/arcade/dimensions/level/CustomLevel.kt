@@ -13,6 +13,7 @@ import net.casual.arcade.utils.get
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtIo
 import net.minecraft.nbt.NbtOps
+import net.minecraft.resources.RegistryOps
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
@@ -39,7 +40,7 @@ public open class CustomLevel(
     (server as MinecraftServerAccessor).storage,
     DerivedLevelData(properties, server.worldData, server.worldData.overworldData()),
     key,
-    options.stem,
+    options.stem.value(),
     NullChunkProgressListener,
     options.debug,
     GenerationOptionsContext.set(server, options),
@@ -85,7 +86,8 @@ public open class CustomLevel(
 
         try {
             val compound = CompoundTag()
-            compound.put("factory", CustomLevelFactory.CODEC.encodeStart(NbtOps.INSTANCE, this.factory).orThrow)
+            val ops = RegistryOps.create(NbtOps.INSTANCE, this.registryAccess())
+            compound.put("factory", CustomLevelFactory.CODEC.encodeStart(ops, this.factory).orThrow)
 
             val path = getDimensionDataPath(this.server, this.dimension())
             path.createParentDirectories()
@@ -110,7 +112,8 @@ public open class CustomLevel(
             val path = this.getDimensionDataPath(server, dimension)
             try {
                 val compound = NbtIo.read(path) ?: return null
-                val factory = CustomLevelFactory.CODEC.parse(NbtOps.INSTANCE, compound.get("factory")).orThrow
+                val ops = RegistryOps.create(NbtOps.INSTANCE, server.registryAccess())
+                val factory = CustomLevelFactory.CODEC.parse(ops, compound.get("factory")).orThrow
                 return factory.create(server, dimension)
             } catch (e: Exception) {
                 ArcadeUtils.logger.error("Failed to load custom level data", e)
