@@ -32,4 +32,13 @@ public class VanillaLikeLevelsBuilder {
         }
         return VanillaLikeLevels(levels)
     }
+
+    public companion object {
+        @JvmStatic
+        public fun build(server: MinecraftServer, block: VanillaLikeLevelsBuilder.() -> Unit): VanillaLikeLevels {
+            val builder = VanillaLikeLevelsBuilder()
+            builder.block()
+            return builder.build(server)
+        }
+    }
 }

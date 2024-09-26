@@ -1,11 +1,9 @@
 package net.casual.arcade.dimensions.level
 
-import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.level.factory.CustomLevelFactory
 import net.casual.arcade.dimensions.level.factory.SimpleCustomLevelFactory
 import net.casual.arcade.dimensions.mixins.level.MinecraftServerAccessor
 import net.casual.arcade.dimensions.utils.GenerationOptionsContext
-import net.casual.arcade.dimensions.utils.LevelPersistenceTracker
 import net.casual.arcade.dimensions.utils.getDimensionPath
 import net.casual.arcade.dimensions.utils.impl.DerivedLevelData
 import net.casual.arcade.dimensions.utils.impl.NullChunkProgressListener
@@ -20,6 +18,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.ProgressListener
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.Level
+import org.apache.commons.io.FileUtils
 import org.apache.commons.io.file.PathUtils
 import java.io.IOException
 import java.nio.file.Path
@@ -109,13 +108,6 @@ public open class CustomLevel(
                 ArcadeUtils.logger.error("Failed to load custom level data", e)
                 return null
             }
-        }
-
-        @JvmStatic
-        public fun create(server: MinecraftServer, block: CustomLevelBuilder.() -> Unit): CustomLevel {
-            val builder = CustomLevelBuilder()
-            builder.block()
-            return builder.build(server)
         }
 
         private fun getDimensionDataPath(server: MinecraftServer, dimension: ResourceKey<Level>): Path {

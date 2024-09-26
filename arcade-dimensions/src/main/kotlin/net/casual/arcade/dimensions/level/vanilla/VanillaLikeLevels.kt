@@ -1,7 +1,6 @@
 package net.casual.arcade.dimensions.level.vanilla
 
 import net.casual.arcade.dimensions.level.CustomLevel
-import net.minecraft.server.MinecraftServer
 
 public class VanillaLikeLevels internal constructor(
     private val map: Map<VanillaDimension, CustomLevel>
@@ -17,14 +16,5 @@ public class VanillaLikeLevels internal constructor(
 
     public fun all(): Collection<CustomLevel> {
         return this.map.values
-    }
-
-    public companion object {
-        @JvmStatic
-        public fun create(server: MinecraftServer, block: VanillaLikeLevelsBuilder.() -> Unit): VanillaLikeLevels {
-            val builder = VanillaLikeLevelsBuilder()
-            builder.block()
-            return builder.build(server)
-        }
     }
 }

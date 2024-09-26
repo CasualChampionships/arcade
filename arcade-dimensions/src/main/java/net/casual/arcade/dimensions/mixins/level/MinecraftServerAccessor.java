@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-@Mixin(MinecraftServer.class)
+@Mixin(value = MinecraftServer.class, priority = 901)
 public interface MinecraftServerAccessor {
 	@Accessor("levels")
 	Map<ResourceKey<Level>, ServerLevel> getLevels();

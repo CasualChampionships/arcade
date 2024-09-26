@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "command.RequiredArgumentBuilderMixin",
+    "level.CommonPlayerSpawnInfoMixin",
     "level.MinecraftServerAccessor",
     "level.MinecraftServerMixin",
     "level.ServerLevelMixin",

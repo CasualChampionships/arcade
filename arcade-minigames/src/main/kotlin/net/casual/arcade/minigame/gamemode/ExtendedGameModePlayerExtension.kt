@@ -12,7 +12,7 @@ import net.minecraft.world.level.GameType
 internal class ExtendedGameModePlayerExtension(
     player: ServerPlayer
 ): PlayerExtension(player), DataExtension {
-    private var gameMode = ExtendedGameMode.Survival
+    private var gameMode = ExtendedGameMode.None
 
     fun getGameMode(): ExtendedGameMode {
         return this.gameMode

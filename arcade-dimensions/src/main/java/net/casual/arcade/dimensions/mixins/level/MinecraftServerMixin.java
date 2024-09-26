@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,9 +33,9 @@ public abstract class MinecraftServerMixin {
 	@Inject(
 		method = "stopServer",
 		at = @At(
-			value = "FIELD",
-			target = "Lnet/minecraft/server/MinecraftServer;isSaving:Z",
-			ordinal = 1
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/MinecraftServer;saveAllChunks(ZZZ)Z",
+			shift = At.Shift.AFTER
 		)
 	)
 	private void afterSaveAllChunks(CallbackInfo ci) {

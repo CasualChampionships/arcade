@@ -19,7 +19,9 @@ import net.minecraft.world.level.dimension.DimensionType
 import net.minecraft.world.level.dimension.LevelStem
 import net.minecraft.world.level.levelgen.WorldOptions
 import org.apache.commons.lang3.mutable.MutableLong
+import org.jetbrains.annotations.ApiStatus.Experimental
 import java.util.*
+import kotlin.jvm.optionals.getOrDefault
 import kotlin.jvm.optionals.getOrNull
 
 public class CustomLevelBuilder {
@@ -31,6 +33,7 @@ public class CustomLevelBuilder {
     private var stem: LevelStem? = null
     private var stemKey: ResourceKey<LevelStem>? = null
     private var type: Holder<DimensionType>? = null
+    private var typeKey: ResourceKey<DimensionType>? = null
     private var generator: ChunkGenerator? = null
 
     public var seed: Long = 0
@@ -134,11 +137,32 @@ public class CustomLevelBuilder {
         return this
     }
 
-    public fun dimensionType(block: DimensionTypeBuilder.() -> Unit): CustomLevelBuilder {
-        val builder = DimensionTypeBuilder()
-        builder.block()
-        this.type = Holder.direct(builder.build())
+    public fun dimensionType(type: ResourceKey<DimensionType>): CustomLevelBuilder {
+        this.typeKey = type
         return this
+    }
+
+    /**
+     * This is a quick and dirty way to add custom dimension
+     * types without registering them.
+     *
+     * However, because these are not registered, they do
+     * not sync properly with the client; instead, a default
+     * dimension type is sent to the client.
+     * Everything will work properly on the server, but the
+     * client may de-sync under certain circumstances.
+     *
+     * ```
+     * Re
+     * ```
+     *
+     * @param block The method to build your dimension type.
+     * @see dimensionType
+     */
+    @Deprecated("You should register your DimensionType instead")
+    public fun dimensionType(block: DimensionTypeBuilder.() -> Unit): CustomLevelBuilder {
+        val type = DimensionTypeBuilder.build(block)
+        return this.dimensionType(Holder.direct(type))
     }
 
     public fun chunkGenerator(generator: ChunkGenerator): CustomLevelBuilder {
@@ -190,12 +214,23 @@ public class CustomLevelBuilder {
         var stem = this.stem ?: server.registryAccess().registry(Registries.LEVEL_STEM)
             .flatMap { it.getOptional(this.stemKey) }.getOrNull()
         if (stem == null) {
-            val dimensionType = this.type ?: server.overworld().dimensionTypeRegistration()
-            val generator = this.generator ?: VoidChunkGenerator(server)
+            val dimensionType = this.type ?: Optional.ofNullable(this.typeKey).flatMap { typeKey ->
+                server.registryAccess().registry(Registries.DIMENSION_TYPE).flatMap { it.getHolder(typeKey) }
+            }.orElseThrow { IllegalArgumentException("Unknown dimension type specified") }
+
+            val generator = this.generator ?: throw IllegalArgumentException("Chunk generator must be specified")
             stem = LevelStem(dimensionType, generator)
         }
 
         val options = LevelGenerationOptions(stem, this.seed, this.flat, this.tickTime, this.generateStructures, this.debug)
         return this.constructor.construct(this.properties, options, this.persistence).create(server, key)
+    }
+
+    public companion object {
+        public fun build(server: MinecraftServer, block: CustomLevelBuilder.() -> Unit): CustomLevel {
+            val builder = CustomLevelBuilder()
+            builder.block()
+            return builder.build(server)
+        }
     }
 }

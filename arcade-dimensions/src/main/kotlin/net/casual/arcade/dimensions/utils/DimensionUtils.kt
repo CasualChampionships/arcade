@@ -11,6 +11,8 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.dimension.DimensionType
+import org.apache.commons.io.FileUtils
 import org.apache.commons.io.file.PathUtils
 import java.io.IOException
 import java.nio.file.Path
@@ -65,7 +67,6 @@ public fun MinecraftServer.removeCustomLevel(level: CustomLevel, save: Boolean =
         if (save) {
             level.save(null, flush = true, skip = false)
         }
-        level.close()
         ServerWorldEvents.UNLOAD.invoker().onWorldUnload(this, level)
         return true
     }

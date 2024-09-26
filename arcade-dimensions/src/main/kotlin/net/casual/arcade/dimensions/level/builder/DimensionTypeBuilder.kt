@@ -19,9 +19,9 @@ public class DimensionTypeBuilder {
     public var coordinateScale: Double = 1.0
     public var bedWorks: Boolean = true
     public var respawnAnchorWorks: Boolean = false
-    public var minY: Int = 0
-    public var height: Int = 256
-    public var logicalHeight: Int = 256
+    public var minY: Int = -64
+    public var height: Int = 384
+    public var logicalHeight: Int = 384
     public var infiniburn: TagKey<Block> = BlockTags.INFINIBURN_OVERWORLD
     public var effects: ResourceLocation = BuiltinDimensionTypes.OVERWORLD_EFFECTS
     public var ambientLight: Float = 0.0F
@@ -120,5 +120,13 @@ public class DimensionTypeBuilder {
             this.ambientLight,
             this.monsterSettings
         )
+    }
+
+    public companion object {
+        public fun build(block: DimensionTypeBuilder.() -> Unit): DimensionType {
+            val builder = DimensionTypeBuilder()
+            builder.block()
+            return builder.build()
+        }
     }
 }
