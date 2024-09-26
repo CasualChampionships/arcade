@@ -12,6 +12,7 @@ public fun interface CustomLevelFactoryConstructor {
     ): CustomLevelFactory
 
     public companion object {
+        @JvmField
         public val DEFAULT: CustomLevelFactoryConstructor = CustomLevelFactoryConstructor(::SimpleCustomLevelFactory)
     }
 }

@@ -1,6 +1,7 @@
 package net.casual.arcade.dimensions.mixins.level;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import net.casual.arcade.dimensions.level.CustomLevel;
 import net.casual.arcade.dimensions.level.LevelGenerationOptions;
 import net.casual.arcade.dimensions.utils.GenerationOptionsContext;
 import net.minecraft.server.MinecraftServer;
@@ -19,7 +20,10 @@ public class ServerLevelMixin {
 		)
 	)
 	private WorldOptions modifyWorldOptions(WorldOptions original, MinecraftServer server) {
-		LevelGenerationOptions options = GenerationOptionsContext.get(server);
-		return new WorldOptions(options.getSeed(), options.getGenerateStructures(), original.generateBonusChest());
+		if ((Object) this instanceof CustomLevel) {
+			LevelGenerationOptions options = GenerationOptionsContext.get(server);
+			return new WorldOptions(options.getSeed(), options.getGenerateStructures(), original.generateBonusChest());
+		}
+		return original;
 	}
 }

@@ -4,6 +4,7 @@ import net.casual.arcade.dimensions.level.*
 import net.casual.arcade.dimensions.level.LevelProperties.DifficultyProperties
 import net.casual.arcade.dimensions.level.LevelProperties.WeatherProperties
 import net.casual.arcade.dimensions.level.factory.CustomLevelFactoryConstructor
+import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
 import net.casual.arcade.dimensions.utils.impl.VoidChunkGenerator
 import net.casual.arcade.utils.ResourceUtils
 import net.minecraft.core.Holder
@@ -44,8 +45,8 @@ public class CustomLevelBuilder {
         set(value) { this.timeOfDay(value) }
         get() = throw UnsupportedOperationException()
 
-    public var dimension: ResourceKey<Level>
-        set(value) { this.dimension(value) }
+    public var dimensionKey: ResourceKey<Level>
+        set(value) { this.dimensionKey(value) }
         get() = throw UnsupportedOperationException()
 
     public var levelStem: LevelStem
@@ -65,18 +66,18 @@ public class CustomLevelBuilder {
         return this
     }
 
-    public fun dimension(dimension: ResourceKey<Level>): CustomLevelBuilder {
-        this.key = dimension
+    public fun dimensionKey(key: ResourceKey<Level>): CustomLevelBuilder {
+        this.key = key
         return this
     }
 
-    public fun dimension(dimension: ResourceLocation): CustomLevelBuilder {
-        this.key = ResourceKey.create(Registries.DIMENSION, dimension)
+    public fun dimensionKey(location: ResourceLocation): CustomLevelBuilder {
+        this.key = ResourceKey.create(Registries.DIMENSION, location)
         return this
     }
 
-    public fun randomDimension(): CustomLevelBuilder {
-        this.dimension(ResourceUtils.random())
+    public fun randomDimensionKey(): CustomLevelBuilder {
+        this.dimensionKey(ResourceUtils.random())
         return this
     }
 
@@ -180,8 +181,12 @@ public class CustomLevelBuilder {
         return this
     }
 
+    public fun vanillaDefaults(dimension: VanillaDimension): CustomLevelBuilder {
+        return this.levelStem(dimension.getStemKey()).tickTime(dimension.doesTimeTick())
+    }
+
     public fun build(server: MinecraftServer): CustomLevel {
-        val dimension = requireNotNull(this.key) { "Dimension key must be specified" }
+        val key = requireNotNull(this.key) { "Dimension key must be specified" }
         var stem = this.stem ?: server.registryAccess().registry(Registries.LEVEL_STEM)
             .flatMap { it.getOptional(this.stemKey) }.getOrNull()
         if (stem == null) {
@@ -191,6 +196,6 @@ public class CustomLevelBuilder {
         }
 
         val options = LevelGenerationOptions(stem, this.seed, this.flat, this.tickTime, this.generateStructures, this.debug)
-        return this.constructor.construct(this.properties, options, this.persistence).create(server, dimension)
+        return this.constructor.construct(this.properties, options, this.persistence).create(server, key)
     }
 }

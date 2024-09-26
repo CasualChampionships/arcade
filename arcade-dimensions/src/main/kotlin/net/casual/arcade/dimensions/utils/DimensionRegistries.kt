@@ -9,9 +9,11 @@ import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 
 public object DimensionRegistryKeys: RegistryKeySupplier(ArcadeUtils.MOD_ID) {
+    @JvmField
     public val CUSTOM_LEVEL_FACTORY: ResourceKey<Registry<MapCodec<out CustomLevelFactory>>> = create("custom_level_factory")
 }
 
 public object DimensionRegistries: RegistrySupplier() {
+    @JvmField
     public val CUSTOM_LEVEL_FACTORY: Registry<MapCodec<out CustomLevelFactory>> = create(DimensionRegistryKeys.CUSTOM_LEVEL_FACTORY, CustomLevelFactory::bootstrap)
 }

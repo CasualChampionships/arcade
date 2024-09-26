@@ -13,6 +13,7 @@ public class LevelGenerationOptions(
     public val debug: Boolean,
 ) {
     public companion object {
+        @JvmField
         public val CODEC: Codec<LevelGenerationOptions> = RecordCodecBuilder.create { instance ->
             instance.group(
                 LevelStem.CODEC.fieldOf("stem").forGetter(LevelGenerationOptions::stem),

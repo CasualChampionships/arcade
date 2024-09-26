@@ -34,15 +34,6 @@ public class LevelProperties(
     )
 
     public companion object {
-        public val CODEC: Codec<LevelProperties> = RecordCodecBuilder.create { instance ->
-            instance.group(
-                ArcadeExtraCodecs.MUTABLE_LONG.optionalFieldOf("day_time").forGetter(LevelProperties::dayTime),
-                WEATHER_CODEC.optionalFieldOf("weather").forGetter(LevelProperties::weather),
-                DIFFICULTY_CODEC.optionalFieldOf("difficulty").forGetter(LevelProperties::difficulty),
-                ArcadeExtraCodecs.GAMERULES.optionalFieldOf("game_rules").forGetter(LevelProperties::gameRules)
-            ).apply(instance, ::LevelProperties)
-        }
-
         private val WEATHER_CODEC = RecordCodecBuilder.create { instance ->
             instance.group(
                 Codec.INT.fieldOf("clear_weather_time").forGetter(WeatherProperties::clearWeatherTime),
@@ -58,6 +49,16 @@ public class LevelProperties(
                 Difficulty.CODEC.fieldOf("value").forGetter(DifficultyProperties::value),
                 Codec.BOOL.fieldOf("locked").forGetter(DifficultyProperties::locked),
             ).apply(instance, ::DifficultyProperties)
+        }
+
+        @JvmField
+        public val CODEC: Codec<LevelProperties> = RecordCodecBuilder.create { instance ->
+            instance.group(
+                ArcadeExtraCodecs.MUTABLE_LONG.optionalFieldOf("day_time").forGetter(LevelProperties::dayTime),
+                WEATHER_CODEC.optionalFieldOf("weather").forGetter(LevelProperties::weather),
+                DIFFICULTY_CODEC.optionalFieldOf("difficulty").forGetter(LevelProperties::difficulty),
+                ArcadeExtraCodecs.GAMERULES.optionalFieldOf("game_rules").forGetter(LevelProperties::gameRules)
+            ).apply(instance, ::LevelProperties)
         }
     }
 }

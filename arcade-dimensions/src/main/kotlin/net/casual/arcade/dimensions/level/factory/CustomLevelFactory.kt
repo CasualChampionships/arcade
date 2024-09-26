@@ -13,7 +13,7 @@ import net.minecraft.world.level.Level
 import java.util.function.Function
 
 public interface CustomLevelFactory {
-    public fun create(server: MinecraftServer, dimension: ResourceKey<Level>): CustomLevel
+    public fun create(server: MinecraftServer, key: ResourceKey<Level>): CustomLevel
 
     public fun codec(): MapCodec<out CustomLevelFactory>
 

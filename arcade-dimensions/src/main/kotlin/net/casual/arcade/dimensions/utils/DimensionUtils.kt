@@ -1,6 +1,7 @@
 package net.casual.arcade.dimensions.utils
 
 import net.casual.arcade.dimensions.level.CustomLevel
+import net.casual.arcade.dimensions.level.LevelPersistence
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.mixins.level.MinecraftServerAccessor
 import net.casual.arcade.utils.ArcadeUtils
@@ -12,6 +13,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
 import org.apache.commons.io.file.PathUtils
 import java.io.IOException
+import java.nio.file.Path
 import kotlin.io.path.isDirectory
 
 public fun MinecraftServer.addCustomLevel(level: CustomLevel): ServerLevel {
@@ -21,6 +23,10 @@ public fun MinecraftServer.addCustomLevel(level: CustomLevel): ServerLevel {
     }
     levels[level.dimension()] = level
     ServerWorldEvents.LOAD.invoker().onWorldLoad(this, level)
+
+    if (level.persistence == LevelPersistence.Persistent) {
+        LevelPersistenceTracker.mark(level.dimension())
+    }
     return level
 }
 
@@ -39,7 +45,7 @@ public fun MinecraftServer.loadCustomLevel(key: ResourceKey<Level>): ServerLevel
     if (loaded != null) {
         return loaded
     }
-    val custom = CustomLevel.load(this, key) ?: return null
+    val custom = CustomLevel.read(this, key) ?: return null
     return this.addCustomLevel(custom)
 }
 
@@ -47,7 +53,7 @@ public inline fun MinecraftServer.loadOrAddCustomLevel(
     key: ResourceKey<Level>,
     block: CustomLevelBuilder.() -> Unit
 ): ServerLevel {
-    return this.loadCustomLevel(key) ?: this.addCustomLevel { dimension(key).block() }
+    return this.loadCustomLevel(key) ?: this.addCustomLevel { dimensionKey(key).block() }
 }
 
 public fun MinecraftServer.removeCustomLevel(level: CustomLevel, save: Boolean = true): Boolean {
@@ -59,6 +65,7 @@ public fun MinecraftServer.removeCustomLevel(level: CustomLevel, save: Boolean =
         if (save) {
             level.save(null, flush = true, skip = false)
         }
+        level.close()
         ServerWorldEvents.UNLOAD.invoker().onWorldUnload(this, level)
         return true
     }
@@ -67,7 +74,7 @@ public fun MinecraftServer.removeCustomLevel(level: CustomLevel, save: Boolean =
 
 public fun MinecraftServer.deleteCustomLevel(level: CustomLevel): Boolean {
     if (this.removeCustomLevel(level, false)) {
-        val directory = (this as MinecraftServerAccessor).storage.getDimensionPath(level.dimension())
+        val directory = this.getDimensionPath(level.dimension())
         if (directory.isDirectory()) {
             try {
                 PathUtils.deleteDirectory(directory)
@@ -79,6 +86,10 @@ public fun MinecraftServer.deleteCustomLevel(level: CustomLevel): Boolean {
         return true
     }
     return false
+}
+
+public fun MinecraftServer.getDimensionPath(dimension: ResourceKey<Level>): Path {
+    return (this as MinecraftServerAccessor).storage.getDimensionPath(dimension)
 }
 
 private fun ServerLevel.removePlayers() {

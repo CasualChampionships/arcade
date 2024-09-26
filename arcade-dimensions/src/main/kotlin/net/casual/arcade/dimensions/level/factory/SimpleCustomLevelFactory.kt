@@ -18,8 +18,8 @@ public open class SimpleCustomLevelFactory(
     public val generationOptions: LevelGenerationOptions,
     public val persistence: LevelPersistence
 ): CustomLevelFactory {
-    public override fun create(server: MinecraftServer, dimension: ResourceKey<Level>): CustomLevel {
-        return CustomLevel(server, dimension, this.properties, this.generationOptions, this.persistence, this)
+    public override fun create(server: MinecraftServer, key: ResourceKey<Level>): CustomLevel {
+        return CustomLevel(server, key, this.properties, this.generationOptions, this.persistence, this)
     }
 
     override fun codec(): MapCodec<out CustomLevelFactory> {
@@ -35,14 +35,17 @@ public open class SimpleCustomLevelFactory(
             ).apply(instance, ::SimpleCustomLevelFactory)
         }
 
+        @JvmStatic
         public fun <T: SimpleCustomLevelFactory> propertiesCodec(): RecordCodecBuilder<T, LevelProperties> {
             return LevelProperties.CODEC.fieldOf("properties").forGetter(SimpleCustomLevelFactory::properties)
         }
 
+        @JvmStatic
         public fun <T: SimpleCustomLevelFactory> generationOptionsCodec(): RecordCodecBuilder<T, LevelGenerationOptions> {
             return LevelGenerationOptions.CODEC.fieldOf("options").forGetter(SimpleCustomLevelFactory::generationOptions)
         }
 
+        @JvmStatic
         public fun <T: SimpleCustomLevelFactory> persistenceCodec(): RecordCodecBuilder<T, LevelPersistence> {
             return LevelPersistence.CODEC.fieldOf("persistence").forGetter(SimpleCustomLevelFactory::persistence)
         }

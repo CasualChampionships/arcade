@@ -20,13 +20,13 @@ public class VanillaLikeCustomLevelFactory(
     properties: LevelProperties,
     generationOptions: LevelGenerationOptions,
     persistence: LevelPersistence,
-    private val vanillaDimension: VanillaLikeLevel.Dimension,
-    private val otherDimensions: VanillaLikeLevel.DimensionMapper
+    private val vanillaDimension: VanillaDimension,
+    private val otherDimensions: VanillaDimensionMapper
 ): SimpleCustomLevelFactory(properties, generationOptions, persistence) {
-    override fun create(server: MinecraftServer, dimension: ResourceKey<Level>): CustomLevel {
+    override fun create(server: MinecraftServer, key: ResourceKey<Level>): CustomLevel {
         return VanillaLikeCustomLevel(
             server,
-            dimension,
+            key,
             this.vanillaDimension,
             this.otherDimensions,
             this.properties,
@@ -46,14 +46,15 @@ public class VanillaLikeCustomLevelFactory(
         override val CODEC: MapCodec<out VanillaLikeCustomLevelFactory> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 propertiesCodec(), generationOptionsCodec(), persistenceCodec(),
-                VanillaLikeLevel.Dimension.CODEC.fieldOf("vanilla_dimension").forGetter(VanillaLikeCustomLevelFactory::vanillaDimension),
-                VanillaLikeLevel.DimensionMapper.CODEC.fieldOf("other_dimensions").forGetter(VanillaLikeCustomLevelFactory::otherDimensions)
+                VanillaDimension.CODEC.fieldOf("vanilla_dimension").forGetter(VanillaLikeCustomLevelFactory::vanillaDimension),
+                VanillaDimensionMapper.CODEC.fieldOf("other_dimensions").forGetter(VanillaLikeCustomLevelFactory::otherDimensions)
             ).apply(instance, ::VanillaLikeCustomLevelFactory)
         }
 
+        @JvmStatic
         public fun constructor(
-            dimension: VanillaLikeLevel.Dimension,
-            mapper: VanillaLikeLevel.DimensionMapper
+            dimension: VanillaDimension,
+            mapper: VanillaDimensionMapper
         ): CustomLevelFactoryConstructor {
             return CustomLevelFactoryConstructor { properties, options, persistence ->
                 VanillaLikeCustomLevelFactory(properties, options, persistence, dimension, mapper)

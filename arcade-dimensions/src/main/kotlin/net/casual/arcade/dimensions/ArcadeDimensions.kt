@@ -19,6 +19,7 @@ public object ArcadeDimensions: ModInitializer {
         DimensionRegistries.load()
         Registry.register(BuiltInRegistries.CHUNK_GENERATOR, ResourceUtils.arcade("void"), VoidChunkGenerator.CODEC)
 
+        LevelPersistenceTracker.registerEvents()
         DragonDataExtension.registerEvents()
     }
 

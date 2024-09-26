@@ -1,10 +1,12 @@
 package net.casual.arcade.dimensions.level
 
+import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.level.factory.CustomLevelFactory
 import net.casual.arcade.dimensions.level.factory.SimpleCustomLevelFactory
 import net.casual.arcade.dimensions.mixins.level.MinecraftServerAccessor
 import net.casual.arcade.dimensions.utils.GenerationOptionsContext
 import net.casual.arcade.dimensions.utils.LevelPersistenceTracker
+import net.casual.arcade.dimensions.utils.getDimensionPath
 import net.casual.arcade.dimensions.utils.impl.DerivedLevelData
 import net.casual.arcade.dimensions.utils.impl.NullChunkProgressListener
 import net.casual.arcade.utils.ArcadeUtils
@@ -18,6 +20,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.ProgressListener
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.Level
+import org.apache.commons.io.file.PathUtils
 import java.io.IOException
 import java.nio.file.Path
 import java.util.concurrent.Executor
@@ -25,7 +28,7 @@ import kotlin.io.path.createParentDirectories
 
 public open class CustomLevel(
     server: MinecraftServer,
-    dimension: ResourceKey<Level>,
+    key: ResourceKey<Level>,
     public val properties: LevelProperties,
     public val options: LevelGenerationOptions,
     public val persistence: LevelPersistence = LevelPersistence.Temporary,
@@ -36,7 +39,7 @@ public open class CustomLevel(
     dispatcher,
     (server as MinecraftServerAccessor).storage,
     DerivedLevelData(properties, server.worldData, server.worldData.overworldData()),
-    dimension,
+    key,
     options.stem,
     NullChunkProgressListener,
     options.debug,
@@ -47,6 +50,11 @@ public open class CustomLevel(
 ) {
     init {
         GenerationOptionsContext.reset(server)
+
+        // In case of server crash, we should still delete temporary levels
+        if (!this.persistence.shouldSave()) {
+            PathUtils.deleteOnExit(server.getDimensionPath(key))
+        }
     }
 
     override fun tickTime() {
@@ -60,7 +68,12 @@ public open class CustomLevel(
         return this.options.flat
     }
 
+    @Suppress("SENSELESS_COMPARISON")
     override fun getSeed(): Long {
+        // options can technically be null due to leaking 'this'
+        if (this.options == null) {
+            return GenerationOptionsContext.get(this.server).seed
+        }
         return this.options.seed
     }
 
@@ -77,10 +90,6 @@ public open class CustomLevel(
             val path = getDimensionDataPath(this.server, this.dimension())
             path.createParentDirectories()
             NbtIo.write(compound, path)
-
-            if (this.persistence == LevelPersistence.Persistent) {
-                LevelPersistenceTracker.mark(this.dimension())
-            }
         } catch (e: IllegalStateException) {
             ArcadeUtils.logger.error("Failed to encode custom level data", e)
         } catch (e: IOException) {
@@ -89,7 +98,8 @@ public open class CustomLevel(
     }
 
     public companion object {
-        public fun load(server: MinecraftServer, dimension: ResourceKey<Level>): CustomLevel? {
+        @JvmStatic
+        public fun read(server: MinecraftServer, dimension: ResourceKey<Level>): CustomLevel? {
             val path = this.getDimensionDataPath(server, dimension)
             try {
                 val compound = NbtIo.read(path) ?: return null
@@ -101,9 +111,15 @@ public open class CustomLevel(
             }
         }
 
+        @JvmStatic
+        public fun create(server: MinecraftServer, block: CustomLevelBuilder.() -> Unit): CustomLevel {
+            val builder = CustomLevelBuilder()
+            builder.block()
+            return builder.build(server)
+        }
+
         private fun getDimensionDataPath(server: MinecraftServer, dimension: ResourceKey<Level>): Path {
-            return (server as MinecraftServerAccessor).storage.getDimensionPath(dimension)
-                .resolve("arcade-dimension-data.nbt")
+            return server.getDimensionPath(dimension).resolve("arcade-dimension-data.nbt")
         }
     }
 }

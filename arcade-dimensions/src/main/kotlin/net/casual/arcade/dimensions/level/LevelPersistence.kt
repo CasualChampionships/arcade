@@ -35,6 +35,7 @@ public enum class LevelPersistence: StringRepresentable {
     }
 
     public companion object {
+        @JvmField
         public val CODEC: Codec<LevelPersistence> = StringRepresentable.fromEnum(LevelPersistence::values)
     }
 }
