@@ -1,7 +1,7 @@
 package net.casual.arcade.dimensions.mixins.vanilla;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.casual.arcade.dimensions.vanilla.VanillaLikeLevel;
+import net.casual.arcade.dimensions.level.vanilla.VanillaLikeLevel;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;

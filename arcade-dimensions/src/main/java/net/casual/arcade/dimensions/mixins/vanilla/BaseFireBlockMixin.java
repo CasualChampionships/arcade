@@ -1,6 +1,6 @@
 package net.casual.arcade.dimensions.mixins.vanilla;
 
-import net.casual.arcade.dimensions.vanilla.VanillaLikeLevel;
+import net.casual.arcade.dimensions.level.vanilla.VanillaLikeLevel;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;

@@ -1,8 +1,8 @@
 package net.casual.arcade.dimensions.mixins.vanilla;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import net.casual.arcade.dimensions.vanilla.DragonDataExtension;
-import net.casual.arcade.dimensions.vanilla.VanillaLikeLevel;
+import net.casual.arcade.dimensions.level.vanilla.extension.DragonDataExtension;
+import net.casual.arcade.dimensions.level.vanilla.VanillaLikeLevel;
 import net.casual.arcade.extensions.event.LevelExtensionEvent;
 import net.casual.arcade.scheduler.GlobalTickedScheduler;
 import net.minecraft.core.Holder;

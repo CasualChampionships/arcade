@@ -12,6 +12,7 @@ include("arcade-resource-pack-host")
 include("arcade-scheduler")
 include("arcade-utils")
 include("arcade-visuals")
+include("arcade-world-border")
 
 dependencyResolutionManagement {
     versionCatalogs {
