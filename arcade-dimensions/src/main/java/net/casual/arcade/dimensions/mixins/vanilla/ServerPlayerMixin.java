@@ -1,7 +1,7 @@
 package net.casual.arcade.dimensions.mixins.vanilla;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.casual.arcade.dimensions.vanilla.VanillaLikeLevel;
+import net.casual.arcade.dimensions.level.vanilla.VanillaLikeLevel;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,7 +29,7 @@ public abstract class ServerPlayerMixin {
 		}
 	)
 	private ResourceKey<Level> replaceVanillaKey(ResourceKey<Level> original) {
-		return VanillaLikeLevel.getReplacementDimensionFor(this.serverLevel(), original);
+		return VanillaLikeLevel.getReplacementDestinationFor(this.serverLevel(), original);
 	}
 
 	@Redirect(

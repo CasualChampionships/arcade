@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "arcade-world-border",
+  "version": "${version}",
+  "name": "Arcade World Border",
+  "description": "",
+  "authors": [
+    "Sensei"
+  ],
+  "contact": {
+
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+
+    ]
+  },
+  "mixins": [
+    "arcade-world-border.mixins.json"
+  ],
+  "accessWidener": "arcade-world-border.accesswidener",
+  "depends": {
+    "minecraft": "${minecraft_dependency}"
+  }
+}

@@ -8,25 +8,25 @@ import java.time.LocalTime
 import java.time.ZoneId
 
 public object TimeUtils {
-    public val Int.Ticks: MinecraftTimeDuration
+    public inline val Int.Ticks: MinecraftTimeDuration
         get() = MinecraftTimeUnit.Ticks.duration(this)
 
-    public val Int.RedstoneTicks: MinecraftTimeDuration
+    public inline val Int.RedstoneTicks: MinecraftTimeDuration
         get() = MinecraftTimeUnit.RedstoneTicks.duration(this)
 
-    public val Int.MinecraftDays: MinecraftTimeDuration
+    public inline val Int.MinecraftDays: MinecraftTimeDuration
         get() = MinecraftTimeUnit.MinecraftDays.duration(this)
 
-    public val Int.Seconds: MinecraftTimeDuration
+    public inline val Int.Seconds: MinecraftTimeDuration
         get() = MinecraftTimeUnit.Seconds.duration(this)
 
-    public val Int.Minutes: MinecraftTimeDuration
+    public inline val Int.Minutes: MinecraftTimeDuration
         get() = MinecraftTimeUnit.Minutes.duration(this)
 
-    public val Int.Hours: MinecraftTimeDuration
+    public inline val Int.Hours: MinecraftTimeDuration
         get() = MinecraftTimeUnit.Hours.duration(this)
 
-    public val Int.Days: MinecraftTimeDuration
+    public inline val Int.Days: MinecraftTimeDuration
         get() = MinecraftTimeUnit.Days.duration(this)
 
     public fun toEpoch(time: LocalTime, zone: ZoneId): Long {

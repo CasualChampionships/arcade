@@ -1,7 +1,7 @@
 package net.casual.arcade.dimensions.mixins.vanilla;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.casual.arcade.dimensions.vanilla.VanillaLikeLevel;
+import net.casual.arcade.dimensions.level.vanilla.VanillaLikeLevel;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -25,6 +25,6 @@ public class EndPortalBlockMixin {
 		}
 	)
 	private ResourceKey<Level> replaceVanillaKey(ResourceKey<Level> original, ServerLevel level) {
-		return VanillaLikeLevel.getReplacementDimensionFor(level, original);
+		return VanillaLikeLevel.getReplacementDestinationFor(level, original);
 	}
 }

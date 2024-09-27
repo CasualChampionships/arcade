@@ -4,18 +4,29 @@ import com.google.common.collect.HashBiMap
 import com.google.gson.JsonObject
 import com.mojang.serialization.Codec
 import com.mojang.serialization.DataResult
+import com.mojang.serialization.Dynamic
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.Util
+import net.minecraft.core.registries.Registries
+import net.minecraft.nbt.NbtOps
+import net.minecraft.nbt.Tag
+import net.minecraft.resources.ResourceKey
 import net.minecraft.util.ExtraCodecs
+import net.minecraft.world.level.GameRules
+import net.minecraft.world.level.Level
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
+import org.apache.commons.lang3.mutable.MutableInt
+import org.apache.commons.lang3.mutable.MutableLong
 import java.nio.file.Path
 import java.util.*
 import kotlin.enums.enumEntries
 import kotlin.io.path.pathString
 
 public object ArcadeExtraCodecs {
+    public val MUTABLE_INT: Codec<MutableInt> = Codec.INT.xmap(::MutableInt, MutableInt::getValue)
+    public val MUTABLE_LONG: Codec<MutableLong> = Codec.LONG.xmap(::MutableLong, MutableLong::getValue)
     public val PATH: Codec<Path> = Codec.STRING.xmap(Path::of, Path::pathString)
     public val VEC2: Codec<Vec2> = Codec.FLOAT.listOf().comapFlatMap(
         { Util.fixedSize(it, 2).map { vec -> Vec2(vec[0], vec[1]) } },
@@ -31,6 +42,8 @@ public object ArcadeExtraCodecs {
         { json -> if (json !is JsonObject) DataResult.error { "Input wasn't JsonObject" } else DataResult.success(json) },
         { json -> json }
     )
+    public val GAMERULES: Codec<GameRules> = Codec.PASSTHROUGH.xmap(::GameRules) { Dynamic(NbtOps.INSTANCE, it.createTag()) }
+    public val DIMENSION: Codec<ResourceKey<Level>> = ResourceKey.codec(Registries.DIMENSION)
 
     public inline fun <reified E: Enum<E>> enum(
         mapper: (E) -> String = { it.name.lowercase() }

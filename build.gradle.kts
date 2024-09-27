@@ -111,6 +111,21 @@ subprojects {
     }
 }
 
+val testmod by sourceSets.creating {
+    compileClasspath += sourceSets.main.get().compileClasspath
+    compileClasspath += sourceSets.main.get().output
+    runtimeClasspath += sourceSets.main.get().runtimeClasspath
+}
+
+loom {
+    runs {
+        create("testmodServer") {
+            server()
+            source(testmod)
+        }
+    }
+}
+
 dependencies {
     include(libs.polymer.core)
     include(libs.polymer.blocks)

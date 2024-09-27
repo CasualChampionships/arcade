@@ -8,6 +8,11 @@ import net.minecraft.world.level.GameType
 import org.jetbrains.annotations.ApiStatus.Internal
 
 public enum class ExtendedGameMode {
+    None {
+        override fun set(player: ServerPlayer) {
+
+        }
+    },
     Survival {
         override fun set(player: ServerPlayer) {
             player.setGameMode(GameType.SURVIVAL)

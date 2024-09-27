@@ -23,7 +23,6 @@
   "mixins": [
     "arcade-dimensions.mixins.json"
   ],
-  "accessWidener": "arcade-dimensions.accesswidener",
   "depends": {
     "minecraft": "${minecraft_dependency}"
   }

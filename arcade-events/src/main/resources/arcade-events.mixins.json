@@ -19,6 +19,7 @@
     "PlayerListMixin",
     "PlayerMixin",
     "RandomizbleContainerMixin",
+    "RegistryDataLoaderMixin",
     "ScoreboardMixin",
     "ServerCommonPacketListenerImplMixin",
     "ServerGamePacketListenerImplMixin",

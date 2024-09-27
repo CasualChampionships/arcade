@@ -337,6 +337,12 @@ public class MinigamePlayerManager(
         }
     }
 
+    internal fun close() {
+        for (player in this.all) {
+            this.remove(player)
+        }
+    }
+
     private fun streamPlayers(): Stream<ServerPlayer> {
         return this.connections.stream().map { it.player }
     }

@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.casual.arcade.border.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "LevelMixin",
+    "MinecraftServerMixin",
+    "PlayerListMixin",
+    "StaticBorderExtentMixin",
+    "WorldBorderAccessor",
+    "WorldBorderCommandMixin",
+    "WorldBorderMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
