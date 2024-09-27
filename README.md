@@ -10,18 +10,18 @@ for each can be found below:
 ## Modules
 
 > ### [Commands](./docs/arcade-commands/getting-started.md)
-> ### [Datagen]()
-> ### [Dimensions]()
-> ### [Events]()
-> ### [Extensions]()
-> ### [Items]()
-> ### [Minigames]()
-> ### [Resource Packs]()
-> ### [Resource Pack Hosting]()
-> ### [Scheduling]()
-> ### [Utilities]()
-> ### [Visuals]()
-> ### [World Border]()
+> ### [Datagen](./docs/arcade-datagen/getting-started.md)
+> ### [Dimensions](./docs/arcade-dimensions/getting-started.md)
+> ### [Events](./docs/arcade-events/getting-started.md)
+> ### [Extensions](./docs/arcade-extensions/getting-started.md)
+> ### [Items](./docs/arcade-items/getting-started.md)
+> ### [Minigames](./docs/arcade-minigames/getting-started.md)
+> ### [Resource Packs](./docs/arcade-resource-pack/getting-started.md)
+> ### [Resource Pack Hosting](./docs/arcade-resource-pack-host/getting-started.md)
+> ### [Scheduling](./docs/arcade-scheduler/getting-started.md)
+> ### [Utilities](./docs/arcade-utils/getting-started.md)
+> ### [Visuals](./docs/arcade-visuals/getting-started.md)
+> ### [World Border](./docs/arcade-world-border/getting-started.md)
 
 ## Adding to dependencies
 
