@@ -198,6 +198,21 @@ public class CustomLevelBuilder {
     }
 
     /**
+     * Sets the level properties to their default values.
+     *
+     * This prevents the [CustomLevel] from inheriting these
+     * properties from the primary level.
+     *
+     * @return This builder.
+     */
+    public fun defaultLevelProperties(): CustomLevelBuilder {
+        return this.timeOfDay(0)
+            .weather(WeatherProperties())
+            .difficulty(DifficultyProperties())
+            .gameRules(GameRules())
+    }
+
+    /**
      * Sets the initial time of day.
      *
      * @param time The time of day (ticks).

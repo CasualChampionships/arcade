@@ -22,8 +22,8 @@ import net.minecraft.util.ProgressListener
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.biome.BiomeManager
-import net.minecraft.world.level.storage.LevelData
 import org.apache.commons.io.file.PathUtils
+import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.io.IOException
 import java.nio.file.Path
 import java.util.concurrent.Executor
@@ -84,6 +84,27 @@ public open class CustomLevel(
         if (!this.persistence.shouldSave()) {
             PathUtils.deleteOnExit(server.getDimensionPath(key))
         }
+    }
+
+    /**
+     * This method is called whenever the level is
+     * added to the [MinecraftServer] instance.
+     */
+    @OverrideOnly
+    public fun onLoad() {
+
+    }
+
+    /**
+     * This method is called whenever the level
+     * is removed from the [MinecraftServer] instance.
+     *
+     * This will happen *before* any remaining players are
+     * kicked from the level and before the level is saved.
+     */
+    @OverrideOnly
+    public fun onUnload() {
+
     }
 
     override fun tickTime() {

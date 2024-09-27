@@ -1,35 +1,28 @@
 package net.casual.arcade.minigame.managers
 
-import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.SingleListenerProvider
-import net.casual.arcade.events.server.ServerStoppingEvent
+import net.casual.arcade.dimensions.level.CustomLevel
+import net.casual.arcade.dimensions.utils.addCustomLevel
+import net.casual.arcade.dimensions.utils.hasCustomLevel
+import net.casual.arcade.dimensions.utils.removeCustomLevel
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.utils.MinigameUtils.minigame
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
-import xyz.nucleoid.fantasy.RuntimeWorldHandle
 
 /**
  * This class manages the levels of a minigame.
  *
- * This also handles any [RuntimeWorldHandle]'s from
- * fantasy if you are using them and will close them
- * when the minigame ends.
+ * It has full support for managing [CustomLevel] instances
+ * if you are using the dimensions api.
  *
  * @see Minigame.levels
  */
 public class MinigameLevelManager(
     private val minigame: Minigame<*>
 ) {
-    private val handles = HashSet<RuntimeWorldHandle>()
-    private val levels = HashSet<ServerLevel>()
-
-    private val handler = SingleListenerProvider.of<ServerStoppingEvent> { this.deleteHandles() }
-
-    init {
-        GlobalEventHandler.addProvider(this.handler)
-    }
+    private val levels = LinkedHashSet<ServerLevel>()
+    private val handling = HashSet<CustomLevel>()
 
     /**
      * The default spawn location for the minigame.
@@ -41,26 +34,40 @@ public class MinigameLevelManager(
     public var spawn: SpawnLocation = SpawnLocation.global()
 
     /**
-     * This adds a level handle to the minigame.
-     *
-     * This will automatically delete the level after the
-     * minigame ends.
-     *
-     * @param handle The RuntimeWorldHandle to delete after the minigame closes.
-     */
-    public fun add(handle: RuntimeWorldHandle) {
-        this.handles.add(handle)
-        this.add(handle.asWorld())
-    }
-
-    /**
      * This adds a level to the minigame.
+     *
+     * If you are using instances of [CustomLevel] you can
+     * allow the minigame to handle the loading/unloading of
+     * the level over the minigame's lifetime.
+     *
+     * If you add an instance of [CustomLevel] which **has not**
+     * been added to the server then the minigame will handle
+     * adding and removing the level, if you previously added
+     * the level to the server, then you will also need
+     * to handle removing the level.
      *
      * @param level The level to add.
      */
     public fun add(level: ServerLevel) {
         this.levels.add(level)
         level.minigame.setMinigame(this.minigame)
+
+        if (this.minigame.initialized) {
+            this.ensureLevelLoaded(level)
+        }
+    }
+
+    /**
+     * Adds multiple levels to the minigame.
+     *
+     * See [add] for how adding levels works.
+     *
+     * @see add
+     */
+    public fun addAll(levels: Iterable<ServerLevel>) {
+        for (level in levels) {
+            this.add(level)
+        }
     }
 
     /**
@@ -82,19 +89,30 @@ public class MinigameLevelManager(
         return this.levels
     }
 
-    internal fun deleteHandles() {
-        for (handle in this.handles) {
-            handle.delete()
+    internal fun initialize() {
+        for (level in this.levels) {
+            this.ensureLevelLoaded(level)
         }
     }
 
-    internal fun clear() {
+    internal fun close() {
+        for (level in this.levels) {
+            level.minigame.removeMinigame(this.minigame)
+        }
+        for (handling in this.handling) {
+            this.minigame.server.removeCustomLevel(handling)
+        }
         this.levels.clear()
-        this.handles.clear()
+        this.handling.clear()
     }
 
-    internal fun unregisterHandler() {
-        GlobalEventHandler.removeProvider(this.handler)
+    private fun ensureLevelLoaded(level: ServerLevel) {
+        if (level is CustomLevel) {
+            if (!this.minigame.server.hasCustomLevel(level)) {
+                this.minigame.server.addCustomLevel(level)
+                this.handling.add(level)
+            }
+        }
     }
 
     public interface SpawnLocation {

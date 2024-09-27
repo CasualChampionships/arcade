@@ -8,7 +8,6 @@ fabric-api           = "0.103.0+1.21.1"
 fabric-kotlin        = "1.11.0+kotlin.2.0.0"
 polymer              = "0.9.12+1.21.1"
 sgui                 = "1.6.1+1.21.1"
-fantasy              = "0.6.4+1.21"
 permissions          = "0.3.1"
 server-translations  = "2.3.1+1.21-pre2"
 custom-nametags      = "0.2.3+1.21.1"
@@ -23,7 +22,6 @@ polymer-core            = { module = "eu.pb4:polymer-core"                  , ve
 polymer-blocks          = { module = "eu.pb4:polymer-blocks"                , version.ref = "polymer" }
 polymer-resource-pack   = { module = "eu.pb4:polymer-resource-pack"         , version.ref = "polymer" }
 polymer-virtual-entity  = { module = "eu.pb4:polymer-virtual-entity"        , version.ref = "polymer" }
-fantasy                 = { module = "xyz.nucleoid:fantasy"                 , version.ref = "fantasy" }
 permissions             = { module = "me.lucko:fabric-permissions-api"      , version.ref = "permissions" }
 sgui                    = { module = "eu.pb4:sgui"                          , version.ref = "sgui" }
 server-translations     = { module = "xyz.nucleoid:server-translations-api" , version.ref = "server-translations" }

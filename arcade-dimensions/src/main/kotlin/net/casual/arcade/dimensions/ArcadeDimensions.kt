@@ -1,6 +1,7 @@
 package net.casual.arcade.dimensions
 
 import net.casual.arcade.dimensions.level.CustomLevel
+import net.casual.arcade.dimensions.level.LevelPersistence
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.utils.*
 import net.casual.arcade.dimensions.utils.impl.VoidChunkGenerator
@@ -34,7 +35,6 @@ public object ArcadeDimensions: ModInitializer {
         DragonDataExtension.registerEvents()
     }
 
-
     /**
      * Adds a [CustomLevel] to the server.
      *
@@ -44,10 +44,12 @@ public object ArcadeDimensions: ModInitializer {
      * Once added, the level will be fully functional and be
      * ticked and can accept players.
      *
-     * This will throw if there is a level already added
-     * with the same dimension key.
+     * This method may be called if the [level] instance has
+     * already been registered, it will simply just return the
+     * instance. If there is a different level instance
+     * already added with the same dimension key, then this
+     * method will throw an exception.
      *
-     * @param server The server to add the level to.
      * @param level The level to add.
      * @return The added level.
      */
@@ -183,35 +185,59 @@ public object ArcadeDimensions: ModInitializer {
     }
 
     /**
+     * Returns whether the server has the exact [level] instance.
+     *
+     * This checks the [level] reference *not* the dimension key.
+     * It is possible for the server to have a different level
+     * instance under the same dimension key, in which case
+     * this method will return `false`.
+     *
+     * If you want to check whether a level with a specific
+     * dimension key is loaded, you can do:
+     * ```
+     * server.levelKeys().contains(dimensionKey)
+     * ```
+     *
+     * @param level The level to check for.
+     * @return Whether the server has the specified level.
+     */
+    @JvmStatic
+    public fun hasCustomLevel(server: MinecraftServer, level: CustomLevel): Boolean {
+        return server.hasCustomLevel(level)
+    }
+
+    /**
      * Removes a [CustomLevel] from the server.
      *
      * This will remove the level from the server and
      * will fire the [ServerWorldEvents.UNLOAD] fabric event.
+     *
+     * If the [CustomLevel.persistence] is [LevelPersistence.Temporary]
+     * then the level will be deleted instead, equivalent of calling
+     * [deleteCustomLevel].
      *
      * Players should be removed from the level before calling.
      * Any remaining players in the level will be removed and
      * teleported to the overworld, if that fails, then players will
      * be kicked from the server.
      *
-     * @param server The server to remove the level from.
      * @param level The level to remove.
-     * @param save If the level should try to be saved before closing.
      * @return `true` if the level was removed, `false` otherwise.
      */
     @JvmStatic
-    @JvmOverloads
-    public fun remove(server: MinecraftServer, level: CustomLevel, save: Boolean = false): Boolean {
-        return server.removeCustomLevel(level, save)
+    public fun remove(server: MinecraftServer, level: CustomLevel): Boolean {
+        return server.removeCustomLevel(level)
     }
 
     /**
      * Deletes a [CustomLevel] from the server.
      *
-     * This will first remove the level with [removeCustomLevel].
+     * This will delete **both** permanent and temporary worlds if
+     * you want to remove permanent worlds but delete temporary worlds
+     * you want to call [removeCustomLevel] instead.
      *
      * The level's directory will be deleted after it is removed.
      *
-     * @param server The server to delete the level from.
      * @param level The level to delete.
      * @return `true` if the level was deleted, `false` otherwise.
      * @see removeCustomLevel

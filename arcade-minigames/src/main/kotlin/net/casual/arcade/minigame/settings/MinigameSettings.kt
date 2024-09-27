@@ -214,16 +214,6 @@ public open class MinigameSettings(
      */
     public var canInteractAll: Boolean by this.canInteractAllSetting
 
-    public var shouldDeleteLevels: Boolean by this.register(bool {
-        name = "delete_levels_after_game"
-        display = Items.LAVA_BUCKET.named("Delete Worlds After Minigame").styledLore(
-            "If this minigame is utilising Fantasy's temporary worlds,".literal(),
-            "this determines if those worlds will be deleted.".literal()
-        )
-        value = true
-        defaults.options(this)
-    })
-
     public var useVanillaChat: Boolean by this.register(bool {
         name = "use_vanilla_chat"
         display = Items.WHITE_CONCRETE.named("Use Vanilla Chat").styledLore(

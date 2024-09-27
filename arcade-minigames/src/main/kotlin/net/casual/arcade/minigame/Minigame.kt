@@ -421,22 +421,16 @@ public abstract class Minigame<M: Minigame<M>>(
 
         this.data.end()
 
-        for (level in this.levels.all()) {
-            level.minigame.removeMinigame(this)
-        }
         GlobalEventHandler.broadcast(MinigameCloseEvent(this))
-        for (player in this.players) {
-            this.players.remove(player)
-        }
+        this.players.close()
+        this.levels.close()
 
-        // Closed is true after remove player
+        // Closed = true after players are removed
         this.closed = true
-        if (this.settings.shouldDeleteLevels) {
-            this.levels.deleteHandles()
-        }
-        this.levels.clear()
+
         GlobalEventHandler.removeProvider(this.events)
         this.events.clear()
+
         this.scheduler.minigame.cancelAll()
         this.scheduler.phased.cancelAll()
 
@@ -552,7 +546,7 @@ public abstract class Minigame<M: Minigame<M>>(
     protected open fun initialize() {
         this.registerEvents()
         GlobalEventHandler.addProvider(this.events)
-        this.levels.unregisterHandler()
+        this.levels.initialize()
         MinigameUtils.parseMinigameEvents(this)
 
         Minigames.register(this)
