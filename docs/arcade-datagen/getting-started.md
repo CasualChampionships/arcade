@@ -18,9 +18,9 @@ repositories {
 }
 
 dependencies {
-    include(modImplementation("net.casual-championships:arcade-datagen:0.3.0-alpha.1+1.21.1")!!)
+    include(modImplementation("net.casual-championships:arcade-datagen:0.3.0-alpha.2+1.21.1")!!)
 
-    include(modImplementation("net.casual-championships:arcade-resource-pack:0.3.0-alpha.1+1.21.1")!!)
-    include(modImplementation("net.casual-championships:arcade-utils:0.3.0-alpha.1+1.21.1")!!)
+    include(modImplementation("net.casual-championships:arcade-resource-pack:0.3.0-alpha.2+1.21.1")!!)
+    include(modImplementation("net.casual-championships:arcade-utils:0.3.0-alpha.2+1.21.1")!!)
 }
 ```
