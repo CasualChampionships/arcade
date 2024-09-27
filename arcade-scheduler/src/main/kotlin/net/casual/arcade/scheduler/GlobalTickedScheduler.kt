@@ -31,7 +31,7 @@ public object GlobalTickedScheduler {
         }
     }
 
-    public fun asScheduler(): MinecraftScheduler {
+    public fun get(): MinecraftScheduler {
         return this.scheduler
     }
 

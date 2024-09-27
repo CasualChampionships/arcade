@@ -76,6 +76,12 @@ allprojects {
     }
 
     publishing {
+        publications {
+            create<MavenPublication>("mavenJava") {
+                from(components["java"])
+            }
+        }
+
         repositories {
             val mavenUrl = System.getenv("MAVEN_URL")
             if (mavenUrl != null) {
@@ -96,19 +102,17 @@ allprojects {
 }
 
 subprojects {
-    publishing {
-        publications {
-            create<MavenPublication>("mavenJava") {
-                from(components["java"])
-            }
-        }
-    }
-
     afterEvaluate {
         tasks.getByName("genSourcesWithVineflower").enabled = false
         tasks.getByName("genSourcesWithFernFlower").enabled = false
         tasks.getByName("genSourcesWithCfr").enabled = false
+
+        updateDocumentedDependencies("../docs/${name}/getting-started.md")
     }
+}
+
+afterEvaluate {
+    updateDocumentedDependencies("./README.md")
 }
 
 val testmod by sourceSets.creating {
@@ -142,16 +146,6 @@ dependencies {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
-
-            updateReadme("./README.md")
-        }
-    }
-}
-
 val moduleDependencies: Project.(List<String>) -> Unit by extra { { names ->
     dependencies {
         for (name in names) {
@@ -160,12 +154,27 @@ val moduleDependencies: Project.(List<String>) -> Unit by extra { { names ->
     }
 } }
 
-private fun MavenPublication.updateReadme(vararg readmes: String) {
-    val location = "${groupId}:${artifactId}"
-    val regex = Regex("""${Regex.escape(location)}:[\d\.\-a-zA-Z+]+""")
-    val locationWithVersion = "${location}:${version}"
-    for (path in readmes) {
-        val readme = file(path)
-        readme.writeText(readme.readText().replace(regex, locationWithVersion))
+private fun Project.updateDocumentedDependencies(path: String) {
+    val file = file(path)
+    if (!file.exists()) {
+        return
     }
+
+    val builder = StringBuilder()
+    builder.append("\ndependencies {\n")
+    builder.append("""    include(modImplementation("${this.group}:${this.name}:${this.version}")!!)""")
+
+    val dependencies = configurations.api.get().dependencies.toMutableSet()
+    dependencies.addAll(configurations.modApi.get().dependencies)
+    dependencies.removeAll(configurations.include.get().dependencies)
+    if (dependencies.isNotEmpty()) {
+        dependencies.sortedBy { "${it.group}:${it.name}" }.joinTo(builder, "\n", "\n\n") {
+            """    include(modImplementation("${it.group}:${it.name}:${it.version}")!!)"""
+        }
+    }
+
+    builder.append("\n}")
+    builder.toString()
+    val regex = Regex("""(\ndependencies \{[\s\S]+\})""")
+    file.writeText(file.readText().replaceFirst(regex, builder.toString()))
 }

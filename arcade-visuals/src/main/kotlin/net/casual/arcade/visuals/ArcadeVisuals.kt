@@ -5,7 +5,7 @@ import net.casual.arcade.visuals.extensions.PlayerSidebarExtension
 import net.casual.arcade.visuals.extensions.PlayerTabDisplayExtension
 import net.fabricmc.api.ModInitializer
 
-public class ArcadeVisuals: ModInitializer {
+public object ArcadeVisuals: ModInitializer {
     override fun onInitialize() {
         PlayerSidebarExtension.registerEvents()
         PlayerTabDisplayExtension.registerEvents()

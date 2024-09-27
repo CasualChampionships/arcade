@@ -20,20 +20,4 @@ public fun interface Task: Runnable, Serializable {
      * This runs the task.
      */
     override fun run()
-
-    public companion object {
-        /**
-         * Converts a [Runnable] to a [Task].
-         *
-         * If the runnable is a task, it just returns itself.
-         * Otherwise, it will wrap it in a [Task] object.
-         *
-         * @param runnable The runnable to convert.
-         * @return The converted task.
-         */
-        @JvmStatic
-        public fun of(runnable: Runnable): Task {
-            return if (runnable is Task) runnable else Task { runnable.run() }
-        }
-    }
 }

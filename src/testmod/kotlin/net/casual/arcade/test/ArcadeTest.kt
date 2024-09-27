@@ -1,12 +1,23 @@
 package net.casual.arcade.test
 
 import net.casual.arcade.dimensions.level.LevelPersistence
+import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
+import net.casual.arcade.dimensions.level.spawner.WanderingTraderSpawnerFactory
 import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
 import net.casual.arcade.dimensions.level.vanilla.VanillaLikeLevelsBuilder
+import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.TimeUtils.Minutes
+import net.casual.arcade.utils.set
 import net.fabricmc.api.ModInitializer
+import net.minecraft.core.registries.Registries
+import net.minecraft.resources.ResourceKey
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.level.GameRules
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes
+import net.minecraft.world.level.dimension.LevelStem
 
 object ArcadeTest: ModInitializer {
     override fun onInitialize() {
@@ -31,5 +42,23 @@ object ArcadeTest: ModInitializer {
             minigame.levels.addAll(levels.all())
             minigame
         }
+    }
+}
+
+object Example: ModInitializer {
+    override fun onInitialize() = GlobalEventHandler.register<ServerLoadedEvent> { (server) ->
+        val key = ResourceKey.create(
+            Registries.DIMENSION,
+            ResourceLocation.withDefaultNamespace("foo")
+        )
+
+        val builder = CustomLevelBuilder()
+            .randomSeed()
+            .seed(1234567890)
+            .flat(true)
+            .tickTime(true)
+            .generateStructures(false)
+            .debug(true)
+            .customSpawners(WanderingTraderSpawnerFactory)
     }
 }

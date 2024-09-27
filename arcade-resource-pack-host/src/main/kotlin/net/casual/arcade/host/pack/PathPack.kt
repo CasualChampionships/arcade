@@ -2,10 +2,7 @@ package net.casual.arcade.host.pack
 
 import java.io.InputStream
 import java.nio.file.Path
-import kotlin.io.path.exists
-import kotlin.io.path.fileSize
-import kotlin.io.path.inputStream
-import kotlin.io.path.name
+import kotlin.io.path.*
 
 public class PathPack(private val path: Path): ReadablePack {
     override val name: String
@@ -16,7 +13,7 @@ public class PathPack(private val path: Path): ReadablePack {
     }
 
     override fun readable(): Boolean {
-        return this.path.exists()
+        return this.path.isReadable()
     }
 
     override fun length(): Long {

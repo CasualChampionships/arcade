@@ -28,7 +28,7 @@ public interface Countdown {
     public fun countdown(
         duration: MinecraftTimeDuration = 10.Seconds,
         interval: MinecraftTimeDuration = 1.Seconds,
-        scheduler: MinecraftScheduler = GlobalTickedScheduler.asScheduler(),
+        scheduler: MinecraftScheduler = GlobalTickedScheduler.get(),
         players: () -> Collection<ServerPlayer>
     ): Completable {
         val post = Completable.Impl()

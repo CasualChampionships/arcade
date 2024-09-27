@@ -5,9 +5,6 @@ moduleDependencies(project, listOf(
 ))
 
 dependencies {
-    modApi(rootProject.libs.sgui)
-    modApi(rootProject.libs.custom.nametags)
-
     modImplementation(rootProject.libs.server.translations)
     modImplementation(rootProject.libs.server.replay)
 }
