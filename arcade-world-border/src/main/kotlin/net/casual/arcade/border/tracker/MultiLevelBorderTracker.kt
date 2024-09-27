@@ -1,5 +1,6 @@
 package net.casual.arcade.border.tracker
 
+import net.casual.arcade.border.utils.setWorldBorder
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.border.WorldBorder
 import java.util.*
@@ -11,7 +12,11 @@ public class MultiLevelBorderTracker {
     private val listeners = ArrayList<MultiLevelBorderListener>()
 
     public fun addLevelBorder(level: ServerLevel) {
-        val border = this.castToTracked(level.worldBorder)
+        var border = level.worldBorder
+        if (border !is TrackedBorder)  {
+            border = TrackedBorder(border)
+            level.setWorldBorder(border)
+        }
         border.addTracker(this)
         this.tracking[border] = level
 

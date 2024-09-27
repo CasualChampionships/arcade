@@ -8,7 +8,6 @@ import java.io.ObjectOutputStream
 import java.io.Serializable
 import java.util.*
 
-@Internal
 public class CaptureTask<C, K>(
     @Transient private var capture: C,
     private val mapper: CaptureMapper<C, K?>,

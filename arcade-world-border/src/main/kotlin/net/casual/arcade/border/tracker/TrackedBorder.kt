@@ -1,10 +1,12 @@
 package net.casual.arcade.border.tracker
 
 import net.casual.arcade.border.CustomBorder
+import net.casual.arcade.border.ducks.SerializableBorder
 import net.casual.arcade.border.state.BorderState
 import net.casual.arcade.border.state.CenterBorderState
 import net.casual.arcade.border.state.StillBorderState
 import net.casual.arcade.border.state.StillCenterBorderState
+import net.minecraft.world.level.border.WorldBorder
 import java.util.*
 
 public class TrackedBorder(size: Double, centerX: Double, centerZ: Double): CustomBorder() {
@@ -14,6 +16,10 @@ public class TrackedBorder(size: Double, centerX: Double, centerZ: Double): Cust
     private var trackers = LinkedList<MultiLevelBorderTracker>()
 
     private var isTracking = false
+
+    public constructor(border: WorldBorder): this(border.size, border.centerX, border.centerZ) {
+        this.`arcade$deserialize`((border as SerializableBorder).`arcade$serialize`())
+    }
 
     override fun tick() {
         this.trackChanges { super.tick() }
