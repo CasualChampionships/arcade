@@ -14,6 +14,7 @@ import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.utils.MinigameResources.Companion.sendTo
 import net.casual.arcade.minigame.utils.MinigameUtils.transferAdminAndSpectatorTeamsTo
 import net.casual.arcade.resources.utils.ResourcePackUtils.sendResourcePack
+import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.ArcadeUtils
 import net.minecraft.core.UUIDUtil
 import net.minecraft.resources.ResourceLocation
@@ -86,9 +87,11 @@ public class SequentialMinigames(
 
         this.startNewMinigame(lobby)
 
-        val next = this.createNextMinigame()
-        if (next != null) {
-            lobby.nextMinigame = next
+        GlobalTickedScheduler.later {
+            val next = this.createNextMinigame()
+            if (next != null) {
+                lobby.nextMinigame = next
+            }
         }
     }
 
