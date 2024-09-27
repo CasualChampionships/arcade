@@ -29,7 +29,7 @@ public abstract class ServerPlayerMixin {
 		}
 	)
 	private ResourceKey<Level> replaceVanillaKey(ResourceKey<Level> original) {
-		return VanillaLikeLevel.getReplacementDimensionFor(this.serverLevel(), original);
+		return VanillaLikeLevel.getReplacementDestinationFor(this.serverLevel(), original);
 	}
 
 	@Redirect(

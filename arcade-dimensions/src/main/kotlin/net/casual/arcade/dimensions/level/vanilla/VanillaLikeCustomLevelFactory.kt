@@ -16,6 +16,12 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.level.Level
 
+/**
+ * A [CustomLevelFactory] implementation which supports creating
+ * [VanillaLikeCustomLevel] instances.
+ *
+ * @see CustomLevelFactory
+ */
 public class VanillaLikeCustomLevelFactory(
     properties: LevelProperties,
     generationOptions: LevelGenerationOptions,

@@ -13,6 +13,10 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.level.Level
 
+/**
+ * Simple implementation of [CustomLevelFactory] which
+ * creates instances of [CustomLevel]s.
+ */
 public open class SimpleCustomLevelFactory(
     public val properties: LevelProperties,
     public val generationOptions: LevelGenerationOptions,

@@ -26,6 +26,9 @@ public enum class LevelPersistence: StringRepresentable {
      */
     Persistent;
 
+    /**
+     * Whether this allows the level to be saved.
+     */
     public fun shouldSave(): Boolean {
         return this != Temporary
     }

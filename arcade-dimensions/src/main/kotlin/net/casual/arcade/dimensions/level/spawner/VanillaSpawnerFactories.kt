@@ -12,12 +12,15 @@ import net.minecraft.world.level.CustomSpawner
 import net.minecraft.world.level.levelgen.PatrolSpawner
 import net.minecraft.world.level.levelgen.PhantomSpawner
 import net.minecraft.world.level.storage.ServerLevelData
+import org.jetbrains.annotations.ApiStatus.Internal
 
-// For some reason, making this class sealed makes intellij have a fit
-public abstract class SingletonSpawnerFactory(name: String): CustomSpawnerFactory, CodecProvider<SingletonSpawnerFactory> {
+// IntelliJ hates the file and has a fit anytime I try to open it
+
+@Internal
+public sealed class SingletonSpawnerFactory(name: String): CustomSpawnerFactory, CodecProvider<SingletonSpawnerFactory> {
     override val ID: ResourceLocation = ResourceUtils.arcade(name)
 
-    // @Suppress("LeakingThis")
+    @Suppress("LeakingThis")
     override val CODEC: MapCodec<SingletonSpawnerFactory> = MapCodec.unit(this)
 
     override fun codec(): MapCodec<out CustomSpawnerFactory> {

@@ -11,6 +11,9 @@ import net.minecraft.world.level.dimension.DimensionType
 import net.minecraft.world.level.dimension.DimensionType.MonsterSettings
 import java.util.*
 
+/**
+ * Builder class for [DimensionType].
+ */
 public class DimensionTypeBuilder {
     public var fixedTime: OptionalLong = OptionalLong.empty()
     public var hasSkyLight: Boolean = true

@@ -8,6 +8,11 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.level.Level
 
+/**
+ * A [CustomLevel] implementation which supports [VanillaLikeLevel].
+ *
+ * @see VanillaLikeLevel
+ */
 public class VanillaLikeCustomLevel internal constructor(
     server: MinecraftServer,
     key: ResourceKey<Level>,

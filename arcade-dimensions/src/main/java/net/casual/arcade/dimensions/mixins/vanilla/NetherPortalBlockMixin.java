@@ -25,6 +25,6 @@ public class NetherPortalBlockMixin {
 		}
 	)
 	private ResourceKey<Level> replaceVanillaKey(ResourceKey<Level> original, ServerLevel level) {
-		return VanillaLikeLevel.getReplacementDimensionFor(level, original);
+		return VanillaLikeLevel.getReplacementDestinationFor(level, original);
 	}
 }

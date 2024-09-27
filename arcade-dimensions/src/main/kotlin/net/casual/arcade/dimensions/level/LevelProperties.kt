@@ -13,6 +13,11 @@ import java.util.*
  *
  * If a property is set to [Optional.empty] then it will inherit
  * the properties from the primary level (usually the overworld).
+ *
+ * @param dayTime The time of day in ticks.
+ * @param weather The weather properties.
+ * @param difficulty The difficulty properties.
+ * @param gameRules The game rules.
  */
 public class LevelProperties(
     public var dayTime: Optional<MutableLong> = Optional.empty(),
