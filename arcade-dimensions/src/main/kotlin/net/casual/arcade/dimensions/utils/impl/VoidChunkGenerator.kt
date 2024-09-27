@@ -3,30 +3,31 @@ package net.casual.arcade.dimensions.utils.impl
 import com.mojang.datafixers.util.Pair
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.minecraft.core.BlockPos
-import net.minecraft.core.Holder
-import net.minecraft.core.HolderSet
+import net.minecraft.core.*
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.WorldGenRegion
+import net.minecraft.util.random.WeightedRandomList
+import net.minecraft.world.entity.MobCategory
 import net.minecraft.world.level.LevelHeightAccessor
 import net.minecraft.world.level.NoiseColumn
 import net.minecraft.world.level.StructureManager
-import net.minecraft.world.level.biome.Biome
-import net.minecraft.world.level.biome.BiomeManager
-import net.minecraft.world.level.biome.BiomeSource
-import net.minecraft.world.level.biome.Biomes
-import net.minecraft.world.level.biome.FixedBiomeSource
+import net.minecraft.world.level.WorldGenLevel
+import net.minecraft.world.level.biome.*
 import net.minecraft.world.level.chunk.ChunkAccess
 import net.minecraft.world.level.chunk.ChunkGenerator
+import net.minecraft.world.level.chunk.ChunkGeneratorStructureState
 import net.minecraft.world.level.levelgen.GenerationStep
 import net.minecraft.world.level.levelgen.Heightmap
 import net.minecraft.world.level.levelgen.RandomState
 import net.minecraft.world.level.levelgen.blending.Blender
 import net.minecraft.world.level.levelgen.structure.Structure
+import net.minecraft.world.level.levelgen.structure.StructureSet
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager
 import java.util.concurrent.CompletableFuture
+import java.util.stream.Stream
 
 /**
  * A [ChunkGenerator] implementation which creates a void world.
@@ -57,12 +58,20 @@ public class VoidChunkGenerator(biome: BiomeSource): ChunkGenerator(biome) {
         return CODEC
     }
 
+    override fun createState(lookup: HolderLookup<StructureSet>, randomState: RandomState, seed: Long): ChunkGeneratorStructureState {
+        return ChunkGeneratorStructureState.createForFlat(randomState, seed, this.biomeSource, Stream.empty())
+    }
+
     override fun applyCarvers(level: WorldGenRegion, seed: Long, random: RandomState, biomeManager: BiomeManager, structureManager: StructureManager, chunk: ChunkAccess, step: GenerationStep.Carving) {
 
     }
 
     override fun findNearestMapStructure(level: ServerLevel, structure: HolderSet<Structure>, pos: BlockPos, searchRadius: Int, skipKnownStructures: Boolean): Pair<BlockPos, Holder<Structure>>? {
         return null
+    }
+
+    override fun applyBiomeDecoration(level: WorldGenLevel, chunk: ChunkAccess, structureManager: StructureManager) {
+
     }
 
     override fun buildSurface(level: WorldGenRegion, manager: StructureManager, random: RandomState, chunk: ChunkAccess) {
@@ -75,6 +84,18 @@ public class VoidChunkGenerator(biome: BiomeSource): ChunkGenerator(biome) {
 
     override fun getGenDepth(): Int {
         return 0
+    }
+
+    override fun getMobsAt(biome: Holder<Biome>, structureManager: StructureManager, category: MobCategory, pos: BlockPos): WeightedRandomList<MobSpawnSettings.SpawnerData> {
+        return WeightedRandomList.create()
+    }
+
+    override fun createStructures(registryAccess: RegistryAccess, structureState: ChunkGeneratorStructureState, structureManager: StructureManager, chunk: ChunkAccess, structureTemplateManager: StructureTemplateManager) {
+
+    }
+
+    override fun createReferences(level: WorldGenLevel, structureManager: StructureManager, chunk: ChunkAccess) {
+
     }
 
     override fun fillFromNoise(blender: Blender, randomState: RandomState, manager: StructureManager, chunk: ChunkAccess): CompletableFuture<ChunkAccess> {
