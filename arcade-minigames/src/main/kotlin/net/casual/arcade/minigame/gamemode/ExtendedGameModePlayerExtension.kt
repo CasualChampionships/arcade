@@ -13,6 +13,7 @@ internal class ExtendedGameModePlayerExtension(
     player: ServerPlayer
 ): PlayerExtension(player), DataExtension {
     private var gameMode = ExtendedGameMode.None
+    private var changedGameMode = false
 
     fun getGameMode(): ExtendedGameMode {
         return this.gameMode
@@ -20,9 +21,15 @@ internal class ExtendedGameModePlayerExtension(
 
     fun setGameMode(mode: ExtendedGameMode) {
         if (mode != this.gameMode) {
-            mode.set(this.player)
-            this.gameMode = mode
+            this.forceSetGameMode(mode)
         }
+    }
+
+    fun forceSetGameMode(mode: ExtendedGameMode) {
+        this.changedGameMode = true
+
+        mode.set(this.player)
+        this.gameMode = mode
     }
 
     fun setGameModeFromVanilla(type: GameType) {
@@ -40,7 +47,9 @@ internal class ExtendedGameModePlayerExtension(
     override fun deserialize(element: Tag) {
         val gameMode = enumValueOf<ExtendedGameMode>(element.asString)
         GlobalTickedScheduler.later {
-            this.setGameMode(gameMode)
+            if (!this.changedGameMode) {
+                this.setGameMode(gameMode)
+            }
         }
     }
 }

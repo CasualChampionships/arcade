@@ -26,6 +26,7 @@
     "bugfixes.LeashDataInvoker",
     "gamemode.EntityMixin",
     "gamemode.InteractionHandlerMixin",
+    "gamemode.PlayerListMixin",
     "gamemode.PlayerMixin",
     "gamemode.ServerGamePacketListenerImplMixin",
     "gamemode.ServerPlayerGameModeMixin",

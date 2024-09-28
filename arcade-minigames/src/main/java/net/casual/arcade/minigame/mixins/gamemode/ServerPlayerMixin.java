@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static net.casual.arcade.minigame.gamemode.ExtendedGameMode.getExtendedGameMode;
+import static net.casual.arcade.minigame.gamemode.ExtendedGameMode.setExtendedGameMode;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin {
