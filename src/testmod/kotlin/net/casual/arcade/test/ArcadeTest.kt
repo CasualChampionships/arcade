@@ -5,6 +5,8 @@ import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.level.spawner.WanderingTraderSpawnerFactory
 import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
 import net.casual.arcade.dimensions.level.vanilla.VanillaLikeLevelsBuilder
+import net.casual.arcade.dimensions.utils.loadCustomLevel
+import net.casual.arcade.dimensions.utils.loadOrAddCustomLevel
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.minigame.Minigames
@@ -52,13 +54,12 @@ object Example: ModInitializer {
             ResourceLocation.withDefaultNamespace("foo")
         )
 
-        val builder = CustomLevelBuilder()
-            .randomSeed()
-            .seed(1234567890)
-            .flat(true)
-            .tickTime(true)
-            .generateStructures(false)
-            .debug(true)
-            .customSpawners(WanderingTraderSpawnerFactory)
+        val builder = VanillaLikeLevelsBuilder()
+            .set(VanillaDimension.Overworld) {
+                randomDimensionKey()
+                levelStem(LevelStem.NETHER)
+                customSpawners()
+            }
+        builder.build(server)
     }
 }

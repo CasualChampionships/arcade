@@ -246,17 +246,16 @@ public fun MinecraftServer.removeCustomLevel(level: CustomLevel): Boolean {
  * @see removeCustomLevel
  */
 public fun MinecraftServer.deleteCustomLevel(level: CustomLevel): Boolean {
-    if (this.unloadCustomLevel(level, false)) {
-        val directory = this.getDimensionPath(level.dimension())
-        if (directory.isDirectory()) {
-            try {
-                PathUtils.deleteDirectory(directory)
-            } catch (e: IOException) {
-                ArcadeUtils.logger.warn("Failed to delete level directory", e)
-                PathUtils.deleteOnExit(directory)
-            }
+    this.unloadCustomLevel(level, false)
+    val directory = this.getDimensionPath(level.dimension())
+    if (directory.isDirectory()) {
+        try {
+            PathUtils.deleteDirectory(directory)
+            return true
+        } catch (e: IOException) {
+            ArcadeUtils.logger.warn("Failed to delete level directory", e)
+            PathUtils.deleteOnExit(directory)
         }
-        return true
     }
     return false
 }
