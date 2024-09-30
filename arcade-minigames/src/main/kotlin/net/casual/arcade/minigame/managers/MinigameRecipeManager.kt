@@ -193,7 +193,7 @@ public class MinigameRecipeManager(
                 return
             }
 
-            event.cancel(ClientboundUpdateRecipesPacket(packet.recipes.concat(recipes.toList())))
+            event.packet = ClientboundUpdateRecipesPacket(packet.recipes.concat(recipes.toList()))
             return
         }
 
@@ -203,12 +203,12 @@ public class MinigameRecipeManager(
                 return
             }
 
-            event.cancel(ClientboundRecipePacket(
+            event.packet = ClientboundRecipePacket(
                 ClientboundRecipePacket.State.INIT,
                 packet.recipes.concat(unlocked.toList()),
                 packet.highlights,
                 packet.bookSettings
-            ))
+            )
         }
     }
 }

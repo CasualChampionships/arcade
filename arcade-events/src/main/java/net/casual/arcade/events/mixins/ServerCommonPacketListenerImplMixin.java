@@ -1,5 +1,6 @@
 package net.casual.arcade.events.mixins;
 
+import com.llamalad7.mixinextras.sugar.Cancellable;
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.core.CancellableEvent;
@@ -30,20 +31,24 @@ public abstract class ServerCommonPacketListenerImplMixin {
 		at = @At("HEAD"),
 		argsOnly = true
 	)
-	private Packet<?> onSendPacket(Packet<?> value) {
+	private Packet<?> onSendPacket(Packet<?> value, @Cancellable CallbackInfo ci) {
 		ServerCommonPacketListenerImpl self = (ServerCommonPacketListenerImpl) (Object) this;
-		CancellableEvent.Typed<Packet<?>> event = new ClientboundPacketEvent(this.server, this.playerProfile(), value);
+		ClientboundPacketEvent event = new ClientboundPacketEvent(this.server, this.playerProfile(), value);
 		GlobalEventHandler.broadcast(event);
+		if (event.isCancelled()) {
+			ci.cancel();
+			return event.getPacket();
+		}
 
 		if (self instanceof ServerGamePacketListenerImpl connection) {
-			CancellableEvent.Typed<Packet<?>> old = event;
-			event = new PlayerClientboundPacketEvent(connection.player, value);
-			if (old.isCancelled()) {
-				event.cancel(old.result());
+			PlayerClientboundPacketEvent playerEvent = new PlayerClientboundPacketEvent(connection.player, event.getPacket());
+			GlobalEventHandler.broadcast(playerEvent);
+			if (event.isCancelled()) {
+				ci.cancel();
 			}
-			GlobalEventHandler.broadcast(event);
+			return playerEvent.getPacket();
 		}
-		return event.isCancelled() ? event.result() : value;
+		return event.getPacket();
 	}
 
 	@Inject(

@@ -9,6 +9,6 @@ import net.minecraft.world.damagesource.DamageSource
  */
 public data class PlayerDamageEvent(
     override val player: ServerPlayer,
-    val amount: Float,
-    val source: DamageSource
-): CancellableEvent.Typed<Float>(), PlayerEvent
+    val source: DamageSource,
+    var amount: Float,
+): CancellableEvent.Default(), PlayerEvent

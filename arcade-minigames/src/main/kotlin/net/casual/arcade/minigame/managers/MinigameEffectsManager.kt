@@ -205,11 +205,7 @@ public class MinigameEffectsManager(
     }
 
     private fun onPlayerPacket(event: PlayerClientboundPacketEvent) {
-        val packet = event.resultOrElse { event.packet }
-        val updated = this.updatePacket(event.player, packet)
-        if (updated !== packet) {
-            event.cancel(updated)
-        }
+        event.packet = this.updatePacket(event.player, event.packet)
     }
 
     private fun updatePacket(player: ServerPlayer, packet: Packet<*>): Packet<ClientGamePacketListener> {

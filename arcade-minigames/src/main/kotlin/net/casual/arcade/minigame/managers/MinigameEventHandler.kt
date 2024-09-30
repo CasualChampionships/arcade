@@ -56,12 +56,8 @@ public class MinigameEventHandler<P>(
     private val phased: Phased<P>,
     private val filterer: Filterer
 ): ListenerRegistry {
-    private val global = ListenerRegistryImpl()
-    private val injected = ListenerRegistryImpl()
-
-    public fun getInjectedProvider(): ListenerProvider {
-        return this.injected
-    }
+    private val global = SimpleListenerRegistry()
+    private val injected = SimpleListenerRegistry()
 
     /**
      * This method gets all the [EventListener]s for a given
@@ -320,6 +316,10 @@ public class MinigameEventHandler<P>(
             (this.phased.isAfterPhase(after) || this.phased.isPhase(after)) && this.phased.isBeforePhase(before)
         }
         return this.registerFiltered(type, listener, predicates, flags)
+    }
+
+    internal fun getInjectedProvider(): ListenerProvider {
+        return this.injected
     }
 
     internal fun clear() {

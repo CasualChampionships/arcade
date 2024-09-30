@@ -44,9 +44,7 @@ public class FlowingFluidMixin {
 				original
 			);
 			GlobalEventHandler.broadcast(event);
-			if (event.isCancelled()) {
-				return event.result();
-			}
+			return event.getCanSpread();
 		}
 		return original;
 	}

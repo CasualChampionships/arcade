@@ -28,4 +28,4 @@ dependencies {
 
 ## Usage
 
-> [Basic Usage](./basic-usage.md)
+> ### [Basic Usage](./basic-usage.md)

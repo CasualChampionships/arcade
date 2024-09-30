@@ -1,6 +1,5 @@
 package net.casual.arcade.events.level
 
-import net.casual.arcade.events.core.CancellableEvent
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerLevel
@@ -17,5 +16,5 @@ public class LevelFluidTrySpreadEvent(
     public val spreadBlockState: BlockState,
     public val spreadFluidState: FluidState,
     public val fluid: Fluid,
-    public val canSpread: Boolean
-): CancellableEvent.Typed<Boolean>(), LevelEvent
+    public var canSpread: Boolean
+): LevelEvent

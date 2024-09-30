@@ -3,38 +3,51 @@ package net.casual.arcade.events.mixins;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Cancellable;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
+import net.casual.arcade.events.ducks.ModifyActuallyHurt;
 import net.casual.arcade.events.entity.EntityDeathEvent;
 import net.casual.arcade.events.player.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
-public class LivingEntityMixin {
+public class LivingEntityMixin implements ModifyActuallyHurt {
+	@Unique private boolean arcade$wasActuallyHurt = false;
+
 	@Inject(
 		method = "causeFallDamage",
 		at = @At(
 			value = "INVOKE_ASSIGN",
 			target = "Lnet/minecraft/world/entity/LivingEntity;calculateFallDamage(FF)I",
 			shift = At.Shift.AFTER
-		)
+		),
+		cancellable = true
 	)
-	private void onFallDamage(float distance, float multiplier, DamageSource source, CallbackInfoReturnable<Boolean> cir, @Local LocalIntRef damage) {
+	private void onFallDamage(
+		float distance,
+		float multiplier,
+		DamageSource source,
+		CallbackInfoReturnable<Boolean> cir,
+		@Local LocalIntRef damage
+	) {
 		if ((Object) this instanceof ServerPlayer player) {
 			PlayerLandEvent event = new PlayerLandEvent(player, damage.get(), distance, multiplier, source);
 			GlobalEventHandler.broadcast(event);
 			if (event.isCancelled()) {
-				damage.set(event.result());
+				cir.setReturnValue(false);
 			}
+			damage.set(event.getDamage());
 		}
 	}
 
@@ -54,21 +67,25 @@ public class LivingEntityMixin {
 		return true;
 	}
 
-	@WrapWithCondition(
-		method = "baseTick",
+	@WrapOperation(
+		method = "hurt",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z",
-			ordinal = 1
+			target = "Lnet/minecraft/world/entity/LivingEntity;actuallyHurt(Lnet/minecraft/world/damagesource/DamageSource;F)V"
 		)
 	)
-	private boolean onHurtByBorder(LivingEntity instance, DamageSource source, float amount) {
-		if ((Object) this instanceof ServerPlayer player) {
-			PlayerBorderDamageEvent event = new PlayerBorderDamageEvent(player, source, amount);
-			GlobalEventHandler.broadcast(event);
-			return !event.isCancelled();
+	private void onHurt(
+		LivingEntity instance,
+		DamageSource damageSource,
+		float damageAmount,
+		Operation<Void> original,
+		@Cancellable CallbackInfoReturnable<Boolean> cir
+	) {
+		this.arcade$wasActuallyHurt = true;
+		original.call(instance, damageSource, damageAmount);
+		if (!this.arcade$wasActuallyHurt) {
+			cir.setReturnValue(false);
 		}
-		return true;
 	}
 
 	@WrapOperation(
@@ -129,5 +146,10 @@ public class LivingEntityMixin {
 			PlayerTotemEvent event = new PlayerTotemEvent(player, source);
 			GlobalEventHandler.broadcast(event);
 		}
+	}
+
+	@Override
+	public void arcade$setNotActuallyHurt() {
+		this.arcade$wasActuallyHurt = false;
 	}
 }

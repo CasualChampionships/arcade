@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import com.mojang.datafixers.util.Either;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
+import net.casual.arcade.events.ducks.ModifyActuallyHurt;
 import net.casual.arcade.events.player.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Player.class)
-public class PlayerMixin {
+public abstract class PlayerMixin implements ModifyActuallyHurt {
 	@Redirect(
 		method = "attack",
 		at = @At(
@@ -49,6 +50,7 @@ public class PlayerMixin {
 			if (event.isCancelled()) {
 				return false;
 			}
+			amount = event.getDamage();
 		}
 		return entity.hurt(source, amount);
 	}
@@ -78,15 +80,23 @@ public class PlayerMixin {
 			value = "INVOKE_ASSIGN",
 			target = "Lnet/minecraft/world/entity/player/Player;getDamageAfterMagicAbsorb(Lnet/minecraft/world/damagesource/DamageSource;F)F",
 			shift = At.Shift.AFTER
-		)
+		),
+		cancellable = true
 	)
-	private void onDamage(DamageSource source, float damageAmount, CallbackInfo ci, @Local(argsOnly = true) LocalFloatRef damage) {
+	private void onDamage(
+		DamageSource source,
+		float damageAmount,
+		CallbackInfo ci,
+		@Local(argsOnly = true) LocalFloatRef damage
+	) {
 		if ((Object) this instanceof ServerPlayer player) {
-			PlayerDamageEvent event = new PlayerDamageEvent(player, damage.get(), source);
+			PlayerDamageEvent event = new PlayerDamageEvent(player, source, damage.get());
 			GlobalEventHandler.broadcast(event, BuiltInEventPhases.PRE_PHASES);
 			if (event.isCancelled()) {
-				damage.set(event.result());
+				this.arcade$setNotActuallyHurt();
+				ci.cancel();
 			}
+			damage.set(event.getAmount());
 		}
 	}
 
@@ -104,7 +114,7 @@ public class PlayerMixin {
 		CallbackInfo ci
 	) {
 		if ((Object) this instanceof ServerPlayer player) {
-			PlayerDamageEvent event = new PlayerDamageEvent(player, damageAmount, source);
+			PlayerDamageEvent event = new PlayerDamageEvent(player, source, damageAmount);
 			GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
 		}
 	}

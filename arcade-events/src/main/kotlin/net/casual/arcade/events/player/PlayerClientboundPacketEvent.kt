@@ -7,5 +7,5 @@ import net.minecraft.server.level.ServerPlayer
 
 public data class PlayerClientboundPacketEvent(
     override val player: ServerPlayer,
-    val packet: Packet<*>
-): CancellableEvent.Typed<Packet<*>>(), PlayerEvent, ServerOffThreadEvent
+    var packet: Packet<*>
+): CancellableEvent.Default(), PlayerEvent, ServerOffThreadEvent

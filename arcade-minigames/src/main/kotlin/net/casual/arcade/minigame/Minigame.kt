@@ -4,7 +4,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistryImpl
+import net.casual.arcade.events.SimpleListenerRegistry
 import net.casual.arcade.events.player.*
 import net.casual.arcade.events.server.ServerStoppingEvent
 import net.casual.arcade.events.server.ServerTickEvent
@@ -22,7 +22,6 @@ import net.casual.arcade.minigame.stats.ArcadeStats
 import net.casual.arcade.minigame.stats.Stat.Companion.increment
 import net.casual.arcade.minigame.utils.MinigameResources
 import net.casual.arcade.minigame.utils.MinigameUtils
-import net.casual.arcade.minigame.utils.MinigameUtils.minigame
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.toJsonObject
@@ -45,7 +44,7 @@ import java.util.*
  * has common utilities used in minigames.
  *
  * Each minigame has its own set of [GameSetting]s,
- * has its own [ListenerRegistryImpl], and own [TickedScheduler].
+ * has its own [SimpleListenerRegistry], and own [TickedScheduler].
  * Minigames also provide a way to display the UI to all
  * the currently playing players, through [CustomBossBar]s,
  * [ArcadeSidebar], [ArcadePlayerListDisplay], and [ArcadeNameTag]s.
@@ -642,7 +641,7 @@ public abstract class Minigame<M: Minigame<M>>(
     }
 
     private fun onPlayerDamage(event: PlayerDamageEvent) {
-        val (player, amount, source) = event
+        val (player, source, amount) = event
         if (amount > 0 && amount < 3.4028235E37F) {
             this.stats.getOrCreateStat(player, ArcadeStats.DAMAGE_TAKEN).increment(amount)
 

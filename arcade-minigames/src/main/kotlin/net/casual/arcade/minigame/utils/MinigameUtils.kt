@@ -1,6 +1,7 @@
 package net.casual.arcade.minigame.utils
 
 import com.mojang.brigadier.builder.ArgumentBuilder
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.core.Event
@@ -230,7 +231,7 @@ public object MinigameUtils {
             if (event is ExtensionEvent) {
                 return@addInjectedProvider
             }
-            val minigames = HashSet<Minigame<*>>(3)
+            val minigames = ObjectOpenHashSet<Minigame<*>>(3)
             if (event is PlayerEvent) {
                 val minigame = event.player.getMinigame()
                 if (minigame != null) {

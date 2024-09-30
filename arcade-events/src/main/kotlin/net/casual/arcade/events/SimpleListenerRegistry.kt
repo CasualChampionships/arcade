@@ -1,5 +1,6 @@
 package net.casual.arcade.events
 
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
 import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.core.Event
 import java.util.function.Consumer
@@ -12,19 +13,19 @@ import java.util.function.Consumer
  * By default, this class in used in [GlobalEventHandler] where
  * you can register your events.
  * However, if you would like the ability to unregister your
- * events, you can create your own [ListenerRegistryImpl] and then add
+ * events, you can create your own [SimpleListenerRegistry] and then add
  * and remove it from the [GlobalEventHandler] by using
  * [GlobalEventHandler.addProvider] and [GlobalEventHandler.removeProvider].
  *
- * You can then [register] events to the created [ListenerRegistryImpl]
+ * You can then [register] events to the created [SimpleListenerRegistry]
  * as normal and they will be invoked when the [GlobalEventHandler]
  * broadcasts the given event.
  *
  * @see GlobalEventHandler
  * @see ListenerProvider
  */
-public class ListenerRegistryImpl: ListenerRegistry {
-    private val events = HashMap<Class<out Event>, ArrayList<EventListener<*>>>()
+public class SimpleListenerRegistry: ListenerRegistry {
+    private val events = Reference2ObjectOpenHashMap<Class<out Event>, ArrayList<EventListener<*>>>()
 
     /**
      * This method gets all the [EventListener]s for a given

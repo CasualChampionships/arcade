@@ -7,7 +7,7 @@ import java.util.function.Consumer
 /**
  * This interface lets you register event listeners.
  *
- * @see ListenerRegistryImpl
+ * @see SimpleListenerRegistry
  */
 public interface ListenerRegistry: ListenerProvider {
     /**

@@ -7,5 +7,5 @@ import net.minecraft.world.entity.Entity
 public data class PlayerAttackEvent(
     override val player: ServerPlayer,
     val target: Entity,
-    val damage: Float
-): CancellableEvent.Typed<Float>(), PlayerEvent
+    var damage: Float
+): CancellableEvent.Default(), PlayerEvent

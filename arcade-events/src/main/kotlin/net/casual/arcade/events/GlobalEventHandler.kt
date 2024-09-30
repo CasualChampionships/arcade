@@ -6,6 +6,7 @@ import net.casual.arcade.events.GlobalEventHandler.addProvider
 import net.casual.arcade.events.GlobalEventHandler.broadcast
 import net.casual.arcade.events.core.CancellableEvent
 import net.casual.arcade.events.core.Event
+import net.casual.arcade.events.player.PlayerEvent
 import net.casual.arcade.events.server.SafeServerlessEvent
 import net.casual.arcade.events.server.ServerCreatedEvent
 import net.casual.arcade.events.server.ServerOffThreadEvent
@@ -31,7 +32,7 @@ public object GlobalEventHandler {
     private val suppressed = HashSet<Class<out Event>>()
     private val stack = Object2IntOpenHashMap<Class<out Event>>()
     private val registries = HashSet<ListenerProvider>()
-    private val registry = ListenerRegistryImpl()
+    private val registry = SimpleListenerRegistry()
 
     private val injected = HashSet<InjectedListenerProvider>()
 
@@ -168,7 +169,7 @@ public object GlobalEventHandler {
     }
 
     /**
-     * This removes a [ListenerProvider] to the [GlobalEventHandler].
+     * This removes a [ListenerProvider] from the [GlobalEventHandler].
      *
      * @param handler The [ListenerProvider] to remove.
      */
@@ -177,11 +178,29 @@ public object GlobalEventHandler {
         this.registries.remove(handler)
     }
 
+    /**
+     * This adds [InjectedListenerProvider], which allows us to dynamically
+     * add [ListenerProvider]s depending on the specific event being broadcasted.
+     *
+     * This may help performance instead, for example, instead of each minigame
+     * registering for a specific [PlayerEvent] then checking whether the player
+     * from that event belongs in a minigame we can instead add an injected
+     * listener provider which gets the player's minigame then adds that minigame's
+     * listener provider.
+     *
+     * @param injected The [InjectedListenerProvider] to add.
+     * @see InjectedListenerProvider
+     */
     @JvmStatic
     public fun addInjectedProvider(injected: InjectedListenerProvider) {
         this.injected.add(injected)
     }
 
+    /**
+     * This removes an [InjectedListenerProvider] from the [GlobalEventHandler].
+     *
+     * @param injected The [InjectedListenerProvider] to remove.
+     */
     @JvmStatic
     public fun removeInjectedProvider(injected: InjectedListenerProvider) {
         this.injected.remove(injected)

@@ -1,6 +1,4 @@
-# Scheduling
-
-Arcade implements a scheduling system allowing you to run tasks in the future. This system is tick-based, meaning that all the timings are based on the server tick times.
+# Usage
 
 ## Scheduling Tasks
 

@@ -12,7 +12,7 @@ import net.casual.arcade.events.core.Event
  * to provide [EventListener]s for a given [Event]
  * type.
  *
- * The implementation of this interface is [ListenerRegistryImpl]
+ * The implementation of this interface is [SimpleListenerRegistry]
  * where you can register multiple event types with
  * multiple [EventListener]s.
  *
@@ -20,7 +20,7 @@ import net.casual.arcade.events.core.Event
  * singular [EventListener] see [SingleListenerProvider].
  *
  * @see getListenersFor
- * @see ListenerRegistryImpl
+ * @see SimpleListenerRegistry
  * @see GlobalEventHandler
  * @see SingleListenerProvider
  */

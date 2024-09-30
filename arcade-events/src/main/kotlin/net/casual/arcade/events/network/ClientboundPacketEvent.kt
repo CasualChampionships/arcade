@@ -9,5 +9,5 @@ import net.minecraft.server.MinecraftServer
 public data class ClientboundPacketEvent(
     val server: MinecraftServer,
     val owner: GameProfile,
-    val packet: Packet<*>
-): CancellableEvent.Typed<Packet<*>>(), ServerOffThreadEvent
+    var packet: Packet<*>
+): CancellableEvent.Default(), ServerOffThreadEvent
