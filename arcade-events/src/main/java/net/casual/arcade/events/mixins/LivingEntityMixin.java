@@ -120,8 +120,11 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 		at = @At("HEAD")
 	)
 	private void onDeathPre(DamageSource source, CallbackInfo ci) {
-		EntityDeathEvent event = new EntityDeathEvent((LivingEntity) (Object) this, source);
-		GlobalEventHandler.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+		LivingEntity entity = (LivingEntity) (Object) this;
+		if (!entity.level().isClientSide()) {
+			EntityDeathEvent event = new EntityDeathEvent(entity, source);
+			GlobalEventHandler.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+		}
 	}
 
 	@Inject(
@@ -129,8 +132,11 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 		at = @At("TAIL")
 	)
 	private void onDeathPost(DamageSource source, CallbackInfo ci) {
-		EntityDeathEvent event = new EntityDeathEvent((LivingEntity) (Object) this, source);
-		GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
+		LivingEntity entity = (LivingEntity) (Object) this;
+		if (!entity.level().isClientSide()) {
+			EntityDeathEvent event = new EntityDeathEvent(entity, source);
+			GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
+		}
 	}
 
 	@Inject(

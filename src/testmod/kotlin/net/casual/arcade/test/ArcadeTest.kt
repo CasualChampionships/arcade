@@ -60,27 +60,7 @@ object ArcadeTest: ModInitializer {
 
 object Example: ModInitializer {
     override fun onInitialize() = GlobalEventHandler.register<ServerLoadedEvent> { (server) ->
-        val key = ResourceKey.create(
-            Registries.DIMENSION,
-            ResourceLocation.withDefaultNamespace("foo")
-        )
 
-        val builder = VanillaLikeLevelsBuilder()
-            .set(VanillaDimension.Overworld) {
-                randomDimensionKey()
-                levelStem(LevelStem.NETHER)
-                customSpawners()
-            }
-        builder.build(server)
 
-        RegistryEventHandler.register(Registries.DIMENSION_TYPE) { (reg) ->
-            Registry.register(reg, ResourceLocation.withDefaultNamespace("foo"), DimensionType(/* */))
-        }
-        SelectionGuiBuilder(null as ServerPlayer, null as SelectionGuiComponents)
-            .components {
-
-            }
-        PlayerNameTag({ Component.literal("") })
-        MathUtils.centeredScale()
     }
 }
