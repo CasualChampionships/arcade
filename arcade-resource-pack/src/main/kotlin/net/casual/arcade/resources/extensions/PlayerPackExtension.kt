@@ -1,17 +1,22 @@
 package net.casual.arcade.resources.extensions
 
+import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.extensions.Extension
+import net.casual.arcade.resources.event.ClientPackSuccessEvent
+import net.casual.arcade.resources.event.PlayerPackSuccessEvent
 import net.casual.arcade.resources.pack.PackInfo
 import net.casual.arcade.resources.pack.PackState
 import net.casual.arcade.resources.pack.PackStatus
 import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.PlayerUtils.player
 import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
+import net.minecraft.server.MinecraftServer
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import kotlin.jvm.optionals.getOrNull
 
-internal class PlayerPackExtension: Extension {
+internal class PlayerPackExtension(private val uuid: UUID): Extension {
     internal val futures = HashMap<UUID, CompletableFuture<PackStatus>>()
     private val packs = HashMap<UUID, PackState>()
 
@@ -21,7 +26,7 @@ internal class PlayerPackExtension: Extension {
         return this.packs[uuid]
     }
 
-    internal fun getAllPacks(): MutableCollection<PackState> {
+    internal fun getAllPacks(): Collection<PackState> {
         return this.packs.values
     }
 
@@ -32,13 +37,13 @@ internal class PlayerPackExtension: Extension {
         return this.futures.getOrPut(uuid) { CompletableFuture() }
     }
 
-    internal fun onPackStatus(uuid: UUID, status: PackStatus) {
+    internal fun onPackStatus(server: MinecraftServer, uuid: UUID, status: PackStatus) {
         if (status == PackStatus.REMOVED) {
             if (this.packs.remove(uuid) != null) {
                 ArcadeUtils.logger.warn("Client removed resource pack without server telling it to!")
             }
             this.futures.remove(uuid)?.complete(status)
-            this.checkAllFutures()
+            this.checkAllFutures(server)
             return
         }
         val state = this.packs[uuid]
@@ -50,7 +55,7 @@ internal class PlayerPackExtension: Extension {
 
         if (!status.isLoadingPack()) {
             this.futures[uuid]?.complete(status)
-            this.checkAllFutures()
+            this.checkAllFutures(server)
         }
     }
 
@@ -71,12 +76,17 @@ internal class PlayerPackExtension: Extension {
         this.packs.remove(uuid.get())
     }
 
-    private fun checkAllFutures() {
+    private fun checkAllFutures(server: MinecraftServer) {
         for (future in this.futures.values) {
             if (!future.isDone) {
                 return
             }
         }
         this.allLoadedFuture.complete(null)
+        GlobalEventHandler.broadcast(ClientPackSuccessEvent(this.uuid, this.getAllPacks()))
+        val player = server.player(this.uuid)
+        if (player != null) {
+            GlobalEventHandler.broadcast(PlayerPackSuccessEvent(player, this.getAllPacks()))
+        }
     }
 }

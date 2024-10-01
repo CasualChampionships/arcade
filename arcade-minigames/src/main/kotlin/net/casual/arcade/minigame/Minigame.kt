@@ -173,6 +173,13 @@ public abstract class Minigame<M: Minigame<M>>(
     public val effects: MinigameEffectsManager
 
     /**
+     * This manages music for this minigame.
+     *
+     * @see MinigameMusicManager
+     */
+    public val music: MinigameMusicManager
+
+    /**
      * This manages minigame statistics.
      *
      * @see MinigameStatManager
@@ -286,6 +293,7 @@ public abstract class Minigame<M: Minigame<M>>(
         this.advancements = MinigameAdvancementManager(self)
         this.recipes = MinigameRecipeManager(self)
         this.effects = MinigameEffectsManager(self)
+        this.music = MinigameMusicManager(self)
         this.data = MinigameDataTracker(self)
         this.teams = MinigameTeamManager(self)
         this.chat = MinigameChatManager(self)

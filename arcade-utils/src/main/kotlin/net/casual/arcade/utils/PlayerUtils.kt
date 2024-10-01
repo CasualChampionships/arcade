@@ -283,7 +283,7 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.sendSound(sound: Sound) {
-        this.sendSound(sound.sound, sound.source, sound.volume, sound.pitch, sound.static)
+        this.sendSound(sound.event, sound.source, sound.volume, sound.pitch, sound.static)
     }
 
     @JvmStatic

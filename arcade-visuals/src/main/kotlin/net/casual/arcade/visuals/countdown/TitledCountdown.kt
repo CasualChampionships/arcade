@@ -37,7 +37,7 @@ public interface TitledCountdown: Countdown {
     @OverrideOnly
     public fun getCountdownSound(current: Int): Sound? {
         return Sound(
-            sound = SoundEvents.NOTE_BLOCK_PLING.value(),
+            event = SoundEvents.NOTE_BLOCK_PLING.value(),
             pitch = 3.0F
         )
     }

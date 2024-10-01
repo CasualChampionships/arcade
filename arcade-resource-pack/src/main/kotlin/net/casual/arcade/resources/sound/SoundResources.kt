@@ -5,9 +5,11 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import net.casual.arcade.resources.sound.SoundProvider.Type.Event
 import net.casual.arcade.resources.sound.SoundProvider.Type.Sound
+import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.sounds.SoundEvent
 
 public abstract class SoundResources(
     public val namespace: String
@@ -23,7 +25,7 @@ public abstract class SoundResources(
         constantVolume: Boolean = false,
         preload: Boolean = false,
         id: String = location.path
-    ): PolymerSoundEvent {
+    ): SoundEvent {
         val provider = SoundProvider(location, volume, pitch, 1, stream, attenuationDistance, preload, Sound)
         this.providers[id] = listOf(provider)
         return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, constantVolume)
@@ -38,7 +40,7 @@ public abstract class SoundResources(
         constantVolume: Boolean = false,
         preload: Boolean = false,
         id: String = location.path
-    ): PolymerSoundEvent {
+    ): SoundEvent {
         val provider = SoundProvider(location, volume, pitch, 1, stream, attenuationDistance, preload, Event)
         this.providers[id] = listOf(provider)
         return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, constantVolume)
@@ -49,7 +51,7 @@ public abstract class SoundResources(
         attenuationDistance: Int = 16,
         constantVolume: Boolean = false,
         builder: GroupedSoundProvider.() -> Unit
-    ): PolymerSoundEvent {
+    ): SoundEvent {
         val grouped = GroupedSoundProvider()
         grouped.builder()
         this.providers[id] = grouped.getProviders()

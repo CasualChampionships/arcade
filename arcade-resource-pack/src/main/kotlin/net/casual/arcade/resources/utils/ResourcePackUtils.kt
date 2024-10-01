@@ -251,7 +251,7 @@ public object ResourcePackUtils {
     }
 
     private fun getExtension(uuid: UUID): PlayerPackExtension {
-        return universe.getOrPut(uuid) { PlayerPackExtension() }
+        return universe.getOrPut(uuid) { PlayerPackExtension(uuid) }
     }
 
     public class PackInfoRef(
@@ -278,8 +278,8 @@ public object ResourcePackUtils {
                 getExtension(profile.id).onPopPack(packet)
             }
         }
-        GlobalEventHandler.register<PackStatusEvent> { (_, profile, uuid, status) ->
-            getExtension(profile.id).onPackStatus(uuid, status)
+        GlobalEventHandler.register<PackStatusEvent> { (server, profile, uuid, status) ->
+            getExtension(profile.id).onPackStatus(server, uuid, status)
         }
         GlobalEventHandler.register<PlayerDimensionChangeEvent> { (player) ->
             for (pack in getExtension(player.uuid).getAllPacks()) {
