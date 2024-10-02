@@ -23,7 +23,7 @@ public class LanguageGenerator(
             val entries = ArrayList<LanguageEntry>()
             for (entry in this.generators) {
                 try {
-                    entry.run(client.font, entries)
+                    entry.run(client.font, lang, entries::add)
                 } catch (e: Exception) {
                     LOGGER.error("Failed to run entry ${entry::class.java.simpleName}", e)
                 }

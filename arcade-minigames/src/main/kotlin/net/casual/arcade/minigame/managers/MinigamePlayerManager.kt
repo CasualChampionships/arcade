@@ -338,7 +338,7 @@ public class MinigamePlayerManager(
     }
 
     internal fun close() {
-        for (player in this.all) {
+        for (player in this.streamPlayers()) {
             this.remove(player)
         }
     }
@@ -348,7 +348,7 @@ public class MinigamePlayerManager(
     }
 
     override fun iterator(): Iterator<ServerPlayer> {
-        return this.all.iterator()
+        return this.streamPlayers().iterator()
     }
 
     private fun onPlayerLeave(event: PlayerLeaveEvent) {
