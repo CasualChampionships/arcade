@@ -370,16 +370,10 @@ public object ComponentUtils {
     }
 
     public fun MutableComponent.withShiftedDownFont(shift: Int): MutableComponent {
-        if (shift !in 1..5) {
-            throw IllegalArgumentException("Cannot shift down component by $shift")
-        }
         return this.withFont(ResourceUtils.arcade("default_shifted_down_${shift}"))
     }
 
     public fun MutableComponent.withMiniShiftedDownFont(shift: Int): MutableComponent {
-        if (shift !in 1..7) {
-            throw IllegalArgumentException("Cannot shift down component by $shift")
-        }
         return this.withFont(ResourceUtils.arcade("mini_shifted_down_${shift}"))
     }
 

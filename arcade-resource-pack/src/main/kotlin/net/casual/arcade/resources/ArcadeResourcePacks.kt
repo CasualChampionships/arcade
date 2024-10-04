@@ -4,13 +4,17 @@ import net.casual.arcade.resources.creator.NamedResourcePackCreator
 import net.casual.arcade.resources.font.heads.PlayerHeadFont
 import net.casual.arcade.resources.font.padding.PaddingNoSplitFontResources
 import net.casual.arcade.resources.font.padding.PaddingSplitFontResources
+import net.casual.arcade.resources.utils.FontUtils
 import net.casual.arcade.resources.utils.ResourcePackUtils
 import net.casual.arcade.resources.utils.ResourcePackUtils.addCustomOutlineColors
 import net.casual.arcade.resources.utils.ResourcePackUtils.addFont
 import net.casual.arcade.resources.utils.ShaderUtils
+import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.literal
+import net.casual.arcade.utils.ResourceUtils
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
+import net.minecraft.resources.ResourceLocation
 import java.nio.file.Path
 import kotlin.io.path.readBytes
 
@@ -23,6 +27,9 @@ public object ArcadeResourcePacks: ModInitializer {
     public val ACTION_BAR_FONT_PACK: NamedResourcePackCreator by lazy {
         NamedResourcePackCreator.named("action_bar_font") {
             addAssetSource(path("packs/ActionBarFont"))
+            for (i in 1..64) {
+                addFont(ResourceUtils.arcade("default_shifted_down_$i")) { FontUtils.createDefaultFont(i) }
+            }
             packDescription = "Shifts text on the action bar".literal()
         }
     }
@@ -30,6 +37,9 @@ public object ArcadeResourcePacks: ModInitializer {
     public val MINI_ACTION_BAR_FONT_PACK: NamedResourcePackCreator by lazy {
         NamedResourcePackCreator.named("mini_action_bar_font") {
             addAssetSource(path("packs/MiniActionBarFont"))
+            for (i in 1..64) {
+                addFont(ResourceUtils.arcade("mini_shifted_down_$i")) { FontUtils.createMiniFont(i) }
+            }
             packDescription = "Shifts mini text on the action bar".literal()
         }
     }
@@ -84,6 +94,7 @@ public object ArcadeResourcePacks: ModInitializer {
     public val MINI_MINECRAFT_FONT: NamedResourcePackCreator by lazy {
         NamedResourcePackCreator.named("mini_minecraft") {
             addAssetSource(path("packs/MiniMinecraftFont"))
+            addFont(ComponentUtils.MINI_FONT, FontUtils::createMiniFont)
             packDescription = "Mini Minecraft style font".literal()
         }
     }

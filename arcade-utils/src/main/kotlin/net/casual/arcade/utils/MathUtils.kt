@@ -1,6 +1,7 @@
 package net.casual.arcade.utils
 
 import net.minecraft.core.Direction8
+import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import kotlin.math.ceil
 
@@ -15,6 +16,14 @@ public object MathUtils {
 
     public operator fun Vec3.component3(): Double {
         return this.z
+    }
+
+    public operator fun Vec2.component1(): Float {
+        return this.y
+    }
+
+    public operator fun Vec2.component2(): Float {
+        return this.x
     }
 
     public fun Direction8.opposite(): Direction8 {

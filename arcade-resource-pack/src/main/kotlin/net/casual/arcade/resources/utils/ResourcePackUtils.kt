@@ -157,6 +157,14 @@ public object ResourcePackUtils {
     }
 
     @JvmStatic
+    public fun ResourcePackCreator.addFont(id: ResourceLocation, generator: () -> String) {
+        this.creationEvent.register { builder ->
+            val fontDefinition = generator.invoke().encodeToByteArray()
+            builder.addData("assets/${id.namespace}/font/${id.path}.json", fontDefinition)
+        }
+    }
+
+    @JvmStatic
     public fun ResourcePackCreator.addFont(font: FontResources) {
         this.creationEvent.register { builder ->
             val fontDefinition = font.toJson().encodeToByteArray()
