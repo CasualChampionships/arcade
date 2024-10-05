@@ -338,7 +338,8 @@ public class MinigamePlayerManager(
     }
 
     internal fun close() {
-        for (player in this.streamPlayers()) {
+        // We copy the players to avoid CME
+        for (player in this.all) {
             this.remove(player)
         }
     }
