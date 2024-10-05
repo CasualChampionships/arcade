@@ -10,7 +10,7 @@ plugins {
     java
 }
 
-val modVersion = "0.3.0-alpha.24"
+val modVersion = "0.3.0-alpha.25"
 
 allprojects {
     apply(plugin = "fabric-loom")
@@ -141,7 +141,8 @@ dependencies {
 
     for (subproject in project.subprojects) {
         if (subproject.path != ":arcade-datagen") {
-            include(api(project(path = subproject.path, configuration = "namedElements"))!!)
+            api(project(path = subproject.path, configuration = "namedElements"))
+            include(subproject)
         }
     }
 }
