@@ -18,11 +18,11 @@ repositories {
 }
 
 dependencies {
-    include(modImplementation("net.casual-championships:arcade-dimensions:0.3.0-alpha.23+1.21.1")!!)
+    include(modImplementation("net.casual-championships:arcade-dimensions:0.3.0-alpha.24+1.21.1")!!)
 
-    include(modImplementation("net.casual-championships:arcade-events:0.3.0-alpha.23+1.21.1")!!)
-    include(modImplementation("net.casual-championships:arcade-extensions:0.3.0-alpha.23+1.21.1")!!)
-    include(modImplementation("net.casual-championships:arcade-utils:0.3.0-alpha.23+1.21.1")!!)
+    include(modImplementation("net.casual-championships:arcade-events:0.3.0-alpha.24+1.21.1")!!)
+    include(modImplementation("net.casual-championships:arcade-extensions:0.3.0-alpha.24+1.21.1")!!)
+    include(modImplementation("net.casual-championships:arcade-utils:0.3.0-alpha.24+1.21.1")!!)
 }
 ```
 

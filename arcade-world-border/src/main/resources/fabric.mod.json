@@ -14,7 +14,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.casual.arcade.border.ArcadeBorder"
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.border.ArcadeBorder"
+      }
     ]
   },
   "mixins": [
