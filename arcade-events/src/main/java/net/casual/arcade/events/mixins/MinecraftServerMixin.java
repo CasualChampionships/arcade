@@ -83,7 +83,7 @@ public class MinecraftServerMixin {
 		)
 	)
 	private void onSave(CallbackInfo ci) {
-		ServerSaveEvent event = new ServerSaveEvent((MinecraftServer) (Object) this);
+		ServerSaveEvent event = new ServerSaveEvent((MinecraftServer) (Object) this, true);
 		GlobalEventHandler.broadcast(event);
 	}
 
@@ -101,7 +101,7 @@ public class MinecraftServerMixin {
 		at = @At("TAIL")
 	)
 	private void onSaveEverything(boolean suppressLog, boolean flush, boolean forced, CallbackInfoReturnable<Boolean> cir) {
-		ServerSaveEvent event = new ServerSaveEvent((MinecraftServer) (Object) this);
+		ServerSaveEvent event = new ServerSaveEvent((MinecraftServer) (Object) this, false);
 		GlobalEventHandler.broadcast(event);
 	}
 }

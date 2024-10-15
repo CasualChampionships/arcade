@@ -8,6 +8,7 @@
     "MinecraftServerMixin",
     "PlayerAdvancementsAccessor",
     "PlayerTeamMixin",
+    "ScoreboardSaveDataMixin",
     "ServerPlayerMixin"
   ],
   "injectors": {
