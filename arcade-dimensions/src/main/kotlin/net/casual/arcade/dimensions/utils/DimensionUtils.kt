@@ -3,7 +3,10 @@ package net.casual.arcade.dimensions.utils
 import net.casual.arcade.dimensions.level.CustomLevel
 import net.casual.arcade.dimensions.level.LevelPersistence
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
+import net.casual.arcade.dimensions.level.spawner.CustomMobSpawningRules
+import net.casual.arcade.dimensions.level.spawner.extension.LevelCustomMobSpawningExtension
 import net.casual.arcade.dimensions.mixins.level.MinecraftServerAccessor
+import net.casual.arcade.extensions.event.LevelExtensionEvent.Companion.getExtension
 import net.casual.arcade.utils.ArcadeUtils
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents
 import net.minecraft.core.registries.Registries
@@ -258,6 +261,10 @@ public fun MinecraftServer.deleteCustomLevel(level: CustomLevel): Boolean {
         }
     }
     return false
+}
+
+public fun ServerLevel.setCustomMobSpawningRules(rules: CustomMobSpawningRules?) {
+    this.getExtension<LevelCustomMobSpawningExtension>().rules = rules
 }
 
 public fun MinecraftServer.getDimensionPath(dimension: ResourceKey<Level>): Path {
