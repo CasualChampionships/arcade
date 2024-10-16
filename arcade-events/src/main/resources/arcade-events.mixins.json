@@ -21,6 +21,7 @@
     "RandomizbleContainerMixin",
     "RegistryDataLoaderMixin",
     "ScoreboardMixin",
+    "ServerboundTeleportToEntityPacketAccessor",
     "ServerCommonPacketListenerImplMixin",
     "ServerGamePacketListenerImplMixin",
     "ServerLevelMixin",

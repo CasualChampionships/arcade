@@ -32,6 +32,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -206,5 +207,23 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 			Suggestions merged = Suggestions.merge(packet.getCommand(), suggestions);
 			this.connection.send(new ClientboundCommandSuggestionsPacket(packet.getId(), merged));
 		});
+	}
+
+	@Inject(
+		method = "handleTeleportToEntityPacket",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V",
+			shift = At.Shift.AFTER
+		),
+		cancellable = true
+	)
+	private void onSpectatorTeleport(ServerboundTeleportToEntityPacket packet, CallbackInfo ci) {
+		UUID target = ((ServerboundTeleportToEntityPacketAccessor) packet).getUUID();
+		PlayerSpectatorTeleportEvent event = new PlayerSpectatorTeleportEvent(this.player, target);
+		GlobalEventHandler.broadcast(event);
+		if (event.isCancelled()) {
+			ci.cancel();
+		}
 	}
 }
