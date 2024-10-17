@@ -27,7 +27,9 @@ internal object TeamCommandModifier: CommandTree {
                         }
                     }
                 }
-                literal("delete").executes(::deleteRandomTeams)
+                literal("delete") {
+                    executes(::deleteRandomTeams)
+                }
             }
         }
     }
