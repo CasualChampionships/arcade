@@ -70,7 +70,7 @@ public enum class ExtendedGameMode {
         @Internal
         @JvmStatic
         public fun forceSetGameMode(player: ServerPlayer, type: ExtendedGameMode) {
-            player.getExtension<ExtendedGameModePlayerExtension>().forceSetGameMode(type)
+            player.getExtension<ExtendedGameModePlayerExtension>().forceSetGameMode(type, player)
         }
 
         internal fun registerEvents() {
