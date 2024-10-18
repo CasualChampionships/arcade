@@ -37,7 +37,6 @@ allprojects {
     }
 
     dependencies {
-
         minecraft(libs.minecraft)
         @Suppress("UnstableApiUsage")
         mappings(loom.layered {
@@ -112,7 +111,7 @@ subprojects {
 }
 
 afterEvaluate {
-    updateDocumentedDependencies("./README.md")
+    updateDocumentedDependencies("./README.md", false)
 }
 
 val testmod by sourceSets.creating {
@@ -155,7 +154,7 @@ val moduleDependencies: Project.(List<String>) -> Unit by extra { { names ->
     }
 } }
 
-private fun Project.updateDocumentedDependencies(path: String) {
+private fun Project.updateDocumentedDependencies(path: String, transitive: Boolean = true) {
     val file = file(path)
     if (!file.exists()) {
         return
@@ -165,12 +164,14 @@ private fun Project.updateDocumentedDependencies(path: String) {
     builder.append("\ndependencies {\n")
     builder.append("""    include(modImplementation("${this.group}:${this.name}:${this.version}")!!)""")
 
-    val dependencies = configurations.api.get().dependencies.toMutableSet()
-    dependencies.addAll(configurations.modApi.get().dependencies)
-    dependencies.removeAll(configurations.include.get().dependencies)
-    if (dependencies.isNotEmpty()) {
-        dependencies.sortedBy { "${it.group}:${it.name}" }.joinTo(builder, "\n", "\n\n") {
-            """    include(modImplementation("${it.group}:${it.name}:${it.version}")!!)"""
+    if (transitive) {
+        val dependencies = configurations.api.get().dependencies.toMutableSet()
+        dependencies.addAll(configurations.modApi.get().dependencies)
+        dependencies.removeAll(configurations.include.get().dependencies)
+        if (dependencies.isNotEmpty()) {
+            dependencies.sortedBy { "${it.group}:${it.name}" }.joinTo(builder, "\n", "\n\n") {
+                """    include(modImplementation("${it.group}:${it.name}:${it.version}")!!)"""
+            }
         }
     }
 
