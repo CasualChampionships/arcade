@@ -3,6 +3,7 @@ package net.casual.arcade.minigame.managers
 import com.google.common.collect.HashMultimap
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.events.player.PlayerClientboundPacketEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.ListenerFlags
@@ -39,7 +40,7 @@ public class MinigameRecipeManager(
     private val minigame: Minigame<*>
 ) {
     private val recipesByType = HashMultimap.create<RecipeType<*>, RecipeHolder<*>>()
-    private val recipesById = HashMap<ResourceLocation, RecipeHolder<*>>()
+    private val recipesById = Object2ObjectOpenHashMap<ResourceLocation, RecipeHolder<*>>()
     internal val players = HashMultimap.create<UUID, ResourceLocation>()
 
     init {

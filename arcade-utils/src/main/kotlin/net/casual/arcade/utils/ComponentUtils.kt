@@ -21,7 +21,7 @@ public object ComponentUtils {
     public val MINI_FONT: ResourceLocation = ResourceUtils.arcade("mini_minecraft")
 
     private val formattingByColour = Int2ObjectOpenHashMap<ChatFormatting>()
-    private val formattingToName = HashMap<ChatFormatting, String>()
+    private val formattingToName = EnumUtils.mapOf<ChatFormatting, String>()
 
     init {
         for (formatting in entries) {

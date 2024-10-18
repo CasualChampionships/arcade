@@ -1,11 +1,11 @@
 package net.casual.arcade.resources.sound
 
 import eu.pb4.polymer.core.api.other.PolymerSoundEvent
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import net.casual.arcade.resources.sound.SoundProvider.Type.Event
 import net.casual.arcade.resources.sound.SoundProvider.Type.Sound
-import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceLocation
@@ -14,7 +14,7 @@ import net.minecraft.sounds.SoundEvent
 public abstract class SoundResources(
     public val namespace: String
 ) {
-    private val providers = LinkedHashMap<String, List<SoundProvider>>()
+    private val providers = Object2ObjectLinkedOpenHashMap<String, List<SoundProvider>>()
 
     protected fun sound(
         location: ResourceLocation,

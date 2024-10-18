@@ -1,5 +1,6 @@
 package net.casual.arcade.events.player
 
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.events.core.CancellableEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.PlayerChatMessage
@@ -13,7 +14,7 @@ public data class PlayerTeamChatEvent(
     private var prefix: Component? = null
     private var replacement: Component? = null
 
-    private val receiving = HashSet<ServerPlayer>(this.teammates)
+    private val receiving = ReferenceOpenHashSet(this.teammates)
 
     val rawMessage: String
         get() = this.message.signedContent()

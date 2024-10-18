@@ -1,5 +1,6 @@
 package net.casual.arcade.minigame.managers
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.events.player.PlayerClientboundPacketEvent
 import net.casual.arcade.events.player.PlayerLeaveEvent
 import net.casual.arcade.minigame.Minigame
@@ -30,7 +31,7 @@ public class MinigameAdvancementManager(
     private val minigame: Minigame<*>
 ) {
     private val tree = AdvancementTree()
-    private val reloaded = HashMap<UUID, Set<ResourceLocation>>()
+    private val reloaded = Object2ObjectOpenHashMap<UUID, Set<ResourceLocation>>()
 
     init {
         this.minigame.events.register<MinigameAddPlayerEvent> { event ->

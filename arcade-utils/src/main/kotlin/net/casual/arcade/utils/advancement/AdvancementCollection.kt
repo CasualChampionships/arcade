@@ -1,9 +1,10 @@
 package net.casual.arcade.utils.advancement
 
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import net.minecraft.advancements.AdvancementHolder
 
 public abstract class AdvancementCollection: Collection<AdvancementHolder> {
-    private val registered = LinkedHashSet<AdvancementHolder>()
+    private val registered = ObjectLinkedOpenHashSet<AdvancementHolder>()
 
     final override val size: Int
         get() = this.registered.size

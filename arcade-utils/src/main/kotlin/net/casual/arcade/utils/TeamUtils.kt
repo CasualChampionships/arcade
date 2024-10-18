@@ -2,6 +2,7 @@ package net.casual.arcade.utils
 
 import com.google.common.collect.Iterators
 import com.google.common.collect.LinkedHashMultimap
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.util.ducks.OverridableColor
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.prettyName
@@ -47,7 +48,7 @@ public object TeamUtils {
 
     @JvmStatic
     public fun getTeamsFor(entities: Iterable<Entity>): MutableSet<PlayerTeam> {
-        val teams = HashSet<PlayerTeam>()
+        val teams = ReferenceOpenHashSet<PlayerTeam>()
         for (entity in entities) {
             val team = entity.team ?: continue
             teams.add(team)

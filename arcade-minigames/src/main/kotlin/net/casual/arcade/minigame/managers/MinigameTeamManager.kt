@@ -1,6 +1,7 @@
 package net.casual.arcade.minigame.managers
 
 import com.google.gson.JsonObject
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.events.player.PlayerTeamJoinEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigameAddAdminEvent
@@ -24,7 +25,7 @@ public class MinigameTeamManager(
     private var admins: PlayerTeam? = null
     private var spectators: PlayerTeam? = null
 
-    private val eliminated = HashSet<PlayerTeam>()
+    private val eliminated = ReferenceOpenHashSet<PlayerTeam>()
 
     init {
         this.minigame.events.register<MinigameSetSpectatingEvent> { (_, player) ->
@@ -155,7 +156,7 @@ public class MinigameTeamManager(
      * @return The collection of player teams.
      */
     public fun getAllTeams(): Collection<PlayerTeam> {
-        val teams = HashSet<PlayerTeam>()
+        val teams = ReferenceOpenHashSet<PlayerTeam>()
         for (profile in this.minigame.players.allProfiles) {
             teams.add(this.minigame.server.scoreboard.getPlayersTeam(profile.name) ?: continue)
         }
@@ -163,7 +164,7 @@ public class MinigameTeamManager(
     }
 
     public fun getAllNonSpectatorOrAdminTeams(): Collection<PlayerTeam> {
-        val teams = this.getAllTeams() as HashSet<PlayerTeam>
+        val teams = this.getAllTeams() as ReferenceOpenHashSet<PlayerTeam>
         teams.remove(this.admins)
         teams.remove(this.spectators)
         return teams

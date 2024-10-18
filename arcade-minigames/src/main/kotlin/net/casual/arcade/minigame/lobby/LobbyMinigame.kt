@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.commands.*
 import net.casual.arcade.commands.arguments.EnumArgument
 import net.casual.arcade.events.GlobalEventHandler
@@ -140,7 +141,7 @@ public open class LobbyMinigame(
         val component = "Click to start!".literal().green().function {
             this.startNextMinigame()
         }
-        val admins = HashSet(this.players.admins)
+        val admins = ObjectOpenHashSet(this.players.admins)
         admins.addAll(this.players.ops())
         this.chat.broadcastTo(component, admins)
     }

@@ -1,6 +1,7 @@
 package net.casual.arcade.resources.font
 
 import com.google.common.collect.HashMultimap
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
@@ -54,7 +55,7 @@ public abstract class FontResources(
     }
 
     internal fun getLangJsons(): Map<String, GsonObject> {
-        val langs = HashMap<String, GsonObject>()
+        val langs = Object2ObjectOpenHashMap<String, GsonObject>()
         for (lang in this.languages.keySet()) {
             val translations = GsonObject()
             for (entry in this.languages.get(lang)) {

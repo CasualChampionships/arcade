@@ -1,5 +1,6 @@
 package net.casual.arcade.visuals.elements
 
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
@@ -25,7 +26,7 @@ public interface TeamSpecificElement<E: Any>: PlayerSpecificElement<E> {
     }
 
     private class Cached<E: Any>(private val wrapped: TeamSpecificElement<E>): TeamSpecificElement<E> {
-        private val cache = HashMap<PlayerTeam?, E>()
+        private val cache = Reference2ObjectOpenHashMap<PlayerTeam?, E>()
 
         override fun get(server: MinecraftServer, team: PlayerTeam?): E {
             return this.cache.getOrPut(team) {

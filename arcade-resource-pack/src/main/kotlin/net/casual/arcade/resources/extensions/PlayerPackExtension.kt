@@ -1,5 +1,6 @@
 package net.casual.arcade.resources.extensions
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.resources.event.ClientPackSuccessEvent
@@ -17,8 +18,8 @@ import java.util.concurrent.CompletableFuture
 import kotlin.jvm.optionals.getOrNull
 
 internal class PlayerPackExtension(private val uuid: UUID): Extension {
-    internal val futures = HashMap<UUID, CompletableFuture<PackStatus>>()
-    private val packs = HashMap<UUID, PackState>()
+    internal val futures = Object2ObjectOpenHashMap<UUID, CompletableFuture<PackStatus>>()
+    private val packs = Object2ObjectOpenHashMap<UUID, PackState>()
 
     internal var allLoadedFuture = CompletableFuture<Void>()
 

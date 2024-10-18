@@ -1,5 +1,7 @@
 package net.casual.arcade.minigame.managers
 
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.dimensions.level.CustomLevel
 import net.casual.arcade.dimensions.utils.addCustomLevel
 import net.casual.arcade.dimensions.utils.hasCustomLevel
@@ -21,8 +23,8 @@ import net.minecraft.server.level.ServerPlayer
 public class MinigameLevelManager(
     private val minigame: Minigame<*>
 ) {
-    private val levels = LinkedHashSet<ServerLevel>()
-    private val handling = HashSet<CustomLevel>()
+    private val levels = ReferenceLinkedOpenHashSet<ServerLevel>()
+    private val handling = ReferenceOpenHashSet<CustomLevel>()
 
     /**
      * The default spawn location for the minigame.

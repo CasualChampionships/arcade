@@ -1,5 +1,6 @@
 package net.casual.arcade.visuals.core
 
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.server.level.ServerPlayer
@@ -19,7 +20,7 @@ import java.util.function.Consumer
  * respectively.
  */
 public abstract class PlayerUI {
-    private val connections = HashSet<ServerGamePacketListenerImpl>()
+    private val connections = ReferenceOpenHashSet<ServerGamePacketListenerImpl>()
 
     internal var interval = 1
         private set

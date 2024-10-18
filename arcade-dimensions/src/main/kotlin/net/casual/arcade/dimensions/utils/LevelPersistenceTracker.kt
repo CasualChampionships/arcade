@@ -1,5 +1,6 @@
 package net.casual.arcade.dimensions.utils
 
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.utils.ArcadeUtils
@@ -20,7 +21,7 @@ import kotlin.io.path.isRegularFile
 public object LevelPersistenceTracker {
     private val CODEC = ArcadeExtraCodecs.DIMENSION.listOf()
 
-    private val persistent = LinkedHashSet<ResourceKey<Level>>()
+    private val persistent = ReferenceLinkedOpenHashSet<ResourceKey<Level>>()
 
     internal fun mark(key: ResourceKey<Level>) {
         this.persistent.add(key)

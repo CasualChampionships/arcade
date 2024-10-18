@@ -1,6 +1,8 @@
 package net.casual.arcade.events
 
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.GlobalEventHandler.addProvider
 import net.casual.arcade.events.GlobalEventHandler.broadcast
@@ -29,12 +31,12 @@ public object GlobalEventHandler {
 
     private val logger = LogManager.getLogger("ArcadeEventHandler")
 
-    private val suppressed = HashSet<Class<out Event>>()
-    private val stack = Object2IntOpenHashMap<Class<out Event>>()
-    private val registries = HashSet<ListenerProvider>()
+    private val suppressed = ReferenceOpenHashSet<Class<out Event>>()
+    private val stack = Reference2IntOpenHashMap<Class<out Event>>()
+    private val registries = ObjectOpenHashSet<ListenerProvider>()
     private val registry = SimpleListenerRegistry()
 
-    private val injected = HashSet<InjectedListenerProvider>()
+    private val injected = ObjectOpenHashSet<InjectedListenerProvider>()
 
     private var recursion = false
 

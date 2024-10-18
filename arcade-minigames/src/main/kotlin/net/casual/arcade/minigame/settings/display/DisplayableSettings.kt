@@ -3,6 +3,7 @@ package net.casual.arcade.minigame.settings.display
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import eu.pb4.sgui.api.gui.GuiInterface
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.utils.SettingsGuiUtils.addSettings
 import net.casual.arcade.utils.JsonUtils.objects
@@ -12,7 +13,7 @@ import net.minecraft.server.level.ServerPlayer
 public open class DisplayableSettings(
     protected val defaults: DisplayableSettingsDefaults
 ) {
-    private val displays = LinkedHashMap<String, MenuGameSetting<*>>()
+    private val displays = Object2ObjectLinkedOpenHashMap<String, MenuGameSetting<*>>()
 
     /**
      * This registers a setting to this collection.

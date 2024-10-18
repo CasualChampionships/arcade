@@ -1,5 +1,6 @@
 package net.casual.arcade.visuals.elements
 
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
@@ -27,7 +28,7 @@ public fun interface LevelSpecificElement<E: Any>: PlayerSpecificElement<E> {
     }
 
     private class Cached<E: Any>(private val wrapped: LevelSpecificElement<E>): LevelSpecificElement<E> {
-        private val cache = HashMap<ResourceKey<Level>, E>()
+        private val cache = Reference2ObjectOpenHashMap<ResourceKey<Level>, E>()
 
         override fun get(level: ServerLevel): E {
             return this.cache.getOrPut(level.dimension()) {

@@ -1,5 +1,6 @@
 package net.casual.arcade.minigame.task
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.serialization.SavableMinigame
 import net.casual.arcade.scheduler.task.SavableTask
@@ -27,8 +28,8 @@ public class MinigameTaskGenerator<M: Minigame<M>>(
      */
     private val minigame: M
 ) {
-    private val minigameFactories = HashMap<String, MinigameTaskFactory<M>>()
-    private val regularFactories = HashMap<String, TaskFactory>()
+    private val minigameFactories = Object2ObjectOpenHashMap<String, MinigameTaskFactory<M>>()
+    private val regularFactories = Object2ObjectOpenHashMap<String, TaskFactory>()
 
     /**
      * This tries to generate a [Task] with the given [id]

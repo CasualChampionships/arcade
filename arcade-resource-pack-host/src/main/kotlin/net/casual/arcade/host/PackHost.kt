@@ -3,6 +3,7 @@ package net.casual.arcade.host
 import com.google.common.hash.Hashing
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.host.core.HttpHost
 import net.casual.arcade.host.pack.ReadablePack
 import net.casual.arcade.host.pack.ReadablePackSupplier
@@ -14,7 +15,7 @@ import kotlin.reflect.KProperty
 public class PackHost(ip: String?, port: Int = DEFAULT_PORT, threads: Int = 1): HttpHost(ip, port, threads) {
     private val hostedByName = ConcurrentHashMap<String, HostedPack>()
 
-    private val packs = HashMap<String, ReadablePack>()
+    private val packs = Object2ObjectOpenHashMap<String, ReadablePack>()
     private val suppliers = ArrayList<ReadablePackSupplier>()
 
     public fun addPack(pack: ReadablePack): HostedPackRef {

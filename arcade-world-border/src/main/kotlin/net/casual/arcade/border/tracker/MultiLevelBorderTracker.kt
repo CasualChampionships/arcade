@@ -1,13 +1,15 @@
 package net.casual.arcade.border.tracker
 
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.border.utils.setWorldBorder
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.border.WorldBorder
 import java.util.*
 
 public class MultiLevelBorderTracker {
-    private val tracking = HashMap<TrackedBorder, ServerLevel>()
-    private val completed = HashSet<TrackedBorder>()
+    private val tracking = Reference2ObjectOpenHashMap<TrackedBorder, ServerLevel>()
+    private val completed = ReferenceOpenHashSet<TrackedBorder>()
 
     private val listeners = ArrayList<MultiLevelBorderListener>()
 

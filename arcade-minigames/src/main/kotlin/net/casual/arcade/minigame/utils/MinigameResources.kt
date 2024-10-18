@@ -1,5 +1,6 @@
 package net.casual.arcade.minigame.utils
 
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import net.casual.arcade.resources.pack.PackInfo
 import net.casual.arcade.resources.utils.ResourcePackUtils.removeResourcePack
 import net.casual.arcade.resources.utils.ResourcePackUtils.sendResourcePack
@@ -36,7 +37,7 @@ public interface MinigameResources {
     }
 
     public class MultiMinigameResources: MinigameResources {
-        private val resources = LinkedHashSet<MinigameResources>()
+        private val resources = ObjectLinkedOpenHashSet<MinigameResources>()
 
         public fun addResources(resources: MinigameResources): Boolean {
             return this.resources.add(resources)

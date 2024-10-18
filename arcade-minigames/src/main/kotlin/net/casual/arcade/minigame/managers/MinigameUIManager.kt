@@ -1,5 +1,7 @@
 package net.casual.arcade.minigame.managers
 
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.ListenerFlags
@@ -45,9 +47,9 @@ public class MinigameUIManager(
     public var readier: ReadyChecker
 
     init {
-        this.bossbars = ArrayList()
-        this.nametags = ArrayList()
-        this.tickables = LinkedHashSet()
+        this.bossbars = ReferenceArrayList()
+        this.nametags = ReferenceArrayList()
+        this.tickables = ReferenceLinkedOpenHashSet()
 
         this.countdown = TitledCountdown.titled()
         this.readier = ReadyChecker(
