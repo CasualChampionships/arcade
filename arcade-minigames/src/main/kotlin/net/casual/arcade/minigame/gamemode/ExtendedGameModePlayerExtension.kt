@@ -28,6 +28,10 @@ internal class ExtendedGameModePlayerExtension(
     // We take in a player parameter here because the
     // `connection.player` reference may be outdated...
     fun forceSetGameMode(mode: ExtendedGameMode, player: ServerPlayer) {
+        if (mode == ExtendedGameMode.None) {
+            return
+        }
+
         this.changedGameMode = true
 
         mode.set(player)
@@ -35,6 +39,8 @@ internal class ExtendedGameModePlayerExtension(
     }
 
     fun setGameModeFromVanilla(type: GameType) {
+        this.changedGameMode = true
+
         this.gameMode = ExtendedGameMode.fromVanilla(type)
     }
 
