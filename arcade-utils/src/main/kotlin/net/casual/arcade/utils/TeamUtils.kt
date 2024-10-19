@@ -2,8 +2,10 @@ package net.casual.arcade.utils
 
 import com.google.common.collect.Iterators
 import com.google.common.collect.LinkedHashMultimap
+import com.google.common.collect.Multimap
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.util.ducks.OverridableColor
+import net.casual.arcade.utils.ComponentUtils.joinToComponent
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.prettyName
 import net.casual.arcade.utils.ItemUtils.named
@@ -11,6 +13,7 @@ import net.casual.arcade.utils.PlayerUtils.player
 import net.minecraft.ChatFormatting
 import net.minecraft.ChatFormatting.*
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.ComponentUtils
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.ServerScoreboard
@@ -57,7 +60,7 @@ public object TeamUtils {
     }
 
     @JvmStatic
-    public fun getMappedTeamsFor(entities: Iterable<Entity>): LinkedHashMultimap<PlayerTeam, Entity> {
+    public fun getMappedTeamsFor(entities: Iterable<Entity>): Multimap<PlayerTeam, Entity> {
         val teams = LinkedHashMultimap.create<PlayerTeam, Entity>()
         for (entity in entities) {
             val team = entity.team ?: continue
@@ -113,7 +116,10 @@ public object TeamUtils {
     }
 
     @JvmStatic
-    public fun MutableComponent.color(team: PlayerTeam): MutableComponent {
+    public fun MutableComponent.color(team: PlayerTeam?): MutableComponent {
+        if (team == null) {
+            return this
+        }
         val color = team.getHexColor()
         if (color != null) {
             this.withColor(color)
@@ -122,15 +128,12 @@ public object TeamUtils {
     }
 
     @JvmStatic
+    @Deprecated(
+        "Use joinToComponent instead",
+        ReplaceWith("this.joinToComponent { it.formattedDisplayName }")
+    )
     public fun Iterable<PlayerTeam>.toComponent(): MutableComponent {
-        val component = Component.empty()
-        for (team in this) {
-            if (component.siblings.isNotEmpty()) {
-                component.append(", ")
-            }
-            component.append(team.formattedDisplayName)
-        }
-        return component
+        return this.joinToComponent { it.formattedDisplayName }
     }
 
     @JvmStatic
