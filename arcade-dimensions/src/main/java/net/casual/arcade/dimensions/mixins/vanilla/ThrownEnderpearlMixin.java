@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(ThrownEnderpearl.class)
 public class ThrownEnderpearlMixin {
 	@ModifyExpressionValue(
-		method = "canChangeDimensions",
+		method = "canTeleport",
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/world/level/Level;dimension()Lnet/minecraft/resources/ResourceKey;"

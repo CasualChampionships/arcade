@@ -13,6 +13,7 @@ import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
+import net.minecraft.world.flag.FeatureFlagSet
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.chunk.ChunkGenerator
@@ -209,7 +210,7 @@ public class CustomLevelBuilder {
         return this.timeOfDay(0)
             .weather(WeatherProperties())
             .difficulty(DifficultyProperties())
-            .gameRules(GameRules())
+            .gameRules(GameRules(FeatureFlagSet.of()))
     }
 
     /**
@@ -287,7 +288,7 @@ public class CustomLevelBuilder {
      * @return This builder.
      */
     public fun gameRules(builder: GameRules.() -> Unit): CustomLevelBuilder {
-        val rules = this.properties.gameRules.orElseGet(::GameRules)
+        val rules = this.properties.gameRules.orElseGet { GameRules(FeatureFlagSet.of()) }
         rules.builder()
         return this
     }
@@ -581,11 +582,11 @@ public class CustomLevelBuilder {
     public fun build(server: MinecraftServer): CustomLevel {
         val key = requireNotNull(this.key) { "Dimension key must be specified" }
         var stem = this.stem ?: Optional.ofNullable(this.stemKey).flatMap { stemKey ->
-            server.registryAccess().registry(Registries.LEVEL_STEM).flatMap { it.getHolder(stemKey) }
+            server.registryAccess().lookup(Registries.LEVEL_STEM).flatMap { it.get(stemKey) }
         }.orElse(null)
         if (stem == null) {
             val dimensionType = this.type ?: Optional.ofNullable(this.typeKey).flatMap { typeKey ->
-                server.registryAccess().registry(Registries.DIMENSION_TYPE).flatMap { it.getHolder(typeKey) }
+                server.registryAccess().lookup(Registries.DIMENSION_TYPE).flatMap { it.get(typeKey) }
             }.orElseThrow { IllegalArgumentException("Unknown dimension type specified") }
 
             val generator = this.generator ?: throw IllegalArgumentException("Chunk generator must be specified")

@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(FlowingFluid.class)
 public class FlowingFluidMixin {
 	@ModifyReturnValue(
-		method = "canSpreadTo",
+		method = "canMaybePassThrough",
 		at = @At("RETURN")
 	)
 	private boolean onCanSpreadTo(
@@ -28,8 +28,7 @@ public class FlowingFluidMixin {
 		Direction direction,
 		BlockPos toPos,
 		BlockState toBlockState,
-		FluidState toFluidState,
-		Fluid fluid
+		FluidState toFluidState
 	) {
 		if (level instanceof ServerLevel serverLevel) {
 			LevelFluidTrySpreadEvent event = new LevelFluidTrySpreadEvent(
@@ -40,7 +39,6 @@ public class FlowingFluidMixin {
 				toPos,
 				toBlockState,
 				toFluidState,
-				fluid,
 				original
 			);
 			GlobalEventHandler.broadcast(event);

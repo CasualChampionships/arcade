@@ -4,7 +4,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.casual.arcade.dimensions.level.spawner.CustomMobSpawningRules;
 import net.casual.arcade.dimensions.level.spawner.extension.LevelCustomMobSpawningExtension;
-import net.casual.arcade.dimensions.level.vanilla.extension.DragonDataExtension;
 import net.casual.arcade.extensions.event.LevelExtensionEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.MobCategory;
@@ -20,7 +19,7 @@ public class NaturalSpawnerMixin {
 		method = "spawnForChunk",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/level/NaturalSpawner$SpawnState;canSpawnForCategory(Lnet/minecraft/world/entity/MobCategory;Lnet/minecraft/world/level/ChunkPos;)Z"
+			target = "Lnet/minecraft/world/level/NaturalSpawner$SpawnState;canSpawnForCategoryLocal(Lnet/minecraft/world/entity/MobCategory;Lnet/minecraft/world/level/ChunkPos;)Z"
 		)
 	)
 	private static boolean canCategorySpawn(

@@ -19,7 +19,7 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.level.portal.TeleportTransition;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -54,17 +54,17 @@ public abstract class ServerPlayerMixin extends Player {
 	}
 
 	@Inject(
-		method = "changeDimension",
+		method = "teleport(Lnet/minecraft/world/level/portal/TeleportTransition;)Lnet/minecraft/server/level/ServerPlayer;",
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/server/level/ServerPlayer;setServerLevel(Lnet/minecraft/server/level/ServerLevel;)V"
 		)
 	)
 	private void onChangeDimension(
-		DimensionTransition dimensionTransition,
+		TeleportTransition transition,
 		CallbackInfoReturnable<Entity> cir
 	) {
-		ServerLevel level = dimensionTransition.newLevel();
+		ServerLevel level = transition.newLevel();
 		if (this.serverLevel().dimension() != level.dimension()) {
 			PlayerDimensionChangeEvent event = new PlayerDimensionChangeEvent((ServerPlayer) (Object) this, level);
 			GlobalEventHandler.broadcast(event);
@@ -139,6 +139,30 @@ public abstract class ServerPlayerMixin extends Player {
 		Operation<Void> original
 	) {
 		PlayerSystemMessageEvent.broadcast((ServerPlayer) (Object) this, instance, message, bypassHiddenChat, original);
+	}
+
+
+
+	@Inject(
+		method = "jumpFromGround",
+		at = @At("HEAD"),
+		cancellable = true
+	)
+	private void onJump(CallbackInfo ci) {
+		PlayerJumpEvent event = new PlayerJumpEvent((ServerPlayer) (Object) this);
+		GlobalEventHandler.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+		if (event.isCancelled()) {
+			ci.cancel();
+		}
+	}
+
+	@Inject(
+		method = "jumpFromGround",
+		at = @At("TAIL")
+	)
+	private void onJumpPost(CallbackInfo ci) {
+		PlayerJumpEvent event = new PlayerJumpEvent((ServerPlayer) (Object) this);
+		GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
 	}
 
 	@Override

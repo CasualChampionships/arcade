@@ -10,7 +10,9 @@ import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.RelativeMovement;
+import net.minecraft.world.entity.PositionMoveRotation;
+import net.minecraft.world.entity.Relative;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -186,11 +188,13 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 
 	@Unique
 	private void sendMovePacket(double x, double y, double z) {
-		this.send(new ClientboundPlayerPositionPacket(x, y, z, 0, 0, RelativeMovement.ROTATION, -1));
+		PositionMoveRotation data = new PositionMoveRotation(new Vec3(x, y, z), Vec3.ZERO, 0.0F, 0.0F);
+		this.send(new ClientboundPlayerPositionPacket(-1, data, Relative.ROTATION));
 	}
 
 	@Unique
 	private void sendMovePacket(double x, double y, double z, float yaw, float pitch) {
-		this.send(new ClientboundPlayerPositionPacket(x, y, z, yaw, pitch, Set.of(), -1));
+		PositionMoveRotation data = new PositionMoveRotation(new Vec3(x, y, z), Vec3.ZERO, yaw, pitch);
+		this.send(new ClientboundPlayerPositionPacket(-1, data, Set.of()));
 	}
 }

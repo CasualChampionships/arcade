@@ -1,5 +1,7 @@
 package net.casual.arcade.events.mixins;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import com.mojang.datafixers.util.Either;
@@ -8,6 +10,7 @@ import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.ducks.ModifyActuallyHurt;
 import net.casual.arcade.events.player.*;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
@@ -25,25 +28,33 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Player.class)
 public abstract class PlayerMixin implements ModifyActuallyHurt {
-	@Redirect(
+	@WrapOperation(
 		method = "attack",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z"
+			target = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)V"
 		)
 	)
-	private boolean onSweepAttack(LivingEntity entity, DamageSource source, float amount) {
-		return this.onAttack(entity, source, amount);
+	private void onSweepAttack(LivingEntity entity, DamageSource source, float amount, Operation<Void> original) {
+		if ((Object) this instanceof ServerPlayer player) {
+			PlayerAttackEvent event = new PlayerAttackEvent(player, entity, amount);
+			GlobalEventHandler.broadcast(event);
+			if (event.isCancelled()) {
+				return;
+			}
+			amount = event.getDamage();
+		}
+		original.call(entity, source, amount);
 	}
 
-	@Redirect(
+	@WrapOperation(
 		method = "attack",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/entity/Entity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z"
+			target = "Lnet/minecraft/world/entity/Entity;hurtOrSimulate(Lnet/minecraft/world/damagesource/DamageSource;F)Z"
 		)
 	)
-	private boolean onAttack(Entity entity, DamageSource source, float amount) {
+	private boolean onAttack(Entity entity, DamageSource source, float amount, Operation<Boolean> original) {
 		if ((Object) this instanceof ServerPlayer player) {
 			PlayerAttackEvent event = new PlayerAttackEvent(player, entity, amount);
 			GlobalEventHandler.broadcast(event);
@@ -52,7 +63,7 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 			}
 			amount = event.getDamage();
 		}
-		return entity.hurt(source, amount);
+		return original.call(entity, source, amount);
 	}
 
 	@Inject(
@@ -84,6 +95,7 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 		cancellable = true
 	)
 	private void onDamage(
+		ServerLevel level,
 		DamageSource source,
 		float damageAmount,
 		CallbackInfo ci,
@@ -109,38 +121,13 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 		)
 	)
 	private void onDamagePost(
+		ServerLevel level,
 		DamageSource source,
 		float damageAmount,
 		CallbackInfo ci
 	) {
 		if ((Object) this instanceof ServerPlayer player) {
 			PlayerDamageEvent event = new PlayerDamageEvent(player, source, damageAmount);
-			GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
-		}
-	}
-
-	@Inject(
-		method = "jumpFromGround",
-		at = @At("HEAD"),
-		cancellable = true
-	)
-	private void onJump(CallbackInfo ci) {
-		if ((Object) this instanceof ServerPlayer player) {
-			PlayerJumpEvent event = new PlayerJumpEvent(player);
-			GlobalEventHandler.broadcast(event, BuiltInEventPhases.PRE_PHASES);
-			if (event.isCancelled()) {
-				ci.cancel();
-			}
-		}
-	}
-
-	@Inject(
-		method = "jumpFromGround",
-		at = @At("TAIL")
-	)
-	private void onJumpPost(CallbackInfo ci) {
-		if ((Object) this instanceof ServerPlayer player) {
-			PlayerJumpEvent event = new PlayerJumpEvent(player);
 			GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES);
 		}
 	}

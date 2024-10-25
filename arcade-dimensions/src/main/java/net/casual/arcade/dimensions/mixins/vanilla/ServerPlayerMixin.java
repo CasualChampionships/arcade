@@ -16,7 +16,7 @@ public abstract class ServerPlayerMixin {
 	@Shadow public abstract ServerLevel serverLevel();
 
 	@ModifyExpressionValue(
-		method = "changeDimension",
+		method = "teleport(Lnet/minecraft/world/level/portal/TeleportTransition;)Lnet/minecraft/server/level/ServerPlayer;",
 		at = {
 			@At(
 				value = "FIELD",

@@ -135,13 +135,12 @@ public object PlayerUtils {
     public fun ServerPlayer.resetHunger() {
         this.foodData.foodLevel = 20
         this.foodData.setSaturation(20.0F)
-        this.foodData.setExhaustion(0.0F)
     }
 
     @JvmStatic
     public fun ServerPlayer.clearPlayerInventory() {
         this.inventory.clearContent()
-        this.inventoryMenu.clearCraftingContent()
+        this.inventoryMenu.craftSlots.clearContent()
         this.inventoryMenu.carried = ItemStack.EMPTY
     }
 
@@ -215,7 +214,7 @@ public object PlayerUtils {
     @JvmStatic
     public fun ServerPlayer.grantAllRecipesSilently() {
         for (recipe in this.server.recipeManager.recipes) {
-            this.recipeBook.add(recipe)
+            this.recipeBook.add(recipe.id)
         }
         this.markSilentRecipesDirty()
     }
@@ -231,7 +230,7 @@ public object PlayerUtils {
     }
 
     @JvmStatic
-    public fun ServerPlayer.teleportTo(location: Location) {
+    public fun ServerPlayer.teleportTo(location: Location, resetCamera: Boolean = true) {
         this.teleportTo(
             location.level,
             location.x,
@@ -239,7 +238,8 @@ public object PlayerUtils {
             location.z,
             setOf(),
             Mth.wrapDegrees(location.yaw),
-            Mth.wrapDegrees(location.pitch)
+            Mth.wrapDegrees(location.pitch),
+            resetCamera
         )
     }
 

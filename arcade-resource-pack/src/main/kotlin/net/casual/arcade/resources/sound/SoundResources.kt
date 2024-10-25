@@ -1,6 +1,5 @@
 package net.casual.arcade.resources.sound
 
-import eu.pb4.polymer.core.api.other.PolymerSoundEvent
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
@@ -22,13 +21,13 @@ public abstract class SoundResources(
         pitch: Float = 1.0F,
         stream: Boolean = false,
         attenuationDistance: Int = 16,
-        constantVolume: Boolean = false,
+        dynamicRange: Boolean = false,
         preload: Boolean = false,
         id: String = location.path
     ): SoundEvent {
         val provider = SoundProvider(location, volume, pitch, 1, stream, attenuationDistance, preload, Sound)
         this.providers[id] = listOf(provider)
-        return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, constantVolume)
+        return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, dynamicRange)
     }
 
     protected fun event(
@@ -37,25 +36,25 @@ public abstract class SoundResources(
         pitch: Float = 1.0F,
         stream: Boolean = false,
         attenuationDistance: Int = 16,
-        constantVolume: Boolean = false,
+        dynamicRange: Boolean = false,
         preload: Boolean = false,
         id: String = location.path
     ): SoundEvent {
         val provider = SoundProvider(location, volume, pitch, 1, stream, attenuationDistance, preload, Event)
         this.providers[id] = listOf(provider)
-        return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, constantVolume)
+        return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, dynamicRange)
     }
 
     protected fun group(
         id: String,
         attenuationDistance: Int = 16,
-        constantVolume: Boolean = false,
+        dynamicRange: Boolean = false,
         builder: GroupedSoundProvider.() -> Unit
     ): SoundEvent {
         val grouped = GroupedSoundProvider()
         grouped.builder()
         this.providers[id] = grouped.getProviders()
-        return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, constantVolume)
+        return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, dynamicRange)
     }
 
     protected fun at(path: String): ResourceLocation {
@@ -78,8 +77,12 @@ public abstract class SoundResources(
         return Json.encodeToString(json)
     }
 
-    private fun register(id: ResourceLocation, distance: Int, isStatic: Boolean): PolymerSoundEvent {
-        val sound = PolymerSoundEvent(null, id, distance.toFloat(), !isStatic, null)
+    private fun register(id: ResourceLocation, distance: Int, dynamicRange: Boolean): SoundEvent {
+        val sound = if (dynamicRange) {
+            SoundEvent.createVariableRangeEvent(id)
+        } else {
+            SoundEvent.createFixedRangeEvent(id, distance.toFloat())
+        }
         Registry.register(BuiltInRegistries.SOUND_EVENT, id, sound)
         return sound
     }

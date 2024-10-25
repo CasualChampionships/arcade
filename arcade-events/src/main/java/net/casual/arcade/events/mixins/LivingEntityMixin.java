@@ -11,6 +11,7 @@ import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.ducks.ModifyActuallyHurt;
 import net.casual.arcade.events.entity.EntityDeathEvent;
 import net.casual.arcade.events.player.*;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -55,7 +56,7 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 		method = "onBelowWorld",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z"
+			target = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)V"
 		)
 	)
 	private boolean onVoidDamage(LivingEntity instance, DamageSource source, float amount) {
@@ -68,21 +69,22 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 	}
 
 	@WrapOperation(
-		method = "hurt",
+		method = "hurtServer",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/entity/LivingEntity;actuallyHurt(Lnet/minecraft/world/damagesource/DamageSource;F)V"
+			target = "Lnet/minecraft/world/entity/LivingEntity;actuallyHurt(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)V"
 		)
 	)
 	private void onHurt(
 		LivingEntity instance,
+		ServerLevel level,
 		DamageSource damageSource,
 		float damageAmount,
 		Operation<Void> original,
 		@Cancellable CallbackInfoReturnable<Boolean> cir
 	) {
 		this.arcade$wasActuallyHurt = true;
-		original.call(instance, damageSource, damageAmount);
+		original.call(instance, level, damageSource, damageAmount);
 		if (!this.arcade$wasActuallyHurt) {
 			cir.setReturnValue(false);
 		}

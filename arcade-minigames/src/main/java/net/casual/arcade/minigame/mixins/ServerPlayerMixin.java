@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -37,11 +38,13 @@ public class ServerPlayerMixin {
 		at = @At("HEAD"),
 		cancellable = true
 	)
-	private void onIsInvulnerableTo(DamageSource source, CallbackInfoReturnable<Boolean> cir) {
+	private void onIsInvulnerableTo(ServerLevel level, DamageSource source, CallbackInfoReturnable<Boolean> cir) {
 		ServerPlayer player = (ServerPlayer) (Object) this;
 		Minigame<?> minigame = MinigameUtils.getMinigame(player);
 		if (minigame != null && !minigame.getSettings().canTakeDamage.get(player)) {
-			cir.setReturnValue(true);
+			if (!source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+				cir.setReturnValue(true);
+			}
 		}
 	}
 

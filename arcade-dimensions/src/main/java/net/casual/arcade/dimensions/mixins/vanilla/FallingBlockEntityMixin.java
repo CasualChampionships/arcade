@@ -17,7 +17,7 @@ public abstract class FallingBlockEntityMixin extends Entity {
 	}
 
 	@ModifyExpressionValue(
-		method = "changeDimension",
+		method = "teleport",
 		at = @At(
 			value = "FIELD",
 			target = "Lnet/minecraft/world/level/Level;END:Lnet/minecraft/resources/ResourceKey;"

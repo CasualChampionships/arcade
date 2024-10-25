@@ -31,9 +31,12 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.ComponentArgument
 import net.minecraft.commands.arguments.EntityArgument
+import net.minecraft.commands.arguments.ResourceKeyArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.commands.arguments.TeamArgument
+import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 
@@ -234,7 +237,7 @@ internal object MinigameCommand: CommandTree {
                             argument("recipe", ResourceLocationArgument.id()) {
                                 suggests { context, builder ->
                                     val minigame = MinigameArgument.getMinigame(context, "minigame")
-                                    SharedSuggestionProvider.suggestResource(minigame.recipes.all().map { it.id }, builder)
+                                    SharedSuggestionProvider.suggestResource(minigame.recipes.all().map { it.id.location() }, builder)
                                 }
                                 argument("player", EntityArgument.players()) {
                                     executes(::modifyMinigameRecipe)
@@ -634,7 +637,7 @@ internal object MinigameCommand: CommandTree {
         val modifier = EnumArgument.getEnumeration<RecipeModifier>(context, "modifier")
         val id = ResourceLocationArgument.getId(context, "recipe")
         val player = EntityArgument.getPlayer(context, "player")
-        val recipe = minigame.recipes.get(id)
+        val recipe = minigame.recipes.get(ResourceKey.create(Registries.RECIPE, id))
             ?: return context.source.fail(Component.translatable("minigame.command.recipe.unknown"))
         return context.source.success(modifier.modifySingle(minigame, player, recipe))
     }

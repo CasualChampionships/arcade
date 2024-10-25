@@ -45,7 +45,7 @@ public class VoidChunkGenerator(biome: BiomeSource): ChunkGenerator(biome) {
      * @param key The key for the desired biome.
      */
     public constructor(server: MinecraftServer, key: ResourceKey<Biome>):
-        this(server.registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(key))
+        this(server.registryAccess().lookupOrThrow(Registries.BIOME).getOrThrow(key))
 
     /**
      * Creates an instance of this class with the [Biomes.THE_VOID] biome.
@@ -62,7 +62,7 @@ public class VoidChunkGenerator(biome: BiomeSource): ChunkGenerator(biome) {
         return ChunkGeneratorStructureState.createForFlat(randomState, seed, this.biomeSource, Stream.empty())
     }
 
-    override fun applyCarvers(level: WorldGenRegion, seed: Long, random: RandomState, biomeManager: BiomeManager, structureManager: StructureManager, chunk: ChunkAccess, step: GenerationStep.Carving) {
+    override fun applyCarvers(worldGenRegion: WorldGenRegion, l: Long, randomState: RandomState, biomeManager: BiomeManager, structureManager: StructureManager, chunkAccess: ChunkAccess) {
 
     }
 

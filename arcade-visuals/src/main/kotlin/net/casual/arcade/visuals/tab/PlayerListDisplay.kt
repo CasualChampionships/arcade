@@ -23,6 +23,7 @@ import java.util.*
 import java.util.function.Consumer
 import kotlin.collections.ArrayList
 
+// TODO: Use the list order functionality?
 public class PlayerListDisplay(
     private val display: PlayerListEntries
 ): PlayerUI(), TickableUI {
@@ -161,6 +162,7 @@ public class PlayerListDisplay(
                 entry.latency,
                 GameType.SURVIVAL,
                 entry.display,
+                0,
                 null
             ))
             this.sendToAllPlayers(ClientboundPlayerInfoUpdatePacket(actions, entries))
@@ -170,7 +172,7 @@ public class PlayerListDisplay(
 
     private fun hidingClientboundEntry(player: ServerPlayer, hidden: Boolean): ClientboundPlayerInfoUpdatePacket.Entry {
         return ClientboundPlayerInfoUpdatePacket.Entry(
-            player.uuid, null, !hidden, 0, GameType.SURVIVAL, null, null
+            player.uuid, null, !hidden, 0, GameType.SURVIVAL, null, 0, null
         )
     }
 
@@ -184,6 +186,7 @@ public class PlayerListDisplay(
             entry.latency,
             GameType.SURVIVAL,
             entry.display,
+            0,
             null
         )
     }

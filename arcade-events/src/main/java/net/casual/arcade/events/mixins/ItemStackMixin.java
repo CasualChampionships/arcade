@@ -1,12 +1,12 @@
 package net.casual.arcade.events.mixins;
 
-import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -26,7 +26,7 @@ public class ItemStackMixin {
 		at = @At("HEAD"),
 		cancellable = true
 	)
-	private void onUse(Level level, Player player, InteractionHand usedHand, CallbackInfoReturnable<InteractionResultHolder<ItemStack>> cir) {
+	private void onUse(Level level, Player player, InteractionHand usedHand, CallbackInfoReturnable<InteractionResult> cir) {
 		if (player instanceof ServerPlayer serverPlayer) {
 			PlayerItemUseEvent event = new PlayerItemUseEvent(serverPlayer, (ItemStack) (Object) this, usedHand);
 			GlobalEventHandler.broadcast(event);
@@ -66,20 +66,29 @@ public class ItemStackMixin {
 		}
 	}
 
-	@WrapWithCondition(
+	@WrapOperation(
 		method = "releaseUsing",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/item/Item;releaseUsing(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/LivingEntity;I)V"
+			target = "Lnet/minecraft/world/item/Item;releaseUsing(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/LivingEntity;I)Z"
 		)
 	)
-	private boolean onReleaseUsing(Item instance, ItemStack stack, Level level, LivingEntity livingEntity, int timeCharged) {
+	private boolean onReleaseUsing(
+		Item instance,
+		ItemStack stack,
+		Level level,
+		LivingEntity livingEntity,
+		int timeCharged,
+		Operation<Boolean> original
+	) {
 		if (livingEntity instanceof ServerPlayer player) {
 			PlayerItemReleaseEvent event = new PlayerItemReleaseEvent(player, stack, timeCharged);
 			GlobalEventHandler.broadcast(event);
-			return !event.isCancelled();
+			if (event.isCancelled()) {
+				return false;
+			}
 		}
-		return true;
+		return original.call(instance, stack, level, livingEntity, timeCharged);
 	}
 
 	@Inject(

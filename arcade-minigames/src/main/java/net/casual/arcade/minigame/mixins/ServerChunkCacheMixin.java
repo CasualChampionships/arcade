@@ -11,10 +11,10 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(ServerChunkCache.class)
 public class ServerChunkCacheMixin {
-	@Shadow @Final ServerLevel level;
+	@Shadow @Final private ServerLevel level;
 
 	@ModifyExpressionValue(
-		method = "tickChunks",
+		method = "tickChunks()V",
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/world/TickRateManager;runsNormally()Z"

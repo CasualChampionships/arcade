@@ -15,6 +15,5 @@ public class LevelFluidTrySpreadEvent(
     public val spreadPos: BlockPos,
     public val spreadBlockState: BlockState,
     public val spreadFluidState: FluidState,
-    public val fluid: Fluid,
     public var canSpread: Boolean
 ): LevelEvent

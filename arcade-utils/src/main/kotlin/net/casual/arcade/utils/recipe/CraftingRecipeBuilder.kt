@@ -1,33 +1,44 @@
 package net.casual.arcade.utils.recipe
 
-import net.minecraft.core.NonNullList
+import net.minecraft.core.HolderLookup
+import net.minecraft.core.HolderLookup.Provider
+import net.minecraft.core.registries.Registries
+import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.crafting.*
 import java.util.*
+import kotlin.collections.ArrayList
 
 public object CraftingRecipeBuilder {
-    public fun shaped(block: Shaped.() -> Unit): Shaped {
-        return Shaped().apply(block)
+    public fun shaped(provider: Provider, block: Shaped.() -> Unit): RecipeHolder<ShapedRecipe> {
+        return Shaped(provider).apply(block).build()
     }
 
-    public fun shapeless(block: Shapeless.() -> Unit): Shapeless {
-        return Shapeless().apply(block)
+    public fun shapeless(provider: Provider, block: Shapeless.() -> Unit): RecipeHolder<ShapelessRecipe> {
+        return Shapeless(provider).apply(block).build()
     }
 
-    public class Shaped internal constructor() {
-        private val ingredients = NonNullList.create<Ingredient>()
-        public var id: ResourceLocation? = null
+    public class Shaped internal constructor(private val provider: Provider) {
+        private val lookup = this.provider.lookupOrThrow(Registries.ITEM)
+
+        private val ingredients = ArrayList<Optional<Ingredient>>()
+        public var key: ResourceKey<Recipe<*>>? = null
         public var category: CraftingBookCategory = CraftingBookCategory.MISC
         public var group: String = ""
         public var width: Int = 0
         public var height: Int = 0
         public var result: ItemStack = ItemStack.EMPTY
 
-        public fun id(id: ResourceLocation): Shaped {
-            this.id = id
+        public fun key(id: ResourceLocation): Shaped {
+            this.key = ResourceKey.create(Registries.RECIPE, id)
+            return this
+        }
+
+        public fun key(key: ResourceKey<Recipe<*>>): Shaped {
+            this.key = key
             return this
         }
 
@@ -41,23 +52,28 @@ public object CraftingRecipeBuilder {
             return this
         }
 
-        public fun ingredients(vararg ingredient: Ingredient): Shaped {
-            this.ingredients.addAll(ingredient)
+        public fun ingredients(vararg ingredients: Ingredient): Shaped {
+            this.ingredients.addAll(ingredients.map { Optional.of(it) })
             return this
         }
 
-        public fun ingredients(vararg item: Item): Shaped {
-            this.ingredients.addAll(item.map { Ingredient.of(it) })
+        public fun ingredients(vararg items: Item): Shaped {
+            this.ingredients(*items.map { Ingredient.of(it) }.toTypedArray())
             return this
         }
 
-        public fun ingredients(vararg item: TagKey<Item>): Shaped {
-            this.ingredients.addAll(item.map(Ingredient::of))
+        public fun ingredients(vararg tags: TagKey<Item>): Shaped {
+            this.ingredients(*tags.map { Ingredient.of(this.lookup.getOrThrow(it)) }.toTypedArray())
+            return this
+        }
+
+        public fun result(stack: ItemStack): Shaped {
+            this.result = stack
             return this
         }
 
         public fun build(): RecipeHolder<ShapedRecipe> {
-            val id = requireNotNull(this.id)
+            val id = requireNotNull(this.key)
             val recipe = ShapedRecipe(
                 this.group,
                 this.category,
@@ -73,15 +89,22 @@ public object CraftingRecipeBuilder {
         }
     }
 
-    public class Shapeless internal constructor() {
-        private val ingredients = NonNullList.create<Ingredient>()
-        public var id: ResourceLocation? = null
+    public class Shapeless internal constructor(private val provider: Provider) {
+        private val lookup = this.provider.lookupOrThrow(Registries.ITEM)
+
+        private val ingredients = ArrayList<Ingredient>()
+        public var key: ResourceKey<Recipe<*>>? = null
         public var category: CraftingBookCategory = CraftingBookCategory.MISC
         public var group: String = ""
         public var result: ItemStack = ItemStack.EMPTY
 
-        public fun id(id: ResourceLocation): Shapeless {
-            this.id = id
+        public fun key(id: ResourceLocation): Shapeless {
+            this.key = ResourceKey.create(Registries.RECIPE, id)
+            return this
+        }
+
+        public fun key(key: ResourceKey<Recipe<*>>): Shapeless {
+            this.key = key
             return this
         }
 
@@ -95,23 +118,28 @@ public object CraftingRecipeBuilder {
             return this
         }
 
-        public fun ingredients(vararg ingredient: Ingredient): Shapeless {
-            this.ingredients.addAll(ingredient)
+        public fun ingredients(vararg ingredients: Ingredient): Shapeless {
+            this.ingredients.addAll(ingredients)
             return this
         }
 
-        public fun ingredients(vararg item: Item): Shapeless {
-            this.ingredients.addAll(item.map { Ingredient.of(it) })
+        public fun ingredients(vararg items: Item): Shapeless {
+            this.ingredients(*items.map { Ingredient.of(it) }.toTypedArray())
             return this
         }
 
-        public fun ingredients(vararg item: TagKey<Item>): Shapeless {
-            this.ingredients.addAll(item.map(Ingredient::of))
+        public fun ingredients(vararg tags: TagKey<Item>): Shapeless {
+            this.ingredients(*tags.map { Ingredient.of(this.lookup.getOrThrow(it)) }.toTypedArray())
+            return this
+        }
+
+        public fun result(stack: ItemStack): Shapeless {
+            this.result = stack
             return this
         }
 
         public fun build(): RecipeHolder<ShapelessRecipe> {
-            val id = requireNotNull(this.id)
+            val id = requireNotNull(this.key)
             val recipe = ShapelessRecipe(
                 this.group,
                 this.category,
