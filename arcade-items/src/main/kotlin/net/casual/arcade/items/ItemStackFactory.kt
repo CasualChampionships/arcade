@@ -24,22 +24,28 @@ public fun interface ItemStackFactory {
         return this.create()
     }
 
-    public companion object {
-        public fun modelled(item: Item, model: ResourceLocation): ItemStackFactory {
+    public class Modeller internal constructor(public val item: Item) {
+        public fun modelled(model: ResourceLocation): ItemStackFactory {
             return ItemStackFactory {
-                val stack = ItemStack(item)
+                val stack = ItemStack(this.item)
                 stack.set(DataComponents.ITEM_MODEL, model)
                 stack
             }
         }
 
-        public fun modelled(item: Item, model: ResourceLocation, modifier: (ItemStack) -> Unit): ItemStackFactory {
+        public fun modelled(model: ResourceLocation, modifier: (ItemStack) -> Unit): ItemStackFactory {
             return ItemStackFactory {
-                val stack = ItemStack(item)
+                val stack = ItemStack(this.item)
                 modifier.invoke(stack)
                 stack.set(DataComponents.ITEM_MODEL, model)
                 stack
             }
+        }
+    }
+
+    public companion object {
+        public fun modeller(item: Item): Modeller {
+            return Modeller(item)
         }
     }
 }
