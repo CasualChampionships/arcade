@@ -83,7 +83,6 @@ public abstract class SoundResources(
         } else {
             SoundEvent.createFixedRangeEvent(id, distance.toFloat())
         }
-        Registry.register(BuiltInRegistries.SOUND_EVENT, id, sound)
         return sound
     }
 }
