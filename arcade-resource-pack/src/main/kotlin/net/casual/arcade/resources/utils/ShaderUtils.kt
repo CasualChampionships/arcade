@@ -11,8 +11,8 @@ public object ShaderUtils {
     internal fun getOutlineJsonShader(): String {
         return """
         {
-            "vertex": "rendertype_outline",
-            "fragment": "rendertype_outline",
+            "vertex": "minecraft:core/rendertype_outline",
+            "fragment": "minecraft:core/rendertype_outline",
             "samplers": [
                 { "name": "Sampler0" }
             ],

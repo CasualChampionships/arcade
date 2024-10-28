@@ -23,7 +23,6 @@ import java.util.*
 import java.util.function.Consumer
 import kotlin.collections.ArrayList
 
-// TODO: Use the list order functionality?
 public class PlayerListDisplay(
     private val display: PlayerListEntries
 ): PlayerUI(), TickableUI {
