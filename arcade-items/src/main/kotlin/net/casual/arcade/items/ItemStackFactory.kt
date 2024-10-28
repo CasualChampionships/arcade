@@ -25,21 +25,31 @@ public fun interface ItemStackFactory {
     }
 
     public class Modeller internal constructor(public val item: Item) {
+        private val factories = ArrayList<ItemStackFactory>()
+
         public fun modelled(model: ResourceLocation): ItemStackFactory {
-            return ItemStackFactory {
+            val factory = ItemStackFactory {
                 val stack = ItemStack(this.item)
                 stack.set(DataComponents.ITEM_MODEL, model)
                 stack
             }
+            this.factories.add(factory)
+            return factory
         }
 
         public fun modelled(model: ResourceLocation, modifier: (ItemStack) -> Unit): ItemStackFactory {
-            return ItemStackFactory {
+            val factory = ItemStackFactory {
                 val stack = ItemStack(this.item)
                 modifier.invoke(stack)
                 stack.set(DataComponents.ITEM_MODEL, model)
                 stack
             }
+            this.factories.add(factory)
+            return factory
+        }
+
+        public fun all(): List<ItemStack> {
+            return this.factories.map(ItemStackFactory::create)
         }
     }
 

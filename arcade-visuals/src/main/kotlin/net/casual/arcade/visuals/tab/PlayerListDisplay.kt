@@ -162,7 +162,7 @@ public class PlayerListDisplay(
                 entry.latency,
                 GameType.SURVIVAL,
                 entry.display,
-                0,
+                index,
                 null
             ))
             this.sendToAllPlayers(ClientboundPlayerInfoUpdatePacket(actions, entries))
@@ -186,19 +186,21 @@ public class PlayerListDisplay(
             entry.latency,
             GameType.SURVIVAL,
             entry.display,
-            0,
+            index,
             null
         )
     }
 
     private fun createUUIDForIndex(index: Int): UUID {
-        return UUID(index.toLong(), 0)
+        // We never want to create the NIL uuid, so we shift by some integer
+        return UUID(index.toLong() + 31, 0)
     }
 
     private fun createProfileForIndex(index: Int): GameProfile {
+        val char = (0xE000 + index).toChar()
         return GameProfile(
             this.createUUIDForIndex(index),
-            index.toString().padStart(2, '0')
+            char.toString().padStart(2, '0')
         )
     }
 

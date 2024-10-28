@@ -1,7 +1,7 @@
 package net.casual.arcade.utils.recipe
 
-import net.minecraft.core.HolderLookup
 import net.minecraft.core.HolderLookup.Provider
+import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
@@ -10,19 +10,22 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.crafting.*
 import java.util.*
-import kotlin.collections.ArrayList
 
 public object CraftingRecipeBuilder {
-    public fun shaped(provider: Provider, block: Shaped.() -> Unit): RecipeHolder<ShapedRecipe> {
+    public fun shaped(provider: Provider = RegistryAccess.EMPTY, block: Shaped.() -> Unit): RecipeHolder<ShapedRecipe> {
         return Shaped(provider).apply(block).build()
     }
 
-    public fun shapeless(provider: Provider, block: Shapeless.() -> Unit): RecipeHolder<ShapelessRecipe> {
+    public fun shapeless(provider: Provider = RegistryAccess.EMPTY, block: Shapeless.() -> Unit): RecipeHolder<ShapelessRecipe> {
         return Shapeless(provider).apply(block).build()
     }
 
     public class Shaped internal constructor(private val provider: Provider) {
-        private val lookup = this.provider.lookupOrThrow(Registries.ITEM)
+        private val lookup by lazy {
+            this.provider.lookup(Registries.ITEM).orElseThrow {
+                IllegalArgumentException("RecipeBuilder must be provided with lookup")
+            }
+        }
 
         private val ingredients = ArrayList<Optional<Ingredient>>()
         public var key: ResourceKey<Recipe<*>>? = null
@@ -90,7 +93,11 @@ public object CraftingRecipeBuilder {
     }
 
     public class Shapeless internal constructor(private val provider: Provider) {
-        private val lookup = this.provider.lookupOrThrow(Registries.ITEM)
+        private val lookup by lazy {
+            this.provider.lookup(Registries.ITEM).orElseThrow {
+                IllegalArgumentException("RecipeBuilder must be provided with lookup")
+            }
+        }
 
         private val ingredients = ArrayList<Ingredient>()
         public var key: ResourceKey<Recipe<*>>? = null
