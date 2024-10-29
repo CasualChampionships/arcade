@@ -49,7 +49,7 @@ public interface Area {
             entities.add(entity)
         }
         for (entity in entities) {
-            entity.kill()
+            entity.kill(this.level)
         }
     }
 

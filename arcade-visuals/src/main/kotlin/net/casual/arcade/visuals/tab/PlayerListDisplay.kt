@@ -161,6 +161,7 @@ public class PlayerListDisplay(
                 entry.latency,
                 GameType.SURVIVAL,
                 entry.display,
+                -index, // For some reason, Mojang does this in reverse
                 null
             ))
             this.sendToAllPlayers(ClientboundPlayerInfoUpdatePacket(actions, entries))
@@ -170,7 +171,7 @@ public class PlayerListDisplay(
 
     private fun hidingClientboundEntry(player: ServerPlayer, hidden: Boolean): ClientboundPlayerInfoUpdatePacket.Entry {
         return ClientboundPlayerInfoUpdatePacket.Entry(
-            player.uuid, null, !hidden, 0, GameType.SURVIVAL, null, null
+            player.uuid, null, !hidden, 0, GameType.SURVIVAL, null, 0, null
         )
     }
 
@@ -184,18 +185,21 @@ public class PlayerListDisplay(
             entry.latency,
             GameType.SURVIVAL,
             entry.display,
+            -index,
             null
         )
     }
 
     private fun createUUIDForIndex(index: Int): UUID {
-        return UUID(index.toLong(), 0)
+        // We never want to create the NIL uuid, so we shift by some integer
+        return UUID(index.toLong() + 31, 0)
     }
 
     private fun createProfileForIndex(index: Int): GameProfile {
+        val char = (0xE000 + index).toChar()
         return GameProfile(
             this.createUUIDForIndex(index),
-            index.toString().padStart(2, '0')
+            char.toString()
         )
     }
 

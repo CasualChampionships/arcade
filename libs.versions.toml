@@ -1,16 +1,15 @@
 [versions]
-fabric-loom          = "1.7-SNAPSHOT"
-kotlin-serialization = "1.9.21"
-minecraft            = "1.21.1"
-fabric-loader        = "0.16.3"
+fabric-loom          = "1.8-SNAPSHOT"
+minecraft            = "1.21.3"
+fabric-loader        = "0.16.7"
 parchment            = "1.21:2024.07.28"
-fabric-api           = "0.103.0+1.21.1"
+fabric-api           = "0.106.1+1.21.3"
 fabric-kotlin        = "1.11.0+kotlin.2.0.0"
-polymer              = "0.9.12+1.21.1"
-sgui                 = "1.6.1+1.21.1"
-permissions          = "0.3.1"
-server-translations  = "2.3.1+1.21-pre2"
-custom-nametags      = "0.2.3+1.21.1"
+polymer              = "0.10.0+1.21.2"
+sgui                 = "1.7.2+1.21.2"
+permissions          = "0.3.2"
+server-translations  = "2.4.0+1.21.2-rc1"
+custom-nametags      = "0.3.0+1.21.3"
 server-replay        = "1.1.5+1.21.1"
 
 [libraries]
@@ -30,4 +29,3 @@ server-replay           = { module = "me.senseiwells:server-replay"         , ve
 
 [plugins]
 fabric-loom   = { id = "fabric-loom", version.ref = "fabric-loom" }
-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-serialization" }

@@ -11,9 +11,9 @@ import net.minecraft.world.level.levelgen.structure.Structure
 import kotlin.jvm.optionals.getOrNull
 import net.casual.arcade.utils.PlayerUtils.teleportTo as teleportPlayerTo
 
-public fun Entity.teleportTo(location: Location) {
+public fun Entity.teleportTo(location: Location, resetCamera: Boolean = true) {
     if (this is ServerPlayer) {
-        this.teleportPlayerTo(location)
+        this.teleportPlayerTo(location, resetCamera)
         return
     }
     this.teleportTo(
@@ -23,13 +23,14 @@ public fun Entity.teleportTo(location: Location) {
         location.z,
         setOf(),
         Mth.wrapDegrees(location.yaw),
-        Mth.wrapDegrees(location.pitch)
+        Mth.wrapDegrees(location.pitch),
+        resetCamera,
     )
 }
 
 public fun Entity.isInStructure(key: ResourceKey<Structure>): Boolean {
     val access = this.level().registryAccess()
-    val structure = access.registry(Registries.STRUCTURE).getOrNull()?.get(key) ?: return false
+    val structure = access.lookup(Registries.STRUCTURE).getOrNull()?.getOptional(key)?.getOrNull() ?: return false
     return this.isInStructure(structure)
 }
 

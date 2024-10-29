@@ -35,8 +35,8 @@ public class CommonPlayerSpawnInfoMixin {
 		}
 
 		Holder.Reference<DimensionType> replacement = ((RegistryFriendlyByteBuf) buf).registryAccess()
-			.registryOrThrow(Registries.DIMENSION_TYPE)
-			.getHolderOrThrow(BuiltinDimensionTypes.OVERWORLD);
+			.lookupOrThrow(Registries.DIMENSION_TYPE)
+			.getOrThrow(BuiltinDimensionTypes.OVERWORLD);
 		original.call(instance, buf, replacement);
 	}
 }

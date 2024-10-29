@@ -31,9 +31,9 @@
     "gamemode.ServerGamePacketListenerImplMixin",
     "gamemode.ServerPlayerGameModeMixin",
     "gamemode.ServerPlayerMixin",
+    "recipe.CraftingMenuMixin",
     "recipe.RecipeManagerMixin",
     "recipe.ServerGamePacketListenerImplMixin",
-    "recipe.ServerPlaceRecipeMixin",
     "recipe.ServerRecipeBookMixin"
   ],
   "injectors": {

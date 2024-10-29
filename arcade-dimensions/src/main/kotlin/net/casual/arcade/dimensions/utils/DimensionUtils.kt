@@ -8,6 +8,8 @@ import net.casual.arcade.dimensions.level.spawner.extension.LevelCustomMobSpawni
 import net.casual.arcade.dimensions.mixins.level.MinecraftServerAccessor
 import net.casual.arcade.extensions.event.LevelExtensionEvent.Companion.getExtension
 import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.impl.Location
+import net.casual.arcade.utils.teleportTo
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
@@ -297,7 +299,7 @@ private fun ServerLevel.removePlayers() {
     val overworld = this.server.overworld()
     for (player in players.toList()) {
         val position = player.adjustSpawnLocation(overworld, overworld.sharedSpawnPos).bottomCenter
-        player.teleportTo(overworld, position.x, position.y, position.z, 0.0F, 0.0F)
+        player.teleportTo(Location.of(position.x, position.y, position.z, 0.0F, 0.0F, overworld))
     }
 
     if (players.isNotEmpty()) {

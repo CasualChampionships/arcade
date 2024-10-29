@@ -32,8 +32,17 @@ public abstract class ServerLevelMixin extends Level {
 
 	@Shadow @Final private MinecraftServer server;
 
-	protected ServerLevelMixin(WritableLevelData levelData, ResourceKey<Level> dimension, RegistryAccess registryAccess, Holder<DimensionType> dimensionTypeRegistration, Supplier<ProfilerFiller> profiler, boolean isClientSide, boolean isDebug, long biomeZoomSeed, int maxChainedNeighborUpdates) {
-		super(levelData, dimension, registryAccess, dimensionTypeRegistration, profiler, isClientSide, isDebug, biomeZoomSeed, maxChainedNeighborUpdates);
+	protected ServerLevelMixin(
+		WritableLevelData levelData,
+		ResourceKey<Level> dimension,
+		RegistryAccess registryAccess,
+		Holder<DimensionType> dimensionTypeRegistration,
+		boolean isClientSide,
+		boolean isDebug,
+		long biomeZoomSeed,
+		int maxChainedNeighborUpdates
+	) {
+		super(levelData, dimension, registryAccess, dimensionTypeRegistration, isClientSide, isDebug, biomeZoomSeed, maxChainedNeighborUpdates);
 	}
 
 	@ModifyExpressionValue(

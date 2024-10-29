@@ -3,7 +3,7 @@ package net.casual.arcade.resources.utils
 import it.unimi.dsi.fastutil.ints.Int2IntMap
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap
 import net.minecraft.ChatFormatting
-import net.minecraft.util.FastColor
+import net.minecraft.util.ARGB
 
 public object ShaderUtils {
     private const val NL_INDENT = "\n            "
@@ -11,8 +11,8 @@ public object ShaderUtils {
     internal fun getOutlineJsonShader(): String {
         return """
         {
-            "vertex": "rendertype_outline",
-            "fragment": "rendertype_outline",
+            "vertex": "minecraft:core/rendertype_outline",
+            "fragment": "minecraft:core/rendertype_outline",
             "samplers": [
                 { "name": "Sampler0" }
             ],
@@ -91,9 +91,9 @@ public object ShaderUtils {
 
     private fun intToFloatColor(color: Int): FloatColor {
         return FloatColor(
-            FastColor.ARGB32.red(color) / 255.0F,
-            FastColor.ARGB32.green(color) / 255.0F,
-            FastColor.ARGB32.blue(color) / 255.0F
+            ARGB.red(color) / 255.0F,
+            ARGB.green(color) / 255.0F,
+            ARGB.blue(color) / 255.0F
         )
     }
 

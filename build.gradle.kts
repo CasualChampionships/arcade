@@ -4,13 +4,13 @@ plugins {
         .split("+")[0]
 
     kotlin("jvm").version(jvmVersion)
-    alias(libs.plugins.kotlin.serialization)
+    kotlin("plugin.serialization").version(jvmVersion)
     alias(libs.plugins.fabric.loom)
     `maven-publish`
     java
 }
 
-val modVersion = "0.3.0-alpha.34"
+val modVersion = "0.3.1-alpha.8"
 
 allprojects {
     apply(plugin = "fabric-loom")

@@ -1,5 +1,8 @@
 package net.casual.arcade.items
 
+import net.minecraft.core.component.DataComponents
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import kotlin.reflect.KProperty
 
@@ -19,5 +22,40 @@ public fun interface ItemStackFactory {
      */
     public operator fun getValue(any: Any, property: KProperty<*>): ItemStack {
         return this.create()
+    }
+
+    public class Modeller internal constructor(public val item: Item) {
+        private val factories = ArrayList<ItemStackFactory>()
+
+        public fun modelled(model: ResourceLocation): ItemStackFactory {
+            val factory = ItemStackFactory {
+                val stack = ItemStack(this.item)
+                stack.set(DataComponents.ITEM_MODEL, model)
+                stack
+            }
+            this.factories.add(factory)
+            return factory
+        }
+
+        public fun modelled(model: ResourceLocation, modifier: (ItemStack) -> Unit): ItemStackFactory {
+            val factory = ItemStackFactory {
+                val stack = ItemStack(this.item)
+                modifier.invoke(stack)
+                stack.set(DataComponents.ITEM_MODEL, model)
+                stack
+            }
+            this.factories.add(factory)
+            return factory
+        }
+
+        public fun all(): List<ItemStack> {
+            return this.factories.map(ItemStackFactory::create)
+        }
+    }
+
+    public companion object {
+        public fun modeller(item: Item): Modeller {
+            return Modeller(item)
+        }
     }
 }

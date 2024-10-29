@@ -31,8 +31,17 @@ public abstract class ServerLevelMixin extends Level {
 
 	@Shadow public abstract long getSeed();
 
-	protected ServerLevelMixin(WritableLevelData levelData, ResourceKey<Level> dimension, RegistryAccess registryAccess, Holder<DimensionType> dimensionTypeRegistration, Supplier<ProfilerFiller> profiler, boolean isClientSide, boolean isDebug, long biomeZoomSeed, int maxChainedNeighborUpdates) {
-		super(levelData, dimension, registryAccess, dimensionTypeRegistration, profiler, isClientSide, isDebug, biomeZoomSeed, maxChainedNeighborUpdates);
+	protected ServerLevelMixin(
+		WritableLevelData levelData,
+		ResourceKey<Level> dimension,
+		RegistryAccess registryAccess,
+		Holder<DimensionType> dimensionTypeRegistration,
+		boolean isClientSide,
+		boolean isDebug,
+		long biomeZoomSeed,
+		int maxChainedNeighborUpdates
+	) {
+		super(levelData, dimension, registryAccess, dimensionTypeRegistration, isClientSide, isDebug, biomeZoomSeed, maxChainedNeighborUpdates);
 	}
 
 	@Inject(
@@ -48,7 +57,7 @@ public abstract class ServerLevelMixin extends Level {
 			return;
 		}
 		// We need to do this later because we haven't initialized our world fully
-		server.tell(new TickTask(server.getTickCount(), () -> {
+		server.schedule(new TickTask(server.getTickCount(), () -> {
 			if (this.dragonFight == null && VanillaLikeLevel.getLikeDimension(this) == Level.END && this.dimensionTypeRegistration().is(BuiltinDimensionTypes.END)) {
 				ServerLevel level = (ServerLevel) (Object) this;
 				// We use an extension here because dragon data by default is stored for the entire server. We need it per level

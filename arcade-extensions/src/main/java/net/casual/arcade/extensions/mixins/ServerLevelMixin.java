@@ -12,7 +12,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.LevelStorageSource;
@@ -27,7 +26,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.function.Supplier;
 
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin extends Level implements ExtensionHolder {
@@ -35,17 +33,16 @@ public abstract class ServerLevelMixin extends Level implements ExtensionHolder 
 	@Unique private Path arcade$savePath;
 
 	protected ServerLevelMixin(
-		WritableLevelData writableLevelData,
-		ResourceKey<Level> resourceKey,
+		WritableLevelData levelData,
+		ResourceKey<Level> dimension,
 		RegistryAccess registryAccess,
-		Holder<DimensionType> holder,
-		Supplier<ProfilerFiller> supplier,
-		boolean bl,
-		boolean bl2,
-		long l,
-		int i
+		Holder<DimensionType> dimensionTypeRegistration,
+		boolean isClientSide,
+		boolean isDebug,
+		long biomeZoomSeed,
+		int maxChainedNeighborUpdates
 	) {
-		super(writableLevelData, resourceKey, registryAccess, holder, supplier, bl, bl2, l, i);
+		super(levelData, dimension, registryAccess, dimensionTypeRegistration, isClientSide, isDebug, biomeZoomSeed, maxChainedNeighborUpdates);
 	}
 
 	@Inject(

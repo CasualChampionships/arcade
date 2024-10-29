@@ -18,11 +18,8 @@ public class FoodDataMixin {
 			target = "Ljava/lang/Math;max(II)I"
 		)
 	)
-	private boolean onDecreaseFood(FoodData data, int a, Player player) {
-		if (player instanceof ServerPlayer serverPlayer) {
-			Minigame<?> minigame = MinigameUtils.getMinigame(serverPlayer);
-			return minigame == null || minigame.getSettings().canGetHungry.get(serverPlayer);
-		}
-		return true;
+	private boolean onDecreaseFood(FoodData instance, int value, ServerPlayer player) {
+		Minigame<?> minigame = MinigameUtils.getMinigame(player);
+		return minigame == null || minigame.getSettings().canGetHungry.get(player);
 	}
 }

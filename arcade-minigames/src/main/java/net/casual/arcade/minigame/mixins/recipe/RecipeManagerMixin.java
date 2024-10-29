@@ -16,7 +16,7 @@ import java.util.*;
 public abstract class RecipeManagerMixin {
 	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 	@ModifyReturnValue(
-		method = "getRecipeFor(Lnet/minecraft/world/item/crafting/RecipeType;Lnet/minecraft/world/item/crafting/RecipeInput;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/item/crafting/RecipeHolder;)Ljava/util/Optional;",
+		method = "getRecipeFor(Lnet/minecraft/world/item/crafting/RecipeType;Lnet/minecraft/world/item/crafting/RecipeInput;Lnet/minecraft/world/level/Level;)Ljava/util/Optional;",
 		at = @At("RETURN")
 	)
 	private <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> modifyRecipe(
@@ -35,25 +35,4 @@ public abstract class RecipeManagerMixin {
 
 		return minigame.getRecipes().find(type, input, serverLevel);
  	}
-
-
-	@ModifyReturnValue(
-		method = "getRecipesFor",
-		at = @At("RETURN")
-	)
-	private <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> modifyRecipes(
-		List<RecipeHolder<T>> original,
-		RecipeType<T> type,
-		I input,
-		Level level
-	) {
-		if (!(level instanceof ServerLevel serverLevel)) {
-			return original;
-		}
-		Minigame<?> minigame = MinigameUtils.getMinigame(serverLevel);
-		if (minigame == null) {
-			return original;
-		}
-		return ConcatenatedList.concat(original, minigame.getRecipes().findAll(type, input, serverLevel));
-	}
 }

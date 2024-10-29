@@ -64,7 +64,6 @@ public object PlayerHeadComponents {
         return future
     }
 
-    // FIXME: Bug causing player's to always return steve
     public fun getHead(
         name: String,
         server: MinecraftServer = ServerUtils.getServer(),
