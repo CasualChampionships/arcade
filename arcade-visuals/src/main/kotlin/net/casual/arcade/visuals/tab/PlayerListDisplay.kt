@@ -161,7 +161,7 @@ public class PlayerListDisplay(
                 entry.latency,
                 GameType.SURVIVAL,
                 entry.display,
-                index,
+                -index, // For some reason, Mojang does this in reverse
                 null
             ))
             this.sendToAllPlayers(ClientboundPlayerInfoUpdatePacket(actions, entries))
@@ -185,7 +185,7 @@ public class PlayerListDisplay(
             entry.latency,
             GameType.SURVIVAL,
             entry.display,
-            index,
+            -index,
             null
         )
     }
@@ -199,7 +199,7 @@ public class PlayerListDisplay(
         val char = (0xE000 + index).toChar()
         return GameProfile(
             this.createUUIDForIndex(index),
-            char.toString().padStart(2, '0')
+            char.toString()
         )
     }
 
