@@ -28,7 +28,7 @@ import java.util.*
  * @see Minigame.advancements
  */
 public class MinigameAdvancementManager(
-    private val minigame: Minigame<*>
+    private val minigame: Minigame
 ) {
     private val tree = AdvancementTree()
     private val reloaded = Object2ObjectOpenHashMap<UUID, Set<ResourceLocation>>()
@@ -47,6 +47,17 @@ public class MinigameAdvancementManager(
     }
 
     /**
+     * This adds an advancement to the minigame.
+     *
+     * @param advancement The advancement to add.
+     */
+    public fun add(advancement: AdvancementHolder) {
+        this.tree.addAll(listOf(advancement))
+        val node = this.tree.get(advancement) ?: return
+        TreeNodePosition.run(node.root())
+    }
+
+    /**
      * This adds a collection of advancements to the minigame.
      *
      * @param advancements The advancements to add.
@@ -59,17 +70,6 @@ public class MinigameAdvancementManager(
                 TreeNodePosition.run(node)
             }
         }
-    }
-
-    /**
-     * This adds an advancement to the minigame.
-     *
-     * @param advancement The advancement to add.
-     */
-    public fun add(advancement: AdvancementHolder) {
-        this.tree.addAll(listOf(advancement))
-        val node = this.tree.get(advancement) ?: return
-        TreeNodePosition.run(node.root())
     }
 
     /**

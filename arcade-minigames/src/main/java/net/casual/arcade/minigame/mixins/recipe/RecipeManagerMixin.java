@@ -28,7 +28,7 @@ public abstract class RecipeManagerMixin {
 		if (original.isPresent() || !(level instanceof ServerLevel serverLevel)) {
 			return original;
 		}
-		Minigame<?> minigame = MinigameUtils.getMinigame(serverLevel);
+		Minigame minigame = MinigameUtils.getMinigame(serverLevel);
 		if (minigame == null) {
 			return original;
 		}

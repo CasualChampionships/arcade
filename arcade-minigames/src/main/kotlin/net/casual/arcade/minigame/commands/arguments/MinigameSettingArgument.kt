@@ -37,7 +37,7 @@ public class MinigameSettingArgument(private val minigameKey: String): CustomArg
         public fun getSetting(
             context: CommandContext<*>,
             string: String,
-            minigame: Minigame<*>
+            minigame: Minigame
         ): GameSetting<*> {
             val name = context.getArgument(string, String::class.java)
             return minigame.settings.get(name) ?: throw INVALID_SETTING_NAME.create()

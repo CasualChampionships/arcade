@@ -20,7 +20,7 @@ public object ArcadeReplayPlugin: ServerReplayPlugin {
     override fun onChunkReplayStart(recorder: ChunkRecorder) {
         val minigame = recorder.level.getMinigame() ?: return
 
-        val packs = minigame.getResources().getPacks()
+        val packs = minigame.resources.getPacks()
         for (pack in packs) {
             recorder.record(pack.toPushPacket())
         }

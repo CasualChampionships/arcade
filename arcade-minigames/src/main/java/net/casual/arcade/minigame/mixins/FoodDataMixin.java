@@ -19,7 +19,7 @@ public class FoodDataMixin {
 		)
 	)
 	private boolean onDecreaseFood(FoodData instance, int value, ServerPlayer player) {
-		Minigame<?> minigame = MinigameUtils.getMinigame(player);
+		Minigame minigame = MinigameUtils.getMinigame(player);
 		return minigame == null || minigame.getSettings().canGetHungry.get(player);
 	}
 }

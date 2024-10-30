@@ -13,15 +13,13 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
+import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.commands.arguments.MinigameArgument
-import net.casual.arcade.minigame.commands.arguments.MinigameFactoryArgument
-import net.casual.arcade.minigame.events.LobbyMoveToNextMinigameEvent
-import net.casual.arcade.minigame.events.MinigameAddNewPlayerEvent
-import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
-import net.casual.arcade.minigame.events.MinigameCloseEvent
+import net.casual.arcade.minigame.commands.arguments.MinigameFactoryCodecArgument
+import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
-import net.casual.arcade.minigame.serialization.SavableMinigame
+import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.utils.MinigameUtils.countdown
 import net.casual.arcade.minigame.utils.MinigameUtils.requiresAdminOrPermission
 import net.casual.arcade.minigame.utils.MinigameUtils.transferAdminAndSpectatorTeamsTo
@@ -53,16 +51,18 @@ import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.GameType
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Team
+import java.util.*
 
 public open class LobbyMinigame(
     server: MinecraftServer,
+    uuid: UUID,
     public val lobby: Lobby,
-): SavableMinigame<LobbyMinigame>(server) {
+): Minigame(server, uuid) {
     private var transferring: Boolean = false
 
     public val bossbar: TimerBossbar = this.lobby.createBossbar().apply { then(::completeBossBar) }
 
-    public var nextMinigame: Minigame<*>? = null
+    public var nextMinigame: Minigame? = null
         set(value) {
             value?.tryInitialize()
             field = value
@@ -70,11 +70,53 @@ public open class LobbyMinigame(
 
     override val id: ResourceLocation = ID
 
-    override fun initialize() {
-        super.initialize()
+    init {
+        this.addLobbyProperties()
+    }
+
+    public open fun getTeamsToReady(): Collection<PlayerTeam> {
+        return this.teams.getPlayingTeams()
+    }
+
+    public open fun getPlayersToReady(): Collection<ServerPlayer> {
+        return this.players.playing
+    }
+
+    override fun createPhases(): Collection<Phase<out Minigame>> {
+        return LobbyPhase.entries
+    }
+
+    override fun factory(): MinigameFactory? {
+        return null
+        // TODO: return LobbyMinigameFactory
+    }
+
+    override fun load(data: JsonObject) {
+        val uuid = data.uuidOrNull("next_minigame")
+        if (uuid != null) {
+            // Our minigame may not be deserialized yet
+            GlobalTickedScheduler.later {
+                this.nextMinigame = Minigames.get(uuid)
+            }
+        }
+    }
+
+    override fun save(data: JsonObject) {
+        val next = this.nextMinigame
+        if (next != null) {
+            data.addProperty("next_minigame", next.uuid.toString())
+        }
+    }
+
+    protected open fun startNextMinigame() {
+        this.setPhase(LobbyPhase.Countdown)
+    }
+
+    @Listener
+    private fun onInitialize(event: MinigameInitializeEvent) {
         this.levels.add(this.lobby.spawn.level)
 
-        this.setGameRules {
+        this.levels.setGameRules {
             resetToDefault()
             set(GameRules.RULE_DOINSOMNIA, false)
             set(GameRules.RULE_DOFIRETICK, false)
@@ -125,18 +167,6 @@ public open class LobbyMinigame(
         this.lobby.area.replace()
     }
 
-    public open fun getTeamsToReady(): Collection<PlayerTeam> {
-        return this.teams.getPlayingTeams()
-    }
-
-    public open fun getPlayersToReady(): Collection<ServerPlayer> {
-        return this.players.playing
-    }
-
-    protected open fun startNextMinigame() {
-        this.setPhase(LobbyPhase.Countdown)
-    }
-
     private fun onReady() {
         val component = "Click to start!".literal().green().function {
             this.startNextMinigame()
@@ -181,35 +211,6 @@ public open class LobbyMinigame(
         }
     }
 
-    final override fun getPhases(): List<LobbyPhase> {
-        return LobbyPhase.entries.toList()
-    }
-
-    override fun loadData(json: JsonObject) {
-        val uuid = json.uuidOrNull("next_minigame")
-        if (uuid != null) {
-            // Our minigame may not be deserialized yet
-            GlobalTickedScheduler.later {
-                this.nextMinigame = Minigames.get(uuid)
-            }
-        }
-    }
-
-    override fun saveData(json: JsonObject) {
-        val next = this.nextMinigame
-        if (next != null) {
-            json.addProperty("next_minigame", next.uuid.toString())
-        }
-    }
-
-    override fun appendAdditionalDebugInfo(json: JsonObject) {
-        super.appendAdditionalDebugInfo(json)
-        val next = this.nextMinigame
-        if (next != null) {
-            json.add("next_minigame", next.getDebugInfo())
-        }
-    }
-
     protected open fun createLobbyCommand(): LiteralArgumentBuilder<CommandSourceStack> {
         return Commands.literal("lobby").requiresAdminOrPermission().then(
             Commands.literal("next").then(
@@ -218,10 +219,6 @@ public open class LobbyMinigame(
                 Commands.literal("set").then(
                     Commands.literal("existing").then(
                         Commands.argument("minigame", MinigameArgument.minigame()).executes(this::setNextMinigame)
-                    )
-                ).then(
-                    Commands.literal("new").then(
-                        Commands.argument("minigame", MinigameFactoryArgument.factory()).executes(this::setNextNewMinigame)
                     )
                 )
             ).then(
@@ -267,15 +264,6 @@ public open class LobbyMinigame(
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         this.nextMinigame = minigame
         return context.source.success("Successfully set the next minigame to ${minigame.id}")
-    }
-
-    private fun setNextNewMinigame(context: CommandContext<CommandSourceStack>): Int {
-        val factory = MinigameFactoryArgument.getFactory(context, "minigame")
-        this.nextMinigame?.close()
-        val next = factory.create(MinigameCreationContext(context.source.server))
-        next.tryInitialize()
-        this.nextMinigame = next
-        return context.source.success("Successfully set the next minigame to ${next.id}")
     }
 
     private fun unsetNextMinigame(context: CommandContext<CommandSourceStack>): Int {
@@ -350,6 +338,10 @@ public open class LobbyMinigame(
         this.chat.broadcastTo(component, this.players.admins)
     }
 
+    private fun addLobbyProperties() {
+        this.property("next_minigame") { this.nextMinigame?.id?.toString() }
+    }
+
     public companion object {
         private val NO_MINIGAME = SimpleCommandExceptionType("Lobby has no next minigame".literal())
 
@@ -362,11 +354,11 @@ public open class LobbyMinigame(
                 minigame.ui.addBossbar(minigame.bossbar)
             }
 
-            override fun start(minigame: LobbyMinigame, previous: Phase<LobbyMinigame>) {
-                for (player in minigame.players.nonAdmins) {
+            override fun start(phased: LobbyMinigame, previous: Phase<LobbyMinigame>) {
+                for (player in phased.players.nonAdmins) {
                     player.setGameMode(GameType.ADVENTURE)
                 }
-                for (team in minigame.teams.getAllTeams()) {
+                for (team in phased.teams.getAllTeams()) {
                     team.collisionRule = Team.CollisionRule.NEVER
                 }
             }
@@ -377,18 +369,18 @@ public open class LobbyMinigame(
                 minigame.ui.removeBossbar(minigame.bossbar)
             }
 
-            override fun start(minigame: LobbyMinigame, previous: Phase<LobbyMinigame>) {
-                val next = minigame.nextMinigame
+            override fun start(phased: LobbyMinigame, previous: Phase<LobbyMinigame>) {
+                val next = phased.nextMinigame
                 if (next == null) {
                     ArcadeUtils.logger.warn("Tried counting down in lobby when there is no next minigame!")
-                    minigame.setPhase(Waiting)
+                    phased.setPhase(Waiting)
                     return
                 }
 
-                minigame.lobby.getCountdown().countdown(minigame).then {
-                    minigame.setPhase(Phase.end())
+                phased.lobby.getCountdown().countdown(phased).then {
+                    phased.setPhase(Phase.end())
                 }
-                for (team in minigame.teams.getAllTeams()) {
+                for (team in phased.teams.getAllTeams()) {
                     team.collisionRule = Team.CollisionRule.ALWAYS
                 }
             }

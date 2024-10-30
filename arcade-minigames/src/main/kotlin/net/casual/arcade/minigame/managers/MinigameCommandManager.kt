@@ -38,7 +38,7 @@ import java.util.*
  * @see Minigame.commands
  */
 public class MinigameCommandManager(
-    private val minigame: Minigame<*>,
+    private val minigame: Minigame,
 ) {
     private val dispatcher = CommandDispatcher<CommandSourceStack>()
     private val registered = LinkedList<String>()

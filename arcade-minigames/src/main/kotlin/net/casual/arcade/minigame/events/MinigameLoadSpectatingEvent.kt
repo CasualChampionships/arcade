@@ -8,6 +8,6 @@ import net.minecraft.server.level.ServerPlayer
  * but also when the re-join a [Minigame] already as spectating.
  */
 public data class MinigameLoadSpectatingEvent(
-    override val minigame: Minigame<*>,
+    override val minigame: Minigame,
     val player: ServerPlayer
 ): MinigameEvent

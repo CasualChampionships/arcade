@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.impl.CancellableTask
 import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
-import net.casual.arcade.scheduler.task.serialization.TaskWriteContext
+import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
 import net.casual.arcade.utils.JsonUtils.int
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -86,12 +86,12 @@ public class TickedScheduler: MinecraftScheduler {
         this.tasks.computeIfAbsent(this.tickCount + duration.ticks, IntFunction { ArrayDeque() }).add(task)
     }
 
-    public fun serialize(context: TaskWriteContext): JsonArray {
+    public fun serialize(context: TaskSerializationContext): JsonArray {
         val tasks = JsonArray()
         for ((tick, queue) in this.tasks) {
             val delay = tick - this.tickCount
             for (task in queue) {
-                val identity = context.writeTask(task) ?: continue
+                val identity = context.serializeTask(task) ?: continue
                 val data = JsonObject()
                 data.addProperty("uid", identity)
                 data.addProperty("delay", delay)

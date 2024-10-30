@@ -11,6 +11,7 @@ import net.casual.arcade.minigame.utils.MinigameUtils.minigame
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.GameRules
 
 /**
  * This class manages the levels of a minigame.
@@ -21,8 +22,8 @@ import net.minecraft.server.level.ServerPlayer
  * @see Minigame.levels
  */
 public class MinigameLevelManager(
-    private val minigame: Minigame<*>
-) {
+    private val minigame: Minigame
+): Iterable<ServerLevel> {
     private val levels = ReferenceLinkedOpenHashSet<ServerLevel>()
     private val handling = ReferenceOpenHashSet<CustomLevel>()
 
@@ -89,6 +90,22 @@ public class MinigameLevelManager(
      */
     public fun all(): Collection<ServerLevel> {
         return this.levels
+    }
+
+    override fun iterator(): Iterator<ServerLevel> {
+        return this.all().iterator()
+    }
+
+    /**
+     * This sets the [GameRules] for all the levels in the minigame.
+     *
+     * @param modifier The modifier to apply to the game rules.
+     * @see GameRules
+     */
+    public fun setGameRules(modifier: GameRules.() -> Unit) {
+        for (level in this.all()) {
+            modifier(level.gameRules)
+        }
     }
 
     internal fun initialize() {

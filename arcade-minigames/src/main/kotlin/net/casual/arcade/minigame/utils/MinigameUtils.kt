@@ -48,12 +48,12 @@ public object MinigameUtils {
         get() = this.getExtension<LevelMinigameExtension>()
 
     @JvmStatic
-    public fun ServerPlayer.getMinigame(): Minigame<*>? {
+    public fun ServerPlayer.getMinigame(): Minigame? {
         return this.minigame.getMinigame()
     }
 
     @JvmStatic
-    public fun ServerLevel.getMinigame(): Minigame<*>? {
+    public fun ServerLevel.getMinigame(): Minigame? {
         return this.minigame.getMinigame()
     }
 
@@ -66,24 +66,14 @@ public object MinigameUtils {
      * @return A [Completable] that will complete when the countdown is finished.
      */
     @JvmStatic
-    public fun <M: Minigame<M>> Countdown.countdown(
-        minigame: Minigame<M>,
+    public fun Countdown.countdown(
+        minigame: Minigame,
         duration: MinecraftTimeDuration = 10.Seconds,
         interval: MinecraftTimeDuration = 1.Seconds,
         scheduler: MinecraftScheduler = minigame.scheduler.asPhasedScheduler(),
         players: () -> Collection<ServerPlayer> = minigame.players::all
     ): Completable {
         return this.countdown(duration, interval, scheduler, players)
-    }
-
-    @JvmStatic
-    public fun <M: Minigame<M>> Minigame<M>.getPhase(id: String): Phase<M>? {
-        for (phase in this.phases) {
-            if (phase.id == id) {
-                return phase
-            }
-        }
-        return null
     }
 
     public fun <T: ArgumentBuilder<CommandSourceStack, T>> T.requiresAdminOrPermission(level: Int = 4): T {
@@ -109,26 +99,14 @@ public object MinigameUtils {
         return this.hasPermissions(level)
     }
 
-    public fun Minigame<*>.addEventListener(listener: MinigameEventListener) {
-        if (listener is Minigame<*>) {
+    public fun Minigame.addEventListener(listener: MinigameEventListener) {
+        if (listener is Minigame) {
             throw IllegalArgumentException("Cannot parse Minigame as ${listener::class.java}")
         }
         parseMinigameEvents(this, listener)
     }
 
-    @Deprecated("Use player manager instead", ReplaceWith(
-        "this.players.transferTo(next, players, transferSpectatorStatus, transferAdminStatus)",
-        "net.casual.arcade.utils.MinigameUtils.transferTo"
-    ))
-    public fun Minigame<*>.transferPlayersTo(
-        next: Minigame<*>,
-        players: Iterable<ServerPlayer> = this.players,
-        transferAdminStatus: Boolean = true,
-        transferSpectatorStatus: Boolean = true
-    ) {
-        this.players.transferTo(next, players, transferSpectatorStatus, transferAdminStatus)
-    }
-    public fun Minigame<*>.transferAdminAndSpectatorTeamsTo(next: Minigame<*>) {
+    public fun Minigame.transferAdminAndSpectatorTeamsTo(next: Minigame) {
         if (this.teams.hasSpectatorTeam()) {
             next.teams.setSpectatorTeam(this.teams.getSpectatorTeam())
         }
@@ -205,7 +183,7 @@ public object MinigameUtils {
         return true
     }
 
-    internal fun parseMinigameEvents(minigame: Minigame<*>, declarer: Any = minigame) {
+    internal fun parseMinigameEvents(minigame: Minigame, declarer: Any = minigame) {
         var type: Class<*> = declarer::class.java
         while (type != Any::class.java) {
             for (method in type.declaredMethods) {
@@ -231,7 +209,7 @@ public object MinigameUtils {
             if (event is ExtensionEvent) {
                 return@addInjectedProvider
             }
-            val minigames = ObjectOpenHashSet<Minigame<*>>(3)
+            val minigames = ObjectOpenHashSet<Minigame>(3)
             if (event is PlayerEvent) {
                 val minigame = event.player.getMinigame()
                 if (minigame != null) {
@@ -253,8 +231,8 @@ public object MinigameUtils {
         }
     }
 
-    private fun <M: Minigame<M>> parseMinigameEventMethod(
-        minigame: Minigame<M>,
+    private fun parseMinigameEventMethod(
+        minigame: Minigame,
         declarer: Any,
         method: Method
     ) {

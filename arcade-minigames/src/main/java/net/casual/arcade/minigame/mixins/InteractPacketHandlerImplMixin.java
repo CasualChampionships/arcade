@@ -23,7 +23,7 @@ public class InteractPacketHandlerImplMixin {
 		cancellable = true
 	)
 	private void canInteractAt(CallbackInfo ci) {
-		Minigame<?> minigame = MinigameUtils.getMinigame(this.field_28963.player);
+		Minigame minigame = MinigameUtils.getMinigame(this.field_28963.player);
 		if (minigame != null && !minigame.getSettings().canInteractEntities.get(this.field_28963.player)) {
 			ci.cancel();
 		}
@@ -35,7 +35,7 @@ public class InteractPacketHandlerImplMixin {
 		cancellable = true
 	)
 	private void canInteract(CallbackInfo ci) {
-		Minigame<?> minigame = MinigameUtils.getMinigame(this.field_28963.player);
+		Minigame minigame = MinigameUtils.getMinigame(this.field_28963.player);
 		if (minigame != null && !minigame.getSettings().canInteractEntities.get(this.field_28963.player)) {
 			ci.cancel();
 		}
@@ -49,7 +49,7 @@ public class InteractPacketHandlerImplMixin {
 		)
 	)
 	private boolean canAttack(ServerPlayer player, Entity target) {
-		Minigame<?> minigame = MinigameUtils.getMinigame(player);
+		Minigame minigame = MinigameUtils.getMinigame(player);
 		return minigame == null || minigame.getSettings().canAttackEntities.get(player);
 	}
 }

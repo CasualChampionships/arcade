@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 public class MinigameStatManager {
     private val stats = ConcurrentHashMap<UUID, StatTracker>()
-    private var frozen: Boolean = false
+    private var frozen = false
 
     public fun freeze() {
         this.frozen = true

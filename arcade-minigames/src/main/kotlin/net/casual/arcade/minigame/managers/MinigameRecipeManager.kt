@@ -39,7 +39,7 @@ import kotlin.collections.ArrayList
  * @see Minigame.recipes
  */
 public class MinigameRecipeManager(
-    private val minigame: Minigame<*>
+    private val minigame: Minigame
 ) {
     private val holdersWithEntries = ObjectArrayList<RecipeManager.ServerDisplayInfo>()
     private val recipeToEntries = Reference2ObjectOpenHashMap<ResourceKey<Recipe<*>>, List<RecipeDisplayEntry>>()

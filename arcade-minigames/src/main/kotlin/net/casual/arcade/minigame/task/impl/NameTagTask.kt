@@ -5,7 +5,7 @@ import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.visuals.nametag.PlayerNameTag
 
 public open class NameTagTask(
-    private val minigame: Minigame<*>,
+    private val minigame: Minigame,
     private val tag: PlayerNameTag
 ): Task {
     init {

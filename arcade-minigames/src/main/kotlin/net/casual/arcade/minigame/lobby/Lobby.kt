@@ -7,6 +7,7 @@ import net.casual.arcade.visuals.bossbar.TimerBossbar
 import net.casual.arcade.visuals.countdown.Countdown
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
+import java.util.*
 
 public interface Lobby {
     public val area: PlaceableArea
@@ -33,6 +34,6 @@ public interface Lobby {
     }
 
     public fun createMinigame(server: MinecraftServer): LobbyMinigame {
-        return LobbyMinigame(server, this)
+        return LobbyMinigame(server, UUID.randomUUID(), this)
     }
 }

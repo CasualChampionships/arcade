@@ -15,7 +15,6 @@ import net.casual.arcade.minigame.annotation.ListenerFlags.IS_PLAYING
 import net.casual.arcade.minigame.annotation.ListenerFlags.IS_SPECTATOR
 import net.casual.arcade.minigame.events.MinigameEvent
 import net.casual.arcade.minigame.phase.Phase
-import net.casual.arcade.minigame.phase.Phased
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
@@ -52,8 +51,8 @@ import java.util.function.Consumer
  * @see Minigame
  * @see Minigame.events
  */
-public class MinigameEventHandler<P>(
-    private val phased: Phased<P>,
+public class MinigameEventHandler(
+    private val minigame: Minigame,
     private val filterer: Filterer
 ): ListenerRegistry {
     private val global = SimpleListenerRegistry()
@@ -190,7 +189,7 @@ public class MinigameEventHandler<P>(
      * @param phases The phases that you want this listener to trigger in.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public inline fun <reified T: Event> registerInPhases(vararg phases: Phase<P>, listener: Consumer<T>) {
+    public inline fun <reified T: Event> registerInPhases(vararg phases: Phase<*>, listener: Consumer<T>) {
         this.registerInPhases(1_000, phases = phases, listener = listener)
     }
 
@@ -210,7 +209,7 @@ public class MinigameEventHandler<P>(
         priority: Int,
         phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
-        vararg phases: Phase<P>,
+        vararg phases: Phase<*>,
         listener: Consumer<T>
     ) {
         this.registerInPhases(T::class.java, flags, phases = phases, listener = EventListener.of(priority, phase, listener))
@@ -231,7 +230,7 @@ public class MinigameEventHandler<P>(
     public fun <T: Event> registerInPhases(
         type: Class<T>,
         flags: Int = DEFAULT,
-        vararg phases: Phase<P>,
+        vararg phases: Phase<*>,
         listener: EventListener<T>
     ) {
         if (phases.isEmpty()) {
@@ -239,16 +238,11 @@ public class MinigameEventHandler<P>(
         }
         val predicates = LinkedList<(T) -> Boolean>()
         if (phases.size == 1) {
-            predicates.add { this.phased.isPhase(phases[0]) }
+            predicates.add { this.minigame.phase == phases[0] }
             return this.registerFiltered(type, listener, predicates)
         }
         predicates.add {
-            for (phase in phases) {
-                if (this.phased.isPhase(phase)) {
-                    return@add true
-                }
-            }
-            false
+            phases.any { this.minigame.phase == it }
         }
 
         return this.registerFiltered(type, listener, predicates, flags)
@@ -264,8 +258,8 @@ public class MinigameEventHandler<P>(
      * @param listener The callback which will be invoked when the event is fired.
      */
     public inline fun <reified T: Event> registerBetweenPhases(
-        after: Phase<P>,
-        before: Phase<P>,
+        after: Phase<*>,
+        before: Phase<*>,
         phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         listener: Consumer<T>
@@ -285,8 +279,8 @@ public class MinigameEventHandler<P>(
      */
     public inline fun <reified T: Event> registerBetweenPhases(
         priority: Int,
-        after: Phase<P>,
-        before: Phase<P>,
+        after: Phase<*>,
+        before: Phase<*>,
         phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         listener: Consumer<T>
@@ -306,14 +300,14 @@ public class MinigameEventHandler<P>(
      */
     public fun <T: Event> registerBetweenPhases(
         type: Class<T>,
-        after: Phase<P>,
-        before: Phase<P>,
+        after: Phase<*>,
+        before: Phase<*>,
         flags: Int = DEFAULT,
         listener: EventListener<T>
     ) {
         val predicates = ArrayList<(T) -> Boolean>()
         predicates.add {
-            (this.phased.isAfterPhase(after) || this.phased.isPhase(after)) && this.phased.isBeforePhase(before)
+            this.minigame.phase >= after && this.minigame.phase < before
         }
         return this.registerFiltered(type, listener, predicates, flags)
     }
@@ -380,7 +374,7 @@ public class MinigameEventHandler<P>(
     }
 
     public open class Filterer(
-        private val minigame: Minigame<*>
+        private val minigame: Minigame
     ) {
         public open fun hasPlayer(player: ServerPlayer): Boolean {
             return this.minigame.players.has(player)
@@ -402,7 +396,7 @@ public class MinigameEventHandler<P>(
             return this.minigame.levels.has(level)
         }
 
-        public open fun isMinigame(minigame: Minigame<*>): Boolean {
+        public open fun isMinigame(minigame: Minigame): Boolean {
             return this.minigame === minigame
         }
     }

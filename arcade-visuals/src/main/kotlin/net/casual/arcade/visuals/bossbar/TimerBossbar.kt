@@ -6,7 +6,7 @@ import net.casual.arcade.visuals.core.TickableUI
 import net.casual.arcade.scheduler.task.Completable
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
-import net.casual.arcade.scheduler.task.serialization.TaskWriteContext
+import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
 import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.boolean
 import net.casual.arcade.utils.JsonUtils.int
@@ -80,7 +80,7 @@ public abstract class TimerBossbar: CustomBossbar(), TickableUI, Completable {
         return this.getProgress()
     }
 
-    public fun writeData(context: TaskWriteContext): JsonObject {
+    public fun writeData(context: TaskSerializationContext): JsonObject {
         val data = JsonObject()
         data.addProperty("tick", this.tick)
         data.addProperty("ticks", this.ticks)
@@ -88,7 +88,7 @@ public abstract class TimerBossbar: CustomBossbar(), TickableUI, Completable {
 
         val taskArray = JsonArray()
         for (task in this.completable.tasks()) {
-            taskArray.add(context.writeTask(task) ?: continue)
+            taskArray.add(context.serializeTask(task) ?: continue)
         }
         data.add("tasks", taskArray)
 
@@ -96,7 +96,7 @@ public abstract class TimerBossbar: CustomBossbar(), TickableUI, Completable {
     }
 
     public fun readData(context: TaskCreationContext) {
-        val data = context.getCustomData()
+        val data = context.data
         this.tick = data.int("tick")
         this.ticks = data.int("ticks")
         this.completable.complete = data.boolean("complete")

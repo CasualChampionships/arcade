@@ -1,7 +1,6 @@
 package net.casual.arcade.minigame.managers
 
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.serialization.SavableMinigame
 import net.casual.arcade.scheduler.MinecraftScheduler
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.scheduler.task.SavableTask
@@ -26,7 +25,7 @@ import net.casual.arcade.utils.time.MinecraftTimeUnit
  * @see MinecraftScheduler
  * @see Minigame
  */
-public class MinigameScheduler internal constructor(): MinecraftScheduler {
+public class MinigameScheduler: MinecraftScheduler {
     internal val minigame = TickedScheduler()
     internal val phased = TickedScheduler()
 

@@ -5,7 +5,7 @@ import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.visuals.sidebar.Sidebar
 
 public open class SidebarTask(
-    private val minigame: Minigame<*>,
+    private val minigame: Minigame,
     sidebar: Sidebar
 ): Task {
     init {

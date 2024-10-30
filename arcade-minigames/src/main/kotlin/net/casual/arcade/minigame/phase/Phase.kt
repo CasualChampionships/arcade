@@ -1,12 +1,11 @@
 package net.casual.arcade.minigame.phase
 
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.serialization.SavableMinigame
 import org.jetbrains.annotations.ApiStatus.NonExtendable
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 /**
- * This interface represents a phase of a given [Minigame] of type [M].
+ * This interface represents a phase of a given [Minigame] of type [P].
  *
  * This allows you to implement different logic for different phases of
  * the minigame.
@@ -48,7 +47,7 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  * }
  * ```
  */
-public interface Phase<M> {
+public interface Phase<P> {
     /**
      * The identifier for the phase, this should be unique
      * to avoid overlapping phase names.
@@ -68,9 +67,9 @@ public interface Phase<M> {
     public val ordinal: Int
 
     /**
-     * This method is called when the [minigame]s
+     * This method is called when the [phased]s
      * phase is set to `this`.
-     * Here you may schedule tasks for the [minigame]
+     * Here you may schedule tasks for the [phased]
      * or run specific code that **only** runs when
      * the phase is **set**, this method **WILL NOT**
      * be called when a minigame is reloaded from save.
@@ -79,12 +78,12 @@ public interface Phase<M> {
      * [initialize], see documentation for more
      * information.
      *
-     * @param minigame The minigame which as set its phase to `this`.
+     * @param phased The minigame which as set its phase to `this`.
      * @param previous The previous phase.
      * @see initialize
      */
     @OverrideOnly
-    public fun start(minigame: M, previous: Phase<M>) {
+    public fun start(phased: P, previous: Phase<P>) {
 
     }
 
@@ -124,7 +123,7 @@ public interface Phase<M> {
      * @see start
      */
     @OverrideOnly
-    public fun initialize(minigame: M) {
+    public fun initialize(minigame: P) {
 
     }
 
@@ -139,7 +138,7 @@ public interface Phase<M> {
      * @see start
      */
     @OverrideOnly
-    public fun end(minigame: M, next: Phase<M>) {
+    public fun end(minigame: P, next: Phase<P>) {
 
     }
 
@@ -150,7 +149,7 @@ public interface Phase<M> {
         return this.ordinal.compareTo(other.ordinal)
     }
 
-    private class None<M>: Phase<M> {
+    private class None<P>: Phase<P> {
         override val id: String = "core_none"
         override val ordinal: Int = Int.MIN_VALUE
 
@@ -159,7 +158,7 @@ public interface Phase<M> {
         }
     }
 
-    private class End<M>: Phase<M> {
+    private class End<P>: Phase<P> {
         override val id: String = "core_end"
         override val ordinal: Int = Int.MAX_VALUE
 

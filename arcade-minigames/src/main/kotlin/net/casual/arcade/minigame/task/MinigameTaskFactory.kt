@@ -5,6 +5,8 @@ import net.casual.arcade.scheduler.task.SavableTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
 import net.casual.arcade.scheduler.task.serialization.TaskFactory
+import org.jetbrains.annotations.ApiStatus.Internal
+import org.jetbrains.annotations.ApiStatus.NonExtendable
 
 /**
  * This interface is for creating tasks from serialized data.
@@ -19,19 +21,14 @@ import net.casual.arcade.scheduler.task.serialization.TaskFactory
  * @see SavableTask
  * @see TaskFactory
  */
-public interface MinigameTaskFactory<M: Minigame<M>> {
-    /**
-     * The id for the task that is being generated.
-     */
-    public val id: String
+public interface MinigameTaskFactory<M: Minigame>: TaskFactory {
+    @NonExtendable
+    override fun create(context: TaskCreationContext): Task {
+        if (context !is MinigameTaskCreationContext<*>) {
+            throw IllegalArgumentException("Cannot create minigame task without minigame")
+        }
+        return this.create(context as MinigameTaskCreationContext<M>)
+    }
 
-    /**
-     * This creates a [Task] from the given [context] and
-     * the task's [minigame] owner.
-     *
-     * @param minigame The owner of this task.
-     * @param context The task creation context.
-     * @return The generated task.
-     */
-    public fun create(minigame: M, context: TaskCreationContext): Task
+    public fun create(context: MinigameTaskCreationContext<M>): Task
 }

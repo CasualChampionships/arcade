@@ -18,7 +18,7 @@ import net.minecraft.server.level.ServerPlayer
 import java.util.*
 
 public class MinigameTagManager(
-    private val minigame: Minigame<*>
+    private val minigame: Minigame
 ) {
     private val players = Object2ObjectOpenHashMap<UUID, MutableSet<ResourceLocation>>()
 

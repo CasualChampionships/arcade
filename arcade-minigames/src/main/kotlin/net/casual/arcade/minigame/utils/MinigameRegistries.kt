@@ -2,6 +2,7 @@ package net.casual.arcade.minigame.utils
 
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.minigame.managers.chat.MinigameChatMode
+import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.template.area.PlaceableAreaTemplate
 import net.casual.arcade.minigame.template.bossbar.TimerBossbarTemplate
 import net.casual.arcade.minigame.template.countdown.CountdownTemplate
@@ -24,6 +25,7 @@ public object MinigameRegistryKeys: RegistryKeySupplier(ArcadeUtils.MOD_ID) {
     public val ENTITY_TELEPORTER: ResourceKey<Registry<MapCodec<out EntityTeleporter>>> = create("entity_teleporter")
     public val MINIGAME_CHAT_MODE: ResourceKey<Registry<MapCodec<out MinigameChatMode>>> = create("minigame_chat_mode")
     public val MINIGAMES_EVENT: ResourceKey<Registry<MapCodec<out MinigamesTemplate>>> = create("minigames_event")
+    public val MINIGAME_FACTORY: ResourceKey<Registry<MapCodec<out MinigameFactory>>> = create("minigame_factory")
 }
 
 public object MinigameRegistries: RegistrySupplier() {
@@ -35,4 +37,5 @@ public object MinigameRegistries: RegistrySupplier() {
     public val LOBBY_TEMPLATE: Registry<MapCodec<out LobbyTemplate>> = create(MinigameRegistryKeys.LOBBY_TEMPLATE, LobbyTemplate::bootstrap)
     public val MINIGAME_CHAT_MODES: Registry<MapCodec<out MinigameChatMode>> = create(MinigameRegistryKeys.MINIGAME_CHAT_MODE, MinigameChatMode::bootstrap)
     public val MINIGAMES_EVENT: Registry<MapCodec<out MinigamesTemplate>> = create(MinigameRegistryKeys.MINIGAMES_EVENT, MinigamesTemplate::bootstrap)
+    public val MINIGAME_FACTORY: Registry<MapCodec<out MinigameFactory>> = create(MinigameRegistryKeys.MINIGAME_FACTORY, MinigameFactory::bootstrap)
 }

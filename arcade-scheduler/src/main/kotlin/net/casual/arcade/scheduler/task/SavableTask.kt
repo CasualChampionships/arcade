@@ -2,7 +2,8 @@ package net.casual.arcade.scheduler.task
 
 import com.google.gson.JsonObject
 import net.casual.arcade.scheduler.task.serialization.TaskFactory
-import net.casual.arcade.scheduler.task.serialization.TaskWriteContext
+import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
+import net.minecraft.resources.ResourceLocation
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 /**
@@ -40,7 +41,7 @@ public interface SavableTask: Task {
     /**
      * The id for the task that will be serialized.
      */
-    public val id: String
+    public val id: ResourceLocation
 
     /**
      * This writes any additional data needed
@@ -49,11 +50,11 @@ public interface SavableTask: Task {
      * This serialized data will be passed to the
      * [TaskFactory] when generating a new task.
      *
-     * @param context The [TaskWriteContext].
+     * @param context The [TaskSerializationContext].
      * @return The serialized data.
      */
     @OverrideOnly
-    public fun writeCustomData(context: TaskWriteContext): JsonObject {
+    public fun serialize(context: TaskSerializationContext): JsonObject {
         return JsonObject()
     }
 }

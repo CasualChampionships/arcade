@@ -32,7 +32,7 @@ public class CraftingMenuMixin {
 		if (original.isPresent()) {
 			return original;
 		}
-		Minigame<?> minigame = MinigameUtils.getMinigame(player);
+		Minigame minigame = MinigameUtils.getMinigame(player);
 		if (minigame == null) {
 			return original;
 		}

@@ -1,6 +1,8 @@
 package net.casual.arcade.minigame.managers
 
 import com.mojang.authlib.GameProfile
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.player.PlayerLeaveEvent
 import net.casual.arcade.minigame.Minigame
@@ -17,13 +19,13 @@ import java.util.*
 import java.util.stream.Stream
 
 public class MinigamePlayerManager(
-    private val minigame: Minigame<*>
+    private val minigame: Minigame
 ): Iterable<ServerPlayer> {
-    private val connections: MutableSet<ServerGamePacketListenerImpl> = LinkedHashSet()
+    private val connections: MutableSet<ServerGamePacketListenerImpl> = ReferenceLinkedOpenHashSet()
 
-    internal val adminUUIDs = LinkedHashSet<UUID>()
-    internal val spectatorUUIDs = LinkedHashSet<UUID>()
-    internal val offlineGameProfiles = LinkedHashSet<GameProfile>()
+    internal val adminUUIDs = ObjectLinkedOpenHashSet<UUID>()
+    internal val spectatorUUIDs = ObjectLinkedOpenHashSet<UUID>()
+    internal val offlineGameProfiles = ObjectLinkedOpenHashSet<GameProfile>()
 
     /**
      * This gets all the tracked players in this minigame.
@@ -307,22 +309,30 @@ public class MinigamePlayerManager(
     }
 
     public fun transferTo(
-        next: Minigame<*>,
+        next: Minigame,
         players: Iterable<ServerPlayer> = this,
         keepSpectating: Boolean = true,
         keepAdmin: Boolean = true,
     ) {
+        if (next === this.minigame) {
+            return
+        }
+
         for (player in players) {
             this.transferTo(next, player, keepSpectating, keepAdmin)
         }
     }
 
     public fun transferTo(
-        next: Minigame<*>,
+        next: Minigame,
         player: ServerPlayer,
         keepSpectating: Boolean = true,
         keepAdmin: Boolean = true,
     ): Boolean {
+        if (next === this.minigame) {
+            return false
+        }
+
         if (!this.has(player)) {
             return false
         }

@@ -9,12 +9,12 @@ import net.casual.arcade.scheduler.task.Task
  * when writing a task with [SavableTask].
  *
  * It also provides the ability to write subtasks using the
- * [writeTask] method.
+ * [serializeTask] method.
  *
  * @see TaskFactory
  * @see TaskCreationContext
  */
-public interface TaskWriteContext {
+public interface TaskSerializationContext {
     /**
      * This method allows you to serialize a task as a
      * [JsonObject] to allow subtasks.
@@ -25,5 +25,5 @@ public interface TaskWriteContext {
      * @param task The task to serialize.
      * @return The serialized task; may be null.
      */
-    public fun writeTask(task: Task): Int?
+    public fun serializeTask(task: Task): Int?
 }

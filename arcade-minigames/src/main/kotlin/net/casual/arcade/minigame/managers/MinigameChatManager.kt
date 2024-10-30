@@ -58,7 +58,7 @@ import java.util.*
  * @see Minigame.chat
  */
 public class MinigameChatManager(
-    private val minigame: Minigame<*>
+    private val minigame: Minigame
 ) {
     /**
      * The formatter for global player chat messages.

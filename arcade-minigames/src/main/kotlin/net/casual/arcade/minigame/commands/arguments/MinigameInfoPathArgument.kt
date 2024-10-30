@@ -20,7 +20,7 @@ public class MinigameInfoPathArgument(
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
         val minigame = MinigameArgument.getMinigame(context, this.minigameKey)
-        return SharedSuggestionProvider.suggest(minigame.getDebugInfo().keySet(), builder)
+        return SharedSuggestionProvider.suggest(minigame.properties(), builder)
     }
 
     public companion object {

@@ -14,18 +14,16 @@ import net.casual.arcade.scheduler.task.Task
  * [createTask] method.
  *
  * @see TaskFactory
- * @see TaskWriteContext
+ * @see TaskSerializationContext
  */
 public interface TaskCreationContext {
     /**
-     * This gets the custom data that was written
+     * This gets the custom data written
      * by the task.
      *
      * This may be an empty object.
-     *
-     * @return The serialized [JsonObject].
      */
-    public fun getCustomData(): JsonObject
+    public val data: JsonObject
 
     /**
      * This provides the ability to create subtasks by passing
@@ -34,29 +32,23 @@ public interface TaskCreationContext {
      * The data at a minimum most contain the field `id` containing
      * the if of the task that it is trying to create.
      *
-     * Usually subtasks are written using [TaskWriteContext.writeTask].
+     * Usually subtasks are written using [TaskSerializationContext.serializeTask].
      *
      * @param uid The unique id to create another task.
      * @return The created task, null if it could not be created.
      */
     public fun createTask(uid: Int): Task?
 
-    private class Child(
-        private val parent: TaskCreationContext,
-        private val data: JsonObject
-    ): TaskCreationContext {
-        override fun getCustomData(): JsonObject {
-            return this.data
-        }
-
-        override fun createTask(uid: Int): Task? {
-            return this.parent.createTask(uid)
-        }
+    public fun createSubContext(data: JsonObject): TaskCreationContext {
+        return Child(this, data)
     }
 
-    public companion object {
-        public fun TaskCreationContext.withCustomData(data: JsonObject): TaskCreationContext {
-            return Child(this, data)
+    private class Child(
+        private val parent: TaskCreationContext,
+        override val data: JsonObject
+    ): TaskCreationContext {
+        override fun createTask(uid: Int): Task? {
+            return this.parent.createTask(uid)
         }
     }
 }

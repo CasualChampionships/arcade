@@ -29,7 +29,7 @@ public interface ReadyHandler<T> {
 }
 
 public abstract class MinigameReadyHandler<T>(
-    protected val minigame: Minigame<*>
+    protected val minigame: Minigame
 ): ReadyHandler<T> {
     protected open fun broadcast(message: Component) {
         this.minigame.chat.broadcast(message)
@@ -47,7 +47,7 @@ public abstract class MinigameReadyHandler<T>(
 }
 
 public open class MinigamePlayerReadyHandler(
-    minigame: Minigame<*>
+    minigame: Minigame
 ): MinigameReadyHandler<ServerPlayer>(minigame) {
     override fun broadcastReadyCheck(receiver: ServerPlayer, ready: () -> Unit, notReady: () -> Unit) {
         val yes = Component.translatable("minigame.ready.yes").lime().function { ready.invoke() }
@@ -77,7 +77,7 @@ public open class MinigamePlayerReadyHandler(
 }
 
 public open class MinigameTeamReadyHandler(
-    minigame: Minigame<*>
+    minigame: Minigame
 ): MinigameReadyHandler<PlayerTeam>(minigame) {
     override fun broadcastReadyCheck(receiver: PlayerTeam, ready: () -> Unit, notReady: () -> Unit) {
         val yes = Component.translatable("minigame.ready.yes").lime().function { ready.invoke() }

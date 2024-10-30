@@ -10,7 +10,7 @@ import net.minecraft.server.level.ServerPlayer
  * For example: when the player relogs during a minigame.
  */
 public data class MinigameAddExistingPlayerEvent(
-    override val minigame: Minigame<*>,
+    override val minigame: Minigame,
     val player: ServerPlayer,
     var spectating: Boolean?,
     var admin: Boolean?

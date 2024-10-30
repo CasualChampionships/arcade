@@ -80,7 +80,7 @@ public abstract class ServerLevelMixin extends Level {
 		)
 	)
 	private long onSetDayTime(long time) {
-		Minigame<?> minigame = MinigameUtils.getMinigame((ServerLevel) (Object) this);
+		Minigame minigame = MinigameUtils.getMinigame((ServerLevel) (Object) this);
 		if (minigame == null) {
 			return time;
 		}

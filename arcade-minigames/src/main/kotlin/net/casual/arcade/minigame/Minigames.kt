@@ -1,6 +1,9 @@
 package net.casual.arcade.minigame
 
 import com.google.common.collect.LinkedHashMultimap
+import com.google.gson.JsonObject
+import com.mojang.serialization.Dynamic
+import com.mojang.serialization.JsonOps
 import net.casual.arcade.commands.register
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerLoadedEvent
@@ -13,26 +16,27 @@ import net.casual.arcade.minigame.commands.TeamCommandModifier
 import net.casual.arcade.minigame.exception.MinigameCreationException
 import net.casual.arcade.minigame.exception.MinigameSerializationException
 import net.casual.arcade.minigame.gamemode.ExtendedGameMode
-import net.casual.arcade.minigame.lobby.LobbyMinigame
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
-import net.casual.arcade.minigame.serialization.SavableMinigame
-import net.casual.arcade.minigame.template.lobby.LobbyTemplate
+import net.casual.arcade.minigame.task.impl.PhaseChangeTask
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.minigame.utils.MinigameUtils
+import net.casual.arcade.scheduler.task.impl.CancellableTask
+import net.casual.arcade.scheduler.task.utils.TaskRegisties
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.JsonUtils
-import net.casual.arcade.utils.JsonUtils.objOrDefault
-import net.casual.arcade.utils.JsonUtils.string
-import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.utils.JsonUtils.obj
+import net.casual.arcade.utils.JsonUtils.uuid
 import net.fabricmc.api.ModInitializer
 import net.minecraft.Util
+import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import java.io.IOException
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.*
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * This object is used for registering and holding
@@ -41,55 +45,16 @@ import kotlin.io.path.*
 public object Minigames: ModInitializer {
     private val PATH = ArcadeUtils.path.resolve("minigames")
 
-    private val ALL = LinkedHashMap<UUID, Minigame<*>>()
-    private val BY_ID = LinkedHashMultimap.create<ResourceLocation, Minigame<*>>()
-    private val FACTORIES_BY_ID = LinkedHashMap<ResourceLocation, MinigameFactory>()
+    private val ALL = LinkedHashMap<UUID, Minigame>()
+    private val BY_ID = LinkedHashMultimap.create<ResourceLocation, Minigame>()
 
     /**
      * This method gets all the current running minigames.
      *
      * @return All the current running minigames.
      */
-    public fun all(): Collection<Minigame<*>> {
+    public fun all(): Collection<Minigame> {
         return Collections.unmodifiableCollection(ALL.values)
-    }
-
-    /**
-     * This registers a [MinigameFactory] for your minigame.
-     *
-     * You should do this if your minigame is a [SavableMinigame] as
-     * it will allow for the minigame to automatically restart when
-     * the server reboots.
-     *
-     * Minigames are read from a json file when the server has loaded,
-     * typically you want to register your factory in your mod initializer.
-     *
-     * Factories also allow you to dynamically create minigames at runtime.
-     *
-     * @param id The id of the minigame that will be created.
-     * @param factory The factory that will make minigames.
-     */
-    public fun registerFactory(id: ResourceLocation, factory: MinigameFactory) {
-        this.FACTORIES_BY_ID[id] = factory
-    }
-
-    /**
-     * This method gets a [MinigameFactory] by its id.
-     *
-     * @param id The id of the factory.
-     * @return The factory with the given id.
-     */
-    public fun getFactory(id: ResourceLocation): MinigameFactory? {
-        return this.FACTORIES_BY_ID[id]
-    }
-
-    /**
-     * This method gets all the ids of the registered factories.
-     *
-     * @return All the ids of the registered factories.
-     */
-    public fun getAllFactoryIds(): MutableSet<ResourceLocation> {
-        return this.FACTORIES_BY_ID.keys
     }
 
     /**
@@ -98,7 +63,7 @@ public object Minigames: ModInitializer {
      * @param uuid The uuid of the minigame.
      * @return The minigame with the given uuid.
      */
-    public fun get(uuid: UUID): Minigame<*>? {
+    public fun get(uuid: UUID): Minigame? {
         return this.ALL[uuid]
     }
 
@@ -108,13 +73,20 @@ public object Minigames: ModInitializer {
      * @param id The id of the minigame.
      * @return All the minigames with the given id.
      */
-    public fun get(id: ResourceLocation): List<Minigame<*>> {
+    public fun get(id: ResourceLocation): List<Minigame> {
         return this.BY_ID.get(id).toList()
     }
 
-    public fun create(id: ResourceLocation, context: MinigameCreationContext): Minigame<*> {
-        val factory = FACTORIES_BY_ID[id]
+    public fun create(
+        id: ResourceLocation,
+        context: MinigameCreationContext,
+        data: Dynamic<*> = Dynamic(JsonOps.INSTANCE)
+    ): Minigame {
+        val codec = MinigameRegistries.MINIGAME_FACTORY.getOptional(id).getOrNull()
             ?: throw MinigameCreationException("Cannot create Minigame $id, no such factory found")
+        val factory = codec.codec().parse(data).getOrThrow {
+            MinigameCreationException("Failed to create Minigame $id with default factory parameters")
+        }
         try {
             return factory.create(context)
         } catch (e: Exception) {
@@ -122,39 +94,46 @@ public object Minigames: ModInitializer {
         }
     }
 
-    public fun read(path: Path, server: MinecraftServer): Minigame<*> {
-        val minigamePath = path.resolve("minigame.json")
-        if (!minigamePath.isRegularFile()) {
+    public fun read(path: Path, server: MinecraftServer): Minigame {
+        val factoryPath = path.resolve("factory.json")
+        if (!factoryPath.isRegularFile()) {
             throw MinigameCreationException("Cannot create Minigame, no such file $path")
         }
 
-        val core = try {
-            minigamePath.reader().use(JsonUtils::decodeToJsonObject)
+        val data = try {
+            factoryPath.reader().use(JsonUtils::decodeToJsonObject)
         } catch (e: IOException) {
             throw MinigameCreationException("Cannot create Minigame, failed to read $path")
         }
-        val rawId = core.string("id")
-        val id = ResourceLocation.tryParse(rawId)
-            ?: throw MinigameCreationException("Cannot create Minigame $rawId, invalid ResourceLocation")
-        val factory = FACTORIES_BY_ID[id]
-            ?: throw MinigameCreationException("Cannot create Minigame $id, no such factory found")
 
         try {
-            val minigame = factory.create(MinigameCreationContext(server, core.objOrDefault("parameters")))
-            if (minigame !is SavableMinigame) {
-                throw MinigameCreationException("Factory created non-savable Minigame $id")
+            val factory = MinigameFactory.CODEC.parse(JsonOps.INSTANCE, data.obj("factory")).getOrThrow { message ->
+                MinigameCreationException("Failed to decode minigame factory: $message")
             }
-            minigame.loadFrom(path, core)
+            val minigame = factory.create(MinigameCreationContext(server, data.uuid("uuid")))
+            minigame.serialization.loadFrom(path)
             return minigame
         } catch (e: Exception) {
-            throw MinigameCreationException("Failed to create Minigame $id", e)
+            throw MinigameCreationException("Failed to create Minigame for $path", e)
         }
     }
 
-    public fun write(path: Path, minigame: SavableMinigame<*>) {
+    public fun write(path: Path, minigame: Minigame) {
+        val json = JsonObject()
+        val factory = minigame.internalFactory() ?:
+            throw MinigameSerializationException("Minigame ${minigame.id} is not serializable")
+
+        val encoded = MinigameFactory.CODEC.encodeStart(JsonOps.INSTANCE, factory).getOrThrow { message ->
+            MinigameSerializationException("Failed to serialize minigame factory for ${minigame.id}: $message")
+        }
+        json.add("factory", encoded)
+        json.addProperty("uuid", minigame.uuid.toString())
+
         try {
             path.createDirectories()
-            minigame.saveTo(path)
+
+            path.resolve("factory.json").writer().use { JsonUtils.encode(json, it) }
+            minigame.serialization.saveTo(path)
         } catch (e: IOException) {
             throw MinigameSerializationException("Failed to write Minigame ${minigame.id} to $path", e)
         }
@@ -175,25 +154,28 @@ public object Minigames: ModInitializer {
             event.register(ExtendedGameModeCommand, MinigameCommand, PauseCommand, TeamCommandModifier)
         }
 
-        registerFactory(ResourceUtils.arcade("lobby")) {
-            LobbyMinigame(it.server, LobbyTemplate.DEFAULT.create(it.server.overworld()))
-        }
+        Registry.register(TaskRegisties.TASK_FACTORY, PhaseChangeTask.id, PhaseChangeTask)
+        Registry.register(TaskRegisties.TASK_FACTORY, CancellableTask.Savable.id, CancellableTask.Savable)
+        // TODO:
+        // registerFactory(ResourceUtils.arcade("lobby")) {
+        //     LobbyMinigame(it.server, LobbyTemplate.DEFAULT.create(it.server.overworld()))
+        // }
     }
 
-    internal fun allById(): Map<ResourceLocation, Collection<Minigame<*>>> {
+    internal fun allById(): Map<ResourceLocation, Collection<Minigame>> {
         return this.BY_ID.asMap()
     }
 
-    internal fun register(minigame: Minigame<*>) {
+    internal fun register(minigame: Minigame) {
         this.ALL[minigame.uuid] = minigame
         this.BY_ID.put(minigame.id, minigame)
     }
 
-    internal fun unregister(minigame: Minigame<*>) {
+    internal fun unregister(minigame: Minigame) {
         this.ALL.remove(minigame.uuid)
         this.BY_ID[minigame.id].remove(minigame)
 
-        if (minigame is SavableMinigame) {
+        if (minigame.serializable) {
             Util.ioPool().execute {
                 val path = this.getPathFor(minigame)
                 if (path.exists()) {
@@ -225,18 +207,17 @@ public object Minigames: ModInitializer {
 
     private fun saveMinigames() {
         for (minigame in ALL.values) {
-            if (minigame !is SavableMinigame) {
-                continue
-            }
-            try {
-                this.write(this.getPathFor(minigame), minigame)
-            } catch (e: MinigameSerializationException) {
-                ArcadeUtils.logger.error(e)
+            if (minigame.serializable) {
+                try {
+                    this.write(this.getPathFor(minigame), minigame)
+                } catch (e: MinigameSerializationException) {
+                    ArcadeUtils.logger.error(e)
+                }
             }
         }
     }
 
-    private fun getPathFor(minigame: Minigame<*>): Path {
+    private fun getPathFor(minigame: Minigame): Path {
         return PATH.resolve("${minigame.id.namespace}.${minigame.id.path}").resolve(minigame.uuid.toString())
     }
 }

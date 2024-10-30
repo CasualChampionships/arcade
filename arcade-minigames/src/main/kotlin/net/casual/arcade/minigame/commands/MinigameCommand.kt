@@ -1,11 +1,10 @@
 package net.casual.arcade.minigame.commands
 
 import com.google.gson.JsonObject
-import com.google.gson.JsonParseException
 import com.mojang.brigadier.arguments.IntegerArgumentType
-import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
+import com.mojang.serialization.JsonOps
 import net.casual.arcade.commands.*
 import net.casual.arcade.commands.arguments.EnumArgument
 import net.casual.arcade.minigame.Minigame
@@ -31,7 +30,6 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.ComponentArgument
 import net.minecraft.commands.arguments.EntityArgument
-import net.minecraft.commands.arguments.ResourceKeyArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.commands.arguments.TeamArgument
 import net.minecraft.core.registries.Registries
@@ -39,6 +37,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
+import java.util.*
 
 internal object MinigameCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
@@ -49,9 +48,9 @@ internal object MinigameCommand: CommandTree {
                 executes(::listMinigames)
             }
             literal("create") {
-                argument("factory", MinigameFactoryArgument.factory()) {
-                    executes { createMinigame(it, null) }
-                    argument("parameters", StringArgumentType.greedyString()) {
+                argument("factory", MinigameFactoryCodecArgument.codec()) {
+                    executes { createMinigame(it, JsonObject()) }
+                    argument("parameters", MinigameFactoryDataArgument.data("factory")) {
                         executes(::createMinigame)
                     }
                 }
@@ -199,7 +198,7 @@ internal object MinigameCommand: CommandTree {
                                     }
                                 }
                                 literal("value") {
-                                    argument("value", MinigameSettingValueArgument.value(buildContext)) {
+                                    argument("value", MinigameSettingValueArgument.value()) {
                                         executes(::setMinigameSettingFromValue)
                                     }
                                 }
@@ -550,7 +549,7 @@ internal object MinigameCommand: CommandTree {
     private fun applyToPlayersInMinigame(
         context: CommandContext<CommandSourceStack>,
         players: Collection<ServerPlayer>,
-        function: (ServerPlayer, Minigame<*>) -> Boolean,
+        function: (ServerPlayer, Minigame) -> Boolean,
         fail: Component,
         success: (String) -> Component
     ): Int {
@@ -577,7 +576,7 @@ internal object MinigameCommand: CommandTree {
     private fun infoPathMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val path = MinigameInfoPathArgument.getPath(context, "path")
-        val info = JsonUtils.GSON.toJson(minigame.getDebugInfo().get(path))
+        val info = JsonUtils.GSON.toJson(minigame.property(path))
         return context.source.success(info)
     }
 
@@ -695,9 +694,8 @@ internal object MinigameCommand: CommandTree {
         )
     }
 
-    private fun <M: Minigame<M>> setMinigamePhase(context: CommandContext<CommandSourceStack>): Int {
-        @Suppress("UNCHECKED_CAST")
-        val minigame = MinigameArgument.getMinigame(context, "minigame") as Minigame<M>
+    private fun setMinigamePhase(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
         val phase = MinigamePhaseArgument.getPhase(context, "phase", minigame)
         minigame.setPhase(phase)
         return context.source.success(
@@ -801,22 +799,17 @@ internal object MinigameCommand: CommandTree {
 
     private fun createMinigame(
         context: CommandContext<CommandSourceStack>,
-        raw: String? = StringArgumentType.getString(context, "parameters")
+        data: JsonObject = MinigameFactoryDataArgument.getData(context, "data")
     ): Int {
-        val factory = MinigameFactoryArgument.getFactory(context, "factory")
-        val parameters = if (raw != null) {
-            try {
-                JsonUtils.GSON.fromJson(raw, JsonObject::class.java)
-            } catch (_: JsonParseException) {
-                return context.source.fail(
-                    Component.translatable("minigame.command.create.fail")
-                )
-            }
-        } else {
-            JsonObject()
-        }
+        val factory = MinigameFactoryCodecArgument.getCodec(context, "factory")
 
-        val minigame = factory.create(MinigameCreationContext(context.source.server, parameters))
+        val result = factory.codec().parse(JsonOps.INSTANCE, data).result()
+        if (result.isEmpty) {
+            return context.source.fail(
+                Component.translatable("minigame.command.create.fail")
+            )
+        }
+        val minigame = result.get().create(MinigameCreationContext(context.source.server, UUID.randomUUID()))
         minigame.tryInitialize()
         return context.source.success(
             Component.translatable("minigame.command.create.success", minigame.id.toString(), minigame.uuid.toString())

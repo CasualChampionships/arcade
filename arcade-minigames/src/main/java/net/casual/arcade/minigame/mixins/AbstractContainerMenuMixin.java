@@ -21,7 +21,7 @@ public class AbstractContainerMenuMixin {
 	)
 	private boolean canDropItem(Player instance, ItemStack itemStack, boolean includeThrowerName) {
 		if (instance instanceof ServerPlayer player) {
-			Minigame<?> minigame = MinigameUtils.getMinigame(player);
+			Minigame minigame = MinigameUtils.getMinigame(player);
 			return minigame == null || minigame.getSettings().canDropItems.get(player);
 		}
 		return true;

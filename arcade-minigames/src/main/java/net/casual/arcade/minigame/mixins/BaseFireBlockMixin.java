@@ -32,7 +32,7 @@ public class BaseFireBlockMixin {
 		CallbackInfo ci
 	) {
 		if (level instanceof ServerLevel serverLevel) {
-			Minigame<?> minigame = MinigameUtils.getMinigame(serverLevel);
+			Minigame minigame = MinigameUtils.getMinigame(serverLevel);
 			if (minigame != null && minigame.getSettings().getMobsWithNoAIAreFlammable()) {
 				List<Mob> entities = serverLevel.getEntitiesOfClass(Mob.class, AABB.of(new BoundingBox(pos)));
 				for (Mob entity : entities) {
