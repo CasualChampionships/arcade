@@ -49,9 +49,7 @@ public class MinigameRecipeManager(
     private val players = HashMultimap.create<UUID, ResourceKey<Recipe<*>>>()
 
     init {
-        this.minigame.events.register<PlayerClientboundPacketEvent>(1_000, flags = ListenerFlags.HAS_PLAYER) {
-            this.onClientboundPacket(it)
-        }
+        this.minigame.events.register<PlayerClientboundPacketEvent>(this::onClientboundPacket)
         this.minigame.events.register<MinigameAddPlayerEvent>(this::onPlayerAdded)
         this.minigame.events.register<MinigameRemovePlayerEvent>(this::onPlayerRemoved)
     }

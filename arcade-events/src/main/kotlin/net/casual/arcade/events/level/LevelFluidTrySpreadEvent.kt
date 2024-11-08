@@ -16,4 +16,7 @@ public class LevelFluidTrySpreadEvent(
     public val spreadBlockState: BlockState,
     public val spreadFluidState: FluidState,
     public var canSpread: Boolean
-): LevelEvent
+): LocatedLevelEvent {
+    override val pos: BlockPos
+        get() = this.liquidPos
+}

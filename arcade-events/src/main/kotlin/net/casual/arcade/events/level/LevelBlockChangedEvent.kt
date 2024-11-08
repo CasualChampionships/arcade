@@ -6,7 +6,7 @@ import net.minecraft.world.level.block.state.BlockState
 
 public data class LevelBlockChangedEvent(
     override val level: ServerLevel,
-    val pos: BlockPos,
+    override val pos: BlockPos,
     val old: BlockState,
     val new: BlockState
-): LevelEvent
+): LocatedLevelEvent

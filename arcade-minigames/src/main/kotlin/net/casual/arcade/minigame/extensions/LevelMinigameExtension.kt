@@ -1,30 +1,41 @@
 package net.casual.arcade.minigame.extensions
 
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.utils.ArcadeUtils
+import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
+import java.util.*
 
-// TODO: Rework this
 internal class LevelMinigameExtension(
     val level: ServerLevel
 ): Extension {
-    private var minigame: Minigame? = null
+    private var minigames = ReferenceLinkedOpenHashSet<Minigame>()
 
-    internal fun getMinigame(): Minigame? {
-        return this.minigame
+    internal fun getMinigames(): Set<Minigame> {
+        return Collections.unmodifiableSet(this.minigames)
     }
 
-    internal fun setMinigame(minigame: Minigame) {
-        if (this.minigame != null && this.minigame !== minigame) {
-            ArcadeUtils.logger.warn("Level ${this.level.dimension().location()} has been assigned multiple minigames!")
+    internal fun getMinigames(pos: BlockPos): Set<Minigame> {
+        if (this.minigames.isEmpty()) {
+            return emptySet()
         }
-        this.minigame = minigame
+        // Implement a special case for when there is only one minigame, this is most common
+        if (this.minigames.size == 1) {
+            val minigame = this.minigames.first()
+            if (minigame.levels.has(this.level, pos)) {
+                return setOf(minigame)
+            }
+            return emptySet()
+        }
+        return this.minigames.filterTo(ReferenceLinkedOpenHashSet()) { it.levels.has(this.level, pos) }
+    }
+
+    internal fun addMinigame(minigame: Minigame) {
+        this.minigames.add(minigame)
     }
 
     internal fun removeMinigame(minigame: Minigame) {
-        if (this.minigame === minigame) {
-            this.minigame = null
-        }
+        this.minigames.remove(minigame)
     }
 }

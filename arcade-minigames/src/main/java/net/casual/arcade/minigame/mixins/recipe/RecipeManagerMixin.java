@@ -28,11 +28,13 @@ public abstract class RecipeManagerMixin {
 		if (original.isPresent() || !(level instanceof ServerLevel serverLevel)) {
 			return original;
 		}
-		Minigame minigame = MinigameUtils.getMinigame(serverLevel);
-		if (minigame == null) {
-			return original;
-		}
 
-		return minigame.getRecipes().find(type, input, serverLevel);
+		for (Minigame minigame : MinigameUtils.getMinigames(serverLevel)) {
+			Optional<RecipeHolder<T>> recipe = minigame.getRecipes().find(type, input, serverLevel);
+			if (recipe.isPresent()) {
+				return recipe;
+			}
+		}
+		return original;
  	}
 }

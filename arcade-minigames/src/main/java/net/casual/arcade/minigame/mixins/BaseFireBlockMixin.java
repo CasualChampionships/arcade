@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
+import java.util.Set;
 
 @Mixin(BaseFireBlock.class)
 public class BaseFireBlockMixin {
@@ -32,8 +33,8 @@ public class BaseFireBlockMixin {
 		CallbackInfo ci
 	) {
 		if (level instanceof ServerLevel serverLevel) {
-			Minigame minigame = MinigameUtils.getMinigame(serverLevel);
-			if (minigame != null && minigame.getSettings().getMobsWithNoAIAreFlammable()) {
+			Set<Minigame> minigames = MinigameUtils.getMinigames(serverLevel, pos);
+			if (MinigameUtils.ifSingular(minigames, m -> m.getSettings().getMobsWithNoAIAreFlammable())) {
 				List<Mob> entities = serverLevel.getEntitiesOfClass(Mob.class, AABB.of(new BoundingBox(pos)));
 				for (Mob entity : entities) {
 					if (entity.isNoAi()) {

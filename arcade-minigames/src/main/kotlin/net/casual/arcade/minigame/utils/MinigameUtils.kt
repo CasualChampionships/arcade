@@ -6,6 +6,7 @@ import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.core.Event
 import net.casual.arcade.events.level.LevelEvent
+import net.casual.arcade.events.level.LocatedLevelEvent
 import net.casual.arcade.events.player.PlayerEvent
 import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.extensions.event.ExtensionEvent
@@ -33,6 +34,7 @@ import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.countdown.Countdown
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
@@ -53,8 +55,21 @@ public object MinigameUtils {
     }
 
     @JvmStatic
-    public fun ServerLevel.getMinigame(): Minigame? {
-        return this.minigame.getMinigame()
+    public fun ServerLevel.getMinigames(): Set<Minigame> {
+        return this.minigame.getMinigames()
+    }
+
+    @JvmStatic
+    public fun ServerLevel.getMinigames(pos: BlockPos): Set<Minigame> {
+        return this.minigame.getMinigames(pos)
+    }
+
+    @JvmStatic
+    public fun ifSingular(minigames: Collection<Minigame>, predicate: Predicate<Minigame>): Boolean {
+        if (minigames.size == 1) {
+            return predicate.test(minigames.first())
+        }
+        return false
     }
 
     /**
@@ -138,9 +153,12 @@ public object MinigameUtils {
         if (!ticking) {
             return false
         }
-        val minigame = this.getMinigame()
-        if (minigame != null && minigame.settings.tickFreezeOnPause.get()) {
-            return !minigame.paused
+        val minigames = this.getMinigames()
+        if (minigames.size == 1) {
+            val minigame = minigames.first()
+            if (minigame.settings.tickFreezeOnPause.get()) {
+                return !minigame.paused
+            }
         }
         return true
     }
@@ -152,8 +170,9 @@ public object MinigameUtils {
         }
         val level = this.level()
         if (level is ServerLevel) {
-            val minigame = level.getMinigame()
-            if (minigame != null) {
+            val minigames = level.getMinigames()
+            if (minigames.size == 1) {
+                val minigame = minigames.first()
                 if (minigame.settings.freezeEntities.get()) {
                     return false
                 }
@@ -216,11 +235,10 @@ public object MinigameUtils {
                     minigames.add(minigame)
                 }
             }
-            if (event is LevelEvent) {
-                val minigame = event.level.getMinigame()
-                if (minigame != null) {
-                    minigames.add(minigame)
-                }
+            if (event is LocatedLevelEvent) {
+                minigames.addAll(event.level.getMinigames(event.pos))
+            } else if (event is LevelEvent) {
+                minigames.addAll(event.level.getMinigames())
             }
             if (event is MinigameEvent) {
                 minigames.add(event.minigame)

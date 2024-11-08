@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.Level
 
-public class LobbyMinigameFactory(
+public open class LobbyMinigameFactory(
     private val lobby: LobbyTemplate,
     private val level: ResourceKey<Level>
 ): MinigameFactory {

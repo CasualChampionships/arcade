@@ -47,8 +47,8 @@ public class MinigameEffectsManager(
     private val frozen = HashSet<UUID>()
 
     init {
-        this.minigame.events.register<PlayerClientboundPacketEvent>(1_000, flags = ListenerFlags.HAS_PLAYER) { this.onPlayerPacket(it) }
-        this.minigame.events.register<PlayerDimensionChangeEvent>(1_000, flags = ListenerFlags.HAS_PLAYER) { this.updatePlayerFullbright(it.player) }
+        this.minigame.events.register<PlayerClientboundPacketEvent> { this.onPlayerPacket(it) }
+        this.minigame.events.register<PlayerDimensionChangeEvent> { this.updatePlayerFullbright(it.player) }
         this.minigame.events.register<MinigameAddPlayerEvent> { this.updatePlayerFullbright(it.player) }
         this.minigame.events.register<PlayerRespawnEvent> { this.updatePlayerFullbright(it.player) }
         this.minigame.events.register<MinigameRemovePlayerEvent> { this.removeFullbright(it.player) }

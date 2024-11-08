@@ -20,7 +20,7 @@ enum class TestPhase(override val id: String): Phase<TestMinigame> {
     Second("second")
 }
 
-class TestMinigame(
+open class TestMinigame(
     server: MinecraftServer,
     uuid: UUID
 ): Minigame(server, uuid) {
@@ -50,4 +50,8 @@ class TestMinigame(
             return MapCodec.unit(this)
         }
     }
+}
+
+class ChildTestMinigame(server: MinecraftServer, uuid: UUID): TestMinigame(server, uuid) {
+
 }

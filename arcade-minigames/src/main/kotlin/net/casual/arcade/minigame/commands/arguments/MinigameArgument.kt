@@ -10,6 +10,7 @@ import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.commands.type.CustomArgumentTypeInfo
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
+import net.casual.arcade.minigame.utils.MinigameUtils.getMinigames
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.minecraft.commands.CommandSourceStack
@@ -82,7 +83,7 @@ public class MinigameArgument: CustomArgumentType<MinigameArgument.Result>() {
             }
             val source = context.source
             if (source is CommandSourceStack && source.isPlayer) {
-                val minigame = source.player?.getMinigame() ?: source.level.getMinigame()
+                val minigame = source.player?.getMinigame()
                 return minigame ?: throw NOT_PARTICIPATING.create()
             }
             throw NOT_PARTICIPATING.create()

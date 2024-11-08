@@ -4,19 +4,19 @@ import net.casual.arcade.events.*
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.core.Event
 import net.casual.arcade.events.level.LevelEvent
+import net.casual.arcade.events.level.LocatedLevelEvent
 import net.casual.arcade.events.player.PlayerEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.ListenerFlags.DEFAULT
 import net.casual.arcade.minigame.annotation.ListenerFlags.HAS_LEVEL
 import net.casual.arcade.minigame.annotation.ListenerFlags.HAS_PLAYER
+import net.casual.arcade.minigame.annotation.ListenerFlags.IN_LEVEL_BOUNDS
 import net.casual.arcade.minigame.annotation.ListenerFlags.IS_ADMIN
 import net.casual.arcade.minigame.annotation.ListenerFlags.IS_MINIGAME
 import net.casual.arcade.minigame.annotation.ListenerFlags.IS_PLAYING
 import net.casual.arcade.minigame.annotation.ListenerFlags.IS_SPECTATOR
 import net.casual.arcade.minigame.events.MinigameEvent
 import net.casual.arcade.minigame.phase.Phase
-import net.minecraft.server.level.ServerLevel
-import net.minecraft.server.level.ServerPlayer
 import java.util.*
 import java.util.function.Consumer
 
@@ -343,6 +343,15 @@ public class MinigameEventHandler(
             if (this.hasFlag(flags, IS_ADMIN)) {
                 registry = this.injected
                 predicates.add { this.minigame.players.isAdmin((it as PlayerEvent).player) }
+            }
+        }
+        if (LocatedLevelEvent::class.java.isAssignableFrom(type)) {
+            if (this.hasFlag(flags, IN_LEVEL_BOUNDS)) {
+                registry = this.injected
+                predicates.add {
+                    val casted = it as LocatedLevelEvent
+                    this.minigame.levels.has(casted.level, casted.pos)
+                }
             }
         }
         if (LevelEvent::class.java.isAssignableFrom(type)) {
