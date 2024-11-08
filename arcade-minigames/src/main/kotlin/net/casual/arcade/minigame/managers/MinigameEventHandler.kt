@@ -52,8 +52,7 @@ import java.util.function.Consumer
  * @see Minigame.events
  */
 public class MinigameEventHandler(
-    private val minigame: Minigame,
-    private val filterer: Filterer
+    private val minigame: Minigame
 ): ListenerRegistry {
     private val global = SimpleListenerRegistry()
     private val injected = SimpleListenerRegistry()
@@ -331,31 +330,31 @@ public class MinigameEventHandler(
         if (PlayerEvent::class.java.isAssignableFrom(type)) {
             if (this.hasFlag(flags, HAS_PLAYER)) {
                 registry = this.injected
-                predicates.add { this.filterer.hasPlayer((it as PlayerEvent).player) }
+                predicates.add { this.minigame.players.has((it as PlayerEvent).player) }
             }
             if (this.hasFlag(flags, IS_PLAYING)) {
                 registry = this.injected
-                predicates.add { this.filterer.isPlaying((it as PlayerEvent).player) }
+                predicates.add { this.minigame.players.isPlaying((it as PlayerEvent).player) }
             }
             if (this.hasFlag(flags, IS_SPECTATOR)) {
                 registry = this.injected
-                predicates.add { this.filterer.isSpectating((it as PlayerEvent).player) }
+                predicates.add { this.minigame.players.isSpectating((it as PlayerEvent).player) }
             }
             if (this.hasFlag(flags, IS_ADMIN)) {
                 registry = this.injected
-                predicates.add { this.filterer.isAdmin((it as PlayerEvent).player) }
+                predicates.add { this.minigame.players.isAdmin((it as PlayerEvent).player) }
             }
         }
         if (LevelEvent::class.java.isAssignableFrom(type)) {
             if (this.hasFlag(flags, HAS_LEVEL)) {
                 registry = this.injected
-                predicates.add { this.filterer.hasLevel((it as LevelEvent).level) }
+                predicates.add { this.minigame.levels.has((it as LevelEvent).level) }
             }
         }
         if (MinigameEvent::class.java.isAssignableFrom(type)) {
             if (this.hasFlag(flags, IS_MINIGAME)) {
                 registry = this.injected
-                predicates.add { this.filterer.isMinigame((it as MinigameEvent).minigame) }
+                predicates.add { this.minigame === (it as MinigameEvent).minigame }
             }
         }
         if (predicates.isEmpty()) {
@@ -371,33 +370,5 @@ public class MinigameEventHandler(
 
     private fun hasFlag(flags: Int, flag: Int): Boolean {
         return (flags and flag) == flag
-    }
-
-    public open class Filterer(
-        private val minigame: Minigame
-    ) {
-        public open fun hasPlayer(player: ServerPlayer): Boolean {
-            return this.minigame.players.has(player)
-        }
-
-        public open fun isPlaying(player: ServerPlayer): Boolean {
-            return this.minigame.players.isPlaying(player)
-        }
-
-        public open fun isSpectating(player: ServerPlayer): Boolean {
-            return this.minigame.players.isSpectating(player)
-        }
-
-        public open fun isAdmin(player: ServerPlayer): Boolean {
-            return this.minigame.players.isAdmin(player)
-        }
-
-        public open fun hasLevel(level: ServerLevel): Boolean {
-            return this.minigame.levels.has(level)
-        }
-
-        public open fun isMinigame(minigame: Minigame): Boolean {
-            return this.minigame === minigame
-        }
     }
 }

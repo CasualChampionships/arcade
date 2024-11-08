@@ -1,6 +1,7 @@
 package net.casual.arcade.minigame.utils
 
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
+import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.resources.pack.PackInfo
 import net.casual.arcade.resources.utils.ResourcePackUtils.removeResourcePack
 import net.casual.arcade.resources.utils.ResourcePackUtils.sendResourcePack
@@ -10,7 +11,7 @@ import net.minecraft.server.level.ServerPlayer
  * This interface is for getting resource pack information
  * for a given minigame.
  *
- * @see Minigame.getResources
+ * @see Minigame.resources
  */
 public interface MinigameResources {
     /**

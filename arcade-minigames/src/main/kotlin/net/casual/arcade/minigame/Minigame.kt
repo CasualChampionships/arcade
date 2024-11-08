@@ -3,20 +3,12 @@ package net.casual.arcade.minigame
 import com.google.gson.JsonElement
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
-import com.google.gson.JsonPrimitive
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
-import it.unimi.dsi.fastutil.objects.ObjectSortedSet
 import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.SimpleListenerRegistry
 import net.casual.arcade.events.player.*
 import net.casual.arcade.events.server.ServerStoppingEvent
 import net.casual.arcade.events.server.ServerTickEvent
-import net.casual.arcade.minigame.utils.MinigameResources.Companion.removeFrom
-import net.casual.arcade.minigame.utils.MinigameResources.Companion.sendTo
-import net.casual.arcade.minigame.utils.MinigameResources.MultiMinigameResources
 import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.managers.*
 import net.casual.arcade.minigame.phase.Phase
@@ -26,18 +18,19 @@ import net.casual.arcade.minigame.serialization.MinigameSerializer
 import net.casual.arcade.minigame.settings.MinigameSettings
 import net.casual.arcade.minigame.stats.ArcadeStats
 import net.casual.arcade.minigame.stats.Stat.Companion.increment
+import net.casual.arcade.minigame.utils.MinigameResources
+import net.casual.arcade.minigame.utils.MinigameResources.Companion.removeFrom
+import net.casual.arcade.minigame.utils.MinigameResources.Companion.sendTo
+import net.casual.arcade.minigame.utils.MinigameResources.MultiMinigameResources
 import net.casual.arcade.minigame.utils.MinigameUtils
-import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.utils.JsonUtils
-import net.casual.arcade.utils.JsonUtils.toJsonObject
-import net.casual.arcade.utils.JsonUtils.toJsonStringArray
 import net.casual.arcade.utils.PlayerUtils.getKillCreditWith
 import net.casual.arcade.utils.PlayerUtils.revokeAdvancement
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
+import java.lang.reflect.ParameterizedType
 import java.util.*
 
 /**
@@ -47,61 +40,27 @@ import java.util.*
  * This implements the bare-bones logic for a minigame and
  * has common utilities used in minigames.
  *
- * Each minigame has its own set of [GameSetting]s,
- * has its own [SimpleListenerRegistry], and own [TickedScheduler].
- * Minigames also provide a way to display the UI to all
- * the currently playing players, through [CustomBossBar]s,
- * [ArcadeSidebar], [ArcadePlayerListDisplay], and [ArcadeNameTag]s.
- *
- * The minigame keeps track of who is currently playing,
- * this can be accessed through [players].
- * It also keeps track of the [ServerLevel]s which are
- * part of the minigame.
+ * Each minigame has its own set of managers which manage
+ * all the core functionality of the minigame, see the fields
+ * of this class for more information.
  *
  * As well as the minigames own state, see: [setPhase], [paused].
- *
  * See more info about phases here: [Phase].
  *
- * You can implement your own minigame by extending this class:
- * ```kotlin
- * enum class MyMinigamePhase(
- *     override val id: String
- * ): Phase<MyMinigame> {
- *     Grace("grace"),
- *     Active("active"),
- *     DeathMatch("death_match")
- * }
+ * You can implement your own minigame by extending this class.
  *
- * class MyMinigame(
- *     server: MinecraftServer
- * ): Minigame<MyMinigame>(server) {
- *     override val id = ResourceLocation("modid", "my_minigame")
- *
- *     override fun initialize() {
- *         super.initialize()
- *         this.levels.add(LevelUtils.overworld())
- *         this.events.register<MinigameAddPlayerEvent> { (_, player) ->
- *             player.sendSystemMessage(Component.literal("Welcome to My Minigame!"))
- *         }
- *     }
- *
- *     override fun getPhases(): List<Phase<MyMinigame>> {
- *         return MyMinigamePhase.values().toList()
- *     }
- * }
- * ```
- *
- * @param M The type of the child class.
  * @param server The [MinecraftServer] that created the [Minigame].
- * @see SavableMinigame
  * @see Phase
  */
-@Suppress("JoinDeclarationAndAssignment")
+@Suppress("LeakingThis")
 public abstract class Minigame(
     /**
      * The [MinecraftServer] that created the [Minigame].
      */
     public val server: MinecraftServer,
+    /**
+     * The unique id for this minigame.
+     */
     public val uuid: UUID
 ) {
     private val properties = Object2ObjectLinkedOpenHashMap<String, () -> JsonElement>()
@@ -113,44 +72,46 @@ public abstract class Minigame(
     internal val serialization = MinigameSerializer(this)
 
     /**
-     * This handles all the players for this minigame.
-     */
-    public val players: MinigamePlayerManager
-
-    /**
      * This handles registering and invoking events.
      *
      * @see MinigameEventHandler
      */
-    public val events: MinigameEventHandler
+    public val events: MinigameEventHandler = MinigameEventHandler(this)
+
+    /**
+     * This handles all the players for this minigame.
+     */
+    public val players: MinigamePlayerManager = MinigamePlayerManager(this)
 
     /**
      * This handles all the levels that will be used in the minigame.
      *
      * @see MinigameLevelManager
      */
-    public val levels: MinigameLevelManager
+    public val levels: MinigameLevelManager = MinigameLevelManager(this)
 
     /**
      * The scheduler for scheduling tasks based on the minigames
      * ticking rate, the scheduler will be paused if the minigame
      * is paused.
      *
-     * If your minigame is extending [SavableMinigame] then your
-     * tasks can be saved, see [SavableTask] and [SavableMinigame].
-     *
      * @see MinigameScheduler
      */
-    public val scheduler: MinigameScheduler
+    public val scheduler: MinigameScheduler = MinigameScheduler()
 
     /**
      * This manages all the UI for the minigame.
      *
      * @see MinigameUIManager
      */
-    public val ui: MinigameUIManager
+    public val ui: MinigameUIManager = MinigameUIManager(this)
 
-    public val resources: MultiMinigameResources
+    /**
+     * The resource pack manager for packs the minigame requires players to download.
+     *
+     * @see MinigameResources
+     */
+    public val resources: MultiMinigameResources = MultiMinigameResources()
 
     /**
      * This manager is for registering any minigame
@@ -159,63 +120,63 @@ public abstract class Minigame(
      *
      * @see MinigameCommandManager
      */
-    public val commands: MinigameCommandManager
+    public val commands: MinigameCommandManager = MinigameCommandManager(this)
 
     /**
      * This manages minigame specific advancements.
      *
      * @see MinigameAdvancementManager
      */
-    public val advancements: MinigameAdvancementManager
+    public val advancements: MinigameAdvancementManager = MinigameAdvancementManager(this)
 
     /**
      * This manages minigame specific recipes.
      *
      * @see MinigameRecipeManager
      */
-    public val recipes: MinigameRecipeManager
+    public val recipes: MinigameRecipeManager = MinigameRecipeManager(this)
 
     /**
      * This manages certain effects for this minigame.
      *
      * @see MinigameEffectsManager
      */
-    public val effects: MinigameEffectsManager
+    public val effects: MinigameEffectsManager = MinigameEffectsManager(this)
 
     /**
      * This manages music for this minigame.
      *
      * @see MinigameMusicManager
      */
-    public val music: MinigameMusicManager
+    public val music: MinigameMusicManager = MinigameMusicManager(this)
 
     /**
      * This manages minigame statistics.
      *
      * @see MinigameStatManager
      */
-    public val stats: MinigameStatManager
+    public val stats: MinigameStatManager = MinigameStatManager()
 
     /**
      * This manages player minigame tags.
      *
      * @see MinigameTagManager
      */
-    public val tags: MinigameTagManager
+    public val tags: MinigameTagManager = MinigameTagManager(this)
 
     /**
      * This manages a minigame's teams.
      *
      * @see MinigameStatManager
      */
-    public val teams: MinigameTeamManager
+    public val teams: MinigameTeamManager = MinigameTeamManager(this)
 
     /**
      * This manages a minigame's chat.
      *
      * @see MinigameChatManager
      */
-    public val chat: MinigameChatManager
+    public val chat: MinigameChatManager = MinigameChatManager(this)
 
     /**
      * This tracks minigame data which can be serialized
@@ -223,7 +184,7 @@ public abstract class Minigame(
      *
      * @see MinigameDataTracker
      */
-    public val data: MinigameDataTracker
+    public val data: MinigameDataTracker = MinigameDataTracker(this)
 
     /**
      * This handles all the settings for a minigame.
@@ -257,18 +218,33 @@ public abstract class Minigame(
     public var paused: Boolean
         internal set
 
+    /**
+     * Whether the minigame has started.
+     */
     public var started: Boolean
         internal set
 
+    /**
+     * Whether the minigame has initialized.
+     */
     public var initialized: Boolean
         internal set
 
+    /**
+     * Whether the minigame is closed.
+     */
     public var closed: Boolean
         private set
 
+    /**
+     * Whether the minigame is ticking.
+     */
     public val ticking: Boolean
         get() = !this.paused && this.started
 
+    /**
+     * Whether the minigame is serializable.
+     */
     public val serializable: Boolean
         get() = this.factory() != null
 
@@ -278,31 +254,11 @@ public abstract class Minigame(
     public abstract val id: ResourceLocation
 
     init {
-        this.resources = MultiMinigameResources()
         this.initialized = false
         this.started = false
         this.closed = false
 
         this.phases = this.getAllPhases()
-
-        this.scheduler = MinigameScheduler()
-
-        val self = this
-        // Events must be assigned first!
-        this.events = MinigameEventHandler(self, MinigameEventHandler.Filterer(self))
-        this.players = MinigamePlayerManager(self)
-        this.levels = MinigameLevelManager(self)
-        this.ui = MinigameUIManager(self)
-        this.commands = MinigameCommandManager(self)
-        this.advancements = MinigameAdvancementManager(self)
-        this.recipes = MinigameRecipeManager(self)
-        this.effects = MinigameEffectsManager(self)
-        this.music = MinigameMusicManager(self)
-        this.data = MinigameDataTracker(self)
-        this.teams = MinigameTeamManager(self)
-        this.chat = MinigameChatManager(self)
-        this.tags = MinigameTagManager(self)
-        this.stats = MinigameStatManager()
 
         this.phase = Phase.none()
         this.uptime = 0
@@ -312,12 +268,44 @@ public abstract class Minigame(
         this.addDefaultProperties()
     }
 
+    /**
+     * Starts the minigame.
+     */
+    public fun start() {
+        if (this.started) {
+            return
+        }
+        this.started = true
+
+        this.tryInitialize()
+
+        this.data.start()
+
+        GlobalEventHandler.broadcast(MinigameStartEvent(this))
+
+        // The first phase is MinigamePhase.none()
+        // This will never IOOB because we always have at least 2 phases
+        this.setPhase(this.phases[1])
+    }
+
+    /**
+     * This tries to initialize the minigame
+     * if it's not already initialized.
+     */
+    public fun tryInitialize() {
+        if (this.closed) {
+            throw IllegalStateException("Cannot initialize closed minigame ${this.id}")
+        }
+        if (!this.initialized) {
+            this.initialize()
+        }
+    }
 
     /**
      * This sets the phase of the minigame.
      * It will only be set if the given phase is
      * **different** to the current phase and in
-     * the [createPhases] set.
+     * the [phases] set.
      *
      * All minigames will be able to be set to either
      * [Phase.none] or [Phase.end].
@@ -333,7 +321,7 @@ public abstract class Minigame(
      * broadcasted for listeners.
      *
      * @param phase The phase to set the minigame to.
-     * @throws IllegalArgumentException If the [phase] is not in the [createPhases] set.
+     * @throws IllegalArgumentException If the [phase] is not in the [phases] set.
      */
     public fun setPhase(phase: Phase<out Minigame>, force: Boolean = false) {
         if (this.phase == phase && !force) {
@@ -344,8 +332,11 @@ public abstract class Minigame(
         }
         this.scheduler.phased.cancelAll()
 
-        // TODO: Check?
+        // We already validated phases when we created them
+        // if this.phases contains phase it must be valid...
+        @Suppress("UNCHECKED_CAST")
         phase as Phase<Minigame>
+
         this.phase.end(this, phase)
         val previous = this.phase
         this.phase = phase
@@ -355,6 +346,12 @@ public abstract class Minigame(
         GlobalEventHandler.broadcast(MinigameSetPhaseEvent(this, phase, previous))
     }
 
+    /**
+     * Gets the phase for a given phase [id] if it exists.
+     *
+     * @param id The phase id of the desired phase.
+     * @return The phase, null if not found.
+     */
     public fun getPhase(id: String): Phase<Minigame>? {
         return this.phases.find { it.id == id }
     }
@@ -384,6 +381,23 @@ public abstract class Minigame(
             this.paused = false
             GlobalEventHandler.broadcast(MinigameUnpauseEvent(this))
         }
+    }
+
+    /**
+     * Ends the minigame, the difference between [close] and
+     * [complete] is that this is only called after the minigame
+     * is that this is only called after the minigame is considered
+     * to be in its finished state.
+     *
+     * This should **only** be called the minigame implementation
+     * to signify when it has naturally ended.
+     *
+     * @see close
+     */
+    public fun complete() {
+        GlobalEventHandler.broadcast(MinigameCompleteEvent(this))
+
+        this.close()
     }
 
     /**
@@ -439,68 +453,6 @@ public abstract class Minigame(
         return JsonUtils.GSON.toJson(json)
     }
 
-    /**
-     * Starts the minigame.
-     */
-    public fun start() {
-        if (this.started) {
-            return
-        }
-        this.started = true
-
-        this.tryInitialize()
-
-        this.data.start()
-
-        GlobalEventHandler.broadcast(MinigameStartEvent(this))
-
-        // The first phase is MinigamePhase.none()
-        // This will never IOOB because we always have at least 2 phases
-        this.setPhase(this.phases[1])
-    }
-
-    /**
-     * Ends the minigame, the difference between [close] and
-     * [complete] is that this is only called after the minigame
-     * is that this is only called after the minigame is considered
-     * to be in its finished state.
-     *
-     * This should **only** be called the minigame implementation
-     * to signify when it has naturally ended.
-     *
-     * @see close
-     */
-    public fun complete() {
-        GlobalEventHandler.broadcast(MinigameCompleteEvent(this))
-
-        this.close()
-    }
-
-    /**
-     * This tries to initialize the minigame
-     * if it's not already initialized.
-     */
-    public fun tryInitialize() {
-        if (this.closed) {
-            throw IllegalStateException("Cannot initialize closed minigame ${this.id}")
-        }
-        if (!this.initialized) {
-            this.initialize()
-        }
-    }
-
-    internal fun properties(): Collection<String> {
-        return this.properties.keys
-    }
-
-    internal fun property(name: String): JsonElement {
-        return this.properties[name]?.invoke() ?: JsonNull.INSTANCE
-    }
-
-    protected fun property(name: String, getter: () -> Any?) {
-        this.properties[name] = { JsonUtils.encodeToElement(getter.invoke()) }
-    }
-
     protected open fun factory(): MinigameFactory? {
         return null
     }
@@ -511,6 +463,18 @@ public abstract class Minigame(
 
     protected open fun save(data: JsonObject) {
 
+    }
+
+    protected fun property(name: String, getter: () -> Any?) {
+        this.properties[name] = { JsonUtils.encodeToElement(getter.invoke()) }
+    }
+
+    internal fun properties(): Collection<String> {
+        return this.properties.keys
+    }
+
+    internal fun property(name: String): JsonElement {
+        return this.properties[name]?.invoke() ?: JsonNull.INSTANCE
     }
 
     internal fun internalSave(): JsonObject {
@@ -561,15 +525,16 @@ public abstract class Minigame(
      * @return A collection of all the valid phases the minigame can be in.
      */
     @OverrideOnly
-    protected abstract fun createPhases(): Collection<Phase<out Minigame>>
+    protected abstract fun phases(): Collection<Phase<out Minigame>>
 
-    @Suppress("UNCHECKED_CAST")
     private fun getAllPhases(): List<Phase<Minigame>> {
-        val phases = HashSet(this.createPhases())
-        // TODO: Runtime check that the created phases are of the correct type
+        val phases = HashSet<Phase<Minigame>>()
+        for (phase in this.phases()) {
+            phases.add(this.validatePhase(phase))
+        }
         phases.add(Phase.none())
         phases.add(Phase.end())
-        return phases.sortedWith { a, b -> a.compareTo(b) } as List<Phase<Minigame>>
+        return phases.sortedWith { a, b -> a.compareTo(b) }
     }
 
     private fun registerEvents() {
@@ -670,5 +635,20 @@ public abstract class Minigame(
         this.property("advancements") { this.advancements.all().map { it.id.toString() } }
         this.property("recipes") { this.recipes.all().map { it.id.toString() } }
         this.property("commands") { this.commands.getAllRootCommands().map { it } }
+    }
+
+    private fun validatePhase(phase: Phase<out Minigame>): Phase<Minigame> {
+        val clazz = phase.javaClass.genericInterfaces.find {
+            it is ParameterizedType && (it.rawType as? Class<*>) == Phase::class.java
+        } as? ParameterizedType
+
+        val typeArgument = clazz?.actualTypeArguments?.firstOrNull()
+        if (typeArgument is Class<*>) {
+            if (!typeArgument.isAssignableFrom(this::class.java)) {
+                throw IllegalStateException("Phase ${phase.id} is not valid for minigame ${this.id}")
+            }
+        }
+        @Suppress("UNCHECKED_CAST")
+        return phase as Phase<Minigame>
     }
 }

@@ -28,11 +28,9 @@ allprojects {
         maven("https://maven.supersanta.me/snapshots")
         maven("https://maven.parchmentmc.org/")
         maven("https://jitpack.io")
-        maven("https://ueaj.dev/maven")
+        maven("https://api.modrinth.com/maven")
         maven("https://maven.nucleoid.xyz")
         maven("https://maven.maxhenkel.de/repository/public")
-        maven("https://oss.sonatype.org/content/repositories/snapshots")
-        maven("https://repo.fruxz.dev/releases/")
         mavenCentral()
     }
 

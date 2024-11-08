@@ -7,18 +7,18 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
-import net.casual.arcade.commands.*
 import net.casual.arcade.commands.arguments.EnumArgument
+import net.casual.arcade.commands.fail
+import net.casual.arcade.commands.function
+import net.casual.arcade.commands.success
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.commands.arguments.MinigameArgument
-import net.casual.arcade.minigame.commands.arguments.MinigameFactoryCodecArgument
 import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.phase.Phase
-import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.utils.MinigameUtils.countdown
 import net.casual.arcade.minigame.utils.MinigameUtils.requiresAdminOrPermission
@@ -57,6 +57,7 @@ public open class LobbyMinigame(
     server: MinecraftServer,
     uuid: UUID,
     public val lobby: Lobby,
+    private val factory: LobbyMinigameFactory? = null,
 ): Minigame(server, uuid) {
     private var transferring: Boolean = false
 
@@ -82,13 +83,12 @@ public open class LobbyMinigame(
         return this.players.playing
     }
 
-    override fun createPhases(): Collection<Phase<out Minigame>> {
+    override fun phases(): Collection<Phase<out Minigame>> {
         return LobbyPhase.entries
     }
 
     override fun factory(): MinigameFactory? {
-        return null
-        // TODO: return LobbyMinigameFactory
+        return this.factory
     }
 
     override fun load(data: JsonObject) {

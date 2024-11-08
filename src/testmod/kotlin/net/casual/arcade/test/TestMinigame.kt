@@ -26,7 +26,7 @@ class TestMinigame(
 ): Minigame(server, uuid) {
     override val id: ResourceLocation get() = ID
 
-    override fun createPhases(): Collection<Phase<out Minigame>> {
+    override fun phases(): Collection<Phase<out Minigame>> {
         return TestPhase.entries
     }
 

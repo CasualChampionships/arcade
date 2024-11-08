@@ -19,8 +19,7 @@ import net.casual.arcade.utils.time.MinecraftTimeUnit
  * phase, the task will no longer be run.
  *
  * All [SavableTask]s that are scheduled, either to the minigame or
- * to a minigame phase, will be saved if your minigame implementation
- * is a [SavableMinigame].
+ * to a minigame phase, will be saved if your minigame is serializable.
  *
  * @see MinecraftScheduler
  * @see Minigame

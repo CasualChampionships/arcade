@@ -38,9 +38,9 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  *     }
  * }
  *
- * class MyMinigame: Minigame<MyMinigame>(/* ... */) {
- *     override fun getPhases(): Collection<Phase<MyMinigame>> {
- *         return MyMinigamePhases.values().toList()
+ * class MyMinigame: Minigame(/* ... */) {
+ *     override fun phases(): Collection<Phase<out Minigame>> {
+ *         return MyMinigamePhases.entries
  *     }
  *
  *     // ...
@@ -90,7 +90,7 @@ public interface Phase<P> {
     /**
      * This method is called either when a phase is set
      * **or** when a phase is re-set (for example, when
-     * the minigame reloads, see [SavableMinigame]).
+     * the minigame reloads).
      * This method will **always** be invoked after
      * [start] has been invoked, however it does not necessarily
      * follow [start], it will be called by itself when a minigame

@@ -27,6 +27,7 @@ public interface MinigameTaskFactory<M: Minigame>: TaskFactory {
         if (context !is MinigameTaskCreationContext<*>) {
             throw IllegalArgumentException("Cannot create minigame task without minigame")
         }
+        @Suppress("UNCHECKED_CAST")
         return this.create(context as MinigameTaskCreationContext<M>)
     }
 

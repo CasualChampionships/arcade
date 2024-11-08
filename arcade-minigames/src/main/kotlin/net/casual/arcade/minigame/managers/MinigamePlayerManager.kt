@@ -158,24 +158,23 @@ public class MinigamePlayerManager(
             isSpectating = default.spectating
             isAdmin = default.admin
 
-            // FIXME: There's gotta be a nicer way to write this
-            if (isSpectating != null) {
-                if (isSpectating) {
-                    if (!this.setSpectating(player)) {
-                        GlobalEventHandler.broadcast(MinigameLoadSpectatingEvent(this.minigame, player))
-                    }
-                } else if (!this.setPlaying(player)) {
+            when (isSpectating) {
+                true -> if (!this.setSpectating(player)) {
+                    GlobalEventHandler.broadcast(MinigameLoadSpectatingEvent(this.minigame, player))
+                }
+                false -> if (!this.setPlaying(player)) {
                     GlobalEventHandler.broadcast(MinigameLoadPlayingEvent(this.minigame, player))
                 }
-            } else {
-                if (this.isSpectating(player)) {
+                null -> if (this.isSpectating(player)) {
                     GlobalEventHandler.broadcast(MinigameLoadSpectatingEvent(this.minigame, player))
                 } else {
                     GlobalEventHandler.broadcast(MinigameLoadPlayingEvent(this.minigame, player))
                 }
             }
-            if (isAdmin != null) {
-                if (isAdmin) this.addAdmin(player) else this.removeAdmin(player)
+            when (isAdmin) {
+                true -> this.addAdmin(player)
+                false -> this.removeAdmin(player)
+                null -> { }
             }
             return true
         }
