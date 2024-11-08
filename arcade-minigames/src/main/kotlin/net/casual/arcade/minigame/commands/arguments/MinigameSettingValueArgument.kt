@@ -7,9 +7,7 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.utils.ComponentUtils.literal
-import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.ParserUtils
-import net.minecraft.core.HolderLookup
 import net.minecraft.core.RegistryAccess
 import net.minecraft.util.ExtraCodecs
 

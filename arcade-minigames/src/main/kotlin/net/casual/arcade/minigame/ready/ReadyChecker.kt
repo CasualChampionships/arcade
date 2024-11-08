@@ -7,7 +7,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
-import java.util.UUID
+import java.util.*
 
 public class ReadyChecker(
     private val playerHandler: ReadyHandler<ServerPlayer>? = null,

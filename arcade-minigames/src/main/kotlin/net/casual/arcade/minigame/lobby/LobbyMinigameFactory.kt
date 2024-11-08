@@ -9,7 +9,6 @@ import net.casual.arcade.minigame.template.area.PlaceableAreaTemplate
 import net.casual.arcade.minigame.template.location.LocationTemplate
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.codec.CodecProvider
-import net.casual.arcade.visuals.bossbar.TimerBossbar
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.Level

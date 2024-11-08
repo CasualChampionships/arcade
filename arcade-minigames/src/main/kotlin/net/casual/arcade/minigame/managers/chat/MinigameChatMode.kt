@@ -3,8 +3,8 @@ package net.casual.arcade.minigame.managers.chat
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.casual.arcade.minigame.chat.PlayerChatFormatter
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.chat.PlayerChatFormatter
 import net.casual.arcade.minigame.managers.MinigameChatManager
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.utils.ResourceUtils

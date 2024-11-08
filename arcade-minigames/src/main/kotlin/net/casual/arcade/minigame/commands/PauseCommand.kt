@@ -2,8 +2,10 @@ package net.casual.arcade.minigame.commands
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
-import net.casual.arcade.commands.*
-import net.casual.arcade.minigame.utils.MinigameUtils.getMinigames
+import net.casual.arcade.commands.CommandTree
+import net.casual.arcade.commands.fail
+import net.casual.arcade.commands.requiresPermission
+import net.casual.arcade.commands.success
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack

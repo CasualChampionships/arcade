@@ -3,8 +3,8 @@ package net.casual.arcade.minigame.compat
 import me.senseiwells.replay.api.ServerReplayPlugin
 import me.senseiwells.replay.chunk.ChunkRecorder
 import me.senseiwells.replay.player.PlayerRecorder
-import net.casual.arcade.minigame.utils.MinigameUtils.getMinigames
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
+import net.casual.arcade.minigame.utils.MinigameUtils.getMinigames
 import net.casual.arcade.resources.utils.ResourcePackUtils.toPushPacket
 
 public object ArcadeReplayPlugin: ServerReplayPlugin {

@@ -7,7 +7,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
 import net.casual.arcade.events.player.PlayerClientboundPacketEvent
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.annotation.ListenerFlags
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
 import net.casual.arcade.utils.JsonUtils.array
@@ -27,7 +26,6 @@ import net.minecraft.world.item.crafting.*
 import net.minecraft.world.item.crafting.display.RecipeDisplayEntry
 import net.minecraft.world.item.crafting.display.RecipeDisplayId
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * This class manages the recipes of a minigame.

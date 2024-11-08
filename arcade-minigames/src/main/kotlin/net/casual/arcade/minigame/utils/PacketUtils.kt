@@ -6,7 +6,6 @@ import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
 import net.minecraft.network.syncher.SynchedEntityData.DataValue
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
-import java.util.ArrayList
 
 public fun ClientboundSetEntityDataPacket.modifySharedFlags(
     player: ServerPlayer,

@@ -10,7 +10,6 @@ import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.commands.type.CustomArgumentTypeInfo
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
-import net.casual.arcade.minigame.utils.MinigameUtils.getMinigames
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.minecraft.commands.CommandSourceStack
