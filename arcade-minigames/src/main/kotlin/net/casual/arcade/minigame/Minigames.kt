@@ -156,10 +156,6 @@ public object Minigames: ModInitializer {
 
         Registry.register(TaskRegisties.TASK_FACTORY, PhaseChangeTask.id, PhaseChangeTask)
         Registry.register(TaskRegisties.TASK_FACTORY, CancellableTask.Savable.id, CancellableTask.Savable)
-        // TODO:
-        // registerFactory(ResourceUtils.arcade("lobby")) {
-        //     LobbyMinigame(it.server, LobbyTemplate.DEFAULT.create(it.server.overworld()))
-        // }
     }
 
     internal fun allById(): Map<ResourceLocation, Collection<Minigame>> {

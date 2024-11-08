@@ -43,7 +43,7 @@ open class TestMinigame(
         val ID = ResourceUtils.arcade("test_minigame")
 
         override fun create(context: MinigameCreationContext): Minigame {
-            return TestMinigame(context.server, context.uuid)
+            return ChildTestMinigame(context.server, context.uuid)
         }
 
         override fun codec(): MapCodec<out MinigameFactory> {

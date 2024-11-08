@@ -3,29 +3,25 @@ package net.casual.arcade.minigame.commands.arguments
 import com.google.gson.JsonObject
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
+import com.google.gson.stream.MalformedJsonException
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.StringArgumentType.StringType.GREEDY_PHRASE
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import com.mojang.serialization.Codec
 import com.mojang.serialization.JsonOps
-import com.mojang.serialization.MapCodec
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.commands.type.CustomArgumentTypeInfo
 import net.casual.arcade.commands.type.CustomStringArgumentInfo
 import net.casual.arcade.minigame.mixins.ParserUtilsAccessor
-import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.minecraft.commands.ParserUtils
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.core.RegistryAccess
 import net.minecraft.network.chat.Component
 import net.minecraft.util.ExtraCodecs
-import java.util.*
 import java.util.concurrent.CompletableFuture
-import kotlin.jvm.optionals.getOrNull
 
 public class MinigameFactoryDataArgument(
     private val factoryCodecKey: String
@@ -50,8 +46,8 @@ public class MinigameFactoryDataArgument(
         if (typing == null) {
             return Suggestions.empty()
         }
-        val beginning = typing.beginning()
-        return SharedSuggestionProvider.suggest(keys.filter { it.startsWith(beginning) }, builder)
+        val start = builder.remaining.removeSuffix(typing)
+        return SharedSuggestionProvider.suggest(keys.filter { it.startsWith(typing) }.map { start + it }, builder)
     }
 
     public override fun getArgumentInfo(): CustomArgumentTypeInfo<*> {
@@ -61,50 +57,44 @@ public class MinigameFactoryDataArgument(
     private fun completions(
         builder: SuggestionsBuilder,
         existing: MutableSet<String>
-    ): StringWithPosition? {
-        val reader = JsonReader(java.io.StringReader(builder.input))
-        var typing: Optional<StringWithPosition>? = null
+    ): String? {
+        val input = builder.remaining
+        val reader = JsonReader(java.io.StringReader(input))
+        var typing: String? = null
         try {
             reader.beginObject()
 
             while (reader.hasNext()) {
                 val peek = reader.peek()
-                val key = when (peek) {
+                val passed = when (peek) {
                     JsonToken.END_DOCUMENT -> break
-                    JsonToken.NAME -> {
+                    JsonToken.NAME -> try {
                         val name = reader.nextName()
                         existing.add(name)
-                        name
+                        true
+                    } catch (e: MalformedJsonException) {
+                        false
                     }
                     else -> {
                         reader.skipValue()
-                        null
+                        true
                     }
                 }
-                if (typing == null) {
+                if (!passed) {
                     val pos = ParserUtilsAccessor.getReaderPos(reader)
-                    if (pos < builder.start) {
-                        continue
+                    val last = builder.remaining.lastIndexOf('"')
+                    if (last != -1) {
+                        typing = input.substring(last + 1, pos)
                     }
-                    typing = if (key != null) {
-                        Optional.of(StringWithPosition(key, key.length + 1 - (pos - builder.start)))
-                    } else {
-                        Optional.empty<StringWithPosition>()
-                    }
+                    break
                 }
             }
         } catch (_: Exception) {
-
+            val x = true
         } finally {
             reader.close()
         }
-        return typing?.getOrNull()
-    }
-
-    private data class StringWithPosition(val string: String, val pos: Int) {
-        fun beginning(): String {
-            return this.string.substring(0, this.pos + 1)
-        }
+        return typing
     }
 
     public companion object {

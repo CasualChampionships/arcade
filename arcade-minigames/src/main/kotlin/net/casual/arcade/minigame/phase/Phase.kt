@@ -67,9 +67,9 @@ public interface Phase<P> {
     public val ordinal: Int
 
     /**
-     * This method is called when the [phased]s
+     * This method is called when the [minigame]s
      * phase is set to `this`.
-     * Here you may schedule tasks for the [phased]
+     * Here you may schedule tasks for the [minigame]
      * or run specific code that **only** runs when
      * the phase is **set**, this method **WILL NOT**
      * be called when a minigame is reloaded from save.
@@ -78,12 +78,12 @@ public interface Phase<P> {
      * [initialize], see documentation for more
      * information.
      *
-     * @param phased The minigame which as set its phase to `this`.
+     * @param minigame The minigame which as set its phase to `this`.
      * @param previous The previous phase.
      * @see initialize
      */
     @OverrideOnly
-    public fun start(phased: P, previous: Phase<P>) {
+    public fun start(minigame: P, previous: Phase<P>) {
 
     }
 

@@ -47,7 +47,7 @@ public class MinigameFactoryCodecArgument: CustomArgumentType<MapCodec<out Minig
         @JvmStatic
         public fun getCodec(context: CommandContext<*>, string: String): MapCodec<out MinigameFactory> {
             @Suppress("UNCHECKED_CAST")
-            return context.getArgument(string, Codec::class.java) as MapCodec<out MinigameFactory>
+            return context.getArgument(string, MapCodec::class.java) as MapCodec<out MinigameFactory>
         }
     }
 }
