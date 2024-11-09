@@ -56,7 +56,7 @@ public open class LobbyMinigame(
 ): Minigame(server, uuid) {
     private var transferring: Boolean = false
 
-    private var bossbar: TimerBossbar = TimerBossbar.DEFAULT
+    protected var bossbar: TimerBossbar = TimerBossbar.DEFAULT
 
     override val id: ResourceLocation = ID
 
