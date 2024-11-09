@@ -19,10 +19,10 @@ public fun <T> Holder<T>.isOf(key: ResourceKey<T>): Boolean {
     return this.`is`(key)
 }
 
-public fun DamageSource.isOf(tag: TagKey<DamageType>) {
-    this.typeHolder().isOf(tag)
+public fun DamageSource.isOf(tag: TagKey<DamageType>): Boolean {
+    return this.typeHolder().isOf(tag)
 }
 
-public fun DamageSource.isOf(key: ResourceKey<DamageType>) {
-    this.typeHolder().isOf(key)
+public fun DamageSource.isOf(key: ResourceKey<DamageType>): Boolean {
+    return this.typeHolder().isOf(key)
 }

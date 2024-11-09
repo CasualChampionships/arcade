@@ -57,6 +57,7 @@ public open class LobbyMinigame(
     private var transferring: Boolean = false
 
     protected var bossbar: TimerBossbar = TimerBossbar.DEFAULT
+        private set
 
     override val id: ResourceLocation = ID
 
