@@ -10,7 +10,7 @@ plugins {
     java
 }
 
-val modVersion = "0.3.1-alpha.12"
+val modVersion = "0.3.1-alpha.14"
 
 allprojects {
     apply(plugin = "fabric-loom")

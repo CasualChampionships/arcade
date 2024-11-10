@@ -5,7 +5,17 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
 
+/**
+ * This is an extension to [TaskCreationContext] which provides context
+ * for which [minigame] is constructing the current task.
+ *
+ * @param M The minigame type.
+ * @see TaskCreationContext
+ */
 public interface MinigameTaskCreationContext<M: Minigame>: TaskCreationContext {
+    /**
+     * The minigame instance constructing tasks.
+     */
     public val minigame: M
 
     public override fun createSubContext(data: JsonObject): MinigameTaskCreationContext<M> {

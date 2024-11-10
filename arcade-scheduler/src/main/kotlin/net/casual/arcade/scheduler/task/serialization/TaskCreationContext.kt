@@ -39,6 +39,12 @@ public interface TaskCreationContext {
      */
     public fun createTask(uid: Int): Task?
 
+    /**
+     * This creates a child context for recursive task creation.
+     *
+     * @param data The data for the subtask.
+     * @return The child [TaskCreationContext]
+     */
     public fun createSubContext(data: JsonObject): TaskCreationContext {
         return Child(this, data)
     }

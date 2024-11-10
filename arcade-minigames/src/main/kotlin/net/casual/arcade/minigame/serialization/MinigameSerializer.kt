@@ -27,6 +27,7 @@ import net.casual.arcade.utils.JsonUtils.uuidOrNull
 import net.casual.arcade.utils.JsonUtils.uuids
 import net.minecraft.Util
 import net.minecraft.resources.ResourceLocation
+import org.jetbrains.annotations.ApiStatus.Internal
 import java.io.*
 import java.nio.file.Path
 import kotlin.io.encoding.Base64
@@ -36,6 +37,7 @@ import kotlin.io.path.reader
 import kotlin.io.path.writer
 import kotlin.jvm.optionals.getOrNull
 
+@Internal
 public class MinigameSerializer(
     private val minigame: Minigame
 ) {

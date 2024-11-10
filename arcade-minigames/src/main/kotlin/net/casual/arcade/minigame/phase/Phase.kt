@@ -5,7 +5,7 @@ import org.jetbrains.annotations.ApiStatus.NonExtendable
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 /**
- * This interface represents a phase of a given [Minigame] of type [P].
+ * This interface represents a phase of a given [Minigame] of type [M].
  *
  * This allows you to implement different logic for different phases of
  * the minigame.
@@ -47,7 +47,7 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  * }
  * ```
  */
-public interface Phase<P> {
+public interface Phase<M> {
     /**
      * The identifier for the phase, this should be unique
      * to avoid overlapping phase names.
@@ -83,7 +83,7 @@ public interface Phase<P> {
      * @see initialize
      */
     @OverrideOnly
-    public fun start(minigame: P, previous: Phase<P>) {
+    public fun start(minigame: M, previous: Phase<M>) {
 
     }
 
@@ -123,7 +123,7 @@ public interface Phase<P> {
      * @see start
      */
     @OverrideOnly
-    public fun initialize(minigame: P) {
+    public fun initialize(minigame: M) {
 
     }
 
@@ -138,7 +138,7 @@ public interface Phase<P> {
      * @see start
      */
     @OverrideOnly
-    public fun end(minigame: P, next: Phase<P>) {
+    public fun end(minigame: M, next: Phase<M>) {
 
     }
 

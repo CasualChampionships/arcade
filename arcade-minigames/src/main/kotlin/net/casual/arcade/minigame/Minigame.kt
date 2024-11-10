@@ -453,18 +453,42 @@ public abstract class Minigame(
         return JsonUtils.GSON.toJson(json)
     }
 
+    /**
+     * The [MinigameFactory] instance which is able to create
+     * instances of `this` minigame.
+     *
+     * @return The minigame factory, which may be null.
+     */
     protected open fun factory(): MinigameFactory? {
         return null
     }
 
+    /**
+     * Loads custom data for this minigame.
+     *
+     * @param data Any serialized [data] which was written in [save].
+     */
     protected open fun load(data: JsonObject) {
 
     }
 
+    /**
+     * Saves custom data for this minigame.
+     *
+     * @param data The [JsonObject] to write to.
+     */
     protected open fun save(data: JsonObject) {
 
     }
 
+    /**
+     * Sets a property for this minigame with a given [name].
+     *
+     * Used for debugging and inspecting this minigame.
+     *
+     * @param name The name of the property.
+     * @param getter The property getter.
+     */
     protected fun property(name: String, getter: () -> Any?) {
         this.properties[name] = { JsonUtils.encodeToElement(getter.invoke()) }
     }
