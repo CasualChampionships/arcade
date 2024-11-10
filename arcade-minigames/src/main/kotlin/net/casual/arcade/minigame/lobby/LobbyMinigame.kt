@@ -7,10 +7,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
+import net.casual.arcade.commands.*
 import net.casual.arcade.commands.arguments.EnumArgument
-import net.casual.arcade.commands.fail
-import net.casual.arcade.commands.function
-import net.casual.arcade.commands.success
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.Minigame
@@ -40,7 +38,6 @@ import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.time.MinecraftTimeUnit
 import net.casual.arcade.visuals.bossbar.TimerBossbar
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.commands.Commands
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
@@ -227,45 +224,59 @@ public open class LobbyMinigame(
     }
 
     protected open fun createLobbyCommand(): LiteralArgumentBuilder<CommandSourceStack> {
-        return Commands.literal("lobby").requiresAdminOrPermission().then(
-            Commands.literal("next").then(
-                Commands.literal("settings").executes(this::nextMinigameSettings)
-            ).then(
-                Commands.literal("set").then(
-                    Commands.literal("existing").then(
-                        Commands.argument("minigame", MinigameArgument.minigame()).executes(this::setNextMinigame)
-                    )
-                )
-            ).then(
-                Commands.literal("unset").executes(this::unsetNextMinigame)
-            )
-        ).then(
-            Commands.literal("place").executes(this::placeLobby)
-        ).then(
-            Commands.literal("replace").executes(this::replaceLobby)
-        ).then(
-            Commands.literal("delete").executes(this::deleteLobby)
-        ).then(
-            Commands.literal("tp").executes(this::teleportToLobby)
-        ).then(
-            Commands.literal("countdown").executes(this::startCountdown)
-        ).then(
-            Commands.literal("ready").then(
-                Commands.literal("players").executes(this::readyPlayers)
-            ).then(
-                Commands.literal("teams").executes(this::readyTeams)
-            ).then(
-                Commands.literal("awaiting").executes(this::awaitingReady)
-            )
-        ).then(
-            Commands.literal("start").then(
-                Commands.literal("in").then(
-                    Commands.argument("time", IntegerArgumentType.integer(1)).then(
-                        Commands.argument("unit", EnumArgument.enumeration<MinecraftTimeUnit>()).executes(this::setTime)
-                    )
-                )
-            )
-        )
+        return CommandTree.buildLiteral("lobby") {
+            requiresAdminOrPermission()
+            literal("next") {
+                literal("settings") {
+                    executes(::nextMinigameSettings)
+                }
+                literal("set") {
+                    literal("existing") {
+                        argument("minigame", MinigameArgument.minigame()) {
+                            executes(::setNextMinigame)
+                        }
+                    }
+                    literal("none") {
+                        executes(::unsetNextMinigame)
+                    }
+                }
+            }
+            literal("place") {
+                executes(::placeLobby)
+            }
+            literal("replace") {
+                executes(::replaceLobby)
+            }
+            literal("delete") {
+                executes(::deleteLobby)
+            }
+            literal("tp") {
+                executes(::teleportToLobby)
+            }
+            literal("countdown") {
+                executes(::startCountdown)
+            }
+            literal("ready") {
+                literal("players") {
+                    executes(::readyPlayers)
+                }
+                literal("teams") {
+                    executes(::readyTeams)
+                }
+                literal("awaiting") {
+                    executes(::awaitingReady)
+                }
+            }
+            literal("start") {
+                literal("in") {
+                    argument("time", IntegerArgumentType.integer(1)) {
+                        argument("unit", EnumArgument.enumeration<MinecraftTimeUnit>()) {
+                            executes(::setTime)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun nextMinigameSettings(context: CommandContext<CommandSourceStack>): Int {
