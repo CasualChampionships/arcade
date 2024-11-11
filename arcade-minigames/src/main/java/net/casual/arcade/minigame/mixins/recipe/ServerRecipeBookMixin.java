@@ -58,7 +58,7 @@ public class ServerRecipeBookMixin {
 		LocalRef<Collection<RecipeHolder<?>>> recipesRef,
 		BiConsumer<MinigameRecipeManager, Collection<RecipeHolder<?>>> consumer
 	) {
-		Minigame<?> minigame = MinigameUtils.getMinigame(player);
+		Minigame minigame = MinigameUtils.getMinigame(player);
 		if (minigame == null) {
 			return;
 		}

@@ -1,7 +1,6 @@
 package net.casual.arcade.minigame.phase
 
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.serialization.SavableMinigame
 import org.jetbrains.annotations.ApiStatus.NonExtendable
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
@@ -39,9 +38,9 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  *     }
  * }
  *
- * class MyMinigame: Minigame<MyMinigame>(/* ... */) {
- *     override fun getPhases(): Collection<Phase<MyMinigame>> {
- *         return MyMinigamePhases.values().toList()
+ * class MyMinigame: Minigame(/* ... */) {
+ *     override fun phases(): Collection<Phase<out Minigame>> {
+ *         return MyMinigamePhases.entries
  *     }
  *
  *     // ...
@@ -91,7 +90,7 @@ public interface Phase<M> {
     /**
      * This method is called either when a phase is set
      * **or** when a phase is re-set (for example, when
-     * the minigame reloads, see [SavableMinigame]).
+     * the minigame reloads).
      * This method will **always** be invoked after
      * [start] has been invoked, however it does not necessarily
      * follow [start], it will be called by itself when a minigame
@@ -150,7 +149,7 @@ public interface Phase<M> {
         return this.ordinal.compareTo(other.ordinal)
     }
 
-    private class None<M>: Phase<M> {
+    private class None<P>: Phase<P> {
         override val id: String = "core_none"
         override val ordinal: Int = Int.MIN_VALUE
 
@@ -159,7 +158,7 @@ public interface Phase<M> {
         }
     }
 
-    private class End<M>: Phase<M> {
+    private class End<P>: Phase<P> {
         override val id: String = "core_end"
         override val ordinal: Int = Int.MAX_VALUE
 

@@ -223,7 +223,7 @@ public object ResourcePackUtils {
                     val model = "$relative/$name.json"
                     if (itemModels.resolve(model).notExists()) {
                         val location = ResourceLocation.fromNamespaceAndPath(namespace, "item/$relative/$name")
-                        builder.addData("assets/$namespace/models/$model", getDefaultItemModel(location))
+                        builder.addData("assets/$namespace/models/item/$model", getDefaultItemModel(location))
                     }
 
                     FileVisitResult.CONTINUE

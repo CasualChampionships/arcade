@@ -6,15 +6,19 @@ import net.casual.arcade.visuals.core.TickableUI
 import net.casual.arcade.scheduler.task.Completable
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
-import net.casual.arcade.scheduler.task.serialization.TaskWriteContext
+import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
+import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.boolean
 import net.casual.arcade.utils.JsonUtils.int
 import net.casual.arcade.utils.JsonUtils.ints
 import net.casual.arcade.utils.TimeUtils.Ticks
+import net.casual.arcade.utils.TimeUtils.formatHHMMSS
 import net.casual.arcade.utils.time.MinecraftTimeDuration
+import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.BossEvent
 
 public abstract class TimerBossbar: CustomBossbar(), TickableUI, Completable {
     private val completable = Completable.Impl()
@@ -80,7 +84,7 @@ public abstract class TimerBossbar: CustomBossbar(), TickableUI, Completable {
         return this.getProgress()
     }
 
-    public fun writeData(context: TaskWriteContext): JsonObject {
+    public fun writeData(context: TaskSerializationContext): JsonObject {
         val data = JsonObject()
         data.addProperty("tick", this.tick)
         data.addProperty("ticks", this.ticks)
@@ -88,7 +92,7 @@ public abstract class TimerBossbar: CustomBossbar(), TickableUI, Completable {
 
         val taskArray = JsonArray()
         for (task in this.completable.tasks()) {
-            taskArray.add(context.writeTask(task) ?: continue)
+            taskArray.add(context.serializeTask(task) ?: continue)
         }
         data.add("tasks", taskArray)
 
@@ -96,7 +100,7 @@ public abstract class TimerBossbar: CustomBossbar(), TickableUI, Completable {
     }
 
     public fun readData(context: TaskCreationContext) {
-        val data = context.getCustomData()
+        val data = context.data
         this.tick = data.int("tick")
         this.ticks = data.int("ticks")
         this.completable.complete = data.boolean("complete")
@@ -104,6 +108,30 @@ public abstract class TimerBossbar: CustomBossbar(), TickableUI, Completable {
         for (taskData in data.array("tasks").ints()) {
             val task = context.createTask(taskData) ?: continue
             this.completable.then(task)
+        }
+    }
+
+    public companion object {
+        public val DEFAULT: TimerBossbar = create()
+
+        public fun create(
+            color: BossEvent.BossBarColor = BossEvent.BossBarColor.YELLOW,
+            overlay: BossEvent.BossBarOverlay = BossEvent.BossBarOverlay.PROGRESS,
+            title: (TimerBossbar) -> Component = { "${it.getRemainingDuration().formatHHMMSS()}".literal() }
+        ): TimerBossbar {
+            return object: TimerBossbar() {
+                override fun getTitle(player: ServerPlayer): Component {
+                    return title.invoke(this)
+                }
+
+                override fun getColour(player: ServerPlayer): BossEvent.BossBarColor {
+                    return color
+                }
+
+                override fun getOverlay(player: ServerPlayer): BossEvent.BossBarOverlay {
+                    return overlay
+                }
+            }
         }
     }
 }

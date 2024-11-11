@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-import java.util.function.Supplier;
+import java.util.Set;
 
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin extends Level {
@@ -80,10 +80,11 @@ public abstract class ServerLevelMixin extends Level {
 		)
 	)
 	private long onSetDayTime(long time) {
-		Minigame<?> minigame = MinigameUtils.getMinigame((ServerLevel) (Object) this);
-		if (minigame == null) {
+		Set<Minigame> minigames = MinigameUtils.getMinigames((ServerLevel) (Object) this);
+		if (minigames.size() != 1) {
 			return time;
 		}
+		Minigame minigame = minigames.iterator().next();
 		int speed = minigame.getSettings().getDaylightCycle();
 		long newTime = this.serverLevelData.getDayTime() + speed;
 		if (speed > 1 && this.server.getTickCount() % 20 != 0) {

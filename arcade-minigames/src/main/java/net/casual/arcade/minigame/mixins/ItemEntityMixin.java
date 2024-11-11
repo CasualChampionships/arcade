@@ -19,7 +19,7 @@ public class ItemEntityMixin {
 	)
 	private void canPlayerPickUp(Player player, CallbackInfo ci) {
 		if (player instanceof ServerPlayer serverPlayer) {
-			Minigame<?> minigame = MinigameUtils.getMinigame(serverPlayer);
+			Minigame minigame = MinigameUtils.getMinigame(serverPlayer);
 			if (minigame != null && !minigame.getSettings().canPickupItems.get(serverPlayer)) {
 				ci.cancel();
 			}

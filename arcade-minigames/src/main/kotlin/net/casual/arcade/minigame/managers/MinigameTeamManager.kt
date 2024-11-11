@@ -20,7 +20,7 @@ import net.minecraft.world.scores.Scoreboard
 import net.minecraft.world.scores.Team
 
 public class MinigameTeamManager(
-    private val minigame: Minigame<*>
+    private val minigame: Minigame
 ) {
     private var admins: PlayerTeam? = null
     private var spectators: PlayerTeam? = null

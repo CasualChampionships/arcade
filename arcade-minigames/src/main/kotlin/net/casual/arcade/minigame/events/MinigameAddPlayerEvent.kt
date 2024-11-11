@@ -8,7 +8,7 @@ import net.minecraft.server.level.ServerPlayer
  * new or existing is added to a minigame.
  */
 public data class MinigameAddPlayerEvent(
-    override val minigame: Minigame<*>,
+    override val minigame: Minigame,
     val player: ServerPlayer,
     var spectating: Boolean?,
     var admin: Boolean?

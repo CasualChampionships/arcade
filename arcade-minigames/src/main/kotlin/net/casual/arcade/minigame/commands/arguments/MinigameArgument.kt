@@ -75,14 +75,14 @@ public class MinigameArgument: CustomArgumentType<MinigameArgument.Result>() {
         return CustomArgumentTypeInfo.of(ResourceLocationArgument::class.java)
     }
 
-    public class Result(private val minigame: Minigame<*>?) {
-        public fun getMinigame(context: CommandContext<*>): Minigame<*> {
+    public class Result(private val minigame: Minigame?) {
+        public fun getMinigame(context: CommandContext<*>): Minigame {
             if (this.minigame != null) {
                 return this.minigame
             }
             val source = context.source
             if (source is CommandSourceStack && source.isPlayer) {
-                val minigame = source.player?.getMinigame() ?: source.level.getMinigame()
+                val minigame = source.player?.getMinigame()
                 return minigame ?: throw NOT_PARTICIPATING.create()
             }
             throw NOT_PARTICIPATING.create()
@@ -100,7 +100,7 @@ public class MinigameArgument: CustomArgumentType<MinigameArgument.Result>() {
         }
 
         @JvmStatic
-        public fun getMinigame(context: CommandContext<*>, string: String): Minigame<*> {
+        public fun getMinigame(context: CommandContext<*>, string: String): Minigame {
             val result = context.getArgument(string, Result::class.java)
             return result.getMinigame(context)
         }

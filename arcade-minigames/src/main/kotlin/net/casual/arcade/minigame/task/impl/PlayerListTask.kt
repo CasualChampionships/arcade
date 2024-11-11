@@ -5,7 +5,7 @@ import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.visuals.tab.PlayerListDisplay
 
 public open class PlayerListTask(
-    private val minigame: Minigame<*>,
+    private val minigame: Minigame,
     display: PlayerListDisplay
 ): Task {
     init {

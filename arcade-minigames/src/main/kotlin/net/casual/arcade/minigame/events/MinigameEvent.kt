@@ -17,5 +17,5 @@ public interface MinigameEvent: Event {
     /**
      * The [Minigame] that is tied to the event.
      */
-    public val minigame: Minigame<*>
+    public val minigame: Minigame
 }

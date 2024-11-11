@@ -8,7 +8,7 @@ import net.casual.arcade.visuals.bossbar.CustomBossbar
 import net.casual.arcade.visuals.bossbar.TimerBossbar
 
 public open class BossbarTask<T: CustomBossbar>(
-    private val minigame: Minigame<*>,
+    private val minigame: Minigame,
     public val bar: T
 ): Task {
     init {

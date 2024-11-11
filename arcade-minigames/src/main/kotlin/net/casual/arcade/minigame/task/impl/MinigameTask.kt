@@ -8,7 +8,7 @@ import net.casual.arcade.scheduler.task.capture.CaptureSerializer
 import net.casual.arcade.scheduler.task.capture.CaptureTask
 import java.util.*
 
-private class MinigameSerializer<M: Minigame<M>>: CaptureSerializer<M, UUID> {
+private class MinigameSerializer<M: Minigame>: CaptureSerializer<M, UUID> {
     override fun serialize(capture: M): UUID {
         return capture.uuid
     }
@@ -20,6 +20,6 @@ private class MinigameSerializer<M: Minigame<M>>: CaptureSerializer<M, UUID> {
 }
 
 @Suppress("FunctionName")
-public fun <M: Minigame<M>> MinigameTask(minigame: M, task: CaptureConsumerTask<M>): Task {
+public fun <M: Minigame> MinigameTask(minigame: M, task: CaptureConsumerTask<M>): Task {
     return CaptureTask(minigame, { it }, MinigameSerializer(), task)
 }

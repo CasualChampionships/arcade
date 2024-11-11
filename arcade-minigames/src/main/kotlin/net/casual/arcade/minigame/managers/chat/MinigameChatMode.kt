@@ -3,8 +3,8 @@ package net.casual.arcade.minigame.managers.chat
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.casual.arcade.minigame.chat.PlayerChatFormatter
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.chat.PlayerChatFormatter
 import net.casual.arcade.minigame.managers.MinigameChatManager
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.utils.ResourceUtils
@@ -29,7 +29,7 @@ public sealed interface MinigameChatMode {
         sender: ServerPlayer,
         receiver: ServerPlayer,
         mode: MinigameChatMode?,
-        minigame: Minigame<*>
+        minigame: Minigame
     ): Boolean
 
     public fun switchedToMessage(receiver: ServerPlayer): Component
@@ -72,7 +72,7 @@ public sealed interface MinigameChatMode {
             sender: ServerPlayer,
             receiver: ServerPlayer,
             mode: MinigameChatMode?,
-            minigame: Minigame<*>
+            minigame: Minigame
         ): Boolean {
             return minigame.players.has(receiver) || minigame.settings.canCrossChat
         }
@@ -100,7 +100,7 @@ public sealed interface MinigameChatMode {
             sender: ServerPlayer,
             receiver: ServerPlayer,
             mode: MinigameChatMode?,
-            minigame: Minigame<*>
+            minigame: Minigame
         ): Boolean {
             return minigame.players.isSpectating(receiver) || mode == this
         }
@@ -128,7 +128,7 @@ public sealed interface MinigameChatMode {
             sender: ServerPlayer,
             receiver: ServerPlayer,
             mode: MinigameChatMode?,
-            minigame: Minigame<*>
+            minigame: Minigame
         ): Boolean {
             return minigame.players.isAdmin(receiver) || mode == this
         }
@@ -156,7 +156,7 @@ public sealed interface MinigameChatMode {
             sender: ServerPlayer,
             receiver: ServerPlayer,
             mode: MinigameChatMode?,
-            minigame: Minigame<*>
+            minigame: Minigame
         ): Boolean {
             val team = receiver.team ?: return false
             return team.isAlliedTo(sender.team) || (mode is Team && team.isAlliedTo(mode.getTeam(sender.server)))
@@ -188,7 +188,7 @@ public sealed interface MinigameChatMode {
             sender: ServerPlayer,
             receiver: ServerPlayer,
             mode: MinigameChatMode?,
-            minigame: Minigame<*>
+            minigame: Minigame
         ): Boolean {
             if (mode == this) {
                 return true

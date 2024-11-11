@@ -1,6 +1,6 @@
 package net.casual.arcade.minigame.managers
 
-import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
+import it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.dimensions.level.CustomLevel
 import net.casual.arcade.dimensions.utils.addCustomLevel
@@ -9,8 +9,11 @@ import net.casual.arcade.dimensions.utils.removeCustomLevel
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.utils.MinigameUtils.minigame
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Vec3i
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.GameRules
+import net.minecraft.world.level.levelgen.structure.BoundingBox
 
 /**
  * This class manages the levels of a minigame.
@@ -21,9 +24,9 @@ import net.minecraft.server.level.ServerPlayer
  * @see Minigame.levels
  */
 public class MinigameLevelManager(
-    private val minigame: Minigame<*>
-) {
-    private val levels = ReferenceLinkedOpenHashSet<ServerLevel>()
+    private val minigame: Minigame
+): Iterable<ServerLevel> {
+    private val levels = Reference2ObjectLinkedOpenHashMap<ServerLevel, BoundingBox?>()
     private val handling = ReferenceOpenHashSet<CustomLevel>()
 
     /**
@@ -50,9 +53,10 @@ public class MinigameLevelManager(
      *
      * @param level The level to add.
      */
-    public fun add(level: ServerLevel) {
-        this.levels.add(level)
-        level.minigame.setMinigame(this.minigame)
+    @JvmOverloads
+    public fun add(level: ServerLevel, box: BoundingBox? = null) {
+        this.levels[level] = box
+        level.minigame.addMinigame(this.minigame)
 
         if (this.minigame.initialized) {
             this.ensureLevelLoaded(level)
@@ -79,7 +83,15 @@ public class MinigameLevelManager(
      * @return Whether the level is part of the minigame.
      */
     public fun has(level: ServerLevel): Boolean {
-        return this.levels.contains(level)
+        return this.levels.containsKey(level)
+    }
+
+    public fun has(level: ServerLevel, pos: Vec3i): Boolean {
+        if (!this.has(level)) {
+            return false
+        }
+        val box = this.levels[level] ?: return true
+        return box.isInside(pos)
     }
 
     /**
@@ -88,17 +100,33 @@ public class MinigameLevelManager(
      * @return The collection of levels.
      */
     public fun all(): Collection<ServerLevel> {
-        return this.levels
+        return this.levels.keys
+    }
+
+    override fun iterator(): Iterator<ServerLevel> {
+        return this.all().iterator()
+    }
+
+    /**
+     * This sets the [GameRules] for all the levels in the minigame.
+     *
+     * @param modifier The modifier to apply to the game rules.
+     * @see GameRules
+     */
+    public fun setGameRules(modifier: GameRules.() -> Unit) {
+        for (level in this.all()) {
+            modifier(level.gameRules)
+        }
     }
 
     internal fun initialize() {
-        for (level in this.levels) {
+        for (level in this.all()) {
             this.ensureLevelLoaded(level)
         }
     }
 
     internal fun close() {
-        for (level in this.levels) {
+        for (level in this.all()) {
             level.minigame.removeMinigame(this.minigame)
         }
         for (handling in this.handling) {

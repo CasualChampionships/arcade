@@ -60,6 +60,10 @@ public object JsonUtils {
         GSON.toJson(any, writer)
     }
 
+    public fun encodeToElement(any: Any?): JsonElement {
+        return GSON.toJsonTree(any)
+    }
+
     public fun JsonObject.getWithNull(key: String): JsonElement? {
         val value = this.get(key) ?: return null
         return if (value.isJsonNull) null else value

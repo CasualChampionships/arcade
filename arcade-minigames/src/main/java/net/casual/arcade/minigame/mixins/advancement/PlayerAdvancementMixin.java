@@ -42,7 +42,7 @@ public class PlayerAdvancementMixin {
 	private AdvancementNode onGetAdvancementNode(AdvancementNode original, AdvancementHolder advancement) {
 		if (original == null) {
 			if (this.player != null) {
-				Minigame<?> minigame = MinigameUtils.getMinigame(this.player);
+				Minigame minigame = MinigameUtils.getMinigame(this.player);
 				if (minigame != null) {
 					return minigame.getAdvancements().getNode(advancement.id());
 				}
@@ -57,7 +57,7 @@ public class PlayerAdvancementMixin {
 	)
 	private void onReload(ServerAdvancementManager manager, CallbackInfo ci) {
 		if (this.player != null) {
-			Minigame<?> minigame = MinigameUtils.getMinigame(this.player);
+			Minigame minigame = MinigameUtils.getMinigame(this.player);
 			if (minigame != null) {
 				minigame.getAdvancements().reloadFor(this.player);
 			}

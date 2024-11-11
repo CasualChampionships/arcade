@@ -1,7 +1,6 @@
 package net.casual.arcade.minigame.managers
 
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.serialization.SavableMinigame
 import net.casual.arcade.scheduler.MinecraftScheduler
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.scheduler.task.SavableTask
@@ -20,13 +19,12 @@ import net.casual.arcade.utils.time.MinecraftTimeUnit
  * phase, the task will no longer be run.
  *
  * All [SavableTask]s that are scheduled, either to the minigame or
- * to a minigame phase, will be saved if your minigame implementation
- * is a [SavableMinigame].
+ * to a minigame phase, will be saved if your minigame is serializable.
  *
  * @see MinecraftScheduler
  * @see Minigame
  */
-public class MinigameScheduler internal constructor(): MinecraftScheduler {
+public class MinigameScheduler: MinecraftScheduler {
     internal val minigame = TickedScheduler()
     internal val phased = TickedScheduler()
 

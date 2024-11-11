@@ -19,7 +19,7 @@ public class PlayerMixin {
 	)
 	private void mayPlaceBlock(CallbackInfoReturnable<Boolean> cir) {
 		if ((Object) this instanceof ServerPlayer player) {
-			Minigame<?> minigame = MinigameUtils.getMinigame(player);
+			Minigame minigame = MinigameUtils.getMinigame(player);
 			if (minigame != null && !minigame.getSettings().canPlaceBlocks.get(player)) {
 				cir.setReturnValue(false);
 			}
@@ -33,7 +33,7 @@ public class PlayerMixin {
 	)
 	private void mayDropItems(CallbackInfoReturnable<ItemEntity> cir) {
 		if ((Object) this instanceof ServerPlayer player) {
-			Minigame<?> minigame = MinigameUtils.getMinigame(player);
+			Minigame minigame = MinigameUtils.getMinigame(player);
 			if (minigame != null && !minigame.getSettings().canDropItems.get(player)) {
 				cir.setReturnValue(null);
 			}

@@ -4,6 +4,7 @@ import me.senseiwells.replay.api.ServerReplayPlugin
 import me.senseiwells.replay.chunk.ChunkRecorder
 import me.senseiwells.replay.player.PlayerRecorder
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
+import net.casual.arcade.minigame.utils.MinigameUtils.getMinigames
 import net.casual.arcade.resources.utils.ResourcePackUtils.toPushPacket
 
 public object ArcadeReplayPlugin: ServerReplayPlugin {
@@ -18,11 +19,12 @@ public object ArcadeReplayPlugin: ServerReplayPlugin {
     // Important note: if you are implementing a MinigameEvent, then you must
     // handle additional resource packs yourself, we cannot detect that here!
     override fun onChunkReplayStart(recorder: ChunkRecorder) {
-        val minigame = recorder.level.getMinigame() ?: return
-
-        val packs = minigame.getResources().getPacks()
-        for (pack in packs) {
-            recorder.record(pack.toPushPacket())
+        val minigames = recorder.level.getMinigames()
+        for (minigame in minigames) {
+            val packs = minigame.resources.getPacks()
+            for (pack in packs) {
+                recorder.record(pack.toPushPacket())
+            }
         }
     }
 }

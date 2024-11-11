@@ -3,6 +3,7 @@ package net.casual.arcade.minigame.template.minigame
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.minigame.lobby.LobbyMinigame
+import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.resources.pack.PackInfo
 import net.casual.arcade.utils.codec.CodecProvider.Companion.register
@@ -15,7 +16,7 @@ import java.util.function.Function
 @Experimental
 public interface MinigamesTemplate {
     public val name: String
-    public val minigames: List<MinigameData>
+    public val minigames: List<MinigameFactory>
     public val repeat: Boolean
 
     public fun createLobby(server: MinecraftServer): LobbyMinigame

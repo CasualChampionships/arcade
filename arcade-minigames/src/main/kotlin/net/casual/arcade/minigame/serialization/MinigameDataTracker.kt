@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.jvm.optionals.getOrNull
 
 public class MinigameDataTracker(
-    private val minigame: Minigame<*>
+    private val minigame: Minigame
 ) {
     private val players = ConcurrentHashMap<UUID, JsonObject>()
     public var startTime: Instant = Instant.DISTANT_PAST

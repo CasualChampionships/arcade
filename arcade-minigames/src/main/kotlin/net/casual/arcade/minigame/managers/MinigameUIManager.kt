@@ -34,31 +34,22 @@ import java.util.function.Consumer
  * @see Minigame.ui
  */
 public class MinigameUIManager(
-    private val minigame: Minigame<*>
+    private val minigame: Minigame
 ) {
-    private val bossbars: MutableList<CustomBossbar>
-    private val nametags: MutableList<PlayerNameTag>
-    private val tickables: MutableSet<TickableUI>
+    private val bossbars = ReferenceArrayList<CustomBossbar>()
+    private val nametags = ReferenceArrayList<PlayerNameTag>()
+    private val tickables = ReferenceLinkedOpenHashSet<TickableUI>()
 
-    private var sidebar: Sidebar?
-    private var display: PlayerListDisplay?
+    private var sidebar: Sidebar? = null
+    private var display: PlayerListDisplay? = null
 
-    public var countdown: Countdown
-    public var readier: ReadyChecker
+    public var countdown: Countdown = TitledCountdown.titled()
+    public var readier: ReadyChecker = ReadyChecker(
+        MinigamePlayerReadyHandler(this.minigame),
+        MinigameTeamReadyHandler(this.minigame)
+    )
 
     init {
-        this.bossbars = ReferenceArrayList()
-        this.nametags = ReferenceArrayList()
-        this.tickables = ReferenceLinkedOpenHashSet()
-
-        this.countdown = TitledCountdown.titled()
-        this.readier = ReadyChecker(
-            MinigamePlayerReadyHandler(this.minigame),
-            MinigameTeamReadyHandler(this.minigame)
-        )
-        this.sidebar = null
-        this.display = null
-
         this.minigame.events.register<MinigameAddPlayerEvent> { event ->
             val player = event.player
             this.bossbars.forEach { it.addPlayer(player) }

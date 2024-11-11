@@ -7,16 +7,15 @@ import net.casual.arcade.events.player.PlayerClientboundPacketEvent
 import net.casual.arcade.events.player.PlayerDimensionChangeEvent
 import net.casual.arcade.events.player.PlayerRespawnEvent
 import net.casual.arcade.events.server.ServerTickEvent
-import net.casual.arcade.visuals.predicate.PlayerObserverPredicate
-import net.casual.arcade.visuals.predicate.PlayerObserverPredicate.Companion.toPlayer
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.annotation.ListenerFlags
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
 import net.casual.arcade.minigame.utils.modifySharedFlags
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.modify
 import net.casual.arcade.visuals.predicate.EntityObserverPredicate
+import net.casual.arcade.visuals.predicate.PlayerObserverPredicate
+import net.casual.arcade.visuals.predicate.PlayerObserverPredicate.Companion.toPlayer
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
 import net.minecraft.network.syncher.SynchedEntityData.DataValue
@@ -36,7 +35,7 @@ import java.util.*
  * @see Minigame.effects
  */
 public class MinigameEffectsManager(
-    private val owner: Minigame<*>
+    private val minigame: Minigame
 ) {
     private var glowingTracker: Multimap<UUID, UUID>? = null
     private var invisibleTracker: Multimap<UUID, UUID>? = null
@@ -47,12 +46,12 @@ public class MinigameEffectsManager(
     private val frozen = HashSet<UUID>()
 
     init {
-        this.owner.events.register<PlayerClientboundPacketEvent>(1_000, flags = ListenerFlags.HAS_PLAYER) { this.onPlayerPacket(it) }
-        this.owner.events.register<PlayerDimensionChangeEvent>(1_000, flags = ListenerFlags.HAS_PLAYER) { this.updatePlayerFullbright(it.player) }
-        this.owner.events.register<MinigameAddPlayerEvent> { this.updatePlayerFullbright(it.player) }
-        this.owner.events.register<PlayerRespawnEvent> { this.updatePlayerFullbright(it.player) }
-        this.owner.events.register<MinigameRemovePlayerEvent> { this.removeFullbright(it.player) }
-        this.owner.events.register<ServerTickEvent> { this.tickTrackers() }
+        this.minigame.events.register<PlayerClientboundPacketEvent> { this.onPlayerPacket(it) }
+        this.minigame.events.register<PlayerDimensionChangeEvent> { this.updatePlayerFullbright(it.player) }
+        this.minigame.events.register<MinigameAddPlayerEvent> { this.updatePlayerFullbright(it.player) }
+        this.minigame.events.register<PlayerRespawnEvent> { this.updatePlayerFullbright(it.player) }
+        this.minigame.events.register<MinigameRemovePlayerEvent> { this.removeFullbright(it.player) }
+        this.minigame.events.register<ServerTickEvent> { this.tickTrackers() }
     }
 
     /**
@@ -61,7 +60,7 @@ public class MinigameEffectsManager(
      * @param player The player to mark as having fullbright.
      */
     public fun addFullbright(player: ServerPlayer) {
-        if (this.owner.tags.add(player, FULL_BRIGHT)) {
+        if (this.minigame.tags.add(player, FULL_BRIGHT)) {
             player.connection.send(ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION, false))
         }
     }
@@ -73,7 +72,7 @@ public class MinigameEffectsManager(
      * @return Whether the player has fullbright.
      */
     public fun hasFullbright(player: ServerPlayer): Boolean {
-        return this.owner.tags.has(player, FULL_BRIGHT)
+        return this.minigame.tags.has(player, FULL_BRIGHT)
     }
 
     /**
@@ -82,7 +81,7 @@ public class MinigameEffectsManager(
      * @param player The player to remove fullbright from.
      */
     public fun removeFullbright(player: ServerPlayer) {
-        if (this.owner.tags.remove(player, FULL_BRIGHT)) {
+        if (this.minigame.tags.remove(player, FULL_BRIGHT)) {
             player.connection.send(ClientboundRemoveMobEffectPacket(player.id, NIGHT_VISION))
             val instance = player.getEffect(NIGHT_VISION)
             if (instance != null) {
@@ -98,7 +97,7 @@ public class MinigameEffectsManager(
      */
     public fun setGlowingPredicate(predicate: PlayerObserverPredicate, tick: Boolean = false) {
         this.glowing = predicate
-        for (player in this.owner.players) {
+        for (player in this.minigame.players) {
             // Mark entity data dirty
             player.setGlowingTag(!player.hasGlowingTag())
             player.setGlowingTag(!player.hasGlowingTag())
@@ -117,7 +116,7 @@ public class MinigameEffectsManager(
      */
     public fun setInvisiblePredicate(predicate: PlayerObserverPredicate, tick: Boolean = false) {
         this.invisible = predicate
-        for (player in this.owner.players) {
+        for (player in this.minigame.players) {
             // Mark entity data dirty
             player.isInvisible = !player.isInvisible
             player.isInvisible = !player.isInvisible
@@ -163,7 +162,7 @@ public class MinigameEffectsManager(
 
     private fun tickTrackers() {
         val glowing = this.glowingTracker
-        val players = lazy { this.owner.players.all }
+        val players = lazy { this.minigame.players.all }
         val updated = HashMultimap.create<UUID, UUID>()
         if (glowing != null) {
             this.glowingTracker = this.tickTracker(this.glowing, glowing, players, updated)

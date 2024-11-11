@@ -1,6 +1,7 @@
 package net.casual.arcade.events.player
 
 import net.casual.arcade.events.core.CancellableEvent
+import net.casual.arcade.events.level.LocatedLevelEvent
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
@@ -12,5 +13,5 @@ public data class PlayerTNTPrimedEvent(
      * This is not necessarily the same as [player]'s level.
      */
     override val level: ServerLevel,
-    val pos: BlockPos
-): CancellableEvent.Default(), PlayerEvent
+    override val pos: BlockPos
+): CancellableEvent.Default(), PlayerEvent, LocatedLevelEvent

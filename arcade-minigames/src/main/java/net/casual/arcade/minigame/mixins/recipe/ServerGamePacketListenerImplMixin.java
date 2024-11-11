@@ -32,7 +32,7 @@ public class ServerGamePacketListenerImplMixin {
 		Operation<RecipeManager.ServerDisplayInfo> original
 	) {
 		if (id.index() < 0) {
-			Minigame<?> minigame = MinigameUtils.getMinigame(this.player);
+			Minigame minigame = MinigameUtils.getMinigame(this.player);
 			if (minigame != null) {
 				return minigame.getRecipes().getHolderWithEntry(id.index());
 			}
@@ -51,7 +51,7 @@ public class ServerGamePacketListenerImplMixin {
 		if (original) {
 			return true;
 		}
-		Minigame<?> minigame = MinigameUtils.getMinigame(this.player);
+		Minigame minigame = MinigameUtils.getMinigame(this.player);
 		return minigame != null && minigame.getRecipes().has(this.player, holder.id());
 	}
 }

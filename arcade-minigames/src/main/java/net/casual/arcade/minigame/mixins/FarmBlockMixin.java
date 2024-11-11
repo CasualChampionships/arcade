@@ -23,7 +23,7 @@ public class FarmBlockMixin {
 	)
 	private boolean onFallOnFarmland(Entity entity, BlockState state, Level level, BlockPos pos) {
 		if (entity instanceof ServerPlayer player) {
-			Minigame<?> minigame = MinigameUtils.getMinigame(player);
+			Minigame minigame = MinigameUtils.getMinigame(player);
 			return minigame == null || minigame.getSettings().canInteractBlocks.get(player);
 		}
 		return true;

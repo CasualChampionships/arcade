@@ -27,7 +27,7 @@ import kotlin.jvm.optionals.getOrNull
 import kotlin.math.min
 
 public class MinigameMusicManager(
-    private val minigame: Minigame<*>
+    private val minigame: Minigame
 ) {
     private val current = Object2ObjectOpenHashMap<UUID, PlayingSound>()
     private val interrupted = Object2ObjectOpenHashMap<UUID, PlayingSound>()

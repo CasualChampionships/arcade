@@ -96,6 +96,8 @@
   "minigame.command.unpause.countdown.cancel.success": "Successfully cancelled the countdown",
   "minigame.command.unpause.here": "[here]",
 
+  "minigame.command.factoryData.invalid": "Invalid factory data",
+
   "minigame.command.team.randomizer.fail": "Failed to completely generate teams, you must delete some unused teams first!",
   "minigame.command.team.randomizer.success": "Successfully created the following teams: %s",
   "minigame.command.team.randomizer.deleted": "Successfully deleted all random teams"

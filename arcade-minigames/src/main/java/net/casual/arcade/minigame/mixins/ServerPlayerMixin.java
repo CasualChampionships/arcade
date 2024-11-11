@@ -29,7 +29,7 @@ public class ServerPlayerMixin {
 	)
 	private boolean isPvpAllowed(boolean original) {
 		ServerPlayer player = (ServerPlayer) (Object) this;
-		Minigame<?> minigame = MinigameUtils.getMinigame(player);
+		Minigame minigame = MinigameUtils.getMinigame(player);
 		return original && (minigame == null || minigame.getSettings().canPvp.get(player));
 	}
 
@@ -40,7 +40,7 @@ public class ServerPlayerMixin {
 	)
 	private void onIsInvulnerableTo(ServerLevel level, DamageSource source, CallbackInfoReturnable<Boolean> cir) {
 		ServerPlayer player = (ServerPlayer) (Object) this;
-		Minigame<?> minigame = MinigameUtils.getMinigame(player);
+		Minigame minigame = MinigameUtils.getMinigame(player);
 		if (minigame != null && !minigame.getSettings().canTakeDamage.get(player)) {
 			if (!source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
 				cir.setReturnValue(true);
@@ -55,7 +55,7 @@ public class ServerPlayerMixin {
 	)
 	private void onDropItem(boolean dropStack, CallbackInfoReturnable<Boolean> cir) {
 		ServerPlayer player = (ServerPlayer) (Object) this;
-		Minigame<?> minigame = MinigameUtils.getMinigame(player);
+		Minigame minigame = MinigameUtils.getMinigame(player);
 		if (minigame != null && !minigame.getSettings().canDropItems.get(player)) {
 			cir.setReturnValue(false);
 		}
@@ -75,7 +75,7 @@ public class ServerPlayerMixin {
 		if (old == null) {
 			return original;
 		}
-		Minigame<?> minigame = MinigameUtils.getMinigame(old);
+		Minigame minigame = MinigameUtils.getMinigame(old);
 		if (minigame != null) {
 			BlockPos spawnPosition = minigame.getLevels().getSpawn().position(player);
 			if (spawnPosition != null) {
@@ -94,7 +94,7 @@ public class ServerPlayerMixin {
 	)
 	private ServerLevel getDefaultRespawnDimension(ServerLevel original) {
 		ServerPlayer player = (ServerPlayer) (Object) this;
-		Minigame<?> minigame = MinigameUtils.getMinigame(player);
+		Minigame minigame = MinigameUtils.getMinigame(player);
 		if (minigame != null) {
 			ServerLevel spawn = minigame.getLevels().getSpawn().level(player);
 			if (spawn != null) {

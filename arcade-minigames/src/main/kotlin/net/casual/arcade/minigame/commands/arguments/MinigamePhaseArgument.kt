@@ -8,7 +8,6 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.phase.Phase
-import net.casual.arcade.minigame.utils.MinigameUtils.getPhase
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.minecraft.commands.SharedSuggestionProvider
 import java.util.concurrent.CompletableFuture
@@ -35,11 +34,11 @@ public class MinigamePhaseArgument(private val minigameKey: String): CustomArgum
         }
 
         @JvmStatic
-        public fun <M: Minigame<M>> getPhase(
+        public fun getPhase(
             context: CommandContext<*>,
             string: String,
-            minigame: Minigame<M>
-        ): Phase<M> {
+            minigame: Minigame
+        ): Phase<Minigame> {
             val phaseName = context.getArgument(string, String::class.java)
             return minigame.getPhase(phaseName) ?: throw INVALID_PHASE_NAME.create()
         }

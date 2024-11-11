@@ -31,7 +31,7 @@ import net.minecraft.world.item.Items
  *
  */
 public open class MinigameSettings(
-    internal val minigame: Minigame<*>,
+    internal val minigame: Minigame,
     defaults: DisplayableSettingsDefaults = DisplayableSettingsDefaults()
 ): DisplayableSettings(defaults) {
     /**

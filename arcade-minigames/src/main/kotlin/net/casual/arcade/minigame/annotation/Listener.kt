@@ -84,6 +84,7 @@ public object ListenerFlags {
     public const val IS_SPECTATOR: Int = 1 shl 3
     public const val IS_ADMIN: Int = 1 shl 4
     public const val HAS_LEVEL: Int = 1 shl 5
-    public const val IS_MINIGAME: Int = 1 shl 6
-    public const val DEFAULT: Int = HAS_PLAYER or HAS_LEVEL or IS_MINIGAME
+    public const val IN_LEVEL_BOUNDS: Int = 1 shl 6
+    public const val IS_MINIGAME: Int = 1 shl 7
+    public const val DEFAULT: Int = HAS_PLAYER or IN_LEVEL_BOUNDS or IS_MINIGAME
 }

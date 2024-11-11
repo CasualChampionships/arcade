@@ -4,6 +4,7 @@ import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.level.LevelLootEvent;
 import net.casual.arcade.events.player.PlayerLootEvent;
 import net.casual.arcade.utils.InventoryUtilsKt;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -24,6 +25,8 @@ import java.util.List;
 public interface RandomizbleContainerMixin extends Container {
 	@Shadow @Nullable Level getLevel();
 
+	@Shadow BlockPos getBlockPos();
+
 	@Inject(
 		method = "unpackLootTable",
 		at = @At(
@@ -36,7 +39,7 @@ public interface RandomizbleContainerMixin extends Container {
 		List<ItemStack> items = InventoryUtilsKt.getAllItems(this);
 		RandomizableContainer container = (RandomizableContainer) this;
 
-		LevelLootEvent levelLootEvent = new LevelLootEvent((ServerLevel) this.getLevel(), items, container);
+		LevelLootEvent levelLootEvent = new LevelLootEvent((ServerLevel) this.getLevel(), this.getBlockPos(), items, container);
 		GlobalEventHandler.broadcast(levelLootEvent);
 		if (player instanceof ServerPlayer serverPlayer) {
 			PlayerLootEvent playerLootEvent = new PlayerLootEvent(serverPlayer, items, container);

@@ -6,12 +6,13 @@ import net.casual.arcade.scheduler.task.SavableTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
 import net.casual.arcade.scheduler.task.serialization.TaskFactory
-import net.casual.arcade.scheduler.task.serialization.TaskWriteContext
-import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.boolean
 import net.casual.arcade.utils.JsonUtils.int
 import net.casual.arcade.utils.JsonUtils.ints
+import net.casual.arcade.utils.ResourceUtils
+import net.minecraft.resources.ResourceLocation
 import org.jetbrains.annotations.ApiStatus.Internal
 
 /**
@@ -84,11 +85,11 @@ public sealed class CancellableTask(
 
     @Internal
     public class Savable(wrapped: Task): CancellableTask(wrapped), SavableTask {
-        override val id: String = Companion.id
+        override val id: ResourceLocation = Companion.id
 
-        override fun writeCustomData(context: TaskWriteContext): JsonObject {
+        override fun serialize(context: TaskSerializationContext): JsonObject {
             val data = JsonObject()
-            val wrappedRef = context.writeTask(this.wrapped)
+            val wrappedRef = context.serializeTask(this.wrapped)
             if (wrappedRef == null) {
                 val message = "Cancellable\$Savable task failed to write wrapped task ${this.wrapped::class.simpleName}"
                 throw IllegalStateException(message)
@@ -96,7 +97,7 @@ public sealed class CancellableTask(
             data.addProperty("wrapped", wrappedRef)
             val onCancel = JsonArray()
             for (cancel in this.cancelled) {
-                val onCancelRef = context.writeTask(cancel)
+                val onCancelRef = context.serializeTask(cancel)
                 if (onCancelRef == null) {
                     val message = "Cancellable\$Savable task failed to write on_cancel task ${cancel::class.simpleName}"
                     throw IllegalStateException(message)
@@ -110,10 +111,10 @@ public sealed class CancellableTask(
 
         @Internal
         public companion object: TaskFactory {
-            override val id: String = "$${ArcadeUtils.MOD_ID}_internal_savable_cancellable"
+            override val id: ResourceLocation = ResourceUtils.arcade("internal_savable_cancellable")
 
             override fun create(context: TaskCreationContext): Task {
-                val data = context.getCustomData()
+                val data = context.data
                 val wrappedData = data.int("wrapped")
                 val wrapped = context.createTask(wrappedData)
                 if (wrapped == null) {

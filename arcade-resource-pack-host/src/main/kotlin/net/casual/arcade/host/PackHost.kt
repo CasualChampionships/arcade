@@ -107,7 +107,7 @@ public class PackHost(ip: String?, port: Int = DEFAULT_PORT, threads: Int = 1): 
 
     public inner class HostedPackRef(
         private val name: String,
-        private val future: CompletableFuture<HostedPack>
+        public val future: CompletableFuture<HostedPack>
     ) {
         public val value: HostedPack
             get() = getHostedPack(this.name) ?: this.future.join()

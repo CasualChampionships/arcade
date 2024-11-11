@@ -7,7 +7,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
 import net.casual.arcade.events.player.PlayerClientboundPacketEvent
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.annotation.ListenerFlags
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
 import net.casual.arcade.utils.JsonUtils.array
@@ -26,8 +25,8 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.crafting.*
 import net.minecraft.world.item.crafting.display.RecipeDisplayEntry
 import net.minecraft.world.item.crafting.display.RecipeDisplayId
+import org.jetbrains.annotations.ApiStatus.Internal
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * This class manages the recipes of a minigame.
@@ -39,7 +38,7 @@ import kotlin.collections.ArrayList
  * @see Minigame.recipes
  */
 public class MinigameRecipeManager(
-    private val minigame: Minigame<*>
+    private val minigame: Minigame
 ) {
     private val holdersWithEntries = ObjectArrayList<RecipeManager.ServerDisplayInfo>()
     private val recipeToEntries = Reference2ObjectOpenHashMap<ResourceKey<Recipe<*>>, List<RecipeDisplayEntry>>()
@@ -49,13 +48,16 @@ public class MinigameRecipeManager(
     private val players = HashMultimap.create<UUID, ResourceKey<Recipe<*>>>()
 
     init {
-        this.minigame.events.register<PlayerClientboundPacketEvent>(1_000, flags = ListenerFlags.HAS_PLAYER) {
-            this.onClientboundPacket(it)
-        }
+        this.minigame.events.register<PlayerClientboundPacketEvent>(this::onClientboundPacket)
         this.minigame.events.register<MinigameAddPlayerEvent>(this::onPlayerAdded)
         this.minigame.events.register<MinigameRemovePlayerEvent>(this::onPlayerRemoved)
     }
 
+    /**
+     * This adds a recipe to the [minigame].
+     *
+     * @param recipe The recipe to add.
+     */
     public fun add(recipe: RecipeHolder<*>) {
         this.recipesByType.put(recipe.value.type, recipe)
         this.recipesById[recipe.id] = recipe
@@ -63,6 +65,11 @@ public class MinigameRecipeManager(
         this.addEntries(recipe)
     }
 
+    /**
+     * This adds a collection of recipes to the [minigame].
+     *
+     * @param recipes The recipes to add.
+     */
     public fun addAll(recipes: Collection<RecipeHolder<*>>) {
         for (recipe in recipes) {
             this.recipesByType.put(recipe.value.type, recipe)
@@ -72,46 +79,76 @@ public class MinigameRecipeManager(
         }
     }
 
+    /**
+     * This gets all the recipes registered for the [minigame].
+     *
+     * @return All the minigame recipes.
+     */
     public fun all(): Collection<RecipeHolder<*>> {
         return this.recipesById.values
     }
 
+    /**
+     * This gets all the recipes registered for the [minigame]
+     * for a specific recipe [type].
+     *
+     * @param type The specific recipe type to search for.
+     * @return All the recipes with that type.
+     */
     public fun <I: RecipeInput, R: Recipe<I>> all(type: RecipeType<R>): Set<RecipeHolder<R>> {
         @Suppress("UNCHECKED_CAST")
         return this.recipesByType.get(type) as Set<RecipeHolder<R>>
     }
 
-    public fun grant(player: ServerPlayer, recipe: RecipeHolder<*>, silent: Boolean = false) {
-        if (this.players.put(player.uuid, recipe.id)) {
-            val entries = this.recipeToEntries[recipe.id]
-            if (entries.isNullOrEmpty()) {
-                return
-            }
+    /**
+     * This grants a player a minigame recipe.
+     *
+     * @param player The player to grant the recipe for.
+     * @param recipe The recipe to grant.
+     * @param toast Whether the recipe toast should be shown, `true` by default.
+     */
+    public fun grant(player: ServerPlayer, recipe: RecipeHolder<*>, toast: Boolean = true) {
+        val entries = this.recipeToEntries[recipe.id]
+        if (!entries.isNullOrEmpty() && this.players.put(player.uuid, recipe.id)) {
             player.connection.send(ClientboundRecipeBookAddPacket(
-                this.mapToEntries(entries, silent), false
+                this.mapToEntries(entries, toast), false
             ))
         }
     }
 
+    /**
+     * This grants a player a collection of minigame recipes;
+     * by default, all minigame recipes are granted.
+     *
+     * @param player The player to grant the recipes for.
+     * @param recipes The recipes to grant.
+     * @param toast Whether the recipe toast should be shown, `true` by default.
+     */
     public fun grantAll(
         player: ServerPlayer,
         recipes: Collection<RecipeHolder<*>> = this.all(),
-        silent: Boolean = false
+        toast: Boolean = true
     ) {
         val awarded = ArrayList<RecipeDisplayEntry>()
         for (recipe in recipes) {
+            val entries = this.recipeToEntries[recipe.id] ?: continue
             if (this.players.put(player.uuid, recipe.id)) {
-                val entries = this.recipeToEntries[recipe.id] ?: continue
                 awarded.addAll(entries)
             }
         }
         if (awarded.isNotEmpty()) {
             player.connection.send(ClientboundRecipeBookAddPacket(
-                this.mapToEntries(awarded, silent), false
+                this.mapToEntries(awarded, toast), false
             ))
         }
     }
 
+    /**
+     * This revokes a minigame recipe from a player.
+     *
+     * @param player The player to revoke the recipe from.
+     * @param recipe The recipe to revoke.
+     */
     public fun revoke(player: ServerPlayer, recipe: RecipeHolder<*>) {
         if (this.players.remove(player.uuid, recipe.id)) {
             val entries = this.recipeToEntries[recipe.id]
@@ -122,6 +159,13 @@ public class MinigameRecipeManager(
         }
     }
 
+    /**
+     * This revokes a collection of minigame recipes from a player;
+     * by default, all minigame recipes are revoked.
+     *
+     * @param player The player to revoke the recipes from.
+     * @param recipes The recipes to revoke.
+     */
     public fun revokeAll(player: ServerPlayer, recipes: Collection<RecipeHolder<*>> = this.all()) {
         val revoked = ArrayList<RecipeDisplayId>()
         for (recipe in recipes) {
@@ -133,18 +177,33 @@ public class MinigameRecipeManager(
         player.connection.send(ClientboundRecipeBookRemovePacket(revoked))
     }
 
+    /**
+     * This checks if a player has a minigame recipe.
+     *
+     * @param player The player to check.
+     * @param key The recipe key to check.
+     * @return `true` if the player has the recipe, `false` otherwise.
+     */
     public fun has(player: ServerPlayer, key: ResourceKey<Recipe<*>>): Boolean {
         return this.players[player.uuid].contains(key)
     }
 
-    public fun get(id: ResourceKey<Recipe<*>>): RecipeHolder<*>? {
-        return this.recipesById[id]
+    /**
+     * Gets a recipe holder by its [key].
+     *
+     * @param key The recipe key.
+     * @return The recipe holder, may be `null` if the key is invalid.
+     */
+    public fun get(key: ResourceKey<Recipe<*>>): RecipeHolder<*>? {
+        return this.recipesById[key]
     }
 
+    @Internal
     public fun getHolderWithEntry(id: Int): RecipeManager.ServerDisplayInfo? {
         return this.holdersWithEntries.getOrNull(-(id + 1))
     }
 
+    @Internal
     public fun <I: RecipeInput, R: Recipe<I>> find(
         type: RecipeType<R>,
         input: I,
@@ -195,14 +254,17 @@ public class MinigameRecipeManager(
             }
             val entries = this.getDisplaysForPlayer(event.player)
             if (entries.isNotEmpty()) {
-                val modified = packet.entries.concat(this.mapToEntries(entries, true))
-                event.packet = ClientboundRecipeBookAddPacket(modified, true)
+                val modified = packet.entries.concat(this.mapToEntries(entries, false))
+                event.packet = ClientboundRecipeBookAddPacket(modified, false)
             }
         }
     }
 
-    private fun mapToEntries(displays: List<RecipeDisplayEntry>, silent: Boolean): List<ClientboundRecipeBookAddPacket.Entry> {
-        return displays.map { ClientboundRecipeBookAddPacket.Entry(it, !silent, false) }
+    private fun mapToEntries(
+        displays: List<RecipeDisplayEntry>,
+        toast: Boolean
+    ): List<ClientboundRecipeBookAddPacket.Entry> {
+        return displays.map { ClientboundRecipeBookAddPacket.Entry(it, toast, false) }
     }
 
     private fun getDisplaysForPlayer(player: ServerPlayer): List<RecipeDisplayEntry> {

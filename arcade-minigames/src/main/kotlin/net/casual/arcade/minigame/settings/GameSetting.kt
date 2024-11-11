@@ -7,7 +7,7 @@ import net.minecraft.server.level.ServerPlayer
 import java.util.*
 import kotlin.reflect.KProperty
 
-public open class GameSetting<T: Any>(
+public class GameSetting<T: Any>(
     public val name: String,
     private var value: T,
     private val options: Map<String, T>,

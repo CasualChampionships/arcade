@@ -5,6 +5,6 @@ moduleDependencies(project, listOf(
 ))
 
 dependencies {
-    include(modApi(rootProject.libs.sgui.get())!!)
-    include(modApi(rootProject.libs.custom.nametags.get())!!)
+    include(modApi(libs.sgui.get())!!)
+    include(modApi(libs.custom.nametags.get())!!)
 }

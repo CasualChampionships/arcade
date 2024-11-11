@@ -1,6 +1,5 @@
 package net.casual.arcade.minigame.template.minigame
 
-import com.google.gson.JsonObject
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.events.GlobalEventHandler
@@ -11,6 +10,8 @@ import net.casual.arcade.minigame.events.SequentialMinigameStartEvent
 import net.casual.arcade.minigame.exception.MinigameCreationException
 import net.casual.arcade.minigame.lobby.LobbyMinigame
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
+import net.casual.arcade.minigame.serialization.MinigameFactory
+import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.minigame.utils.MinigameResources.Companion.sendTo
 import net.casual.arcade.minigame.utils.MinigameUtils.transferAdminAndSpectatorTeamsTo
 import net.casual.arcade.resources.utils.ResourcePackUtils.sendResourcePack
@@ -28,21 +29,21 @@ public class SequentialMinigames(
     public var event: MinigamesTemplate,
     public val server: MinecraftServer
 ) {
-    private var current: Minigame<*>? = null
+    private var current: Minigame? = null
     private var lobby: LobbyMinigame? = null
     public var index: Int = 0
 
-    public fun getCurrent(): Minigame<*> {
+    public fun getCurrent(): Minigame {
         if (this.current == null) {
             this.returnToLobby()
         }
         return this.current!!
     }
 
-    public fun getNext(): Minigame<*>? {
+    public fun getNext(): Minigame? {
         val current = this.getCurrent()
         if (current === this.lobby) {
-            return current.nextMinigame
+            return current.next
         }
         return this.lobby
     }
@@ -55,7 +56,7 @@ public class SequentialMinigames(
         current.players.add(player, admin = this.event.isAdmin(player))
     }
 
-    public fun startNewMinigame(minigame: Minigame<*>) {
+    public fun startNewMinigame(minigame: Minigame) {
         val current = this.current
         this.current = minigame
         if (current != null) {
@@ -90,7 +91,7 @@ public class SequentialMinigames(
         GlobalTickedScheduler.later {
             val next = this.createNextMinigame()
             if (next != null) {
-                lobby.nextMinigame = next
+                lobby.next = next
             }
         }
     }
@@ -112,11 +113,11 @@ public class SequentialMinigames(
             player.sendResourcePack(pack)
         }
         if (minigame) {
-            this.getCurrent().getResources().sendTo(player)
+            this.getCurrent().resources.sendTo(player)
         }
     }
 
-    public fun getNextMinigameData(): MinigameData? {
+    public fun getNextMinigameData(): MinigameFactory? {
         val minigames = this.event.minigames
 
         if (this.index in minigames.indices) {
@@ -169,19 +170,19 @@ public class SequentialMinigames(
         }
     }
 
-    private fun createNextMinigame(): Minigame<*>? {
-        val (minigameId, customData) = this.getNextMinigameData() ?: return null
+    private fun createNextMinigame(): Minigame? {
+        val factory = this.getNextMinigameData() ?: return null
         try {
-            return Minigames.create(minigameId, MinigameCreationContext(this.server, customData.orElseGet(::JsonObject)))
+            return factory.create(MinigameCreationContext(this.server))
         } catch (e: MinigameCreationException) {
             ArcadeUtils.logger.error("Failed to create next minigame", e)
             return null
         }
     }
 
-    private fun incrementIndex(next: Minigame<*>) {
+    private fun incrementIndex(next: Minigame) {
         val data = this.getNextMinigameData()
-        if (data != null && next.id == data.id) {
+        if (data != null && next.id == MinigameRegistries.MINIGAME_FACTORY.getKey(data.codec())) {
             this.index++
         }
     }

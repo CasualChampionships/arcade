@@ -113,7 +113,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 				return;
 			}
 
-			Minigame<?> minigame = MinigameUtils.getMinigame(this.player);
+			Minigame minigame = MinigameUtils.getMinigame(this.player);
 			if (minigame != null && minigame.getSettings().getCanLookAroundWhenFrozen()) {
 				if (packet.hasRotation()) {
 					if (packet.hasPosition() && !samePosition) {
