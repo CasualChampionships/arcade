@@ -118,14 +118,6 @@ class ExampleSettings(minigame: Minigame): MinigameSettings(minigame) {
     })
 }
 
-fun foo(minigame: Minigame) {
-    val grace = ExamplePhases.Grace
-    val active = ExamplePhases.Active
-    minigame.events.registerP<ServerTickEvent> {
-        // ...
-    }
-}
-
 class CustomSettingsDefaults: DisplayableSettingsDefaults() {
     override fun createSettingsGuiBuilder(player: ServerPlayer): SelectionGuiBuilder {
         return super.createSettingsGuiBuilder(player)
