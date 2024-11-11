@@ -10,7 +10,7 @@ plugins {
     java
 }
 
-val modVersion = "0.3.1-alpha.14"
+val modVersion = "0.3.1-alpha.15"
 
 allprojects {
     apply(plugin = "fabric-loom")
@@ -31,6 +31,7 @@ allprojects {
         maven("https://api.modrinth.com/maven")
         maven("https://maven.nucleoid.xyz")
         maven("https://maven.maxhenkel.de/repository/public")
+        maven("https://maven.andante.dev/releases/")
         mavenCentral()
     }
 
