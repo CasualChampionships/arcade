@@ -1,24 +1,30 @@
 # Settings
 
-> Return to [table of contents](../old-minigames)
+> Return to [table of contents](getting-started.md)
 
 Minigame settings are super easy to configure and allow for quite a lot of control over the behaviour of your minigame.
 
-In addition to the built-in default settings, you are able to implement your own settings using this system, all the settings are accessible and configurable in-game through a gui.
+In addition to the built-in default settings, you are able to implement your 
+own settings using this system, all the settings are accessible and 
+configurable in-game through a gui.
 
 ![Image of Settings gui](../assets/settings_gui.png)
 
 ## Built-In Settings
 
-All the built-in settings are defined in the `MinigameSettings` class, these are accessible through `Minigame#settings`, we'll discuss some of them and what they do.
+All the built-in settings are defined in the `MinigameSettings` class, these 
+are accessible through `Minigame#settings`, we'll discuss some of them and what
+they do.
 
-Let's say we're creating a multi-player parkour minigame, it's likely we don't want players to be able to punch each other, to do this we can simply disable PvP:
+Let's say we're creating a multi-player parkour minigame, it's likely we don't 
+want players to be able to punch each other, to do this we can simply disable 
+PvP:
 
 ```kotlin
 minigame.settings.canPvp.set(false)
 ```
 
-We'd also want the players to stay at full hunger:
+We'd also want the players to stay in full hunger:
 ```kotlin
 minigame.settings.canGetHungry.set(false)
 ```
@@ -45,13 +51,17 @@ Or even if you just want to freeze all entities (including players) at a given m
 minigame.settings.freezeEntities.set(true)
 ```
 
-These settings work on a world-wide basis, depending on the worlds you registered for your minigame, it doesn't affect other minigames or worlds that aren't part of your minigame. For more information, go back to the [World Section](./worlds.md).
+These settings work on a level-wide basis, depending on the worlds you 
+registered for your minigame, it doesn't affect other minigames or worlds that 
+aren't part of your minigame. For more information, go back to the [World Section](./worlds.md).
 
-There are more settings for you to explore, be sure to take a look at the class to see what is available!
+There are more settings for you to explore, be sure to take a look at the class
+to see what is available!
 
 ## Custom Settings
 
-To create custom settings for your minigame, you first must extend the `MinigameSettings` class.
+To create custom settings for your minigame, you first must extend the 
+`MinigameSettings` class.
 
 ```kotlin
 class ExampleSettings(minigame: Minigame<*>): MinigameSettings(minigame) {
@@ -61,7 +71,10 @@ class ExampleSettings(minigame: Minigame<*>): MinigameSettings(minigame) {
 
 ### Setting Types
 
-The underlying class for all settings is `GameSetting<T>`, this is essentially just a wrapper for some value with any type `T`. However, to make it support a UI, it is wrapped in the `MenuGameSetting<T>` class which provides information about how to display the setting to a player.
+The underlying class for all settings is `GameSetting<T>`, this is essentially 
+just a wrapper for some value with any type `T`. However, to make it support a 
+UI, it is wrapped in the `MenuGameSetting<T>` class which provides information 
+about how to display the setting to a player.
 
 We can build `MenuGameSetting<T>`s with a `MenuGameSettingBuilder<T>`, there are a couple built-in types that this supports:
 ```kotlin
@@ -74,7 +87,7 @@ MenuGameSettingBuilder.time()
 MenuGameSettingBuilder.enumeration()
 ```
 
-These will likely be all you need, however creating your own type is super simple:
+These will likely be all you need, however, creating your own type is super simple:
 ```kotlin
 // Use Codec<T> for your type, in this example using String
 val stringSettingGenerator = GameSetting.generator(Codec.STRING)
@@ -120,13 +133,16 @@ We can also add listeners to our setting to get notified when the setting is cha
 ```kotlin
 val setting: MenuGameSetting<Int> = MenuGameSettingBuilder.int32 {
     // ...
-    listener { setting: GameSetting<Int>, value: Int ->
+    listener { setting: GameSetting<Int>, previous: Int, value: Int ->
         println("My Setting was set to $value")
     }
 }
 ```
 
-And finally we can add setting overrides, this is for the case of player-specific settings, and is mostly designed to add overrides for administrators. For example, the `isChatMuted` setting has an override that will let any minigame admins bypass the mute.
+And finally we can add setting overrides, this is for the case of 
+player-specific settings, and is mostly designed to add overrides for 
+administrators. For example, the `isChatMuted` setting has an override that 
+will let any minigame admins bypass the mute.
 ```kotlin
 val setting: MenuGameSetting<Int> = MenuGameSettingBuilder.int32 {
     // ...
@@ -144,10 +160,12 @@ val setting: MenuGameSetting<Int> = MenuGameSettingBuilder.int32 {
 
 ### Registering Custom Settings 
 
-Now inside our class we can register our first setting, we can do this by using the `register` method. This takes in a `MenuGameSetting<T>` and returns a `GameSetting<T>`:
+Now inside our class we can register our first setting, we can do this by using
+the `register` method. This takes in a `MenuGameSetting<T>` and returns a 
+`GameSetting<T>`:
 
 ```kotlin
-class ExampleSettings(minigame: Minigame<*>): MinigameSettings(minigame) {
+class ExampleSettings(minigame: Minigame): MinigameSettings(minigame) {
     val myCustomSetting: GameSetting<Int> = this.register(MenuGameSettingBuilder.int32 {
         name = "my_setting"
         value = 100
@@ -157,7 +175,7 @@ class ExampleSettings(minigame: Minigame<*>): MinigameSettings(minigame) {
         option("second_option", Items.BIRCH_PLANKS.named("Second Option"), 50)
         option("third_option", Items.SPRUCE_PLANKS.named("Third Option"), 100)
 
-        listener { setting: GameSetting<Int>, value: Int ->
+        listener { setting: GameSetting<Int>, previous: Int, value: Int ->
             println("My Setting was set to $value")
         }
         
@@ -168,11 +186,13 @@ class ExampleSettings(minigame: Minigame<*>): MinigameSettings(minigame) {
 }
 ```
 
-This will register the setting for the minigame and will add it to the list to be displayed in the gui.
+This will register the setting for the minigame and will add it to the list to 
+be displayed in the gui.
 
-`GameSetting<T>` can also be delegated, this means alternatively we could write our setting like so:
+`GameSetting<T>` can also be delegated, this means alternatively we could write
+our setting like so:
 ```kotlin
-class ExampleSettings(minigame: Minigame<*>): MinigameSettings(minigame) {
+class ExampleSettings(minigame: Minigame): MinigameSettings(minigame) {
     var myCustomSetting: Int by this.register(MenuGameSettingBuilder.int32 {
         // ...
     })
@@ -188,7 +208,10 @@ settings.myCustomSetting = 99
 
 ### Default Options
 
-In our settings class we have access to `this.defaults`, this provides defaults for discrete setting types, for example `GameSetting<Boolean>` can only have two options, one for `true`, and one for `false`. Instead of adding options for these manually, we can just use the defaults:
+In our settings class we have access to `this.defaults`, this provides defaults
+for discrete setting types, for example `GameSetting<Boolean>` can only have 
+two options, one for `true`, and one for `false`. Instead of adding options for
+these manually, we can just use the defaults:
 ```kotlin
 class ExampleSettings(minigame: Minigame<*>): MinigameSettings(minigame) {
     val myCustomSetting by this.register(MenuGameSettingBuilder.bool {
@@ -217,7 +240,7 @@ And you can choose any item for your display item, this can also be any custom i
 Then we can pass this into our `MinigamesSettings` constructor call:
 ```kotlin
 class ExampleSettings(
-    minigame: Minigame<*>
+    minigame: Minigame
 ): MinigameSettings(minigame, CustomSettingsDefaults()) {
     // ...
 }
@@ -249,8 +272,11 @@ class CustomSettingsDefaults: DisplayableSettingsDefaults() {
 }
 ```
 
-The `createSettingsGuiBuilder` returns the builder responsible for creating the gui listing all the minigame settings, and the `createOptionsGuiBuilder` returns the builder responsible for creating the gui listing all the options for a given minigame setting.
+The `createSettingsGuiBuilder` returns the builder responsible for creating the
+gui listing all the minigame settings, and the `createOptionsGuiBuilder` 
+returns the builder responsible for creating the gui listing all the options 
+for a given minigame setting.
 
-The specifics on how to customize these are discussed in the [GUI Section](../old-gui).
+The specifics on how to customize these are discussed in the [GUI Section](gui.md).
 
 > See the next section on [Teams](teams.md)

@@ -31,3 +31,26 @@ dependencies {
     include(modImplementation("net.casual-championships:arcade-visuals:0.3.0-alpha.34+1.21.1")!!)
 }
 ```
+
+> ### [Basic Usage](basic-usage.md)
+> ### [Players](players.md)
+> ### [Worlds](worlds.md)
+> ### [Settings](settings.md)
+> ### [Teams](teams.md)
+> ### [Events](events.md)
+> ### [Scheduling](scheduling.md)
+> ### [Commands](commands.md)
+> ### [GUI](gui.md)
+> ### [Resource Packs](resource_packs.md)
+ 
+### Under Construction 
+
+> ### [Chat](chat.md)
+> ### [Advancements](advancements.md)
+> ### [Recipes](recipes.md)
+> ### [Effects](effects.md)
+> ### [Stats](stats.md)
+
+> ### [Lobby](lobby.md)
+
+> ### [Serialization](serialization.md)

@@ -1,17 +1,15 @@
 # Players
 
-> Return to [table of contents](../old-minigames)
+> Return to [table of contents](getting-started.md)
 
 Managing players is an extremely important task in minigames. Arcade's minigames make it extremely easy to do this.
 
 ## Adding Players
 
-From the [User Commands Section](../old-commands) we know that we can add and remove players from minigames using the commands, but we can also do it programmatically.
-
 We can add players to our minigame using the `MinigamePlayerManager#add` method:
 
 ```kotlin
-val minigame: Minigame<*> = // ...
+val minigame: Minigame = // ...
 val player: ServerPlayer = // ...
     
 val success: Boolean = minigame.players.add(player)
@@ -28,7 +26,7 @@ If a player logged out (or the server was restarted, the player will automatical
 This method also allows us to specify whether we want to add the player as a spectator, this is a nullable boolean. `true` will make the player a spectator, `false` will remove the player from spectating, and `null` will preserve whether the player was previously a spectator (or default to not making them a spectator if they weren't previously part of the minigame).
 
 ```kotlin
-val minigame: Minigame<*> = // ...
+val minigame: Minigame = // ...
 val player: ServerPlayer = // ...
     
 minigame.players.add(player, spectating = true)
@@ -41,7 +39,7 @@ We will discuss more about spectating players in the [Spectators Section](#spect
 We can remove players from our minigame using the `MinigamePlayerManager#remove` method:
 
 ```kotlin
-val minigame: Minigame<*> = // ...
+val minigame: Minigame = // ...
 val player: ServerPlayer = // ...
     
 minigame.players.remove(player)
@@ -63,7 +61,7 @@ You can also do this later by calling `MinigamePlayerManager#setSpectating` and 
 > You can only set this for players who are part of the minigame.
 
 ```kotlin
-val minigame: Minigame<*> = // ...
+val minigame: Minigame = // ...
 val player: ServerPlayer = // ...
     
 minigame.players.setSpectating(player)
@@ -81,7 +79,7 @@ More details about this in the [Minigame Settings Section](settings.md) but a si
 An admin can be either spectating or playing. You can specify whether a player is admin by using the `MinigamePlayerManager#addAdmin` and `MinigamePlayerManager#removeAdmin`
 
 ```kotlin
-val minigame: Minigame<*> = // ...
+val minigame: Minigame = // ...
 val player: ServerPlayer = // ...
     
 minigame.players.addAdmin(player)
@@ -96,7 +94,7 @@ There are quite a few different ways to get players in a minigame.
 
 These methods only return the only players of the minigame:
 ```kotlin
-val minigame: Minigame<*> = // ...
+val minigame: Minigame = // ...
 
 // Gets all online players, including spectators and admins
 val allPlayers: List<ServerPlayer> = minigame.players.all
@@ -112,7 +110,7 @@ val nonAdminPlayers: List<ServerPlayer> = minigame.players.nonAdmin
 
 You may also query the player profiles if you need to access offline players.
 ```kotlin
-val minigame: Minigame<*> = // ...
+val minigame: Minigame = // ...
 
 // Gets all player profiles, both online and offline
 val allProfiles: List<GameProfile> = minigame.players.allProfiles
@@ -124,7 +122,7 @@ You can also do checks on a player to check whether they are part of the minigam
 whether they're playing, spectating, or an admin.
 
 ```kotlin
-val minigame: Minigame<*> = // ...
+val minigame: Minigame = // ...
 val player: ServerPlayer = // ...
 
 // Checks whether the player is part of the minigame

@@ -40,11 +40,11 @@ public interface MinigameResources {
     public class MultiMinigameResources: MinigameResources {
         private val resources = ObjectLinkedOpenHashSet<MinigameResources>()
 
-        public fun addResources(resources: MinigameResources): Boolean {
+        public fun add(resources: MinigameResources): Boolean {
             return this.resources.add(resources)
         }
 
-        public fun removeResources(resources: MinigameResources): Boolean {
+        public fun remove(resources: MinigameResources): Boolean {
             return this.resources.remove(resources)
         }
 

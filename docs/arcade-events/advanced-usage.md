@@ -40,18 +40,17 @@ GlobalEventHandler.addInjectedProvider { event, consumer ->
     if (event is ExtensionEvent) {
         return@addInjectedProvider
     }
-    val minigames = ObjectOpenHashSet<Minigame<*>>(3)
+    val minigames = ObjectOpenHashSet<Minigame>(3)
     if (event is PlayerEvent) {
         val minigame = event.player.getMinigame()
         if (minigame != null) {
             minigames.add(minigame)
         }
     }
-    if (event is LevelEvent) {
-        val minigame = event.level.getMinigame()
-        if (minigame != null) {
-            minigames.add(minigame)
-        }
+    if (event is LocatedLevelEvent) {
+        minigames.addAll(event.level.getMinigames(event.pos))
+    } else if (event is LevelEvent) {
+        minigames.addAll(event.level.getMinigames())
     }
     if (event is MinigameEvent) {
         minigames.add(event.minigame)
