@@ -1,7 +1,22 @@
 package net.casual.arcade
 
+import com.mojang.brigadier.Command
+import com.mojang.brigadier.StringReader
+import com.mojang.brigadier.arguments.ArgumentType
+import com.mojang.brigadier.arguments.StringArgumentType
+import com.mojang.brigadier.builder.LiteralArgumentBuilder
+import com.mojang.brigadier.context.CommandContext
+import com.mojang.brigadier.suggestion.Suggestions
+import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import com.mojang.serialization.MapCodec
 import eu.pb4.sgui.api.gui.GuiInterface
+import net.casual.arcade.commands.*
+import net.casual.arcade.commands.arguments.EnumArgument
+import net.casual.arcade.commands.arguments.MappedArgument
+import net.casual.arcade.commands.hidden.HiddenCommand
+import net.casual.arcade.commands.hidden.HiddenCommandManager
+import net.casual.arcade.commands.type.CustomArgumentType
+import net.casual.arcade.commands.type.CustomArgumentTypeInfo
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
 import net.casual.arcade.dimensions.utils.addCustomLevel
@@ -28,14 +43,19 @@ import net.casual.arcade.utils.teleportTo
 import net.casual.arcade.visuals.countdown.TitledCountdown
 import net.casual.arcade.visuals.screen.SelectionGuiBuilder
 import net.fabricmc.api.ModInitializer
+import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
+import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.core.Registry
 import net.minecraft.data.worldgen.DimensionTypes
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.Items
+import net.minecraft.world.level.Level
 import java.util.*
+import java.util.concurrent.CompletableFuture
 
 enum class ExamplePhases(
     override val id: String
@@ -148,4 +168,30 @@ object ExampleMinigameMod: ModInitializer {
             ExampleMinigameFactory.codec()
         )
     }
+}
+
+
+class ExampleArgumentType: CustomArgumentType<String>() {
+    override fun parse(reader: StringReader): String {
+        TODO("Not yet implemented")
+    }
+
+    override fun <S> listSuggestions(
+        context: CommandContext<S>,
+        builder: SuggestionsBuilder
+    ): CompletableFuture<Suggestions> {
+        return super.listSuggestions(context, builder)
+    }
+
+    override fun getArgumentInfo(): CustomArgumentTypeInfo<*> {
+        return super.getArgumentInfo()
+    }
+}
+
+fun sendMyHiddenCommand(player: ServerPlayer) {
+    player.sendSystemMessage(
+        Component.literal("[CLICK HERE]").singleUseFunction {
+            println("Player ${it.player.scoreboardName} clicked the message!")
+        }
+    )
 }
