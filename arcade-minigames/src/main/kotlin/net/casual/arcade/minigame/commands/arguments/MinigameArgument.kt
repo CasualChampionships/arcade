@@ -50,7 +50,7 @@ public class MinigameArgument: CustomArgumentType<MinigameArgument.Result>() {
         return Result(minigames[0])
     }
 
-    override fun <S: Any?> listSuggestions(
+    override fun <S> listSuggestions(
         context: CommandContext<S>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {

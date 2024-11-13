@@ -14,7 +14,7 @@ public class TimeArgument: CustomArgumentType<LocalTime>() {
         return LocalTime.parse(reader.readString())
     }
 
-    override fun <S: Any> listSuggestions(context: CommandContext<S>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
+    override fun <S> listSuggestions(context: CommandContext<S>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
         return SharedSuggestionProvider.suggest(hours, builder)
     }
 

@@ -14,7 +14,7 @@ public class TimeZoneArgument: CustomArgumentType<ZoneId>() {
         return ZoneId.of(reader.readUnquotedString())
     }
 
-    override fun <S: Any> listSuggestions(context: CommandContext<S>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
+    override fun <S> listSuggestions(context: CommandContext<S>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
         return SharedSuggestionProvider.suggest(ZoneId.getAvailableZoneIds().map { "\"$it\"" }, builder)
     }
 

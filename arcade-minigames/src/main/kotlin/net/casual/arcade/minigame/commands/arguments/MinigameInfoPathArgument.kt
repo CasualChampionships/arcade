@@ -15,7 +15,7 @@ public class MinigameInfoPathArgument(
         return reader.readString()
     }
 
-    override fun <S: Any?> listSuggestions(
+    override fun <S> listSuggestions(
         context: CommandContext<S>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {

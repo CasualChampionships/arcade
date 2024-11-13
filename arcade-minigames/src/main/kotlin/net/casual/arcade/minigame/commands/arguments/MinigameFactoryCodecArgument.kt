@@ -28,7 +28,7 @@ public class MinigameFactoryCodecArgument: CustomArgumentType<MapCodec<out Minig
         return CustomArgumentTypeInfo.of(ResourceLocationArgument::class.java)
     }
 
-    override fun <S: Any?> listSuggestions(
+    override fun <S> listSuggestions(
         context: CommandContext<S>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
