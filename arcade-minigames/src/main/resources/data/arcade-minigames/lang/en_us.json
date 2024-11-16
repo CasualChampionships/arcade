@@ -37,7 +37,6 @@
   "minigame.lobby.ready.finishedWaiting": "Lobby waiting period has finished.",
   "minigame.lobby.ready.clickToReadyTeams": "[Click to ready teams]",
   "minigame.lobby.ready.clickToReadyPlayers": "[Click to ready players]",
-  "minigame.lobby.ready.clickToReadyPlayers": "[Click to ready players]",
   "minigame.lobby.command.noNextMinigame": "Lobby has no next minigame",
 
   "minigame.gui.settings": "Minigame Settings Screen",
