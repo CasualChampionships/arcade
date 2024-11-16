@@ -8,13 +8,13 @@ import net.casual.arcade.resources.utils.FontUtils
 import net.casual.arcade.resources.utils.ResourcePackUtils
 import net.casual.arcade.resources.utils.ResourcePackUtils.addCustomOutlineColors
 import net.casual.arcade.resources.utils.ResourcePackUtils.addFont
+import net.casual.arcade.resources.utils.ResourcePackUtils.addLangsFromData
 import net.casual.arcade.resources.utils.ShaderUtils
 import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ResourceUtils
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
-import net.minecraft.resources.ResourceLocation
 import java.nio.file.Path
 import kotlin.io.path.readBytes
 
@@ -96,6 +96,17 @@ public object ArcadeResourcePacks: ModInitializer {
             addAssetSource(path("packs/MiniMinecraftFont"))
             addFont(ComponentUtils.MINI_FONT, FontUtils::createMiniFont)
             packDescription = "Mini Minecraft style font".literal()
+        }
+    }
+
+    /**
+     * All the langs bundled in a resource pack.
+     */
+    public val ARCADE_LANG_PACK: NamedResourcePackCreator by lazy {
+        NamedResourcePackCreator.named("arcade_lang_pack") {
+            addLangsFromData("arcade-commands")
+            addLangsFromData("arcade-minigames")
+            packDescription = "Translations for arcade".literal()
         }
     }
 

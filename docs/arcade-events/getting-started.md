@@ -19,9 +19,9 @@ repositories {
 }
 
 dependencies {
-    include(modImplementation("net.casual-championships:arcade-events:0.3.1-alpha.16+1.21.3")!!)
+    include(modImplementation("net.casual-championships:arcade-events:0.3.1-alpha.18+1.21.3")!!)
 
-    include(modImplementation("net.casual-championships:arcade-utils:0.3.1-alpha.16+1.21.3")!!)
+    include(modImplementation("net.casual-championships:arcade-utils:0.3.1-alpha.18+1.21.3")!!)
 }
 ```
 

@@ -20,17 +20,6 @@ public object Arcade: ModInitializer {
      */
     public const val MOD_ID: String = ArcadeUtils.MOD_ID
 
-    /**
-     * All the langs bundled in a resource pack.
-     */
-    public val LANG_PACK: NamedResourcePackCreator by lazy {
-        NamedResourcePackCreator.named("lang_pack") {
-            addLangsFromData("arcade-commands")
-            addLangsFromData("arcade-minigames")
-            packDescription = "Translations for arcade".literal()
-        }
-    }
-
     public val logger: Logger
         get() = ArcadeUtils.logger
 
