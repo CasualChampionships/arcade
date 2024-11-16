@@ -36,7 +36,7 @@ public open class MappedArgument<T>(
     }
 
     public companion object {
-        private val INVALID_ELEMENT = DynamicCommandExceptionType { Component.literal("$it is not a valid argument option") }
+        private val INVALID_ELEMENT = DynamicCommandExceptionType { Component.translatable("commands.arguments.mapped.invalid", it) }
 
         @JvmStatic
         public fun <T> mapped(map: Map<String, T>): MappedArgument<T> {

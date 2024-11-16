@@ -37,13 +37,13 @@ public object ItemUtils {
 
     @JvmStatic
     public fun ItemStack.named(text: Component): ItemStack {
-        this.set(DataComponents.ITEM_NAME, text)
+        this.set(DataComponents.CUSTOM_NAME, text)
         return this
     }
 
     @JvmStatic
     public fun ItemStack.named(name: String): ItemStack {
-        this.set(DataComponents.ITEM_NAME, name.literal())
+        this.set(DataComponents.CUSTOM_NAME, name.literal())
         return this
     }
 

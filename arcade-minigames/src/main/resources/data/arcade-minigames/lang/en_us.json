@@ -18,6 +18,8 @@
   "minigame.chat.mode.admin": "Admin",
   "minigame.chat.mode.team": "Team",
 
+  "minigame.chat.muted": "Currently chat is muted",
+
   "minigame.ready.yes": "[Yes]",
   "minigame.ready.no": "[No]",
 
@@ -30,6 +32,13 @@
   "minigame.ready.team.ready": "%s is ready!",
   "minigame.ready.team.notReady": "%s is not ready!",
   "minigame.ready.team.all": "All teams are ready!",
+
+  "minigame.lobby.ready.clickToStart": "Click to start!",
+  "minigame.lobby.ready.finishedWaiting": "Lobby waiting period has finished.",
+  "minigame.lobby.ready.clickToReadyTeams": "[Click to ready teams]",
+  "minigame.lobby.ready.clickToReadyPlayers": "[Click to ready players]",
+  "minigame.lobby.ready.clickToReadyPlayers": "[Click to ready players]",
+  "minigame.lobby.command.noNextMinigame": "Lobby has no next minigame",
 
   "minigame.gui.settings": "Minigame Settings Screen",
 
@@ -100,5 +109,84 @@
 
   "minigame.command.team.randomizer.fail": "Failed to completely generate teams, you must delete some unused teams first!",
   "minigame.command.team.randomizer.success": "Successfully created the following teams: %s",
-  "minigame.command.team.randomizer.deleted": "Successfully deleted all random teams"
+  "minigame.command.team.randomizer.deleted": "Successfully deleted all random teams",
+
+  "minigame.settings.changed": "Setting %s changed from %s to %s",
+
+  "minigame.settings.canPvp.name": "PvP",
+  "minigame.settings.canPvp.desc.1": "If enabled this will allow players to pvp with one another.",
+
+  "minigame.settings.canGetHungry.name": "Hunger",
+  "minigame.settings.canGetHungry.desc.1": "If enabled this will cause players to lose hunger over time.",
+
+  "minigame.settings.canTakeDamage.name": "Damage",
+  "minigame.settings.canTakeDamage.desc.1": "If enabled players will be able to take damage.",
+
+  "minigame.settings.canBreakBlocks.name": "Break Blocks",
+  "minigame.settings.canBreakBlocks.desc.1": "If enabled players will be able to break blocks.",
+
+  "minigame.settings.canPlaceBlocks.name": "Place Blocks",
+  "minigame.settings.canPlaceBlocks.desc.1": "If enabled players will be able to place blocks.",
+
+  "minigame.settings.canDropItems.name": "Drop Items",
+  "minigame.settings.canDropItems.desc.1": "If enabled players will be able to drop items.",
+
+  "minigame.settings.canPickupItems.name": "Pickup Items",
+  "minigame.settings.canPickupItems.desc.1": "If enabled players will be able to pick up items.",
+
+  "minigame.settings.canAttackEntities.name": "Attack Entities",
+  "minigame.settings.canAttackEntities.desc.1": "If enabled players will be able to attack all other entities.",
+
+  "minigame.settings.canInteractEntities.name": "Interact With Entities",
+  "minigame.settings.canInteractEntities.desc.1": "If enabled players will be able to interact with all other entities.",
+
+  "minigame.settings.canInteractBlocks.name": "Interact With Blocks",
+  "minigame.settings.canInteractBlocks.desc.1": "If enabled players will be able to interact with all other blocks.",
+
+  "minigame.settings.canInteractItems.name": "Interact With Items",
+  "minigame.settings.canInteractItems.desc.1": "If enabled players will be able to interact with all items.",
+
+  "minigame.settings.canInteractAll.name": "Interact With Everything",
+  "minigame.settings.canInteractAll.desc.1": "If enabled players will be able to interact with blocks, entities, and items.",
+  "minigame.settings.canInteractAll.desc.2": "If disabled players will no longer be able to interact with them.",
+
+  "minigame.settings.useVanillaChat.name": "Use Vanilla Chat",
+  "minigame.settings.useVanillaChat.desc.1": "If this is enabled then vanilla chat is used for the minigame chat.",
+  "minigame.settings.useVanillaChat.desc.2": "Global Chat must also be enabled.",
+
+  "minigame.settings.canCrossChat.name": "Cross Chat",
+  "minigame.settings.canCrossChat.desc.1": "If this is enabled then the entire server can see chat messages from players in the minigame,",
+  "minigame.settings.canCrossChat.desc.2": "and players in the minigame can see global messages.",
+
+  "minigame.settings.isChatGlobal.name": "Global Chat",
+  "minigame.settings.isChatGlobal.desc.1": "If disabled then by default messages will be sent to teams.",
+  "minigame.settings.isChatGlobal.desc.2": "To send messages to global players must prefix their message with !.",
+
+  "minigame.settings.isChatMuted.name": "Mute Chat",
+  "minigame.settings.isChatMuted.desc.1": "If enabled, players will not be able to talk in chat.",
+
+  "minigame.settings.formatGlobalSystemChat.name": "Format Global System Chat",
+  "minigame.settings.formatGlobalSystemChat.desc.1": "If enabled, system messages will be formatted using the minigame's formatting.",
+
+  "minigame.settings.mobsWithNoAIAreFlammable.name": "Mobs With No AI Are Flammable",
+  "minigame.settings.mobsWithNoAIAreFlammable.desc.1": "If enabled mobs with no AI can be set on fire.",
+
+  "minigame.settings.tickFreezeOnPause.name": "Tick Freeze On Pause",
+  "minigame.settings.tickFreezeOnPause.desc.1": "When the minigame is paused the world will freeze all ticking, including players.",
+
+  "minigame.settings.freezeEntities.name": "Freeze Entities",
+  "minigame.settings.freezeEntities.desc.1": "This will freeze all entities including players.",
+
+  "minigame.settings.pauseOnServerStop.name": "Pause On Server Stop",
+  "minigame.settings.pauseOnServerStop.desc.1": "Pauses the minigame just before the server stops.",
+
+  "minigame.settings.canLookAroundWhenFrozen.name": "Can Look Around When Frozen",
+  "minigame.settings.canLookAroundWhenFrozen.desc.1": "Allows players to look around while frozen.",
+
+  "minigame.settings.daylightCycle.name": "Daylight Cycle",
+  "minigame.settings.daylightCycle.desc.1": "Configures how fast the daylight cycle is.",
+  "minigame.settings.daylightCycle.option.none": "Off",
+  "minigame.settings.daylightCycle.option.normal": "Normal Speed",
+  "minigame.settings.daylightCycle.option.double": "Double Speed",
+  "minigame.settings.daylightCycle.option.triple": "Triple Speed"
 }

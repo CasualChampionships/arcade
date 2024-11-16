@@ -1,6 +1,9 @@
 package net.casual.arcade
 
+import net.casual.arcade.resources.creator.NamedResourcePackCreator
+import net.casual.arcade.resources.utils.ResourcePackUtils.addLangsFromData
 import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ResourceUtils
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.ModContainer
@@ -16,6 +19,17 @@ public object Arcade: ModInitializer {
      * The mod identifier for Arcade.
      */
     public const val MOD_ID: String = ArcadeUtils.MOD_ID
+
+    /**
+     * All the langs bundled in a resource pack.
+     */
+    public val LANG_PACK: NamedResourcePackCreator by lazy {
+        NamedResourcePackCreator.named("lang_pack") {
+            addLangsFromData("arcade-commands")
+            addLangsFromData("arcade-minigames")
+            packDescription = "Translations for arcade".literal()
+        }
+    }
 
     public val logger: Logger
         get() = ArcadeUtils.logger

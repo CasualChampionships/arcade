@@ -150,30 +150,7 @@ public class MinigameCommandManager(
         val source = event.player.createCommandSourceStack()
         val result = this.dispatcher.parse(event.command, source)
         if (!result.reader.canRead()) {
-            try {
-                this.dispatcher.execute(result)
-            }  catch (syntax: CommandSyntaxException) {
-                source.fail(ComponentUtils.fromMessage(syntax.rawMessage))
-                if (syntax.input != null && syntax.cursor >= 0) {
-                    val i = syntax.input.length.coerceAtMost(syntax.cursor)
-                    val command = Component.empty().grey().command("/${event.command}")
-                    if (i > 10) {
-                        command.append(CommonComponents.ELLIPSIS)
-                    }
-
-                    command.append(syntax.input.substring(0.coerceAtLeast(i - 10), i))
-                    if (i < syntax.input.length) {
-                        val component = syntax.input.substring(i).literal().red().underline()
-                        command.append(component)
-                    }
-
-                    command.append(Component.translatable("command.context.here").red().italicise())
-                    source.sendFailure(command)
-                }
-            } catch (e: Exception) {
-                source.fail("Command threw unexpected exception: ${e.message}".literal().hover(e.stackTraceToString()))
-                ArcadeUtils.logger.error("Command threw unexpected exception", e)
-            }
+            source.server.commands.performCommand(result, event.command)
             event.cancel()
         }
     }

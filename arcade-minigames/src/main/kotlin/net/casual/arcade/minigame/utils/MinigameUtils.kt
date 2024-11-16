@@ -35,6 +35,7 @@ import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.countdown.Countdown
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.core.BlockPos
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
@@ -135,12 +136,12 @@ public object MinigameUtils {
             @Suppress("UNCHECKED_CAST")
             (setting as GameSetting<Any>).addListener { _, previous, value ->
                 this.minigame.chat.broadcastTo(
-                    "Setting ".literal()
-                        .append(setting.name.literal().gold())
-                        .append(" changed from ")
-                        .append(previous.toString().literal().red())
-                        .append(" to ")
-                        .append(value.toString().literal().lime()),
+                    Component.translatable(
+                        "minigame.settings.changed",
+                        setting.name.literal().gold(),
+                        previous.toString().literal().red(),
+                        value.toString().literal().lime()
+                    ),
                     this.minigame.players.admins
                 )
             }

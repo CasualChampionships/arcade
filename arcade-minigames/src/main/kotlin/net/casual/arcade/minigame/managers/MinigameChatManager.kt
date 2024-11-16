@@ -92,7 +92,7 @@ public class MinigameChatManager(
      *
      * To specify whether the chat is muted, use [MinigameSettings.isChatMuted].
      */
-    public var mutedMessage: Component = "Currently chat is muted".literal().red()
+    public var mutedMessage: Component = Component.translatable("minigame.chat.muted").red()
 
     internal val modes = Object2ObjectOpenHashMap<UUID, MinigameChatMode>()
     internal val spies = ObjectOpenHashSet<UUID>()

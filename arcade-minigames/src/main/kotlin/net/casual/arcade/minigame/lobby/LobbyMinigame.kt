@@ -38,6 +38,7 @@ import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.time.MinecraftTimeUnit
 import net.casual.arcade.visuals.bossbar.TimerBossbar
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
@@ -215,7 +216,7 @@ public open class LobbyMinigame(
     }
 
     private fun onReady() {
-        val component = "Click to start!".literal().green().function {
+        val component = Component.translatable("minigame.lobby.ready.clickToStart").green().function {
             this.startNextMinigame()
         }
         val admins = ObjectOpenHashSet(this.players.admins)
@@ -356,10 +357,10 @@ public open class LobbyMinigame(
     }
 
     private fun completeBossBar() {
-        val message = "Lobby waiting period has finished. ".literal()
-        val teams = "[Click to ready teams]".literal().lime().command("/lobby ready teams")
-        val players = "[Click to ready players]".literal().lime().command("/lobby ready players")
-        val component = message.append(teams).append(" or ").append(players)
+        val message = Component.translatable("minigame.lobby.ready.finishedWaiting").append(" ")
+        val teams = Component.translatable("minigame.lobby.ready.clickToReadyTeams").lime().command("/lobby ready teams")
+        val players = Component.translatable("[Click to ready players]").lime().command("/lobby ready players")
+        val component = message.append(teams).append(" ").append(players)
 
         this.chat.broadcastTo(component, this.players.admins)
     }
@@ -369,7 +370,7 @@ public open class LobbyMinigame(
     }
 
     public companion object {
-        private val NO_MINIGAME = SimpleCommandExceptionType("Lobby has no next minigame".literal())
+        private val NO_MINIGAME = SimpleCommandExceptionType(Component.translatable("minigame.lobby.command.noNextMinigame"))
 
         public val ID: ResourceLocation = ResourceUtils.arcade("lobby")
     }
