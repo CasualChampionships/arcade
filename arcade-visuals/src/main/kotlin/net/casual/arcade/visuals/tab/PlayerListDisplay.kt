@@ -196,7 +196,7 @@ public class PlayerListDisplay(
     }
 
     private fun createProfileForIndex(index: Int): GameProfile {
-        val char = (0xE000 + index).toChar()
+        val char = (0x00B4 + index).toChar()
         return GameProfile(
             this.createUUIDForIndex(index),
             char.toString()
