@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.authlib.GameProfile;
+import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.player.PlayerChatEvent;
 import net.casual.arcade.events.player.PlayerJoinEvent;
@@ -28,6 +29,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.net.SocketAddress;
+import java.util.Set;
 import java.util.function.Predicate;
 
 @Mixin(PlayerList.class)
@@ -36,13 +38,47 @@ public class PlayerListMixin {
 
 	@Inject(
 		method = "placeNewPlayer",
-		at = @At("TAIL")
+		at = @At("TAIL"),
+		cancellable = true
 	)
-	private void onPlayerJoin(Connection connection, ServerPlayer player, CommonListenerCookie cookie, CallbackInfo ci) {
+	private void onPlayerJoinPre(Connection connection, ServerPlayer player, CommonListenerCookie cookie, CallbackInfo ci) {
 		PlayerJoinEvent event = new PlayerJoinEvent(player);
-		GlobalEventHandler.broadcast(event);
+		GlobalEventHandler.broadcast(event, Set.of(PlayerJoinEvent.PHASE_PRE));
 		if (event.isCancelled()) {
 			player.connection.disconnect(event.result());
+			ci.cancel();
+		}
+	}
+
+	@Inject(
+		method = "placeNewPlayer",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/network/Connection;setupInboundProtocol(Lnet/minecraft/network/ProtocolInfo;Lnet/minecraft/network/PacketListener;)V",
+			shift = At.Shift.AFTER
+		),
+		cancellable = true
+	)
+	private void onPlayerJoinInitialized(Connection connection, ServerPlayer player, CommonListenerCookie cookie, CallbackInfo ci) {
+		PlayerJoinEvent event = new PlayerJoinEvent(player);
+		GlobalEventHandler.broadcast(event, Set.of(PlayerJoinEvent.PHASE_INITIALIZED));
+		if (event.isCancelled()) {
+			player.connection.disconnect(event.result());
+			ci.cancel();
+		}
+	}
+
+	@Inject(
+		method = "placeNewPlayer",
+		at = @At("TAIL"),
+		cancellable = true
+	)
+	private void onPlayerJoinPost(Connection connection, ServerPlayer player, CommonListenerCookie cookie, CallbackInfo ci) {
+		PlayerJoinEvent event = new PlayerJoinEvent(player);
+		GlobalEventHandler.broadcast(event, Set.of(BuiltInEventPhases.DEFAULT, PlayerJoinEvent.PHASE_POST));
+		if (event.isCancelled()) {
+			player.connection.disconnect(event.result());
+			ci.cancel();
 		}
 	}
 
