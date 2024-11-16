@@ -9,4 +9,5 @@ public data class PlayerAdvancementEvent(
     val advancement: AdvancementHolder
 ): PlayerEvent {
     var announce: Boolean = this.advancement.value.display.getOrNull()?.shouldAnnounceChat() ?: false
+    var reward: Boolean = true
 }
