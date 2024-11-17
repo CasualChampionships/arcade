@@ -1,15 +1,15 @@
 package net.casual.arcade.utils
 
 import net.minecraft.server.MinecraftServer
-import java.util.concurrent.TimeUnit
+import net.minecraft.util.TimeUtil
 import kotlin.math.max
 
-public fun MinecraftServer.calculateMSPT(): Double {
-    return TimeUnit.NANOSECONDS.toMillis(this.averageTickTimeNanos).toDouble()
+public fun MinecraftServer.calculateMSPT(): Float {
+    return this.averageTickTimeNanos.toFloat() / TimeUtil.NANOSECONDS_PER_MILLISECOND
 }
 
-public fun MinecraftServer.calculateTPS(): Double {
+public fun MinecraftServer.calculateTPS(): Float {
     val manager = this.tickRateManager()
     val mspt = this.calculateMSPT()
-    return 1000 / if (manager.isSprinting) mspt else max(mspt, manager.millisecondsPerTick().toDouble())
+    return 1000 / if (manager.isSprinting) mspt else max(mspt, manager.millisecondsPerTick())
 }

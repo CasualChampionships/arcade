@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
+import java.awt.Color
 import java.util.*
 import kotlin.reflect.KProperty
 
@@ -298,14 +299,7 @@ public object ComponentUtils {
     public fun Component.greyscale(): MutableComponent {
         return this.mapColours { colour ->
             colour ?: return@mapColours null
-            val value = colour.value
-            val red = (value shr 16) and 0xFF
-            val green = (value shr 8) and 0xFF
-            val blue = value and 0xFF
-
-            val grayLevel = (0.21 * red + 0.72 * green + 0.07 * blue).toInt()
-
-            TextColor.fromRgb((grayLevel shl 16) or (grayLevel shl 8) or grayLevel)
+            TextColor.fromRgb(ColorUtils.greyscale(colour.value))
         }
     }
 

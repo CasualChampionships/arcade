@@ -35,7 +35,7 @@ public class MovingCenterBorderState(
     }
 
     override fun getLerpRemainingTime(): Long {
-        val tps = ServerUtils.getServerOrNull()?.calculateTPS() ?: 20.0
+        val tps = ServerUtils.getServerOrNull()?.calculateTPS() ?: 20.0F
         return ((this.tickDuration - this.ticks) / tps * 1000).toLong()
     }
 

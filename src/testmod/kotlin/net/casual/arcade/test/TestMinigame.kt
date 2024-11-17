@@ -7,8 +7,15 @@ import net.casual.arcade.minigame.events.MinigameInitializeEvent
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
+import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.recipe.CraftingRecipeBuilder
+import net.casual.arcade.visuals.elements.ComponentElements
+import net.casual.arcade.visuals.elements.component.MobcapComponentElement
+import net.casual.arcade.visuals.elements.sidebar.MSPTSidebarElement
+import net.casual.arcade.visuals.elements.sidebar.MobcapSidebarElement
+import net.casual.arcade.visuals.elements.sidebar.TPSSidebarElement
+import net.casual.arcade.visuals.sidebar.Sidebar
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.item.ItemStack
@@ -37,6 +44,12 @@ open class TestMinigame(
             ingredients(Items.ITEM_FRAME, Items.BLACK_DYE)
             result(ItemStack(Items.NETHERITE_BLOCK))
         })
+
+        val sidebar = Sidebar(ComponentElements.of("Example!".literal()))
+        sidebar.addRow(MobcapSidebarElement.cached())
+        sidebar.addRow(TPSSidebarElement.cached())
+        sidebar.addRow(MSPTSidebarElement.cached())
+        this.ui.setSidebar(sidebar)
     }
 
     companion object: MinigameFactory {
