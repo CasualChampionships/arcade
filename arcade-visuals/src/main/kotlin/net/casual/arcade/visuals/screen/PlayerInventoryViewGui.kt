@@ -5,6 +5,7 @@ import net.casual.arcade.utils.ItemUtils.named
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.inventory.InventoryMenu
 import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.inventory.Slot
 
 public open class PlayerInventoryViewGui(
     protected val observee: ServerPlayer,
@@ -28,27 +29,27 @@ public open class PlayerInventoryViewGui(
     protected open fun updateMainhandSlot() {
         val inventory = this.observee.inventoryMenu
         val slot = inventory.getSlot(this.observee.inventory.selected + InventoryMenu.USE_ROW_SLOT_START)
-        this.setSlotRedirect(this.mapMainhandSlot(), slot)
+        this.copySlotAndRedirect(this.mapMainhandSlot(), slot)
     }
 
     protected open fun loadInventory() {
         val inventory = this.observee.inventoryMenu
         val crafting = inventory.inputGridSlots
-        this.setSlotRedirect(this.mapOffhandSlot(), inventory.getSlot(InventoryMenu.SHIELD_SLOT))
+        this.copySlotAndRedirect(this.mapOffhandSlot(), inventory.getSlot(InventoryMenu.SHIELD_SLOT))
         for ((i, slot) in crafting.withIndex()) {
-            this.setSlotRedirect(this.mapCraftingInputSlot(i), slot)
+            this.copySlotAndRedirect(this.mapCraftingInputSlot(i), slot)
         }
         val armor = inventory.slots.subList(InventoryMenu.ARMOR_SLOT_START, InventoryMenu.ARMOR_SLOT_END)
         for ((i, slot) in armor.withIndex()) {
-            this.setSlotRedirect(this.mapArmorSlot(i), slot)
+            this.copySlotAndRedirect(this.mapArmorSlot(i), slot)
         }
         val content = inventory.slots.subList(InventoryMenu.INV_SLOT_START, InventoryMenu.INV_SLOT_END)
         for ((i, slot) in content.withIndex()) {
-            this.setSlotRedirect(this.mapInventorySlot(i), slot)
+            this.copySlotAndRedirect(this.mapInventorySlot(i), slot)
         }
         val hotbar = inventory.slots.subList(InventoryMenu.USE_ROW_SLOT_START, InventoryMenu.USE_ROW_SLOT_END)
         for ((i, slot) in hotbar.withIndex()) {
-            this.setSlotRedirect(this.mapHotbarSlot(i), slot)
+            this.copySlotAndRedirect(this.mapHotbarSlot(i), slot)
         }
     }
 
@@ -82,5 +83,11 @@ public open class PlayerInventoryViewGui(
 
     protected open fun mapHotbarSlot(index: Int): Int {
         return index + 45
+    }
+
+    private fun copySlotAndRedirect(index: Int, slot: Slot) {
+        // We want to copy the slot to maintain the original slot's index
+        val copy = Slot(slot.container, slot.containerSlot, slot.x, slot.y)
+        this.setSlotRedirect(index, copy)
     }
 }
