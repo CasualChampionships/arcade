@@ -9,6 +9,7 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.events.server.ServerSaveEvent
+import net.casual.arcade.events.server.ServerStoppingEvent
 import net.casual.arcade.minigame.commands.ExtendedGameModeCommand
 import net.casual.arcade.minigame.commands.MinigameCommand
 import net.casual.arcade.minigame.commands.PauseCommand
@@ -150,6 +151,9 @@ public object Minigames: ModInitializer {
         GlobalEventHandler.register<ServerSaveEvent> {
             this.saveMinigames()
         }
+        GlobalEventHandler.register<ServerStoppingEvent> {
+            this.closeMinigames()
+        }
         GlobalEventHandler.register<ServerRegisterCommandEvent> { event ->
             event.register(ExtendedGameModeCommand, MinigameCommand, PauseCommand, TeamCommandModifier)
         }
@@ -209,6 +213,14 @@ public object Minigames: ModInitializer {
                 } catch (e: MinigameSerializationException) {
                     ArcadeUtils.logger.error(e)
                 }
+            }
+        }
+    }
+
+    private fun closeMinigames() {
+        for (minigame in ArrayList(ALL.values)) {
+            if (!minigame.serializable) {
+                minigame.close()
             }
         }
     }

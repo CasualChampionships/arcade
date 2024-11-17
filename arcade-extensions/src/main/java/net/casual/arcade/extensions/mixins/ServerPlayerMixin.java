@@ -16,6 +16,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
 public class ServerPlayerMixin implements ExtensionHolder, ExtensionDataHolder {
+	@Unique private ExtensionMap arcade$extensions;
+
 	@Shadow public ServerGamePacketListenerImpl connection;
 
 	@Unique private CompoundTag arcade$data;
@@ -43,6 +45,7 @@ public class ServerPlayerMixin implements ExtensionHolder, ExtensionDataHolder {
 		if (this.arcade$data != null) {
 			ExtensionHolder.deserialize(this, this.arcade$data);
 			this.arcade$data = null;
+			this.arcade$extensions = null;
 		}
 	}
 
@@ -50,6 +53,15 @@ public class ServerPlayerMixin implements ExtensionHolder, ExtensionDataHolder {
 	@Override
 	@SuppressWarnings("AddedMixinMembersNamePattern")
 	public ExtensionMap getExtensionMap() {
-		return ((ExtensionHolder) this.connection).getExtensionMap();
+		if (this.connection != null) {
+			return ((ExtensionHolder) this.connection).getExtensionMap();
+		}
+		// In the case that the connection is not initialized, yet
+		// we add them to this temporary map which will transfer
+		// them whenever the connection is initialized
+		if (this.arcade$extensions == null) {
+			this.arcade$extensions = new ExtensionMap();
+		}
+		return this.arcade$extensions;
 	}
 }

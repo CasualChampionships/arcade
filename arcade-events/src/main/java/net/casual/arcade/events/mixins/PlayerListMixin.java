@@ -3,6 +3,8 @@ package net.casual.arcade.events.mixins;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
@@ -11,13 +13,11 @@ import net.casual.arcade.events.player.PlayerJoinEvent;
 import net.casual.arcade.events.player.PlayerRequestLoginEvent;
 import net.casual.arcade.events.player.PlayerSystemMessageEvent;
 import net.casual.arcade.utils.PlayerUtils;
-import net.minecraft.network.Connection;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -38,20 +38,6 @@ public class PlayerListMixin {
 
 	@Inject(
 		method = "placeNewPlayer",
-		at = @At("TAIL"),
-		cancellable = true
-	)
-	private void onPlayerJoinPre(Connection connection, ServerPlayer player, CommonListenerCookie cookie, CallbackInfo ci) {
-		PlayerJoinEvent event = new PlayerJoinEvent(player);
-		GlobalEventHandler.broadcast(event, Set.of(PlayerJoinEvent.PHASE_PRE));
-		if (event.isCancelled()) {
-			player.connection.disconnect(event.result());
-			ci.cancel();
-		}
-	}
-
-	@Inject(
-		method = "placeNewPlayer",
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/network/Connection;setupInboundProtocol(Lnet/minecraft/network/ProtocolInfo;Lnet/minecraft/network/PacketListener;)V",
@@ -59,13 +45,18 @@ public class PlayerListMixin {
 		),
 		cancellable = true
 	)
-	private void onPlayerJoinInitialized(Connection connection, ServerPlayer player, CommonListenerCookie cookie, CallbackInfo ci) {
+	private void onPlayerJoinInitialized(
+		CallbackInfo ci,
+		@Local(argsOnly = true) ServerPlayer player,
+		@Share("event") LocalRef<PlayerJoinEvent> eventRef
+	) {
 		PlayerJoinEvent event = new PlayerJoinEvent(player);
 		GlobalEventHandler.broadcast(event, Set.of(PlayerJoinEvent.PHASE_INITIALIZED));
 		if (event.isCancelled()) {
 			player.connection.disconnect(event.result());
 			ci.cancel();
 		}
+		eventRef.set(event);
 	}
 
 	@Inject(
@@ -73,12 +64,44 @@ public class PlayerListMixin {
 		at = @At("TAIL"),
 		cancellable = true
 	)
-	private void onPlayerJoinPost(Connection connection, ServerPlayer player, CommonListenerCookie cookie, CallbackInfo ci) {
-		PlayerJoinEvent event = new PlayerJoinEvent(player);
+	private void onPlayerJoinPost(
+		CallbackInfo ci,
+		@Share("event") LocalRef<PlayerJoinEvent> eventRef,
+		@Share("delayed") LocalRef<Runnable> delayedRef
+	) {
+		PlayerJoinEvent event = eventRef.get();
 		GlobalEventHandler.broadcast(event, Set.of(BuiltInEventPhases.DEFAULT, PlayerJoinEvent.PHASE_POST));
 		if (event.isCancelled()) {
-			player.connection.disconnect(event.result());
+			event.getPlayer().connection.disconnect(event.result());
 			ci.cancel();
+		}
+
+		Runnable runnable = delayedRef.get();
+		if (runnable != null) {
+			runnable.run();
+		}
+	}
+
+	@WrapOperation(
+		method = "placeNewPlayer",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"
+		)
+	)
+	private void onBroadcastJoinGame(
+		PlayerList instance,
+		Component message,
+		boolean bypassHiddenChat,
+		Operation<Void> original,
+		@Local(argsOnly = true) ServerPlayer player,
+		@Share("event") LocalRef<PlayerJoinEvent> eventRef,
+		@Share("delayed") LocalRef<Runnable> delayedRef
+	) {
+		if (!eventRef.get().getDelayJoinMessage()) {
+			PlayerSystemMessageEvent.broadcast(player, instance, message, bypassHiddenChat, original);
+		} else {
+			delayedRef.set(() -> PlayerSystemMessageEvent.broadcast(player, instance, message, bypassHiddenChat, original));
 		}
 	}
 
@@ -164,22 +187,5 @@ public class PlayerListMixin {
 		if (!event.isCancelled()) {
 			original.call(instance, component, bypassHiddenChat);
 		}
-	}
-
-	@WrapOperation(
-		method = "placeNewPlayer",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"
-		)
-	)
-	private void onBroadcastJoinGame(
-		PlayerList instance,
-		Component message,
-		boolean bypassHiddenChat,
-		Operation<Void> original,
-		@Local(argsOnly = true) ServerPlayer player
-	) {
-		PlayerSystemMessageEvent.broadcast(player, instance, message, bypassHiddenChat, original);
 	}
 }

@@ -9,13 +9,15 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl
 public data class PlayerJoinEvent(
     override val player: ServerPlayer
 ): CancellableEvent.Typed<Component>(), PlayerEvent {
-    public companion object {
-        /**
-         * This phase is called before the player has initialized,
-         * be careful with what you do here.
-         */
-        public const val PHASE_PRE: String = BuiltInEventPhases.PRE
+    /**
+     * This will delay the join from just after the [PHASE_INITIALIZED] phase
+     * to just after the [PHASE_POST] phase.
+     *
+     * This cannot be set in the [PHASE_POST] phase as it is too late.
+     */
+    var delayJoinMessage: Boolean = false
 
+    public companion object {
         /**
          * This phase is called after the player's [ServerGamePacketListenerImpl]
          * has been initialized. They haven't been added to the player list yet.

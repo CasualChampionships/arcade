@@ -17,6 +17,7 @@ import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.area.PlaceableArea
 import net.casual.arcade.minigame.commands.arguments.MinigameArgument
 import net.casual.arcade.minigame.events.*
+import net.casual.arcade.minigame.managers.MinigameLevelManager
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.utils.MinigameUtils.requiresAdminOrPermission
 import net.casual.arcade.minigame.utils.MinigameUtils.transferAdminAndSpectatorTeamsTo
@@ -38,6 +39,7 @@ import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.time.MinecraftTimeUnit
 import net.casual.arcade.visuals.bossbar.TimerBossbar
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
@@ -163,6 +165,10 @@ public open class LobbyMinigame(
     @Listener
     private fun onInitialize(event: MinigameInitializeEvent) {
         this.levels.add(this.area.level)
+        this.levels.spawn = MinigameLevelManager.SpawnLocation.global(
+            this.area.level,
+            BlockPos.containing(this.spawn.position)
+        )
 
         this.levels.setGameRules {
             resetToDefault()

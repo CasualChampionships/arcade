@@ -1,6 +1,7 @@
 package net.casual.arcade.extensions.mixins;
 
 import net.casual.arcade.events.GlobalEventHandler;
+import net.casual.arcade.extensions.Extension;
 import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.ExtensionMap;
 import net.casual.arcade.extensions.ducks.ExtensionDataHolder;
@@ -23,9 +24,25 @@ public class ServerGamePacketListenerImplMixin implements ExtensionHolder {
 
 	@Inject(
 		method = "<init>",
+		at = @At("CTOR_HEAD")
+	)
+	private void onCreateConnectionPre(
+		MinecraftServer server,
+		Connection connection,
+		ServerPlayer player,
+		CommonListenerCookie cookie,
+		CallbackInfo ci
+	) {
+		for (Extension extension : ((ExtensionHolder) player).getExtensionMap().all()) {
+			this.arcade$extensionMap.add(extension);
+		}
+	}
+
+	@Inject(
+		method = "<init>",
 		at = @At("TAIL")
 	)
-	private void onCreatePlayer(
+	private void onCreateConnectionPost(
 		MinecraftServer server,
 		Connection connection,
 		ServerPlayer player,

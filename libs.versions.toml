@@ -5,12 +5,12 @@ fabric-loader        = "0.16.7"
 parchment            = "1.21:2024.07.28"
 fabric-api           = "0.106.1+1.21.3"
 fabric-kotlin        = "1.11.0+kotlin.2.0.0"
-polymer              = "0.10.0+1.21.2"
+polymer              = "0.10.2+1.21.3"
 sgui                 = "1.7.2+1.21.2"
 permissions          = "0.3.2"
 server-translations  = "2.4.0+1.21.2-rc1"
 custom-nametags      = "0.3.0+1.21.3"
-server-replay        = "1.2.1+1.21.3"
+server-replay        = "1.2.3+1.21.3"
 
 [libraries]
 minecraft               = { module = "com.mojang:minecraft"                 , version.ref = "minecraft" }

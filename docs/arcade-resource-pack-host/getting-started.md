@@ -15,6 +15,6 @@ repositories {
 }
 
 dependencies {
-    include(modImplementation("net.casual-championships:arcade-resource-pack-host:0.3.1-alpha.18+1.21.3")!!)
+    include(modImplementation("net.casual-championships:arcade-resource-pack-host:0.3.1-alpha.24+1.21.3")!!)
 }
 ```
