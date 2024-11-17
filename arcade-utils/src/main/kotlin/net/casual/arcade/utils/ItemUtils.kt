@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.Property
 import com.mojang.authlib.properties.PropertyMap
 import net.casual.arcade.utils.ComponentUtils.literal
+import net.casual.arcade.utils.ComponentUtils.unitalicise
 import net.minecraft.ChatFormatting
 import net.minecraft.core.Holder
 import net.minecraft.core.component.DataComponents
@@ -26,24 +27,28 @@ import java.util.*
 
 public object ItemUtils {
     @JvmStatic
-    public fun Item.named(text: Component): ItemStack {
-        return ItemStack(this).named(text)
+    public fun Item.named(text: Component, italicized: Boolean = false): ItemStack {
+        return ItemStack(this).named(text, italicized)
     }
 
     @JvmStatic
-    public fun Item.named(name: String): ItemStack {
-        return ItemStack(this).named(name)
+    public fun Item.named(name: String, italicized: Boolean = false): ItemStack {
+        return ItemStack(this).named(name, italicized)
     }
 
     @JvmStatic
-    public fun ItemStack.named(text: Component): ItemStack {
-        this.set(DataComponents.CUSTOM_NAME, text)
+    public fun ItemStack.named(text: Component, italicized: Boolean = false): ItemStack {
+        if (!italicized) {
+            this.set(DataComponents.CUSTOM_NAME, Component.empty().append(text).unitalicise())
+        } else {
+            this.set(DataComponents.CUSTOM_NAME, text)
+        }
         return this
     }
 
     @JvmStatic
-    public fun ItemStack.named(name: String): ItemStack {
-        this.set(DataComponents.CUSTOM_NAME, name.literal())
+    public fun ItemStack.named(name: String, italicized: Boolean = false): ItemStack {
+        this.named(name.literal(), italicized)
         return this
     }
 

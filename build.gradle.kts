@@ -10,7 +10,7 @@ plugins {
     java
 }
 
-val modVersion = "0.3.1-alpha.24"
+val modVersion = "0.3.1-alpha.25"
 
 allprojects {
     apply(plugin = "fabric-loom")
@@ -105,7 +105,7 @@ subprojects {
         tasks.getByName("genSourcesWithFernFlower").enabled = false
         tasks.getByName("genSourcesWithCfr").enabled = false
 
-        updateDocumentedDependencies("../docs/${name}/getting-started.md")
+        // updateDocumentedDependencies("../docs/${name}/getting-started.md")
     }
 }
 
