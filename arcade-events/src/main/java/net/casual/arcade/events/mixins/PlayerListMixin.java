@@ -1,5 +1,6 @@
 package net.casual.arcade.events.mixins;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -26,7 +27,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.net.SocketAddress;
 import java.util.Set;
@@ -105,21 +105,21 @@ public class PlayerListMixin {
 		}
 	}
 
-	@Inject(
+	@ModifyReturnValue(
 		method = "canPlayerLogin",
-		at = @At("HEAD"),
-		cancellable = true
+		at = @At("RETURN")
 	)
-	private void onPlayerCanLogin(
+	private Component onPlayerCanLogin(
+		Component original,
 		SocketAddress socketAddress,
-		GameProfile gameProfile,
-		CallbackInfoReturnable<Component> cir
+		GameProfile gameProfile
 	) {
 		PlayerRequestLoginEvent event = new PlayerRequestLoginEvent(this.server, gameProfile, socketAddress);
-		GlobalEventHandler.broadcast(event);
-		if (event.isCancelled()) {
-			cir.setReturnValue(event.result());
+		if (original != null) {
+			event.deny(original);
 		}
+		GlobalEventHandler.broadcast(event);
+		return event.getReason();
 	}
 
 	@Inject(
