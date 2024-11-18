@@ -47,6 +47,15 @@ public fun interface PlayerSpecificElement<E: Any> {
         return Merged(this, other, merger)
     }
 
+    public companion object {
+        public fun <E: Any> composed(
+            vararg elements: PlayerSpecificElement<*>,
+            element: PlayerSpecificElement<E>
+        ): PlayerSpecificElement<E> {
+            return Composed(elements, element)
+        }
+    }
+
     private class Cached<E: Any>(private val wrapped: PlayerSpecificElement<E>): PlayerSpecificElement<E> {
         private var cached = Object2ObjectOpenHashMap<UUID, E>()
 
@@ -74,6 +83,22 @@ public fun interface PlayerSpecificElement<E: Any> {
         override fun tick(server: MinecraftServer) {
             this.first.tick(server)
             this.second.tick(server)
+        }
+    }
+
+    private class Composed<E: Any>(
+        private val elements: Array<out PlayerSpecificElement<*>>,
+        private val wrapped: PlayerSpecificElement<E>
+    ): PlayerSpecificElement<E> {
+        override fun get(player: ServerPlayer): E {
+            return this.wrapped.get(player)
+        }
+
+        override fun tick(server: MinecraftServer) {
+            for (element in this.elements) {
+                element.tick(server)
+            }
+            this.wrapped.tick(server)
         }
     }
 }
