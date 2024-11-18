@@ -10,6 +10,7 @@ import net.minecraft.server.MinecraftServer
 public object TPSComponentElement: UniversalElement<Component> {
     override fun get(server: MinecraftServer): Component {
         val tps = server.calculateTPS()
-        return Component.literal("TPS: %.2f".format(tps)).color(ColorUtils.heatmap(tps / 20.0F))
+        return  Component.literal("TPS: ")
+            .append(Component.literal("%.2f".format(tps)).color(ColorUtils.heatmap(tps / 20.0F)))
     }
 }

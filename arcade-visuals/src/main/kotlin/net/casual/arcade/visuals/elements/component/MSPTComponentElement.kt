@@ -10,6 +10,7 @@ import net.minecraft.server.MinecraftServer
 public object MSPTComponentElement: UniversalElement<Component> {
     override fun get(server: MinecraftServer): Component {
         val mspt = server.calculateMSPT()
-        return Component.literal("MSPT: %.2f".format(mspt)).color(ColorUtils.heatmap(1 - mspt / 50.0F))
+        return Component.literal("MSPT: ")
+            .append(Component.literal("%.2f".format(mspt)).color(ColorUtils.heatmap(1 - mspt / 50.0F)))
     }
 }
