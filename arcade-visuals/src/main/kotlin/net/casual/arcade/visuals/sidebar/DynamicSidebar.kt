@@ -19,7 +19,7 @@ public class DynamicSidebar(title: PlayerSpecificElement<Component>): Sidebar(ti
 
     override fun forEachRow(player: ServerPlayer, consumer: (Int, SidebarComponent) -> Unit) {
         val rows = this.rows.get(player)
-        for ((i, component) in rows.withIndex()) {
+        for ((i, component) in rows.getRows().takeLast(MAX_SIZE).withIndex()) {
             consumer.invoke(i, component)
         }
     }

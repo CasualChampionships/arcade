@@ -20,9 +20,6 @@ public class SidebarComponents<C> internal constructor(): Iterable<C> {
     }
 
     public fun addRow(index: Int, row: C): SidebarComponents<C> {
-        require(this.size() < Sidebar.MAX_SIZE) {
-            "Cannot add more rows to SidebarComponents, already at max size: ${Sidebar.MAX_SIZE}"
-        }
         this.checkBounds(index, this.size())
         this.rows.add(index, row)
         return this
@@ -38,6 +35,10 @@ public class SidebarComponents<C> internal constructor(): Iterable<C> {
         this.checkBounds(index, this.size() - 1)
         this.rows.removeAt(index)
         return this
+    }
+
+    public fun getRows(): List<C> {
+        return this.rows
     }
 
     override fun iterator(): Iterator<C> {

@@ -15,6 +15,12 @@ public class CaptureTask<C, K>(
     private val serializer: CaptureSerializer<C, *>,
     private val task: CaptureConsumerTask<K>,
 ): Task, Serializable {
+    init {
+        if (this.task::class.java.declaredFields.isNotEmpty()) {
+            throw IllegalArgumentException("Serializable task may not capture outer variables")
+        }
+    }
+
     override fun run() {
         val mapped = this.mapper.map(this.capture)
         if (mapped != null) {

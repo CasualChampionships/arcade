@@ -15,7 +15,7 @@ import java.io.Serializable
  * @see SavableTask
  * @see CancellableTask
  */
-public fun interface Task: Runnable, Serializable {
+public fun interface Task: Runnable {
     /**
      * This runs the task.
      */

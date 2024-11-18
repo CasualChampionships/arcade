@@ -3,15 +3,20 @@ package net.casual.arcade.visuals.elements
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import net.casual.arcade.utils.time.MinecraftTimeDuration
+import net.minecraft.server.MinecraftServer
 
 public class AnimatedElement<E: Any> private constructor(
     private val elements: Int2ObjectMap<E>,
     private val duration: MinecraftTimeDuration,
     private var current: E
-) {
+): UniversalElement<E> {
     private var tick = 0
 
-    public fun tick() {
+    public fun get(): E {
+        return this.current
+    }
+
+    override fun tick(server: MinecraftServer) {
         val tick = ++this.tick % this.duration.ticks
         val next = this.elements.get(tick)
         if (next != null) {
@@ -19,8 +24,8 @@ public class AnimatedElement<E: Any> private constructor(
         }
     }
 
-    public fun get(): E {
-        return this.current
+    override fun get(server: MinecraftServer): E {
+        return this.get()
     }
 
     public class Builder<E: Any> {

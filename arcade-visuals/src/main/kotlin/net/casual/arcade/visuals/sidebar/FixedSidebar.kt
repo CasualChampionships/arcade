@@ -46,7 +46,7 @@ public class FixedSidebar(title: PlayerSpecificElement<Component>): Sidebar(titl
     }
 
     override fun forEachRow(player: ServerPlayer, consumer: (Int, SidebarComponent) -> Unit) {
-        for ((i ,row) in this.rows.withIndex()) {
+        for ((i ,row) in this.rows.getRows().takeLast(MAX_SIZE).withIndex()) {
             consumer.invoke(i, row.get(player))
         }
     }

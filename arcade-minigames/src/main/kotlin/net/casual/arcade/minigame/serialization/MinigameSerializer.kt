@@ -216,7 +216,6 @@ public class MinigameSerializer(
             return identity
         }
 
-        var exception: Exception? = null
         if (task is SavableTask) {
             try {
                 val definition = JsonObject()
@@ -226,25 +225,26 @@ public class MinigameSerializer(
                 context.definitions.put(identity, definition)
                 return identity
             } catch (e: Exception) {
-                exception = e
+                ArcadeUtils.logger.error("Failed to serialize task ${task.id}", e)
             }
         }
 
-        try {
-            ByteArrayOutputStream().use { bytes ->
-                ObjectOutputStream(bytes).use { stream ->
-                    stream.writeObject(task)
+        if (task is Serializable) {
+            try {
+                ByteArrayOutputStream().use { bytes ->
+                    ObjectOutputStream(bytes).use { stream ->
+                        stream.writeObject(task)
+                    }
+                    val definition = JsonObject()
+                    definition.addProperty("uid", identity)
+                    definition.addProperty("raw", Base64.encode(bytes.toByteArray()))
+                    context.definitions.put(identity, definition)
+                    return identity
                 }
-                val definition = JsonObject()
-                definition.addProperty("uid", identity)
-                definition.addProperty("raw", Base64.encode(bytes.toByteArray()))
-                context.definitions.put(identity, definition)
-                return identity
-            }
-        } catch (_: ObjectStreamException) {
+            } catch (_: ObjectStreamException) {
 
+            }
         }
-        ArcadeUtils.logger.warn("Failed to serialize non-savable task, skipping it...", exception)
         return null
     }
 

@@ -37,6 +37,6 @@ public abstract class Sidebar(title: PlayerSpecificElement<Component>): PlayerUI
     public abstract fun forEachRow(player: ServerPlayer, consumer: (Int, SidebarComponent) -> Unit)
 
     internal companion object {
-        const val MAX_SIZE: Int = 14
+        const val MAX_SIZE: Int = 15
     }
 }
