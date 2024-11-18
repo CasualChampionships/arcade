@@ -7,10 +7,9 @@ import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
 import net.casual.arcade.extensions.event.PlayerExtensionEvent.Companion.getExtension
+import net.casual.arcade.utils.ScoreboardUtils
 import net.casual.arcade.visuals.sidebar.Sidebar
 import net.casual.arcade.visuals.sidebar.SidebarComponent
-import net.casual.arcade.utils.ScoreboardUtils
-import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
@@ -19,7 +18,6 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.DisplaySlot
 import java.util.*
 import java.util.function.Consumer
-import kotlin.collections.ArrayList
 
 internal class PlayerSidebarExtension(
     owner: ServerPlayer
@@ -41,13 +39,24 @@ internal class PlayerSidebarExtension(
             this.setTitle(title)
         }
 
-        for ((index, previous) in this.previousRows.withIndex()) {
-            val replacement = current.getRow(index).get(this.player)
-            if (previous == replacement) {
-                continue
+        var max = 0
+        current.forEachRow(this.player) { index, replacement ->
+            max = index
+            val previous = this.previousRows.getOrElse(index) {
+                this.previousRows.add(index, replacement)
+                sendSetScorePacket(this.player, index, replacement)
+                return@forEachRow
             }
-            this.previousRows[index] = replacement
-            sendSetScorePacket(this.player, index, replacement)
+            if (previous != replacement) {
+                this.previousRows[index] = replacement
+                sendSetScorePacket(this.player, index, replacement)
+            }
+        }
+        if (max < this.previousRows.lastIndex) {
+            for (index in this.previousRows.lastIndex downTo (max + 1)) {
+                this.previousRows.removeAt(index)
+                sendResetScorePacket(this.player, index)
+            }
         }
     }
 
@@ -84,9 +93,7 @@ internal class PlayerSidebarExtension(
 
         sendSetObjectivePacket(this.player, METHOD_ADD, sidebar.title.get(this.player))
         sendSetSidebarDisplayPacket(this.player, false)
-        for (i in 0 until sidebar.size()) {
-            this.addRow(i, sidebar.getRow(i).get(this.player))
-        }
+        sidebar.forEachRow(this.player, this::addRow)
     }
 
     internal fun remove() {
@@ -160,7 +167,7 @@ internal class PlayerSidebarExtension(
             index: Int,
             sender: Consumer<Packet<ClientGamePacketListener>> = Consumer(player.connection::send)
         ) {
-            sender.accept(ClientboundResetScorePacket(OBJECTIVE_NAME, players[index]))
+            sender.accept(ClientboundResetScorePacket(players[index], OBJECTIVE_NAME))
         }
 
         private fun sendSetSidebarDisplayPacket(
@@ -175,8 +182,7 @@ internal class PlayerSidebarExtension(
         internal fun registerEvents() {
             GlobalEventHandler.register<ServerLoadedEvent> {
                 for (i in 0..15) {
-                    val player = ChatFormatting.RESET.toString().repeat(i)
-                    players.add(player)
+                    players.add("\$D${i.toString(16)}")
                 }
             }
             GlobalEventHandler.register<PlayerExtensionEvent> { event ->

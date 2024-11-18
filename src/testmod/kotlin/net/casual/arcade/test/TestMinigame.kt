@@ -8,14 +8,14 @@ import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.utils.ComponentUtils.literal
+import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.recipe.CraftingRecipeBuilder
 import net.casual.arcade.visuals.elements.ComponentElements
-import net.casual.arcade.visuals.elements.component.MobcapComponentElement
-import net.casual.arcade.visuals.elements.sidebar.MSPTSidebarElement
-import net.casual.arcade.visuals.elements.sidebar.MobcapSidebarElement
-import net.casual.arcade.visuals.elements.sidebar.TPSSidebarElement
-import net.casual.arcade.visuals.sidebar.Sidebar
+import net.casual.arcade.visuals.sidebar.DynamicSidebar
+import net.casual.arcade.visuals.sidebar.SidebarComponent
+import net.casual.arcade.visuals.sidebar.SidebarComponents
+import net.casual.arcade.visuals.sidebar.SidebarComponents.Companion.addRow
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.item.ItemStack
@@ -45,10 +45,20 @@ open class TestMinigame(
             result(ItemStack(Items.NETHERITE_BLOCK))
         })
 
-        val sidebar = Sidebar(ComponentElements.of("Example!".literal()))
-        sidebar.addRow(MobcapSidebarElement.cached())
-        sidebar.addRow(TPSSidebarElement.cached())
-        sidebar.addRow(MSPTSidebarElement.cached())
+        val sidebar = DynamicSidebar(ComponentElements.of("Example!".literal()))
+        sidebar.setRows { player ->
+            val components = SidebarComponents.of(
+                SidebarComponent.EMPTY,
+                SidebarComponent.withNoScore(player.displayName!!)
+            )
+
+            if (player.isCreative) {
+                components.addRow("Creative".literal(), "true".literal().red())
+                components.addRow("Some random text".literal())
+            }
+
+            components
+        }
         this.ui.setSidebar(sidebar)
     }
 

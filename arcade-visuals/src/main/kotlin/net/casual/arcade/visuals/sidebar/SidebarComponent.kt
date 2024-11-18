@@ -10,7 +10,7 @@ public data class SidebarComponent(
     val score: NumberFormat? = null
 ) {
     public companion object {
-        public val EMPTY: SidebarComponent = SidebarComponent()
+        public val EMPTY: SidebarComponent = withNoScore(Component.empty())
 
         public fun withNoScore(component: Component): SidebarComponent {
             return SidebarComponent(component, BlankFormat.INSTANCE)
