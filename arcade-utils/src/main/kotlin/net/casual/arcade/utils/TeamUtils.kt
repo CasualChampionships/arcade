@@ -6,14 +6,12 @@ import com.google.common.collect.Multimap
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.util.ducks.OverridableColor
 import net.casual.arcade.utils.ComponentUtils.joinToComponent
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.prettyName
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.utils.PlayerUtils.player
 import net.minecraft.ChatFormatting
 import net.minecraft.ChatFormatting.*
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.ComponentUtils
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.ServerScoreboard
@@ -188,7 +186,7 @@ public object TeamUtils {
                 val team = scoreboard.getPlayerTeam(teamName) ?: scoreboard.addPlayerTeam(teamName)
                 if (team.players.isEmpty()) {
                     team.color = colour
-                    team.displayName = "${colour.prettyName()} $animal".literal().withStyle(colour)
+                    team.displayName = Component.literal("${colour.prettyName()} $animal").withStyle(colour)
                     team.playerPrefix = team.formattedDisplayName.append(" ")
                     return team
                 }

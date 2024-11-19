@@ -28,7 +28,6 @@ import net.casual.arcade.utils.ComponentUtils.command
 import net.casual.arcade.utils.ComponentUtils.green
 import net.casual.arcade.utils.ComponentUtils.join
 import net.casual.arcade.utils.ComponentUtils.lime
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.JsonUtils.uuidOrNull
 import net.casual.arcade.utils.PlayerUtils.clearPlayerInventory
 import net.casual.arcade.utils.PlayerUtils.ops
@@ -351,7 +350,7 @@ public open class LobbyMinigame(
             return context.source.fail("Not currently awaiting any players or teams to be ready")
         }
         val awaiting = this.ui.readier.getUnreadyFormatted(context.source.server)
-        return context.source.success("Currently awaiting: ".literal().append(awaiting.join()))
+        return context.source.success(Component.literal("Currently awaiting: ").append(awaiting.join()))
     }
 
     private fun setTime(context: CommandContext<CommandSourceStack>): Int {

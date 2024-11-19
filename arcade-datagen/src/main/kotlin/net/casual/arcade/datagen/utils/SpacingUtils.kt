@@ -1,5 +1,6 @@
 package net.casual.arcade.datagen.utils
 
+import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.resources.lang.LanguageEntry
 import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.getTranslationKeyOf
@@ -44,28 +45,28 @@ public object SpacingUtils {
         background: Component
     ): Pair<String, String> {
         val (firstSpace, secondSpace) = getCentreSpacing(font, foreground, background)
-        val first = ComponentUtils.space(firstSpace)
-        val second = ComponentUtils.space(secondSpace)
+        val first = SpacingFontResources.spaced(firstSpace)
+        val second = SpacingFontResources.spaced(secondSpace)
 
         return StringEscapeUtils.escapeJava(first.string) to StringEscapeUtils.escapeJava(second.string)
     }
 
     public fun getMaxWidthUnicode(font: Font, component: List<Component>): String {
         val width = component.maxOf { getWidth(font, it) }
-        val unicode = ComponentUtils.space(width)
+        val unicode = SpacingFontResources.spaced(width)
         return StringEscapeUtils.escapeJava(unicode.string)
     }
 
     public fun getNegativeWidthUnicode(font: Font, component: Component): String {
         val width = getWidth(font, component)
-        val unicode = ComponentUtils.space(-width)
+        val unicode = SpacingFontResources.spaced(-width)
         return StringEscapeUtils.escapeJava(unicode.string)
     }
 
     public fun getWidthDifferenceUnicode(font: Font, first: Component, second: Component): String {
         val firstWidth = getWidth(font, first)
         val secondWidth = getWidth(font, second)
-        val unicode = ComponentUtils.space(firstWidth - secondWidth)
+        val unicode = SpacingFontResources.spaced(firstWidth - secondWidth)
         return StringEscapeUtils.escapeJava(unicode.string)
     }
 

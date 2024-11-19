@@ -41,6 +41,15 @@
 
   "minigame.gui.settings": "Minigame Settings Screen",
 
+  "minigame.command.argument.minigame.invalidUUID": "Invalid Minigame UUID",
+  "minigame.command.argument.minigame.resolutionFailed": "Too many Minigames with given id",
+  "minigame.command.argument.minigame.noContext": "You are not part of a minigame",
+  "minigame.command.argument.factory.invalid": "Invalid Minigame Factory",
+  "minigame.command.argument.phase.invalid": "Invalid Phase Name",
+  "minigame.command.argument.settingName.invalid": "Invalid Setting Name",
+  "minigame.command.argument.settingValue.invalid": "Invalid Setting Value",
+  "minigame.command.argument.settingOption.invalid": "Invalid Setting Option",
+
   "minigame.command.gamemode.success": "Successfully updated gamemode to %s for targets",
 
   "minigame.command.list.none": "There are no running minigames!",

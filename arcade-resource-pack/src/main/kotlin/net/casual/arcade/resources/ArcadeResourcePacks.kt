@@ -12,10 +12,10 @@ import net.casual.arcade.resources.utils.ResourcePackUtils.addFont
 import net.casual.arcade.resources.utils.ResourcePackUtils.addLangsFromData
 import net.casual.arcade.resources.utils.ShaderUtils
 import net.casual.arcade.utils.ComponentUtils
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ResourceUtils
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
+import net.minecraft.network.chat.Component
 import java.nio.file.Path
 import kotlin.io.path.readBytes
 
@@ -31,7 +31,7 @@ public object ArcadeResourcePacks: ModInitializer {
             for (i in 1..64) {
                 addFont(ResourceUtils.arcade("default_shifted_down_$i")) { FontUtils.createDefaultFont(i) }
             }
-            packDescription = "Shifts text on the action bar".literal()
+            packDescription = Component.literal("Shifts text on the action bar")
         }
     }
 
@@ -41,14 +41,14 @@ public object ArcadeResourcePacks: ModInitializer {
             for (i in 1..64) {
                 addFont(ResourceUtils.arcade("mini_shifted_down_$i")) { FontUtils.createMiniFont(i) }
             }
-            packDescription = "Shifts mini text on the action bar".literal()
+            packDescription = Component.literal("Shifts mini text on the action bar")
         }
     }
 
     public val SPACING_FONT_PACK: NamedResourcePackCreator by lazy {
         NamedResourcePackCreator.named("spacing_font") {
             addFont(SpacingFontResources)
-            packDescription = "Provides spacing utilities for text".literal()
+            packDescription = Component.literal("Provides spacing utilities for text")
         }
     }
 
@@ -56,7 +56,7 @@ public object ArcadeResourcePacks: ModInitializer {
     public val SPACES_FONT_PACK: NamedResourcePackCreator by lazy {
         NamedResourcePackCreator.named("spaces_font") {
             addAssetSource(path("packs/SpacesFont"))
-            packDescription = "Provides spacing utilities for text".literal()
+            packDescription = Component.literal("Provides spacing utilities for text")
         }
     }
 
@@ -65,14 +65,14 @@ public object ArcadeResourcePacks: ModInitializer {
             addAssetSource(path("packs/PaddingFont"))
             addFont(PaddingSplitFontResources)
             addFont(PaddingNoSplitFontResources)
-            packDescription = "Provides padding utilities for text".literal()
+            packDescription = Component.literal("Provides padding utilities for text")
         }
     }
 
     public val NO_SHADOW_PACK: NamedResourcePackCreator by lazy {
         NamedResourcePackCreator.named("no_shadow") {
             addAssetSource(path("packs/NoShadow"))
-            packDescription = "Utilities for removing text shadows".literal()
+            packDescription = Component.literal("Utilities for removing text shadows")
         }
     }
 
@@ -82,21 +82,21 @@ public object ArcadeResourcePacks: ModInitializer {
             addAssetSource(location)
             addFont(PlayerHeadFont)
             packIcon = location.resolve("assets/arcade/textures/font/steve.png").readBytes()
-            packDescription = "Utilities for rendering player heads".literal()
+            packDescription = Component.literal("Utilities for rendering player heads")
         }
     }
 
     public val HIDE_PLAYER_LIST_HEADS_PACK: NamedResourcePackCreator by lazy {
         NamedResourcePackCreator.named("hide_player_list_heads") {
             addAssetSource(path("packs/HidePlayerListHeads"))
-            packDescription = "Utilities for hiding player list heads".literal()
+            packDescription = Component.literal("Utilities for hiding player list heads")
         }
     }
 
     public val HIDE_PLAYER_LIST_PING_PACK: NamedResourcePackCreator by lazy {
         NamedResourcePackCreator.named("hide_player_list_ping") {
             addAssetSource(path("packs/HidePlayerListPing"))
-            packDescription = "Utilities for hiding player list ping".literal()
+            packDescription = Component.literal("Utilities for hiding player list ping")
         }
     }
 
@@ -104,7 +104,7 @@ public object ArcadeResourcePacks: ModInitializer {
         NamedResourcePackCreator.named("mini_minecraft") {
             addAssetSource(path("packs/MiniMinecraftFont"))
             addFont(ComponentUtils.MINI_FONT, FontUtils::createMiniFont)
-            packDescription = "Mini Minecraft style font".literal()
+            packDescription = Component.literal("Mini Minecraft style font")
         }
     }
 
@@ -115,7 +115,7 @@ public object ArcadeResourcePacks: ModInitializer {
         NamedResourcePackCreator.named("arcade_lang_pack") {
             addLangsFromData("arcade-commands")
             addLangsFromData("arcade-minigames")
-            packDescription = "Translations for arcade".literal()
+            packDescription = Component.literal("Translations for arcade")
         }
     }
 
@@ -126,7 +126,7 @@ public object ArcadeResourcePacks: ModInitializer {
     public fun createCustomGlowColorPack(replacer: ShaderUtils.ColorReplacer.() -> Unit): NamedResourcePackCreator {
         return NamedResourcePackCreator.named("custom_glow_colors") {
             addCustomOutlineColors(replacer)
-            packDescription = "Custom team glowing colors".literal()
+            packDescription = Component.literal("Custom team glowing colors")
         }
     }
 

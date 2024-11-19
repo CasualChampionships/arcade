@@ -29,7 +29,6 @@ import net.casual.arcade.minigame.utils.MinigameUtils.isMinigameAdminOrHasPermis
 import net.casual.arcade.minigame.utils.MinigameUtils.isPlayerAnd
 import net.casual.arcade.minigame.utils.MinigameUtils.requiresAdminOrPermission
 import net.casual.arcade.scheduler.GlobalTickedScheduler
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.JsonUtils.arrayOrDefault
 import net.casual.arcade.utils.JsonUtils.obj
@@ -347,7 +346,7 @@ public class MinigameChatManager(
         if (exclaimed || mode == null || mode == MinigameChatMode.Global) {
             val trimmed = if (exclaimed) content.substring(1) else content
             if (trimmed.isNotBlank()) {
-                val (decorated, prefix) = this.formatGlobalChatFor(player, trimmed.trim().literal())
+                val (decorated, prefix) = this.formatGlobalChatFor(player, Component.literal(trimmed.trim()))
                 event.replaceMessage(decorated, prefix)
                 event.addFilter { MinigameChatMode.Global.canSendTo(player, it, null, this.minigame) }
             } else {

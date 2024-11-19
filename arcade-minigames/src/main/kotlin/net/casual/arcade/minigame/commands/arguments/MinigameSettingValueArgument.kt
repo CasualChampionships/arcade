@@ -6,9 +6,9 @@ import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import net.casual.arcade.commands.type.CustomArgumentType
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.minecraft.commands.ParserUtils
 import net.minecraft.core.RegistryAccess
+import net.minecraft.network.chat.Component
 import net.minecraft.util.ExtraCodecs
 
 public class MinigameSettingValueArgument: CustomArgumentType<JsonElement>() {
@@ -21,7 +21,7 @@ public class MinigameSettingValueArgument: CustomArgumentType<JsonElement>() {
     }
 
     public companion object {
-        public val INVALID_SETTING_VALUE: SimpleCommandExceptionType = SimpleCommandExceptionType("Invalid Settings Value".literal())
+        public val INVALID_SETTING_VALUE: SimpleCommandExceptionType = SimpleCommandExceptionType(Component.translatable("minigame.command.argument.settingValue.invalid"))
 
         @JvmStatic
         public fun value(): MinigameSettingValueArgument {

@@ -3,7 +3,6 @@ package net.casual.arcade.utils
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.Property
 import com.mojang.authlib.properties.PropertyMap
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.unitalicise
 import net.minecraft.ChatFormatting
 import net.minecraft.core.Holder
@@ -48,7 +47,7 @@ public object ItemUtils {
 
     @JvmStatic
     public fun ItemStack.named(name: String, italicized: Boolean = false): ItemStack {
-        this.named(name.literal(), italicized)
+        this.named(Component.literal(name), italicized)
         return this
     }
 
@@ -233,7 +232,7 @@ public object ItemUtils {
             else -> HeadTextures.WHITE
         }
         val stack = createTexturedHead(texture, item)
-        stack.set(DataComponents.CUSTOM_NAME, formatting.getName().literal())
+        stack.set(DataComponents.CUSTOM_NAME, Component.literal(formatting.getName()))
         return stack
     }
 }

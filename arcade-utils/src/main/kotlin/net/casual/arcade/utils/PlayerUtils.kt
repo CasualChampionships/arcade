@@ -2,7 +2,6 @@ package net.casual.arcade.utils
 
 import net.casual.arcade.util.ducks.SilentRecipeSender
 import net.casual.arcade.util.mixins.PlayerAdvancementsAccessor
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -347,10 +346,10 @@ public object PlayerUtils {
     public fun ServerPlayer.getChatPrefix(withTeam: Boolean = true): MutableComponent {
         val team = this.team
         if (!withTeam || team == null) {
-            return "<".literal().append(this.name).append("> ")
+            return Component.literal("<").append(this.name).append("> ")
         }
         val name = Component.empty().append(team.playerPrefix).append(this.name).append(team.playerSuffix)
-        return "<".literal().append(name).append("> ")
+        return Component.literal("<").append(name).append("> ")
     }
 
     @JvmStatic

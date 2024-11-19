@@ -2,12 +2,10 @@ package net.casual.arcade.visuals.bossbar
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import net.casual.arcade.visuals.core.TickableUI
 import net.casual.arcade.scheduler.task.Completable
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
 import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.boolean
 import net.casual.arcade.utils.JsonUtils.int
@@ -15,6 +13,7 @@ import net.casual.arcade.utils.JsonUtils.ints
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.TimeUtils.formatHHMMSS
 import net.casual.arcade.utils.time.MinecraftTimeDuration
+import net.casual.arcade.visuals.core.TickableUI
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
@@ -117,7 +116,7 @@ public abstract class TimerBossbar: CustomBossbar(), TickableUI, Completable {
         public fun create(
             color: BossEvent.BossBarColor = BossEvent.BossBarColor.YELLOW,
             overlay: BossEvent.BossBarOverlay = BossEvent.BossBarOverlay.PROGRESS,
-            title: (TimerBossbar) -> Component = { "${it.getRemainingDuration().formatHHMMSS()}".literal() }
+            title: (TimerBossbar) -> Component = { Component.literal(it.getRemainingDuration().formatHHMMSS()) }
         ): TimerBossbar {
             return object: TimerBossbar() {
                 override fun getTitle(player: ServerPlayer): Component {

@@ -43,7 +43,7 @@ public interface PlayerChatFormatter {
 
         public val SPECTATOR: PlayerChatFormatter = object: PlayerChatFormatter {
             override fun format(player: ServerPlayer, message: Component): PlayerFormattedChat {
-                val icon = "[\uD83D\uDD76] ".literal().withStyle(DARK_GRAY)
+                val icon = Component.literal("[\uD83D\uDD76] ").withStyle(DARK_GRAY)
                     .hover(Component.translatable("minigame.chat.spectator"))
                 val prefix = Component.empty().append(icon)
                 prefix.append(player.getChatPrefix(false))
@@ -53,7 +53,7 @@ public interface PlayerChatFormatter {
 
         public val ADMIN: PlayerChatFormatter = object: PlayerChatFormatter {
             override fun format(player: ServerPlayer, message: Component): PlayerFormattedChat {
-                val icon = "[\uD83D\uDC64] ".literal().red()
+                val icon = Component.literal("[\uD83D\uDC64] ").red()
                     .hover(Component.translatable("minigame.chat.admin"))
                 val prefix = Component.empty().append(icon)
                 prefix.append(player.getChatPrefix(false))
@@ -72,7 +72,7 @@ public interface PlayerChatFormatter {
 private class TeamChatFormatter(private val teamGetter: (ServerPlayer) -> PlayerTeam?): PlayerChatFormatter {
     override fun format(player: ServerPlayer, message: Component): PlayerFormattedChat {
         val team = this.teamGetter.invoke(player)
-        val icon = "[⚐] ".literal()
+        val icon = Component.literal("[⚐] ")
         val name = if (team != null) {
             icon.color(team)
             Component.translatable("minigame.chat.team", team.displayName).color(team)

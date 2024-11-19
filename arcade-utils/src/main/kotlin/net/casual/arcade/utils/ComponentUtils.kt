@@ -10,16 +10,13 @@ import net.minecraft.network.chat.HoverEvent.EntityTooltipInfo
 import net.minecraft.network.chat.HoverEvent.ItemStackInfo
 import net.minecraft.network.chat.contents.TranslatableContents
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
-import java.awt.Color
 import java.util.*
 import kotlin.reflect.KProperty
 
 public object ComponentUtils {
-    @Deprecated("Use SpacingFontResources instead")
-    public val SPACES_FONT: ResourceLocation = ResourceLocation.fromNamespaceAndPath("space", "spaces")
+    public val SPACING_FONT: ResourceLocation = ResourceUtils.arcade("spacing")
     public val MINI_FONT: ResourceLocation = ResourceUtils.arcade("mini_minecraft")
 
     private val formattingByColour = Int2ObjectOpenHashMap<ChatFormatting>()
@@ -50,33 +47,14 @@ public object ComponentUtils {
         }
     }
 
-    @Deprecated("Use SpacingFontResources instead")
-    public fun space(top: Int, bottom: Int): MutableComponent {
-        return Component.translatable("space.$top/$bottom").withStyle { it.withFont(SPACES_FONT) }
-    }
-
-    @Deprecated("Use SpacingFontResources instead")
-    public fun space(space: Int = 4): MutableComponent {
-        val clamped = Mth.clamp(space, -8192, 8192)
-        return Component.translatable("space.$clamped").withStyle { it.withFont(SPACES_FONT) }
-    }
-
-    @Deprecated("Use SpacingFontResources instead")
-    public fun offset(offset: Int, component: Component): MutableComponent {
-        val clamped = Mth.clamp(offset, -8192, 8192)
-        return Component.translatable("offset.${clamped}", arrayOf(component)).withStyle { it.withFont(SPACES_FONT) }
-    }
-
-    @Deprecated("Use SpacingFontResources instead")
     public fun negativeWidthOf(component: Component): MutableComponent {
         val key = getTranslationKeyOf(component)
-        return Component.translatable("$key.negativeWidth").withSpacesFont()
+        return Component.translatable("$key.negativeWidth").withSpacingFont()
     }
 
-    @Deprecated("Use SpacingFontResources instead")
     public fun widthDifferenceBetween(first: Component, second: Component): MutableComponent {
         val key = "${getTranslationKeyOf(first)}.difference.${getTranslationKeyOf(second).substringAfterLast('.')}"
-        return Component.translatable(key).withSpacesFont()
+        return Component.translatable(key).withSpacingFont()
     }
 
     public fun getTranslationKeyOf(component: Component): String {
@@ -88,6 +66,13 @@ public object ComponentUtils {
     }
 
     @JvmStatic
+    @Deprecated(
+        "Use Component.literal() instead",
+        ReplaceWith(
+            "Component.literal(this)",
+            "net.minecraft.network.chat.Component", "net.casual.arcade.utils.ComponentUtils.literal"
+        )
+    )
     public fun String.literal(): MutableComponent {
         return Component.literal(this)
     }
@@ -109,7 +94,7 @@ public object ComponentUtils {
 
     @JvmStatic
     public fun MutableComponent.hover(string: String): MutableComponent {
-        return this.hover(string.literal())
+        return this.hover(Component.literal(string))
     }
 
     @JvmStatic
@@ -377,9 +362,8 @@ public object ComponentUtils {
         return this.withFont(ResourceUtils.arcade("mini_shifted_down_${shift}"))
     }
 
-    @Deprecated("Use SpacingFontResources instead")
-    public fun MutableComponent.withSpacesFont(): MutableComponent {
-        return this.withFont(SPACES_FONT)
+    public fun MutableComponent.withSpacingFont(): MutableComponent {
+        return this.withFont(SPACING_FONT)
     }
 
     public fun MutableComponent.shadowless(): MutableComponent {

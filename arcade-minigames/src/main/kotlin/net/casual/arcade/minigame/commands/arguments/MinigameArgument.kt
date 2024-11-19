@@ -11,11 +11,11 @@ import net.casual.arcade.commands.type.CustomArgumentTypeInfo
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.commands.arguments.UuidArgument
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import java.util.concurrent.CompletableFuture
 
@@ -90,9 +90,9 @@ public class MinigameArgument: CustomArgumentType<MinigameArgument.Result>() {
     }
 
     public companion object {
-        public val INVALID_MINIGAME: SimpleCommandExceptionType = SimpleCommandExceptionType("Invalid Minigame UUID".literal())
-        public val TOO_MANY_MINIGAMES: SimpleCommandExceptionType = SimpleCommandExceptionType("Too many Minigames with given id".literal())
-        public val NOT_PARTICIPATING: SimpleCommandExceptionType = SimpleCommandExceptionType("You are not part of a minigame".literal())
+        public val INVALID_MINIGAME: SimpleCommandExceptionType = SimpleCommandExceptionType(Component.translatable("minigame.command.argument.minigame.invalidUUID"))
+        public val TOO_MANY_MINIGAMES: SimpleCommandExceptionType = SimpleCommandExceptionType(Component.translatable("minigame.command.argument.minigame.resolutionFailed"))
+        public val NOT_PARTICIPATING: SimpleCommandExceptionType = SimpleCommandExceptionType(Component.translatable("minigame.command.argument.minigame.noContext"))
 
         @JvmStatic
         public fun minigame(): MinigameArgument {

@@ -9,18 +9,12 @@ import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ComponentUtils.blue
-import net.casual.arcade.utils.ComponentUtils.literal
-import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.recipe.CraftingRecipeBuilder
-import net.casual.arcade.visuals.bossbar.SuppliedBossbar
 import net.casual.arcade.visuals.elements.ComponentElements
 import net.casual.arcade.visuals.elements.SidebarElements
-import net.casual.arcade.visuals.sidebar.DynamicSidebar
 import net.casual.arcade.visuals.sidebar.FixedSidebar
 import net.casual.arcade.visuals.sidebar.SidebarComponent
-import net.casual.arcade.visuals.sidebar.SidebarComponents
-import net.casual.arcade.visuals.sidebar.SidebarComponents.Companion.addRow
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
@@ -51,7 +45,7 @@ open class TestMinigame(
             result(ItemStack(Items.NETHERITE_BLOCK))
         })
 
-        val sidebar = FixedSidebar(ComponentElements.of("Example!".literal()))
+        val sidebar = FixedSidebar(ComponentElements.of(Component.literal("Example!")))
         sidebar.addRow { player ->
             val delta = (player.server.tickCount % 200 / 2.0F) - 50F
             val c = Component.empty()
@@ -65,7 +59,7 @@ open class TestMinigame(
                 .append(SpacingFontResources.composed(-14.178993F))
                 .append("□")
                 .append(SpacingFontResources.composed(delta))
-                .append("■".literal().blue())
+                .append(Component.literal("■").blue())
             SidebarComponent.withNoScore(c)
         }
         sidebar.addRow(SidebarElements.withNoScore(SpacingFontResources.spaced(120)))

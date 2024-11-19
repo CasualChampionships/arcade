@@ -6,8 +6,8 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.type.CustomArgumentType
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.minecraft.commands.SharedSuggestionProvider
+import net.minecraft.network.chat.Component
 import java.util.concurrent.CompletableFuture
 
 public class MinigameSettingsOptionArgument(
@@ -28,7 +28,7 @@ public class MinigameSettingsOptionArgument(
     }
 
     public companion object {
-        public val INVALID_SETTING_OPTION: SimpleCommandExceptionType = SimpleCommandExceptionType("Invalid Settings Option".literal())
+        public val INVALID_SETTING_OPTION: SimpleCommandExceptionType = SimpleCommandExceptionType(Component.translatable("minigame.command.argument.settingOption.invalid"))
 
         @JvmStatic
         public fun option(minigameKey: String, settingsNameKey: String): MinigameSettingsOptionArgument {

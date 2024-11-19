@@ -10,9 +10,9 @@ import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.commands.type.CustomArgumentTypeInfo
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.utils.MinigameRegistries
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.ResourceLocationArgument
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import java.util.concurrent.CompletableFuture
 import kotlin.jvm.optionals.getOrNull
@@ -36,7 +36,7 @@ public class MinigameFactoryCodecArgument: CustomArgumentType<MapCodec<out Minig
     }
 
     public companion object {
-        public val INVALID_FACTORY: SimpleCommandExceptionType = SimpleCommandExceptionType("Invalid Minigame Factory".literal())
+        public val INVALID_FACTORY: SimpleCommandExceptionType = SimpleCommandExceptionType(Component.translatable("minigame.command.argument.factory.invalid"))
 
         @JvmStatic
         public fun codec(): MinigameFactoryCodecArgument {

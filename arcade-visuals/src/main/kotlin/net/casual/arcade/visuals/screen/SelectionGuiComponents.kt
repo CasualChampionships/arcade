@@ -1,6 +1,5 @@
 package net.casual.arcade.visuals.screen
 
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ItemUtils.named
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
@@ -17,7 +16,7 @@ public interface SelectionGuiComponents {
      * Gets the default title.
      */
     public val title: Component
-        get() = "Selection Screen".literal()
+        get() = Component.literal("Selection Screen")
 
     /**
      * Gets the previous [ItemStack] instance.

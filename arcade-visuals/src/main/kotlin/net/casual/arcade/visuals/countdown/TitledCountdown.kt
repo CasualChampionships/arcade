@@ -2,7 +2,6 @@ package net.casual.arcade.visuals.countdown
 
 import net.casual.arcade.utils.ComponentUtils.bold
 import net.casual.arcade.utils.ComponentUtils.lime
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.ComponentUtils.yellow
 import net.casual.arcade.utils.PlayerUtils.clearTitle
@@ -25,7 +24,7 @@ public interface TitledCountdown: Countdown {
 
     @OverrideOnly
     public fun getCountdownSubtitle(current: Int): Component {
-        val subtitle = "▶ $current ◀".literal()
+        val subtitle = Component.literal("▶ $current ◀")
         when (current) {
             3 -> subtitle.red()
             2 -> subtitle.yellow()
@@ -68,7 +67,7 @@ public interface TitledCountdown: Countdown {
 
     public companion object {
         @JvmField
-        public val DEFAULT_TITLE: Component = "Starting In:".literal().bold()
+        public val DEFAULT_TITLE: Component = Component.literal("Starting In:").bold()
 
         public fun titled(title: Component = DEFAULT_TITLE): Countdown {
             return object: TitledCountdown {

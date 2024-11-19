@@ -8,8 +8,8 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.phase.Phase
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.minecraft.commands.SharedSuggestionProvider
+import net.minecraft.network.chat.Component
 import java.util.concurrent.CompletableFuture
 
 public class MinigamePhaseArgument(private val minigameKey: String): CustomArgumentType<String>() {
@@ -26,7 +26,7 @@ public class MinigamePhaseArgument(private val minigameKey: String): CustomArgum
     }
 
     public companion object {
-        public val INVALID_PHASE_NAME: SimpleCommandExceptionType = SimpleCommandExceptionType("Invalid Settings Name".literal())
+        public val INVALID_PHASE_NAME: SimpleCommandExceptionType = SimpleCommandExceptionType(Component.translatable("minigame.command.argument.phase.invalid"))
 
         @JvmStatic
         public fun name(minigameKey: String): MinigamePhaseArgument {

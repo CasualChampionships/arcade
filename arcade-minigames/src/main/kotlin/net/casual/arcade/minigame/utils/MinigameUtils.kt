@@ -28,7 +28,6 @@ import net.casual.arcade.scheduler.task.Completable
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.ComponentUtils.gold
 import net.casual.arcade.utils.ComponentUtils.lime
-import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.time.MinecraftTimeDuration
@@ -138,9 +137,9 @@ public object MinigameUtils {
                 this.minigame.chat.broadcastTo(
                     Component.translatable(
                         "minigame.settings.changed",
-                        setting.name.literal().gold(),
-                        previous.toString().literal().red(),
-                        value.toString().literal().lime()
+                        Component.literal(setting.name).gold(),
+                        Component.literal(previous.toString()).red(),
+                        Component.literal(value.toString()).lime()
                     ),
                     this.minigame.players.admins
                 )
