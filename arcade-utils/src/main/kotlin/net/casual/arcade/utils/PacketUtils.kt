@@ -21,7 +21,12 @@ public fun ClientboundPlayerInfoUpdatePacket(
     return packet
 }
 
-public fun ClientboundBundlePacket.modify(
+public fun Packet<*>.asClientGamePacket(): Packet<ClientGamePacketListener> {
+    @Suppress("UNCHECKED_CAST")
+    return this as Packet<ClientGamePacketListener>
+}
+
+public inline fun ClientboundBundlePacket.modify(
     player: ServerPlayer,
     modifier: (ServerPlayer, Packet<in ClientGamePacketListener>) -> Packet<in ClientGamePacketListener>
 ): ClientboundBundlePacket {

@@ -12,6 +12,7 @@ import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
 import net.casual.arcade.minigame.utils.modifySharedFlags
 import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.modify
 import net.casual.arcade.visuals.predicate.EntityObserverPredicate
 import net.casual.arcade.visuals.predicate.PlayerObserverPredicate
@@ -237,8 +238,7 @@ public class MinigameEffectsManager(
             return packet.modifySharedFlags(player, this::modifySharedEntityFlags)
         }
 
-        @Suppress("UNCHECKED_CAST")
-        return packet as Packet<ClientGamePacketListener>
+        return packet.asClientGamePacket()
     }
 
     private fun enableFlag(flags: Byte, flag: Int): Byte {

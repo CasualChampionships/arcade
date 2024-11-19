@@ -7,7 +7,7 @@ import net.minecraft.network.syncher.SynchedEntityData.DataValue
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 
-public fun ClientboundSetEntityDataPacket.modifySharedFlags(
+public inline fun ClientboundSetEntityDataPacket.modifySharedFlags(
     player: ServerPlayer,
     modifier: (observee: Entity, observer: ServerPlayer, flags: Byte) -> Byte
 ): ClientboundSetEntityDataPacket {
