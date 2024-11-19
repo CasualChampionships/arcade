@@ -1,46 +1,52 @@
 package net.casual.arcade.resources.font
 
 import com.google.common.collect.HashMultimap
+import com.google.gson.JsonObject
+import com.mojang.serialization.JsonOps
+import it.unimi.dsi.fastutil.ints.Int2FloatLinkedOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.encodeToJsonElement
+import net.casual.arcade.resources.font.providers.BitmapFontProvider
+import net.casual.arcade.resources.font.providers.FontProvider
+import net.casual.arcade.resources.font.providers.SpaceFontProvider
 import net.casual.arcade.resources.lang.LanguageEntry
-import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.withFont
+import net.casual.arcade.utils.JsonUtils
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import org.apache.commons.lang3.mutable.MutableInt
-import com.google.gson.JsonObject as GsonObject
 
 public abstract class FontResources(
-    public val id: ResourceLocation
+    public val id: ResourceLocation,
+    pua: FontPUA = FontPUA.Plane0
 ) {
     private val languages = HashMultimap.create<String, LanguageEntry>()
-    private val bitmapIndex = MutableInt(0xE000)
+    private val codepoint = MutableInt(pua.codepoint)
     private val providers = ArrayList<FontProvider>()
+    private val spaces by lazy(::createSpaces)
+
+    protected fun space(advance: Float): Component {
+        val codepoint = this.nextCodepoint()
+        this.spaces[codepoint] = advance
+        return Component.literal(Character.toString(codepoint)).withFont(id)
+    }
 
     protected fun bitmap(
         texture: ResourceLocation,
         ascent: Int = 8,
         height: Int = 8
-    ): ComponentUtils.ConstantComponentGenerator {
-        val key = this.nextBitmapChar().toString()
-        val bitmap = BitmapFontProvider(texture, ascent, height, listOf(key))
+    ): Component {
+        val codepoint = this.nextCodepointAsString()
+        val bitmap = BitmapFontProvider(texture, ascent, height, listOf(codepoint))
         this.providers.add(bitmap)
-        return ComponentUtils.literal(key) {
-            withFont(id)
-        }
+        return Component.literal(codepoint).withFont(id)
     }
 
     protected fun translatable(
         key: String,
         translations: Translatable.() -> Unit
-    ): ComponentUtils.ConstantComponentGenerator {
+    ): Component {
         Translatable(this, key).translations()
-        return ComponentUtils.translatable(key) {
-            withFont(id)
-        }
+        return Component.translatable(key).withFont(id)
     }
 
     protected fun at(path: String): ResourceLocation {
@@ -48,16 +54,16 @@ public abstract class FontResources(
     }
 
     internal fun toJson(): String {
-        val font = buildJsonObject {
-            put("providers", json.encodeToJsonElement(providers))
-        }
-        return json.encodeToString(font)
+        val json = JsonObject()
+        val result = FontProvider.CODEC.listOf().encodeStart(JsonOps.INSTANCE, this.providers).orThrow
+        json.add("providers", result)
+        return JsonUtils.MIN_GSON.toJson(json)
     }
 
-    internal fun getLangJsons(): Map<String, GsonObject> {
-        val langs = Object2ObjectOpenHashMap<String, GsonObject>()
+    internal fun getLangJsons(): Map<String, JsonObject> {
+        val langs = Object2ObjectOpenHashMap<String, JsonObject>()
         for (lang in this.languages.keySet()) {
-            val translations = GsonObject()
+            val translations = JsonObject()
             for (entry in this.languages.get(lang)) {
                 translations.addProperty(entry.key, entry.translation)
             }
@@ -66,30 +72,40 @@ public abstract class FontResources(
         return langs
     }
 
-    private fun nextBitmapChar(): Char {
-        return bitmapIndex.andIncrement.toChar()
+    private fun nextCodepoint(): Int {
+        return this.codepoint.andIncrement
+    }
+
+    private fun nextCodepointAsString(): String {
+        return Character.toString(this.nextCodepoint())
+    }
+
+    private fun createSpaces(): Int2FloatLinkedOpenHashMap {
+        val spaces = Int2FloatLinkedOpenHashMap()
+        this.providers.add(SpaceFontProvider(spaces))
+        return spaces
     }
 
     protected class Translatable(
         private val resources: FontResources,
         private val key: String
     ) {
+        public fun space(lang: String, advance: Float) {
+            val codepoint = this.resources.nextCodepoint()
+            this.resources.spaces[codepoint] = advance
+            this.resources.languages.put(lang, LanguageEntry(this.key, Character.toString(codepoint)))
+        }
+
         public fun bitmap(
             lang: String,
             texture: ResourceLocation,
             ascent: Int = 8,
             height: Int = 8
         ) {
-            val key = this.resources.nextBitmapChar().toString()
-            val bitmap = BitmapFontProvider(texture, ascent, height, listOf(key))
+            val codepoint = this.resources.nextCodepointAsString()
+            val bitmap = BitmapFontProvider(texture, ascent, height, listOf(codepoint))
             this.resources.providers.add(bitmap)
-            this.resources.languages.put(lang, LanguageEntry(this.key, key))
-        }
-    }
-
-    private companion object {
-        val json = Json {
-            encodeDefaults = true
+            this.resources.languages.put(lang, LanguageEntry(this.key, codepoint))
         }
     }
 }

@@ -18,6 +18,7 @@ import java.util.*
 import kotlin.reflect.KProperty
 
 public object ComponentUtils {
+    @Deprecated("Use SpacingFontResources instead")
     public val SPACES_FONT: ResourceLocation = ResourceLocation.fromNamespaceAndPath("space", "spaces")
     public val MINI_FONT: ResourceLocation = ResourceUtils.arcade("mini_minecraft")
 
@@ -49,25 +50,30 @@ public object ComponentUtils {
         }
     }
 
+    @Deprecated("Use SpacingFontResources instead")
     public fun space(top: Int, bottom: Int): MutableComponent {
         return Component.translatable("space.$top/$bottom").withStyle { it.withFont(SPACES_FONT) }
     }
 
+    @Deprecated("Use SpacingFontResources instead")
     public fun space(space: Int = 4): MutableComponent {
         val clamped = Mth.clamp(space, -8192, 8192)
         return Component.translatable("space.$clamped").withStyle { it.withFont(SPACES_FONT) }
     }
 
+    @Deprecated("Use SpacingFontResources instead")
     public fun offset(offset: Int, component: Component): MutableComponent {
         val clamped = Mth.clamp(offset, -8192, 8192)
         return Component.translatable("offset.${clamped}", arrayOf(component)).withStyle { it.withFont(SPACES_FONT) }
     }
 
+    @Deprecated("Use SpacingFontResources instead")
     public fun negativeWidthOf(component: Component): MutableComponent {
         val key = getTranslationKeyOf(component)
         return Component.translatable("$key.negativeWidth").withSpacesFont()
     }
 
+    @Deprecated("Use SpacingFontResources instead")
     public fun widthDifferenceBetween(first: Component, second: Component): MutableComponent {
         val key = "${getTranslationKeyOf(first)}.difference.${getTranslationKeyOf(second).substringAfterLast('.')}"
         return Component.translatable(key).withSpacesFont()
@@ -371,7 +377,7 @@ public object ComponentUtils {
         return this.withFont(ResourceUtils.arcade("mini_shifted_down_${shift}"))
     }
 
-
+    @Deprecated("Use SpacingFontResources instead")
     public fun MutableComponent.withSpacesFont(): MutableComponent {
         return this.withFont(SPACES_FONT)
     }

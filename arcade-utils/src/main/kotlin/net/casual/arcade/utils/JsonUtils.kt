@@ -14,6 +14,7 @@ import java.util.*
 
 public object JsonUtils {
     public val GSON: Gson = GsonBuilder().setPrettyPrinting().serializeNulls().disableHtmlEscaping().create()
+    public val MIN_GSON: Gson = GsonBuilder().serializeNulls().disableHtmlEscaping().create()
 
     public inline fun <reified T: Any> decode(reader: Reader): T {
         return GSON.fromJson(reader, T::class.java)

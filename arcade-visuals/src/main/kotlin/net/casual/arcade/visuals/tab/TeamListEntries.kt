@@ -2,7 +2,7 @@ package net.casual.arcade.visuals.tab
 
 import com.google.common.collect.Iterables
 import net.casual.arcade.resources.font.heads.PlayerHeadComponents
-import net.casual.arcade.utils.ComponentUtils
+import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ComponentUtils.color
 import net.casual.arcade.utils.ComponentUtils.italicise
 import net.casual.arcade.utils.ComponentUtils.literal
@@ -87,7 +87,7 @@ public open class TeamListEntries: PlayerListEntries {
             return PlayerListEntries.Entry.fromComponent(name, player)
         }
         return PlayerListEntries.Entry.fromComponent(
-            Component.empty().append(head).append(ComponentUtils.space(2)).append(name)
+            Component.empty().append(head).append(SpacingFontResources.spaced(2)).append(name)
         )
     }
 

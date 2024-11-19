@@ -4,6 +4,7 @@ import net.casual.arcade.resources.creator.NamedResourcePackCreator
 import net.casual.arcade.resources.font.heads.PlayerHeadFont
 import net.casual.arcade.resources.font.padding.PaddingNoSplitFontResources
 import net.casual.arcade.resources.font.padding.PaddingSplitFontResources
+import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.resources.utils.FontUtils
 import net.casual.arcade.resources.utils.ResourcePackUtils
 import net.casual.arcade.resources.utils.ResourcePackUtils.addCustomOutlineColors
@@ -44,6 +45,14 @@ public object ArcadeResourcePacks: ModInitializer {
         }
     }
 
+    public val SPACING_FONT_PACK: NamedResourcePackCreator by lazy {
+        NamedResourcePackCreator.named("spacing_font") {
+            addFont(SpacingFontResources)
+            packDescription = "Provides spacing utilities for text".literal()
+        }
+    }
+
+    @Deprecated("")
     public val SPACES_FONT_PACK: NamedResourcePackCreator by lazy {
         NamedResourcePackCreator.named("spaces_font") {
             addAssetSource(path("packs/SpacesFont"))

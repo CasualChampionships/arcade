@@ -1,12 +1,11 @@
 package net.casual.arcade.resources.sound
 
+import com.google.gson.JsonObject
+import com.mojang.serialization.JsonOps
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.*
 import net.casual.arcade.resources.sound.SoundProvider.Type.Event
 import net.casual.arcade.resources.sound.SoundProvider.Type.Sound
-import net.minecraft.core.Registry
-import net.minecraft.core.registries.BuiltInRegistries
+import net.casual.arcade.utils.JsonUtils
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.SoundEvent
 
@@ -62,19 +61,15 @@ public abstract class SoundResources(
     }
 
     internal fun toJson(): String {
-        val json = buildJsonObject {
-            for ((key, providers) in providers) {
-                putJsonObject(key) {
-                    putJsonArray("sounds") {
-                        for (provider in providers) {
-                            add(Json.encodeToJsonElement(provider))
-                        }
-                    }
-                }
-            }
+        val code = SoundProvider.CODEC.listOf()
+        val json = JsonObject()
+        for ((key, providers) in this.providers) {
+            val group = JsonObject()
+            val result = code.encodeStart(JsonOps.INSTANCE, providers).orThrow
+            group.add("sounds", result)
+            json.add(key, group)
         }
-
-        return Json.encodeToString(json)
+        return JsonUtils.MIN_GSON.toJson(json)
     }
 
     private fun register(id: ResourceLocation, distance: Int, dynamicRange: Boolean): SoundEvent {

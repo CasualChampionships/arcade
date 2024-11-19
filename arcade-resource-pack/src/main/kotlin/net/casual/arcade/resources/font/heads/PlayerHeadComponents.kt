@@ -3,8 +3,8 @@ package net.casual.arcade.resources.font.heads
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.player.PlayerJoinEvent
+import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.ComponentUtils
 import net.casual.arcade.utils.ComponentUtils.color
 import net.casual.arcade.utils.PlayerUtils.player
 import net.casual.arcade.utils.ServerUtils
@@ -24,7 +24,7 @@ public object PlayerHeadComponents {
     private val nameCache = ConcurrentHashMap<String, CompletableFuture<Component>>()
     private val invalidNames = ConcurrentHashMap.newKeySet<String>()
 
-    private val default = CompletableFuture.completedFuture<Component>(PlayerHeadFont.STEVE_HEAD)
+    private val default = CompletableFuture.completedFuture(PlayerHeadFont.STEVE_HEAD)
 
     init {
         GlobalEventHandler.register<PlayerJoinEvent> {
@@ -136,14 +136,14 @@ public object PlayerHeadComponents {
             for (y in 0..7) {
                 for (x in 0..7) {
                     if (x != 0) {
-                        component.append(ComponentUtils.space(-1))
+                        component.append(SpacingFontResources.spaced(-1))
                     }
                     val hat = Color(image.getRGB(x + 40, y + 8), true)
                     val base = Color(image.getRGB(x + 8, y + 8), true)
-                    component.append(PlayerHeadFont.pixel(y).color(base.overlayWith(hat).rgb))
+                    component.append(PlayerHeadFont.pixel(y).copy().color(base.overlayWith(hat).rgb))
                 }
                 if (y != 7) {
-                    component.append(ComponentUtils.space(-9))
+                    component.append(SpacingFontResources.spaced(-9))
                 }
             }
             return component
