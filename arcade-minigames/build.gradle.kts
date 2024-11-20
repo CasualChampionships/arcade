@@ -5,6 +5,5 @@ moduleDependencies(project, listOf(
 ))
 
 dependencies {
-    modImplementation(rootProject.libs.server.translations)
-    modCompileOnly(rootProject.libs.server.replay)
+    modCompileOnly(libs.server.replay)
 }

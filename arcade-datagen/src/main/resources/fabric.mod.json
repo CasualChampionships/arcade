@@ -8,6 +8,7 @@
     "Sensei"
   ],
   "license": "MIT",
+  "icon": "assets/icon.png",
   "environment": "*",
   "entrypoints": {
     "client": [
@@ -15,6 +16,9 @@
     ]
   },
   "depends": {
-    "minecraft": "${minecraft_dependency}"
+    "minecraft": "${minecraft_dependency}",
+    "fabricloader": ">=${fabric_loader_dependency}",
+    "fabric-api": ">=${fabric_api_dependency}",
+    "fabric-language-kotlin": ">=${fabric_kotlin_dependency}"
   }
 }

@@ -11,6 +11,7 @@
 
   },
   "license": "MIT",
+  "icon": "assets/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -24,6 +25,9 @@
     "arcade-resource-pack.mixins.json"
   ],
   "depends": {
-    "minecraft": "${minecraft_dependency}"
+    "minecraft": "${minecraft_dependency}",
+    "fabricloader": ">=${fabric_loader_dependency}",
+    "fabric-language-kotlin": ">=${fabric_kotlin_dependency}",
+    "polymer-core": ">=${polymer_dependency}"
   }
 }

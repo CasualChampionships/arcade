@@ -1,4 +1,5 @@
-# Arcade
+# <img src="./src/main/resources/assets/arcade/icon.png" align="center" width="64px"/> Arcade
+
 
 Arcade is a server-side Minecraft api made in Kotlin, providing
 a wide array of functionality primarily aimed at server-sided
@@ -35,7 +36,7 @@ repositories {
 }
 
 dependencies {
-    include(modImplementation("net.casual-championships:arcade:0.3.1-alpha.37+1.21.3")!!)
+    include(modImplementation("net.casual-championships:arcade:0.3.1-alpha.38+1.21.3")!!)
 }
 ```
 

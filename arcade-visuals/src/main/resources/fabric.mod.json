@@ -11,6 +11,7 @@
 
   },
   "license": "MIT",
+  "icon": "assets/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -20,10 +21,11 @@
       }
     ]
   },
-  "mixins": [
-
-  ],
   "depends": {
-    "minecraft": "${minecraft_dependency}"
+    "minecraft": "${minecraft_dependency}",
+    "fabricloader": ">=${fabric_loader_dependency}",
+    "fabric-language-kotlin": ">=${fabric_kotlin_dependency}",
+    "sgui": ">=${sgui_dependency}",
+    "nametag": ">=${custom_nametags_dependency}"
   }
 }

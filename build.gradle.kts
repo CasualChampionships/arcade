@@ -10,7 +10,7 @@ plugins {
     java
 }
 
-val modVersion = "0.3.1-alpha.37"
+val modVersion = "0.3.1-alpha.38"
 
 allprojects {
     apply(plugin = "fabric-loom")
@@ -44,7 +44,6 @@ allprojects {
         })
 
         modImplementation(libs.fabric.loader)
-        modImplementation(libs.fabric.api)
         modImplementation(libs.fabric.kotlin)
     }
 
@@ -64,6 +63,12 @@ allprojects {
                 expand(mutableMapOf(
                     "version" to version,
                     "minecraft_dependency" to minecraftDependency,
+                    "fabric_loader_dependency" to libs.versions.fabric.loader.get(),
+                    "fabric_api_dependency" to libs.versions.fabric.api.get(),
+                    "fabric_kotlin_dependency" to libs.versions.fabric.kotlin.get(),
+                    "polymer_dependency" to libs.versions.polymer.get(),
+                    "sgui_dependency" to libs.versions.sgui.get(),
+                    "custom_nametags_dependency" to libs.versions.custom.nametags.get()
                 ))
             }
         }
@@ -101,10 +106,6 @@ allprojects {
 
 subprojects {
     afterEvaluate {
-        tasks.getByName("genSourcesWithVineflower").enabled = false
-        tasks.getByName("genSourcesWithFernFlower").enabled = false
-        tasks.getByName("genSourcesWithCfr").enabled = false
-
         // updateDocumentedDependencies("../docs/${name}/getting-started.md")
     }
 }
