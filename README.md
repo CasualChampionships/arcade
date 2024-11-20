@@ -1,4 +1,4 @@
-# <img src="./src/main/resources/assets/arcade/icon.png" align="center" width="64px"/> Arcade
+# <img src="./src/main/resources/assets/icon.png" align="center" width="64px"/> Arcade
 
 
 Arcade is a server-side Minecraft api made in Kotlin, providing
