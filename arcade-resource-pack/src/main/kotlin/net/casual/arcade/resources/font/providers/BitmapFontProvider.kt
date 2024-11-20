@@ -3,12 +3,7 @@ package net.casual.arcade.resources.font.providers
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import it.unimi.dsi.fastutil.ints.IntList
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import net.casual.arcade.utils.serialization.ResourceLocationSerializer
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.ExtraCodecs
 
 public data class BitmapFontProvider(
     val texture: ResourceLocation,
