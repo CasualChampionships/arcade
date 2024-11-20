@@ -16,9 +16,17 @@ public class CaptureTask<C, K>(
     private val task: CaptureConsumerTask<K>,
 ): Task, Serializable {
     init {
-        if (this.task::class.java.declaredFields.isNotEmpty()) {
-            throw IllegalArgumentException("Serializable task may not capture outer variables")
-        }
+        // TODO: We should probably allow capturing primitives
+        //   and allow other serializable captures, everything else
+        //   should be disallowed
+        // for (field in this.task::class.java.declaredFields) {
+        //     if (Serializable::class.java.isAssignableFrom(field.type)) {
+        //
+        //     }
+        // }
+        // if (this.task::class.java.declaredFields.isNotEmpty()) {
+        //     throw IllegalArgumentException("Serializable task may not capture outer variables")
+        // }
     }
 
     override fun run() {

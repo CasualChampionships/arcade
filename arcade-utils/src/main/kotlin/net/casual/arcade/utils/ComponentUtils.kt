@@ -78,6 +78,11 @@ public object ComponentUtils {
     }
 
     @JvmStatic
+    public fun Component.wrap(): MutableComponent {
+        return Component.empty().append(this)
+    }
+
+    @JvmStatic
     public fun MutableComponent.command(command: String): MutableComponent {
         return this.withStyle { it.withClickEvent(ClickEvent(ClickEvent.Action.RUN_COMMAND, command)) }
     }

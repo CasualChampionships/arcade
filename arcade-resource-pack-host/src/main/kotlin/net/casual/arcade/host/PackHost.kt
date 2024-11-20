@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.host.core.HttpHost
 import net.casual.arcade.host.pack.ReadablePack
 import net.casual.arcade.host.pack.ReadablePackSupplier
+import net.minecraft.Util
 import java.io.InputStream
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
@@ -42,10 +43,10 @@ public class PackHost(ip: String?, port: Int = DEFAULT_PORT, threads: Int = 1): 
         this.suppliers.remove(supplier)
     }
 
-    public fun reload(): CompletableFuture<Void> {
+    public fun reload(): CompletableFuture<List<HostedPack>> {
         this.hostedByName.clear()
 
-        val futures = ArrayList<CompletableFuture<*>>()
+        val futures = ArrayList<CompletableFuture<HostedPack>>()
         for (pack in this.packs.values) {
             futures.add(this.hostPack(pack))
         }
@@ -54,7 +55,7 @@ public class PackHost(ip: String?, port: Int = DEFAULT_PORT, threads: Int = 1): 
                 futures.add(this.hostPack(pack))
             }
         }
-        return CompletableFuture.allOf(*futures.toTypedArray())
+        return Util.sequenceFailFast(futures)
     }
 
     override fun getName(): String {

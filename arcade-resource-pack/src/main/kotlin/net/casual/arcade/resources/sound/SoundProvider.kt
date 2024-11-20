@@ -20,7 +20,10 @@ public data class SoundProvider(
         Event;
 
         override fun getSerializedName(): String {
-            return this.name.lowercase()
+            return when (this) {
+                Sound -> "file"
+                Event -> "event"
+            }
         }
 
         public companion object {
@@ -32,13 +35,13 @@ public data class SoundProvider(
         public val CODEC: Codec<SoundProvider> = RecordCodecBuilder.create { instance ->
             instance.group(
                 ResourceLocation.CODEC.fieldOf("name").forGetter(SoundProvider::id),
-                Codec.FLOAT.fieldOf("volume").forGetter(SoundProvider::volume),
-                Codec.FLOAT.fieldOf("pitch").forGetter(SoundProvider::pitch),
-                Codec.INT.fieldOf("weight").forGetter(SoundProvider::weight),
-                Codec.BOOL.fieldOf("stream").forGetter(SoundProvider::stream),
-                Codec.INT.fieldOf("attenuation_distance").forGetter(SoundProvider::attenuationDistance),
-                Codec.BOOL.fieldOf("preload").forGetter(SoundProvider::preload),
-                Type.CODEC.fieldOf("type").forGetter(SoundProvider::type)
+                Codec.FLOAT.optionalFieldOf("volume", 1.0F).forGetter(SoundProvider::volume),
+                Codec.FLOAT.optionalFieldOf("pitch", 1.0F).forGetter(SoundProvider::pitch),
+                Codec.INT.optionalFieldOf("weight", 1).forGetter(SoundProvider::weight),
+                Codec.BOOL.optionalFieldOf("stream", false).forGetter(SoundProvider::stream),
+                Codec.INT.optionalFieldOf("attenuation_distance", 1).forGetter(SoundProvider::attenuationDistance),
+                Codec.BOOL.optionalFieldOf("preload", false).forGetter(SoundProvider::preload),
+                Type.CODEC.optionalFieldOf("type", Type.Sound).forGetter(SoundProvider::type)
             ).apply(instance, ::SoundProvider)
         }
     }

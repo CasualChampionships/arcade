@@ -14,6 +14,7 @@ import net.casual.arcade.utils.JsonUtils.ints
 import net.casual.arcade.utils.ResourceUtils
 import net.minecraft.resources.ResourceLocation
 import org.jetbrains.annotations.ApiStatus.Internal
+import java.io.Serializable
 
 /**
  * This extension of the [Task] interface allows
@@ -82,6 +83,8 @@ public sealed class CancellableTask(
             this.wrapped.run()
         }
     }
+
+    private class Default(wrapped: Task): CancellableTask(wrapped)
 
     @Internal
     public class Savable(wrapped: Task): CancellableTask(wrapped), SavableTask {
@@ -154,7 +157,7 @@ public sealed class CancellableTask(
          */
         @JvmStatic
         public fun of(task: Task): CancellableTask {
-            return Savable(task)
+            return if (task is SavableTask || task is Serializable) Savable(task) else Default(task)
         }
 
         /**
