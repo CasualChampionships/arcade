@@ -24,7 +24,7 @@ public interface EntityTeleporter {
     public companion object {
         public val DEFAULT: LocationTeleporter = LocationTeleporter(ExactLocationTemplate(Vec3(0.0, 5.0, 0.0)))
 
-        public val CODEC: Codec<EntityTeleporter> by lazy {
+        public val CODEC: Codec<EntityTeleporter> = Codec.lazyInitialized {
             MinigameRegistries.ENTITY_TELEPORTER.byNameCodec()
                 .dispatch(EntityTeleporter::codec, Function.identity())
         }

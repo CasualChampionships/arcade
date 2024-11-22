@@ -41,12 +41,12 @@ public sealed interface MinigameChatMode {
     }
 
     public companion object {
-        public val CODEC: Codec<MinigameChatMode> by lazy {
+        public val CODEC: Codec<MinigameChatMode> = Codec.lazyInitialized {
             MinigameRegistries.MINIGAME_CHAT_MODES.byNameCodec()
                 .dispatch(MinigameChatMode::codec, Function.identity())
         }
 
-        public val OPTIONAL_CODEC: Codec<Optional<MinigameChatMode>> by lazy {
+        public val OPTIONAL_CODEC: Codec<Optional<MinigameChatMode>> = Codec.lazyInitialized {
             ExtraCodecs.optionalEmptyMap(CODEC)
         }
 

@@ -64,7 +64,7 @@ public interface CustomLevelFactory {
     public fun codec(): MapCodec<out CustomLevelFactory>
 
     public companion object {
-        public val CODEC: Codec<CustomLevelFactory> by lazy {
+        public val CODEC: Codec<CustomLevelFactory> = Codec.lazyInitialized {
             DimensionRegistries.CUSTOM_LEVEL_FACTORY.byNameCodec()
                 .dispatch(CustomLevelFactory::codec, Function.identity())
         }

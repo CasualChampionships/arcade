@@ -17,7 +17,7 @@ public interface PlaceableAreaTemplate {
     public companion object {
         public val DEFAULT: BoxedAreaTemplate = BoxedAreaTemplate()
 
-        public val CODEC: Codec<PlaceableAreaTemplate> by lazy {
+        public val CODEC: Codec<PlaceableAreaTemplate> = Codec.lazyInitialized {
             MinigameRegistries.PLACEABLE_AREA_TEMPLATE.byNameCodec()
                 .dispatch(PlaceableAreaTemplate::codec, Function.identity())
         }

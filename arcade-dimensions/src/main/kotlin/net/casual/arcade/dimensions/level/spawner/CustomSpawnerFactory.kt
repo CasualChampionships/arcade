@@ -59,7 +59,7 @@ public interface CustomSpawnerFactory {
     public fun codec(): MapCodec<out CustomSpawnerFactory>
 
     public companion object {
-        public val CODEC: Codec<CustomSpawnerFactory> by lazy {
+        public val CODEC: Codec<CustomSpawnerFactory> = Codec.lazyInitialized {
             DimensionRegistries.CUSTOM_SPAWNER_FACTORY.byNameCodec()
                 .dispatch(CustomSpawnerFactory::codec, Function.identity())
         }

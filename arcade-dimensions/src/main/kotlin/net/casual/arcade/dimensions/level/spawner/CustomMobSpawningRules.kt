@@ -32,7 +32,7 @@ public interface CustomMobSpawningRules {
     public companion object {
         public val MAGIC_NUMBER: Int = NaturalSpawnerAccessor.getMagicNumber()
 
-        public val CODEC: Codec<CustomMobSpawningRules> by lazy {
+        public val CODEC: Codec<CustomMobSpawningRules> = Codec.lazyInitialized {
             DimensionRegistries.CUSTOM_MOB_SPAWNING_RULES.byNameCodec()
         }
 

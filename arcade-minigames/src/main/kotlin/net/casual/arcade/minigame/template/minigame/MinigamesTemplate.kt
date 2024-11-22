@@ -30,7 +30,7 @@ public interface MinigamesTemplate {
     public companion object {
         public val DEFAULT: MinigamesTemplate = SimpleMinigamesTemplate()
 
-        public val CODEC: Codec<MinigamesTemplate> by lazy {
+        public val CODEC: Codec<MinigamesTemplate> = Codec.lazyInitialized {
             MinigameRegistries.MINIGAMES_EVENT.byNameCodec()
                 .dispatch(MinigamesTemplate::codec, Function.identity())
         }

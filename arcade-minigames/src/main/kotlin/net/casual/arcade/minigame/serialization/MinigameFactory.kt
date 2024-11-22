@@ -15,7 +15,7 @@ public interface MinigameFactory {
     public fun codec(): MapCodec<out MinigameFactory>
 
     public companion object {
-        public val CODEC: Codec<MinigameFactory> by lazy {
+        public val CODEC: Codec<MinigameFactory> = Codec.lazyInitialized {
             MinigameRegistries.MINIGAME_FACTORY.byNameCodec()
                 .dispatch(MinigameFactory::codec, Function.identity())
         }

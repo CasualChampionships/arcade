@@ -17,7 +17,7 @@ public interface LocationTemplate {
     public companion object {
         public val DEFAULT: LocationTemplate = ExactLocationTemplate()
 
-        public val CODEC: Codec<LocationTemplate> by lazy {
+        public val CODEC: Codec<LocationTemplate> = Codec.lazyInitialized {
             MinigameRegistries.LOCATION_TEMPLATE.byNameCodec()
                 .dispatch(LocationTemplate::codec, Function.identity())
         }
