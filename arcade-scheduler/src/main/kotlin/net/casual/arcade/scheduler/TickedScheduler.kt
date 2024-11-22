@@ -24,8 +24,8 @@ import java.util.function.IntFunction
  * @see GlobalTickedScheduler
  */
 public class TickedScheduler: MinecraftScheduler {
-    internal val tasks: Int2ObjectMap<Queue<Task>> = Int2ObjectOpenHashMap()
-    internal var tickCount = 0
+    private val tasks: Int2ObjectMap<Queue<Task>> = Int2ObjectOpenHashMap()
+    private var tickCount = 0
 
     /**
      * This advances the scheduler by one tick.
@@ -35,7 +35,7 @@ public class TickedScheduler: MinecraftScheduler {
      */
     public fun tick() {
         val queue = this.tasks.remove(this.tickCount++)
-        if (queue !== null) {
+        if (queue != null) {
             queue.forEach(Runnable::run)
             queue.clear()
         }

@@ -28,6 +28,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Player.class)
 public abstract class PlayerMixin implements ModifyActuallyHurt {
+	@Inject(
+		method = "attack",
+		at = @At("HEAD"),
+		cancellable = true
+	)
+	private void onAttack(Entity target, CallbackInfo ci) {
+		if ((Object) this instanceof ServerPlayer player) {
+			PlayerTryAttackEvent event = new PlayerTryAttackEvent(player, target);
+			GlobalEventHandler.broadcast(event);
+			if (event.isCancelled()) {
+				ci.cancel();
+			}
+		}
+	}
+
 	@WrapOperation(
 		method = "attack",
 		at = @At(
