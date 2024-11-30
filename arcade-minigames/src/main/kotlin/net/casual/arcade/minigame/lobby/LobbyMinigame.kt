@@ -259,9 +259,6 @@ public open class LobbyMinigame(
             literal("tp") {
                 executes(::teleportToLobby)
             }
-            literal("countdown") {
-                executes(::startCountdown)
-            }
             literal("ready") {
                 literal("players") {
                     executes(::readyPlayers)
@@ -272,8 +269,9 @@ public open class LobbyMinigame(
                 literal("awaiting") {
                     executes(::awaitingReady)
                 }
-            }
-            literal("start") {
+                literal("complete") {
+                    executes(::completeReady)
+                }
                 literal("in") {
                     argument("time", IntegerArgumentType.integer(1)) {
                         argument("unit", EnumArgument.enumeration<MinecraftTimeUnit>()) {
@@ -281,6 +279,12 @@ public open class LobbyMinigame(
                         }
                     }
                 }
+            }
+            literal("countdown") {
+                executes(::startCountdown)
+            }
+            literal("start") {
+                executes(::startNextMinigame)
             }
         }
     }
@@ -331,6 +335,12 @@ public open class LobbyMinigame(
         return context.source.success("Successfully started the countdown")
     }
 
+    private fun startNextMinigame(context: CommandContext<CommandSourceStack>): Int {
+        this.next ?: return context.source.fail("Cannot move to next minigame, it has not been set!")
+        this.moveToNextMinigame()
+        return context.source.success("Successfully moving to next minigame")
+    }
+
     private fun readyPlayers(context: CommandContext<CommandSourceStack>): Int {
         this.next ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
         this.setPhase(LobbyPhase.Readying)
@@ -351,6 +361,13 @@ public open class LobbyMinigame(
         }
         val awaiting = this.ui.readier.getUnreadyFormatted(context.source.server)
         return context.source.success(Component.literal("Currently awaiting: ").append(awaiting.join()))
+    }
+
+    private fun completeReady(context: CommandContext<CommandSourceStack>): Int {
+        if (this.ui.readier.complete()) {
+            return context.source.success("Successfully completed ready check")
+        }
+        return context.source.fail("There was no ready check that needed to be completed")
     }
 
     private fun setTime(context: CommandContext<CommandSourceStack>): Int {
