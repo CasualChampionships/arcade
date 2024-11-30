@@ -42,7 +42,7 @@ import java.util.*
 internal object MinigameCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("minigame") {
-            requiresPermission(4)
+            requiresPermission(2)
 
             literal("list") {
                 executes(::listMinigames)

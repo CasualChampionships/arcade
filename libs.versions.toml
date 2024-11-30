@@ -1,8 +1,8 @@
 [versions]
-fabric-loom          = "1.7-SNAPSHOT"
+fabric-loom          = "1.8-SNAPSHOT"
 minecraft            = "1.21.3"
 fabric-loader        = "0.16.7"
-parchment            = "1.21:2024.07.28"
+parchment            = "1.21:2024.11.10"
 fabric-api           = "0.106.1+1.21.3"
 fabric-kotlin        = "1.11.0+kotlin.2.0.0"
 polymer              = "0.10.2+1.21.3"
