@@ -2,28 +2,16 @@ package net.casual.arcade.minigame.managers
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.tree.CommandNode
 import net.casual.arcade.commands.ducks.DeletableCommand
-import net.casual.arcade.commands.fail
+import net.casual.arcade.events.block.CommandBlockExecuteEvent
 import net.casual.arcade.events.player.PlayerCommandEvent
 import net.casual.arcade.events.player.PlayerCommandSuggestionsEvent
 import net.casual.arcade.events.player.PlayerSendCommandsEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.*
-import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.ComponentUtils.command
-import net.casual.arcade.utils.ComponentUtils.grey
-import net.casual.arcade.utils.ComponentUtils.hover
-import net.casual.arcade.utils.ComponentUtils.italicise
-import net.casual.arcade.utils.ComponentUtils.literal
-import net.casual.arcade.utils.ComponentUtils.red
-import net.casual.arcade.utils.ComponentUtils.underline
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
-import net.minecraft.network.chat.CommonComponents
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.ComponentUtils
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
 
@@ -46,12 +34,9 @@ public class MinigameCommandManager(
         this.minigame.events.register<PlayerSendCommandsEvent> {
             it.addCustomCommandNode(this.dispatcher.root)
         }
-        this.minigame.events.register<PlayerCommandEvent> {
-            this.onCommand(it)
-        }
-        this.minigame.events.register<PlayerCommandSuggestionsEvent> {
-            this.onCommandSuggestions(it)
-        }
+        this.minigame.events.register<PlayerCommandEvent>(this::onPlayerCommand)
+        this.minigame.events.register<CommandBlockExecuteEvent>(this::onBlockCommand)
+        this.minigame.events.register<PlayerCommandSuggestionsEvent>(this::onCommandSuggestions)
         this.minigame.events.register<MinigameCloseEvent> {
             this.unregisterAll()
         }
@@ -142,15 +127,21 @@ public class MinigameCommandManager(
 
     private fun getGlobalMinigameCommand(): CommandNode<CommandSourceStack>? {
         return null
-        // FIXME:
-        // return this.minigame.server.commands.dispatcher.root.getChild("minigame")?.getChild("command")
     }
 
-    private fun onCommand(event: PlayerCommandEvent) {
+    private fun onPlayerCommand(event: PlayerCommandEvent) {
         val source = event.player.createCommandSourceStack()
         val result = this.dispatcher.parse(event.command, source)
         if (!result.reader.canRead()) {
             source.server.commands.performCommand(result, event.command)
+            event.cancel()
+        }
+    }
+
+    private fun onBlockCommand(event: CommandBlockExecuteEvent) {
+        val result = this.dispatcher.parse(event.command, event.source)
+        if (!result.reader.canRead()) {
+            event.source.server.commands.performCommand(result, event.command)
             event.cancel()
         }
     }
