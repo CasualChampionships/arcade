@@ -1,31 +1,33 @@
 [versions]
-fabric-loom          = "1.9-SNAPSHOT"
-minecraft            = "1.21.4"
-fabric-loader        = "0.16.9"
-parchment            = "1.21:2024.11.10"
-fabric-api           = "0.110.5+1.21.4"
-fabric-kotlin        = "1.13.0+kotlin.2.1.0"
-polymer              = "0.11.0+1.21.4-rc1"
-sgui                 = "1.8.1+1.21.4"
-permissions          = "0.3.3"
-server-translations  = "2.4.0+1.21.2-rc1"
-custom-nametags      = "0.3.1+1.21.4"
-server-replay        = "1.2.6+1.21.4"
+minecraft           = "1.21.4"
+fabric-loader       = "0.16.9"
+parchment           = "1.21:2024.11.10"
+fabric-api          = "0.110.5+1.21.4"
+fabric-kotlin       = "1.13.0+kotlin.2.1.0"
+polymer             = "0.11.0+1.21.4-rc1"
+sgui                = "1.8.1+1.21.4"
+permissions         = "0.3.3"
+server-translations = "2.4.0+1.21.2-rc1"
+custom-nametags     = "0.3.1+1.21.4"
+server-replay       = "1.2.6+1.21.4"
+
+# Plugins
+fabric-loom = "1.9-SNAPSHOT"
 
 [libraries]
-minecraft               = { module = "com.mojang:minecraft"                 , version.ref = "minecraft" }
-fabric-loader           = { module = "net.fabricmc:fabric-loader"           , version.ref = "fabric-loader" }
-fabric-api              = { module = "net.fabricmc.fabric-api:fabric-api"   , version.ref = "fabric-api" }
-fabric-kotlin           = { module = "net.fabricmc:fabric-language-kotlin"  , version.ref = "fabric-kotlin" }
-polymer-core            = { module = "eu.pb4:polymer-core"                  , version.ref = "polymer" }
-polymer-blocks          = { module = "eu.pb4:polymer-blocks"                , version.ref = "polymer" }
-polymer-resource-pack   = { module = "eu.pb4:polymer-resource-pack"         , version.ref = "polymer" }
-polymer-virtual-entity  = { module = "eu.pb4:polymer-virtual-entity"        , version.ref = "polymer" }
-permissions             = { module = "me.lucko:fabric-permissions-api"      , version.ref = "permissions" }
-sgui                    = { module = "eu.pb4:sgui"                          , version.ref = "sgui" }
-server-translations     = { module = "xyz.nucleoid:server-translations-api" , version.ref = "server-translations" }
-custom-nametags         = { module = "me.senseiwells:custom-nametags"       , version.ref = "custom-nametags" }
-server-replay           = { module = "me.senseiwells:server-replay"         , version.ref = "server-replay" }
+minecraft              = { module = "com.mojang:minecraft"                , version.ref = "minecraft" }
+fabric-loader          = { module = "net.fabricmc:fabric-loader"          , version.ref = "fabric-loader" }
+fabric-api             = { module = "net.fabricmc.fabric-api:fabric-api"  , version.ref = "fabric-api" }
+fabric-kotlin          = { module = "net.fabricmc:fabric-language-kotlin" , version.ref = "fabric-kotlin" }
+polymer-core           = { module = "eu.pb4:polymer-core"                 , version.ref = "polymer" }
+polymer-blocks         = { module = "eu.pb4:polymer-blocks"               , version.ref = "polymer" }
+polymer-resource-pack  = { module = "eu.pb4:polymer-resource-pack"        , version.ref = "polymer" }
+polymer-virtual-entity = { module = "eu.pb4:polymer-virtual-entity"       , version.ref = "polymer" }
+permissions            = { module = "me.lucko:fabric-permissions-api"     , version.ref = "permissions" }
+sgui                   = { module = "eu.pb4:sgui"                         , version.ref = "sgui" }
+server-translations    = { module = "xyz.nucleoid:server-translations-api", version.ref = "server-translations" }
+custom-nametags        = { module = "me.senseiwells:custom-nametags"      , version.ref = "custom-nametags" }
+server-replay          = { module = "me.senseiwells:server-replay"        , version.ref = "server-replay" }
 
 [plugins]
-fabric-loom   = { id = "fabric-loom", version.ref = "fabric-loom" }
+fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
