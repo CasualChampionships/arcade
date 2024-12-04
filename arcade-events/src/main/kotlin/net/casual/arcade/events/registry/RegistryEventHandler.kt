@@ -1,7 +1,6 @@
 package net.casual.arcade.events.registry
 
 import com.google.common.collect.HashMultimap
-import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerProvider
@@ -9,7 +8,6 @@ import net.casual.arcade.events.core.Event
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 import org.jetbrains.annotations.ApiStatus.Internal
-import java.util.function.Consumer
 
 public object RegistryEventHandler: EventListener<RegistryLoadedFromResourcesEvent<*>>, ListenerProvider {
     private val listeners = HashMultimap.create<ResourceKey<*>, EventListener<*>>()

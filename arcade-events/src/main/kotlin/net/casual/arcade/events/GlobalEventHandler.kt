@@ -238,12 +238,6 @@ public object GlobalEventHandler {
         this.recursion = true
     }
 
-    internal fun suppressNextEvent(type: Class<out Event>) {
-        if (!this.suppressed.add(type)) {
-            this.logger.warn("Adding suppressed event (type: {}) twice", type)
-        }
-    }
-
     private fun checkRecursive(type: Class<out Event>): Boolean {
         val count = this.stack.getInt(type)
         if (count >= MAX_RECURSIONS) {

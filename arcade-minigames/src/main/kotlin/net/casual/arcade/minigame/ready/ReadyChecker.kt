@@ -16,12 +16,20 @@ public class ReadyChecker(
     private val players = Object2ObjectOpenHashMap<UUID, ReadyState>()
     private val teams = Object2ObjectOpenHashMap<PlayerTeam, ReadyState>()
 
-    private var current: Completable? = null
+    private var current: Completable.Impl? = null
     private var readyId = 0
 
     public fun isRunning(): Boolean {
         val current = this.current ?: return false
         return !current.complete
+    }
+
+    public fun complete(): Boolean {
+        if (this.isRunning()) {
+            this.current!!.complete()
+            return true
+        }
+        return false
     }
 
     public fun getUnreadyPlayers(server: MinecraftServer): List<ServerPlayer> {

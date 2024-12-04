@@ -4,10 +4,15 @@ import com.mojang.brigadier.Command
 import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.registerLiteral
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.player.PlayerJoinEvent
 import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
+import net.casual.arcade.host.PackHost
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.resources.ArcadeResourcePacks
+import net.casual.arcade.resources.utils.ResourcePackUtils.addPack
+import net.casual.arcade.resources.utils.ResourcePackUtils.sendResourcePack
+import net.casual.arcade.resources.utils.ResourcePackUtils.toPackInfo
 import net.casual.arcade.visuals.screen.PlayerInventoryViewGui
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
@@ -35,6 +40,20 @@ object ArcadeTest: ModInitializer {
             TestMinigame.ID,
             TestMinigame.codec()
         )
+
+        val host = PackHost(null)
+        val spacing by host.addPack(
+            FabricLoader.getInstance().configDir.resolve("arcade-testing-packs"),
+            ArcadeResourcePacks.SPACING_FONT_PACK
+        )
+        
+        GlobalEventHandler.register<PlayerJoinEvent> { it.player.sendResourcePack(spacing.toPackInfo()) }
+
+        host.start()
+
+        Runtime.getRuntime().addShutdownHook(Thread {
+            host.stop()
+        })
     }
 }
 

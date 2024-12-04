@@ -8,7 +8,7 @@ import net.casual.arcade.scheduler.task.Task
  * when creating a task using a [TaskFactory].
  *
  * It provides any custom data written by the task,
- * see [getCustomData].
+ * see [data].
  *
  * It also provides the ability to create subtasks using the
  * [createTask] method.

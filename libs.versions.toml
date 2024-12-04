@@ -1,16 +1,16 @@
 [versions]
-fabric-loom          = "1.8-SNAPSHOT"
-minecraft            = "1.21.3"
-fabric-loader        = "0.16.7"
+fabric-loom          = "1.9-SNAPSHOT"
+minecraft            = "1.21.4"
+fabric-loader        = "0.16.9"
 parchment            = "1.21:2024.11.10"
-fabric-api           = "0.106.1+1.21.3"
-fabric-kotlin        = "1.11.0+kotlin.2.0.0"
-polymer              = "0.10.2+1.21.3"
-sgui                 = "1.7.2+1.21.2"
-permissions          = "0.3.2"
+fabric-api           = "0.110.5+1.21.4"
+fabric-kotlin        = "1.13.0+kotlin.2.1.0"
+polymer              = "0.11.0+1.21.4-rc1"
+sgui                 = "1.8.1+1.21.4"
+permissions          = "0.3.3"
 server-translations  = "2.4.0+1.21.2-rc1"
-custom-nametags      = "0.3.0+1.21.3"
-server-replay        = "1.2.3+1.21.3"
+custom-nametags      = "0.3.1+1.21.4"
+server-replay        = "1.2.6+1.21.4"
 
 [libraries]
 minecraft               = { module = "com.mojang:minecraft"                 , version.ref = "minecraft" }

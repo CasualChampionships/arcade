@@ -24,7 +24,8 @@ public interface PlayerListEntries {
     public data class Entry(
         val display: Component,
         val textures: Texture = Texture.DEFAULT,
-        val latency: Int = 0
+        val latency: Int = 0,
+        val showHat: Boolean = true
     ) {
         public companion object {
             private val HIDDEN_PADDING = PaddingNoSplitFontResources.padding(-8)

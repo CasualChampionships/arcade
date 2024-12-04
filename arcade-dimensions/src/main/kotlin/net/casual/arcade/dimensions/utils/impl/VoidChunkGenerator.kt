@@ -11,15 +11,11 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.WorldGenRegion
 import net.minecraft.util.random.WeightedRandomList
 import net.minecraft.world.entity.MobCategory
-import net.minecraft.world.level.LevelHeightAccessor
-import net.minecraft.world.level.NoiseColumn
-import net.minecraft.world.level.StructureManager
-import net.minecraft.world.level.WorldGenLevel
+import net.minecraft.world.level.*
 import net.minecraft.world.level.biome.*
 import net.minecraft.world.level.chunk.ChunkAccess
 import net.minecraft.world.level.chunk.ChunkGenerator
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState
-import net.minecraft.world.level.levelgen.GenerationStep
 import net.minecraft.world.level.levelgen.Heightmap
 import net.minecraft.world.level.levelgen.RandomState
 import net.minecraft.world.level.levelgen.blending.Blender
@@ -90,8 +86,8 @@ public class VoidChunkGenerator(biome: BiomeSource): ChunkGenerator(biome) {
         return WeightedRandomList.create()
     }
 
-    override fun createStructures(registryAccess: RegistryAccess, structureState: ChunkGeneratorStructureState, structureManager: StructureManager, chunk: ChunkAccess, structureTemplateManager: StructureTemplateManager) {
-
+    override fun createStructures(registryAccess: RegistryAccess, structureState: ChunkGeneratorStructureState, structureManager: StructureManager, chunk: ChunkAccess, structureTemplateManager: StructureTemplateManager, dimension: ResourceKey<Level>) {
+        super.createStructures(registryAccess, structureState, structureManager, chunk, structureTemplateManager, dimension)
     }
 
     override fun createReferences(level: WorldGenLevel, structureManager: StructureManager, chunk: ChunkAccess) {

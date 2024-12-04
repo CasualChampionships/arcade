@@ -10,6 +10,7 @@ import net.minecraft.network.chat.HoverEvent.EntityTooltipInfo
 import net.minecraft.network.chat.HoverEvent.ItemStackInfo
 import net.minecraft.network.chat.contents.TranslatableContents
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.ARGB
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
 import java.util.*
@@ -245,17 +246,13 @@ public object ComponentUtils {
     }
 
     @JvmStatic
-    @Deprecated(
-        "Use this.color instead",
-        ReplaceWith("this.color(colour)")
-    )
-    public fun MutableComponent.colour(colour: Int): MutableComponent {
-        return this.color(colour)
+    public fun MutableComponent.color(color: Int): MutableComponent {
+        return this.withStyle { it.withColor(color) }
     }
 
     @JvmStatic
-    public fun MutableComponent.color(color: Int): MutableComponent {
-        return this.withStyle { it.withColor(color) }
+    public fun MutableComponent.shadow(color: Int): MutableComponent {
+        return this.withStyle { it.withShadowColor(color) }
     }
 
     @JvmStatic
@@ -372,7 +369,7 @@ public object ComponentUtils {
     }
 
     public fun MutableComponent.shadowless(): MutableComponent {
-        return this.color(0x4E5C24)
+        return this.shadow(0)
     }
 
     public fun MutableComponent.mini(): MutableComponent {

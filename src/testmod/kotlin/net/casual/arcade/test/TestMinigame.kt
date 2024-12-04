@@ -9,12 +9,19 @@ import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ComponentUtils.blue
+import net.casual.arcade.utils.ComponentUtils.bold
+import net.casual.arcade.utils.ComponentUtils.italicise
+import net.casual.arcade.utils.ComponentUtils.shadowless
+import net.casual.arcade.utils.ComponentUtils.white
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.recipe.CraftingRecipeBuilder
 import net.casual.arcade.visuals.elements.ComponentElements
 import net.casual.arcade.visuals.elements.SidebarElements
 import net.casual.arcade.visuals.sidebar.FixedSidebar
 import net.casual.arcade.visuals.sidebar.SidebarComponent
+import net.casual.arcade.visuals.tab.PlayerListDisplay
+import net.casual.arcade.visuals.tab.PlayerListEntries
+import net.casual.arcade.visuals.tab.VanillaPlayerListEntries
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
@@ -65,6 +72,13 @@ open class TestMinigame(
         sidebar.addRow(SidebarElements.withNoScore(SpacingFontResources.spaced(120)))
         this.ui.setSidebar(sidebar)
 
+        val display = PlayerListDisplay(VanillaPlayerListEntries())
+        display.setDisplay(
+            { player -> Component.literal("Testing Minigame\n").blue()
+                .append(Component.literal("shadowless").shadowless().italicise().bold().white()) },
+            { player -> Component.empty() }
+        )
+        this.ui.setPlayerListDisplay(display)
         // val bossbar = SuppliedBossbar()
         // bossbar.setTitle { player ->
         //     val delta = (player.server.tickCount % 200 / 2.0F) - 50F

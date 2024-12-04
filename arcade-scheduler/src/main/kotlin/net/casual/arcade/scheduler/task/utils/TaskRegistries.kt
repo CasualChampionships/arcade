@@ -1,6 +1,5 @@
 package net.casual.arcade.scheduler.task.utils
 
-import com.mojang.serialization.MapCodec
 import net.casual.arcade.scheduler.task.serialization.TaskFactory
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.registries.RegistryKeySupplier

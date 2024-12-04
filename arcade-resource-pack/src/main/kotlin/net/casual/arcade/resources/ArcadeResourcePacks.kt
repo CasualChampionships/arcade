@@ -62,13 +62,6 @@ public object ArcadeResourcePacks: ModInitializer {
         }
     }
 
-    public val NO_SHADOW_PACK: NamedResourcePackCreator by lazy {
-        NamedResourcePackCreator.named("no_shadow") {
-            addAssetSource(path("packs/NoShadow"))
-            packDescription = Component.literal("Utilities for removing text shadows")
-        }
-    }
-
     public val PLAYER_HEADS_PACK: NamedResourcePackCreator by lazy {
         NamedResourcePackCreator.named("player_heads") {
             val location = path("packs/PlayerHeads")

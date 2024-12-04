@@ -16,7 +16,6 @@ import net.casual.arcade.visuals.core.TickableUI
 import net.casual.arcade.visuals.countdown.Countdown
 import net.casual.arcade.visuals.countdown.TitledCountdown
 import net.casual.arcade.visuals.nametag.PlayerNameTag
-import net.casual.arcade.visuals.sidebar.FixedSidebar
 import net.casual.arcade.visuals.sidebar.Sidebar
 import net.casual.arcade.visuals.tab.PlayerListDisplay
 import net.minecraft.network.protocol.Packet

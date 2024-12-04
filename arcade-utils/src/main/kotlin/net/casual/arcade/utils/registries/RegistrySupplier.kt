@@ -1,7 +1,6 @@
 package net.casual.arcade.utils.registries
 
 import com.mojang.serialization.Lifecycle
-import net.minecraft.core.DefaultedMappedRegistry
 import net.minecraft.core.MappedRegistry
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
