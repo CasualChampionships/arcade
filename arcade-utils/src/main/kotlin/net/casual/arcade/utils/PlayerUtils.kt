@@ -481,10 +481,11 @@ public object PlayerUtils {
         zDist: Float = 0.0F,
         speed: Float = 0.0F,
         count: Int = 1,
-        alwaysRender: Boolean = false
+        alwaysRender: Boolean = false,
+        overrideLimiter: Boolean = false
     ) {
         this.connection.send(ClientboundLevelParticlesPacket(
-            options, alwaysRender, position.x, position.y, position.z, xDist, yDist, zDist, speed, count
+            options, overrideLimiter, alwaysRender, position.x, position.y, position.z, xDist, yDist, zDist, speed, count
         ))
     }
 }

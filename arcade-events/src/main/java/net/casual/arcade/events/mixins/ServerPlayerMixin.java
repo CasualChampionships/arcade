@@ -72,14 +72,14 @@ public abstract class ServerPlayerMixin extends Player {
 	}
 
 	@Inject(
-		method = "doCheckFallDamage",
+		method = "checkFallDamage",
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/world/entity/player/Player;checkFallDamage(DZLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V"
 		)
 	)
-	private void onFall(double movementX, double movementY, double movementZ, boolean onGround, CallbackInfo ci) {
-		PlayerFallEvent event = new PlayerFallEvent((ServerPlayer) (Object) this, movementY, onGround);
+	private void onFall(double y, boolean onGround, BlockState state, BlockPos pos, CallbackInfo ci) {
+		PlayerFallEvent event = new PlayerFallEvent((ServerPlayer) (Object) this, y, onGround);
 		GlobalEventHandler.broadcast(event);
 	}
 

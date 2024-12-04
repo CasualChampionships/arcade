@@ -1,7 +1,6 @@
 package net.casual.arcade.border.state
 
 import net.casual.arcade.border.CustomBorder
-import net.casual.arcade.border.state.BorderState
 import net.casual.arcade.utils.ServerUtils
 import net.casual.arcade.utils.calculateTPS
 import net.minecraft.util.Mth

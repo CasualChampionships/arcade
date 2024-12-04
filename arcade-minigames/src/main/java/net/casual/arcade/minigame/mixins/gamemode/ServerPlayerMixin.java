@@ -3,8 +3,10 @@ package net.casual.arcade.minigame.mixins.gamemode;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.casual.arcade.minigame.gamemode.ExtendedGameMode;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,11 +32,11 @@ public abstract class ServerPlayerMixin {
 	}
 
 	@Inject(
-		method = "doCheckFallDamage",
+		method = "checkFallDamage",
 		at = @At("HEAD"),
 		cancellable = true
 	)
-	private void onCheckFallDamage(double movementX, double movementY, double movementZ, boolean onGround, CallbackInfo ci) {
+	private void onCheckFallDamage(double y, boolean onGround, BlockState state, BlockPos pos, CallbackInfo ci) {
 		// Prevent fall damage particles if in AdventureSpectator
 		if (getExtendedGameMode((ServerPlayer) (Object) this) == ExtendedGameMode.AdventureSpectator) {
 			ci.cancel();

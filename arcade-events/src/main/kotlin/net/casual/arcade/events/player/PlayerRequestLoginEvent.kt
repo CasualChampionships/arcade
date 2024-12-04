@@ -1,7 +1,6 @@
 package net.casual.arcade.events.player
 
 import com.mojang.authlib.GameProfile
-import net.casual.arcade.events.core.CancellableEvent
 import net.casual.arcade.events.core.Event
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer

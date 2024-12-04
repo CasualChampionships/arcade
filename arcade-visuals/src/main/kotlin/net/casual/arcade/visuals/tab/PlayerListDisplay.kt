@@ -161,6 +161,7 @@ public class PlayerListDisplay(
                 entry.latency,
                 GameType.SURVIVAL,
                 entry.display,
+                entry.showHat,
                 -index, // For some reason, Mojang does this in reverse
                 null
             ))
@@ -171,7 +172,7 @@ public class PlayerListDisplay(
 
     private fun hidingClientboundEntry(player: ServerPlayer, hidden: Boolean): ClientboundPlayerInfoUpdatePacket.Entry {
         return ClientboundPlayerInfoUpdatePacket.Entry(
-            player.uuid, null, !hidden, 0, GameType.SURVIVAL, null, 0, null
+            player.uuid, null, !hidden, 0, GameType.SURVIVAL, null, true, 0, null
         )
     }
 
@@ -185,6 +186,7 @@ public class PlayerListDisplay(
             entry.latency,
             GameType.SURVIVAL,
             entry.display,
+            entry.showHat,
             -index,
             null
         )

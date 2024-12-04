@@ -2,7 +2,6 @@ package net.casual.arcade.scheduler.task
 
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.scheduler.task.impl.CancellableTask
-import java.io.Serializable
 
 /**
  * This interface represents a [Task] used in the

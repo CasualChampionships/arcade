@@ -3,7 +3,6 @@ package net.casual.arcade.resources.font.padding
 import net.casual.arcade.resources.font.IndexedFontResources
 import net.casual.arcade.utils.ResourceUtils
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.MutableComponent
 
 private val SPLIT_TEXTURE = ResourceUtils.arcade("font/split.png")
 private val NO_SPLIT_TEXTURE = ResourceUtils.arcade("font/no_split.png")

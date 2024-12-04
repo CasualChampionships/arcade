@@ -210,7 +210,6 @@ public object ResourcePackUtils {
     }
 
     @JvmStatic
-    @OptIn(ExperimentalPathApi::class)
     private fun ResourcePackCreator.addMissingItemModelsInternal(namespace: String, assets: Path) {
         val itemTextures = assets.resolve(namespace).resolve("textures").resolve("item")
         val itemModels = assets.resolve(namespace).resolve("models")

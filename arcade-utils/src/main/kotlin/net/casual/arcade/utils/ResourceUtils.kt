@@ -1,7 +1,6 @@
 package net.casual.arcade.utils
 
 import net.minecraft.resources.ResourceLocation
-import org.apache.commons.lang3.RandomStringUtils
 import java.util.*
 
 public object ResourceUtils {

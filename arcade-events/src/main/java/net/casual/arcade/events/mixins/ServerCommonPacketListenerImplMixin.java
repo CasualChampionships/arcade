@@ -3,7 +3,6 @@ package net.casual.arcade.events.mixins;
 import com.llamalad7.mixinextras.sugar.Cancellable;
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.core.CancellableEvent;
 import net.casual.arcade.events.network.ClientboundPacketEvent;
 import net.casual.arcade.events.network.PlayerDisconnectEvent;
 import net.casual.arcade.events.player.PlayerClientboundPacketEvent;

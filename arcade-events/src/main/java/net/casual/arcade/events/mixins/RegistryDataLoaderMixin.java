@@ -1,23 +1,15 @@
 package net.casual.arcade.events.mixins;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.serialization.Decoder;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.registry.RegistryEventHandler;
 import net.casual.arcade.events.registry.RegistryLoadedFromResourcesEvent;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.WritableRegistry;
 import net.minecraft.resources.RegistryDataLoader;
-import net.minecraft.resources.RegistryOps;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.packs.resources.ResourceManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.util.Map;
 
 @Mixin(RegistryDataLoader.class)
 public class RegistryDataLoaderMixin {

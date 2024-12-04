@@ -143,7 +143,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 			ci.cancel();
 			Entity entity = this.player.getRootVehicle();
 			if (entity != this.player && entity.getControllingPassenger() == this.player && entity == this.lastVehicle) {
-				this.send(new ClientboundMoveVehiclePacket(entity));
+				this.send(ClientboundMoveVehiclePacket.fromEntity(entity));
 			}
 		}
 	}

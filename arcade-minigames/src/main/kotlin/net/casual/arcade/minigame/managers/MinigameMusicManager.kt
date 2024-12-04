@@ -151,8 +151,18 @@ public class MinigameMusicManager(
             val biomes = level.chunkSource.generator.biomeSource.possibleBiomes()
             val packets = ArrayList<ClientboundStopSoundPacket>()
             for (biome in biomes) {
-                val key = biome.value().backgroundMusic.flatMap { it.event.unwrapKey() }?.getOrNull() ?: continue
-                packets.add(ClientboundStopSoundPacket(key.location(), SoundSource.MUSIC))
+                val entries = biome.value().backgroundMusic.getOrNull()?.unwrap()
+                if (entries.isNullOrEmpty()) {
+                    continue
+                }
+                for (entry in entries) {
+                    val music = entry.data()
+                    val key = music.event.unwrapKey()
+                    if (key.isEmpty) {
+                        continue
+                    }
+                    packets.add(ClientboundStopSoundPacket(key.get().location(), SoundSource.MUSIC))
+                }
             }
             packets
         }

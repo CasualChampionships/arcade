@@ -1,7 +1,6 @@
 package net.casual.arcade.utils
 
 import com.mojang.serialization.Codec
-import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtAccounter
 import net.minecraft.nbt.NbtIo
 import net.minecraft.server.MinecraftServer
