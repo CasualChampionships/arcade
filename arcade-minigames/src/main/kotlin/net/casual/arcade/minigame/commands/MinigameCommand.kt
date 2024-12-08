@@ -50,7 +50,7 @@ internal object MinigameCommand: CommandTree {
             literal("create") {
                 argument("factory", MinigameFactoryCodecArgument.codec()) {
                     executes { createMinigame(it, JsonObject()) }
-                    argument("parameters", MinigameFactoryDataArgument.data("factory")) {
+                    argument("data", MinigameFactoryDataArgument.data("factory")) {
                         executes(::createMinigame)
                     }
                 }

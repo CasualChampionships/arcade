@@ -212,20 +212,36 @@ public object ResourcePackUtils {
     @JvmStatic
     private fun ResourcePackCreator.addMissingItemModelsInternal(namespace: String, assets: Path) {
         val itemTextures = assets.resolve(namespace).resolve("textures").resolve("item")
-        val itemModels = assets.resolve(namespace).resolve("models")
+        val itemModels = assets.resolve(namespace).resolve("models").resolve("item")
+        val items = assets.resolve(namespace).resolve("items")
         val itemTexturesDirectory = "$itemTextures/"
+        val itemModelsDirectory = "$itemModels/"
         this.creationEvent.register { builder ->
-            itemTextures.visitFileTree {
-                onVisitFile { path, _ ->
-                    val name = path.nameWithoutExtension
-                    val relative = path.parent.toString().removePrefix(itemTexturesDirectory)
-                    val model = "$relative/$name.json"
-                    if (itemModels.resolve(model).notExists()) {
-                        val location = ResourceLocation.fromNamespaceAndPath(namespace, "item/$relative/$name")
-                        builder.addData("assets/$namespace/models/item/$model", getDefaultItemModel(location))
+            if (itemTextures.isDirectory()) {
+                itemTextures.visitFileTree {
+                    onVisitFile { path, _ ->
+                        tryAddMissingItemModel(namespace, path, itemTexturesDirectory, itemModels, builder)
+                        FileVisitResult.CONTINUE
                     }
-
-                    FileVisitResult.CONTINUE
+                }
+            }
+            if (itemModels.isDirectory()) {
+                itemModels.visitFileTree {
+                    onVisitFile { path, _ ->
+                        tryAddMissingItemModelDefinitions(namespace, path, itemModelsDirectory, items, builder)
+                        FileVisitResult.CONTINUE
+                    }
+                }
+            }
+            val modelsPath = "assets/$namespace/models/item/"
+            builder.forEachFile { path, _ ->
+                if (path.startsWith(modelsPath)) {
+                    val definition = path.removePrefix(modelsPath)
+                    val name = definition.substringAfterLast('/')
+                    val relative = definition.substringBeforeLast('/')
+                    if (builder.getData("assets/$namespace/items/$relative/$name") == null) {
+                        tryAddMissingItemModelDefinitionRaw(namespace, relative, name.removeSuffix(".json"), builder)
+                    }
                 }
             }
         }
@@ -244,6 +260,40 @@ public object ResourcePackUtils {
         }
 
         builder.addData(path, JsonUtils.GSON.toJson(json).encodeToByteArray())
+    }
+
+    private fun tryAddMissingItemModelDefinitions(namespace: String, path: Path, dir: String, items: Path, builder: ResourcePackBuilder) {
+        val name = path.nameWithoutExtension
+        val relative = path.parent.toString().removePrefix(dir)
+        if (items.resolve("$relative/$name.json").notExists()) {
+            this.tryAddMissingItemModelDefinitionRaw(namespace, relative, name, builder)
+        }
+    }
+
+    private fun tryAddMissingItemModelDefinitionRaw(namespace: String, relative: String, name: String, builder: ResourcePackBuilder) {
+        val location = ResourceLocation.fromNamespaceAndPath(namespace, "item/$relative/$name")
+        builder.addData("assets/$namespace/items/$relative/$name.json", getDefaultItemModelDefinition(location))
+    }
+
+    private fun tryAddMissingItemModel(namespace: String, path: Path, dir: String, models: Path, builder: ResourcePackBuilder) {
+        val name = path.nameWithoutExtension
+        val relative = path.parent.toString().removePrefix(dir)
+        val model = "$relative/$name.json"
+        if (models.resolve(model).notExists()) {
+            val location = ResourceLocation.fromNamespaceAndPath(namespace, "item/$relative/$name")
+            builder.addData("assets/$namespace/models/item/$model", getDefaultItemModel(location))
+        }
+    }
+
+    private fun getDefaultItemModelDefinition(location: ResourceLocation): ByteArray {
+        return """
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "$location"
+          }
+        }
+        """.trimIndent().encodeToByteArray()
     }
 
     private fun getDefaultItemModel(location: ResourceLocation): ByteArray {

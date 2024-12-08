@@ -11,6 +11,7 @@ import net.casual.arcade.commands.type.CustomArgumentTypeInfo
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
+import net.casual.arcade.minigame.utils.MinigameUtils.getMinigames
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.ResourceLocationArgument
@@ -81,9 +82,15 @@ public class MinigameArgument: CustomArgumentType<MinigameArgument.Result>() {
                 return this.minigame
             }
             val source = context.source
-            if (source is CommandSourceStack && source.isPlayer) {
-                val minigame = source.player?.getMinigame()
-                return minigame ?: throw NOT_PARTICIPATING.create()
+            if (source is CommandSourceStack) {
+                if (source.isPlayer) {
+                    val minigame = source.player?.getMinigame()
+                    return minigame ?: throw NOT_PARTICIPATING.create()
+                }
+                val minigames = source.level.getMinigames()
+                if (minigames.size == 1) {
+                    return minigames.first()
+                }
             }
             throw NOT_PARTICIPATING.create()
         }

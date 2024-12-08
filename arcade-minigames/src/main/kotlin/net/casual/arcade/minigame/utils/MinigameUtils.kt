@@ -91,11 +91,11 @@ public object MinigameUtils {
         return this.countdown(duration, interval, scheduler, players)
     }
 
-    public fun <T: ArgumentBuilder<CommandSourceStack, T>> T.requiresAdminOrPermission(level: Int = 4): T {
+    public fun <T: ArgumentBuilder<CommandSourceStack, T>> T.requiresAdminOrPermission(level: Int = 2): T {
         return this.requires { source -> source.isMinigameAdminOrHasPermission(level) }
     }
 
-    public fun CommandSourceStack.isMinigameAdminOrHasPermission(level: Int = 4): Boolean {
+    public fun CommandSourceStack.isMinigameAdminOrHasPermission(level: Int = 2): Boolean {
         if (!this.isPlayer) {
             return this.hasPermission(level)
         }
@@ -106,7 +106,7 @@ public object MinigameUtils {
         return this.isPlayer && predicate.test(this.playerOrException)
     }
 
-    public fun ServerPlayer.isMinigameAdminOrHasPermission(level: Int = 4): Boolean {
+    public fun ServerPlayer.isMinigameAdminOrHasPermission(level: Int = 2): Boolean {
         val minigame = this.getMinigame()
         if (minigame != null && minigame.players.isAdmin(this)) {
             return true
