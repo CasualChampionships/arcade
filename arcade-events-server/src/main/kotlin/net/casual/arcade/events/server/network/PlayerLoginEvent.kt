@@ -1,7 +1,7 @@
 package net.casual.arcade.events.server.network
 
 import com.mojang.authlib.GameProfile
-import net.casual.arcade.events.server.ServerOffThreadEvent
+import net.casual.arcade.events.common.MissingExecutorEvent
 import net.casual.arcade.events.server.player.PlayerJoinEvent
 import net.minecraft.server.MinecraftServer
 
@@ -21,4 +21,4 @@ public data class PlayerLoginEvent(
      * The profile of the player that is logging in.
      */
     val profile: GameProfile
-): ServerOffThreadEvent
+): MissingExecutorEvent

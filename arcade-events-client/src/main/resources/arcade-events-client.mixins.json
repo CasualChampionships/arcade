@@ -4,7 +4,9 @@
   "package": "net.casual.arcade.events.client.mixins",
   "compatibilityLevel": "JAVA_17",
   "client": [
-
+    "GuiMixin",
+    "LevelRendererMixin",
+    "MinecraftMixin"
   ],
   "injectors": {
     "defaultRequire": 1
