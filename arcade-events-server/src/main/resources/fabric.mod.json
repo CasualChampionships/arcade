@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "events-server",
+  "version": "${version}",
+  "name": "Arcade Server Events",
+  "description": "",
+  "authors": [
+    "Sensei"
+  ],
+  "contact": {
+
+  },
+  "license": "MIT",
+  "icon": "assets/icon.png",
+  "environment": "*",
+  "mixins": [
+    "arcade-events-server.mixins.json"
+  ],
+  "depends": {
+    "minecraft": "${minecraft_dependency}",
+    "fabricloader": ">=${fabric_loader_dependency}",
+    "fabric-language-kotlin": ">=${fabric_kotlin_dependency}"
+  }
+}

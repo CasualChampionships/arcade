@@ -1,6 +1,7 @@
 package net.casual.arcade.minigame.gamemode
 
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
 import net.casual.arcade.extensions.event.PlayerExtensionEvent.Companion.getExtension
 import net.minecraft.server.level.ServerPlayer
@@ -74,7 +75,7 @@ public enum class ExtendedGameMode {
         }
 
         internal fun registerEvents() {
-            GlobalEventHandler.register<PlayerExtensionEvent> { event ->
+            GlobalEventHandler.Server.register<PlayerExtensionEvent> { event ->
                 event.addExtension(::ExtendedGameModePlayerExtension)
             }
         }

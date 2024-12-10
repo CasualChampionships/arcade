@@ -10,7 +10,7 @@ plugins {
     java
 }
 
-val modVersion = "0.3.1-alpha.55"
+val modVersion = "0.4.0-alpha.1"
 
 allprojects {
     apply(plugin = "fabric-loom")
@@ -138,8 +138,9 @@ dependencies {
     include(libs.permissions)
     include(modImplementation(libs.server.translations.get())!!)
 
+    val ignore = setOf(":arcade-datagen", ":arcade-events-client")
     for (subproject in project.subprojects) {
-        if (subproject.path != ":arcade-datagen") {
+        if (subproject.path !in ignore) {
             api(project(path = subproject.path, configuration = "namedElements"))
             include(subproject)
         }

@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.casual.arcade.events.client.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
