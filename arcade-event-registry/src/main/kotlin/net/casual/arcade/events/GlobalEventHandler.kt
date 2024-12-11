@@ -71,8 +71,6 @@ public enum class GlobalEventHandler(
     public fun <T: Event> broadcast(event: T, phases: Set<String> = BuiltInEventPhases.DEFAULT_PHASES) {
         val type = event::class.java
 
-        Minecraft.getInstance().profiledMetrics()
-
         if (this.checkThread(event, type)) {
             return
         }
