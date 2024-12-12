@@ -2,6 +2,7 @@ package net.casual.arcade.events.client.mixins;
 
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
+import net.casual.arcade.events.client.ClientStoppingEvent;
 import net.casual.arcade.events.client.ClientTickEvent;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,5 +28,14 @@ public class MinecraftMixin {
     private void onPostTick(CallbackInfo ci) {
         ClientTickEvent event = new ClientTickEvent((Minecraft) (Object) this);
         GlobalEventHandler.Client.broadcast(event, BuiltInEventPhases.POST_PHASES);
+    }
+
+    @Inject(
+        method = "stop",
+        at = @At("HEAD")
+    )
+    private void onStop(CallbackInfo ci) {
+        ClientStoppingEvent event = new ClientStoppingEvent((Minecraft) (Object) this);
+        GlobalEventHandler.Client.broadcast(event);
     }
 }
