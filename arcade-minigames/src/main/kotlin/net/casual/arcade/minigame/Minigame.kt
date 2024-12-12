@@ -6,9 +6,10 @@ import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.player.*
+import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerStoppingEvent
 import net.casual.arcade.events.server.ServerTickEvent
+import net.casual.arcade.events.server.player.*
 import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.managers.*
 import net.casual.arcade.minigame.phase.Phase
@@ -281,7 +282,7 @@ public abstract class Minigame(
 
         this.data.start()
 
-        GlobalEventHandler.broadcast(MinigameStartEvent(this))
+        GlobalEventHandler.Server.broadcast(MinigameStartEvent(this))
 
         // The first phase is MinigamePhase.none()
         // This will never IOOB because we always have at least 2 phases
@@ -343,7 +344,7 @@ public abstract class Minigame(
         this.phase.start(this, previous)
         this.phase.initialize(this)
 
-        GlobalEventHandler.broadcast(MinigameSetPhaseEvent(this, phase, previous))
+        GlobalEventHandler.Server.broadcast(MinigameSetPhaseEvent(this, phase, previous))
     }
 
     /**
@@ -366,7 +367,7 @@ public abstract class Minigame(
     public fun pause() {
         if (!this.paused) {
             this.paused = true
-            GlobalEventHandler.broadcast(MinigamePauseEvent(this))
+            GlobalEventHandler.Server.broadcast(MinigamePauseEvent(this))
         }
     }
 
@@ -379,7 +380,7 @@ public abstract class Minigame(
     public fun unpause() {
         if (this.paused) {
             this.paused = false
-            GlobalEventHandler.broadcast(MinigameUnpauseEvent(this))
+            GlobalEventHandler.Server.broadcast(MinigameUnpauseEvent(this))
         }
     }
 
@@ -395,7 +396,7 @@ public abstract class Minigame(
      * @see close
      */
     public fun complete() {
-        GlobalEventHandler.broadcast(MinigameCompleteEvent(this))
+        GlobalEventHandler.Server.broadcast(MinigameCompleteEvent(this))
 
         this.close()
     }
@@ -421,14 +422,14 @@ public abstract class Minigame(
 
         this.data.end()
 
-        GlobalEventHandler.broadcast(MinigameCloseEvent(this))
+        GlobalEventHandler.Server.broadcast(MinigameCloseEvent(this))
         this.players.close()
         this.levels.close()
 
         // Closed = true after players are removed
         this.closed = true
 
-        GlobalEventHandler.removeProvider(this.events)
+        GlobalEventHandler.Server.removeProvider(this.events)
         this.events.clear()
 
         this.scheduler.minigame.cancelAll()
@@ -521,7 +522,7 @@ public abstract class Minigame(
      */
     private fun initialize() {
         this.registerEvents()
-        GlobalEventHandler.addProvider(this.events)
+        GlobalEventHandler.Server.addProvider(this.events)
         this.levels.initialize()
         MinigameUtils.parseMinigameEvents(this)
 
@@ -529,7 +530,7 @@ public abstract class Minigame(
 
         this.initialized = true
 
-        GlobalEventHandler.broadcast(MinigameInitializeEvent(this))
+        GlobalEventHandler.Server.broadcast(MinigameInitializeEvent(this))
     }
 
     /**

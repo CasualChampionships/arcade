@@ -1,6 +1,6 @@
 package net.casual.arcade.minigame.events
 
-import net.casual.arcade.events.core.Event
+import net.casual.arcade.events.common.Event
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.managers.MinigameEventHandler
 

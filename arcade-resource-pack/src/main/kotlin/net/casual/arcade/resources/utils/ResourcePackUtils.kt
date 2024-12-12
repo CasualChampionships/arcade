@@ -4,9 +4,10 @@ import com.google.gson.JsonObject
 import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.network.ClientboundPacketEvent
-import net.casual.arcade.events.network.PlayerDisconnectEvent
-import net.casual.arcade.events.player.PlayerDimensionChangeEvent
+import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.server.network.ClientboundPacketEvent
+import net.casual.arcade.events.server.network.PlayerDisconnectEvent
+import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
 import net.casual.arcade.host.HostedPack
 import net.casual.arcade.host.PackHost
 import net.casual.arcade.host.pack.PathPack
@@ -324,10 +325,10 @@ public object ResourcePackUtils {
     }
 
     internal fun registerEvents() {
-        GlobalEventHandler.register<PlayerDisconnectEvent> { (_, profile) ->
+        GlobalEventHandler.Server.register<PlayerDisconnectEvent> { (_, profile) ->
             universe.remove(profile.id)
         }
-        GlobalEventHandler.register<ClientboundPacketEvent> { (_, profile, packet) ->
+        GlobalEventHandler.Server.register<ClientboundPacketEvent> { (_, profile, packet) ->
             // This may be off thread
             if (packet is ClientboundResourcePackPushPacket) {
                 getExtension(profile.id).onPushPack(packet)
@@ -335,10 +336,10 @@ public object ResourcePackUtils {
                 getExtension(profile.id).onPopPack(packet)
             }
         }
-        GlobalEventHandler.register<PackStatusEvent> { (server, profile, uuid, status) ->
+        GlobalEventHandler.Server.register<PackStatusEvent> { (server, profile, uuid, status) ->
             getExtension(profile.id).onPackStatus(server, uuid, status)
         }
-        GlobalEventHandler.register<PlayerDimensionChangeEvent> { (player) ->
+        GlobalEventHandler.Server.register<PlayerDimensionChangeEvent> { (player) ->
             for (pack in getExtension(player.uuid).getAllPacks()) {
                 if (pack.isWaitingForResponse()) {
                     player.sendResourcePack(pack.info, true)

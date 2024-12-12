@@ -4,11 +4,12 @@ import com.mojang.brigadier.builder.ArgumentBuilder
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.core.Event
-import net.casual.arcade.events.level.LevelEvent
-import net.casual.arcade.events.level.LocatedLevelEvent
-import net.casual.arcade.events.player.PlayerEvent
-import net.casual.arcade.events.player.PlayerJoinEvent
+import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.server.level.LevelEvent
+import net.casual.arcade.events.server.level.LocatedLevelEvent
+import net.casual.arcade.events.server.player.PlayerEvent
+import net.casual.arcade.events.server.player.PlayerJoinEvent
 import net.casual.arcade.extensions.event.ExtensionEvent
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.extensions.event.LevelExtensionEvent.Companion.getExtension
@@ -213,18 +214,18 @@ public object MinigameUtils {
     }
 
     internal fun registerEvents() {
-        GlobalEventHandler.register<PlayerExtensionEvent> { event ->
+        GlobalEventHandler.Server.register<PlayerExtensionEvent> { event ->
             event.addExtension(::PlayerMinigameExtension)
         }
-        GlobalEventHandler.register<PlayerJoinEvent>(Int.MIN_VALUE) { (player) ->
+        GlobalEventHandler.Server.register<PlayerJoinEvent>(Int.MIN_VALUE) { (player) ->
             player.getMinigame()?.players?.add(player)
         }
-        GlobalEventHandler.register<LevelExtensionEvent> { event ->
+        GlobalEventHandler.Server.register<LevelExtensionEvent> { event ->
             event.addExtension(::LevelMinigameExtension)
         }
 
         // This allows us to inject listener providers
-        GlobalEventHandler.addInjectedProvider { event, consumer ->
+        GlobalEventHandler.Server.addInjectedProvider { event, consumer ->
             if (event is ExtensionEvent) {
                 return@addInjectedProvider
             }

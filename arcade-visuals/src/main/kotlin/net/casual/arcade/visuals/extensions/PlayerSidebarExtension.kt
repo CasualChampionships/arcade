@@ -1,9 +1,10 @@
 package net.casual.arcade.visuals.extensions
 
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.player.PlayerLeaveEvent
-import net.casual.arcade.events.player.PlayerTickEvent
+import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerLoadedEvent
+import net.casual.arcade.events.server.player.PlayerLeaveEvent
+import net.casual.arcade.events.server.player.PlayerTickEvent
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
 import net.casual.arcade.extensions.event.PlayerExtensionEvent.Companion.getExtension
@@ -180,18 +181,18 @@ internal class PlayerSidebarExtension(
         }
 
         internal fun registerEvents() {
-            GlobalEventHandler.register<ServerLoadedEvent> {
+            GlobalEventHandler.Server.register<ServerLoadedEvent> {
                 for (i in 0..15) {
                     players.add("\$D${i.toString(16)}")
                 }
             }
-            GlobalEventHandler.register<PlayerExtensionEvent> { event ->
+            GlobalEventHandler.Server.register<PlayerExtensionEvent> { event ->
                 event.addExtension(::PlayerSidebarExtension)
             }
-            GlobalEventHandler.register<PlayerLeaveEvent> { (player) ->
+            GlobalEventHandler.Server.register<PlayerLeaveEvent> { (player) ->
                 player.sidebar.disconnect()
             }
-            GlobalEventHandler.register<PlayerTickEvent> { (player) ->
+            GlobalEventHandler.Server.register<PlayerTickEvent> { (player) ->
                 player.sidebar.tick()
             }
         }

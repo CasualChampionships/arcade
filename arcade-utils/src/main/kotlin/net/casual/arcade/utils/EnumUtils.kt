@@ -2,8 +2,7 @@ package net.casual.arcade.utils
 
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
-import java.util.EnumMap
-import java.util.EnumSet
+import java.util.*
 
 public object EnumUtils {
     public fun <E: Enum<E>> enumToMap(clazz: Class<E>, mapper: (enum: E) -> String = { it.name }): BiMap<String, E> {

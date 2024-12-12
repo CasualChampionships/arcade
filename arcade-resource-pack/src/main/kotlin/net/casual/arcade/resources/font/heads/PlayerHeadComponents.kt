@@ -2,7 +2,8 @@ package net.casual.arcade.resources.font.heads
 
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.player.PlayerJoinEvent
+import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.server.player.PlayerJoinEvent
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.ComponentUtils.color
@@ -27,7 +28,7 @@ public object PlayerHeadComponents {
     private val default = CompletableFuture.completedFuture(PlayerHeadFont.STEVE_HEAD)
 
     init {
-        GlobalEventHandler.register<PlayerJoinEvent> {
+        GlobalEventHandler.Server.register<PlayerJoinEvent> {
             invalidateHead(it.player)
         }
     }

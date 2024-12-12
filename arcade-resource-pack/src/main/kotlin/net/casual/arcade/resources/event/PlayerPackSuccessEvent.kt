@@ -1,6 +1,6 @@
 package net.casual.arcade.resources.event
 
-import net.casual.arcade.events.player.PlayerEvent
+import net.casual.arcade.events.server.player.PlayerEvent
 import net.casual.arcade.resources.pack.PackState
 import net.minecraft.server.level.ServerPlayer
 

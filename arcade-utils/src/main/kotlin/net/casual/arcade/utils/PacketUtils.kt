@@ -8,8 +8,7 @@ import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket.Action
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket.Entry
 import net.minecraft.server.level.ServerPlayer
-import java.util.ArrayList
-import java.util.EnumSet
+import java.util.*
 
 public fun ClientboundPlayerInfoUpdatePacket(
     actions: EnumSet<Action>,

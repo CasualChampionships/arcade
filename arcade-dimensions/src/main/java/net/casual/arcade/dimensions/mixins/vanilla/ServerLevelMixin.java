@@ -1,8 +1,8 @@
 package net.casual.arcade.dimensions.mixins.vanilla;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import net.casual.arcade.dimensions.level.vanilla.extension.DragonDataExtension;
 import net.casual.arcade.dimensions.level.vanilla.VanillaLikeLevel;
+import net.casual.arcade.dimensions.level.vanilla.extension.DragonDataExtension;
 import net.casual.arcade.extensions.event.LevelExtensionEvent;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;

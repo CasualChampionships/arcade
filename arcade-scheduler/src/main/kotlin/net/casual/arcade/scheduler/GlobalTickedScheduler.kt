@@ -2,6 +2,7 @@ package net.casual.arcade.scheduler
 
 import net.casual.arcade.events.BuiltInEventPhases.POST
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -23,7 +24,7 @@ public object GlobalTickedScheduler {
     private val scheduler = TickedScheduler()
 
     init {
-        GlobalEventHandler.register<ServerTickEvent>(phase = POST) {
+        GlobalEventHandler.Server.register<ServerTickEvent>(phase = POST) {
             this.scheduler.tick()
             for (scheduler in this.schedulers) {
                 scheduler.tick()

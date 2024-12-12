@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(MinecraftServer.class)
+@Mixin(value = MinecraftServer.class, priority = 1100)
 public abstract class MinecraftServerMixin implements CustomMOTD {
 	@Shadow @Nullable private ServerStatus status;
 	@Shadow private long lastServerStatus;
@@ -27,11 +27,7 @@ public abstract class MinecraftServerMixin implements CustomMOTD {
 
 	@Inject(
 		method = "<init>",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/util/thread/ReentrantBlockableEventLoop;<init>(Ljava/lang/String;)V",
-			shift = At.Shift.AFTER
-		)
+		at = @At("CTOR_HEAD")
 	)
 	private void onCreateServerInstance(CallbackInfo ci) {
 		ServerUtils.setServer((MinecraftServer) (Object) this);

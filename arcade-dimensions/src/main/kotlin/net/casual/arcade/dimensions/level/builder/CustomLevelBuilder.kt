@@ -1,7 +1,10 @@
 package net.casual.arcade.dimensions.level.builder
 
 import net.casual.arcade.dimensions.ArcadeDimensions
-import net.casual.arcade.dimensions.level.*
+import net.casual.arcade.dimensions.level.CustomLevel
+import net.casual.arcade.dimensions.level.LevelGenerationOptions
+import net.casual.arcade.dimensions.level.LevelPersistence
+import net.casual.arcade.dimensions.level.LevelProperties
 import net.casual.arcade.dimensions.level.LevelProperties.DifficultyProperties
 import net.casual.arcade.dimensions.level.LevelProperties.WeatherProperties
 import net.casual.arcade.dimensions.level.factory.CustomLevelFactoryConstructor
@@ -23,7 +26,6 @@ import net.minecraft.world.level.levelgen.WorldOptions
 import org.apache.commons.lang3.mutable.MutableLong
 import org.jetbrains.annotations.ApiStatus.Experimental
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * A builder class to help construct

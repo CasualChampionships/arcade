@@ -6,6 +6,7 @@ import com.mojang.serialization.Dynamic
 import com.mojang.serialization.JsonOps
 import net.casual.arcade.commands.register
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.events.server.ServerSaveEvent
@@ -145,16 +146,16 @@ public object Minigames: ModInitializer {
         MinigameUtils.registerEvents()
         ExtendedGameMode.registerEvents()
 
-        GlobalEventHandler.register<ServerLoadedEvent> { (server) ->
+        GlobalEventHandler.Server.register<ServerLoadedEvent> { (server) ->
             this.loadMinigames(server)
         }
-        GlobalEventHandler.register<ServerSaveEvent> {
+        GlobalEventHandler.Server.register<ServerSaveEvent> {
             this.saveMinigames()
         }
-        GlobalEventHandler.register<ServerStoppingEvent> {
+        GlobalEventHandler.Server.register<ServerStoppingEvent> {
             this.closeMinigames()
         }
-        GlobalEventHandler.register<ServerRegisterCommandEvent> { event ->
+        GlobalEventHandler.Server.register<ServerRegisterCommandEvent> { event ->
             event.register(ExtendedGameModeCommand, MinigameCommand, PauseCommand, TeamCommandModifier)
         }
 

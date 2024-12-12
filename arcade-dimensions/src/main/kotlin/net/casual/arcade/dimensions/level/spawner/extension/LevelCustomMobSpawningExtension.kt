@@ -2,6 +2,7 @@ package net.casual.arcade.dimensions.level.spawner.extension
 
 import net.casual.arcade.dimensions.level.spawner.CustomMobSpawningRules
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.extensions.DataExtension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.utils.ArcadeUtils
@@ -31,7 +32,7 @@ public class LevelCustomMobSpawningExtension: DataExtension {
 
     public companion object {
         internal fun registerEvents() {
-            GlobalEventHandler.register<LevelExtensionEvent> { event ->
+            GlobalEventHandler.Server.register<LevelExtensionEvent> { event ->
                 event.addExtension(LevelCustomMobSpawningExtension())
             }
         }

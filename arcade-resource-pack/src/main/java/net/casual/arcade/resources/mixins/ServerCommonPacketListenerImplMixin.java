@@ -2,8 +2,8 @@ package net.casual.arcade.resources.mixins;
 
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.resources.pack.PackStatus;
 import net.casual.arcade.resources.event.PackStatusEvent;
+import net.casual.arcade.resources.pack.PackStatus;
 import net.minecraft.network.protocol.common.ServerboundResourcePackPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
@@ -33,6 +33,6 @@ public abstract class ServerCommonPacketListenerImplMixin {
 			packet.id(),
 			PackStatus.toPackStatus(packet.action())
 		);
-		GlobalEventHandler.broadcast(event);
+		GlobalEventHandler.Server.broadcast(event);
 	}
 }

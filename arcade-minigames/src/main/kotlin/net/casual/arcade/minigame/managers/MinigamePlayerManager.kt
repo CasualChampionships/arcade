@@ -4,7 +4,7 @@ import com.mojang.authlib.GameProfile
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.player.PlayerLeaveEvent
+import net.casual.arcade.events.server.player.PlayerLeaveEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
@@ -150,25 +150,25 @@ public class MinigamePlayerManager(
 
             this.connections.add(player.connection)
             val existing = MinigameAddExistingPlayerEvent(this.minigame, player, spectating, admin)
-            GlobalEventHandler.broadcast(existing)
+            GlobalEventHandler.Server.broadcast(existing)
             var isSpectating = existing.spectating
             var isAdmin = existing.admin
             val default = MinigameAddPlayerEvent(this.minigame, player, isSpectating, isAdmin)
-            GlobalEventHandler.broadcast(default)
+            GlobalEventHandler.Server.broadcast(default)
             isSpectating = default.spectating
             isAdmin = default.admin
 
             when (isSpectating) {
                 true -> if (!this.setSpectating(player)) {
-                    GlobalEventHandler.broadcast(MinigameLoadSpectatingEvent(this.minigame, player))
+                    GlobalEventHandler.Server.broadcast(MinigameLoadSpectatingEvent(this.minigame, player))
                 }
                 false -> if (!this.setPlaying(player)) {
-                    GlobalEventHandler.broadcast(MinigameLoadPlayingEvent(this.minigame, player))
+                    GlobalEventHandler.Server.broadcast(MinigameLoadPlayingEvent(this.minigame, player))
                 }
                 null -> if (this.isSpectating(player)) {
-                    GlobalEventHandler.broadcast(MinigameLoadSpectatingEvent(this.minigame, player))
+                    GlobalEventHandler.Server.broadcast(MinigameLoadSpectatingEvent(this.minigame, player))
                 } else {
-                    GlobalEventHandler.broadcast(MinigameLoadPlayingEvent(this.minigame, player))
+                    GlobalEventHandler.Server.broadcast(MinigameLoadPlayingEvent(this.minigame, player))
                 }
             }
             when (isAdmin) {
@@ -181,19 +181,19 @@ public class MinigamePlayerManager(
 
         this.connections.add(player.connection)
         val event = MinigameAddNewPlayerEvent(this.minigame, player, spectating, admin)
-        GlobalEventHandler.broadcast(event)
+        GlobalEventHandler.Server.broadcast(event)
         if (!event.isCancelled()) {
             player.minigame.setMinigame(this.minigame)
             val default = MinigameAddPlayerEvent(this.minigame, player, event.spectating, event.admin)
-            GlobalEventHandler.broadcast(default)
+            GlobalEventHandler.Server.broadcast(default)
             val isSpectating = default.spectating
             val isAdmin = default.admin
 
             if (isSpectating != null && isSpectating) {
                 this.setSpectating(player)
             } else {
-                GlobalEventHandler.broadcast(MinigameSetPlayingEvent(this.minigame, player))
-                GlobalEventHandler.broadcast(MinigameLoadPlayingEvent(this.minigame, player))
+                GlobalEventHandler.Server.broadcast(MinigameSetPlayingEvent(this.minigame, player))
+                GlobalEventHandler.Server.broadcast(MinigameLoadPlayingEvent(this.minigame, player))
             }
             if (isAdmin != null && isAdmin) {
                 this.addAdmin(player)
@@ -225,7 +225,7 @@ public class MinigamePlayerManager(
             this.spectatorUUIDs.remove(player.uuid)
             this.removeAdmin(player)
 
-            GlobalEventHandler.broadcast(MinigameRemovePlayerEvent(this.minigame, player))
+            GlobalEventHandler.Server.broadcast(MinigameRemovePlayerEvent(this.minigame, player))
             this.connections.remove(player.connection)
             player.minigame.removeMinigame()
             return true
@@ -235,8 +235,8 @@ public class MinigamePlayerManager(
 
     public fun setSpectating(player: ServerPlayer): Boolean {
         if (this.has(player) && this.spectatorUUIDs.add(player.uuid)) {
-            GlobalEventHandler.broadcast(MinigameSetSpectatingEvent(this.minigame, player))
-            GlobalEventHandler.broadcast(MinigameLoadSpectatingEvent(this.minigame, player))
+            GlobalEventHandler.Server.broadcast(MinigameSetSpectatingEvent(this.minigame, player))
+            GlobalEventHandler.Server.broadcast(MinigameLoadSpectatingEvent(this.minigame, player))
             return true
         }
         return false
@@ -244,8 +244,8 @@ public class MinigamePlayerManager(
 
     public fun setPlaying(player: ServerPlayer): Boolean {
         if (this.spectatorUUIDs.remove(player.uuid)) {
-            GlobalEventHandler.broadcast(MinigameSetPlayingEvent(this.minigame, player))
-            GlobalEventHandler.broadcast(MinigameLoadPlayingEvent(this.minigame, player))
+            GlobalEventHandler.Server.broadcast(MinigameSetPlayingEvent(this.minigame, player))
+            GlobalEventHandler.Server.broadcast(MinigameLoadPlayingEvent(this.minigame, player))
             return true
         }
         return false
@@ -253,7 +253,7 @@ public class MinigamePlayerManager(
 
     public fun addAdmin(player: ServerPlayer): Boolean {
         if (this.has(player) && this.adminUUIDs.add(player.uuid)) {
-            GlobalEventHandler.broadcast(MinigameAddAdminEvent(this.minigame, player))
+            GlobalEventHandler.Server.broadcast(MinigameAddAdminEvent(this.minigame, player))
             return true
         }
         return false
@@ -261,7 +261,7 @@ public class MinigamePlayerManager(
 
     public fun removeAdmin(player: ServerPlayer): Boolean {
         if (this.adminUUIDs.remove(player.uuid)) {
-            GlobalEventHandler.broadcast(MinigameRemoveAdminEvent(this.minigame, player))
+            GlobalEventHandler.Server.broadcast(MinigameRemoveAdminEvent(this.minigame, player))
             return true
         }
         return false

@@ -193,7 +193,7 @@ class MyEvent(
 
 fun broadcastMyEvent() {
     val event = MyEvent("Foo", 10)
-    GlobalEventHandler.broadcast(event)
+    GlobalEventHandler.Server.broadcast(event)
 }
 ```
 
@@ -208,12 +208,12 @@ class MyEvent(
 fun broadcastDoingSomething() {
     val event = MyEvent("Foo", 10)
     // Broadcast in the "default" and "pre" phases
-    GlobalEventHandler.broadcast(event, BuiltInEventPhases.PRE_PHASES)
+    GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES)
     
     // Do Something ...
     
     // Broadcast in the "post" phase
-    GlobalEventHandler.broadcast(event, BuiltInEventPhases.POST_PHASES)
+    GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES)
 }
 ```
 
@@ -244,7 +244,7 @@ public class FooMixin {
     )
     private void onFoo(CallbackInfo ci) {
         MyCancellableEvent event = new MyCancellableEvent();
-        GlobalEventHandler.broadcast(event);
+        GlobalEventHandler.Server.broadcast(event);
         if (event.isCancelled()) {
             ci.cancel();
         }

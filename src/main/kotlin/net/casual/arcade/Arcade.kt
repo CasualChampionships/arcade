@@ -21,7 +21,7 @@ public object Arcade: ModInitializer {
         get() = ArcadeUtils.logger
 
     public val container: ModContainer
-        get() = ArcadeUtils.container
+        get() = ArcadeUtils.container!!
 
     public val path: Path
         get() = ArcadeUtils.path

@@ -2,10 +2,11 @@ package net.casual.arcade.minigame.managers
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
-import net.casual.arcade.events.player.PlayerDimensionChangeEvent
-import net.casual.arcade.events.player.PlayerLeaveEvent
-import net.casual.arcade.events.player.PlayerRespawnEvent
+import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerTickEvent
+import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
+import net.casual.arcade.events.server.player.PlayerLeaveEvent
+import net.casual.arcade.events.server.player.PlayerRespawnEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent

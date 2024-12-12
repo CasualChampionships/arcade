@@ -2,6 +2,7 @@ package net.casual.arcade.border.extensions
 
 import net.casual.arcade.border.ducks.SerializableBorder
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.extensions.DataExtension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.scheduler.GlobalTickedScheduler
@@ -30,7 +31,7 @@ internal class BorderSerializerExtension(
 
     companion object {
         fun registerEvents() {
-            GlobalEventHandler.register<LevelExtensionEvent> { event ->
+            GlobalEventHandler.Server.register<LevelExtensionEvent> { event ->
                 event.addExtension(::BorderSerializerExtension)
             }
         }

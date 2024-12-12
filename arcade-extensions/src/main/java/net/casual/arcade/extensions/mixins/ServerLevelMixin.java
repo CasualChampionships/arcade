@@ -56,7 +56,7 @@ public abstract class ServerLevelMixin extends Level implements ExtensionHolder 
 		this.arcade$savePath = access.getDimensionPath(this.dimension()).resolve("arcade-extension-data.nbt");
 
 		LevelExtensionEvent event = new LevelExtensionEvent((ServerLevel) (Object) this);
-		GlobalEventHandler.broadcast(event);
+		GlobalEventHandler.Server.broadcast(event);
 
 		try {
 			CompoundTag tag = NbtIo.read(this.arcade$savePath);

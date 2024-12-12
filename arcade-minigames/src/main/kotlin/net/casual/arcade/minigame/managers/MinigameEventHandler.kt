@@ -2,10 +2,10 @@ package net.casual.arcade.minigame.managers
 
 import net.casual.arcade.events.*
 import net.casual.arcade.events.EventListener
-import net.casual.arcade.events.core.Event
-import net.casual.arcade.events.level.LevelEvent
-import net.casual.arcade.events.level.LocatedLevelEvent
-import net.casual.arcade.events.player.PlayerEvent
+import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.server.level.LevelEvent
+import net.casual.arcade.events.server.level.LocatedLevelEvent
+import net.casual.arcade.events.server.player.PlayerEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.ListenerFlags.DEFAULT
 import net.casual.arcade.minigame.annotation.ListenerFlags.HAS_LEVEL
@@ -93,23 +93,6 @@ public class MinigameEventHandler(
         listener: Consumer<T>
     ) {
         this.register(T::class.java, priority, phase, flags, listener)
-    }
-
-    /**
-     * Registers an event listener with a given priority.
-     *
-     * This allows you to register a callback to a specific event type.
-     * This callback will **only** fire when instances of the given type
-     * are fired.
-     *
-     * This will filter events for the given minigame, see
-     * [MinigameEventHandler] documentation for more details.
-     *
-     * @param T The type of event.
-     * @param listener The callback which will be invoked when the event is fired.
-     */
-    public inline fun <reified T: Event> register(listener: Consumer<T>) {
-        this.register(T::class.java, 1_000, BuiltInEventPhases.DEFAULT, listener)
     }
 
     /**

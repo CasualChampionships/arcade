@@ -3,6 +3,7 @@ package net.casual.arcade.minigame.template.minigame
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.events.LobbyMoveToNextMinigameEvent
@@ -72,7 +73,7 @@ public class SequentialMinigames(
         this.incrementIndex(minigame)
 
         minigame.start()
-        GlobalEventHandler.broadcast(SequentialMinigameStartEvent(minigame, this))
+        GlobalEventHandler.Server.broadcast(SequentialMinigameStartEvent(minigame, this))
     }
 
     public fun returnToLobby() {

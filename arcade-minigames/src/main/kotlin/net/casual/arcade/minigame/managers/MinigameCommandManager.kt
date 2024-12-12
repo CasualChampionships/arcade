@@ -4,10 +4,11 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.tree.CommandNode
 import net.casual.arcade.commands.ducks.DeletableCommand
-import net.casual.arcade.events.block.CommandBlockExecuteEvent
-import net.casual.arcade.events.player.PlayerCommandEvent
-import net.casual.arcade.events.player.PlayerCommandSuggestionsEvent
-import net.casual.arcade.events.player.PlayerSendCommandsEvent
+import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.server.block.CommandBlockExecuteEvent
+import net.casual.arcade.events.server.player.PlayerCommandEvent
+import net.casual.arcade.events.server.player.PlayerCommandSuggestionsEvent
+import net.casual.arcade.events.server.player.PlayerSendCommandsEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.*
 import net.minecraft.commands.CommandSourceStack

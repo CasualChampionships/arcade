@@ -2,6 +2,7 @@ package net.casual.arcade.dimensions.level.vanilla.extension
 
 import com.mojang.serialization.Dynamic
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.extensions.DataExtension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.utils.ArcadeUtils
@@ -45,7 +46,7 @@ internal class DragonDataExtension(
 
     companion object {
         fun registerEvents() {
-            GlobalEventHandler.register<LevelExtensionEvent> { event ->
+            GlobalEventHandler.Server.register<LevelExtensionEvent> { event ->
                 event.addExtension(::DragonDataExtension)
             }
         }

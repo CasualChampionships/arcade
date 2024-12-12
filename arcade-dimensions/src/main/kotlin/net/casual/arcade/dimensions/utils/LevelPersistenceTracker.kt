@@ -2,6 +2,7 @@ package net.casual.arcade.dimensions.utils
 
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.codec.ArcadeExtraCodecs
@@ -63,7 +64,7 @@ public object LevelPersistenceTracker {
     }
 
     internal fun registerEvents() {
-        GlobalEventHandler.register<ServerSaveEvent> { (server) ->
+        GlobalEventHandler.Server.register<ServerSaveEvent> { (server) ->
             this.save(server)
         }
     }

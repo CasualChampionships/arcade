@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.commands.*
 import net.casual.arcade.commands.arguments.EnumArgument
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
@@ -106,7 +107,7 @@ public open class LobbyMinigame(
 
         this.transferring = true
         val event = LobbyMoveToNextMinigameEvent(this, next)
-        GlobalEventHandler.broadcast(event)
+        GlobalEventHandler.Server.broadcast(event)
 
         val task = CancellableTask.of {
             this.transferAdminAndSpectatorTeamsTo(next)
