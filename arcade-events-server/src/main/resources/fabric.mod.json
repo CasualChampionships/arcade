@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "events-server",
+  "id": "arcade-events-server",
   "version": "${version}",
   "name": "Arcade Server Events",
   "description": "",
