@@ -17,12 +17,13 @@ repositories {
 }
 
 dependencies {
-    include(modImplementation("net.casual-championships:arcade-world-border:0.3.1-alpha.25+1.21.3")!!)
+    include(modImplementation("net.casual-championships:arcade-world-border:0.4.0-alpha.7+1.21.4")!!)
 
-    include(modImplementation("net.casual-championships:arcade-commands:0.3.1-alpha.25+1.21.3")!!)
-    include(modImplementation("net.casual-championships:arcade-events:0.3.1-alpha.25+1.21.3")!!)
-    include(modImplementation("net.casual-championships:arcade-extensions:0.3.1-alpha.25+1.21.3")!!)
-    include(modImplementation("net.casual-championships:arcade-scheduler:0.3.1-alpha.25+1.21.3")!!)
-    include(modImplementation("net.casual-championships:arcade-utils:0.3.1-alpha.25+1.21.3")!!)
+    include(modImplementation("net.casual-championships:arcade-commands:0.4.0-alpha.7+1.21.4")!!)
+    include(modImplementation("net.casual-championships:arcade-event-registry:0.4.0-alpha.7+1.21.4")!!)
+    include(modImplementation("net.casual-championships:arcade-events-server:0.4.0-alpha.7+1.21.4")!!)
+    include(modImplementation("net.casual-championships:arcade-extensions:0.4.0-alpha.7+1.21.4")!!)
+    include(modImplementation("net.casual-championships:arcade-scheduler:0.4.0-alpha.7+1.21.4")!!)
+    include(modImplementation("net.casual-championships:arcade-utils:0.4.0-alpha.7+1.21.4")!!)
 }
 ```

@@ -10,7 +10,7 @@ plugins {
     java
 }
 
-val modVersion = "0.4.0-alpha.6"
+val modVersion = "0.4.0-alpha.7"
 
 allprojects {
     apply(plugin = "fabric-loom")
@@ -106,7 +106,7 @@ allprojects {
 
 subprojects {
     afterEvaluate {
-        // updateDocumentedDependencies("../docs/${name}/getting-started.md")
+//         updateDocumentedDependencies("../docs/${name}/getting-started.md")
     }
 }
 
