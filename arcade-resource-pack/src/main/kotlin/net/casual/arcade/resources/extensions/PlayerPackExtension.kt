@@ -84,10 +84,10 @@ internal class PlayerPackExtension(private val uuid: UUID): Extension {
             }
         }
         this.allLoadedFuture.complete(null)
-        GlobalEventHandler.broadcast(ClientPackSuccessEvent(this.uuid, this.getAllPacks()))
+        GlobalEventHandler.Server.broadcast(ClientPackSuccessEvent(this.uuid, this.getAllPacks()))
         val player = server.player(this.uuid)
         if (player != null) {
-            GlobalEventHandler.broadcast(PlayerPackSuccessEvent(player, this.getAllPacks()))
+            GlobalEventHandler.Server.broadcast(PlayerPackSuccessEvent(player, this.getAllPacks()))
         }
     }
 }

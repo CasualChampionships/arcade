@@ -1,8 +1,9 @@
 package net.casual.arcade.visuals.extensions
 
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.player.PlayerLeaveEvent
-import net.casual.arcade.events.player.PlayerTickEvent
+import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.server.player.PlayerLeaveEvent
+import net.casual.arcade.events.server.player.PlayerTickEvent
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
 import net.casual.arcade.extensions.event.PlayerExtensionEvent.Companion.getExtension
@@ -75,13 +76,13 @@ internal class PlayerTabDisplayExtension(
             get() = this.getExtension<PlayerTabDisplayExtension>()
 
         internal fun registerEvents() {
-            GlobalEventHandler.register<PlayerExtensionEvent> { event ->
+            GlobalEventHandler.Server.register<PlayerExtensionEvent> { event ->
                 event.addExtension(::PlayerTabDisplayExtension)
             }
-            GlobalEventHandler.register<PlayerLeaveEvent> { (player) ->
+            GlobalEventHandler.Server.register<PlayerLeaveEvent> { (player) ->
                 player.tabDisplay.disconnect()
             }
-            GlobalEventHandler.register<PlayerTickEvent> { (player) ->
+            GlobalEventHandler.Server.register<PlayerTickEvent> { (player) ->
                 player.tabDisplay.tick()
             }
         }

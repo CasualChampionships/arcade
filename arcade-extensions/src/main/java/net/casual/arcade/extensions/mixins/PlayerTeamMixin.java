@@ -24,7 +24,7 @@ public class PlayerTeamMixin implements ExtensionHolder {
 	)
 	private void onCreateTeam(Scoreboard scoreboard, String string, CallbackInfo ci) {
 		TeamExtensionEvent event = new TeamExtensionEvent((PlayerTeam) (Object) this);
-		GlobalEventHandler.broadcast(event);
+		GlobalEventHandler.Server.broadcast(event);
 	}
 
 	@NotNull

@@ -1,18 +1,22 @@
 rootProject.name = "arcade"
 
-include("arcade-commands")
-include("arcade-datagen")
-include("arcade-dimensions")
-include("arcade-events")
-include("arcade-extensions")
-include("arcade-items")
-include("arcade-minigames")
-include("arcade-resource-pack")
-include("arcade-resource-pack-host")
-include("arcade-scheduler")
-include("arcade-utils")
-include("arcade-visuals")
-include("arcade-world-border")
+include(
+    ":arcade-commands",
+    ":arcade-datagen",
+    ":arcade-dimensions",
+    ":arcade-event-registry",
+    ":arcade-events-client",
+    ":arcade-events-server",
+    ":arcade-extensions",
+    ":arcade-items",
+    ":arcade-minigames",
+    ":arcade-resource-pack",
+    ":arcade-resource-pack-host",
+    ":arcade-scheduler",
+    ":arcade-utils",
+    ":arcade-visuals",
+    ":arcade-world-border"
+)
 
 dependencyResolutionManagement {
     versionCatalogs {

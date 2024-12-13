@@ -50,7 +50,7 @@ public class ServerGamePacketListenerImplMixin implements ExtensionHolder {
 		CallbackInfo ci
 	) {
 		PlayerExtensionEvent event = new PlayerExtensionEvent(player);
-		GlobalEventHandler.broadcast(event);
+		GlobalEventHandler.Server.broadcast(event);
 
 		((ExtensionDataHolder) player).arcade$deserializeExtensionData();
 	}
