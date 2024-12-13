@@ -1,14 +1,14 @@
 package net.casual.arcade.visuals.tab
 
 import com.mojang.authlib.GameProfile
-import net.casual.arcade.visuals.elements.PlayerSpecificElement
-import net.casual.arcade.visuals.tab.PlayerListEntries.Entry
 import net.casual.arcade.utils.ClientboundPlayerInfoUpdatePacket
 import net.casual.arcade.utils.EnumUtils
 import net.casual.arcade.visuals.core.PlayerUI
 import net.casual.arcade.visuals.core.TickableUI
 import net.casual.arcade.visuals.elements.ComponentElements
+import net.casual.arcade.visuals.elements.PlayerSpecificElement
 import net.casual.arcade.visuals.extensions.PlayerTabDisplayExtension.Companion.tabDisplay
+import net.casual.arcade.visuals.tab.PlayerListEntries.Entry
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
@@ -21,7 +21,6 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.level.GameType
 import java.util.*
 import java.util.function.Consumer
-import kotlin.collections.ArrayList
 
 public class PlayerListDisplay(
     private val display: PlayerListEntries

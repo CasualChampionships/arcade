@@ -1,6 +1,6 @@
 package net.casual.arcade.minigame.events
 
-import net.casual.arcade.events.core.CancellableEvent
+import net.casual.arcade.events.common.CancellableEvent
 import net.casual.arcade.minigame.Minigame
 import net.minecraft.server.level.ServerPlayer
 

@@ -2,7 +2,7 @@ package net.casual.arcade.visuals.screen
 
 import eu.pb4.sgui.api.ClickType
 import eu.pb4.sgui.api.gui.SlotGuiInterface
-import net.casual.arcade.events.player.PlayerSlotClickEvent
+import net.casual.arcade.events.server.player.PlayerSlotClickEvent
 import net.minecraft.world.item.ItemStack
 
 public val PlayerSlotClickEvent.type: ClickType

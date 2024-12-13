@@ -33,7 +33,7 @@ public class MinigameTagManager(
     public fun add(player: ServerPlayer, tag: ResourceLocation): Boolean {
         val result = this.players.getOrPut(player.uuid) { ObjectOpenHashSet() }.add(tag)
         if (result) {
-            GlobalEventHandler.broadcast(MinigameAddTagEvent(this.minigame, player, tag))
+            GlobalEventHandler.Server.broadcast(MinigameAddTagEvent(this.minigame, player, tag))
         }
         return result
     }
@@ -41,7 +41,7 @@ public class MinigameTagManager(
     public fun remove(player: ServerPlayer, tag: ResourceLocation): Boolean {
         val result = this.players[player.uuid]?.remove(tag) ?: false
         if (result) {
-            GlobalEventHandler.broadcast(MinigameRemoveTagEvent(this.minigame, player, tag))
+            GlobalEventHandler.Server.broadcast(MinigameRemoveTagEvent(this.minigame, player, tag))
         }
         return result
     }

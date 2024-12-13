@@ -1,6 +1,6 @@
 package net.casual.arcade.extensions.event
 
-import net.casual.arcade.events.level.LevelEvent
+import net.casual.arcade.events.server.level.LevelEvent
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
 import net.casual.arcade.extensions.ExtensionHolder.Companion.add

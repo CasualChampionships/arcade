@@ -1,0 +1,38 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.casual.arcade.events.server.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "BaseCommandBlockMixin",
+    "BlockItemMixin",
+    "BrewingStandBlockEntityAccessor",
+    "BrewingStandBlockEntityMixin",
+    "CommandsMixin",
+    "EntityCallbacksMixin",
+    "FlowingFluidMixin",
+    "InteractionHandlerMixin",
+    "ItemStackMixin",
+    "LivingEntityMixin",
+    "MinecraftServerMixin",
+    "NaturalSpawnerMixin",
+    "PlayerAdvancementsMixin",
+    "PlayerListMixin",
+    "PlayerMixin",
+    "RandomizbleContainerMixin",
+    "RegistryDataLoaderMixin",
+    "ScoreboardMixin",
+    "ServerboundTeleportToEntityPacketAccessor",
+    "ServerCommonPacketListenerImplMixin",
+    "ServerGamePacketListenerImplMixin",
+    "ServerLevelMixin",
+    "ServerLoginPacketListenerImplMixin",
+    "ServerPlayerGameModeMixin",
+    "ServerPlayerMixin",
+    "TeamMsgCommandMixin",
+    "TntBlockMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

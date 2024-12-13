@@ -4,7 +4,8 @@ import com.mojang.brigadier.Command
 import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.registerLiteral
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.player.PlayerJoinEvent
+import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.server.player.PlayerJoinEvent
 import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.host.PackHost
@@ -23,7 +24,7 @@ object ArcadeTest: ModInitializer {
     override fun onInitialize() {
         ArcadeResourcePacks.SPACING_FONT_PACK.buildTo(FabricLoader.getInstance().configDir)
 
-        GlobalEventHandler.register<ServerRegisterCommandEvent> {
+        GlobalEventHandler.Server.register<ServerRegisterCommandEvent> {
             it.dispatcher.registerLiteral("view-inventory") {
                 argument("target", EntityArgument.player()) {
                     executes { ctx ->
@@ -47,7 +48,7 @@ object ArcadeTest: ModInitializer {
             ArcadeResourcePacks.SPACING_FONT_PACK
         )
         
-        GlobalEventHandler.register<PlayerJoinEvent> { it.player.sendResourcePack(spacing.toPackInfo()) }
+        GlobalEventHandler.Server.register<PlayerJoinEvent> { it.player.sendResourcePack(spacing.toPackInfo()) }
 
         host.start()
 
@@ -58,7 +59,7 @@ object ArcadeTest: ModInitializer {
 }
 
 object Example: ModInitializer {
-    override fun onInitialize() = GlobalEventHandler.register<ServerLoadedEvent> { (server) ->
+    override fun onInitialize() = GlobalEventHandler.Server.register<ServerLoadedEvent> { (server) ->
 
     }
 }
