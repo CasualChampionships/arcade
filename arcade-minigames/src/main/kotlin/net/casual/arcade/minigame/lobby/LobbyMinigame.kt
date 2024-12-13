@@ -22,6 +22,7 @@ import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.utils.MinigameUtils.requiresAdminOrPermission
 import net.casual.arcade.minigame.utils.MinigameUtils.transferAdminAndSpectatorTeamsTo
 import net.casual.arcade.scheduler.GlobalTickedScheduler
+import net.casual.arcade.scheduler.task.Completable.Companion.thenOrNow
 import net.casual.arcade.scheduler.task.impl.CancellableTask
 import net.casual.arcade.utils.*
 import net.casual.arcade.utils.ComponentUtils.command
@@ -344,14 +345,14 @@ public open class LobbyMinigame(
     private fun readyPlayers(context: CommandContext<CommandSourceStack>): Int {
         this.next ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
         this.setPhase(LobbyPhase.Readying)
-        this.ui.readier.arePlayersReady(this.getPlayersToReady()).then(this::onReady)
+        this.ui.readier.arePlayersReady(this.getPlayersToReady()).thenOrNow(this::onReady)
         return context.source.success("Successfully broadcasted ready check")
     }
 
     private fun readyTeams(context: CommandContext<CommandSourceStack>): Int {
         this.next ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
         this.setPhase(LobbyPhase.Readying)
-        this.ui.readier.areTeamsReady(this.getTeamsToReady()).then(this::onReady)
+        this.ui.readier.areTeamsReady(this.getTeamsToReady()).thenOrNow(this::onReady)
         return context.source.success("Successfully broadcasted ready check")
     }
 
