@@ -36,7 +36,7 @@ minigame then adds that minigame's listener provider.
 
 Here's how this is used for minigame related events:
 ```kotlin
-GlobalEventHandler.addInjectedProvider { event, consumer ->
+GlobalEventHandler.Server.addInjectedProvider { event, consumer ->
     if (event is ExtensionEvent) {
         return@addInjectedProvider
     }

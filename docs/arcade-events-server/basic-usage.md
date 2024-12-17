@@ -9,7 +9,7 @@ then you can simply register an event listener to the `GlobalEventHandler`.
 You can do this by calling the `register` method providing the type of the event 
 you wish to listen to and the callback for when it is fired:
 ```kotlin
-GlobalEventHandler.register<PlayerTickEvent> { event ->
+GlobalEventHandler.Server.register<PlayerTickEvent> { event ->
     val player = event.player
 }
 ```
@@ -23,7 +23,7 @@ a lower priority value will be invoked first.
 
 ```kotlin
 // This will be invoked *before* any listeners with the default priority (1000)
-GlobalEventHandler.register<PlayerTickEvent>(priority = 990) { event ->
+GlobalEventHandler.Server.register<PlayerTickEvent>(priority = 990) { event ->
     val player = event.player
 }
 ```
@@ -34,7 +34,7 @@ the `ServerTickEvent` defines a `"pre"` and a `"post"` phase, for before the tic
 has occurred and after the server has ticked respectively.
 
 ```kotlin
-GlobalEventHandler.register<ServerTickEvent>(phase = BuiltInEventPhases.POST) { event ->
+GlobalEventHandler.Server.register<ServerTickEvent>(phase = BuiltInEventPhases.POST) { event ->
     val server = event.server
 }
 ```
@@ -57,10 +57,10 @@ val provider = SingleListenerProvider.of<ServerTickEvent>(priority = 1000, phase
 }
 
 // Our event listener provider will now be processed during event broadcasts
-GlobalEventHandler.addProvider(provider)
+GlobalEventHandler.Server.addProvider(provider)
 
 // Our event listener provider will no longer be processed during event broadcasts
-GlobalEventHandler.removeProvider(provider)
+GlobalEventHandler.Server.removeProvider(provider)
 ```
 
 You can also create an instance of `SimpleListenerRegistry` which is essentially a 
@@ -73,9 +73,9 @@ registry.register<ServerTickEvent>(phase = BuiltInEventPhases.POST) { event ->
     val server = event.server
 }
 
-GlobalEventHandler.addProvider(registry)
+GlobalEventHandler.Server.addProvider(registry)
 
-GlobalEventHandler.removeProvider(registry)
+GlobalEventHandler.Server.removeProvider(registry)
 ```
 
 And you can implement your own provider if these are not enough by implementing the 
@@ -90,7 +90,7 @@ Let's take the `BrewingStandBrewEvent` as an example, say we do not want players
 to be able to brew level 2 potions, because this event implements the 
 `CancellableEvent` it means we can cancel the brewing within our listener:
 ```kotlin
-GlobalEventHandler.register<BrewingStandBrewEvent> { event ->
+GlobalEventHandler.Server.register<BrewingStandBrewEvent> { event ->
     val ingredient = event.entity.getItem(3)
     if (ingredient.isOf(Items.GLOWSTONE_DUST)) {
         event.cancel()
@@ -110,7 +110,7 @@ value which you must specify to cancel the event. One example being
 server, if we want to prevent them from logging in, we need to display them a 
 disconnect message, so to cancel this event, we must pass in a `Component`:
 ```kotlin
-GlobalEventHandler.register<PlayerRequestLoginEvent> { event ->
+GlobalEventHandler.Server.register<PlayerRequestLoginEvent> { event ->
     if (/* ... */) {
         event.cancel(Component.literal("You cannot login now!"))
     }
@@ -125,7 +125,7 @@ the `CancellableEvent.result()`, this will throw an exception if no result has b
 Some events are designed to be mutable, for example, the `PlayerDamageEvent` where we
 can change the damage amount:
 ```kotlin
-GlobalEventHandler.register<PlayerDamageEvent> { event ->
+GlobalEventHandler.Server.register<PlayerDamageEvent> { event ->
     event.damage *= 0.5 // Half all damage dealt to players
 }
 ```
@@ -142,8 +142,8 @@ of that type, this is a safety measure to prevent unwanted crashes.
 If for some reason you *really* need to use recursive events, then you can bypass 
 the recursion checker by using `GlobalEventHandler.recursive` in your event listener, however this is *highly* discouraged.
 ```kotlin
-GlobalEventHandler.register<PlayerClientboundPacketEvent> { (player, packet) ->
-    GlobalEventHandler.recursive {
+GlobalEventHandler.Server.register<PlayerClientboundPacketEvent> { (player, packet) ->
+    GlobalEventHandler.Server.recursive {
         if (packet is ClientboundSetScorePacket && packet.score < 100) {
             player.connection.send(ClientboundSetScorePacket(
                 packet.owner,
@@ -259,8 +259,8 @@ public class FooMixin {
 
 Typically, all events should be broadcast from the main server thread. 
 However, if your event is intended to be broadcast off the main thread then you 
-should also implement the `ServerOffThreadEvent`, this is more-so to show the 
+should also implement the `MissingExecutorEvent`, this is more-so to show the 
 intention that the event is intended to be broadcast off the main thread. 
 All events that are broadcast off the main thread **will** be pushed back onto 
-the main thread, without implementing the `ServerOffThreadEvent` the event handler 
+the main thread, without implementing the `MissingExecutorEvent` the event handler 
 will produce warnings as it's likely unintentional.

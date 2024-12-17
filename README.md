@@ -13,7 +13,7 @@ for each can be found below:
 > ### [Commands](./docs/arcade-commands/getting-started.md)
 > ### [Datagen](./docs/arcade-datagen/getting-started.md)
 > ### [Dimensions](./docs/arcade-dimensions/getting-started.md)
-> ### [Events](./docs/arcade-events/getting-started.md)
+> ### [Events](docs/arcade-events-server/getting-started.md)
 > ### [Extensions](./docs/arcade-extensions/getting-started.md)
 > ### [Items](./docs/arcade-items/getting-started.md)
 > ### [Minigames](./docs/arcade-minigames/getting-started.md)
@@ -36,7 +36,7 @@ repositories {
 }
 
 dependencies {
-    include(modImplementation("net.casual-championships:arcade:0.4.0-alpha.14+1.21.4")!!)
+    include(modImplementation("net.casualchampionships:arcade:0.4.0-alpha.15+1.21.4")!!)
 }
 ```
 

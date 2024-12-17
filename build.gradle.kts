@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm").version(jvmVersion)
     kotlin("plugin.serialization").version(jvmVersion)
     alias(libs.plugins.fabric.loom)
+    alias(libs.plugins.spotless)
     `maven-publish`
     java
 }
@@ -13,14 +14,15 @@ plugins {
 val modVersion = "0.4.0-alpha.15"
 
 allprojects {
-    apply(plugin = "fabric-loom")
-    apply(plugin = "maven-publish")
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
+    apply(plugin = "fabric-loom")
+    apply(plugin = "maven-publish")
+    apply(plugin = "com.diffplug.spotless")
 
     val libs = rootProject.libs
 
-    group = "net.casual-championships"
+    group = "net.casualchampionships"
     version = "${modVersion}+${libs.versions.minecraft.get()}"
 
     repositories {
@@ -103,11 +105,17 @@ allprojects {
             }
         }
     }
+
+    spotless {
+        kotlin {
+           licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
+        }
+    }
 }
 
 subprojects {
     afterEvaluate {
-//         updateDocumentedDependencies("../docs/${name}/getting-started.md")
+         updateDocumentedDependencies("../docs/${name}/getting-started.md")
     }
 }
 

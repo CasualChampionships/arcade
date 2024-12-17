@@ -10,7 +10,7 @@ The list of events is not exhaustive, and it is likely that you will need to
 supplement the events with your own.
 
 This documentation will focus on the application of Arcade's event system for 
-Minigames, for an overview of Arcade's overall event system see the [Event Documentation](../arcade-events/getting-started.md).
+Minigames, for an overview of Arcade's overall event system see the [Event Documentation](../arcade-events-server/getting-started.md).
 
 ## Motivation
 
