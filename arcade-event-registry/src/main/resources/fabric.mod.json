@@ -14,7 +14,7 @@
   "icon": "assets/icon.png",
   "environment": "*",
   "mixins": [
-    "arcade-event-registry.mixins.json"
+    
   ],
   "depends": {
     "minecraft": "${minecraft_dependency}",

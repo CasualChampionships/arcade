@@ -5,6 +5,7 @@ import com.google.gson.JsonObject
 import com.mojang.serialization.Codec
 import com.mojang.serialization.DataResult
 import com.mojang.serialization.Dynamic
+import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.Util
 import net.minecraft.core.registries.Registries
@@ -81,5 +82,22 @@ public object ArcadeExtraCodecs {
 
         val inverse = map.inverse()
         return ExtraCodecs.optionalEmptyMap(Codec.STRING).xmap(map::get, inverse::get)
+    }
+
+    public fun <K, V> keyedUnboundedMapCodec(
+        keyCodec: Codec<K>,
+        valueMapCodec: MapCodec<V>,
+        keyName: String = "id"
+    ): Codec<Map<K, V>>? {
+        val entryCodec = RecordCodecBuilder.create<Pair<K, V>> { instance ->
+            instance.group(
+                keyCodec.fieldOf(keyName).forGetter { it.first },
+                valueMapCodec.forGetter { it.second }
+            ).apply(instance, ::Pair)
+        }
+        return entryCodec.listOf().xmap(
+            { entries -> entries.toMap() },
+            { map -> map.map { it.key to it.value } }
+        )
     }
 }

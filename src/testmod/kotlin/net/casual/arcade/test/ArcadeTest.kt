@@ -1,6 +1,9 @@
 package net.casual.arcade.test
 
 import com.mojang.brigadier.Command
+import com.mojang.serialization.*
+import com.mojang.serialization.codecs.BaseMapCodec
+import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.registerLiteral
 import net.casual.arcade.events.GlobalEventHandler

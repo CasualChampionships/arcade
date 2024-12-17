@@ -10,7 +10,7 @@ plugins {
     java
 }
 
-val modVersion = "0.4.0-alpha.9"
+val modVersion = "0.4.0-alpha.15"
 
 allprojects {
     apply(plugin = "fabric-loom")
@@ -45,6 +45,7 @@ allprojects {
 
         modImplementation(libs.fabric.loader)
         modImplementation(libs.fabric.kotlin)
+        modRuntimeOnly(libs.fabric.api)
     }
 
     kotlin {

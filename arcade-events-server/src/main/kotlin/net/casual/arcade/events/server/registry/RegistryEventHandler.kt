@@ -1,4 +1,4 @@
-package net.casual.arcade.events.common.registry
+package net.casual.arcade.events.server.registry
 
 import com.google.common.collect.HashMultimap
 import net.casual.arcade.events.EventListener
@@ -29,15 +29,13 @@ public object RegistryEventHandler: EventListener<RegistryLoadedFromResourcesEve
     @JvmStatic
     public fun load() {
         GlobalEventHandler.Server.addProvider(this)
-        GlobalEventHandler.Client.addProvider(this)
+        closed = false
     }
 
     @Internal
     @JvmStatic
     public fun unload() {
         GlobalEventHandler.Server.removeProvider(this)
-        GlobalEventHandler.Client.removeProvider(this)
-        listeners.clear()
         closed = true
     }
 
