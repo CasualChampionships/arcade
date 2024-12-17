@@ -108,7 +108,9 @@ allprojects {
 
     spotless {
         kotlin {
-           licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
+            licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
+            targetExclude("src/testmod/**")
+            ktlint()
         }
     }
 }

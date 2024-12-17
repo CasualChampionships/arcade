@@ -13,6 +13,7 @@ server-replay       = "1.2.6+1.21.4"
 
 # Plugins
 fabric-loom = "1.9-SNAPSHOT"
+spotless    = "7.0.0.BETA4"
 
 [libraries]
 minecraft              = { module = "com.mojang:minecraft"                , version.ref = "minecraft" }
@@ -31,3 +32,4 @@ server-replay          = { module = "me.senseiwells:server-replay"        , vers
 
 [plugins]
 fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }
+spotless    = { id = "com.diffplug.spotless", version.ref = "spotless" }

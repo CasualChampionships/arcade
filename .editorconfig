@@ -1,0 +1,4 @@
+[*.{java,kotlin}]
+indent_style = space
+ij_continuation_indent_size = 4
+ij_any_keep_blank_lines_between_package_declaration_and_header = 1
