@@ -110,7 +110,6 @@ allprojects {
         kotlin {
             licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
             targetExclude("src/testmod/**")
-            ktlint()
         }
     }
 }

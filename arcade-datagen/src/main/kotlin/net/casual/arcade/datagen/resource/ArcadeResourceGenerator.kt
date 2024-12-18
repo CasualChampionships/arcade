@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2024 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
 package net.casual.arcade.datagen.resource
 
 import eu.pb4.polymer.resourcepack.api.ResourcePackCreator
