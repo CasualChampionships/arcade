@@ -11,7 +11,7 @@ plugins {
     java
 }
 
-val modVersion = "0.4.0-alpha.16"
+val modVersion = "0.4.0-beta.1"
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -107,6 +107,10 @@ allprojects {
     }
 
     spotless {
+        java {
+            licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
+            targetExclude("src/testmod/**")
+        }
         kotlin {
             licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
             targetExclude("src/testmod/**")

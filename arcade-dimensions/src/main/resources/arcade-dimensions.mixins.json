@@ -18,7 +18,7 @@
     "vanilla.BaseFireBlockMixin",
     "vanilla.EndPortalBlockMixin",
     "vanilla.FallingBlockEntityMixin",
-    "vanilla.GameRuleCommandMixin",
+    "command.GameRuleCommandMixin",
     "vanilla.NetherPortalBlockMixin",
     "vanilla.ServerLevelMixin",
     "vanilla.ServerPlayerMixin",

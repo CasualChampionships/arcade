@@ -23,6 +23,8 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.ProgressListener
+import net.minecraft.world.level.ChunkPos
+import net.minecraft.world.level.ForcedChunksSavedData
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.biome.BiomeManager
@@ -31,6 +33,7 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.io.IOException
 import java.nio.file.Path
 import java.util.concurrent.Executor
+import java.util.function.BooleanSupplier
 import kotlin.io.path.createParentDirectories
 
 /**
@@ -82,8 +85,6 @@ public open class CustomLevel(
         get() = this.levelData as DerivedLevelData
 
     init {
-        this.loadCustomSpawners()
-
         // In case of server crash, we should still delete temporary levels
         if (!this.persistence.shouldSave()) {
             PathUtils.deleteOnExit(server.getDimensionPath(key))
@@ -96,7 +97,9 @@ public open class CustomLevel(
      */
     @OverrideOnly
     public fun onLoad() {
-
+        this.loadCustomSpawners()
+        this.loadForcedChunks()
+        this.setSpawnSettings(this.server.isSpawningMonsters)
     }
 
     /**
@@ -154,6 +157,16 @@ public open class CustomLevel(
         val spawners = (this as ServerLevelAccessor).customSpawners
         for (factory in this.options.customSpawners) {
             spawners.add(factory.create(this))
+        }
+    }
+
+    protected open fun loadForcedChunks() {
+        val forced = this.dataStorage.get(ForcedChunksSavedData.factory(), "chunks")
+        if (forced != null) {
+            val iter = forced.chunks.iterator()
+            while (iter.hasNext()) {
+                this.chunkSource.updateChunkForced(ChunkPos(iter.nextLong()), true)
+            }
         }
     }
 
