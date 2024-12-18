@@ -19,17 +19,17 @@ repositories {
 }
 
 dependencies {
-    include(modImplementation("net.casualchampionships:arcade-minigames:0.4.0-alpha.15+1.21.4")!!)
+    include(modImplementation("net.casualchampionships:arcade-minigames:0.4.0-alpha.16+1.21.4")!!)
 
-    include(modImplementation("net.casualchampionships:arcade-commands:0.4.0-alpha.15+1.21.4")!!)
-    include(modImplementation("net.casualchampionships:arcade-dimensions:0.4.0-alpha.15+1.21.4")!!)
-    include(modImplementation("net.casualchampionships:arcade-event-registry:0.4.0-alpha.15+1.21.4")!!)
-    include(modImplementation("net.casualchampionships:arcade-events-server:0.4.0-alpha.15+1.21.4")!!)
-    include(modImplementation("net.casualchampionships:arcade-extensions:0.4.0-alpha.15+1.21.4")!!)
-    include(modImplementation("net.casualchampionships:arcade-resource-pack:0.4.0-alpha.15+1.21.4")!!)
-    include(modImplementation("net.casualchampionships:arcade-scheduler:0.4.0-alpha.15+1.21.4")!!)
-    include(modImplementation("net.casualchampionships:arcade-utils:0.4.0-alpha.15+1.21.4")!!)
-    include(modImplementation("net.casualchampionships:arcade-visuals:0.4.0-alpha.15+1.21.4")!!)
+    include(modImplementation("net.casualchampionships:arcade-commands:0.4.0-alpha.16+1.21.4")!!)
+    include(modImplementation("net.casualchampionships:arcade-dimensions:0.4.0-alpha.16+1.21.4")!!)
+    include(modImplementation("net.casualchampionships:arcade-event-registry:0.4.0-alpha.16+1.21.4")!!)
+    include(modImplementation("net.casualchampionships:arcade-events-server:0.4.0-alpha.16+1.21.4")!!)
+    include(modImplementation("net.casualchampionships:arcade-extensions:0.4.0-alpha.16+1.21.4")!!)
+    include(modImplementation("net.casualchampionships:arcade-resource-pack:0.4.0-alpha.16+1.21.4")!!)
+    include(modImplementation("net.casualchampionships:arcade-scheduler:0.4.0-alpha.16+1.21.4")!!)
+    include(modImplementation("net.casualchampionships:arcade-utils:0.4.0-alpha.16+1.21.4")!!)
+    include(modImplementation("net.casualchampionships:arcade-visuals:0.4.0-alpha.16+1.21.4")!!)
 }
 ```
 

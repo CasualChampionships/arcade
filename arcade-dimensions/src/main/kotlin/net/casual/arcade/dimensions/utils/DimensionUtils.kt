@@ -45,7 +45,7 @@ import kotlin.io.path.isDirectory
  * @param level The level to add.
  * @return The added level.
  */
-public fun MinecraftServer.addCustomLevel(level: CustomLevel): ServerLevel {
+public fun MinecraftServer.addCustomLevel(level: CustomLevel): CustomLevel {
     val levels = (this as MinecraftServerAccessor).levels
     val dimension = level.dimension()
     if (levels.containsKey(dimension)) {
@@ -82,7 +82,7 @@ public fun MinecraftServer.addCustomLevel(level: CustomLevel): ServerLevel {
  * @param builder The builder to create the level.
  * @return The added level.
  */
-public fun MinecraftServer.addCustomLevel(builder: CustomLevelBuilder): ServerLevel {
+public fun MinecraftServer.addCustomLevel(builder: CustomLevelBuilder): CustomLevel {
     return this.addCustomLevel(builder.build(this))
 }
 
@@ -101,7 +101,7 @@ public fun MinecraftServer.addCustomLevel(builder: CustomLevelBuilder): ServerLe
  * @param block The method to configure the builder.
  * @return The added level.
  */
-public inline fun MinecraftServer.addCustomLevel(block: CustomLevelBuilder.() -> Unit): ServerLevel {
+public inline fun MinecraftServer.addCustomLevel(block: CustomLevelBuilder.() -> Unit): CustomLevel {
     val builder = CustomLevelBuilder()
     builder.block()
     return this.addCustomLevel(builder)
@@ -121,7 +121,7 @@ public inline fun MinecraftServer.addCustomLevel(block: CustomLevelBuilder.() ->
  * @param location The location of the level.
  * @return The level, or `null` if it does not exist.
  */
-public fun MinecraftServer.loadCustomLevel(location: ResourceLocation): ServerLevel? {
+public fun MinecraftServer.loadCustomLevel(location: ResourceLocation): CustomLevel? {
     return this.loadCustomLevel(ResourceKey.create(Registries.DIMENSION, location))
 }
 
@@ -139,10 +139,13 @@ public fun MinecraftServer.loadCustomLevel(location: ResourceLocation): ServerLe
  * @param key The key of the level.
  * @return The level, or `null` if it does not exist.
  */
-public fun MinecraftServer.loadCustomLevel(key: ResourceKey<Level>): ServerLevel? {
+public fun MinecraftServer.loadCustomLevel(key: ResourceKey<Level>): CustomLevel? {
     val loaded = this.getLevel(key)
     if (loaded != null) {
-        return loaded
+        if (loaded is CustomLevel) {
+            return loaded
+        }
+        throw IllegalArgumentException("Tried to load custom level $key but it wasn't a CustomLevel instance")
     }
     val custom = CustomLevel.read(this, key) ?: return null
     return this.addCustomLevel(custom)
@@ -167,7 +170,7 @@ public fun MinecraftServer.loadCustomLevel(key: ResourceKey<Level>): ServerLevel
 public inline fun MinecraftServer.loadOrAddCustomLevel(
     location: ResourceLocation,
     block: CustomLevelBuilder.() -> Unit
-): ServerLevel {
+): CustomLevel {
     return this.loadCustomLevel(location) ?: this.addCustomLevel { dimensionKey(location).block() }
 }
 
@@ -190,7 +193,7 @@ public inline fun MinecraftServer.loadOrAddCustomLevel(
 public inline fun MinecraftServer.loadOrAddCustomLevel(
     key: ResourceKey<Level>,
     block: CustomLevelBuilder.() -> Unit
-): ServerLevel {
+): CustomLevel {
     return this.loadCustomLevel(key) ?: this.addCustomLevel { dimensionKey(key).block() }
 }
 

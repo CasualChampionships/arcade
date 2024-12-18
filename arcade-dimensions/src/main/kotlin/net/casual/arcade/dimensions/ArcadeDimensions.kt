@@ -60,7 +60,7 @@ public object ArcadeDimensions: ModInitializer {
      * @return The added level.
      */
     @JvmStatic
-    public fun add(server: MinecraftServer, level: CustomLevel): ServerLevel {
+    public fun add(server: MinecraftServer, level: CustomLevel): CustomLevel {
         return server.addCustomLevel(level)
     }
 
@@ -81,7 +81,7 @@ public object ArcadeDimensions: ModInitializer {
      * @return The added level.
      */
     @JvmStatic
-    public fun add(server: MinecraftServer, builder: CustomLevelBuilder): ServerLevel {
+    public fun add(server: MinecraftServer, builder: CustomLevelBuilder): CustomLevel {
         return server.addCustomLevel(builder)
     }
 
@@ -102,7 +102,7 @@ public object ArcadeDimensions: ModInitializer {
      * @return The added level.
      */
     @JvmStatic
-    public fun add(server: MinecraftServer, block: CustomLevelBuilder.() -> Unit): ServerLevel {
+    public fun add(server: MinecraftServer, block: CustomLevelBuilder.() -> Unit): CustomLevel {
         return server.addCustomLevel(block)
     }
 
@@ -122,7 +122,7 @@ public object ArcadeDimensions: ModInitializer {
      * @return The level, or `null` if it does not exist.
      */
     @JvmStatic
-    public fun load(server: MinecraftServer, location: ResourceLocation): ServerLevel? {
+    public fun load(server: MinecraftServer, location: ResourceLocation): CustomLevel? {
         return server.loadCustomLevel(location)
     }
 
@@ -142,7 +142,7 @@ public object ArcadeDimensions: ModInitializer {
      * @return The level, or `null` if it does not exist.
      */
     @JvmStatic
-    public fun load(server: MinecraftServer, key: ResourceKey<Level>): ServerLevel? {
+    public fun load(server: MinecraftServer, key: ResourceKey<Level>): CustomLevel? {
         return server.loadCustomLevel(key)
     }
 
@@ -164,7 +164,7 @@ public object ArcadeDimensions: ModInitializer {
      * @return The level.
      */
     @JvmStatic
-    public fun loadOrAdd(server: MinecraftServer, location: ResourceLocation, block: CustomLevelBuilder.() -> Unit): ServerLevel {
+    public fun loadOrAdd(server: MinecraftServer, location: ResourceLocation, block: CustomLevelBuilder.() -> Unit): CustomLevel {
         return server.loadOrAddCustomLevel(location, block)
     }
 
@@ -186,7 +186,7 @@ public object ArcadeDimensions: ModInitializer {
      * @return The level.
      */
     @JvmStatic
-    public fun loadOrAdd(server: MinecraftServer, key: ResourceKey<Level>, block: CustomLevelBuilder.() -> Unit): ServerLevel {
+    public fun loadOrAdd(server: MinecraftServer, key: ResourceKey<Level>, block: CustomLevelBuilder.() -> Unit): CustomLevel {
         return server.loadOrAddCustomLevel(key, block)
     }
 

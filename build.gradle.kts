@@ -11,7 +11,7 @@ plugins {
     java
 }
 
-val modVersion = "0.4.0-alpha.15"
+val modVersion = "0.4.0-alpha.16"
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -116,7 +116,7 @@ allprojects {
 
 subprojects {
     afterEvaluate {
-         updateDocumentedDependencies("../docs/${name}/getting-started.md")
+//         updateDocumentedDependencies("../docs/${name}/getting-started.md")
     }
 }
 
