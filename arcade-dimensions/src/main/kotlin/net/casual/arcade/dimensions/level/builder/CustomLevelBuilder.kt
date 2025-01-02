@@ -249,6 +249,7 @@ public class CustomLevelBuilder {
      */
     public fun weather(modifier: WeatherProperties.() -> Unit): CustomLevelBuilder {
         val weather = this.properties.weather.orElseGet(::WeatherProperties)
+        this.properties.weather = Optional.of(weather)
         weather.modifier()
         return this
     }
@@ -272,6 +273,7 @@ public class CustomLevelBuilder {
      */
     public fun difficulty(builder: DifficultyProperties.() -> Unit): CustomLevelBuilder {
         val difficulty = this.properties.difficulty.orElseGet(::DifficultyProperties)
+        this.properties.difficulty = Optional.of(difficulty)
         difficulty.builder()
         return this
     }
@@ -295,6 +297,7 @@ public class CustomLevelBuilder {
      */
     public fun gameRules(builder: GameRules.() -> Unit): CustomLevelBuilder {
         val rules = this.properties.gameRules.orElseGet { GameRules(FeatureFlagSet.of()) }
+        this.properties.gameRules = Optional.of(rules)
         rules.builder()
         return this
     }
@@ -394,7 +397,6 @@ public class CustomLevelBuilder {
         return this.dimensionType(Holder.direct(type))
     }
 
-
     /**
      * Sets the chunk generator.
      *
@@ -407,7 +409,6 @@ public class CustomLevelBuilder {
         this.generator = generator
         return this
     }
-
 
     /**
      * Sets the world seed.
@@ -430,7 +431,6 @@ public class CustomLevelBuilder {
         return this
     }
 
-
     /**
      * Sets whether the world is considered to be flat.
      *
@@ -449,7 +449,6 @@ public class CustomLevelBuilder {
         this.flat = flat
         return this
     }
-
 
     /**
      * Sets whether the world should tick time.
