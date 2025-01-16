@@ -10,6 +10,7 @@
     "BrewingStandBlockEntityMixin",
     "CommandsMixin",
     "EntityCallbacksMixin",
+    "EntityMixin",
     "FlowingFluidMixin",
     "InteractionHandlerMixin",
     "ItemStackMixin",
