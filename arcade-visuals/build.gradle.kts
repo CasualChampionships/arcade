@@ -7,4 +7,5 @@ moduleDependencies(project, listOf(
 dependencies {
     include(modApi(libs.sgui.get())!!)
     include(modApi(libs.custom.nametags.get())!!)
+    modImplementation(libs.polymer.virtual.entity)
 }

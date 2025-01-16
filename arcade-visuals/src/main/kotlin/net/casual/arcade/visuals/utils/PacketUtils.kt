@@ -2,7 +2,7 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.minigame.utils
+package net.casual.arcade.visuals.utils
 
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData

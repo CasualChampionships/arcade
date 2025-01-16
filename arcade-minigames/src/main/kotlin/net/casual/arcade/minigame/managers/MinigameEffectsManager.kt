@@ -15,7 +15,7 @@ import net.casual.arcade.events.server.player.PlayerRespawnEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
-import net.casual.arcade.minigame.utils.modifySharedFlags
+import net.casual.arcade.visuals.utils.modifySharedFlags
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.modify
