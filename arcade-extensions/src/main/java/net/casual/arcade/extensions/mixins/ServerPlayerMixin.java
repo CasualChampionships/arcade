@@ -34,16 +34,6 @@ public class ServerPlayerMixin implements ExtensionHolder, ExtensionDataHolder {
 		this.arcade$data = compound.getCompound("arcade");
 	}
 
-	@Inject(
-		method = "addAdditionalSaveData",
-		at = @At("TAIL")
-	)
-	private void onSavePlayer(CompoundTag compound, CallbackInfo ci) {
-		CompoundTag arcade = new CompoundTag();
-		ExtensionHolder.serialize(this, arcade);
-		compound.put("arcade", arcade);
-	}
-
 	@Override
 	public void arcade$deserializeExtensionData() {
 		if (this.arcade$data != null) {

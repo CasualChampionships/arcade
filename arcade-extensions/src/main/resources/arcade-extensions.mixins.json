@@ -4,6 +4,7 @@
   "package": "net.casual.arcade.extensions.mixins",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "EntityMixin",
     "PlayerTeamMixin",
     "ScoreboardSaveDataMixin",
     "ServerGamePacketListenerImplMixin",

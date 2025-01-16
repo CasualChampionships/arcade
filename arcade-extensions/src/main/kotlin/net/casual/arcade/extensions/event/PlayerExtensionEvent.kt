@@ -10,7 +10,10 @@ import net.casual.arcade.extensions.ExtensionHolder
 import net.casual.arcade.extensions.ExtensionHolder.Companion.add
 import net.casual.arcade.extensions.ExtensionHolder.Companion.get
 import net.casual.arcade.extensions.PlayerExtension
+import net.casual.arcade.extensions.event.EntityExtensionEvent.Companion.addExtension
+import net.casual.arcade.extensions.event.EntityExtensionEvent.Companion.getExtension
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.Entity
 
 /**
  * This event is broadcast when a player is created.
@@ -39,15 +42,15 @@ public data class PlayerExtensionEvent(
 
     public companion object {
         public fun ServerPlayer.addExtension(extension: Extension) {
-            (this as ExtensionHolder).add(extension)
+            (this as Entity).addExtension(extension)
         }
 
         public fun <T: Extension> ServerPlayer.getExtension(type: Class<T>): T {
-            return (this as ExtensionHolder).get(type)
+            return (this as Entity).getExtension(type)
         }
 
         public inline fun <reified T: Extension> ServerPlayer.getExtension(): T {
-            return this.getExtension(T::class.java)
+            return (this as Entity).getExtension<T>()
         }
     }
 }

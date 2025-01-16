@@ -9,6 +9,7 @@ import net.casual.arcade.extensions.Extension;
 import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.ExtensionMap;
 import net.casual.arcade.extensions.ducks.ExtensionDataHolder;
+import net.casual.arcade.extensions.event.EntityExtensionEvent;
 import net.casual.arcade.extensions.event.PlayerExtensionEvent;
 import net.minecraft.network.Connection;
 import net.minecraft.server.MinecraftServer;
@@ -53,8 +54,8 @@ public class ServerGamePacketListenerImplMixin implements ExtensionHolder {
 		CommonListenerCookie cookie,
 		CallbackInfo ci
 	) {
-		PlayerExtensionEvent event = new PlayerExtensionEvent(player);
-		GlobalEventHandler.Server.broadcast(event);
+		GlobalEventHandler.Server.broadcast(new EntityExtensionEvent(player));
+		GlobalEventHandler.Server.broadcast(new PlayerExtensionEvent(player));
 
 		((ExtensionDataHolder) player).arcade$deserializeExtensionData();
 	}
