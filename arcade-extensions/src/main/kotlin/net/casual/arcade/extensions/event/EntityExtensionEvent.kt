@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.extensions.event
 
+import net.casual.arcade.events.common.MissingExecutorEvent
 import net.casual.arcade.events.server.entity.EntityEvent
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
@@ -11,9 +12,10 @@ import net.casual.arcade.extensions.ExtensionHolder.Companion.add
 import net.casual.arcade.extensions.ExtensionHolder.Companion.get
 import net.minecraft.world.entity.Entity
 
+// This may be broadcasted off-thread, as a result of world-gen
 public class EntityExtensionEvent(
     override val entity: Entity
-): EntityEvent, ExtensionEvent {
+): EntityEvent, ExtensionEvent, MissingExecutorEvent {
     override fun addExtension(extension: Extension) {
         this.entity.addExtension(extension);
     }
