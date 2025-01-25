@@ -7,13 +7,37 @@ package net.casual.arcade.visuals.utils
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
+import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.SynchedEntityData.DataValue
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.Pose
 
 public inline fun ClientboundSetEntityDataPacket.modifySharedFlags(
     player: ServerPlayer,
     modifier: (observee: Entity, observer: ServerPlayer, flags: Byte) -> Byte
+): ClientboundSetEntityDataPacket {
+    return this.modify(player, EntityTrackedData.FLAGS, modifier)
+}
+
+public inline fun ClientboundSetEntityDataPacket.modifyFrozenTicks(
+    player: ServerPlayer,
+    modifier: (observee: Entity, observer: ServerPlayer, ticks: Int) -> Int
+): ClientboundSetEntityDataPacket {
+    return this.modify(player, EntityTrackedData.FROZEN_TICKS, modifier)
+}
+
+public inline fun ClientboundSetEntityDataPacket.modifyPose(
+    player: ServerPlayer,
+    modifier: (observee: Entity, observer: ServerPlayer, pose: Pose) -> Pose
+): ClientboundSetEntityDataPacket {
+    return this.modify(player, EntityTrackedData.POSE, modifier)
+}
+
+public inline fun <reified T: Any> ClientboundSetEntityDataPacket.modify(
+    player: ServerPlayer,
+    accessor: EntityDataAccessor<T>,
+    modifier: (observee: Entity, observer: ServerPlayer, data: T) -> T
 ): ClientboundSetEntityDataPacket {
     val observee = player.serverLevel().getEntity(this.id) ?: return this
 
@@ -21,10 +45,10 @@ public inline fun ClientboundSetEntityDataPacket.modifySharedFlags(
     val data = ArrayList<DataValue<*>>()
     var changed = false
     for (item in items) {
-        if (item.id == EntityTrackedData.FLAGS.id) {
-            val flags = item.value as Byte
+        if (item.id == accessor.id) {
+            val flags = item.value as T
             val modified = modifier.invoke(observee, player, flags)
-            data.add(DataValue.create(EntityTrackedData.FLAGS, modified))
+            data.add(DataValue.create(accessor, modified))
             changed = true
         } else {
             data.add(item)
