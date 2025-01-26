@@ -73,6 +73,20 @@ public interface PlayerListEntries {
                     if (latency) player.connection.latency() else -1
                 )
             }
+
+            public fun fromProfile(profile: GameProfile, server: MinecraftServer): Entry {
+                val player = server.playerList.getPlayer(profile.id)
+                if (player != null) {
+                    return fromPlayer(player)
+                }
+
+                val team = server.scoreboard.getPlayersTeam(profile.name)
+                return Entry(
+                    PlayerTeam.formatNameForTeam(team, Component.literal(profile.name)),
+                    Texture.fromProfile(profile) ?: Texture.DEFAULT,
+                    -1
+                )
+            }
         }
     }
 

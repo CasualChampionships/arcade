@@ -19,6 +19,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket.Action
+import net.minecraft.network.protocol.game.ClientboundTabListPacket
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
@@ -26,17 +27,17 @@ import net.minecraft.world.level.GameType
 import java.util.*
 import java.util.function.Consumer
 
-public class PlayerListDisplay(
+public open class PlayerListDisplay(
     private val display: PlayerListEntries
 ): PlayerUI(), TickableUI {
     private val previous = ArrayList<Entry>()
 
     public var header: PlayerSpecificElement<Component> = ComponentElements.empty()
-        private set
+        protected set
     public var footer: PlayerSpecificElement<Component> = ComponentElements.empty()
-        private set
+        protected set
 
-    public fun setDisplay(header: PlayerSpecificElement<Component>, footer: PlayerSpecificElement<Component>) {
+    public open fun setDisplay(header: PlayerSpecificElement<Component>, footer: PlayerSpecificElement<Component>) {
         this.header = header
         this.footer = footer
 
@@ -89,7 +90,7 @@ public class PlayerListDisplay(
         return true
     }
 
-    public fun onPlayerJoin(player: ServerPlayer) {
+    public open fun onPlayerJoin(player: ServerPlayer) {
         val actions = EnumSet.of(Action.UPDATE_LISTED)
         val entries = listOf(this.hidingClientboundEntry(player, true))
         this.sendToAllPlayers(ClientboundPlayerInfoUpdatePacket(actions, entries))
@@ -104,18 +105,7 @@ public class PlayerListDisplay(
     override fun onRemovePlayer(player: ServerPlayer) {
         player.tabDisplay.remove()
 
-        val hiding = ArrayList<ClientboundPlayerInfoUpdatePacket.Entry>()
-        for (other in player.server.playerList.players) {
-            hiding.add(this.hidingClientboundEntry(other, false))
-        }
-        player.connection.send(ClientboundPlayerInfoUpdatePacket(EnumSet.of(Action.UPDATE_LISTED), hiding))
-
-        val size = this.display.size
-        val removing = ArrayList<UUID>(size)
-        for (i in 0..< size) {
-            removing.add(this.createUUIDForIndex(i))
-        }
-        player.connection.send(ClientboundPlayerInfoRemovePacket(removing))
+        this.unsendTo(player, PlayerConnectionConsumer(player.connection))
     }
 
     override fun resendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
@@ -135,6 +125,22 @@ public class PlayerListDisplay(
             adding.add(this.toClientboundEntry(i, entry))
         }
         sender.accept(ClientboundPlayerInfoUpdatePacket(EnumUtils.completeSet(), adding))
+    }
+
+    protected fun unsendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
+        val hiding = ArrayList<ClientboundPlayerInfoUpdatePacket.Entry>()
+        for (other in player.server.playerList.players) {
+            hiding.add(this.hidingClientboundEntry(other, false))
+        }
+        sender.accept(ClientboundPlayerInfoUpdatePacket(EnumSet.of(Action.UPDATE_LISTED), hiding))
+
+        val size = this.display.size
+        val removing = ArrayList<UUID>(size)
+        for (i in 0..< size) {
+            removing.add(this.createUUIDForIndex(i))
+        }
+        sender.accept(ClientboundPlayerInfoRemovePacket(removing))
+        sender.accept(ClientboundTabListPacket(Component.empty(), Component.empty()))
     }
 
     private fun checkEntryUpdate(index: Int): Entry? {

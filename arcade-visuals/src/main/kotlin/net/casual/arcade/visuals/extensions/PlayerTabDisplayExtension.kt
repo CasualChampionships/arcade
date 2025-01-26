@@ -61,7 +61,6 @@ internal class PlayerTabDisplayExtension(
         this.current = null
         this.previousHeader = null
         this.previousFooter = null
-        this.player.connection.send(ClientboundTabListPacket(Component.empty(), Component.empty()))
     }
 
     internal fun resend(sender: Consumer<Packet<ClientGamePacketListener>>) {
