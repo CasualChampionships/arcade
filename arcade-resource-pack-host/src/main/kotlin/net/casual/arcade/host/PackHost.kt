@@ -31,6 +31,9 @@ public class PackHost(ip: String?, port: Int = DEFAULT_PORT, threads: Int = 1): 
 
     public fun addSupplier(supplier: ReadablePackSupplier) {
         this.suppliers.add(supplier)
+        for (pack in supplier.getPacks()) {
+            this.hostPack(pack)
+        }
     }
 
     public fun getHostedPack(name: String): HostedPack? {
