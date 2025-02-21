@@ -8,7 +8,7 @@ polymer             = "0.11.6+1.21.4"
 sgui                = "1.8.2+1.21.4"
 permissions         = "0.3.3"
 server-translations = "2.4.0+1.21.2-rc1"
-custom-nametags     = "0.3.4+1.21.4"
+custom-nametags     = "0.3.7+1.21.4"
 server-replay       = "1.2.6+1.21.4"
 
 # Plugins
