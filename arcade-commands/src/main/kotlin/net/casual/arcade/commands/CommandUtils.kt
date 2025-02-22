@@ -17,12 +17,16 @@ import net.casual.arcade.commands.hidden.HiddenCommandManager
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.utils.ComponentUtils.command
 import net.casual.arcade.utils.TimeUtils.Minutes
+import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import java.util.function.Supplier
+
+public val CommandSourceStack.location: Location
+    get() = Location.of(this.position, this.rotation, this.level)
 
 public fun MutableComponent.singleUseFunction(command: HiddenCommand): MutableComponent {
     return this.function { context ->

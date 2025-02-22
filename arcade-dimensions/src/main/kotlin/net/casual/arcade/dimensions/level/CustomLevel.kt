@@ -96,7 +96,7 @@ public open class CustomLevel(
      * added to the [MinecraftServer] instance.
      */
     @OverrideOnly
-    public fun onLoad() {
+    public open fun onLoad() {
         this.loadCustomSpawners()
         this.loadForcedChunks()
         this.setSpawnSettings(this.server.isSpawningMonsters)
@@ -110,7 +110,7 @@ public open class CustomLevel(
      * kicked from the level and before the level is saved.
      */
     @OverrideOnly
-    public fun onUnload() {
+    public open fun onUnload() {
 
     }
 
