@@ -46,7 +46,7 @@ public abstract class ServerCommonPacketListenerImplMixin {
 		if (self instanceof ServerGamePacketListenerImpl connection) {
 			PlayerClientboundPacketEvent playerEvent = new PlayerClientboundPacketEvent(connection.player, event.getPacket());
 			GlobalEventHandler.Server.broadcast(playerEvent);
-			if (event.isCancelled()) {
+			if (playerEvent.isCancelled()) {
 				ci.cancel();
 			}
 			return playerEvent.getPacket();
