@@ -92,7 +92,7 @@ public object ArcadeExtraCodecs {
         keyCodec: Codec<K>,
         valueMapCodec: MapCodec<V>,
         keyName: String = "id"
-    ): Codec<Map<K, V>>? {
+    ): Codec<Map<K, V>> {
         val entryCodec = RecordCodecBuilder.create<Pair<K, V>> { instance ->
             instance.group(
                 keyCodec.fieldOf(keyName).forGetter { it.first },

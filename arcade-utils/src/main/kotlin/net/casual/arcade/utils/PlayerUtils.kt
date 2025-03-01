@@ -285,8 +285,8 @@ public object PlayerUtils {
     }
 
     @JvmStatic
-    public fun ServerPlayer.sendSound(sound: Sound) {
-        this.sendSound(sound.event, sound.source, sound.volume, sound.pitch, sound.static)
+    public fun ServerPlayer.sendSound(sound: Sound, position: Vec3 = this.position()) {
+        this.sendSound(sound.event, sound.source, position, sound.volume, sound.pitch, sound.static)
     }
 
     @JvmStatic
@@ -294,11 +294,12 @@ public object PlayerUtils {
     public fun ServerPlayer.sendSound(
         sound: SoundEvent,
         source: SoundSource = SoundSource.MASTER,
+        position: Vec3 = this.position(),
         volume: Float = 1.0F,
         pitch: Float = 1.0F,
         static: Boolean = true
     ) {
-        this.sendSound(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound), source, volume, pitch, static)
+        this.sendSound(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound), source, position, volume, pitch, static)
     }
 
     @JvmStatic
@@ -306,12 +307,13 @@ public object PlayerUtils {
     public fun ServerPlayer.sendSound(
         sound: Holder<SoundEvent>,
         source: SoundSource = SoundSource.MASTER,
+        position: Vec3 = this.position(),
         volume: Float = 1.0F,
         pitch: Float = 1.0F,
         static: Boolean = true
     ) {
         val packet = if (!static) {
-            ClientboundSoundPacket(sound, source, this.x, this.y, this.z, volume, pitch, this.random.nextLong())
+            ClientboundSoundPacket(sound, source, position.x, position.y, position.z, volume, pitch, this.random.nextLong())
         } else {
             ClientboundSoundEntityPacket(sound, source, this, volume, pitch, this.random.nextLong())
         }
