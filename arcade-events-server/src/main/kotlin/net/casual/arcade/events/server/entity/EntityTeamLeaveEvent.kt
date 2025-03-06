@@ -1,0 +1,16 @@
+package net.casual.arcade.events.server.entity
+
+import net.casual.arcade.events.BuiltInEventPhases
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.scores.PlayerTeam
+
+public data class EntityTeamLeaveEvent(
+    override val entity: Entity,
+    public val team: PlayerTeam
+): EntityEvent {
+    public companion object {
+        public const val PHASE_PRE: String = BuiltInEventPhases.PRE
+
+        public const val PHASE_POST: String = BuiltInEventPhases.POST
+    }
+}

@@ -6,6 +6,8 @@ package net.casual.arcade.utils
 
 private val SMALL_CAPS_ALPHABET = "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘqʀꜱᴛᴜᴠᴡxyᴢ".toCharArray()
 
+private val UUID_REGEX = Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
 public fun String.toSmallCaps(): String {
     val builder = StringBuilder()
     for (char in this) {
@@ -21,6 +23,10 @@ public fun String.toSmallCaps(): String {
 
 public fun String.decodeHexToBytes(): ByteArray {
     return this.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+}
+
+public fun String.isUUID(): Boolean {
+    return this.matches(UUID_REGEX)
 }
 
 public fun ByteArray.encodeToHexString(): String {
