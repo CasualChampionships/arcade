@@ -4,16 +4,20 @@
  */
 package net.casual.arcade.utils
 
-import net.casual.arcade.utils.impl.Location
+import net.casual.arcade.utils.math.location.Location
+import net.casual.arcade.utils.math.location.LocationWithLevel
+import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
 import net.minecraft.core.registries.Registries
 import net.minecraft.nbt.*
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.joml.Vector3f
 import org.joml.Vector3fc
+import java.util.*
 
 public fun CompoundTag.contains(key: String, type: Byte): Boolean {
     return this.contains(key, type.toInt())
@@ -129,14 +133,29 @@ public fun CompoundTag.putLocation(key: String, location: Location) {
     val tag = CompoundTag()
     tag.putVec3("position", location.position)
     tag.putVec2("rotation", location.rotation)
+    this.put(key, tag)
+}
+
+public fun CompoundTag.getLocation(key: String): Location {
+    val tag = this.getCompound(key)
+    val position = tag.getVec3("position")
+    val rotation = tag.getVec2("rotation")
+    return Location(position, rotation)
+}
+
+public fun CompoundTag.putLocationWithLevel(key: String, location: LocationWithLevel<ServerLevel>) {
+    val tag = CompoundTag()
+    tag.putVec3("position", location.position)
+    tag.putVec2("rotation", location.rotation)
     tag.putId("dimension", location.level.dimension().location())
     this.put(key, tag)
 }
 
-public fun CompoundTag.getLocation(key: String, server: MinecraftServer): Location {
+public fun CompoundTag.getLocation(key: String, server: MinecraftServer): Optional<LocationWithLevel<ServerLevel>> {
     val tag = this.getCompound(key)
     val position = tag.getVec3("position")
     val rotation = tag.getVec2("rotation")
     val dimension = ResourceKey.create(Registries.DIMENSION, tag.getId("dimension"))
-    return Location.of(position, rotation, server.getLevel(dimension) ?: server.overworld())
+    val level = server.getLevel(dimension) ?: return Optional.empty()
+    return Optional.of(level.asLocation(position, rotation))
 }

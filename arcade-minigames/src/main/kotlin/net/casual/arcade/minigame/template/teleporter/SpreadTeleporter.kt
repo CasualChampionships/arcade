@@ -9,7 +9,7 @@ import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.codec.CodecProvider
-import net.casual.arcade.utils.impl.Location
+import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.visuals.shapes.Regular2DPolygonShape
 import net.casual.arcade.visuals.shapes.ShapePoints
 import net.minecraft.commands.arguments.EntityAnchorArgument
@@ -26,7 +26,7 @@ public class SpreadTeleporter(
         return Regular2DPolygonShape.createHorizontal(this.center, this.radius, points)
     }
 
-    override fun teleportEntity(entity: Entity, location: Location) {
+    override fun teleportEntity(entity: Entity, location: LocationWithLevel<ServerLevel>) {
         super.teleportEntity(entity, location)
         entity.lookAt(EntityAnchorArgument.Anchor.EYES, this.center)
     }

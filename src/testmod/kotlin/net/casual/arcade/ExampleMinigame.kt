@@ -1,26 +1,17 @@
 package net.casual.arcade
 
-import com.mojang.brigadier.Command
 import com.mojang.brigadier.StringReader
-import com.mojang.brigadier.arguments.ArgumentType
-import com.mojang.brigadier.arguments.StringArgumentType
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import com.mojang.serialization.MapCodec
 import eu.pb4.sgui.api.gui.GuiInterface
 import net.casual.arcade.commands.*
-import net.casual.arcade.commands.arguments.EnumArgument
-import net.casual.arcade.commands.arguments.MappedArgument
-import net.casual.arcade.commands.hidden.HiddenCommand
-import net.casual.arcade.commands.hidden.HiddenCommandManager
 import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.commands.type.CustomArgumentTypeInfo
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
 import net.casual.arcade.dimensions.utils.addCustomLevel
-import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.events.MinigameInitializeEvent
@@ -35,25 +26,17 @@ import net.casual.arcade.minigame.settings.display.MenuGameSettingBuilder
 import net.casual.arcade.minigame.task.impl.PhaseChangeTask
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.utils.ItemUtils.named
-import net.casual.arcade.utils.ServerUtils.nether
 import net.casual.arcade.utils.TimeUtils.Minutes
-import net.casual.arcade.utils.TimeUtils.Seconds
-import net.casual.arcade.utils.impl.Location
+import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
 import net.casual.arcade.utils.teleportTo
-import net.casual.arcade.visuals.countdown.TitledCountdown
 import net.casual.arcade.visuals.screen.SelectionGuiBuilder
 import net.fabricmc.api.ModInitializer
-import net.minecraft.commands.CommandSourceStack
-import net.minecraft.commands.Commands
-import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.core.Registry
-import net.minecraft.data.worldgen.DimensionTypes
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.Items
-import net.minecraft.world.level.Level
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
@@ -79,7 +62,7 @@ enum class ExamplePhases(
     DeathMatch("death_match") {
         override fun start(minigame: ExampleMinigame, previous: Phase<ExampleMinigame>) {
             // Change to location of the arena
-            val location = Location.of()
+            val location = minigame.server.overworld().asLocation()
             for (player in minigame.players.playing) {
                 player.teleportTo(location)
             }
@@ -113,8 +96,6 @@ class ExampleMinigame(
         this.levels.add(level)
 
         val minigame: Minigame = this
-
-
     }
 }
 

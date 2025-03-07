@@ -6,6 +6,7 @@ package net.casual.arcade.utils.codec
 
 import com.google.common.collect.HashBiMap
 import com.google.gson.JsonObject
+import com.mojang.datafixers.util.Either
 import com.mojang.serialization.Codec
 import com.mojang.serialization.DataResult
 import com.mojang.serialization.Dynamic
@@ -26,6 +27,7 @@ import org.apache.commons.lang3.mutable.MutableInt
 import org.apache.commons.lang3.mutable.MutableLong
 import java.nio.file.Path
 import java.util.*
+import java.util.function.Function
 import kotlin.enums.enumEntries
 import kotlin.io.path.pathString
 
@@ -52,6 +54,13 @@ public object ArcadeExtraCodecs {
         { Dynamic(NbtOps.INSTANCE, it.createTag()) }
     )
     public val DIMENSION: Codec<ResourceKey<Level>> = ResourceKey.codec(Registries.DIMENSION)
+
+    public fun <T> mapWithAlternative(primary: MapCodec<T>, alternative: MapCodec<T>): MapCodec<T> {
+        return Codec.mapEither(primary, alternative).xmap(
+            { either -> Either.unwrap(either) },
+            { value -> Either.left(value) }
+        )
+    }
 
     public inline fun <reified E: Enum<E>> enum(
         mapper: (E) -> String = { it.name.lowercase() }

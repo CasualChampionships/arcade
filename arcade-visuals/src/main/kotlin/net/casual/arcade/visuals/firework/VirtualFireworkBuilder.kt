@@ -5,9 +5,11 @@
 package net.casual.arcade.visuals.firework
 
 import net.casual.arcade.utils.TimeUtils.Ticks
-import net.casual.arcade.utils.impl.Location
+import net.casual.arcade.utils.math.location.LocationWithLevel
+import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.core.component.DataComponents
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.projectile.FireworkRocketEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -15,15 +17,15 @@ import net.minecraft.world.item.component.FireworkExplosion
 import net.minecraft.world.item.component.Fireworks
 import net.minecraft.world.phys.Vec3
 
-public class VirtualFireworkBuilder {
+public class VirtualFireworkBuilder(level: ServerLevel) {
     private val explosions = ArrayList<FireworkExplosion>()
 
-    public var location: Location = Location.of()
+    public var location: LocationWithLevel<ServerLevel> = level.asLocation()
     public var angled: Boolean = false
     public var duration: MinecraftTimeDuration = 10.Ticks
     public var velocity: Vec3? = null
 
-    public fun location(location: Location): VirtualFireworkBuilder {
+    public fun location(location: LocationWithLevel<ServerLevel>): VirtualFireworkBuilder {
         this.location = location
         return this
     }

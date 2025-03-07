@@ -40,7 +40,7 @@ import net.casual.arcade.utils.PlayerUtils.ops
 import net.casual.arcade.utils.PlayerUtils.resetExperience
 import net.casual.arcade.utils.PlayerUtils.resetHealth
 import net.casual.arcade.utils.PlayerUtils.resetHunger
-import net.casual.arcade.utils.impl.Location
+import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.time.MinecraftTimeUnit
 import net.casual.arcade.visuals.bossbar.TimerBossbar
 import net.minecraft.commands.CommandSourceStack
@@ -48,6 +48,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.scores.PlayerTeam
@@ -57,7 +58,7 @@ public open class LobbyMinigame(
     server: MinecraftServer,
     uuid: UUID,
     protected val area: PlaceableArea,
-    protected val spawn: Location
+    protected val spawn: LocationWithLevel<ServerLevel>
 ): Minigame(server, uuid) {
     private var transferring: Boolean = false
 

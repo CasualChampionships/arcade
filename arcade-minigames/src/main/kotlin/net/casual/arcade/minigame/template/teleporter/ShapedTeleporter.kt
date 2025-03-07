@@ -5,7 +5,8 @@
 package net.casual.arcade.minigame.template.teleporter
 
 import com.google.common.collect.Multimap
-import net.casual.arcade.utils.impl.Location
+import net.casual.arcade.utils.math.location.LocationWithLevel
+import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
 import net.casual.arcade.utils.teleportTo
 import net.casual.arcade.visuals.shapes.ShapePoints
 import net.minecraft.server.level.ServerLevel
@@ -15,11 +16,11 @@ import net.minecraft.world.scores.PlayerTeam
 public abstract class ShapedTeleporter: EntityTeleporter {
     protected abstract fun createShape(level: ServerLevel, points: Int): ShapePoints
 
-    protected open fun teleportEntity(entity: Entity, location: Location) {
+    protected open fun teleportEntity(entity: Entity, location: LocationWithLevel<ServerLevel>) {
         entity.teleportTo(location)
     }
 
-    protected open fun teleportTeam(team: PlayerTeam, entities: Collection<Entity>, location: Location) {
+    protected open fun teleportTeam(team: PlayerTeam, entities: Collection<Entity>, location: LocationWithLevel<ServerLevel>) {
         for (entity in entities) {
             this.teleportEntity(entity, location)
         }
@@ -28,14 +29,14 @@ public abstract class ShapedTeleporter: EntityTeleporter {
     override fun teleportEntities(level: ServerLevel, entities: List<Entity>) {
         val shape = this.createShape(level, entities.size)
         for ((i, position) in shape.withIndex()) {
-            this.teleportEntity(entities[i], Location.of(position, level = level))
+            this.teleportEntity(entities[i], level.asLocation(position))
         }
     }
 
     override fun teleportTeams(level: ServerLevel, teams: Multimap<PlayerTeam, Entity>) {
         val shape = this.createShape(level, teams.keySet().size)
         for ((team, position) in teams.keySet().zip(shape)) {
-            this.teleportTeam(team, teams[team], Location.of(position, level = level))
+            this.teleportTeam(team, teams[team], level.asLocation(position))
         }
     }
 }

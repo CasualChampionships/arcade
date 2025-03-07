@@ -7,6 +7,7 @@ package net.casual.arcade.visuals.firework
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.network.protocol.game.*
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.projectile.FireworkRocketEntity
 
@@ -68,8 +69,8 @@ public class VirtualFirework internal constructor(
     }
 
     public companion object {
-        public fun build(block: VirtualFireworkBuilder.() -> Unit): VirtualFirework {
-            val builder = VirtualFireworkBuilder()
+        public fun build(level: ServerLevel, block: VirtualFireworkBuilder.() -> Unit): VirtualFirework {
+            val builder = VirtualFireworkBuilder(level)
             builder.block()
             return builder.build()
         }

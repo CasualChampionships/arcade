@@ -9,7 +9,6 @@ import net.casual.arcade.util.mixins.PlayerAdvancementsAccessor
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
-import net.casual.arcade.utils.impl.Location
 import net.casual.arcade.utils.impl.Sound
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.advancements.AdvancementHolder
@@ -24,7 +23,6 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
-import net.minecraft.util.Mth
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
@@ -38,10 +36,6 @@ import java.util.function.Predicate
 
 public object PlayerUtils {
     private val HEALTH_BOOST = ResourceUtils.arcade("health_boost")
-
-    @JvmStatic
-    public val ServerPlayer.location: Location
-        get() = Location.of(this)
 
     @JvmStatic
     public val ServerPlayer.isSurvival: Boolean
@@ -230,20 +224,6 @@ public object PlayerUtils {
     @JvmStatic
     public fun ServerPlayer.markSilentRecipesDirty() {
         (this as SilentRecipeSender).`arcade$markSilentRecipesDirty`()
-    }
-
-    @JvmStatic
-    public fun ServerPlayer.teleportTo(location: Location, resetCamera: Boolean = true) {
-        this.teleportTo(
-            location.level,
-            location.x,
-            location.y,
-            location.z,
-            setOf(),
-            Mth.wrapDegrees(location.yaw),
-            Mth.wrapDegrees(location.pitch),
-            resetCamera
-        )
     }
 
     @JvmStatic

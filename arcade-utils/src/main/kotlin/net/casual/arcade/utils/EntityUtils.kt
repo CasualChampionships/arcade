@@ -4,21 +4,19 @@
  */
 package net.casual.arcade.utils
 
-import net.casual.arcade.utils.impl.Location
+import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.level.levelgen.structure.Structure
 import java.util.UUID
 import java.util.function.Consumer
 import kotlin.jvm.optionals.getOrNull
-import net.casual.arcade.utils.PlayerUtils.teleportTo as teleportPlayerTo
 
 public fun MinecraftServer.findEntity(uuid: UUID): Entity? {
     return this.allLevels.firstNotNullOfOrNull { it.getEntity(uuid) }
@@ -38,19 +36,15 @@ public fun Entity.setVelocityAndMark(deltaX: Double, deltaY: Double, deltaZ: Dou
     this.hurtMarked = true
 }
 
-public fun Entity.teleportTo(location: Location, resetCamera: Boolean = true) {
-    if (this is ServerPlayer) {
-        this.teleportPlayerTo(location, resetCamera)
-        return
-    }
+public fun Entity.teleportTo(location: LocationWithLevel<ServerLevel>, resetCamera: Boolean = true) {
     this.teleportTo(
         location.level,
         location.x,
         location.y,
         location.z,
         setOf(),
-        Mth.wrapDegrees(location.yaw),
-        Mth.wrapDegrees(location.pitch),
+        Mth.wrapDegrees(location.yRot),
+        Mth.wrapDegrees(location.xRot),
         resetCamera,
     )
 }
