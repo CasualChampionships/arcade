@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.utils
 
+import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.syncher.EntityDataAccessor
@@ -47,6 +48,10 @@ public fun Entity.teleportTo(location: LocationWithLevel<ServerLevel>, resetCame
         Mth.wrapDegrees(location.xRot),
         resetCamera,
     )
+}
+
+public fun Entity.teleportTo(location: Location, resetCamera: Boolean = true) {
+    this.teleportTo(location.with(this.level() as ServerLevel), resetCamera)
 }
 
 public fun Entity.isInStructure(key: ResourceKey<Structure>): Boolean {

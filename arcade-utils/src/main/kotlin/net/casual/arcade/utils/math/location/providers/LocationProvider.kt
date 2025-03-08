@@ -29,6 +29,7 @@ public interface LocationProvider {
             ExactLocationProvider.register(registry)
             RandomLocationProvider.register(registry)
             AroundLocationProvider.register(registry)
+            CyclingLocationProvider.register(registry)
         }
     }
 }
