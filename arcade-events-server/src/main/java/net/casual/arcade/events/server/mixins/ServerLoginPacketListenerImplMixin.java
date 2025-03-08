@@ -6,7 +6,7 @@ package net.casual.arcade.events.server.mixins;
 
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.server.network.PlayerLoginEvent;
+import net.casual.arcade.events.server.player.PlayerLoginEvent;
 import net.minecraft.network.protocol.login.ServerboundLoginAcknowledgedPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;

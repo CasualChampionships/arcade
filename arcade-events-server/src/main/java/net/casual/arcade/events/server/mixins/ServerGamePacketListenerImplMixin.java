@@ -92,9 +92,18 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		method = "onDisconnect",
 		at = @At("HEAD")
 	)
-	private void onDisconnect(CallbackInfo ci) {
+	private void onDisconnectPre(CallbackInfo ci) {
 		PlayerLeaveEvent event = new PlayerLeaveEvent(this.player);
-		GlobalEventHandler.Server.broadcast(event);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+	}
+
+	@Inject(
+		method = "onDisconnect",
+		at = @At("RETURN")
+	)
+	private void onDisconnectPost(CallbackInfo ci) {
+		PlayerLeaveEvent event = new PlayerLeaveEvent(this.player);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
 	}
 
 	@Inject(

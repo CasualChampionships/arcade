@@ -2,11 +2,10 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.events.server.network
+package net.casual.arcade.events.server.player
 
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.events.common.Event
-import net.casual.arcade.events.server.player.PlayerLeaveEvent
 import net.minecraft.server.MinecraftServer
 
 /**

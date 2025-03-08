@@ -4,10 +4,17 @@
  */
 package net.casual.arcade.events.server.player
 
+import net.casual.arcade.events.BuiltInEventPhases
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
 
 public data class PlayerTeamLeaveEvent(
     override val player: ServerPlayer,
     val team: PlayerTeam
-): PlayerEvent
+): PlayerEvent {
+    public companion object {
+        public const val PHASE_PRE: String = BuiltInEventPhases.PRE
+
+        public const val PHASE_POST: String = BuiltInEventPhases.POST
+    }
+}

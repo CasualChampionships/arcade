@@ -10,7 +10,7 @@ import eu.pb4.polymer.resourcepack.api.ResourcePackCreator
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.network.ClientboundPacketEvent
-import net.casual.arcade.events.server.network.PlayerDisconnectEvent
+import net.casual.arcade.events.server.player.PlayerDisconnectEvent
 import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
 import net.casual.arcade.host.HostedPack
 import net.casual.arcade.host.PackHost

@@ -8,7 +8,7 @@ import com.llamalad7.mixinextras.sugar.Cancellable;
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.network.ClientboundPacketEvent;
-import net.casual.arcade.events.server.network.PlayerDisconnectEvent;
+import net.casual.arcade.events.server.player.PlayerDisconnectEvent;
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent;
 import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.protocol.Packet;
