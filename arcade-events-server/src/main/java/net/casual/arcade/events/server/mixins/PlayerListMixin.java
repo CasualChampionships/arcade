@@ -13,10 +13,8 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.server.player.PlayerChatEvent;
-import net.casual.arcade.events.server.player.PlayerJoinEvent;
-import net.casual.arcade.events.server.player.PlayerRequestLoginEvent;
-import net.casual.arcade.events.server.player.PlayerSystemMessageEvent;
+import net.casual.arcade.events.server.player.*;
+import net.casual.arcade.events.server.player.PlayerJoinEvent.JoinMessageModification;
 import net.casual.arcade.utils.PlayerUtils;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
@@ -102,10 +100,14 @@ public class PlayerListMixin {
 		@Share("event") LocalRef<PlayerJoinEvent> eventRef,
 		@Share("delayed") LocalRef<Runnable> delayedRef
 	) {
-		if (!eventRef.get().getDelayJoinMessage()) {
-			PlayerSystemMessageEvent.broadcast(player, instance, message, bypassHiddenChat, original);
-		} else {
+		PlayerJoinEvent event = eventRef.get();
+		if (event.getJoinMessageModification() == JoinMessageModification.Hide) {
+			return;
+		}
+		if (event.getJoinMessageModification() == JoinMessageModification.Delay || event.getDelayJoinMessage()) {
 			delayedRef.set(() -> PlayerSystemMessageEvent.broadcast(player, instance, message, bypassHiddenChat, original));
+		} else {
+			PlayerSystemMessageEvent.broadcast(player, instance, message, bypassHiddenChat, original);
 		}
 	}
 

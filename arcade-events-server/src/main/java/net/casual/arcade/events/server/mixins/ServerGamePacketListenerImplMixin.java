@@ -30,6 +30,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -45,6 +46,8 @@ import static net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPacketListenerImpl {
+	@Unique private static final ThreadLocal<PlayerLeaveEvent> PLAYER_LEAVE_CONTEXT = new ThreadLocal<>();
+
 	@Shadow public ServerPlayer player;
 
 	public ServerGamePacketListenerImplMixin(MinecraftServer server, Connection connection, CommonListenerCookie cookie) {
@@ -94,16 +97,33 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 	)
 	private void onDisconnectPre(CallbackInfo ci) {
 		PlayerLeaveEvent event = new PlayerLeaveEvent(this.player);
+		PLAYER_LEAVE_CONTEXT.set(event);
 		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
 	}
+
+	@WrapWithCondition(
+		method = "removePlayerFromWorld",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"
+		)
+	)
+	private boolean onBroadcastLeaveMessage(PlayerList instance, Component message, boolean bypassHiddenChat) {
+		PlayerLeaveEvent event = PLAYER_LEAVE_CONTEXT.get();
+        return event != null && event.getLeaveMessageModification() != PlayerLeaveEvent.LeaveMessageModification.Hide;
+    }
 
 	@Inject(
 		method = "onDisconnect",
 		at = @At("RETURN")
 	)
 	private void onDisconnectPost(CallbackInfo ci) {
-		PlayerLeaveEvent event = new PlayerLeaveEvent(this.player);
+		PlayerLeaveEvent event = PLAYER_LEAVE_CONTEXT.get();
+		if (event == null) {
+			event = new PlayerLeaveEvent(this.player);
+		}
 		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+        PLAYER_LEAVE_CONTEXT.remove();
 	}
 
 	@Inject(

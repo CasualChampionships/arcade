@@ -10,6 +10,12 @@ import net.minecraft.server.level.ServerPlayer
 public data class PlayerLeaveEvent(
     override val player: ServerPlayer
 ): PlayerEvent {
+    var leaveMessageModification: LeaveMessageModification = LeaveMessageModification.None
+
+    public enum class LeaveMessageModification {
+        None, Hide
+    }
+
     public companion object {
         /**
          * This phase is called before the player is removed from the server and world.

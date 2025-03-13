@@ -19,7 +19,35 @@ public data class PlayerJoinEvent(
      *
      * This cannot be set in the [PHASE_POST] phase as it is too late.
      */
+    @Deprecated("Use joinMessageModification instead")
     var delayJoinMessage: Boolean = false
+
+    /**
+     * Lets you modify the join message.
+     *
+     * This cannot be set in the [PHASE_POST] phase as it is too late.
+     *
+     * @see JoinMessageModification
+     */
+    var joinMessageModification: JoinMessageModification = JoinMessageModification.None
+
+    public enum class JoinMessageModification {
+        /**
+         * Does nothing.
+         */
+        None,
+
+        /**
+         * This will delay the join from just after the [PHASE_INITIALIZED] phase
+         * to just after the [PHASE_POST] phase.
+         */
+        Delay,
+
+        /**
+         * Hides the join message from appearing.
+         */
+        Hide
+    }
 
     public companion object {
         /**
