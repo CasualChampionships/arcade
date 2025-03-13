@@ -110,7 +110,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 	)
 	private boolean onBroadcastLeaveMessage(PlayerList instance, Component message, boolean bypassHiddenChat) {
 		PlayerLeaveEvent event = PLAYER_LEAVE_CONTEXT.get();
-        return event != null && event.getLeaveMessageModification() != PlayerLeaveEvent.LeaveMessageModification.Hide;
+        return event == null || event.getLeaveMessageModification() != PlayerLeaveEvent.LeaveMessageModification.Hide;
     }
 
 	@Inject(
