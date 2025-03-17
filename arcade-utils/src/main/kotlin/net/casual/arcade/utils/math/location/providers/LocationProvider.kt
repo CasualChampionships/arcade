@@ -15,6 +15,26 @@ import java.util.function.Function
 public interface LocationProvider {
     public fun get(): Location
 
+    public fun get(count: Int): List<Location> {
+        val list = ArrayList<Location>(count)
+        for (i in 0 until count) {
+            list.add(this.get())
+        }
+        return list
+    }
+
+    public fun get(origin: Location): Location {
+        return this.get()
+    }
+
+    public fun get(origin: Location, count: Int): List<Location> {
+        val list = ArrayList<Location>(count)
+        for (i in 0 until count) {
+            list.add(this.get(origin))
+        }
+        return list
+    }
+
     public fun codec(): MapCodec<out LocationProvider>
 
     public companion object {
@@ -26,10 +46,14 @@ public interface LocationProvider {
         }
 
         internal fun bootstrap(registry: Registry<MapCodec<out LocationProvider>>) {
-            ExactLocationProvider.register(registry)
-            RandomLocationProvider.register(registry)
             AroundLocationProvider.register(registry)
+            BlendedLocationProvider.register(registry)
             CyclingLocationProvider.register(registry)
+            ExactLocationProvider.register(registry)
+            LocalLocationProvider.register(registry)
+            RandomLocationProvider.register(registry)
+            RelativeLocationProvider.register(registry)
+            WithOriginLocationProvider.register(registry)
         }
     }
 }

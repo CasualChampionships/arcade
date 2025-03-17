@@ -6,6 +6,7 @@ package net.casual.arcade.utils
 
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
+import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.SynchedEntityData
@@ -14,6 +15,8 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntitySpawnReason
+import net.minecraft.world.entity.EntityType
 import net.minecraft.world.level.levelgen.structure.Structure
 import java.util.UUID
 import java.util.function.Consumer
@@ -66,6 +69,15 @@ public fun Entity.isInStructure(structure: Structure): Boolean {
         return false
     }
     return level.structureManager().getStructureWithPieceAt(this.blockPosition(), structure).isValid
+}
+
+public fun <T: Entity> EntityType<T>.spawn(
+    location: LocationWithLevel<ServerLevel>,
+    reason: EntitySpawnReason = EntitySpawnReason.EVENT
+): T? {
+    val entity = this.spawn(location.level, BlockPos.containing(location.position), reason) ?: return null
+    entity.moveTo(location.position, location.yRot, location.xRot)
+    return entity
 }
 
 public object SynchedDataUtils {

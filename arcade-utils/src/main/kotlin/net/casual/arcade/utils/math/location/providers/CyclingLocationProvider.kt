@@ -16,6 +16,26 @@ public class CyclingLocationProvider(
         return this.locations[this.index++ % this.locations.size].get()
     }
 
+    override fun get(count: Int): List<Location> {
+        val list = ArrayList<Location>(count)
+        for (i in 0 until count) {
+            list.add(this.locations[i % this.locations.size].get())
+        }
+        return list
+    }
+
+    override fun get(origin: Location): Location {
+        return this.locations[this.index++ % this.locations.size].get(origin)
+    }
+
+    override fun get(origin: Location, count: Int): List<Location> {
+        val list = ArrayList<Location>(count)
+        for (i in 0 until count) {
+            list.add(this.locations[i % this.locations.size].get(origin))
+        }
+        return list
+    }
+
     override fun codec(): MapCodec<out LocationProvider> {
         return CODEC
     }

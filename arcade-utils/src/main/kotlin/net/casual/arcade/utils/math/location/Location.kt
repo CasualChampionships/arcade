@@ -24,6 +24,8 @@ public data class Location(
     public val xRot: Float get() = this.rotation.x
     public val yRot: Float get() = this.rotation.y
 
+    public constructor(x: Double, y: Double, z: Double, yaw: Float, pitch: Float): this(Vec3(x, y, z), Vec2(pitch, yaw))
+
     public fun <L: Level> with(level: L): LocationWithLevel<L> {
         return LocationWithLevel(this, level)
     }
@@ -33,19 +35,19 @@ public data class Location(
 
         private val SIMPLE_MAP_CODEC: MapCodec<Location> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
-                Vec3.CODEC.fieldOf("position").forGetter(Location::position),
-                ArcadeExtraCodecs.VEC2.fieldOf("rotation").forGetter(Location::rotation)
+                Vec3.CODEC.optionalFieldOf("position", Vec3.ZERO).forGetter(Location::position),
+                ArcadeExtraCodecs.VEC2.optionalFieldOf("rotation", Vec2.ZERO).forGetter(Location::rotation)
             ).apply(instance, ::Location)
         }
 
         private val VERBOSE_MAP_CODEC: MapCodec<Location> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
-                Codec.DOUBLE.fieldOf("x").forGetter { it.position.x },
-                Codec.DOUBLE.fieldOf("y").forGetter { it.position.y },
-                Codec.DOUBLE.fieldOf("z").forGetter { it.position.z },
-                Codec.FLOAT.fieldOf("yaw").forGetter { it.rotation.y },
-                Codec.FLOAT.fieldOf("pitch").forGetter { it.rotation.x },
-            ).apply(instance) { x, y, z, yaw, pitch -> Location(Vec3(x, y, z), Vec2(pitch, yaw)) }
+                Codec.DOUBLE.optionalFieldOf("x", 0.0).forGetter { it.position.x },
+                Codec.DOUBLE.optionalFieldOf("y", 0.0).forGetter { it.position.y },
+                Codec.DOUBLE.optionalFieldOf("z", 0.0).forGetter { it.position.z },
+                Codec.FLOAT.optionalFieldOf("yaw", 0.0F).forGetter { it.rotation.y },
+                Codec.FLOAT.optionalFieldOf("pitch", 0.0F).forGetter { it.rotation.x },
+            ).apply(instance, ::Location)
         }
 
         public val MAP_CODEC: MapCodec<Location> = ArcadeExtraCodecs.mapWithAlternative(SIMPLE_MAP_CODEC, VERBOSE_MAP_CODEC)

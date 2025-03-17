@@ -55,14 +55,43 @@ public object MathUtils {
         return vec.dot(direction) / direction.lengthSqr()
     }
 
-    public fun Vec3.distanceToLine(start: Vec3, end: Vec3): Double {
+    /**
+     * Calculates the shortest distance to an infinite line given by the [start] and [direction].
+     *
+     * If you want the shortest distance to a finite line see [distanceToSegment].
+     *
+     * @param start The starting point of the line.
+     * @param direction The direction of the line.
+     * @return The shortest distance from `this` to the line.
+     * @see distanceToSegment
+     */
+    public fun Vec3.distanceToLine(start: Vec3, direction: Vec3): Double {
+        if (direction == Vec3.ZERO) {
+            return this.distanceTo(start)
+        }
+
+        val cross = this.subtract(start).cross(direction)
+        return cross.length() / direction.length()
+    }
+
+    /**
+     * Calculates the shortest distance to a finite line given by the [start] and [end].
+     *
+     * @param start The start of the line.
+     * @param end The end of the line.
+     * @return The shortest distance from `this` to the line.
+     */
+    public fun Vec3.distanceToSegment(start: Vec3, end: Vec3): Double {
         if (start == end) {
             return this.distanceTo(start)
         }
 
-        val direction = end.subtract(start)
-        val cross = this.subtract(start).cross(direction)
-        return cross.length() / direction.length()
+        val scalar = this.projectionScalar(start, end)
+        return when {
+            scalar < 0.0 -> this.distanceTo(start)
+            scalar > 1.0 -> this.distanceTo(end)
+            else -> this.distanceToLine(start, end.subtract(start))
+        }
     }
 
     public fun Vec3.rotationAnglesTowards(other: Vec3): Vec2 {

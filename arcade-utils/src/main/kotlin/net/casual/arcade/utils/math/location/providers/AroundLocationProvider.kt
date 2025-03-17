@@ -19,15 +19,30 @@ public class AroundLocationProvider(
     private val location: LocationProvider
 ): LocationProvider {
     override fun get(): Location {
-        val location = this.location.get()
-        val randomX = if (this.horizontalRadius == 0.0) 0.0 else Random.nextDouble(-this.horizontalRadius, this.horizontalRadius)
-        val randomY = if (this.verticalRadius == 0.0) 0.0 else Random.nextDouble(-this.verticalRadius, this.verticalRadius)
-        val randomZ = if (this.horizontalRadius == 0.0) 0.0 else Random.nextDouble(-this.horizontalRadius, this.horizontalRadius)
-        return location.copy(position = location.position.add(randomX, randomY, randomZ))
+        return this.transform(this.location.get())
+    }
+
+    override fun get(origin: Location): Location {
+        return this.transform(this.location.get(origin))
+    }
+
+    override fun get(count: Int): List<Location> {
+        return this.location.get(count).map(this::transform)
+    }
+
+    override fun get(origin: Location, count: Int): List<Location> {
+        return this.location.get(origin, count).map(this::transform)
     }
 
     override fun codec(): MapCodec<out LocationProvider> {
         return CODEC
+    }
+
+    private fun transform(location: Location): Location {
+        val randomX = if (this.horizontalRadius == 0.0) 0.0 else Random.nextDouble(-this.horizontalRadius, this.horizontalRadius)
+        val randomY = if (this.verticalRadius == 0.0) 0.0 else Random.nextDouble(-this.verticalRadius, this.verticalRadius)
+        val randomZ = if (this.horizontalRadius == 0.0) 0.0 else Random.nextDouble(-this.horizontalRadius, this.horizontalRadius)
+        return location.copy(position = location.position.add(randomX, randomY, randomZ))
     }
 
     public companion object: CodecProvider<AroundLocationProvider> {

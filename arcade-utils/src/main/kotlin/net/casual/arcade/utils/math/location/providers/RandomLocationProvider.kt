@@ -18,6 +18,10 @@ public class RandomLocationProvider(
         return this.locations.random().get()
     }
 
+    override fun get(origin: Location): Location {
+        return this.locations.random().get(origin)
+    }
+
     override fun codec(): MapCodec<out LocationProvider> {
         return CODEC
     }
