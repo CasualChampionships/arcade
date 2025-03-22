@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "BaseCommandBlockMixin",
+    "BlockBehaviourMixin",
     "BlockItemMixin",
     "BrewingStandBlockEntityAccessor",
     "BrewingStandBlockEntityMixin",
