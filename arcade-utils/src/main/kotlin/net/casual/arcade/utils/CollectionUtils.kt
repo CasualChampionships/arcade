@@ -40,3 +40,11 @@ public fun <T> MutableList<T>.resizeAndFill(newSize: Int, defaultValue: T) {
         this.subList(newSize, this.size).clear()
     }
 }
+
+public fun <T> Iterable<T>.cycle(): Sequence<T> = sequence {
+    while (true) {
+        for (item in this@cycle) {
+            yield(item)
+        }
+    }
+}

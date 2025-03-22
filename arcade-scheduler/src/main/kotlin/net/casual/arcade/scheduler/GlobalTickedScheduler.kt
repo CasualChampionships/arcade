@@ -61,6 +61,7 @@ public object GlobalTickedScheduler {
      * @param task The runnable to be scheduled.
      */
     @JvmStatic
+    @JvmName("schedule")
     public fun schedule(duration: MinecraftTimeDuration, task: Task) {
         this.scheduler.schedule(duration, task)
     }
@@ -76,6 +77,7 @@ public object GlobalTickedScheduler {
      * @param task The runnable to be scheduled.
      */
     @JvmStatic
+    @JvmName("scheduleInLoop")
     public fun scheduleInLoop(
         delay: MinecraftTimeDuration,
         interval: MinecraftTimeDuration,
@@ -86,6 +88,7 @@ public object GlobalTickedScheduler {
     }
 
     @JvmStatic
+    @JvmName("temporaryScheduler")
     public fun temporaryScheduler(
         lifetime: MinecraftTimeDuration
     ): TickedScheduler {

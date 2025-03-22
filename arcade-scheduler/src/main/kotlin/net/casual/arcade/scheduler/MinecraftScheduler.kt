@@ -5,6 +5,7 @@
 package net.casual.arcade.scheduler
 
 import net.casual.arcade.scheduler.task.Task
+import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 
 /**
@@ -20,7 +21,7 @@ public interface MinecraftScheduler {
      * after a given [duration].
      *
      * @param duration The duration to wait before running the [task].
-     * @param task The runnable to be scheduled.
+     * @param task The task to be scheduled.
      */
     public fun schedule(duration: MinecraftTimeDuration, task: Task)
 
@@ -33,7 +34,7 @@ public interface MinecraftScheduler {
      * @param delay The initial delay before the first [task] is scheduled.
      * @param interval The amount of time between each [task].
      * @param duration The total duration the loop should be running for.
-     * @param task The runnable to be scheduled.
+     * @param task The task to be scheduled.
      */
     public fun scheduleInLoop(
         delay: MinecraftTimeDuration,
@@ -46,6 +47,20 @@ public interface MinecraftScheduler {
         while (current < total) {
             this.schedule(current, task)
             current += interval
+        }
+    }
+
+    public companion object {
+        /**
+         * This method allows Java callers to call the [schedule] method
+         * as the [MinecraftTimeDuration] value class is not available.
+         *
+         * @param ticks The number of ticks to schedule the task for.
+         * @param task The task to schedule.
+         */
+        @JvmStatic
+        public fun MinecraftScheduler.schedule(ticks: Int, task: Task) {
+            this.schedule(ticks.Ticks, task)
         }
     }
 }

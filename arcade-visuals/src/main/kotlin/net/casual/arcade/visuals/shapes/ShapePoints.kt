@@ -7,6 +7,7 @@ package net.casual.arcade.visuals.shapes
 import net.casual.arcade.utils.PlayerUtils.sendParticles
 import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.core.particles.ParticleTypes
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.phys.Vec3
 
@@ -41,6 +42,16 @@ public fun interface ShapePoints: Iterable<Vec3> {
         ) {
             for (point in this.iterator(steps)) {
                 player.sendParticles(particle, point)
+            }
+        }
+
+        public fun ShapePoints.drawAsParticles(
+            level: ServerLevel,
+            particle: ParticleOptions = ParticleTypes.END_ROD,
+            steps: Int = 10
+        ) {
+            for (point in this.iterator(steps)) {
+                level.sendParticles(particle, point.x, point.y, point.z, 0, 0.0, 0.0, 0.0, 0.0)
             }
         }
     }

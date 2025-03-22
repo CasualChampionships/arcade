@@ -466,7 +466,7 @@ public object PlayerUtils {
         yDist: Float = 0.0F,
         zDist: Float = 0.0F,
         speed: Float = 0.0F,
-        count: Int = 1,
+        count: Int = 0,
         alwaysRender: Boolean = false,
         overrideLimiter: Boolean = false
     ) {
