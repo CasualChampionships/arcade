@@ -75,9 +75,12 @@ public fun <T: Entity> EntityType<T>.spawn(
     location: LocationWithLevel<ServerLevel>,
     reason: EntitySpawnReason = EntitySpawnReason.EVENT
 ): T? {
-    val entity = this.spawn(location.level, BlockPos.containing(location.position), reason) ?: return null
-    entity.moveTo(location.position, location.yRot, location.xRot)
-    return entity
+    val consumer = Consumer<T> { entity ->
+        entity.moveTo(location.position, location.yRot, location.xRot)
+        entity.yHeadRot = location.yRot
+        entity.setYBodyRot(location.yRot)
+    }
+    return this.spawn(location.level, consumer, BlockPos.containing(location.position), reason, false, false)
 }
 
 public object SynchedDataUtils {

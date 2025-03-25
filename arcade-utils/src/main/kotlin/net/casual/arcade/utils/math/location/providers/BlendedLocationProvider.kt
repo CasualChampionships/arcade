@@ -31,7 +31,7 @@ public class BlendedLocationProvider(
     }
 
     override fun get(origin: Location, count: Int): List<Location> {
-        return this.first.get(count).zip(this.second.get(count)).map { this.blend(it.first, it.second) }
+        return this.first.get(origin, count).zip(this.second.get(origin, count)).map { this.blend(it.first, it.second) }
     }
 
     override fun codec(): MapCodec<out LocationProvider> {
