@@ -282,7 +282,7 @@ public object ResourcePackUtils {
 
     private fun tryAddMissingItemModel(namespace: String, path: Path, dir: String, models: Path, builder: ResourcePackBuilder) {
         val name = path.nameWithoutExtension
-        val relative = path.parent.toString().removePrefix(dir)
+        val relative = (path.parent.toString() + "/").removePrefix(dir).removeSuffix("/")
         val model = "$relative/$name.json"
         if (models.resolve(model).notExists()) {
             val location = ResourceLocation.fromNamespaceAndPath(namespace, "item/$relative/$name")
