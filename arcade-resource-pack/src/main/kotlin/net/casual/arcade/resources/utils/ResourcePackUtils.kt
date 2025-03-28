@@ -243,8 +243,8 @@ public object ResourcePackUtils {
                 if (path.startsWith(modelsPath)) {
                     val definition = path.removePrefix(modelsPath)
                     val name = definition.substringAfterLast('/')
-                    val relative = definition.substringBeforeLast('/')
-                    if (builder.getData("assets/$namespace/items/$relative/$name") == null) {
+                    val relative = if (definition.contains('/')) definition.substringBeforeLast('/') + "/" else ""
+                    if (builder.getData("assets/$namespace/items/$relative$name") == null) {
                         tryAddMissingItemModelDefinitionRaw(namespace, relative, name.removeSuffix(".json"), builder)
                     }
                 }
@@ -269,23 +269,23 @@ public object ResourcePackUtils {
 
     private fun tryAddMissingItemModelDefinitions(namespace: String, path: Path, dir: String, items: Path, builder: ResourcePackBuilder) {
         val name = path.nameWithoutExtension
-        val relative = path.parent.toString().removePrefix(dir)
-        if (items.resolve("$relative/$name.json").notExists()) {
+        val relative = (path.parent.toString() + "/").removePrefix(dir)
+        if (items.resolve("$relative$name.json").notExists()) {
             this.tryAddMissingItemModelDefinitionRaw(namespace, relative, name, builder)
         }
     }
 
     private fun tryAddMissingItemModelDefinitionRaw(namespace: String, relative: String, name: String, builder: ResourcePackBuilder) {
-        val location = ResourceLocation.fromNamespaceAndPath(namespace, "item/$relative/$name")
-        builder.addData("assets/$namespace/items/$relative/$name.json", getDefaultItemModelDefinition(location))
+        val location = ResourceLocation.fromNamespaceAndPath(namespace, "item/$relative$name")
+        builder.addData("assets/$namespace/items/$relative$name.json", getDefaultItemModelDefinition(location))
     }
 
     private fun tryAddMissingItemModel(namespace: String, path: Path, dir: String, models: Path, builder: ResourcePackBuilder) {
         val name = path.nameWithoutExtension
-        val relative = (path.parent.toString() + "/").removePrefix(dir).removeSuffix("/")
-        val model = "$relative/$name.json"
+        val relative = (path.parent.toString() + "/").removePrefix(dir)
+        val model = "$relative$name.json"
         if (models.resolve(model).notExists()) {
-            val location = ResourceLocation.fromNamespaceAndPath(namespace, "item/$relative/$name")
+            val location = ResourceLocation.fromNamespaceAndPath(namespace, "item/$relative$name")
             builder.addData("assets/$namespace/models/item/$model", getDefaultItemModel(location))
         }
     }
