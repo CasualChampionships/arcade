@@ -52,27 +52,27 @@ public enum class AdvancementModifier {
 public enum class RecipeModifier {
     Grant {
         override fun modifySingle(minigame: Minigame, player: ServerPlayer, recipe: RecipeHolder<*>): Component {
-            minigame.recipes.grantAll(player, listOf(recipe))
+            minigame.recipes.grant(player, recipe.id)
             return Component.translatable(
                 "minigame.command.recipe.grant.single", recipe.id.location().toString(), player.scoreboardName
             )
         }
 
         override fun modifyAll(minigame: Minigame, player: ServerPlayer): Component {
-            minigame.recipes.grantAll(player, minigame.recipes.all())
+            minigame.recipes.grantAll(player, minigame.recipes.keys())
             return Component.translatable("minigame.command.recipe.grant.all", player.scoreboardName)
         }
     },
     Revoke {
         override fun modifySingle(minigame: Minigame, player: ServerPlayer, recipe: RecipeHolder<*>): Component {
-            minigame.recipes.revokeAll(player, listOf(recipe))
+            minigame.recipes.revoke(player, recipe.id)
             return Component.translatable(
                 "minigame.command.recipe.revoke.single", recipe.id.location().toString(), player.scoreboardName
             )
         }
 
         override fun modifyAll(minigame: Minigame, player: ServerPlayer): Component {
-            minigame.recipes.revokeAll(player, minigame.recipes.all())
+            minigame.recipes.revokeAll(player, minigame.recipes.keys())
             return Component.translatable("minigame.command.recipe.revoke.all", player.scoreboardName)
         }
     };

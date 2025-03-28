@@ -9,8 +9,10 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.minigame.managers.MinigameRecipeManager;
 import net.casual.arcade.minigame.utils.MinigameUtils;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.ServerRecipeBook;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -60,7 +62,7 @@ public class ServerRecipeBookMixin {
 		Collection<RecipeHolder<?>> recipes,
 		ServerPlayer player,
 		LocalRef<Collection<RecipeHolder<?>>> recipesRef,
-		BiConsumer<MinigameRecipeManager, Collection<RecipeHolder<?>>> consumer
+		BiConsumer<MinigameRecipeManager, Collection<ResourceKey<Recipe<?>>>> consumer
 	) {
 		Minigame minigame = MinigameUtils.getMinigame(player);
 		if (minigame == null) {
@@ -73,8 +75,7 @@ public class ServerRecipeBookMixin {
 			Set<RecipeHolder<?>> copy = new HashSet<>(recipes);
 			copy.removeAll(intersection);
 			recipesRef.set(copy);
-
-			consumer.accept(minigame.getRecipes(), intersection);
+			consumer.accept(minigame.getRecipes(), intersection.stream().map(RecipeHolder::id).toList());
 		}
 	}
 }

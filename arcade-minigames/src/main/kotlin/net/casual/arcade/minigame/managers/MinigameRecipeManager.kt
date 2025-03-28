@@ -9,6 +9,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.objects.ReferenceSet
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
 import net.casual.arcade.minigame.Minigame
@@ -19,6 +20,7 @@ import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.strings
 import net.casual.arcade.utils.JsonUtils.toJsonStringArray
 import net.casual.arcade.utils.JsonUtils.uuid
+import net.casual.arcade.utils.PlayerUtils.player
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.protocol.game.ClientboundRecipeBookAddPacket
@@ -71,6 +73,29 @@ public class MinigameRecipeManager(
     }
 
     /**
+     * This removes a recipe from the [minigame].
+     *
+     * @param key The recipe key.
+     */
+    public fun remove(key: ResourceKey<Recipe<*>>): Boolean {
+        this.recipesById.remove(key) ?: return false
+        this.recipeToEntries.remove(key)
+        this.holdersWithEntries.removeIf { it.parent.id == key }
+        for (type in this.recipesByType.keySet()) {
+            this.recipesByType.remove(type, key)
+        }
+        for (uuid in this.players.keySet()) {
+            val player = this.minigame.server.player(uuid)
+            if (player != null) {
+                this.revoke(player, key)
+            } else {
+                this.players.remove(uuid, key)
+            }
+        }
+        return true
+    }
+
+    /**
      * This adds a collection of recipes to the [minigame].
      *
      * @param recipes The recipes to add.
@@ -93,6 +118,10 @@ public class MinigameRecipeManager(
         return this.recipesById.values
     }
 
+    public fun keys(): Set<ResourceKey<Recipe<*>>> {
+        return this.recipesById.keys
+    }
+
     /**
      * This gets all the recipes registered for the [minigame]
      * for a specific recipe [type].
@@ -112,13 +141,32 @@ public class MinigameRecipeManager(
      * @param recipe The recipe to grant.
      * @param toast Whether the recipe toast should be shown, `true` by default.
      */
-    public fun grant(player: ServerPlayer, recipe: RecipeHolder<*>, toast: Boolean = true) {
-        val entries = this.recipeToEntries[recipe.id]
-        if (!entries.isNullOrEmpty() && this.players.put(player.uuid, recipe.id)) {
+    public fun grant(player: ServerPlayer, recipe: ResourceKey<Recipe<*>>, toast: Boolean = true): Boolean {
+        val entries = this.recipeToEntries[recipe]
+        if (!entries.isNullOrEmpty() && this.players.put(player.uuid, recipe)) {
             player.connection.send(ClientboundRecipeBookAddPacket(
                 this.mapToEntries(entries, toast), false
             ))
+            return true
         }
+        return false
+    }
+
+    /**
+     * This grants a player a minigame recipe.
+     *
+     * @param uuid The uuid of the player to grant the recipe for.
+     * @param recipe The recipe to grant.
+     * @param toast Whether the recipe toast should be shown, `true` by default.
+     */
+    public fun grant(uuid: UUID, recipe: ResourceKey<Recipe<*>>, toast: Boolean = true): Boolean {
+        val player = this.minigame.server.player(uuid)
+        if (player != null) {
+            return this.grant(player, recipe, toast)
+        }
+
+        val entries = this.recipeToEntries[recipe]
+        return !entries.isNullOrEmpty() && this.players.put(uuid, recipe)
     }
 
     /**
@@ -131,13 +179,13 @@ public class MinigameRecipeManager(
      */
     public fun grantAll(
         player: ServerPlayer,
-        recipes: Collection<RecipeHolder<*>> = this.all(),
+        recipes: Collection<ResourceKey<Recipe<*>>> = this.keys(),
         toast: Boolean = true
     ) {
         val awarded = ArrayList<RecipeDisplayEntry>()
         for (recipe in recipes) {
-            val entries = this.recipeToEntries[recipe.id] ?: continue
-            if (this.players.put(player.uuid, recipe.id)) {
+            val entries = this.recipeToEntries[recipe] ?: continue
+            if (this.players.put(player.uuid, recipe)) {
                 awarded.addAll(entries)
             }
         }
@@ -154,9 +202,9 @@ public class MinigameRecipeManager(
      * @param player The player to revoke the recipe from.
      * @param recipe The recipe to revoke.
      */
-    public fun revoke(player: ServerPlayer, recipe: RecipeHolder<*>) {
-        if (this.players.remove(player.uuid, recipe.id)) {
-            val entries = this.recipeToEntries[recipe.id]
+    public fun revoke(player: ServerPlayer, recipe: ResourceKey<Recipe<*>>) {
+        if (this.players.remove(player.uuid, recipe)) {
+            val entries = this.recipeToEntries[recipe]
             if (entries.isNullOrEmpty()) {
                 return
             }
@@ -171,11 +219,11 @@ public class MinigameRecipeManager(
      * @param player The player to revoke the recipes from.
      * @param recipes The recipes to revoke.
      */
-    public fun revokeAll(player: ServerPlayer, recipes: Collection<RecipeHolder<*>> = this.all()) {
+    public fun revokeAll(player: ServerPlayer, recipes: Collection<ResourceKey<Recipe<*>>> = this.keys()) {
         val revoked = ArrayList<RecipeDisplayId>()
         for (recipe in recipes) {
-            if (this.players.remove(player.uuid, recipe.id)) {
-                val entries = this.recipeToEntries[recipe.id] ?: continue
+            if (this.players.remove(player.uuid, recipe)) {
+                val entries = this.recipeToEntries[recipe] ?: continue
                 entries.mapTo(revoked) { it.id }
             }
         }
