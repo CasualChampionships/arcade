@@ -1,3 +1,5 @@
 {
-  "commands.arguments.mapped.invalid": "%s is not a valid argument option"
+  "commands.arguments.mapped.invalid": "%s is not a valid argument option",
+  "commands.arguments.registry.unknown": "%s is not a valid registry",
+  "commands.arguments.registry.element.unknown": "Unknown element %s in registry %s"
 }

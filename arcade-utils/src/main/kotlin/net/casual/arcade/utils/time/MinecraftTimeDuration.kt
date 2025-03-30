@@ -6,6 +6,7 @@ package net.casual.arcade.utils.time
 
 import com.mojang.serialization.Codec
 import net.casual.arcade.utils.TimeUtils.Ticks
+import net.casual.arcade.utils.TimeUtils.format
 import net.casual.arcade.utils.time.MinecraftTimeUnit.Ticks
 import kotlin.math.max
 import kotlin.time.Duration
@@ -96,6 +97,10 @@ public value class MinecraftTimeDuration private constructor(
 
     public operator fun compareTo(other: MinecraftTimeDuration): Int {
         return this.ticks.compareTo(other.ticks)
+    }
+
+    override fun toString(): String {
+        return this.format()
     }
 
     public companion object {

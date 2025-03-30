@@ -28,7 +28,7 @@ import net.casual.arcade.minigame.task.impl.PhaseChangeTask
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.minigame.utils.MinigameUtils
 import net.casual.arcade.scheduler.task.impl.CancellableTask
-import net.casual.arcade.scheduler.task.utils.TaskRegisties
+import net.casual.arcade.scheduler.task.utils.TaskRegistries
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.obj
@@ -163,8 +163,7 @@ public object Minigames: ModInitializer {
             event.register(ExtendedGameModeCommand, MinigameCommand, PauseCommand, TeamCommandModifier)
         }
 
-        Registry.register(TaskRegisties.TASK_FACTORY, PhaseChangeTask.id, PhaseChangeTask)
-        Registry.register(TaskRegisties.TASK_FACTORY, CancellableTask.Savable.id, CancellableTask.Savable)
+        Registry.register(TaskRegistries.TASK_FACTORY, PhaseChangeTask.id, PhaseChangeTask)
     }
 
     internal fun allById(): Map<ResourceLocation, Collection<Minigame>> {

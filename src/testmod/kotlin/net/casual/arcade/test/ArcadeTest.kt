@@ -13,6 +13,7 @@ import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.host.PackHost
 import net.casual.arcade.minigame.utils.MinigameRegistries
+import net.casual.arcade.minigame.utils.MinigameRegistryKeys
 import net.casual.arcade.resources.ArcadeResourcePacks
 import net.casual.arcade.resources.utils.ResourcePackUtils.addPack
 import net.casual.arcade.resources.utils.ResourcePackUtils.sendResourcePack
@@ -51,7 +52,11 @@ object ArcadeTest: ModInitializer {
             ArcadeResourcePacks.SPACING_FONT_PACK
         )
         
-        GlobalEventHandler.Server.register<PlayerJoinEvent> { it.player.sendResourcePack(spacing.toPackInfo()) }
+        GlobalEventHandler.Server.register<PlayerJoinEvent> {
+            it.player.sendResourcePack(spacing.toPackInfo())
+            val x = it.player.level().registryAccess().lookup(MinigameRegistryKeys.MINIGAME_FACTORY)
+            println(x)
+        }
 
         host.start()
 

@@ -7,6 +7,7 @@ package net.casual.arcade.scheduler.task.serialization
 import net.casual.arcade.scheduler.task.SavableTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.impl.CancellableTask
+import net.casual.arcade.scheduler.task.utils.TaskRegistries
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceLocation
 

@@ -15,7 +15,7 @@ import net.casual.arcade.minigame.task.MinigameTaskCreationContext
 import net.casual.arcade.scheduler.task.SavableTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
-import net.casual.arcade.scheduler.task.utils.TaskRegisties
+import net.casual.arcade.scheduler.task.utils.TaskRegistries
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.arrayOrDefault
@@ -147,7 +147,7 @@ public class MinigameSerializer(
         } else {
             val id = definition.stringOrNull("id") ?: return null
             val custom = definition.objOrDefault("custom")
-            val factory = TaskRegisties.TASK_FACTORY.getOptional(ResourceLocation.parse(id)).getOrNull() ?: return null
+            val factory = TaskRegistries.TASK_FACTORY.getOptional(ResourceLocation.parse(id)).getOrNull() ?: return null
             factory.create(context.createSubContext(custom))
         }
         context.generated.put(identity, task)
