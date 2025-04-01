@@ -4,12 +4,17 @@
  */
 package net.casual.arcade.commands
 
+import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.tree.LiteralCommandNode
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 
 public interface CommandTree {
+    public fun register(dispatcher: CommandDispatcher<CommandSourceStack>, buildContext: CommandBuildContext) {
+        dispatcher.register(this.create(buildContext))
+    }
+
     public fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack>
 
     public companion object {

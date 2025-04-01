@@ -149,6 +149,6 @@ public fun <S, T> RequiredArgumentBuilder<S, T>.suggests(
 
 public fun ServerRegisterCommandEvent.register(vararg commands: CommandTree) {
     for (command in commands) {
-        this.dispatcher.register(command.create(this.context))
+        command.register(this.dispatcher, this.context)
     }
 }
