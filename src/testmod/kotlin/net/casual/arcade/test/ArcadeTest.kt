@@ -14,10 +14,13 @@ import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.host.PackHost
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.minigame.utils.MinigameRegistryKeys
+import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.resources.ArcadeResourcePacks
 import net.casual.arcade.resources.utils.ResourcePackUtils.addPack
 import net.casual.arcade.resources.utils.ResourcePackUtils.sendResourcePack
 import net.casual.arcade.resources.utils.ResourcePackUtils.toPackInfo
+import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.locationWithLevel
+import net.casual.arcade.utils.teleportTo
 import net.casual.arcade.visuals.screen.PlayerInventoryViewGui
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
@@ -53,9 +56,10 @@ object ArcadeTest: ModInitializer {
         )
         
         GlobalEventHandler.Server.register<PlayerJoinEvent> {
-            it.player.sendResourcePack(spacing.toPackInfo())
-            val x = it.player.level().registryAccess().lookup(MinigameRegistryKeys.MINIGAME_FACTORY)
-            println(x)
+            FakePlayer.join(it.player.server, "gnembon").thenApply { player ->
+                player.teleportTo(it.player.locationWithLevel)
+                player.follow = it.player
+            }
         }
 
         host.start()
