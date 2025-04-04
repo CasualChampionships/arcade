@@ -1,9 +1,6 @@
 package net.casual.arcade.test
 
 import com.mojang.brigadier.Command
-import com.mojang.serialization.*
-import com.mojang.serialization.codecs.BaseMapCodec
-import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.registerLiteral
 import net.casual.arcade.events.GlobalEventHandler
@@ -11,6 +8,7 @@ import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerJoinEvent
 import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
+import net.casual.arcade.host.GlobalPackHost
 import net.casual.arcade.host.PackHost
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.minigame.utils.MinigameRegistryKeys
@@ -23,6 +21,7 @@ import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.core.Registry
+import javax.net.ssl.SSLContext
 
 object ArcadeTest: ModInitializer {
     override fun onInitialize() {
@@ -46,23 +45,16 @@ object ArcadeTest: ModInitializer {
             TestMinigame.codec()
         )
 
-        val host = PackHost(null)
-        val spacing by host.addPack(
+        val spacing by GlobalPackHost.addPack(
             FabricLoader.getInstance().configDir.resolve("arcade-testing-packs"),
             ArcadeResourcePacks.SPACING_FONT_PACK
         )
-        
+
         GlobalEventHandler.Server.register<PlayerJoinEvent> {
             it.player.sendResourcePack(spacing.toPackInfo())
             val x = it.player.level().registryAccess().lookup(MinigameRegistryKeys.MINIGAME_FACTORY)
             println(x)
         }
-
-        host.start()
-
-        Runtime.getRuntime().addShutdownHook(Thread {
-            host.stop()
-        })
     }
 }
 

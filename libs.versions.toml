@@ -10,6 +10,7 @@ permissions         = "0.3.3"
 server-translations = "2.4.0+1.21.2-rc1"
 custom-nametags     = "0.4.1+1.21.4"
 server-replay       = "2.0.0+1.21.4"
+inject              = "3.1.3"
 
 # Plugins
 fabric-loom = "1.9-SNAPSHOT"
@@ -29,6 +30,10 @@ sgui                   = { module = "eu.pb4:sgui"                         , vers
 server-translations    = { module = "xyz.nucleoid:server-translations-api", version.ref = "server-translations" }
 custom-nametags        = { module = "me.senseiwells:custom-nametags"      , version.ref = "custom-nametags" }
 server-replay          = { module = "me.senseiwells:server-replay"        , version.ref = "server-replay" }
+
+inject-api             = { module = "net.mcbrawls.inject:api"             , version.ref = "inject" }
+inject-http            = { module = "net.mcbrawls.inject:http"            , version.ref = "inject" }
+inject-fabric          = { module = "net.mcbrawls.inject:fabric"          , version.ref = "inject" }
 
 [plugins]
 fabric-loom = { id = "fabric-loom", version.ref = "fabric-loom" }

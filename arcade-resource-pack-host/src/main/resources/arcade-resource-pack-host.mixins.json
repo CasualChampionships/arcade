@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.casual.arcade.host.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "ConnectionMixin",
+    "ServerCommonPacketListenerImplMixin",
+    "ServerHandshakePacketListenerImplMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

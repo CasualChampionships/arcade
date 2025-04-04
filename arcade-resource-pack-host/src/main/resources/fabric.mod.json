@@ -10,6 +10,17 @@
   "contact": {
 
   },
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.host.GlobalPackHost::load"
+      }
+    ]
+  },
+  "mixins": [
+    "arcade-resource-pack-host.mixins.json"
+  ],
   "license": "MIT",
   "icon": "assets/icon.png",
   "environment": "*"

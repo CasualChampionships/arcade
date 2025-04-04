@@ -12,7 +12,8 @@ import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.network.ClientboundPacketEvent
 import net.casual.arcade.events.server.player.PlayerDisconnectEvent
 import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
-import net.casual.arcade.host.HostedPack
+import net.casual.arcade.host.GlobalPackHost
+import net.casual.arcade.host.data.HostedPack
 import net.casual.arcade.host.PackHost
 import net.casual.arcade.host.pack.PathPack
 import net.casual.arcade.resources.creator.NamedResourcePackCreator
@@ -31,6 +32,7 @@ import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.network.ServerCommonPacketListenerImpl
 import java.io.FileNotFoundException
 import java.nio.file.FileVisitResult
 import java.nio.file.Path
@@ -50,8 +52,17 @@ public object ResourcePackUtils {
         get() = getExtension(this.uuid)
 
     @JvmStatic
+    public fun PackInfo.toPushPacket(connection: ServerCommonPacketListenerImpl): ClientboundResourcePackPushPacket {
+        return ClientboundResourcePackPushPacket(
+            this.uuid, this.url.resolve(connection), this.hash, this.required, Optional.ofNullable(this.prompt)
+        )
+    }
+
+    @JvmStatic
     public fun PackInfo.toPushPacket(): ClientboundResourcePackPushPacket {
-        return ClientboundResourcePackPushPacket(this.uuid, this.url, this.hash, this.required, Optional.ofNullable(this.prompt))
+        return ClientboundResourcePackPushPacket(
+            this.uuid, this.url.resolve(), this.hash, this.required, Optional.ofNullable(this.prompt)
+        )
     }
 
     @JvmStatic
@@ -106,7 +117,7 @@ public object ResourcePackUtils {
             }
         }
 
-        this.connection.send(pack.toPushPacket())
+        this.connection.send(pack.toPushPacket(this.connection))
         return this.resourcePacks.addFuture(pack.uuid)
     }
 
