@@ -12,7 +12,6 @@ import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.network.ClientboundPacketEvent
 import net.casual.arcade.events.server.player.PlayerDisconnectEvent
 import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
-import net.casual.arcade.host.GlobalPackHost
 import net.casual.arcade.host.data.HostedPack
 import net.casual.arcade.host.PackHost
 import net.casual.arcade.host.pack.PathPack
@@ -71,18 +70,38 @@ public object ResourcePackUtils {
     }
 
     @JvmStatic
+    public fun getPlayerPackState(playerUUID: UUID, packUUID: UUID): PackState? {
+        return this.getExtension(playerUUID).getPackState(packUUID)
+    }
+
+    @JvmStatic
+    public fun getPlayerAllPackStates(playerUUID: UUID): Collection<PackState> {
+        return this.getExtension(playerUUID).getAllPacks()
+    }
+
+    @JvmStatic
+    public fun getPlayerPackLoadingFuture(playerUUID: UUID): CompletableFuture<Void> {
+        return this.getExtension(playerUUID).allLoadedFuture
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.getPackState(uuid: UUID): PackState? {
+        return getPlayerPackState(this.uuid, uuid)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.getPackState(pack: PackInfo): PackState? {
+        return this.getPackState(pack.uuid)
+    }
+
+    @JvmStatic
     public fun ServerPlayer.hasBeenSentPack(pack: PackInfo): Boolean {
         return this.getPackState(pack) != null
     }
 
     @JvmStatic
     public fun ServerPlayer.getAllPackStates(): Collection<PackState> {
-        return this.resourcePacks.getAllPacks()
-    }
-
-    @JvmStatic
-    public fun ServerPlayer.getPackState(pack: PackInfo): PackState? {
-        return this.resourcePacks.getPackState(pack.uuid)
+        return getPlayerAllPackStates(this.uuid)
     }
 
     @JvmStatic
@@ -102,7 +121,7 @@ public object ResourcePackUtils {
 
     @JvmStatic
     public fun ServerPlayer.getPackLoadingFuture(): CompletableFuture<Void> {
-        return this.resourcePacks.allLoadedFuture
+        return getPlayerPackLoadingFuture(this.uuid)
     }
 
     @JvmStatic

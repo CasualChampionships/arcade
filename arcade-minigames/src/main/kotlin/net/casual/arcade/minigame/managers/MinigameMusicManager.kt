@@ -15,7 +15,7 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
 import net.casual.arcade.minigame.utils.MinigameMusicProvider
-import net.casual.arcade.resources.event.PlayerPackSuccessEvent
+import net.casual.arcade.resources.event.PlayerPacksSuccessEvent
 import net.casual.arcade.utils.PlayerUtils.sendSound
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.impl.TimedSound
@@ -47,7 +47,7 @@ public class MinigameMusicManager(
         this.minigame.events.register<MinigameAddPlayerEvent> { (_, player) -> this.suppressGameMusic(player) }
         this.minigame.events.register<PlayerDimensionChangeEvent> { (player) -> this.interrupt(player) }
         this.minigame.events.register<PlayerRespawnEvent> { (player) -> this.interrupt(player) }
-        this.minigame.events.register<PlayerPackSuccessEvent> { (player) -> this.interrupt(player) }
+        this.minigame.events.register<PlayerPacksSuccessEvent> { (player) -> this.interrupt(player) }
         this.minigame.events.register<MinigameRemovePlayerEvent> { (_, player) -> this.stop(player) }
         this.minigame.events.register<PlayerLeaveEvent> { (player) -> this.cancel(player) }
     }

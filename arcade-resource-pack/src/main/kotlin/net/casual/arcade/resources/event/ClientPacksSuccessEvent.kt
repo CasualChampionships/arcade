@@ -8,7 +8,7 @@ import net.casual.arcade.events.common.Event
 import net.casual.arcade.resources.pack.PackState
 import java.util.*
 
-public data class ClientPackSuccessEvent(
+public data class ClientPacksSuccessEvent(
     val uuid: UUID,
     val states: Collection<PackState>
 ): Event

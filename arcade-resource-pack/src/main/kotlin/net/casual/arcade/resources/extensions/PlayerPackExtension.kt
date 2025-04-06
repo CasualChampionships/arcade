@@ -8,8 +8,8 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.host.data.ResolvablePackURL
-import net.casual.arcade.resources.event.ClientPackSuccessEvent
-import net.casual.arcade.resources.event.PlayerPackSuccessEvent
+import net.casual.arcade.resources.event.ClientPacksSuccessEvent
+import net.casual.arcade.resources.event.PlayerPacksSuccessEvent
 import net.casual.arcade.resources.pack.PackInfo
 import net.casual.arcade.resources.pack.PackState
 import net.casual.arcade.resources.pack.PackStatus
@@ -90,10 +90,10 @@ internal class PlayerPackExtension(private val uuid: UUID): Extension {
             }
         }
         this.allLoadedFuture.complete(null)
-        GlobalEventHandler.Server.broadcast(ClientPackSuccessEvent(this.uuid, this.getAllPacks()))
+        GlobalEventHandler.Server.broadcast(ClientPacksSuccessEvent(this.uuid, this.getAllPacks()))
         val player = server.player(this.uuid)
         if (player != null) {
-            GlobalEventHandler.Server.broadcast(PlayerPackSuccessEvent(player, this.getAllPacks()))
+            GlobalEventHandler.Server.broadcast(PlayerPacksSuccessEvent(player, this.getAllPacks()))
         }
     }
 }
