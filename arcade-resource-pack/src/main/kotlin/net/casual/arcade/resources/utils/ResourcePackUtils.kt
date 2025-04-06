@@ -12,7 +12,7 @@ import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.network.ClientboundPacketEvent
 import net.casual.arcade.events.server.player.PlayerDisconnectEvent
 import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
-import net.casual.arcade.host.HostedPack
+import net.casual.arcade.host.data.HostedPack
 import net.casual.arcade.host.PackHost
 import net.casual.arcade.host.pack.PathPack
 import net.casual.arcade.resources.creator.NamedResourcePackCreator
@@ -31,6 +31,7 @@ import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.network.ServerCommonPacketListenerImpl
 import java.io.FileNotFoundException
 import java.nio.file.FileVisitResult
 import java.nio.file.Path
@@ -50,13 +51,47 @@ public object ResourcePackUtils {
         get() = getExtension(this.uuid)
 
     @JvmStatic
+    public fun PackInfo.toPushPacket(connection: ServerCommonPacketListenerImpl): ClientboundResourcePackPushPacket {
+        return ClientboundResourcePackPushPacket(
+            this.uuid, this.url.resolve(connection), this.hash, this.required, Optional.ofNullable(this.prompt)
+        )
+    }
+
+    @JvmStatic
     public fun PackInfo.toPushPacket(): ClientboundResourcePackPushPacket {
-        return ClientboundResourcePackPushPacket(this.uuid, this.url, this.hash, this.required, Optional.ofNullable(this.prompt))
+        return ClientboundResourcePackPushPacket(
+            this.uuid, this.url.resolve(), this.hash, this.required, Optional.ofNullable(this.prompt)
+        )
     }
 
     @JvmStatic
     public fun PackInfo.toPopPacket(): ClientboundResourcePackPopPacket {
         return ClientboundResourcePackPopPacket(Optional.of(this.uuid))
+    }
+
+    @JvmStatic
+    public fun getPlayerPackState(playerUUID: UUID, packUUID: UUID): PackState? {
+        return this.getExtension(playerUUID).getPackState(packUUID)
+    }
+
+    @JvmStatic
+    public fun getPlayerAllPackStates(playerUUID: UUID): Collection<PackState> {
+        return this.getExtension(playerUUID).getAllPacks()
+    }
+
+    @JvmStatic
+    public fun getPlayerPackLoadingFuture(playerUUID: UUID): CompletableFuture<Void> {
+        return this.getExtension(playerUUID).allLoadedFuture
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.getPackState(uuid: UUID): PackState? {
+        return getPlayerPackState(this.uuid, uuid)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.getPackState(pack: PackInfo): PackState? {
+        return this.getPackState(pack.uuid)
     }
 
     @JvmStatic
@@ -66,12 +101,7 @@ public object ResourcePackUtils {
 
     @JvmStatic
     public fun ServerPlayer.getAllPackStates(): Collection<PackState> {
-        return this.resourcePacks.getAllPacks()
-    }
-
-    @JvmStatic
-    public fun ServerPlayer.getPackState(pack: PackInfo): PackState? {
-        return this.resourcePacks.getPackState(pack.uuid)
+        return getPlayerAllPackStates(this.uuid)
     }
 
     @JvmStatic
@@ -91,7 +121,7 @@ public object ResourcePackUtils {
 
     @JvmStatic
     public fun ServerPlayer.getPackLoadingFuture(): CompletableFuture<Void> {
-        return this.resourcePacks.allLoadedFuture
+        return getPlayerPackLoadingFuture(this.uuid)
     }
 
     @JvmStatic
@@ -106,7 +136,7 @@ public object ResourcePackUtils {
             }
         }
 
-        this.connection.send(pack.toPushPacket())
+        this.connection.send(pack.toPushPacket(this.connection))
         return this.resourcePacks.addFuture(pack.uuid)
     }
 

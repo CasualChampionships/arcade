@@ -4,6 +4,8 @@
  */
 package net.casual.arcade.resources.pack
 
+import net.casual.arcade.host.data.HostedPack
+import net.casual.arcade.host.data.ResolvablePackURL
 import net.minecraft.network.chat.Component
 import java.util.*
 
@@ -20,7 +22,7 @@ public data class PackInfo(
     /**
      * The URL to download the pack from.
      */
-    val url: String,
+    val url: ResolvablePackURL,
     /**
      * The hash of the resource pack.
      */
@@ -36,5 +38,5 @@ public data class PackInfo(
     /**
      * The uuid identifying this pack.
      */
-    val uuid: UUID = UUID.nameUUIDFromBytes(url.toByteArray())
+    val uuid: UUID = UUID.nameUUIDFromBytes(url.resolve().encodeToByteArray())
 )

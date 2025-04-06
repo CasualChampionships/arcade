@@ -2,7 +2,7 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.host
+package net.casual.arcade.host.data
 
 import net.casual.arcade.host.pack.ReadablePack
 
@@ -22,7 +22,7 @@ public data class HostedPack(
     /**
      * The URL that it is being hosted at.
      */
-    val url: String,
+    val url: ResolvablePackURL,
     /**
      * The hash of the [pack].
      */
