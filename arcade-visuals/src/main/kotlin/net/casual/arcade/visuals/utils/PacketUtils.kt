@@ -5,6 +5,7 @@
 package net.casual.arcade.visuals.utils
 
 import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket
+import eu.pb4.polymer.core.impl.interfaces.PossiblyInitialPacket
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
 import net.minecraft.network.syncher.EntityDataAccessor
@@ -46,8 +47,8 @@ public inline fun <reified T: Any> ClientboundSetEntityDataPacket.modify(
     var changed = false
     for (item in items) {
         if (item.id == accessor.id) {
-            val flags = item.value as T
-            val modified = modifier.invoke(observee, player, flags)
+            val value = item.value as T
+            val modified = modifier.invoke(observee, player, value)
             data.add(DataValue.create(accessor, modified))
             changed = true
         } else {
@@ -55,7 +56,15 @@ public inline fun <reified T: Any> ClientboundSetEntityDataPacket.modify(
         }
     }
     if (!changed) {
-        return this
+        @Suppress("CAST_NEVER_SUCCEEDS")
+        val isInitial = (this as PossiblyInitialPacket).`polymer$getInitial`()
+        if (!isInitial) {
+            return this
+        }
+
+        val value = observee.entityData.get(accessor)
+        val modified = modifier.invoke(observee, player, value)
+        data.add(DataValue.create(accessor, modified))
     }
 
     val replacement = ClientboundSetEntityDataPacket(this.id, data)
