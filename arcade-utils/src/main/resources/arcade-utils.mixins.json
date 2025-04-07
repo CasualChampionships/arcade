@@ -9,6 +9,7 @@
     "PlayerAdvancementsAccessor",
     "PlayerTeamMixin",
     "ScoreboardSaveDataMixin",
+    "ServerEntityMixin",
     "ServerPlayerMixin"
   ],
   "injectors": {
