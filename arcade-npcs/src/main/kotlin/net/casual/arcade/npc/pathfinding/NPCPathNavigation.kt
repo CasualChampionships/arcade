@@ -1,15 +1,20 @@
+/*
+ * Copyright (c) 2025 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
 package net.casual.arcade.npc.pathfinding
 
+import me.senseiwells.debug.api.server.DebugToolsPackets
 import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.utils.isOf
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
 import net.minecraft.core.Vec3i
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.tags.BlockTags
 import net.minecraft.util.Mth
 import net.minecraft.util.profiling.Profiler
 import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.level.PathNavigationRegion
 import net.minecraft.world.level.pathfinder.*
@@ -17,11 +22,9 @@ import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
 import java.util.stream.Collectors
 import java.util.stream.Stream
+import kotlin.math.abs
 
-public abstract class NPCPathNavigation(
-    public val player: FakePlayer,
-    public val level: ServerLevel
-) {
+public abstract class NPCPathNavigation(public val player: FakePlayer) {
     private val pathFinder: NPCPathfinder = this.createPathfinder(
         Mth.floor(this.getFollowRange() * 16.0)
     )
@@ -54,6 +57,9 @@ public abstract class NPCPathNavigation(
 
     private val maxPathLength: Float
         get() = maxOf(this.getFollowRange().toFloat(), this.requiredPathLength)
+
+    public val level: ServerLevel
+        get() = this.player.serverLevel()
 
     public fun updatePathfinderMaxVisitedNodes() {
         val maxNodes = Mth.floor(this.maxPathLength * 16.0f)
@@ -215,11 +221,19 @@ public abstract class NPCPathNavigation(
                     }
                 }
             }
-            // TODO: Debug packets
+            DebugToolsPackets.getInstance().sendPathfindingPacket(
+                this.level, this.player, this.path, this.maxDistanceToWaypoint
+            )
 
             if (!this.isDone()) {
-                val nextEntityPos = this.path!!.getNextEntityPos(this.player)
-                this.player.moveControl.setWantedPosition(nextEntityPos.x, this.getGroundY(nextEntityPos), nextEntityPos.z, this.speedModifier)
+                val path = this.path!!
+                val next = if (this.player.isSprinting && path.nextNodeIndex + 1 < path.nodeCount) {
+                    path.getEntityPosAtNode(this.player, path.nextNodeIndex + 1)
+                } else {
+                    path.getNextEntityPos(this.player)
+                }
+                val modified = next.with(Direction.Axis.Y, this.getGroundY(next))
+                this.player.moveControl.setTarget(modified, this.speedModifier)
             }
         }
     }
@@ -283,12 +297,12 @@ public abstract class NPCPathNavigation(
         if (this.player.bbWidth > 0.75f) {
             this.maxDistanceToWaypoint = this.player.bbWidth / 2.0f
         } else {
-            this.maxDistanceToWaypoint = 0.75f - this.player.bbWidth / 2.0f
+            this.maxDistanceToWaypoint = 1.3F - this.player.bbWidth / 2.0f
         }
         val nextNodePos = localPath.nextNodePos
-        val d = kotlin.math.abs(this.player.x - (nextNodePos.x + 0.5))
-        val e = kotlin.math.abs(this.player.y - nextNodePos.y.toDouble())
-        val f = kotlin.math.abs(this.player.z - (nextNodePos.z + 0.5))
+        val d = abs(this.player.x - (nextNodePos.x + 0.5))
+        val e = abs(this.player.y - nextNodePos.y.toDouble())
+        val f = abs(this.player.z - (nextNodePos.z + 0.5))
         val withinThreshold = d < this.maxDistanceToWaypoint &&
                 f < this.maxDistanceToWaypoint &&
                 e < 1.0
@@ -378,7 +392,7 @@ public abstract class NPCPathNavigation(
         if (localPath.nextNodeIndex + 1 >= localPath.nodeCount) {
             return false
         }
-        val nextNodeCenter = Vec3.atBottomCenterOf(localPath.getNextNodePos())
+        val nextNodeCenter = Vec3.atBottomCenterOf(localPath.nextNodePos)
         if (!vec.closerThan(nextNodeCenter, 2.0)) {
             return false
         }

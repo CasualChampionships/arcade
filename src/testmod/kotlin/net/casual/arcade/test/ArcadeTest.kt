@@ -8,6 +8,7 @@ import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerJoinEvent
 import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
+import net.casual.arcade.events.server.player.PlayerTickEvent
 import net.casual.arcade.host.GlobalPackHost
 import net.casual.arcade.host.PackHost
 import net.casual.arcade.minigame.utils.MinigameRegistries
@@ -24,9 +25,12 @@ import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.core.Registry
+import net.minecraft.server.level.ServerPlayer
 import javax.net.ssl.SSLContext
 
 object ArcadeTest: ModInitializer {
+    private var target: ServerPlayer? = null
+
     override fun onInitialize() {
         ArcadeResourcePacks.SPACING_FONT_PACK.buildTo(FabricLoader.getInstance().configDir)
 
@@ -53,10 +57,24 @@ object ArcadeTest: ModInitializer {
             ArcadeResourcePacks.SPACING_FONT_PACK
         )
 
+        GlobalEventHandler.Server.register<ServerLoadedEvent> {
+            FakePlayer.join(it.server, "gnembon")
+        }
+        GlobalEventHandler.Server.register<PlayerTickEvent> { (player) ->
+            if (player is FakePlayer) {
+                val target = target ?: return@register
+                player.moveControl.sprinting = true
+                player.navigation.moveTo(target, 1.0)
+                player.lookControl.setLookAt(target)
+                if (player.navigation.isInProgress()) {
+                    player.moveControl.jump()
+                }
+            }
+        }
+
         GlobalEventHandler.Server.register<PlayerJoinEvent> {
-            FakePlayer.join(it.player.server, "gnembon").thenApply { player ->
-                player.teleportTo(it.player.locationWithLevel)
-                player.follow = it.player
+            if (it.player !is FakePlayer) {
+                target = it.player
             }
         }
     }

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2025 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
 package net.casual.arcade.npc.pathfinding
 
 import net.casual.arcade.npc.FakePlayer
@@ -5,7 +9,6 @@ import net.casual.arcade.utils.isOf
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.SectionPos
-import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.level.block.Blocks
@@ -14,7 +17,7 @@ import net.minecraft.world.level.pathfinder.Path
 import net.minecraft.world.level.pathfinder.PathType
 import net.minecraft.world.phys.Vec3
 
-public class NPCGroundPathNavigation(player: FakePlayer, level: ServerLevel): NPCPathNavigation(player, level) {
+public open class NPCGroundPathNavigation(player: FakePlayer): NPCPathNavigation(player) {
     private var avoidSun: Boolean = false
 
     override fun createPathfinder(maxVisitedNodes: Int): NPCPathfinder {

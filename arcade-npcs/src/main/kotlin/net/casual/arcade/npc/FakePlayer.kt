@@ -1,9 +1,13 @@
+/*
+ * Copyright (c) 2025 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
 package net.casual.arcade.npc
 
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.PropertyMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
-import net.casual.arcade.npc.ai.NPCJumpControl
+import me.senseiwells.debug.api.server.DebugToolsPackets
 import net.casual.arcade.npc.ai.NPCLookControl
 import net.casual.arcade.npc.ai.NPCMoveControl
 import net.casual.arcade.npc.network.FakeConnection
@@ -22,11 +26,15 @@ import net.minecraft.server.level.ClientInformation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.CommonListenerCookie
+import net.minecraft.world.effect.MobEffects
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.item.component.ResolvableProfile
 import net.minecraft.world.level.pathfinder.PathType
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
+@Suppress("LeakingThis")
 public open class FakePlayer protected constructor(
     server: MinecraftServer,
     level: ServerLevel,
@@ -34,13 +42,9 @@ public open class FakePlayer protected constructor(
 ): ServerPlayer(server, level, profile, ClientInformation.createDefault()) {
     public val moveControl: NPCMoveControl = NPCMoveControl(this)
     public val lookControl: NPCLookControl = NPCLookControl(this)
-    public val jumpControl: NPCJumpControl = NPCJumpControl(this)
-    public val navigation: NPCPathNavigation = NPCGroundPathNavigation(this, level)
+    public val navigation: NPCPathNavigation = NPCGroundPathNavigation(this)
 
-    public var follow: ServerPlayer? = null
-
-    // FIXME: This needs to be implemented properly
-    public fun getPathfindingMalus(type: PathType): Float {
+    public open fun getPathfindingMalus(type: PathType): Float {
         return type.malus
     }
 
@@ -78,15 +82,45 @@ public open class FakePlayer protected constructor(
     override fun serverAiStep() {
         super.serverAiStep()
 
-        if (this.follow != null) {
-            this.navigation.moveTo(this.follow!!, 1.0)
-        }
-
         this.navigation.tick()
 
         this.moveControl.tick()
         this.lookControl.tick()
-        this.jumpControl.tick()
+
+        this.isShiftKeyDown = this.moveControl.sneaking
+
+        if (this.shouldStopSprinting()) {
+            this.isSprinting = false
+        }
+
+        if (this.isUsingItem && !this.isPassenger) {
+            this.xxa *= 0.2F
+            this.zza *= 0.2F
+        }
+        if (this.isMovingSlowly()) {
+            val sneakingModifier = this.getAttributeValue(Attributes.SNEAKING_SPEED).toFloat()
+            this.xxa *= sneakingModifier
+            this.zza *= sneakingModifier
+        }
+
+        if (this.canStartSprinting() && this.moveControl.sprinting) {
+            this.isSprinting = true
+        }
+
+        if (this.isSprinting) {
+            val shouldStopSprinting = this.zza <= 0 || !this.hasEnoughFoodToStartSprinting()
+            val interruptSprinting = shouldStopSprinting || this.horizontalCollision && !this.minorHorizontalCollision
+                || this.isInWater && !this.isUnderWater
+            if (this.isSwimming) {
+                if (!this.onGround() && !this.moveControl.sprinting && shouldStopSprinting || !this.isInWater) {
+                    this.isSprinting = false
+                }
+            } else if (interruptSprinting) {
+                this.isSprinting = false
+            }
+        }
+
+        this.sendDebugPackets()
     }
 
     override fun tickDeath() {
@@ -111,10 +145,53 @@ public open class FakePlayer protected constructor(
         super.showEndCredits()
     }
 
+    protected open fun sendDebugPackets() {
+        DebugToolsPackets.getInstance().sendBrainDumpPacket(this.serverLevel(), this)
+    }
+
+    private fun isMovingSlowly(): Boolean {
+        return this.isCrouching || this.isVisuallyCrawling
+    }
+
+    private fun canStartSprinting(): Boolean {
+        return !this.isSprinting
+            && this.hasEnoughImpulseToStartSprinting()
+            && this.hasEnoughFoodToStartSprinting()
+            && !this.isUsingItem
+            && !this.hasEffect(MobEffects.BLINDNESS)
+            && (this.vehicle?.canSprint() ?: true)
+            && !this.isFallFlying
+            && (!this.isMovingSlowly() || this.isUnderWater)
+    }
+
+    private fun shouldStopSprinting(): Boolean {
+        return this.isFallFlying
+            || this.hasEffect(MobEffects.BLINDNESS)
+            || this.isMovingSlowly()
+            || this.isPassenger && this.vehicle?.type != EntityType.CAMEL
+            || this.isUsingItem && !this.isPassenger && !this.isUnderWater
+    }
+
+    private fun hasEnoughImpulseToStartSprinting(): Boolean {
+        return if (this.isUnderWater) this.zza > 0 else this.zza >= 0.8
+    }
+
+    private fun hasEnoughFoodToStartSprinting(): Boolean {
+        return this.isPassenger || this.getFoodData().foodLevel > 6 || this.abilities.mayfly
+    }
+
     public companion object {
         private val joining = Object2ObjectOpenHashMap<String, CompletableFuture<FakePlayer>>()
 
         public fun join(server: MinecraftServer, profile: GameProfile): CompletableFuture<FakePlayer> {
+            return this.join(server, profile, ::FakePlayer)
+        }
+
+        public fun <T: FakePlayer> join(
+            server: MinecraftServer,
+            profile: GameProfile,
+            supplier: (MinecraftServer, ServerLevel, GameProfile) -> T
+        ): CompletableFuture<T> {
             val connection = FakeConnection()
             // We simulate the fake login packet listener for luckperms compatability
             val login = FakeLoginPacketListenerImpl(server, connection, profile)
@@ -123,18 +200,31 @@ public open class FakePlayer protected constructor(
                     throw IllegalArgumentException("Player with UUID ${profile.id} already exists")
                 }
 
-                val player = FakePlayer(server, server.overworld(), profile)
+                val player = supplier.invoke(server, server.overworld(), profile) as FakePlayer
                 player.entityData.set(DATA_PLAYER_MODE_CUSTOMISATION, 0x7F)
                 server.playerList.placeNewPlayer(
                     connection, player, CommonListenerCookie(profile, 0, player.clientInformation(), false)
                 )
                 server.connection.connections.add(connection)
                 player.connection.handleAcceptPlayerLoad(ServerboundPlayerLoadedPacket())
-                player
+
+                // I have no idea why, but we need to downcast to FakePlayer then upcast to T
+                // otherwise the kotlin compiler just refuses to compile this valid code???
+                @Suppress("UNCHECKED_CAST")
+                player as T
             }, server)
         }
 
         public fun join(server: MinecraftServer, username: String): CompletableFuture<FakePlayer> {
+            return this.join(server, username, ::FakePlayer)
+        }
+
+        public fun <T: FakePlayer> join(
+            server: MinecraftServer,
+            username: String,
+            supplier: (MinecraftServer, ServerLevel, GameProfile) -> T
+        ): CompletableFuture<T> {
+            @Suppress("UNCHECKED_CAST")
             return this.joining.getOrPut(username) {
                 val resolvable = ResolvableProfile(Optional.of(username), Optional.empty(), PropertyMap())
                 resolvable.resolve().whenCompleteAsync({ _, throwable ->
@@ -148,18 +238,22 @@ public open class FakePlayer protected constructor(
                     } else {
                         resolved.gameProfile
                     }
-                    this.join(server, profile)
+                    this.join(server, profile, supplier)
                 }
-            }
+            } as CompletableFuture<T>
         }
 
-        public fun join(server: MinecraftServer, uuid: UUID): CompletableFuture<FakePlayer> {
+        public fun <T: FakePlayer> join(
+            server: MinecraftServer,
+            uuid: UUID,
+            supplier: (MinecraftServer, ServerLevel, GameProfile) -> T
+        ): CompletableFuture<T> {
             val resolvable = ResolvableProfile(Optional.empty(), Optional.of(uuid), PropertyMap())
             return resolvable.resolve().thenComposeAsync({ resolved ->
                 if (resolved.name.get().isEmpty()) {
                     throw IllegalStateException("Resolved name was empty")
                 }
-                this.join(server, resolved.gameProfile)
+                this.join(server, resolved.gameProfile, supplier)
             }, server)
         }
 

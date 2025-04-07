@@ -11,6 +11,7 @@ server-translations = "2.4.0+1.21.2-rc1"
 custom-nametags     = "0.4.1+1.21.4"
 server-replay       = "2.0.0+1.21.4"
 inject              = "3.1.3"
+debug-tools-api     = "1.0.3+1.21.4"
 
 # Plugins
 fabric-loom = "1.9-SNAPSHOT"
@@ -30,6 +31,7 @@ sgui                   = { module = "eu.pb4:sgui"                         , vers
 server-translations    = { module = "xyz.nucleoid:server-translations-api", version.ref = "server-translations" }
 custom-nametags        = { module = "me.senseiwells:custom-nametags"      , version.ref = "custom-nametags" }
 server-replay          = { module = "me.senseiwells:server-replay"        , version.ref = "server-replay" }
+debug-tools-api        = { module = "me.senseiwells:debug-tools-api"      , version.ref = "debug-tools-api" }
 
 inject-api             = { module = "net.mcbrawls.inject:api"             , version.ref = "inject" }
 inject-http            = { module = "net.mcbrawls.inject:http"            , version.ref = "inject" }

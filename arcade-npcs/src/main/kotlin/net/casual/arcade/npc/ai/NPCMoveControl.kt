@@ -1,6 +1,13 @@
+/*
+ * Copyright (c) 2025 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
 package net.casual.arcade.npc.ai
 
 import net.casual.arcade.npc.FakePlayer
+import net.casual.arcade.utils.MathUtils.component1
+import net.casual.arcade.utils.MathUtils.component2
+import net.casual.arcade.utils.MathUtils.component3
 import net.casual.arcade.utils.isOf
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -9,6 +16,7 @@ import net.minecraft.util.Mth
 import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.entity.ai.control.Control
 import net.minecraft.world.level.pathfinder.PathType
+import net.minecraft.world.phys.Vec3
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.max
@@ -23,18 +31,24 @@ public open class NPCMoveControl(
     public var speedModifier: Double = 0.0
         protected set
 
-    public var wantedX: Double = 0.0
-    public var wantedY: Double = 0.0
-    public var wantedZ: Double = 0.0
+    public var target: Vec3 = Vec3.ZERO
+        private set
+    public var jump: Boolean = false
+        private set
+
+    public var sprinting: Boolean = false
+    public var sneaking: Boolean = false
 
     public fun hasWanted(): Boolean {
         return this.operation == Operation.MOVE_TO
     }
 
-    public fun setWantedPosition(x: Double, y: Double, z: Double, speed: Double) {
-        this.wantedX = x
-        this.wantedY = y
-        this.wantedZ = z
+    public fun jump() {
+        this.jump = true
+    }
+
+    public fun setTarget(wanted: Vec3, speed: Double) {
+        this.target = wanted
         this.speedModifier = speed
         if (this.operation != Operation.JUMPING) {
             this.operation = Operation.MOVE_TO
@@ -78,14 +92,13 @@ public open class NPCMoveControl(
             }
             Operation.MOVE_TO -> {
                 this.operation = Operation.WAIT
-                val dx = this.wantedX - this.player.x
-                val dz = this.wantedZ - this.player.z
-                val dy = this.wantedY - this.player.y
-                val distanceSq = dx * dx + dy * dy + dz * dz
+                val delta = this.target.subtract(this.player.position())
+                val distanceSq = delta.lengthSqr()
                 if (distanceSq < MIN_SPEED_SQR) {
                     this.player.zza = 0.0f
                     return
                 }
+                val (dx, dy, dz) = delta
                 val targetAngle = (atan2(dz, dx).toFloat() * 180.0f / Math.PI.toFloat()) - 90.0f
                 this.player.yRot = this.rotlerp(this.player.yRot, targetAngle, 90.0f)
                 val speed = (this.speedModifier * this.player.getAttributeValue(Attributes.MOVEMENT_SPEED)).toFloat() * 10
@@ -99,12 +112,13 @@ public open class NPCMoveControl(
                         !blockState.isOf(BlockTags.DOORS) &&
                         !blockState.isOf(BlockTags.FENCES))
                 ) {
-                    this.player.jumpControl.jump()
+                    this.jump()
                     this.operation = Operation.JUMPING
                 }
             }
             Operation.JUMPING -> {
-                this.player.speed = (this.speedModifier * this.player.getAttributeValue(Attributes.MOVEMENT_SPEED)).toFloat()
+                val speed = (this.speedModifier * this.player.getAttributeValue(Attributes.MOVEMENT_SPEED)).toFloat()
+                this.player.zza = speed
                 if (this.player.onGround()) {
                     this.operation = Operation.WAIT
                 }
@@ -113,11 +127,11 @@ public open class NPCMoveControl(
                 this.player.zza = 0.0f
             }
         }
+
+        this.player.setJumping(this.jump)
+        this.jump = false
     }
 
-    /**
-     * @return true if the mob can walk successfully to a given X and Z.
-     */
     private fun isWalkable(relativeX: Float, relativeZ: Float): Boolean {
         val evaluator = this.player.navigation.nodeEvaluator
         val pos = BlockPos.containing(
@@ -128,7 +142,7 @@ public open class NPCMoveControl(
         return evaluator.getPathType(this.player, pos) == PathType.WALKABLE
     }
 
-    protected fun rotlerp(sourceAngle: Float, targetAngle: Float, maximumChange: Float): Float {
+    private fun rotlerp(sourceAngle: Float, targetAngle: Float, maximumChange: Float): Float {
         var angleDifference = Mth.wrapDegrees(targetAngle - sourceAngle)
         if (angleDifference > maximumChange) {
             angleDifference = maximumChange
