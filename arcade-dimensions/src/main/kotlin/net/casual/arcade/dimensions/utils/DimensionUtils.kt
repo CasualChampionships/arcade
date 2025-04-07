@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.dimensions.utils
 
+import net.casual.arcade.dimensions.ducks.SpoofedDimensionKeyHolder
 import net.casual.arcade.dimensions.level.CustomLevel
 import net.casual.arcade.dimensions.level.LevelPersistence
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
@@ -278,6 +279,18 @@ public fun ServerLevel.setCustomMobSpawningRules(rules: CustomMobSpawningRules?)
 
 public fun MinecraftServer.getDimensionPath(dimension: ResourceKey<Level>): Path {
     return (this as MinecraftServerAccessor).storage.getDimensionPath(dimension)
+}
+
+public fun ServerLevel.setSpoofedDimension(key: ResourceKey<Level>?) {
+    (this as SpoofedDimensionKeyHolder).`arcade$setSpoofedDimensionKey`(key)
+}
+
+public fun ServerLevel.getSpoofedDimension(): ResourceKey<Level>? {
+    return (this as SpoofedDimensionKeyHolder).`arcade$getSpoofedDimensionKey`()
+}
+
+public fun ServerLevel.getSpoofedOrRealDimension(): ResourceKey<Level> {
+    return this.getSpoofedDimension() ?: this.dimension()
 }
 
 private fun MinecraftServer.unloadCustomLevel(level: CustomLevel, save: Boolean): Boolean {
