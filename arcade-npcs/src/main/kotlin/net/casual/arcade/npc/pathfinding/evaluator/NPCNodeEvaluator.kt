@@ -2,18 +2,17 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.npc.pathfinding
+package net.casual.arcade.npc.pathfinding.evaluator
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.casual.arcade.npc.FakePlayer
+import net.casual.arcade.npc.pathfinding.NPCPathfindingContext
 import net.minecraft.core.BlockPos
 import net.minecraft.util.Mth
-import net.minecraft.world.entity.Mob
 import net.minecraft.world.level.PathNavigationRegion
 import net.minecraft.world.level.pathfinder.Node
 import net.minecraft.world.level.pathfinder.PathType
-import net.minecraft.world.level.pathfinder.PathfindingContext
 import net.minecraft.world.level.pathfinder.Target as TargetNode
 
 public abstract class NPCNodeEvaluator {

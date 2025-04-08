@@ -2,11 +2,12 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.npc.pathfinding
+package net.casual.arcade.npc.pathfinding.evaluator
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap
 import net.casual.arcade.npc.FakePlayer
+import net.casual.arcade.npc.pathfinding.NPCPathfindingContext
 import net.casual.arcade.utils.EnumUtils
 import net.casual.arcade.utils.isOf
 import net.minecraft.core.BlockPos
@@ -14,7 +15,6 @@ import net.minecraft.core.Direction
 import net.minecraft.tags.FluidTags
 import net.minecraft.util.Mth
 import net.minecraft.world.level.BlockGetter
-import net.minecraft.world.level.PathNavigationRegion
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.material.Fluids
 import net.minecraft.world.level.pathfinder.*
@@ -22,10 +22,11 @@ import net.minecraft.world.level.pathfinder.Target
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
+import org.jetbrains.annotations.Contract
 import java.util.function.LongFunction
 import java.util.function.Predicate
 
-public class NPCWalkNodeEvaluator: NPCNodeEvaluator() {
+public open class NPCWalkNodeEvaluator: NPCNodeEvaluator() {
     private val pathTypesByPosCacheByMob = Long2ObjectOpenHashMap<PathType>()
     private val collisionCache = Object2BooleanOpenHashMap<AABB>()
     private val reusableNeighbors = arrayOfNulls<Node>(Direction.Plane.HORIZONTAL.length())
@@ -196,7 +197,7 @@ public class NPCWalkNodeEvaluator: NPCNodeEvaluator() {
         return WalkNodeEvaluator.getFloorLevel(blockGetter, pos)
     }
 
-    protected fun isAmphibious(): Boolean = false
+    protected open fun isAmphibious(): Boolean = false
 
     protected fun findAcceptedNode(
         x: Int,

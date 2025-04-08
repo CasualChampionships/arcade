@@ -2,9 +2,11 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.npc.pathfinding
+package net.casual.arcade.npc.pathfinding.navigation
 
 import net.casual.arcade.npc.FakePlayer
+import net.casual.arcade.npc.pathfinding.NPCPathfinder
+import net.casual.arcade.npc.pathfinding.evaluator.NPCWalkNodeEvaluator
 import net.casual.arcade.utils.isOf
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction

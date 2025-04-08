@@ -6,6 +6,7 @@ package net.casual.arcade.npc
 
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.PropertyMap
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import me.senseiwells.debug.api.server.DebugToolsPackets
 import net.casual.arcade.npc.ai.NPCLookControl
@@ -13,8 +14,9 @@ import net.casual.arcade.npc.ai.NPCMoveControl
 import net.casual.arcade.npc.network.FakeConnection
 import net.casual.arcade.npc.network.FakeGamePacketListenerImpl
 import net.casual.arcade.npc.network.FakeLoginPacketListenerImpl
-import net.casual.arcade.npc.pathfinding.NPCGroundPathNavigation
-import net.casual.arcade.npc.pathfinding.NPCPathNavigation
+import net.casual.arcade.npc.pathfinding.navigation.NPCAmphibiousPathNavigation
+import net.casual.arcade.npc.pathfinding.navigation.NPCGroundPathNavigation
+import net.casual.arcade.npc.pathfinding.navigation.NPCPathNavigation
 import net.casual.arcade.utils.ArcadeUtils
 import net.minecraft.Util
 import net.minecraft.core.UUIDUtil
@@ -40,12 +42,26 @@ public open class FakePlayer protected constructor(
     level: ServerLevel,
     profile: GameProfile
 ): ServerPlayer(server, level, profile, ClientInformation.createDefault()) {
+    private val pathfindingMalus = Object2FloatOpenHashMap<PathType>()
+
     public val moveControl: NPCMoveControl = NPCMoveControl(this)
     public val lookControl: NPCLookControl = NPCLookControl(this)
-    public val navigation: NPCPathNavigation = NPCGroundPathNavigation(this)
+    public val navigation: NPCPathNavigation = this.createNavigation()
+
+    public open fun createNavigation(): NPCPathNavigation {
+        return NPCAmphibiousPathNavigation(this)
+    }
+
+    public open fun setPathfindingMalus(type: PathType, float: Float) {
+        if (type.malus == float) {
+            this.pathfindingMalus.removeFloat(type)
+        } else {
+            this.pathfindingMalus.put(type, float)
+        }
+    }
 
     public open fun getPathfindingMalus(type: PathType): Float {
-        return type.malus
+        return this.pathfindingMalus.getOrDefault(type as Any, type.malus)
     }
 
     public open fun createRespawned(

@@ -2,10 +2,12 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.npc.pathfinding
+package net.casual.arcade.npc.pathfinding.navigation
 
 import me.senseiwells.debug.api.server.DebugToolsPackets
 import net.casual.arcade.npc.FakePlayer
+import net.casual.arcade.npc.pathfinding.evaluator.NPCNodeEvaluator
+import net.casual.arcade.npc.pathfinding.NPCPathfinder
 import net.casual.arcade.utils.isOf
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -257,11 +259,11 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
             pathType != PathType.WALKABLE_DOOR
     }
 
-    public fun isStableDestination(pos: BlockPos): Boolean {
+    public open fun isStableDestination(pos: BlockPos): Boolean {
         return this.level.getBlockState(pos.below()).isSolidRender
     }
 
-    public fun setCanFloat(canSwim: Boolean) {
+    public open fun setCanFloat(canSwim: Boolean) {
         this.nodeEvaluator.canFloat = canSwim
     }
 
@@ -297,7 +299,7 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
         if (this.player.bbWidth > 0.75f) {
             this.maxDistanceToWaypoint = this.player.bbWidth / 2.0f
         } else {
-            this.maxDistanceToWaypoint = 1.3F - this.player.bbWidth / 2.0f
+            this.maxDistanceToWaypoint = 1.5F - this.player.bbWidth / 2.0f
         }
         val nextNodePos = localPath.nextNodePos
         val d = abs(this.player.x - (nextNodePos.x + 0.5))
@@ -312,7 +314,7 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
         this.doStuckDetection(tempPos)
     }
 
-    protected fun getGroundY(vec: Vec3): Double {
+    protected open fun getGroundY(vec: Vec3): Double {
         val blockPos = BlockPos.containing(vec)
         return if (this.level.getBlockState(blockPos.below()).isAir) {
             vec.y

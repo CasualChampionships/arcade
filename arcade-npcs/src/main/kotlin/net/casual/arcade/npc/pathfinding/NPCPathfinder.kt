@@ -6,6 +6,7 @@ package net.casual.arcade.npc.pathfinding
 
 import com.google.common.collect.Lists
 import net.casual.arcade.npc.FakePlayer
+import net.casual.arcade.npc.pathfinding.evaluator.NPCNodeEvaluator
 import net.minecraft.core.BlockPos
 import net.minecraft.util.profiling.Profiler
 import net.minecraft.util.profiling.ProfilerFiller
