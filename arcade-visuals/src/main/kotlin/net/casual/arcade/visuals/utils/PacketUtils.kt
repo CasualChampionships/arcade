@@ -55,9 +55,9 @@ public inline fun <reified T: Any> ClientboundSetEntityDataPacket.modify(
             data.add(item)
         }
     }
+    @Suppress("CAST_NEVER_SUCCEEDS")
+    val isInitial = (this as PossiblyInitialPacket).`polymer$getInitial`()
     if (!changed) {
-        @Suppress("CAST_NEVER_SUCCEEDS")
-        val isInitial = (this as PossiblyInitialPacket).`polymer$getInitial`()
         if (!isInitial) {
             return this
         }
@@ -68,6 +68,10 @@ public inline fun <reified T: Any> ClientboundSetEntityDataPacket.modify(
     }
 
     val replacement = ClientboundSetEntityDataPacket(this.id, data)
+    if (isInitial) {
+        @Suppress("CAST_NEVER_SUCCEEDS")
+        (replacement as PossiblyInitialPacket).`polymer$setInitial`()
+    }
     // For polymer compatability
     EntityAttachedPacket.set(replacement, observee)
     return replacement
