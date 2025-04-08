@@ -147,6 +147,19 @@ public fun <S, T> RequiredArgumentBuilder<S, T>.suggests(
     }
 }
 
+public fun CommandContext<*>.hasArgument(argument: String): Boolean {
+    return this.hasArgument(argument, Any::class.java)
+}
+
+public fun <T> CommandContext<*>.hasArgument(argument: String, type: Class<T>): Boolean {
+    try {
+        this.getArgument(argument, type)
+        return true
+    } catch (e: IllegalArgumentException) {
+        return false
+    }
+}
+
 public fun ServerRegisterCommandEvent.register(vararg commands: CommandTree) {
     for (command in commands) {
         command.register(this.dispatcher, this.context)
