@@ -5,6 +5,7 @@
 package net.casual.arcade.dimensions.mixins.level;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import net.casual.arcade.dimensions.ducks.SpoofedDimensionKeyHolder;
 import net.casual.arcade.dimensions.level.CustomLevel;
 import net.casual.arcade.dimensions.level.LevelGenerationOptions;
 import net.casual.arcade.dimensions.utils.impl.DerivedLevelData;
@@ -20,14 +21,18 @@ import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraft.world.level.storage.WritableLevelData;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(ServerLevel.class)
-public abstract class ServerLevelMixin extends Level {
+public abstract class ServerLevelMixin extends Level implements SpoofedDimensionKeyHolder {
+	@Unique private ResourceKey<Level> arcade$spoofedKey = null;
+
 	@Shadow @Final private ServerLevelData serverLevelData;
 
 	protected ServerLevelMixin(
@@ -67,5 +72,16 @@ public abstract class ServerLevelMixin extends Level {
 	)
 	private void onSendWeatherPackets(PlayerList instance, Packet<?> packet) {
 		instance.broadcastAll(packet, this.dimension());
+	}
+
+	@Override
+	public void arcade$setSpoofedDimensionKey(ResourceKey<Level> key) {
+		this.arcade$spoofedKey = key;
+	}
+
+	@Nullable
+	@Override
+	public ResourceKey<Level> arcade$getSpoofedDimensionKey() {
+		return this.arcade$spoofedKey;
 	}
 }

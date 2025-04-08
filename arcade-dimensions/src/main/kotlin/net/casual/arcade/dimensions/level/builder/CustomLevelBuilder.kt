@@ -14,6 +14,7 @@ import net.casual.arcade.dimensions.level.LevelProperties.WeatherProperties
 import net.casual.arcade.dimensions.level.factory.CustomLevelFactoryConstructor
 import net.casual.arcade.dimensions.level.spawner.CustomSpawnerFactory
 import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
+import net.casual.arcade.dimensions.utils.setSpoofedDimension
 import net.casual.arcade.utils.ResourceUtils
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.Registries
@@ -68,6 +69,7 @@ public class CustomLevelBuilder {
     private var type: Holder<DimensionType>? = null
     private var typeKey: ResourceKey<DimensionType>? = null
     private var generator: ChunkGenerator? = null
+    private var spoofedKey: ResourceKey<Level>? = null
 
     /**
      * The world seed.
@@ -152,6 +154,13 @@ public class CustomLevelBuilder {
      */
     public var chunkGenerator: ChunkGenerator
         set(value) { this.chunkGenerator(value) }
+        get() = throw UnsupportedOperationException()
+
+    /**
+     * Sets the spoofed dimension key.
+     */
+    public var spoofedDimensionKey: ResourceKey<Level>
+        set(value) { this.spoofedDimensionKey(value) }
         get() = throw UnsupportedOperationException()
 
     /**
@@ -575,6 +584,32 @@ public class CustomLevelBuilder {
     }
 
     /**
+     * Sets the spoofed dimension key for this level.
+     * This will be the dimension displayed to players, the
+     * server-side dimension key will still remain [dimensionKey].
+     *
+     * @param key The dimension key to spoof.
+     * @return This builder.
+     */
+    public fun spoofedDimensionKey(key: ResourceKey<Level>): CustomLevelBuilder {
+        this.spoofedKey = key
+        return this
+    }
+
+    /**
+     * Sets the spoofed dimension key for this level.
+     * This will be the dimension displayed to players, the
+     * server-side dimension key will still remain [dimensionKey].
+     *
+     * @param key The dimension key id to spoof.
+     * @return This builder.
+     */
+    public fun spoofedDimensionKey(key: ResourceLocation): CustomLevelBuilder {
+        this.spoofedKey = ResourceKey.create(Registries.DIMENSION, key)
+        return this
+    }
+
+    /**
      * Builds the [CustomLevel] instance.
      *
      * This **does not** add the level to the server.
@@ -601,7 +636,9 @@ public class CustomLevelBuilder {
         val options = LevelGenerationOptions(
             stem, this.seed, this.flat, this.tickTime, this.generateStructures, this.debug, this.spawners
         )
-        return this.constructor.construct(this.properties, options, this.persistence).create(server, key)
+        val level = this.constructor.construct(this.properties, options, this.persistence).create(server, key)
+        level.setSpoofedDimension(this.spoofedKey)
+        return level
     }
 
     public companion object {

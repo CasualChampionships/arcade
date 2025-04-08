@@ -5,6 +5,7 @@
 package net.casual.arcade.utils
 
 import net.casual.arcade.util.ducks.SilentRecipeSender
+import net.casual.arcade.util.ducks.ConnectionFaultHolder
 import net.casual.arcade.util.mixins.PlayerAdvancementsAccessor
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
@@ -21,6 +22,7 @@ import net.minecraft.network.protocol.game.*
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.Action.ADD
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.network.ServerCommonPacketListenerImpl
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.damagesource.DamageSource
@@ -160,6 +162,26 @@ public object PlayerUtils {
         this.server.playerList.broadcastAll(
             ClientboundSetPlayerTeamPacket.createPlayerPacket(team, this.scoreboardName, ADD)
         )
+    }
+
+    @JvmStatic
+    public fun ServerCommonPacketListenerImpl.hasTimedOut(): Boolean {
+        return (this as ConnectionFaultHolder).`arcade$hasTimedOut`()
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.hasTimedOut(): Boolean {
+        return this.connection.hasTimedOut()
+    }
+
+    @JvmStatic
+    public fun ServerCommonPacketListenerImpl.getPacketError(): Throwable? {
+        return (this as ConnectionFaultHolder).`arcade$getPacketError`()
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.getPacketError(): Throwable? {
+        return this.connection.getPacketError()
     }
 
     @JvmStatic
