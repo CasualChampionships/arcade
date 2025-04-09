@@ -21,6 +21,7 @@ import net.casual.arcade.minigame.commands.PauseCommand
 import net.casual.arcade.minigame.commands.TeamCommandModifier
 import net.casual.arcade.minigame.exception.MinigameCreationException
 import net.casual.arcade.minigame.exception.MinigameSerializationException
+import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
 import net.casual.arcade.minigame.gamemode.ExtendedGameMode
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
@@ -98,10 +99,16 @@ public object Minigames: ModInitializer {
         }
     }
 
+    @OptIn(ExperimentalPathApi::class)
     public fun read(path: Path, server: MinecraftServer): Minigame {
         val factoryPath = path.resolve("factory.json")
         if (!factoryPath.isRegularFile()) {
-            throw MinigameCreationException("Cannot create Minigame, no such file $path")
+            try {
+                path.deleteRecursively()
+            } catch (_: IOException) {
+
+            }
+            throw MinigameCreationException("Cannot create Minigame, no such file $factoryPath")
         }
 
         val data = try {
@@ -147,6 +154,7 @@ public object Minigames: ModInitializer {
         MinigameRegistries.load()
         MinigameUtils.registerEvents()
         ExtendedGameMode.registerEvents()
+        PlayerMinigameExtension.registerEvents()
 
         GlobalEventHandler.Server.register<ServerLoadedEvent> { (server) ->
             this.loadMinigames(server)

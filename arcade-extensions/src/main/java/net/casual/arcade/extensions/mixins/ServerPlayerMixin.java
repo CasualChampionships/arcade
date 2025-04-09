@@ -31,7 +31,11 @@ public class ServerPlayerMixin implements ExtensionHolder, ExtensionDataHolder {
 		at = @At("TAIL")
 	)
 	private void onLoadPlayer(CompoundTag compound, CallbackInfo ci) {
-		this.arcade$data = compound.getCompound("arcade");
+		if (this.connection == null) {
+			this.arcade$data = compound.getCompound("arcade");
+			return;
+		}
+		ExtensionHolder.deserialize(this, compound.getCompound("arcade"));
 	}
 
 	@Override

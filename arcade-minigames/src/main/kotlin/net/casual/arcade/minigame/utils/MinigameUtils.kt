@@ -218,9 +218,6 @@ public object MinigameUtils {
     }
 
     internal fun registerEvents() {
-        GlobalEventHandler.Server.register<PlayerExtensionEvent> { event ->
-            event.addExtension(::PlayerMinigameExtension)
-        }
         GlobalEventHandler.Server.register<LevelExtensionEvent> { event ->
             event.addExtension(::LevelMinigameExtension)
         }

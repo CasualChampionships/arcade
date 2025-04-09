@@ -57,6 +57,7 @@ internal class ExtendedGameModePlayerExtension(
     }
 
     override fun deserialize(element: Tag) {
+        this.changedGameMode = false
         val gameMode = enumValueOf<ExtendedGameMode>(element.asString)
         GlobalTickedScheduler.later {
             if (!this.changedGameMode) {
