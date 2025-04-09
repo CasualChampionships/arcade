@@ -8,7 +8,10 @@ import net.casual.arcade.utils.math.location.Location.Companion.location
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.Relative
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.portal.TeleportTransition
+import net.minecraft.world.level.portal.TeleportTransition.PostTeleportTransition
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 
@@ -43,6 +46,26 @@ public data class LocationWithLevel<L: Level>(
             rotation: Vec2 = Vec2.ZERO
         ): LocationWithLevel<L> {
             return LocationWithLevel(Location(position, rotation), this)
+        }
+
+        public fun LocationWithLevel<ServerLevel>.asTeleportTransition(
+            velocity: Vec3 = Vec3.ZERO,
+            missingRespawnBlock: Boolean = false,
+            asPassenger: Boolean = false,
+            relatives: Set<Relative> = setOf(),
+            transition: PostTeleportTransition = TeleportTransition.DO_NOTHING
+        ): TeleportTransition {
+            return TeleportTransition(
+                this.level,
+                this.position,
+                velocity,
+                this.yRot,
+                this.xRot,
+                missingRespawnBlock,
+                asPassenger,
+                relatives,
+                transition
+            )
         }
     }
 }

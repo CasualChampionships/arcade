@@ -13,6 +13,8 @@
     "ItemStackMixin",
     "LevelMixin",
     "ParserUtilsAccessor",
+    "PlayerListAccessor",
+    "PlayerListMixin",
     "PlayerMixin",
     "PlayerTeamMixin",
     "ScoreboardMixin",

@@ -46,6 +46,8 @@ open class TestMinigame(
 
     @Listener
     private fun onInitialize(event: MinigameInitializeEvent) {
+        this.players.keepPlayerData = false
+
         this.recipes.add(CraftingRecipeBuilder.shapeless(this.server.registryAccess()) {
             key(ResourceUtils.arcade("example"))
             ingredients(Items.ITEM_FRAME, Items.BLACK_DYE)
@@ -79,23 +81,6 @@ open class TestMinigame(
             { player -> Component.empty() }
         )
         this.ui.setPlayerListDisplay(display)
-        // val bossbar = SuppliedBossbar()
-        // bossbar.setTitle { player ->
-        //     val delta = (player.server.tickCount % 200 / 2.0F) - 50F
-        //     Component.empty()
-        //         .append("□")
-        //         .append(SpacingFontResources.spaced(2))
-        //         .append("□")
-        //         .append(SpacingFontResources.spaced(10))
-        //         .append("□")
-        //         .append(" ")
-        //         .append("□")
-        //         .append(SpacingFontResources.spaced(4))
-        //         .append("□")
-        //         .append(SpacingFontResources.composed(delta))
-        //         .append("■".literal().blue())
-        // }
-        // this.ui.addBossbar(bossbar)
     }
 
     companion object: MinigameFactory {
