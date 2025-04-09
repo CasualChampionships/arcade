@@ -9,7 +9,7 @@ import net.minecraft.world.entity.Entity
 
 public abstract class EntityExtension private constructor(
     private val provider: () -> Entity
-): Extension {
+): TransferableEntityExtension {
     public val entity: Entity
         get() = this.provider.invoke()
 

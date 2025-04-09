@@ -221,9 +221,6 @@ public object MinigameUtils {
         GlobalEventHandler.Server.register<PlayerExtensionEvent> { event ->
             event.addExtension(::PlayerMinigameExtension)
         }
-        GlobalEventHandler.Server.register<PlayerJoinEvent>(Int.MIN_VALUE) { (player) ->
-            player.getMinigame()?.players?.add(player)
-        }
         GlobalEventHandler.Server.register<LevelExtensionEvent> { event ->
             event.addExtension(::LevelMinigameExtension)
         }

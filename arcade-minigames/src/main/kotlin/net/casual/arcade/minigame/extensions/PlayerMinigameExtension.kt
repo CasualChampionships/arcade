@@ -4,10 +4,14 @@
  */
 package net.casual.arcade.minigame.extensions
 
+import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.server.player.PlayerJoinEvent
 import net.casual.arcade.extensions.DataExtension
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
+import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.utils.ArcadeUtils
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
@@ -15,7 +19,7 @@ import net.minecraft.server.level.ServerPlayer
 
 internal class PlayerMinigameExtension(
     owner: ServerPlayer
-): PlayerExtension(owner), DataExtension {
+): PlayerExtension(owner) {
     private var minigame: Minigame? = null
 
     internal fun getMinigame(): Minigame? {
@@ -56,6 +60,14 @@ internal class PlayerMinigameExtension(
 
             // We add the player in the JoinEvent.
             // See in MinigameUtils#registerEvents()
+        }
+    }
+
+    companion object {
+        fun registerEvents() {
+            GlobalEventHandler.Server.register<PlayerJoinEvent>(Int.MIN_VALUE) { (player) ->
+                player.getMinigame()?.players?.add(player)
+            }
         }
     }
 }
