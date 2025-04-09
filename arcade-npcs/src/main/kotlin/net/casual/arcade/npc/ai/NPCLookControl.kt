@@ -9,28 +9,27 @@ import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.control.Control
+import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
+import kotlin.math.abs
+import kotlin.math.sqrt
 
 public class NPCLookControl(
     private val player: FakePlayer
 ): Control {
-    private var yMaxRotSpeed: Float = 0.0f
-    private var xMaxRotAngle: Float = 0.0f
     private var lookAtCooldown: Int = 0
-    private var wantedX: Double = 0.0
-    private var wantedY: Double = 0.0
-    private var wantedZ: Double = 0.0
+    private var target: Target? = null
 
     public fun setLookAt(lookVector: Vec3) {
         this.setLookAt(lookVector.x, lookVector.y, lookVector.z)
     }
 
     public fun setLookAt(entity: Entity) {
-        this.setLookAt(entity.x, getWantedY(entity), entity.z)
+        this.setLookAt(entity.x, this.getWantedY(entity), entity.z)
     }
 
     public fun setLookAt(entity: Entity, deltaYaw: Float, deltaPitch: Float) {
-        this.setLookAt(entity.x, getWantedY(entity), entity.z, deltaYaw, deltaPitch)
+        this.setLookAt(entity.x, this.getWantedY(entity), entity.z, deltaYaw, deltaPitch)
     }
 
     public fun setLookAt(x: Double, y: Double, z: Double) {
@@ -38,30 +37,25 @@ public class NPCLookControl(
     }
 
     public fun setLookAt(x: Double, y: Double, z: Double, deltaYaw: Float, deltaPitch: Float) {
-        this.wantedX = x
-        this.wantedY = y
-        this.wantedZ = z
-        this.yMaxRotSpeed = deltaYaw
-        this.xMaxRotAngle = deltaPitch
+        this.target = Target(Vec3(x, y, z), Vec2(deltaPitch, deltaYaw))
         this.lookAtCooldown = 2
     }
 
     public fun tick() {
-        if (this.resetXRotOnTick()) {
-            this.player.xRot = 0.0f
-        }
+        val target = this.target ?: return
+
         if (this.lookAtCooldown > 0) {
             this.lookAtCooldown--
-            val yRotTarget = getYRotD()
+            val yRotTarget = this.getYRotD(target)
             if (yRotTarget != null) {
-                this.player.yHeadRot = this.rotateTowards(this.player.yHeadRot, yRotTarget, this.yMaxRotSpeed)
+                this.player.yHeadRot = this.rotateTowards(this.player.yHeadRot, yRotTarget, target.rotationMaxes.y)
             }
-            val xRotTarget = getXRotD()
+            val xRotTarget = this.getXRotD(target)
             if (xRotTarget != null) {
-                this.player.xRot = this.rotateTowards(this.player.xRot, xRotTarget, this.xMaxRotAngle)
+                this.player.xRot = this.rotateTowards(this.player.xRot, xRotTarget, target.rotationMaxes.x)
             }
         } else {
-            this.player.yHeadRot = this.rotateTowards(this.player.yHeadRot, this.player.yBodyRot, 10.0f)
+            this.target = null
         }
         this.clampHeadRotationToBody()
     }
@@ -72,29 +66,25 @@ public class NPCLookControl(
         }
     }
 
-    private fun resetXRotOnTick(): Boolean {
-        return true
-    }
-
     public fun isLookingAtTarget(): Boolean {
         return this.lookAtCooldown > 0
     }
 
-    private fun getXRotD(): Float? {
-        val dx = wantedX - player.x
-        val dy = wantedY - player.eyeY
-        val dz = wantedZ - player.z
-        val horizontalDist = kotlin.math.sqrt(dx * dx + dz * dz)
-        if (kotlin.math.abs(dy) <= 1.0E-5f || kotlin.math.abs(horizontalDist) <= 1.0E-5f) {
+    private fun getXRotD(target: Target): Float? {
+        val dx = target.position.x - this.player.x
+        val dy = target.position.y - this.player.eyeY
+        val dz = target.position.z - this.player.z
+        val horizontalDist = sqrt(dx * dx + dz * dz)
+        if (abs(dy) <= 1.0E-5F || abs(horizontalDist) <= 1.0E-5f) {
             return null
         }
         return -(Mth.atan2(dy, horizontalDist).toFloat() * 180.0f / Math.PI.toFloat())
     }
 
-    private fun getYRotD(): Float? {
-        val dx = wantedX - player.x
-        val dz = wantedZ - player.z
-        if (kotlin.math.abs(dx) <= 1.0E-5f || kotlin.math.abs(dz) <= 1.0E-5f) {
+    private fun getYRotD(target: Target): Float? {
+        val dx = target.position.x - this.player.x
+        val dz = target.position.z - this.player.z
+        if (abs(dx) <= 1.0E-5f || abs(dz) <= 1.0E-5f) {
             return null
         }
         return -(Mth.atan2(dz, dx).toFloat() * 180.0f / Math.PI.toFloat()) - 90.0f
@@ -107,4 +97,6 @@ public class NPCLookControl(
         val bb = entity.boundingBox
         return (bb.minY + bb.maxY) / 2.0
     }
+
+    private data class Target(val position: Vec3, val rotationMaxes: Vec2)
 }
