@@ -63,7 +63,9 @@ public fun MinecraftServer.addCustomLevel(level: CustomLevel): CustomLevel {
     ServerWorldEvents.LOAD.invoker().onWorldLoad(this, level)
 
     if (level.persistence == LevelPersistence.Persistent) {
-        LevelPersistenceTracker.mark(level.dimension())
+        LevelPersistenceTracker.markAsPersistent(dimension)
+    } else if (level.persistence == LevelPersistence.Temporary) {
+        LevelPersistenceTracker.markAsTemporary(this, dimension)
     }
     return level
 }
@@ -295,7 +297,7 @@ public fun ServerLevel.getSpoofedOrRealDimension(): ResourceKey<Level> {
 
 private fun MinecraftServer.unloadCustomLevel(level: CustomLevel, save: Boolean): Boolean {
     if ((this as MinecraftServerAccessor).levels.remove(level.dimension(), level)) {
-        LevelPersistenceTracker.unmark(level.dimension())
+        LevelPersistenceTracker.unmarkAsPersistent(level.dimension())
 
         level.onUnload()
         level.removePlayers()
