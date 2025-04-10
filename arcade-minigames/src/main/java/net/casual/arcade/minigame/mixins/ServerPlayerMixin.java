@@ -5,7 +5,9 @@
 package net.casual.arcade.minigame.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.casual.arcade.minigame.Minigame;
+import net.casual.arcade.minigame.managers.MinigamePlayerManager;
 import net.casual.arcade.minigame.utils.MinigameUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
@@ -13,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -106,5 +109,27 @@ public class ServerPlayerMixin {
 			}
 		}
 		return original;
+	}
+
+	@WrapWithCondition(
+		method = "restoreFrom",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/entity/ai/attributes/AttributeMap;assignBaseValues(Lnet/minecraft/world/entity/ai/attributes/AttributeMap;)V"
+		)
+	)
+	private boolean onRestoreFrom(AttributeMap instance, AttributeMap map) {
+        return MinigamePlayerManager.LOCAL_TRANSITION.get() == null;
+    }
+
+	@ModifyExpressionValue(
+		method = "restoreFrom",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/level/GameRules;getBoolean(Lnet/minecraft/world/level/GameRules$Key;)Z"
+		)
+	)
+	private boolean onIsKeepInventoryEnabled(boolean original) {
+		return MinigamePlayerManager.LOCAL_TRANSITION.get() == null && original;
 	}
 }

@@ -8,24 +8,51 @@ import com.mojang.authlib.GameProfile
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.events.server.player.PlayerLeaveEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.*
+import net.casual.arcade.minigame.gamemode.ExtendedGameMode.Companion.extendedGameMode
+import net.casual.arcade.minigame.mixins.PlayerListAccessor
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.minigame.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.PlayerUtils.player
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
+import net.casual.arcade.utils.math.location.Location.Companion.location
+import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asTeleportTransition
+import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.locationWithLevel
+import net.casual.arcade.utils.teleportTo
+import net.minecraft.Util
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.NbtAccounter
+import net.minecraft.nbt.NbtIo
+import net.minecraft.nbt.NbtOps
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.ai.attributes.DefaultAttributes
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.dimension.DimensionType
+import net.minecraft.world.level.portal.TeleportTransition
+import org.jetbrains.annotations.ApiStatus.Internal
+import java.nio.file.Files
+import java.nio.file.Path
 import java.util.*
 import java.util.stream.Stream
+import kotlin.io.path.createDirectories
+import kotlin.io.path.isRegularFile
+import kotlin.jvm.optionals.getOrNull
 
 public class MinigamePlayerManager(
     private val minigame: Minigame
 ): Iterable<ServerPlayer> {
     private val connections: MutableSet<ServerGamePacketListenerImpl> = ReferenceLinkedOpenHashSet()
+
+    private val data = DataManager(this.minigame.getSavePath().resolve("player-data"))
 
     internal val adminUUIDs = ObjectLinkedOpenHashSet<UUID>()
     internal val spectatorUUIDs = ObjectLinkedOpenHashSet<UUID>()
@@ -101,8 +128,11 @@ public class MinigamePlayerManager(
     public val adminPlayerCount: Int
         get() = this.connections.count { this.isAdmin(it.player) }
 
+    public var keepPlayerData: Boolean = true
+
     init {
         this.minigame.events.register<PlayerLeaveEvent>(Int.MAX_VALUE) { this.onPlayerLeave(it) }
+        this.minigame.events.register<ServerSaveEvent> { this.onServerSave() }
     }
 
     /**
@@ -147,37 +177,38 @@ public class MinigamePlayerManager(
 
         val hasMinigame = player.getMinigame() === this.minigame
         if (this.offlineGameProfiles.remove(player.gameProfile) || hasMinigame) {
+            val newPlayer = this.loadMinigamePlayer(player)
             if (!hasMinigame) {
                 ArcadeUtils.logger.warn("Player's minigame UUID didn't work?!")
-                player.minigame.setMinigame(this.minigame)
+                newPlayer.minigame.setMinigame(this.minigame)
             }
 
-            this.connections.add(player.connection)
-            val existing = MinigameAddExistingPlayerEvent(this.minigame, player, spectating, admin)
+            this.connections.add(newPlayer.connection)
+            val existing = MinigameAddExistingPlayerEvent(this.minigame, newPlayer, spectating, admin)
             GlobalEventHandler.Server.broadcast(existing)
             var isSpectating = existing.spectating
             var isAdmin = existing.admin
-            val default = MinigameAddPlayerEvent(this.minigame, player, isSpectating, isAdmin)
+            val default = MinigameAddPlayerEvent(this.minigame, newPlayer, isSpectating, isAdmin)
             GlobalEventHandler.Server.broadcast(default)
             isSpectating = default.spectating
             isAdmin = default.admin
 
             when (isSpectating) {
-                true -> if (!this.setSpectating(player)) {
-                    GlobalEventHandler.Server.broadcast(MinigameLoadSpectatingEvent(this.minigame, player))
+                true -> if (!this.setSpectating(newPlayer)) {
+                    GlobalEventHandler.Server.broadcast(MinigameLoadSpectatingEvent(this.minigame, newPlayer))
                 }
-                false -> if (!this.setPlaying(player)) {
-                    GlobalEventHandler.Server.broadcast(MinigameLoadPlayingEvent(this.minigame, player))
+                false -> if (!this.setPlaying(newPlayer)) {
+                    GlobalEventHandler.Server.broadcast(MinigameLoadPlayingEvent(this.minigame, newPlayer))
                 }
-                null -> if (this.isSpectating(player)) {
-                    GlobalEventHandler.Server.broadcast(MinigameLoadSpectatingEvent(this.minigame, player))
+                null -> if (this.isSpectating(newPlayer)) {
+                    GlobalEventHandler.Server.broadcast(MinigameLoadSpectatingEvent(this.minigame, newPlayer))
                 } else {
-                    GlobalEventHandler.Server.broadcast(MinigameLoadPlayingEvent(this.minigame, player))
+                    GlobalEventHandler.Server.broadcast(MinigameLoadPlayingEvent(this.minigame, newPlayer))
                 }
             }
             when (isAdmin) {
-                true -> this.addAdmin(player)
-                false -> this.removeAdmin(player)
+                true -> this.addAdmin(newPlayer)
+                false -> this.removeAdmin(newPlayer)
                 null -> { }
             }
             return true
@@ -187,20 +218,22 @@ public class MinigamePlayerManager(
         val event = MinigameAddNewPlayerEvent(this.minigame, player, spectating, admin)
         GlobalEventHandler.Server.broadcast(event)
         if (!event.isCancelled()) {
-            player.minigame.setMinigame(this.minigame)
-            val default = MinigameAddPlayerEvent(this.minigame, player, event.spectating, event.admin)
+            val newPlayer = this.loadMinigamePlayer(player)
+
+            newPlayer.minigame.setMinigame(this.minigame)
+            val default = MinigameAddPlayerEvent(this.minigame, newPlayer, event.spectating, event.admin)
             GlobalEventHandler.Server.broadcast(default)
             val isSpectating = default.spectating
             val isAdmin = default.admin
 
             if (isSpectating != null && isSpectating) {
-                this.setSpectating(player)
+                this.setSpectating(newPlayer)
             } else {
-                GlobalEventHandler.Server.broadcast(MinigameSetPlayingEvent(this.minigame, player))
-                GlobalEventHandler.Server.broadcast(MinigameLoadPlayingEvent(this.minigame, player))
+                GlobalEventHandler.Server.broadcast(MinigameSetPlayingEvent(this.minigame, newPlayer))
+                GlobalEventHandler.Server.broadcast(MinigameLoadPlayingEvent(this.minigame, newPlayer))
             }
             if (isAdmin != null && isAdmin) {
-                this.addAdmin(player)
+                this.addAdmin(newPlayer)
             }
             return true
         }
@@ -232,6 +265,7 @@ public class MinigamePlayerManager(
             GlobalEventHandler.Server.broadcast(MinigameRemovePlayerEvent(this.minigame, player))
             this.connections.remove(player.connection)
             player.minigame.removeMinigame()
+            this.restoreServerPlayer(player)
             return true
         }
         return false
@@ -372,6 +406,111 @@ public class MinigamePlayerManager(
             this.offlineGameProfiles.add(player.gameProfile)
 
             this.minigame.data.updatePlayer(player)
+            this.data.save(player)
         }
+    }
+
+    private fun onServerSave() {
+        if (!this.keepPlayerData) {
+            this.streamPlayers().forEach(this.data::save)
+        }
+    }
+
+    private fun loadMinigamePlayer(existing: ServerPlayer): ServerPlayer {
+        if (this.keepPlayerData) {
+            return existing
+        }
+        val playerList = this.minigame.server.playerList
+        (playerList as PlayerListAccessor).playerIo.save(existing)
+
+        val copy = this.createNewPlayer(existing)
+        val data = this.data.load(copy)
+        this.updatePlayerLocation(copy, data)
+        return copy
+    }
+
+    private fun restoreServerPlayer(existing: ServerPlayer): ServerPlayer {
+        if (this.keepPlayerData) {
+            return existing
+        }
+        this.data.save(existing)
+
+        val playerList = this.minigame.server.playerList
+        val copy = this.createNewPlayer(existing)
+        val data = (playerList as PlayerListAccessor).playerIo.load(copy)
+        this.updatePlayerLocation(copy, data.getOrNull())
+        return copy
+    }
+
+    private fun updatePlayerLocation(player: ServerPlayer, data: CompoundTag?) {
+        if (data != null) {
+            val key = Level.RESOURCE_KEY_CODEC.parse(NbtOps.INSTANCE, data.get("Dimension")).resultOrPartial().getOrNull()
+            if (key != null) {
+                val level = player.server.getLevel(key)
+                if (level != null) {
+                    player.teleportTo(player.location.with(level))
+                    return
+                }
+            }
+        }
+        player.teleportTo(player.location)
+    }
+
+    private fun createNewPlayer(existing: ServerPlayer): ServerPlayer {
+        val playerList = this.minigame.server.playerList
+        val copy = try {
+            LOCAL_TRANSITION.set(existing.locationWithLevel.asTeleportTransition())
+            playerList.respawn(existing, false, Entity.RemovalReason.CHANGED_DIMENSION)
+        } finally {
+            LOCAL_TRANSITION.remove()
+        }
+        copy.connection.player = copy
+        return copy
+    }
+
+    private class DataManager(
+        private val path: Path
+    ) {
+        init {
+            this.path.createDirectories()
+        }
+
+        fun save(player: ServerPlayer) {
+            try {
+                val tag = player.saveWithoutId(CompoundTag())
+                val temp = Files.createTempFile(this.path, player.stringUUID + "-", ".dat")
+                NbtIo.writeCompressed(tag, temp)
+                val current = this.path.resolve(player.stringUUID + ".dat")
+                val old = this.path.resolve(player.stringUUID + ".dat_old")
+                Util.safeReplaceFile(current, temp, old)
+            } catch (e: Exception) {
+                ArcadeUtils.logger.warn("Failed to save player data for ${player.scoreboardName}")
+            }
+        }
+
+        fun load(player: ServerPlayer): CompoundTag? {
+            val optional = this.load(player, ".dat")
+            val tag = optional ?: this.load(player, ".dat_old") ?: return null
+            player.load(tag)
+            return tag
+        }
+
+        private fun load(player: ServerPlayer, suffix: String): CompoundTag? {
+            val path = this.path.resolve(player.stringUUID + suffix)
+            if (path.isRegularFile()) {
+                try {
+                    return NbtIo.readCompressed(path, NbtAccounter.unlimitedHeap())
+                } catch (e: Exception) {
+                    ArcadeUtils.logger.warn("Failed to load player data for ${player.scoreboardName}")
+                }
+            }
+            return null
+        }
+    }
+
+    public companion object {
+        @Internal
+        @JvmField
+        public val LOCAL_TRANSITION: ThreadLocal<TeleportTransition> = ThreadLocal<TeleportTransition>()
     }
 }

@@ -28,7 +28,7 @@ public abstract class MinecraftServerMixin {
 	)
 	private void afterCreateVanillaLevels(CallbackInfo ci) {
 		MinecraftServer server = (MinecraftServer) (Object) this;
-		for (ResourceKey<Level> key : LevelPersistenceTracker.load(server)) {
+		for (ResourceKey<Level> key : LevelPersistenceTracker.loadPersistentLevels(server)) {
 			ArcadeDimensions.load(server, key);
 		}
 	}

@@ -36,6 +36,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.lang.reflect.ParameterizedType
+import java.nio.file.Path
 import java.util.*
 
 /**
@@ -456,6 +457,18 @@ public abstract class Minigame(
             json.add(name, property.invoke())
         }
         return JsonUtils.GSON.toJson(json)
+    }
+
+    /**
+     * Gets the save path for this minigame.
+     *
+     * @return The path where the minigame is saved.
+     */
+    public fun getSavePath(): Path {
+        return Minigames.getPath(this.server)
+            .resolve("instances")
+            .resolve("${this.id.namespace}.${this.id.path}")
+            .resolve(this.uuid.toString())
     }
 
     /**

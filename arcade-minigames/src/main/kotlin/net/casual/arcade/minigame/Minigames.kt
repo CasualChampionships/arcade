@@ -21,13 +21,13 @@ import net.casual.arcade.minigame.commands.PauseCommand
 import net.casual.arcade.minigame.commands.TeamCommandModifier
 import net.casual.arcade.minigame.exception.MinigameCreationException
 import net.casual.arcade.minigame.exception.MinigameSerializationException
+import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
 import net.casual.arcade.minigame.gamemode.ExtendedGameMode
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.task.impl.PhaseChangeTask
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.minigame.utils.MinigameUtils
-import net.casual.arcade.scheduler.task.impl.CancellableTask
 import net.casual.arcade.scheduler.task.utils.TaskRegistries
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.JsonUtils
@@ -38,6 +38,7 @@ import net.minecraft.Util
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
+import net.minecraft.world.level.storage.LevelResource
 import java.io.IOException
 import java.nio.file.Path
 import java.util.*
@@ -49,8 +50,6 @@ import kotlin.jvm.optionals.getOrNull
  * all the current minigames that are running.
  */
 public object Minigames: ModInitializer {
-    private val PATH = ArcadeUtils.path.resolve("minigames")
-
     private val ALL = LinkedHashMap<UUID, Minigame>()
     private val BY_ID = LinkedHashMultimap.create<ResourceLocation, Minigame>()
 
@@ -100,10 +99,16 @@ public object Minigames: ModInitializer {
         }
     }
 
+    @OptIn(ExperimentalPathApi::class)
     public fun read(path: Path, server: MinecraftServer): Minigame {
         val factoryPath = path.resolve("factory.json")
         if (!factoryPath.isRegularFile()) {
-            throw MinigameCreationException("Cannot create Minigame, no such file $path")
+            try {
+                path.deleteRecursively()
+            } catch (_: IOException) {
+
+            }
+            throw MinigameCreationException("Cannot create Minigame, no such file $factoryPath")
         }
 
         val data = try {
@@ -149,6 +154,7 @@ public object Minigames: ModInitializer {
         MinigameRegistries.load()
         MinigameUtils.registerEvents()
         ExtendedGameMode.registerEvents()
+        PlayerMinigameExtension.registerEvents()
 
         GlobalEventHandler.Server.register<ServerLoadedEvent> { (server) ->
             this.loadMinigames(server)
@@ -179,20 +185,23 @@ public object Minigames: ModInitializer {
         this.ALL.remove(minigame.uuid)
         this.BY_ID[minigame.id].remove(minigame)
 
-        if (minigame.serializable) {
-            Util.ioPool().execute {
-                val path = this.getPathFor(minigame)
-                if (path.exists()) {
-                    @OptIn(ExperimentalPathApi::class)
-                    path.deleteRecursively()
-                }
+        Util.ioPool().execute {
+            val path = minigame.getSavePath()
+            if (path.exists()) {
+                @OptIn(ExperimentalPathApi::class)
+                path.deleteRecursively()
             }
         }
     }
 
+    internal fun getPath(server: MinecraftServer): Path {
+        return server.getWorldPath(LevelResource.ROOT).resolve("minigames")
+    }
+
     private fun loadMinigames(server: MinecraftServer) {
-        PATH.createDirectories()
-        for (types in PATH.listDirectoryEntries()) {
+        val path = this.getPath(server)
+        path.createDirectories()
+        for (types in path.listDirectoryEntries()) {
             if (!types.isDirectory()) {
                 continue
             }
@@ -213,7 +222,7 @@ public object Minigames: ModInitializer {
         for (minigame in ALL.values) {
             if (minigame.serializable) {
                 try {
-                    this.write(this.getPathFor(minigame), minigame)
+                    this.write(minigame.getSavePath(), minigame)
                 } catch (e: MinigameSerializationException) {
                     ArcadeUtils.logger.error(e)
                 }
@@ -227,9 +236,5 @@ public object Minigames: ModInitializer {
                 minigame.close()
             }
         }
-    }
-
-    private fun getPathFor(minigame: Minigame): Path {
-        return PATH.resolve("${minigame.id.namespace}.${minigame.id.path}").resolve(minigame.uuid.toString())
     }
 }

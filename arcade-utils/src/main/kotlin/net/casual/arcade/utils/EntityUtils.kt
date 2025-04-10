@@ -7,18 +7,23 @@ package net.casual.arcade.utils
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.minecraft.core.BlockPos
+import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.core.registries.Registries
+import net.minecraft.network.protocol.game.ClientboundExplodePacket
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.sounds.SoundEvents
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntitySpawnReason
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.level.levelgen.structure.Structure
-import java.util.UUID
+import net.minecraft.world.phys.Vec3
+import java.util.*
 import java.util.function.Consumer
 import kotlin.jvm.optionals.getOrNull
 
@@ -38,6 +43,29 @@ public fun Entity.addVelocityAndMark(deltaX: Double, deltaY: Double, deltaZ: Dou
 public fun Entity.setVelocityAndMark(deltaX: Double, deltaY: Double, deltaZ: Double) {
     this.setDeltaMovement(deltaX, deltaY, deltaZ)
     this.hurtMarked = true
+}
+
+public fun Entity.addVelocitySmooth(deltaX: Double, deltaY: Double, deltaZ: Double) {
+    if (this !is ServerPlayer) {
+        return this.addVelocityAndMark(deltaX, deltaY, deltaZ)
+    }
+    this.addVelocitySmooth(Vec3(deltaX, deltaY, deltaZ))
+}
+
+public fun Entity.addVelocitySmooth(deltas: Vec3) {
+    if (this !is ServerPlayer) {
+        return this.addVelocityAndMark(deltas.x, deltas.y, deltas.z)
+    }
+    this.addVelocitySmooth(deltas)
+}
+
+public fun ServerPlayer.addVelocitySmooth(deltas: Vec3) {
+    this.connection.send(ClientboundExplodePacket(
+        Vec3(0.0, Int.MAX_VALUE.toDouble(), 0.0),
+        Optional.of(deltas),
+        ParticleTypes.CRIT,
+        SoundEvents.NOTE_BLOCK_BASEDRUM
+    ))
 }
 
 public fun Entity.teleportTo(location: LocationWithLevel<ServerLevel>, resetCamera: Boolean = true) {

@@ -5,8 +5,10 @@
 package net.casual.arcade.extensions.mixins;
 
 import net.casual.arcade.events.GlobalEventHandler;
+import net.casual.arcade.extensions.Extension;
 import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.ExtensionMap;
+import net.casual.arcade.extensions.TransferableEntityExtension;
 import net.casual.arcade.extensions.event.EntityExtensionEvent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -50,7 +52,7 @@ public class EntityMixin implements ExtensionHolder {
             target = "Lnet/minecraft/world/entity/Entity;readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"
         )
     )
-    private void onLoadPlayer(CompoundTag compound, CallbackInfo ci) {
+    private void onLoad(CompoundTag compound, CallbackInfo ci) {
         if ((Object) this instanceof ServerPlayer) {
             return;
         }
@@ -65,10 +67,23 @@ public class EntityMixin implements ExtensionHolder {
             target = "Lnet/minecraft/world/entity/Entity;addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"
         )
     )
-    private void onSavePlayer(CompoundTag compound, CallbackInfoReturnable<CompoundTag> cir) {
+    private void onSave(CompoundTag compound, CallbackInfoReturnable<CompoundTag> cir) {
         CompoundTag arcade = new CompoundTag();
         ExtensionHolder.serialize(this, arcade);
         compound.put("arcade", arcade);
+    }
+
+    @Inject(
+        method = "restoreFrom",
+        at = @At("HEAD")
+    )
+    private void onRestoreEntity(Entity entity, CallbackInfo ci) {
+        for (Extension extension : ExtensionHolder.all((ExtensionHolder) entity)) {
+            if (extension instanceof TransferableEntityExtension transferable) {
+                Extension transferred = transferable.transfer((Entity) (Object) this, false);
+                this.arcade$extensions.add(transferred);
+            }
+        }
     }
 
     @NotNull
