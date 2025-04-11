@@ -34,7 +34,7 @@ public abstract class CustomArgumentType<T>: ArgumentType<T> {
         return super.listSuggestions(context, builder)
     }
 
-    public fun getSuggestionProvider(): SuggestionProvider<SharedSuggestionProvider>? {
+    public open fun getSuggestionProvider(): SuggestionProvider<SharedSuggestionProvider>? {
         return SuggestionProviders.ASK_SERVER
     }
 
