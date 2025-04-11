@@ -87,7 +87,7 @@ public object LevelPersistenceTracker {
             try {
                 val compound = CompoundTag()
                 compound.put("level_keys", CODEC.encodeStart(NbtOps.INSTANCE, keys).orThrow)
-                NbtIo.write(compound, path)
+                NbtIo.write(compound, path.createParentDirectories())
             } catch (e: IllegalStateException) {
                 ArcadeUtils.logger.error("Failed to encode level keys", e)
             } catch (e: IOException) {
