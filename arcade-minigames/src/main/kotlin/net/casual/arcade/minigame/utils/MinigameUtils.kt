@@ -5,6 +5,7 @@
 package net.casual.arcade.minigame.utils
 
 import com.mojang.brigadier.builder.ArgumentBuilder
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.GlobalEventHandler
@@ -13,11 +14,9 @@ import net.casual.arcade.events.common.Event
 import net.casual.arcade.events.server.level.LevelEvent
 import net.casual.arcade.events.server.level.LocatedLevelEvent
 import net.casual.arcade.events.server.player.PlayerEvent
-import net.casual.arcade.events.server.player.PlayerJoinEvent
 import net.casual.arcade.extensions.event.ExtensionEvent
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.extensions.event.LevelExtensionEvent.Companion.getExtension
-import net.casual.arcade.extensions.event.PlayerExtensionEvent
 import net.casual.arcade.extensions.event.PlayerExtensionEvent.Companion.getExtension
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.Listener
@@ -49,6 +48,10 @@ import java.lang.reflect.Modifier
 import java.util.function.Predicate
 
 public object MinigameUtils {
+    public val NO_MINIGAME_IN_CONTEXT: DynamicCommandExceptionType = DynamicCommandExceptionType {
+        Component.translatable("minigame.command.context.noMinigameOfType", it)
+    }
+
     internal val ServerPlayer.minigame
         get() = this.getExtension<PlayerMinigameExtension>()
     internal val ServerLevel.minigame
@@ -67,6 +70,34 @@ public object MinigameUtils {
     @JvmStatic
     public fun ServerLevel.getMinigames(pos: BlockPos): Set<Minigame> {
         return this.minigame.getMinigames(pos)
+    }
+
+    @JvmStatic
+    public inline fun <reified T: Minigame> ServerLevel.getMinigame(): T? {
+        return this.getMinigames().filterIsInstance<T>().singleOrNull()
+    }
+
+    @JvmStatic
+    public inline fun <reified T: Minigame> ServerLevel.getMinigameOrThrow(): T {
+        return this.getMinigame() ?: throw IllegalStateException(
+            "Dimension ${this.dimension().location()} has no single ongoing minigame (type: ${T::class.java.simpleName})"
+        )
+    }
+
+    @JvmStatic
+    public inline fun <reified T: Minigame> CommandSourceStack.getMinigame(): T? {
+        if (this.isPlayer) {
+            val minigame = this.playerOrException.getMinigame() as? T
+            if (minigame != null) {
+                return minigame
+            }
+        }
+        return this.level.getMinigame()
+    }
+
+    @JvmStatic
+    public inline fun <reified T: Minigame> CommandSourceStack.getMinigameOrThrow(): T {
+        return this.getMinigame() ?: throw NO_MINIGAME_IN_CONTEXT.create(T::class.java.simpleName)
     }
 
     @JvmStatic

@@ -50,6 +50,8 @@
   "minigame.command.argument.settingValue.invalid": "Invalid Setting Value",
   "minigame.command.argument.settingOption.invalid": "Invalid Setting Option",
 
+  "minigame.command.context.noMinigameOfType": "Context provides no minigame of type %s",
+
   "minigame.command.gamemode.success": "Successfully updated gamemode to %s for targets",
 
   "minigame.command.list.none": "There are no running minigames!",

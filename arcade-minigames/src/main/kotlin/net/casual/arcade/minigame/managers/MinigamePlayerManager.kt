@@ -52,7 +52,7 @@ public class MinigamePlayerManager(
 ): Iterable<ServerPlayer> {
     private val connections: MutableSet<ServerGamePacketListenerImpl> = ReferenceLinkedOpenHashSet()
 
-    private val data = DataManager(this.minigame.getSavePath().resolve("player-data"))
+    private val data by lazy { DataManager(this.minigame.getSavePath().resolve("player-data")) }
 
     internal val adminUUIDs = ObjectLinkedOpenHashSet<UUID>()
     internal val spectatorUUIDs = ObjectLinkedOpenHashSet<UUID>()

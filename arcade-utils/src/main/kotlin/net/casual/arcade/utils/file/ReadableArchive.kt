@@ -5,9 +5,9 @@ import com.mojang.serialization.Dynamic
 import com.mojang.serialization.JsonOps
 import net.minecraft.util.GsonHelper
 import java.io.InputStream
-import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Path
+import kotlin.io.path.extension
 import kotlin.io.path.inputStream
 import kotlin.io.path.nameWithoutExtension
 
@@ -18,7 +18,12 @@ public interface ReadableArchive: AutoCloseable {
 
     public companion object {
         public fun from(path: Path): ReadableArchive {
-            return FileSystemArchive(path.nameWithoutExtension, FileSystems.newFileSystem(path))
+            if (path.extension == "zip") {
+                val system = FileSystems.newFileSystem(path)
+                val root = system.getPath("/")
+                return ReadablePathArchive(path.nameWithoutExtension, root) { system.close() }
+            }
+            return ReadablePathArchive(path.nameWithoutExtension, path)
         }
 
         public fun <A> ReadableArchive.parse(
@@ -39,16 +44,17 @@ public interface ReadableArchive: AutoCloseable {
         }
     }
 
-    private class FileSystemArchive(
+    private class ReadablePathArchive(
         override val name: String,
-        private val system: FileSystem
+        private val root: Path,
+        private val closer: () -> Unit = { }
     ): ReadableArchive {
         override fun resolve(other: String): Path {
-            return this.system.getPath(other)
+            return this.root.resolve(other)
         }
 
         override fun close() {
-            this.system.close()
+            this.closer.invoke()
         }
     }
 }

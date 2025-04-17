@@ -15,7 +15,9 @@ public interface MinigameDataModule {
         public fun get(archive: ReadableArchive, server: MinecraftServer): MinigameDataModule
 
         public companion object {
-            public val CODEC: Codec<Provider> = MinigameRegistries.MINIGAME_DATA_MODULE_PROVIDER.byNameCodec()
+            public val CODEC: Codec<Provider> = Codec.lazyInitialized {
+                MinigameRegistries.MINIGAME_DATA_MODULE_PROVIDER.byNameCodec()
+            }
 
             internal fun bootstrap(registry: Registry<Provider>) {
                 MinigameWorldData.register(registry)
