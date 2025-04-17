@@ -34,6 +34,10 @@ import kotlin.io.path.pathString
 public object ArcadeExtraCodecs {
     public val MUTABLE_INT: Codec<MutableInt> = Codec.INT.xmap(::MutableInt, MutableInt::getValue)
     public val MUTABLE_LONG: Codec<MutableLong> = Codec.LONG.xmap(::MutableLong, MutableLong::getValue)
+    public val INT_RANGE: Codec<IntRange> = Codec.INT.listOf().comapFlatMap(
+        { Util.fixedSize(it, 2).map { range -> IntRange(range[0], range[1]) } },
+        { range -> listOf(range.first, range.last) }
+    )
     public val PATH: Codec<Path> = Codec.STRING.xmap(Path::of, Path::pathString)
     public val VEC2: Codec<Vec2> = Codec.FLOAT.listOf().comapFlatMap(
         { Util.fixedSize(it, 2).map { vec -> Vec2(vec[0], vec[1]) } },

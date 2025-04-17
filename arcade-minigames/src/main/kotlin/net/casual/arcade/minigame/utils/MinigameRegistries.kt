@@ -5,6 +5,7 @@
 package net.casual.arcade.minigame.utils
 
 import com.mojang.serialization.MapCodec
+import net.casual.arcade.minigame.data.MinigameDataModule
 import net.casual.arcade.minigame.managers.chat.MinigameChatMode
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.template.area.PlaceableAreaTemplate
@@ -22,6 +23,7 @@ public object MinigameRegistryKeys: RegistryKeySupplier(ArcadeUtils.MOD_ID) {
     public val MINIGAME_CHAT_MODE: ResourceKey<Registry<MapCodec<out MinigameChatMode>>> = create("minigame_chat_mode")
     public val MINIGAMES_EVENT: ResourceKey<Registry<MapCodec<out MinigamesTemplate>>> = create("minigames_event")
     public val MINIGAME_FACTORY: ResourceKey<Registry<MapCodec<out MinigameFactory>>> = create("minigame_factory")
+    public val MINIGAME_DATA_MODULE_PROVIDER: ResourceKey<Registry<MinigameDataModule.Provider>> = create("minigame_data_module_provider")
 }
 
 public object MinigameRegistries: RegistrySupplier() {
@@ -30,4 +32,5 @@ public object MinigameRegistries: RegistrySupplier() {
     public val MINIGAME_CHAT_MODES: Registry<MapCodec<out MinigameChatMode>> = create(MinigameRegistryKeys.MINIGAME_CHAT_MODE, MinigameChatMode::bootstrap)
     public val MINIGAME_FACTORY: Registry<MapCodec<out MinigameFactory>> = create(MinigameRegistryKeys.MINIGAME_FACTORY, MinigameFactory::bootstrap)
     public val MINIGAMES_EVENT: Registry<MapCodec<out MinigamesTemplate>> = create(MinigameRegistryKeys.MINIGAMES_EVENT, MinigamesTemplate::bootstrap)
+    public val MINIGAME_DATA_MODULE_PROVIDER: Registry<MinigameDataModule.Provider> = create(MinigameRegistryKeys.MINIGAME_DATA_MODULE_PROVIDER, MinigameDataModule.Provider::bootstrap)
 }
