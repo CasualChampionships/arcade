@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.casual.arcade.npc.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "ConnectionAccessor",
+    "PistonMovingBlockEntityMixin",
+    "PlayerListMixin",
+    "PlayerMixin",
+    "ServerLoginPacketListenerImplAccessor",
+    "pathfinding.PathfindingContextAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
