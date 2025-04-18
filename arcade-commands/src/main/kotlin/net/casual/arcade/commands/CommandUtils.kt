@@ -17,6 +17,7 @@ import net.casual.arcade.commands.hidden.HiddenCommandManager
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.utils.ComponentUtils.command
 import net.casual.arcade.utils.TimeUtils.Minutes
+import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
 import net.casual.arcade.utils.time.MinecraftTimeDuration
@@ -26,6 +27,9 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.level.ServerLevel
 import java.util.function.Supplier
+
+public val CommandSourceStack.location: Location
+    get() = Location(this.position, this.rotation)
 
 public val CommandSourceStack.locationWithLevel: LocationWithLevel<ServerLevel>
     get() = this.level.asLocation(this.position, this.rotation)

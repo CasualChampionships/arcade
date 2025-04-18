@@ -123,6 +123,25 @@ public class MinigameLevelManager(
         }
     }
 
+    /**
+     * Transfers all levels and ownership of levels
+     * to another minigame.
+     *
+     * @param minigame The minigame to transfer levels to.
+     */
+    public fun transferTo(minigame: Minigame) {
+        if (this.minigame === minigame) {
+            return
+        }
+
+        minigame.levels.levels.putAll(this.levels)
+
+        minigame.levels.handling.addAll(this.handling)
+        this.handling.clear()
+
+        minigame.levels.spawn = this.spawn
+    }
+
     internal fun initialize() {
         for (level in this.all()) {
             this.ensureLevelLoaded(level)

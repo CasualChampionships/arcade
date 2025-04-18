@@ -10,6 +10,8 @@ import net.casual.arcade.dimensions.level.factory.CustomLevelFactory
 import net.casual.arcade.dimensions.level.factory.SimpleCustomLevelFactory
 import net.casual.arcade.dimensions.mixins.level.MinecraftServerAccessor
 import net.casual.arcade.dimensions.mixins.level.ServerLevelAccessor
+import net.casual.arcade.dimensions.utils.LevelPersistenceTracker
+import net.casual.arcade.dimensions.utils.addCustomLevel
 import net.casual.arcade.dimensions.utils.getDimensionPath
 import net.casual.arcade.dimensions.utils.impl.DerivedLevelData
 import net.casual.arcade.dimensions.utils.impl.NullChunkProgressListener
@@ -87,7 +89,7 @@ public open class CustomLevel(
     init {
         // In case of server crash, we should still delete temporary levels
         if (!this.persistence.shouldSave()) {
-            PathUtils.deleteOnExit(server.getDimensionPath(key))
+            LevelPersistenceTracker.markAsTemporary(this.server, this.dimension())
         }
     }
 

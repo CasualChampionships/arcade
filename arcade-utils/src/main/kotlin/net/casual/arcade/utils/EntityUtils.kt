@@ -68,7 +68,7 @@ public fun ServerPlayer.addVelocitySmooth(deltas: Vec3) {
     ))
 }
 
-public fun Entity.teleportTo(location: LocationWithLevel<ServerLevel>, resetCamera: Boolean = true) {
+public fun Entity.teleportTo(location: LocationWithLevel<out ServerLevel>, resetCamera: Boolean = true) {
     this.teleportTo(
         location.level,
         location.x,

@@ -64,8 +64,6 @@ public fun MinecraftServer.addCustomLevel(level: CustomLevel): CustomLevel {
 
     if (level.persistence == LevelPersistence.Persistent) {
         LevelPersistenceTracker.markAsPersistent(dimension)
-    } else if (level.persistence == LevelPersistence.Temporary) {
-        LevelPersistenceTracker.markAsTemporary(this, dimension)
     }
     return level
 }
@@ -281,6 +279,10 @@ public fun ServerLevel.setCustomMobSpawningRules(rules: CustomMobSpawningRules?)
 
 public fun MinecraftServer.getDimensionPath(dimension: ResourceKey<Level>): Path {
     return (this as MinecraftServerAccessor).storage.getDimensionPath(dimension)
+}
+
+public fun ServerLevel.setSpoofedDimension(id: ResourceLocation) {
+    this.setSpoofedDimension(ResourceKey.create(Registries.DIMENSION, id))
 }
 
 public fun ServerLevel.setSpoofedDimension(key: ResourceKey<Level>?) {

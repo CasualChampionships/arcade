@@ -4,11 +4,13 @@
  */
 package net.casual.arcade.dimensions.utils
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.events.server.ServerSaveEvent
+import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.codec.ArcadeExtraCodecs
 import net.minecraft.Util
@@ -19,6 +21,8 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.storage.LevelResource
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.file.PathUtils
 import org.jetbrains.annotations.ApiStatus.Internal
 import java.io.IOException
 import java.nio.file.Path
@@ -32,6 +36,10 @@ public object LevelPersistenceTracker {
     private val persistent = ReferenceLinkedOpenHashSet<ResourceKey<Level>>()
     private val temporary = ReferenceLinkedOpenHashSet<ResourceKey<Level>>()
 
+    private val deletion = ObjectOpenHashSet<Path>()
+
+    @Volatile private var dirty = false
+
     internal fun markAsPersistent(key: ResourceKey<Level>) {
         this.persistent.add(key)
     }
@@ -41,8 +49,9 @@ public object LevelPersistenceTracker {
     }
 
     internal fun markAsTemporary(server: MinecraftServer, key: ResourceKey<Level>) {
+        this.deletion.add(server.getDimensionPath(key))
         this.temporary.add(key)
-        this.writeLevelKeysTo(this.getTemporaryDataPath(server), this.temporary.toList())
+        this.dirty = true
     }
 
     @JvmStatic
@@ -118,6 +127,24 @@ public object LevelPersistenceTracker {
         GlobalEventHandler.Server.register<ServerLoadedEvent> { (server) ->
             this.cleanupTemporaryLevels(server)
         }
+        GlobalEventHandler.Server.register<ServerTickEvent> { (server) ->
+            if (this.dirty) {
+                this.writeLevelKeysTo(this.getTemporaryDataPath(server), this.temporary.toList())
+                this.dirty = false
+            }
+        }
+        Runtime.getRuntime().addShutdownHook(Thread {
+            for (path in this.deletion) {
+                try {
+                    if (path.isDirectory()) {
+                        @OptIn(ExperimentalPathApi::class)
+                        path.deleteRecursively()
+                    }
+                } catch (e: Exception) {
+                    ArcadeUtils.logger.error("Failed to remove temporary level files", e)
+                }
+            }
+        })
     }
 
     private fun getPersistenceDataPath(server: MinecraftServer): Path {

@@ -79,6 +79,15 @@ public abstract class PlayerUI {
     }
 
     /**
+     * Whether this player is viewing this ui element.
+     *
+     * @return Whether the player is viewing the ui element.
+     */
+    public fun hasPlayer(player: ServerPlayer): Boolean {
+        return this.connections.contains(player.connection)
+    }
+
+    /**
      * Gets all the players that are being displayed
      * the [PlayerUI] component.
      *

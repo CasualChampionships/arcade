@@ -11,8 +11,10 @@ import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.impl.Sound
+import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.advancements.AdvancementHolder
+import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction8
 import net.minecraft.core.Holder
 import net.minecraft.core.particles.ParticleOptions
@@ -99,6 +101,21 @@ public object PlayerUtils {
     @JvmStatic
     public fun MinecraftServer.player(uuid: UUID): ServerPlayer? {
         return this.playerList.getPlayer(uuid)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.setRespawnLocation(
+        location: LocationWithLevel<*>,
+        force: Boolean = true,
+        notify: Boolean = false
+    ) {
+        this.setRespawnPosition(
+            location.level.dimension(),
+            BlockPos.containing(location.position),
+            location.yRot,
+            force,
+            notify
+        )
     }
 
     @JvmStatic

@@ -7,6 +7,7 @@ package net.casual.arcade.minigame.managers
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
 import net.casual.arcade.events.server.player.PlayerJoinEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.ListenerFlags
@@ -15,6 +16,7 @@ import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
 import net.casual.arcade.minigame.ready.MinigamePlayerReadyHandler
 import net.casual.arcade.minigame.ready.MinigameTeamReadyHandler
 import net.casual.arcade.minigame.ready.ReadyChecker
+import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.visuals.bossbar.CustomBossbar
 import net.casual.arcade.visuals.core.PlayerUI
 import net.casual.arcade.visuals.core.TickableUI
@@ -25,6 +27,7 @@ import net.casual.arcade.visuals.sidebar.Sidebar
 import net.casual.arcade.visuals.tab.PlayerListDisplay
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import java.util.function.Consumer
@@ -69,8 +72,11 @@ public class MinigameUIManager(
             this.sidebar?.removePlayer(player)
             this.display?.removePlayer(player)
         }
-        this.minigame.events.register<PlayerJoinEvent>(priority = 1_000, flags = ListenerFlags.NONE) {
-            this.display?.onPlayerJoin(it.player)
+        this.minigame.events.register<PlayerClientboundPacketEvent> { event ->
+            val packet = event.packet
+            if (packet is ClientboundPlayerInfoUpdatePacket) {
+                event.packet = this.display?.replacePlayerInfoUpdatePacket(event.player, packet) ?: event.packet
+            }
         }
     }
 

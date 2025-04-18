@@ -90,10 +90,35 @@ public open class PlayerListDisplay(
         return true
     }
 
-    public open fun onPlayerJoin(player: ServerPlayer) {
-        val actions = EnumSet.of(Action.UPDATE_LISTED)
-        val entries = listOf(this.hidingClientboundEntry(player, true))
-        this.sendToAllPlayers(ClientboundPlayerInfoUpdatePacket(actions, entries))
+    public open fun replacePlayerInfoUpdatePacket(
+        receiver: ServerPlayer,
+        packet: ClientboundPlayerInfoUpdatePacket
+    ): ClientboundPlayerInfoUpdatePacket {
+        if (!this.hasPlayer(receiver)) {
+            return packet
+        }
+
+        if (packet.actions().contains(Action.UPDATE_LISTED)) {
+            val mapped = packet.entries().map { entry ->
+                if (!this.isIndexUUID(entry.profileId)) {
+                    ClientboundPlayerInfoUpdatePacket.Entry(
+                        entry.profileId,
+                        entry.profile,
+                        false,
+                        entry.latency,
+                        entry.gameMode,
+                        entry.displayName,
+                        entry.showHat,
+                        entry.listOrder,
+                        entry.chatSession
+                    )
+                } else {
+                    entry
+                }
+            }
+            return ClientboundPlayerInfoUpdatePacket(packet.actions(), mapped)
+        }
+        return packet
     }
 
     override fun onAddPlayer(player: ServerPlayer) {
@@ -199,6 +224,10 @@ public open class PlayerListDisplay(
             -index,
             null
         )
+    }
+
+    private fun isIndexUUID(uuid: UUID): Boolean {
+        return uuid.leastSignificantBits == 0L && uuid.mostSignificantBits >= 31
     }
 
     private fun createUUIDForIndex(index: Int): UUID {

@@ -1,8 +1,10 @@
 package net.casual.arcade.utils.file
 
+import com.google.gson.JsonElement
 import com.mojang.serialization.Decoder
 import com.mojang.serialization.Dynamic
 import com.mojang.serialization.JsonOps
+import net.casual.arcade.utils.JsonUtils
 import net.minecraft.util.GsonHelper
 import java.io.InputStream
 import java.nio.file.FileSystems
@@ -39,7 +41,7 @@ public interface ReadableArchive: AutoCloseable {
 
         public fun <A> ReadableArchive.parseJson(path: String, decoder: Decoder<A>): Result<A> {
             return this.parse(path, decoder) {
-                Dynamic(JsonOps.INSTANCE, GsonHelper.parse(it.reader()))
+                Dynamic(JsonOps.INSTANCE, JsonUtils.decodeToJsonElement(it.reader()))
             }
         }
     }
