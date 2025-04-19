@@ -374,7 +374,7 @@ public object PlayerUtils {
         if (!withTeam || team == null) {
             return Component.literal("<").append(this.name).append("> ")
         }
-        val name = Component.empty().append(team.playerPrefix).append(this.name).append(team.playerSuffix)
+        val name = team.getFormattedName(this.name)
         return Component.literal("<").append(name).append("> ")
     }
 
