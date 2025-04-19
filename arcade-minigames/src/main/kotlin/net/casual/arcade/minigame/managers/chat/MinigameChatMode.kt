@@ -10,11 +10,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.chat.PlayerChatFormatter
 import net.casual.arcade.minigame.managers.MinigameChatManager
+import net.casual.arcade.minigame.utils.DisplayableTeam
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.codec.CodecProvider
 import net.casual.arcade.utils.codec.CodecProvider.Companion.register
 import net.minecraft.core.Registry
+import net.minecraft.core.UUIDUtil
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
@@ -24,7 +26,7 @@ import net.minecraft.world.scores.PlayerTeam
 import java.util.*
 import java.util.function.Function
 
-public sealed interface MinigameChatMode {
+public interface MinigameChatMode {
     public val name: Component
 
     public fun getChatFormatter(manager: MinigameChatManager): PlayerChatFormatter
