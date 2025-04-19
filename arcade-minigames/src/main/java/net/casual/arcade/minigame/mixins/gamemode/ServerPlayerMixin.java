@@ -22,8 +22,6 @@ import static net.casual.arcade.minigame.gamemode.ExtendedGameMode.getExtendedGa
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin {
-	@Shadow public abstract boolean isSpectator();
-
 	@Inject(
 		method = "broadcastToPlayer",
 		at = @At("HEAD"),
@@ -45,28 +43,6 @@ public abstract class ServerPlayerMixin {
 		if (getExtendedGameMode((ServerPlayer) (Object) this) == ExtendedGameMode.AdventureSpectator) {
 			ci.cancel();
 		}
-	}
-
-	@Inject(
-		method = "isSpectator",
-		at = @At("HEAD"),
-		cancellable = true
-	)
-	private void onIsSpectator(CallbackInfoReturnable<Boolean> cir) {
-		if (getExtendedGameMode((ServerPlayer) (Object) this) == ExtendedGameMode.AdventureSpectator) {
-			cir.setReturnValue(true);
-		}
-	}
-
-	@ModifyExpressionValue(
-		method = "attack",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/server/level/ServerPlayerGameMode;getGameModeForPlayer()Lnet/minecraft/world/level/GameType;"
-		)
-	)
-	private GameType onGetSpectator(GameType original) {
-		return this.isSpectator() ? GameType.SPECTATOR : original;
 	}
 
 	@ModifyExpressionValue(

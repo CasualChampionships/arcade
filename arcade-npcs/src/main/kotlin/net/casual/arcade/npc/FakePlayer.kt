@@ -152,7 +152,7 @@ public open class FakePlayer protected constructor(
         this.setOldRot()
     }
 
-    override fun isControlledByClient(): Boolean {
+    override fun isClientAuthoritative(): Boolean {
         return false
     }
 

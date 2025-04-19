@@ -18,6 +18,7 @@ import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.minigame.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.JsonUtils
+import net.minecraft.core.UUIDUtil
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtAccounter
 import net.minecraft.nbt.NbtIo
@@ -27,6 +28,7 @@ import java.io.IOException
 import java.nio.file.Path
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.isRegularFile
+import kotlin.jvm.optionals.getOrNull
 
 internal class PlayerMinigameExtension(
     owner: ServerPlayer
@@ -55,8 +57,9 @@ internal class PlayerMinigameExtension(
         if (path.isRegularFile()) {
             try {
                 val tag = NbtIo.readCompressed(path, NbtAccounter.unlimitedHeap())
-                if (tag.hasUUID("minigame")) {
-                    val minigame = Minigames.get(tag.getUUID("minigame"))
+                val uuid = tag.read("minigame", UUIDUtil.CODEC).getOrNull()
+                if (uuid != null) {
+                    val minigame = Minigames.get(uuid)
                     this.minigame = minigame
                     if (minigame == null) {
                         ArcadeUtils.logger.warn("Player ${this.player.scoreboardName} was part of an old minigame...")
@@ -72,7 +75,7 @@ internal class PlayerMinigameExtension(
         val tag = CompoundTag()
         val minigame = this.minigame
         if (minigame != null) {
-            tag.putUUID("minigame", minigame.uuid)
+            tag.store("minigame", UUIDUtil.CODEC, minigame.uuid)
         }
         try {
             NbtIo.writeCompressed(tag, this.getPath().createParentDirectories())

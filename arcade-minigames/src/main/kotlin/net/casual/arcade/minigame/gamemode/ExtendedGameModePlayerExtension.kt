@@ -8,6 +8,7 @@ import net.casual.arcade.extensions.DataExtension
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.ArcadeUtils
+import net.minecraft.nbt.NbtOps
 import net.minecraft.nbt.StringTag
 import net.minecraft.nbt.Tag
 import net.minecraft.server.level.ServerPlayer
@@ -57,11 +58,13 @@ internal class ExtendedGameModePlayerExtension(
     }
 
     override fun deserialize(element: Tag) {
-        this.changedGameMode = false
-        val gameMode = enumValueOf<ExtendedGameMode>(element.asString)
-        GlobalTickedScheduler.later {
-            if (!this.changedGameMode) {
-                this.setGameMode(gameMode)
+        val gameMode = ExtendedGameMode.CODEC.parse(NbtOps.INSTANCE, element).result()
+        if (gameMode.isPresent) {
+            this.changedGameMode = false
+            GlobalTickedScheduler.later {
+                if (!this.changedGameMode) {
+                    this.setGameMode(gameMode.get())
+                }
             }
         }
     }

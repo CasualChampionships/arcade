@@ -2,7 +2,7 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.extensions.mixins;
+package net.casual.arcade.extensions.mixins.player;
 
 import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.ExtensionMap;
@@ -32,10 +32,10 @@ public class ServerPlayerMixin implements ExtensionHolder, ExtensionDataHolder {
 	)
 	private void onLoadPlayer(CompoundTag compound, CallbackInfo ci) {
 		if (this.connection == null) {
-			this.arcade$data = compound.getCompound("arcade");
+			this.arcade$data = compound.getCompoundOrEmpty("arcade");
 			return;
 		}
-		ExtensionHolder.deserialize(this, compound.getCompound("arcade"));
+		ExtensionHolder.deserialize(this, compound.getCompoundOrEmpty("arcade"));
 	}
 
 	@Override

@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.WorldGenRegion
-import net.minecraft.util.random.WeightedRandomList
+import net.minecraft.util.random.WeightedList
 import net.minecraft.world.entity.MobCategory
 import net.minecraft.world.level.*
 import net.minecraft.world.level.biome.*
@@ -86,8 +86,8 @@ public class VoidChunkGenerator(biome: BiomeSource): ChunkGenerator(biome) {
         return 0
     }
 
-    override fun getMobsAt(biome: Holder<Biome>, structureManager: StructureManager, category: MobCategory, pos: BlockPos): WeightedRandomList<MobSpawnSettings.SpawnerData> {
-        return WeightedRandomList.create()
+    override fun getMobsAt(biome: Holder<Biome>, structureManager: StructureManager, category: MobCategory, pos: BlockPos): WeightedList<MobSpawnSettings.SpawnerData> {
+        return WeightedList.of()
     }
 
     override fun createStructures(registryAccess: RegistryAccess, structureState: ChunkGeneratorStructureState, structureManager: StructureManager, chunk: ChunkAccess, structureTemplateManager: StructureTemplateManager, dimension: ResourceKey<Level>) {

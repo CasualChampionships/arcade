@@ -166,28 +166,29 @@ public abstract class CustomBorder: WorldBorder(), SerializableBorder {
     }
 
     override fun `arcade$deserialize`(compound: CompoundTag) {
-        this.damagePerBlock = compound.getDouble("damage_per_block")
-        this.damageSafeZone = compound.getDouble("damage_safe_zone")
-        this.warningBlocks = compound.getInt("warning_blocks")
-        this.warningTime = compound.getInt("warning_time")
-        val remaining = compound.getLong("lerp_time")
-        val size = compound.getDouble("size")
+        val settings = DEFAULT_SETTINGS
+        this.damagePerBlock = compound.getDoubleOr("damage_per_block", settings.damagePerBlock)
+        this.damageSafeZone = compound.getDoubleOr("damage_safe_zone", settings.safeZone)
+        this.warningBlocks = compound.getIntOr("warning_blocks", settings.warningBlocks)
+        this.warningTime = compound.getIntOr("warning_time", settings.warningTime)
+        val remaining = compound.getLongOr("lerp_time", settings.sizeLerpTime)
+        val size = compound.getDoubleOr("size", settings.size)
         if (remaining > 0L) {
-            this.lerpSizeBetweenUntracked(size, compound.getDouble("lerp_target"), remaining)
+            this.lerpSizeBetweenUntracked(size, compound.getDoubleOr("lerp_target", settings.sizeLerpTarget), remaining)
         } else {
             this.setSizeUntracked(size)
         }
 
-        val centerRemaining = compound.getLong("center_lerp_time")
-        val centerX = compound.getDouble("center_x")
-        val centerZ = compound.getDouble("center_z")
+        val centerRemaining = compound.getLongOr("center_lerp_time", 0)
+        val centerX = compound.getDoubleOr("center_x", 0.0)
+        val centerZ = compound.getDoubleOr("center_z", 0.0)
         if (centerRemaining > 0L) {
             this.lerpCenterBetweenUntracked(
                 centerX,
                 centerZ,
-                compound.getDouble("center_lerp_target_x"),
-                compound.getDouble("center_lerp_target_z"),
-                compound.getLong("center_lerp_time")
+                compound.getDoubleOr("center_lerp_target_x", 0.0),
+                compound.getDoubleOr("center_lerp_target_z", 0.0),
+                centerRemaining
             )
         } else {
             this.setCenterUntracked(centerX, centerZ)

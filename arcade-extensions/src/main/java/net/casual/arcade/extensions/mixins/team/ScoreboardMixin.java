@@ -1,0 +1,30 @@
+package net.casual.arcade.extensions.mixins.team;
+
+import com.llamalad7.mixinextras.sugar.Local;
+import net.casual.arcade.extensions.ExtensionHolder;
+import net.casual.arcade.extensions.ducks.ArcadeTeamDataHolder;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+@Mixin(Scoreboard.class)
+public class ScoreboardMixin {
+    @Inject(
+        method = "loadPlayerTeam",
+        at = @At("TAIL")
+    )
+    private void onLoadPlayerTeam(
+        PlayerTeam.Packed packed,
+        CallbackInfo ci,
+        @Local PlayerTeam team
+    ) {
+        CompoundTag tag = ((ArcadeTeamDataHolder) (Object) packed).arcade$getData();
+        if (tag != null) {
+            ExtensionHolder.deserialize((ExtensionHolder) team, tag);
+        }
+    }
+}

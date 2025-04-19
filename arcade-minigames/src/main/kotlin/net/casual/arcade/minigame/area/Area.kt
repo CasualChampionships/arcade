@@ -39,8 +39,6 @@ public interface Area {
         val air = Blocks.AIR.defaultBlockState()
         val level = this.level
         BlockPos.betweenClosedStream(this.getBoundingBox()).forEach { pos ->
-            val blockEntity = level.getBlockEntity(pos)
-            Clearable.tryClear(blockEntity)
             level.setBlock(pos, air, Block.UPDATE_CLIENTS or Block.UPDATE_SUPPRESS_DROPS, 0)
         }
     }

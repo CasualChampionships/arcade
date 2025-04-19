@@ -59,15 +59,19 @@ public abstract class WorldBorderMixin implements SerializableBorder {
 
 	@Override
 	public void arcade$deserialize(@NotNull CompoundTag compound) {
-		this.setCenter(compound.getDouble("center_x"), compound.getDouble("center_z"));
-		this.damagePerBlock = compound.getDouble("damage_per_block");
-		this.damageSafeZone = compound.getDouble("damage_safe_zone");
-		this.warningBlocks = compound.getInt("warning_blocks");
-		this.warningTime = compound.getInt("warning_time");
-		long remaining = compound.getLong("lerp_time");
-		double size = compound.getDouble("size");
+		WorldBorder.Settings settings = WorldBorder.DEFAULT_SETTINGS;
+		this.setCenter(
+			compound.getDoubleOr("center_x", settings.getCenterX()),
+			compound.getDoubleOr("center_z", settings.getCenterZ())
+		);
+		this.damagePerBlock = compound.getDoubleOr("damage_per_block", settings.getDamagePerBlock());
+		this.damageSafeZone = compound.getDoubleOr("damage_safe_zone", settings.getSafeZone());
+		this.warningBlocks = compound.getIntOr("warning_blocks", settings.getWarningBlocks());
+		this.warningTime = compound.getIntOr("warning_time", settings.getWarningTime());
+		long remaining = compound.getLongOr("lerp_time", settings.getSizeLerpTime());
+		double size = compound.getDoubleOr("size", settings.getSize());
 		if (remaining > 0L) {
-			this.lerpSizeBetween(size, compound.getDouble("lerp_target"), remaining);
+			this.lerpSizeBetween(size, compound.getDoubleOr("lerp_target", settings.getSizeLerpTarget()), remaining);
 		} else {
 			this.setSize(size);
 		}

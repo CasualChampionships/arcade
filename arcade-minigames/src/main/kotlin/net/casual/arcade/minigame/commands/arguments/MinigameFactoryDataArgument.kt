@@ -19,8 +19,8 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.commands.type.CustomArgumentTypeInfo
 import net.casual.arcade.commands.type.CustomStringArgumentInfo
-import net.casual.arcade.minigame.mixins.ParserUtilsAccessor
-import net.minecraft.commands.ParserUtils
+import net.casual.arcade.utils.ParserUtils
+import net.casual.arcade.utils.ParserUtils.getPos
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.core.RegistryAccess
 import net.minecraft.network.chat.Component
@@ -85,7 +85,7 @@ public class MinigameFactoryDataArgument(
                     }
                 }
                 if (!passed) {
-                    val pos = ParserUtilsAccessor.getReaderPos(reader)
+                    val pos = reader.getPos()
                     val last = builder.remaining.lastIndexOf('"')
                     if (last != -1) {
                         typing = input.substring(last + 1, pos)
@@ -93,8 +93,6 @@ public class MinigameFactoryDataArgument(
                     break
                 }
             }
-        } catch (_: Exception) {
-            val x = true
         } finally {
             reader.close()
         }

@@ -6,6 +6,7 @@ package net.casual.arcade.utils.advancement
 
 import net.minecraft.advancements.*
 import net.minecraft.advancements.critereon.ImpossibleTrigger
+import net.minecraft.core.ClientAsset
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
@@ -50,7 +51,7 @@ public class AdvancementBuilder {
     /**
      * The background image for the advancement display.
      */
-    public var background: ResourceLocation? = null
+    public var background: ClientAsset? = null
 
     /**
      * The [AdvancementType] for the advancement.
@@ -149,8 +150,19 @@ public class AdvancementBuilder {
      * @param background The advancement background.
      * @return This [AdvancementBuilder] instance.
      */
-    public fun background(background: ResourceLocation): AdvancementBuilder {
+    public fun background(background: ClientAsset): AdvancementBuilder {
         this.background = background
+        return this
+    }
+
+    /**
+     * This sets the advancement background.
+     *
+     * @param background The advancement background.
+     * @return This [AdvancementBuilder] instance.
+     */
+    public fun background(background: ResourceLocation): AdvancementBuilder {
+        this.background = ClientAsset(background)
         return this
     }
 

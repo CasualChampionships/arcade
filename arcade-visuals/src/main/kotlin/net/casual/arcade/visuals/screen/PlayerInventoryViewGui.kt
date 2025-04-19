@@ -32,7 +32,7 @@ public open class PlayerInventoryViewGui(
 
     protected open fun updateMainhandSlot() {
         val inventory = this.observee.inventoryMenu
-        val slot = inventory.getSlot(this.observee.inventory.selected + InventoryMenu.USE_ROW_SLOT_START)
+        val slot = inventory.getSlot(this.observee.inventory.selectedSlot + InventoryMenu.USE_ROW_SLOT_START)
         this.copySlotAndRedirect(this.mapMainhandSlot(), slot)
     }
 

@@ -4,13 +4,10 @@
  */
 package net.casual.arcade.minigame.mixins.bugfixes;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.datafixers.util.Either;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
@@ -23,40 +20,40 @@ import java.util.Optional;
 
 @Mixin(Leashable.class)
 public interface LeashableMixin {
-	@WrapOperation(
+    @ModifyExpressionValue(
 		method = "readLeashData",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/entity/Leashable;readLeashDataInternal(Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/world/entity/Leashable$LeashData;"
+			target = "Lnet/minecraft/nbt/CompoundTag;read(Ljava/lang/String;Lcom/mojang/serialization/Codec;)Ljava/util/Optional;"
 		)
 	)
-	private Leashable.LeashData onReadLeashData(CompoundTag compound, Operation<Leashable.LeashData> original) {
-		if (this instanceof Entity entity && compound.contains("LeashRelative", CompoundTag.TAG_INT_ARRAY)) {
-			Optional<BlockPos> optional = NbtUtils.readBlockPos(compound, "LeashRelative");
+	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+	private Optional<Leashable.LeashData> onReadLeashData(Optional<Leashable.LeashData> original, CompoundTag compound) {
+		if (this instanceof Entity entity) {
+			Optional<BlockPos> optional = compound.read("LeashRelative", BlockPos.CODEC);
 			if (optional.isPresent()) {
 				BlockPos position = entity.blockPosition().offset(optional.get());
-				return LeashDataInvoker.construct(Either.right(position));
+				return Optional.of(LeashDataInvoker.construct(Either.right(position)));
 			}
 		}
-		return original.call(compound);
+		return original;
 	}
 
 	@Inject(
 		method = "writeLeashData",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/world/entity/decoration/LeashFenceKnotEntity;getPos()Lnet/minecraft/core/BlockPos;"
-		)
+		at = @At("HEAD")
 	)
 	private void onWriteLeashData(
 		CompoundTag compound,
 		Leashable.LeashData leashData,
-		CallbackInfo ci,
-		@Local LeashFenceKnotEntity leash
-		) {
+		CallbackInfo ci
+	) {
 		if (this instanceof Entity entity) {
-			BlockPos relative = leash.getPos().subtract(entity.blockPosition());
-			compound.put("LeashRelative", NbtUtils.writeBlockPos(relative));
+			Entity holder = leashData.leashHolder;
+			if (holder instanceof LeashFenceKnotEntity knot) {
+				BlockPos relative = knot.getPos().subtract(entity.blockPosition());
+				compound.store("LeashRelative", BlockPos.CODEC, relative);
+			}
 		}
 	}
 }

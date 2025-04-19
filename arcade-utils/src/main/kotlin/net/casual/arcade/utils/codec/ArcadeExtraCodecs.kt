@@ -66,6 +66,27 @@ public object ArcadeExtraCodecs {
         )
     }
 
+    @JvmStatic
+    public fun <T, S> Codec<T>.extend(
+        builder: RecordCodecBuilder<T, S>,
+        applier: (T, S) -> T
+    ): Codec<T> {
+        val extendable = if (this is MapCodec.MapCodecCodec) this.codec else MapCodec.assumeMapUnsafe(this)
+        return extendable.extend(builder, applier).codec()
+    }
+
+    @JvmStatic
+    public fun <T, S> MapCodec<T>.extend(
+        builder: RecordCodecBuilder<T, S>,
+        applier: (T, S) -> T
+    ): MapCodec<T> {
+        return RecordCodecBuilder.mapCodec { instance ->
+            instance.group(
+                this.forGetter(Function.identity()), builder
+            ).apply(instance, applier)
+        }
+    }
+
     public inline fun <reified E: Enum<E>> enum(
         mapper: (E) -> String = { it.name.lowercase() }
     ): Codec<E> {

@@ -131,6 +131,8 @@ public class MinigameAdvancementManager(
             }
             copy.add(added.copyWithoutToast())
         }
-        event.packet = ClientboundUpdateAdvancementsPacket(false, copy, packet.removed, packet.progress)
+        event.packet = ClientboundUpdateAdvancementsPacket(
+            false, copy, packet.removed, packet.progress, packet.shouldShowAdvancements()
+        )
     }
 }

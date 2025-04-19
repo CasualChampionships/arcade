@@ -161,7 +161,7 @@ public class MinigameMusicManager(
                     continue
                 }
                 for (entry in entries) {
-                    val music = entry.data()
+                    val music = entry.value()
                     val key = music.event.unwrapKey()
                     if (key.isEmpty) {
                         continue

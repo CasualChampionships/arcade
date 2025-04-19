@@ -9,13 +9,12 @@ import net.casual.arcade.utils.ComponentUtils.ComponentGenerator
 import net.minecraft.ChatFormatting
 import net.minecraft.ChatFormatting.*
 import net.minecraft.network.chat.*
-import net.minecraft.network.chat.HoverEvent.Action.*
 import net.minecraft.network.chat.HoverEvent.EntityTooltipInfo
-import net.minecraft.network.chat.HoverEvent.ItemStackInfo
 import net.minecraft.network.chat.contents.TranslatableContents
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
+import java.net.URI
 import java.util.*
 import kotlin.reflect.KProperty
 
@@ -27,7 +26,7 @@ public object ComponentUtils {
     private val formattingToName = EnumUtils.mapOf<ChatFormatting, String>()
 
     init {
-        for (formatting in entries) {
+        for (formatting in ChatFormatting.entries) {
             val colour = formatting.color ?: continue
             this.formattingByColour[colour] = formatting
         }
@@ -88,17 +87,22 @@ public object ComponentUtils {
 
     @JvmStatic
     public fun MutableComponent.command(command: String): MutableComponent {
-        return this.withStyle { it.withClickEvent(ClickEvent(ClickEvent.Action.RUN_COMMAND, command)) }
+        return this.withStyle { it.withClickEvent(ClickEvent.RunCommand(command)) }
     }
 
     @JvmStatic
     public fun MutableComponent.suggestCommand(command: String): MutableComponent {
-        return this.withStyle { it.withClickEvent(ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command)) }
+        return this.withStyle { it.withClickEvent(ClickEvent.SuggestCommand(command)) }
     }
 
     @JvmStatic
     public fun MutableComponent.link(link: String): MutableComponent {
-        return this.withStyle { it.withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, link)) }
+        return this.link(URI.create(link))
+    }
+
+    @JvmStatic
+    public fun MutableComponent.link(link: URI): MutableComponent {
+        return this.withStyle { it.withClickEvent(ClickEvent.OpenUrl(link)) }
     }
 
     @JvmStatic
@@ -108,19 +112,19 @@ public object ComponentUtils {
 
     @JvmStatic
     public fun MutableComponent.hover(component: Component): MutableComponent {
-        return this.withStyle { it.withHoverEvent(HoverEvent(SHOW_TEXT, component)) }
+        return this.withStyle { it.withHoverEvent(HoverEvent.ShowText(component)) }
     }
 
     @JvmStatic
     public fun MutableComponent.hover(entity: Entity): MutableComponent {
         return this.withStyle {
-            it.withHoverEvent(HoverEvent(SHOW_ENTITY, EntityTooltipInfo(entity.type, entity.uuid, entity.name)))
+            it.withHoverEvent(HoverEvent.ShowEntity(EntityTooltipInfo(entity.type, entity.uuid, entity.name)))
         }
     }
 
     @JvmStatic
     public fun MutableComponent.hover(item: ItemStack): MutableComponent {
-        return this.withStyle { it.withHoverEvent(HoverEvent(SHOW_ITEM, ItemStackInfo(item))) }
+        return this.withStyle { it.withHoverEvent(HoverEvent.ShowItem(item)) }
     }
 
     @JvmStatic

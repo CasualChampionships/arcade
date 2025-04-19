@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.utils
 
-import net.casual.arcade.util.ducks.SilentRecipeSender
 import net.casual.arcade.util.ducks.ConnectionFaultHolder
+import net.casual.arcade.util.ducks.SilentRecipeSender
 import net.casual.arcade.util.mixins.PlayerAdvancementsAccessor
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
@@ -109,13 +109,13 @@ public object PlayerUtils {
         force: Boolean = true,
         notify: Boolean = false
     ) {
-        this.setRespawnPosition(
+        val config = ServerPlayer.RespawnConfig(
             location.level.dimension(),
             BlockPos.containing(location.position),
             location.yRot,
-            force,
-            notify
+            force
         )
+        this.setRespawnPosition(config, notify)
     }
 
     @JvmStatic
@@ -163,7 +163,7 @@ public object PlayerUtils {
     @JvmStatic
     public fun ServerPlayer.updateSelectedSlot() {
         val menu = this.inventoryMenu
-        val slot = this.inventory.selected + 36
+        val slot = this.inventory.selectedSlot + 36
         val item = menu.getSlot(slot).item
         val update = ClientboundContainerSetSlotPacket(menu.containerId, menu.incrementStateId(), slot, item)
         this.connection.send(update)

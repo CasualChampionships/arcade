@@ -376,7 +376,7 @@ public object JsonUtils {
 
     public fun CompoundTag.toJsonObject(): JsonObject {
         val json = JsonObject()
-        for (key in this.allKeys) {
+        for (key in this.keySet()) {
             if (this.contains(key)) {
                 val value = this.get(key)!!
                 json.add(key, value.toJsonElement())
@@ -385,7 +385,7 @@ public object JsonUtils {
         return json
     }
 
-    public fun <T: Tag> CollectionTag<T>.toJsonArray(): JsonArray {
+    public fun CollectionTag.toJsonArray(): JsonArray {
         val json = JsonArray()
         for (tag in this) {
             json.add(tag.toJsonElement())
@@ -396,9 +396,9 @@ public object JsonUtils {
     public fun Tag.toJsonElement(): JsonElement {
         return when (this) {
             is CompoundTag -> this.toJsonObject()
-            is CollectionTag<*> -> this.toJsonArray()
-            is StringTag -> JsonPrimitive(this.asString)
-            is NumericTag -> JsonPrimitive(this.asNumber)
+            is CollectionTag -> this.toJsonArray()
+            is StringTag -> JsonPrimitive(this.value)
+            is NumericTag -> JsonPrimitive(this.box())
             else -> JsonNull.INSTANCE
         }
     }

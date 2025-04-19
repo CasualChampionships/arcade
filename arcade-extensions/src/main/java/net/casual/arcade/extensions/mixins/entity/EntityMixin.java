@@ -2,7 +2,7 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.extensions.mixins;
+package net.casual.arcade.extensions.mixins.entity;
 
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.extensions.Extension;
@@ -56,7 +56,7 @@ public class EntityMixin implements ExtensionHolder {
         if ((Object) this instanceof ServerPlayer) {
             return;
         }
-        CompoundTag tag = compound.getCompound("arcade");
+        CompoundTag tag = compound.getCompoundOrEmpty("arcade");
         ExtensionHolder.deserialize(this, tag);
     }
 

@@ -4,7 +4,12 @@
  */
 package net.casual.arcade.utils.math.location
 
+import com.mojang.serialization.Codec
+import com.mojang.serialization.MapCodec
+import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.utils.math.location.Location.Companion.location
+import net.minecraft.resources.ResourceKey
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
@@ -32,6 +37,35 @@ public data class LocationWithLevel<L: Level>(
     public fun server(): LocationWithLevel<ServerLevel> {
         @Suppress("UNCHECKED_CAST")
         return this as LocationWithLevel<ServerLevel>
+    }
+
+    public fun resolvable(): Resolvable {
+        return Resolvable(this.location, this.level.dimension())
+    }
+
+    public data class Resolvable(
+        val location: Location,
+        val dimension: ResourceKey<Level>
+    ) {
+        public fun <T: Level> resolve(resolver: (ResourceKey<Level>) -> T?): LocationWithLevel<T>? {
+            val resolved = resolver.invoke(this.dimension) ?: return null
+            return this.location.with(resolved)
+        }
+
+        public fun resolve(server: MinecraftServer): LocationWithLevel<ServerLevel>? {
+            return this.resolve(server::getLevel)
+        }
+
+        public companion object {
+            public val MAP_CODEC: MapCodec<Resolvable> = RecordCodecBuilder.mapCodec { instance ->
+                instance.group(
+                    Location.MAP_CODEC.forGetter(Resolvable::location),
+                    Level.RESOURCE_KEY_CODEC.fieldOf("dimension").forGetter(Resolvable::dimension)
+                ).apply(instance, ::Resolvable)
+            }
+
+            public val CODEC: Codec<Resolvable> = MAP_CODEC.codec()
+        }
     }
 
     public companion object {

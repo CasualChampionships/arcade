@@ -440,10 +440,10 @@ internal object MinigameCommand: CommandTree {
 
     private fun announce(
         context: CommandContext<CommandSourceStack>,
-        title: Component? = ComponentArgument.getComponent(context, "title")
+        title: Component? = ComponentArgument.getRawComponent(context, "title")
     ): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val announcement = ComponentArgument.getComponent(context, "announcement")
+        val announcement = ComponentArgument.getRawComponent(context, "announcement")
         minigame.chat.broadcast(announcement, ChatFormatter.createAnnouncement(title))
         return context.source.success(Component.translatable("minigame.command.chat.announce.success"))
     }

@@ -16,20 +16,21 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(TntBlock.class)
 public class TntBlockMixin {
 	@Inject(
-		method = "explode(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/LivingEntity;)V",
+		method = "prime(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/LivingEntity;)Z",
 		at = @At("HEAD"),
 		cancellable = true
 	)
-	private static void onPrime(Level level, BlockPos pos, LivingEntity entity, CallbackInfo ci) {
+	private static void onPrime(Level level, BlockPos pos, LivingEntity entity, CallbackInfoReturnable<Boolean> cir) {
 		if (entity instanceof ServerPlayer player) {
 			PlayerTNTPrimedEvent event = new PlayerTNTPrimedEvent(player, (ServerLevel) level, pos);
 			GlobalEventHandler.Server.broadcast(event);
 			if (event.isCancelled()) {
-				ci.cancel();
+				cir.setReturnValue(false);
 			}
 		}
  	}

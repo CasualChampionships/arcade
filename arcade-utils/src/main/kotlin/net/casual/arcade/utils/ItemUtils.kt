@@ -10,19 +10,19 @@ import com.mojang.authlib.properties.PropertyMap
 import net.casual.arcade.utils.ComponentUtils.unitalicise
 import net.minecraft.ChatFormatting
 import net.minecraft.core.Holder
+import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.TagKey
-import net.minecraft.util.Unit
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.alchemy.Potion
 import net.minecraft.world.item.alchemy.PotionContents
-import net.minecraft.world.item.component.ItemAttributeModifiers
 import net.minecraft.world.item.component.ItemLore
 import net.minecraft.world.item.component.ResolvableProfile
+import net.minecraft.world.item.component.TooltipDisplay
 import net.minecraft.world.item.enchantment.Enchantment
 import net.minecraft.world.item.enchantment.EnchantmentHelper
 import net.minecraft.world.level.block.LightBlock
@@ -97,26 +97,44 @@ public object ItemUtils {
 
     @JvmStatic
     public fun ItemStack.hideTooltip(): ItemStack {
-        this.set(DataComponents.HIDE_TOOLTIP, Unit.INSTANCE)
+        this.set(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay(false, Collections.emptySortedSet()))
         return this
     }
 
     @JvmStatic
+    public fun ItemStack.hideTooltip(component: DataComponentType<*>): ItemStack {
+        val display = this.get(DataComponents.TOOLTIP_DISPLAY) ?: TooltipDisplay(false, Collections.emptySortedSet())
+        this.set(DataComponents.TOOLTIP_DISPLAY, display.withHidden(component, true))
+        return this
+    }
+
+    @JvmStatic
+    public fun ItemStack.showTooltip(component: DataComponentType<*>): ItemStack {
+        val display = this.get(DataComponents.TOOLTIP_DISPLAY) ?: return this
+        this.set(DataComponents.TOOLTIP_DISPLAY, display.withHidden(component, false))
+        return this
+    }
+
+    @JvmStatic
+    @Deprecated("Use hideTooltip instead", ReplaceWith(
+        "this.hideTooltip(DataComponents.ATTRIBUTE_MODIFIERS)",
+        "net.casual.arcade.utils.ItemUtils.hideAttributeTooltips",
+        "net.casual.arcade.utils.ItemUtils.hideTooltip",
+        "net.minecraft.core.component.DataComponents"
+    ))
     public fun ItemStack.hideAttributeTooltips(): ItemStack {
-        val modifiers = this.get(DataComponents.ATTRIBUTE_MODIFIERS)
-        if (modifiers != null && modifiers.showInTooltip) {
-            this.set(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers(modifiers.modifiers, false))
-        }
-        return this
+        return this.hideTooltip(DataComponents.ATTRIBUTE_MODIFIERS)
     }
 
     @JvmStatic
+    @Deprecated("Use hideTooltip instead", ReplaceWith(
+        "this.hideTooltip(DataComponents.TRIM)",
+        "net.casual.arcade.utils.ItemUtils.hideTrimTooltips",
+        "net.casual.arcade.utils.ItemUtils.hideTooltip",
+        "net.minecraft.core.component.DataComponents"
+    ))
     public fun ItemStack.hideTrimTooltips(): ItemStack {
-        val trim = this.get(DataComponents.TRIM)
-        if (trim != null) {
-            this.set(DataComponents.TRIM, trim.withTooltip(false))
-        }
-        return this
+        return this.hideTooltip(DataComponents.TRIM)
     }
 
     @JvmStatic

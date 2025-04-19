@@ -2,7 +2,7 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.extensions.mixins;
+package net.casual.arcade.extensions.mixins.level;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import net.casual.arcade.events.GlobalEventHandler;

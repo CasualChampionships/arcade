@@ -34,7 +34,7 @@ public class ServerLevelMixin {
 	}
 
 	@Inject(
-		method = "onBlockStateChange",
+		method = "updatePOIOnBlockStateChange",
 		at = @At("HEAD")
 	)
 	private void onBlockChanged(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo ci) {

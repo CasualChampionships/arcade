@@ -8,6 +8,7 @@ import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.minigame.utils.MinigameUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
@@ -42,7 +43,7 @@ public class BaseFireBlockMixin {
 				List<Mob> entities = serverLevel.getEntitiesOfClass(Mob.class, AABB.of(new BoundingBox(pos)));
 				for (Mob entity : entities) {
 					if (entity.isNoAi()) {
-						state.entityInside(level, pos, entity);
+						state.entityInside(level, pos, entity, ((EntityAccessor) entity).getInsideEffectCollector());
 					}
 				}
 			}

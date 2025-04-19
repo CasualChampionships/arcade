@@ -11,7 +11,6 @@ import net.casual.arcade.dimensions.level.factory.SimpleCustomLevelFactory
 import net.casual.arcade.dimensions.mixins.level.MinecraftServerAccessor
 import net.casual.arcade.dimensions.mixins.level.ServerLevelAccessor
 import net.casual.arcade.dimensions.utils.LevelPersistenceTracker
-import net.casual.arcade.dimensions.utils.addCustomLevel
 import net.casual.arcade.dimensions.utils.getDimensionPath
 import net.casual.arcade.dimensions.utils.impl.DerivedLevelData
 import net.casual.arcade.dimensions.utils.impl.NullChunkProgressListener
@@ -25,17 +24,14 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.ProgressListener
-import net.minecraft.world.level.ChunkPos
-import net.minecraft.world.level.ForcedChunksSavedData
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.TicketStorage
 import net.minecraft.world.level.biome.BiomeManager
-import org.apache.commons.io.file.PathUtils
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.io.IOException
 import java.nio.file.Path
 import java.util.concurrent.Executor
-import java.util.function.BooleanSupplier
 import kotlin.io.path.createParentDirectories
 
 /**
@@ -163,13 +159,8 @@ public open class CustomLevel(
     }
 
     protected open fun loadForcedChunks() {
-        val forced = this.dataStorage.get(ForcedChunksSavedData.factory(), "chunks")
-        if (forced != null) {
-            val iter = forced.chunks.iterator()
-            while (iter.hasNext()) {
-                this.chunkSource.updateChunkForced(ChunkPos(iter.nextLong()), true)
-            }
-        }
+        val forced = this.dataStorage.get(TicketStorage.TYPE)
+        forced?.activateAllDeactivatedTickets()
     }
 
     public companion object {

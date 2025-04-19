@@ -4,15 +4,17 @@
  */
 package net.casual.arcade.minigame.gamemode
 
+import com.mojang.serialization.Codec
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
 import net.casual.arcade.extensions.event.PlayerExtensionEvent.Companion.getExtension
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.util.StringRepresentable
 import net.minecraft.world.level.GameType
 import org.jetbrains.annotations.ApiStatus.Internal
 
-public enum class ExtendedGameMode {
+public enum class ExtendedGameMode: StringRepresentable {
     None {
         override fun set(player: ServerPlayer) {
 
@@ -50,7 +52,13 @@ public enum class ExtendedGameMode {
 
     internal abstract fun set(player: ServerPlayer)
 
+    override fun getSerializedName(): String {
+        return this.name
+    }
+
     public companion object {
+        public val CODEC: Codec<ExtendedGameMode> = StringRepresentable.fromEnum(ExtendedGameMode::values)
+
         @JvmStatic
         public var ServerPlayer.extendedGameMode: ExtendedGameMode
             get() = this.getExtension(ExtendedGameModePlayerExtension::class.java).getGameMode()

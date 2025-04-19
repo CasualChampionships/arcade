@@ -8,11 +8,12 @@
     "ConnectionMixin",
     "MinecraftServerMixin",
     "PlayerAdvancementsAccessor",
-    "PlayerTeamMixin",
-    "ScoreboardSaveDataMixin",
     "ServerCommonPacketListenerImplMixin",
     "ServerEntityMixin",
-    "ServerPlayerMixin"
+    "ServerPlayerMixin",
+    "teams.PlayerTeamMixin",
+    "teams.PlayerTeamPackedMixin",
+    "teams.ScoreboardMixin"
   ],
   "injectors": {
     "defaultRequire": 1

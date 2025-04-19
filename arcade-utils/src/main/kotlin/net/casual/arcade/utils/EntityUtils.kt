@@ -104,7 +104,7 @@ public fun <T: Entity> EntityType<T>.spawn(
     reason: EntitySpawnReason = EntitySpawnReason.EVENT
 ): T? {
     val consumer = Consumer<T> { entity ->
-        entity.moveTo(location.position, location.yRot, location.xRot)
+        entity.snapTo(location.position, location.yRot, location.xRot)
         entity.yHeadRot = location.yRot
         entity.setYBodyRot(location.yRot)
     }
