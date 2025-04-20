@@ -21,7 +21,7 @@ public class NPCAmphibiousPathNavigation(player: FakePlayer) : NPCPathNavigation
     }
 
     override fun getTempMobPos(): Vec3 {
-        return Vec3(this.player.x, this.player.getY(0.5), this.player.z);
+        return Vec3(this.player.x, this.player.getY(0.5), this.player.z)
     }
 
     override fun getGroundY(vec: Vec3): Double {

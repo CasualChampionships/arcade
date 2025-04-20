@@ -17,7 +17,7 @@ public class EntityExtensionEvent(
     override val entity: Entity
 ): EntityEvent, ExtensionEvent, MissingExecutorEvent {
     override fun addExtension(extension: Extension) {
-        this.entity.addExtension(extension);
+        this.entity.addExtension(extension)
     }
 
     public fun addExtension(provider: (Entity) -> Extension) {

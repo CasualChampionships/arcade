@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -45,10 +46,10 @@ public interface LeashableMixin {
 	)
 	private void onWriteLeashData(
 		CompoundTag compound,
-		Leashable.LeashData leashData,
+		@Nullable Leashable.LeashData leashData,
 		CallbackInfo ci
 	) {
-		if (this instanceof Entity entity) {
+		if (this instanceof Entity entity && leashData != null) {
 			Entity holder = leashData.leashHolder;
 			if (holder instanceof LeashFenceKnotEntity knot) {
 				BlockPos relative = knot.getPos().subtract(entity.blockPosition());

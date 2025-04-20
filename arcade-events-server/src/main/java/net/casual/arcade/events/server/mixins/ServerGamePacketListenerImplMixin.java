@@ -135,6 +135,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 			shift = At.Shift.AFTER
 		)
 	)
+	@SuppressWarnings("DiscouragedShift")
 	private void onRespawn(ServerboundClientCommandPacket packet, CallbackInfo ci) {
 		PlayerRespawnEvent event = new PlayerRespawnEvent(this.player);
 		GlobalEventHandler.Server.broadcast(event);

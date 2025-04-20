@@ -99,7 +99,7 @@ public class ItemStackMixin {
 		method = "onCraftedBy",
 		at = @At("HEAD")
 	)
-	private void onCraft(Level level, Player player, int amount, CallbackInfo ci) {
+	private void onCraft(Player player, int amount, CallbackInfo ci) {
 		if (player instanceof ServerPlayer serverPlayer) {
 			PlayerCraftEvent event = new PlayerCraftEvent(serverPlayer, (ItemStack) (Object) this);
 			GlobalEventHandler.Server.broadcast(event);

@@ -37,13 +37,14 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 		method = "causeFallDamage",
 		at = @At(
 			value = "INVOKE_ASSIGN",
-			target = "Lnet/minecraft/world/entity/LivingEntity;calculateFallDamage(FF)I",
+			target = "Lnet/minecraft/world/entity/LivingEntity;calculateFallDamage(DF)I",
 			shift = At.Shift.AFTER
 		),
 		cancellable = true
 	)
+	@SuppressWarnings("DiscouragedShift")
 	private void onFallDamage(
-		float distance,
+		double distance,
 		float multiplier,
 		DamageSource source,
 		CallbackInfoReturnable<Boolean> cir,

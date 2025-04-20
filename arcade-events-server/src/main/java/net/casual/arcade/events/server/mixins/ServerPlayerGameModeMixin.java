@@ -49,6 +49,7 @@ public class ServerPlayerGameModeMixin {
 		),
 		cancellable = true
 	)
+	@SuppressWarnings("DiscouragedShift")
 	private void onChangeGameMode(GameType gameModeForPlayer, CallbackInfoReturnable<Boolean> cir) {
 		PlayerGameModeChangeEvent event = new PlayerGameModeChangeEvent(this.player, this.gameModeForPlayer, gameModeForPlayer);
 		GlobalEventHandler.Server.broadcast(event);
@@ -66,6 +67,7 @@ public class ServerPlayerGameModeMixin {
 		),
 		cancellable = true
 	)
+	@SuppressWarnings("DiscouragedShift")
 	private void onInteractBlock(
 		ServerPlayer player,
 		Level level,
@@ -105,6 +107,7 @@ public class ServerPlayerGameModeMixin {
 		),
 		cancellable = true
 	)
+	@SuppressWarnings("DiscouragedShift")
 	private void onDestroyBlock(
 		BlockPos pos,
 		CallbackInfoReturnable<Boolean> cir,

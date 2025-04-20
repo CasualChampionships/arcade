@@ -50,19 +50,19 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 		method = "attack",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)V"
+			target = "Lnet/minecraft/world/entity/LivingEntity;hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z"
 		)
 	)
-	private void onSweepAttack(LivingEntity entity, DamageSource source, float amount, Operation<Void> original) {
+	private boolean onSweepAttack(LivingEntity entity, ServerLevel level, DamageSource source, float amount, Operation<Boolean> original) {
 		if ((Object) this instanceof ServerPlayer player) {
 			PlayerAttackEvent event = new PlayerAttackEvent(player, entity, amount);
 			GlobalEventHandler.Server.broadcast(event);
 			if (event.isCancelled()) {
-				return;
+				return false;
 			}
 			amount = event.getDamage();
 		}
-		original.call(entity, source, amount);
+		return original.call(entity, level, source, amount);
 	}
 
 	@WrapOperation(
@@ -103,7 +103,7 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 		}
 	}
 
-	@Inject(
+    @Inject(
 		method = "actuallyHurt",
 		at = @At(
 			value = "INVOKE_ASSIGN",
@@ -112,6 +112,7 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 		),
 		cancellable = true
 	)
+	@SuppressWarnings("DiscouragedShift")
 	private void onDamage(
 		ServerLevel level,
 		DamageSource source,

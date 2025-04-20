@@ -11,7 +11,7 @@ import net.minecraft.world.damagesource.DamageSource
 public data class PlayerLandEvent(
     override val player: ServerPlayer,
     var damage: Int,
-    val distance: Float,
+    val distance: Double,
     val multiplier: Float,
     val source: DamageSource
 ): CancellableEvent.Default(), PlayerEvent

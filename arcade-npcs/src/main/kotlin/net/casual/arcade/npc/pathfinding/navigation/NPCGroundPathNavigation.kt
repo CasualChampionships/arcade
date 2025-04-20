@@ -103,12 +103,10 @@ public open class NPCGroundPathNavigation(player: FakePlayer): NPCPathNavigation
     }
 
     protected fun hasValidPathType(pathType: PathType): Boolean {
-        return if (pathType == PathType.WATER) {
-            false
-        } else if (pathType == PathType.LAVA) {
-            false
-        } else {
-            pathType != PathType.OPEN
+        return when (pathType) {
+            PathType.WATER -> false
+            PathType.LAVA -> false
+            else -> pathType != PathType.OPEN
         }
     }
 

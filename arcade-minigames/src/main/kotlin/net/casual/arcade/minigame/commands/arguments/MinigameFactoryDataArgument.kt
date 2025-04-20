@@ -63,9 +63,8 @@ public class MinigameFactoryDataArgument(
         existing: MutableSet<String>
     ): String? {
         val input = builder.remaining
-        val reader = JsonReader(java.io.StringReader(input))
         var typing: String? = null
-        try {
+        JsonReader(java.io.StringReader(input)).use { reader ->
             reader.beginObject()
 
             while (reader.hasNext()) {
@@ -93,8 +92,6 @@ public class MinigameFactoryDataArgument(
                     break
                 }
             }
-        } finally {
-            reader.close()
         }
         return typing
     }
