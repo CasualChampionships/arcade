@@ -4,18 +4,14 @@
  */
 package net.casual.arcade.minigame.chat
 
-import com.mojang.serialization.Codec
 import net.casual.arcade.minigame.utils.DisplayableTeam
 import net.casual.arcade.minigame.utils.DisplayableTeam.Companion.displayable
-import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.utils.ComponentUtils.color
 import net.casual.arcade.utils.ComponentUtils.hover
 import net.casual.arcade.utils.ComponentUtils.literal
 import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.PlayerUtils.getChatPrefix
-import net.casual.arcade.utils.TeamUtils.color
 import net.minecraft.ChatFormatting.DARK_GRAY
-import net.minecraft.core.Registry
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
@@ -25,6 +21,12 @@ public interface PlayerChatFormatter {
 
     public fun format(message: PlayerFormattedChat): PlayerFormattedChat {
         return message
+    }
+
+    public object None: PlayerChatFormatter {
+        override fun format(player: ServerPlayer, message: Component): PlayerFormattedChat {
+            return PlayerFormattedChat(message)
+        }
     }
 
     public object Global: PlayerChatFormatter {
