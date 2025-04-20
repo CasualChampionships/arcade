@@ -69,22 +69,22 @@ public class MinigameChatManager(
      *
      * To specify whether the chat is global, use [MinigameSettings.isChatGlobal].
      */
-    public var globalChatFormatter: PlayerChatFormatter = PlayerChatFormatter.GLOBAL
+    public var globalChatFormatter: PlayerChatFormatter = PlayerChatFormatter.Global
 
     /**
      * The formatter for team player chat messages.
      */
-    public var teamChatFormatter: PlayerChatFormatter = PlayerChatFormatter.TEAM
+    public var teamChatFormatter: PlayerChatFormatter = PlayerChatFormatter.Team
 
     /**
      * The formatter for admin player chat messages.
      */
-    public var adminChatFormatter: PlayerChatFormatter = PlayerChatFormatter.ADMIN
+    public var adminChatFormatter: PlayerChatFormatter = PlayerChatFormatter.Admin
 
     /**
      * The formatter for spectator player chat messages.
      */
-    public var spectatorChatFormatter: PlayerChatFormatter = PlayerChatFormatter.SPECTATOR
+    public var spectatorChatFormatter: PlayerChatFormatter = PlayerChatFormatter.Spectator
 
     /**
      * The formatter for system chat messages.
@@ -107,14 +107,18 @@ public class MinigameChatManager(
         this.minigame.events.register<PlayerChatEvent>(this::onPlayerChat)
         this.minigame.events.register<PlayerTeamChatEvent>(this::onPlayerTeamChat)
         this.minigame.events.register<MinigameSetPlayingEvent> { (_, player) ->
-            this.selectChat(player, MinigameChatMode.OwnTeam)
+            if (!this.modes.containsKey(player.uuid)) {
+                this.setChatModeFor(player, MinigameChatMode.OwnTeam)
+            }
         }
         this.minigame.events.register<MinigameSetSpectatingEvent> { (_, player) ->
-            this.selectChat(player, MinigameChatMode.Spectator)
+            if (!this.modes.containsKey(player.uuid)) {
+                this.setChatModeFor(player, MinigameChatMode.Spectator)
+            }
         }
         this.minigame.events.register<MinigameRemoveAdminEvent> { (_, player) ->
             if (this.modes[player.uuid] == MinigameChatMode.Admin) {
-                this.selectChat(player, MinigameChatMode.OwnTeam)
+                this.setChatModeFor(player, MinigameChatMode.OwnTeam)
             }
         }
         this.minigame.events.register<MinigameAddNewPlayerEvent> { (_, player) ->
@@ -298,6 +302,33 @@ public class MinigameChatManager(
         return this.minigame.players
     }
 
+    public fun setChatModeFor(
+        player: ServerPlayer,
+        mode: MinigameChatMode,
+        feedback: Boolean = true
+    ) {
+        if (this.modes.put(player.uuid, mode) != mode) {
+            if (!this.minigame.settings.isChatGlobal && feedback) {
+                this.broadcastTo(mode.switchedToMessage(player), player)
+            }
+        } else if (!this.minigame.settings.isChatGlobal && feedback) {
+            this.broadcastTo(Component.translatable("minigame.chat.mode.switch.alreadySelected"), player)
+        }
+    }
+
+    public fun setChatModeFor(
+        uuid: UUID,
+        mode: MinigameChatMode,
+        feedback: Boolean = true
+    ) {
+        val player = this.minigame.server.player(uuid)
+        if (player != null) {
+            this.setChatModeFor(player, mode, feedback)
+            return
+        }
+        this.modes[uuid] = mode
+    }
+
     public fun getChatModeFor(player: ServerPlayer): MinigameChatMode {
         return this.modes[player.uuid] ?: MinigameChatMode.Global
     }
@@ -445,51 +476,42 @@ public class MinigameChatManager(
 
     private fun registerCommand() {
         this.minigame.commands.register(CommandTree.buildLiteral("chat") {
-            requires { !minigame.settings.isChatGlobal }
+            requires { !minigame.settings.isChatGlobal && minigame.settings.enableChatCommand.get(it.playerOrException) }
             literal("team") {
                 argument("team", TeamArgument.team()) {
                     requiresAdminOrPermission()
                     executes(::selectSpecificTeamChat)
                 }
-                executes { selectChat(it.source.playerOrException, MinigameChatMode.OwnTeam) }
+                executes { selectChat(it, MinigameChatMode.OwnTeam) }
             }
             literal("global") {
-                executes { selectChat(it.source.playerOrException, MinigameChatMode.Global) }
+                executes { selectChat(it, MinigameChatMode.Global) }
             }
             literal("spectator") {
                 requires { source ->
                     source.isMinigameAdminOrHasPermission() || source.isPlayerAnd(minigame.players::isSpectating)
                 }
-                executes { selectChat(it.source.playerOrException, MinigameChatMode.Spectator) }
+                executes { selectChat(it, MinigameChatMode.Spectator) }
             }
             literal("admin") {
                 requiresAdminOrPermission()
-                executes { selectChat(it.source.playerOrException, MinigameChatMode.Admin) }
+                executes { selectChat(it, MinigameChatMode.Admin) }
             }
         })
     }
 
+    private fun selectChat(context: CommandContext<CommandSourceStack>, mode: MinigameChatMode): Int {
+        this.setChatModeFor(context.source.playerOrException, mode)
+        return Command.SINGLE_SUCCESS
+    }
+
     private fun selectSpecificTeamChat(context: CommandContext<CommandSourceStack>): Int {
         val team = TeamArgument.getTeam(context, "team")
-        return this.selectChat(
+        this.setChatModeFor(
             context.source.playerOrException,
             MinigameChatMode.Team.getOrCreate(team),
             true
         )
-    }
-
-    private fun selectChat(
-        player: ServerPlayer,
-        mode: MinigameChatMode,
-        feedback: Boolean = true
-    ): Int {
-        if (this.modes.put(player.uuid, mode) != mode) {
-            if (!this.minigame.settings.isChatGlobal && feedback) {
-                this.broadcastTo(mode.switchedToMessage(player), player)
-            }
-        } else if (!this.minigame.settings.isChatGlobal && feedback) {
-            this.broadcastTo(Component.translatable("minigame.chat.mode.switch.alreadySelected"), player)
-        }
         return Command.SINGLE_SUCCESS
     }
 

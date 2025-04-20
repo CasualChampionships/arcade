@@ -172,6 +172,9 @@
   "minigame.settings.isChatGlobal.desc.1": "If disabled then by default messages will be sent to teams.",
   "minigame.settings.isChatGlobal.desc.2": "To send messages to global players must prefix their message with !.",
 
+  "minigame.settings.enableChatCommand.name": "Enable Chat Command",
+  "minigame.settings.enableChatCommand.desc.1": "Enables the /chat command for players.",
+
   "minigame.settings.isChatMuted.name": "Mute Chat",
   "minigame.settings.isChatMuted.desc.1": "If enabled, players will not be able to talk in chat.",
 

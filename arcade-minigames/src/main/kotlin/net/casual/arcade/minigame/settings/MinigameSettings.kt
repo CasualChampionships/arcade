@@ -234,6 +234,16 @@ public open class MinigameSettings(
     })
 
     @JvmField
+    public var enableChatCommand: GameSetting<Boolean> = this.register(bool {
+        name = "enable_chat_command"
+        display = Items.COMMAND_BLOCK.named(Component.translatable("minigame.settings.enableChatCommand.name"))
+            .styledLore(Component.translatable("minigame.settings.isChatGlobal.desc.1"))
+        value = false
+        override = isAdminOverride(true)
+        defaults.options(this)
+    })
+
+    @JvmField
     public val isChatMuted: GameSetting<Boolean> = this.register(bool {
         name = "is_chat_muted"
         display = Items.BARRIER.named(Component.translatable("minigame.settings.isChatMuted.name"))
