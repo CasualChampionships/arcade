@@ -10,6 +10,9 @@
   "contact": {
 
   },
+  "license": "MIT",
+  "icon": "assets/icon.png",
+  "environment": "*",
   "entrypoints": {
     "main": [
       {
@@ -21,7 +24,15 @@
   "mixins": [
     "arcade-resource-pack-host.mixins.json"
   ],
-  "license": "MIT",
-  "icon": "assets/icon.png",
-  "environment": "*"
+  "custom": {
+    "modmenu": {
+      "badges": ["library"],
+      "parent": {
+        "id": "arcade",
+        "name": "Arcade",
+        "icon": "assets/icon.png",
+        "badges": ["library"]
+      }
+    }
+  }
 }

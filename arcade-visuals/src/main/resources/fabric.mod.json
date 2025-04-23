@@ -27,5 +27,16 @@
     "fabric-language-kotlin": ">=${fabric_kotlin_dependency}",
     "sgui": ">=${sgui_dependency}",
     "nametag": ">=${custom_nametags_dependency}"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": ["library"],
+      "parent": {
+        "id": "arcade",
+        "name": "Arcade",
+        "icon": "assets/icon.png",
+        "badges": ["library"]
+      }
+    }
   }
 }

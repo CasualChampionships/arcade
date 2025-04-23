@@ -30,5 +30,10 @@
     "polymer-core": ">=${polymer_dependency}",
     "sgui": ">=${sgui_dependency}",
     "nametag": ">=${custom_nametags_dependency}"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": ["library"]
+    }
   }
 }

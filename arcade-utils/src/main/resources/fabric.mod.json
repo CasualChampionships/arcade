@@ -28,5 +28,16 @@
     "minecraft": "${minecraft_dependency}",
     "fabricloader": ">=${fabric_loader_dependency}",
     "fabric-language-kotlin": ">=${fabric_kotlin_dependency}"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": ["library"],
+      "parent": {
+        "id": "arcade",
+        "name": "Arcade",
+        "icon": "assets/icon.png",
+        "badges": ["library"]
+      }
+    }
   }
 }
