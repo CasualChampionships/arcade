@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.utils.chat
 
+import net.casual.arcade.utils.ComponentUtils.appendSpaced
 import net.casual.arcade.utils.ComponentUtils.color
 import net.casual.arcade.utils.ComponentUtils.hover
 import net.casual.arcade.utils.ComponentUtils.literal
@@ -27,30 +28,29 @@ public interface PlayerChatFormatter {
     }
 
     public object Global: PlayerChatFormatter {
-        private val globe by literal("[\uD83C\uDF10] ") {
+        private val globe by literal("[\uD83C\uDF10]") {
             hover(Component.translatable("arcade.chat.global"))
             color(0xADD8E6)
         }
 
         override fun format(player: ServerPlayer, message: PlayerFormattedChat): PlayerFormattedChat {
-            val prefix = Component.empty().append(this.globe).append(message.prefix)
-            return message.copy(prefix = prefix)
+            return message.copy(prefix = this.globe.wrap().appendSpaced(message.prefix))
         }
     }
 
     public object Spectator: PlayerChatFormatter {
         override fun format(player: ServerPlayer, message: PlayerFormattedChat): PlayerFormattedChat {
-            val icon = Component.literal("[\uD83D\uDD76] ").withStyle(DARK_GRAY)
+            val icon = Component.literal("[\uD83D\uDD76]").withStyle(DARK_GRAY)
                 .hover(Component.translatable("arcade.chat.spectator"))
-            return message.copy(prefix = icon.wrap().append(message.prefix))
+            return message.copy(prefix = icon.wrap().appendSpaced(message.prefix))
         }
     }
 
     public object Admin: PlayerChatFormatter {
         override fun format(player: ServerPlayer, message: PlayerFormattedChat): PlayerFormattedChat {
-            val icon = Component.literal("[\uD83D\uDC64] ").red()
+            val icon = Component.literal("[\uD83D\uDC64]").red()
                 .hover(Component.translatable("arcade.chat.admin"))
-            return message.copy(prefix = icon.wrap().append(message.prefix))
+            return message.copy(prefix = icon.wrap().appendSpaced(message.prefix))
         }
     }
 
@@ -74,7 +74,7 @@ public interface PlayerChatFormatter {
 private class TeamChatFormatter(private val teamGetter: (ServerPlayer) -> DisplayableTeam?): PlayerChatFormatter {
     override fun format(player: ServerPlayer, message: PlayerFormattedChat): PlayerFormattedChat {
         val team = this.teamGetter.invoke(player)
-        val icon = Component.literal("[⚐] ")
+        val icon = Component.literal("[⚐]")
         val name = if (team != null) {
             val name = Component.translatable("arcade.chat.team", team.name)
             if (team.color != null) {
@@ -87,7 +87,7 @@ private class TeamChatFormatter(private val teamGetter: (ServerPlayer) -> Displa
         }
         icon.hover(name)
         return message.copy(
-            prefix = icon.wrap().append(message.prefix),
+            prefix = icon.wrap().appendSpaced(message.prefix),
             username = message.username ?: player.getChatUsername(false)
         )
     }

@@ -88,6 +88,20 @@ public object ComponentUtils {
     }
 
     @JvmStatic
+    public fun MutableComponent.appendSpaced(
+        other: Component,
+        space: Component = CommonComponents.SPACE
+    ): MutableComponent {
+        if (other.isEmpty()) {
+            return this
+        }
+        if (this.isEmpty()) {
+            return this.append(other)
+        }
+        return this.append(space).append(other)
+    }
+
+    @JvmStatic
     public fun Component.wrap(): MutableComponent {
         return Component.empty().append(this)
     }

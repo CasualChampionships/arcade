@@ -35,21 +35,6 @@ public data class PlayerChatEvent(
         return this.mutated
     }
 
-    @Deprecated("Use format instead")
-    public fun replaceMessage(component: Component, prefix: Component) {
-        throw IllegalStateException()
-    }
-
-    @Deprecated("Use formatted() instead")
-    public fun getReplacementMessage(): Component {
-        throw IllegalStateException()
-    }
-
-    @Deprecated("Use formatted() instead")
-    public fun getMessagePrefix(): Component {
-        throw IllegalStateException()
-    }
-
     public fun addFilter(filter: Predicate<ServerPlayer>) {
         this.filters.add(filter)
     }
