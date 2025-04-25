@@ -16,7 +16,7 @@ public class CommandDispatcherMixin<S> implements DeletableCommand {
 	@Shadow @Final private RootCommandNode<S> root;
 
 	@Override
-	public void arcade$delete(String name) {
-		((DeletableCommand) this.root).arcade$delete(name);
+	public boolean arcade$delete(String name) {
+		return ((DeletableCommand) this.root).arcade$delete(name);
 	}
 }
