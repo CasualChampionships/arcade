@@ -13,7 +13,6 @@ import net.casual.arcade.commands.*
 import net.casual.arcade.commands.arguments.EnumArgument
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
-import net.casual.arcade.minigame.chat.ChatFormatter
 import net.casual.arcade.minigame.commands.arguments.*
 import net.casual.arcade.minigame.commands.arguments.MinigameSettingsOptionArgument.Companion.INVALID_SETTING_OPTION
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
@@ -27,6 +26,7 @@ import net.casual.arcade.utils.ComponentUtils.green
 import net.casual.arcade.utils.ComponentUtils.join
 import net.casual.arcade.utils.ComponentUtils.suggestCommand
 import net.casual.arcade.utils.JsonUtils
+import net.casual.arcade.utils.chat.ChatFormatter
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.casual.arcade.utils.time.MinecraftTimeUnit
 import net.minecraft.commands.CommandBuildContext

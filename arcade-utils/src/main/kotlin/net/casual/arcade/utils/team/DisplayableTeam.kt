@@ -1,4 +1,4 @@
-package net.casual.arcade.minigame.utils
+package net.casual.arcade.utils.team
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder

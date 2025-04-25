@@ -1,0 +1,7 @@
+{
+  "arcade.chat.global": "Global Chat",
+  "arcade.chat.spectator": "Spectators Chat",
+  "arcade.chat.admin": "Admins Chat",
+  "arcade.chat.team": "%s Team Chat",
+  "arcade.chat.team.unknown": "Team Chat"
+}

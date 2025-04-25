@@ -8,6 +8,7 @@ import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerJoinEvent
 import net.casual.arcade.events.server.ServerLoadedEvent
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
+import net.casual.arcade.events.server.player.PlayerChatEvent
 import net.casual.arcade.events.server.player.PlayerTickEvent
 import net.casual.arcade.host.GlobalPackHost
 import net.casual.arcade.host.PackHost
@@ -18,6 +19,7 @@ import net.casual.arcade.resources.ArcadeResourcePacks
 import net.casual.arcade.resources.utils.ResourcePackUtils.addPack
 import net.casual.arcade.resources.utils.ResourcePackUtils.sendResourcePack
 import net.casual.arcade.resources.utils.ResourcePackUtils.toPackInfo
+import net.casual.arcade.utils.ComponentUtils.wrap
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.locationWithLevel
 import net.casual.arcade.utils.teleportTo
 import net.casual.arcade.visuals.screen.PlayerInventoryViewGui
@@ -25,6 +27,7 @@ import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.core.Registry
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import javax.net.ssl.SSLContext
 
@@ -56,6 +59,12 @@ object ArcadeTest: ModInitializer {
             FabricLoader.getInstance().configDir.resolve("arcade-testing-packs"),
             ArcadeResourcePacks.SPACING_FONT_PACK
         )
+
+        GlobalEventHandler.Server.register<PlayerChatEvent> {
+            it.format { chat ->
+                chat.copy(prefix = chat.prefix.wrap().append(Component.literal("[x]")))
+            }
+        }
 
         GlobalEventHandler.Server.register<ServerLoadedEvent> {
             FakePlayer.join(it.server, "gnembon")

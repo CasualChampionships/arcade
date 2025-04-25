@@ -6,7 +6,7 @@ package net.casual.arcade.events.server.player
 
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.events.common.CancellableEvent
-import net.minecraft.network.chat.Component
+import net.casual.arcade.utils.chat.PlayerFormattedChat
 import net.minecraft.network.chat.PlayerChatMessage
 import net.minecraft.server.level.ServerPlayer
 
@@ -15,25 +15,25 @@ public data class PlayerTeamChatEvent(
     val message: PlayerChatMessage,
     val teammates: List<ServerPlayer>
 ): CancellableEvent.Default(), PlayerEvent {
-    private var prefix: Component? = null
-    private var replacement: Component? = null
+    private var formatted: PlayerFormattedChat = PlayerFormattedChat(message = this.message.decoratedContent())
+    private var mutated: Boolean = false
 
     private val receiving = ReferenceOpenHashSet(this.teammates)
 
     val rawMessage: String
         get() = this.message.signedContent()
 
-    public fun replaceMessage(component: Component, prefix: Component? = null) {
-        this.replacement = component
-        this.prefix = prefix
+    public fun formatted(): PlayerFormattedChat {
+        return this.formatted
     }
 
-    public fun getReplacementMessage(): Component? {
-        return this.replacement
+    public fun format(mutator: (PlayerFormattedChat) -> PlayerFormattedChat) {
+        this.formatted = mutator.invoke(this.formatted)
+        this.mutated = true
     }
 
-    public fun getMessagePrefix(): Component? {
-        return this.prefix
+    public fun hasMutated(): Boolean {
+        return this.mutated
     }
 
     public fun addReceiver(player: ServerPlayer) {

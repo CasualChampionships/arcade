@@ -12,6 +12,7 @@ import net.minecraft.network.chat.*
 import net.minecraft.network.chat.HoverEvent.Action.*
 import net.minecraft.network.chat.HoverEvent.EntityTooltipInfo
 import net.minecraft.network.chat.HoverEvent.ItemStackInfo
+import net.minecraft.network.chat.contents.PlainTextContents
 import net.minecraft.network.chat.contents.TranslatableContents
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.Entity
@@ -79,6 +80,11 @@ public object ComponentUtils {
     )
     public fun String.literal(): MutableComponent {
         return Component.literal(this)
+    }
+
+    @JvmStatic
+    public fun Component.isEmpty(): Boolean {
+        return this.contents == PlainTextContents.EMPTY && this.siblings.isEmpty()
     }
 
     @JvmStatic
