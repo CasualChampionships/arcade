@@ -84,7 +84,7 @@ public object ComponentUtils {
 
     @JvmStatic
     public fun Component.isEmpty(): Boolean {
-        return this.contents == PlainTextContents.EMPTY && this.siblings.isEmpty()
+        return this.contents == PlainTextContents.EMPTY && this.siblings.all { it.isEmpty() }
     }
 
     @JvmStatic
