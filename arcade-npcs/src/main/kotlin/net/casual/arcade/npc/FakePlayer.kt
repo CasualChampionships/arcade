@@ -23,6 +23,7 @@ import net.minecraft.core.UUIDUtil
 import net.minecraft.network.Connection
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket
 import net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket
+import net.minecraft.network.protocol.login.LoginProtocols
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ClientInformation
 import net.minecraft.server.level.ServerLevel
@@ -211,6 +212,7 @@ public open class FakePlayer protected constructor(
             val connection = FakeConnection()
             // We simulate the fake login packet listener for luckperms compatability
             val login = FakeLoginPacketListenerImpl(server, connection, profile)
+            connection.setupInboundProtocol(LoginProtocols.SERVERBOUND, login)
             return login.handleQueries().thenApplyAsync({
                 if (server.playerList.getPlayer(profile.id) != null) {
                     throw IllegalArgumentException("Player with UUID ${profile.id} already exists")

@@ -12,7 +12,8 @@
     "ScoreboardSaveDataMixin",
     "ServerCommonPacketListenerImplMixin",
     "ServerEntityMixin",
-    "ServerPlayerMixin"
+    "ServerPlayerMixin",
+    "bugfixes.EntityTickListMixin"
   ],
   "injectors": {
     "defaultRequire": 1
