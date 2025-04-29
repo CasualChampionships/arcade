@@ -9,6 +9,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.player.PlayerTeamChatEvent;
 import net.casual.arcade.utils.PlayerUtils;
+import net.casual.arcade.utils.chat.PlayerFormattedChat;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.OutgoingChatMessage;
@@ -56,20 +57,23 @@ public class TeamMsgCommandMixin {
 			return;
 		}
 
-		Component replacement = event.getReplacementMessage();
-		if (replacement == null) {
+		if (!event.hasMutated()) {
 			teammatesRef.set(List.copyOf(event.getReceiving()));
 			return;
 		}
 
-		if (event.getMessagePrefix() != null) {
-			Component message = Component.empty().append(event.getMessagePrefix()).append(replacement);
+		PlayerFormattedChat chat = event.formatted();
+		if (chat.getUsername() != null) {
+			Component message = Component.empty().append(chat.getPrefix())
+				.append(chat.getUsername())
+				.append(chat.getMessage());
 			PlayerUtils.broadcast(event.getReceiving(), message);
 			ci.cancel();
 			return;
 		}
 
 		teammatesRef.set(List.copyOf(event.getReceiving()));
-		outgoing.set(new OutgoingChatMessage.Disguised(replacement));
+		// Technically, this doesn't include the prefix set...
+		outgoing.set(new OutgoingChatMessage.Disguised(chat.getMessage()));
 	}
 }

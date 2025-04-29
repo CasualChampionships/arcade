@@ -13,10 +13,15 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.server.player.*;
+import net.casual.arcade.events.server.player.PlayerChatEvent;
+import net.casual.arcade.events.server.player.PlayerJoinEvent;
 import net.casual.arcade.events.server.player.PlayerJoinEvent.JoinMessageModification;
+import net.casual.arcade.events.server.player.PlayerRequestLoginEvent;
+import net.casual.arcade.events.server.player.PlayerSystemMessageEvent;
 import net.casual.arcade.utils.PlayerUtils;
+import net.casual.arcade.utils.chat.PlayerFormattedChat;
 import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.MinecraftServer;
@@ -152,24 +157,21 @@ public class PlayerListMixin {
 		}
 
 		Predicate<ServerPlayer> filter = event.getFilter();
-		Component replacement = event.getReplacementMessage();
-		if (filter != null || replacement != null) {
-			filter = filter == null ? (player) -> true : filter;
-			replacement = replacement == null ? message.decoratedContent() : replacement;
+		if (filter != null || event.hasMutated()) {
+			PlayerFormattedChat formatted = event.formatted();
+			filter = filter == null ? player -> true : filter;
+			Component prefix = formatted.getPrefix();
+			Component username = formatted.getUsername();
+			Component replacement = formatted.getMessage();
 			Component decorated;
-			Component prefix = event.getMessagePrefix();
-			if (prefix == null) {
+			if (username == null) {
+				// Format the username using the vanilla decorator
 				decorated = bound.chatType().value().chat().decorate(replacement, bound);
-				prefix = Component.empty();
+				username = CommonComponents.EMPTY;
 			} else {
 				decorated = replacement;
 			}
-			PlayerUtils.broadcastMessageAsSystem(
-				sender,
-				decorated,
-				filter,
-				prefix
-			);
+			PlayerUtils.broadcastMessageAsSystem(sender, decorated, filter, username, prefix);
 			ci.cancel();
 		}
 	}

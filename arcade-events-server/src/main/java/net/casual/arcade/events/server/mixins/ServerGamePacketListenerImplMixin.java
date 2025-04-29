@@ -11,13 +11,10 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.player.*;
-import net.casual.arcade.utils.PlayerUtils;
 import net.minecraft.Util;
 import net.minecraft.network.Connection;
-import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.LastSeenMessages;
-import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -40,7 +37,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 import static net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket.Action.PRESS_SHIFT_KEY;
 
@@ -52,43 +48,6 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 
 	public ServerGamePacketListenerImplMixin(MinecraftServer server, Connection connection, CommonListenerCookie cookie) {
 		super(server, connection, cookie);
-	}
-
-	@WrapWithCondition(
-		method = "broadcastChatMessage",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/server/players/PlayerList;broadcastChatMessage(Lnet/minecraft/network/chat/PlayerChatMessage;Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/network/chat/ChatType$Bound;)V"
-		)
-	)
-	private boolean onBroadcastMessage(PlayerList instance, PlayerChatMessage message, ServerPlayer sender, ChatType.Bound bound) {
-		PlayerChatEvent event = new PlayerChatEvent(sender, message);
-		GlobalEventHandler.Server.broadcast(event);
-		boolean notCancelled = !event.isCancelled();
-		if (notCancelled) {
-			Predicate<ServerPlayer> filter = event.getFilter();
-			Component replacement = event.getReplacementMessage();
-			if (filter != null || replacement != null) {
-				filter = filter == null ? (player) -> true : filter;
-				replacement = replacement == null ? message.decoratedContent() : replacement;
-				Component decorated;
-				Component prefix = event.getMessagePrefix();
-				if (prefix == null) {
-					decorated = bound.chatType().value().chat().decorate(replacement, bound);
-					prefix = Component.empty();
-				} else {
-					decorated = replacement;
-				}
-				PlayerUtils.broadcastMessageAsSystem(
-					sender,
-					decorated,
-					filter,
-					prefix
-				);
-				return false;
-			}
-		}
-		return notCancelled;
 	}
 
 	@Inject(

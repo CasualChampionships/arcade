@@ -5,8 +5,6 @@
 package net.casual.arcade.minigame.utils
 
 import com.mojang.serialization.MapCodec
-import net.casual.arcade.minigame.chat.ChatFormatter
-import net.casual.arcade.minigame.chat.PlayerChatFormatter
 import net.casual.arcade.minigame.data.MinigameDataModule
 import net.casual.arcade.minigame.managers.chat.MinigameChatMode
 import net.casual.arcade.minigame.serialization.MinigameFactory

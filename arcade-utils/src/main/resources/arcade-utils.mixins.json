@@ -13,7 +13,8 @@
     "ServerPlayerMixin",
     "teams.PlayerTeamMixin",
     "teams.PlayerTeamPackedMixin",
-    "teams.ScoreboardMixin"
+    "teams.ScoreboardMixin",
+    "bugfixes.EntityTickListMixin"
   ],
   "injectors": {
     "defaultRequire": 1

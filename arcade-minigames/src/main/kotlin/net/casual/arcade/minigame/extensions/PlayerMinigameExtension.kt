@@ -104,7 +104,10 @@ internal class PlayerMinigameExtension(
                 }
             }
             GlobalEventHandler.Server.register<PlayerLeaveEvent> {
-                it.player.minigame.save()
+                val extension = it.player.minigame
+                extension.save()
+                // Prevent any memory leaks
+                extension.removeMinigame()
             }
         }
     }

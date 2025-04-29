@@ -7,9 +7,11 @@ package net.casual.arcade.utils
 import net.casual.arcade.util.ducks.ConnectionFaultHolder
 import net.casual.arcade.util.ducks.SilentRecipeSender
 import net.casual.arcade.util.mixins.PlayerAdvancementsAccessor
+import net.casual.arcade.utils.ComponentUtils.isEmpty
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
+import net.casual.arcade.utils.chat.PlayerFormattedChat
 import net.casual.arcade.utils.impl.Sound
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.time.MinecraftTimeDuration
@@ -20,6 +22,7 @@ import net.minecraft.core.Holder
 import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.*
+import net.minecraft.network.chat.contents.PlainTextContents
 import net.minecraft.network.protocol.game.*
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.Action.ADD
 import net.minecraft.server.MinecraftServer
@@ -357,9 +360,11 @@ public object PlayerUtils {
     public fun ServerPlayer.broadcastMessageAsSystem(
         message: Component,
         filter: Predicate<ServerPlayer> = Predicate { true },
-        prefix: Component = this.getChatPrefix()
+        username: Component = this.getChatUsername(),
+        prefix: Component = CommonComponents.EMPTY
     ) {
-        val decorated = Component.empty().append(prefix).append(message)
+        val formatted = PlayerFormattedChat(prefix, username, message)
+        val decorated = formatted.asComponent { CommonComponents.EMPTY }
         for (player in this.server.playerList.players) {
             if (filter.test(player)) {
                 player.sendSystemMessage(decorated)
@@ -369,13 +374,13 @@ public object PlayerUtils {
     }
 
     @JvmStatic
-    public fun ServerPlayer.getChatPrefix(withTeam: Boolean = true): MutableComponent {
+    public fun ServerPlayer.getChatUsername(withTeam: Boolean = true): MutableComponent {
         val team = this.team
         if (!withTeam || team == null) {
-            return Component.literal("<").append(this.name).append("> ")
+            return Component.literal("<").append(this.name).append(">")
         }
         val name = team.getFormattedName(this.name)
-        return Component.literal("<").append(name).append("> ")
+        return Component.literal("<").append(name).append(">")
     }
 
     @JvmStatic

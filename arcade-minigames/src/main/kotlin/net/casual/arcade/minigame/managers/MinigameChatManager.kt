@@ -21,9 +21,6 @@ import net.casual.arcade.events.server.player.PlayerSystemMessageEvent
 import net.casual.arcade.events.server.player.PlayerTeamChatEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.ListenerFlags
-import net.casual.arcade.minigame.chat.ChatFormatter
-import net.casual.arcade.minigame.chat.PlayerChatFormatter
-import net.casual.arcade.minigame.chat.PlayerFormattedChat
 import net.casual.arcade.minigame.events.MinigameAddNewPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemoveAdminEvent
 import net.casual.arcade.minigame.events.MinigameSetPlayingEvent
@@ -40,9 +37,12 @@ import net.casual.arcade.utils.JsonUtils.obj
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.uuid
 import net.casual.arcade.utils.JsonUtils.uuids
-import net.casual.arcade.utils.PlayerUtils.getChatPrefix
+import net.casual.arcade.utils.PlayerUtils.getChatUsername
 import net.casual.arcade.utils.PlayerUtils.player
 import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.utils.chat.ChatFormatter
+import net.casual.arcade.utils.chat.PlayerChatFormatter
+import net.casual.arcade.utils.chat.PlayerFormattedChat
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.TeamArgument
 import net.minecraft.network.chat.Component
@@ -192,10 +192,8 @@ public class MinigameChatManager(
         receiver: ServerPlayer,
         formatter: PlayerChatFormatter
     ) {
-        val (decorated, prefix) = formatter.format(player, message)
-        val newPrefix = prefix ?: player.getChatPrefix(true)
-        val chat = Component.empty().append(newPrefix).append(decorated)
-        receiver.sendSystemMessage(chat)
+        val formatted = formatter.format(player, PlayerFormattedChat(message = message))
+        receiver.sendSystemMessage(formatted.asComponent { player.getChatUsername(true) })
     }
 
     /**
@@ -212,9 +210,8 @@ public class MinigameChatManager(
         receivers: Collection<ServerPlayer>,
         formatter: PlayerChatFormatter
     ) {
-        val (decorated, prefix) = formatter.format(player, message)
-        val newPrefix = prefix ?: player.getChatPrefix(true)
-        val chat = Component.empty().append(newPrefix).append(decorated)
+        val formatted = formatter.format(player, PlayerFormattedChat(message = message))
+        val chat = formatted.asComponent { player.getChatUsername(true) }
         for (receiver in receivers) {
             receiver.sendSystemMessage(chat)
         }
@@ -360,7 +357,7 @@ public class MinigameChatManager(
     }
 
     private fun onPlayerChat(event: PlayerChatEvent) {
-        val (player, message) = event
+        val (player) = event
         if (this.minigame.settings.isChatMuted.get(player)) {
             event.cancel()
             this.broadcastTo(this.mutedMessage, player)
@@ -369,8 +366,7 @@ public class MinigameChatManager(
 
         if (this.minigame.settings.isChatGlobal) {
             if (!this.minigame.settings.useVanillaChat) {
-                val (decorated, prefix) = this.formatGlobalChatFor(player, message.decoratedContent())
-                event.replaceMessage(decorated, prefix)
+                event.format { this.formatGlobalChatFor(player, it) }
             }
             return
         }
@@ -382,8 +378,7 @@ public class MinigameChatManager(
         if (exclaimed || mode == null || mode == MinigameChatMode.Global) {
             val trimmed = if (exclaimed) content.substring(1) else content
             if (trimmed.isNotBlank()) {
-                val (decorated, prefix) = this.formatGlobalChatFor(player, Component.literal(trimmed.trim()))
-                event.replaceMessage(decorated, prefix)
+                event.format { this.formatGlobalChatFor(player, it.copy(message = Component.literal(trimmed.trim()))) }
                 event.addFilter { MinigameChatMode.Global.canSendTo(player, it, null, this.minigame) }
             } else {
                 event.cancel()
@@ -392,15 +387,13 @@ public class MinigameChatManager(
         }
 
         val formatter = mode.getChatFormatter(this)
-        val (decorated, prefix) = formatter.format(player, message.decoratedContent())
-        event.replaceMessage(decorated, prefix)
+        event.format { formatter.format(player, it) }
         event.addFilter { this.isSpy(it) || mode.canSendTo(player, it, this.modes[it.uuid], this.minigame) }
     }
 
     private fun onPlayerTeamChat(event: PlayerTeamChatEvent) {
         val formatter = MinigameChatMode.OwnTeam.getChatFormatter(this)
-        val (decorated, prefix) = formatter.format(event.player, event.message.decoratedContent())
-        event.replaceMessage(decorated, prefix)
+        event.format { formatter.format(event.player, it) }
 
         for (spy in this.spies) {
             val player = this.minigame.server.player(spy) ?: continue
@@ -414,12 +407,12 @@ public class MinigameChatManager(
         }
     }
 
-    private fun formatGlobalChatFor(player: ServerPlayer, message: Component): PlayerFormattedChat {
+    private fun formatGlobalChatFor(player: ServerPlayer, message: PlayerFormattedChat): PlayerFormattedChat {
         if (this.minigame.players.isAdmin(player)) {
-            return this.globalChatFormatter.format(this.adminChatFormatter.format(player, message))
+            return this.globalChatFormatter.format(player, this.adminChatFormatter.format(player, message))
         }
         if (this.minigame.players.isSpectating(player)) {
-            return this.globalChatFormatter.format(this.spectatorChatFormatter.format(player, message))
+            return this.globalChatFormatter.format(player, this.spectatorChatFormatter.format(player, message))
         }
         return this.globalChatFormatter.format(player, message)
     }

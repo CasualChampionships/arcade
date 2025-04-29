@@ -5,6 +5,7 @@
 package net.casual.arcade.events.server.player
 
 import net.casual.arcade.events.common.CancellableEvent
+import net.casual.arcade.utils.chat.PlayerFormattedChat
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.PlayerChatMessage
 import net.minecraft.server.level.ServerPlayer
@@ -15,23 +16,23 @@ public data class PlayerChatEvent(
     val message: PlayerChatMessage
 ): CancellableEvent.Default(), PlayerEvent {
     private val filters = ArrayList<Predicate<ServerPlayer>>()
-    private var prefix: Component? = null
-    private var replacement: Component? = null
+    private var formatted: PlayerFormattedChat = PlayerFormattedChat(message = this.message.decoratedContent())
+    private var mutated: Boolean = false
 
     val rawMessage: String
         get() = this.message.signedContent()
 
-    public fun replaceMessage(component: Component, prefix: Component? = null) {
-        this.replacement = component
-        this.prefix = prefix
+    public fun formatted(): PlayerFormattedChat {
+        return this.formatted
     }
 
-    public fun getReplacementMessage(): Component? {
-        return this.replacement
+    public fun format(mutator: (PlayerFormattedChat) -> PlayerFormattedChat) {
+        this.formatted = mutator.invoke(this.formatted)
+        this.mutated = true
     }
 
-    public fun getMessagePrefix(): Component? {
-        return this.prefix
+    public fun hasMutated(): Boolean {
+        return this.mutated
     }
 
     public fun addFilter(filter: Predicate<ServerPlayer>) {
