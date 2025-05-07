@@ -140,8 +140,8 @@ public class MinigameChatManager(
      * @param message The message to broadcast.
      * @param formatter The formatter to format the message with, [systemChatFormatter] by default.
      */
-    public fun broadcast(message: Component, formatter: ChatFormatter? = this.systemChatFormatter) {
-        this.broadcastTo(message, this.getAllPlayers(), formatter)
+    public fun broadcast(message: Component, formatter: ChatFormatter? = this.systemChatFormatter, log: Boolean = false) {
+        this.broadcastTo(message, this.getAllPlayers(), formatter, log)
     }
 
     /**
@@ -154,11 +154,15 @@ public class MinigameChatManager(
     public fun broadcastTo(
         message: Component,
         players: Iterable<ServerPlayer>,
-        formatter: ChatFormatter? = this.systemChatFormatter
+        formatter: ChatFormatter? = this.systemChatFormatter,
+        log: Boolean = false
     ) {
         val formatted = formatter?.format(message) ?: message
         for (player in players) {
             player.sendSystemMessage(formatted)
+        }
+        if (log) {
+            this.minigame.server.sendSystemMessage(formatted)
         }
     }
 
@@ -208,12 +212,16 @@ public class MinigameChatManager(
         player: ServerPlayer,
         message: Component,
         receivers: Collection<ServerPlayer>,
-        formatter: PlayerChatFormatter
+        formatter: PlayerChatFormatter,
+        log: Boolean = false
     ) {
         val formatted = formatter.format(player, PlayerFormattedChat(message = message))
         val chat = formatted.asComponent { player.getChatUsername(true) }
         for (receiver in receivers) {
             receiver.sendSystemMessage(chat)
+        }
+        if (log) {
+            this.minigame.server.sendSystemMessage(chat)
         }
     }
 
