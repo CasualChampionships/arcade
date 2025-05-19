@@ -14,14 +14,13 @@ import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.ducks.ModifyActuallyHurt;
 import net.casual.arcade.events.server.entity.EntityDeathEvent;
-import net.casual.arcade.events.server.player.PlayerHealEvent;
-import net.casual.arcade.events.server.player.PlayerLandEvent;
-import net.casual.arcade.events.server.player.PlayerTotemEvent;
-import net.casual.arcade.events.server.player.PlayerVoidDamageEvent;
+import net.casual.arcade.events.server.player.*;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -160,6 +159,17 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 	private void onEntityPoppedTotem(DamageSource source, CallbackInfoReturnable<Boolean> cir) {
 		if ((Object) this instanceof ServerPlayer player) {
 			PlayerTotemEvent event = new PlayerTotemEvent(player, source);
+			GlobalEventHandler.Server.broadcast(event);
+		}
+	}
+
+	@Inject(
+		method = "onAttributeUpdated",
+		at = @At("HEAD")
+	)
+	private void onAttributeUpdate(Holder<Attribute> attribute, CallbackInfo ci) {
+		if ((Object) this instanceof ServerPlayer player) {
+			PlayerAttributeUpdatedEvent event = new PlayerAttributeUpdatedEvent(player, attribute);
 			GlobalEventHandler.Server.broadcast(event);
 		}
 	}

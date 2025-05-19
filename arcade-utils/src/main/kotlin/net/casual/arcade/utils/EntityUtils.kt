@@ -21,6 +21,7 @@ import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntitySpawnReason
 import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.Relative
 import net.minecraft.world.level.levelgen.structure.Structure
 import net.minecraft.world.phys.Vec3
 import java.util.*
@@ -78,6 +79,19 @@ public fun Entity.teleportTo(location: LocationWithLevel<out ServerLevel>, reset
         Mth.wrapDegrees(location.yRot),
         Mth.wrapDegrees(location.xRot),
         resetCamera,
+    )
+}
+
+public fun Entity.teleportTo(position: Vec3) {
+    this.teleportTo(
+        this.level() as ServerLevel,
+        position.x,
+        position.y,
+        position.z,
+        setOf(Relative.X_ROT, Relative.Y_ROT),
+        0.0F,
+        0.0F,
+        false
     )
 }
 
