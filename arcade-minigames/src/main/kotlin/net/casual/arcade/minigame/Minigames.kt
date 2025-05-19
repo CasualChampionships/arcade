@@ -21,6 +21,7 @@ import net.casual.arcade.minigame.commands.PauseCommand
 import net.casual.arcade.minigame.commands.TeamCommandModifier
 import net.casual.arcade.minigame.exception.MinigameCreationException
 import net.casual.arcade.minigame.exception.MinigameSerializationException
+import net.casual.arcade.minigame.extensions.PlayerMovementRestrictionExtension
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
 import net.casual.arcade.minigame.gamemode.ExtendedGameMode
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
@@ -154,6 +155,7 @@ public object Minigames: ModInitializer {
         MinigameRegistries.load()
         MinigameUtils.registerEvents()
         ExtendedGameMode.registerEvents()
+        PlayerMovementRestrictionExtension.registerEvents()
         PlayerMinigameExtension.registerEvents()
 
         GlobalEventHandler.Server.register<ServerLoadedEvent> { (server) ->

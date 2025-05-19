@@ -209,10 +209,10 @@ public object MinigameUtils {
             val minigames = level.getMinigames()
             if (minigames.size == 1) {
                 val minigame = minigames.first()
-                if (minigame.settings.freezeEntities.get()) {
+                if (minigame.settings.tickFreezeEntities.get()) {
                     return false
                 }
-                if (minigame.effects.isFrozen(this)) {
+                if (minigame.effects.isTickFrozen(this)) {
                     return false
                 }
             }
@@ -228,10 +228,10 @@ public object MinigameUtils {
             if (minigame.settings.tickFreezeOnPause.get(this) && minigame.paused) {
                 return false
             }
-            if (minigame.settings.freezeEntities.get(this)) {
+            if (minigame.settings.tickFreezeEntities.get(this)) {
                 return false
             }
-            if (minigame.effects.isFrozen(this)) {
+            if (minigame.effects.isTickFrozen(this)) {
                 return false
             }
         }

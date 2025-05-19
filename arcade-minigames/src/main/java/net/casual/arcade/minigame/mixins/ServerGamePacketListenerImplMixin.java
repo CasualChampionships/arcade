@@ -4,7 +4,10 @@
  */
 package net.casual.arcade.minigame.mixins;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.minigame.Minigame;
+import net.casual.arcade.minigame.extensions.PlayerMovementRestrictionExtension;
 import net.casual.arcade.minigame.utils.MinigameUtils;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.*;
@@ -18,6 +21,7 @@ import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.entity.Relative;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -51,6 +55,22 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 			this.keepConnectionAlive();
 			ci.cancel();
 		}
+	}
+
+	@ModifyExpressionValue(
+		method = "tick",
+		at = @At(
+			value = "FIELD",
+			target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;clientIsFloating:Z",
+			opcode = Opcodes.GETFIELD
+		)
+	)
+	private boolean onClientIsFloating(boolean original) {
+		if (original) {
+			ExtensionHolder holder = (ExtensionHolder) this.player;
+			return !ExtensionHolder.get(holder, PlayerMovementRestrictionExtension.class).getHasRestrictedMovement();
+		}
+		return false;
 	}
 
 	@Inject(

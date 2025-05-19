@@ -134,15 +134,15 @@ public class MinigameEffectsManager(
         }
     }
 
-    public fun freeze(entity: Entity) {
+    public fun tickFreeze(entity: Entity) {
         this.frozen.add(entity.uuid)
     }
 
-    public fun unfreeze(entity: Entity) {
+    public fun tickUnfreeze(entity: Entity) {
         this.frozen.remove(entity.uuid)
     }
 
-    public fun isFrozen(entity: Entity): Boolean {
+    public fun isTickFrozen(entity: Entity): Boolean {
         return this.frozen.contains(entity.uuid)
     }
 

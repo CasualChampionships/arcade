@@ -278,7 +278,7 @@ public open class MinigameSettings(
         defaults.options(this)
     })
 
-    public val freezeEntities: GameSetting<Boolean> = this.register(bool {
+    public val tickFreezeEntities: GameSetting<Boolean> = this.register(bool {
         name = "freeze_entities"
         display = Items.PACKED_ICE.named(Component.translatable("minigame.settings.freezeEntities.name"))
             .styledLore(Component.translatable("minigame.settings.freezeEntities.desc.1"))
