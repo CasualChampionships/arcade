@@ -43,9 +43,18 @@ public abstract class ServerPlayerMixin extends Player {
 		method = "tick",
 		at = @At("HEAD")
 	)
-	private void onTick(CallbackInfo ci) {
+	private void onTickPre(CallbackInfo ci) {
 		PlayerTickEvent event = new PlayerTickEvent((ServerPlayer) (Object) this);
-		GlobalEventHandler.Server.broadcast(event);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+	}
+
+	@Inject(
+		method = "tick",
+		at = @At("TAIL")
+	)
+	private void onTickPost(CallbackInfo ci) {
+		PlayerTickEvent event = new PlayerTickEvent((ServerPlayer) (Object) this);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
 	}
 
 	@Inject(
