@@ -13,6 +13,14 @@
   "license": "MIT",
   "icon": "assets/icon.png",
   "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.commands.ArcadeCommands"
+      }
+    ]
+  },
   "mixins": [
     "arcade-commands.mixins.json"
   ],
