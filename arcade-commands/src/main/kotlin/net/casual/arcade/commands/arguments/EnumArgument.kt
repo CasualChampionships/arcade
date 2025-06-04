@@ -9,16 +9,23 @@ import net.casual.arcade.commands.type.CustomStringArgumentInfo
 import net.casual.arcade.utils.EnumUtils
 
 public class EnumArgument<E: Enum<E>>(
-    clazz: Class<E>
-): MappedArgument<E>(EnumUtils.enumToMap(clazz, Companion::checkEnumName)) {
+    clazz: Class<E>,
+    mapper: (E) -> String = Enum<E>::name
+): MappedArgument<E>(EnumUtils.enumToMap(clazz) { e -> checkEnumName(e, mapper) }) {
     public companion object {
-        public inline fun <reified E: Enum<E>> enumeration(): EnumArgument<E> {
-            return EnumArgument(E::class.java)
+        public inline fun <reified E: Enum<E>> enumeration(
+            noinline mapper: (E) -> String = Enum<E>::name
+        ): EnumArgument<E> {
+            return EnumArgument(E::class.java, mapper)
         }
 
         @JvmStatic
-        public fun <E: Enum<E>> enumeration(clazz: Class<E>): EnumArgument<E> {
-            return EnumArgument(clazz)
+        @JvmOverloads
+        public fun <E: Enum<E>> enumeration(
+            clazz: Class<E>,
+            mapper: (E) -> String = Enum<E>::name
+        ): EnumArgument<E> {
+            return EnumArgument(clazz, mapper)
         }
 
         public inline fun <reified E: Enum<E>> getEnumeration(context: CommandContext<*>, string: String): E {
@@ -30,11 +37,12 @@ public class EnumArgument<E: Enum<E>>(
             return context.getArgument(string, clazz)
         }
 
-        private fun checkEnumName(enum: Enum<*>): String {
-            if (!CustomStringArgumentInfo.isAllowedWord(enum.name)) {
-                throw IllegalArgumentException("Enumeration ${enum.name} has invalid characters")
+        private fun <E> checkEnumName(enum: E, mapper: (E) -> String): String {
+            val name = mapper.invoke(enum)
+            if (!CustomStringArgumentInfo.isAllowedWord(name)) {
+                throw IllegalArgumentException("Enumeration name $name has invalid characters")
             }
-            return enum.name
+            return name
         }
     }
 }

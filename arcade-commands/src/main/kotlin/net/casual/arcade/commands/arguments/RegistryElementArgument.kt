@@ -14,6 +14,7 @@ import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.commands.type.CustomArgumentTypeInfo
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.ResourceLocationArgument
+import net.minecraft.core.Holder
 import net.minecraft.core.Registry
 import net.minecraft.core.RegistryAccess
 import net.minecraft.network.chat.Component
@@ -60,15 +61,19 @@ public class RegistryElementArgument<T>(
         private val filter: (ResourceKey<T>, T) -> Boolean
     ) {
         public fun getElement(access: RegistryAccess): T {
+            return this.getHolder(access).value()
+        }
+
+        public fun getHolder(access: RegistryAccess): Holder.Reference<T> {
             val registry = access.lookup(this.key.registryKey())
             if (registry.isEmpty) {
                 throw UNKNOWN_REGISTRY.create(this.key.registryKey().location())
             }
-            val value = registry.get().getOptional(this.key)
-            if (value.isEmpty || !this.filter.invoke(this.key, value.get())) {
+            val holder = registry.get().get(this.key)
+            if (holder.isEmpty || !this.filter.invoke(this.key, holder.get().value())) {
                 throw INVALID_ELEMENT.create(this.key.location(), this.key.registryKey().location())
             }
-            return value.get()
+            return holder.get()
         }
     }
 
@@ -87,9 +92,14 @@ public class RegistryElementArgument<T>(
 
         @JvmStatic
         public fun <T> getElement(context: CommandContext<out SharedSuggestionProvider>, string: String): T {
+            return this.getHolder<T>(context, string).value()
+        }
+
+        @JvmStatic
+        public fun <T> getHolder(context: CommandContext<out SharedSuggestionProvider>, string: String): Holder.Reference<T> {
             @Suppress("UNCHECKED_CAST")
             val filterable = context.getArgument(string, FilterableResourceKey::class.java) as FilterableResourceKey<T>
-            return filterable.getElement(context.source.registryAccess())
+            return filterable.getHolder(context.source.registryAccess())
         }
     }
 }

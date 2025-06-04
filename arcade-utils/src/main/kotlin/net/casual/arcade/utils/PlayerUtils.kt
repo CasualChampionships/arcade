@@ -7,7 +7,6 @@ package net.casual.arcade.utils
 import net.casual.arcade.util.ducks.ConnectionFaultHolder
 import net.casual.arcade.util.ducks.SilentRecipeSender
 import net.casual.arcade.util.mixins.PlayerAdvancementsAccessor
-import net.casual.arcade.utils.ComponentUtils.isEmpty
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -22,14 +21,15 @@ import net.minecraft.core.Holder
 import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.*
-import net.minecraft.network.chat.contents.PlainTextContents
 import net.minecraft.network.protocol.game.*
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.Action.ADD
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerCommonPacketListenerImpl
 import net.minecraft.sounds.SoundEvent
+import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
+import net.minecraft.stats.Stats
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
@@ -170,6 +170,31 @@ public object PlayerUtils {
         val item = menu.getSlot(slot).item
         val update = ClientboundContainerSetSlotPacket(menu.containerId, menu.incrementStateId(), slot, item)
         this.connection.send(update)
+    }
+
+    public fun ServerPlayer.dropItemStackIntoInventory(
+        stack: ItemStack,
+        remaining: (ItemStack) -> Unit
+    ) {
+        val count = stack.count
+        val item = stack.item
+        this.inventory.add(stack)
+        if (count < stack.count) {
+            val level = this.serverLevel()
+            level.playSound(
+                null, this.x, this.y, this.z,
+                SoundEvents.ITEM_PICKUP,
+                SoundSource.PLAYERS,
+                0.2F,
+                (level.random.nextFloat() - level.random.nextFloat()) * 1.4F + 2.0F
+            )
+            this.awardStat(Stats.ITEM_PICKED_UP.get(item), count - stack.count)
+            if (!stack.isEmpty) {
+                remaining.invoke(stack)
+            }
+        } else {
+            remaining.invoke(stack)
+        }
     }
 
     @JvmStatic

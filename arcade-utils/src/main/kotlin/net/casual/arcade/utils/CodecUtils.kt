@@ -8,6 +8,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.utils.codec.EncodedOptionalFieldCodec
 import java.util.*
+import kotlin.collections.LinkedHashSet
 
 public fun <A: Any> Codec<A>.encodedOptionalFieldOf(name: String): MapCodec<Optional<A>> {
     return EncodedOptionalFieldCodec(name, this)
@@ -18,4 +19,8 @@ public fun <A: Any> Codec<A>.encodedOptionalFieldOf(name: String, defaultValue: 
         { o -> o.orElse(defaultValue) },
         { a -> Optional.of(a) }
     )
+}
+
+public fun <A: Any> Codec<A>.setOf(): Codec<Set<A>> {
+    return this.listOf().xmap(::LinkedHashSet, ::ArrayList)
 }
