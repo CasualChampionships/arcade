@@ -3,14 +3,16 @@ package net.casual.arcade.commands.manager
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.ListenerRegistry
 import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.SimpleListenerRegistry
 import net.casual.arcade.events.server.ServerLoadedEvent
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 
 public object GlobalCommandManager: CommandRegistry {
     private val delayed = ArrayList<CommandTree>()
-    private val managers = HashSet<CommandManager>()
+    private val managers = HashMap<CommandManager, ListenerRegistry>()
 
     private lateinit var global: CommandManager
 
@@ -31,13 +33,18 @@ public object GlobalCommandManager: CommandRegistry {
     }
 
     public fun addManager(manager: CommandManager) {
-        if (this.managers.add(manager)) {
-            manager.initialize(GlobalEventHandler.Server)
+        if (!this.managers.containsKey(manager)) {
+            val registry = SimpleListenerRegistry()
+            GlobalEventHandler.Server.addProvider(registry)
+            this.managers[manager] = registry
+            manager.initialize(registry)
         }
     }
 
     public fun removeManager(manager: CommandManager) {
-        if (this.managers.remove(manager)) {
+        val registry = this.managers.remove(manager)
+        if (registry != null) {
+            GlobalEventHandler.Server.removeProvider(registry)
             manager.close()
         }
     }

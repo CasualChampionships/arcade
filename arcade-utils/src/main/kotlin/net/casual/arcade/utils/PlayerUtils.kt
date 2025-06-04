@@ -179,7 +179,7 @@ public object PlayerUtils {
         val count = stack.count
         val item = stack.item
         this.inventory.add(stack)
-        if (count < stack.count) {
+        if (stack.count < count) {
             val level = this.serverLevel()
             level.playSound(
                 null, this.x, this.y, this.z,
