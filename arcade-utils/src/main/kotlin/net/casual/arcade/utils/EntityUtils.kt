@@ -4,6 +4,8 @@
  */
 package net.casual.arcade.utils
 
+import net.casual.arcade.util.mixins.ChunkMapAccessor
+import net.casual.arcade.util.mixins.TrackedEntityAccessor
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.minecraft.core.BlockPos
@@ -14,6 +16,8 @@ import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.level.ChunkMap
+import net.minecraft.server.level.ServerEntity
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
@@ -99,6 +103,16 @@ public fun Entity.teleportTo(location: Location, resetCamera: Boolean = true) {
     this.teleportTo(location.with(this.level() as ServerLevel), resetCamera)
 }
 
+public fun Entity.getTrackingPlayers(): List<ServerPlayer> {
+    val tracked = this.getTrackedEntity() ?: return listOf()
+    return (tracked as TrackedEntityAccessor).seenBy.map { it.player }
+}
+
+public fun Entity.getServerEntity(): ServerEntity? {
+    val tracked = this.getTrackedEntity() ?: return null
+    return (tracked as TrackedEntityAccessor).serverEntity
+}
+
 public fun Entity.isInStructure(key: ResourceKey<Structure>): Boolean {
     val access = this.level().registryAccess()
     val structure = access.lookup(Registries.STRUCTURE).getOrNull()?.getOptional(key)?.getOrNull() ?: return false
@@ -123,6 +137,10 @@ public fun <T: Entity> EntityType<T>.spawn(
         entity.setYBodyRot(location.yRot)
     }
     return this.spawn(location.level, consumer, BlockPos.containing(location.position), reason, false, false)
+}
+
+private fun Entity.getTrackedEntity(): ChunkMap.TrackedEntity? {
+    return ((this.level() as ServerLevel).chunkSource.chunkMap as ChunkMapAccessor).entityMap.get(this.id)
 }
 
 public object SynchedDataUtils {

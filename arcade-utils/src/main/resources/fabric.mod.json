@@ -21,6 +21,7 @@
       }
     ]
   },
+  "accessWidener": "arcade-utils.accesswidener",
   "mixins": [
     "arcade-utils.mixins.json"
   ],
