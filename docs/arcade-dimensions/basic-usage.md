@@ -33,6 +33,21 @@ val builder = CustomLevelBuilder()
 A level stem contains the dimension type and chunk generator for our dimension. 
 You can also specify these separately if you do not have a reference to a level stem.
 
+We can also provide a 'spoofed' dimension key, this key will be sent to the client
+when they join the dimension, so the client believes they are in that dimension.
+This may be useful if you want to hide the real dimension key or if you rely on specific
+behaviour when the client believes it's in a specific dimension.
+```kotlin
+val key = ResourceKey.create(
+    Registries.DIMENSION,
+    ResourceLocation.withDefaultNamespace("spoofed")
+)
+
+val builder = CustomLevelBuilder()
+    .randomDimensionKey()
+    .spoofedDimensionKey(key)
+```
+
 ### Custom Chunk Generators
 
 Custom chunk generators are super simple, we simply pass a `ChunkGenerator` instance
@@ -77,7 +92,7 @@ val builder = CustomLevelBuilder()
 Alternatively, we can dynamically create `DimensionType`s however they cannot be
 synchronized to clients, as these are synced during the configuration phase. Because 
 of this we need to be careful with what we change in our dynamic `DimensionType`s. 
-For example, we cannot change the height of the world, but we can for example
+For example, we cannot change the height of the world, but we can, for example,
 change whether beds work. Anything that is purely server-side can be changed without issue.
 ```kotlin
 val builder = CustomLevelBuilder()

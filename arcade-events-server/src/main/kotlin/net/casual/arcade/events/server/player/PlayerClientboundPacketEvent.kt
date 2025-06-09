@@ -28,5 +28,18 @@ public data class PlayerClientboundPacketEvent(
          * The [packet] can no longer be modified.
          */
         public const val POST_PHASE: String = BuiltInEventPhases.POST
+
+        public inline fun PlayerClientboundPacketEvent.replacePacket(
+            replacement: (ServerPlayer, Packet<*>) -> Packet<*>?
+        ) {
+            if (!this.isCancelled()) {
+                val packet = replacement.invoke(this.player, this.packet)
+                if (packet == null) {
+                    this.cancel()
+                } else {
+                    this.packet = packet
+                }
+            }
+        }
     }
 }

@@ -31,11 +31,11 @@ public fun Packet<*>.asClientGamePacket(): Packet<ClientGamePacketListener> {
 
 public inline fun ClientboundBundlePacket.modify(
     player: ServerPlayer,
-    modifier: (ServerPlayer, Packet<in ClientGamePacketListener>) -> Packet<in ClientGamePacketListener>
+    modifier: (ServerPlayer, Packet<in ClientGamePacketListener>) -> Packet<in ClientGamePacketListener>?
 ): ClientboundBundlePacket {
     val updated = ArrayList<Packet<in ClientGamePacketListener>>()
     for (sub in this.subPackets()) {
-        val new = modifier.invoke(player, sub)
+        val new = modifier.invoke(player, sub) ?: continue
         if (new is ClientboundBundlePacket) {
             updated.addAll(new.subPackets())
         } else {

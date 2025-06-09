@@ -8,7 +8,7 @@ import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.commands.type.CustomStringArgumentInfo
 import net.casual.arcade.utils.EnumUtils
 
-public class EnumArgument<E: Enum<E>>(
+public class EnumArgument<E: Enum<E>> @JvmOverloads constructor(
     clazz: Class<E>,
     mapper: (E) -> String = Enum<E>::name
 ): MappedArgument<E>(EnumUtils.enumToMap(clazz) { e -> checkEnumName(e, mapper) }) {

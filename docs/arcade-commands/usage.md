@@ -53,7 +53,7 @@ trickery and allows you to easily implement your own argument types as
 well as implementing some basic ones.
 
 By default, Arcade implements `EnumArgument`, `MappedArgument`, 
-`TimeArgument`, and `TimeZoneArgument`.
+`RegistryElementArgument`, `TimeArgument`, and `TimeZoneArgument`.
 
 `EnumArgument`s can be created with an Enum `Class` and it will
 allow you to use the enum instances as arguments. Similarly,
@@ -80,6 +80,23 @@ fun createExampleCommand(): LiteralArgumentBuilder<CommandSourceStack> {
         argument("mapped", MappedArgument.mapped(options)) {
             executes { 
                 val option = MappedArgument.getMapped<Int>(it, "mapped")
+                Command.SINGLE_SUCCESS
+            }
+        }
+    }
+}
+```
+
+The registry element argument lets you specify a registry entry as an argument
+in a command by specifying its resource key.
+
+```kotlin
+fun createExampleCommand(): LiteralArgumentBuilder<CommandSourceStack> {
+    return CommandTree.buildLiteral("example") {
+        argument("element", RegistryElementArgument.element(Registries.COW_VARIANT)) {
+            executes {
+                val holder: Holder.Reference<CowVariant> = RegistryElementArgument.getHolder(it, "element")
+                val variant: CowVariant = RegistryElementArgument.getElement(it, "element")
                 Command.SINGLE_SUCCESS
             }
         }
