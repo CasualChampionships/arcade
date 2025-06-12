@@ -2,7 +2,7 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.visuals.firework
+package net.casual.arcade.visuals.entity.firework
 
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.math.location.LocationWithLevel

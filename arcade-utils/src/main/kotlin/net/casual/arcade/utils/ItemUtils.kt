@@ -97,7 +97,7 @@ public object ItemUtils {
 
     @JvmStatic
     public fun ItemStack.hideTooltip(): ItemStack {
-        this.set(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay(false, Collections.emptySortedSet()))
+        this.set(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay(true, Collections.emptySortedSet()))
         return this
     }
 

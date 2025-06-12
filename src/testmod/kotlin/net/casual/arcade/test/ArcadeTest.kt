@@ -1,6 +1,8 @@
 package net.casual.arcade.test
 
 import com.mojang.brigadier.Command
+import eu.pb4.polymer.virtualentity.api.ElementHolder
+import eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment
 import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.registerLiteral
 import net.casual.arcade.events.GlobalEventHandler
@@ -15,6 +17,7 @@ import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.resources.ArcadeResourcePacks
 import net.casual.arcade.resources.utils.ResourcePackUtils.addPack
 import net.casual.arcade.utils.ComponentUtils.wrap
+import net.casual.arcade.visuals.entity.display.SpecificComponentDisplayElement
 import net.casual.arcade.visuals.screen.PlayerInventoryViewGui
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
@@ -64,6 +67,12 @@ object ArcadeTest: ModInitializer {
         GlobalEventHandler.Server.register<PlayerChatEvent> {
             it.format { chat ->
                 chat.copy(prefix = chat.prefix.wrap().append(Component.literal("[x]")))
+            }
+            if (it.rawMessage == "specific") {
+                val element = SpecificComponentDisplayElement { p -> Component.literal("hi ${p.scoreboardName}") }
+                val holder = ElementHolder()
+                holder.addElement(element)
+                ChunkAttachment.ofTicking(holder, it.player.serverLevel(), it.player.position())
             }
         }
     }
