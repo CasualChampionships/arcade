@@ -7,7 +7,6 @@ package net.casual.arcade.visuals.entity.display
 import eu.pb4.polymer.virtualentity.api.elements.TextDisplayElement
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.utils.createValue
 import net.casual.arcade.visuals.elements.PlayerSpecificElement
 import net.casual.arcade.visuals.elements.UniversalElement
