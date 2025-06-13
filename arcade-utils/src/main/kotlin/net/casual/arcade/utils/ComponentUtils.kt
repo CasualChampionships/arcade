@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.utils
 
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.casual.arcade.utils.ComponentUtils.ComponentGenerator
 import net.minecraft.ChatFormatting
@@ -24,31 +25,62 @@ public object ComponentUtils {
     public val MINI_FONT: ResourceLocation = ResourceUtils.arcade("mini_minecraft")
 
     private val formattingByColour = Int2ObjectOpenHashMap<ChatFormatting>()
-    private val formattingToName = EnumUtils.mapOf<ChatFormatting, String>()
+    private val formattingToName: EnumMap<ChatFormatting, String>
+
+    private val charWidths = Int2IntOpenHashMap()
 
     init {
         for (formatting in ChatFormatting.entries) {
             val colour = formatting.color ?: continue
             this.formattingByColour[colour] = formatting
         }
-        this.formattingToName.apply {
-            put(BLACK, "Black")
-            put(DARK_BLUE, "Navy")
-            put(DARK_GREEN, "Green")
-            put(DARK_AQUA, "Teal")
-            put(DARK_RED, "Red")
-            put(DARK_PURPLE, "Purple")
-            put(GOLD, "Orange")
-            put(GRAY, "Stone")
-            put(DARK_GRAY, "Grey")
-            put(BLUE, "Blue")
-            put(GREEN, "Lime")
-            put(AQUA, "Aqua")
-            put(RED, "Crimson")
-            put(LIGHT_PURPLE, "Pink")
-            put(YELLOW, "Yellow")
-            put(WHITE, "White")
-        }
+        this.formattingToName = EnumUtils.mapOf(
+            BLACK to "Black",
+            DARK_BLUE to "Navy",
+            DARK_GREEN to "Green",
+            DARK_AQUA to "Teal",
+            DARK_RED to "Red",
+            DARK_PURPLE to "Purple",
+            GOLD to "Orange",
+            GRAY to "Stone",
+            DARK_GRAY to "Grey",
+            BLUE to "Blue",
+            GREEN to "Lime",
+            AQUA to "Aqua",
+            RED to "Crimson",
+            LIGHT_PURPLE to "Pink",
+            YELLOW to "Yellow",
+            WHITE to "White",
+        )
+
+        this.charWidths.defaultReturnValue(6)
+        this.charWidths.put(32, 4)
+        this.charWidths.put(33, 2)
+        this.charWidths.put(34, 4)
+        this.charWidths.put(39, 2)
+        this.charWidths.put(40, 4)
+        this.charWidths.put(41, 4)
+        this.charWidths.put(42, 4)
+        this.charWidths.put(44, 2)
+        this.charWidths.put(46, 2)
+        this.charWidths.put(58, 2)
+        this.charWidths.put(59, 2)
+        this.charWidths.put(60, 5)
+        this.charWidths.put(62, 5)
+        this.charWidths.put(64, 7)
+        this.charWidths.put(73, 4)
+        this.charWidths.put(91, 4)
+        this.charWidths.put(93, 4)
+        this.charWidths.put(96, 3)
+        this.charWidths.put(102, 5)
+        this.charWidths.put(105, 2)
+        this.charWidths.put(107, 5)
+        this.charWidths.put(108, 3)
+        this.charWidths.put(116, 4)
+        this.charWidths.put(123, 4)
+        this.charWidths.put(124, 2)
+        this.charWidths.put(125, 4)
+        this.charWidths.put(126, 7)
     }
 
     public fun negativeWidthOf(component: Component): MutableComponent {
@@ -67,6 +99,27 @@ public object ComponentUtils {
             throw IllegalStateException()
         }
         return contents.key
+    }
+
+    public fun widthOf(component: Component): Int {
+        var width = 0
+        component.visit({ style, content ->
+            width += this.widthOf(content)
+            if (style.isBold) {
+                width += content.length
+            }
+
+            Optional.empty<Unit>()
+        }, Style.EMPTY)
+        return width
+    }
+
+    public fun widthOf(string: String): Int {
+        return string.sumOf(this::widthOf)
+    }
+
+    public fun widthOf(char: Char): Int {
+        return this.charWidths.get(char.code)
     }
 
     @JvmStatic
