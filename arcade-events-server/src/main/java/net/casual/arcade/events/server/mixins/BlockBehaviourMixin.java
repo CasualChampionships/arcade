@@ -6,7 +6,7 @@ package net.casual.arcade.events.server.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.server.block.BlockDropEvent;
+import net.casual.arcade.events.server.block.BlockDropLootEvent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -23,7 +23,7 @@ public class BlockBehaviourMixin {
         at = @At("RETURN")
     )
     private List<ItemStack> modifyBlockDrops(List<ItemStack> original, BlockState state, LootParams.Builder params) {
-        BlockDropEvent event = new BlockDropEvent(state, params, original);
+        BlockDropLootEvent event = new BlockDropLootEvent(state, params, original);
         GlobalEventHandler.Server.broadcast(event);
         return event.getDrops();
     }

@@ -6,7 +6,7 @@ package net.casual.arcade.events.server.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.server.player.PlayerBlockDropEvent;
+import net.casual.arcade.events.server.player.PlayerBlockDropLootEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -41,7 +41,7 @@ public class BlockMixin {
         ItemStack tool
     ) {
         if (entity instanceof ServerPlayer player) {
-            PlayerBlockDropEvent event = new PlayerBlockDropEvent(
+            PlayerBlockDropLootEvent event = new PlayerBlockDropLootEvent(
                 player, (ServerLevel) level, state, pos, tool, original
             );
             GlobalEventHandler.Server.broadcast(event);

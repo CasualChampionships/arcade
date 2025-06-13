@@ -10,10 +10,12 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Cancellable;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.ducks.ModifyActuallyHurt;
 import net.casual.arcade.events.server.entity.EntityDeathEvent;
+import net.casual.arcade.events.server.entity.EntityDropLootEvent;
 import net.casual.arcade.events.server.player.*;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
@@ -21,12 +23,17 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.function.Consumer;
 
 @Mixin(LivingEntity.class)
 public class LivingEntityMixin implements ModifyActuallyHurt {
@@ -172,6 +179,30 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 			PlayerAttributeUpdatedEvent event = new PlayerAttributeUpdatedEvent(player, attribute);
 			GlobalEventHandler.Server.broadcast(event);
 		}
+	}
+
+	@WrapOperation(
+		method = "dropFromLootTable(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;Z)V",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/level/storage/loot/LootTable;getRandomItems(Lnet/minecraft/world/level/storage/loot/LootParams;JLjava/util/function/Consumer;)V"
+		)
+	)
+	private void onDropFromLootTable(
+		LootTable instance,
+		LootParams params,
+		long seed,
+		Consumer<ItemStack> output,
+		Operation<Void> original
+	) {
+		ObjectArrayList<ItemStack> loot = new ObjectArrayList<>();
+		Consumer<ItemStack> adder = loot::add;
+		original.call(instance, params, seed, adder);
+
+		EntityDropLootEvent event = new EntityDropLootEvent((LivingEntity) (Object) this, params, loot);
+		GlobalEventHandler.Server.broadcast(event);
+
+		event.getDrops().forEach(output);
 	}
 
 	@Override
