@@ -348,6 +348,6 @@ public object MinigameUtils {
 
         method.isAccessible = true
         val handle = MethodHandles.lookup().unreflect(method)
-        return type to EventListener.of(priority, event.phase) { handle.invoke(declarer, it) }
+        return type to EventListener.of(priority, event.phase, event.requiresMainThread) { handle.invoke(declarer, it) }
     }
 }

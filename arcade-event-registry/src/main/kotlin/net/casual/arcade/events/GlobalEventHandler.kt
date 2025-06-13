@@ -5,6 +5,7 @@
 package net.casual.arcade.events
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
+import it.unimi.dsi.fastutil.objects.ObjectSets
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
@@ -17,6 +18,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.util.thread.ReentrantBlockableEventLoop
 import org.apache.logging.log4j.LogManager
 import org.jetbrains.annotations.ApiStatus.Experimental
+import java.util.concurrent.Executor
 import java.util.function.Consumer
 
 /**
@@ -33,13 +35,12 @@ public enum class GlobalEventHandler(
     Server(ServerUtils::getServerOrNull),
     Client({ Minecraft.getInstance() });
 
-    private val suppressed = ReferenceOpenHashSet<Class<out Event>>()
-    private val stack = Reference2IntOpenHashMap<Class<out Event>>()
-    private val registries = ObjectOpenHashSet<ListenerProvider>()
+    private val stack = ThreadLocal.withInitial { Reference2IntOpenHashMap<Class<out Event>>() }
+    private val registries = ObjectSets.synchronize(ObjectOpenHashSet<ListenerProvider>())
 
-    private val injected = ObjectOpenHashSet<InjectedListenerProvider>()
+    private val injected = ObjectSets.synchronize(ObjectOpenHashSet<InjectedListenerProvider>())
 
-    private var recursion = false
+    private var recursion = ThreadLocal.withInitial { false }
 
     private var stopping = false
 
@@ -56,11 +57,6 @@ public enum class GlobalEventHandler(
      * can be fired.
      * After this limit is reached, the event will be suppressed.
      *
-     * This method *may* be called off the main thread,
-     * however it must be defined behaviour; the event you're
-     * broadcasting must implement [MissingExecutorEvent].
-     * The event will then be pushed to the main thread.
-     *
      * It is also possible to register to the firing event
      * as it's being broadcast.
      * These listeners will be deferred and will not
@@ -75,42 +71,44 @@ public enum class GlobalEventHandler(
     public fun <T: Event> broadcast(event: T, phases: Set<String> = BuiltInEventPhases.DEFAULT_PHASES) {
         val type = event::class.java
 
-        if (this.checkThread(event, type)) {
-            return
-        }
+        // If this returns null, then the server is stopping anyway
+        val executor = this.getMainThreadExecutor(event, type) ?: return
 
-        if (this.suppressed.remove(type)) {
-            logger.debug("Suppressing event (type: {})", type.simpleName)
-            return
-        }
-
-        if (!this.recursion && this.checkRecursive(type)) {
+        if (!this.recursion.get() && this.checkRecursive(type)) {
             return
         }
 
         @Suppress("UNCHECKED_CAST")
         val listeners = ArrayList(this.getListenersFor(type)) as MutableList<EventListener<T>>
         try {
-            this.stack.addTo(type, 1)
+            this.stack.get().addTo(type, 1)
 
-            for (handler in this.registries) {
-                @Suppress("UNCHECKED_CAST")
-                listeners.addSorted(handler.getListenersFor(type) as List<EventListener<T>>)
-            }
-            for (injected in this.injected) {
-                injected.injectListenerProviders(event) { handler ->
+            synchronized(this.registries) {
+                for (handler in this.registries) {
                     @Suppress("UNCHECKED_CAST")
                     listeners.addSorted(handler.getListenersFor(type) as List<EventListener<T>>)
+                }
+            }
+            synchronized(this.injected) {
+                for (injected in this.injected) {
+                    injected.injectListenerProviders(event) { handler ->
+                        @Suppress("UNCHECKED_CAST")
+                        listeners.addSorted(handler.getListenersFor(type) as List<EventListener<T>>)
+                    }
                 }
             }
 
             for (listener in listeners) {
                 if (phases.contains(listener.phase)) {
-                    listener.invoke(event)
+                    if (listener.requiresMainThread) {
+                        executor.execute { listener.invoke(event) }
+                    } else {
+                        listener.invoke(event)
+                    }
                 }
             }
         } finally {
-            this.stack.addTo(type, -1)
+            this.stack.get().addTo(type, -1)
         }
     }
 
@@ -168,27 +166,17 @@ public enum class GlobalEventHandler(
      * @param block The function to execute while recursion is allowed.
      */
     public fun recursive(block: () -> Unit) {
-        val previous = this.recursion
+        val previous = this.recursion.get()
         try {
-            this.recursion = true
+            this.recursion.set(true)
             block()
         } finally {
-            this.recursion = previous
+            this.recursion.set(previous)
         }
     }
 
-    @Experimental
-    public fun enableRecursiveEvents() {
-        this.recursion = true
-    }
-
-    @Experimental
-    public fun disableRecursiveEvents() {
-        this.recursion = true
-    }
-
     private fun checkRecursive(type: Class<out Event>): Boolean {
-        val count = this.stack.getInt(type)
+        val count = this.stack.get().getInt(type)
         if (count >= MAX_RECURSIONS) {
             logger.warn(
                 "Detected recursive event (type: {}), suppressing...\nStacktrace: \n{}",
@@ -200,7 +188,7 @@ public enum class GlobalEventHandler(
         return false
     }
 
-    private fun checkThread(event: Event, type: Class<out Event>): Boolean {
+    private fun getMainThreadExecutor(event: Event, type: Class<out Event>): Executor? {
         val executor = this.executor.invoke()
         if (executor == null) {
             if (event !is MissingExecutorEvent) {
@@ -210,52 +198,29 @@ public enum class GlobalEventHandler(
                     this.name.lowercase()
                 )
             }
-        } else if (!executor.isSameThread) {
-            if (this.stopping) {
-                return true
-            }
-            if (!executor.scheduleExecutables()) {
-                this.stopping = true
-                logger.warn(
-                    "Event broadcasted (type: {}) while {} is stopping, ignoring events...",
-                    type.simpleName,
-                    this.name.lowercase()
-                )
-                return true
-            }
-            if (event !is MissingExecutorEvent) {
-                logger.warn(
-                    "Detected broadcasted event (type: {}) off main thread, pushing to main thread...",
-                    type.simpleName
-                )
-            }
-            if (event is CancellableEvent) {
-                event.offthread = true
-            }
-            executor.execute { this.broadcast(event) }
-            return true
+            return Executor(Runnable::run)
         }
-        return false
+        if (executor.isSameThread) {
+            return Executor(Runnable::run)
+        }
+        if (this.stopping) {
+            return null
+        }
+        if (!executor.scheduleExecutables()) {
+            this.stopping = true
+            logger.warn(
+                "Event broadcasted (type: {}) while {} is stopping, ignoring events...",
+                type.simpleName,
+                this.name.lowercase()
+            )
+            return null
+        }
+        return executor
     }
 
-    @Deprecated(
-        "Use GlobalEventHandler.Server instead",
-        ReplaceWith(
-            "GlobalEventHandler.Server",
-            "net.casual.arcade.events.ListenerRegistry.Companion.register"
-        )
-    )
-    public companion object: ListenerRegistry by Server {
+    public companion object {
         private const val MAX_RECURSIONS = 10
 
         private val logger = LogManager.getLogger("ArcadeEventHandler")
-
-        public inline fun <reified T: Event> register(
-            priority: Int = 1_000,
-            phase: String = DEFAULT,
-            listener: Consumer<T>
-        ) {
-            this.register(T::class.java, priority, phase, listener)
-        }
     }
 }

@@ -43,7 +43,13 @@ public annotation class Listener(
      *
      * @see During
      */
-    val during: During = During()
+    val during: During = During(),
+
+    /**
+     * Whether the event listener requires being
+     * executed on the main thread.
+     */
+    val requiresMainThread: Boolean = true
 )
 
 /**

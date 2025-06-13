@@ -48,9 +48,10 @@ public class SingleListenerProvider<T: Event>(
         public inline fun <reified T: Event> of(
             priority: Int = 1_000,
             phase: String = DEFAULT,
+            requiresMainThread: Boolean = true,
             listener: Consumer<T>
         ): SingleListenerProvider<T> {
-            return SingleListenerProvider(T::class.java, EventListener.of(priority, phase, listener))
+            return SingleListenerProvider(T::class.java, EventListener.of(priority, phase, requiresMainThread, listener))
         }
     }
 }

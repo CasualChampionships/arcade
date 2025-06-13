@@ -94,9 +94,10 @@ public class MinigameEventHandler(
         priority: Int,
         phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
+        requiresMainThread: Boolean = true,
         listener: Consumer<T>
     ) {
-        this.register(T::class.java, priority, phase, flags, listener)
+        this.register(T::class.java, priority, phase, flags, requiresMainThread, listener)
     }
 
     /**
@@ -140,9 +141,10 @@ public class MinigameEventHandler(
         priority: Int = 1_000,
         phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
+        requiresMainThread: Boolean = true,
         listener: Consumer<T>
     ) {
-        this.register(type, flags, EventListener.of(priority, phase, listener))
+        this.register(type, flags, EventListener.of(priority, phase, requiresMainThread, listener))
     }
 
     /**
@@ -195,10 +197,14 @@ public class MinigameEventHandler(
         priority: Int,
         phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
+        requiresMainThread: Boolean = true,
         vararg phases: Phase<*>,
         listener: Consumer<T>
     ) {
-        this.registerInPhases(T::class.java, flags, phases = phases, listener = EventListener.of(priority, phase, listener))
+        this.registerInPhases(
+            T::class.java, flags, phases = phases,
+            listener = EventListener.of(priority, phase, requiresMainThread, listener)
+        )
     }
 
     /**
@@ -248,9 +254,10 @@ public class MinigameEventHandler(
         before: Phase<*>,
         phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
+        requiresMainThread: Boolean = true,
         listener: Consumer<T>
     ) {
-        this.registerBetweenPhases(1_000, after, before, phase, flags, listener)
+        this.registerBetweenPhases(1_000, after, before, phase, flags, requiresMainThread, listener)
     }
 
     /**
@@ -269,9 +276,12 @@ public class MinigameEventHandler(
         before: Phase<*>,
         phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
+        requiresMainThread: Boolean = true,
         listener: Consumer<T>
     ) {
-        this.registerBetweenPhases(T::class.java, after, before, flags, EventListener.of(priority, phase, listener))
+        this.registerBetweenPhases(
+            T::class.java, after, before, flags, EventListener.of(priority, phase, requiresMainThread, listener)
+        )
     }
 
     /**

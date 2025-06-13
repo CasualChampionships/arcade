@@ -34,6 +34,13 @@ public fun interface EventListener<T: Event>: Comparable<EventListener<T>> {
     public val phase: String
         get() = BuiltInEventPhases.DEFAULT
 
+    /**
+     * Whether the event listener is required to be executed on
+     * the main thread.
+     */
+    public val requiresMainThread: Boolean
+        get() = true
+
     public fun invoke(event: T)
 
     @NonExtendable
@@ -44,6 +51,7 @@ public fun interface EventListener<T: Event>: Comparable<EventListener<T>> {
     private class Impl<T: Event>(
         override val priority: Int,
         override val phase: String,
+        override val requiresMainThread: Boolean,
         private val listener: Consumer<T>
     ): EventListener<T> {
         override fun invoke(event: T) {
@@ -64,9 +72,10 @@ public fun interface EventListener<T: Event>: Comparable<EventListener<T>> {
         public fun <T: Event> of(
             priority: Int = 1_000,
             phase: String = BuiltInEventPhases.DEFAULT,
+            requiresMainThread: Boolean = true,
             listener: Consumer<T>
         ): EventListener<T> {
-            return Impl(priority, phase, listener)
+            return Impl(priority, phase, requiresMainThread, listener)
         }
     }
 }

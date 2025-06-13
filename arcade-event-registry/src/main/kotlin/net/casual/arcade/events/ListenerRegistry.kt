@@ -35,8 +35,14 @@ public interface ListenerRegistry: ListenerProvider {
      * @param phase The phase of the event, [DEFAULT] by default.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public fun <T: Event> register(type: Class<T>, priority: Int = 1_000, phase: String = DEFAULT, listener: Consumer<T>) {
-        this.register(type, EventListener.of(priority, phase, listener))
+    public fun <T: Event> register(
+        type: Class<T>,
+        priority: Int = 1_000,
+        phase: String = DEFAULT,
+        requiresMainThread: Boolean = true,
+        listener: Consumer<T>
+    ) {
+        this.register(type, EventListener.of(priority, phase, requiresMainThread, listener))
     }
 
     /**
@@ -76,9 +82,10 @@ public interface ListenerRegistry: ListenerProvider {
         public inline fun <reified T: Event> ListenerRegistry.register(
             priority: Int = 1_000,
             phase: String = DEFAULT,
+            requiresMainThread: Boolean = true,
             listener: Consumer<T>
         ) {
-            this.register(T::class.java, priority, phase, listener)
+            this.register(T::class.java, priority, phase, requiresMainThread, listener)
         }
 
         /**
@@ -92,7 +99,7 @@ public interface ListenerRegistry: ListenerProvider {
          * @param listener The callback which will be invoked when the event is fired.
          */
         public inline fun <reified T: Event> ListenerRegistry.register(listener: Consumer<T>) {
-            this.register(T::class.java, 1_000, DEFAULT, listener)
+            this.register(T::class.java, 1_000, DEFAULT, true, listener)
         }
     }
 }

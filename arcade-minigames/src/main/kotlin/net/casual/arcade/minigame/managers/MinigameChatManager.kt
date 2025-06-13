@@ -102,7 +102,7 @@ public class MinigameChatManager(
     internal val spies = ObjectOpenHashSet<UUID>()
 
     init {
-        this.minigame.events.register<PlayerChatEvent>(1_000, DEFAULT, ListenerFlags.NONE, this::onGlobalPlayerChat)
+        this.minigame.events.register<PlayerChatEvent>(1_000, DEFAULT, ListenerFlags.NONE, listener = this::onGlobalPlayerChat)
         this.minigame.events.register<PlayerSystemMessageEvent>(this::onGlobalSystemChat)
         this.minigame.events.register<PlayerChatEvent>(this::onPlayerChat)
         this.minigame.events.register<PlayerTeamChatEvent>(this::onPlayerTeamChat)
