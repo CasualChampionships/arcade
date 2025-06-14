@@ -7,6 +7,7 @@ package net.casual.arcade.utils
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.Property
 import com.mojang.authlib.properties.PropertyMap
+import it.unimi.dsi.fastutil.objects.ReferenceSortedSets
 import net.casual.arcade.utils.ComponentUtils.unitalicise
 import net.minecraft.ChatFormatting
 import net.minecraft.core.Holder
@@ -97,13 +98,13 @@ public object ItemUtils {
 
     @JvmStatic
     public fun ItemStack.hideTooltip(): ItemStack {
-        this.set(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay(true, Collections.emptySortedSet()))
+        this.set(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay(true, ReferenceSortedSets.emptySet()))
         return this
     }
 
     @JvmStatic
     public fun ItemStack.hideTooltip(component: DataComponentType<*>): ItemStack {
-        val display = this.get(DataComponents.TOOLTIP_DISPLAY) ?: TooltipDisplay(false, Collections.emptySortedSet())
+        val display = this.get(DataComponents.TOOLTIP_DISPLAY) ?: TooltipDisplay(false, ReferenceSortedSets.emptySet())
         this.set(DataComponents.TOOLTIP_DISPLAY, display.withHidden(component, true))
         return this
     }
