@@ -71,7 +71,6 @@ allprojects {
                     "fabric_kotlin_dependency" to libs.versions.fabric.kotlin.get(),
                     "polymer_dependency" to libs.versions.polymer.get(),
                     "sgui_dependency" to libs.versions.sgui.get(),
-                    "custom_nametags_dependency" to libs.versions.custom.nametags.get()
                 ))
             }
         }

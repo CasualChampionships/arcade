@@ -6,4 +6,5 @@ moduleDependencies(project, listOf(
 
 dependencies {
     modCompileOnly(libs.server.replay)
+    modImplementation(libs.polymer.virtual.entity)
 }

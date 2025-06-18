@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.visuals.predicate
 
-import net.casual.arcade.visuals.nametag.PlayerNameTag
+import net.casual.arcade.visuals.nametag.PlayerNametag
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 
@@ -12,7 +12,7 @@ import net.minecraft.world.entity.Entity
  * This interface is used to determine whether a given
  * observee can be observed by another player.
  *
- * @see PlayerNameTag
+ * @see PlayerNametag
  */
 public fun interface PlayerObserverPredicate: EntityObserverPredicate {
     /**

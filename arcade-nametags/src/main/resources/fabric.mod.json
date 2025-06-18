@@ -1,15 +1,14 @@
 {
   "schemaVersion": 1,
-  "id": "arcade",
+  "id": "arcade-nametags",
   "version": "${version}",
-  "name": "Arcade",
-  "description": "Server-side Minecraft API aimed at minigame development!",
+  "name": "Arcade Nametags",
+  "description": "",
   "authors": [
-    "senseiwells"
+    "Sensei"
   ],
   "contact": {
-    "sources": "https://github.com/CasualChampionships/arcade",
-    "issues": "https://github.com/CasualChampionships/arcade/issues"
+
   },
   "license": "MIT",
   "icon": "assets/icon.png",
@@ -18,21 +17,28 @@
     "main": [
       {
         "adapter": "kotlin",
-        "value": "net.casual.arcade.Arcade"
+        "value": "net.casual.arcade.nametags.ArcadeNametags"
       }
     ]
   },
+  "mixins": [
+    "arcade-nametags.mixins.json"
+  ],
   "depends": {
     "minecraft": "${minecraft_dependency}",
     "fabricloader": ">=${fabric_loader_dependency}",
-    "fabric-api": ">=${fabric_api_dependency}",
     "fabric-language-kotlin": ">=${fabric_kotlin_dependency}",
-    "polymer-core": ">=${polymer_dependency}",
-    "sgui": ">=${sgui_dependency}"
+    "polymer-core": ">=${polymer_dependency}"
   },
   "custom": {
     "modmenu": {
-      "badges": ["library"]
+      "badges": ["library"],
+      "parent": {
+        "id": "arcade",
+        "name": "Arcade",
+        "icon": "assets/icon.png",
+        "badges": ["library"]
+      }
     }
   }
 }

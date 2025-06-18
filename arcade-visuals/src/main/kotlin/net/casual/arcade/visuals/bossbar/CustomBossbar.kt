@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.visuals.bossbar
 
-import net.casual.arcade.visuals.core.PlayerUI
+import net.casual.arcade.visuals.core.TrackedPlayerUI
 import net.casual.arcade.visuals.extensions.PlayerBossbarsExtension.Companion.bossbars
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
@@ -32,12 +32,12 @@ import java.util.function.Consumer
  * Once you have a [CustomBossbar] implementation
  * you can simply call [addPlayer] to display
  * the boss bar to them. You may also [removePlayer]
- * or [clearPlayers], for more information see [PlayerUI].
+ * or [clearPlayers], for more information see [TrackedPlayerUI].
  *
  * @see SuppliedBossbar
- * @see PlayerUI
+ * @see TrackedPlayerUI
  */
-public abstract class CustomBossbar: PlayerUI(), BossbarSupplier {
+public abstract class CustomBossbar: TrackedPlayerUI(), BossbarSupplier {
     internal val uuid: UUID = Mth.createInsecureUUID()
 
     final override fun onAddPlayer(player: ServerPlayer) {

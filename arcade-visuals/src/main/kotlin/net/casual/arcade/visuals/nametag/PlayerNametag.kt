@@ -4,11 +4,12 @@
  */
 package net.casual.arcade.visuals.nametag
 
-import me.senseiwells.nametag.api.NameTag
-import me.senseiwells.nametag.impl.NameTagUtils.addNameTag
-import me.senseiwells.nametag.impl.NameTagUtils.removeNameTag
-import me.senseiwells.nametag.impl.ShiftHeight
-import net.casual.arcade.visuals.core.PlayerUI
+import net.casual.arcade.nametags.Nametag
+import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.addNametag
+import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.removeNametag
+import net.casual.arcade.utils.TimeUtils.Ticks
+import net.casual.arcade.utils.time.MinecraftTimeDuration
+import net.casual.arcade.visuals.core.TrackedPlayerUI
 import net.casual.arcade.visuals.elements.ComponentElements
 import net.casual.arcade.visuals.elements.PlayerSpecificElement
 import net.casual.arcade.visuals.predicate.PlayerObserverPredicate
@@ -36,12 +37,12 @@ import java.util.function.Consumer
  * a player's health to their teammates and spectators but
  * not to enemies.
  *
- * @param tag The [ComponentElements] to get the player's nametag.
+ * @param tag The [PlayerSpecificElement] to get the player's nametag.
  * @param observable The predicate to determine which
  * players can see the player's nametag.
- * @see PlayerUI
+ * @see TrackedPlayerUI
  */
-public class PlayerNameTag(
+public class PlayerNametag(
     /**
      * The [ComponentElements] to get the player's nametag.
      */
@@ -50,20 +51,16 @@ public class PlayerNameTag(
      * The predicate to determine which players can see
      * the player's nametag.
      */
-    public val observable: PlayerObserverPredicate = PlayerObserverPredicate { _, _ -> true },
-): PlayerUI(), NameTag {
-    override val updateInterval: Int
-        get() = this.interval
+    private val observable: PlayerObserverPredicate = PlayerObserverPredicate { _, _ -> true },
+): TrackedPlayerUI(), Nametag {
+    override val updateInterval: MinecraftTimeDuration
+        get() = this.interval.Ticks
 
-    override fun getComponent(entity: Entity): Component {
-        if (entity !is ServerPlayer) {
-            throw IllegalArgumentException("Cannot get ArcadeNameTag component for non-player!")
+    override fun getComponent(observee: Entity): Component {
+        if (observee !is ServerPlayer) {
+            throw IllegalArgumentException("Cannot get PlayerNametag component for non-player!")
         }
-        return this.tag.get(entity)
-    }
-
-    override fun getShift(): ShiftHeight {
-        return ShiftHeight.SMALL
+        return this.tag.get(observee)
     }
 
     override fun isObservable(observee: Entity, observer: ServerPlayer): Boolean {
@@ -71,14 +68,14 @@ public class PlayerNameTag(
     }
 
     override fun onAddPlayer(player: ServerPlayer) {
-        player.addNameTag(this)
+        player.addNametag(this)
     }
 
     override fun onRemovePlayer(player: ServerPlayer) {
-        player.removeNameTag(this)
+        player.removeNametag(this)
     }
 
     override fun resendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
-        // We do not need to handle this, CustomNameTags already handles it for us :)
+
     }
 }

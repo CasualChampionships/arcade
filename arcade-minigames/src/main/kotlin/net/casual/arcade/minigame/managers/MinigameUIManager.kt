@@ -8,21 +8,18 @@ import it.unimi.dsi.fastutil.objects.ReferenceArrayList
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
-import net.casual.arcade.events.server.player.PlayerJoinEvent
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.annotation.ListenerFlags
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
 import net.casual.arcade.minigame.ready.MinigamePlayerReadyHandler
 import net.casual.arcade.minigame.ready.MinigameTeamReadyHandler
 import net.casual.arcade.minigame.ready.ReadyChecker
-import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.visuals.bossbar.CustomBossbar
 import net.casual.arcade.visuals.core.PlayerUI
 import net.casual.arcade.visuals.core.TickableUI
 import net.casual.arcade.visuals.countdown.Countdown
 import net.casual.arcade.visuals.countdown.TitledCountdown
-import net.casual.arcade.visuals.nametag.PlayerNameTag
+import net.casual.arcade.visuals.nametag.PlayerNametag
 import net.casual.arcade.visuals.sidebar.Sidebar
 import net.casual.arcade.visuals.tab.PlayerListDisplay
 import net.minecraft.network.protocol.Packet
@@ -45,7 +42,7 @@ public class MinigameUIManager(
     private val minigame: Minigame
 ) {
     private val bossbars = ReferenceArrayList<CustomBossbar>()
-    private val nametags = ReferenceArrayList<PlayerNameTag>()
+    private val nametags = ReferenceArrayList<PlayerNametag>()
     private val tickables = ReferenceLinkedOpenHashSet<TickableUI>()
 
     private var sidebar: Sidebar? = null
@@ -116,28 +113,28 @@ public class MinigameUIManager(
     }
 
     /**
-     * This adds a [PlayerNameTag] to the minigame.
+     * This adds a [PlayerNametag] to the minigame.
      *
      * This name tag will be applied to all players in
      * the minigame.
      *
      * @param tag The name tag to add.
-     * @see PlayerNameTag
+     * @see PlayerNametag
      */
-    public fun addNameTag(tag: PlayerNameTag) {
+    public fun addNametag(tag: PlayerNametag) {
         this.nametags.add(tag)
         this.loadUI(tag)
     }
 
     /**
-     * This removes a [PlayerNameTag] from the minigame.
+     * This removes a [PlayerNametag] from the minigame.
      *
      * All players who had the nametag will no longer be
      * displayed the nametag.
      *
      * @param tag The nametag to remove.
      */
-    public fun removeNameTag(tag: PlayerNameTag) {
+    public fun removeNametag(tag: PlayerNametag) {
         if (this.nametags.remove(tag)) {
             this.removeUI(tag)
         }
@@ -146,7 +143,7 @@ public class MinigameUIManager(
     /**
      * This removes **ALL** nametags from the minigame.
      */
-    public fun removeAllNameTags() {
+    public fun removeAllNametags() {
         this.removeAllUI(this.nametags)
     }
 

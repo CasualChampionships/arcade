@@ -6,17 +6,17 @@ package net.casual.arcade.minigame.task.impl
 
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.scheduler.task.Task
-import net.casual.arcade.visuals.nametag.PlayerNameTag
+import net.casual.arcade.visuals.nametag.PlayerNametag
 
-public open class NameTagTask(
+public open class NametagTask(
     private val minigame: Minigame,
-    private val tag: PlayerNameTag
+    private val nametag: PlayerNametag
 ): Task {
     init {
-        this.minigame.ui.addNameTag(this.tag)
+        this.minigame.ui.addNametag(this.nametag)
     }
 
     final override fun run() {
-        this.minigame.ui.removeNameTag(this.tag)
+        this.minigame.ui.removeNametag(this.nametag)
     }
 }

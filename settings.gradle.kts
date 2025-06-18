@@ -10,6 +10,7 @@ include(
     ":arcade-extensions",
     ":arcade-items",
     ":arcade-minigames",
+    ":arcade-nametags",
     ":arcade-npcs",
     ":arcade-resource-pack",
     ":arcade-resource-pack-host",

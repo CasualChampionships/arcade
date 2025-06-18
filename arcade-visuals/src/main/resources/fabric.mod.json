@@ -25,8 +25,7 @@
     "minecraft": "${minecraft_dependency}",
     "fabricloader": ">=${fabric_loader_dependency}",
     "fabric-language-kotlin": ">=${fabric_kotlin_dependency}",
-    "sgui": ">=${sgui_dependency}",
-    "nametag": ">=${custom_nametags_dependency}"
+    "sgui": ">=${sgui_dependency}"
   },
   "custom": {
     "modmenu": {

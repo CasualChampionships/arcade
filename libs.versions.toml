@@ -8,7 +8,6 @@ polymer             = "0.12.3+1.21.5"
 sgui                = "1.9.0+1.21.5"
 permissions         = "0.3.3"
 server-translations = "2.5.0+1.21.5-rc1"
-custom-nametags     = "0.4.3+1.21.5"
 server-replay       = "2.0.0+1.21.4"
 inject              = "3.1.3"
 debug-tools-api     = "1.0.3+1.21.4"
@@ -29,7 +28,6 @@ polymer-virtual-entity = { module = "eu.pb4:polymer-virtual-entity"       , vers
 permissions            = { module = "me.lucko:fabric-permissions-api"     , version.ref = "permissions" }
 sgui                   = { module = "eu.pb4:sgui"                         , version.ref = "sgui" }
 server-translations    = { module = "xyz.nucleoid:server-translations-api", version.ref = "server-translations" }
-custom-nametags        = { module = "me.senseiwells:custom-nametags"      , version.ref = "custom-nametags" }
 server-replay          = { module = "me.senseiwells:server-replay"        , version.ref = "server-replay" }
 debug-tools-api        = { module = "me.senseiwells:debug-tools-api"      , version.ref = "debug-tools-api" }
 
