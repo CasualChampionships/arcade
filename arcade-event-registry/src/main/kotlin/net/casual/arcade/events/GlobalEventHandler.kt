@@ -7,9 +7,6 @@ package net.casual.arcade.events
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import it.unimi.dsi.fastutil.objects.ObjectSets
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
-import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
-import net.casual.arcade.events.common.CancellableEvent
 import net.casual.arcade.events.common.Event
 import net.casual.arcade.events.common.MissingExecutorEvent
 import net.casual.arcade.utils.ServerUtils
@@ -17,9 +14,7 @@ import net.casual.arcade.utils.addSorted
 import net.minecraft.client.Minecraft
 import net.minecraft.util.thread.ReentrantBlockableEventLoop
 import org.apache.logging.log4j.LogManager
-import org.jetbrains.annotations.ApiStatus.Experimental
 import java.util.concurrent.Executor
-import java.util.function.Consumer
 
 /**
  * Object class that is responsible for broadcasting

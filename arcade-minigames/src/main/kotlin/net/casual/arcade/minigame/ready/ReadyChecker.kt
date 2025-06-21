@@ -6,6 +6,7 @@ package net.casual.arcade.minigame.ready
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.scheduler.task.Completable
+import net.casual.arcade.utils.PlayerUtils.levelServer
 import net.casual.arcade.utils.PlayerUtils.player
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
@@ -107,7 +108,7 @@ public class ReadyChecker(
         val completable = Completable.Impl()
         for (player in players) {
             val uuid = player.uuid
-            val server = player.server
+            val server = player.levelServer
             this.players[uuid] = ReadyState.Awaiting
             this.playerHandler.broadcastReadyCheck(
                 player,

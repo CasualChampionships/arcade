@@ -73,7 +73,7 @@ public data class LocationWithLevel<L: Level>(
             get() = LocationWithLevel(this.location, this.level())
 
         public val ServerPlayer.locationWithLevel: LocationWithLevel<ServerLevel>
-            get() = LocationWithLevel(this.location, this.serverLevel())
+            get() = LocationWithLevel(this.location, this.level())
 
         public fun <L: Level> L.asLocation(
             position: Vec3 = Vec3.ZERO,

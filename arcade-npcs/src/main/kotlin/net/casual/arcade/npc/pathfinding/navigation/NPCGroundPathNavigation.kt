@@ -35,6 +35,7 @@ public open class NPCGroundPathNavigation(player: FakePlayer): NPCPathNavigation
         return Vec3(this.player.x, getSurfaceY().toDouble(), this.player.z)
     }
 
+    @Suppress("DEPRECATION")
     override fun createPath(pos: BlockPos, accuracy: Int): Path? {
         var newPos = pos
         val levelChunk = this.level.chunkSource.getChunkNow(

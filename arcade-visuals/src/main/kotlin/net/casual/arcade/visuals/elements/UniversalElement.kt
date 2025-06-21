@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.visuals.elements
 
+import net.casual.arcade.utils.PlayerUtils.levelServer
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import org.jetbrains.annotations.ApiStatus.NonExtendable
@@ -25,7 +26,7 @@ public fun interface UniversalElement<E: Any>: PlayerSpecificElement<E> {
 
     @NonExtendable
     override fun get(player: ServerPlayer): E {
-        return this.get(player.server)
+        return this.get(player.levelServer)
     }
 
     @NonExtendable

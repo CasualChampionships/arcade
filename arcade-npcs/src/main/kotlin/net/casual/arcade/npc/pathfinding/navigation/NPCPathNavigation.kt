@@ -6,8 +6,8 @@ package net.casual.arcade.npc.pathfinding.navigation
 
 import me.senseiwells.debug.api.server.DebugToolsPackets
 import net.casual.arcade.npc.FakePlayer
-import net.casual.arcade.npc.pathfinding.evaluator.NPCNodeEvaluator
 import net.casual.arcade.npc.pathfinding.NPCPathfinder
+import net.casual.arcade.npc.pathfinding.evaluator.NPCNodeEvaluator
 import net.casual.arcade.utils.isOf
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -19,7 +19,9 @@ import net.minecraft.util.profiling.Profiler
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.level.PathNavigationRegion
-import net.minecraft.world.level.pathfinder.*
+import net.minecraft.world.level.pathfinder.Path
+import net.minecraft.world.level.pathfinder.PathType
+import net.minecraft.world.level.pathfinder.WalkNodeEvaluator
 import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
 import java.util.stream.Collectors
@@ -61,7 +63,7 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
         get() = maxOf(this.getFollowRange().toFloat(), this.requiredPathLength)
 
     public val level: ServerLevel
-        get() = this.player.serverLevel()
+        get() = this.player.level()
 
     public fun updatePathfinderMaxVisitedNodes() {
         val maxNodes = Mth.floor(this.maxPathLength * 16.0f)
@@ -325,7 +327,7 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
 
     protected fun isClearForMovementBetween(player: FakePlayer, start: Vec3, end: Vec3, allowSwimming: Boolean): Boolean {
         val adjustedEnd = Vec3(end.x, end.y + player.bbHeight * 0.5, end.z)
-        return player.serverLevel().clip(
+        return player.level().clip(
             ClipContext(
                 start,
                 adjustedEnd,

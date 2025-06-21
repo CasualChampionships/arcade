@@ -111,7 +111,7 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
                 return packet.asClientGamePacket()
             }
 
-            val vehicle = player.serverLevel().getEntity(packet.vehicle) ?: return packet
+            val vehicle = player.level().getEntity(packet.vehicle) ?: return packet
             val holder = vehicle.getExtension<EntityNametagExtension>().getHolder()
             if (holder != null && holder.isMountedToOwner()) {
                 val updated = VirtualEntityUtils.createRidePacket(packet.vehicle, packet.passengers + holder.root.id)

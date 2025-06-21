@@ -9,7 +9,6 @@ import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.events.server.player.PlayerJoinEvent
 import net.casual.arcade.events.server.player.PlayerLeaveEvent
-import net.casual.arcade.extensions.DataExtension
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
 import net.casual.arcade.minigame.Minigame
@@ -17,12 +16,11 @@ import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.minigame.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.JsonUtils
+import net.casual.arcade.utils.PlayerUtils.levelServer
 import net.minecraft.core.UUIDUtil
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtAccounter
 import net.minecraft.nbt.NbtIo
-import net.minecraft.nbt.Tag
 import net.minecraft.server.level.ServerPlayer
 import java.io.IOException
 import java.nio.file.Path
@@ -85,7 +83,7 @@ internal class PlayerMinigameExtension(
     }
 
     private fun getPath(): Path {
-        return Minigames.getPath(this.player.server)
+        return Minigames.getPath(this.player.levelServer)
             .resolve("players")
             .resolve(this.player.stringUUID + ".nbt")
     }

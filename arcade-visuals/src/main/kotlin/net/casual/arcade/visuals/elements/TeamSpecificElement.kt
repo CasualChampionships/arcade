@@ -5,6 +5,7 @@
 package net.casual.arcade.visuals.elements
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
+import net.casual.arcade.utils.PlayerUtils.levelServer
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
@@ -15,7 +16,7 @@ public interface TeamSpecificElement<E: Any>: PlayerSpecificElement<E> {
 
     @NonExtendable
     override fun get(player: ServerPlayer): E {
-        return this.get(player.server, player.team)
+        return this.get(player.levelServer, player.team)
     }
 
     @NonExtendable

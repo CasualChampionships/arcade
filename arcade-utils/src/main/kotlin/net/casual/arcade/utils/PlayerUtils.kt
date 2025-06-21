@@ -45,6 +45,10 @@ public object PlayerUtils {
     private val HEALTH_BOOST = ResourceUtils.arcade("health_boost")
 
     @JvmStatic
+    public val ServerPlayer.levelServer: MinecraftServer
+        get() = this.level().server
+
+    @JvmStatic
     public val ServerPlayer.isSurvival: Boolean
         get() = this.isGameMode(GameType.SURVIVAL)
 
@@ -180,7 +184,7 @@ public object PlayerUtils {
         val item = stack.item
         this.inventory.add(stack)
         if (stack.count < count) {
-            val level = this.serverLevel()
+            val level = this.level()
             level.playSound(
                 null, this.x, this.y, this.z,
                 SoundEvents.ITEM_PICKUP,
@@ -204,7 +208,7 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.spoofTeam(team: PlayerTeam) {
-        this.server.playerList.broadcastAll(
+        this.levelServer.playerList.broadcastAll(
             ClientboundSetPlayerTeamPacket.createPlayerPacket(team, this.scoreboardName, ADD)
         )
     }
@@ -270,14 +274,14 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.revokeAllAdvancements() {
-        for (advancement in this.server.advancements.allAdvancements) {
+        for (advancement in this.levelServer.advancements.allAdvancements) {
             this.revokeAdvancement(advancement)
         }
     }
 
     @JvmStatic
     public fun ServerPlayer.grantAllRecipesSilently() {
-        for (recipe in this.server.recipeManager.recipes) {
+        for (recipe in this.levelServer.recipeManager.recipes) {
             this.recipeBook.add(recipe.id)
         }
         this.markSilentRecipesDirty()
@@ -285,7 +289,7 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.revokeAllRecipes() {
-        this.resetRecipes(this.server.recipeManager.recipes)
+        this.resetRecipes(this.levelServer.recipeManager.recipes)
     }
 
     @JvmStatic
@@ -390,12 +394,12 @@ public object PlayerUtils {
     ) {
         val formatted = PlayerFormattedChat(prefix, username, message)
         val decorated = formatted.asComponent { CommonComponents.EMPTY }
-        for (player in this.server.playerList.players) {
+        for (player in this.levelServer.playerList.players) {
             if (filter.test(player)) {
                 player.sendSystemMessage(decorated)
             }
         }
-        this.server.sendSystemMessage(decorated)
+        this.levelServer.sendSystemMessage(decorated)
     }
 
     @JvmStatic
@@ -415,7 +419,7 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.broadcastUnsignedMessage(message: PlayerChatMessage) {
-        this.server.playerList.broadcastChatMessage(message, this, ChatType.bind(ChatType.CHAT, this))
+        this.levelServer.playerList.broadcastChatMessage(message, this, ChatType.bind(ChatType.CHAT, this))
     }
 
     @JvmStatic
@@ -443,12 +447,12 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.addToTeam(team: PlayerTeam) {
-        this.server.scoreboard.addPlayerToTeam(this.scoreboardName, team)
+        this.levelServer.scoreboard.addPlayerToTeam(this.scoreboardName, team)
     }
 
     @JvmStatic
     public fun ServerPlayer.removeFromTeam() {
-        this.server.scoreboard.removePlayerFromTeam(this.scoreboardName)
+        this.levelServer.scoreboard.removePlayerFromTeam(this.scoreboardName)
     }
 
     @JvmStatic

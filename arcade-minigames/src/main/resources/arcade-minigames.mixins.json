@@ -24,7 +24,6 @@
     "ServerPlayerGameModeMixin",
     "ServerPlayerMixin",
     "advancement.PlayerAdvancementMixin",
-    "bugfixes.HotbarGuiMixin",
     "bugfixes.LeashableMixin",
     "bugfixes.LeashDataInvoker",
     "gamemode.EntityMixin",

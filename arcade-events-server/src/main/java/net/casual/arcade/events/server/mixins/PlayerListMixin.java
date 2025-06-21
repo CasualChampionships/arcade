@@ -109,7 +109,7 @@ public class PlayerListMixin {
 		if (event.getJoinMessageModification() == JoinMessageModification.Hide) {
 			return;
 		}
-		if (event.getJoinMessageModification() == JoinMessageModification.Delay || event.getDelayJoinMessage()) {
+		if (event.getJoinMessageModification() == JoinMessageModification.Delay) {
 			delayedRef.set(() -> PlayerSystemMessageEvent.broadcast(player, instance, message, bypassHiddenChat, original));
 		} else {
 			PlayerSystemMessageEvent.broadcast(player, instance, message, bypassHiddenChat, original);

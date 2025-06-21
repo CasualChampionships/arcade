@@ -17,7 +17,7 @@ public fun interface LevelSpecificElement<E: Any>: PlayerSpecificElement<E> {
 
     @NonExtendable
     override fun get(player: ServerPlayer): E {
-        return this.get(player.serverLevel())
+        return this.get(player.level())
     }
 
     @NonExtendable

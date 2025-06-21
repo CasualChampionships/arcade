@@ -20,7 +20,6 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.*
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.commands.Commands
 import net.minecraft.server.level.ServerPlayer
 
 /**

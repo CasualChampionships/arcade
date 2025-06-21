@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin {
-	@Shadow public abstract ServerLevel serverLevel();
+	@Shadow public abstract ServerLevel level();
 
 	@ModifyExpressionValue(
 		method = "teleport(Lnet/minecraft/world/level/portal/TeleportTransition;)Lnet/minecraft/server/level/ServerPlayer;",
@@ -33,7 +33,7 @@ public abstract class ServerPlayerMixin {
 		}
 	)
 	private ResourceKey<Level> replaceVanillaKey(ResourceKey<Level> original) {
-		return VanillaLikeLevel.getReplacementDestinationFor(this.serverLevel(), original);
+		return VanillaLikeLevel.getReplacementDestinationFor(this.level(), original);
 	}
 
 	@Redirect(
@@ -44,17 +44,6 @@ public abstract class ServerPlayerMixin {
 		)
 	)
 	private ResourceKey<Level> getLikeDimension(ServerLevel instance) {
-		return VanillaLikeLevel.getLikeDimension(instance);
-	}
-
-	@Redirect(
-		method = "triggerDimensionChangeTriggers",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/world/level/Level;dimension()Lnet/minecraft/resources/ResourceKey;"
-		)
-	)
-	private ResourceKey<Level> getLikeDimension(Level instance) {
 		return VanillaLikeLevel.getLikeDimension(instance);
 	}
 }

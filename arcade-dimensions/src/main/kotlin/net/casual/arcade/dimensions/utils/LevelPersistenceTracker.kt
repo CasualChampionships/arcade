@@ -21,8 +21,6 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.storage.LevelResource
-import org.apache.commons.io.FileUtils
-import org.apache.commons.io.file.PathUtils
 import org.jetbrains.annotations.ApiStatus.Internal
 import java.io.IOException
 import java.nio.file.Path

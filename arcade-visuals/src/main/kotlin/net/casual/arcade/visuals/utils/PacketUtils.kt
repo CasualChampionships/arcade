@@ -40,7 +40,7 @@ public inline fun <reified T: Any> ClientboundSetEntityDataPacket.modify(
     accessor: EntityDataAccessor<T>,
     modifier: (observee: Entity, observer: ServerPlayer, data: T) -> T
 ): ClientboundSetEntityDataPacket {
-    val observee = player.serverLevel().getEntity(this.id) ?: return this
+    val observee = player.level().getEntity(this.id) ?: return this
 
     val items = this.packedItems
     val data = ArrayList<DataValue<*>>()

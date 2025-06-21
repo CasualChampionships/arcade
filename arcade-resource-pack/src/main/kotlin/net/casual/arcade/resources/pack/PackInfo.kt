@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.resources.pack
 
-import net.casual.arcade.host.data.HostedPack
 import net.casual.arcade.host.data.ResolvablePackURL
 import net.minecraft.network.chat.Component
 import java.util.*

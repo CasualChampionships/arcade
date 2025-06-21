@@ -152,7 +152,7 @@ public class MinigameMusicManager(
         player.stopMusic(SoundEvents.MUSIC_UNDER_WATER)
 
         // All the biome music
-        val packets = cached.computeIfAbsent(player.serverLevel()) { level ->
+        val packets = cached.computeIfAbsent(player.level()) { level ->
             val biomes = level.chunkSource.generator.biomeSource.possibleBiomes()
             val packets = ArrayList<ClientboundStopSoundPacket>()
             for (biome in biomes) {

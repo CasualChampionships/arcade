@@ -128,7 +128,7 @@ public open class NPCMoveControl(
             }
         }
 
-        this.player.setJumping(this.jump)
+        this.player.isJumping = this.jump
         this.jump = false
     }
 

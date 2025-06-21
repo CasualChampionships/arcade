@@ -45,7 +45,7 @@ public class NametagElement(
         this.background.textOpacity = 30.toByte()
         this.foreground.seeThrough = false
         this.foreground.textOpacity = 255.toByte()
-        this.foreground.setBackground(0)
+        this.foreground.background = 0
     }
 
     public fun getMountingId(): Int {

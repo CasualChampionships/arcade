@@ -38,8 +38,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-import static net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket.Action.PRESS_SHIFT_KEY;
-
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPacketListenerImpl {
 	@Unique private static final ThreadLocal<PlayerLeaveEvent> PLAYER_LEAVE_CONTEXT = new ThreadLocal<>();
@@ -141,14 +139,14 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 	}
 
 	@Inject(
-		method = "handlePlayerCommand",
+		method = "handlePlayerInput",
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/server/level/ServerPlayer;setShiftKeyDown(Z)V"
 		)
 	)
-	private void onSetSneaking(ServerboundPlayerCommandPacket packet, CallbackInfo ci) {
-		PlayerSetSneakingEvent event = new PlayerSetSneakingEvent(this.player, packet.getAction() == PRESS_SHIFT_KEY);
+	private void onSetSneaking(ServerboundPlayerInputPacket packet, CallbackInfo ci) {
+		PlayerSetSneakingEvent event = new PlayerSetSneakingEvent(this.player, packet.input().shift());
 		GlobalEventHandler.Server.broadcast(event);
 	}
 

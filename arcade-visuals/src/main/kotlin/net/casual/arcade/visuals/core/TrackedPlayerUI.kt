@@ -5,7 +5,6 @@
 package net.casual.arcade.visuals.core
 
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
-import net.casual.arcade.utils.TimeUtils.Ticks
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.server.level.ServerPlayer

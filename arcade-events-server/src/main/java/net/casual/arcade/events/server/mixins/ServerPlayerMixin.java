@@ -33,10 +33,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player {
-	@Shadow public abstract ServerLevel serverLevel();
-
-	public ServerPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
-		super(level, blockPos, f, gameProfile);
+	public ServerPlayerMixin(Level level, GameProfile gameProfile) {
+		super(level, gameProfile);
 	}
 
 	@Inject(
@@ -78,7 +76,7 @@ public abstract class ServerPlayerMixin extends Player {
 		CallbackInfoReturnable<Entity> cir
 	) {
 		ServerLevel level = transition.newLevel();
-		if (this.serverLevel().dimension() != level.dimension()) {
+		if (this.level().dimension() != level.dimension()) {
 			PlayerDimensionChangeEvent event = new PlayerDimensionChangeEvent((ServerPlayer) (Object) this, level);
 			GlobalEventHandler.Server.broadcast(event);
 		}

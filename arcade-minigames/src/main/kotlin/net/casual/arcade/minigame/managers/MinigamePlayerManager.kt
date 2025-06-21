@@ -13,11 +13,11 @@ import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.events.server.player.PlayerLeaveEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.*
-import net.casual.arcade.minigame.gamemode.ExtendedGameMode.Companion.extendedGameMode
 import net.casual.arcade.minigame.mixins.PlayerListAccessor
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.minigame.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.PlayerUtils.levelServer
 import net.casual.arcade.utils.PlayerUtils.player
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.casual.arcade.utils.math.location.Location.Companion.location
@@ -28,16 +28,16 @@ import net.minecraft.Util
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtAccounter
 import net.minecraft.nbt.NbtIo
-import net.minecraft.nbt.NbtOps
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
+import net.minecraft.util.ProblemReporter
 import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.EntityType
-import net.minecraft.world.entity.ai.attributes.DefaultAttributes
 import net.minecraft.world.level.Level
-import net.minecraft.world.level.dimension.DimensionType
 import net.minecraft.world.level.portal.TeleportTransition
+import net.minecraft.world.level.storage.TagValueInput
+import net.minecraft.world.level.storage.TagValueOutput
+import net.minecraft.world.level.storage.ValueInput
 import org.jetbrains.annotations.ApiStatus.Internal
 import java.nio.file.Files
 import java.nio.file.Path
@@ -424,8 +424,8 @@ public class MinigamePlayerManager(
         (playerList as PlayerListAccessor).playerIo.save(existing)
 
         val copy = this.createNewPlayer(existing)
-        val data = this.data.load(copy)
-        this.updatePlayerLocation(copy, data)
+        val input = this.data.load(copy)
+        this.updatePlayerLocation(copy, input)
         return copy
     }
 
@@ -437,16 +437,16 @@ public class MinigamePlayerManager(
 
         val playerList = this.minigame.server.playerList
         val copy = this.createNewPlayer(existing)
-        val data = (playerList as PlayerListAccessor).playerIo.load(copy)
+        val data = (playerList as PlayerListAccessor).playerIo.load(copy, ProblemReporter.DISCARDING)
         this.updatePlayerLocation(copy, data.getOrNull())
         return copy
     }
 
-    private fun updatePlayerLocation(player: ServerPlayer, data: CompoundTag?) {
+    private fun updatePlayerLocation(player: ServerPlayer, data: ValueInput?) {
         if (data != null) {
-            val key = Level.RESOURCE_KEY_CODEC.parse(NbtOps.INSTANCE, data.get("Dimension")).resultOrPartial().getOrNull()
+            val key = data.read("Dimension", Level.RESOURCE_KEY_CODEC).getOrNull()
             if (key != null) {
-                val level = player.server.getLevel(key)
+                val level = player.levelServer.getLevel(key)
                 if (level != null) {
                     player.teleportTo(player.location.with(level))
                     return
@@ -477,9 +477,10 @@ public class MinigamePlayerManager(
 
         fun save(player: ServerPlayer) {
             try {
-                val tag = player.saveWithoutId(CompoundTag())
+                val output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, player.registryAccess())
+                player.saveWithoutId(output)
                 val temp = Files.createTempFile(this.path, player.stringUUID + "-", ".dat")
-                NbtIo.writeCompressed(tag, temp)
+                NbtIo.writeCompressed(output.buildResult(), temp)
                 val current = this.path.resolve(player.stringUUID + ".dat")
                 val old = this.path.resolve(player.stringUUID + ".dat_old")
                 Util.safeReplaceFile(current, temp, old)
@@ -488,11 +489,12 @@ public class MinigamePlayerManager(
             }
         }
 
-        fun load(player: ServerPlayer): CompoundTag? {
+        fun load(player: ServerPlayer): ValueInput? {
             val optional = this.load(player, ".dat")
             val tag = optional ?: this.load(player, ".dat_old") ?: return null
-            player.load(tag)
-            return tag
+            val input = TagValueInput.create(ProblemReporter.DISCARDING, player.registryAccess(), tag)
+            player.load(input)
+            return input
         }
 
         private fun load(player: ServerPlayer, suffix: String): CompoundTag? {

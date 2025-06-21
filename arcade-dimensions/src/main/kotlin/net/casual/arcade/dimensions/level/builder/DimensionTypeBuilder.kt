@@ -33,6 +33,7 @@ public class DimensionTypeBuilder {
     public var infiniburn: TagKey<Block> = BlockTags.INFINIBURN_OVERWORLD
     public var effects: ResourceLocation = BuiltinDimensionTypes.OVERWORLD_EFFECTS
     public var ambientLight: Float = 0.0F
+    public var cloudHeight: Int? = null
 
     public var piglinSafe: Boolean = false
     public var hasRaids: Boolean = true
@@ -109,6 +110,11 @@ public class DimensionTypeBuilder {
         return this
     }
 
+    public fun cloudHeight(height: Int): DimensionTypeBuilder {
+        this.cloudHeight = height
+        return this
+    }
+
     public fun piglinSafe(piglinSafe: Boolean): DimensionTypeBuilder {
         this.piglinSafe = piglinSafe
         return this
@@ -145,6 +151,7 @@ public class DimensionTypeBuilder {
             this.infiniburn,
             this.effects,
             this.ambientLight,
+            Optional.ofNullable(this.cloudHeight),
             MonsterSettings(
                 this.piglinSafe,
                 this.hasRaids,

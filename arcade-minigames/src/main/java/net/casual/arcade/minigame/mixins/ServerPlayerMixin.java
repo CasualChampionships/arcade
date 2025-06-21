@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerPlayer.class)
 public class ServerPlayerMixin {
-	@Shadow @Final public MinecraftServer server;
+	@Shadow @Final private MinecraftServer server;
 
 	@ModifyExpressionValue(
 		method = "isPvpAllowed",
@@ -68,28 +68,30 @@ public class ServerPlayerMixin {
 		}
 	}
 
-	@ModifyExpressionValue(
-		method = "<init>",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/server/level/ServerLevel;getSharedSpawnPos()Lnet/minecraft/core/BlockPos;",
-			ordinal = 1
-		)
+	@Inject(
+		method = "adjustSpawnLocation",
+		at = @At("HEAD"),
+		cancellable = true
 	)
-	private BlockPos getSharedSpawnPosition(BlockPos original) {
+	private void modifyAdjustedSpawnLocation(
+		ServerLevel level,
+		BlockPos pos,
+		CallbackInfoReturnable<BlockPos> cir
+	) {
 		ServerPlayer player = (ServerPlayer) (Object) this;
-		ServerPlayer old = this.server.getPlayerList().getPlayer(player.getUUID());
-		if (old == null) {
-			return original;
+		Minigame minigame = MinigameUtils.getMinigame(player);
+		if (minigame == null) {
+			ServerPlayer old = this.server.getPlayerList().getPlayer(player.getUUID());
+			if (old != null) {
+				minigame = MinigameUtils.getMinigame(old);
+			}
 		}
-		Minigame minigame = MinigameUtils.getMinigame(old);
 		if (minigame != null) {
 			BlockPos spawnPosition = minigame.getLevels().getSpawn().position(player);
 			if (spawnPosition != null) {
-				return spawnPosition;
+				cir.setReturnValue(spawnPosition);
 			}
 		}
-		return original;
 	}
 
 	@ModifyExpressionValue(

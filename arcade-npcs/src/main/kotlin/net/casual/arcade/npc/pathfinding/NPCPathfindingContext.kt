@@ -19,7 +19,7 @@ public class NPCPathfindingContext(
 ) {
     private val context by lazy { this.createPathfindingContext() }
 
-    private val cache = this.player.serverLevel().pathTypeCache
+    private val cache = this.player.level().pathTypeCache
     private val pos = BlockPos.MutableBlockPos()
 
     public val position: BlockPos = this.player.blockPosition()

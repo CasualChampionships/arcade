@@ -9,7 +9,6 @@ import net.minecraft.core.MappedRegistry
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceKey
-import org.jetbrains.annotations.ApiStatus.Internal
 
 public abstract class RegistrySupplier {
     private val loaders = ArrayList<() -> Unit>()

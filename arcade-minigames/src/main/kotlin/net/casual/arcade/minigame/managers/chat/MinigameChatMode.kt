@@ -10,6 +10,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.managers.MinigameChatManager
 import net.casual.arcade.minigame.utils.MinigameRegistries
+import net.casual.arcade.utils.PlayerUtils.levelServer
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.chat.PlayerChatFormatter
 import net.casual.arcade.utils.codec.CodecProvider
@@ -163,7 +164,7 @@ public interface MinigameChatMode {
             minigame: Minigame
         ): Boolean {
             val team = receiver.team ?: return false
-            return team.isAlliedTo(sender.team) || (mode is Team && team.isAlliedTo(mode.getTeam(sender.server)))
+            return team.isAlliedTo(sender.team) || (mode is Team && team.isAlliedTo(mode.getTeam(sender.levelServer)))
         }
 
         override fun switchedToMessage(receiver: ServerPlayer): Component {
@@ -176,7 +177,7 @@ public interface MinigameChatMode {
     }
 
     public class Team private constructor(internal val teamName: String): MinigameChatMode {
-        private val formatter = PlayerChatFormatter.createTeamFormatter { this.getTeam(it.server) }
+        private val formatter = PlayerChatFormatter.createTeamFormatter { this.getTeam(it.levelServer) }
 
         override val name: Component = OwnTeam.name
 
@@ -197,12 +198,12 @@ public interface MinigameChatMode {
             if (mode == this) {
                 return true
             }
-            val team = this.getTeam(sender.server)
+            val team = this.getTeam(sender.levelServer)
             return team != null && team.isAlliedTo(receiver.team)
         }
 
         override fun switchedToMessage(receiver: ServerPlayer): Component {
-            val team = this.getTeam(receiver.server)
+            val team = this.getTeam(receiver.levelServer)
             val name = team?.formattedDisplayName ?: Component.translatable("minigame.chat.mode.switch.unknown")
             return Component.translatable("minigame.chat.mode.switch.specificTeam", name)
         }

@@ -9,7 +9,6 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
-import it.unimi.dsi.fastutil.objects.ReferenceSet
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
 import net.casual.arcade.minigame.Minigame

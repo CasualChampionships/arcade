@@ -72,7 +72,7 @@ object ArcadeTest: ModInitializer {
                 val element = SpecificComponentDisplayElement { p -> Component.literal("hi ${p.scoreboardName}") }
                 val holder = ElementHolder()
                 holder.addElement(element)
-                ChunkAttachment.ofTicking(holder, it.player.serverLevel(), it.player.position())
+                ChunkAttachment.ofTicking(holder, it.player.level(), it.player.position())
             }
         }
     }

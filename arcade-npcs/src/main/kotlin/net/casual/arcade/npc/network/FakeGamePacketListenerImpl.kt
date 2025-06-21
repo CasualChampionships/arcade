@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.npc.network
 
+import io.netty.channel.ChannelFutureListener
 import net.minecraft.network.Connection
-import net.minecraft.network.PacketSendListener
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket
 import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket
@@ -26,7 +26,7 @@ public open class FakeGamePacketListenerImpl(
         this.player.doTick()
     }
 
-    override fun send(packet: Packet<*>, listener: PacketSendListener?) {
+    override fun send(packet: Packet<*>, listener: ChannelFutureListener?) {
         if (packet is ClientboundPlayerPositionPacket) {
             this.handleAcceptTeleportPacket(ServerboundAcceptTeleportationPacket(packet.id))
         }

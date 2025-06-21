@@ -15,9 +15,9 @@ import net.casual.arcade.npc.network.FakeConnection
 import net.casual.arcade.npc.network.FakeGamePacketListenerImpl
 import net.casual.arcade.npc.network.FakeLoginPacketListenerImpl
 import net.casual.arcade.npc.pathfinding.navigation.NPCAmphibiousPathNavigation
-import net.casual.arcade.npc.pathfinding.navigation.NPCGroundPathNavigation
 import net.casual.arcade.npc.pathfinding.navigation.NPCPathNavigation
 import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.PlayerUtils.levelServer
 import net.minecraft.Util
 import net.minecraft.core.UUIDUtil
 import net.minecraft.network.Connection
@@ -89,9 +89,9 @@ public open class FakePlayer protected constructor(
         // The player will never send move packets,
         // so we need to manually move the player.
         // This keeps the ticket manager updated
-        if (this.server.tickCount % 10 == 0) {
+        if (this.levelServer.tickCount % 10 == 0) {
             this.connection.resetPosition()
-            this.serverLevel().chunkSource.move(this)
+            this.level().chunkSource.move(this)
         }
         super.tick()
     }
@@ -163,7 +163,7 @@ public open class FakePlayer protected constructor(
     }
 
     protected open fun sendDebugPackets() {
-        DebugToolsPackets.getInstance().sendBrainDumpPacket(this.serverLevel(), this)
+        DebugToolsPackets.getInstance().sendBrainDumpPacket(this.level(), this)
     }
 
     private fun isMovingSlowly(): Boolean {

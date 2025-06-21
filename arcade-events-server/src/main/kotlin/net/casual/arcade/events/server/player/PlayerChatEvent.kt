@@ -6,7 +6,6 @@ package net.casual.arcade.events.server.player
 
 import net.casual.arcade.events.common.CancellableEvent
 import net.casual.arcade.utils.chat.PlayerFormattedChat
-import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.PlayerChatMessage
 import net.minecraft.server.level.ServerPlayer
 import java.util.function.Predicate

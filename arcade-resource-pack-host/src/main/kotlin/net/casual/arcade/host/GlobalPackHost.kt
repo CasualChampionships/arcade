@@ -11,7 +11,6 @@ import io.netty.handler.stream.ChunkedStream
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.casual.arcade.host.data.ResolvablePackURL
 import net.casual.arcade.utils.ArcadeUtils

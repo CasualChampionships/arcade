@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Cancellable;
 import com.mojang.authlib.GameProfile;
+import io.netty.channel.ChannelFutureListener;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.network.ClientboundPacketEvent;
@@ -15,7 +16,6 @@ import net.casual.arcade.events.server.player.PlayerDisconnectEvent;
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent;
 import net.minecraft.network.Connection;
 import net.minecraft.network.DisconnectionDetails;
-import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
@@ -36,7 +36,7 @@ public abstract class ServerCommonPacketListenerImplMixin {
 	@Shadow protected abstract GameProfile playerProfile();
 
 	@ModifyVariable(
-		method = "send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V",
+		method = "send(Lnet/minecraft/network/protocol/Packet;Lio/netty/channel/ChannelFutureListener;)V",
 		at = @At("HEAD"),
 		argsOnly = true
 	)
@@ -61,16 +61,16 @@ public abstract class ServerCommonPacketListenerImplMixin {
 	}
 
 	@WrapOperation(
-		method = "send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V",
+		method = "send(Lnet/minecraft/network/protocol/Packet;Lio/netty/channel/ChannelFutureListener;)V",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/network/Connection;send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;Z)V"
+			target = "Lnet/minecraft/network/Connection;send(Lnet/minecraft/network/protocol/Packet;Lio/netty/channel/ChannelFutureListener;Z)V"
 		)
 	)
 	private void onSendPacket(
 		Connection instance,
 		Packet<?> packet,
-		@Nullable PacketSendListener listener,
+		@Nullable ChannelFutureListener listener,
 		boolean flush,
 		Operation<Void> original
 	) {

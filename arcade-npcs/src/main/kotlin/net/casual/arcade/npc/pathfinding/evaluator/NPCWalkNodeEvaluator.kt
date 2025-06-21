@@ -19,10 +19,8 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.material.Fluids
 import net.minecraft.world.level.pathfinder.*
 import net.minecraft.world.level.pathfinder.Target
-import net.minecraft.world.level.pathfinder.WalkNodeEvaluator
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
-import org.jetbrains.annotations.Contract
 import java.util.function.LongFunction
 import java.util.function.Predicate
 

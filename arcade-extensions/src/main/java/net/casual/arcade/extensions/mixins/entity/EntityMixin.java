@@ -15,13 +15,16 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.Optional;
 
 @Mixin(Entity.class)
 public class EntityMixin implements ExtensionHolder {
@@ -49,28 +52,28 @@ public class EntityMixin implements ExtensionHolder {
         method = "load",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/Entity;readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"
+            target = "Lnet/minecraft/world/entity/Entity;readAdditionalSaveData(Lnet/minecraft/world/level/storage/ValueInput;)V"
         )
     )
-    private void onLoad(CompoundTag compound, CallbackInfo ci) {
+    private void onLoad(ValueInput input, CallbackInfo ci) {
         if ((Object) this instanceof ServerPlayer) {
             return;
         }
-        CompoundTag tag = compound.getCompoundOrEmpty("arcade");
-        ExtensionHolder.deserialize(this, tag);
+        Optional<CompoundTag> optional = input.read("arcade", CompoundTag.CODEC);
+        optional.ifPresent(tag -> ExtensionHolder.deserialize(this, tag));
     }
 
     @Inject(
         method = "saveWithoutId",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/Entity;addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"
+            target = "Lnet/minecraft/world/entity/Entity;addAdditionalSaveData(Lnet/minecraft/world/level/storage/ValueOutput;)V"
         )
     )
-    private void onSave(CompoundTag compound, CallbackInfoReturnable<CompoundTag> cir) {
+    private void onSave(ValueOutput output, CallbackInfo ci) {
         CompoundTag arcade = new CompoundTag();
         ExtensionHolder.serialize(this, arcade);
-        compound.put("arcade", arcade);
+        output.store("arcade", CompoundTag.CODEC, arcade);
     }
 
     @Inject(

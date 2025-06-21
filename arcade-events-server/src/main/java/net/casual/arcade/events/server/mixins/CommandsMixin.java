@@ -14,7 +14,6 @@ import net.casual.arcade.events.server.player.PlayerSendCommandsEvent;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,9 +28,12 @@ import java.util.Map;
 public abstract class CommandsMixin {
 	@Shadow @Final private CommandDispatcher<CommandSourceStack> dispatcher;
 
-	@Shadow protected abstract void fillUsableCommands(CommandNode<CommandSourceStack> rootCommandSource, CommandNode<SharedSuggestionProvider> rootSuggestion, CommandSourceStack source, Map<CommandNode<CommandSourceStack>, CommandNode<SharedSuggestionProvider>> commandNodeToSuggestionNode);
+    @Shadow
+    private static <S> void fillUsableCommands(CommandNode<S> node, CommandNode<S> root, S source, Map<CommandNode<S>, CommandNode<S>> map) {
+		throw new AssertionError();
+	}
 
-	@Inject(
+    @Inject(
 		method = "<init>",
 		at = @At("TAIL")
 	)
@@ -44,20 +46,20 @@ public abstract class CommandsMixin {
 		method = "sendCommands",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/commands/Commands;fillUsableCommands(Lcom/mojang/brigadier/tree/CommandNode;Lcom/mojang/brigadier/tree/CommandNode;Lnet/minecraft/commands/CommandSourceStack;Ljava/util/Map;)V"
+			target = "Lnet/minecraft/commands/Commands;fillUsableCommands(Lcom/mojang/brigadier/tree/CommandNode;Lcom/mojang/brigadier/tree/CommandNode;Ljava/lang/Object;Ljava/util/Map;)V"
 		)
 	)
 	private void onSendCommands(
 		ServerPlayer player,
 		CallbackInfo ci,
-		@Local Map<CommandNode<CommandSourceStack>, CommandNode<SharedSuggestionProvider>> map,
-		@Local RootCommandNode<SharedSuggestionProvider> rootCommandNode
+		@Local Map<CommandNode<CommandSourceStack>, CommandNode<CommandSourceStack>> map,
+		@Local RootCommandNode<CommandSourceStack> root
 	) {
 		PlayerSendCommandsEvent event = new PlayerSendCommandsEvent(player);
 		GlobalEventHandler.Server.broadcast(event);
 		for (RootCommandNode<CommandSourceStack> node : event.getCustomCommandNodes()) {
-			map.put(node, rootCommandNode);
-			this.fillUsableCommands(node, rootCommandNode, player.createCommandSourceStack(), map);
+			map.put(node, root);
+			fillUsableCommands(node, root, player.createCommandSourceStack(), map);
 		}
 	}
 }

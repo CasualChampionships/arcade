@@ -7,6 +7,7 @@ package net.casual.arcade.visuals.tab
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.utils.ClientboundPlayerInfoUpdatePacket
 import net.casual.arcade.utils.EnumUtils
+import net.casual.arcade.utils.PlayerUtils.levelServer
 import net.casual.arcade.visuals.core.TrackedPlayerUI
 import net.casual.arcade.visuals.core.TickableUI
 import net.casual.arcade.visuals.elements.ComponentElements
@@ -139,7 +140,7 @@ public open class PlayerListDisplay(
         }
 
         val hiding = ArrayList<ClientboundPlayerInfoUpdatePacket.Entry>()
-        for (other in player.server.playerList.players) {
+        for (other in player.levelServer.playerList.players) {
             hiding.add(this.hidingClientboundEntry(other, true))
         }
         sender.accept(ClientboundPlayerInfoUpdatePacket(EnumSet.of(Action.UPDATE_LISTED), hiding))
@@ -154,7 +155,7 @@ public open class PlayerListDisplay(
 
     protected fun unsendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
         val hiding = ArrayList<ClientboundPlayerInfoUpdatePacket.Entry>()
-        for (other in player.server.playerList.players) {
+        for (other in player.levelServer.playerList.players) {
             hiding.add(this.hidingClientboundEntry(other, false))
         }
         sender.accept(ClientboundPlayerInfoUpdatePacket(EnumSet.of(Action.UPDATE_LISTED), hiding))

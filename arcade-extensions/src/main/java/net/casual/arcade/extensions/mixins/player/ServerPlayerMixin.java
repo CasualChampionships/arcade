@@ -10,6 +10,7 @@ import net.casual.arcade.extensions.ducks.ExtensionDataHolder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.level.storage.ValueInput;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,12 +31,15 @@ public class ServerPlayerMixin implements ExtensionHolder, ExtensionDataHolder {
 		method = "readAdditionalSaveData",
 		at = @At("TAIL")
 	)
-	private void onLoadPlayer(CompoundTag compound, CallbackInfo ci) {
+	private void onLoadPlayer(ValueInput input, CallbackInfo ci) {
+		CompoundTag data = input.read("arcade", CompoundTag.CODEC).orElse(null);
 		if (this.connection == null) {
-			this.arcade$data = compound.getCompoundOrEmpty("arcade");
+			this.arcade$data = data;
 			return;
 		}
-		ExtensionHolder.deserialize(this, compound.getCompoundOrEmpty("arcade"));
+		if (data != null) {
+			ExtensionHolder.deserialize(this, data);
+		}
 	}
 
 	@Override

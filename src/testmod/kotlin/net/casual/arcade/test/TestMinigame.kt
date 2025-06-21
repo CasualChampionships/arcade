@@ -13,6 +13,7 @@ import net.casual.arcade.utils.ComponentUtils.bold
 import net.casual.arcade.utils.ComponentUtils.italicise
 import net.casual.arcade.utils.ComponentUtils.shadowless
 import net.casual.arcade.utils.ComponentUtils.white
+import net.casual.arcade.utils.PlayerUtils.levelServer
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.recipe.CraftingRecipeBuilder
 import net.casual.arcade.visuals.elements.ComponentElements
@@ -56,7 +57,7 @@ open class TestMinigame(
 
         val sidebar = FixedSidebar(ComponentElements.of(Component.literal("Example!")))
         sidebar.addRow { player ->
-            val delta = (player.server.tickCount % 200 / 2.0F) - 50F
+            val delta = (player.levelServer.tickCount % 200 / 2.0F) - 50F
             val c = Component.empty()
                 .append("□")
                 .append(SpacingFontResources.spaced(2))

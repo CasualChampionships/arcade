@@ -14,15 +14,6 @@ public data class PlayerJoinEvent(
     override val player: ServerPlayer
 ): CancellableEvent.Typed<Component>(), PlayerEvent {
     /**
-     * This will delay the join from just after the [PHASE_INITIALIZED] phase
-     * to just after the [PHASE_POST] phase.
-     *
-     * This cannot be set in the [PHASE_POST] phase as it is too late.
-     */
-    @Deprecated("Use joinMessageModification instead")
-    var delayJoinMessage: Boolean = false
-
-    /**
      * Lets you modify the join message.
      *
      * This cannot be set in the [PHASE_POST] phase as it is too late.
