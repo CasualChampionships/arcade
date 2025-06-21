@@ -7,5 +7,6 @@ loom {
 }
 
 dependencies {
-
+    modApi(libs.polymer.virtual.entity)
+    modImplementation(libs.polymer.core)
 }
