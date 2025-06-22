@@ -39,7 +39,7 @@ public abstract class PackHost {
     private val suppliers = ArrayList<ReadablePackSupplier>()
 
     protected val executor: ExecutorService = Executors.newSingleThreadExecutor(
-        ThreadFactoryBuilder().setNameFormat("resource-pack-host-%d").build()
+        ThreadFactoryBuilder().setNameFormat("resource-pack-host-%d").setDaemon(true).build()
     )
 
     public fun addPack(pack: ReadablePack): HostedPackRef {
