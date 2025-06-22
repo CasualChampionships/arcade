@@ -37,11 +37,10 @@ public abstract class MinecraftServerMixin {
 		method = "stopServer",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/server/MinecraftServer;saveAllChunks(ZZZ)Z",
-			shift = At.Shift.AFTER
+			target = "Lnet/minecraft/server/MinecraftServer;saveAllChunks(ZZZ)Z"
 		)
 	)
-	private void afterSaveAllChunks(CallbackInfo ci) {
+	private void beforeSaveAllChunks(CallbackInfo ci) {
 		for (ServerLevel level : Lists.newArrayList(this.getAllLevels())) {
 			if (level instanceof CustomLevel custom && !custom.getPersistence().shouldSave()) {
 				ArcadeDimensions.delete((MinecraftServer) (Object) this, custom);

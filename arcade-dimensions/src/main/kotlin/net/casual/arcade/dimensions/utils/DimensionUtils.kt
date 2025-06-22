@@ -306,8 +306,9 @@ private fun MinecraftServer.unloadCustomLevel(level: CustomLevel, save: Boolean)
 
         if (save) {
             level.save(null, flush = true, skip = false)
-            level.close()
         }
+
+        level.close()
         ServerWorldEvents.UNLOAD.invoker().onWorldUnload(this, level)
         return true
     }
