@@ -5,7 +5,9 @@
 package net.casual.arcade.border.extensions
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder
+import eu.pb4.polymer.virtualentity.api.attachment.ChunkAttachment
 import eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment
+import eu.pb4.polymer.virtualentity.api.attachment.ManualAttachment
 import eu.pb4.polymer.virtualentity.api.elements.BlockDisplayElement
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
@@ -35,7 +37,7 @@ public class PlayerWorldBorderExtension(player: ServerPlayer): PlayerExtension(p
     private val east = BlockDisplayElement()
     private val west = BlockDisplayElement()
 
-    private var display: Boolean = false
+    private var display: Boolean = true // FIXME: Should default to `false`
 
     // TODO: Currently using the vanilla WB
     //  - This actually may not be an issue?
@@ -124,6 +126,7 @@ public class PlayerWorldBorderExtension(player: ServerPlayer): PlayerExtension(p
 
     private inner class BorderAttachment: EntityAttachment(this.holder, this.player, true) {
         init {
+            this.holder().attachment = this
             super.startWatching(player)
         }
 
