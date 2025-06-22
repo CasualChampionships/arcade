@@ -196,12 +196,16 @@ public object Minigames: ModInitializer {
         }
     }
 
+    internal fun getInstancesSavePath(server: MinecraftServer): Path {
+        return server.getWorldPath(LevelResource.ROOT).resolve("minigames").resolve("instances")
+    }
+
     internal fun getPath(server: MinecraftServer): Path {
         return server.getWorldPath(LevelResource.ROOT).resolve("minigames")
     }
 
     private fun loadMinigames(server: MinecraftServer) {
-        val path = this.getPath(server)
+        val path = this.getInstancesSavePath(server)
         path.createDirectories()
         for (types in path.listDirectoryEntries()) {
             if (!types.isDirectory()) {

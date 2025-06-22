@@ -465,8 +465,7 @@ public abstract class Minigame(
      * @return The path where the minigame is saved.
      */
     public fun getSavePath(): Path {
-        return Minigames.getPath(this.server)
-            .resolve("instances")
+        return Minigames.getInstancesSavePath(this.server)
             .resolve("${this.id.namespace}.${this.id.path}")
             .resolve(this.uuid.toString())
     }
