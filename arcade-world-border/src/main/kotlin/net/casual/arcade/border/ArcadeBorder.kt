@@ -23,7 +23,5 @@ public object ArcadeBorder: ModInitializer {
         GlobalEventHandler.Server.register<ServerRegisterCommandEvent> { event ->
             event.register(WorldBorderCommandModifier)
         }
-
-
     }
 }
