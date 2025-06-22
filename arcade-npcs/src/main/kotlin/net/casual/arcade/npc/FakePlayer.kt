@@ -107,7 +107,7 @@ public open class FakePlayer protected constructor(
 
         this.navigation.tick()
 
-        this.customServerAiStep(this.serverLevel())
+        this.customServerAiStep(this.level())
 
         this.moveControl.tick()
         this.lookControl.tick()
