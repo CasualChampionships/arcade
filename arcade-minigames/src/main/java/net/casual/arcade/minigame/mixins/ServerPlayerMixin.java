@@ -79,17 +79,14 @@ public class ServerPlayerMixin {
 		CallbackInfoReturnable<BlockPos> cir
 	) {
 		ServerPlayer player = (ServerPlayer) (Object) this;
-		Minigame minigame = MinigameUtils.getMinigame(player);
-		if (minigame == null) {
-			ServerPlayer old = this.server.getPlayerList().getPlayer(player.getUUID());
-			if (old != null) {
-				minigame = MinigameUtils.getMinigame(old);
-			}
-		}
-		if (minigame != null) {
-			BlockPos spawnPosition = minigame.getLevels().getSpawn().position(player);
-			if (spawnPosition != null) {
-				cir.setReturnValue(spawnPosition);
+		ServerPlayer old = this.server.getPlayerList().getPlayer(player.getUUID());
+		if (old != null) {
+			Minigame minigame = MinigameUtils.getMinigame(old);
+			if (minigame != null) {
+				BlockPos spawnPosition = minigame.getLevels().getSpawn().position(player);
+				if (spawnPosition != null) {
+					cir.setReturnValue(spawnPosition);
+				}
 			}
 		}
 	}

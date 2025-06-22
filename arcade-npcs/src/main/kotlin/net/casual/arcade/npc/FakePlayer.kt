@@ -31,7 +31,9 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.CommonListenerCookie
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier
 import net.minecraft.world.entity.ai.attributes.Attributes
+import net.minecraft.world.entity.ai.attributes.DefaultAttributes
 import net.minecraft.world.item.component.ResolvableProfile
 import net.minecraft.world.level.pathfinder.PathType
 import java.util.*
@@ -85,6 +87,10 @@ public open class FakePlayer protected constructor(
         return this.connection as FakeGamePacketListenerImpl
     }
 
+    public open fun createAttributeSupplier(): AttributeSupplier {
+        return DefaultAttributes.getSupplier(EntityType.PLAYER)
+    }
+
     override fun tick() {
         // The player will never send move packets,
         // so we need to manually move the player.
@@ -100,6 +106,8 @@ public open class FakePlayer protected constructor(
         super.serverAiStep()
 
         this.navigation.tick()
+
+        this.customServerAiStep(this.level())
 
         this.moveControl.tick()
         this.lookControl.tick()
@@ -138,6 +146,10 @@ public open class FakePlayer protected constructor(
         }
 
         this.sendDebugPackets()
+    }
+
+    public open fun customServerAiStep(level: ServerLevel) {
+
     }
 
     override fun tickDeath() {

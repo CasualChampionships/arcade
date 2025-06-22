@@ -22,6 +22,7 @@ import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sin
 
+@Suppress("MemberVisibilityCanBePrivate")
 public open class NPCMoveControl(
     public val player: FakePlayer
 ): Control {
@@ -142,6 +143,7 @@ public open class NPCMoveControl(
         return evaluator.getPathType(this.player, pos) == PathType.WALKABLE
     }
 
+    @Suppress("SameParameterValue")
     private fun rotlerp(sourceAngle: Float, targetAngle: Float, maximumChange: Float): Float {
         var angleDifference = Mth.wrapDegrees(targetAngle - sourceAngle)
         if (angleDifference > maximumChange) {
