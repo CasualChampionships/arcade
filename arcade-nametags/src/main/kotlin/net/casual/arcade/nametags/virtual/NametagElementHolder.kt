@@ -16,6 +16,7 @@ import net.casual.arcade.nametags.Nametag
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundBundlePacket
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
@@ -169,6 +170,7 @@ public open class NametagElementHolder(
                 if (!canWatch) {
                     elements.remove(element)
                     element.stopWatching(connection.player, consumer)
+                    consumer.accept(ClientboundRemoveEntitiesPacket(element.entityIds))
                     dirty = true
                 }
             } else if (canWatch) {
