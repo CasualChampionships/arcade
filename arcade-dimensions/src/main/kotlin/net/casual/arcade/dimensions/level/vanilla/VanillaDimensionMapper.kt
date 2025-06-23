@@ -5,8 +5,8 @@
 package net.casual.arcade.dimensions.level.vanilla
 
 import com.mojang.serialization.Codec
-import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.utils.codec.ArcadeExtraCodecs
+import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
 import net.minecraft.resources.ResourceKey
 import net.minecraft.util.StringRepresentable
 import net.minecraft.world.level.Level
@@ -32,7 +32,7 @@ public class VanillaDimensionMapper(private val map: Map<VanillaDimension, Resou
 
     public companion object {
         @JvmField
-        public val CODEC: Codec<VanillaDimensionMapper> = RecordCodecBuilder.create { instance ->
+        public val CODEC: Codec<VanillaDimensionMapper> = OrderedRecordCodecBuilder.create { instance ->
             instance.group(
                 Codec.simpleMap(
                     VanillaDimension.CODEC,

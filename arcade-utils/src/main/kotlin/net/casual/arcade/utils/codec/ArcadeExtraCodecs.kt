@@ -80,7 +80,7 @@ public object ArcadeExtraCodecs {
         builder: RecordCodecBuilder<T, S>,
         applier: (T, S) -> T
     ): MapCodec<T> {
-        return RecordCodecBuilder.mapCodec { instance ->
+        return OrderedRecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 this.forGetter(Function.identity()), builder
             ).apply(instance, applier)
@@ -127,7 +127,7 @@ public object ArcadeExtraCodecs {
         valueMapCodec: MapCodec<V>,
         keyName: String = "id"
     ): Codec<Map<K, V>> {
-        val entryCodec = RecordCodecBuilder.create<Pair<K, V>> { instance ->
+        val entryCodec = OrderedRecordCodecBuilder.create<Pair<K, V>> { instance ->
             instance.group(
                 keyCodec.fieldOf(keyName).forGetter { it.first },
                 valueMapCodec.forGetter { it.second }

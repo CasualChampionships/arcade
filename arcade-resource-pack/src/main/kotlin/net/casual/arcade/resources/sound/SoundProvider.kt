@@ -5,7 +5,7 @@
 package net.casual.arcade.resources.sound
 
 import com.mojang.serialization.Codec
-import com.mojang.serialization.codecs.RecordCodecBuilder
+import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.StringRepresentable
 
@@ -36,7 +36,7 @@ public data class SoundProvider(
     }
 
     public companion object {
-        public val CODEC: Codec<SoundProvider> = RecordCodecBuilder.create { instance ->
+        public val CODEC: Codec<SoundProvider> = OrderedRecordCodecBuilder.create { instance ->
             instance.group(
                 ResourceLocation.CODEC.fieldOf("name").forGetter(SoundProvider::id),
                 Codec.FLOAT.optionalFieldOf("volume", 1.0F).forGetter(SoundProvider::volume),

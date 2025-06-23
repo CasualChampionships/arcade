@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2025 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
 package net.casual.arcade.util.codec;
 
 import com.mojang.datafixers.kinds.App;
@@ -12,7 +16,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public final class SortedRecordCodecBuilderInstance<O> implements Applicative<RecordCodecBuilder.Mu<O>, SortedRecordCodecBuilderInstance.Mu<O>> {
+public final class OrderedRecordCodecBuilderInstance<O> implements Applicative<RecordCodecBuilder.Mu<O>, OrderedRecordCodecBuilderInstance.Mu<O>> {
     @SuppressWarnings("unused")
     public static final class Mu<O> implements Applicative.Mu {}
 

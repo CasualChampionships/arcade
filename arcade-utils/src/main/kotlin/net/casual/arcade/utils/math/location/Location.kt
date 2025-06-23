@@ -8,6 +8,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.utils.codec.ArcadeExtraCodecs
+import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec2
@@ -40,7 +41,7 @@ public data class Location(
             ).apply(instance, ::Location)
         }
 
-        private val VERBOSE_MAP_CODEC: MapCodec<Location> = RecordCodecBuilder.mapCodec { instance ->
+        private val VERBOSE_MAP_CODEC: MapCodec<Location> = OrderedRecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 Codec.DOUBLE.optionalFieldOf("x", 0.0).forGetter { it.position.x },
                 Codec.DOUBLE.optionalFieldOf("y", 0.0).forGetter { it.position.y },

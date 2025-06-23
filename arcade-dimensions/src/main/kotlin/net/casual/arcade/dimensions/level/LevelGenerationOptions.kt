@@ -8,6 +8,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.level.spawner.CustomSpawnerFactory
+import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.RegistryFileCodec
@@ -37,7 +38,7 @@ public class LevelGenerationOptions(
 ) {
     public companion object {
         @JvmField
-        public val CODEC: Codec<LevelGenerationOptions> = RecordCodecBuilder.create { instance ->
+        public val CODEC: Codec<LevelGenerationOptions> = OrderedRecordCodecBuilder.create { instance ->
             instance.group(
                 RegistryFileCodec.create(Registries.LEVEL_STEM, LevelStem.CODEC).fieldOf("stem").forGetter(LevelGenerationOptions::stem),
                 Codec.LONG.fieldOf("seed").forGetter(LevelGenerationOptions::seed),

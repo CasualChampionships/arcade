@@ -7,6 +7,7 @@ package net.casual.arcade.dimensions.level
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.utils.codec.ArcadeExtraCodecs
+import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
 import net.minecraft.world.Difficulty
 import net.minecraft.world.level.GameRules
 import org.apache.commons.lang3.mutable.MutableLong
@@ -43,7 +44,7 @@ public class LevelProperties(
     )
 
     public companion object {
-        private val WEATHER_CODEC = RecordCodecBuilder.create { instance ->
+        private val WEATHER_CODEC = OrderedRecordCodecBuilder.create { instance ->
             instance.group(
                 Codec.INT.fieldOf("clear_weather_time").forGetter(WeatherProperties::clearWeatherTime),
                 Codec.BOOL.fieldOf("raining").forGetter(WeatherProperties::raining),
@@ -61,7 +62,7 @@ public class LevelProperties(
         }
 
         @JvmField
-        public val CODEC: Codec<LevelProperties> = RecordCodecBuilder.create { instance ->
+        public val CODEC: Codec<LevelProperties> = OrderedRecordCodecBuilder.create { instance ->
             instance.group(
                 ArcadeExtraCodecs.MUTABLE_LONG.optionalFieldOf("day_time").forGetter(LevelProperties::dayTime),
                 WEATHER_CODEC.optionalFieldOf("weather").forGetter(LevelProperties::weather),

@@ -8,9 +8,9 @@ import com.google.common.collect.HashMultimap
 import com.google.common.collect.Multimap
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
-import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.codec.CodecProvider
+import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.Mth
@@ -64,7 +64,7 @@ public class SplitTeleporter(
     public companion object: CodecProvider<SplitTeleporter> {
         override val ID: ResourceLocation = ResourceUtils.arcade("split")
 
-        override val CODEC: MapCodec<out SplitTeleporter> = RecordCodecBuilder.mapCodec { instance ->
+        override val CODEC: MapCodec<out SplitTeleporter> = OrderedRecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 Codec.INT.fieldOf("entity_threshold").forGetter(SplitTeleporter::entityThreshold),
                 Codec.INT.fieldOf("team_threshold").forGetter(SplitTeleporter::teamThreshold),

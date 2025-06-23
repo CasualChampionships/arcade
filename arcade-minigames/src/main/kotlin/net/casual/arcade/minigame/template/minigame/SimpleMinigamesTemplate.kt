@@ -6,7 +6,6 @@ package net.casual.arcade.minigame.template.minigame
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
-import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.minigame.lobby.LobbyMinigame
 import net.casual.arcade.minigame.lobby.LobbyMinigameFactory
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
@@ -14,6 +13,7 @@ import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.resources.pack.PackInfo
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.codec.CodecProvider
+import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
 import net.casual.arcade.utils.encodedOptionalFieldOf
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
@@ -49,7 +49,7 @@ public open class SimpleMinigamesTemplate(
     public companion object: CodecProvider<SimpleMinigamesTemplate> {
         override val ID: ResourceLocation = ResourceUtils.arcade("simple")
 
-        override val CODEC: MapCodec<out SimpleMinigamesTemplate> = RecordCodecBuilder.mapCodec { instance ->
+        override val CODEC: MapCodec<out SimpleMinigamesTemplate> = OrderedRecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 Codec.STRING.encodedOptionalFieldOf("name", "default").forGetter(SimpleMinigamesTemplate::name),
                 MinigameFactory.CODEC.encodedOptionalFieldOf("lobby", LobbyMinigameFactory.DEFAULT).forGetter(SimpleMinigamesTemplate::lobby),

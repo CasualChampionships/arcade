@@ -6,10 +6,10 @@ package net.casual.arcade.utils.math.location.providers
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
-import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.codec.ArcadeExtraCodecs
 import net.casual.arcade.utils.codec.CodecProvider
+import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
 import net.casual.arcade.utils.math.location.Location
 import net.minecraft.resources.ResourceLocation
 
@@ -62,7 +62,7 @@ public class BlendedLocationProvider(
     public companion object: CodecProvider<BlendedLocationProvider> {
         override val ID: ResourceLocation = ResourceUtils.arcade("blended")
 
-        private val SIMPLE_CODEC = RecordCodecBuilder.mapCodec { instance ->
+        private val SIMPLE_CODEC = OrderedRecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 LocationProvider.CODEC.fieldOf("first").forGetter(BlendedLocationProvider::first),
                 LocationProvider.CODEC.fieldOf("second").forGetter(BlendedLocationProvider::second),
@@ -71,7 +71,7 @@ public class BlendedLocationProvider(
             ).apply(instance) { first, second, pos, rot -> BlendedLocationProvider(first, second, pos, pos, pos, rot, rot) }
         }
 
-        private val VERBOSE_CODEC = RecordCodecBuilder.mapCodec { instance ->
+        private val VERBOSE_CODEC = OrderedRecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 LocationProvider.CODEC.fieldOf("first").forGetter(BlendedLocationProvider::first),
                 LocationProvider.CODEC.fieldOf("second").forGetter(BlendedLocationProvider::second),

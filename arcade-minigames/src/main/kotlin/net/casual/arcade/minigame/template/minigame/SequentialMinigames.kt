@@ -5,7 +5,6 @@
 package net.casual.arcade.minigame.template.minigame
 
 import com.mojang.serialization.Codec
-import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.minigame.Minigame
@@ -22,6 +21,7 @@ import net.casual.arcade.minigame.utils.MinigameUtils.transferAdminAndSpectatorT
 import net.casual.arcade.resources.utils.ResourcePackUtils.sendResourcePack
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
 import net.minecraft.core.UUIDUtil
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
@@ -199,10 +199,12 @@ public class SequentialMinigames(
         val currentIndex: Int
     ) {
         public companion object {
-            public val CODEC: Codec<Data> = RecordCodecBuilder.create { instance ->
+            private val UUID_CODEC = Codec.withAlternative(UUIDUtil.STRING_CODEC, UUIDUtil.CODEC)
+
+            public val CODEC: Codec<Data> = OrderedRecordCodecBuilder.create { instance ->
                 instance.group(
-                    UUIDUtil.CODEC.fieldOf("current_uuid").forGetter(Data::currentUUID),
-                    UUIDUtil.CODEC.optionalFieldOf("current_lobby_uuid").forGetter(Data::currentLobbyUUID),
+                    UUID_CODEC.fieldOf("current_uuid").forGetter(Data::currentUUID),
+                    UUID_CODEC.optionalFieldOf("current_lobby_uuid").forGetter(Data::currentLobbyUUID),
                     ResourceLocation.CODEC.fieldOf("current_id").forGetter(Data::currentId),
                     Codec.INT.fieldOf("current_index").forGetter(Data::currentIndex)
                 ).apply(instance, SequentialMinigames::Data)
