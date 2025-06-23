@@ -11,7 +11,7 @@ plugins {
     java
 }
 
-val modVersion = "0.5.0-beta.14"
+val modVersion = "0.5.0-beta.15"
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -148,7 +148,6 @@ dependencies {
     include(libs.polymer.resource.pack)
     include(libs.polymer.virtual.entity)
 
-    include(libs.permissions)
     include(modImplementation(libs.server.translations.get())!!)
 
     val ignore = setOf(":arcade-datagen", ":arcade-events-client")

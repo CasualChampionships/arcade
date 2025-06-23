@@ -6,30 +6,30 @@ fabric-api          = "0.127.1+1.21.6"
 fabric-kotlin       = "1.13.3+kotlin.2.1.21"
 polymer             = "0.13.1+1.21.6"
 sgui                = "1.10.0+1.21.6"
-permissions         = "0.3.3"
 server-translations = "2.5.1+1.21.5"
 server-replay       = "2.0.0+1.21.4"
 inject              = "3.1.3"
 debug-tools-api     = "1.0.3+1.21.4"
+fix-codec-order     = "1.0.1"
 
 # Plugins
 fabric-loom = "1.10-SNAPSHOT"
 spotless    = "7.0.4"
 
 [libraries]
-minecraft              = { module = "com.mojang:minecraft"                , version.ref = "minecraft" }
-fabric-loader          = { module = "net.fabricmc:fabric-loader"          , version.ref = "fabric-loader" }
-fabric-api             = { module = "net.fabricmc.fabric-api:fabric-api"  , version.ref = "fabric-api" }
-fabric-kotlin          = { module = "net.fabricmc:fabric-language-kotlin" , version.ref = "fabric-kotlin" }
-polymer-core           = { module = "eu.pb4:polymer-core"                 , version.ref = "polymer" }
-polymer-blocks         = { module = "eu.pb4:polymer-blocks"               , version.ref = "polymer" }
-polymer-resource-pack  = { module = "eu.pb4:polymer-resource-pack"        , version.ref = "polymer" }
-polymer-virtual-entity = { module = "eu.pb4:polymer-virtual-entity"       , version.ref = "polymer" }
-permissions            = { module = "me.lucko:fabric-permissions-api"     , version.ref = "permissions" }
-sgui                   = { module = "eu.pb4:sgui"                         , version.ref = "sgui" }
-server-translations    = { module = "xyz.nucleoid:server-translations-api", version.ref = "server-translations" }
-server-replay          = { module = "me.senseiwells:server-replay"        , version.ref = "server-replay" }
-debug-tools-api        = { module = "me.senseiwells:debug-tools-api"      , version.ref = "debug-tools-api" }
+minecraft              = { module = "com.mojang:minecraft"                 , version.ref = "minecraft" }
+fabric-loader          = { module = "net.fabricmc:fabric-loader"           , version.ref = "fabric-loader" }
+fabric-api             = { module = "net.fabricmc.fabric-api:fabric-api"   , version.ref = "fabric-api" }
+fabric-kotlin          = { module = "net.fabricmc:fabric-language-kotlin"  , version.ref = "fabric-kotlin" }
+polymer-core           = { module = "eu.pb4:polymer-core"                  , version.ref = "polymer" }
+polymer-blocks         = { module = "eu.pb4:polymer-blocks"                , version.ref = "polymer" }
+polymer-resource-pack  = { module = "eu.pb4:polymer-resource-pack"         , version.ref = "polymer" }
+polymer-virtual-entity = { module = "eu.pb4:polymer-virtual-entity"        , version.ref = "polymer" }
+sgui                   = { module = "eu.pb4:sgui"                          , version.ref = "sgui" }
+server-translations    = { module = "xyz.nucleoid:server-translations-api" , version.ref = "server-translations" }
+server-replay          = { module = "me.senseiwells:server-replay"         , version.ref = "server-replay" }
+debug-tools-api        = { module = "me.senseiwells:debug-tools-api"       , version.ref = "debug-tools-api" }
+fix-codec-order        = { module = "me.senseiwells:fix-record-codec-order", version.ref = "fix-codec-order" }
 
 inject-api             = { module = "net.mcbrawls.inject:api"             , version.ref = "inject" }
 inject-http            = { module = "net.mcbrawls.inject:http"            , version.ref = "inject" }
