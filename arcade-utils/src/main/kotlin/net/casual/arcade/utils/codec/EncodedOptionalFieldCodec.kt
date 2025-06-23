@@ -23,6 +23,6 @@ public class EncodedOptionalFieldCodec<A>(
             return prefix.add(this.name, this.elementCodec.encodeStart(ops, input.get()))
         }
         // We encode this as empty
-        return prefix.add(name, ops.empty())
+        return prefix.add(this.name, ops.empty())
     }
 }
