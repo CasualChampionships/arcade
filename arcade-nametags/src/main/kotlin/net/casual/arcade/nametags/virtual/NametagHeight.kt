@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.nametags.virtual
 
+import com.mojang.serialization.Codec
 import net.casual.arcade.utils.ResourceUtils
 import net.minecraft.world.entity.ai.attributes.AttributeInstance
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
@@ -16,13 +17,18 @@ public class NametagHeight private constructor(
 
     public companion object {
         private const val ARMOR_STAND_HEIGHT = 1.975
+        private const val MIN_HEIGHT = 0.0625 * ARMOR_STAND_HEIGHT
+        private const val MAX_HEIGHT = 16.0 * ARMOR_STAND_HEIGHT
         private val SCALE_ID = ResourceUtils.arcade("nametag")
+
+        public val CODEC: Codec<NametagHeight> = Codec.doubleRange(MIN_HEIGHT, MAX_HEIGHT)
+            .xmap(::of, NametagHeight::height)
 
         public val DEFAULT: NametagHeight = of(0.275)
         public val INITIAL: NametagHeight = of(0.45)
 
         public fun of(height: Double): NametagHeight {
-            require(height in (0.0625 * ARMOR_STAND_HEIGHT)..(16.0 * ARMOR_STAND_HEIGHT))
+            require(height in MIN_HEIGHT..MAX_HEIGHT)
             return NametagHeight(height)
         }
 

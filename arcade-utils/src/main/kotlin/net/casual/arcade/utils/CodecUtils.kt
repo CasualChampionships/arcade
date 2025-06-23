@@ -11,8 +11,8 @@ import net.casual.arcade.utils.codec.EncodedOptionalFieldCodec
 import net.casual.arcade.utils.codec.FieldDecoderOfAny
 import net.casual.arcade.utils.codec.OptionalCodec
 import java.util.*
+import kotlin.collections.LinkedHashMap
 import kotlin.collections.LinkedHashSet
-import kotlin.jvm.optionals.getOrNull
 
 public fun <A: Any> Codec<A>.lenientOptionalOf(): Codec<Optional<A>> {
     return this.optionalOf(true)
@@ -43,4 +43,8 @@ public fun <A> Codec<A>.fieldOfAny(primary: String, vararg secondaries: String):
 
 public fun <A> Codec<A>.setOf(): Codec<Set<A>> {
     return this.listOf().xmap(::LinkedHashSet, ::ArrayList)
+}
+
+public fun <A, K> Codec<List<A>>.associateBy(key: (A) -> K): Codec<Map<K, A>> {
+    return this.xmap({ it.associateByTo(LinkedHashMap(), key) }, { it.values.toList() })
 }
