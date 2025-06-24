@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import me.senseiwells.debug.api.server.DebugToolsPackets
 import net.casual.arcade.npc.ai.NPCLookControl
 import net.casual.arcade.npc.ai.NPCMoveControl
+import net.casual.arcade.npc.mixins.LivingEntityAccessor
 import net.casual.arcade.npc.network.FakeConnection
 import net.casual.arcade.npc.network.FakeGamePacketListenerImpl
 import net.casual.arcade.npc.network.FakeLoginPacketListenerImpl
@@ -30,11 +31,14 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.CommonListenerCookie
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier
 import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes
+import net.minecraft.world.item.ProjectileWeaponItem
 import net.minecraft.world.item.component.ResolvableProfile
 import net.minecraft.world.level.pathfinder.PathType
+import net.minecraft.world.phys.AABB
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
@@ -49,22 +53,6 @@ public open class FakePlayer protected constructor(
     public val moveControl: NPCMoveControl = NPCMoveControl(this)
     public val lookControl: NPCLookControl = NPCLookControl(this)
     public val navigation: NPCPathNavigation = this.createNavigation()
-
-    public open fun createNavigation(): NPCPathNavigation {
-        return NPCAmphibiousPathNavigation(this)
-    }
-
-    public open fun setPathfindingMalus(type: PathType, float: Float) {
-        if (type.malus == float) {
-            this.pathfindingMalus.removeFloat(type)
-        } else {
-            this.pathfindingMalus.put(type, float)
-        }
-    }
-
-    public open fun getPathfindingMalus(type: PathType): Float {
-        return this.pathfindingMalus.getOrDefault(type as Any, type.malus)
-    }
 
     public open fun createRespawned(
         server: MinecraftServer,
@@ -88,6 +76,34 @@ public open class FakePlayer protected constructor(
 
     public open fun createAttributeSupplier(): AttributeSupplier {
         return DefaultAttributes.getSupplier(EntityType.PLAYER)
+    }
+
+    public open fun createNavigation(): NPCPathNavigation {
+        return NPCAmphibiousPathNavigation(this)
+    }
+
+    public open fun setPathfindingMalus(type: PathType, float: Float) {
+        if (type.malus == float) {
+            this.pathfindingMalus.removeFloat(type)
+        } else {
+            this.pathfindingMalus.put(type, float)
+        }
+    }
+
+    public open fun getPathfindingMalus(type: PathType): Float {
+        return this.pathfindingMalus.getOrDefault(type as Any, type.malus)
+    }
+
+    public open fun canFireProjectileWeapon(weapon: ProjectileWeaponItem): Boolean {
+        return true
+    }
+
+    public open fun isWithinMeleeAttackRange(target: LivingEntity): Boolean {
+        return this.getAttackBoundingBox().intersects((target as LivingEntityAccessor).invokeGetHitbox())
+    }
+
+    public open fun getAttackBoundingBox(): AABB {
+        return this.boundingBox.inflate(this.entityInteractionRange())
     }
 
     override fun tick() {

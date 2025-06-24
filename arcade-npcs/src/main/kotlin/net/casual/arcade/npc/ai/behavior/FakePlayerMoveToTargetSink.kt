@@ -17,16 +17,16 @@ import net.minecraft.world.level.pathfinder.Path
 import net.minecraft.world.phys.Vec3
 
 public class FakePlayerMoveToTargetSink(
-    minDuration: Int,
-    maxDuration: Int
+    minDuration: Int = 150,
+    maxDuration: Int = 250,
+    private val sprint: Boolean = true,
+    private val jump: Boolean = true
 ): Behavior<FakePlayer>(CONDITIONS, minDuration, maxDuration) {
     private var remainingCooldown = 0
     private var speedModifier: Float = 0.0F
 
     private var path: Path? = null
     private var lastTargetPos: BlockPos? = null
-
-    public constructor(): this(150, 250)
 
     override fun checkExtraStartConditions(level: ServerLevel, player: FakePlayer): Boolean {
         if (this.remainingCooldown > 0) {
@@ -56,7 +56,7 @@ public class FakePlayerMoveToTargetSink(
             val isTargetSpectator = optional.map(this::isWalkTargetSpectator).orElse(false)
             val navigation = player.navigation
             return !navigation.isDone() && optional.isPresent
-                && !this.hasReachedTarget(player, optional.get()) && !isTargetSpectator
+                    && !this.hasReachedTarget(player, optional.get()) && !isTargetSpectator
         }
         return false
     }
@@ -64,6 +64,10 @@ public class FakePlayerMoveToTargetSink(
     override fun start(level: ServerLevel, player: FakePlayer, gameTime: Long) {
         player.brain.setMemory(MemoryModuleType.PATH, this.path)
         player.navigation.moveTo(this.path, speedModifier.toDouble())
+
+        if (this.sprint) {
+            player.moveControl.sprinting = true
+        }
     }
 
     override fun tick(level: ServerLevel, player: FakePlayer, gameTime: Long) {
@@ -77,8 +81,11 @@ public class FakePlayerMoveToTargetSink(
         val lastTarget = this.lastTargetPos
         if (path != null && lastTarget != null) {
             val walkTarget = brain.getMemory(MemoryModuleType.WALK_TARGET).get()
-            val isMakingProgress = walkTarget.target.currentBlockPosition().distSqr(lastTarget) > 4.0
-            if (isMakingProgress && this.tryComputePath(player, walkTarget, level.gameTime)) {
+            val progress = walkTarget.target.currentBlockPosition().distSqr(lastTarget)
+            if (this.jump && progress > 2.0) {
+                player.moveControl.jump()
+            }
+            if (progress > 4.0 && this.tryComputePath(player, walkTarget, level.gameTime)) {
                 this.lastTargetPos = walkTarget.target.currentBlockPosition()
                 this.start(level, player, gameTime)
             }
@@ -96,6 +103,10 @@ public class FakePlayerMoveToTargetSink(
         player.brain.eraseMemory(MemoryModuleType.WALK_TARGET)
         player.brain.eraseMemory(MemoryModuleType.PATH)
         this.path = null
+
+        if (this.sprint) {
+            player.moveControl.sprinting = false
+        }
     }
 
     private fun tryComputePath(player: FakePlayer, target: WalkTarget, time: Long): Boolean {

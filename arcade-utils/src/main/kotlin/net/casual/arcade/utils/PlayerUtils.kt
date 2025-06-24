@@ -30,6 +30,7 @@ import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.stats.Stats
+import net.minecraft.util.Mth
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
@@ -172,6 +173,12 @@ public object PlayerUtils {
         this.connection.send(update)
     }
 
+    @JvmStatic
+    public fun ServerPlayer.getAttackCooldown(): MinecraftTimeDuration {
+        return Mth.ceil(this.currentItemAttackStrengthDelay).Ticks
+    }
+
+    @JvmStatic
     public fun ServerPlayer.dropItemStackIntoInventory(
         stack: ItemStack,
         remaining: (ItemStack) -> Unit
