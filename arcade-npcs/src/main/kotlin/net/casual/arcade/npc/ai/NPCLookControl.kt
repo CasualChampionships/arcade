@@ -48,7 +48,7 @@ public class NPCLookControl(
             this.lookAtCooldown--
             val yRotTarget = this.getYRotD(target)
             if (yRotTarget != null) {
-                this.player.yHeadRot = this.rotateTowards(this.player.yHeadRot, yRotTarget, target.rotationMaxes.y)
+                this.player.yRot = this.rotateTowards(this.player.yRot, yRotTarget, target.rotationMaxes.y)
             }
             val xRotTarget = this.getXRotD(target)
             if (xRotTarget != null) {
@@ -62,7 +62,7 @@ public class NPCLookControl(
 
     private fun clampHeadRotationToBody() {
         if (!this.player.navigation.isDone()) {
-            this.player.yHeadRot = Mth.rotateIfNecessary(this.player.yHeadRot, this.player.yBodyRot, 75.0F)
+            this.player.yRot = Mth.rotateIfNecessary(this.player.yRot, this.player.yBodyRot, 75.0F)
         }
     }
 
