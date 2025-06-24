@@ -75,19 +75,19 @@ public class NPCLookControl(
         val dy = target.position.y - this.player.eyeY
         val dz = target.position.z - this.player.z
         val horizontalDist = sqrt(dx * dx + dz * dz)
-        if (abs(dy) <= 1.0E-5F || abs(horizontalDist) <= 1.0E-5f) {
+        if (abs(dy) <= Mth.EPSILON || abs(horizontalDist) <= Mth.EPSILON) {
             return null
         }
-        return -(Mth.atan2(dy, horizontalDist).toFloat() * 180.0f / Math.PI.toFloat())
+        return -(Mth.atan2(dy, horizontalDist).toFloat() * Mth.RAD_TO_DEG)
     }
 
     private fun getYRotD(target: Target): Float? {
         val dx = target.position.x - this.player.x
         val dz = target.position.z - this.player.z
-        if (abs(dx) <= 1.0E-5f || abs(dz) <= 1.0E-5f) {
+        if (abs(dx) <= Mth.EPSILON || abs(dz) <= Mth.EPSILON) {
             return null
         }
-        return -(Mth.atan2(dz, dx).toFloat() * 180.0f / Math.PI.toFloat()) - 90.0f
+        return (Mth.atan2(dz, dx).toFloat() * Mth.RAD_TO_DEG) - 90.0f
     }
 
     private fun getWantedY(entity: Entity): Double {

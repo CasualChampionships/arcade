@@ -4,12 +4,10 @@
  */
 package net.casual.arcade.utils.file
 
-import com.google.gson.JsonElement
 import com.mojang.serialization.Decoder
 import com.mojang.serialization.Dynamic
 import com.mojang.serialization.JsonOps
 import net.casual.arcade.utils.JsonUtils
-import net.minecraft.util.GsonHelper
 import java.io.InputStream
 import java.nio.file.FileSystems
 import java.nio.file.Path

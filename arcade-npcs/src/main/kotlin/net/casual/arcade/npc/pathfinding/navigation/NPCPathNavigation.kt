@@ -9,6 +9,7 @@ import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.npc.pathfinding.evaluator.NPCNodeEvaluator
 import net.casual.arcade.npc.pathfinding.NPCPathfinder
 import net.casual.arcade.utils.isOf
+import net.casual.arcade.utils.math.path.calculateNextNodeIndex
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.Vec3i
@@ -48,7 +49,7 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
     public var speedModifier: Double = 0.0
     public var path: Path? = null
         protected set
-    public var maxDistanceToWaypoint: Float = 0.5f
+    public var maxDistanceToWaypoint: Double = 0.5
         protected set
     public var targetPos: BlockPos? = null
         protected set
@@ -224,7 +225,7 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
                 }
             }
             DebugToolsPackets.getInstance().sendPathfindingPacket(
-                this.level, this.player, this.path, this.maxDistanceToWaypoint
+                this.level, this.player, this.path, this.maxDistanceToWaypoint.toFloat()
             )
 
             if (!this.isDone()) {
@@ -294,23 +295,34 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
     protected abstract fun canUpdatePath(): Boolean
 
     protected fun followThePath() {
-        val localPath = this.path ?: return
+        val path = this.path ?: return
         val tempPos = this.getTempMobPos()
-        if (this.player.bbWidth > 0.75f) {
-            this.maxDistanceToWaypoint = this.player.bbWidth / 2.0f
+        if (this.player.bbWidth > 0.75F) {
+            this.maxDistanceToWaypoint = this.player.bbWidth / 2.0
         } else {
-            this.maxDistanceToWaypoint = 1.5F - this.player.bbWidth / 2.0f
+            this.maxDistanceToWaypoint = 0.75 - this.player.bbWidth / 2.0
         }
-        val nextNodePos = localPath.nextNodePos
-        val d = abs(this.player.x - (nextNodePos.x + 0.5))
-        val e = abs(this.player.y - nextNodePos.y.toDouble())
-        val f = abs(this.player.z - (nextNodePos.z + 0.5))
-        val withinThreshold = d < this.maxDistanceToWaypoint &&
-                f < this.maxDistanceToWaypoint &&
-                e < 1.0
-        if (withinThreshold || (this.canCutCorner(localPath.nextNode.type) && this.shouldTargetNextNodeInDirection(tempPos))) {
-            localPath.advance()
+
+        val next = path.calculateNextNodeIndex(this.player.position(), this.maxDistanceToWaypoint, 1.0)
+        if (next != null) {
+            path.nextNodeIndex = next
         }
+
+        // We're on the last node
+        if (path.nextNodeIndex == path.nodeCount - 1) {
+            val nextNodePos = path.nextNodePos
+            val d = abs(this.player.x - (nextNodePos.x + 0.5))
+            val e = abs(this.player.y - nextNodePos.y.toDouble())
+            val f = abs(this.player.z - (nextNodePos.z + 0.5))
+            val withinThreshold = d < this.maxDistanceToWaypoint
+                && f < this.maxDistanceToWaypoint && e < 1.0
+            if (withinThreshold) {
+                path.advance()
+            }
+        } else if (this.canCutCorner(path.nextNode.type) && this.shouldTargetNextNodeInDirection(tempPos)) {
+            path.advance()
+        }
+
         this.doStuckDetection(tempPos)
     }
 
@@ -349,9 +361,9 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
             this.lastStuckCheck = this.tick
             this.lastStuckCheckPos = positionVec3
         }
-        val localPath = this.path
-        if (localPath != null && !localPath.isDone) {
-            val nextNode = localPath.nextNodePos
+        val path = this.path
+        if (path != null && !path.isDone) {
+            val nextNode = path.nextNodePos
             val currentTime = this.level.gameTime
             if (nextNode == this.timeoutCachedNode) {
                 this.timeoutTimer += (currentTime - this.lastTimeoutCheck)
@@ -368,16 +380,16 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
     }
 
     protected open fun trimPath() {
-        val localPath = this.path
-        if (localPath != null) {
-            for (i in 0 until localPath.nodeCount) {
-                val node = localPath.getNode(i)
-                val nextNode = if (i + 1 < localPath.nodeCount) localPath.getNode(i + 1) else null
+        val path = this.path
+        if (path != null) {
+            for (i in 0 until path.nodeCount) {
+                val node = path.getNode(i)
+                val nextNode = if (i + 1 < path.nodeCount) path.getNode(i + 1) else null
                 val blockState = this.level.getBlockState(BlockPos(node.x, node.y, node.z))
                 if (blockState.isOf(BlockTags.CAULDRONS)) {
-                    localPath.replaceNode(i, node.cloneAndMove(node.x, node.y + 1, node.z))
+                    path.replaceNode(i, node.cloneAndMove(node.x, node.y + 1, node.z))
                     if (nextNode != null && node.y >= nextNode.y) {
-                        localPath.replaceNode(i + 1, node.cloneAndMove(nextNode.x, node.y + 1, nextNode.z))
+                        path.replaceNode(i + 1, node.cloneAndMove(nextNode.x, node.y + 1, nextNode.z))
                     }
                 }
             }
@@ -388,20 +400,19 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
         return false
     }
 
-    // Private methods
     private fun shouldTargetNextNodeInDirection(vec: Vec3): Boolean {
-        val localPath = this.path ?: return false
-        if (localPath.nextNodeIndex + 1 >= localPath.nodeCount) {
+        val path = this.path ?: return false
+        if (path.nextNodeIndex + 1 >= path.nodeCount) {
             return false
         }
-        val nextNodeCenter = Vec3.atBottomCenterOf(localPath.nextNodePos)
+        val nextNodeCenter = Vec3.atBottomCenterOf(path.nextNodePos)
         if (!vec.closerThan(nextNodeCenter, 2.0)) {
             return false
         }
-        if (this.canMoveDirectly(vec, localPath.getNextEntityPos(this.player))) {
+        if (this.canMoveDirectly(vec, path.getNextEntityPos(this.player))) {
             return true
         }
-        val secondNodeCenter = Vec3.atBottomCenterOf(localPath.getNodePos(localPath.nextNodeIndex + 1))
+        val secondNodeCenter = Vec3.atBottomCenterOf(path.getNodePos(path.nextNodeIndex + 1))
         val diff1 = nextNodeCenter.subtract(vec)
         val diff2 = secondNodeCenter.subtract(vec)
         val d = diff1.lengthSqr()
