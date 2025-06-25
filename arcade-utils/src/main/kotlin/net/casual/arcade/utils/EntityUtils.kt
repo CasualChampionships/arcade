@@ -65,6 +65,7 @@ public fun Entity.addVelocitySmooth(deltas: Vec3) {
 }
 
 public fun ServerPlayer.addVelocitySmooth(deltas: Vec3) {
+    this.addDeltaMovement(deltas)
     this.connection.send(ClientboundExplodePacket(
         Vec3(0.0, Int.MAX_VALUE.toDouble(), 0.0),
         Optional.of(deltas),
