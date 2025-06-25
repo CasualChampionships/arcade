@@ -4,11 +4,11 @@
  */
 package net.casual.arcade.border.ducks;
 
-import net.minecraft.nbt.CompoundTag;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public interface SerializableBorder {
-	CompoundTag arcade$serialize();
+	void arcade$serialize(ValueOutput output);
 
-	void arcade$deserialize(@NotNull CompoundTag compound);
+	void arcade$deserialize(ValueInput compound);
 }

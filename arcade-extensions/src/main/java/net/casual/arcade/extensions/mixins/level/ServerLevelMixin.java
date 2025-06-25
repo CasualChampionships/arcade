@@ -16,10 +16,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.storage.LevelStorageSource;
-import net.minecraft.world.level.storage.WritableLevelData;
+import net.minecraft.world.level.storage.*;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -30,6 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin extends Level implements ExtensionHolder {
@@ -62,11 +63,10 @@ public abstract class ServerLevelMixin extends Level implements ExtensionHolder 
 		LevelExtensionEvent event = new LevelExtensionEvent((ServerLevel) (Object) this);
 		GlobalEventHandler.Server.broadcast(event);
 
-		try {
-			CompoundTag tag = NbtIo.read(this.arcade$savePath);
-			if (tag != null) {
-				ExtensionHolder.deserialize(this, tag);
-			}
+		try (ProblemReporter.ScopedCollector collector = ArcadeUtils.createProblemReporter()) {
+			CompoundTag tag = Optional.ofNullable(NbtIo.read(this.arcade$savePath)).orElseGet(CompoundTag::new);
+			ValueInput input = TagValueInput.create(collector, this.registryAccess(), tag);
+			ExtensionHolder.deserialize(this, input);
 		} catch (IOException e) {
 			ArcadeUtils.logger.error("Failed to read arcade extension data", e);
 		}
@@ -77,11 +77,11 @@ public abstract class ServerLevelMixin extends Level implements ExtensionHolder 
 		at = @At("TAIL")
 	)
 	private void onSaveLevel(CallbackInfo ci) {
-		CompoundTag tag = new CompoundTag();
-		ExtensionHolder.serialize(this, tag);
-		try {
+		try (ProblemReporter.ScopedCollector collector = ArcadeUtils.createProblemReporter()) {
+			TagValueOutput output =  TagValueOutput.createWithContext(collector, this.registryAccess());
+			ExtensionHolder.serialize(this, output);
 			Files.createDirectories(this.arcade$savePath.getParent());
-			NbtIo.write(tag, this.arcade$savePath);
+			NbtIo.write(output.buildResult(), this.arcade$savePath);
 		} catch (IOException e) {
 			ArcadeUtils.logger.error("Failed to save arcade extension data", e);
 		}

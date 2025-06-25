@@ -13,7 +13,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.minigame.managers.MinigamePlayerManager;
 import net.casual.arcade.minigame.utils.MinigameUtils;
-import net.casual.arcade.utils.PlayerUtils;
+import net.casual.arcade.utils.ArcadeUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.player.Player;
@@ -38,7 +38,8 @@ public class PlayerListMixin {
         boolean bl,
         TeleportTransition.PostTeleportTransition postTeleportTransition,
         Operation<TeleportTransition> original,
-        @Share("isMinigameRespawn") LocalBooleanRef isMinigameRespawn
+        // If this is changed, it must also be updated in extensions#PlayerListMixin
+        @Share(namespace = ArcadeUtils.MOD_ID, value = "isMinigameRespawn") LocalBooleanRef isMinigameRespawn
     ) {
         if (MinigamePlayerManager.LOCAL_TRANSITION.get() != null) {
             isMinigameRespawn.set(true);
@@ -57,7 +58,7 @@ public class PlayerListMixin {
     private boolean onCopyRespawnPosition(
         ServerPlayer instance,
         ServerPlayer player,
-        @Share("isMinigameRespawn") LocalBooleanRef isMinigameRespawn
+        @Share(namespace = ArcadeUtils.MOD_ID, value = "isMinigameRespawn") LocalBooleanRef isMinigameRespawn
     ) {
         return !isMinigameRespawn.get();
     }
@@ -71,7 +72,7 @@ public class PlayerListMixin {
     )
     private Set<String> onGetTags(
         Set<String> original,
-        @Share("isMinigameRespawn") LocalBooleanRef isMinigameRespawn
+        @Share(namespace = ArcadeUtils.MOD_ID, value = "isMinigameRespawn") LocalBooleanRef isMinigameRespawn
     ) {
         if (isMinigameRespawn.get()) {
             return Set.of();

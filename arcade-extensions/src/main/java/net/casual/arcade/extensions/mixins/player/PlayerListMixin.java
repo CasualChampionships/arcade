@@ -5,9 +5,13 @@
 package net.casual.arcade.extensions.mixins.player;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import net.casual.arcade.extensions.Extension;
 import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.TransferableEntityExtension;
+import net.casual.arcade.extensions.TransferableEntityExtension.TransferReason;
+import net.casual.arcade.utils.ArcadeUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.Entity;
@@ -33,13 +37,19 @@ public class PlayerListMixin {
         boolean keepInventory,
         Entity.RemovalReason reason,
         CallbackInfoReturnable<ServerPlayer> cir,
-        @Local(ordinal = 1) ServerPlayer respawned
+        @Local(ordinal = 1) ServerPlayer respawned,
+        @Share(namespace = ArcadeUtils.MOD_ID, value = "isMinigameRespawn") LocalBooleanRef isMinigameRespawn
     ) {
-        boolean respawn = reason == Entity.RemovalReason.KILLED;
+        TransferReason transferReason = TransferReason.Other;
+        if (reason == Entity.RemovalReason.KILLED) {
+            transferReason = TransferReason.Respawned;
+        } else if (isMinigameRespawn.get()) {
+            transferReason = TransferReason.Minigame;
+        }
         List<Extension> transferred = new ArrayList<>();
         for (Extension extension : ExtensionHolder.all((ExtensionHolder) player)) {
             if (extension instanceof TransferableEntityExtension transferable) {
-                transferred.add(transferable.transfer(respawned, respawn));
+                transferred.add(transferable.transfer(respawned, transferReason));
             }
         }
         for (Extension extension : transferred) {

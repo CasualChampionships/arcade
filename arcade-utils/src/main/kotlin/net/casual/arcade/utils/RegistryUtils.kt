@@ -5,11 +5,20 @@
 package net.casual.arcade.utils
 
 import net.minecraft.core.Holder
+import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.TagKey
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.DamageType
+
+public fun <T> ResourceLocation.toKey(registryKey: ResourceKey<out Registry<T>>): ResourceKey<T> {
+    return ResourceKey.create(registryKey, this)
+}
+
+public fun ResourceKey<*>.toIdString(): String {
+    return this.location().toString()
+}
 
 public fun <T> Holder<T>.isOf(tag: TagKey<T>): Boolean {
     return this.`is`(tag)

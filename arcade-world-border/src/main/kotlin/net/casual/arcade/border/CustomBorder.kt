@@ -7,10 +7,11 @@ package net.casual.arcade.border
 import net.casual.arcade.border.ducks.SerializableBorder
 import net.casual.arcade.border.state.*
 import net.casual.arcade.utils.time.MinecraftTimeDuration
-import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.border.BorderChangeListener
 import net.minecraft.world.level.border.BorderStatus
 import net.minecraft.world.level.border.WorldBorder
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import net.minecraft.world.phys.shapes.VoxelShape
 
 public abstract class CustomBorder: WorldBorder(), SerializableBorder {
@@ -148,46 +149,44 @@ public abstract class CustomBorder: WorldBorder(), SerializableBorder {
         }
     }
 
-    override fun `arcade$serialize`(): CompoundTag {
-        val compound = CompoundTag()
-        compound.putDouble("center_x", this.centerX)
-        compound.putDouble("center_z", this.centerZ)
-        compound.putDouble("size", this.size)
-        compound.putDouble("damage_safe_zone", this.damageSafeZone)
-        compound.putDouble("damage_per_block", this.damagePerBlock)
-        compound.putLong("lerp_time", this.lerpRemainingTime)
-        compound.putDouble("lerp_target", this.lerpTarget)
-        compound.putInt("warning_blocks", this.warningBlocks)
-        compound.putInt("warning_time", this.warningTime)
-        compound.putLong("center_lerp_time", this.centerState.getLerpRemainingTime())
-        compound.putDouble("center_lerp_target_x", this.centerState.getTargetCenterX())
-        compound.putDouble("center_lerp_target_z", this.centerState.getTargetCenterZ())
-        return compound
+    override fun `arcade$serialize`(output: ValueOutput) {
+        output.putDouble("center_x", this.centerX)
+        output.putDouble("center_z", this.centerZ)
+        output.putDouble("size", this.size)
+        output.putDouble("damage_safe_zone", this.damageSafeZone)
+        output.putDouble("damage_per_block", this.damagePerBlock)
+        output.putLong("lerp_time", this.lerpRemainingTime)
+        output.putDouble("lerp_target", this.lerpTarget)
+        output.putInt("warning_blocks", this.warningBlocks)
+        output.putInt("warning_time", this.warningTime)
+        output.putLong("center_lerp_time", this.centerState.getLerpRemainingTime())
+        output.putDouble("center_lerp_target_x", this.centerState.getTargetCenterX())
+        output.putDouble("center_lerp_target_z", this.centerState.getTargetCenterZ())
     }
 
-    override fun `arcade$deserialize`(compound: CompoundTag) {
+    override fun `arcade$deserialize`(input: ValueInput) {
         val settings = DEFAULT_SETTINGS
-        this.damagePerBlock = compound.getDoubleOr("damage_per_block", settings.damagePerBlock)
-        this.damageSafeZone = compound.getDoubleOr("damage_safe_zone", settings.safeZone)
-        this.warningBlocks = compound.getIntOr("warning_blocks", settings.warningBlocks)
-        this.warningTime = compound.getIntOr("warning_time", settings.warningTime)
-        val remaining = compound.getLongOr("lerp_time", settings.sizeLerpTime)
-        val size = compound.getDoubleOr("size", settings.size)
+        this.damagePerBlock = input.getDoubleOr("damage_per_block", settings.damagePerBlock)
+        this.damageSafeZone = input.getDoubleOr("damage_safe_zone", settings.safeZone)
+        this.warningBlocks = input.getIntOr("warning_blocks", settings.warningBlocks)
+        this.warningTime = input.getIntOr("warning_time", settings.warningTime)
+        val remaining = input.getLongOr("lerp_time", settings.sizeLerpTime)
+        val size = input.getDoubleOr("size", settings.size)
         if (remaining > 0L) {
-            this.lerpSizeBetweenUntracked(size, compound.getDoubleOr("lerp_target", settings.sizeLerpTarget), remaining)
+            this.lerpSizeBetweenUntracked(size, input.getDoubleOr("lerp_target", settings.sizeLerpTarget), remaining)
         } else {
             this.setSizeUntracked(size)
         }
 
-        val centerRemaining = compound.getLongOr("center_lerp_time", 0)
-        val centerX = compound.getDoubleOr("center_x", 0.0)
-        val centerZ = compound.getDoubleOr("center_z", 0.0)
+        val centerRemaining = input.getLongOr("center_lerp_time", 0)
+        val centerX = input.getDoubleOr("center_x", 0.0)
+        val centerZ = input.getDoubleOr("center_z", 0.0)
         if (centerRemaining > 0L) {
             this.lerpCenterBetweenUntracked(
                 centerX,
                 centerZ,
-                compound.getDoubleOr("center_lerp_target_x", 0.0),
-                compound.getDoubleOr("center_lerp_target_z", 0.0),
+                input.getDoubleOr("center_lerp_target_x", 0.0),
+                input.getDoubleOr("center_lerp_target_z", 0.0),
                 centerRemaining
             )
         } else {

@@ -10,7 +10,9 @@ import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.ExtensionMap;
 import net.casual.arcade.extensions.ducks.ArcadeTeamDataHolder;
 import net.casual.arcade.extensions.event.TeamExtensionEvent;
-import net.minecraft.nbt.CompoundTag;
+import net.casual.arcade.utils.ArcadeUtils;
+import net.casual.arcade.utils.ServerUtils;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import org.jetbrains.annotations.NotNull;
@@ -39,9 +41,11 @@ public class PlayerTeamMixin implements ExtensionHolder {
 		at = @At("RETURN")
 	)
 	private PlayerTeam.Packed onPack(PlayerTeam.Packed original) {
-		CompoundTag tag = new CompoundTag();
-		ExtensionHolder.serialize(this, tag);
-		((ArcadeTeamDataHolder) (Object) original).arcade$setData(tag);
+		ArcadeUtils.scopedProblemReporter(reporter -> {
+			TagValueOutput output = TagValueOutput.createWithContext(reporter, ServerUtils.getRegistryAccessOrEmpty());
+			ExtensionHolder.serialize(this, output);
+			((ArcadeTeamDataHolder) (Object) original).arcade$setData(output.buildResult());
+		});
 		return original;
 	}
 

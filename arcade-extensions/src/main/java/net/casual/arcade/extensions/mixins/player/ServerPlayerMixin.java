@@ -7,9 +7,12 @@ package net.casual.arcade.extensions.mixins.player;
 import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.ExtensionMap;
 import net.casual.arcade.extensions.ducks.ExtensionDataHolder;
+import net.casual.arcade.utils.ArcadeUtils;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.ValueInput;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,36 +22,39 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Optional;
+
 @Mixin(ServerPlayer.class)
-public class ServerPlayerMixin implements ExtensionHolder, ExtensionDataHolder {
+public abstract class ServerPlayerMixin implements ExtensionHolder, ExtensionDataHolder {
 	@Unique private ExtensionMap arcade$extensions;
 
 	@Shadow public ServerGamePacketListenerImpl connection;
 
 	@Unique private CompoundTag arcade$data;
 
+	@Shadow public abstract ServerLevel level();
+
 	@Inject(
 		method = "readAdditionalSaveData",
 		at = @At("TAIL")
 	)
 	private void onLoadPlayer(ValueInput input, CallbackInfo ci) {
-		CompoundTag data = input.read("arcade", CompoundTag.CODEC).orElse(null);
 		if (this.connection == null) {
-			this.arcade$data = data;
+            this.arcade$data = input.read(ArcadeUtils.MOD_ID, CompoundTag.CODEC).orElse(null);
 			return;
 		}
-		if (data != null) {
-			ExtensionHolder.deserialize(this, data);
-		}
+		ExtensionHolder.deserialize(this, input.childOrEmpty(ArcadeUtils.MOD_ID));
 	}
 
 	@Override
 	public void arcade$deserializeExtensionData() {
-		if (this.arcade$data != null) {
-			ExtensionHolder.deserialize(this, this.arcade$data);
-			this.arcade$data = null;
-			this.arcade$extensions = null;
-		}
+		CompoundTag data = Optional.ofNullable(this.arcade$data).orElseGet(CompoundTag::new);
+		ArcadeUtils.scopedProblemReporter(reporter -> {
+			ValueInput input = TagValueInput.create(reporter, this.level().registryAccess(), data);
+			ExtensionHolder.deserialize(this, input);
+		});
+		this.arcade$data = null;
+		this.arcade$extensions = null;
 	}
 
 	@NotNull

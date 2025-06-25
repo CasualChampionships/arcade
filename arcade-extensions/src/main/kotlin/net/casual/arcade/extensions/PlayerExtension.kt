@@ -43,11 +43,11 @@ public abstract class PlayerExtension(
      */
     public constructor(player: ServerPlayer): this(player.connection)
 
-    public open fun transfer(player: ServerPlayer, respawned: Boolean): Extension {
+    public open fun transfer(player: ServerPlayer, reason: TransferableEntityExtension.TransferReason): Extension {
         return this
     }
 
-    final override fun transfer(entity: Entity, respawned: Boolean): Extension {
-        return this.transfer(entity as ServerPlayer, respawned)
+    final override fun transfer(entity: Entity, reason: TransferableEntityExtension.TransferReason): Extension {
+        return this.transfer(entity as ServerPlayer, reason)
     }
 }

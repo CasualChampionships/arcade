@@ -8,11 +8,11 @@ import net.casual.arcade.extensions.DataExtension
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.ArcadeUtils
-import net.minecraft.nbt.NbtOps
-import net.minecraft.nbt.StringTag
-import net.minecraft.nbt.Tag
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.GameType
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 
 internal class ExtendedGameModePlayerExtension(
     player: ServerPlayer
@@ -49,22 +49,22 @@ internal class ExtendedGameModePlayerExtension(
         this.gameMode = ExtendedGameMode.fromVanilla(type)
     }
 
-    override fun getName(): String {
-        return "${ArcadeUtils.MOD_ID}_extended_game_mode"
+    override fun getId(): ResourceLocation {
+        return ArcadeUtils.id("extended_game_mode")
     }
 
-    override fun serialize(): Tag? {
-        return StringTag.valueOf(this.gameMode.name)
+    override fun serialize(output: ValueOutput) {
+        output.store("game_mode", ExtendedGameMode.CODEC, this.gameMode)
     }
 
-    override fun deserialize(element: Tag) {
-        val gameMode = ExtendedGameMode.CODEC.parse(NbtOps.INSTANCE, element).result()
-        if (gameMode.isPresent) {
-            this.changedGameMode = false
-            GlobalTickedScheduler.later {
-                if (!this.changedGameMode) {
-                    this.setGameMode(gameMode.get())
-                }
+    override fun deserialize(input: ValueInput) {
+        val gameMode = input.read("game_mode", ExtendedGameMode.CODEC)
+            .orElse(ExtendedGameMode.None)
+
+        this.changedGameMode = false
+        GlobalTickedScheduler.later {
+            if (!this.changedGameMode) {
+                this.setGameMode(gameMode)
             }
         }
     }

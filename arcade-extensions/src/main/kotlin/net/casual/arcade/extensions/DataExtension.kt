@@ -4,7 +4,9 @@
  */
 package net.casual.arcade.extensions
 
-import net.minecraft.nbt.Tag
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 /**
@@ -53,34 +55,25 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  */
 public interface DataExtension: Extension {
     /**
-     * This gets the name of your extension.
+     * This gets the id of your extension.
      *
-     * This usually follows the format of `"${modid}_${extension_name}"`,
-     * so for example, `"arcade_minigame_extension"`.
-     *
-     * @return The name of your extension.
+     * @return The id of your extension.
      */
-    public fun getName(): String
+    public fun getId(): ResourceLocation
 
     /**
      * This method serializes any data in your extension.
      *
-     * The [Tag] that you serialize will be passed into
-     * [deserialize] when deserializing.
-     *
-     * @return The serialized data.
+     * @param output The output to store your data to.
      */
     @OverrideOnly
-    public fun serialize(): Tag?
+    public fun serialize(output: ValueOutput)
 
     /**
      * This method deserializes any data for your extension.
      *
-     * The [element] that gets passed in is what you previously
-     * serialized with [serialize].
-     *
-     * @param element The serialized data.
+     * @param input The input data.
      */
     @OverrideOnly
-    public fun deserialize(element: Tag)
+    public fun deserialize(input: ValueInput)
 }

@@ -8,8 +8,9 @@ import net.minecraft.resources.ResourceLocation
 import java.util.*
 
 public object ResourceUtils {
+    // @Deprecated("Use ArcadeUtils instead", ReplaceWith("ArcadeUtils.id(path)"))
     public fun arcade(path: String): ResourceLocation {
-        return ResourceLocation.fromNamespaceAndPath(ArcadeUtils.MOD_ID, path)
+        return ArcadeUtils.id(path)
     }
 
     public fun random(): ResourceLocation {

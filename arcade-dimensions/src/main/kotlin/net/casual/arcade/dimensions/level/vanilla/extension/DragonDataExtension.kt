@@ -4,17 +4,17 @@
  */
 package net.casual.arcade.dimensions.level.vanilla.extension
 
-import com.mojang.serialization.Dynamic
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.extensions.DataExtension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.utils.ArcadeUtils
-import net.minecraft.nbt.NbtOps
-import net.minecraft.nbt.Tag
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.dimension.end.EndDragonFight
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import kotlin.jvm.optionals.getOrNull
 
 internal class DragonDataExtension(
@@ -26,26 +26,22 @@ internal class DragonDataExtension(
         return this.data ?: EndDragonFight.Data.DEFAULT
     }
 
-    override fun getName(): String {
-        return "${ArcadeUtils.MOD_ID}_dragon_data_extension"
+    override fun getId(): ResourceLocation {
+        return ArcadeUtils.id("dragon_data")
     }
 
-    override fun serialize(): Tag? {
+    override fun serialize(output: ValueOutput) {
         val fight = this.level.dragonFight
         // We let vanilla handle the default end dimension.
         if (fight == null || this.level.dimension() == Level.END) {
-            return null
+            return
         }
 
-        val result = EndDragonFight.Data.CODEC.encodeStart(NbtOps.INSTANCE, fight.saveData())
-        return result.getOrThrow(::IllegalStateException)
+        output.store("fight_data", EndDragonFight.Data.CODEC, fight.saveData())
     }
 
-    override fun deserialize(element: Tag) {
-        this.data = Dynamic(NbtOps.INSTANCE, element)
-            .read(EndDragonFight.Data.CODEC)
-            .result()
-            .getOrNull()
+    override fun deserialize(input: ValueInput) {
+        this.data = input.read("fight_data", EndDragonFight.Data.CODEC).getOrNull()
     }
 
     companion object {

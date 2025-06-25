@@ -6,9 +6,12 @@ package net.casual.arcade.utils
 
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.ProblemReporter.ScopedCollector
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import java.util.function.Consumer
 import kotlin.io.path.createDirectories
 import kotlin.jvm.optionals.getOrNull
 
@@ -16,7 +19,7 @@ public object ArcadeUtils {
     public const val MOD_ID: String = "arcade"
 
     @JvmField
-    public val logger: Logger = LogManager.getLogger(MOD_ID)
+    public val logger: Logger = LoggerFactory.getLogger(MOD_ID)
 
     @JvmField
     public val container: ModContainer? = FabricLoader.getInstance().getModContainer(MOD_ID).getOrNull()
@@ -24,5 +27,20 @@ public object ArcadeUtils {
     @JvmStatic
     public val path: Path by lazy {
         FabricLoader.getInstance().configDir.resolve(MOD_ID).apply { createDirectories() }
+    }
+
+    @JvmStatic
+    public fun id(path: String): ResourceLocation {
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path)
+    }
+
+    @JvmStatic
+    public fun createProblemReporter(): ScopedCollector {
+        return ScopedCollector(this.logger)
+    }
+
+    @JvmStatic
+    public fun scopedProblemReporter(consumer: Consumer<ScopedCollector>) {
+        this.createProblemReporter().use(consumer::accept)
     }
 }

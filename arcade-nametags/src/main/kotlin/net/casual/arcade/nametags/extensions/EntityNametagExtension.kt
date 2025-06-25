@@ -14,6 +14,7 @@ import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent.Compa
 import net.casual.arcade.events.server.player.PlayerPoseEvent
 import net.casual.arcade.extensions.EntityExtension
 import net.casual.arcade.extensions.Extension
+import net.casual.arcade.extensions.TransferableEntityExtension
 import net.casual.arcade.extensions.event.EntityExtensionEvent
 import net.casual.arcade.extensions.event.EntityExtensionEvent.Companion.getExtension
 import net.casual.arcade.nametags.ArcadeNametags
@@ -42,7 +43,7 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
         }
     }
 
-    override fun transfer(entity: Entity, respawned: Boolean): Extension {
+    override fun transfer(entity: Entity, reason: TransferableEntityExtension.TransferReason): Extension {
         val old = this.attachment ?: return EntityNametagExtension(entity)
         val elements = (old.holder() as? NametagElementHolder)?.getNametagElements() ?: listOf()
         val extension = EntityNametagExtension(entity)

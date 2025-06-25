@@ -9,8 +9,9 @@ import net.casual.arcade.extensions.Extension;
 import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.ExtensionMap;
 import net.casual.arcade.extensions.TransferableEntityExtension;
+import net.casual.arcade.extensions.TransferableEntityExtension.TransferReason;
 import net.casual.arcade.extensions.event.EntityExtensionEvent;
-import net.minecraft.nbt.CompoundTag;
+import net.casual.arcade.utils.ArcadeUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -23,8 +24,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.Optional;
 
 @Mixin(Entity.class)
 public class EntityMixin implements ExtensionHolder {
@@ -59,8 +58,8 @@ public class EntityMixin implements ExtensionHolder {
         if ((Object) this instanceof ServerPlayer) {
             return;
         }
-        Optional<CompoundTag> optional = input.read("arcade", CompoundTag.CODEC);
-        optional.ifPresent(tag -> ExtensionHolder.deserialize(this, tag));
+        ValueInput child = input.childOrEmpty(ArcadeUtils.MOD_ID);
+        ExtensionHolder.deserialize(this, child);
     }
 
     @Inject(
@@ -71,9 +70,8 @@ public class EntityMixin implements ExtensionHolder {
         )
     )
     private void onSave(ValueOutput output, CallbackInfo ci) {
-        CompoundTag arcade = new CompoundTag();
-        ExtensionHolder.serialize(this, arcade);
-        output.store("arcade", CompoundTag.CODEC, arcade);
+        ValueOutput child = output.child(ArcadeUtils.MOD_ID);
+        ExtensionHolder.serialize(this, child);
     }
 
     @Inject(
@@ -83,7 +81,8 @@ public class EntityMixin implements ExtensionHolder {
     private void onRestoreEntity(Entity entity, CallbackInfo ci) {
         for (Extension extension : ExtensionHolder.all((ExtensionHolder) entity)) {
             if (extension instanceof TransferableEntityExtension transferable) {
-                Extension transferred = transferable.transfer((Entity) (Object) this, false);
+                TransferReason reason = TransferReason.Other;
+                Extension transferred = transferable.transfer((Entity) (Object) this, reason);
                 this.arcade$extensions.add(transferred);
             }
         }

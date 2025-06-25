@@ -5,6 +5,7 @@
 package net.casual.arcade.utils
 
 import net.casual.arcade.util.ducks.CustomMOTD
+import net.minecraft.core.RegistryAccess
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
@@ -44,6 +45,11 @@ public object ServerUtils {
     @JvmStatic
     public fun getServerOrNull(): MinecraftServer? {
         return this.instance
+    }
+
+    @JvmStatic
+    public fun getRegistryAccessOrEmpty(): RegistryAccess {
+        return this.getServerOrNull()?.registryAccess() ?: RegistryAccess.EMPTY
     }
 
     @JvmStatic

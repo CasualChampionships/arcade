@@ -4,8 +4,6 @@
  */
 package net.casual.arcade.minigame.extensions
 
-import com.mojang.serialization.Codec
-import com.mojang.serialization.codecs.RecordCodecBuilder
 import eu.pb4.polymer.virtualentity.api.ElementHolder
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils
 import eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment
@@ -24,18 +22,18 @@ import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.locationWithLevel
 import net.casual.arcade.utils.teleportTo
 import net.minecraft.core.Direction
-import net.minecraft.nbt.NbtOps
-import net.minecraft.nbt.Tag
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket.AttributeSnapshot
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.ai.attributes.AttributeInstance
 import net.minecraft.world.entity.ai.attributes.Attributes
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import net.minecraft.world.phys.Vec3
 import org.jetbrains.annotations.VisibleForTesting
-import kotlin.jvm.optionals.getOrNull
 
 public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExtension(player), DataExtension {
     private var attachment: EntityAttachment? = null
@@ -45,27 +43,25 @@ public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExt
     public val hasRestrictedMovement: Boolean
         get() = this.attachment != null
 
-    override fun getName(): String {
-        return "${ArcadeUtils.MOD_ID}_movement_restriction_extension"
+    override fun getId(): ResourceLocation {
+        return ArcadeUtils.id("movement_restriction")
     }
 
-    override fun deserialize(element: Tag) {
-        val data = Data.CODEC.parse(NbtOps.INSTANCE, element).result().getOrNull() ?: return
-        this.persist = data.persist
-        this.position = data.position
+    override fun serialize(output: ValueOutput) {
+        if (this.persist && this.hasRestrictedMovement) {
+            output.store("position", Vec3.CODEC, this.position)
+            output.putBoolean("persist", this.persist)
+        }
+    }
+
+    override fun deserialize(input: ValueInput) {
+        this.position = input.read("position", Vec3.CODEC).orElse(Vec3.ZERO)
+        this.persist = input.getBooleanOr("persist", false)
         if (this.persist) {
             GlobalTickedScheduler.later {
                 this.restrictMovement(true)
             }
         }
-    }
-
-    override fun serialize(): Tag? {
-        if (!this.persist || !this.hasRestrictedMovement) {
-            return null
-        }
-        val data = Data(this.position, true)
-        return Data.CODEC.encodeStart(NbtOps.INSTANCE, data).result().getOrNull()
     }
 
     private fun restrictMovement(persist: Boolean) {
@@ -123,17 +119,6 @@ public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExt
         if (this.hasRestrictedMovement) {
             if (this.player.distanceToSqr(this.position) > 0.5) {
                 this.player.teleportTo(this.position)
-            }
-        }
-    }
-
-    private data class Data(val position: Vec3, val persist: Boolean) {
-        companion object {
-            val CODEC: Codec<Data> = RecordCodecBuilder.create { instance ->
-                instance.group(
-                    Vec3.CODEC.fieldOf("position").forGetter(Data::position),
-                    Codec.BOOL.fieldOf("persist").forGetter(Data::persist)
-                ).apply(instance, ::Data)
             }
         }
     }

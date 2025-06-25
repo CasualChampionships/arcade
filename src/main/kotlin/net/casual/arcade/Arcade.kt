@@ -9,7 +9,7 @@ import net.casual.arcade.utils.ResourceUtils
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.ModContainer
 import net.minecraft.resources.ResourceLocation
-import org.apache.logging.log4j.Logger
+import org.slf4j.Logger
 import java.nio.file.Path
 
 /**

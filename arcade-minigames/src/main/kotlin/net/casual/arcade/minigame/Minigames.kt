@@ -218,7 +218,7 @@ public object Minigames: ModInitializer {
                 try {
                     this.read(minigame, server)
                 } catch (e: MinigameCreationException) {
-                    ArcadeUtils.logger.error(e)
+                    ArcadeUtils.logger.error("Failed to create minigame", e)
                 }
             }
         }
@@ -230,7 +230,7 @@ public object Minigames: ModInitializer {
                 try {
                     this.write(minigame.getSavePath(), minigame)
                 } catch (e: MinigameSerializationException) {
-                    ArcadeUtils.logger.error(e)
+                    ArcadeUtils.logger.error("Failed to write minigame", e)
                 }
             }
         }

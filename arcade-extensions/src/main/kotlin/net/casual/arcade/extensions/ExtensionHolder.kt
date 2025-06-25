@@ -4,7 +4,8 @@
  */
 package net.casual.arcade.extensions
 
-import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 
 /**
  * Interface class allowing any implementor to
@@ -39,25 +40,21 @@ public interface ExtensionHolder {
         }
 
         @JvmStatic
-        public fun ExtensionHolder.deserialize(tag: CompoundTag) {
+        public fun ExtensionHolder.deserialize(input: ValueInput) {
             for (extension in this.all()) {
                 if (extension is DataExtension) {
-                    val data = tag[extension.getName()]
-                    if (data != null) {
-                        extension.deserialize(data)
-                    }
+                    val child = input.childOrEmpty(extension.getId().toString())
+                    extension.deserialize(child)
                 }
             }
         }
 
         @JvmStatic
-        public fun ExtensionHolder.serialize(tag: CompoundTag) {
+        public fun ExtensionHolder.serialize(output: ValueOutput) {
             for (extension in this.all()) {
                 if (extension is DataExtension) {
-                    val serialized = extension.serialize()
-                    if (serialized != null) {
-                        tag.put(extension.getName(), serialized)
-                    }
+                    val child = output.child(extension.getId().toString())
+                    extension.serialize(child)
                 }
             }
         }

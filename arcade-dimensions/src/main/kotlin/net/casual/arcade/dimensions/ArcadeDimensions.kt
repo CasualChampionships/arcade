@@ -11,7 +11,7 @@ import net.casual.arcade.dimensions.level.spawner.extension.LevelCustomMobSpawni
 import net.casual.arcade.dimensions.level.vanilla.extension.DragonDataExtension
 import net.casual.arcade.dimensions.utils.*
 import net.casual.arcade.dimensions.utils.impl.VoidChunkGenerator
-import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.utils.ArcadeUtils
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents
 import net.minecraft.core.Registry
@@ -33,7 +33,7 @@ import net.minecraft.world.level.Level
 public object ArcadeDimensions: ModInitializer {
     override fun onInitialize() {
         DimensionRegistries.load()
-        Registry.register(BuiltInRegistries.CHUNK_GENERATOR, ResourceUtils.arcade("void"), VoidChunkGenerator.CODEC)
+        Registry.register(BuiltInRegistries.CHUNK_GENERATOR, ArcadeUtils.id("void"), VoidChunkGenerator.CODEC)
 
         LevelPersistenceTracker.registerEvents()
         LevelCustomMobSpawningExtension.registerEvents()

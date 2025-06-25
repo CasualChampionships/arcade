@@ -10,7 +10,11 @@ import net.casual.arcade.border.state.BorderState
 import net.casual.arcade.border.state.CenterBorderState
 import net.casual.arcade.border.state.StillBorderState
 import net.casual.arcade.border.state.StillCenterBorderState
+import net.minecraft.core.RegistryAccess
+import net.minecraft.util.ProblemReporter
 import net.minecraft.world.level.border.WorldBorder
+import net.minecraft.world.level.storage.TagValueInput
+import net.minecraft.world.level.storage.TagValueOutput
 import java.util.*
 
 public class TrackedBorder(size: Double, centerX: Double, centerZ: Double): CustomBorder() {
@@ -22,7 +26,10 @@ public class TrackedBorder(size: Double, centerX: Double, centerZ: Double): Cust
     private var isTracking = false
 
     public constructor(border: WorldBorder): this(border.size, border.centerX, border.centerZ) {
-        this.`arcade$deserialize`((border as SerializableBorder).`arcade$serialize`())
+        val output = TagValueOutput.createWithoutContext(ProblemReporter.DISCARDING)
+        (border as SerializableBorder).`arcade$serialize`(output)
+        val input = TagValueInput.create(ProblemReporter.DISCARDING, RegistryAccess.EMPTY, output.buildResult())
+        this.`arcade$deserialize`(input)
     }
 
     override fun tick() {
