@@ -32,7 +32,7 @@ public open class NPCGroundPathNavigation(player: FakePlayer): NPCPathNavigation
     }
 
     override fun getTempMobPos(): Vec3 {
-        return Vec3(this.player.x, getSurfaceY().toDouble(), this.player.z)
+        return Vec3(this.player.x, this.getSurfaceY().toDouble(), this.player.z)
     }
 
     @Suppress("DEPRECATION")

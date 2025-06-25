@@ -14,6 +14,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.ducks.ModifyActuallyHurt;
+import net.casual.arcade.events.server.entity.EntityBeforeLootEvent;
 import net.casual.arcade.events.server.entity.EntityDeathEvent;
 import net.casual.arcade.events.server.entity.EntityDropLootEvent;
 import net.casual.arcade.events.server.player.*;
@@ -197,12 +198,18 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 	) {
 		ObjectArrayList<ItemStack> loot = new ObjectArrayList<>();
 		Consumer<ItemStack> adder = loot::add;
-		original.call(instance, params, seed, adder);
 
-		EntityDropLootEvent event = new EntityDropLootEvent((LivingEntity) (Object) this, params, loot);
-		GlobalEventHandler.Server.broadcast(event);
+		LivingEntity entity = (LivingEntity) (Object) this;
+		EntityBeforeLootEvent beforeLootEvent = new EntityBeforeLootEvent(entity, params, 1);
+		GlobalEventHandler.Server.broadcast(beforeLootEvent);
+		for (int i = beforeLootEvent.getLootMultiplier(); i > 0; i--) {
+			original.call(instance, params, seed, adder);
+		}
 
-		event.getDrops().forEach(output);
+		EntityDropLootEvent dropEvent = new EntityDropLootEvent(entity, params, loot);
+		GlobalEventHandler.Server.broadcast(dropEvent);
+
+		dropEvent.getDrops().forEach(output);
 	}
 
 	@Override

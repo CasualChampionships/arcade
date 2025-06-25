@@ -5,6 +5,7 @@
 package net.casual.arcade.npc.ai.behavior
 
 import net.casual.arcade.npc.FakePlayer
+import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.ai.behavior.Behavior
 import net.minecraft.world.entity.ai.behavior.PositionTracker
@@ -12,9 +13,9 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType
 import net.minecraft.world.entity.ai.memory.MemoryStatus
 
 public class FakePlayerLookAtTargetSink(
-    minDuration: Int,
-    maxDuration: Int
-): Behavior<FakePlayer>(CONDITIONS, minDuration, maxDuration) {
+    minDuration: MinecraftTimeDuration,
+    maxDuration: MinecraftTimeDuration
+): Behavior<FakePlayer>(CONDITIONS, minDuration.ticks, maxDuration.ticks) {
     override fun canStillUse(level: ServerLevel, player: FakePlayer, time: Long): Boolean {
         return player.brain.getMemory(MemoryModuleType.LOOK_TARGET).filter { tracker ->
             tracker.isVisibleBy(player)

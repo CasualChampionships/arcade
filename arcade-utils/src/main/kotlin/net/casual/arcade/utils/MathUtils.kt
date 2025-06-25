@@ -9,9 +9,7 @@ import net.minecraft.util.Mth
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.joml.Quaternionf
-import kotlin.math.asin
-import kotlin.math.atan2
-import kotlin.math.ceil
+import kotlin.math.*
 
 public object MathUtils {
     public operator fun Vec3.component1(): Double {
@@ -32,6 +30,28 @@ public object MathUtils {
 
     public operator fun Vec2.component2(): Float {
         return this.x
+    }
+
+    public fun Vec3.verticalDistanceTo(other: Vec3): Double {
+        return abs(this.y - other.y)
+    }
+
+    public fun Vec3.horizontalDistanceTo(other: Vec3): Double {
+        return sqrt(this.horizontalDistanceToSqr(other))
+    }
+
+    public fun Vec3.horizontalDistanceToSqr(other: Vec3): Double {
+        val dx = this.x - other.x
+        val dz = this.z - other.z
+        return dx * dx + dz * dz
+    }
+
+    public fun Vec3.verticallyCloserThan(other: Vec3, distance: Double): Boolean {
+        return this.verticalDistanceTo(other) < distance
+    }
+
+    public fun Vec3.horizontallyCloserThan(other: Vec3, distance: Double): Boolean {
+        return this.horizontalDistanceToSqr(other) < distance * distance
     }
 
     public fun Vec3.projectOntoLine(start: Vec3, end: Vec3): Vec3 {

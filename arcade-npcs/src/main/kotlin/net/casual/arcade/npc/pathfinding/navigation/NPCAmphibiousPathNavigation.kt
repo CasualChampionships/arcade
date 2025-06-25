@@ -10,7 +10,7 @@ import net.casual.arcade.npc.pathfinding.evaluator.NPCAmphibiousNodeEvaluator
 import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.Vec3
 
-public class NPCAmphibiousPathNavigation(player: FakePlayer) : NPCPathNavigation(player) {
+public class NPCAmphibiousPathNavigation(player: FakePlayer): NPCPathNavigation(player) {
     override fun createPathfinder(maxVisitedNodes: Int): NPCPathfinder {
         this.nodeEvaluator = NPCAmphibiousNodeEvaluator()
         return NPCPathfinder(this.nodeEvaluator, maxVisitedNodes)
