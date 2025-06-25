@@ -5,32 +5,25 @@
 package net.casual.arcade.utils
 
 import net.minecraft.core.Direction8
+import net.minecraft.core.Vec3i
 import net.minecraft.util.Mth
+import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.joml.Quaternionf
 import kotlin.math.*
 
 public object MathUtils {
-    public operator fun Vec3.component1(): Double {
-        return this.x
-    }
+    public operator fun Vec3.component1(): Double = this.x
+    public operator fun Vec3.component2(): Double = this.y
+    public operator fun Vec3.component3(): Double = this.z
 
-    public operator fun Vec3.component2(): Double {
-        return this.y
-    }
+    public operator fun Vec2.component1(): Float = this.y
+    public operator fun Vec2.component2(): Float = this.x
 
-    public operator fun Vec3.component3(): Double {
-        return this.z
-    }
-
-    public operator fun Vec2.component1(): Float {
-        return this.y
-    }
-
-    public operator fun Vec2.component2(): Float {
-        return this.x
-    }
+    public operator fun Vec3i.component1(): Int = this.x
+    public operator fun Vec3i.component2(): Int = this.y
+    public operator fun Vec3i.component3(): Int = this.z
 
     public fun Vec3.verticalDistanceTo(other: Vec3): Double {
         return abs(this.y - other.y)
@@ -157,5 +150,32 @@ public object MathUtils {
     public fun centeredScale(percent: Float, factor: Float): Float {
         val shift = (1 - factor) / 2.0F
         return shift + percent * factor
+    }
+
+    public fun Vec3i.toAABB(): AABB {
+        val (x, y, z) = this
+        return AABB(x + 0.0, y + 0.0, z + 0.0, x + 1.0, y + 1.0, z + 1.0)
+    }
+
+    public inline fun Vec3i.forEachCorner(consumer: (Int, Int, Int) -> Unit) {
+        consumer.invoke(this.x, this.y, this.z)
+        consumer.invoke(this.x, this.y, this.z + 1)
+        consumer.invoke(this.x, this.y + 1, this.z)
+        consumer.invoke(this.x, this.y + 1, this.z + 1)
+        consumer.invoke(this.x + 1, this.y, this.z)
+        consumer.invoke(this.x + 1, this.y, this.z + 1)
+        consumer.invoke(this.x + 1, this.y + 1, this.z)
+        consumer.invoke(this.x + 1, this.y + 1, this.z + 1)
+    }
+
+    public inline fun AABB.forEachCorner(consumer: (Double, Double, Double) -> Unit) {
+        consumer.invoke(this.minX, this.minY, this.minZ)
+        consumer.invoke(this.minX, this.minY, this.maxZ)
+        consumer.invoke(this.minX, this.maxY, this.minZ)
+        consumer.invoke(this.minX, this.maxY, this.maxZ)
+        consumer.invoke(this.maxX, this.minY, this.minZ)
+        consumer.invoke(this.maxX, this.minY, this.maxZ)
+        consumer.invoke(this.maxX, this.maxY, this.minZ)
+        consumer.invoke(this.maxX, this.maxY, this.maxZ)
     }
 }

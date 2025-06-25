@@ -21,6 +21,7 @@ import net.minecraft.core.Holder
 import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.*
+import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.Action.ADD
 import net.minecraft.server.MinecraftServer
@@ -52,6 +53,13 @@ public object PlayerUtils {
     @JvmStatic
     public val ServerPlayer.isSurvival: Boolean
         get() = this.isGameMode(GameType.SURVIVAL)
+
+    @JvmStatic
+    public fun Iterable<ServerPlayer>.broadcast(packet: Packet<*>) {
+        for (player in this) {
+            player.connection.send(packet)
+        }
+    }
 
     @JvmStatic
     @JvmOverloads
@@ -552,7 +560,7 @@ public object PlayerUtils {
         overrideLimiter: Boolean = false
     ) {
         this.connection.send(ClientboundLevelParticlesPacket(
-            options, overrideLimiter, alwaysRender, position.x, position.y, position.z, xDist, yDist, zDist, speed, count
+            options, position, xDist, yDist, zDist, speed, count, alwaysRender, overrideLimiter
         ))
     }
 }
