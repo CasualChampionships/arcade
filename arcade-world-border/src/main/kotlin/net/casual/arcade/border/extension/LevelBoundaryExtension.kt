@@ -78,7 +78,9 @@ public class LevelBoundaryExtension(
                 it.addExtension(::LevelBoundaryExtension)
             }
             GlobalEventHandler.Server.register<LevelTickEvent> {
-                it.level.levelBoundary?.tick()
+                if (it.level.tickRateManager().runsNormally()) {
+                    it.level.levelBoundary?.tick()
+                }
             }
             GlobalEventHandler.Server.register<EntityStartTrackingEvent> { (entity, level) ->
                 if (entity is ServerPlayer) {
