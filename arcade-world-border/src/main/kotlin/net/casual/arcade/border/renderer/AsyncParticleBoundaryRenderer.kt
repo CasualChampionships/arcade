@@ -26,13 +26,17 @@ public class AsyncParticleBoundaryRenderer(
         }
     }
 
+    override fun factory(): BoundaryRenderer.Factory {
+        return Factory(this.particles, this.range, this.pointsPerBlock)
+    }
+
     public open class Factory(
-        private val particle: BoundaryParticles,
+        private val particles: BoundaryParticles,
         private val range: Double,
         private val pointsPerBlock: Double
     ): BoundaryRenderer.Factory {
         override fun create(shape: BoundaryShape): BoundaryRenderer {
-            return AsyncParticleBoundaryRenderer(shape, this.particle, this.range, this.pointsPerBlock)
+            return AsyncParticleBoundaryRenderer(shape, this.particles, this.range, this.pointsPerBlock)
         }
 
         override fun codec(): MapCodec<out BoundaryRenderer.Factory> {
@@ -40,11 +44,11 @@ public class AsyncParticleBoundaryRenderer(
         }
 
         public companion object: CodecProvider<Factory> {
-            override val ID: ResourceLocation = ArcadeUtils.id("particle_border_renderer")
+            override val ID: ResourceLocation = ArcadeUtils.id("async_particle_border_renderer")
 
             override val CODEC: MapCodec<out Factory> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(
-                    BoundaryParticles.CODEC.fieldOf("particles").forGetter(Factory::particle),
+                    BoundaryParticles.CODEC.fieldOf("particles").forGetter(Factory::particles),
                     Codec.DOUBLE.fieldOf("range").forGetter(Factory::range),
                     Codec.DOUBLE.fieldOf("points_per_block").forGetter(Factory::pointsPerBlock)
                 ).apply(instance, ::Factory)

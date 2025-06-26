@@ -6,7 +6,7 @@ import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.border.LevelBoundary
 import net.casual.arcade.border.extension.LevelBoundaryExtension.Companion.levelBoundary
 import net.casual.arcade.border.renderer.AsyncParticleBoundaryRenderer
-import net.casual.arcade.border.renderer.ParticleBoundaryRenderer
+import net.casual.arcade.border.renderer.AxisAlignedDisplayBoundaryRenderer
 import net.casual.arcade.border.shape.AxisAlignedBoundaryShape
 import net.casual.arcade.commands.*
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -14,7 +14,6 @@ import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.TimeArgument
 import net.minecraft.commands.arguments.coordinates.Vec3Argument
-import net.minecraft.core.particles.DustParticleOptions
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 
@@ -52,7 +51,7 @@ object LevelBoundaryCommand: CommandTree {
         val box = AABB.ofSize(Vec3.ZERO, 100.0, 100.0, 100.0)
         val shape = AxisAlignedBoundaryShape(box)
         shape.recenter(Vec3(0.0, 65.0, 0.0))
-        val renderer = AsyncParticleBoundaryRenderer(shape)
+        val renderer = AxisAlignedDisplayBoundaryRenderer(shape)
         val boundary = LevelBoundary(shape, renderer)
         level.levelBoundary = boundary
         return context.source.success("Successfully set world boundary")

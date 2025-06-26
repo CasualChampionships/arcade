@@ -36,7 +36,7 @@ public abstract class ShapedTeleporter: EntityTeleporter {
 
     override fun teleportTeams(level: ServerLevel, teams: Multimap<PlayerTeam, Entity>) {
         val shape = this.createShape(level, teams.keySet().size)
-        for ((team, position) in teams.keySet().zip(shape)) {
+        for ((team, position) in teams.keySet().zip(Iterable { shape })) {
             this.teleportTeam(team, teams[team], level.asLocation(position))
         }
     }

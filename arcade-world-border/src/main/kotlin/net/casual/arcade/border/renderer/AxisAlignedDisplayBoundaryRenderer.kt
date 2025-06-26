@@ -11,8 +11,11 @@ import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
 import net.casual.arcade.border.shape.AxisAlignedBoundaryShape
 import net.casual.arcade.border.shape.BoundaryShape
+import net.casual.arcade.border.utils.BundlingElementHolder
 import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.EnumUtils
 import net.casual.arcade.utils.codec.CodecProvider
+import net.minecraft.core.Direction
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.resources.ResourceLocation
@@ -21,6 +24,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.item.Items
 import net.minecraft.world.phys.Vec3
+import java.util.*
 import java.util.function.Consumer
 
 public class AxisAlignedDisplayBoundaryRenderer(
@@ -29,24 +33,24 @@ public class AxisAlignedDisplayBoundaryRenderer(
     private val players = Reference2ObjectOpenHashMap<ServerGamePacketListenerImpl, BorderAttachment>()
 
     override fun render(players: Collection<ServerPlayer>) {
-
         for (player in players) {
             val attachment = this.players[player.connection] ?: continue
             val anchor = getAnchorPosition(player)
-            for ((element, face) in attachment.faces.zip(faces)) {
-
+            for ((direction, element) in attachment.faces) {
+                this.updateFace(anchor, direction, element)
             }
+            attachment.tick()
         }
     }
 
     override fun startRendering(player: ServerPlayer) {
         val connection = player.connection
-        val holder = ElementHolder()
-        val faces = ArrayList<ItemDisplayElement>()
-        repeat(6) {
-            val face = ItemDisplayElement(Items.BLUE_STAINED_GLASS)
-            holder.addElement(face)
-            faces.add(face)
+        val holder = BundlingElementHolder()
+        val faces = EnumUtils.mapOf<Direction, ItemDisplayElement>()
+        for (direction in Direction.entries) {
+            val element = ItemDisplayElement(Items.BLUE_STAINED_GLASS)
+            faces[direction] = element
+            holder.addElement(element)
         }
         val attachment = BorderAttachment(faces, holder, connection)
         this.players[connection] = attachment
@@ -64,12 +68,32 @@ public class AxisAlignedDisplayBoundaryRenderer(
 
     }
 
+    override fun factory(): BoundaryRenderer.Factory {
+        return Factory.INSTANCE
+    }
+
+    private fun updateFace(anchor: Vec3, direction: Direction, element: ItemDisplayElement) {
+        val size = this.shape.size().toVector3f()
+        val scale = direction.step().absolute().sub(1.0f, 1.0f, 1.0f).negate()
+        element.scale = scale.mul(size)
+
+        val center = this.shape.center().toVector3f()
+        val offset = direction.step().mul(size).mul(0.5F)
+        val faceCenter = center.add(offset)
+
+        element.translation = faceCenter.sub(anchor.toVector3f())
+    }
+
     private class BorderAttachment(
-        val faces: List<ItemDisplayElement>,
+        val faces: EnumMap<Direction, ItemDisplayElement>,
         private val holder: ElementHolder,
         private val owner: ServerGamePacketListenerImpl
     ): HolderAttachment {
         val player: ServerPlayer get() = this.owner.player
+
+        init {
+            this.holder.attachment = this
+        }
 
         override fun holder(): ElementHolder {
             return this.holder
@@ -112,7 +136,7 @@ public class AxisAlignedDisplayBoundaryRenderer(
         public companion object: CodecProvider<Factory> {
             public val INSTANCE: Factory = Factory()
 
-            override val ID: ResourceLocation = ArcadeUtils.id("display_boundary_renderer")
+            override val ID: ResourceLocation = ArcadeUtils.id("axis_aligned_display_boundary_renderer")
 
             override val CODEC: MapCodec<out Factory> = MapCodec.unit(INSTANCE)
         }

@@ -25,6 +25,8 @@ public interface BoundaryRenderer {
 
     public fun restartRendering(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>)
 
+    public fun factory(): Factory
+
     public interface Factory {
         public fun create(shape: BoundaryShape): BoundaryRenderer
 

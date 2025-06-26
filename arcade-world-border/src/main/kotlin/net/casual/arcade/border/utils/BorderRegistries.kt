@@ -14,11 +14,11 @@ import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 
 public object BorderRegistryKeys: RegistryKeySupplier(ArcadeUtils.MOD_ID) {
-    public val BORDER_RENDERER: ResourceKey<Registry<MapCodec<out BoundaryRenderer>>> = this.create("border_renderer")
+    public val BORDER_RENDERER_FACTOR: ResourceKey<Registry<MapCodec<out BoundaryRenderer.Factory>>> = this.create("border_renderer_factory")
     public val BORDER_SHAPE: ResourceKey<Registry<MapCodec<out BoundaryShape>>> = this.create("border_shape")
 }
 
 public object BorderRegistries: RegistrySupplier() {
-    public val BOUNDARY_RENDERER_FACTORY: Registry<MapCodec<out BoundaryRenderer.Factory>> = this.create(BorderRegistryKeys.BORDER_RENDERER, BoundaryRenderer.Factory::bootstrap)
+    public val BOUNDARY_RENDERER_FACTORY: Registry<MapCodec<out BoundaryRenderer.Factory>> = this.create(BorderRegistryKeys.BORDER_RENDERER_FACTOR, BoundaryRenderer.Factory::bootstrap)
     public val BOUNDARY_SHAPE: Registry<MapCodec<out BoundaryShape>> = this.create(BorderRegistryKeys.BORDER_SHAPE, BoundaryShape::bootstrap)
 }

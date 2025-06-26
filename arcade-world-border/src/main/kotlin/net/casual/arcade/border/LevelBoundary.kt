@@ -25,7 +25,7 @@ public class LevelBoundary(
     public var damagePerBlock: Double = 0.2
     public var damageSafeZone: Double = 5.0
 
-    public constructor(settings: Settings): this(settings.shape, settings.rendererFactory) {
+    public constructor(settings: Settings): this(settings.shape, settings.renderer()) {
         this.damagePerBlock = settings.damagePerBlock
         this.damageSafeZone = settings.damageSafeZone
     }
@@ -47,29 +47,29 @@ public class LevelBoundary(
     }
 
     public fun createSettings(): Settings {
-        return Settings(this.shape, this.renderer, this.damagePerBlock, this.damageSafeZone)
+        return Settings(this.shape, this.renderer.factory(), this.damagePerBlock, this.damageSafeZone)
     }
 
     public fun tick() {
         this.shape.tick()
 
         val players = this.getPlayers()
-        this.renderer.render(this.shape, players)
+        this.renderer.render(players)
         for (player in players) {
             this.tickPlayer(player)
         }
     }
 
     override fun onAddPlayer(player: ServerPlayer) {
-        this.renderer.startRendering(this.shape, player)
+        this.renderer.startRendering(player)
     }
 
     override fun onRemovePlayer(player: ServerPlayer) {
-        this.renderer.stopRendering(this.shape, player)
+        this.renderer.stopRendering(player)
     }
 
     override fun resendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
-        this.renderer.restartRendering(this.shape, player, sender)
+        this.renderer.restartRendering(player, sender)
     }
 
     private fun tickPlayer(player: ServerPlayer) {
@@ -91,8 +91,8 @@ public class LevelBoundary(
         val damagePerBlock: Double,
         val damageSafeZone: Double
     ) {
-        public fun renderer() {
-            return this.rendererFactory
+        public fun renderer(): BoundaryRenderer {
+            return this.rendererFactory.create(this.shape)
         }
 
         public companion object {

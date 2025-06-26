@@ -59,6 +59,10 @@ public open class ParticleBoundaryRenderer(
 
     }
 
+    override fun factory(): BoundaryRenderer.Factory {
+        return Factory(this.particles, this.range, this.pointsPerBlock)
+    }
+
     public data class BoundaryParticles(
         val stationary: ParticleOptions,
         val shrinking: ParticleOptions,
@@ -82,12 +86,12 @@ public open class ParticleBoundaryRenderer(
     }
 
     public class Factory(
-        private val particle: BoundaryParticles,
+        private val particles: BoundaryParticles,
         private val range: Double,
         private val pointsPerBlock: Double
     ): BoundaryRenderer.Factory {
         override fun create(shape: BoundaryShape): BoundaryRenderer {
-            return ParticleBoundaryRenderer(shape, this.particle, this.range, this.pointsPerBlock)
+            return ParticleBoundaryRenderer(shape, this.particles, this.range, this.pointsPerBlock)
         }
 
         override fun codec(): MapCodec<out BoundaryRenderer.Factory> {
@@ -99,7 +103,7 @@ public open class ParticleBoundaryRenderer(
 
             override val CODEC: MapCodec<out Factory> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(
-                    BoundaryParticles.CODEC.fieldOf("particles").forGetter(Factory::particle),
+                    BoundaryParticles.CODEC.fieldOf("particles").forGetter(Factory::particles),
                     Codec.DOUBLE.fieldOf("range").forGetter(Factory::range),
                     Codec.DOUBLE.fieldOf("points_per_block").forGetter(Factory::pointsPerBlock)
                 ).apply(instance, ::Factory)
