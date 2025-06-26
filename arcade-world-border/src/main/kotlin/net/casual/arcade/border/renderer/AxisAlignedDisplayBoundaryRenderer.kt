@@ -24,7 +24,6 @@ import net.minecraft.core.Direction
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.server.level.ChunkTrackingView
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
@@ -32,10 +31,8 @@ import net.minecraft.util.Brightness
 import net.minecraft.world.item.Items
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
-import org.joml.Vector3f
 import java.util.*
 import java.util.function.Consumer
-import kotlin.math.max
 
 public class AxisAlignedDisplayBoundaryRenderer(
     private val shape: AxisAlignedBoundaryShape
@@ -48,8 +45,8 @@ public class AxisAlignedDisplayBoundaryRenderer(
             val box = player.getApproximateViewBox()
             if (this.shape.aabb.intersects(box)) {
                 val intersection = this.shape.aabb.intersect(box)
-                for ((direction, element) in attachment.faces) {
-                    this.updateFace(intersection, direction, element)
+                for ((direction, element) in attachment.elements) {
+                    this.updateFace(player, intersection, direction, element)
                 }
             }
             attachment.tick()
@@ -59,18 +56,9 @@ public class AxisAlignedDisplayBoundaryRenderer(
     override fun startRendering(player: ServerPlayer) {
         val connection = player.connection
         val holder = BundlingElementHolder()
-        val faces = EnumUtils.mapOf<Direction, ItemDisplayElement>()
-        for (direction in Direction.entries) {
-            val element = ItemDisplayElement(Items.BLUE_STAINED_GLASS)
-            element.brightness = Brightness.FULL_BRIGHT
-            element.isInvisible = true
-            element.viewRange = 100.0F
-            element.teleportDuration = 1
-            element.interpolationDuration = 1
-            faces[direction] = element
-            holder.addElement(element)
-        }
-        val attachment = BorderAttachment(faces, holder, connection)
+        val primary = EnumUtils.mapOf<Direction, ElementWithStatus>()
+        this.createElements(holder, primary)
+        val attachment = BorderAttachment(primary,  holder, connection)
         this.players[connection] = attachment
         attachment.startWatching(connection)
     }
@@ -90,36 +78,47 @@ public class AxisAlignedDisplayBoundaryRenderer(
         return Factory.INSTANCE
     }
 
-    private fun updateFace(intersection: AABB, direction: Direction, element: ItemDisplayElement) {
+    private fun createElements(holder: ElementHolder, map: EnumMap<Direction, ElementWithStatus>) {
+        for (direction in Direction.entries) {
+            val element = ItemDisplayElement(Items.BLUE_STAINED_GLASS)
+            element.brightness = Brightness.FULL_BRIGHT
+            element.isInvisible = true
+            element.viewRange = 100.0F
+            element.teleportDuration = 1
+            element.interpolationDuration = 1
+            map[direction] = ElementWithStatus(element, false)
+            holder.addElement(element)
+        }
+    }
+
+    private fun updateFace(player: ServerPlayer, intersection: AABB, direction: Direction, data: ElementWithStatus) {
+        val element = data.element
         if (intersection.getFace(direction) != this.shape.aabb.getFace(direction)) {
+            if (data.watching) {
+                element.stopWatching(player, player.connection::send)
+                data.watching = false
+            }
             return
         }
 
+        val zFightingAdjustment = direction.opposite.unitVec3.scale(0.001)
         val position = intersection.getFaceCenter(direction)
-        element.overridePos = position
-
+        element.overridePos = position.add(zFightingAdjustment)
 
         val size = intersection.getSizeVec().toVector3f()
         val scale = direction.step().absolute().sub(1.0f, 1.0f, 1.0f).negate()
-        GlobalTickedScheduler.later {
-            element.scale = scale.mul(size)
+        element.scale = scale.mul(size)
+
+        if (!data.watching) {
+            element.startWatching(player, player.connection::send)
+            data.watching = true
         }
-
-
-//        element.displayWidth = max(scale.x, scale.z)
-//        element.displayHeight = scale.y
-//
-//        element.scale = scale.mul(32.0F)
-
-//        val center = this.shape.center().toVector3f()
-//        val offset = direction.step().mul(size).mul(0.5F)
-//        val faceCenter = center.add(offset)
-//
-//        element.translation = faceCenter.sub(anchor.toVector3f())
     }
 
+    private data class ElementWithStatus(val element: ItemDisplayElement, var watching: Boolean)
+
     private class BorderAttachment(
-        val faces: EnumMap<Direction, ItemDisplayElement>,
+        val elements: EnumMap<Direction, ElementWithStatus>,
         private val holder: ElementHolder,
         private val owner: ServerGamePacketListenerImpl
     ): HolderAttachment {
