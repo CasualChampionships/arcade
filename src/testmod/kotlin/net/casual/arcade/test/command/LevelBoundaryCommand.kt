@@ -50,8 +50,9 @@ object LevelBoundaryCommand: CommandTree {
     private fun createBoundary(context: CommandContext<CommandSourceStack>): Int {
         val level = context.source.level
         val box = AABB.ofSize(Vec3.ZERO, 100.0, 100.0, 100.0)
-        val shape = AxisAlignedBoundaryShape(box, 0.25)
-        val renderer = AsyncParticleBoundaryRenderer(DustParticleOptions.REDSTONE, 30.0)
+        val shape = AxisAlignedBoundaryShape(box)
+        shape.recenter(Vec3(0.0, 65.0, 0.0))
+        val renderer = AsyncParticleBoundaryRenderer(shape)
         val boundary = LevelBoundary(shape, renderer)
         level.levelBoundary = boundary
         return context.source.success("Successfully set world boundary")

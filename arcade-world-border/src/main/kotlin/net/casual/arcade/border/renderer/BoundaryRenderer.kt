@@ -17,29 +17,30 @@ import java.util.function.Consumer
 import java.util.function.Function
 
 public interface BoundaryRenderer {
-    public fun render(shape: BoundaryShape, players: Collection<ServerPlayer>)
+    public fun render(players: Collection<ServerPlayer>)
 
-    public fun startRendering(shape: BoundaryShape, player: ServerPlayer)
+    public fun startRendering(player: ServerPlayer)
 
-    public fun stopRendering(shape: BoundaryShape, player: ServerPlayer)
+    public fun stopRendering(player: ServerPlayer)
 
-    public fun restartRendering(
-        shape: BoundaryShape,
-        player: ServerPlayer,
-        sender: Consumer<Packet<ClientGamePacketListener>>
-    )
+    public fun restartRendering(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>)
 
-    public fun codec(): MapCodec<out BoundaryRenderer>
+    public interface Factory {
+        public fun create(shape: BoundaryShape): BoundaryRenderer
 
-    public companion object {
-        public val CODEC: Codec<BoundaryRenderer> = Codec.lazyInitialized {
-            BorderRegistries.BOUNDARY_RENDERER.byNameCodec()
-                .dispatch(BoundaryRenderer::codec, Function.identity())
-        }
+        public fun codec(): MapCodec<out Factory>
 
-        internal fun bootstrap(registry: Registry<MapCodec<out BoundaryRenderer>>) {
-            AsyncParticleBoundaryRenderer.register(registry)
-            ParticleBoundaryRenderer.register(registry)
+        public companion object {
+            public val CODEC: Codec<Factory> = Codec.lazyInitialized {
+                BorderRegistries.BOUNDARY_RENDERER_FACTORY.byNameCodec()
+                    .dispatch(Factory::codec, Function.identity())
+            }
+
+            internal fun bootstrap(registry: Registry<MapCodec<out Factory>>) {
+                AsyncParticleBoundaryRenderer.Factory.register(registry)
+                AxisAlignedDisplayBoundaryRenderer.Factory.register(registry)
+                ParticleBoundaryRenderer.Factory.register(registry)
+            }
         }
     }
 }

@@ -25,7 +25,7 @@ public class LevelBoundary(
     public var damagePerBlock: Double = 0.2
     public var damageSafeZone: Double = 5.0
 
-    public constructor(settings: Settings): this(settings.shape, settings.renderer) {
+    public constructor(settings: Settings): this(settings.shape, settings.rendererFactory) {
         this.damagePerBlock = settings.damagePerBlock
         this.damageSafeZone = settings.damageSafeZone
     }
@@ -87,15 +87,19 @@ public class LevelBoundary(
 
     public data class Settings(
         val shape: BoundaryShape,
-        val renderer: BoundaryRenderer,
+        val rendererFactory: BoundaryRenderer.Factory,
         val damagePerBlock: Double,
         val damageSafeZone: Double
     ) {
+        public fun renderer() {
+            return this.rendererFactory
+        }
+
         public companion object {
             public val CODEC: Codec<Settings> = RecordCodecBuilder.create { instance ->
                 instance.group(
                     BoundaryShape.CODEC.fieldOf("shape").forGetter(Settings::shape),
-                    BoundaryRenderer.CODEC.fieldOf("renderer").forGetter(Settings::renderer),
+                    BoundaryRenderer.Factory.CODEC.fieldOf("renderer").forGetter(Settings::rendererFactory),
                     Codec.DOUBLE.fieldOf("damage_per_block").forGetter(Settings::damagePerBlock),
                     Codec.DOUBLE.fieldOf("damage_safe_zone").forGetter(Settings::damageSafeZone)
                 ).apply(instance, ::Settings)

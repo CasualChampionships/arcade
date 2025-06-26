@@ -13,25 +13,22 @@ import net.casual.arcade.utils.BoundingBoxUtils.getSizeVec
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.codec.CodecProvider
 import net.casual.arcade.utils.time.MinecraftTimeDuration
-import net.casual.arcade.visuals.utils.AABBShapeIterator
+import net.casual.arcade.visuals.shapes.ShapePoints
+import net.casual.arcade.visuals.shapes.impl.CuboidShape
 import net.minecraft.core.Direction.Axis
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.ExtraCodecs
-import net.minecraft.util.Mth
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import java.util.function.Function
 
 public class AxisAlignedBoundaryShape private constructor(
     private var size: State,
-    private var center: State,
-    private val pointsPerBlock: Double
+    private var center: State
 ): BoundaryShape {
     private var aabb: AABB = this.recalculateAABB()
 
-    public constructor(
-        aabb: AABB, pointsPerBlock: Double
-    ): this(State.Static(aabb.getSizeVec()), State.Static(aabb.center), pointsPerBlock)
+    public constructor(aabb: AABB): this(State.Static(aabb.getSizeVec()), State.Static(aabb.center))
 
     override fun size(): Vec3 {
         return this.size.current
@@ -104,26 +101,8 @@ public class AxisAlignedBoundaryShape private constructor(
         return this.size.status()
     }
 
-    override fun getFaceCount(): Int {
-        return 6
-    }
-
-    override fun getFaces(): List<BoundaryShape.Face> {
-        val min = this.aabb.minPosition
-        val max = this.aabb.maxPosition
-        // +X, -X, +Y, -Y, +Z, -Z
-        return listOf(
-            BoundaryShape.Face(Vec3(max.x, min.y, min.z), Vec3(max.x, max.y, min.z), Vec3(max.x, max.y, max.z), Vec3(max.x, min.y, max.z)),
-            BoundaryShape.Face(Vec3(min.x, min.y, max.z), Vec3(min.x, max.y, max.z), Vec3(min.x, max.y, min.z), Vec3(min.x, min.y, min.z)),
-            BoundaryShape.Face(Vec3(min.x, max.y, min.z), Vec3(min.x, max.y, max.z), Vec3(max.x, max.y, max.z), Vec3(max.x, max.y, min.z)),
-            BoundaryShape.Face(Vec3(min.x, min.y, max.z), Vec3(min.x, min.y, min.z), Vec3(max.x, min.y, min.z), Vec3(max.x, min.y, max.z)),
-            BoundaryShape.Face(Vec3(min.x, min.y, max.z), Vec3(max.x, min.y, max.z), Vec3(max.x, max.y, max.z), Vec3(min.x, max.y, max.z)),
-            BoundaryShape.Face(Vec3(max.x, min.y, min.z), Vec3(min.x, min.y, min.z), Vec3(min.x, max.y, min.z), Vec3(max.x, max.y, min.z)),
-        )
-    }
-
-    override fun getPoints(): Iterable<Vec3> {
-        return Iterable { AABBShapeIterator(this.aabb, this.pointsPerBlock) }
+    override fun getPoints(): ShapePoints {
+        return CuboidShape(this.aabb)
     }
 
     override fun codec(): MapCodec<out BoundaryShape> {
@@ -134,29 +113,12 @@ public class AxisAlignedBoundaryShape private constructor(
         return AABB.ofSize(this.center.current, this.size.current.x, this.size.current.y, this.size.current.z)
     }
 
-    private fun sampleFace(min: Vec3, max: Vec3, xs: Int, ys: Int, axis: Axis, fixed: Double, xAxis: Axis, yAxis: Axis): Sequence<Vec3> = sequence {
-        for (i in 0..xs) {
-            val a = i.toDouble() / xs
-            for (j in 0..ys) {
-                val b = j.toDouble() / ys
-
-                val coords = DoubleArray(3)
-                coords[axis.ordinal] = fixed
-                coords[xAxis.ordinal] = Mth.lerp(a, min.get(xAxis), max.get(xAxis))
-                coords[yAxis.ordinal] = Mth.lerp(b, min.get(yAxis), max.get(yAxis))
-
-                yield(Vec3(coords[0], coords[1], coords[2]))
-            }
-        }
-    }
-
     public companion object: CodecProvider<AxisAlignedBoundaryShape> {
         override val ID: ResourceLocation = ArcadeUtils.id("axis_aligned_border_shape")
         override val CODEC: MapCodec<AxisAlignedBoundaryShape> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 State.CODEC.fieldOf("size_state").forGetter(AxisAlignedBoundaryShape::size),
-                State.CODEC.fieldOf("center_state").forGetter(AxisAlignedBoundaryShape::center),
-                Codec.DOUBLE.fieldOf("points_per_block").forGetter(AxisAlignedBoundaryShape::pointsPerBlock)
+                State.CODEC.fieldOf("center_state").forGetter(AxisAlignedBoundaryShape::center)
             ).apply(instance, ::AxisAlignedBoundaryShape)
         }
     }

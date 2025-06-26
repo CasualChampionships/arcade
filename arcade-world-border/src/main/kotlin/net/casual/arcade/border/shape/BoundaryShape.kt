@@ -11,6 +11,7 @@ import net.casual.arcade.utils.MathUtils.forEachCorner
 import net.casual.arcade.utils.MathUtils.toAABB
 import net.casual.arcade.utils.codec.CodecProvider.Companion.register
 import net.casual.arcade.utils.time.MinecraftTimeDuration
+import net.casual.arcade.visuals.shapes.ShapePoints
 import net.minecraft.core.Registry
 import net.minecraft.core.Vec3i
 import net.minecraft.world.phys.AABB
@@ -148,32 +149,14 @@ public interface BoundaryShape {
     public fun getStatus(): Status
 
     /**
-     * Gets the number of faces that make up the
-     * world border shape.
-     *
-     * @return The number of faces.
-     */
-    public fun getFaceCount(): Int
-
-    /**
-     * Gets a list of faces that make up the
-     * world border shape.
-     *
-     * @return The world border faces.
-     */
-    public fun getFaces(): List<Face>
-
-    /**
      * Gets the points that make up the world
      * border shape.
      *
      * @return Points on the world border.
      */
-    public fun getPoints(): Iterable<Vec3>
+    public fun getPoints(): ShapePoints
 
     public fun codec(): MapCodec<out BoundaryShape>
-
-    public data class Face(val v0: Vec3, val v1: Vec3, val v2: Vec3, val v3: Vec3)
 
     public enum class Containment {
         None, Partial, Full

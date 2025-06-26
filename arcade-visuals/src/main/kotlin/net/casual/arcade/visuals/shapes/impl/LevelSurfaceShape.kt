@@ -2,8 +2,9 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.visuals.shapes
+package net.casual.arcade.visuals.shapes.impl
 
+import net.casual.arcade.visuals.shapes.ShapePoints
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.levelgen.Heightmap
@@ -13,15 +14,8 @@ public class LevelSurfaceShape(
     private val level: ServerLevel,
     private val wrapped: ShapePoints
 ): ShapePoints {
-    /**
-     * Returns an iterator with a specified number of steps
-     * between the points.
-     *
-     * @param steps The number of steps to take.
-     * @return An [Iterator] with elements of [Vec3].
-     */
-    override fun iterator(steps: Int): Iterator<Vec3> {
-        return LevelSurfaceIterator(this.level, this.wrapped.iterator(steps))
+    override fun iterator(pointsPerUnit: Double): Iterator<Vec3> {
+        return LevelSurfaceIterator(this.level, this.wrapped.iterator(pointsPerUnit))
     }
 
     private class LevelSurfaceIterator(

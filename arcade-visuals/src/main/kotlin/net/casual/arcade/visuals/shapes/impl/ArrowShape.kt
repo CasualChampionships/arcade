@@ -2,8 +2,11 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.visuals.shapes
+package net.casual.arcade.visuals.shapes.impl
 
+import net.casual.arcade.visuals.shapes.ShapePoints
+import net.casual.arcade.visuals.utils.impl.ShapeSegment
+import net.casual.arcade.visuals.utils.impl.SegmentedShapeIterator
 import net.minecraft.world.phys.Vec3
 import kotlin.math.cos
 import kotlin.math.sin
@@ -14,48 +17,18 @@ public class ArrowShape(
     private val right: Vec3,
     private val back: Vec3
 ): ShapePoints {
-    override fun iterator(steps: Int): Iterator<Vec3> {
-        return ArrowIterator(steps)
+    private val points = listOf(
+        ShapeSegment(this.back, this.tip),
+        ShapeSegment(this.tip, this.right),
+        ShapeSegment(this.tip, this.left)
+    )
+
+    override fun iterator(pointsPerUnit: Double): Iterator<Vec3> {
+        return SegmentedShapeIterator.of(this.points, pointsPerUnit)
     }
 
     override fun toString(): String {
-        return "Tip: ${this.tip}, Left: ${this.left}, Right: ${this.right}, Back ${this.back}"
-    }
-
-    private inner class ArrowIterator(
-        val steps: Int
-    ): Iterator<Vec3> {
-        private val delta = 1.0 / this.steps
-
-        private var from = back
-        private var current = 0
-        private var step = 0
-
-        override fun hasNext(): Boolean {
-            return this.current != 2 || this.step <= this.steps
-        }
-
-        override fun next(): Vec3 {
-            if (this.step > this.steps) {
-                when (this.current) {
-                    0 -> {
-                        this.current = 1
-                        this.from = left
-                    }
-                    1 -> {
-                        this.current = 2
-                        this.from = right
-                    }
-                    2 -> {
-                        this.current = 1
-                        this.from = back
-                    }
-                    else -> throw IllegalArgumentException()
-                }
-                this.step = 0
-            }
-            return this.from.lerp(tip, this.step++ * this.delta)
-        }
+        return "Tip: $tip, Left: $left, Right: $right, Back $back"
     }
 
     public companion object {

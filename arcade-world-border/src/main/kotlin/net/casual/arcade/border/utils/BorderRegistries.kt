@@ -19,6 +19,6 @@ public object BorderRegistryKeys: RegistryKeySupplier(ArcadeUtils.MOD_ID) {
 }
 
 public object BorderRegistries: RegistrySupplier() {
-    public val BOUNDARY_RENDERER: Registry<MapCodec<out BoundaryRenderer>> = this.create(BorderRegistryKeys.BORDER_RENDERER, BoundaryRenderer::bootstrap)
+    public val BOUNDARY_RENDERER_FACTORY: Registry<MapCodec<out BoundaryRenderer.Factory>> = this.create(BorderRegistryKeys.BORDER_RENDERER, BoundaryRenderer.Factory::bootstrap)
     public val BOUNDARY_SHAPE: Registry<MapCodec<out BoundaryShape>> = this.create(BorderRegistryKeys.BORDER_SHAPE, BoundaryShape::bootstrap)
 }

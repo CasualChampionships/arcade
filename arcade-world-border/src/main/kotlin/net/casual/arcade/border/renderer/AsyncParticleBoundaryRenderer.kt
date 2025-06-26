@@ -11,33 +11,44 @@ import net.casual.arcade.border.shape.BoundaryShape
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.codec.CodecProvider
 import net.minecraft.Util
-import net.minecraft.core.particles.ParticleOptions
-import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 
 public class AsyncParticleBoundaryRenderer(
-    particle: ParticleOptions,
-    range: Double
-): ParticleBoundaryRenderer(particle, range) {
-    override fun render(shape: BoundaryShape, players: Collection<ServerPlayer>) {
+    shape: BoundaryShape,
+    particle: BoundaryParticles = BoundaryParticles.DEFAULT,
+    range: Double = 40.0,
+    pointsPerBlock: Double = 0.25
+): ParticleBoundaryRenderer(shape, particle, range, pointsPerBlock) {
+    override fun render(players: Collection<ServerPlayer>) {
         if (players.isNotEmpty()) {
-            Util.ioPool().execute { super.render(shape, players) }
+            Util.ioPool().execute { super.render(players) }
         }
     }
 
-    override fun codec(): MapCodec<out BoundaryRenderer> {
-        return CODEC
-    }
-
-    public companion object: CodecProvider<AsyncParticleBoundaryRenderer> {
-        override val ID: ResourceLocation = ArcadeUtils.id("async_particle_boundary_renderer")
-        override val CODEC: MapCodec<out AsyncParticleBoundaryRenderer> = RecordCodecBuilder.mapCodec { instance ->
-            instance.group(
-                ParticleTypes.CODEC.fieldOf("particle_type").forGetter(AsyncParticleBoundaryRenderer::particle),
-                Codec.DOUBLE.fieldOf("range").forGetter(AsyncParticleBoundaryRenderer::range)
-            ).apply(instance, ::AsyncParticleBoundaryRenderer)
+    public open class Factory(
+        private val particle: BoundaryParticles,
+        private val range: Double,
+        private val pointsPerBlock: Double
+    ): BoundaryRenderer.Factory {
+        override fun create(shape: BoundaryShape): BoundaryRenderer {
+            return AsyncParticleBoundaryRenderer(shape, this.particle, this.range, this.pointsPerBlock)
         }
 
+        override fun codec(): MapCodec<out BoundaryRenderer.Factory> {
+            return CODEC
+        }
+
+        public companion object: CodecProvider<Factory> {
+            override val ID: ResourceLocation = ArcadeUtils.id("particle_border_renderer")
+
+            override val CODEC: MapCodec<out Factory> = RecordCodecBuilder.mapCodec { instance ->
+                instance.group(
+                    BoundaryParticles.CODEC.fieldOf("particles").forGetter(Factory::particle),
+                    Codec.DOUBLE.fieldOf("range").forGetter(Factory::range),
+                    Codec.DOUBLE.fieldOf("points_per_block").forGetter(Factory::pointsPerBlock)
+                ).apply(instance, ::Factory)
+            }
+        }
     }
 }

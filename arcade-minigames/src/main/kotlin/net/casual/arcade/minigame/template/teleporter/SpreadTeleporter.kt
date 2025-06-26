@@ -10,8 +10,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.codec.CodecProvider
 import net.casual.arcade.utils.math.location.LocationWithLevel
-import net.casual.arcade.visuals.shapes.Regular2DPolygonShape
-import net.casual.arcade.visuals.shapes.ShapePoints
+import net.casual.arcade.visuals.shapes.impl.RegularPolygonShape
+import net.casual.arcade.visuals.shapes.ShapePoints.Companion.points
 import net.minecraft.commands.arguments.EntityAnchorArgument
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
@@ -22,8 +22,8 @@ public class SpreadTeleporter(
     private val center: Vec3,
     private val radius: Double
 ): ShapedTeleporter() {
-    override fun createShape(level: ServerLevel, points: Int): ShapePoints {
-        return Regular2DPolygonShape.createHorizontal(this.center, this.radius, points)
+    override fun createShape(level: ServerLevel, points: Int): Iterator<Vec3> {
+        return RegularPolygonShape.createHorizontal(this.center, this.radius, points).points()
     }
 
     override fun teleportEntity(entity: Entity, location: LocationWithLevel<ServerLevel>) {

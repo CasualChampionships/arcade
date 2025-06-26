@@ -10,9 +10,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.border.shape.BoundaryShape
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.ClientboundLevelParticlesPacket
-import net.casual.arcade.utils.PlayerUtils.broadcast
 import net.casual.arcade.utils.codec.CodecProvider
-import net.minecraft.Util
+import net.minecraft.core.particles.DustParticleOptions
 import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.network.protocol.Packet
@@ -20,19 +19,25 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import java.util.function.Consumer
-import kotlin.time.Duration.Companion.milliseconds
 
 public open class ParticleBoundaryRenderer(
-    protected val particle: ParticleOptions,
-    protected val range: Double
+    protected val shape: BoundaryShape,
+    protected val particles: BoundaryParticles = BoundaryParticles.DEFAULT,
+    protected val range: Double = 40.0,
+    protected val pointsPerBlock: Double = 0.25
 ): BoundaryRenderer {
-    override fun render(shape: BoundaryShape, players: Collection<ServerPlayer>) {
+    override fun render(players: Collection<ServerPlayer>) {
         if (players.isEmpty()) {
             return
         }
-        for (point in shape.getPoints()) {
+        val particle = when (this.shape.getStatus()) {
+            BoundaryShape.Status.Stationary -> this.particles.stationary
+            BoundaryShape.Status.Shrinking -> this.particles.shrinking
+            BoundaryShape.Status.Growing -> this.particles.growing
+        }
+        for (point in this.shape.getPoints().iterator(this.pointsPerBlock)) {
             val packet = ClientboundLevelParticlesPacket(
-                this.particle, point, alwaysRender = true, overrideLimiter = true
+                particle, point, alwaysRender = true, overrideLimiter = true
             )
             for (player in players) {
                 if (player.position().closerThan(point, this.range)) {
@@ -42,34 +47,63 @@ public open class ParticleBoundaryRenderer(
         }
     }
 
-    override fun startRendering(shape: BoundaryShape, player: ServerPlayer) {
+    override fun startRendering(player: ServerPlayer) {
 
     }
 
-    override fun stopRendering(shape: BoundaryShape, player: ServerPlayer) {
+    override fun stopRendering(player: ServerPlayer) {
 
     }
 
-    override fun restartRendering(
-        shape: BoundaryShape,
-        player: ServerPlayer,
-        sender: Consumer<Packet<ClientGamePacketListener>>
+    override fun restartRendering(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
+
+    }
+
+    public data class BoundaryParticles(
+        val stationary: ParticleOptions,
+        val shrinking: ParticleOptions,
+        val growing: ParticleOptions
     ) {
+        public companion object {
+            public val DEFAULT: BoundaryParticles = BoundaryParticles(
+                DustParticleOptions(0x20A0FF, 1.0F),
+                DustParticleOptions(0xFF3030, 1.0F),
+                DustParticleOptions(0x40FF80, 1.0F)
+            )
 
+            public val CODEC: Codec<BoundaryParticles> = RecordCodecBuilder.create { instance ->
+                instance.group(
+                    ParticleTypes.CODEC.fieldOf("stationary").forGetter(BoundaryParticles::stationary),
+                    ParticleTypes.CODEC.fieldOf("shrinking").forGetter(BoundaryParticles::shrinking),
+                    ParticleTypes.CODEC.fieldOf("growing").forGetter(BoundaryParticles::growing)
+                ).apply(instance, ::BoundaryParticles)
+            }
+        }
     }
 
-    override fun codec(): MapCodec<out BoundaryRenderer> {
-        return CODEC
-    }
+    public class Factory(
+        private val particle: BoundaryParticles,
+        private val range: Double,
+        private val pointsPerBlock: Double
+    ): BoundaryRenderer.Factory {
+        override fun create(shape: BoundaryShape): BoundaryRenderer {
+            return ParticleBoundaryRenderer(shape, this.particle, this.range, this.pointsPerBlock)
+        }
 
-    public companion object: CodecProvider<ParticleBoundaryRenderer> {
-        override val ID: ResourceLocation = ArcadeUtils.id("particle_border_renderer")
+        override fun codec(): MapCodec<out BoundaryRenderer.Factory> {
+            return CODEC
+        }
 
-        override val CODEC: MapCodec<out ParticleBoundaryRenderer> = RecordCodecBuilder.mapCodec { instance ->
-            instance.group(
-                ParticleTypes.CODEC.fieldOf("particle_type").forGetter(ParticleBoundaryRenderer::particle),
-                Codec.DOUBLE.fieldOf("range").forGetter(ParticleBoundaryRenderer::range)
-            ).apply(instance, ::ParticleBoundaryRenderer)
+        public companion object: CodecProvider<Factory> {
+            override val ID: ResourceLocation = ArcadeUtils.id("particle_border_renderer")
+
+            override val CODEC: MapCodec<out Factory> = RecordCodecBuilder.mapCodec { instance ->
+                instance.group(
+                    BoundaryParticles.CODEC.fieldOf("particles").forGetter(Factory::particle),
+                    Codec.DOUBLE.fieldOf("range").forGetter(Factory::range),
+                    Codec.DOUBLE.fieldOf("points_per_block").forGetter(Factory::pointsPerBlock)
+                ).apply(instance, ::Factory)
+            }
         }
     }
 }
