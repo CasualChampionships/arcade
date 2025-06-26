@@ -43,6 +43,9 @@ object LevelBoundaryCommand: CommandTree {
                     }
                 }
             }
+            literal("query") {
+                executes(::queryBoundary)
+            }
         }
     }
 
@@ -89,5 +92,10 @@ object LevelBoundaryCommand: CommandTree {
             return context.source.success("Successfully re-centered boundary")
         }
         return context.source.success("Successfully re-centering boundary")
+    }
+
+    private fun queryBoundary(context: CommandContext<CommandSourceStack>): Int {
+        val boundary = context.source.level.levelBoundary ?: return context.source.fail("World has no boundary set!")
+        return context.source.success("Boundary center: ${boundary.shape.center()}, size: ${boundary.shape.size()}")
     }
 }
