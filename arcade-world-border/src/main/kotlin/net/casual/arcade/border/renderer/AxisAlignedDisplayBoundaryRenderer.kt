@@ -12,20 +12,30 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
 import net.casual.arcade.border.shape.AxisAlignedBoundaryShape
 import net.casual.arcade.border.shape.BoundaryShape
 import net.casual.arcade.border.utils.BundlingElementHolder
+import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.EnumUtils
+import net.casual.arcade.utils.MathUtils.getFace
+import net.casual.arcade.utils.MathUtils.getFaceCenter
+import net.casual.arcade.utils.MathUtils.getSizeVec
+import net.casual.arcade.utils.PlayerUtils.getApproximateViewBox
 import net.casual.arcade.utils.codec.CodecProvider
 import net.minecraft.core.Direction
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ChunkTrackingView
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
+import net.minecraft.util.Brightness
 import net.minecraft.world.item.Items
+import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
+import org.joml.Vector3f
 import java.util.*
 import java.util.function.Consumer
+import kotlin.math.max
 
 public class AxisAlignedDisplayBoundaryRenderer(
     private val shape: AxisAlignedBoundaryShape
@@ -35,9 +45,12 @@ public class AxisAlignedDisplayBoundaryRenderer(
     override fun render(players: Collection<ServerPlayer>) {
         for (player in players) {
             val attachment = this.players[player.connection] ?: continue
-            val anchor = getAnchorPosition(player)
-            for ((direction, element) in attachment.faces) {
-                this.updateFace(anchor, direction, element)
+            val box = player.getApproximateViewBox()
+            if (this.shape.aabb.intersects(box)) {
+                val intersection = this.shape.aabb.intersect(box)
+                for ((direction, element) in attachment.faces) {
+                    this.updateFace(intersection, direction, element)
+                }
             }
             attachment.tick()
         }
@@ -49,6 +62,11 @@ public class AxisAlignedDisplayBoundaryRenderer(
         val faces = EnumUtils.mapOf<Direction, ItemDisplayElement>()
         for (direction in Direction.entries) {
             val element = ItemDisplayElement(Items.BLUE_STAINED_GLASS)
+            element.brightness = Brightness.FULL_BRIGHT
+            element.isInvisible = true
+            element.viewRange = 100.0F
+            element.teleportDuration = 1
+            element.interpolationDuration = 1
             faces[direction] = element
             holder.addElement(element)
         }
@@ -72,16 +90,32 @@ public class AxisAlignedDisplayBoundaryRenderer(
         return Factory.INSTANCE
     }
 
-    private fun updateFace(anchor: Vec3, direction: Direction, element: ItemDisplayElement) {
-        val size = this.shape.size().toVector3f()
+    private fun updateFace(intersection: AABB, direction: Direction, element: ItemDisplayElement) {
+        if (intersection.getFace(direction) != this.shape.aabb.getFace(direction)) {
+            return
+        }
+
+        val position = intersection.getFaceCenter(direction)
+        element.overridePos = position
+
+
+        val size = intersection.getSizeVec().toVector3f()
         val scale = direction.step().absolute().sub(1.0f, 1.0f, 1.0f).negate()
-        element.scale = scale.mul(size)
+        GlobalTickedScheduler.later {
+            element.scale = scale.mul(size)
+        }
 
-        val center = this.shape.center().toVector3f()
-        val offset = direction.step().mul(size).mul(0.5F)
-        val faceCenter = center.add(offset)
 
-        element.translation = faceCenter.sub(anchor.toVector3f())
+//        element.displayWidth = max(scale.x, scale.z)
+//        element.displayHeight = scale.y
+//
+//        element.scale = scale.mul(32.0F)
+
+//        val center = this.shape.center().toVector3f()
+//        val offset = direction.step().mul(size).mul(0.5F)
+//        val faceCenter = center.add(offset)
+//
+//        element.translation = faceCenter.sub(anchor.toVector3f())
     }
 
     private class BorderAttachment(

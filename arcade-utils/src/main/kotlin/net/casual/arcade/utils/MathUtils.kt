@@ -4,6 +4,8 @@
  */
 package net.casual.arcade.utils
 
+import net.casual.arcade.utils.MathUtils.maxYCenter
+import net.minecraft.core.Direction
 import net.minecraft.core.Direction8
 import net.minecraft.core.Vec3i
 import net.minecraft.util.Mth
@@ -177,5 +179,67 @@ public object MathUtils {
         consumer.invoke(this.maxX, this.minY, this.maxZ)
         consumer.invoke(this.maxX, this.maxY, this.minZ)
         consumer.invoke(this.maxX, this.maxY, this.maxZ)
+    }
+
+    public val AABB.maxXCenter: Vec3
+        get() = Vec3(this.maxX, Mth.lerp(0.5, this.minY, this.maxY), Mth.lerp(0.5, this.minZ, this.maxZ))
+
+    public val AABB.minXCenter: Vec3
+        get() = Vec3(this.minX, Mth.lerp(0.5, this.minY, this.maxY), Mth.lerp(0.5, this.minZ, this.maxZ))
+
+    public val AABB.maxYCenter: Vec3
+        get() = Vec3(Mth.lerp(0.5, this.minX, this.maxX), this.maxY, Mth.lerp(0.5, this.minZ, this.maxZ))
+
+    public val AABB.minYCenter: Vec3
+        get() = this.bottomCenter
+
+    public val AABB.maxZCenter: Vec3
+        get() = Vec3(Mth.lerp(0.5, this.minX, this.maxX), Mth.lerp(0.5, this.minY, this.maxY), this.maxZ)
+
+    public val AABB.minZCenter: Vec3
+        get() = Vec3(Mth.lerp(0.5, this.minX, this.maxX), Mth.lerp(0.5, this.minY, this.maxY), this.minZ)
+
+    /**
+     * Gets the center point for a given [face] indicated
+     * by which direction the face is facing (outwards).
+     *
+     * @param face The face.
+     * @return The central position of that face.
+     */
+    public fun AABB.getFaceCenter(face: Direction): Vec3 {
+        return when (face) {
+            Direction.EAST -> this.maxXCenter
+            Direction.WEST -> this.minXCenter
+            Direction.UP -> this.maxYCenter
+            Direction.DOWN -> this.minYCenter
+            Direction.SOUTH -> this.maxZCenter
+            Direction.NORTH -> this.minZCenter
+        }
+    }
+
+    public fun AABB.getFace(face: Direction): Double {
+        return when (face) {
+            Direction.EAST -> this.maxX
+            Direction.WEST -> this.minX
+            Direction.UP -> this.maxY
+            Direction.DOWN -> this.minY
+            Direction.SOUTH -> this.maxZ
+            Direction.NORTH -> this.minZ
+        }
+    }
+
+    public fun above(y: Double): AABB {
+        return AABB(
+            Double.NEGATIVE_INFINITY, 
+            y, 
+            Double.NEGATIVE_INFINITY, 
+            Double.POSITIVE_INFINITY, 
+            Double.POSITIVE_INFINITY, 
+            Double.POSITIVE_INFINITY
+        )
+    }
+
+    public fun AABB.getSizeVec(): Vec3 {
+        return Vec3(this.xsize, this.ysize, this.zsize)
     }
 }

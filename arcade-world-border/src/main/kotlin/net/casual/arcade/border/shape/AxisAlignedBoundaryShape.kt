@@ -9,7 +9,7 @@ import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.border.shape.BoundaryShape.Status
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.BoundingBoxUtils.getSizeVec
+import net.casual.arcade.utils.MathUtils.getSizeVec
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.codec.CodecProvider
 import net.casual.arcade.utils.time.MinecraftTimeDuration
@@ -26,7 +26,8 @@ public class AxisAlignedBoundaryShape private constructor(
     private var size: State,
     private var center: State
 ): BoundaryShape {
-    private var aabb: AABB = this.recalculateAABB()
+    public var aabb: AABB = this.recalculateAABB()
+        private set
 
     public constructor(aabb: AABB): this(State.Static(aabb.getSizeVec()), State.Static(aabb.center))
 
