@@ -27,14 +27,23 @@ out vec2 texCoord2;
 out float isBoundary;
 out float height;
 out float width;
+out vec2 minTexCoord;
+out vec2 uv;
+out vec2 scale;
 // == Boundary End ==
 
 // == Boundary Start ==
-const vec2 corners[4] = vec2[4](
+const vec2 quadCorners[4] = vec2[4](
     vec2(0.0, 0.0), 
     vec2(1.0, 0.0), 
     vec2(1.0, 1.0), 
     vec2(0.0, 1.0)  
+);
+const vec2 uvCorners[4] = vec2[4](
+    vec2(0.0, 0.0),
+    vec2(0.0, 1.0),
+    vec2(1.0, 1.0),
+    vec2(1.0, 0.0)
 );
 
 vec2 getVertexCornerUV(sampler2D tex, vec2 uv, int vertexID) {
@@ -43,14 +52,14 @@ vec2 getVertexCornerUV(sampler2D tex, vec2 uv, int vertexID) {
 
     vec2 texelUV = floor(uv * texSize) / texSize;
     int cornerIndex = ((vertexID % 4) & 1) == 0 ? (vertexID + 2) % 4 : vertexID % 4;
-    texelUV += (corners[cornerIndex] - vec2(1)) * texelSize;
+    texelUV += (quadCorners[cornerIndex] - vec2(1)) * texelSize;
     return texelUV;
 }
 
-ivec2 unpackShorts(ivec4 data) {
-    int low = data.x | (data.y << 8);
-    int high = data.z | (data.w << 8);
-    return ivec2(high, low);
+uvec2 unpackShorts(ivec4 data) {
+    uint low = uint(data.x) | (uint(data.y) << 8);
+    uint high = uint(data.z)  | (uint(data.w) << 8);
+    return uvec2(high, low);
 }
 // == Boundary End ==
 
@@ -69,30 +78,25 @@ void main() {
         texCoord1 = UV1;
         texCoord2 = UV2;    
 
-        vec2 texel = 1.0 / textureSize(Sampler0, 0);
         int cornerIndex = gl_VertexID % 4;
-        switch (cornerIndex) {
-            case 0:
-                texCoord0 += vec2(8.0, 8.0) * texel;
-                break;
-            case 1:
-                texCoord0 += vec2(8.0, -8.0) * texel;
-                break;
-            case 2:
-                texCoord0 += vec2(-8.0, -8.0) * texel;
-                break;
-            case 3:
-                texCoord0 += vec2(-8.0, 8.0) * texel;
-                break;
-        }
+        uv = uvCorners[cornerIndex];
 
-        ivec2 size = unpackShorts(ivec4(Color * 255));
-        width = size.x;
-        height = size.y;
+        vec2 size = textureSize(Sampler0, 0);
+        scale = vec2(32, 32 * (size.y / size.x));
+        minTexCoord = texCoord0.xy - uv / scale;
+
+        uvec2 dimensions = unpackShorts(ivec4(Color * 255));
+        width = dimensions.x;
+        height = dimensions.y;
+
         vertexColor = vec4(1.0);
         return;
     } else {
         isBoundary = 0.0;
+        width = 0;
+        height = 0;
+        minTexCoord = vec2(0, 0);
+        uv = vec2(0, 0);
     }
     // == Boundary End ==
 
