@@ -96,7 +96,7 @@ void main() {
         isBoundary = 0.0;
         width = 0;
         height = 0;
-        scale = 0;
+        scale = vec2(0);
         minTexCoord = vec2(0, 0);
         uv = vec2(0, 0);
     }
