@@ -7,7 +7,7 @@ package net.casual.arcade.border.renderer
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.border.shape.BoundaryShape
-import net.casual.arcade.border.utils.BorderRegistries
+import net.casual.arcade.border.utils.BoundaryRegistries
 import net.casual.arcade.utils.codec.CodecProvider.Companion.register
 import net.minecraft.core.Registry
 import net.minecraft.network.protocol.Packet
@@ -34,7 +34,7 @@ public interface BoundaryRenderer {
 
         public companion object {
             public val CODEC: Codec<Factory> = Codec.lazyInitialized {
-                BorderRegistries.BOUNDARY_RENDERER_FACTORY.byNameCodec()
+                BoundaryRegistries.BOUNDARY_RENDERER_FACTORY.byNameCodec()
                     .dispatch(Factory::codec, Function.identity())
             }
 

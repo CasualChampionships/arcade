@@ -6,7 +6,7 @@ package net.casual.arcade.border.shape
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
-import net.casual.arcade.border.utils.BorderRegistries
+import net.casual.arcade.border.utils.BoundaryRegistries
 import net.casual.arcade.utils.MathUtils.forEachCorner
 import net.casual.arcade.utils.MathUtils.toAABB
 import net.casual.arcade.utils.codec.CodecProvider.Companion.register
@@ -163,12 +163,20 @@ public interface BoundaryShape {
     }
 
     public enum class Status {
-        Stationary, Growing, Shrinking
+        Stationary, Shrinking, Growing;
+
+        public fun <T> choose(stationary: T, shrinking: T, growing: T): T {
+            return when (this) {
+                Stationary -> stationary
+                Shrinking -> shrinking
+                Growing -> growing
+            }
+        }
     }
 
     public companion object {
         public val CODEC: Codec<BoundaryShape> = Codec.lazyInitialized {
-            BorderRegistries.BOUNDARY_SHAPE.byNameCodec()
+            BoundaryRegistries.BOUNDARY_SHAPE.byNameCodec()
                 .dispatch(BoundaryShape::codec, Function.identity())
         }
 

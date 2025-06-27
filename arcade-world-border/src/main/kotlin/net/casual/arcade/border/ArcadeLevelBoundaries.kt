@@ -5,12 +5,12 @@
 package net.casual.arcade.border
 
 import net.casual.arcade.border.extension.LevelBoundaryExtension
-import net.casual.arcade.border.utils.BorderRegistries
+import net.casual.arcade.border.utils.BoundaryRegistries
 import net.fabricmc.api.ModInitializer
 
 public object ArcadeLevelBoundaries: ModInitializer {
     override fun onInitialize() {
-        BorderRegistries.load()
+        BoundaryRegistries.load()
         LevelBoundaryExtension.registerEvents()
     }
 }

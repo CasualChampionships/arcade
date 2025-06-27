@@ -5,6 +5,7 @@
 package net.casual.arcade.utils.registries
 
 import com.mojang.serialization.Lifecycle
+import net.minecraft.core.DefaultedMappedRegistry
 import net.minecraft.core.MappedRegistry
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
@@ -21,11 +22,22 @@ public abstract class RegistrySupplier {
     }
 
     protected fun <T> create(key: ResourceKey<Registry<T>>, bootstrap: (Registry<T>) -> Unit): Registry<T> {
-        val registry = MappedRegistry(key, Lifecycle.stable(), false)
+        return this.registerRegistry(
+            MappedRegistry(key, Lifecycle.stable(), false), bootstrap
+        )
+    }
+
+    protected fun <T> createDefaulted(key: ResourceKey<Registry<T>>, default: String, bootstrap: (Registry<T>) -> Unit): Registry<T> {
+        return this.registerRegistry(
+            DefaultedMappedRegistry(default, key, Lifecycle.stable(), false), bootstrap
+        )
+    }
+
+    protected fun <T> registerRegistry(registry: Registry<T>, bootstrap: (Registry<T>) -> Unit): Registry<T> {
         @Suppress("UNCHECKED_CAST")
         Registry.register(
             BuiltInRegistries.REGISTRY as Registry<Registry<*>>,
-            key as ResourceKey<Registry<*>>,
+            registry.key() as ResourceKey<Registry<*>>,
             registry
         )
         this.loaders.add { bootstrap.invoke(registry) }

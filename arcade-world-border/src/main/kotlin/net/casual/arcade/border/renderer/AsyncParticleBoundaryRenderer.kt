@@ -7,6 +7,7 @@ package net.casual.arcade.border.renderer
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import net.casual.arcade.border.renderer.options.ParticleRenderOptions
 import net.casual.arcade.border.shape.BoundaryShape
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.codec.CodecProvider
@@ -16,7 +17,7 @@ import net.minecraft.server.level.ServerPlayer
 
 public class AsyncParticleBoundaryRenderer(
     shape: BoundaryShape,
-    particle: BoundaryParticles = BoundaryParticles.DEFAULT,
+    particle: ParticleRenderOptions = ParticleRenderOptions.DEFAULT,
     range: Double = 40.0,
     pointsPerBlock: Double = 0.25
 ): ParticleBoundaryRenderer(shape, particle, range, pointsPerBlock) {
@@ -31,7 +32,7 @@ public class AsyncParticleBoundaryRenderer(
     }
 
     public open class Factory(
-        private val particles: BoundaryParticles,
+        private val particles: ParticleRenderOptions,
         private val range: Double,
         private val pointsPerBlock: Double
     ): BoundaryRenderer.Factory {
@@ -48,7 +49,7 @@ public class AsyncParticleBoundaryRenderer(
 
             override val CODEC: MapCodec<out Factory> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(
-                    BoundaryParticles.CODEC.fieldOf("particles").forGetter(Factory::particles),
+                    ParticleRenderOptions.CODEC.fieldOf("particles").forGetter(Factory::particles),
                     Codec.DOUBLE.fieldOf("range").forGetter(Factory::range),
                     Codec.DOUBLE.fieldOf("points_per_block").forGetter(Factory::pointsPerBlock)
                 ).apply(instance, ::Factory)
