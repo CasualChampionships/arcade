@@ -26,14 +26,10 @@ out vec4 fragColor;
 void main() {
     // == Boundary Start ==
     if (isBoundary > 0.5) {
-        // Width isn't working correctly at the moment so just assume it's square
-
         vec2 localUV = uv;
-        vec2 size0 = textureSize(Sampler0, 0);
-        float ratio = size0.x / size0.y;
-        // localUV.x *= ratio;
-
+        // Width isn't working correctly at the moment so just assume it's square
         vec2 repeat = vec2(height, height);
+        localUV -= (GameTime * 256.0) / repeat;
         vec2 tiledUV = fract(localUV * repeat);
         vec2 atlasUV = minTexCoord + tiledUV / scale;
 
@@ -42,9 +38,7 @@ void main() {
             discard;
         }
 
-        // fragColor = vec4(ratio, 0.0, 0.0, 1.0);
         fragColor = color;
-        // fragColor = vec4(minTexCoord.x, minTexCoord.y, 0.0, 1.0);
         return;
     }
     // == Boundary End ==

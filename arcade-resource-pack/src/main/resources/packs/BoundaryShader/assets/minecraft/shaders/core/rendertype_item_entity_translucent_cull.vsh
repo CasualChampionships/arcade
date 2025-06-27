@@ -76,13 +76,14 @@ void main() {
         cylindricalVertexDistance = fog_cylindrical_distance(Position);
         texCoord0 = UV0;
         texCoord1 = UV1;
-        texCoord2 = UV2;    
+        texCoord2 = UV2;
 
         int cornerIndex = gl_VertexID % 4;
         uv = uvCorners[cornerIndex];
 
         vec2 size = textureSize(Sampler0, 0);
-        scale = vec2(32, 32 * (size.y / size.x));
+        texCoord0 += 8 * (uv * -2 + 1) / size;
+        scale = vec2(64, 64 * (size.y / size.x));
         minTexCoord = texCoord0.xy - uv / scale;
 
         uvec2 dimensions = unpackShorts(ivec4(Color * 255));
@@ -95,6 +96,7 @@ void main() {
         isBoundary = 0.0;
         width = 0;
         height = 0;
+        scale = 0;
         minTexCoord = vec2(0, 0);
         uv = vec2(0, 0);
     }
