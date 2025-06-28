@@ -5,22 +5,15 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.border.LevelBoundary
 import net.casual.arcade.border.extension.LevelBoundaryExtension.Companion.levelBoundary
-import net.casual.arcade.border.renderer.AsyncParticleBoundaryRenderer
 import net.casual.arcade.border.renderer.AxisAlignedDisplayBoundaryRenderer
 import net.casual.arcade.border.renderer.options.AxisAlignedModelRenderOptions
 import net.casual.arcade.border.shape.AxisAlignedBoundaryShape
-import net.casual.arcade.border.shape.BoundaryShape
 import net.casual.arcade.commands.*
-import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.TimeArgument
 import net.minecraft.commands.arguments.coordinates.Vec3Argument
-import net.minecraft.core.component.DataComponents
-import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.Items
-import net.minecraft.world.item.component.DyedItemColor
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 
@@ -62,20 +55,7 @@ object LevelBoundaryCommand: CommandTree {
         val shape = AxisAlignedBoundaryShape(box)
         shape.recenter(Vec3(0.0, 65.0, 0.0))
 
-//        fun createBoundaryItem(color: Int): ItemStack {
-//            val stack = ItemStack(Items.POPPED_CHORUS_FRUIT)
-//            stack.set(DataComponents.ITEM_MODEL, ArcadeUtils.id("boundary"))
-//            stack.set(DataComponents.DYED_COLOR, DyedItemColor(color))
-//            return stack
-//        }
-//
-//        val options = BoundaryShape.BoundaryStatusOptions(
-//            createBoundaryItem(0x20A0FF),
-//            createBoundaryItem(0xFF3030),
-//            createBoundaryItem(0x40FF80),
-//        )
-
-        val renderer = AxisAlignedDisplayBoundaryRenderer(shape, AxisAlignedModelRenderOptions.SHADER)
+        val renderer = AxisAlignedDisplayBoundaryRenderer(shape, AxisAlignedModelRenderOptions.CUBOID_SHADER)
         val boundary = LevelBoundary(shape, renderer)
         level.levelBoundary = boundary
         return context.source.success("Successfully set world boundary")

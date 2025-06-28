@@ -1,4 +1,4 @@
-#version 150
+#version 330
 
 #moj_import <minecraft:light.glsl>
 #moj_import <minecraft:fog.glsl>
@@ -56,10 +56,19 @@ vec2 getVertexCornerUV(sampler2D tex, vec2 uv, int vertexID) {
     return texelUV;
 }
 
-uvec2 unpackShorts(ivec4 data) {
-    uint low = uint(data.x) | (uint(data.y) << 8);
-    uint high = uint(data.z)  | (uint(data.w) << 8);
-    return uvec2(high, low);
+vec2 unpackDimensions(ivec4 color, ivec2 light) {
+    // TODO: Check this?
+    int low = (color.x) | (color.y << 8);
+    int high = (color.z) | ((light.x >> 4 | light.y) << 8);
+    return vec2(high / 64.0, low / 64.0);
+}
+
+float unpackDimension(ivec4 color, ivec2 light) {
+    int byte0 = color.x;
+    int byte1 = color.y;
+    int byte2 = color.z;
+    int byte3 = (light.x >> 4 | light.y);
+    return intBitsToFloat((byte3 << 24) | (byte0 << 16) | (byte1 << 8) | (byte2));
 }
 // == Boundary End ==
 
@@ -71,6 +80,8 @@ void main() {
     vec4 color = texture(Sampler0, cornerUV);
     if (color.r == 66.0 / 255.0 && color.g == 70.0 / 255.0 && color.b == 50.0 / 255.0) {
         isBoundary = 1.0;
+
+        bool isCube = color.a < 0.9;
 
         sphericalVertexDistance = fog_spherical_distance(Position);
         cylindricalVertexDistance = fog_cylindrical_distance(Position);
@@ -86,9 +97,15 @@ void main() {
         scale = vec2(64, 64 * (size.y / size.x));
         minTexCoord = texCoord0.xy - uv / scale;
 
-        uvec2 dimensions = unpackShorts(ivec4(Color * 255));
-        width = dimensions.x;
-        height = dimensions.y;
+        if (isCube) {
+            float dimension = unpackDimension(ivec4(Color * 255), UV2);
+            width = dimension;
+            height = dimension;
+        } else {
+            vec2 dimensions = unpackDimensions(ivec4(Color * 255), UV2);
+            width = dimensions.x;
+            height = dimensions.y;
+        }
 
         vertexColor = vec4(1.0);
         return;

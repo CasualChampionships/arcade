@@ -1,0 +1,22 @@
+{
+  "format_version": "1.21.6",
+  "credit": "Made with Blockbench",
+  "textures": {
+    "0": "arcade:item/boundary/cuboid_red"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 16, 16],
+      "rotation": {"angle": 0, "axis": "x", "origin": [8, 8, 8]},
+      "faces": {
+        "north": {"uv": [0, 0, 16, 16], "texture": "#0", "tintindex": 0},
+        "east": {"uv": [0, 0, 16, 16], "texture": "#0", "tintindex": 0},
+        "south": {"uv": [0, 0, 16, 16], "texture": "#0", "tintindex": 0},
+        "west": {"uv": [0, 0, 16, 16], "texture": "#0", "tintindex": 0},
+        "up": {"uv": [0, 0, 16, 16], "texture": "#0", "tintindex": 0},
+        "down": {"uv": [0, 0, 16, 16], "texture": "#0", "tintindex": 0}
+      }
+    }
+  ]
+}

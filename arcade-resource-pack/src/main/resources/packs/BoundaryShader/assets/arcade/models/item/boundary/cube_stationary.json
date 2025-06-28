@@ -2,7 +2,7 @@
   "format_version": "1.21.6",
   "credit": "Made with Blockbench",
   "textures": {
-    "0": "arcade:item/boundary/blue"
+    "0": "arcade:item/boundary/cube_blue"
   },
   "elements": [
     {

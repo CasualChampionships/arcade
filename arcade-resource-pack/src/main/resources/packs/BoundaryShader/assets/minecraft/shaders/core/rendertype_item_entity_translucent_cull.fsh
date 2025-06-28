@@ -26,9 +26,10 @@ out vec4 fragColor;
 void main() {
     // == Boundary Start ==
     if (isBoundary > 0.5) {
+//        fragColor = vertexColor;
+//        return;
         vec2 localUV = uv;
-        // Width isn't working correctly at the moment so just assume it's square
-        vec2 repeat = vec2(height, height);
+        vec2 repeat = vec2(height, width);
         localUV -= (GameTime * 256.0) / repeat;
         vec2 tiledUV = fract(localUV * repeat);
         vec2 atlasUV = minTexCoord + tiledUV / scale;

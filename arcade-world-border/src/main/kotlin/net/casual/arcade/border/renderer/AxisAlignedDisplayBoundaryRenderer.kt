@@ -49,8 +49,10 @@ public class AxisAlignedDisplayBoundaryRenderer(
 
     override fun render(players: Collection<ServerPlayer>) {
         for ((direction, element) in this.faces) {
-            val model = this.models.get(this.shape, direction)
-            this.updateFace(direction, model, element)
+            val (model, brightness) = this.models.get(this.shape, direction)
+            element.item = model
+            element.brightness = brightness
+            this.updateFace(direction, element)
         }
         this.attachment.tick()
     }
@@ -78,8 +80,9 @@ public class AxisAlignedDisplayBoundaryRenderer(
 
     private fun createElements(holder: ElementHolder, map: EnumMap<Direction, ItemDisplayElement>) {
         for (direction in Direction.entries) {
-            val element = ItemDisplayElement(this.models.get(this.shape, direction))
-            element.brightness = Brightness.FULL_BRIGHT
+            val (stack, brightness) = this.models.get(this.shape, direction)
+            val element = ItemDisplayElement(stack)
+            element.brightness = brightness
             element.isInvisible = true
             element.viewRange = Y_SHIFT.toFloat()
             element.teleportDuration = 1
@@ -89,9 +92,7 @@ public class AxisAlignedDisplayBoundaryRenderer(
         }
     }
 
-    private fun updateFace(direction: Direction, model: ItemStack, element: ItemDisplayElement) {
-        element.item = model
-
+    private fun updateFace(direction: Direction, element: ItemDisplayElement) {
         val size = this.shape.size().toVector3f()
         val scale = direction.step().absolute().sub(1.0F, 1.0F, 1.0F).negate()
         element.scale = scale.mul(size)

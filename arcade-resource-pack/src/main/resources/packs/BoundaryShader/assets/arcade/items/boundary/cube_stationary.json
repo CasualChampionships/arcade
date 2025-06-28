@@ -1,7 +1,7 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "arcade:item/boundary/growing",
+    "model": "arcade:item/boundary/cube_stationary",
     "tints": [
       {
         "type": "minecraft:dye",

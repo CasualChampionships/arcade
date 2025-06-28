@@ -8,35 +8,38 @@ import net.casual.arcade.border.shape.BoundaryShape
 import net.casual.arcade.utils.ArcadeUtils
 import net.minecraft.core.Direction
 import net.minecraft.core.component.DataComponents
+import net.minecraft.util.Brightness
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.component.DyedItemColor
 import kotlin.math.ceil
 
-public object AxisAlignedModelShaderRenderOptions: AxisAlignedModelRenderOptions {
-    private val stationary = ArcadeUtils.id("boundary/stationary")
-    private val shrinking = ArcadeUtils.id("boundary/shrinking")
-    private val growing = ArcadeUtils.id("boundary/growing")
+public object AxisAlignedModelCuboidShaderRenderOptions: AxisAlignedModelRenderOptions {
+    private val stationary = ArcadeUtils.id("boundary/cuboid_stationary")
+    private val shrinking = ArcadeUtils.id("boundary/cuboid_shrinking")
+    private val growing = ArcadeUtils.id("boundary/cuboid_growing")
 
-    override fun get(shape: BoundaryShape, face: Direction): ItemStack {
+    override fun get(shape: BoundaryShape, face: Direction): AxisAlignedModelRenderOptions.Data {
         val stack = ItemStack(Items.POPPED_CHORUS_FRUIT)
         val model = shape.getStatus().choose(this.stationary, this.shrinking, this.growing)
         stack.set(DataComponents.ITEM_MODEL, model)
         val size = shape.size()
         val color = when (face.axis!!) {
-            Direction.Axis.X -> pack(size.z, size.y)
-            Direction.Axis.Y -> pack(size.x, size.z)
-            Direction.Axis.Z -> pack(size.x, size.y)
+            Direction.Axis.X -> pack(size.z * 64, size.y * 64)
+            Direction.Axis.Y -> pack(size.x * 64, size.z * 64)
+            Direction.Axis.Z -> pack(size.x * 64, size.y * 64)
         }
         stack.set(DataComponents.DYED_COLOR, DyedItemColor(color.toInt()))
-        return stack
+        val light = (color shr 24).toInt()
+        val brightness = Brightness(light % 16, light / 16)
+        return AxisAlignedModelRenderOptions.Data(stack, brightness)
     }
 
-    private fun pack(high: Double, low: Double): UInt {
+    internal fun pack(high: Double, low: Double): UInt {
         return pack(ceil(high).toUInt(), ceil(low).toUInt())
     }
 
-    private fun pack(high: UInt, low: UInt): UInt {
+    internal fun pack(high: UInt, low: UInt): UInt {
         return (high shl 16) or (low and 0xFFFFu)
     }
 }

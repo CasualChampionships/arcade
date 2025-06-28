@@ -1,7 +1,7 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "arcade:item/boundary/stationary",
+    "model": "arcade:item/boundary/cube_shrinking",
     "tints": [
       {
         "type": "minecraft:dye",
