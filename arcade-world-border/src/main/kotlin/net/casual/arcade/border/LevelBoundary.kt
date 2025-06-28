@@ -8,10 +8,13 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.border.renderer.BoundaryRenderer
 import net.casual.arcade.border.shape.BoundaryShape
+import net.casual.arcade.border.utils.ClientboundSetBorderWarningDistancePacket
 import net.casual.arcade.visuals.core.TrackedPlayerUI
 import net.minecraft.core.BlockPos
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
+import net.minecraft.network.protocol.game.ClientboundSetBorderWarningDelayPacket
+import net.minecraft.network.protocol.game.ClientboundSetBorderWarningDistancePacket
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Mth
@@ -25,10 +28,12 @@ public class LevelBoundary(
 ): TrackedPlayerUI() {
     public var damagePerBlock: Double = 0.2
     public var damageSafeZone: Double = 5.0
+    public var warningBlocks: Int = 5
 
     public constructor(settings: Settings): this(settings.shape, settings.renderer()) {
         this.damagePerBlock = settings.damagePerBlock
         this.damageSafeZone = settings.damageSafeZone
+        this.warningBlocks = settings.warningBlocks
     }
 
     public fun contains(pos: BlockPos): BoundaryShape.Containment {
@@ -47,8 +52,18 @@ public class LevelBoundary(
         return this.shape.getDirectionTo(point)
     }
 
+    public fun getSize(): Vec3 {
+        return this.shape.size()
+    }
+
+    public fun getCenter(): Vec3 {
+        return this.shape.center()
+    }
+
     public fun createSettings(): Settings {
-        return Settings(this.shape, this.renderer.factory(), this.damagePerBlock, this.damageSafeZone)
+        return Settings(
+            this.shape, this.renderer.factory(), this.damagePerBlock, this.damageSafeZone, this.warningBlocks
+        )
     }
 
     public fun tick(level: ServerLevel) {
@@ -75,13 +90,27 @@ public class LevelBoundary(
 
     private fun tickPlayer(player: ServerPlayer) {
         val position = player.position()
-        if (this.contains(position) || !player.isAlive) {
+        if (!player.isAlive) {
             return
         }
 
-        val distance = this.shape.getDistanceTo(position) - this.damageSafeZone
-        if (distance > 0 && this.damagePerBlock > 0) {
-            val damage = max(1, Mth.floor(distance * this.damagePerBlock)).toFloat()
+        val distance = this.getDistanceTo(position)
+        val inside = this.contains(position)
+        if (inside) {
+            if (distance < this.warningBlocks) {
+                val ratio = (this.warningBlocks / distance)
+                val simulated = player.level().worldBorder.getDistanceToBorder(player) * ratio
+                player.connection.send(ClientboundSetBorderWarningDistancePacket(simulated.toInt()))
+            } else {
+                player.connection.send(INSIDE_BORDER_PACKET)
+            }
+            return
+        }
+
+        player.connection.send(OUTSIDE_BORDER_PACKET)
+        val damagingDistance = distance - this.damageSafeZone
+        if (damagingDistance > 0 && this.damagePerBlock > 0) {
+            val damage = max(1, Mth.floor(damagingDistance * this.damagePerBlock)).toFloat()
             player.hurtServer(player.level(), player.damageSources().outOfBorder(), damage)
         }
     }
@@ -90,7 +119,8 @@ public class LevelBoundary(
         val shape: BoundaryShape,
         val rendererFactory: BoundaryRenderer.Factory,
         val damagePerBlock: Double,
-        val damageSafeZone: Double
+        val damageSafeZone: Double,
+        val warningBlocks: Int
     ) {
         public fun renderer(): BoundaryRenderer {
             return this.rendererFactory.create(this.shape)
@@ -102,9 +132,15 @@ public class LevelBoundary(
                     BoundaryShape.CODEC.fieldOf("shape").forGetter(Settings::shape),
                     BoundaryRenderer.Factory.CODEC.fieldOf("renderer").forGetter(Settings::rendererFactory),
                     Codec.DOUBLE.fieldOf("damage_per_block").forGetter(Settings::damagePerBlock),
-                    Codec.DOUBLE.fieldOf("damage_safe_zone").forGetter(Settings::damageSafeZone)
+                    Codec.DOUBLE.fieldOf("damage_safe_zone").forGetter(Settings::damageSafeZone),
+                    Codec.INT.fieldOf("warning_blocks").forGetter(Settings::warningBlocks)
                 ).apply(instance, ::Settings)
             }
         }
+    }
+
+    private companion object {
+        val INSIDE_BORDER_PACKET = ClientboundSetBorderWarningDistancePacket(0)
+        val OUTSIDE_BORDER_PACKET = ClientboundSetBorderWarningDistancePacket(Int.MAX_VALUE)
     }
 }

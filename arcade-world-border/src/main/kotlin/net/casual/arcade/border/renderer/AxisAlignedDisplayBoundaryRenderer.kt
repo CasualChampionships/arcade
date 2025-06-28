@@ -14,6 +14,7 @@ import net.casual.arcade.border.shape.AxisAlignedBoundaryShape
 import net.casual.arcade.border.shape.BoundaryShape
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.EnumUtils
+import net.casual.arcade.utils.PlayerUtils.isChunkInViewDistance
 import net.casual.arcade.utils.PlayerUtils.isInViewDistance
 import net.casual.arcade.utils.codec.CodecProvider
 import net.minecraft.core.BlockPos
@@ -25,6 +26,7 @@ import net.minecraft.network.protocol.game.ClientboundChunksBiomesPacket
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.dimension.DimensionType
 import java.util.*
 import java.util.function.Consumer
@@ -63,13 +65,18 @@ public class AxisAlignedDisplayBoundaryRenderer(
             val chunkZ = SectionPos.blockToSectionCoord(center.z())
             val packet = this.getOrCreateChunkPacket(level, chunkX, chunkZ)
             for (player in players) {
-                player.connection.send(packet)
+                if (!player.isChunkInViewDistance(chunkX, chunkZ)) {
+                    player.connection.send(packet)
+                }
             }
         }
 
         for ((direction, element) in this.faces) {
             val (model, brightness) = this.models.get(this.shape, direction)
-            element.item = model
+            // ItemStack#equals isn't implemented, so just setting it always marks it dirty
+            if (!ItemStack.isSameItemSameComponents(model, element.item)) {
+                element.item = model
+            }
             element.brightness = brightness
             this.updateFace(direction, element)
         }

@@ -7,6 +7,7 @@ package net.casual.arcade.utils
 import net.casual.arcade.util.ducks.ConnectionFaultHolder
 import net.casual.arcade.util.ducks.SilentRecipeSender
 import net.casual.arcade.util.mixins.PlayerAdvancementsAccessor
+import net.casual.arcade.utils.PlayerUtils.isInViewDistance
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -39,6 +40,7 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
 import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.GameType
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
@@ -212,10 +214,18 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.isInViewDistance(x: Double, z: Double): Boolean {
+        return this.isChunkInViewDistance(SectionPos.posToSectionCoord(x), SectionPos.posToSectionCoord(z))
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.isChunkInViewDistance(pos: ChunkPos): Boolean {
+        return this.isChunkInViewDistance(pos.x, pos.z)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.isChunkInViewDistance(chunkX: Int, chunkY: Int): Boolean {
         val pos = this.chunkPosition()
-        return ChunkTrackingView.isInViewDistance(
-            pos.x, pos.z, this.getViewDistance(), SectionPos.posToSectionCoord(x), SectionPos.posToSectionCoord(z)
-        )
+        return ChunkTrackingView.isInViewDistance(pos.x, pos.z, this.getViewDistance(), chunkX, chunkY)
     }
 
     @JvmStatic
