@@ -13,6 +13,7 @@ import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.codec.CodecProvider
 import net.minecraft.Util
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 
 public class AsyncParticleBoundaryRenderer(
@@ -21,9 +22,9 @@ public class AsyncParticleBoundaryRenderer(
     range: Double = 40.0,
     pointsPerBlock: Double = 0.25
 ): ParticleBoundaryRenderer(shape, particle, range, pointsPerBlock) {
-    override fun render(players: Collection<ServerPlayer>) {
+    override fun render(level: ServerLevel, players: Collection<ServerPlayer>) {
         if (players.isNotEmpty()) {
-            Util.ioPool().execute { super.render(players) }
+            Util.ioPool().execute { super.render(level, players) }
         }
     }
 

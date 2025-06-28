@@ -12,6 +12,7 @@ import net.casual.arcade.visuals.core.TrackedPlayerUI
 import net.minecraft.core.BlockPos
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Mth
 import net.minecraft.world.phys.Vec3
@@ -50,11 +51,11 @@ public class LevelBoundary(
         return Settings(this.shape, this.renderer.factory(), this.damagePerBlock, this.damageSafeZone)
     }
 
-    public fun tick() {
+    public fun tick(level: ServerLevel) {
         this.shape.tick()
 
         val players = this.getPlayers()
-        this.renderer.render(players)
+        this.renderer.render(level, players)
         for (player in players) {
             this.tickPlayer(player)
         }

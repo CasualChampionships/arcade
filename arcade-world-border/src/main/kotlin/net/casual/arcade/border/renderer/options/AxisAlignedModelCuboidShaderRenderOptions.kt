@@ -12,12 +12,16 @@ import net.minecraft.util.Brightness
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.component.DyedItemColor
-import kotlin.math.ceil
+import kotlin.math.floor
+import kotlin.math.log2
 
 public object AxisAlignedModelCuboidShaderRenderOptions: AxisAlignedModelRenderOptions {
     private val stationary = ArcadeUtils.id("boundary/cuboid_stationary")
     private val shrinking = ArcadeUtils.id("boundary/cuboid_shrinking")
     private val growing = ArcadeUtils.id("boundary/cuboid_growing")
+
+    override val forceLoadCenterChunk: Boolean
+        get() = true
 
     override fun get(shape: BoundaryShape, face: Direction): AxisAlignedModelRenderOptions.Data {
         val stack = ItemStack(Items.POPPED_CHORUS_FRUIT)
@@ -25,9 +29,9 @@ public object AxisAlignedModelCuboidShaderRenderOptions: AxisAlignedModelRenderO
         stack.set(DataComponents.ITEM_MODEL, model)
         val size = shape.size()
         val color = when (face.axis!!) {
-            Direction.Axis.X -> pack(size.z * 64, size.y * 64)
-            Direction.Axis.Y -> pack(size.x * 64, size.z * 64)
-            Direction.Axis.Z -> pack(size.x * 64, size.y * 64)
+            Direction.Axis.X -> pack(size.z / 2, size.y / 2)
+            Direction.Axis.Y -> pack(size.x / 2, size.z / 2)
+            Direction.Axis.Z -> pack(size.x / 2, size.y / 2)
         }
         stack.set(DataComponents.DYED_COLOR, DyedItemColor(color.toInt()))
         val light = (color shr 24).toInt()
@@ -35,11 +39,21 @@ public object AxisAlignedModelCuboidShaderRenderOptions: AxisAlignedModelRenderO
         return AxisAlignedModelRenderOptions.Data(stack, brightness)
     }
 
-    internal fun pack(high: Double, low: Double): UInt {
-        return pack(ceil(high).toUInt(), ceil(low).toUInt())
+    private fun pack(a: Double, b: Double): UInt {
+        val high = castToHalfBits(a).toUInt()
+        val low = castToHalfBits(b).toUInt()
+        return (high shl 16) or low
     }
 
-    internal fun pack(high: UInt, low: UInt): UInt {
-        return (high shl 16) or (low and 0xFFFFu)
+    private fun castToHalfBits(value: Double): UShort {
+        val clamped = value.coerceIn(0.5, 32760.0)
+
+        val exponent = (floor(log2(clamped)) + 1).toInt()
+        val scale = 1 shl (exponent - 1)
+        val normalized = clamped / scale
+
+        val mantissa = ((normalized - 1.0) * 4096.0).toInt().coerceIn(0, 0xFFF)
+        val bits = ((exponent and 0xF) shl 12) or (mantissa and 0xFFF)
+        return bits.toUShort()
     }
 }

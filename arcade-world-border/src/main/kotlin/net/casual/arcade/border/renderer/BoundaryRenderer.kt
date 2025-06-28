@@ -12,12 +12,13 @@ import net.casual.arcade.utils.codec.CodecProvider.Companion.register
 import net.minecraft.core.Registry
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import java.util.function.Consumer
 import java.util.function.Function
 
 public interface BoundaryRenderer {
-    public fun render(players: Collection<ServerPlayer>)
+    public fun render(level: ServerLevel, players: Collection<ServerPlayer>)
 
     public fun startRendering(player: ServerPlayer)
 

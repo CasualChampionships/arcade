@@ -14,14 +14,17 @@ import net.casual.arcade.border.shape.AxisAlignedBoundaryShape
 import net.casual.arcade.border.shape.BoundaryShape
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.EnumUtils
+import net.casual.arcade.utils.PlayerUtils.isInViewDistance
 import net.casual.arcade.utils.codec.CodecProvider
+import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
+import net.minecraft.core.SectionPos
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
+import net.minecraft.network.protocol.game.ClientboundChunksBiomesPacket
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.util.Brightness
-import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.dimension.DimensionType
 import java.util.*
 import java.util.function.Consumer
@@ -38,6 +41,12 @@ public class AxisAlignedDisplayBoundaryRenderer(
     private val attachment: ManualAttachment
     private val faces = EnumUtils.mapOf<Direction, ItemDisplayElement>()
 
+    // We use another hack, we need the display entity on the client
+    // to be ticking so that the client can see the border updating.
+    // ClientboundChunksBiomesPacket force-loads the chunk which
+    // allows our display entity to tick!
+    private lateinit var cached: ClientboundChunksBiomesPacket
+
     init {
         val holder = ElementHolder()
         this.createElements(holder, this.faces)
@@ -47,7 +56,17 @@ public class AxisAlignedDisplayBoundaryRenderer(
         }
     }
 
-    override fun render(players: Collection<ServerPlayer>) {
+    override fun render(level: ServerLevel, players: Collection<ServerPlayer>) {
+        if (this.models.forceLoadCenterChunk) {
+            val center = this.shape.center()
+            val chunkX = SectionPos.blockToSectionCoord(center.x())
+            val chunkZ = SectionPos.blockToSectionCoord(center.z())
+            val packet = this.getOrCreateChunkPacket(level, chunkX, chunkZ)
+            for (player in players) {
+                player.connection.send(packet)
+            }
+        }
+
         for ((direction, element) in this.faces) {
             val (model, brightness) = this.models.get(this.shape, direction)
             element.item = model
@@ -100,6 +119,19 @@ public class AxisAlignedDisplayBoundaryRenderer(
         val translation = size.mul(direction.unitVec3f).mul(Z_FIGHTING_SCALE).mul(0.5F)
         element.translation = translation.sub(0.0F, Y_SHIFT.toFloat(), 0.0F)
         element.startInterpolationIfDirty()
+    }
+
+    private fun getOrCreateChunkPacket(level: ServerLevel, chunkX: Int, chunkZ: Int): ClientboundChunksBiomesPacket {
+        if (this::cached.isInitialized) {
+            val pos = this.cached.chunkBiomeData[0].pos
+            if (pos.x == chunkX && pos.z == chunkZ) {
+                return this.cached
+            }
+        }
+        val chunk = level.getChunk(chunkX, chunkZ)
+        val packet = ClientboundChunksBiomesPacket.forChunks(listOf(chunk))
+        this.cached = packet
+        return packet
     }
 
     public class Factory(

@@ -15,6 +15,7 @@ import net.casual.arcade.utils.codec.CodecProvider
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import java.util.function.Consumer
 
@@ -24,7 +25,7 @@ public open class ParticleBoundaryRenderer(
     protected val range: Double = 40.0,
     protected val pointsPerBlock: Double = 0.25
 ): BoundaryRenderer {
-    override fun render(players: Collection<ServerPlayer>) {
+    override fun render(level: ServerLevel, players: Collection<ServerPlayer>) {
         if (players.isEmpty()) {
             return
         }

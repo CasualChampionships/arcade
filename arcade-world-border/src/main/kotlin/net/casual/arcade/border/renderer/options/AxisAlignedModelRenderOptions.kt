@@ -15,6 +15,9 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 
 public interface AxisAlignedModelRenderOptions {
+    public val forceLoadCenterChunk: Boolean
+        get() = false
+
     public fun get(shape: BoundaryShape, face: Direction): Data
 
     public class Constant(

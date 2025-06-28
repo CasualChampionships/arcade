@@ -19,6 +19,9 @@ public object AxisAlignedModelCubeShaderRenderOptions: AxisAlignedModelRenderOpt
     private val shrinking = ArcadeUtils.id("boundary/cube_shrinking")
     private val growing = ArcadeUtils.id("boundary/cube_growing")
 
+    override val forceLoadCenterChunk: Boolean
+        get() = true
+
     override fun get(shape: BoundaryShape, face: Direction): AxisAlignedModelRenderOptions.Data {
         val stack = ItemStack(Items.POPPED_CHORUS_FRUIT)
         val model = shape.getStatus().choose(this.stationary, this.shrinking, this.growing)

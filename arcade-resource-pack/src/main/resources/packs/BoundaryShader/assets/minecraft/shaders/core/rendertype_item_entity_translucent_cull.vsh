@@ -30,6 +30,7 @@ out float width;
 out vec2 minTexCoord;
 out vec2 uv;
 out vec2 scale;
+out vec3 position;
 // == Boundary End ==
 
 // == Boundary Start ==
@@ -56,19 +57,29 @@ vec2 getVertexCornerUV(sampler2D tex, vec2 uv, int vertexID) {
     return texelUV;
 }
 
+float decode16BitFloat(int bits) {
+    int exponent = (bits >> 12) & 0xF;
+    int mantissa = bits & 0xFFF;
+    float scale = exp2(float(exponent - 1));
+    return (1.0 + float(mantissa) / 4096.0) * scale;
+}
+
 vec2 unpackDimensions(ivec4 color, ivec2 light) {
-    // TODO: Check this?
-    int low = (color.x) | (color.y << 8);
-    int high = (color.z) | ((light.x >> 4 | light.y) << 8);
-    return vec2(high / 64.0, low / 64.0);
+    int byte0 = color.z;
+    int byte1 = color.y;
+    int byte2 = color.x;
+    int byte3 = (light.x >> 4 | light.y);
+    int low = (byte1 << 8) | byte0;
+    int high  = (byte3 << 8) | byte2;
+    return vec2(decode16BitFloat(high), decode16BitFloat(low));
 }
 
 float unpackDimension(ivec4 color, ivec2 light) {
-    int byte0 = color.x;
+    int byte0 = color.z;
     int byte1 = color.y;
-    int byte2 = color.z;
+    int byte2 = color.x;
     int byte3 = (light.x >> 4 | light.y);
-    return intBitsToFloat((byte3 << 24) | (byte0 << 16) | (byte1 << 8) | (byte2));
+    return intBitsToFloat((byte3 << 24) | (byte2 << 16) | (byte1 << 8) | (byte0));
 }
 // == Boundary End ==
 
@@ -107,6 +118,7 @@ void main() {
             height = dimensions.y;
         }
 
+        position = Position;
         vertexColor = vec4(1.0);
         return;
     } else {
@@ -116,6 +128,7 @@ void main() {
         scale = vec2(0);
         minTexCoord = vec2(0, 0);
         uv = vec2(0, 0);
+        position = vec3(0);
     }
     // == Boundary End ==
 
