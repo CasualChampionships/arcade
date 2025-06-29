@@ -1,6 +1,6 @@
 package net.casual.arcade.test
 
-import net.casual.arcade.boundary.tracker.TrackedBorder
+import net.casual.arcade.border.tracker.TrackedBorder
 import net.casual.arcade.commands.register
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
@@ -29,8 +29,6 @@ object ArcadeTest: ModInitializer {
             TestMinigame.ID,
             TestMinigame.codec()
         )
-
-        TrackedBorder(0.0, 0.0, 0.0)
 
         this.boundaryTests()
     }
