@@ -7,6 +7,7 @@ package net.casual.arcade.nametags
 import net.casual.arcade.nametags.extensions.EntityNametagExtension
 import net.casual.arcade.nametags.virtual.NametagHeight
 import net.casual.arcade.utils.TimeUtils.Ticks
+import net.casual.arcade.utils.impl.ColorARGB
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
@@ -27,15 +28,20 @@ public interface Nametag {
         get() = 1.Ticks
 
     /**
-     * This gets the height of the name tag.
+     * This gets the height of the nametag.
      * You should change this depending on the height
      * of your nametag, by default, it is [NametagHeight.DEFAULT]
      * which corresponds to a single line of text.
-     *
-     * @return The height of the nametag.
      */
     public val height: NametagHeight
         get() = NametagHeight.DEFAULT
+
+    /**
+     * Gets the background color of the nametag.
+     * `null` to use Minecraft's default background color.
+     */
+    public val backgroundColor: ColorARGB?
+        get() = null
 
     /**
      * This gets the component that will be displayed as the name tag

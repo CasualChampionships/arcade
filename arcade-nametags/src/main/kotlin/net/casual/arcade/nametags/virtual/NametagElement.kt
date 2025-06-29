@@ -46,6 +46,13 @@ public class NametagElement(
         this.foreground.seeThrough = false
         this.foreground.textOpacity = 255.toByte()
         this.foreground.background = 0
+
+        val color = this.nametag.backgroundColor
+        if (color == null) {
+            this.background.defaultBackground = true
+        } else {
+            this.background.background = color.color()
+        }
     }
 
     public fun getMountingId(): Int {
