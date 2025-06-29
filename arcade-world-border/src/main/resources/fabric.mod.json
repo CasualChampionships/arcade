@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "id": "arcade-world-border",
+  "version": "${version}",
+  "name": "Arcade World Border",
+  "description": "",
+  "authors": [
+    "Sensei"
+  ],
+  "contact": {
+
+  },
+  "license": "MIT",
+  "icon": "assets/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.border.ArcadeBorder"
+      }
+    ]
+  },
+  "mixins": [
+    "arcade-world-border.mixins.json"
+  ],
+  "accessWidener": "arcade-world-border.accesswidener",
+  "depends": {
+    "minecraft": "${minecraft_dependency}",
+    "fabricloader": ">=${fabric_loader_dependency}",
+    "fabric-language-kotlin": ">=${fabric_kotlin_dependency}"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": ["library"],
+      "parent": {
+        "id": "arcade",
+        "name": "Arcade",
+        "icon": "assets/icon.png",
+        "badges": ["library"]
+      }
+    }
+  }
+}
