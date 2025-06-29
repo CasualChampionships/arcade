@@ -20,6 +20,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Mth
 import net.minecraft.world.level.border.WorldBorder
+import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import java.util.function.Consumer
 import kotlin.math.max
@@ -168,6 +169,20 @@ public class LevelBoundary(
     }
 
     /**
+     * Gets an approximate bounding box for the boundary.
+     *
+     * The boundary shape may *not* be an AABB, this is just
+     * another way to describe the center and size of the boundary.
+     *
+     * @return The approximate AABB.
+     */
+    public fun getAABB(): AABB {
+        val center = this.getCenter()
+        val size = this.getSize()
+        return AABB.ofSize(center, size.x, size.y, size.z)
+    }
+
+    /**
      * Gets the status of the border, whether
      * it's currently stationary, shrinking, or growing.
      *
@@ -241,6 +256,15 @@ public class LevelBoundary(
         if (damagingDistance > 0 && this.damagePerBlock > 0) {
             val damage = max(1, Mth.floor(damagingDistance * this.damagePerBlock)).toFloat()
             player.hurtServer(player.level(), player.damageSources().outOfBorder(), damage)
+        }
+    }
+
+    /**
+     * Utility class representing a size and center.
+     */
+    public data class SizeAndCenter(val size: Vec3, val center: Vec3) {
+        public fun aabb(): AABB {
+            return AABB.ofSize(this.center, this.size.x, this.size.y, this.size.z)
         }
     }
 

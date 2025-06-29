@@ -28,6 +28,22 @@ public object MathUtils {
     public operator fun Vec3i.component2(): Int = this.y
     public operator fun Vec3i.component3(): Int = this.z
 
+    public fun max(a: Vec3, b: Vec3): Vec3 {
+        return Vec3(max(a.x, b.x), max(a.y, b.y), max(a.z, b.z))
+    }
+
+    public fun max(a: Vec3, value: Double): Vec3 {
+        return Vec3(max(a.x, value), max(a.y, value), max(a.z, value))
+    }
+
+    public fun min(a: Vec3, b: Vec3): Vec3 {
+        return Vec3(min(a.x, b.x), min(a.y, b.y), min(a.z, b.z))
+    }
+
+    public fun min(a: Vec3, value: Double): Vec3 {
+        return Vec3(min(a.x, value), min(a.y, value), min(a.z, value))
+    }
+
     public fun Vec3.verticalDistanceTo(other: Vec3): Double {
         return abs(this.y - other.y)
     }
@@ -140,6 +156,32 @@ public object MathUtils {
             Direction8.SOUTH_WEST -> Direction8.NORTH_EAST
             Direction8.WEST -> Direction8.EAST
             Direction8.NORTH_WEST -> Direction8.SOUTH_EAST
+        }
+    }
+
+    public fun getDirection8(direction: Vec3): Direction8 {
+        return if (direction.x < 0) {
+            if (direction.z < 0) {
+                Direction8.NORTH_WEST
+            } else if (direction.z > 0) {
+                Direction8.SOUTH_WEST
+            } else {
+                Direction8.WEST
+            }
+        } else if (direction.x > 0) {
+            if (direction.z < 0) {
+                Direction8.NORTH_EAST
+            } else if (direction.z > 0) {
+                Direction8.SOUTH_EAST
+            } else {
+                Direction8.EAST
+            }
+        } else {
+            if (direction.z < 0) {
+                Direction8.NORTH
+            } else {
+                Direction8.SOUTH
+            }
         }
     }
 
