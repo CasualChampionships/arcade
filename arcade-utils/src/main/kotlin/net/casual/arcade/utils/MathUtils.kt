@@ -5,6 +5,7 @@
 package net.casual.arcade.utils
 
 import net.casual.arcade.utils.MathUtils.maxYCenter
+import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.Direction8
 import net.minecraft.core.Vec3i
@@ -154,7 +155,7 @@ public object MathUtils {
         return shift + percent * factor
     }
 
-    public fun Vec3i.toAABB(): AABB {
+    public fun BlockPos.toAABB(): AABB {
         val (x, y, z) = this
         return AABB(x + 0.0, y + 0.0, z + 0.0, x + 1.0, y + 1.0, z + 1.0)
     }

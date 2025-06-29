@@ -15,13 +15,10 @@ import net.minecraft.world.item.component.DyedItemColor
 import kotlin.math.floor
 import kotlin.math.log2
 
-public object AxisAlignedModelCuboidShaderRenderOptions: AxisAlignedModelRenderOptions {
+public class AxisAlignedModelCuboidShaderRenderOptions: AxisAlignedModelRenderOptions {
     private val stationary = ArcadeUtils.id("boundary/cuboid_stationary")
     private val shrinking = ArcadeUtils.id("boundary/cuboid_shrinking")
     private val growing = ArcadeUtils.id("boundary/cuboid_growing")
-
-    override val forceLoadCenterChunk: Boolean
-        get() = true
 
     override fun get(shape: BoundaryShape, face: Direction): AxisAlignedModelRenderOptions.Data {
         val stack = ItemStack(Items.POPPED_CHORUS_FRUIT)

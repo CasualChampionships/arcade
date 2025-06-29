@@ -97,6 +97,6 @@ object LevelBoundaryCommand: CommandTree {
 
     private fun queryBoundary(context: CommandContext<CommandSourceStack>): Int {
         val boundary = context.source.level.levelBoundary ?: return context.source.fail("World has no boundary set!")
-        return context.source.success("Boundary center: ${boundary.shape.center()}, size: ${boundary.shape.size()}")
+        return context.source.success("Boundary center: ${boundary.getCenter()}, size: ${boundary.getSize()}")
     }
 }

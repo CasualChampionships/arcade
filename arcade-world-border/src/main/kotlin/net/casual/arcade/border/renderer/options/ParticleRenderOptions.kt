@@ -5,6 +5,7 @@
 package net.casual.arcade.border.renderer.options
 
 import com.mojang.serialization.Codec
+import net.casual.arcade.border.renderer.ParticleBoundaryRenderer
 import net.casual.arcade.border.shape.BoundaryShape
 import net.casual.arcade.border.shape.BoundaryShape.Status
 import net.casual.arcade.border.utils.BoundaryRegistries
@@ -13,9 +14,24 @@ import net.minecraft.core.Registry
 import net.minecraft.core.particles.DustParticleOptions
 import net.minecraft.core.particles.ParticleOptions
 
+/**
+ * Provides options for [ParticleBoundaryRenderer]s.
+ */
 public interface ParticleRenderOptions {
+    /**
+     * Gets the [ParticleOptions] for the given [shape].
+     *
+     * @return The particle options.
+     */
     public fun get(shape: BoundaryShape): ParticleOptions
 
+    /**
+     * Provides constant options for [ParticleRenderOptions].
+     *
+     * @param stationary The stationary particle options.
+     * @param shrinking The shrinking particle options.
+     * @param growing The growing particle options.
+     */
     public class Constant(
         public val stationary: ParticleOptions,
         public val shrinking: ParticleOptions,
@@ -27,6 +43,10 @@ public interface ParticleRenderOptions {
     }
 
     public companion object {
+        /**
+         * Default particle render options, uses redstone dust particles
+         * with the colors of the vanilla border statuses.
+         */
         public val DEFAULT: ParticleRenderOptions = this.register(
             "default",
             Constant(

@@ -16,12 +16,22 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 
+/**
+ * Extension of [ParticleBoundaryRenderer] that updates asynchronously
+ * as generating the particle positions can be expensive.
+ *
+ * @param shape The shape to render.
+ * @param particles The particle render options.
+ * @param range The range at which to display particles to the player.
+ * @param particlesPerBlock The number of particles to display per block.
+ * @see ParticleBoundaryRenderer
+ */
 public class AsyncParticleBoundaryRenderer(
     shape: BoundaryShape,
-    particle: ParticleRenderOptions = ParticleRenderOptions.DEFAULT,
+    particles: ParticleRenderOptions = ParticleRenderOptions.DEFAULT,
     range: Double = 40.0,
-    pointsPerBlock: Double = 0.25
-): ParticleBoundaryRenderer(shape, particle, range, pointsPerBlock) {
+    particlesPerBlock: Double = 0.25
+): ParticleBoundaryRenderer(shape, particles, range, particlesPerBlock) {
     override fun render(level: ServerLevel, players: Collection<ServerPlayer>) {
         if (players.isNotEmpty()) {
             Util.ioPool().execute { super.render(level, players) }
@@ -29,7 +39,7 @@ public class AsyncParticleBoundaryRenderer(
     }
 
     override fun factory(): BoundaryRenderer.Factory {
-        return Factory(this.particles, this.range, this.pointsPerBlock)
+        return Factory(this.particles, this.range, this.particlesPerBlock)
     }
 
     public open class Factory(

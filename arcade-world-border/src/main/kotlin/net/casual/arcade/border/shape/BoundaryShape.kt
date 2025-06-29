@@ -12,8 +12,8 @@ import net.casual.arcade.utils.MathUtils.toAABB
 import net.casual.arcade.utils.codec.CodecProvider.Companion.register
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.shapes.ShapePoints
+import net.minecraft.core.BlockPos
 import net.minecraft.core.Registry
-import net.minecraft.core.Vec3i
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import java.util.function.Function
@@ -67,7 +67,7 @@ public interface BoundaryShape {
     public fun recenter(center: Vec3, duration: MinecraftTimeDuration = MinecraftTimeDuration.ZERO)
 
     /**
-     * Whether a given [Vec3i] is contained in the border.
+     * Whether a given [BlockPos] is contained in the border.
      *
      * This treats the position as a unit cube,
      * see [contains] for implementation details.
@@ -75,7 +75,7 @@ public interface BoundaryShape {
      * @param pos The pos to check.
      * @return The [Containment] of the position.
      */
-    public fun contains(pos: Vec3i): Containment {
+    public fun contains(pos: BlockPos): Containment {
         return this.contains(pos.toAABB())
     }
 

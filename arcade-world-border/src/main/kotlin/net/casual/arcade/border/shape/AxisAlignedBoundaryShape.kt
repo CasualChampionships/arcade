@@ -7,6 +7,7 @@ package net.casual.arcade.border.shape
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import net.casual.arcade.border.renderer.AxisAlignedDisplayBoundaryRenderer
 import net.casual.arcade.border.shape.BoundaryShape.Status
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.MathUtils.getSizeVec
@@ -15,20 +16,34 @@ import net.casual.arcade.utils.codec.CodecProvider
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.shapes.ShapePoints
 import net.casual.arcade.visuals.shapes.impl.CuboidShape
-import net.minecraft.core.Direction.Axis
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.ExtraCodecs
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import java.util.function.Function
 
+/**
+ * This is an implementation of [BoundaryShape] that
+ * forms an axis aligned cuboid shape.
+ *
+ * @see AxisAlignedDisplayBoundaryRenderer
+ */
 public class AxisAlignedBoundaryShape private constructor(
     private var size: State,
     private var center: State
 ): BoundaryShape {
+    /**
+     * The axis aligned bounding box corresponding to the
+     * shape of this boundary.
+     */
     public var aabb: AABB = this.recalculateAABB()
         private set
 
+    /**
+     * Constructs this boundary shape with a given [AABB].
+     *
+     * @param aabb The bounding box for the shape.
+     */
     public constructor(aabb: AABB): this(State.Static(aabb.getSizeVec()), State.Static(aabb.center))
 
     override fun size(): Vec3 {
@@ -211,68 +226,5 @@ public class AxisAlignedBoundaryShape private constructor(
                 MAPPER.put("moving", Moving.CODEC)
             }
         }
-    }
-
-
-    private class AxisAlignedBorderIterator(
-        private val min: Vec3,
-        private val max: Vec3,
-        pointsPerUnit: Double
-    ) : Iterator<Vec3> {
-        private val xSteps = ((this.max.x - this.min.x) * pointsPerUnit).toInt().coerceAtLeast(1)
-        private val ySteps = ((this.max.y - this.min.y) * pointsPerUnit).toInt().coerceAtLeast(1)
-        private val zSteps = ((this.max.z - this.min.z) * pointsPerUnit).toInt().coerceAtLeast(1)
-
-        // 0 = -X, 1 = +X, 2 = -Y, 3 = +Y, 4 = -Z, 5 = +Z
-        private var face = 0
-        private var i = 0
-        private var j = 0
-
-        override fun hasNext(): Boolean = face < 6
-
-        override fun next(): Vec3 {
-            if (!hasNext()) throw NoSuchElementException()
-
-            // determine fixed axis value and step counts for this face
-            val (fixed, iMax, jMax, axisX, axisY) = when (face) {
-                0 -> FaceConfig(this.min.x, ySteps, zSteps, Axis.Y, Axis.Z) // -X
-                1 -> FaceConfig(this.max.x, ySteps, zSteps, Axis.Y, Axis.Z) // +X
-                2 -> FaceConfig(this.min.y, xSteps, zSteps, Axis.X, Axis.Z) // -Y
-                3 -> FaceConfig(this.max.y, xSteps, zSteps, Axis.X, Axis.Z) // +Y
-                4 -> FaceConfig(this.min.z, xSteps, ySteps, Axis.X, Axis.Y) // -Z
-                else -> FaceConfig(this.max.z, xSteps, ySteps, Axis.X, Axis.Y) // +Z
-            }
-
-            // compute t,u in [0,1]
-            val t = i.toDouble() / iMax
-            val u = j.toDouble() / jMax
-
-            val coordX = this.min.x + (this.max.x - this.min.x) * (if (axisX == Axis.X) t else if (axisY == Axis.X) u else 0.0)
-            val coordY = this.min.y + (this.max.y - this.min.y) * (if (axisX == Axis.Y) t else if (axisY == Axis.Y) u else 0.0)
-            val coordZ = this.min.z + (this.max.z - this.min.z) * (if (axisX == Axis.Z) t else if (axisY == Axis.Z) u else 0.0)
-
-            val result = when (this.face) {
-                0, 1 -> Vec3(fixed, coordY, coordZ)
-                2, 3 -> Vec3(coordX, fixed, coordZ)
-                else  -> Vec3(coordX, coordY, fixed)
-            }
-
-            if (++this.j > jMax) {
-                this.j = 0
-                if (++this.i > iMax) {
-                    this.i = 0
-                    this.face++
-                }
-            }
-            return result
-        }
-
-        private data class FaceConfig(
-            val fixed: Double,
-            val iMax: Int,
-            val jMax: Int,
-            val axisX: Axis,
-            val axisY: Axis
-        )
     }
 }

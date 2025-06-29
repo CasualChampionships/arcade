@@ -66,6 +66,10 @@ public class LevelBoundaryExtension(
     }
 
     public companion object {
+        /**
+         * Gets and sets a [LevelBoundary] for a given [ServerLevel].
+         * This may be `null` if no boundary has been set.
+         */
         public var ServerLevel.levelBoundary: LevelBoundary?
             get() = this.getExtension<LevelBoundaryExtension>().boundary
             set(value) {

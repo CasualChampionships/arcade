@@ -19,18 +19,28 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import java.util.function.Consumer
 
+/**
+ * Implementation of [BoundaryRenderer] that renders the boundary
+ * as particles to the player.
+ *
+ * @param shape The shape to render.
+ * @param particles The particle render options.
+ * @param range The range at which to display particles to the player.
+ * @param particlesPerBlock The number of particles to display per block.
+ * @see AsyncParticleBoundaryRenderer
+ */
 public open class ParticleBoundaryRenderer(
     protected val shape: BoundaryShape,
     protected val particles: ParticleRenderOptions = ParticleRenderOptions.DEFAULT,
     protected val range: Double = 40.0,
-    protected val pointsPerBlock: Double = 0.25
+    protected val particlesPerBlock: Double = 0.25
 ): BoundaryRenderer {
     override fun render(level: ServerLevel, players: Collection<ServerPlayer>) {
         if (players.isEmpty()) {
             return
         }
         val particle = this.particles.get(this.shape)
-        for (point in this.shape.getPoints().iterator(this.pointsPerBlock)) {
+        for (point in this.shape.getPoints().iterator(this.particlesPerBlock)) {
             val packet = ClientboundLevelParticlesPacket(
                 particle, point, alwaysRender = true, overrideLimiter = true
             )
@@ -55,7 +65,7 @@ public open class ParticleBoundaryRenderer(
     }
 
     override fun factory(): BoundaryRenderer.Factory {
-        return Factory(this.particles, this.range, this.pointsPerBlock)
+        return Factory(this.particles, this.range, this.particlesPerBlock)
     }
 
     public class Factory(

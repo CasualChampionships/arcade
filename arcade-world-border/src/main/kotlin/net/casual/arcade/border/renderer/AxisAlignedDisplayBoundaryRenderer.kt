@@ -31,8 +31,22 @@ import net.minecraft.world.level.dimension.DimensionType
 import java.util.*
 import java.util.function.Consumer
 
+/**
+ * Implementation of [BoundaryRenderer] that assumes the boundary
+ * is axis aligned, and renders it as such using item display
+ * elements.
+ *
+ * This renderer can be used to simulate an almost 1:1 version of
+ * the vanilla world border, however, requires a resource pack.
+ * See [AxisAlignedModelRenderOptions.CUBE_SHADER] and
+ * [AxisAlignedModelRenderOptions.CUBOID_SHADER] for more information.
+ *
+ * @param shape The shape to render.
+ * @param models The models to use for the item displays.
+ * @see AxisAlignedModelRenderOptions
+ */
 public class AxisAlignedDisplayBoundaryRenderer(
-    private val shape: AxisAlignedBoundaryShape,
+    private val shape: BoundaryShape,
     private val models: AxisAlignedModelRenderOptions = AxisAlignedModelRenderOptions.DEFAULT
 ): BoundaryRenderer {
     // The way that this renderer works relies on the fact that
@@ -59,15 +73,13 @@ public class AxisAlignedDisplayBoundaryRenderer(
     }
 
     override fun render(level: ServerLevel, players: Collection<ServerPlayer>) {
-        if (this.models.forceLoadCenterChunk) {
-            val center = this.shape.center()
-            val chunkX = SectionPos.blockToSectionCoord(center.x())
-            val chunkZ = SectionPos.blockToSectionCoord(center.z())
-            val packet = this.getOrCreateChunkPacket(level, chunkX, chunkZ)
-            for (player in players) {
-                if (!player.isChunkInViewDistance(chunkX, chunkZ)) {
-                    player.connection.send(packet)
-                }
+        val center = this.shape.center()
+        val chunkX = SectionPos.blockToSectionCoord(center.x())
+        val chunkZ = SectionPos.blockToSectionCoord(center.z())
+        val packet = this.getOrCreateChunkPacket(level, chunkX, chunkZ)
+        for (player in players) {
+            if (!player.isChunkInViewDistance(chunkX, chunkZ)) {
+                player.connection.send(packet)
             }
         }
 
@@ -145,7 +157,6 @@ public class AxisAlignedDisplayBoundaryRenderer(
         private val models: AxisAlignedModelRenderOptions
     ): BoundaryRenderer.Factory {
         override fun create(shape: BoundaryShape): BoundaryRenderer {
-            require(shape is AxisAlignedBoundaryShape)
             return AxisAlignedDisplayBoundaryRenderer(shape, this.models)
         }
 
