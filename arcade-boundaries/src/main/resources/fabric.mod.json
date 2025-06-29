@@ -17,7 +17,7 @@
     "main": [
       {
         "adapter": "kotlin",
-        "value": "net.casual.arcade.border.ArcadeLevelBoundaries"
+        "value": "net.casual.arcade.boundary.ArcadeLevelBoundaries"
       }
     ]
   },
