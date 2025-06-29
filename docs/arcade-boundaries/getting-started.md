@@ -1,10 +1,11 @@
-# World Border
+# Boundaries
 
-This module improves on the vanilla world border implementation, there are many issues
-with how vanilla implements it, for example, all the vanilla world borders are linked,
-and do not scale correctly per dimension. This api fixes many of those issues.
+This module provides an alternative to vanilla's world borders, which
+can be extremely challenging to use, and not flexible.
 
-It also provides a way to keep track of border(s) which is useful for minigames.
+The boundaries module was written for server-side support in mind, providing 
+the ability to use custom boundary shapes and custom boundary renderers to 
+suit your use case.
 
 ## Adding to Dependencies
 
@@ -17,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    include(modImplementation("net.casualchampionships:arcade-world-border:0.4.0-beta.1+1.21.4")!!)
+    include(modImplementation("net.casualchampionships:arcade-boundaries:0.4.0-beta.1+1.21.4")!!)
 
     include(modImplementation("net.casualchampionships:arcade-commands:0.4.0-beta.1+1.21.4")!!)
     include(modImplementation("net.casualchampionships:arcade-event-registry:0.4.0-beta.1+1.21.4")!!)

@@ -1,6 +1,7 @@
 rootProject.name = "arcade"
 
 include(
+    ":arcade-boundaries",
     ":arcade-commands",
     ":arcade-datagen",
     ":arcade-dimensions",
@@ -17,7 +18,6 @@ include(
     ":arcade-scheduler",
     ":arcade-utils",
     ":arcade-visuals",
-    ":arcade-world-border"
 )
 
 dependencyResolutionManagement {

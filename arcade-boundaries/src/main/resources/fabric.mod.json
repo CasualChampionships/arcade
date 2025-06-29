@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "arcade-world-border",
+  "id": "arcade-boundaries",
   "version": "${version}",
-  "name": "Arcade World Border",
+  "name": "Arcade Boundaries",
   "description": "",
   "authors": [
     "Sensei"
@@ -22,9 +22,8 @@
     ]
   },
   "mixins": [
-    "arcade-world-border.mixins.json"
+
   ],
-  "accessWidener": "arcade-world-border.accesswidener",
   "depends": {
     "minecraft": "${minecraft_dependency}",
     "fabricloader": ">=${fabric_loader_dependency}",
