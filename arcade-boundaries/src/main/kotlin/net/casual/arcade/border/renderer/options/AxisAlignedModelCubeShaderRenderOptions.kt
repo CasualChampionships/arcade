@@ -23,6 +23,7 @@ public class AxisAlignedModelCubeShaderRenderOptions: AxisAlignedModelRenderOpti
         val stack = ItemStack(Items.POPPED_CHORUS_FRUIT)
         val model = shape.getStatus().choose(this.stationary, this.shrinking, this.growing)
         stack.set(DataComponents.ITEM_MODEL, model)
+        // We encode the width of the border as the bits of the float.
         val size = shape.size().x.toFloat().toBits()
         stack.set(DataComponents.DYED_COLOR, DyedItemColor(size))
         val light = size shr 24

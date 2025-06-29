@@ -43,6 +43,9 @@ public class AxisAlignedModelCuboidShaderRenderOptions: AxisAlignedModelRenderOp
     }
 
     private fun castToHalfBits(value: Double): UShort {
+        // My own floating point standard - 4-bit exponent and 12-bit mantissa.
+        // I have no need for negative numbers nor NaN nor Inf.
+        // So the bias is 1, and our range is [0.5, 32760.0]
         val clamped = value.coerceIn(0.5, 32760.0)
 
         val exponent = (floor(log2(clamped)) + 1).toInt()
