@@ -172,6 +172,14 @@ public interface BoundaryShape {
                 Growing -> growing
             }
         }
+
+        public fun isStationary(): Boolean {
+            return this == Stationary
+        }
+
+        public fun isMoving(): Boolean {
+            return !this.isStationary()
+        }
     }
 
     public companion object {

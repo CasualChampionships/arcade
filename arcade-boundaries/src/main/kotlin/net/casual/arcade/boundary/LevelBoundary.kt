@@ -11,6 +11,7 @@ import net.casual.arcade.boundary.renderer.BoundaryRenderer
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.boundary.shape.BoundaryShape.Containment
 import net.casual.arcade.boundary.utils.ClientboundSetBorderWarningDistancePacket
+import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.core.TrackedPlayerUI
 import net.minecraft.core.BlockPos
 import net.minecraft.network.protocol.Packet
@@ -75,6 +76,34 @@ public class LevelBoundary(
     }
 
     /**
+     * Resizes the boundary to the specified [size] over
+     * a [duration].
+     *
+     * A duration of [MinecraftTimeDuration.ZERO] makes
+     * the resize instant.
+     *
+     * @param size The desired size.
+     * @param duration The duration to change the size over.
+     */
+    public fun resize(size: Vec3, duration: MinecraftTimeDuration = MinecraftTimeDuration.ZERO) {
+        this.shape.resize(size, duration)
+    }
+
+    /**
+     * Re-centers the boundary to the specified [center] over
+     * a [duration].
+     *
+     * A duration of [MinecraftTimeDuration.ZERO] makes
+     * the re-centering instant.
+     *
+     * @param center The desired center.
+     * @param duration The duration to change the center over.
+     */
+    public fun recenter(center: Vec3, duration: MinecraftTimeDuration = MinecraftTimeDuration.ZERO) {
+        this.shape.recenter(center, duration)
+    }
+
+    /**
      * Whether a given [BlockPos] is contained in the border.
      *
      * This treats the position as a unit cube,
@@ -136,6 +165,16 @@ public class LevelBoundary(
      */
     public fun getCenter(): Vec3 {
         return this.shape.center()
+    }
+
+    /**
+     * Gets the status of the border, whether
+     * it's currently stationary, shrinking, or growing.
+     *
+     * @return The border status.
+     */
+    public fun getStatus(): BoundaryShape.Status {
+        return this.shape.getStatus()
     }
 
     /**

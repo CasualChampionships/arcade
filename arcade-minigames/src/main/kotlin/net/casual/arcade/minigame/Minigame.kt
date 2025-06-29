@@ -34,13 +34,14 @@ import net.casual.arcade.utils.PlayerUtils.revokeAdvancement
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.storage.TagValueInput
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.lang.reflect.ParameterizedType
 import java.nio.file.Path
 import java.util.*
 
 /**
- * This class represents a [Minigame] which player's can play.
+ * This class represents a [Minigame] which players can play.
  * This is the superclass of all minigames.
  *
  * This implements the bare-bones logic for a minigame and
