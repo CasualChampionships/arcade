@@ -2,11 +2,11 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.border.shape
+package net.casual.arcade.boundary.shape
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
-import net.casual.arcade.border.utils.BoundaryRegistries
+import net.casual.arcade.boundary.utils.BoundaryRegistries
 import net.casual.arcade.utils.MathUtils.forEachCorner
 import net.casual.arcade.utils.MathUtils.toAABB
 import net.casual.arcade.utils.codec.CodecProvider.Companion.register

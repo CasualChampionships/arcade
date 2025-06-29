@@ -2,9 +2,9 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.border.renderer.options
+package net.casual.arcade.boundary.renderer.options
 
-import net.casual.arcade.border.shape.BoundaryShape
+import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.utils.ArcadeUtils
 import net.minecraft.core.Direction
 import net.minecraft.core.component.DataComponents

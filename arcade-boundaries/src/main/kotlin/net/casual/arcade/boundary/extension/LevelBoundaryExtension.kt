@@ -2,9 +2,9 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.border.extension
+package net.casual.arcade.boundary.extension
 
-import net.casual.arcade.border.LevelBoundary
+import net.casual.arcade.boundary.LevelBoundary
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.entity.EntityStartTrackingEvent

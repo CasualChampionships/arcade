@@ -18,6 +18,7 @@ include(
     ":arcade-scheduler",
     ":arcade-utils",
     ":arcade-visuals",
+    ":arcade-world-border",
 )
 
 dependencyResolutionManagement {

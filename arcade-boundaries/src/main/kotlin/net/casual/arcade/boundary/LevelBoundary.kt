@@ -2,21 +2,19 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.border
+package net.casual.arcade.boundary
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.casual.arcade.border.extension.LevelBoundaryExtension
-import net.casual.arcade.border.renderer.BoundaryRenderer
-import net.casual.arcade.border.shape.BoundaryShape
-import net.casual.arcade.border.shape.BoundaryShape.Containment
-import net.casual.arcade.border.utils.ClientboundSetBorderWarningDistancePacket
+import net.casual.arcade.boundary.extension.LevelBoundaryExtension
+import net.casual.arcade.boundary.renderer.BoundaryRenderer
+import net.casual.arcade.boundary.shape.BoundaryShape
+import net.casual.arcade.boundary.shape.BoundaryShape.Containment
+import net.casual.arcade.boundary.utils.ClientboundSetBorderWarningDistancePacket
 import net.casual.arcade.visuals.core.TrackedPlayerUI
 import net.minecraft.core.BlockPos
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
-import net.minecraft.network.protocol.game.ClientboundSetBorderWarningDelayPacket
-import net.minecraft.network.protocol.game.ClientboundSetBorderWarningDistancePacket
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Mth

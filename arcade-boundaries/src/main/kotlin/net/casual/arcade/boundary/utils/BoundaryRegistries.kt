@@ -2,13 +2,13 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.border.utils
+package net.casual.arcade.boundary.utils
 
 import com.mojang.serialization.MapCodec
-import net.casual.arcade.border.renderer.BoundaryRenderer
-import net.casual.arcade.border.renderer.options.AxisAlignedModelRenderOptions
-import net.casual.arcade.border.renderer.options.ParticleRenderOptions
-import net.casual.arcade.border.shape.BoundaryShape
+import net.casual.arcade.boundary.renderer.BoundaryRenderer
+import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
+import net.casual.arcade.boundary.renderer.options.ParticleRenderOptions
+import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.registries.RegistryKeySupplier
 import net.casual.arcade.utils.registries.RegistrySupplier

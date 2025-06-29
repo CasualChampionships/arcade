@@ -2,22 +2,19 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.border.renderer
+package net.casual.arcade.boundary.renderer
 
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import eu.pb4.polymer.virtualentity.api.ElementHolder
 import eu.pb4.polymer.virtualentity.api.attachment.ManualAttachment
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement
-import net.casual.arcade.border.renderer.options.AxisAlignedModelRenderOptions
-import net.casual.arcade.border.shape.AxisAlignedBoundaryShape
-import net.casual.arcade.border.shape.BoundaryShape
+import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
+import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.EnumUtils
 import net.casual.arcade.utils.PlayerUtils.isChunkInViewDistance
-import net.casual.arcade.utils.PlayerUtils.isInViewDistance
 import net.casual.arcade.utils.codec.CodecProvider
-import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.SectionPos
 import net.minecraft.network.protocol.Packet

@@ -2,13 +2,13 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.border.shape
+package net.casual.arcade.boundary.shape
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.casual.arcade.border.renderer.AxisAlignedDisplayBoundaryRenderer
-import net.casual.arcade.border.shape.BoundaryShape.Status
+import net.casual.arcade.boundary.renderer.AxisAlignedDisplayBoundaryRenderer
+import net.casual.arcade.boundary.shape.BoundaryShape.Status
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.MathUtils.getSizeVec
 import net.casual.arcade.utils.TimeUtils.Ticks
