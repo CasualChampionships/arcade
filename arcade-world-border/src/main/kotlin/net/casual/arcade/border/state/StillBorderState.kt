@@ -13,6 +13,7 @@ import net.minecraft.world.phys.shapes.VoxelShape
 import kotlin.math.ceil
 import kotlin.math.floor
 
+@Deprecated("This package is deprecated. Use 'net.casual.arcade.boundary' instead.")
 public class StillBorderState(
     private val border: CustomBorder,
     private var size: Double

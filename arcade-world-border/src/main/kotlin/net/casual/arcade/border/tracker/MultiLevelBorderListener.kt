@@ -6,6 +6,7 @@ package net.casual.arcade.border.tracker
 
 import net.minecraft.server.level.ServerLevel
 
+@Deprecated("This package is deprecated. Use 'net.casual.arcade.boundary' instead.")
 public interface MultiLevelBorderListener {
     public fun onInitialiseBorder(border: TrackedBorder, level: ServerLevel) { }
 

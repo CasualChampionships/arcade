@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.border.WorldBorder
 import java.util.*
 
+@Deprecated("This package is deprecated. Use 'net.casual.arcade.boundary' instead.")
 public class MultiLevelBorderTracker {
     private val tracking = Reference2ObjectOpenHashMap<TrackedBorder, ServerLevel>()
     private val completed = ReferenceOpenHashSet<TrackedBorder>()

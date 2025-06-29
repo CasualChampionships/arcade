@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.border.state
 
+@Deprecated("This package is deprecated. Use 'net.casual.arcade.boundary' instead.")
 public interface CenterBorderState {
     public fun getCenterX(): Double
 

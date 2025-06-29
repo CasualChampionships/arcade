@@ -1,4 +1,4 @@
-package net.casual.arcade.test
+package net.casual.arcade.test.minigame
 
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.minigame.Minigame
@@ -13,15 +13,12 @@ import net.casual.arcade.utils.ComponentUtils.bold
 import net.casual.arcade.utils.ComponentUtils.italicise
 import net.casual.arcade.utils.ComponentUtils.shadowless
 import net.casual.arcade.utils.ComponentUtils.white
-import net.casual.arcade.utils.PlayerUtils.levelServer
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.recipe.CraftingRecipeBuilder
 import net.casual.arcade.visuals.elements.ComponentElements
 import net.casual.arcade.visuals.elements.SidebarElements
 import net.casual.arcade.visuals.sidebar.FixedSidebar
-import net.casual.arcade.visuals.sidebar.SidebarComponent
 import net.casual.arcade.visuals.tab.PlayerListDisplay
-import net.casual.arcade.visuals.tab.PlayerListEntries
 import net.casual.arcade.visuals.tab.VanillaPlayerListEntries
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
@@ -56,30 +53,14 @@ open class TestMinigame(
         })
 
         val sidebar = FixedSidebar(ComponentElements.of(Component.literal("Example!")))
-        sidebar.addRow { player ->
-            val delta = (player.levelServer.tickCount % 200 / 2.0F) - 50F
-            val c = Component.empty()
-                .append("□")
-                .append(SpacingFontResources.spaced(2))
-                .append("□")
-                .append(SpacingFontResources.spaced(10))
-                .append("□")
-                .append(" ")
-                .append("□")
-                .append(SpacingFontResources.composed(-14.178993F))
-                .append("□")
-                .append(SpacingFontResources.composed(delta))
-                .append(Component.literal("■").blue())
-            SidebarComponent.withNoScore(c)
-        }
         sidebar.addRow(SidebarElements.withNoScore(SpacingFontResources.spaced(120)))
         this.ui.setSidebar(sidebar)
 
         val display = PlayerListDisplay(VanillaPlayerListEntries())
         display.setDisplay(
-            { player -> Component.literal("Testing Minigame\n").blue()
+            { _ -> Component.literal("Testing Minigame\n").blue()
                 .append(Component.literal("shadowless").shadowless().italicise().bold().white()) },
-            { player -> Component.empty() }
+            { _ -> Component.empty() }
         )
         this.ui.setPlayerListDisplay(display)
     }
@@ -88,15 +69,11 @@ open class TestMinigame(
         val ID = ResourceUtils.arcade("test_minigame")
 
         override fun create(context: MinigameCreationContext): Minigame {
-            return ChildTestMinigame(context.server, context.uuid)
+            return TestMinigame(context.server, context.uuid)
         }
 
         override fun codec(): MapCodec<out MinigameFactory> {
             return MapCodec.unit(this)
         }
     }
-}
-
-class ChildTestMinigame(server: MinecraftServer, uuid: UUID): TestMinigame(server, uuid) {
-
 }

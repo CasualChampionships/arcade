@@ -7,6 +7,7 @@ package net.casual.arcade.border.state
 import net.minecraft.world.level.border.BorderStatus
 import net.minecraft.world.phys.shapes.VoxelShape
 
+@Deprecated("This package is deprecated. Use 'net.casual.arcade.boundary' instead.")
 public interface BorderState {
     public fun getMinX(): Double
 

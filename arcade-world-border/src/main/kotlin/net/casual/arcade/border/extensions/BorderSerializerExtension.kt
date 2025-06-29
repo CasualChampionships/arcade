@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 
+@Deprecated("This package is deprecated. Use 'net.casual.arcade.boundary' instead.")
 internal class BorderSerializerExtension(
     private val level: ServerLevel
 ): DataExtension {

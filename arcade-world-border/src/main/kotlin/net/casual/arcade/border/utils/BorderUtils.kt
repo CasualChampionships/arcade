@@ -8,6 +8,7 @@ import net.casual.arcade.border.ducks.BorderSetter
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.border.WorldBorder
 
+@Deprecated("This package is deprecated. Use 'net.casual.arcade.boundary' instead.")
 public fun ServerLevel.setWorldBorder(border: WorldBorder) {
     (this as BorderSetter).`arcade$setBorder`(border)
 }

@@ -5,13 +5,16 @@
 package net.casual.arcade.utils
 
 import net.casual.arcade.util.mixins.ClientboundPlayerInfoUpdatePacketAccessor
+import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundBundlePacket
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket.Action
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket.Entry
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.phys.Vec3
 import java.util.*
 
 public fun ClientboundPlayerInfoUpdatePacket(
@@ -22,6 +25,22 @@ public fun ClientboundPlayerInfoUpdatePacket(
     @Suppress("KotlinConstantConditions")
     (packet as ClientboundPlayerInfoUpdatePacketAccessor).setEntries(entries)
     return packet
+}
+
+public fun ClientboundLevelParticlesPacket(
+    options: ParticleOptions,
+    position: Vec3,
+    xDist: Float = 0.0F,
+    yDist: Float = 0.0F,
+    zDist: Float = 0.0F,
+    speed: Float = 0.0F,
+    count: Int = 0,
+    alwaysRender: Boolean = false,
+    overrideLimiter: Boolean = false
+): ClientboundLevelParticlesPacket {
+    return ClientboundLevelParticlesPacket(
+        options, overrideLimiter, alwaysRender, position.x, position.y, position.z, xDist, yDist, zDist, speed, count
+    )
 }
 
 public fun Packet<*>.asClientGamePacket(): Packet<ClientGamePacketListener> {

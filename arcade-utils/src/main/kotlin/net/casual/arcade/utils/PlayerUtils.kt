@@ -7,6 +7,7 @@ package net.casual.arcade.utils
 import net.casual.arcade.util.ducks.ConnectionFaultHolder
 import net.casual.arcade.util.ducks.SilentRecipeSender
 import net.casual.arcade.util.mixins.PlayerAdvancementsAccessor
+import net.casual.arcade.utils.PlayerUtils.isInViewDistance
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -18,12 +19,15 @@ import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction8
 import net.minecraft.core.Holder
+import net.minecraft.core.SectionPos
 import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.*
+import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket.Action.ADD
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.level.ChunkTrackingView
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerCommonPacketListenerImpl
 import net.minecraft.sounds.SoundEvent
@@ -36,7 +40,9 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
 import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.GameType
+import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.scores.PlayerTeam
 import java.util.*
@@ -52,6 +58,13 @@ public object PlayerUtils {
     @JvmStatic
     public val ServerPlayer.isSurvival: Boolean
         get() = this.isGameMode(GameType.SURVIVAL)
+
+    @JvmStatic
+    public fun Iterable<ServerPlayer>.broadcast(packet: Packet<*>) {
+        for (player in this) {
+            player.connection.send(packet)
+        }
+    }
 
     @JvmStatic
     @JvmOverloads
@@ -180,6 +193,39 @@ public object PlayerUtils {
     @JvmStatic
     public fun ServerPlayer.getAttackCooldown(): MinecraftTimeDuration {
         return Mth.ceil(this.currentItemAttackStrengthDelay).Ticks
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.getApproximateViewBox(): AABB {
+        val pos = SectionPos.of(this.position())
+        val size = (2 * this.getViewDistance() + 1) * 16.0
+        return AABB.ofSize(Vec3.atLowerCornerOf(pos.center()), size, size, size)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.getViewDistance(): Int {
+        return this.requestedViewDistance().coerceIn(2, this.levelServer.playerList.viewDistance)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.isInViewDistance(pos: Vec3): Boolean {
+        return this.isInViewDistance(pos.x, pos.z)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.isInViewDistance(x: Double, z: Double): Boolean {
+        return this.isChunkInViewDistance(SectionPos.posToSectionCoord(x), SectionPos.posToSectionCoord(z))
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.isChunkInViewDistance(pos: ChunkPos): Boolean {
+        return this.isChunkInViewDistance(pos.x, pos.z)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.isChunkInViewDistance(chunkX: Int, chunkY: Int): Boolean {
+        val pos = this.chunkPosition()
+        return ChunkTrackingView.isInViewDistance(pos.x, pos.z, this.getViewDistance(), chunkX, chunkY)
     }
 
     @JvmStatic
@@ -552,7 +598,7 @@ public object PlayerUtils {
         overrideLimiter: Boolean = false
     ) {
         this.connection.send(ClientboundLevelParticlesPacket(
-            options, overrideLimiter, alwaysRender, position.x, position.y, position.z, xDist, yDist, zDist, speed, count
+            options, position, xDist, yDist, zDist, speed, count, alwaysRender, overrideLimiter
         ))
     }
 }

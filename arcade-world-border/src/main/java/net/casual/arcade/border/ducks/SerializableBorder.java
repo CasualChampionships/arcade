@@ -7,6 +7,7 @@ package net.casual.arcade.border.ducks;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+@Deprecated
 public interface SerializableBorder {
 	void arcade$serialize(ValueOutput output);
 

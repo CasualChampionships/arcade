@@ -14,6 +14,7 @@ import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 import net.minecraft.world.phys.shapes.VoxelShape
 
+@Deprecated("This package is deprecated. Use 'net.casual.arcade.boundary' instead.")
 public abstract class CustomBorder: WorldBorder(), SerializableBorder {
     protected abstract var borderState: BorderState
     protected abstract var centerState: CenterBorderState

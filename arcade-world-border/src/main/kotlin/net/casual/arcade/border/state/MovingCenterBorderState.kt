@@ -9,6 +9,7 @@ import net.casual.arcade.utils.ServerUtils
 import net.casual.arcade.utils.calculateTPS
 import net.minecraft.util.Mth
 
+@Deprecated("This package is deprecated. Use 'net.casual.arcade.boundary' instead.")
 public class MovingCenterBorderState(
     private val border: CustomBorder,
     private val centerX: Double,

@@ -14,6 +14,7 @@ import net.fabricmc.api.ModInitializer
 import org.jetbrains.annotations.ApiStatus.Internal
 
 @Internal
+@Deprecated("This package is deprecated. Use 'net.casual.arcade.boundary' instead.")
 public object ArcadeBorder: ModInitializer {
     override fun onInitialize() {
         BorderSerializerExtension.registerEvents()

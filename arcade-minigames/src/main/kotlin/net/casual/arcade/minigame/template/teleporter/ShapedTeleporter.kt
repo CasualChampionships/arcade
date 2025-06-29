@@ -11,10 +11,11 @@ import net.casual.arcade.utils.teleportTo
 import net.casual.arcade.visuals.shapes.ShapePoints
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.phys.Vec3
 import net.minecraft.world.scores.PlayerTeam
 
 public abstract class ShapedTeleporter: EntityTeleporter {
-    protected abstract fun createShape(level: ServerLevel, points: Int): ShapePoints
+    protected abstract fun createShape(level: ServerLevel, points: Int): Iterator<Vec3>
 
     protected open fun teleportEntity(entity: Entity, location: LocationWithLevel<ServerLevel>) {
         entity.teleportTo(location)
@@ -35,7 +36,7 @@ public abstract class ShapedTeleporter: EntityTeleporter {
 
     override fun teleportTeams(level: ServerLevel, teams: Multimap<PlayerTeam, Entity>) {
         val shape = this.createShape(level, teams.keySet().size)
-        for ((team, position) in teams.keySet().zip(shape)) {
+        for ((team, position) in teams.keySet().zip(Iterable { shape })) {
             this.teleportTeam(team, teams[team], level.asLocation(position))
         }
     }

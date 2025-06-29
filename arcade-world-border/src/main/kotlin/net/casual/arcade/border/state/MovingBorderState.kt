@@ -17,6 +17,7 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
 
+@Deprecated("This package is deprecated. Use 'net.casual.arcade.boundary' instead.")
 public class MovingBorderState(
     private val border: CustomBorder,
     private val realDuration: Long,

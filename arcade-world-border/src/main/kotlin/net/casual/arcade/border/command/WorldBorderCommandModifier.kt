@@ -22,6 +22,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.level.border.WorldBorder
 import kotlin.math.abs
 
+@Deprecated("This package is deprecated. Use 'net.casual.arcade.boundary' instead.")
 internal object WorldBorderCommandModifier: CommandTree {
     private val CANNOT_LERP_CENTER = SimpleCommandExceptionType(Component.translatable("commands.worldborder.set.center.unsupported"))
     private val ERROR_TOO_FAR_OUT = SimpleCommandExceptionType(Component.translatable("commands.worldborder.set.failed.far", 2.9999984E7))

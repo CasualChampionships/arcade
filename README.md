@@ -22,7 +22,7 @@ for each can be found below:
 > ### [Scheduling](./docs/arcade-scheduler/getting-started.md)
 > ### [Utilities](./docs/arcade-utils/getting-started.md)
 > ### [Visuals](./docs/arcade-visuals/getting-started.md)
-> ### [World Border](./docs/arcade-world-border/getting-started.md)
+> ### [World Border](docs/arcade-boundaries/getting-started.md)
 
 ## Adding to dependencies
 

@@ -17,6 +17,7 @@ import net.minecraft.world.level.storage.TagValueInput
 import net.minecraft.world.level.storage.TagValueOutput
 import java.util.*
 
+@Deprecated("This package is deprecated. Use 'net.casual.arcade.boundary' instead.")
 public class TrackedBorder(size: Double, centerX: Double, centerZ: Double): CustomBorder() {
     override var centerState: CenterBorderState = StillCenterBorderState(centerX, centerZ)
     override var borderState: BorderState = StillBorderState(this, size)

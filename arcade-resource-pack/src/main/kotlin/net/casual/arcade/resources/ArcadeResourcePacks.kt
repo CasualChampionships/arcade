@@ -98,6 +98,13 @@ public object ArcadeResourcePacks: ModInitializer {
         }
     }
 
+    public val BOUNDARY_SHADER: NamedResourcePackCreator by lazy {
+        NamedResourcePackCreator.named("boundary_shader") {
+            addAssetSource(path("packs/BoundaryShader"))
+            packDescription = Component.literal("Shaders for rendering custom boundaries")
+        }
+    }
+
     /**
      * All the langs bundled in a resource pack.
      */
