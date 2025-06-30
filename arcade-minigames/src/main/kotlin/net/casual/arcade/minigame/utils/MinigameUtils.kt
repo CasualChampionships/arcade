@@ -24,6 +24,7 @@ import net.casual.arcade.minigame.annotation.MinigameEventListener
 import net.casual.arcade.minigame.events.MinigameEvent
 import net.casual.arcade.minigame.extensions.LevelMinigameExtension
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
+import net.casual.arcade.minigame.managers.MinigameTickRateManager
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.settings.MinigameSettings
@@ -42,6 +43,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
+import org.jetbrains.annotations.ApiStatus.Internal
 import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
@@ -98,6 +100,19 @@ public object MinigameUtils {
     @JvmStatic
     public inline fun <reified T: Minigame> CommandSourceStack.getMinigameOrThrow(): T {
         return this.getMinigame() ?: throw NO_MINIGAME_IN_CONTEXT.create(T::class.java.simpleName)
+    }
+
+    @Internal
+    @JvmStatic
+    public fun ServerPlayer.isTicking(): Boolean {
+        val minigame = this.getMinigame() ?: return true
+        return !minigame.tickrate.isEntityFrozen(this)
+    }
+
+    @Internal
+    @JvmStatic
+    public fun Minigame.getTickRateManager(): MinigameTickRateManager {
+        return this.tickrate
     }
 
     @JvmStatic
@@ -181,61 +196,6 @@ public object MinigameUtils {
                 )
             }
         }
-    }
-
-    @JvmStatic
-    public fun ServerLevel.isTicking(): Boolean {
-        val ticking = this.tickRateManager().runsNormally()
-        if (!ticking) {
-            return false
-        }
-        val minigames = this.getMinigames()
-        if (minigames.size == 1) {
-            val minigame = minigames.first()
-            if (minigame.settings.tickFreezeOnPause.get()) {
-                return !minigame.paused
-            }
-        }
-        return true
-    }
-
-    @JvmStatic
-    public fun Entity.isTicking(): Boolean {
-        if (this is ServerPlayer) {
-            return this.isTicking()
-        }
-        val level = this.level()
-        if (level is ServerLevel) {
-            val minigames = level.getMinigames()
-            if (minigames.size == 1) {
-                val minigame = minigames.first()
-                if (minigame.settings.tickFreezeEntities.get()) {
-                    return false
-                }
-                if (minigame.effects.isTickFrozen(this)) {
-                    return false
-                }
-            }
-            return level.isTicking()
-        }
-        return true
-    }
-
-    @JvmStatic
-    public fun ServerPlayer.isTicking(): Boolean {
-        val minigame = this.getMinigame()
-        if (minigame != null) {
-            if (minigame.settings.tickFreezeOnPause.get(this) && minigame.paused) {
-                return false
-            }
-            if (minigame.settings.tickFreezeEntities.get(this)) {
-                return false
-            }
-            if (minigame.effects.isTickFrozen(this)) {
-                return false
-            }
-        }
-        return true
     }
 
     internal fun parseMinigameEvents(minigame: Minigame, declarer: Any = minigame) {

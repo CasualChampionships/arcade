@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.minigame.mixins;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.minigame.utils.MinigameUtils;
 import net.minecraft.core.Holder;
@@ -15,9 +15,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.TickRateManager;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.ServerLevelData;
@@ -49,31 +47,16 @@ public abstract class ServerLevelMixin extends Level {
 		super(levelData, dimension, registryAccess, dimensionTypeRegistration, isClientSide, isDebug, biomeZoomSeed, maxChainedNeighborUpdates);
 	}
 
-	@ModifyExpressionValue(
-		method = "tick",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/world/TickRateManager;runsNormally()Z"
-		)
+	@ModifyReturnValue(
+		method = "tickRateManager",
+		at = @At("RETURN")
 	)
-	private boolean isTicking(boolean original) {
-		return MinigameUtils.isTicking((ServerLevel) (Object) this);
-	}
-
-	@ModifyExpressionValue(
-		method = "method_31420",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/world/TickRateManager;isEntityFrozen(Lnet/minecraft/world/entity/Entity;)Z"
-		)
-	)
-	private boolean isEntityFrozen(
-		boolean original,
-		TickRateManager manager,
-		ProfilerFiller filler,
-		Entity entity
-	) {
-		return !MinigameUtils.isTicking(entity);
+	private TickRateManager getTickRateManager(TickRateManager original) {
+		Set<Minigame> minigames = MinigameUtils.getMinigames((ServerLevel) (Object) this);
+		if (minigames.isEmpty()) {
+			return original;
+		}
+		return MinigameUtils.getTickRateManager(minigames.iterator().next());
 	}
 
 	@ModifyArg(

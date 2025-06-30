@@ -95,6 +95,7 @@ public class MinigameSerializer(
 
         this.minigame.uptime = json.intOrDefault("uptime")
         this.minigame.paused = json.booleanOrDefault("paused")
+        this.minigame.tickrate.isFrozen = json.booleanOrDefault("frozen")
 
         if (initialized) {
             this.minigame.tryInitialize()
@@ -174,6 +175,7 @@ public class MinigameSerializer(
         json.addProperty("phase", this.minigame.phase.id)
         json.addProperty("uptime", this.minigame.uptime)
         json.addProperty("paused", this.minigame.paused)
+        json.addProperty("frozen", this.minigame.tickrate.isFrozen)
         return json
     }
 

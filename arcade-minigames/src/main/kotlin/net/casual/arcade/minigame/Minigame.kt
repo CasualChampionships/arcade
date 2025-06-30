@@ -76,6 +76,9 @@ public abstract class Minigame(
 
     internal val phases: List<Phase<Minigame>>
 
+
+    internal val tickrate = MinigameTickRateManager(this)
+
     internal val serialization = MinigameSerializer(this)
 
     /**
@@ -540,6 +543,7 @@ public abstract class Minigame(
     private fun initialize() {
         this.registerEvents()
         GlobalEventHandler.Server.addProvider(this.events)
+        this.tickrate.initialize()
         this.levels.initialize()
         MinigameUtils.parseMinigameEvents(this)
 
@@ -592,6 +596,7 @@ public abstract class Minigame(
     }
 
     private fun onServerTick(event: ServerTickEvent) {
+        this.tickrate.tick()
         this.ui.tick(event.server)
         if (this.ticking) {
             this.uptime++
