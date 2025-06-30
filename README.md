@@ -10,6 +10,7 @@ for each can be found below:
 
 ## Modules
 
+> ### [Boundaries](docs/arcade-boundaries/getting-started.md)
 > ### [Commands](./docs/arcade-commands/getting-started.md)
 > ### [Datagen](./docs/arcade-datagen/getting-started.md)
 > ### [Dimensions](./docs/arcade-dimensions/getting-started.md)
@@ -22,7 +23,6 @@ for each can be found below:
 > ### [Scheduling](./docs/arcade-scheduler/getting-started.md)
 > ### [Utilities](./docs/arcade-utils/getting-started.md)
 > ### [Visuals](./docs/arcade-visuals/getting-started.md)
-> ### [World Border](docs/arcade-boundaries/getting-started.md)
 
 ## Adding to dependencies
 
