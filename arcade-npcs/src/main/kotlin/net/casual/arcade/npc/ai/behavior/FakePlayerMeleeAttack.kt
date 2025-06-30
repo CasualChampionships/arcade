@@ -19,6 +19,7 @@ import net.minecraft.world.item.ProjectileWeaponItem
 public object FakePlayerMeleeAttack {
     public fun <E: FakePlayer> create(
         canAttack: (E) -> Boolean = { true },
+        willMissAttack: (E, LivingEntity) -> Boolean = { _, _ -> false },
         attackCooldown: (E) -> MinecraftTimeDuration = { it.getAttackCooldown() }
     ): OneShot<E> {
         return BehaviorBuilder.create { instance ->
@@ -35,7 +36,9 @@ public object FakePlayerMeleeAttack {
                         if (entities.contains(target)) {
                             lookTargetAccessor.set(EntityTracker(target, true))
                             player.swing(InteractionHand.MAIN_HAND)
-                            player.attack(target)
+                            if (!willMissAttack.invoke(player, target)) {
+                                player.attack(target)
+                            }
                             val cooldown = attackCooldown.invoke(player).ticks.toLong()
                             cooldownAccessor.setWithExpiry(true, cooldown)
                             return true
@@ -50,6 +53,7 @@ public object FakePlayerMeleeAttack {
 
     private fun canMeleeAttack(player: FakePlayer, target: LivingEntity): Boolean {
         return !isHoldingUsableProjectileWeapon(player) && player.isWithinMeleeAttackRange(target)
+            && player.hasLineOfSight(target)
     }
 
     private fun isHoldingUsableProjectileWeapon(player: FakePlayer): Boolean {

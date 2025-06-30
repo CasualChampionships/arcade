@@ -25,7 +25,7 @@ public class FakePlayerBowAttack(
     override fun checkExtraStartConditions(level: ServerLevel, player: FakePlayer): Boolean {
         val target = player.brain.getMemory(MemoryModuleType.ATTACK_TARGET).get()
         return player.isHolding(Items.BOW) && BehaviorUtils.canSee(player, target)
-            && player.isWithinAttackRange(target, 0)
+            && player.isWithinAttackRange(target, 0.0)
     }
 
     override fun canStillUse(level: ServerLevel, player: FakePlayer, gameTime: Long): Boolean {

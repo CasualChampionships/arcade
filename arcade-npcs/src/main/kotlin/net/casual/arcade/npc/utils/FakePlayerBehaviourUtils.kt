@@ -8,11 +8,15 @@ import net.casual.arcade.npc.FakePlayer
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ProjectileWeaponItem
 
-public fun FakePlayer.isWithinAttackRange(target: LivingEntity, cooldown: Int): Boolean {
+public fun FakePlayer.isWithinAttackRange(
+    target: LivingEntity,
+    rangedModifier: Double = -1.0,
+    meleeModifier: Double = 0.0
+): Boolean {
     val item = this.mainHandItem.item
     if (item is ProjectileWeaponItem && this.canFireProjectileWeapon(item)) {
-        val range = item.defaultProjectileRange - cooldown
-        return this.closerThan(target, range.toDouble())
+        val range = item.defaultProjectileRange + rangedModifier
+        return this.closerThan(target, range)
     }
-    return this.isWithinMeleeAttackRange(target)
+    return this.isWithinMeleeAttackRange(target, meleeModifier)
 }
