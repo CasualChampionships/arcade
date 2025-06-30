@@ -121,24 +121,21 @@ public interface BoundaryShape {
     }
 
     /**
-     * Gets the distance to a given [point].
+     * Gets the distance between this boundary and a given [point].
      *
      * @param point The point to get the distance to.
      * @return The distance.
      */
-    public fun getDistanceTo(point: Vec3): Double {
-        return this.getDirectionTo(point).length()
+    public fun getDistanceBetween(point: Vec3): Double {
+        return this.getDirectionFrom(point).length()
     }
 
     /**
-     * Gets the direction (with magnitude) to a given [point].
-     *
-     * If you want to get the direction of from the [point]
-     * to the world border call [Vec3.reverse].
+     * Gets the direction (with magnitude) from a given [point].
      *
      * @param point The point to get the direction to.
      */
-    public fun getDirectionTo(point: Vec3): Vec3
+    public fun getDirectionFrom(point: Vec3): Vec3
 
     /**
      * Gets the status of the border, whether

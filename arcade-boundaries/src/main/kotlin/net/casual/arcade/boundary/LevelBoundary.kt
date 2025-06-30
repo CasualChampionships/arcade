@@ -133,20 +133,17 @@ public class LevelBoundary(
      * @param point The point to get the distance to.
      * @return The distance.
      */
-    public fun getDistanceTo(point: Vec3): Double {
-        return this.shape.getDistanceTo(point)
+    public fun getDistanceBetween(point: Vec3): Double {
+        return this.shape.getDistanceBetween(point)
     }
 
     /**
-     * Gets the direction (with magnitude) to a given [point].
-     *
-     * If you want to get the direction of from the [point]
-     * to the world border call [Vec3.reverse].
+     * Gets the direction (with magnitude) from a given [point].
      *
      * @param point The point to get the direction to.
      */
-    public fun getDirectionTo(point: Vec3): Vec3 {
-        return this.shape.getDirectionTo(point)
+    public fun getDirectionFrom(point: Vec3): Vec3 {
+        return this.shape.getDirectionFrom(point)
     }
 
     /**
@@ -238,7 +235,7 @@ public class LevelBoundary(
             return
         }
 
-        val distance = this.getDistanceTo(position)
+        val distance = this.getDistanceBetween(position)
         val inside = this.contains(position)
         if (inside) {
             if (distance < this.warningBlocks) {

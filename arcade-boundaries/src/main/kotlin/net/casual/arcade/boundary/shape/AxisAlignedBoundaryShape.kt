@@ -90,7 +90,7 @@ public class AxisAlignedBoundaryShape private constructor(
         return this.aabb.contains(point)
     }
 
-    override fun getDirectionTo(point: Vec3): Vec3 {
+    override fun getDirectionFrom(point: Vec3): Vec3 {
         val min = this.aabb.minPosition
         val max = this.aabb.maxPosition
         if (!this.contains(point)) {
