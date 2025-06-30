@@ -6,6 +6,7 @@ package net.casual.arcade.npc.ai.behavior
 
 import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.npc.utils.isWithinAttackRange
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.behavior.BehaviorControl
 import net.minecraft.world.entity.ai.behavior.EntityTracker
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder
@@ -19,7 +20,10 @@ public object FakePlayerSetWalkTargetFromAttackTarget {
         return this.create { speedModifier }
     }
 
-    public fun <E: FakePlayer> create(speedModifier: (E) -> Float): BehaviorControl<E> {
+    public fun <E: FakePlayer> create(
+        isWithinRange: (player: E, target: LivingEntity) -> Boolean = { p, t -> p.isWithinAttackRange(t) },
+        speedModifier: (E) -> Float,
+    ): BehaviorControl<E> {
         return BehaviorBuilder.create { instance ->
             instance.group(
                 instance.registered(MemoryModuleType.WALK_TARGET),
@@ -30,7 +34,7 @@ public object FakePlayerSetWalkTargetFromAttackTarget {
                 Trigger(fun(_, player, _): Boolean {
                     val target = instance.get(attackTargetAccessor)
                     val entities = instance.tryGet(nearestEntitiesAccessor).getOrNull()
-                    if (entities != null && entities.contains(target) && player.isWithinAttackRange(target, 1)) {
+                    if (entities != null && entities.contains(target) && isWithinRange.invoke(player, target)) {
                         walkTargetAccessor.erase()
                     } else {
                         lookTargetAccessor.set(EntityTracker(target, true))

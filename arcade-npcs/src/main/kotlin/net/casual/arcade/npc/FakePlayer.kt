@@ -98,12 +98,15 @@ public open class FakePlayer protected constructor(
         return true
     }
 
-    public open fun isWithinMeleeAttackRange(target: LivingEntity): Boolean {
-        return this.getAttackBoundingBox().intersects((target as LivingEntityAccessor).invokeGetHitbox())
+    public open fun isWithinMeleeAttackRange(
+        target: LivingEntity,
+        modifier: Double = 0.0
+    ): Boolean {
+        return this.getAttackBoundingBox(modifier).intersects((target as LivingEntityAccessor).invokeGetHitbox())
     }
 
-    public open fun getAttackBoundingBox(): AABB {
-        return this.boundingBox.inflate(this.entityInteractionRange())
+    public open fun getAttackBoundingBox(modifier: Double = 0.0): AABB {
+        return this.boundingBox.inflate(this.entityInteractionRange() + modifier)
     }
 
     override fun tick() {
