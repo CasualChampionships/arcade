@@ -317,16 +317,18 @@ internal object MinigameCommand: CommandTree {
                 }
             }
             literal("tick") {
-                literal("freeze") {
-                    executes(::tickFreeze)
-                }
-                literal("unfreeze") {
-                    executes(::tickUnfreeze)
-                }
-                literal("step") {
-                    executes { tickStep(it, 1) }
-                    argument("ticks", TimeArgument.time()) {
-                        executes(::tickStep)
+                argument("minigame", MinigameArgument.minigame()) {
+                    literal("freeze") {
+                        executes(::tickFreeze)
+                    }
+                    literal("unfreeze") {
+                        executes(::tickUnfreeze)
+                    }
+                    literal("step") {
+                        executes { tickStep(it, 1) }
+                        argument("ticks", TimeArgument.time()) {
+                            executes(::tickStep)
+                        }
                     }
                 }
             }
