@@ -21,6 +21,9 @@ public class RegularPolygonShape(
         get() = 2 * this.radius * sin(Math.PI / this.vertices)
 
     override fun iterator(pointsPerUnit: Double): Iterator<Vec3> {
+        if (pointsPerUnit == 0.0 || this.vertices <= 1) {
+            return PolygonIterator()
+        }
         return SegmentedShapeIterator.of(Iterable { PolygonIterator() }, pointsPerUnit, true)
     }
 

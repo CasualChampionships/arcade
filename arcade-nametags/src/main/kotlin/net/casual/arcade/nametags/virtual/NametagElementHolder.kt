@@ -21,6 +21,7 @@ import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.phys.Vec3
 import java.util.function.Consumer
 
 public open class NametagElementHolder(
@@ -134,6 +135,10 @@ public open class NametagElementHolder(
     override fun onAttachmentRemoved(old: HolderAttachment) {
         this.nametags.clear()
         this.watching.clear()
+    }
+
+    override fun getPos(): Vec3 {
+        return this.entity.position()
     }
 
     public open fun isMountedToOwner(): Boolean {
