@@ -109,12 +109,6 @@ public object MinigameUtils {
         return !minigame.tickrate.isEntityFrozen(this)
     }
 
-    @Internal
-    @JvmStatic
-    public fun Minigame.getTickRateManager(): MinigameTickRateManager {
-        return this.tickrate
-    }
-
     @JvmStatic
     public fun ifSingular(minigames: Collection<Minigame>, predicate: Predicate<Minigame>): Boolean {
         if (minigames.size == 1) {

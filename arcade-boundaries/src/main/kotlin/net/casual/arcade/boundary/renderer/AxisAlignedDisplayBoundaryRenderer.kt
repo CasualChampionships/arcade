@@ -75,15 +75,16 @@ public class AxisAlignedDisplayBoundaryRenderer(
     }
 
     override fun render(level: ServerLevel, players: Collection<ServerPlayer>) {
-        val center = this.shape.center()
-        val chunkX = SectionPos.blockToSectionCoord(center.x())
-        val chunkZ = SectionPos.blockToSectionCoord(center.z())
-        val (packet, dirty) = this.getOrCreateChunkPacket(level, chunkX, chunkZ)
-        for (player in players) {
-            if (player.isChunkInViewDistance(chunkX, chunkZ, 1)) {
-                this.forceLoadingCenter.remove(player.uuid)
-            } else if (this.forceLoadingCenter.add(player.uuid) || dirty) {
-                player.connection.send(packet)
+        val shouldUpdateCenter = level.server.tickCount % 2 == 0
+        if (shouldUpdateCenter) {
+            val center = this.shape.center()
+            val chunkX = SectionPos.blockToSectionCoord(center.x())
+            val chunkZ = SectionPos.blockToSectionCoord(center.z())
+            val packet = this.getOrCreateChunkPacket(level, chunkX, chunkZ)
+            for (player in players) {
+                if (!player.isChunkInViewDistance(chunkX, chunkZ)) {
+                    player.connection.send(packet)
+                }
             }
         }
 
@@ -96,7 +97,7 @@ public class AxisAlignedDisplayBoundaryRenderer(
         val chunkZ = SectionPos.blockToSectionCoord(center.z())
         if (!player.isChunkInViewDistance(chunkX, chunkZ)) {
             this.forceLoadingCenter.add(player.uuid)
-            val (packet) = this.getOrCreateChunkPacket(player.level(), chunkX, chunkZ)
+            val packet = this.getOrCreateChunkPacket(player.level(), chunkX, chunkZ)
             player.connection.send(packet)
         }
 
@@ -161,17 +162,17 @@ public class AxisAlignedDisplayBoundaryRenderer(
         element.startInterpolationIfDirty()
     }
 
-    private fun getOrCreateChunkPacket(level: ServerLevel, chunkX: Int, chunkZ: Int): Pair<ClientboundChunksBiomesPacket, Boolean> {
+    private fun getOrCreateChunkPacket(level: ServerLevel, chunkX: Int, chunkZ: Int): ClientboundChunksBiomesPacket {
         if (this::cached.isInitialized) {
             val pos = this.cached.chunkBiomeData[0].pos
             if (pos.x == chunkX && pos.z == chunkZ) {
-                return this.cached to false
+                return this.cached
             }
         }
         val chunk = level.getChunk(chunkX, chunkZ)
         val packet = ClientboundChunksBiomesPacket.forChunks(listOf(chunk))
         this.cached = packet
-        return packet to true
+        return packet
     }
 
     public class Factory(

@@ -76,9 +76,6 @@ public abstract class Minigame(
 
     internal val phases: List<Phase<Minigame>>
 
-
-    internal val tickrate = MinigameTickRateManager(this)
-
     internal val serialization = MinigameSerializer(this)
 
     /**
@@ -108,6 +105,11 @@ public abstract class Minigame(
      * @see MinigameScheduler
      */
     public val scheduler: MinigameScheduler = MinigameScheduler()
+
+    /**
+     * Manages the tick rate for this minigame.
+     */
+    public val tickrate: MinigameTickRateManager = MinigameTickRateManager(this)
 
     /**
      * This manages all the UI for the minigame.

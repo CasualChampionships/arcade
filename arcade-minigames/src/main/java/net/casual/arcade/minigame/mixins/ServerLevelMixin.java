@@ -56,7 +56,7 @@ public abstract class ServerLevelMixin extends Level {
 		if (minigames.isEmpty()) {
 			return original;
 		}
-		return MinigameUtils.getTickRateManager(minigames.iterator().next());
+		return minigames.iterator().next().getTickrate();
 	}
 
 	@ModifyArg(

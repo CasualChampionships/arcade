@@ -21,6 +21,12 @@ import kotlin.math.max
 public class MinigameTickRateManager(
     private val minigame: Minigame
 ): ServerTickRateManager(minigame.server) {
+    /**
+     * Whether to use the global (server-wide) tick rate manager.
+     * This should be set in your minigame constructor!
+     */
+    public var useGlobalManager: Boolean = true
+
     internal fun initialize() {
         this.minigame.events.register<MinigamePauseEvent> {
             if (this.minigame.settings.tickFreezeOnPause.get()) {
@@ -36,17 +42,93 @@ public class MinigameTickRateManager(
     }
 
     override fun setTickRate(tickRate: Float) {
+        if (this.useGlobalManager) {
+            return this.global().setTickRate(tickRate)
+        }
+
         this.tickrate = max(tickRate.toDouble(), 1.0).toFloat()
         this.nanosecondsPerTick = (TimeUtil.NANOSECONDS_PER_SECOND.toDouble() / this.tickrate).toLong()
         this.updateStateToClients()
     }
 
+    override fun tickrate(): Float {
+        if (this.useGlobalManager) {
+            return this.global().tickrate()
+        }
+
+        return super.tickrate()
+    }
+
+    override fun millisecondsPerTick(): Float {
+        if (this.useGlobalManager) {
+            return this.global().millisecondsPerTick()
+        }
+
+        return super.millisecondsPerTick()
+    }
+
+    override fun nanosecondsPerTick(): Long {
+        if (this.useGlobalManager) {
+            return this.global().nanosecondsPerTick()
+        }
+
+        return super.nanosecondsPerTick()
+    }
+
+    override fun runsNormally(): Boolean {
+        if (this.useGlobalManager) {
+            return this.global().runsNormally()
+        }
+
+        return super.runsNormally()
+    }
+
+    override fun isSteppingForward(): Boolean {
+        if (this.useGlobalManager) {
+            return this.global().isSteppingForward
+        }
+
+        return super.isSteppingForward()
+    }
+
+    override fun setFrozenTicksToRun(frozenTicksToRun: Int) {
+        if (this.useGlobalManager) {
+            return this.global().setFrozenTicksToRun(frozenTicksToRun)
+        }
+
+        super.setFrozenTicksToRun(frozenTicksToRun)
+    }
+
+    override fun frozenTicksToRun(): Int {
+        if (this.useGlobalManager) {
+            return this.global().frozenTicksToRun()
+        }
+
+        return super.frozenTicksToRun()
+    }
+
     override fun setFrozen(frozen: Boolean) {
+        if (this.useGlobalManager) {
+            return this.global().setFrozen(frozen)
+        }
+
         this.isFrozen = frozen
         this.updateStateToClients()
     }
 
+    override fun isFrozen(): Boolean {
+        if (this.useGlobalManager) {
+            return this.global().isFrozen
+        }
+
+        return super.isFrozen()
+    }
+
     override fun stepGameIfPaused(ticks: Int): Boolean {
+        if (this.useGlobalManager) {
+            return this.global().stepGameIfPaused(ticks)
+        }
+
         if (this.isFrozen()) {
             this.frozenTicksToRun = ticks
             this.updateStepTicks()
@@ -56,12 +138,32 @@ public class MinigameTickRateManager(
     }
 
     override fun stopStepping(): Boolean {
+        if (this.useGlobalManager) {
+            return this.global().stopStepping()
+        }
+
         if (this.frozenTicksToRun > 0) {
             this.frozenTicksToRun = 0
             this.updateStateToClients()
             return true
         }
         return false
+    }
+
+    override fun requestGameToSprint(sprintTime: Int): Boolean {
+        if (this.useGlobalManager) {
+            return this.global().requestGameToSprint(sprintTime)
+        }
+
+        return super.requestGameToSprint(sprintTime)
+    }
+
+    override fun checkShouldSprintThisTick(): Boolean {
+        if (this.useGlobalManager) {
+            return this.global().checkShouldSprintThisTick()
+        }
+
+        return super.checkShouldSprintThisTick()
     }
 
     override fun isEntityFrozen(entity: Entity): Boolean {
@@ -78,6 +180,10 @@ public class MinigameTickRateManager(
         if (this.minigame.effects.isTickFrozen(entity)) {
             return true
         }
+
+        if (this.useGlobalManager) {
+            return this.global().isEntityFrozen(entity)
+        }
         return false
     }
 
@@ -91,6 +197,10 @@ public class MinigameTickRateManager(
         if (this.minigame.effects.isTickFrozen(player)) {
             return true
         }
+
+        if (this.useGlobalManager) {
+            return this.global().isEntityFrozen(player)
+        }
         return false
     }
 
@@ -102,13 +212,18 @@ public class MinigameTickRateManager(
         this.minigame.players.broadcast(ClientboundTickingStepPacket.from(this))
     }
 
+    private fun global(): ServerTickRateManager {
+        return this.minigame.server.tickRateManager()
+    }
+
     private fun onPlayerClientboundPacketEvent(event: PlayerClientboundPacketEvent) {
-        event.replacePacket { _, packet ->
-            when (packet) {
-                is ClientboundTickingStatePacket -> ClientboundTickingStatePacket.from(this)
-                is ClientboundTickingStepPacket -> ClientboundTickingStepPacket.from(this)
-                else -> packet
-            }
-        }
+        // We need to somehow allow fake packets through to simulate ticking under some circumstances
+        // event.replacePacket { _, packet ->
+        //     when (packet) {
+        //         is ClientboundTickingStatePacket -> ClientboundTickingStatePacket.from(this)
+        //         is ClientboundTickingStepPacket -> ClientboundTickingStepPacket.from(this)
+        //         else -> packet
+        //     }
+        // }
     }
 }

@@ -183,7 +183,7 @@ public class AxisAlignedBoundaryShape private constructor(
             override val duration: MinecraftTimeDuration,
             private var elapsed: MinecraftTimeDuration = 0.Ticks
         ): State {
-            override var current: Vec3 = this.start
+            override var current: Vec3 = this.start.lerp(this.end, this.elapsed / this.duration)
 
             override fun tick(): State {
                 this.elapsed += 1.Ticks
