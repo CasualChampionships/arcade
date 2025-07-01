@@ -56,7 +56,7 @@ public class AxisAlignedDisplayBoundaryRenderer(
     private val attachment: ManualAttachment
     private val faces = EnumUtils.mapOf<Direction, ItemDisplayElement>()
 
-    private val forceLoadingCenter = ObjectOpenHashSet<UUID>()
+//    private val forceLoadingCenter = ObjectOpenHashSet<UUID>()
 
     // We use another hack, we need the display entity on the client
     // to be ticking so that the client can see the border updating.
@@ -96,7 +96,7 @@ public class AxisAlignedDisplayBoundaryRenderer(
         val chunkX = SectionPos.blockToSectionCoord(center.x())
         val chunkZ = SectionPos.blockToSectionCoord(center.z())
         if (!player.isChunkInViewDistance(chunkX, chunkZ)) {
-            this.forceLoadingCenter.add(player.uuid)
+//            this.forceLoadingCenter.add(player.uuid)
             val packet = this.getOrCreateChunkPacket(player.level(), chunkX, chunkZ)
             player.connection.send(packet)
         }
@@ -106,7 +106,7 @@ public class AxisAlignedDisplayBoundaryRenderer(
 
     override fun stopRendering(player: ServerPlayer) {
         this.attachment.stopWatching(player)
-        this.forceLoadingCenter.remove(player.uuid)
+//        this.forceLoadingCenter.remove(player.uuid)
     }
 
     override fun restartRendering(
