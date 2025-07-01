@@ -36,6 +36,7 @@ import net.minecraft.commands.arguments.ComponentArgument
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.commands.arguments.TeamArgument
+import net.minecraft.commands.arguments.TimeArgument
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceKey
@@ -312,6 +313,20 @@ internal object MinigameCommand: CommandTree {
                         literal("teams") {
                             executes { readyUnpause(it, true) }
                         }
+                    }
+                }
+            }
+            literal("tick") {
+                literal("freeze") {
+                    executes(::tickFreeze)
+                }
+                literal("unfreeze") {
+                    executes(::tickUnfreeze)
+                }
+                literal("step") {
+                    executes { tickStep(it, 1) }
+                    argument("ticks", TimeArgument.time()) {
+                        executes(::tickStep)
                     }
                 }
             }
@@ -833,6 +848,37 @@ internal object MinigameCommand: CommandTree {
         minigame.start()
         return context.source.success(
             Component.translatable("minigame.command.start.success", minigame.uuid.toString())
+        )
+    }
+
+    private fun tickFreeze(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        minigame.tickrate.isFrozen = true
+        return context.source.success(
+            Component.translatable("minigame.command.freeze", minigame.uuid.toString())
+        )
+    }
+
+    private fun tickUnfreeze(context: CommandContext<CommandSourceStack>): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        minigame.tickrate.isFrozen = false
+        return context.source.success(
+            Component.translatable("minigame.command.unfreeze", minigame.uuid.toString())
+        )
+    }
+
+    private fun tickStep(
+        context: CommandContext<CommandSourceStack>,
+        ticks: Int = IntegerArgumentType.getInteger(context, "ticks")
+    ): Int {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        if (minigame.tickrate.stepGameIfPaused(ticks)) {
+            return context.source.success(
+                Component.translatable("minigame.command.step.success", minigame.uuid.toString())
+            )
+        }
+        return context.source.success(
+            Component.translatable("minigame.command.step.failure", minigame.uuid.toString())
         )
     }
 }

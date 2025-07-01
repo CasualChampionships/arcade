@@ -109,6 +109,11 @@
   "minigame.command.unpause.countdown.cancel.success": "Successfully cancelled the countdown",
   "minigame.command.unpause.here": "[here]",
 
+  "minigame.command.freeze": "Successfully tick froze minigame %s",
+  "minigame.command.unfreeze": "Successfully tick un-froze minigame %s",
+  "minigame.command.step.success": "Successfully tick stepped minigame %s",
+  "minigame.command.step.failure": "Failed to tick step minigame %s",
+
   "minigame.command.factoryData.invalid": "Invalid factory data",
 
   "minigame.command.team.randomizer.fail": "Failed to completely generate teams, you must delete some unused teams first!",
