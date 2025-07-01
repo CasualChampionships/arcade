@@ -2,7 +2,8 @@
   "format_version": "1.21.6",
   "credit": "Made with Blockbench",
   "textures": {
-    "0": "arcade:item/boundary/cuboid_blue"
+    "0": "arcade:item/boundary/cuboid_blue",
+    "particle": "minecraft:missingno"
   },
   "elements": [
     {

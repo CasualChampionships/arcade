@@ -218,14 +218,14 @@ public object PlayerUtils {
     }
 
     @JvmStatic
-    public fun ServerPlayer.isChunkInViewDistance(pos: ChunkPos): Boolean {
-        return this.isChunkInViewDistance(pos.x, pos.z)
+    public fun ServerPlayer.isChunkInViewDistance(pos: ChunkPos, offset: Int = 0): Boolean {
+        return this.isChunkInViewDistance(pos.x, pos.z, offset)
     }
 
     @JvmStatic
-    public fun ServerPlayer.isChunkInViewDistance(chunkX: Int, chunkY: Int): Boolean {
+    public fun ServerPlayer.isChunkInViewDistance(chunkX: Int, chunkY: Int, offset: Int = 0): Boolean {
         val pos = this.chunkPosition()
-        return ChunkTrackingView.isInViewDistance(pos.x, pos.z, this.getViewDistance(), chunkX, chunkY)
+        return ChunkTrackingView.isInViewDistance(pos.x, pos.z, this.getViewDistance() + offset, chunkX, chunkY)
     }
 
     @JvmStatic

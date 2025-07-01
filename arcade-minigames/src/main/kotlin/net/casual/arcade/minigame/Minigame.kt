@@ -642,6 +642,7 @@ public abstract class Minigame(
 
     private fun onPlayerAdd(event: MinigameAddPlayerEvent) {
         this.resources.sendTo(event.player)
+        this.tickrate.updateJoiningPlayer(event.player)
     }
 
     private fun onPlayerRemove(event: MinigameRemovePlayerEvent) {

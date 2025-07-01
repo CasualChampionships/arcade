@@ -9,6 +9,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import eu.pb4.polymer.virtualentity.api.ElementHolder
 import eu.pb4.polymer.virtualentity.api.attachment.ManualAttachment
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.utils.ArcadeUtils
@@ -24,6 +25,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.dimension.DimensionType
 import java.util.*
 import java.util.function.Consumer
@@ -54,6 +56,8 @@ public class AxisAlignedDisplayBoundaryRenderer(
     private val attachment: ManualAttachment
     private val faces = EnumUtils.mapOf<Direction, ItemDisplayElement>()
 
+    private val forceLoadingCenter = ObjectOpenHashSet<UUID>()
+
     // We use another hack, we need the display entity on the client
     // to be ticking so that the client can see the border updating.
     // ClientboundChunksBiomesPacket force-loads the chunk which
@@ -74,9 +78,11 @@ public class AxisAlignedDisplayBoundaryRenderer(
         val center = this.shape.center()
         val chunkX = SectionPos.blockToSectionCoord(center.x())
         val chunkZ = SectionPos.blockToSectionCoord(center.z())
-        val packet = this.getOrCreateChunkPacket(level, chunkX, chunkZ)
+        val (packet, dirty) = this.getOrCreateChunkPacket(level, chunkX, chunkZ)
         for (player in players) {
-            if (!player.isChunkInViewDistance(chunkX, chunkZ)) {
+            if (player.isChunkInViewDistance(chunkX, chunkZ, 1)) {
+                this.forceLoadingCenter.remove(player.uuid)
+            } else if (this.forceLoadingCenter.add(player.uuid) || dirty) {
                 player.connection.send(packet)
             }
         }
@@ -85,11 +91,21 @@ public class AxisAlignedDisplayBoundaryRenderer(
     }
 
     override fun startRendering(player: ServerPlayer) {
+        val center = this.shape.center()
+        val chunkX = SectionPos.blockToSectionCoord(center.x())
+        val chunkZ = SectionPos.blockToSectionCoord(center.z())
+        if (!player.isChunkInViewDistance(chunkX, chunkZ)) {
+            this.forceLoadingCenter.add(player.uuid)
+            val (packet) = this.getOrCreateChunkPacket(player.level(), chunkX, chunkZ)
+            player.connection.send(packet)
+        }
+
         this.attachment.startWatching(player)
     }
 
     override fun stopRendering(player: ServerPlayer) {
         this.attachment.stopWatching(player)
+        this.forceLoadingCenter.remove(player.uuid)
     }
 
     override fun restartRendering(
@@ -145,17 +161,17 @@ public class AxisAlignedDisplayBoundaryRenderer(
         element.startInterpolationIfDirty()
     }
 
-    private fun getOrCreateChunkPacket(level: ServerLevel, chunkX: Int, chunkZ: Int): ClientboundChunksBiomesPacket {
+    private fun getOrCreateChunkPacket(level: ServerLevel, chunkX: Int, chunkZ: Int): Pair<ClientboundChunksBiomesPacket, Boolean> {
         if (this::cached.isInitialized) {
             val pos = this.cached.chunkBiomeData[0].pos
             if (pos.x == chunkX && pos.z == chunkZ) {
-                return this.cached
+                return this.cached to false
             }
         }
         val chunk = level.getChunk(chunkX, chunkZ)
         val packet = ClientboundChunksBiomesPacket.forChunks(listOf(chunk))
         this.cached = packet
-        return packet
+        return packet to true
     }
 
     public class Factory(
