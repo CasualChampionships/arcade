@@ -67,6 +67,7 @@ public class AxisAlignedDisplayBoundaryRenderer(
         this.attachment = ManualAttachment(holder, null) {
             this.shape.center().add(0.0, Y_SHIFT.toDouble(), 0.0)
         }
+        this.updateFaces()
     }
 
     override fun render(level: ServerLevel, players: Collection<ServerPlayer>) {
@@ -80,16 +81,7 @@ public class AxisAlignedDisplayBoundaryRenderer(
             }
         }
 
-        for ((direction, element) in this.faces) {
-            val (model, brightness) = this.models.get(this.shape, direction)
-            // ItemStack#equals isn't implemented, so just setting it always marks it dirty
-            if (!ItemStack.isSameItemSameComponents(model, element.item)) {
-                element.item = model
-            }
-            element.brightness = brightness
-            this.updateFace(direction, element)
-        }
-        this.attachment.tick()
+        this.updateFaces()
     }
 
     override fun startRendering(player: ServerPlayer) {
@@ -127,13 +119,29 @@ public class AxisAlignedDisplayBoundaryRenderer(
         }
     }
 
+    private fun updateFaces() {
+        for ((direction, element) in this.faces) {
+            val (model, brightness) = this.models.get(this.shape, direction)
+            // ItemStack#equals isn't implemented, so just setting it always marks it dirty
+            if (!ItemStack.isSameItemSameComponents(model, element.item)) {
+                element.item = model
+            }
+            element.brightness = brightness
+            this.updateFace(direction, element)
+        }
+        this.attachment.tick()
+    }
+
     private fun updateFace(direction: Direction, element: ItemDisplayElement) {
         val size = this.shape.size().toVector3f()
         val scale = direction.step().absolute().sub(1.0F, 1.0F, 1.0F).negate()
         element.scale = scale.mul(size)
 
-        val translation = size.mul(direction.unitVec3f).mul(Z_FIGHTING_SCALE).mul(0.5F)
-        element.translation = translation.sub(0.0F, Y_SHIFT.toFloat(), 0.0F)
+        val translation = size.mul(direction.unitVec3f).mul(0.5F)
+            .sub(0.0F, Y_SHIFT.toFloat(), 0.0F)
+
+        val zFightingShift = direction.opposite.step().mul(0.01F)
+        element.translation = translation.add(zFightingShift)
         element.startInterpolationIfDirty()
     }
 
@@ -173,7 +181,6 @@ public class AxisAlignedDisplayBoundaryRenderer(
     }
 
     private companion object {
-        private const val Z_FIGHTING_SCALE = 0.9999F
         private val Y_SHIFT = DimensionType.Y_SIZE
     }
 }
