@@ -252,15 +252,22 @@ public class FooMixin {
 }
 ```
 
-> [!NOTE]
-> Events that are broadcast off the main thread **cannot** be cancelled.
-
 ### Thread Safety
 
-Typically, all events should be broadcast from the main server thread. 
-However, if your event is intended to be broadcast off the main thread then you 
-should also implement the `MissingExecutorEvent`, this is more-so to show the 
-intention that the event is intended to be broadcast off the main thread. 
-All events that are broadcast off the main thread **will** be pushed back onto 
-the main thread, without implementing the `MissingExecutorEvent` the event handler 
-will produce warnings as it's likely unintentional.
+By default, arcade assumes that all event listeners expect events to be broadcast 
+from the main thread. 
+As a result, if an event is broadcast off the main thread, then it will be pushed to 
+the main thread for listeners.
+The exception to this is if a listener explicitly marks itself as allowing to listen
+to off-thread events, in which case the listener is responsible for thread safety.
+```kotlin
+EventListener.of<ServerTickEvent>(
+    requiresMainThread = false,
+    listener = { _ ->
+        
+    }
+)
+```
+The reason for not wanting to require the main thread would be to allow you to mutate
+or cancel events that were broadcast off-thread, as mutating them after they've been
+pushed to the main thread is not very useful.
