@@ -19,3 +19,28 @@ public fun SlotGuiInterface.setSlot(index: Int, stack: ItemStack, callback: () -
 public fun SlotGuiInterface.setSlot(index: Int, stack: ItemStack, callback: (ClickType) -> Unit) {
     this.setSlot(index, stack) { _, type, _, _ -> callback.invoke(type) }
 }
+
+public fun SlotGuiInterface.setSlotGrid(
+    origin: Int,
+    width: Int,
+    height: Int,
+    stack: ItemStack,
+    callback: (ClickType) -> Unit
+) {
+    this.setSlotGrid(origin, width, height, { _, _ -> stack }, callback)
+}
+
+public fun SlotGuiInterface.setSlotGrid(
+    origin: Int,
+    width: Int,
+    height: Int,
+    stack: (x: Int, y: Int) -> ItemStack,
+    callback: (ClickType) -> Unit
+) {
+    for (i in 0..< width) {
+        for (j in 0..< height) {
+            val index = origin + height * 9 + width
+            this.setSlot(index, stack.invoke(i, j), callback)
+        }
+    }
+}
