@@ -39,7 +39,7 @@ public fun SlotGuiInterface.setSlotGrid(
 ) {
     for (i in 0..< width) {
         for (j in 0..< height) {
-            val index = origin + height * 9 + width
+            val index = origin + j * 9 + i
             this.setSlot(index, stack.invoke(i, j), callback)
         }
     }
