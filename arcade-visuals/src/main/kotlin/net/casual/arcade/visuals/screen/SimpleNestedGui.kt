@@ -17,12 +17,13 @@ public open class SimpleNestedGui(
     public var parent: GuiInterface? = null
         private set
 
-    public fun setParent(parent: GuiInterface?) {
+    public fun setParent(parent: GuiInterface?): SimpleNestedGui {
         if (parent == null) {
             this.parent = null
         } else if (parent.player == this.player) {
             this.parent = parent
         }
+        return this
     }
 
     public fun openParent() {

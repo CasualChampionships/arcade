@@ -111,7 +111,7 @@ public class CheckpointedPath private constructor(
     public fun calculateNextCheckpointIndex(position: Vec3, tolerance: Double): Int {
         var closestTargetIndex = 0
         var closestDistance = position.distanceTo(this.checkpoints[closestTargetIndex])
-        for (i in 0 until this.checkpoints.lastIndex - 1) {
+        for (i in 0 until this.checkpoints.lastIndex) {
             val start = this.checkpoints[i]
             val end = this.checkpoints[i + 1]
             if (start.closerThan(position, tolerance)) {

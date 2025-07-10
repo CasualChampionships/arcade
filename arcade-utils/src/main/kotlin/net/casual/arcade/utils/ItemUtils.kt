@@ -139,6 +139,16 @@ public object ItemUtils {
     }
 
     @JvmStatic
+    public fun <T> ItemStack.setFrom(type: DataComponentType<T>, from: ItemStack) {
+        this.set(type, from.get(type))
+    }
+
+    @JvmStatic
+    public fun <T> ItemStack.setFrom(type: DataComponentType<T>, from: Item) {
+        this.set(type, from.components().get(type))
+    }
+
+    @JvmStatic
     public fun light(level: Int): ItemStack {
         return LightBlock.setLightOnStack(ItemStack(Items.LIGHT), level)
     }

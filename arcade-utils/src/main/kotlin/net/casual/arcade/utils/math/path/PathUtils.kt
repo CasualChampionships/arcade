@@ -25,7 +25,7 @@ public fun Path.calculateNextNodeIndex(
 
     var closestTargetIndex = 0
     var closestDistance = position.distanceTo(this.getNodePos(closestTargetIndex).bottomCenter)
-    for (i in 0 until size - 2) {
+    for (i in 0 until size - 1) {
         val start = this.getNodePos(i).bottomCenter
         val end = this.getNodePos(i + 1).bottomCenter
         val isAtStart = start.horizontallyCloserThan(position, horizontalTolerance)
