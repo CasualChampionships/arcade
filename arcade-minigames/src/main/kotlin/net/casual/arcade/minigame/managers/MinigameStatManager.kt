@@ -12,6 +12,7 @@ import net.casual.arcade.minigame.stats.StatType
 import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
+import net.minecraft.core.Holder
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -34,11 +35,11 @@ public class MinigameStatManager {
         }
     }
 
-    public fun <T> getOrCreateStat(player: ServerPlayer, type: StatType<T>): Stat<T> {
+    public fun <T> getOrCreateStat(player: ServerPlayer, type: Holder<StatType<T>>): Stat<T> {
         return this.getOrCreateStat(player.uuid, type)
     }
 
-    public fun <T> getOrCreateStat(uuid: UUID, type: StatType<T>): Stat<T> {
+    public fun <T> getOrCreateStat(uuid: UUID, type: Holder<StatType<T>>): Stat<T> {
         return this.getOrCreateTracker(uuid).getOrCreateStat(type)
     }
 

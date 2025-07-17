@@ -7,9 +7,9 @@ package net.casual.arcade.minigame.stats
 import com.google.gson.JsonElement
 
 public class Stat<T>(
-    public val stat: StatType<T>
+    public val type: StatType<T>
 ) {
-    public var value: T = this.stat.default
+    public var value: T = this.type.default
         private set
     public var frozen: Boolean = false
 
@@ -20,11 +20,11 @@ public class Stat<T>(
     }
 
     public fun serialize(): JsonElement {
-        return this.stat.serializer.serialize(this.value)
+        return this.type.codec.serialize(this.value)
     }
 
     public fun deserialize(element: JsonElement) {
-        this.value = this.stat.serializer.deserialize(element)
+        this.value = this.type.codec.deserialize(element)
     }
 
     public companion object {

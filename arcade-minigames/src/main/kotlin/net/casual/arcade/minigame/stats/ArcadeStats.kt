@@ -4,18 +4,31 @@
  */
 package net.casual.arcade.minigame.stats
 
-import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.minigame.utils.MinigameRegistries
+import net.casual.arcade.utils.ArcadeUtils
+import net.minecraft.core.Holder
+import net.minecraft.core.Registry
 
 /**
  * This object contains the default stat types that
  * minigames will keep track of by default.
  */
 public object ArcadeStats {
-    public val RELOGS: StatType<Int> = StatType.int32(ResourceUtils.arcade("relogs"))
-    public val KILLS: StatType<Int> = StatType.int32(ResourceUtils.arcade("kills"))
-    public val DEATHS: StatType<Int> = StatType.int32(ResourceUtils.arcade("deaths"))
-    public val PLAY_TIME: StatType<Int> = StatType.int32(ResourceUtils.arcade("play_time"))
-    public val DAMAGE_TAKEN: StatType<Float> = StatType.float32(ResourceUtils.arcade("damage_taken"))
-    public val DAMAGE_DEALT: StatType<Float> = StatType.float32(ResourceUtils.arcade("damage_dealt"))
-    public val DAMAGE_HEALED: StatType<Float> = StatType.float32(ResourceUtils.arcade("damage_healed"))
+    public val RELOGS: Holder.Reference<StatType<Int>> = this.register("relogs", StatType.int32())
+    public val KILLS: Holder.Reference<StatType<Int>> = this.register("kills", StatType.int32())
+    public val DEATHS: Holder.Reference<StatType<Int>> = this.register("deaths", StatType.int32())
+    public val PLAY_TIME: Holder.Reference<StatType<Int>> = this.register("play_time", StatType.int32())
+    public val DAMAGE_TAKEN: Holder.Reference<StatType<Float>> = this.register("damage_taken", StatType.float32())
+    public val DAMAGE_DEALT: Holder.Reference<StatType<Float>> = this.register("damage_dealt", StatType.float32())
+    public val DAMAGE_HEALED: Holder.Reference<StatType<Float>> = this.register("damage_healed", StatType.float32())
+
+    internal fun load() {
+
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <T> register(path: String, type: StatType<T>): Holder.Reference<StatType<T>> {
+        val holder = Registry.registerForHolder(MinigameRegistries.STAT_TYPES, ArcadeUtils.id(path), type)
+        return holder as Holder.Reference<StatType<T>>
+    }
 }
