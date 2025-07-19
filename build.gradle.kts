@@ -47,7 +47,7 @@ allprojects {
 
         modImplementation(libs.fabric.loader)
         modImplementation(libs.fabric.kotlin)
-        modRuntimeOnly(libs.fabric.api)
+        modImplementation(libs.fabric.api)
     }
 
     kotlin {
