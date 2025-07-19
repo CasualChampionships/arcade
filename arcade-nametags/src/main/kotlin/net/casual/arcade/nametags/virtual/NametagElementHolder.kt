@@ -30,7 +30,7 @@ public open class NametagElementHolder(
     private val nametags = Reference2ReferenceLinkedOpenHashMap<Nametag, NametagElement>()
     private val watching = Reference2ObjectLinkedOpenHashMap<ServerGamePacketListenerImpl, MutableSet<NametagElement>>()
 
-    public val root: NametagHeightElement = NametagHeightElement(NametagHeight.INITIAL)
+    public val root: NametagHeightElement = NametagHeightElement(this.entity, NametagHeight.INITIAL)
 
     init {
         this.addElement(this.root)

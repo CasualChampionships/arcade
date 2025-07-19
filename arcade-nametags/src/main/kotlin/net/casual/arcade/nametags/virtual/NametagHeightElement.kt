@@ -18,12 +18,14 @@ import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType.ARMOR_STAND
 import net.minecraft.world.phys.Vec3
 import java.util.*
 import java.util.function.Consumer
 
 public class NametagHeightElement(
+    private val entity: Entity,
     private val height: NametagHeight
 ): AbstractElement(), InteractionHandler {
     private val uuid: UUID = UUID.randomUUID()
@@ -34,7 +36,7 @@ public class NametagHeightElement(
     }
 
     override fun startWatching(player: ServerPlayer, consumer: Consumer<Packet<ClientGamePacketListener>>) {
-        val pos = this.currentPos
+        val pos = this.entity.position()
         consumer.accept(ClientboundAddEntityPacket(
             this.id, this.uuid, pos.x, pos.y, pos.z, 0.0F, 0.0F, ARMOR_STAND, 0, Vec3.ZERO, 0.0
         ))
