@@ -76,3 +76,30 @@ public inline fun <reified T: Any> ClientboundSetEntityDataPacket.modify(
     EntityAttachedPacket.set(replacement, observee)
     return replacement
 }
+
+public inline fun ClientboundSetEntityDataPacket.modifyVirtualSharedFlags(
+    player: ServerPlayer,
+    modifier: (observee: Int, observer: ServerPlayer, flags: Byte) -> Byte
+): ClientboundSetEntityDataPacket {
+    return this.modifyVirtual(player, EntityTrackedData.FLAGS, modifier)
+}
+
+public inline fun <reified T: Any> ClientboundSetEntityDataPacket.modifyVirtual(
+    player: ServerPlayer,
+    accessor: EntityDataAccessor<T>,
+    modifier: (observee: Int, observer: ServerPlayer, data: T) -> T
+): ClientboundSetEntityDataPacket {
+    val items = this.packedItems
+    val data = ArrayList<DataValue<*>>()
+    for (item in items) {
+        if (item.id == accessor.id) {
+            val value = item.value as T
+            val modified = modifier.invoke(this.id, player, value)
+            data.add(DataValue.create(accessor, modified))
+        } else {
+            data.add(item)
+        }
+    }
+
+    return ClientboundSetEntityDataPacket(this.id, data)
+}
