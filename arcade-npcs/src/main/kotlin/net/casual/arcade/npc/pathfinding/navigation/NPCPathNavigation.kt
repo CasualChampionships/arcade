@@ -318,12 +318,7 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
         // We're on the last node
         if (path.nextNodeIndex == path.nodeCount - 1) {
             val nextNodePos = path.nextNodePos
-            val d = abs(this.player.x - (nextNodePos.x + 0.5))
-            val e = abs(this.player.y - nextNodePos.y.toDouble())
-            val f = abs(this.player.z - (nextNodePos.z + 0.5))
-            val withinThreshold = d < this.maxDistanceToWaypoint
-                && f < this.maxDistanceToWaypoint && e < 1.0
-            if (withinThreshold) {
+            if (this.hasReachedNode(nextNodePos)) {
                 path.advance()
             }
         } else if (this.canCutCorner(path.nextNode.type) && this.shouldTargetNextNodeInDirection(tempPos)) {
@@ -331,6 +326,14 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
         }
 
         this.doStuckDetection(tempPos)
+    }
+
+    protected open fun hasReachedNode(pos: BlockPos): Boolean {
+        val d = abs(this.player.x - (pos.x + 0.5))
+        val e = abs(this.player.y - pos.y.toDouble())
+        val f = abs(this.player.z - (pos.z + 0.5))
+        return d < this.maxDistanceToWaypoint
+            && f < this.maxDistanceToWaypoint && e < 1.0
     }
 
     protected open fun getGroundY(vec: Vec3): Double {
