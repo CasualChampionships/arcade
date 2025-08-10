@@ -12,6 +12,7 @@
     "level.ServerLevelAccessor",
     "level.ServerLevelMixin",
     "level.ServerPlayerMixin",
+    "level.ServerWaypointManagerMixin",
     "level.spawning.LocalMobCapCalculatorMixin",
     "level.spawning.MobCountsMixin",
     "level.spawning.NaturalSpawnerAccessor",
