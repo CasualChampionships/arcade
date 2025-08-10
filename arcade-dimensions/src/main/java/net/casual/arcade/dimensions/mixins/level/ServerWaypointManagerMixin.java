@@ -15,13 +15,21 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(ServerWaypointManager.class)
 public class ServerWaypointManagerMixin {
-
-    @ModifyReceiver(method = "isLocatorBarEnabledFor", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/GameRules;getBoolean(Lnet/minecraft/world/level/GameRules$Key;)Z"))
-    private static GameRules fixVanillaLocatorBarGameRuleCheck(GameRules original, GameRules.Key<GameRules.BooleanValue> key, @Local(argsOnly = true) ServerPlayer player) {
+    @ModifyReceiver(
+        method = "isLocatorBarEnabledFor",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/level/GameRules;getBoolean(Lnet/minecraft/world/level/GameRules$Key;)Z"
+        )
+    )
+    private static GameRules fixVanillaLocatorBarGameRuleCheck(
+        GameRules original,
+        GameRules.Key<GameRules.BooleanValue> key,
+        @Local(argsOnly = true) ServerPlayer player
+    ) {
         if (player.level() instanceof CustomLevel) {
             return player.level().getGameRules();
         }
         return original;
     }
-
 }
