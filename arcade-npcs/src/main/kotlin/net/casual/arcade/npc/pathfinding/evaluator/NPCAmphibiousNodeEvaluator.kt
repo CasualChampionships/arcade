@@ -25,11 +25,11 @@ public open class NPCAmphibiousNodeEvaluator: NPCWalkNodeEvaluator() {
     }
 
     protected open fun getWaterBorderMalus(player: FakePlayer): Float {
-        return 2.0F
+        return 8.0F
     }
 
     protected open fun getWaterMalus(player: FakePlayer): Float {
-        return 4.0F
+        return 2.0F
     }
 
     override fun prepare(level: PathNavigationRegion, player: FakePlayer) {
@@ -109,22 +109,22 @@ public open class NPCAmphibiousNodeEvaluator: NPCWalkNodeEvaluator() {
         return true
     }
 
-    // override fun getPathType(context: NPCPathfindingContext, x: Int, y: Int, z: Int): PathType {
-    //     val pathType = context.getPathTypeFromState(x, y, z)
-    //     if (pathType == PathType.WATER) {
-    //         val mutableBlockPos = BlockPos.MutableBlockPos()
-    //
-    //         for (direction in Direction.entries) {
-    //             mutableBlockPos.set(x, y, z).move(direction)
-    //             val pathType2 = context.getPathTypeFromState(mutableBlockPos.x, mutableBlockPos.y, mutableBlockPos.z)
-    //             if (pathType2 == PathType.BLOCKED) {
-    //                 return PathType.WATER_BORDER
-    //             }
-    //         }
-    //
-    //         return PathType.WATER
-    //     } else {
-    //         return super.getPathType(context, x, y, z)
-    //     }
-    // }
+     override fun getPathType(context: NPCPathfindingContext, x: Int, y: Int, z: Int): PathType {
+         val pathType = context.getPathTypeFromState(x, y, z)
+         if (pathType == PathType.WATER) {
+             val mutableBlockPos = BlockPos.MutableBlockPos()
+
+             for (direction in Direction.entries) {
+                 mutableBlockPos.set(x, y, z).move(direction)
+                 val pathType2 = context.getPathTypeFromState(mutableBlockPos.x, mutableBlockPos.y, mutableBlockPos.z)
+                 if (pathType2 == PathType.BLOCKED) {
+                     return PathType.WATER_BORDER
+                 }
+             }
+
+             return PathType.WATER
+         } else {
+             return super.getPathType(context, x, y, z)
+         }
+     }
 }
