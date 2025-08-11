@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.utils
 
+import net.casual.arcade.utils.MathUtils.isAbove
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.Direction8
@@ -284,6 +285,26 @@ public object MathUtils {
 
     public fun AABB.getSizeVec(): Vec3 {
         return Vec3(this.xsize, this.ysize, this.zsize)
+    }
+
+    public fun AABB.isAbove(point: Vec3): Boolean {
+        return this.isAbove(point.x, point.y, point.z)
+    }
+
+    public fun AABB.isAbove(x: Double, y: Double, z: Double): Boolean {
+        return x >= this.minX && x < this.maxX
+            && z >= this.minZ && z < this.maxZ
+            && y > this.maxY
+    }
+
+    public fun AABB.isBelow(point: Vec3): Boolean {
+        return this.isBelow(point.x, point.y, point.z)
+    }
+
+    public fun AABB.isBelow(x: Double, y: Double, z: Double): Boolean {
+        return x >= this.minX && x < this.maxX
+            && z >= this.minZ && z < this.maxZ
+            && y < this.minY
     }
 
     @JvmStatic
