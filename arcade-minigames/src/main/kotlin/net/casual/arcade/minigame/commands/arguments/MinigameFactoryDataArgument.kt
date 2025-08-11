@@ -25,6 +25,7 @@ import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.core.RegistryAccess
 import net.minecraft.network.chat.Component
 import net.minecraft.util.ExtraCodecs
+import java.io.IOException
 import java.util.concurrent.CompletableFuture
 
 public class MinigameFactoryDataArgument(
@@ -45,7 +46,11 @@ public class MinigameFactoryDataArgument(
         val codec = MinigameFactoryCodecArgument.getCodec(context, this.factoryCodecKey)
         val keys = codec.keys(JsonOps.INSTANCE).map { it.asString }.toList().toMutableSet()
         val existing = ObjectOpenHashSet<String>()
-        val typing = this.completions(builder, existing)
+        val typing = try {
+            this.completions(builder, existing)
+        } catch (e: IOException) {
+            return Suggestions.empty()
+        }
         keys.removeAll(existing)
         if (typing == null) {
             return Suggestions.empty()
