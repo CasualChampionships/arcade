@@ -76,6 +76,15 @@ public open class BasicReplayCommand(
             literal("status") {
                 executes(::queryReplayStatuses)
             }
+            literal("marker") {
+                literal("players") {
+                    argument("players", EntityArgument.players()) {
+                        argument("name", StringArgumentType.string()) {
+                            executes(::addMarkersToPlayerRecorders)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -154,6 +163,16 @@ public open class BasicReplayCommand(
         }
 
         return context.source.success(builder.removeSuffix("\n").toString())
+    }
+
+    private fun addMarkersToPlayerRecorders(context: CommandContext<CommandSourceStack>) {
+        val players = EntityArgument.getPlayers(context, "players")
+        val name = StringArgumentType.getString(context, "name")
+        for (player in players) {
+            ReplayPlayerRecorders.get(player).forEach { recorder ->
+                recorder.addMarker(name)
+            }
+        }
     }
 
     private fun getStatusFor(type: String, recorders: Collection<ReplayRecorder>): List<String> {
