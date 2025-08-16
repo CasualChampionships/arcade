@@ -12,6 +12,9 @@ import net.casual.arcade.replay.io.reader.replay_mod.ReplayModReader
 import net.casual.arcade.replay.io.writer.ReplayWriter
 import net.casual.arcade.replay.io.writer.flashback.FlashbackWriter
 import net.casual.arcade.replay.io.writer.replay_mod.ReplayModWriter
+import net.casual.arcade.utils.convertCasing
+import net.casual.arcade.utils.string.PascalCase
+import net.casual.arcade.utils.string.SnakeCase
 import java.nio.file.Path
 
 public enum class ReplayFormat(
@@ -43,6 +46,10 @@ public enum class ReplayFormat(
         if (!this.stable) {
             consumer.invoke("${this.name} support is currently unstable: ${this.name} hasn't released yet, your replays may not be compatible in the future, you have been warned!")
         }
+    }
+
+    public fun id(): String {
+        return this.name.convertCasing(PascalCase, SnakeCase)
     }
 
     public companion object {

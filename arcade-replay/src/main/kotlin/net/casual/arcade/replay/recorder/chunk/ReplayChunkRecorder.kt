@@ -202,7 +202,7 @@ public class ReplayChunkRecorder internal constructor(
      * This appends any additional data to the status.
      *
      * @param builder The [ToStringBuilder] which is used to build the status.
-     * @see getStatusWithSize
+     * @see getStatus
      */
     override fun appendToStatus(builder: ToStringBuilder) {
         builder.append("chunks_world", this.chunks.level.dimension().location())

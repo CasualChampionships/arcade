@@ -1,4 +1,8 @@
-package net.casual.arcade.test.command
+/*
+ * Copyright (c) 2025 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
+package net.casual.arcade.replay.command
 
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
@@ -8,7 +12,6 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.*
 import net.casual.arcade.commands.arguments.EnumArgument
-import net.casual.arcade.replay.command.BasicReplayCommand
 import net.casual.arcade.replay.io.ReplayFormat
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.recorder.chunk.ChunkArea
@@ -21,11 +24,13 @@ import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.EntityArgument
+import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
-import kotlin.io.path.createDirectories
 import kotlin.io.path.name
 
-object ReplayCommand: BasicReplayCommand(ArcadeUtils.path.resolve("replays").createDirectories()) {
+public open class BasicReplayCommand(
+    protected val path: Path
+): CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("replay") {
             literal("start") {
@@ -53,6 +58,11 @@ object ReplayCommand: BasicReplayCommand(ArcadeUtils.path.resolve("replays").cre
                 }
             }
             literal("stop") {
+                literal("player") {
+                    argument("player", EntityArgument.player()) {
+                        executes(::stopPlayerReplay)
+                    }
+                }
                 literal("all") {
                     executes(::stopAllReplays)
                 }
@@ -71,9 +81,8 @@ object ReplayCommand: BasicReplayCommand(ArcadeUtils.path.resolve("replays").cre
 
     private fun startPlayerReplay(context: CommandContext<CommandSourceStack>): Int {
         val player = EntityArgument.getPlayer(context, "player")
-        val path = ArcadeUtils.path.resolve("replays").createDirectories()
         val format = EnumArgument.getEnumeration<ReplayFormat>(context, "format")
-        val recorder = ReplayPlayerRecorders.create(player, path, format)
+        val recorder = ReplayPlayerRecorders.create(player, this.path, format)
         try {
             recorder.start()
         } catch (e: Exception) {
@@ -101,6 +110,12 @@ object ReplayCommand: BasicReplayCommand(ArcadeUtils.path.resolve("replays").cre
         return context.source.success("Successfully started recorder ${recorder.getName()}")
     }
 
+    private fun stopPlayerReplay(context: CommandContext<CommandSourceStack>): Int {
+        val player = EntityArgument.getPlayer(context, "player")
+        ReplayPlayerRecorders.stop(player.uuid)
+        return context.source.success("Successfully stopped all recorders for ${player.scoreboardName}")
+    }
+
     private fun stopAllReplays(context: CommandContext<CommandSourceStack>): Int {
         ReplayPlayerRecorders.recorders().forEach(ReplayRecorder::stop)
         ReplayChunkRecorders.recorders().forEach(ReplayRecorder::stop)
@@ -118,11 +133,11 @@ object ReplayCommand: BasicReplayCommand(ArcadeUtils.path.resolve("replays").cre
         }
     }
 
-    private fun queryReplayStatuses(context: CommandContext<CommandSourceStack>) {
+    private fun queryReplayStatuses(context: CommandContext<CommandSourceStack>): Int {
         val builder = StringBuilder("Replay Status:\n")
 
-        val players = this.getStatusFor("Players", ReplayPlayerRecorders.recorders())
-        val chunks = this.getStatusFor("Chunks", ReplayChunkRecorders.recorders())
+        val players = getStatusFor("Players", ReplayPlayerRecorders.recorders())
+        val chunks = getStatusFor("Chunks", ReplayChunkRecorders.recorders())
         val closing = listOf(ReplayPlayerRecorders.closing(), ReplayChunkRecorders.closing()).flatten()
 
         for (player in players) {
@@ -138,7 +153,7 @@ object ReplayCommand: BasicReplayCommand(ArcadeUtils.path.resolve("replays").cre
             }
         }
 
-        context.source.success(builder.removeSuffix("\n").toString())
+        return context.source.success(builder.removeSuffix("\n").toString())
     }
 
     private fun getStatusFor(type: String, recorders: Collection<ReplayRecorder>): List<String> {

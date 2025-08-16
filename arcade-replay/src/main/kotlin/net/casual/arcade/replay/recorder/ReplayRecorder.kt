@@ -298,12 +298,11 @@ public abstract class ReplayRecorder(
     }
 
     /**
-     * This creates a future which will provide the status of the
-     * replay recorder as a formatted string.
+     * Provides the status of the replay recorder as a formatted string.
      *
      * @return A future that will provide the status of the replay recorder.
      */
-    public fun getStatusWithSize(): CompletableFuture<String> {
+    public fun getStatus(): String {
         val builder = ToStringBuilder(this, StandardToStringStyle().apply {
             fieldSeparator = ", "
             fieldNameValueSeparator = " = "
@@ -318,7 +317,7 @@ public abstract class ReplayRecorder(
         this.appendToStatus(builder)
 
         builder.append("raw_size", FileUtils.formatSize(this.getRawRecordingSize()))
-        return CompletableFuture.completedFuture(builder.toString())
+        return builder.toString()
     }
 
     /**
@@ -383,7 +382,7 @@ public abstract class ReplayRecorder(
      * This appends any additional data to the status.
      *
      * @param builder The [ToStringBuilder] which is used to build the status.
-     * @see getStatusWithSize
+     * @see getStatus
      */
     protected open fun appendToStatus(builder: ToStringBuilder) {
 
