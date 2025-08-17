@@ -91,7 +91,7 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
             this.getExtension<EntityNametagExtension>().getHolder()?.removeAll()
         }
 
-        internal  fun registerEvents() {
+        internal fun registerEvents() {
             GlobalEventHandler.Server.register<EntityExtensionEvent> { event ->
                 event.addExtension(::EntityNametagExtension)
             }
