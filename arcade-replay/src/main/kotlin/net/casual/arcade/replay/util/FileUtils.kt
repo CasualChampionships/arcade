@@ -89,7 +89,7 @@ public object FileUtils {
         ZipOutputStream(file.outputStream()).use { out ->
             out.setLevel(Deflater.BEST_SPEED)
             for (path in source.walk()) {
-                val entry = ZipEntry(source.relativize(path).toString())
+                val entry = ZipEntry(source.relativize(path).toString().replace('\\', '/'))
                 out.putNextEntry(entry)
                 Files.copy(path, out)
                 out.closeEntry()
