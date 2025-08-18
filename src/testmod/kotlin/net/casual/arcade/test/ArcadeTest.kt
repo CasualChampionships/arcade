@@ -13,6 +13,7 @@ import net.casual.arcade.resources.creator.NamedResourcePackCreator
 import net.casual.arcade.resources.utils.ResourcePackUtils.addPack
 import net.casual.arcade.resources.utils.ResourcePackUtils.sendResourcePack
 import net.casual.arcade.resources.utils.ResourcePackUtils.toPackInfo
+import net.casual.arcade.test.command.FakePlayerCommand
 import net.casual.arcade.test.command.LevelBoundaryCommand
 import net.casual.arcade.test.command.PlayerHeadCommand
 import net.casual.arcade.test.command.ReplayCommand
@@ -24,7 +25,7 @@ import net.minecraft.core.Registry
 object ArcadeTest: ModInitializer {
     override fun onInitialize() {
         GlobalEventHandler.Server.register<ServerRegisterCommandEvent> {
-            it.register(LevelBoundaryCommand, PlayerHeadCommand, ReplayCommand)
+            it.register(FakePlayerCommand, LevelBoundaryCommand, PlayerHeadCommand, ReplayCommand)
         }
 
         Registry.register(
