@@ -10,6 +10,7 @@ import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
 import net.casual.arcade.extensions.ExtensionHolder.Companion.add
 import net.casual.arcade.extensions.ExtensionHolder.Companion.get
+import net.casual.arcade.utils.ArcadeUtils
 import net.minecraft.world.entity.Entity
 
 // This may be broadcasted off-thread, as a result of world-gen
@@ -30,7 +31,15 @@ public class EntityExtensionEvent(
         }
 
         public fun <T: Extension> Entity.getExtension(type: Class<T>): T {
-            return (this as ExtensionHolder).get(type)
+            try {
+                return (this as ExtensionHolder).get(type)
+            } catch (exception: IllegalStateException) {
+                ArcadeUtils.logger.error("Failed to get extension for entity: $this", exception)
+                ArcadeUtils.logger.error("Further details:")
+                ArcadeUtils.logger.error("  Tick Count: ${this.tickCount}")
+                ArcadeUtils.logger.error("  Passengers: ${this.passengers}")
+                throw exception
+            }
         }
 
         public inline fun <reified T: Extension> Entity.getExtension(): T {
