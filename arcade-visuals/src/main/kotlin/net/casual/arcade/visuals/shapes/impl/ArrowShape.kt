@@ -8,6 +8,7 @@ import net.casual.arcade.visuals.shapes.ShapePoints
 import net.casual.arcade.visuals.utils.impl.ShapeSegment
 import net.casual.arcade.visuals.utils.impl.SegmentedShapeIterator
 import net.minecraft.world.phys.Vec3
+import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -50,6 +51,23 @@ public class ArrowShape(
                 right.scale(0.5).add(x, y, z),
                 back.add(x, y, z)
             )
+        }
+
+        public fun createAlongLine(start: Vec3, end: Vec3, size: Double = 0.5): ArrowShape {
+            val direction = end.subtract(start).normalize()
+            val length = direction.length()
+            if (length == 0.0) {
+                return this.createHorizontal(start.x, start.y, start.z, 1.0, 0.0)
+            }
+
+            val yaw = atan2(direction.x, direction.z)
+
+            val leftYaw = yaw + Math.toRadians(135.0)
+            val rightYaw = yaw - Math.toRadians(135.0)
+
+            val left = end.add(Vec3(size * sin(leftYaw), 0.0, size * cos(leftYaw)))
+            val right = end.add(Vec3(size * sin(rightYaw), 0.0, size * cos(rightYaw)))
+            return ArrowShape(end, left, right, start)
         }
     }
 }
