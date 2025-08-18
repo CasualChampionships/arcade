@@ -6,13 +6,17 @@ package net.casual.arcade.npc.pathfinding.evaluator
 
 import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.npc.pathfinding.NPCPathfindingContext
+import net.casual.arcade.utils.isOf
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
+import net.minecraft.tags.BlockTags
 import net.minecraft.util.Mth
 import net.minecraft.world.level.PathNavigationRegion
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.pathfinder.Node
 import net.minecraft.world.level.pathfinder.PathType
 import net.minecraft.world.level.pathfinder.Target
+import net.minecraft.world.phys.shapes.CollisionContext
 import kotlin.math.max
 
 public open class NPCAmphibiousNodeEvaluator: NPCWalkNodeEvaluator() {
@@ -110,8 +114,8 @@ public open class NPCAmphibiousNodeEvaluator: NPCWalkNodeEvaluator() {
     }
 
      override fun getPathType(context: NPCPathfindingContext, x: Int, y: Int, z: Int): PathType {
-         val pathType = context.getPathTypeFromState(x, y, z)
-         if (pathType == PathType.WATER) {
+         val type = context.getPathTypeFromState(x, y, z)
+         if (type == PathType.WATER) {
              val mutableBlockPos = BlockPos.MutableBlockPos()
 
              for (direction in Direction.entries) {
@@ -123,8 +127,19 @@ public open class NPCAmphibiousNodeEvaluator: NPCWalkNodeEvaluator() {
              }
 
              return PathType.WATER
-         } else {
-             return super.getPathType(context, x, y, z)
          }
+
+
+         // This is a gross hack to make ladders/vines pathfind-able
+         val pos = BlockPos(x, y, z)
+         val state = context.getBlockState(pos)
+         if (state.isOf(BlockTags.CLIMBABLE)) {
+             val shape = state.getCollisionShape(context.level, pos, CollisionContext.of(context.player))
+             if (shape.isEmpty) {
+                 return PathType.WATER
+             }
+         }
+
+         return super.getPathType(context, x, y, z)
      }
 }
