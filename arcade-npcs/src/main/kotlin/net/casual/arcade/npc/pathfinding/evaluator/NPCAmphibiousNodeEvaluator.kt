@@ -134,10 +134,8 @@ public open class NPCAmphibiousNodeEvaluator: NPCWalkNodeEvaluator() {
          val pos = BlockPos(x, y, z)
          val state = context.getBlockState(pos)
          if (state.isOf(BlockTags.CLIMBABLE)) {
-             val shape = state.getCollisionShape(context.level, pos, CollisionContext.of(context.player))
-             if (shape.isEmpty) {
-                 return PathType.WATER
-             }
+             // Maybe we should check the collisions of the scaffolding
+             return PathType.WATER
          }
 
          return super.getPathType(context, x, y, z)
