@@ -32,7 +32,7 @@ public class EntityMixin implements ExtensionHolder {
 
     @Inject(
         method = "<init>",
-        at = @At("CTOR_HEAD")
+        at = @At("TAIL")
     )
     private void onCreateEntity(
         EntityType<?> entityType,
