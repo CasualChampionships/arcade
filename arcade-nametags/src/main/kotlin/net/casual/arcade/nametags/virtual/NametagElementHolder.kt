@@ -21,7 +21,6 @@ import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
-import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.Vec3
 import java.util.function.Consumer
@@ -234,17 +233,6 @@ public open class NametagElementHolder(
 
         if (this.isMountedToOwner()) {
             consumer.accept(ClientboundSetPassengersPacket(this.entity))
-        }
-    }
-
-    private object PassthroughInteractionHandler: InteractionHandler {
-        override fun interact(player: ServerPlayer, hand: InteractionHand) {
-            val item = player.getItemInHand(hand)
-            player.gameMode.useItem(player, player.level(), item, hand)
-        }
-
-        override fun interactAt(player: ServerPlayer, hand: InteractionHand, pos: Vec3) {
-            this.interact(player, hand)
         }
     }
 }

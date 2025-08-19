@@ -25,14 +25,10 @@ public class RetargetingInteractionHandler(
     }
 
     override fun interact(player: ServerPlayer, hand: InteractionHand) {
-        player.connection.handleInteract(
-            ServerboundInteractPacket.createInteractionPacket(this.owner, player.isShiftKeyDown, hand)
-        )
+        PassthroughInteractionHandler.interact(player, hand)
     }
 
     override fun interactAt(player: ServerPlayer, hand: InteractionHand, pos: Vec3) {
-        player.connection.handleInteract(
-            ServerboundInteractPacket.createInteractionPacket(this.owner, player.isShiftKeyDown, hand, pos)
-        )
+        PassthroughInteractionHandler.interactAt(player, hand, pos)
     }
 }
