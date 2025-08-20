@@ -8,7 +8,9 @@ import net.casual.arcade.events.server.entity.EntityEvent
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.ExtensionHolder
 import net.casual.arcade.extensions.ExtensionHolder.Companion.add
+import net.casual.arcade.extensions.ExtensionHolder.Companion.all
 import net.casual.arcade.extensions.ExtensionHolder.Companion.get
+import net.casual.arcade.extensions.ducks.DebugFlagsHolder
 import net.casual.arcade.utils.ArcadeUtils
 import net.minecraft.world.entity.Entity
 
@@ -33,10 +35,14 @@ public class EntityExtensionEvent(
             try {
                 return (this as ExtensionHolder).get(type)
             } catch (exception: IllegalStateException) {
+                val extensions = (this as ExtensionHolder).all()
+                val flags = (this as DebugFlagsHolder).`arcade$getFlags`()
                 ArcadeUtils.logger.error("Failed to get extension for entity: $this", exception)
                 ArcadeUtils.logger.error("Further details:")
                 ArcadeUtils.logger.error("  Tick Count: ${this.tickCount}")
                 ArcadeUtils.logger.error("  Passengers: ${this.passengers}")
+                ArcadeUtils.logger.error("  Extensions: ${extensions.map { it::class.java.simpleName }}")
+                ArcadeUtils.logger.error("  Flags: $flags")
                 throw exception
             }
         }

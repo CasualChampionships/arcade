@@ -9,9 +9,11 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.extensions.*;
 import net.casual.arcade.extensions.TransferableEntityExtension.TransferReason;
+import net.casual.arcade.extensions.ducks.DebugFlagsHolder;
 import net.casual.arcade.extensions.event.EntityExtensionEvent;
 import net.casual.arcade.utils.ArcadeUtils;
 import net.casual.arcade.utils.impl.DelayedInvokers;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -26,9 +28,25 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Mixin(Entity.class)
-public class EntityMixin implements ExtensionHolder {
+public class EntityMixin implements ExtensionHolder, DebugFlagsHolder {
+    @Unique private final List<String> arcade$flags = new ArrayList<>();
     @Unique private ExtensionMap arcade$extensions;
+
+    @Inject(
+        method = "<init>",
+        at = @At("CTOR_HEAD")
+    )
+    private void onCreateEntityPre(EntityType<?> entityType, Level level, CallbackInfo ci) {
+        this.arcade$flags.add("Constructing " + entityType.getDescriptionId());
+        this.arcade$flags.add("Thread: " + Thread.currentThread().getName());
+        if (level instanceof ServerLevel serverLevel) {
+            this.arcade$flags.add("Main: " + serverLevel.getServer().isSameThread());
+        }
+    }
 
     @Inject(
         method = "<init>",
@@ -41,11 +59,14 @@ public class EntityMixin implements ExtensionHolder {
     ) {
         Entity entity = (Entity) (Object) this;
         if (entity instanceof Player || !EntityExtension.SHOULD_ATTACH_EXTENSION.get()) {
+            this.arcade$flags.add("Skipped: " + EntityExtension.SHOULD_ATTACH_EXTENSION.get());
             return;
         }
+        this.arcade$flags.add("Starting");
         this.arcade$extensions = new ExtensionMap();
         EntityExtensionEvent event = new EntityExtensionEvent(entity);
         GlobalEventHandler.Server.broadcast(event);
+        this.arcade$flags.add("Finished");
     }
 
     @Inject(
@@ -120,5 +141,10 @@ public class EntityMixin implements ExtensionHolder {
     @SuppressWarnings("AddedMixinMembersNamePattern")
     public ExtensionMap getExtensionMap() {
         return this.arcade$extensions;
+    }
+
+    @Override
+    public List<String> arcade$getFlags() {
+        return this.arcade$flags;
     }
 }
