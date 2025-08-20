@@ -7,8 +7,8 @@ package net.casual.arcade.visuals.extensions
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.extensions.PlayerExtension
-import net.casual.arcade.extensions.event.EntityExtensionEvent.Companion.getExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
+import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.visuals.camera.PlayerCamera
 import net.minecraft.server.level.ServerPlayer
 

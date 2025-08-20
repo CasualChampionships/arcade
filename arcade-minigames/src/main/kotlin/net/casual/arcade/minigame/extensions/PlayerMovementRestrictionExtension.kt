@@ -15,8 +15,8 @@ import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
 import net.casual.arcade.events.server.player.PlayerTickEvent
 import net.casual.arcade.extensions.DataExtension
 import net.casual.arcade.extensions.PlayerExtension
-import net.casual.arcade.extensions.event.EntityExtensionEvent.Companion.getExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
+import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.locationWithLevel

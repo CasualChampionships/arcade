@@ -16,8 +16,7 @@ import net.casual.arcade.events.server.level.LocatedLevelEvent
 import net.casual.arcade.events.server.player.PlayerEvent
 import net.casual.arcade.extensions.event.ExtensionEvent
 import net.casual.arcade.extensions.event.LevelExtensionEvent
-import net.casual.arcade.extensions.event.LevelExtensionEvent.Companion.getExtension
-import net.casual.arcade.extensions.event.PlayerExtensionEvent.Companion.getExtension
+import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.annotation.MinigameEventListener

@@ -6,7 +6,7 @@ import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.literal
 import net.casual.arcade.commands.success
-import net.casual.arcade.extensions.event.EntityExtensionEvent.Companion.getExtension
+import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.test.extension.TestEntityExtension
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack

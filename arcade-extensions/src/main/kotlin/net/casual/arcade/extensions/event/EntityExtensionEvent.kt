@@ -7,19 +7,16 @@ package net.casual.arcade.extensions.event
 import net.casual.arcade.events.server.entity.EntityEvent
 import net.casual.arcade.events.threading.AsyncEvent
 import net.casual.arcade.extensions.Extension
-import net.casual.arcade.extensions.ExtensionHolder
-import net.casual.arcade.extensions.ExtensionHolder.Companion.add
-import net.casual.arcade.extensions.ExtensionHolder.Companion.all
-import net.casual.arcade.extensions.ExtensionHolder.Companion.get
-import net.casual.arcade.utils.ArcadeUtils
 import net.minecraft.world.entity.Entity
+import net.casual.arcade.extensions.utils.addExtension as addExtensionNew
+import net.casual.arcade.extensions.utils.getExtension as getExtensionNew
 
 // This may be broadcasted off-thread, as a result of world-gen
 public class EntityExtensionEvent(
     override val entity: Entity
 ): EntityEvent, ExtensionEvent, AsyncEvent {
     override fun addExtension(extension: Extension) {
-        this.entity.addExtension(extension)
+        this.entity.addExtensionNew(extension)
     }
 
     public fun addExtension(provider: (Entity) -> Extension) {
@@ -27,26 +24,43 @@ public class EntityExtensionEvent(
     }
 
     public companion object {
+        @Deprecated(
+            "Moved",
+            ReplaceWith(
+                "this.addExtension(extension)",
+                "net.casual.arcade.extensions.event.EntityExtensionEvent.Companion.addExtension",
+                "net.casual.arcade.extensions.utils.addExtension"
+            ),
+            level = DeprecationLevel.ERROR
+        )
         public fun Entity.addExtension(extension: Extension) {
-            (this as ExtensionHolder).add(extension)
+            this.addExtensionNew(extension)
         }
 
+        @Deprecated(
+            "Moved",
+            ReplaceWith(
+                "this.getExtension(type)",
+                "net.casual.arcade.extensions.event.EntityExtensionEvent.Companion.getExtension",
+                "net.casual.arcade.extensions.utils.getExtension"
+            ),
+            level = DeprecationLevel.ERROR
+        )
         public fun <T: Extension> Entity.getExtension(type: Class<T>): T {
-            try {
-                return (this as ExtensionHolder).get(type)
-            } catch (exception: IllegalStateException) {
-                val extensions = (this as ExtensionHolder).all()
-                ArcadeUtils.logger.error("Failed to get extension for entity: $this", exception)
-                ArcadeUtils.logger.error("Further details:")
-                ArcadeUtils.logger.error("  Tick Count: ${this.tickCount}")
-                ArcadeUtils.logger.error("  Passengers: ${this.passengers}")
-                ArcadeUtils.logger.error("  Extensions: ${extensions.map { it::class.java.simpleName }}")
-                throw exception
-            }
+            return this.getExtensionNew(type)
         }
 
+        @Deprecated(
+            "Moved",
+            ReplaceWith(
+                "this.getExtension<T>()",
+                "net.casual.arcade.extensions.event.EntityExtensionEvent.Companion.getExtension",
+                "net.casual.arcade.extensions.utils.getExtension"
+            ),
+            level = DeprecationLevel.ERROR
+        )
         public inline fun <reified T: Extension> Entity.getExtension(): T {
-            return this.getExtension(T::class.java)
+            return this.getExtensionNew<T>()
         }
     }
 }

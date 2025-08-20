@@ -7,10 +7,9 @@ package net.casual.arcade.extensions.event
 import net.casual.arcade.events.server.player.PlayerEvent
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.PlayerExtension
-import net.casual.arcade.extensions.event.EntityExtensionEvent.Companion.addExtension
-import net.casual.arcade.extensions.event.EntityExtensionEvent.Companion.getExtension
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.entity.Entity
+import net.casual.arcade.extensions.utils.addExtension as addExtensionNew
+import net.casual.arcade.extensions.utils.getExtension as getExtensionNew
 
 /**
  * This event is broadcast when a player is created.
@@ -30,7 +29,7 @@ public data class PlayerExtensionEvent(
      * @see PlayerExtension
      */
     override fun addExtension(extension: Extension) {
-        this.player.addExtension(extension)
+        this.player.addExtensionNew(extension)
     }
 
     public fun addExtension(provider: (ServerPlayer) -> Extension) {
@@ -38,16 +37,43 @@ public data class PlayerExtensionEvent(
     }
 
     public companion object {
+        @Deprecated(
+            "Moved",
+            ReplaceWith(
+                "this.addExtension(extension)",
+                "net.casual.arcade.extensions.event.PlayerExtensionEvent.Companion.addExtension",
+                "net.casual.arcade.extensions.utils.addExtension"
+            ),
+            level = DeprecationLevel.ERROR
+        )
         public fun ServerPlayer.addExtension(extension: Extension) {
-            (this as Entity).addExtension(extension)
+            this.addExtensionNew(extension)
         }
 
+        @Deprecated(
+            "Moved",
+            ReplaceWith(
+                "this.getExtension(type)",
+                "net.casual.arcade.extensions.event.PlayerExtensionEvent.Companion.getExtension",
+                "net.casual.arcade.extensions.utils.getExtension"
+            ),
+            level = DeprecationLevel.ERROR
+        )
         public fun <T: Extension> ServerPlayer.getExtension(type: Class<T>): T {
-            return (this as Entity).getExtension(type)
+            return this.getExtensionNew(type)
         }
 
+        @Deprecated(
+            "Moved",
+            ReplaceWith(
+                "this.getExtension<T>()",
+                "net.casual.arcade.extensions.event.PlayerExtensionEvent.Companion.getExtension",
+                "net.casual.arcade.extensions.utils.getExtension"
+            ),
+            level = DeprecationLevel.ERROR
+        )
         public inline fun <reified T: Extension> ServerPlayer.getExtension(): T {
-            return (this as Entity).getExtension<T>()
+            return this.getExtensionNew<T>()
         }
     }
 }

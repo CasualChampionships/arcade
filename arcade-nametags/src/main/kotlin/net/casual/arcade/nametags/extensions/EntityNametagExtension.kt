@@ -16,7 +16,7 @@ import net.casual.arcade.extensions.EntityExtension
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.TransferableEntityExtension
 import net.casual.arcade.extensions.event.EntityExtensionEvent
-import net.casual.arcade.extensions.event.EntityExtensionEvent.Companion.getExtension
+import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.nametags.ArcadeNametags
 import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.virtual.NametagElement
