@@ -11,6 +11,7 @@
     "BrewingStandBlockEntityAccessor",
     "BrewingStandBlockEntityMixin",
     "CommandsMixin",
+    "ConnectionMixin",
     "EntityCallbacksMixin",
     "EntityMixin",
     "FlowingFluidMixin",
