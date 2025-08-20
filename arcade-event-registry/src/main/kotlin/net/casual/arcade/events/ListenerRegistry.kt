@@ -6,6 +6,8 @@ package net.casual.arcade.events
 
 import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.threading.ThreadingStrategy
+import net.casual.arcade.events.threading.ThreadingTarget
 import java.util.function.Consumer
 
 /**
@@ -39,10 +41,10 @@ public interface ListenerRegistry: ListenerProvider {
         type: Class<T>,
         priority: Int = 1_000,
         phase: String = DEFAULT,
-        requiresMainThread: Boolean = true,
+        strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
     ) {
-        this.register(type, EventListener.of(priority, phase, requiresMainThread, listener))
+        this.register(type, EventListener.of(priority, phase, strategy, listener))
     }
 
     /**
@@ -82,10 +84,10 @@ public interface ListenerRegistry: ListenerProvider {
         public inline fun <reified T: Event> ListenerRegistry.register(
             priority: Int = 1_000,
             phase: String = DEFAULT,
-            requiresMainThread: Boolean = true,
+            strategy: ThreadingStrategy = ThreadingTarget.Default,
             listener: Consumer<T>
         ) {
-            this.register(T::class.java, priority, phase, requiresMainThread, listener)
+            this.register(T::class.java, priority, phase, strategy, listener)
         }
 
         /**
@@ -99,7 +101,7 @@ public interface ListenerRegistry: ListenerProvider {
          * @param listener The callback which will be invoked when the event is fired.
          */
         public inline fun <reified T: Event> ListenerRegistry.register(listener: Consumer<T>) {
-            this.register(T::class.java, 1_000, DEFAULT, true, listener)
+            this.register(T::class.java, 1_000, DEFAULT, ThreadingTarget.Default, listener)
         }
     }
 }

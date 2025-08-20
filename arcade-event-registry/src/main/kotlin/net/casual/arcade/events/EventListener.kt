@@ -5,6 +5,8 @@
 package net.casual.arcade.events
 
 import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.threading.ThreadingStrategy
+import net.casual.arcade.events.threading.ThreadingTarget
 import org.jetbrains.annotations.ApiStatus.NonExtendable
 import java.util.function.Consumer
 
@@ -35,11 +37,10 @@ public fun interface EventListener<T: Event>: Comparable<EventListener<T>> {
         get() = BuiltInEventPhases.DEFAULT
 
     /**
-     * Whether the event listener is required to be executed on
-     * the main thread.
+     * The strategy to determine what thread to run on.
      */
-    public val requiresMainThread: Boolean
-        get() = true
+    public val strategy: ThreadingStrategy
+        get() = ThreadingTarget.Default
 
     public fun invoke(event: T)
 
@@ -51,7 +52,7 @@ public fun interface EventListener<T: Event>: Comparable<EventListener<T>> {
     private class Impl<T: Event>(
         override val priority: Int,
         override val phase: String,
-        override val requiresMainThread: Boolean,
+        override val strategy: ThreadingStrategy,
         private val listener: Consumer<T>
     ): EventListener<T> {
         override fun invoke(event: T) {
@@ -72,10 +73,10 @@ public fun interface EventListener<T: Event>: Comparable<EventListener<T>> {
         public fun <T: Event> of(
             priority: Int = 1_000,
             phase: String = BuiltInEventPhases.DEFAULT,
-            requiresMainThread: Boolean = true,
+            strategy: ThreadingStrategy = ThreadingTarget.Default,
             listener: Consumer<T>
         ): EventListener<T> {
-            return Impl(priority, phase, requiresMainThread, listener)
+            return Impl(priority, phase, strategy, listener)
         }
     }
 }

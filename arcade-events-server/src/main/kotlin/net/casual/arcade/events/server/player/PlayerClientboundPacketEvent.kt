@@ -6,14 +6,14 @@ package net.casual.arcade.events.server.player
 
 import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.common.CancellableEvent
-import net.casual.arcade.events.common.MissingExecutorEvent
+import net.casual.arcade.events.threading.AsyncEvent
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
 
 public data class PlayerClientboundPacketEvent(
     override val player: ServerPlayer,
     var packet: Packet<*>
-): CancellableEvent.Default(), PlayerEvent, MissingExecutorEvent {
+): CancellableEvent.Default(), PlayerEvent, AsyncEvent {
     public companion object {
         /**
          * The phase is invoked before the packet has been sent to the player.
