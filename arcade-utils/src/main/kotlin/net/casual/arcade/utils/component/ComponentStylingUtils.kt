@@ -4,7 +4,10 @@
  */
 package net.casual.arcade.utils.component
 
+import it.unimi.dsi.fastutil.ints.IntList
 import net.casual.arcade.utils.ResourceLocation
+import net.casual.arcade.utils.color.ColorARGB
+import net.casual.arcade.utils.color.ColorOklab
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
@@ -368,4 +371,58 @@ public fun MutableComponent.font(font: ResourceLocation): MutableComponent {
  */
 public fun MutableComponent.font(namespace: String, path: String): MutableComponent {
     return this.font(ResourceLocation(namespace, path))
+}
+
+/**
+ * Creates a literal component with a given gradient.
+ *
+ * @param text The literal text.
+ * @param color1 The first color in the gradient.
+ * @param color2 The second color in the gradient.
+ * @param colors The remaining colors in the gradient.
+ * @return The [MutableComponent].
+ */
+public fun ComponentBuilderContext.literal(
+    text: String,
+    color1: Int,
+    color2: Int,
+    vararg colors: Int
+): MutableComponent {
+    return this.literal(text, IntList.of(color1, color2, *colors))
+}
+
+/**
+ * Creates a literal component with a given gradient.
+ *
+ * @param text The literal text.
+ * @param gradient The colors that form the gradient.
+ * @return The [MutableComponent].
+ */
+@Suppress("UnusedReceiverParameter")
+public fun ComponentBuilderContext.literal(text: String, gradient: IntList): MutableComponent {
+    require(gradient.size >= 2)
+
+    val component = Component.empty()
+    val colors = gradient.intStream().mapToObj(ColorOklab::from).toList()
+
+    val segments = colors.size - 1
+    for (i in text.indices) {
+        val t = i.toDouble() / (text.length - 1).coerceAtLeast(1)
+        val segment = (t * segments).toInt().coerceAtMost(segments - 1)
+        val lt = (t * segments) - segment
+
+        val c1 = colors[segment]
+        val c2 = colors[segment + 1]
+
+        val interpolated = ColorOklab(
+            l = c1.l + (c2.l - c1.l) * lt,
+            a = c1.a + (c2.a - c1.a) * lt,
+            b = c1.b + (c2.b - c1.b) * lt
+        )
+
+        val argb = ColorARGB.from(interpolated)
+        component += Component.literal(text[i].toString()).color(argb.color())
+    }
+
+    return component
 }
