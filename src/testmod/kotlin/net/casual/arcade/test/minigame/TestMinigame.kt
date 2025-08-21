@@ -8,15 +8,12 @@ import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
-import net.casual.arcade.utils.ComponentUtils.blue
-import net.casual.arcade.utils.ComponentUtils.bold
-import net.casual.arcade.utils.ComponentUtils.italicise
-import net.casual.arcade.utils.ComponentUtils.shadowless
-import net.casual.arcade.utils.ComponentUtils.white
 import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.utils.component.*
 import net.casual.arcade.utils.recipe.CraftingRecipeBuilder
 import net.casual.arcade.visuals.elements.ComponentElements
 import net.casual.arcade.visuals.elements.SidebarElements
+import net.casual.arcade.visuals.elements.UniversalElement
 import net.casual.arcade.visuals.nametag.PlayerNametag
 import net.casual.arcade.visuals.sidebar.FixedSidebar
 import net.casual.arcade.visuals.tab.PlayerListDisplay
@@ -58,11 +55,14 @@ open class TestMinigame(
         this.ui.setSidebar(sidebar)
 
         val display = PlayerListDisplay(VanillaPlayerListEntries())
-        display.setDisplay(
-            { _ -> Component.literal("Testing Minigame\n").blue()
-                .append(Component.literal("shadowless").shadowless().italicise().bold().white()) },
-            { _ -> Component.empty() }
-        )
+        val header = UniversalElement {
+            component {
+                literal("Testing Minigame").blue() + nl + wrap() +
+                    literal("shadowless").shadowless().italicize().bold()
+            }
+        }
+        val footer = ComponentElements.empty()
+        display.setDisplay(header, footer)
         this.ui.setPlayerListDisplay(display)
 
         this.ui.addNametag(PlayerNametag({ player -> player.displayName!! }))

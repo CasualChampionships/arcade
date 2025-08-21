@@ -33,7 +33,7 @@ public object ArcadeResourcePacks: ModInitializer {
         NamedResourcePackCreator.named("action_bar_font") {
             addAssetSource(path("packs/ActionBarFont"))
             for (i in 1..64) {
-                addFont(ResourceUtils.arcade("default_shifted_down_$i")) { FontUtils.createDefaultFont(i) }
+                addFont(FontUtils.shiftedDownFont(i)) { FontUtils.createDefaultFont(i) }
             }
             packDescription = Component.literal("Shifts text on the action bar")
         }
@@ -43,7 +43,7 @@ public object ArcadeResourcePacks: ModInitializer {
         NamedResourcePackCreator.named("mini_action_bar_font") {
             addAssetSource(path("packs/MiniActionBarFont"))
             for (i in 1..64) {
-                addFont(ResourceUtils.arcade("mini_shifted_down_$i")) { FontUtils.createMiniFont(i) }
+                addFont(FontUtils.miniShiftedDownFont(i)) { FontUtils.createMiniFont(i) }
             }
             packDescription = Component.literal("Shifts mini text on the action bar")
         }
@@ -91,7 +91,7 @@ public object ArcadeResourcePacks: ModInitializer {
     public val MINI_MINECRAFT_FONT_PACK: NamedResourcePackCreator by lazy {
         NamedResourcePackCreator.named("mini_minecraft") {
             addAssetSource(path("packs/MiniMinecraftFont"))
-            addFont(ComponentUtils.MINI_FONT, FontUtils::createMiniFont)
+            addFont(FontUtils.MINI_FONT, FontUtils::createMiniFont)
             packDescription = Component.literal("Mini Minecraft style font")
         }
     }

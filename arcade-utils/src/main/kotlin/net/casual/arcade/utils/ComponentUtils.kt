@@ -4,9 +4,10 @@
  */
 package net.casual.arcade.utils
 
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.casual.arcade.utils.ComponentUtils.ComponentGenerator
+import net.casual.arcade.utils.component.LiteralWidthResolver
+import net.casual.arcade.utils.component.getWidth
 import net.minecraft.ChatFormatting
 import net.minecraft.ChatFormatting.*
 import net.minecraft.network.chat.*
@@ -20,14 +21,15 @@ import java.net.URI
 import java.util.*
 import kotlin.reflect.KProperty
 
+@Suppress("DEPRECATION")
 public object ComponentUtils {
+    @Deprecated("Use Component.withSpacingFont() instead")
     public val SPACING_FONT: ResourceLocation = ResourceUtils.arcade("spacing")
+    @Deprecated("Use Component.withMiniFont() instead")
     public val MINI_FONT: ResourceLocation = ResourceUtils.arcade("mini_minecraft")
 
     private val formattingByColour = Int2ObjectOpenHashMap<ChatFormatting>()
     private val formattingToName: EnumMap<ChatFormatting, String>
-
-    private val charWidths = Int2IntOpenHashMap()
 
     init {
         for (formatting in ChatFormatting.entries) {
@@ -42,8 +44,8 @@ public object ComponentUtils {
             DARK_RED to "Red",
             DARK_PURPLE to "Purple",
             GOLD to "Orange",
-            GRAY to "Stone",
-            DARK_GRAY to "Grey",
+            GRAY to "Silver",
+            DARK_GRAY to "Gray",
             BLUE to "Blue",
             GREEN to "Lime",
             AQUA to "Aqua",
@@ -52,35 +54,6 @@ public object ComponentUtils {
             YELLOW to "Yellow",
             WHITE to "White",
         )
-
-        this.charWidths.defaultReturnValue(6)
-        this.charWidths.put(32, 4)
-        this.charWidths.put(33, 2)
-        this.charWidths.put(34, 4)
-        this.charWidths.put(39, 2)
-        this.charWidths.put(40, 4)
-        this.charWidths.put(41, 4)
-        this.charWidths.put(42, 4)
-        this.charWidths.put(44, 2)
-        this.charWidths.put(46, 2)
-        this.charWidths.put(58, 2)
-        this.charWidths.put(59, 2)
-        this.charWidths.put(60, 5)
-        this.charWidths.put(62, 5)
-        this.charWidths.put(64, 7)
-        this.charWidths.put(73, 4)
-        this.charWidths.put(91, 4)
-        this.charWidths.put(93, 4)
-        this.charWidths.put(96, 3)
-        this.charWidths.put(102, 5)
-        this.charWidths.put(105, 2)
-        this.charWidths.put(107, 5)
-        this.charWidths.put(108, 3)
-        this.charWidths.put(116, 4)
-        this.charWidths.put(123, 4)
-        this.charWidths.put(124, 2)
-        this.charWidths.put(125, 4)
-        this.charWidths.put(126, 7)
     }
 
     public fun negativeWidthOf(component: Component): MutableComponent {
@@ -101,25 +74,31 @@ public object ComponentUtils {
         return contents.key
     }
 
+    @Deprecated("Use replacement", ReplaceWith("component.getWidth()", "net.casual.arcade.utils.component.getWidth"))
     public fun widthOf(component: Component): Int {
-        var width = 0
-        component.visit({ style, content ->
-            width += this.widthOf(content)
-            if (style.isBold) {
-                width += content.length
-            }
-
-            Optional.empty<Unit>()
-        }, Style.EMPTY)
-        return width
+        return component.getWidth()
     }
 
+    @Deprecated(
+        "Use replacement",
+        ReplaceWith(
+            "LiteralWidthResolver.width(string)",
+            "net.casual.arcade.utils.component.LiteralWidthResolver"
+        )
+    )
     public fun widthOf(string: String): Int {
-        return string.sumOf(this::widthOf)
+        return LiteralWidthResolver.width(string)
     }
 
+    @Deprecated(
+        "Use replacement",
+        ReplaceWith(
+            "LiteralWidthResolver.width(char)",
+            "net.casual.arcade.utils.component.LiteralWidthResolver"
+        )
+    )
     public fun widthOf(char: Char): Int {
-        return this.charWidths.get(char.code)
+        return LiteralWidthResolver.width(char)
     }
 
     @JvmStatic
@@ -134,11 +113,20 @@ public object ComponentUtils {
         return Component.literal(this)
     }
 
+    @Deprecated(
+        "Use replacement",
+        ReplaceWith(
+            "this.isEmpty()",
+            "net.casual.arcade.utils.ComponentUtils.isEmpty",
+            "net.casual.arcade.utils.component.isEmpty"
+        )
+    )
     @JvmStatic
     public fun Component.isEmpty(): Boolean {
         return this.contents == PlainTextContents.EMPTY && this.siblings.all { it.isEmpty() }
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.appendSpaced(
         other: Component,
@@ -153,46 +141,55 @@ public object ComponentUtils {
         return this.append(space).append(other)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun Component.wrap(): MutableComponent {
         return Component.empty().append(this)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.click(event: ClickEvent): MutableComponent {
         return this.withStyle { it.withClickEvent(event) }
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.command(command: String): MutableComponent {
         return this.click(ClickEvent.RunCommand(command))
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.suggestCommand(command: String): MutableComponent {
         return this.click(ClickEvent.SuggestCommand(command))
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.link(link: String): MutableComponent {
         return this.link(URI.create(link))
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.link(link: URI): MutableComponent {
         return this.click(ClickEvent.OpenUrl(link))
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.hover(string: String): MutableComponent {
         return this.hover(Component.literal(string))
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.hover(component: Component): MutableComponent {
         return this.withStyle { it.withHoverEvent(HoverEvent.ShowText(component)) }
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.hover(entity: Entity): MutableComponent {
         return this.withStyle {
@@ -200,46 +197,55 @@ public object ComponentUtils {
         }
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.hover(item: ItemStack): MutableComponent {
         return this.withStyle { it.withHoverEvent(HoverEvent.ShowItem(item)) }
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.bold(): MutableComponent {
         return this.withStyle(BOLD)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.unbold(): MutableComponent {
         return this.withStyle { it.withBold(false) }
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.underline(): MutableComponent {
         return this.withStyle(UNDERLINE)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.noUnderline(): MutableComponent {
         return this.withStyle { it.withUnderlined(false) }
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.italicise(): MutableComponent {
         return this.withStyle(ITALIC)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.unitalicise(): MutableComponent {
         return this.withStyle { it.withItalic(false) }
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.strikethrough(): MutableComponent {
         return this.withStyle(STRIKETHROUGH)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.unstrikethrough(): MutableComponent {
         return this.withStyle { it.withStrikethrough(false) }
@@ -255,96 +261,115 @@ public object ComponentUtils {
         return this.formattingByColour[color]
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.red(): MutableComponent {
         return this.withStyle(RED)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.crimson(): MutableComponent {
         return this.withStyle(DARK_RED)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.navy(): MutableComponent {
         return this.withStyle(DARK_BLUE)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.blue(): MutableComponent {
         return this.withStyle(BLUE)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.aqua(): MutableComponent {
         return this.withStyle(AQUA)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.teal(): MutableComponent {
         return this.withStyle(DARK_AQUA)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.gold(): MutableComponent {
         return this.withStyle(GOLD)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.pink(): MutableComponent {
         return this.withStyle(LIGHT_PURPLE)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.purple(): MutableComponent {
         return this.withStyle(DARK_PURPLE)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.lime(): MutableComponent {
         return this.withStyle(GREEN)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.green(): MutableComponent {
         return this.withStyle(DARK_GREEN)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.yellow(): MutableComponent {
         return this.withStyle(YELLOW)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.white(): MutableComponent {
         return this.withStyle(WHITE)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.grey(): MutableComponent {
         return this.withStyle(GRAY)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.slate(): MutableComponent {
         return this.withStyle(DARK_GRAY)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.black(): MutableComponent {
         return this.withStyle(BLACK)
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.color(color: Int): MutableComponent {
         return this.withStyle { it.withColor(color) }
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun MutableComponent.shadow(color: Int): MutableComponent {
         return this.withStyle { it.withShadowColor(color) }
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun Iterable<Component>.join(
         separator: Component = Component.literal(", "),
@@ -354,6 +379,7 @@ public object ComponentUtils {
         return this.joinToComponent(separator, prefix, postfix) { it }
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun <T> Iterable<T>.joinToComponent(
         separator: Component = Component.literal(", "),
@@ -397,6 +423,7 @@ public object ComponentUtils {
         return copy
     }
 
+    @Deprecated("For removal")
     @JvmStatic
     public fun Component.toFormattedString(): String {
         val visitor = StringifyVisitor()
@@ -404,6 +431,7 @@ public object ComponentUtils {
         return visitor.toString()
     }
 
+    @Deprecated("For removal")
     @JvmStatic
     public fun Style.toChatFormatting(): Set<ChatFormatting> {
         if (this.isEmpty) {
@@ -438,30 +466,37 @@ public object ComponentUtils {
         return formats
     }
 
+    @Deprecated("Use replacement")
     public fun MutableComponent.withFont(font: ResourceLocation): MutableComponent {
         return this.withStyle { it.withFont(font) }
     }
 
+    @Deprecated("Use replacement")
     public fun MutableComponent.withDefaultFont(): MutableComponent {
         return this.withFont(Style.DEFAULT_FONT)
     }
 
+    @Deprecated("Use replacement")
     public fun MutableComponent.withShiftedDownFont(shift: Int): MutableComponent {
         return this.withFont(ResourceUtils.arcade("default_shifted_down_${shift}"))
     }
 
+    @Deprecated("Use replacement")
     public fun MutableComponent.withMiniShiftedDownFont(shift: Int): MutableComponent {
         return this.withFont(ResourceUtils.arcade("mini_shifted_down_${shift}"))
     }
 
+    @Deprecated("Use replacement")
     public fun MutableComponent.withSpacingFont(): MutableComponent {
         return this.withFont(SPACING_FONT)
     }
 
+    @Deprecated("Use replacement")
     public fun MutableComponent.shadowless(): MutableComponent {
         return this.shadow(0)
     }
 
+    @Deprecated("Use replacement")
     public fun MutableComponent.mini(): MutableComponent {
         return this.withFont(MINI_FONT)
     }
