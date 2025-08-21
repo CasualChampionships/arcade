@@ -5,7 +5,7 @@
 package net.casual.arcade.visuals.elements.component
 
 import net.casual.arcade.utils.ColorUtils
-import net.casual.arcade.utils.ComponentUtils.color
+import net.casual.arcade.utils.component.color
 import net.casual.arcade.utils.calculateMSPT
 import net.casual.arcade.visuals.elements.UniversalElement
 import net.minecraft.network.chat.Component

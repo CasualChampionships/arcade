@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.utils.chat
 
-import net.casual.arcade.utils.ComponentUtils.isEmpty
+import net.casual.arcade.utils.component.isEmpty
 import net.minecraft.network.chat.CommonComponents
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent

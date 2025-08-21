@@ -6,7 +6,7 @@ package net.casual.arcade.datagen.utils
 
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.resources.lang.LanguageEntry
-import net.casual.arcade.utils.ComponentUtils.getTranslationKeyOf
+import net.casual.arcade.utils.component.getTranslationKey
 import net.minecraft.client.gui.Font
 import net.minecraft.network.chat.Component
 import net.minecraft.util.Mth
@@ -17,7 +17,7 @@ public object SpacingUtils {
         font: Font,
         foreground: Component,
         background: Component,
-        key: String = getTranslationKeyOf(foreground)
+        key: String = foreground.getTranslationKey()!!
     ): Pair<LanguageEntry, LanguageEntry> {
         val (first, second) = getCentreSpacingUnicode(font, foreground, background)
         return LanguageEntry("${key}.space.1", first) to LanguageEntry("${key}.space.2", second)
@@ -26,7 +26,7 @@ public object SpacingUtils {
     public fun getTranslatableNegativeWidth(
         font: Font,
         component: Component,
-        key: String = getTranslationKeyOf(component)
+        key: String = component.getTranslationKey()!!
     ): LanguageEntry {
         val unicode = getNegativeWidthUnicode(font, component)
         return LanguageEntry("${key}.negativeWidth", unicode)
@@ -36,7 +36,7 @@ public object SpacingUtils {
         font: Font,
         first: Component,
         second: Component,
-        key: String = "${getTranslationKeyOf(first)}.difference.${getTranslationKeyOf(second).substringAfterLast('.')}"
+        key: String = "${first.getTranslationKey()!!}.difference.${second.getTranslationKey()!!.substringAfterLast('.')}"
     ): LanguageEntry {
         val unicode = getWidthDifferenceUnicode(font, first, second)
         return LanguageEntry(key, unicode)

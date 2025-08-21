@@ -7,8 +7,8 @@ package net.casual.arcade.visuals.tab
 import com.google.common.collect.Iterables
 import net.casual.arcade.resources.font.heads.PlayerHeadComponents
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
-import net.casual.arcade.utils.ComponentUtils.color
-import net.casual.arcade.utils.ComponentUtils.italicise
+import net.casual.arcade.utils.component.color
+import net.casual.arcade.utils.component.italicize
 import net.casual.arcade.utils.TeamUtils.color
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
@@ -83,7 +83,7 @@ public open class TeamListEntries: PlayerListEntries {
         val head = PlayerHeadComponents.getHeadOrDefault(username)
         val name = when {
             player == null -> Component.literal(username).color(0x808080)
-            player.isSpectator -> Component.literal(username).color(team).italicise()
+            player.isSpectator -> Component.literal(username).color(team).italicize()
             else -> Component.literal(username).color(team)
         }
         if (player != null) {

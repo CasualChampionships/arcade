@@ -15,8 +15,8 @@ import com.mojang.brigadier.tree.LiteralCommandNode
 import net.casual.arcade.commands.hidden.HiddenCommand
 import net.casual.arcade.commands.hidden.HiddenCommandManager
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
-import net.casual.arcade.utils.ComponentUtils.click
 import net.casual.arcade.utils.TimeUtils.Minutes
+import net.casual.arcade.utils.component.click
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation

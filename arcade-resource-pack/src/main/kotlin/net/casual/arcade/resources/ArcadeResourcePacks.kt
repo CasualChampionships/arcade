@@ -15,8 +15,6 @@ import net.casual.arcade.resources.utils.ResourcePackUtils.addCustomOutlineColor
 import net.casual.arcade.resources.utils.ResourcePackUtils.addFont
 import net.casual.arcade.resources.utils.ResourcePackUtils.addLangsFromData
 import net.casual.arcade.resources.utils.ShaderUtils
-import net.casual.arcade.utils.ComponentUtils
-import net.casual.arcade.utils.ResourceUtils
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.network.chat.Component

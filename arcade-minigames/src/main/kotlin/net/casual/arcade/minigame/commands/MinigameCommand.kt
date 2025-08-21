@@ -22,11 +22,11 @@ import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.minigame.utils.RecipeModifier
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.task.Task
-import net.casual.arcade.utils.ComponentUtils.green
-import net.casual.arcade.utils.ComponentUtils.join
-import net.casual.arcade.utils.ComponentUtils.suggestCommand
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.chat.ChatFormatter
+import net.casual.arcade.utils.component.green
+import net.casual.arcade.utils.component.join
+import net.casual.arcade.utils.component.suggestCommand
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.casual.arcade.utils.time.MinecraftTimeUnit
 import net.minecraft.commands.CommandBuildContext
