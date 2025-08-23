@@ -39,9 +39,12 @@ public class CheckpointedPathFollower(
      * individually within the [tolerance], without skipping any.
      *
      * @param position The updated position.
+     * @return Whether the next checkpoint changed.
      */
-    public fun update(position: Vec3) {
+    public fun update(position: Vec3): Boolean {
+        val previous = this.index
         this.index = this.path.calculateNextCheckpointIndex(position, this.index, this.tolerance)
+        return previous != this.index
     }
 
     /**
@@ -51,8 +54,11 @@ public class CheckpointedPathFollower(
      * checkpoint(s).
      *
      * @param position The updated position.
+     * @return Whether the next checkpoint changed.
      */
-    public fun refresh(position: Vec3) {
+    public fun refresh(position: Vec3): Boolean {
+        val previous = this.index
         this.index = this.path.calculateNextCheckpointIndex(position, this.tolerance)
+        return previous != this.index
     }
 }

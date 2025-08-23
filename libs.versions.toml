@@ -8,7 +8,7 @@ polymer             = "0.13.7+1.21.8"
 sgui                = "1.10.1+1.21.7"
 server-translations = "2.5.1+1.21.5"
 inject              = "3.1.4"
-debug-tools-api     = "1.0.10"
+debug-tools-api     = "1.0.15"
 replay-studio       = "3fdc6c42e3"
 
 # Compatability
