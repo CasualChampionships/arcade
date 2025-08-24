@@ -15,7 +15,8 @@ internal class VoicechatPayload private constructor(
     private val writer: (FriendlyByteBuf) -> Unit
 ): CustomPacketPayload, RecordablePayload {
     override fun shouldRecord(recorder: ReplayRecorder): Boolean {
-        return recorder.settings.recordVoiceChat && recorder.format == ReplayFormat.ReplayMod
+        // We do this check earlier, but might as well do it here for sanity
+        return recorder.settings.recordVoiceChat
     }
 
     override fun record(buf: FriendlyByteBuf) {
