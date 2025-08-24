@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.utils.math.path
 
+import net.casual.arcade.utils.math.path.CheckpointedPath.ProximityChecker
 import net.minecraft.world.phys.Vec3
 
 /**
@@ -15,15 +16,16 @@ import net.minecraft.world.phys.Vec3
  *
  * @param position The starting position.
  * @param path The path to follow.
- * @param tolerance The tolerance to be within each checkpoint.
+ * @param checker The checker to determine whether a
+ * position is within a checkpoint.
  * @see CheckpointedPath
  */
 public class CheckpointedPathFollower(
     position: Vec3,
     private val path: CheckpointedPath,
-    private val tolerance: Double = 1.0
+    private val checker: ProximityChecker = ProximityChecker.within(1.0)
 ) {
-    private var index = this.path.calculateNextCheckpointIndex(position, this.tolerance)
+    private var index = this.path.calculateNextCheckpointIndex(position, this.checker)
 
     /**
      * The target position.
@@ -36,14 +38,14 @@ public class CheckpointedPathFollower(
      * and updates the [index] accordingly.
      *
      * Calling this assumes that you want to visit each checkpoint
-     * individually within the [tolerance], without skipping any.
+     * individually within the [checker], without skipping any.
      *
      * @param position The updated position.
      * @return Whether the next checkpoint changed.
      */
     public fun update(position: Vec3): Boolean {
         val previous = this.index
-        this.index = this.path.calculateNextCheckpointIndex(position, this.index, this.tolerance)
+        this.index = this.path.calculateNextCheckpointIndex(position, this.index, this.checker)
         return previous != this.index
     }
 
@@ -58,7 +60,7 @@ public class CheckpointedPathFollower(
      */
     public fun refresh(position: Vec3): Boolean {
         val previous = this.index
-        this.index = this.path.calculateNextCheckpointIndex(position, this.tolerance)
+        this.index = this.path.calculateNextCheckpointIndex(position, this.checker)
         return previous != this.index
     }
 }

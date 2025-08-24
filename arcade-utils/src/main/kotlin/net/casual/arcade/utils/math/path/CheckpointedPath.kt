@@ -7,6 +7,8 @@ package net.casual.arcade.utils.math.path
 import com.google.common.collect.ImmutableList
 import com.mojang.serialization.Codec
 import net.casual.arcade.utils.MathUtils.distanceToSegment
+import net.casual.arcade.utils.MathUtils.horizontallyCloserThan
+import net.casual.arcade.utils.MathUtils.verticallyCloserThan
 import net.minecraft.world.phys.Vec3
 
 /**
@@ -85,13 +87,13 @@ public class CheckpointedPath private constructor(
      * calculated.
      *
      * @param position The starting position.
-     * @param tolerance How close the [position] must be to
-     * the checkpoint to count as visiting it.
+     * @param checker Checker to check whether the [position]
+     * is within the checkpoint.
      * @return The next checkpoint position.
      * @see calculateNextCheckpointIndex
      */
-    public fun calculateNextCheckpoint(position: Vec3, tolerance: Double): Vec3 {
-        return this.getCheckpoint(this.calculateNextCheckpointIndex(position, tolerance))
+    public fun calculateNextCheckpoint(position: Vec3, checker: ProximityChecker): Vec3 {
+        return this.getCheckpoint(this.calculateNextCheckpointIndex(position, checker))
     }
 
     /**
@@ -103,18 +105,18 @@ public class CheckpointedPath private constructor(
      * on the path.
      *
      * @param position The starting position.
-     * @param tolerance How close the [position] must be to
-     * the checkpoint to count as visiting it.
+     * @param checker Checker to check whether the [position]
+     * is within the checkpoint.
      * @return The next checkpoint index.
      * @see calculateNextCheckpoint
      */
-    public fun calculateNextCheckpointIndex(position: Vec3, tolerance: Double): Int {
+    public fun calculateNextCheckpointIndex(position: Vec3, checker: ProximityChecker): Int {
         var closestTargetIndex = 0
         var closestDistance = position.distanceTo(this.checkpoints[closestTargetIndex])
         for (i in 0 until this.checkpoints.lastIndex) {
             val start = this.checkpoints[i]
             val end = this.checkpoints[i + 1]
-            if (start.closerThan(position, tolerance)) {
+            if (checker.isWithinCheckpoint(position, start)) {
                 // If we're at the start of a segment, we immediately know
                 // that we must target this next segment
                 return i + 1
@@ -139,13 +141,13 @@ public class CheckpointedPath private constructor(
      *
      * @param position The starting position.
      * @param currentIndex The current targeted checkpoint index.
-     * @param tolerance How close the [position] must be to
-     * the checkpoint to count as visiting it.
+     * @param checker Checker to check whether the [position]
+     * s within the checkpoint.
      * @return The next checkpoint index.
      */
-    public fun calculateNextCheckpointIndex(position: Vec3, currentIndex: Int, tolerance: Double): Int {
+    public fun calculateNextCheckpointIndex(position: Vec3, currentIndex: Int, checker: ProximityChecker): Int {
         val checkpoint = this.getCheckpoint(currentIndex)
-        if (checkpoint.closerThan(position, tolerance) && currentIndex != this.checkpoints.lastIndex) {
+        if (checker.isWithinCheckpoint(position, checkpoint) && currentIndex != this.checkpoints.lastIndex) {
             return currentIndex + 1
         }
         return currentIndex
@@ -153,6 +155,23 @@ public class CheckpointedPath private constructor(
 
     override fun iterator(): Iterator<Vec3> {
         return this.checkpoints.iterator()
+    }
+
+    public fun interface ProximityChecker {
+        public fun isWithinCheckpoint(position: Vec3, checkpoint: Vec3): Boolean
+
+        public companion object {
+            public fun within(distance: Double): ProximityChecker {
+                return ProximityChecker { position, checkpoint -> position.closerThan(checkpoint, distance) }
+            }
+
+            public fun within(vertical: Double, horizontal: Double): ProximityChecker {
+                return ProximityChecker { position, checkpoint ->
+                    position.verticallyCloserThan(checkpoint, vertical) &&
+                        position.horizontallyCloserThan(checkpoint, horizontal)
+                }
+            }
+        }
     }
 
     public companion object {
