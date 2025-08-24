@@ -15,7 +15,9 @@ import net.casual.arcade.commands.arguments.EnumArgument
 import net.casual.arcade.replay.io.ReplayFormat
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.recorder.chunk.ChunkArea
+import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorders
+import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorders
 import net.casual.arcade.replay.util.FileUtils.streamDirectoryEntriesOrEmpty
 import net.casual.arcade.replay.viewer.ReplayViewers
@@ -24,6 +26,7 @@ import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.EntityArgument
+import net.minecraft.server.level.ServerPlayer
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import kotlin.io.path.name
@@ -88,10 +91,18 @@ public open class BasicReplayCommand(
         }
     }
 
+    protected open fun createPlayerRecorder(player: ServerPlayer, path: Path, format: ReplayFormat): ReplayPlayerRecorder {
+        return ReplayPlayerRecorders.create(player, path, format)
+    }
+
+    protected open fun createChunkRecorder(area: ChunkArea, path: Path, format: ReplayFormat): ReplayChunkRecorder {
+        return ReplayChunkRecorders.create(area, path, format)
+    }
+
     private fun startPlayerReplay(context: CommandContext<CommandSourceStack>): Int {
         val player = EntityArgument.getPlayer(context, "player")
         val format = EnumArgument.getEnumeration<ReplayFormat>(context, "format")
-        val recorder = ReplayPlayerRecorders.create(player, this.path, format)
+        val recorder = this.createPlayerRecorder(player, this.path, format)
         try {
             recorder.start()
         } catch (e: Exception) {
@@ -109,7 +120,7 @@ public open class BasicReplayCommand(
         val format = EnumArgument.getEnumeration<ReplayFormat>(context, "format")
 
         val area = ChunkArea.of(level, chunkX, chunkZ, radius)
-        val recorder = ReplayChunkRecorders.create(area, this.path, format)
+        val recorder = this.createChunkRecorder(area, this.path, format)
         try {
             recorder.start()
         } catch (e: Exception) {
