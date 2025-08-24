@@ -122,7 +122,7 @@ public object LevelPersistenceTracker {
         GlobalEventHandler.Server.register<ServerSaveEvent> { (server) ->
             this.writeLevelKeysTo(this.getPersistenceDataPath(server), this.persistent.toList())
         }
-        GlobalEventHandler.Server.register<ServerStartEvent> { (server) ->
+        GlobalEventHandler.Server.register<ServerStartEvent>(priority = -100_000) { (server) ->
             this.cleanupTemporaryLevels(server)
         }
         GlobalEventHandler.Server.register<ServerTickEvent> { (server) ->
