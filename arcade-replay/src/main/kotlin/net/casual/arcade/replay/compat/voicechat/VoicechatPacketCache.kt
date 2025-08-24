@@ -121,24 +121,9 @@ public class VoicechatPacketCache {
 
     private object ReplayModEncoder: Encoder {
         /**
-         * Mod id of the replay voicechat mod, see [here](https://github.com/henkelmax/replay-voice-chat/blob/master/src/main/java/de/maxhenkel/replayvoicechat/ReplayVoicechat.java).
-         */
-        const val MOD_ID: String = "replayvoicechat"
-
-        /**
          * Packet version for the voicechat mod, see [here](https://github.com/henkelmax/replay-voice-chat/blob/master/src/main/java/de/maxhenkel/replayvoicechat/net/AbstractSoundPacket.java#L10).
          */
         const val VERSION: Int = 1
-
-        val LOCATIONAL_TYPE = CustomPacketPayload.Type<VoicechatPayload>(
-            ResourceLocation.fromNamespaceAndPath(MOD_ID, "locational_sound")
-        )
-        val ENTITY_TYPE = CustomPacketPayload.Type<VoicechatPayload>(
-            ResourceLocation.fromNamespaceAndPath(MOD_ID, "entity_sound")
-        )
-        val STATIC_TYPE = CustomPacketPayload.Type<VoicechatPayload>(
-            ResourceLocation.fromNamespaceAndPath(MOD_ID, "static_sound")
-        )
 
         override fun locational(
             decoder: OpusDecoder,
@@ -148,7 +133,7 @@ public class VoicechatPacketCache {
             position: Position,
             distance: Float
         ): Packet<ClientCommonPacketListener> {
-            return this.create(LOCATIONAL_TYPE, sender, data, decoder, converter) {
+            return this.create(VoicechatPayload.REPLAY_MOD_LOCATIONAL_TYPE, sender, data, decoder, converter) {
                 writeDouble(position.x)
                 writeDouble(position.y)
                 writeDouble(position.z)
@@ -164,7 +149,7 @@ public class VoicechatPacketCache {
             whispering: Boolean,
             distance: Float
         ): Packet<ClientCommonPacketListener> {
-            return this.create(ENTITY_TYPE, sender, data, decoder, converter) {
+            return this.create(VoicechatPayload.REPLAY_MOD_ENTITY_TYPE, sender, data, decoder, converter) {
                 writeBoolean(whispering)
                 writeFloat(distance)
             }
@@ -176,7 +161,7 @@ public class VoicechatPacketCache {
             sender: UUID,
             data: ByteArray
         ): Packet<ClientCommonPacketListener> {
-            return this.create(STATIC_TYPE, sender, data, decoder, converter)
+            return this.create(VoicechatPayload.REPLAY_MOD_STATIC_TYPE, sender, data, decoder, converter)
         }
 
         private fun create(
@@ -201,15 +186,9 @@ public class VoicechatPacketCache {
     }
 
     private object FlashbackEncoder: Encoder {
-        const val MOD_ID: String = "flashback"
-
         const val STATIC_SOUND = 0
         const val LOCATIONAL_SOUND = 1
         const val ENTITY_SOUND = 2
-
-        val TYPE = CustomPacketPayload.Type<VoicechatPayload>(
-            ResourceLocation.fromNamespaceAndPath(MOD_ID, "voice_chat_sound")
-        )
 
         override fun locational(
             decoder: OpusDecoder,
@@ -256,7 +235,7 @@ public class VoicechatPacketCache {
             additional: FriendlyByteBuf.() -> Unit = { }
         ): ClientboundCustomPayloadPacket {
             val raw = decoder.decode(encoded)
-            val payload = VoicechatPayload.of(TYPE) { buf ->
+            val payload = VoicechatPayload.of(VoicechatPayload.FLASHBACK_TYPE) { buf ->
                 buf.writeUUID(sender)
                 buf.writeVarInt(raw.size)
                 for (sample in raw) {

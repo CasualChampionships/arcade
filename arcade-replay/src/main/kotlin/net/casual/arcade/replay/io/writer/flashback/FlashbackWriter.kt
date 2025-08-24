@@ -9,6 +9,7 @@ import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
+import net.casual.arcade.replay.compat.voicechat.VoicechatPayload
 import net.casual.arcade.replay.io.writer.ReplayWriter
 import net.casual.arcade.replay.io.writer.ReplayWriter.Companion.close
 import net.casual.arcade.replay.recorder.ReplayRecorder
@@ -24,6 +25,7 @@ import net.minecraft.network.ProtocolInfo
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.network.codec.ByteBufCodecs
 import net.minecraft.network.protocol.Packet
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
 import net.minecraft.network.protocol.common.ClientboundDisconnectPacket
 import net.minecraft.network.protocol.configuration.ClientboundFinishConfigurationPacket
 import net.minecraft.network.protocol.game.*
@@ -118,9 +120,14 @@ public class FlashbackWriter(
             else -> return CompletableFuture.completedFuture(null)
         }
 
+
         val replacement = when (packet) {
             is ClientboundLevelChunkWithLightPacket -> return this.writeCachedChunk(packet, protocol)
             is ClientboundMoveEntityPacket -> return this.writeMovement(packet)
+            is ClientboundCustomPayloadPacket -> when (val payload = packet.payload) {
+                is VoicechatPayload -> return this.writeVoicechat(payload)
+                else -> packet
+            }
             else -> packet
         }
 
@@ -290,6 +297,14 @@ public class FlashbackWriter(
             this.movement.put(level.dimension(), EntityMovement(id, position, rotation, headRot, onGround))
         }
         return CompletableFuture.completedFuture(EntityMovement.size())
+    }
+
+    private fun writeVoicechat(payload: VoicechatPayload): CompletableFuture<Int?> {
+        return this.writeActionAsync(FlashbackAction.VoiceChat) { buf ->
+            val start = buf.writerIndex()
+            payload.record(buf)
+            buf.writerIndex() - start
+        }
     }
 
     public companion object {
