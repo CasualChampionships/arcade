@@ -41,12 +41,35 @@ public class CheckpointedPath private constructor(
     }
 
     /**
+     * Checks whether an index is the last checkpoint index.
+     *
+     * @param index The index to check.
+     * @return Whether it's the last checkpoint.
+     */
+    public fun isLastCheckpoint(index: Int): Boolean {
+        return index == this.checkpoints.lastIndex
+    }
+
+    /**
      * Gets the checkpoint of a specific index.
      *
      * @throws IndexOutOfBoundsException Thrown when the index is out of bounds.
+     * @param index The index of the checkpoint.
+     * @return The checkpoint position.
      */
     public fun getCheckpoint(index: Int): Vec3 {
         return this.checkpoints[index]
+    }
+
+    /**
+     * Gets a checkpoint of a specific index, `null`
+     * if out of bounds.
+     *
+     * @param index The index of the checkpoint.
+     * @return The checkpoint position, `null` if out of bounds.
+     */
+    public fun getCheckpointOrNull(index: Int): Vec3? {
+        return this.checkpoints.getOrNull(index)
     }
 
     /**
@@ -147,7 +170,7 @@ public class CheckpointedPath private constructor(
      */
     public fun calculateNextCheckpointIndex(position: Vec3, currentIndex: Int, checker: ProximityChecker): Int {
         val checkpoint = this.getCheckpoint(currentIndex)
-        if (checker.isWithinCheckpoint(position, checkpoint) && currentIndex != this.checkpoints.lastIndex) {
+        if (checker.isWithinCheckpoint(position, checkpoint) && !this.isLastCheckpoint(currentIndex)) {
             return currentIndex + 1
         }
         return currentIndex

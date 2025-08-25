@@ -22,10 +22,10 @@ import net.minecraft.world.phys.Vec3
  */
 public class CheckpointedPathFollower(
     position: Vec3,
-    private val path: CheckpointedPath,
+    public val path: CheckpointedPath,
     private val checker: ProximityChecker = ProximityChecker.within(1.0)
 ) {
-    private var index = this.path.calculateNextCheckpointIndex(position, this.checker)
+    public var index: Int = this.path.calculateNextCheckpointIndex(position, this.checker)
 
     /**
      * The target position.
@@ -43,10 +43,10 @@ public class CheckpointedPathFollower(
      * @param position The updated position.
      * @return Whether the next checkpoint changed.
      */
-    public fun update(position: Vec3): Boolean {
+    public fun update(position: Vec3): Status {
         val previous = this.index
         this.index = this.path.calculateNextCheckpointIndex(position, this.index, this.checker)
-        return previous != this.index
+        return this.getStatus(previous, position)
     }
 
     /**
@@ -58,9 +58,23 @@ public class CheckpointedPathFollower(
      * @param position The updated position.
      * @return Whether the next checkpoint changed.
      */
-    public fun refresh(position: Vec3): Boolean {
+    public fun refresh(position: Vec3): Status {
         val previous = this.index
         this.index = this.path.calculateNextCheckpointIndex(position, this.checker)
-        return previous != this.index
+        return this.getStatus(previous, position)
+    }
+
+    private fun getStatus(previous: Int, position: Vec3): Status {
+        if (previous != this.index) {
+            return Status.Updated
+        }
+        if (this.path.isLastCheckpoint(this.index) && this.checker.isWithinCheckpoint(position, this.target)) {
+            return Status.Finished
+        }
+        return Status.Noop
+    }
+
+    public enum class Status {
+        Noop, Updated, Finished
     }
 }
