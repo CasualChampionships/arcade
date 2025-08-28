@@ -127,6 +127,15 @@ public class ReplayPlayerRecorder internal constructor(
     }
 
     /**
+     * Whether the current recorder can pause recording.
+     *
+     * @return Whether it can be paused.
+     */
+    override fun canPauseRecording(): Boolean {
+        return this.format == ReplayFormat.Flashback
+    }
+
+    /**
      * This updates the [ReplayPlayerRecorders] manager.
      *
      * @param future The future that will complete once the replay has closed.

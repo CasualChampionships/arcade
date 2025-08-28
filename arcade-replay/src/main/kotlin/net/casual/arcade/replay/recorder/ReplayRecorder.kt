@@ -25,6 +25,7 @@ import net.casual.arcade.replay.util.FileUtils
 import net.casual.arcade.replay.util.ReplayMarker
 import net.casual.arcade.replay.util.ReplayOptimizerUtils
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
+import net.casual.arcade.replay.recorder.settings.SimpleRecorderSettings.Companion.asSimple
 import net.casual.arcade.utils.ArcadeUtils
 import net.minecraft.network.ConnectionProtocol
 import net.minecraft.network.ProtocolInfo
@@ -50,8 +51,10 @@ import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
 import kotlin.collections.ArrayList
 import kotlin.io.path.pathString
+import kotlin.time.Clock
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 /**
  * This is the abstract class representing a replay recorder.
@@ -64,6 +67,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * @see ReplayPlayerRecorder
  * @see ReplayChunkRecorder
  */
+@OptIn(ExperimentalTime::class)
 public abstract class ReplayRecorder(
     public val server: MinecraftServer,
     public val profile: GameProfile,
@@ -74,10 +78,14 @@ public abstract class ReplayRecorder(
     private val packets by lazy { Object2ObjectOpenHashMap<String, DebugPacketData>() }
     private val metaProviders = ArrayList<Consumer<JsonObject>>()
 
-    private var start: Long = 0
-
     private var protocol: ProtocolInfo<*> = LoginProtocols.CLIENTBOUND
-    private var lastPacket = Duration.ZERO
+
+    private lateinit var start: Instant
+
+    private var accumulatedPausedTime = Duration.ZERO
+    private var lastPausedTimestamp: Instant? = null
+
+    private var currentRecordingLength = Duration.ZERO
 
     internal var started = false
         private set
@@ -85,7 +93,7 @@ public abstract class ReplayRecorder(
     private var ignore = false
 
     @Suppress("LeakingThis")
-    protected val writer: ReplayWriter = format.writer(path).invoke(this)
+    protected val writer: ReplayWriter = this.format.writer(this.path).invoke(this)
 
     /**
      * The directory at which all the temporary replay
@@ -96,6 +104,18 @@ public abstract class ReplayRecorder(
         get() = this.writer.path
 
     /**
+     * The number of markers the replay has recorded.
+     */
+    public val markers: Int
+        get() = this.writer.markers
+
+    /**
+     * The [UUID] of the player the recording is of.
+     */
+    public val recordingPlayerUUID: UUID
+        get() = this.profile.id
+
+    /**
      * Whether the replay recorder has stopped and
      * is no longer recording any packets.
      */
@@ -103,22 +123,10 @@ public abstract class ReplayRecorder(
         get() = this.writer.closed
 
     /**
-     * The number of markers the replay has recorded.
-     */
-    public val markers: Int
-        get() = this.writer.markers
-
-    /**
      * Whether the recorder is currently paused
      */
-    public open val paused: Boolean
-        get() = false
-
-    /**
-     * The [UUID] of the player the recording is of.
-     */
-    public val recordingPlayerUUID: UUID
-        get() = this.profile.id
+    public val paused: Boolean
+        get() = this.lastPausedTimestamp != null
 
     /**
      * The level that the replay recording is currently in.
@@ -171,16 +179,13 @@ public abstract class ReplayRecorder(
             }
             return
         }
-        if (this.writer.prePacketRecord(outgoing)) {
-            return
-        }
-        if (!this.canRecordPacket(outgoing)) {
+        if (!this.writer.canRecordPacket(outgoing) || !this.canRecordPacket(outgoing)) {
             return
         }
 
         val protocol = this.protocol
-        val timestamp = this.getTimestamp()
-        this.lastPacket = timestamp
+        val timestamp = this.getRecordingLength()
+        this.currentRecordingLength = timestamp
 
         this.writer.writePacket(outgoing, protocol, timestamp, !safe).thenApply { bytes ->
             if (this.settings.debug && bytes != null) {
@@ -189,7 +194,6 @@ public abstract class ReplayRecorder(
             }
         }
 
-        this.writer.postPacketRecord(outgoing)
         this.checkRecordingStatus()
     }
 
@@ -210,14 +214,38 @@ public abstract class ReplayRecorder(
     }
 
     /**
-     * Fires when a replay has started/restarted.
+     * Tries to pause the recording for this recorder.
      *
-     * @param mode Whether the recording is being started or restarted.
+     * This method may not be successful based on whether
+     * the recorder is permitted to pause recording, see
+     * [canPauseRecording].
+     *
+     * @return Whether the recorder successfully paused.
      */
-    @Internal
-    @JvmOverloads
-    public fun onStart(mode: StartingMode = StartingMode.Start) {
-        GlobalEventHandler.Server.broadcast(ReplayRecorderStartEvent(this, mode))
+    public fun pause(): Boolean {
+        if (!this.paused && this.canPauseRecording()) {
+            this.lastPausedTimestamp = Clock.System.now()
+            this.writer.pause()
+            return true
+        }
+        return false
+    }
+
+    /**
+     * Tries to resume recording for this recorder.
+     *
+     * This method will only succeed if the recorder is paused.
+     *
+     * @return Whether the recorder successfully resumed.
+     */
+    public fun resume(): Boolean {
+        if (this.paused) {
+            this.accumulatedPausedTime += this.getCurrentPauseLength(Clock.System.now())
+            this.lastPausedTimestamp = null
+            this.writer.resume()
+            return true
+        }
+        return false
     }
 
     /**
@@ -241,7 +269,8 @@ public abstract class ReplayRecorder(
         }
 
         // We only save if the player has actually logged in...
-        val future = this.writer.close(this.lastPacket, save && this.protocol.id() == ConnectionProtocol.PLAY)
+        val shouldSave = save && this.protocol.id() == ConnectionProtocol.PLAY
+        val future = this.writer.close(this.currentRecordingLength, shouldSave)
         this.onClosing(future)
 
         GlobalEventHandler.Server.broadcast(ReplayRecorderStopEvent(this, future))
@@ -261,7 +290,7 @@ public abstract class ReplayRecorder(
         name: String? = null,
         position: Vec3 = this.position,
         rotation: Vec2 = this.rotation,
-        timestamp: Duration = this.getTimestamp(),
+        timestamp: Duration = this.getRecordingLength(),
         color: Int = 0xFF0000
     ) {
         this.addMarker(ReplayMarker(name, position, rotation, timestamp, color))
@@ -277,15 +306,26 @@ public abstract class ReplayRecorder(
     }
 
     /**
-     * This returns the total amount of time (in milliseconds) that
-     * has elapsed since the recording has started, this does not
-     * account for any pauses.
+     * This gets the current recording length of the replay recording.
+     * This is the length of the replay recording, which deducts
+     * any time that was spent paused.
      *
-     * @return The total amount of time (in milliseconds) that has
-     *     elapsed since the start of the recording.
+     * @return The duration of the recording.
      */
-    public fun getTotalRecordingTime(): Duration {
-        return (System.currentTimeMillis() - this.start).milliseconds
+    public fun getRecordingLength(): Duration {
+        val now = Clock.System.now()
+        val total = this.getTotalRecordingLength(now)
+        return total - this.accumulatedPausedTime - this.getCurrentPauseLength(now)
+    }
+
+    /**
+     * This gets the total time this recording has been recording for
+     * in real-time, this does not account for pauses.
+     *
+     * @return The total real-time duration of the recording.
+     */
+    public fun getTotalRecordingLength(): Duration {
+        return this.getTotalRecordingLength(Clock.System.now())
     }
 
     /**
@@ -310,26 +350,16 @@ public abstract class ReplayRecorder(
             isUseIdentityHashCode = false
         })
 
-        val time = this.getTotalRecordingTime().formatHHMMSS()
+        val length = this.getRecordingLength().formatHHMMSS()
+        val totalLength = this.getTotalRecordingLength().formatHHMMSS()
         builder.append("name", this.getName())
-        builder.append("time", time)
+        builder.append("recording_length", length)
+        builder.append("total_recording_length", totalLength)
 
         this.appendToStatus(builder)
 
         builder.append("raw_size", FileUtils.formatSize(this.getRawRecordingSize()))
         return builder.toString()
-    }
-
-    /**
-     * This gets the current timestamp (in milliseconds) of the replay recording.
-     *
-     * By default, this is the same as [getTotalRecordingTime] however this
-     * may be overridden to account for pauses in the replay.
-     *
-     * @return The timestamp of the recording (in milliseconds).
-     */
-    public open fun getTimestamp(): Duration {
-        return this.getTotalRecordingTime()
     }
 
     /**
@@ -351,6 +381,7 @@ public abstract class ReplayRecorder(
         meta.addProperty("name", this.getName())
         meta.addProperty("location", this.location.pathString)
         meta.addProperty("epoch_time_ms", System.currentTimeMillis())
+        meta.addProperty("accumulated_paused_time", this.accumulatedPausedTime.formatHHMMSS())
 
         val mods = JsonObject()
         for ((mod, version) in ArcadeReplay.getLoadedMods()) {
@@ -358,7 +389,7 @@ public abstract class ReplayRecorder(
         }
         meta.add("mods", mods)
 
-        meta.add("settings", this.settings.asJson())
+        meta.add("settings", this.settings.asSimple().asJson())
 
         for (provider in this.metaProviders) {
             provider.accept(meta)
@@ -419,6 +450,13 @@ public abstract class ReplayRecorder(
     protected abstract fun onClosing(future: CompletableFuture<Long>)
 
     /**
+     * Whether the current recorder can pause recording.
+     *
+     * @return Whether it can be paused.
+     */
+    protected abstract fun canPauseRecording(): Boolean
+
+    /**
      * Determines whether a given packet is able to be recorded.
      *
      * @param packet The packet that is going to be recorded.
@@ -454,6 +492,17 @@ public abstract class ReplayRecorder(
         }
     }
 
+    /**
+     * Fires when a replay has started/restarted.
+     *
+     * @param mode Whether the recording is being started or restarted.
+     */
+    @Internal
+    @JvmOverloads
+    public fun onStart(mode: StartingMode = StartingMode.Start) {
+        GlobalEventHandler.Server.broadcast(ReplayRecorderStartEvent(this, mode))
+    }
+
     @Internal
     public abstract fun takeSnapshot()
 
@@ -485,7 +534,7 @@ public abstract class ReplayRecorder(
     public fun afterLogin() {
         if (!this.started) {
             this.started = true
-            this.start = System.currentTimeMillis()
+            this.start = Clock.System.now()
         }
 
         this.protocol = LoginProtocols.CLIENTBOUND
@@ -505,25 +554,34 @@ public abstract class ReplayRecorder(
         this.protocol = GameProtocols.CLIENTBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()))
     }
 
+    private fun getCurrentPauseLength(now: Instant = Clock.System.now()): Duration {
+        val timestamp = this.lastPausedTimestamp
+        return if (timestamp != null) now - timestamp else Duration.ZERO
+    }
+
+    private fun getTotalRecordingLength(now: Instant = Clock.System.now()): Duration {
+        return if (this.started) now - this.start else Duration.ZERO
+    }
+
     private fun checkRecordingStatus() {
-        val maxDuration = this.settings.maxRecordingDuration
+        val maxDuration = this.settings.limits.maxDuration
         if (maxDuration.isPositive()) {
-            if (this.getTimestamp() > maxDuration) {
+            if (this.getRecordingLength() > maxDuration) {
                 this.stop(true)
                 GlobalEventHandler.Server.broadcast(ReplayRecorderDurationLimitEvent(this))
-                if (this.settings.restartAfterMaxRecordingDuration) {
+                if (this.settings.limits.restartAfterMaxDuration) {
                     this.restart()
                 }
                 return
             }
         }
 
-        val maxFileSize = this.settings.maxRawRecordingFileSize
+        val maxFileSize = this.settings.limits.maxRawSize
         if (maxFileSize.bytes > 0) {
             if (this.getRawRecordingSize() > maxFileSize.bytes) {
                 this.stop(true)
                 GlobalEventHandler.Server.broadcast(ReplayRecorderFileSizeLimitEvent(this))
-                if (this.settings.restartAfterMaxRawRecordingFileSize) {
+                if (this.settings.limits.restartAfterMaxRawSize) {
                     this.restart()
                 }
                 return

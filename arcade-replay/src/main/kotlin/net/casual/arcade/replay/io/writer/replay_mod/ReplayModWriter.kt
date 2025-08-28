@@ -14,7 +14,6 @@ import com.replaymod.replaystudio.protocol.PacketTypeRegistry
 import com.replaymod.replaystudio.replay.ReplayMetaData
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.EncoderException
-import kotlinx.serialization.ExperimentalSerializationApi
 import net.casual.arcade.replay.io.ReplayModIO
 import net.casual.arcade.replay.io.writer.ReplayWriter
 import net.casual.arcade.replay.io.writer.ReplayWriter.Companion.close
@@ -59,21 +58,11 @@ public class ReplayModWriter(
     override val closed: Boolean
         get() = this.executor.isShutdown
 
-    override fun prePacketRecord(packet: Packet<*>): Boolean {
-        when (packet) {
-            is ClientboundAddEntityPacket -> {
-                if (packet.type == EntityType.PLAYER) {
-                    val uuids = this.meta.players.toMutableSet()
-                    uuids.add(packet.uuid.toString())
-                    this.meta.players = uuids.toTypedArray()
-                    this.saveMeta()
-                }
-            }
-            is ClientboundResourcePackPushPacket -> {
-                return this.downloadAndRecordResourcePack(packet)
-            }
+    override fun canRecordPacket(packet: Packet<*>): Boolean {
+        return when (packet) {
+            is ClientboundResourcePackPushPacket -> this.downloadAndRecordResourcePack(packet)
+            else -> true
         }
-        return false
     }
 
     override fun writePacket(
@@ -82,13 +71,18 @@ public class ReplayModWriter(
         timestamp: Duration,
         offThread: Boolean
     ): CompletableFuture<Int?> {
+        if (packet is ClientboundAddEntityPacket) {
+            if (packet.type == EntityType.PLAYER) {
+                val uuids = this.meta.players.toMutableSet()
+                uuids.add(packet.uuid.toString())
+                this.meta.players = uuids.toTypedArray()
+                this.saveMeta()
+            }
+        }
+
         return CompletableFuture.supplyAsync({
             this.writePacketSync(packet, protocol, timestamp, offThread)
         }, this.executor)
-    }
-
-    override fun postPacketRecord(packet: Packet<*>) {
-
     }
 
     override fun writeMarker(marker: ReplayMarker) {
@@ -194,7 +188,7 @@ public class ReplayModWriter(
 
     private fun downloadAndRecordResourcePack(packet: ClientboundResourcePackPushPacket): Boolean {
         if (!this.recorder.settings.includeResourcePacks || packet.url.startsWith("replay://")) {
-            return false
+            return true
         }
         @Suppress("DEPRECATION")
         val pathHash = Hashing.sha1().hashString(packet.url, StandardCharsets.UTF_8).toString()
@@ -224,7 +218,7 @@ public class ReplayModWriter(
             packet.required,
             packet.prompt
         ))
-        return true
+        return false
     }
 
     private fun writeResourcePack(bytes: ByteArray, expectedHash: String, id: Int): Boolean {

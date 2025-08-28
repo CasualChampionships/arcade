@@ -60,6 +60,16 @@ public open class BasicReplayCommand(
                     }
                 }
             }
+            literal("pause") {
+                literal("all") {
+                    executes(::pauseAllReplays)
+                }
+            }
+            literal("resume") {
+                literal("all") {
+                    executes(::resumeAllReplays)
+                }
+            }
             literal("stop") {
                 literal("player") {
                     argument("player", EntityArgument.player()) {
@@ -128,6 +138,18 @@ public open class BasicReplayCommand(
             return context.source.fail("Failed to start replay")
         }
         return context.source.success("Successfully started recorder ${recorder.getName()}")
+    }
+
+    private fun pauseAllReplays(context: CommandContext<CommandSourceStack>): Int {
+        ReplayPlayerRecorders.recorders().forEach(ReplayRecorder::pause)
+        ReplayChunkRecorders.recorders().forEach(ReplayRecorder::pause)
+        return context.source.success("Successfully paused all recorders")
+    }
+
+    private fun resumeAllReplays(context: CommandContext<CommandSourceStack>): Int {
+        ReplayPlayerRecorders.recorders().forEach(ReplayRecorder::resume)
+        ReplayChunkRecorders.recorders().forEach(ReplayRecorder::resume)
+        return context.source.success("Successfully resumed all recorders")
     }
 
     private fun stopPlayerReplay(context: CommandContext<CommandSourceStack>): Int {

@@ -96,7 +96,7 @@ public class FlashbackChunkedWriter(
         }
     }
 
-    public fun endChunk(tick: Int) {
+    public fun endChunk(tick: Int, forceSnapshot: Boolean) {
         val name = "c${this.chunk++}.flashback"
 
         val copy = ByteArray(this.buffer.writerIndex())
@@ -105,7 +105,7 @@ public class FlashbackChunkedWriter(
         val chunk = this.directory.resolve(name)
         chunk.writeBytes(copy)
 
-        this.meta = this.meta.completeChunk(tick, name)
+        this.meta = this.meta.completeChunk(tick, name, forceSnapshot)
         val meta = this.directory.resolve(FlashbackIO.METADATA)
         if (meta.exists()) {
             meta.moveTo(meta.resolveSibling(FlashbackIO.METADATA_OLD), true)

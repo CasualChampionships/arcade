@@ -104,17 +104,17 @@ public object ReplayOptimizerUtils {
 
     public fun shouldIgnorePacket(recorder: ReplayRecorder, packet: Packet<*>): Boolean {
         val isOnMainThread = recorder.server.isSameThread
-        if (recorder.settings.optimizeEntityPackets) {
-            if (isOnMainThread && optimiseEntity(recorder, packet)) {
+        if (recorder.settings.optimizes.entityPackets) {
+            if (isOnMainThread && this.optimiseEntity(recorder, packet)) {
                 return true
             }
         }
 
-        if (recorder.settings.ignoreCustomPayloadPackets && packet is ClientboundCustomPayloadPacket) {
+        if (recorder.settings.ignores.customPayloadPackets && packet is ClientboundCustomPayloadPacket) {
             return true
         }
 
-        if (recorder.settings.ignoreLightPackets && packet is ClientboundLightUpdatePacket) {
+        if (recorder.settings.ignores.lightPackets && packet is ClientboundLightUpdatePacket) {
             return true
         }
 
@@ -125,10 +125,10 @@ public object ReplayOptimizerUtils {
         }
 
         val type = packet::class.java
-        if (recorder.settings.ignoreSoundPackets && SOUNDS.contains(type)) {
+        if (recorder.settings.ignores.soundPackets && SOUNDS.contains(type)) {
             return true
         }
-        if (recorder.settings.ignoreChatPackets && CHAT.contains(type)) {
+        if (recorder.settings.ignores.chatPackets && CHAT.contains(type)) {
             if (!(packet is ClientboundSystemChatPacket && packet.overlay)) {
                 return true
             }
@@ -139,12 +139,12 @@ public object ReplayOptimizerUtils {
             recorder.record(replacement)
             return true
         }
-        if (recorder.settings.ignoreActionBarPackets) {
+        if (recorder.settings.ignores.actionBarPackets) {
             if (packet is ClientboundSystemChatPacket && packet.overlay || packet is ClientboundSetActionBarTextPacket) {
                 return true
             }
         }
-        if (recorder.settings.ignoreScoreboardPackets && SCOREBOARD.contains(type)) {
+        if (recorder.settings.ignores.scoreboardPackets && SCOREBOARD.contains(type)) {
             return true
         }
         return IGNORED.contains(type)

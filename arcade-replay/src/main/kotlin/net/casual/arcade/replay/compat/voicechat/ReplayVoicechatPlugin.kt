@@ -189,9 +189,9 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
         val player = recorder.getPlayerOrThrow()
         if (server != null && server.hasSecret(player.uuid)) {
             // I mean, do we really need to specify the secret? Might as well...
-            val secret = server.getSecret(player.uuid)
-            val packet = SecretPacket(player, secret, server.port, Voicechat.SERVER_CONFIG)
-            recorder.record(packet.toClientboundPacket())
+            // val secret = server.getSecret(player.uuid)
+            // val packet = SecretPacket(player, secret, server.port, Voicechat.SERVER_CONFIG)
+            // recorder.record(packet.toClientboundPacket())
         }
     }
 
@@ -206,8 +206,8 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
         if (server != null) {
             val player = recorder.getDummyPlayer()
             // The chunks aren't sending any voice data so doesn't need a secret
-            val packet = SecretPacket(player, Util.NIL_UUID, server.port, Voicechat.SERVER_CONFIG)
-            recorder.record(packet.toClientboundPacket())
+            // val packet = SecretPacket(player, Util.NIL_UUID, server.port, Voicechat.SERVER_CONFIG)
+            // recorder.record(packet.toClientboundPacket())
         }
     }
 

@@ -7,6 +7,6 @@ package net.casual.arcade.replay.events.chunk
 import net.casual.arcade.events.common.Event
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder
 
-public data class ReplayChunkRecorderPauseEvent(
+public data class ReplayChunkRecorderUnloadedPauseEvent(
     val recorder: ReplayChunkRecorder
 ): Event

@@ -37,6 +37,7 @@ import net.minecraft.world.level.Level
 import org.apache.commons.io.file.PathUtils
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.io.path.name
 import kotlin.io.path.writer
 import kotlin.time.Duration
@@ -53,10 +54,12 @@ public class FlashbackWriter(
     private val chunks = Object2IntOpenHashMap<ChunkPacketIdentity>()
     private val recent = Object2ObjectOpenHashMap<ResourceKey<Level>, Long2IntOpenHashMap>()
 
+    private val forcePlaySnapshot = AtomicBoolean(false)
+
     private var dimension: ResourceKey<Level>? = null
 
+    private var ticksSinceLastSnapshot = 0
     private var ticks = 1
-    private var last = 0
 
     override var markers: Int = 0
 
@@ -88,25 +91,23 @@ public class FlashbackWriter(
 
         this.writeActionAsync(FlashbackAction.NextTick)
         this.ticks++
-        val ticks = this.ticks
-        val chunkTicks = ticks - this.last
-        if (chunkTicks < FlashbackIO.CHUNK_LENGTH && (previous == null || previous == this.dimension)) {
-            return
-        }
-        this.last = ticks
 
-        this.executor.execute {
-            this.writer.endChunk(ticks)
-            this.writer.startSnapshot()
-        }
-        this.recorder.takeSnapshot()
-        this.executor.execute {
-            this.writer.endSnapshot()
+        val ticks = this.ticks
+        val chunkTicks = ticks - this.ticksSinceLastSnapshot
+        if (chunkTicks >= FlashbackIO.CHUNK_LENGTH || (previous != null && previous != this.dimension)) {
+            this.startNewReplayChunk()
         }
     }
 
-    override fun prePacketRecord(packet: Packet<*>): Boolean {
-        return IGNORED_PACKETS.contains(packet::class.java)
+    override fun resume() {
+        this.startNewReplayChunk()
+        this.executor.execute {
+            this.forcePlaySnapshot.set(true)
+        }
+    }
+
+    override fun canRecordPacket(packet: Packet<*>): Boolean {
+        return !this.recorder.paused && !IGNORED_PACKETS.contains(packet::class.java)
     }
 
     override fun writePacket(
@@ -120,7 +121,6 @@ public class FlashbackWriter(
             ConnectionProtocol.CONFIGURATION -> FlashbackAction.ConfigurationPacket
             else -> return CompletableFuture.completedFuture(null)
         }
-
 
         val replacement = when (packet) {
             is ClientboundLevelChunkWithLightPacket -> return this.writeCachedChunk(packet, protocol)
@@ -137,10 +137,6 @@ public class FlashbackWriter(
             ReplayWriter.encodePacket(replacement, protocol, buf)
             buf.writerIndex() - start
         }
-    }
-
-    override fun postPacketRecord(packet: Packet<*>) {
-
     }
 
     override fun writePlayer(player: ServerPlayer, packets: Collection<Packet<*>>) {
@@ -202,7 +198,7 @@ public class FlashbackWriter(
     override fun close(duration: Duration, save: Boolean): CompletableFuture<Long> {
         val future = CompletableFuture.supplyAsync({
             fun write() {
-                this.writer.endChunk(this.ticks)
+                this.writer.endChunk(this.ticks, this.shouldForcePlaySnapshot())
                 this.writeCustomMeta()
                 FileUtils.zip(this.path, this.getOutputPath())
             }
@@ -210,6 +206,24 @@ public class FlashbackWriter(
         }, this.executor)
         this.executor.shutdown()
         return future
+    }
+
+    private fun startNewReplayChunk() {
+        val ticks = this.ticks
+        this.ticksSinceLastSnapshot = ticks
+
+        this.executor.execute {
+            this.writer.endChunk(ticks, this.shouldForcePlaySnapshot())
+            this.writer.startSnapshot()
+        }
+        this.recorder.takeSnapshot()
+        this.executor.execute {
+            this.writer.endSnapshot()
+        }
+    }
+
+    private fun shouldForcePlaySnapshot(): Boolean {
+        return this.forcePlaySnapshot.getAndSet(false)
     }
 
     private fun writeCachedChunk(

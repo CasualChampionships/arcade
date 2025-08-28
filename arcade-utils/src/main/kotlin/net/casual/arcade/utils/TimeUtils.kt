@@ -4,12 +4,14 @@
  */
 package net.casual.arcade.utils
 
+import com.mojang.serialization.DataResult
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.utils.time.MinecraftTimeUnit
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
+import kotlin.time.Duration
 
 public object TimeUtils {
     public inline val Int.Ticks: MinecraftTimeDuration
@@ -65,5 +67,13 @@ public object TimeUtils {
         }
         val minutes = milliseconds / 60_000
         return "%d:%02d.%02d".format(minutes, secs, millis)
+    }
+
+    public fun parseToDuration(string: String): DataResult<Duration> {
+        return try {
+            DataResult.success(Duration.parse(string))
+        } catch (e: IllegalArgumentException) {
+            DataResult.error { e.message }
+        }
     }
 }
