@@ -142,8 +142,7 @@ public class RejoinedReplayPlayer private constructor(
                 }
             }
             if (hidden.isNotEmpty()) {
-                listener.send(
-                    ReplayViewerUtils.createClientboundPlayerInfoUpdatePacket(
+                listener.send(ReplayViewerUtils.createClientboundPlayerInfoUpdatePacket(
                     EnumSet.of(Action.UPDATE_LISTED),
                     hidden
                 ))

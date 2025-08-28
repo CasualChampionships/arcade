@@ -11,6 +11,7 @@ import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerStopEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.replay.io.ReplayFormat
+import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
 import net.casual.arcade.replay.recorder.settings.SimpleRecorderSettings
 import net.minecraft.network.protocol.Packet
@@ -188,9 +189,7 @@ public object ReplayChunkRecorders {
             }
         }
         GlobalEventHandler.Server.register<ServerTickEvent> {
-            for (recorder in this.recorders.values) {
-                recorder.tick()
-            }
+            this.recorders.values.forEach(ReplayRecorder::tick)
         }
     }
 

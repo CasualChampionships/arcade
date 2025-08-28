@@ -507,7 +507,7 @@ public abstract class ReplayRecorder(
     public abstract fun takeSnapshot()
 
     @Internal
-    public fun tick() {
+    public open fun tick() {
         this.writer.tick()
     }
 

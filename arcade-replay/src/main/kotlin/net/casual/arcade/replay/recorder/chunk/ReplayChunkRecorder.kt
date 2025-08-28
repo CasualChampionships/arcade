@@ -6,6 +6,7 @@ package net.casual.arcade.replay.recorder.chunk
 
 import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.replay.compat.polymer.PolymerPacketPatcher
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderUnloadedPauseEvent
@@ -19,6 +20,7 @@ import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder
 import net.casual.arcade.replay.recorder.rejoin.RejoinedReplayPlayer
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
+import net.casual.arcade.replay.recorder.settings.RecorderSettings.ChunkRecordingStrategy
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.ClientboundAddEntityPacket
 import net.casual.arcade.utils.impl.WrappedTrackedEntity
@@ -44,8 +46,6 @@ import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
 import java.util.stream.Collectors
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * An implementation of [ReplayRecorder] for recording chunk areas.
@@ -67,6 +67,8 @@ public class ReplayChunkRecorder internal constructor(
         ReplayChunkGamePacketListener(this, player)
         player
     }
+
+    private val trackedPlayers = ReferenceOpenHashSet<ServerPlayer>()
 
     private val loadedChunks = LongOpenHashSet()
     private val sentChunks = LongOpenHashSet()
@@ -161,7 +163,7 @@ public class ReplayChunkRecorder internal constructor(
      * @return Whether it can be paused.
      */
     override fun canPauseRecording(): Boolean {
-        return this.format == ReplayFormat.Flashback || (this.loadedChunks.isEmpty() && this.settings.pauseWhenChunksUnloaded)
+        return this.format == ReplayFormat.Flashback
     }
 
     /**
@@ -328,6 +330,19 @@ public class ReplayChunkRecorder internal constructor(
     }
 
     @Internal
+    override fun tick() {
+        super.tick()
+
+        if (this.settings.chunkRecordingStrategy == ChunkRecordingStrategy.ChunkContainsNonSpectatorPlayer) {
+            if (this.trackedPlayers.all(ServerPlayer::isSpectator)) {
+                this.tryPauseAndBroadcast()
+            } else {
+                this.tryResumeAndBroadcast()
+            }
+        }
+    }
+
+    @Internal
     public fun addRecordable(recordable: ReplayChunkRecordable) {
         this.recordables.add(recordable)
     }
@@ -342,6 +357,18 @@ public class ReplayChunkRecorder internal constructor(
         if (entity is WitherBoss) {
             val recordable = ((entity as WitherBossAccessor).bossEvent as ReplayChunkRecordable)
             recordable.addRecorder(this)
+        } else if (entity is ServerPlayer) {
+            this.trackedPlayers.add(entity)
+
+            val resume = when (this.settings.chunkRecordingStrategy) {
+                ChunkRecordingStrategy.ChunkContainsPlayer -> true
+                ChunkRecordingStrategy.ChunkContainsNonSpectatorPlayer -> !entity.isSpectator
+                else -> false
+            }
+
+            if (resume) {
+                this.tryResumeAndBroadcast()
+            }
         }
     }
 
@@ -350,6 +377,18 @@ public class ReplayChunkRecorder internal constructor(
         if (entity is WitherBoss) {
             val recordable = ((entity as WitherBossAccessor).bossEvent as ReplayChunkRecordable)
             recordable.removeRecorder(this)
+        } else if (entity is ServerPlayer) {
+            this.trackedPlayers.remove(entity)
+
+            val pause = when (this.settings.chunkRecordingStrategy) {
+                ChunkRecordingStrategy.ChunkContainsPlayer -> this.trackedPlayers.isEmpty()
+                ChunkRecordingStrategy.ChunkContainsNonSpectatorPlayer -> this.trackedPlayers.all { it.isSpectator }
+                else -> false
+            }
+
+            if (pause) {
+                this.tryPauseAndBroadcast()
+            }
         }
     }
 
@@ -361,8 +400,8 @@ public class ReplayChunkRecorder internal constructor(
         }
 
         this.loadedChunks.add(chunk.pos.toLong())
-        if (this.resume()) {
-            GlobalEventHandler.Server.broadcast(ReplayChunkRecorderLoadedResumeEvent(this))
+        if (this.settings.chunkRecordingStrategy == ChunkRecordingStrategy.ChunkLoaded) {
+            this.tryResumeAndBroadcast()
         }
 
         if (!this.sentChunks.contains(chunk.pos.toLong())) {
@@ -386,8 +425,22 @@ public class ReplayChunkRecorder internal constructor(
 
         this.loadedChunks.remove(pos.toLong())
 
-        if (this.loadedChunks.isEmpty() && this.pause()) {
+        if (this.loadedChunks.isEmpty()) {
+            if (this.settings.chunkRecordingStrategy == ChunkRecordingStrategy.ChunkLoaded) {
+                this.tryPauseAndBroadcast()
+            }
+        }
+    }
+
+    private fun tryPauseAndBroadcast() {
+        if (this.pause()) {
             GlobalEventHandler.Server.broadcast(ReplayChunkRecorderUnloadedPauseEvent(this))
+        }
+    }
+
+    private fun tryResumeAndBroadcast() {
+        if (this.resume()) {
+            GlobalEventHandler.Server.broadcast(ReplayChunkRecorderLoadedResumeEvent(this))
         }
     }
 
