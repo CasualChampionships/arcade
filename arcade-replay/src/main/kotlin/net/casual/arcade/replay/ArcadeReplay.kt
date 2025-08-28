@@ -6,6 +6,7 @@ package net.casual.arcade.replay
 
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorders
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorders
+import net.casual.arcade.replay.viewer.ReplayViewer
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.metadata.ModOrigin
@@ -18,6 +19,8 @@ public object ArcadeReplay: ModInitializer {
     override fun onInitialize() {
         ReplayChunkRecorders.registerEvents()
         ReplayPlayerRecorders.registerEvents()
+
+        ReplayViewer.registerEvents()
     }
 
     internal fun getLoadedMods(): Map<String, String> {

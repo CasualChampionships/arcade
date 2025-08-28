@@ -12,8 +12,6 @@ import net.minecraft.network.protocol.game.ServerboundChatCommandSignedPacket
 
 public object ReplayViewerPackets {
     private val ALLOWED_SERVERBOUND: Set<Class<out Packet<*>>> = setOf(
-        ServerboundChatCommandPacket::class.java,
-        ServerboundChatCommandSignedPacket::class.java,
         ServerboundKeepAlivePacket::class.java
     )
     private val ALLOWED_CLIENTBOUND: Set<Class<out Packet<*>>> = setOf(
