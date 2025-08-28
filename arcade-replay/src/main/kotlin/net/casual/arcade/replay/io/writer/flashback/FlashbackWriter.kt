@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.replay.compat.voicechat.VoicechatPayload
+import net.casual.arcade.replay.io.FlashbackIO
 import net.casual.arcade.replay.io.writer.ReplayWriter
 import net.casual.arcade.replay.io.writer.ReplayWriter.Companion.close
 import net.casual.arcade.replay.recorder.ReplayRecorder
@@ -89,7 +90,7 @@ public class FlashbackWriter(
         this.ticks++
         val ticks = this.ticks
         val chunkTicks = ticks - this.last
-        if (chunkTicks < net.casual.arcade.replay.io.FlashbackIO.CHUNK_LENGTH && (previous == null || previous == this.dimension)) {
+        if (chunkTicks < FlashbackIO.CHUNK_LENGTH && (previous == null || previous == this.dimension)) {
             return
         }
         this.last = ticks
@@ -222,7 +223,7 @@ public class FlashbackWriter(
             var size = -buf.writerIndex()
             if (index == -1) {
                 index = this.chunks.size
-                val fileIndex = net.casual.arcade.replay.io.FlashbackIO.getChunkCacheFileIndex(index)
+                val fileIndex = FlashbackIO.getChunkCacheFileIndex(index)
                 this.writer.writeLevelChunk(fileIndex) { chunkBuf ->
                     val start = chunkBuf.writerIndex()
                     ReplayWriter.encodePacket(packet, protocol, chunkBuf)
