@@ -77,7 +77,7 @@ public class ReplayViewer internal constructor(
     private var teleported = false
 
     @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
-    private val coroutineContext = newSingleThreadContext("replay-viewer")
+    private val coroutineContext: ExecutorCoroutineDispatcher = newSingleThreadContext("replay-viewer")
     private val coroutineScope = CoroutineScope(this.coroutineContext + Job())
 
     private var tickSpeed = 20.0F
