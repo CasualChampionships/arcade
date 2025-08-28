@@ -40,7 +40,7 @@ public enum class ReplayFormat(
 
     public fun warn(consumer: (String) -> Unit) {
         if (this.experimental) {
-            consumer.invoke("$this support is currently experimental: you may encounter issues with your recordings, including issues that may cause recordings to be corrupt, you have been warned!")
+            consumer.invoke("${this.name} support is currently experimental: you may encounter issues with your recordings, including issues that may cause recordings to be corrupt, you have been warned!")
             consumer.invoke("If you do encounter any issues please submit an issue report to https://github.com/senseiwells/ServerReplay/issues")
         }
         if (!this.stable) {
