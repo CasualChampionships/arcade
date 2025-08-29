@@ -22,6 +22,7 @@ public data class SimpleRecorderSettings(
     override val limits: FileLimits = FileLimits.DEFAULT,
     override val ignores: IgnorePackets = IgnorePackets.DEFAULT,
     override val optimizes: OptimizePackets = OptimizePackets.DEFAULT,
+    override val recordHotbar: Boolean = false,
     override val recordVoiceChat: Boolean = false,
 ): RecorderSettings {
     public fun asJson(): JsonElement {
@@ -43,6 +44,7 @@ public data class SimpleRecorderSettings(
                 FileLimits.MAP_CODEC.orElse(FileLimits.DEFAULT).forGetter(RecorderSettings::limits),
                 IgnorePackets.MAP_CODEC.fieldOf("ignored_packets").orElse(IgnorePackets.DEFAULT).forGetter(RecorderSettings::ignores),
                 OptimizePackets.MAP_CODEC.fieldOf("optimized_packets").orElse(OptimizePackets.DEFAULT).forGetter(RecorderSettings::optimizes),
+                Codec.BOOL.encodedOptionalFieldOf("record_hotbar", false).forGetter(RecorderSettings::recordHotbar),
                 Codec.BOOL.encodedOptionalFieldOf("record_voice_chat", false).forGetter(RecorderSettings::recordVoiceChat)
             ).apply(instance, ::SimpleRecorderSettings)
         }
@@ -62,6 +64,7 @@ public data class SimpleRecorderSettings(
                 this.limits,
                 this.ignores,
                 this.optimizes,
+                this.recordHotbar,
                 this.recordVoiceChat
             )
         }

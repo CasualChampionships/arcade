@@ -13,7 +13,7 @@ import kotlin.io.path.createDirectories
 object ReplayCommand: BasicReplayCommand(ArcadeUtils.path.resolve("replays").createDirectories()) {
     override fun createPlayerRecorder(player: ServerPlayer, path: Path, format: ReplayFormat): ReplayPlayerRecorder {
         return ReplayPlayerRecorders.create(
-            player, path, format, SimpleRecorderSettings.DEFAULT.copy(recordVoiceChat = true)
+            player, path, format, SimpleRecorderSettings.DEFAULT.copy(recordVoiceChat = true, recordHotbar = true)
         )
     }
 }

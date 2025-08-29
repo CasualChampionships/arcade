@@ -104,6 +104,11 @@ public interface RecorderSettings {
     public val optimizes: OptimizePackets
 
     /**
+     * Whether to record the player hotbar.
+     */
+    public val recordHotbar: Boolean
+
+    /**
      * Whether to record voice chat, with simple voice chat, or not.
      */
     public val recordVoiceChat: Boolean
