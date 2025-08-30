@@ -6,7 +6,7 @@ package net.casual.arcade.dimensions.level.vanilla
 
 import com.mojang.serialization.Codec
 import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
-import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
+import net.casual.arcade.utils.serialization.codec.OrderedRecordCodecBuilder
 import net.minecraft.resources.ResourceKey
 import net.minecraft.util.StringRepresentable
 import net.minecraft.world.level.Level

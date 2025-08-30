@@ -6,8 +6,8 @@ package net.casual.arcade.utils.math.location
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
-import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
 import net.casual.arcade.utils.math.location.Location.Companion.location
+import net.casual.arcade.utils.serialization.codec.OrderedRecordCodecBuilder
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
