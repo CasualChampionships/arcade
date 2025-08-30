@@ -4,18 +4,35 @@
  */
 package net.casual.arcade.utils
 
+import io.netty.buffer.ByteBuf
 import net.casual.arcade.util.mixins.ClientboundPlayerInfoUpdatePacketAccessor
 import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.network.protocol.Packet
-import net.minecraft.network.protocol.game.ClientGamePacketListener
-import net.minecraft.network.protocol.game.ClientboundBundlePacket
-import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
+import net.minecraft.network.protocol.game.*
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket.Action
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket.Entry
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.Vec3
 import java.util.*
+
+public fun ClientboundAddEntityPacket(entity: Entity): ClientboundAddEntityPacket {
+    return ClientboundAddEntityPacket(
+        entity.id,
+        entity.uuid,
+        entity.x,
+        entity.y,
+        entity.z,
+        entity.xRot,
+        entity.yRot,
+        entity.type,
+        0,
+        entity.deltaMovement,
+        entity.yHeadRot.toDouble()
+    )
+}
 
 public fun ClientboundPlayerInfoUpdatePacket(
     actions: EnumSet<Action>,
@@ -62,4 +79,18 @@ public inline fun ClientboundBundlePacket.modify(
         }
     }
     return ClientboundBundlePacket(updated)
+}
+
+public fun Packet<*>.getDebugName(): String {
+    return if (this is ClientboundCustomPayloadPacket) {
+        "CustomPayload(${this.payload.type().id})"
+    } else {
+        this.type().id.toString()
+    }
+}
+
+public fun ByteBuf.toByteArray(): ByteArray {
+    val bytes = ByteArray(this.readableBytes())
+    this.readBytes(bytes)
+    return bytes
 }

@@ -4,9 +4,5 @@
  */
 package net.casual.arcade.events.server
 
-import net.casual.arcade.events.common.Event
-import net.minecraft.server.MinecraftServer
-
-public data class ServerStoppingEvent(
-    val server: MinecraftServer
-): Event
+@Deprecated("You should use ServerStopEvent instead", ReplaceWith("ServerStopEvent"))
+public typealias ServerStoppingEvent = ServerStopEvent

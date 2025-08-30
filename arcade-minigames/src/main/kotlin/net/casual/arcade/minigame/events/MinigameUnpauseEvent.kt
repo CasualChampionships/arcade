@@ -6,6 +6,6 @@ package net.casual.arcade.minigame.events
 
 import net.casual.arcade.minigame.Minigame
 
-public class MinigameUnpauseEvent(
+public data class MinigameUnpauseEvent(
     override val minigame: Minigame
-) : MinigameEvent
+): MinigameEvent

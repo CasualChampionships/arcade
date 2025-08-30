@@ -19,12 +19,6 @@
         "adapter": "kotlin",
         "value": "net.casual.arcade.minigame.Minigames"
       }
-    ],
-    "server_replay": [
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.minigame.compat.ArcadeReplayPlugin"
-      }
     ]
   },
   "mixins": [

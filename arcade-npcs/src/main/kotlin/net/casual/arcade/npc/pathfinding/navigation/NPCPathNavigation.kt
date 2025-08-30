@@ -232,13 +232,14 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
 
             if (!this.isDone()) {
                 val path = this.path!!
-                val next = if (this.player.isSprinting && path.nextNodeIndex + 1 < path.nodeCount) {
-                    path.getEntityPosAtNode(this.player, path.nextNodeIndex + 1)
+                val index = if (this.player.isSprinting && path.nextNodeIndex + 1 < path.nodeCount) {
+                    path.nextNodeIndex + 1
                 } else {
-                    path.getNextEntityPos(this.player)
+                    path.nextNodeIndex
                 }
+                val next = path.getEntityPosAtNode(this.player, index)
                 val modified = next.with(Direction.Axis.Y, this.getGroundY(next))
-                this.player.moveControl.setTarget(modified, this.speedModifier)
+                this.setMoveTarget(modified, path.getNode(index).type)
             }
         }
     }
@@ -290,6 +291,10 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
         return false
     }
 
+    protected open fun setMoveTarget(next: Vec3, type: PathType) {
+        this.player.moveControl.setTarget(next, this.speedModifier)
+    }
+
     protected abstract fun createPathfinder(maxVisitedNodes: Int): NPCPathfinder
 
     protected abstract fun getTempMobPos(): Vec3
@@ -313,12 +318,7 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
         // We're on the last node
         if (path.nextNodeIndex == path.nodeCount - 1) {
             val nextNodePos = path.nextNodePos
-            val d = abs(this.player.x - (nextNodePos.x + 0.5))
-            val e = abs(this.player.y - nextNodePos.y.toDouble())
-            val f = abs(this.player.z - (nextNodePos.z + 0.5))
-            val withinThreshold = d < this.maxDistanceToWaypoint
-                && f < this.maxDistanceToWaypoint && e < 1.0
-            if (withinThreshold) {
+            if (this.hasReachedNode(nextNodePos)) {
                 path.advance()
             }
         } else if (this.canCutCorner(path.nextNode.type) && this.shouldTargetNextNodeInDirection(tempPos)) {
@@ -326,6 +326,14 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
         }
 
         this.doStuckDetection(tempPos)
+    }
+
+    protected open fun hasReachedNode(pos: BlockPos): Boolean {
+        val d = abs(this.player.x - (pos.x + 0.5))
+        val e = abs(this.player.y - pos.y.toDouble())
+        val f = abs(this.player.z - (pos.z + 0.5))
+        return d < this.maxDistanceToWaypoint
+            && f < this.maxDistanceToWaypoint && e < 1.0
     }
 
     protected open fun getGroundY(vec: Vec3): Double {

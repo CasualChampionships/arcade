@@ -8,7 +8,7 @@ import com.mojang.serialization.Codec
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
-import net.casual.arcade.extensions.event.PlayerExtensionEvent.Companion.getExtension
+import net.casual.arcade.extensions.utils.getExtension
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.StringRepresentable
 import net.minecraft.world.level.GameType

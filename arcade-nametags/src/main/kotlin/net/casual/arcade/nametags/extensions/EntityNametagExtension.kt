@@ -16,12 +16,13 @@ import net.casual.arcade.extensions.EntityExtension
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.TransferableEntityExtension
 import net.casual.arcade.extensions.event.EntityExtensionEvent
-import net.casual.arcade.extensions.event.EntityExtensionEvent.Companion.getExtension
+import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.nametags.ArcadeNametags
 import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.virtual.NametagElement
 import net.casual.arcade.nametags.virtual.NametagElementHolder
 import net.casual.arcade.utils.asClientGamePacket
+import net.casual.arcade.utils.impl.DelayedInvokers
 import net.casual.arcade.utils.modify
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
@@ -32,18 +33,22 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.Pose
 
 public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
+    private val holder = ArcadeNametags.createNametagElementHolder(entity)
     private val attachment: EntityAttachment?
 
     init {
-        val holder = ArcadeNametags.createNametagElementHolder(entity)
-        if (holder != null) {
-            this.attachment = EntityAttachment.ofTicking(holder, entity)
+        if (this.holder != null) {
+            this.attachment = EntityAttachment.ofTicking(this.holder, entity)
         } else {
             this.attachment = null
         }
     }
 
-    override fun transfer(entity: Entity, reason: TransferableEntityExtension.TransferReason): Extension {
+    override fun transfer(
+        entity: Entity,
+        reason: TransferableEntityExtension.TransferReason,
+        delayed: DelayedInvokers
+    ): Extension {
         val old = this.attachment ?: return EntityNametagExtension(entity)
         val elements = (old.holder() as? NametagElementHolder)?.getNametagElements() ?: listOf()
         val extension = EntityNametagExtension(entity)
@@ -57,8 +62,8 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
         return extension
     }
 
-    private fun getHolder(): NametagElementHolder? {
-        return this.attachment?.holder() as? NametagElementHolder
+    public fun getHolder(): NametagElementHolder? {
+        return this.holder
     }
 
     public companion object {
@@ -86,7 +91,7 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
             this.getExtension<EntityNametagExtension>().getHolder()?.removeAll()
         }
 
-        internal  fun registerEvents() {
+        internal fun registerEvents() {
             GlobalEventHandler.Server.register<EntityExtensionEvent> { event ->
                 event.addExtension(::EntityNametagExtension)
             }

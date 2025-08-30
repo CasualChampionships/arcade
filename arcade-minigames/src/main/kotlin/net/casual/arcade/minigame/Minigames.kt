@@ -11,14 +11,12 @@ import com.mojang.serialization.JsonOps
 import net.casual.arcade.commands.register
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
-import net.casual.arcade.events.server.ServerLoadedEvent
-import net.casual.arcade.events.server.ServerRegisterCommandEvent
-import net.casual.arcade.events.server.ServerSaveEvent
-import net.casual.arcade.events.server.ServerStoppingEvent
+import net.casual.arcade.events.server.*
 import net.casual.arcade.minigame.commands.ExtendedGameModeCommand
 import net.casual.arcade.minigame.commands.MinigameCommand
 import net.casual.arcade.minigame.commands.PauseCommand
 import net.casual.arcade.minigame.commands.TeamCommandModifier
+import net.casual.arcade.minigame.compat.MinigamesReplayCompat
 import net.casual.arcade.minigame.exception.MinigameCreationException
 import net.casual.arcade.minigame.exception.MinigameSerializationException
 import net.casual.arcade.minigame.extensions.PlayerMovementRestrictionExtension
@@ -133,7 +131,7 @@ public object Minigames: ModInitializer {
     public fun write(path: Path, minigame: Minigame) {
         val json = JsonObject()
         val factory = minigame.internalFactory() ?:
-            throw MinigameSerializationException("Minigame ${minigame.id} is not serializable")
+        throw MinigameSerializationException("Minigame ${minigame.id} is not serializable")
 
         val encoded = MinigameFactory.CODEC.encodeStart(JsonOps.INSTANCE, factory).getOrThrow { message ->
             MinigameSerializationException("Failed to serialize minigame factory for ${minigame.id}: $message")
@@ -153,18 +151,19 @@ public object Minigames: ModInitializer {
 
     override fun onInitialize() {
         MinigameRegistries.load()
+        MinigamesReplayCompat.registerEvents()
         MinigameUtils.registerEvents()
         ExtendedGameMode.registerEvents()
         PlayerMovementRestrictionExtension.registerEvents()
         PlayerMinigameExtension.registerEvents()
 
-        GlobalEventHandler.Server.register<ServerLoadedEvent> { (server) ->
+        GlobalEventHandler.Server.register<ServerStartEvent> { (server) ->
             this.loadMinigames(server)
         }
         GlobalEventHandler.Server.register<ServerSaveEvent> {
             this.saveMinigames()
         }
-        GlobalEventHandler.Server.register<ServerStoppingEvent> {
+        GlobalEventHandler.Server.register<ServerStopEvent> {
             this.closeMinigames()
         }
         GlobalEventHandler.Server.register<ServerRegisterCommandEvent> { event ->

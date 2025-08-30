@@ -23,7 +23,7 @@ public value class MinecraftTimeDuration private constructor(
      * This gets the duration of this time duration in ticks.
      */
     public val ticks: Int
-) {
+): Comparable<MinecraftTimeDuration> {
     /**
      * This gets whether the duration of this time duration is zero.
      */
@@ -95,7 +95,7 @@ public value class MinecraftTimeDuration private constructor(
         return MinecraftTimeDuration(max(this.ticks * other, 0.0).toInt())
     }
 
-    public operator fun compareTo(other: MinecraftTimeDuration): Int {
+    public override operator fun compareTo(other: MinecraftTimeDuration): Int {
         return this.ticks.compareTo(other.ticks)
     }
 

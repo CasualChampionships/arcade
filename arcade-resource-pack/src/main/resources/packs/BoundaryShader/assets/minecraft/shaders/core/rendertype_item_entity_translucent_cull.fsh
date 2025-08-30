@@ -2,7 +2,9 @@
 
 #moj_import <minecraft:fog.glsl>
 #moj_import <minecraft:dynamictransforms.glsl>
+// == Boundary Start ==
 #moj_import <minecraft:globals.glsl>
+// == Boundary End ==
 
 uniform sampler2D Sampler0;
 
@@ -40,10 +42,12 @@ void main() {
 
         float spherical = fog_spherical_distance(position);
         float cylindrical = fog_cylindrical_distance(position);
-        if (cylindrical > FogRenderDistanceEnd) {
+        float fogStart = 100;
+        float fogEnd = 120;
+        if (cylindrical > fogEnd) {
             discard;
         }
-        fragColor = apply_fog(color, spherical, cylindrical, FogEnvironmentalStart, FogEnvironmentalEnd, FogRenderDistanceStart, FogRenderDistanceEnd, FogColor);
+        fragColor = apply_fog(color, spherical, cylindrical, FogEnvironmentalStart, FogEnvironmentalEnd, fogStart, fogEnd, FogColor);
         return;
     }
     // == Boundary End ==

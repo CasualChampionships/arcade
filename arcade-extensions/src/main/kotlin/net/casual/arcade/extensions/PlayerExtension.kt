@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.extensions
 
+import net.casual.arcade.utils.impl.DelayedInvokers
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.entity.Entity
@@ -43,11 +44,19 @@ public abstract class PlayerExtension(
      */
     public constructor(player: ServerPlayer): this(player.connection)
 
-    public open fun transfer(player: ServerPlayer, reason: TransferableEntityExtension.TransferReason): Extension {
+    public open fun transfer(
+        player: ServerPlayer,
+        reason: TransferableEntityExtension.TransferReason,
+        delayed: DelayedInvokers
+    ): Extension {
         return this
     }
 
-    final override fun transfer(entity: Entity, reason: TransferableEntityExtension.TransferReason): Extension {
-        return this.transfer(entity as ServerPlayer, reason)
+    final override fun transfer(
+        entity: Entity,
+        reason: TransferableEntityExtension.TransferReason,
+        delayed: DelayedInvokers
+    ): Extension {
+        return this.transfer(entity as ServerPlayer, reason, delayed)
     }
 }

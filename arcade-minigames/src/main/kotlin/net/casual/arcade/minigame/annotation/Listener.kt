@@ -6,6 +6,7 @@ package net.casual.arcade.minigame.annotation
 
 import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.threading.ThreadingTarget
 import net.casual.arcade.minigame.phase.Phase
 import kotlin.reflect.KClass
 
@@ -46,10 +47,9 @@ public annotation class Listener(
     val during: During = During(),
 
     /**
-     * Whether the event listener requires being
-     * executed on the main thread.
+     * The target threading target for the listener to run on.
      */
-    val requiresMainThread: Boolean = true
+    val strategy: ThreadingTarget = ThreadingTarget.Default
 )
 
 /**

@@ -35,10 +35,10 @@ public object FakePlayerMeleeAttack {
                         val entities = instance.get(nearestEntitiesAccessor)
                         if (entities.contains(target)) {
                             lookTargetAccessor.set(EntityTracker(target, true))
-                            player.swing(InteractionHand.MAIN_HAND)
                             if (!willMissAttack.invoke(player, target)) {
                                 player.attack(target)
                             }
+                            player.swing(InteractionHand.MAIN_HAND)
                             val cooldown = attackCooldown.invoke(player).ticks.toLong()
                             cooldownAccessor.setWithExpiry(true, cooldown)
                             return true

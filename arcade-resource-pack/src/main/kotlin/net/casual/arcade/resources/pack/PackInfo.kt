@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.resources.pack
 
-import net.casual.arcade.host.data.ResolvablePackURL
+import net.casual.arcade.utils.network.ResolvableURL
 import net.minecraft.network.chat.Component
 import java.util.*
 
@@ -21,7 +21,7 @@ public data class PackInfo(
     /**
      * The URL to download the pack from.
      */
-    val url: ResolvablePackURL,
+    val url: ResolvableURL,
     /**
      * The hash of the resource pack.
      */

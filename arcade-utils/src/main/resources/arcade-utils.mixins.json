@@ -15,6 +15,10 @@
     "TrackedEntityAccessor",
     "bugfixes.EntityTickListMixin",
     "bugfixes.RecordCodecBuilderAccessor",
+    "network.ConnectionMixin",
+    "network.ServerCommonPacketListenerAccessor",
+    "network.ServerCommonPacketListenerImplMixin",
+    "network.ServerHandshakePacketListenerImplMixin",
     "teams.PlayerTeamMixin",
     "teams.PlayerTeamPackedMixin",
     "teams.ScoreboardMixin"

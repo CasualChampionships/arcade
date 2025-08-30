@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "id": "arcade-replay",
+  "version": "${version}",
+  "name": "Arcade Replay",
+  "description": "Provides an api for recording replays with flashback and replay mod",
+  "icon": "assets/icon.png",
+  "authors": [
+    "Sensei"
+  ],
+  "contact": {
+
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.replay.ArcadeReplay"
+      }
+    ],
+    "voicechat": [
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.replay.compat.voicechat.ReplayVoicechatPlugin"
+      }
+    ]
+  },
+  "accessWidener": "arcade-replay.accesswidener",
+  "mixins": [
+    "arcade-replay.mixins.json"
+  ],
+  "depends": {
+    "minecraft": "${minecraft_dependency}",
+    "fabricloader": ">=${fabric_loader_dependency}",
+    "fabric-language-kotlin": ">=${fabric_kotlin_dependency}"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": ["library"],
+      "parent": {
+        "id": "arcade",
+        "name": "Arcade",
+        "icon": "assets/icon.png",
+        "badges": ["library"]
+      }
+    }
+  }
+}

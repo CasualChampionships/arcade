@@ -33,6 +33,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player {
+	@Shadow public abstract Entity getCamera();
+
 	public ServerPlayerMixin(Level level, GameProfile gameProfile) {
 		super(level, gameProfile);
 	}
@@ -79,6 +81,23 @@ public abstract class ServerPlayerMixin extends Player {
 		if (this.level().dimension() != level.dimension()) {
 			PlayerDimensionChangeEvent event = new PlayerDimensionChangeEvent((ServerPlayer) (Object) this, level);
 			GlobalEventHandler.Server.broadcast(event);
+		}
+	}
+
+	@Inject(
+		method = "setCamera",
+		at = @At("HEAD"),
+		cancellable = true
+	)
+	private void onSetCamera(Entity entityToSpectate, CallbackInfo ci) {
+		Entity current = this.getCamera();
+		entityToSpectate = entityToSpectate == null ? this : entityToSpectate;
+		if (entityToSpectate != current) {
+			PlayerSetCameraEvent event = new PlayerSetCameraEvent((ServerPlayer) (Object) this, entityToSpectate);
+			GlobalEventHandler.Server.broadcast(event);
+			if (event.isCancelled()) {
+				ci.cancel();
+			}
 		}
 	}
 

@@ -4,9 +4,25 @@
  */
 package net.casual.arcade.utils
 
+import net.casual.arcade.utils.string.StringCasingDecoder
+import net.casual.arcade.utils.string.StringCasingEncoder
+import java.util.*
+
 private val SMALL_CAPS_ALPHABET = "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘqʀꜱᴛᴜᴠᴡxyᴢ".toCharArray()
 
 private val UUID_REGEX = Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
+public fun String.capitalize(): String {
+    return this.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+}
+
+public fun String.decapitalize(): String {
+    return this.replaceFirstChar { it.lowercase(Locale.getDefault()) }
+}
+
+public fun String.convertCasing(from: StringCasingDecoder, to: StringCasingEncoder): String {
+    return to.encode(from.decode(this))
+}
 
 public fun String.toSmallCaps(): String {
     val builder = StringBuilder()
@@ -17,6 +33,19 @@ public fun String.toSmallCaps(): String {
             else -> char
         }
         builder.append(replacement)
+    }
+    return builder.toString()
+}
+
+public fun String.fromSmallCaps(): String {
+    val builder = StringBuilder()
+    for (char in this) {
+        val index = SMALL_CAPS_ALPHABET.indexOf(char)
+        if (index >= 0) {
+            builder.append('a' + index)
+        } else {
+            builder.append(char)
+        }
     }
     return builder.toString()
 }

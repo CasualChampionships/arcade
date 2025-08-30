@@ -14,6 +14,7 @@ import net.minecraft.core.Holder
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.Item
@@ -53,6 +54,22 @@ public object ItemUtils {
     @JvmStatic
     public fun ItemStack.named(name: String, italicized: Boolean = false): ItemStack {
         this.named(Component.literal(name), italicized)
+        return this
+    }
+
+    @JvmStatic
+    public fun modelled(model: ResourceLocation, item: Item = Items.POPPED_CHORUS_FRUIT): ItemStack {
+        return item.modelled(model)
+    }
+
+    @JvmStatic
+    public fun Item.modelled(model: ResourceLocation): ItemStack {
+        return ItemStack(this).modelled(model)
+    }
+
+    @JvmStatic
+    public fun ItemStack.modelled(model: ResourceLocation): ItemStack {
+        this.set(DataComponents.ITEM_MODEL, model)
         return this
     }
 

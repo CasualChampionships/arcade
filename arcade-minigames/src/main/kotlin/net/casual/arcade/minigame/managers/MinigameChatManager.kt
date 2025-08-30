@@ -15,16 +15,14 @@ import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.literal
 import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
+import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerChatEvent
 import net.casual.arcade.events.server.player.PlayerSystemMessageEvent
 import net.casual.arcade.events.server.player.PlayerTeamChatEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.ListenerFlags
-import net.casual.arcade.minigame.events.MinigameAddNewPlayerEvent
-import net.casual.arcade.minigame.events.MinigameRemoveAdminEvent
-import net.casual.arcade.minigame.events.MinigameSetPlayingEvent
-import net.casual.arcade.minigame.events.MinigameSetSpectatingEvent
+import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.managers.chat.MinigameChatMode
 import net.casual.arcade.minigame.settings.MinigameSettings
 import net.casual.arcade.minigame.utils.MinigameUtils.isMinigameAdminOrHasPermission
@@ -312,6 +310,12 @@ public class MinigameChatManager(
         mode: MinigameChatMode,
         feedback: Boolean = true
     ) {
+        val event = MinigameSetPlayerChatModeEvent(this.minigame, player, mode, feedback)
+        GlobalEventHandler.Server.broadcast(event)
+        if (event.isCancelled()) {
+            return
+        }
+
         if (this.modes.put(player.uuid, mode) != mode) {
             if (!this.minigame.settings.isChatGlobal && feedback) {
                 this.broadcastTo(mode.switchedToMessage(player), player)

@@ -6,6 +6,8 @@ package net.casual.arcade.events
 
 import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.threading.ThreadingStrategy
+import net.casual.arcade.events.threading.ThreadingTarget
 import java.util.function.Consumer
 
 /**
@@ -48,10 +50,10 @@ public class SingleListenerProvider<T: Event>(
         public inline fun <reified T: Event> of(
             priority: Int = 1_000,
             phase: String = DEFAULT,
-            requiresMainThread: Boolean = true,
+            strategy: ThreadingStrategy = ThreadingTarget.Default,
             listener: Consumer<T>
         ): SingleListenerProvider<T> {
-            return SingleListenerProvider(T::class.java, EventListener.of(priority, phase, requiresMainThread, listener))
+            return SingleListenerProvider(T::class.java, EventListener.of(priority, phase, strategy, listener))
         }
     }
 }

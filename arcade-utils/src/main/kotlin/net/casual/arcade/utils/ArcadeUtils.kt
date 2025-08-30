@@ -25,6 +25,11 @@ public object ArcadeUtils {
     public val container: ModContainer? = FabricLoader.getInstance().getModContainer(MOD_ID).getOrNull()
 
     @JvmStatic
+    public val version: String by lazy {
+        FabricLoader.getInstance().getModContainer("arcade-utils").get().metadata.version.friendlyString
+    }
+
+    @JvmStatic
     public val path: Path by lazy {
         FabricLoader.getInstance().configDir.resolve(MOD_ID).apply { createDirectories() }
     }

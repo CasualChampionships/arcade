@@ -5,6 +5,7 @@
 package net.casual.arcade.npc.ai.behavior
 
 import net.casual.arcade.npc.FakePlayer
+import net.casual.arcade.utils.MathUtils.horizontalDistanceTo
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.ai.behavior.Behavior
@@ -27,6 +28,7 @@ public class FakePlayerMoveToTargetSink(
 
     private var path: Path? = null
     private var lastTargetPos: BlockPos? = null
+    private var lastPlayerPos: Vec3 = Vec3.ZERO
 
     override fun checkExtraStartConditions(level: ServerLevel, player: FakePlayer): Boolean {
         if (this.remainingCooldown > 0) {
@@ -82,8 +84,13 @@ public class FakePlayerMoveToTargetSink(
         if (path != null && lastTarget != null) {
             val walkTarget = brain.getMemory(MemoryModuleType.WALK_TARGET).get()
             val progress = walkTarget.target.currentBlockPosition().distSqr(lastTarget)
-            if (this.jump && progress > 2.0) {
-                player.moveControl.jump()
+
+            if (this.jump) {
+                val distance = player.position().horizontalDistanceTo(this.lastPlayerPos)
+                if (distance > 0.25) {
+                    player.moveControl.jump()
+                }
+                this.lastPlayerPos = player.position()
             }
             if (progress > 4.0 && this.tryComputePath(player, walkTarget, level.gameTime)) {
                 this.lastTargetPos = walkTarget.target.currentBlockPosition()

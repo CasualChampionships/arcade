@@ -7,11 +7,13 @@ package net.casual.arcade.extensions.mixins.player;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.casual.arcade.extensions.Extension;
 import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.TransferableEntityExtension;
 import net.casual.arcade.extensions.TransferableEntityExtension.TransferReason;
 import net.casual.arcade.utils.ArcadeUtils;
+import net.casual.arcade.utils.impl.DelayedInvokers;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.Entity;
@@ -38,8 +40,12 @@ public class PlayerListMixin {
         Entity.RemovalReason reason,
         CallbackInfoReturnable<ServerPlayer> cir,
         @Local(ordinal = 1) ServerPlayer respawned,
-        @Share(namespace = ArcadeUtils.MOD_ID, value = "isMinigameRespawn") LocalBooleanRef isMinigameRespawn
+        @Share(namespace = ArcadeUtils.MOD_ID, value = "isMinigameRespawn") LocalBooleanRef isMinigameRespawn,
+        @Share("delayed") LocalRef<DelayedInvokers.Simple> delayedRef
     ) {
+        DelayedInvokers.Simple delayed = new DelayedInvokers.Simple();
+        delayedRef.set(delayed);
+
         TransferReason transferReason = TransferReason.Other;
         if (reason == Entity.RemovalReason.KILLED) {
             transferReason = TransferReason.Respawned;
@@ -49,11 +55,25 @@ public class PlayerListMixin {
         List<Extension> transferred = new ArrayList<>();
         for (Extension extension : ExtensionHolder.all((ExtensionHolder) player)) {
             if (extension instanceof TransferableEntityExtension transferable) {
-                transferred.add(transferable.transfer(respawned, transferReason));
+                transferred.add(transferable.transfer(respawned, transferReason, delayed));
             }
         }
         for (Extension extension : transferred) {
             ExtensionHolder.add((ExtensionHolder) respawned, extension);
         }
+    }
+
+    @Inject(
+        method = "respawn",
+        at = @At("RETURN")
+    )
+    private void onRestoreFrom(
+        ServerPlayer player,
+        boolean keepInventory,
+        Entity.RemovalReason reason,
+        CallbackInfoReturnable<ServerPlayer> cir,
+        @Share("delayed") LocalRef<DelayedInvokers.Simple> delayedRef
+    ) {
+        delayedRef.get().invoke();
     }
 }

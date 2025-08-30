@@ -187,7 +187,7 @@ public open class NPCWalkNodeEvaluator: NPCNodeEvaluator() {
         return true
     }
 
-    protected fun getFloorLevel(pos: BlockPos): Double {
+    protected open fun getFloorLevel(pos: BlockPos): Double {
         val blockGetter: BlockGetter = this.currentContext!!.level
         if ((this.canFloat || this.isAmphibious()) && blockGetter.getFluidState(pos).`is`(FluidTags.WATER)) {
             return pos.y + 0.5

@@ -29,10 +29,10 @@ public class NametagElement(
     private val watching = ReferenceOpenHashSet<ServerGamePacketListenerImpl>()
     private val listeners = ObjectOpenHashSet<Consumer<Packet<ClientGamePacketListener>>>()
 
-    private val background = TextDisplayElement()
-    private val foreground = TextDisplayElement()
+    private val background = NametagTextElement(this.entity)
+    private val foreground = NametagTextElement(this.entity)
 
-    private val shift = NametagHeightElement(this.nametag.height)
+    private val shift = NametagHeightElement(this.entity, this.nametag.height)
 
     private var ticks = 0
     private var sneaking = false
@@ -119,9 +119,7 @@ public class NametagElement(
 
     override fun startWatching(player: ServerPlayer, consumer: Consumer<Packet<ClientGamePacketListener>>) {
         if (this.watching.add(player.connection)) {
-            this.background.startWatching(player, consumer)
-            this.foreground.startWatching(player, consumer)
-            this.shift.startWatching(player, consumer)
+            this.sendSpawnPackets(player, consumer)
         }
     }
 
@@ -149,10 +147,6 @@ public class NametagElement(
         element.billboardMode = Display.BillboardConstraints.CENTER
         element.translation = Vector3f(0.0F, -0.2F, 0.0F)
         element.isInvisible = true
-
-        // We spawn the entity so low that the lerp animation
-        // happens so fast it's basically instant
-        element.offset = Vec3(0.0, -500.0, 0.0)
     }
 
     private fun sendDirtyPackets() {
@@ -171,6 +165,15 @@ public class NametagElement(
             for (listener in this.listeners) {
                 listener.accept(packet)
             }
+        }
+    }
+
+    private class NametagTextElement(private val entity: Entity): TextDisplayElement() {
+        override fun startWatching(player: ServerPlayer, packetConsumer: Consumer<Packet<ClientGamePacketListener>>) {
+            // We spawn the entity so low that the lerp animation
+            // happens so fast it's basically instant
+            this.lastSyncedPos = this.entity.position().add(Vec3(0.0, -500.0, 0.0))
+            super.startWatching(player, packetConsumer)
         }
     }
 }

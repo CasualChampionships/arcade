@@ -11,11 +11,10 @@ import com.sun.net.httpserver.HttpServer
 import com.sun.net.httpserver.HttpsConfigurator
 import com.sun.net.httpserver.HttpsServer
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
-import net.casual.arcade.host.data.HostedPack
-import net.casual.arcade.host.data.ResolvablePackURL
+import net.casual.arcade.host.pack.hosted.HostedPack
+import net.casual.arcade.utils.network.ResolvableURL
 import net.casual.arcade.host.pack.ReadablePack
-import net.casual.arcade.host.pack.ReadablePackSupplier
-import net.minecraft.Util
+import net.casual.arcade.host.pack.provider.PackProvider
 import org.apache.logging.log4j.LogManager
 import java.io.InputStream
 import java.net.InetSocketAddress
@@ -34,61 +33,54 @@ import kotlin.reflect.KProperty
  * @see PackHost.create
  */
 public abstract class PackHost {
-    private val hostedByName = ConcurrentHashMap<String, HostedPack>()
     private val packs = Object2ObjectOpenHashMap<String, ReadablePack>()
-    private val suppliers = ArrayList<ReadablePackSupplier>()
+    private val hosted = ConcurrentHashMap<String, HostedPack>()
+
+    private val providers = LinkedHashSet<PackProvider>()
 
     protected val executor: ExecutorService = Executors.newSingleThreadExecutor(
         ThreadFactoryBuilder().setNameFormat("resource-pack-host-%d").setDaemon(true).build()
     )
 
-    public fun addPack(pack: ReadablePack): HostedPackRef {
+    public fun add(pack: ReadablePack): HostedPackRef {
         this.packs[pack.name] = pack
         val future = this.hostPack(pack)
-        return HostedPackRef(future) { this.getHostedPack(pack.name) }
+        return HostedPackRef(future) { this.get(pack.name) }
     }
 
-    public fun addSupplier(supplier: ReadablePackSupplier) {
-        this.suppliers.add(supplier)
-        for (pack in supplier.getPacks()) {
-            this.hostPack(pack)
-        }
+    public fun add(provider: PackProvider) {
+        this.providers.add(provider)
     }
 
-    public fun getHostedPack(name: String): HostedPack? {
-        val zipped = if (name.endsWith(".zip")) name else "$name.zip"
-        return this.hostedByName[zipped]
-    }
-
-    public fun removePack(name: String) {
+    public fun remove(name: String) {
         this.packs.remove(name)
-        this.hostedByName.remove(name)
+        this.hosted.remove(name)
     }
 
-    public fun removeSupplier(supplier: ReadablePackSupplier) {
-        this.suppliers.remove(supplier)
+    public fun remove(provider: PackProvider) {
+        this.providers.remove(provider)
     }
 
-    public fun reload(): CompletableFuture<List<HostedPack>> {
-        this.hostedByName.clear()
+    public fun get(name: String): HostedPack? {
+        return this.hosted[name]
+    }
 
-        val futures = ArrayList<CompletableFuture<HostedPack>>()
-        for (pack in this.packs.values) {
-            futures.add(this.hostPack(pack))
+    public fun resolve(name: String): ReadablePack? {
+        val readable = this.packs[name]
+        if (readable != null) {
+            return readable
         }
-        for (supplier in this.suppliers) {
-            for (pack in supplier.getPacks()) {
-                futures.add(this.hostPack(pack))
-            }
+        for (provider in this.providers) {
+            return provider.get(name) ?: continue
         }
-        return Util.sequenceFailFast(futures)
+        return null
     }
 
     public abstract fun start(): CompletableFuture<Boolean>
 
     public abstract fun stop()
 
-    protected abstract fun createUrl(name: String): ResolvablePackURL
+    public abstract fun createUrl(name: String): ResolvableURL
 
     protected fun <T> async(block: () -> T): CompletableFuture<T> {
         return CompletableFuture.supplyAsync(block, this.executor).exceptionally { exception ->
@@ -106,9 +98,8 @@ public abstract class PackHost {
             @Suppress("DEPRECATION")
             val hash = Hashing.sha1().hashBytes(pack.stream().use(InputStream::readBytes)).toString()
 
-            val zipped = if (pack.name.endsWith(".zip")) pack.name else "${pack.name}.zip"
-            val hosted = HostedPack(pack, this.createUrl(zipped), hash)
-            this.hostedByName[zipped] = hosted
+            val hosted = HostedPack(pack, this.createUrl(pack.name), hash)
+            this.hosted[pack.name] = hosted
             hosted
         }
     }
@@ -158,10 +149,10 @@ public abstract class PackHost {
             this.server.stop(0)
         }
 
-        override fun createUrl(name: String): ResolvablePackURL {
+        override fun createUrl(name: String): ResolvableURL {
             val protocol = if (this.isSecure) "https" else "http"
             val encoded = URLEncoder.encode(name, Charsets.UTF_8)
-            return ResolvablePackURL.local(protocol, null, this.port, encoded)
+            return ResolvableURL.local(protocol, null, this.port, encoded)
         }
 
         private fun handleRequest(exchange: HttpExchange) {
@@ -171,16 +162,16 @@ public abstract class PackHost {
                 return
             }
 
-            val hosted = this.getHostedPack(URLDecoder.decode(name, Charsets.UTF_8))
-            if (hosted == null || !hosted.pack.readable()) {
+            val pack = this.resolve(URLDecoder.decode(name, Charsets.UTF_8))
+            if (pack == null || !pack.readable()) {
                 exchange.sendResponseHeaders(400, -1)
                 return
             }
 
-            exchange.responseHeaders.add("user-agent", "kotlin/arcade-pack-download-host")
-            exchange.sendResponseHeaders(200, hosted.pack.length())
+            exchange.responseHeaders.add("user-agent", USER_AGENT)
+            exchange.sendResponseHeaders(200, pack.length())
             exchange.responseBody.use { response ->
-                hosted.pack.stream().use { stream ->
+                pack.stream().use { stream ->
                     stream.transferTo(response)
                 }
             }
@@ -189,6 +180,8 @@ public abstract class PackHost {
 
     public companion object {
         private const val DEFAULT_PORT: Int = 24464
+
+        internal const val USER_AGENT = "kotlin/arcade-pack-download-host"
 
         internal val logger = LogManager.getLogger("ResourcePackHost")
 

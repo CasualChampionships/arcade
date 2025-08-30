@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "arcade-test",
-  "version": "${version}",
+  "version": "1.0.0",
   "name": "Arcade Test",
   "description": "",
   "authors": [

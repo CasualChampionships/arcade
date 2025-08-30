@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.utils.math.path
 
+import net.casual.arcade.utils.math.path.CheckpointedPath.ProximityChecker
 import net.minecraft.world.phys.Vec3
 
 /**
@@ -15,15 +16,16 @@ import net.minecraft.world.phys.Vec3
  *
  * @param position The starting position.
  * @param path The path to follow.
- * @param tolerance The tolerance to be within each checkpoint.
+ * @param checker The checker to determine whether a
+ * position is within a checkpoint.
  * @see CheckpointedPath
  */
 public class CheckpointedPathFollower(
     position: Vec3,
-    private val path: CheckpointedPath,
-    private val tolerance: Double = 1.0
+    public val path: CheckpointedPath,
+    private val checker: ProximityChecker = ProximityChecker.within(1.0)
 ) {
-    private var index = this.path.calculateNextCheckpointIndex(position, this.tolerance)
+    public var index: Int = this.path.calculateNextCheckpointIndex(position, this.checker)
 
     /**
      * The target position.
@@ -36,12 +38,15 @@ public class CheckpointedPathFollower(
      * and updates the [index] accordingly.
      *
      * Calling this assumes that you want to visit each checkpoint
-     * individually within the [tolerance], without skipping any.
+     * individually within the [checker], without skipping any.
      *
      * @param position The updated position.
+     * @return Whether the next checkpoint changed.
      */
-    public fun update(position: Vec3) {
-        this.index = this.path.calculateNextCheckpointIndex(position, this.index, this.tolerance)
+    public fun update(position: Vec3): Status {
+        val previous = this.index
+        this.index = this.path.calculateNextCheckpointIndex(position, this.index, this.checker)
+        return this.getStatus(previous, position)
     }
 
     /**
@@ -51,8 +56,25 @@ public class CheckpointedPathFollower(
      * checkpoint(s).
      *
      * @param position The updated position.
+     * @return Whether the next checkpoint changed.
      */
-    public fun refresh(position: Vec3) {
-        this.index = this.path.calculateNextCheckpointIndex(position, this.tolerance)
+    public fun refresh(position: Vec3): Status {
+        val previous = this.index
+        this.index = this.path.calculateNextCheckpointIndex(position, this.checker)
+        return this.getStatus(previous, position)
+    }
+
+    private fun getStatus(previous: Int, position: Vec3): Status {
+        if (previous != this.index) {
+            return Status.Updated
+        }
+        if (this.path.isLastCheckpoint(this.index) && this.checker.isWithinCheckpoint(position, this.target)) {
+            return Status.Finished
+        }
+        return Status.Noop
+    }
+
+    public enum class Status {
+        Noop, Updated, Finished
     }
 }

@@ -15,7 +15,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode
 import net.casual.arcade.commands.hidden.HiddenCommand
 import net.casual.arcade.commands.hidden.HiddenCommandManager
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
-import net.casual.arcade.utils.ComponentUtils.command
+import net.casual.arcade.utils.ComponentUtils.click
 import net.casual.arcade.utils.TimeUtils.Minutes
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
@@ -42,7 +42,7 @@ public fun MutableComponent.singleUseFunction(command: HiddenCommand): MutableCo
 }
 
 public fun MutableComponent.function(timeout: MinecraftTimeDuration = 10.Minutes, command: HiddenCommand): MutableComponent {
-    return this.command(HiddenCommandManager.register(timeout, command))
+    return this.click(HiddenCommandManager.register(timeout, command))
 }
 
 public fun CommandSourceStack.success(literal: String, log: Boolean = false): Int {
@@ -162,6 +162,25 @@ public fun <T> CommandContext<*>.hasArgument(argument: String, type: Class<T>): 
     } catch (e: IllegalArgumentException) {
         return false
     }
+}
+
+public inline fun <T, S> CommandContext<S>.getArgumentOrElse(
+    argument: String,
+    getter: (CommandContext<S>, String) -> T,
+    otherwise: () -> T
+): T {
+    return try {
+        getter.invoke(this, argument)
+    } catch (e: IllegalArgumentException) {
+        otherwise.invoke()
+    }
+}
+
+public inline fun <T: Any, S> CommandContext<S>.getArgumentOrNull(
+    argument: String,
+    getter: (CommandContext<S>, String) -> T
+): T? {
+    return this.getArgumentOrElse(argument, getter) { null }
 }
 
 public fun ServerRegisterCommandEvent.register(vararg commands: CommandTree) {

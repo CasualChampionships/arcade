@@ -10,7 +10,7 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.SimpleListenerRegistry
-import net.casual.arcade.events.server.ServerLoadedEvent
+import net.casual.arcade.events.server.ServerStartEvent
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 
@@ -54,7 +54,7 @@ public object GlobalCommandManager: CommandRegistry {
     }
 
     internal fun registerEvents() {
-        GlobalEventHandler.Server.register<ServerLoadedEvent> {
+        GlobalEventHandler.Server.register<ServerStartEvent> {
             this.global = CommandManager(it.server)
             this.addManager(this.global)
             for (tree in this.delayed) {

@@ -31,13 +31,25 @@ public class MinecraftServerMixin {
 		method = "runServer",
 		at = @At(
 			value = "INVOKE",
+			target = "Lnet/minecraft/server/MinecraftServer;initServer()Z"
+		)
+	)
+	private void onServerLoadedPre(CallbackInfo ci) {
+		ServerStartEvent event = new ServerStartEvent((MinecraftServer) (Object) this);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.ALT_PRE_PHASES);
+	}
+
+	@Inject(
+		method = "runServer",
+		at = @At(
+			value = "INVOKE",
 			target = "Lnet/minecraft/server/MinecraftServer;buildServerStatus()Lnet/minecraft/network/protocol/status/ServerStatus;",
 			shift = At.Shift.AFTER
 		)
 	)
-	private void onServerLoaded(CallbackInfo ci) {
-		ServerLoadedEvent event = new ServerLoadedEvent((MinecraftServer) (Object) this);
-		GlobalEventHandler.Server.broadcast(event);
+	private void onServerLoadedPost(CallbackInfo ci) {
+		ServerStartEvent event = new ServerStartEvent((MinecraftServer) (Object) this);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.ALT_POST_PHASES);
 	}
 
 	@Inject(
@@ -75,8 +87,17 @@ public class MinecraftServerMixin {
 		at = @At("HEAD")
 	)
 	private void onShutdown(CallbackInfo ci) {
-		ServerStoppingEvent event = new ServerStoppingEvent((MinecraftServer) (Object) this);
-		GlobalEventHandler.Server.broadcast(event);
+		ServerStopEvent event = new ServerStopEvent((MinecraftServer) (Object) this);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+	}
+
+	@Inject(
+		method = "stopServer",
+		at = @At("TAIL")
+	)
+	private void onServerStopped(CallbackInfo ci) {
+		ServerStopEvent event = new ServerStopEvent((MinecraftServer) (Object) this);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
 	}
 
 	@Inject(

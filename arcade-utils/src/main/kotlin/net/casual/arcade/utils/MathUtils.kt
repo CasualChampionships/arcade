@@ -4,12 +4,13 @@
  */
 package net.casual.arcade.utils
 
-import net.casual.arcade.utils.MathUtils.maxYCenter
+import net.casual.arcade.utils.MathUtils.isAbove
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.Direction8
 import net.minecraft.core.Vec3i
 import net.minecraft.util.Mth
+import net.minecraft.world.level.levelgen.structure.BoundingBox
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
@@ -284,5 +285,34 @@ public object MathUtils {
 
     public fun AABB.getSizeVec(): Vec3 {
         return Vec3(this.xsize, this.ysize, this.zsize)
+    }
+
+    public fun AABB.isAbove(point: Vec3): Boolean {
+        return this.isAbove(point.x, point.y, point.z)
+    }
+
+    public fun AABB.isAbove(x: Double, y: Double, z: Double): Boolean {
+        return x >= this.minX && x < this.maxX
+            && z >= this.minZ && z < this.maxZ
+            && y > this.maxY
+    }
+
+    public fun AABB.isBelow(point: Vec3): Boolean {
+        return this.isBelow(point.x, point.y, point.z)
+    }
+
+    public fun AABB.isBelow(x: Double, y: Double, z: Double): Boolean {
+        return x >= this.minX && x < this.maxX
+            && z >= this.minZ && z < this.maxZ
+            && y < this.minY
+    }
+
+    @JvmStatic
+    public fun createBoundingBox(center: Vec3i, range: Int): BoundingBox {
+        val absRange = abs(range)
+        return BoundingBox(
+            center.x - absRange, center.y - absRange, center.z - absRange,
+            center.x + absRange, center.y + absRange, center.z + absRange
+        )
     }
 }

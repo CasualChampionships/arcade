@@ -6,14 +6,14 @@ package net.casual.arcade.events.server.player
 
 import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.common.CancellableEvent
-import net.casual.arcade.events.common.MissingExecutorEvent
+import net.casual.arcade.events.threading.AsyncEvent
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
 
 public data class PlayerClientboundPacketEvent(
     override val player: ServerPlayer,
     var packet: Packet<*>
-): CancellableEvent.Default(), PlayerEvent, MissingExecutorEvent {
+): CancellableEvent.Default(), PlayerEvent, AsyncEvent {
     public companion object {
         /**
          * The phase is invoked before the packet has been sent to the player.
@@ -21,13 +21,13 @@ public data class PlayerClientboundPacketEvent(
          *
          * This is the default phase for this event.
          */
-        public const val PRE_PHASE: String = BuiltInEventPhases.PRE
+        public const val PHASE_PRE: String = BuiltInEventPhases.PRE
 
         /**
          * This phase in invoked **after** the packet has been sent to the player.
          * The [packet] can no longer be modified.
          */
-        public const val POST_PHASE: String = BuiltInEventPhases.POST
+        public const val PHASE_POST: String = BuiltInEventPhases.POST
 
         public inline fun PlayerClientboundPacketEvent.replacePacket(
             replacement: (ServerPlayer, Packet<*>) -> Packet<*>?

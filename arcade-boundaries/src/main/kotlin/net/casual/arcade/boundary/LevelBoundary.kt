@@ -223,6 +223,7 @@ public class LevelBoundary(
 
     override fun onRemovePlayer(player: ServerPlayer) {
         this.renderer.stopRendering(player)
+        player.connection.send(INSIDE_BORDER_PACKET)
     }
 
     override fun resendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {

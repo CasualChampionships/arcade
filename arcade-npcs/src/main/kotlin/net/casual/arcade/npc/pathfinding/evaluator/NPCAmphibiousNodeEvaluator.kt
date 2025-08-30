@@ -6,32 +6,51 @@ package net.casual.arcade.npc.pathfinding.evaluator
 
 import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.npc.pathfinding.NPCPathfindingContext
+import net.casual.arcade.utils.isOf
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
+import net.minecraft.tags.BlockTags
 import net.minecraft.util.Mth
 import net.minecraft.world.level.PathNavigationRegion
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.pathfinder.Node
 import net.minecraft.world.level.pathfinder.PathType
 import net.minecraft.world.level.pathfinder.Target
+import net.minecraft.world.phys.shapes.CollisionContext
 import kotlin.math.max
 
-public class NPCAmphibiousNodeEvaluator: NPCWalkNodeEvaluator() {
+public open class NPCAmphibiousNodeEvaluator: NPCWalkNodeEvaluator() {
+    private var oldWaterCost: Float = 0.0F
     private var oldWalkableCost: Float = 0.0F
     private var oldWaterBorderCost: Float = 0.0F
+
+    protected open fun getWalkableMalus(player: FakePlayer): Float {
+        return 0.0F
+    }
+
+    protected open fun getWaterBorderMalus(player: FakePlayer): Float {
+        return 8.0F
+    }
+
+    protected open fun getWaterMalus(player: FakePlayer): Float {
+        return 2.0F
+    }
 
     override fun prepare(level: PathNavigationRegion, player: FakePlayer) {
         super.prepare(level, player)
 
-        player.setPathfindingMalus(PathType.WATER, 0.0f)
         this.oldWalkableCost = player.getPathfindingMalus(PathType.WALKABLE)
-        player.setPathfindingMalus(PathType.WALKABLE, 0.0f)
+        player.setPathfindingMalus(PathType.WALKABLE, this.getWalkableMalus(player))
         this.oldWaterBorderCost = player.getPathfindingMalus(PathType.WATER_BORDER)
-        player.setPathfindingMalus(PathType.WATER_BORDER, 2.0f)
+        player.setPathfindingMalus(PathType.WATER_BORDER, this.getWaterBorderMalus(player))
+        this.oldWaterCost = player.getPathfindingMalus(PathType.WATER)
+        player.setPathfindingMalus(PathType.WATER, this.getWaterMalus(player))
     }
 
     override fun done() {
         this.player?.setPathfindingMalus(PathType.WALKABLE, this.oldWalkableCost)
         this.player?.setPathfindingMalus(PathType.WATER_BORDER, this.oldWaterBorderCost)
+        this.player?.setPathfindingMalus(PathType.WATER, this.oldWaterCost)
         super.done()
     }
 
@@ -94,22 +113,31 @@ public class NPCAmphibiousNodeEvaluator: NPCWalkNodeEvaluator() {
         return true
     }
 
-    override fun getPathType(context: NPCPathfindingContext, x: Int, y: Int, z: Int): PathType {
-        val pathType = context.getPathTypeFromState(x, y, z)
-        if (pathType == PathType.WATER) {
-            val mutableBlockPos = BlockPos.MutableBlockPos()
+     override fun getPathType(context: NPCPathfindingContext, x: Int, y: Int, z: Int): PathType {
+         val type = context.getPathTypeFromState(x, y, z)
+         if (type == PathType.WATER) {
+             val mutableBlockPos = BlockPos.MutableBlockPos()
 
-            for (direction in Direction.entries) {
-                mutableBlockPos.set(x, y, z).move(direction)
-                val pathType2 = context.getPathTypeFromState(mutableBlockPos.x, mutableBlockPos.y, mutableBlockPos.z)
-                if (pathType2 == PathType.BLOCKED) {
-                    return PathType.WATER_BORDER
-                }
-            }
+             for (direction in Direction.entries) {
+                 mutableBlockPos.set(x, y, z).move(direction)
+                 val pathType2 = context.getPathTypeFromState(mutableBlockPos.x, mutableBlockPos.y, mutableBlockPos.z)
+                 if (pathType2 == PathType.BLOCKED) {
+                     return PathType.WATER_BORDER
+                 }
+             }
 
-            return PathType.WATER
-        } else {
-            return super.getPathType(context, x, y, z)
-        }
-    }
+             return PathType.WATER
+         }
+
+
+         // This is a gross hack to make ladders/vines pathfind-able
+         val pos = BlockPos(x, y, z)
+         val state = context.getBlockState(pos)
+         if (state.isOf(BlockTags.CLIMBABLE)) {
+             // Maybe we should check the collisions of the scaffolding
+             return PathType.WATER
+         }
+
+         return super.getPathType(context, x, y, z)
+     }
 }

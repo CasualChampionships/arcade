@@ -11,7 +11,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
-import net.casual.arcade.events.server.ServerStoppingEvent
+import net.casual.arcade.events.server.ServerStopEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.events.server.player.*
 import net.casual.arcade.minigame.events.*
@@ -594,7 +594,7 @@ public abstract class Minigame(
         this.events.register<PlayerHealEvent>(1_000, BuiltInEventPhases.POST) { this.onPlayerHeal(it) }
         this.events.register<MinigameAddPlayerEvent>(Int.MAX_VALUE) { this.onPlayerAdd(it) }
         this.events.register<MinigameRemovePlayerEvent>(2000) { this.onPlayerRemove(it) }
-        this.events.register<ServerStoppingEvent> { this.onServerStopping() }
+        this.events.register<ServerStopEvent> { this.onServerStopping() }
     }
 
     private fun onServerTick(event: ServerTickEvent) {

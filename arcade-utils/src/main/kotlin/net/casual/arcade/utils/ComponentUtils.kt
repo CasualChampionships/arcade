@@ -159,13 +159,18 @@ public object ComponentUtils {
     }
 
     @JvmStatic
+    public fun MutableComponent.click(event: ClickEvent): MutableComponent {
+        return this.withStyle { it.withClickEvent(event) }
+    }
+
+    @JvmStatic
     public fun MutableComponent.command(command: String): MutableComponent {
-        return this.withStyle { it.withClickEvent(ClickEvent.RunCommand(command)) }
+        return this.click(ClickEvent.RunCommand(command))
     }
 
     @JvmStatic
     public fun MutableComponent.suggestCommand(command: String): MutableComponent {
-        return this.withStyle { it.withClickEvent(ClickEvent.SuggestCommand(command)) }
+        return this.click(ClickEvent.SuggestCommand(command))
     }
 
     @JvmStatic
@@ -175,7 +180,7 @@ public object ComponentUtils {
 
     @JvmStatic
     public fun MutableComponent.link(link: URI): MutableComponent {
-        return this.withStyle { it.withClickEvent(ClickEvent.OpenUrl(link)) }
+        return this.click(ClickEvent.OpenUrl(link))
     }
 
     @JvmStatic
@@ -318,6 +323,11 @@ public object ComponentUtils {
     @JvmStatic
     public fun MutableComponent.grey(): MutableComponent {
         return this.withStyle(GRAY)
+    }
+
+    @JvmStatic
+    public fun MutableComponent.slate(): MutableComponent {
+        return this.withStyle(DARK_GRAY)
     }
 
     @JvmStatic

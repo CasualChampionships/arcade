@@ -12,7 +12,7 @@ import net.casual.arcade.events.server.entity.EntityStopTrackingEvent
 import net.casual.arcade.events.server.level.LevelTickEvent
 import net.casual.arcade.extensions.DataExtension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
-import net.casual.arcade.extensions.event.LevelExtensionEvent.Companion.getExtension
+import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.utils.ArcadeUtils
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel

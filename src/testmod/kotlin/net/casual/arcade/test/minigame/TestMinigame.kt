@@ -17,6 +17,7 @@ import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.recipe.CraftingRecipeBuilder
 import net.casual.arcade.visuals.elements.ComponentElements
 import net.casual.arcade.visuals.elements.SidebarElements
+import net.casual.arcade.visuals.nametag.PlayerNametag
 import net.casual.arcade.visuals.sidebar.FixedSidebar
 import net.casual.arcade.visuals.tab.PlayerListDisplay
 import net.casual.arcade.visuals.tab.VanillaPlayerListEntries
@@ -63,6 +64,9 @@ open class TestMinigame(
             { _ -> Component.empty() }
         )
         this.ui.setPlayerListDisplay(display)
+
+        this.ui.addNametag(PlayerNametag({ player -> player.displayName!! }))
+        this.ui.addNametag(PlayerNametag({ Component.literal("CustomNametags!") }))
     }
 
     companion object: MinigameFactory {

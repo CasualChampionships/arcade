@@ -4,12 +4,19 @@
  */
 package net.casual.arcade.utils
 
+import net.casual.arcade.util.mixins.ChunkMapAccessor
+import net.casual.arcade.utils.impl.WrappedTrackedEntity
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.chunk.LevelChunk
 import net.minecraft.world.level.chunk.status.ChunkStatus
+
+public fun ServerLevel.getTrackedEntities(): List<WrappedTrackedEntity> {
+    val map = this.chunkSource.chunkMap as ChunkMapAccessor
+    return map.entityMap.values.map { WrappedTrackedEntity(it) }
+}
 
 public inline fun <reified T: BlockEntity> ServerLevel.getBlockEntitiesOfType(positions: Iterable<ChunkPos>): List<T> {
     val list = ArrayList<T>()

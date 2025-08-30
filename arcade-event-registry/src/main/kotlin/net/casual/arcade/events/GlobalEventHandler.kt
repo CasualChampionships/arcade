@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.objects.ObjectSets
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap
 import net.casual.arcade.events.common.Event
 import net.casual.arcade.events.common.MissingExecutorEvent
+import net.casual.arcade.events.threading.ThreadingStrategy
 import net.casual.arcade.utils.ServerUtils
 import net.casual.arcade.utils.addSorted
 import net.minecraft.client.Minecraft
@@ -95,10 +96,10 @@ public enum class GlobalEventHandler(
 
             for (listener in listeners) {
                 if (phases.contains(listener.phase)) {
-                    if (listener.requiresMainThread) {
-                        executor.execute { listener.invoke(event) }
-                    } else {
-                        listener.invoke(event)
+                    val option = listener.strategy.get(event)
+                    when (option) {
+                        ThreadingStrategy.Option.UseCurrentThread -> listener.invoke(event)
+                        ThreadingStrategy.Option.ForceMainThread -> executor.execute { listener.invoke(event) }
                     }
                 }
             }

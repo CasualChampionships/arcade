@@ -22,7 +22,7 @@
     ]
   },
   "mixins": [
-    "arcade-resource-pack-host.mixins.json"
+
   ],
   "custom": {
     "modmenu": {

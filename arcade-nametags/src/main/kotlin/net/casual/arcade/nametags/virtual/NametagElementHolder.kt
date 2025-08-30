@@ -7,6 +7,7 @@ package net.casual.arcade.nametags.virtual
 import eu.pb4.polymer.virtualentity.api.ElementHolder
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils
 import eu.pb4.polymer.virtualentity.api.attachment.HolderAttachment
+import eu.pb4.polymer.virtualentity.api.elements.VirtualElement.InteractionHandler
 import eu.pb4.polymer.virtualentity.impl.HolderHolder
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap
@@ -25,12 +26,14 @@ import net.minecraft.world.phys.Vec3
 import java.util.function.Consumer
 
 public open class NametagElementHolder(
-    private val entity: Entity
+    protected val entity: Entity
 ): ElementHolder() {
     private val nametags = Reference2ReferenceLinkedOpenHashMap<Nametag, NametagElement>()
     private val watching = Reference2ObjectLinkedOpenHashMap<ServerGamePacketListenerImpl, MutableSet<NametagElement>>()
 
-    public val root: NametagHeightElement = NametagHeightElement(NametagHeight.INITIAL)
+    protected var retargeting: InteractionHandler = RetargetingInteractionHandler(this.entity)
+
+    public val root: NametagHeightElement = NametagHeightElement(this.entity, NametagHeight.INITIAL)
 
     init {
         this.addElement(this.root)
@@ -122,6 +125,9 @@ public open class NametagElementHolder(
         consumer: Consumer<Packet<ClientGamePacketListener>>
     ) {
         this.updateObserver(connection, consumer)
+        if (this.isMountedToOwner()) {
+            consumer.accept(ClientboundSetPassengersPacket(this.entity))
+        }
     }
 
     override fun stopWatching(connection: ServerGamePacketListenerImpl): Boolean {
@@ -139,6 +145,20 @@ public open class NametagElementHolder(
 
     override fun getPos(): Vec3 {
         return this.entity.position()
+    }
+
+    override fun isPartOf(entityId: Int): Boolean {
+        if (super.isPartOf(entityId)) {
+            return true
+        }
+        return this.getNametagElements().any { it.getMountingId() == entityId }
+    }
+
+    override fun getInteraction(id: Int, player: ServerPlayer): InteractionHandler {
+        if (id == this.root.id) {
+            return this.retargeting
+        }
+        return PassthroughInteractionHandler
     }
 
     public open fun isMountedToOwner(): Boolean {

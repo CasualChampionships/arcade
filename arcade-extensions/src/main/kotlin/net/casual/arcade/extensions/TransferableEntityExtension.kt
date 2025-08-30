@@ -4,10 +4,13 @@
  */
 package net.casual.arcade.extensions
 
+import net.casual.arcade.utils.impl.DelayedInvokers
 import net.minecraft.world.entity.Entity
+import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 public interface TransferableEntityExtension: Extension {
-    public fun transfer(entity: Entity, reason: TransferReason): Extension
+    @OverrideOnly
+    public fun transfer(entity: Entity, reason: TransferReason, delayed: DelayedInvokers): Extension
 
     public enum class TransferReason {
         /**

@@ -6,7 +6,6 @@ package net.casual.arcade.nametags.virtual
 
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils
 import eu.pb4.polymer.virtualentity.api.elements.AbstractElement
-import eu.pb4.polymer.virtualentity.api.elements.VirtualElement.InteractionHandler
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData
 import eu.pb4.polymer.virtualentity.api.tracker.SimpleDataTracker
 import it.unimi.dsi.fastutil.ints.IntList
@@ -17,15 +16,16 @@ import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType.ARMOR_STAND
 import net.minecraft.world.phys.Vec3
 import java.util.*
 import java.util.function.Consumer
 
 public class NametagHeightElement(
-    private val height: NametagHeight
-): AbstractElement(), InteractionHandler {
+    private val entity: Entity,
+    public val height: NametagHeight
+): AbstractElement() {
     private val uuid: UUID = UUID.randomUUID()
     public val id: Int = VirtualEntityUtils.requestEntityId()
 
@@ -34,7 +34,7 @@ public class NametagHeightElement(
     }
 
     override fun startWatching(player: ServerPlayer, consumer: Consumer<Packet<ClientGamePacketListener>>) {
-        val pos = this.currentPos
+        val pos = this.entity.position()
         consumer.accept(ClientboundAddEntityPacket(
             this.id, this.uuid, pos.x, pos.y, pos.z, 0.0F, 0.0F, ARMOR_STAND, 0, Vec3.ZERO, 0.0
         ))
@@ -55,19 +55,6 @@ public class NametagHeightElement(
 
     override fun notifyMove(oldPos: Vec3, currentPos: Vec3, delta: Vec3) {
 
-    }
-
-    override fun interact(player: ServerPlayer, hand: InteractionHand) {
-        val item = player.getItemInHand(hand)
-        player.gameMode.useItem(player, player.level(), item, hand)
-    }
-
-    override fun interactAt(player: ServerPlayer, hand: InteractionHand, pos: Vec3) {
-        this.interact(player, hand)
-    }
-
-    override fun getInteractionHandler(player: ServerPlayer): InteractionHandler {
-        return this
     }
 
     public companion object {

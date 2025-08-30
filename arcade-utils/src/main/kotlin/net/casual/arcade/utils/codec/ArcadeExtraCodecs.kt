@@ -12,6 +12,7 @@ import com.mojang.serialization.DataResult
 import com.mojang.serialization.Dynamic
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import net.casual.arcade.utils.TimeUtils
 import net.minecraft.Util
 import net.minecraft.core.registries.Registries
 import net.minecraft.nbt.NbtOps
@@ -30,6 +31,7 @@ import java.util.*
 import java.util.function.Function
 import kotlin.enums.enumEntries
 import kotlin.io.path.pathString
+import kotlin.time.Duration
 
 public object ArcadeExtraCodecs {
     public val MUTABLE_INT: Codec<MutableInt> = Codec.INT.xmap(::MutableInt, MutableInt::getValue)
@@ -58,6 +60,7 @@ public object ArcadeExtraCodecs {
         { Dynamic(NbtOps.INSTANCE, it.createTag()) }
     )
     public val DIMENSION: Codec<ResourceKey<Level>> = ResourceKey.codec(Registries.DIMENSION)
+    public val DURATION: Codec<Duration> = Codec.STRING.comapFlatMap(TimeUtils::parseToDuration, Duration::toString)
 
     public fun <T> mapWithAlternative(primary: MapCodec<T>, alternative: MapCodec<T>): MapCodec<T> {
         return Codec.mapEither(primary, alternative).xmap(
@@ -122,14 +125,33 @@ public object ArcadeExtraCodecs {
         return ExtraCodecs.optionalEmptyMap(Codec.STRING).xmap(map::get, inverse::get)
     }
 
+    @Deprecated(
+        "Use keyedUnboundedMergedMap instead",
+        ReplaceWith("this.keyedUnboundedMergedMap(keyCodec, valueMapCodec, keyName)")
+    )
     public fun <K, V> keyedUnboundedMapCodec(
         keyCodec: Codec<K>,
         valueMapCodec: MapCodec<V>,
         keyName: String = "id"
     ): Codec<Map<K, V>> {
+        return this.keyedUnboundedMergedMap(keyCodec, valueMapCodec, keyName)
+    }
+
+    public fun <K, V> keyedUnboundedMergedMap(
+        keyCodec: Codec<K>,
+        valueMapCodec: MapCodec<V>,
+        keyName: String = "id"
+    ): Codec<Map<K, V>> {
+        return this.unboundedMergedMap(keyCodec.fieldOf(keyName), valueMapCodec)
+    }
+
+    public fun <K, V> unboundedMergedMap(
+        keyCodec: MapCodec<K>,
+        valueMapCodec: MapCodec<V>
+    ): Codec<Map<K, V>> {
         val entryCodec = OrderedRecordCodecBuilder.create<Pair<K, V>> { instance ->
             instance.group(
-                keyCodec.fieldOf(keyName).forGetter { it.first },
+                keyCodec.forGetter { it.first },
                 valueMapCodec.forGetter { it.second }
             ).apply(instance, ::Pair)
         }

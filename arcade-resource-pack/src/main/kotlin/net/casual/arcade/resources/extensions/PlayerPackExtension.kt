@@ -7,7 +7,7 @@ package net.casual.arcade.resources.extensions
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.extensions.Extension
-import net.casual.arcade.host.data.ResolvablePackURL
+import net.casual.arcade.utils.network.ResolvableURL
 import net.casual.arcade.resources.event.ClientPacksSuccessEvent
 import net.casual.arcade.resources.event.PlayerPacksSuccessEvent
 import net.casual.arcade.resources.pack.PackInfo
@@ -66,7 +66,7 @@ internal class PlayerPackExtension(private val uuid: UUID): Extension {
     }
 
     internal fun onPushPack(packet: ClientboundResourcePackPushPacket) {
-        val url = ResolvablePackURL.from(packet.url)
+        val url = ResolvableURL.from(packet.url)
         val info = PackInfo(url, packet.hash, packet.required, packet.prompt.getOrNull(), packet.id)
         val state = PackState(info, PackStatus.WAITING)
         this.packs[info.uuid] = state

@@ -255,14 +255,17 @@ public class FooMixin {
 ### Thread Safety
 
 By default, arcade assumes that all event listeners expect events to be broadcast 
-from the main thread. 
+from the main thread, with the exception if the event type inherits `AsyncEvent`. 
 As a result, if an event is broadcast off the main thread, then it will be pushed to 
 the main thread for listeners.
-The exception to this is if a listener explicitly marks itself as allowing to listen
-to off-thread events, in which case the listener is responsible for thread safety.
+The listener can explicitly specify a threading strategy, which by default pushes all 
+non-`AsyncEvent`s to the main thread. 
+By default, we can choose `ThreadingTarget.ForceMainThread` which forces *all* events
+to be broadcasted on the main thread, or `ThreadingTarget.UseCurrentThread` which
+will force non-`AsyncEvent`s to be broadcast on the broadcasting thread.
 ```kotlin
 EventListener.of<ServerTickEvent>(
-    requiresMainThread = false,
+    strategy = ThreadingTarget.ForceMainThread,
     listener = { _ ->
         
     }

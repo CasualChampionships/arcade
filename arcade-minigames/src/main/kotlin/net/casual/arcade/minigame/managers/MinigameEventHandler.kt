@@ -10,6 +10,8 @@ import net.casual.arcade.events.common.Event
 import net.casual.arcade.events.server.level.LevelEvent
 import net.casual.arcade.events.server.level.LocatedLevelEvent
 import net.casual.arcade.events.server.player.PlayerEvent
+import net.casual.arcade.events.threading.ThreadingStrategy
+import net.casual.arcade.events.threading.ThreadingTarget
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.ListenerFlags.DEFAULT
 import net.casual.arcade.minigame.annotation.ListenerFlags.HAS_LEVEL
@@ -94,10 +96,10 @@ public class MinigameEventHandler(
         priority: Int,
         phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
-        requiresMainThread: Boolean = true,
+        strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
     ) {
-        this.register(T::class.java, priority, phase, flags, requiresMainThread, listener)
+        this.register(T::class.java, priority, phase, flags, strategy, listener)
     }
 
     /**
@@ -141,10 +143,10 @@ public class MinigameEventHandler(
         priority: Int = 1_000,
         phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
-        requiresMainThread: Boolean = true,
+        strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
     ) {
-        this.register(type, flags, EventListener.of(priority, phase, requiresMainThread, listener))
+        this.register(type, flags, EventListener.of(priority, phase, strategy, listener))
     }
 
     /**
@@ -197,13 +199,13 @@ public class MinigameEventHandler(
         priority: Int,
         phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
-        requiresMainThread: Boolean = true,
+        strategy: ThreadingStrategy = ThreadingTarget.Default,
         vararg phases: Phase<*>,
         listener: Consumer<T>
     ) {
         this.registerInPhases(
             T::class.java, flags, phases = phases,
-            listener = EventListener.of(priority, phase, requiresMainThread, listener)
+            listener = EventListener.of(priority, phase, strategy, listener)
         )
     }
 
@@ -254,10 +256,10 @@ public class MinigameEventHandler(
         before: Phase<*>,
         phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
-        requiresMainThread: Boolean = true,
+        strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
     ) {
-        this.registerBetweenPhases(1_000, after, before, phase, flags, requiresMainThread, listener)
+        this.registerBetweenPhases(1_000, after, before, phase, flags, strategy, listener)
     }
 
     /**
@@ -276,11 +278,11 @@ public class MinigameEventHandler(
         before: Phase<*>,
         phase: String = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
-        requiresMainThread: Boolean = true,
+        strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
     ) {
         this.registerBetweenPhases(
-            T::class.java, after, before, flags, EventListener.of(priority, phase, requiresMainThread, listener)
+            T::class.java, after, before, flags, EventListener.of(priority, phase, strategy, listener)
         )
     }
 

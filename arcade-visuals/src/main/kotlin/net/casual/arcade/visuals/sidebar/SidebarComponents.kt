@@ -23,6 +23,13 @@ public class SidebarComponents<C> internal constructor(): Iterable<C> {
         return this
     }
 
+    public fun addRows(rows: Iterable<C>): SidebarComponents<C> {
+        for (row in rows) {
+            this.addRow(row)
+        }
+        return this
+    }
+
     public fun addRow(index: Int, row: C): SidebarComponents<C> {
         this.checkBounds(index, this.size())
         this.rows.add(index, row)

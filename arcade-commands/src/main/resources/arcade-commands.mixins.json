@@ -10,9 +10,7 @@
     "CommandDispatcherMixin",
     "CommandNodeMixin",
     "CommandsMixin",
-    "MinecraftServerMixin",
-    "PlayerListMixin",
-    "ServerGamePacketListenerImplMixin"
+    "PlayerListMixin"
   ],
   "injectors": {
     "defaultRequire": 1

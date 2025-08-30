@@ -5,9 +5,9 @@
 package net.casual.arcade.resources
 
 import net.casual.arcade.resources.creator.NamedResourcePackCreator
-import net.casual.arcade.resources.font.heads.PlayerHeadFont
 import net.casual.arcade.resources.font.padding.PaddingNoSplitFontResources
 import net.casual.arcade.resources.font.padding.PaddingSplitFontResources
+import net.casual.arcade.resources.font.pixel.PixelFontResources
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.resources.utils.FontUtils
 import net.casual.arcade.resources.utils.ResourcePackUtils
@@ -66,13 +66,11 @@ public object ArcadeResourcePacks: ModInitializer {
         }
     }
 
-    public val PLAYER_HEADS_PACK: NamedResourcePackCreator by lazy {
-        NamedResourcePackCreator.named("player_heads") {
-            val location = path("packs/PlayerHeads")
-            addAssetSource(location)
-            addFont(PlayerHeadFont)
-            packIcon = location.resolve("assets/arcade/textures/font/steve.png").readBytes()
-            packDescription = Component.literal("Utilities for rendering player heads")
+    public val PIXEL_FONT_PACK: NamedResourcePackCreator by lazy {
+        NamedResourcePackCreator.named("pixel_font") {
+            addAssetSource(path("packs/PixelFont"))
+            addFont(PixelFontResources)
+            packDescription = Component.literal("Utilities for rendering pixel art")
         }
     }
 
@@ -90,7 +88,7 @@ public object ArcadeResourcePacks: ModInitializer {
         }
     }
 
-    public val MINI_MINECRAFT_FONT: NamedResourcePackCreator by lazy {
+    public val MINI_MINECRAFT_FONT_PACK: NamedResourcePackCreator by lazy {
         NamedResourcePackCreator.named("mini_minecraft") {
             addAssetSource(path("packs/MiniMinecraftFont"))
             addFont(ComponentUtils.MINI_FONT, FontUtils::createMiniFont)
@@ -98,7 +96,7 @@ public object ArcadeResourcePacks: ModInitializer {
         }
     }
 
-    public val BOUNDARY_SHADER: NamedResourcePackCreator by lazy {
+    public val BOUNDARY_SHADER_PACK: NamedResourcePackCreator by lazy {
         NamedResourcePackCreator.named("boundary_shader") {
             addAssetSource(path("packs/BoundaryShader"))
             packDescription = Component.literal("Shaders for rendering custom boundaries")
@@ -128,7 +126,7 @@ public object ArcadeResourcePacks: ModInitializer {
         }
     }
 
-    private fun path(file: String): Path {
+    public fun path(file: String): Path {
         return this.container.findPath(file).get()
     }
 }

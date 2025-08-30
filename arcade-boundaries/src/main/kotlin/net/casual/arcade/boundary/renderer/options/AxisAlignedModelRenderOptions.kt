@@ -67,7 +67,7 @@ public interface AxisAlignedModelRenderOptions {
         )
 
         /**
-         * This requires the resource pack [ArcadeResourcePacks.BOUNDARY_SHADER],
+         * This requires the resource pack [ArcadeResourcePacks.BOUNDARY_SHADER_PACK],
          * it uses custom item models and a custom shader to try and simulate
          * the vanilla world border.
          *
@@ -81,7 +81,7 @@ public interface AxisAlignedModelRenderOptions {
         )
 
         /**
-         * This requires the resource pack [ArcadeResourcePacks.BOUNDARY_SHADER],
+         * This requires the resource pack [ArcadeResourcePacks.BOUNDARY_SHADER_PACK],
          * it uses custom item models and a custom shader to try and simulate
          * the vanilla world border.
          *

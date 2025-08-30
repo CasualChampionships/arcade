@@ -6,12 +6,12 @@ package net.casual.arcade.visuals.extensions
 
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
-import net.casual.arcade.events.server.ServerLoadedEvent
+import net.casual.arcade.events.server.ServerStartEvent
 import net.casual.arcade.events.server.player.PlayerLeaveEvent
 import net.casual.arcade.events.server.player.PlayerTickEvent
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
-import net.casual.arcade.extensions.event.PlayerExtensionEvent.Companion.getExtension
+import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.utils.ScoreboardUtils
 import net.casual.arcade.visuals.sidebar.Sidebar
 import net.casual.arcade.visuals.sidebar.SidebarComponent
@@ -185,7 +185,7 @@ internal class PlayerSidebarExtension(
         }
 
         internal fun registerEvents() {
-            GlobalEventHandler.Server.register<ServerLoadedEvent> {
+            GlobalEventHandler.Server.register<ServerStartEvent> {
                 for (i in 0..15) {
                     players.add("\$D${i.toString(16)}")
                 }

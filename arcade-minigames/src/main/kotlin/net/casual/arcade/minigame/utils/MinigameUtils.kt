@@ -16,15 +16,13 @@ import net.casual.arcade.events.server.level.LocatedLevelEvent
 import net.casual.arcade.events.server.player.PlayerEvent
 import net.casual.arcade.extensions.event.ExtensionEvent
 import net.casual.arcade.extensions.event.LevelExtensionEvent
-import net.casual.arcade.extensions.event.LevelExtensionEvent.Companion.getExtension
-import net.casual.arcade.extensions.event.PlayerExtensionEvent.Companion.getExtension
+import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.annotation.MinigameEventListener
 import net.casual.arcade.minigame.events.MinigameEvent
 import net.casual.arcade.minigame.extensions.LevelMinigameExtension
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
-import net.casual.arcade.minigame.managers.MinigameTickRateManager
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.settings.MinigameSettings
@@ -42,7 +40,6 @@ import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.entity.Entity
 import org.jetbrains.annotations.ApiStatus.Internal
 import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
@@ -302,6 +299,6 @@ public object MinigameUtils {
 
         method.isAccessible = true
         val handle = MethodHandles.lookup().unreflect(method)
-        return type to EventListener.of(priority, event.phase, event.requiresMainThread) { handle.invoke(declarer, it) }
+        return type to EventListener.of(priority, event.phase, event.strategy) { handle.invoke(declarer, it) }
     }
 }

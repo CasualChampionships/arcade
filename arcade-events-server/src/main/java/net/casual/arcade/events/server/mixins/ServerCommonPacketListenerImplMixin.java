@@ -12,11 +12,13 @@ import io.netty.channel.ChannelFutureListener;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.network.ClientboundPacketEvent;
+import net.casual.arcade.events.server.player.PlayerCustomClickActionEvent;
 import net.casual.arcade.events.server.player.PlayerDisconnectEvent;
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent;
 import net.minecraft.network.Connection;
 import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -81,6 +83,24 @@ public abstract class ServerCommonPacketListenerImplMixin {
 		if ((Object) this instanceof ServerGamePacketListenerImpl connection) {
 			PlayerClientboundPacketEvent playerEvent = new PlayerClientboundPacketEvent(connection.player, event.getPacket());
 			GlobalEventHandler.Server.broadcast(playerEvent, BuiltInEventPhases.POST_PHASES);
+		}
+	}
+
+	@Inject(
+		method = "handleCustomClickAction",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/MinecraftServer;handleCustomClickAction(Lnet/minecraft/resources/ResourceLocation;Ljava/util/Optional;)V"
+		),
+		cancellable = true
+	)
+	private void onHandleCustomClickAction(ServerboundCustomClickActionPacket packet, CallbackInfo ci) {
+		if ((Object) this instanceof ServerGamePacketListenerImpl connection) {
+			PlayerCustomClickActionEvent event = new PlayerCustomClickActionEvent(connection.player, packet.id(), packet.payload().orElse(null));
+			GlobalEventHandler.Server.broadcast(event);
+			if (event.consumed()) {
+				ci.cancel();
+			}
 		}
 	}
 

@@ -120,7 +120,7 @@ public open class NPCMoveControl(
             Operation.JUMPING -> {
                 val speed = (this.speedModifier * this.player.getAttributeValue(Attributes.MOVEMENT_SPEED)).toFloat()
                 this.player.zza = speed
-                if (this.player.onGround()) {
+                if (this.player.onGround() || this.player.isInWater) {
                     this.operation = Operation.WAIT
                 }
             }

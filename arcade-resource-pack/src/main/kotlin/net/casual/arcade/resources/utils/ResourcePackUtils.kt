@@ -12,7 +12,7 @@ import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.network.ClientboundPacketEvent
 import net.casual.arcade.events.server.player.PlayerDisconnectEvent
 import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
-import net.casual.arcade.host.data.HostedPack
+import net.casual.arcade.host.pack.hosted.HostedPack
 import net.casual.arcade.host.PackHost
 import net.casual.arcade.host.pack.PathPack
 import net.casual.arcade.resources.creator.NamedResourcePackCreator
@@ -170,7 +170,7 @@ public object ResourcePackUtils {
 
     public fun PackHost.addPack(path: Path, creator: NamedResourcePackCreator): PackHost.HostedPackRef {
         creator.buildTo(path)
-        return this.addPack(PathPack(path.resolve(creator.zippedName())))
+        return this.add(PathPack(path.resolve(creator.zippedName())))
     }
 
     @JvmStatic
@@ -226,9 +226,6 @@ public object ResourcePackUtils {
             replacer.block()
             val shader = ShaderUtils.getOutlineVertexShader(replacer.getMap(), replacer.getRainbow())
             builder.addData("assets/minecraft/shaders/core/rendertype_outline.vsh", shader.encodeToByteArray())
-            if (replacer.getRainbow() != null) {
-                builder.addData("assets/minecraft/shaders/core/rendertype_outline.json", ShaderUtils.getOutlineJsonShader().encodeToByteArray())
-            }
         }
     }
 

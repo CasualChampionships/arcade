@@ -11,24 +11,6 @@ import net.minecraft.util.ARGB
 
 public object ShaderUtils {
     private const val NL_INDENT = "\n            "
-
-    internal fun getOutlineJsonShader(): String {
-        return """
-        {
-            "vertex": "minecraft:core/rendertype_outline",
-            "fragment": "minecraft:core/rendertype_outline",
-            "samplers": [
-                { "name": "Sampler0" }
-            ],
-            "uniforms": [
-                { "name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
-                { "name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
-                { "name": "GameTime", "type": "float", "count": 1, "values": [ 0.0 ] },
-                { "name": "ColorModulator", "type": "float", "count": 4, "values": [ 1.0, 1.0, 1.0, 1.0 ] }
-            ]
-        }
-        """.trimIndent()
-    }
     
     internal fun getOutlineVertexShader(
         colors: Int2IntMap,
@@ -55,14 +37,14 @@ public object ShaderUtils {
         return """
         #version 150
 
+        #moj_import <minecraft:dynamictransforms.glsl>
+        #moj_import <minecraft:projection.glsl>
+        ${if (rainbow != null) "#moj_import <minecraft:globals.glsl>" else ""}
+
         in vec3 Position;
         in vec4 Color;
         in vec2 UV0;
-
-        uniform mat4 ModelViewMat;
-        uniform mat4 ProjMat;
-        ${if (rainbow != null) "uniform float GameTime;" else ""}
-
+        
         out vec4 vertexColor;
         out vec2 texCoord0;
 

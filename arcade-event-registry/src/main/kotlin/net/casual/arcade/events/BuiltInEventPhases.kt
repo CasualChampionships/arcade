@@ -52,6 +52,18 @@ public object BuiltInEventPhases {
     public val POST_PHASES: Set<String> = setOf(POST)
 
     /**
+     * The set containing the [PRE] phase.
+     */
+    @JvmField
+    public val ALT_PRE_PHASES: Set<String> = setOf(PRE)
+
+    /**
+     * The set containing the [POST] and [DEFAULT] phases.
+     */
+    @JvmField
+    public val ALT_POST_PHASES: Set<String> = setOf(POST, DEFAULT)
+
+    /**
      * The set containing the [PRE], [DEFAULT], and [POST] phases.
      */
     @JvmField
