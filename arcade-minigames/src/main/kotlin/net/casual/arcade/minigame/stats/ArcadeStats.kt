@@ -27,7 +27,7 @@ public object ArcadeStats {
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T> register(path: String, type: StatType<T>): Holder.Reference<StatType<T>> {
+    private fun <T: Any> register(path: String, type: StatType<T>): Holder.Reference<StatType<T>> {
         val holder = Registry.registerForHolder(MinigameRegistries.STAT_TYPES, ArcadeUtils.id(path), type)
         return holder as Holder.Reference<StatType<T>>
     }
