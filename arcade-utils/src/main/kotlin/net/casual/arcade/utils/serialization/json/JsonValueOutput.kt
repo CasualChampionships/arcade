@@ -123,12 +123,16 @@ public class JsonValueOutput private constructor(
         return this.reporter.forChild(ProblemReporter.FieldPathElement(name))
     }
 
+    public interface BuildableList: ValueOutput.ValueOutputList {
+        public fun buildResult(): JsonArray
+    }
+
     private class ListWrapper(
         val name: String,
         val reporter: ProblemReporter,
         val ops: DynamicOps<JsonElement>,
         val output: JsonArray
-    ): ValueOutput.ValueOutputList {
+    ): BuildableList {
         override fun addChild(): ValueOutput {
             val size = this.output.size()
             val child = JsonObject()
@@ -143,6 +147,10 @@ public class JsonValueOutput private constructor(
 
         override fun isEmpty(): Boolean {
             return this.output.isEmpty
+        }
+
+        override fun buildResult(): JsonArray {
+            return this.output
         }
     }
 
@@ -177,6 +185,16 @@ public class JsonValueOutput private constructor(
         @JvmStatic
         public fun create(reporter: ProblemReporter): JsonValueOutput {
             return JsonValueOutput(reporter, JsonOps.INSTANCE, JsonObject())
+        }
+
+        @JvmStatic
+        public fun createList(reporter: ProblemReporter, lookup: HolderLookup.Provider): BuildableList {
+            return ListWrapper("root", reporter, lookup.createSerializationContext(JsonOps.INSTANCE), JsonArray())
+        }
+
+        @JvmStatic
+        public fun createList(reporter: ProblemReporter): BuildableList {
+            return ListWrapper("root", reporter, JsonOps.INSTANCE, JsonArray())
         }
     }
 }

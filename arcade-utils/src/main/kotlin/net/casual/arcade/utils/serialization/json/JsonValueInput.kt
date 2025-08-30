@@ -312,12 +312,26 @@ public class JsonValueInput private constructor(
     public companion object {
         @JvmStatic
         public fun create(reporter: ProblemReporter, lookup: HolderLookup.Provider, input: JsonObject): JsonValueInput {
-            return JsonValueInput(reporter, EmptyValueInput(lookup), lookup.createSerializationContext(JsonOps.INSTANCE), input)
+            return JsonValueInput(
+                reporter, EmptyValueInput(lookup), lookup.createSerializationContext(JsonOps.INSTANCE), input
+            )
         }
 
         @JvmStatic
         public fun create(reporter: ProblemReporter, input: JsonObject): JsonValueInput {
             return JsonValueInput(reporter, EmptyValueInput(RegistryAccess.EMPTY), JsonOps.INSTANCE, input)
+        }
+
+        @JvmStatic
+        public fun create(reporter: ProblemReporter, input: JsonArray): ValueInput.ValueInputList {
+            return ListWrapper("root", reporter, EmptyValueInput(RegistryAccess.EMPTY), JsonOps.INSTANCE, input)
+        }
+
+        @JvmStatic
+        public fun create(reporter: ProblemReporter, lookup: HolderLookup.Provider, input: JsonArray): ValueInput.ValueInputList {
+            return ListWrapper(
+                "root", reporter, EmptyValueInput(lookup), lookup.createSerializationContext(JsonOps.INSTANCE), input
+            )
         }
 
         private fun wrapChild(

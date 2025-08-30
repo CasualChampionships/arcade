@@ -4,14 +4,11 @@
  */
 package net.casual.arcade.minigame.stats
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import com.mojang.serialization.Codec
-import com.mojang.serialization.JsonOps
-import net.casual.arcade.utils.JsonUtils.objects
 import net.minecraft.core.Holder
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.jvm.optionals.getOrNull
 
 public class StatTracker {
     private val stats = ConcurrentHashMap<Holder<StatType<*>>, Stat<*>>()
@@ -32,47 +29,41 @@ public class StatTracker {
     }
 
     @Suppress("UNCHECKED_CAST")
-    public fun <T> getStatValueOrDefault(holder: Holder<StatType<T>>): T {
+    public fun <T: Any> getStatValueOrDefault(holder: Holder<StatType<T>>): T {
         val stat = this.stats[holder as Holder<StatType<*>>] ?: return holder.value().default
         return (stat as Stat<T>).value
     }
 
     @Suppress("UNCHECKED_CAST")
-    public fun <T> getOrCreateStat(holder: Holder<StatType<T>>): Stat<T> {
+    public fun <T: Any> getOrCreateStat(holder: Holder<StatType<T>>): Stat<T> {
         return this.stats.getOrPut(holder as Holder<StatType<*>>) {
             this.createStat(holder.value())
         } as Stat<T>
     }
 
-    public fun serialize(): JsonElement {
-        val stats = JsonArray()
-        val mapped = this.stats.mapValues { (_, v) -> v.value }
-        CODEC.encodeStart(JsonOps.INSTANCE)
+    public fun serialize(output: ValueOutput.ValueOutputList) {
         for ((type, stat) in this.stats) {
-            val statData = JsonObject()
-//            statData.addProperty("type", type.id.toString())
-//            statData.add("value", stat.serialize())
-//            statData.addProperty("value_type", stat.type.codec.type())
-//            stats.add(statData)
-        }
-        return stats
-    }
-
-    public fun deserialize(stats: JsonElement) {
-
-        for (statData in stats.objects()) {
-//            val location = ResourceLocation.parse(statData.string("type"))
-//            val value = statData["value"]
-//            val type = statData.string("value_type")
-//            this.unprocessed[location] = value to type
+            val child = output.addChild()
+            child.store("type", StatType.HOLDER_CODEC, type)
+            child.store("value", stat)
         }
     }
 
-    private fun <T> createStat(type: StatType<T>): Stat<T> {
+    @Suppress("UNCHECKED_CAST")
+    public fun deserialize(input: ValueInput.ValueInputList) {
+        for (child in input) {
+            val type = child.read("type", StatType.HOLDER_CODEC).getOrNull() ?: continue
+            val value = child.read("value", type.value().codec).getOrNull() ?: continue
+            val stat = this.getOrCreateStat(type as Holder<StatType<Any>>)
+            stat.set(value)
+        }
+    }
+
+    private fun <T: Any> createStat(type: StatType<T>): Stat<T> {
         return Stat(type).also { stat -> stat.frozen = this.frozen }
     }
 
-    private companion object {
-        val CODEC = Codec.dispatchedMap(StatType.HOLDER_CODEC) { type -> type.value().codec }!!
+    private fun <T: Any> ValueOutput.store(key: String, stat: Stat<T>) {
+        this.store(key, stat.type.codec, stat.value)
     }
 }

@@ -8,7 +8,7 @@ import com.mojang.serialization.Codec
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.minecraft.core.Holder
 
-public class StatType<T>(
+public class StatType<T: Any>(
     public val default: T,
     public val codec: Codec<T>
 ) {

@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.minigame.stats
 
-public class Stat<T>(
+public class Stat<T: Any>(
     public val type: StatType<T>
 ) {
     internal var frozen: Boolean = false
