@@ -9,8 +9,8 @@ import com.google.common.collect.Multimap
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.utils.ResourceUtils
-import net.casual.arcade.utils.codec.CodecProvider
-import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
+import net.casual.arcade.utils.serialization.codec.CodecProvider
+import net.casual.arcade.utils.serialization.codec.OrderedRecordCodecBuilder
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.Mth

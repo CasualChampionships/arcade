@@ -8,7 +8,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.minigame.area.PlaceableArea
 import net.casual.arcade.minigame.utils.MinigameRegistries
-import net.casual.arcade.utils.codec.CodecProvider.Companion.register
+import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.minecraft.core.Registry
 import net.minecraft.server.level.ServerLevel
 import java.util.function.Function

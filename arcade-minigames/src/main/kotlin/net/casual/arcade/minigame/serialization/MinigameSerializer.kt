@@ -29,8 +29,12 @@ import net.casual.arcade.utils.JsonUtils.stringOrNull
 import net.casual.arcade.utils.JsonUtils.toJsonArray
 import net.casual.arcade.utils.JsonUtils.uuidOrNull
 import net.casual.arcade.utils.JsonUtils.uuids
+import net.casual.arcade.utils.serialization.json.JsonValueInput
+import net.casual.arcade.utils.serialization.json.JsonValueOutput
 import net.minecraft.Util
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import org.jetbrains.annotations.ApiStatus.Internal
 import java.io.*
 import java.nio.file.Path
@@ -46,16 +50,16 @@ public class MinigameSerializer(
     private val minigame: Minigame
 ) {
     internal fun loadFrom(path: Path) {
-        this.readAsJsonObjectInto(path.resolve("tasks.json"), this::readTasksJson)
-        this.readAsJsonObjectInto(path.resolve("players.json"), this::readPlayersJson)
-        this.readAsJsonObjectInto(path.resolve("chat_manager.json"), this.minigame.chat::deserialize)
-        this.readAsJsonArrayInto(path.resolve("settings.json"), this.minigame.settings::deserialize)
-        this.readAsJsonArrayInto(path.resolve("stats.json"), this.minigame.stats::deserialize)
-        this.readAsJsonArrayInto(path.resolve("tags.json"), this.minigame.tags::deserialize)
-        this.readAsJsonArrayInto(path.resolve("recipes.json"), this.minigame.recipes::deserialize)
-        this.readAsJsonObjectInto(path.resolve("data_tracker.json"), this.minigame.data::deserialize)
-        this.readAsJsonObjectInto(path.resolve("custom.json"), this.minigame::internalLoad)
-        this.readAsJsonObjectInto(path.resolve("minigame.json"), this::readMinigameJson)
+        this.readAsJsonObjectFrom(path.resolve("tasks.json"), this::readTasksJson)
+        this.readAsJsonObjectFrom(path.resolve("players.json"), this::readPlayersJson)
+        this.readAsJsonObjectFrom(path.resolve("chat_manager.json"), this.minigame.chat::deserialize)
+        this.readAsJsonArrayFrom(path.resolve("settings.json"), this.minigame.settings::deserialize)
+        this.readAsListFrom(path.resolve("stats.json"), this.minigame.stats::deserialize)
+        this.readAsJsonArrayFrom(path.resolve("tags.json"), this.minigame.tags::deserialize)
+        this.readAsJsonArrayFrom(path.resolve("recipes.json"), this.minigame.recipes::deserialize)
+        this.readAsJsonObjectFrom(path.resolve("data_tracker.json"), this.minigame.data::deserialize)
+        this.readAsJsonObjectFrom(path.resolve("custom.json"), this.minigame::internalLoad)
+        this.readAsJsonObjectFrom(path.resolve("minigame.json"), this::readMinigameJson)
     }
 
     internal fun saveTo(path: Path) {
@@ -63,7 +67,7 @@ public class MinigameSerializer(
         this.writeAsyncAsJsonElementInto(path.resolve("players.json"), this::writePlayerJson)
         this.writeAsyncAsJsonElementInto(path.resolve("chat_manager.json"), this.minigame.chat::serialize)
         this.writeAsyncAsJsonElementInto(path.resolve("settings.json"), this.minigame.settings::serialize)
-        this.writeAsyncAsJsonElementInto(path.resolve("stats.json"), this.minigame.stats::serialize)
+        this.writeAsyncAsListInto(path.resolve("stats.json"), this.minigame.stats::serialize)
         this.writeAsyncAsJsonElementInto(path.resolve("tags.json"), this.minigame.tags::serialize)
         this.writeAsyncAsJsonElementInto(path.resolve("recipes.json"), this.minigame.recipes::serialize)
         this.writeAsyncAsJsonElementInto(path.resolve("data_tracker.json"), this.minigame.data::serialize)
@@ -72,15 +76,31 @@ public class MinigameSerializer(
         this.writeAsyncAsJsonElementInto(path.resolve("minigame.json"), this::writeMinigameJson)
     }
 
-    private inline fun readAsJsonObjectInto(path: Path, block: (JsonObject) -> Unit) {
+    private inline fun readAsJsonObjectFrom(path: Path, block: (JsonObject) -> Unit) {
         if (path.isRegularFile()) {
             block.invoke(path.reader().use(JsonUtils::decodeToJsonObject))
         }
     }
 
-    private inline fun readAsJsonArrayInto(path: Path, block: (JsonArray) -> Unit) {
+    private inline fun readAsJsonArrayFrom(path: Path, block: (JsonArray) -> Unit) {
         if (path.isRegularFile()) {
             block.invoke(path.reader().use(JsonUtils::decodeToJsonArray))
+        }
+    }
+
+    private inline fun readAsObjectFrom(path: Path, crossinline block: (ValueInput) -> Unit) {
+        this.readAsJsonObjectFrom(path) { json: JsonObject ->
+            ArcadeUtils.scopedProblemReporter { reporter ->
+                block.invoke(JsonValueInput.create(reporter, this.minigame.server.registryAccess(), json))
+            }
+        }
+    }
+
+    private inline fun readAsListFrom(path: Path, crossinline block: (ValueInput.ValueInputList) -> Unit) {
+        this.readAsJsonArrayFrom(path) { json: JsonArray ->
+            ArcadeUtils.scopedProblemReporter { reporter ->
+                block.invoke(JsonValueInput.create(reporter, this.minigame.server.registryAccess(), json))
+            }
         }
     }
 
@@ -130,7 +150,6 @@ public class MinigameSerializer(
         this.minigame.players.adminUUIDs.addAll(json.arrayOrDefault("admins").uuids())
     }
 
-    @OptIn(ExperimentalEncodingApi::class)
     private fun deserializeTask(identity: Int, context: MinigameTaskCreationContextImpl): Task? {
         if (context.generated.containsKey(identity)) {
             return context.generated.get(identity)
@@ -164,6 +183,16 @@ public class MinigameSerializer(
                 }
             } catch (e: IOException) {
                 ArcadeUtils.logger.error("Failed to write minigame data to $path", e)
+            }
+        }
+    }
+
+    private inline fun writeAsyncAsListInto(path: Path, block: (ValueOutput.ValueOutputList) -> Unit) {
+        this.writeAsyncAsJsonElementInto(path) {
+            ArcadeUtils.createProblemReporter().use { reporter ->
+                val output = JsonValueOutput.createList(reporter, this.minigame.server.registryAccess())
+                block.invoke(output)
+                output.buildResult()
             }
         }
     }
@@ -215,7 +244,6 @@ public class MinigameSerializer(
         return json
     }
 
-    @OptIn(ExperimentalEncodingApi::class)
     private fun serializeTask(task: Task, context: MinigameTaskSerializationContext): Int? {
         val identity = System.identityHashCode(task)
         if (context.definitions.containsKey(identity)) {

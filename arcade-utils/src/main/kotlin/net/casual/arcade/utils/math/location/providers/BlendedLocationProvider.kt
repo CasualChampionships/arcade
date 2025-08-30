@@ -7,10 +7,10 @@ package net.casual.arcade.utils.math.location.providers
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.utils.ResourceUtils
-import net.casual.arcade.utils.codec.ArcadeExtraCodecs
-import net.casual.arcade.utils.codec.CodecProvider
-import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
 import net.casual.arcade.utils.math.location.Location
+import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
+import net.casual.arcade.utils.serialization.codec.CodecProvider
+import net.casual.arcade.utils.serialization.codec.OrderedRecordCodecBuilder
 import net.minecraft.resources.ResourceLocation
 
 public class BlendedLocationProvider(

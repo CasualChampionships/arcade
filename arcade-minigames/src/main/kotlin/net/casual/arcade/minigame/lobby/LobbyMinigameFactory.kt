@@ -11,7 +11,7 @@ import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.template.area.PlaceableAreaTemplate
 import net.casual.arcade.utils.ResourceUtils
-import net.casual.arcade.utils.codec.CodecProvider
+import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.math.location.providers.LocationProvider
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation

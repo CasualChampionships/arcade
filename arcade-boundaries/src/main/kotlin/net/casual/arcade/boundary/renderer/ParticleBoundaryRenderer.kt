@@ -11,7 +11,7 @@ import net.casual.arcade.boundary.renderer.options.ParticleRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.ClientboundLevelParticlesPacket
-import net.casual.arcade.utils.codec.CodecProvider
+import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.resources.ResourceLocation

@@ -11,7 +11,7 @@ import net.casual.arcade.dimensions.level.LevelGenerationOptions
 import net.casual.arcade.dimensions.level.LevelPersistence
 import net.casual.arcade.dimensions.level.LevelProperties
 import net.casual.arcade.utils.ResourceUtils
-import net.casual.arcade.utils.codec.CodecProvider
+import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer

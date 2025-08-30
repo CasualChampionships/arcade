@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.utils
 
-import net.casual.arcade.utils.codec.ArcadeExtraCodecs
+import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.minecraft.nbt.CompoundTag
@@ -90,7 +90,7 @@ public fun CompoundTag.getVec3OrNull(key: String): Vec3? {
 
 @Deprecated("Use provided store method", ReplaceWith(
     "this.store(key, ArcadeExtraCodecs.VEC2, vec)",
-    "net.casual.arcade.utils.codec.ArcadeExtraCodecs"
+    "net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs"
 ))
 public fun CompoundTag.putVec2(key: String, vec: Vec2) {
     this.store(key, ArcadeExtraCodecs.VEC2, vec)
@@ -98,7 +98,7 @@ public fun CompoundTag.putVec2(key: String, vec: Vec2) {
 
 @Deprecated("Use provided read method", ReplaceWith(
     "this.read(key, ArcadeExtraCodecs.VEC2).get()",
-    "net.casual.arcade.utils.codec.ArcadeExtraCodecs"
+    "net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs"
 ))
 public fun CompoundTag.getVec2(key: String): Vec2 {
     return this.read(key, ArcadeExtraCodecs.VEC2).get()
@@ -106,7 +106,7 @@ public fun CompoundTag.getVec2(key: String): Vec2 {
 
 @Deprecated("Use provided read method", ReplaceWith(
     "this.read(key, ArcadeExtraCodecs.VEC2).getOrNull()",
-    "net.casual.arcade.utils.codec.ArcadeExtraCodecs",
+    "net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs",
     "kotlin.jvm.optionals.getOrNull"
 ))
 public fun CompoundTag.getVec2OrNull(key: String): Vec2? {

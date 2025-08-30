@@ -8,7 +8,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.utils.DimensionRegistries
-import net.casual.arcade.utils.codec.CodecProvider.Companion.register
+import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.minecraft.core.Registry
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.CustomSpawner

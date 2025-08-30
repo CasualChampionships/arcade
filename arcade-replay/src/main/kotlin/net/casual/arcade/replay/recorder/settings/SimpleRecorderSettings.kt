@@ -8,8 +8,8 @@ import com.google.gson.JsonElement
 import com.mojang.serialization.Codec
 import com.mojang.serialization.JsonOps
 import net.casual.arcade.replay.recorder.settings.RecorderSettings.*
-import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
 import net.casual.arcade.utils.encodedOptionalFieldOf
+import net.casual.arcade.utils.serialization.codec.OrderedRecordCodecBuilder
 
 public data class SimpleRecorderSettings(
     override val debug: Boolean = false,

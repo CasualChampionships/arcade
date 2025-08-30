@@ -5,7 +5,7 @@
 package net.casual.arcade.replay.util.flashback
 
 import com.mojang.serialization.Codec
-import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
+import net.casual.arcade.utils.serialization.codec.OrderedRecordCodecBuilder
 import net.minecraft.SharedConstants
 import net.minecraft.core.UUIDUtil
 import java.util.*

@@ -5,10 +5,9 @@
 package net.casual.arcade.dimensions.level
 
 import com.mojang.serialization.Codec
-import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.level.spawner.CustomSpawnerFactory
-import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
+import net.casual.arcade.utils.serialization.codec.OrderedRecordCodecBuilder
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.RegistryFileCodec

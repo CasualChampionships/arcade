@@ -80,12 +80,6 @@ public class MinigameDataTracker(
         return list
     }
 
-    public fun toJson(): JsonObject {
-        return this.serialize { uuid, json ->
-            json.add("stats", this.minigame.stats.serialize(uuid))
-        }
-    }
-
     internal fun serialize(modifier: ((UUID, JsonObject) -> Unit)? = null): JsonObject {
         for (player in this.minigame.players) {
             this.updatePlayer(player)

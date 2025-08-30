@@ -12,7 +12,7 @@ import net.casual.arcade.minigame.settings.SettingListener
 import net.casual.arcade.utils.ItemUtils.disableGlint
 import net.casual.arcade.utils.ItemUtils.enableGlint
 import net.casual.arcade.utils.ItemUtils.hasGlint
-import net.casual.arcade.utils.codec.ArcadeExtraCodecs
+import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer

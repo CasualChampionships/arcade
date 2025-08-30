@@ -13,8 +13,8 @@ import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.utils.PlayerUtils.levelServer
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.chat.PlayerChatFormatter
-import net.casual.arcade.utils.codec.CodecProvider
-import net.casual.arcade.utils.codec.CodecProvider.Companion.register
+import net.casual.arcade.utils.serialization.codec.CodecProvider
+import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.minecraft.core.Registry
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation

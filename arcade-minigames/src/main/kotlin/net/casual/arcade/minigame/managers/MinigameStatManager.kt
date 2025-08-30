@@ -4,17 +4,17 @@
  */
 package net.casual.arcade.minigame.managers
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import net.casual.arcade.minigame.stats.Stat
 import net.casual.arcade.minigame.stats.StatTracker
 import net.casual.arcade.minigame.stats.StatType
-import net.casual.arcade.utils.JsonUtils.array
-import net.casual.arcade.utils.JsonUtils.objects
-import net.casual.arcade.utils.JsonUtils.string
+import net.minecraft.core.Holder
+import net.minecraft.core.UUIDUtil
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.jvm.optionals.getOrNull
 
 public class MinigameStatManager {
     private val stats = ConcurrentHashMap<UUID, StatTracker>()
@@ -34,11 +34,11 @@ public class MinigameStatManager {
         }
     }
 
-    public fun <T> getOrCreateStat(player: ServerPlayer, type: StatType<T>): Stat<T> {
+    public fun <T: Any> getOrCreateStat(player: ServerPlayer, type: Holder<StatType<T>>): Stat<T> {
         return this.getOrCreateStat(player.uuid, type)
     }
 
-    public fun <T> getOrCreateStat(uuid: UUID, type: StatType<T>): Stat<T> {
+    public fun <T: Any> getOrCreateStat(uuid: UUID, type: Holder<StatType<T>>): Stat<T> {
         return this.getOrCreateTracker(uuid).getOrCreateStat(type)
     }
 
@@ -48,29 +48,18 @@ public class MinigameStatManager {
         }
     }
 
-    public fun serialize(): JsonArray {
-        val stats = JsonArray()
+    internal fun serialize(output: ValueOutput.ValueOutputList) {
         for ((uuid, tracker) in this.stats) {
-            val data = JsonObject()
-            data.addProperty("uuid", uuid.toString())
-            data.add("stats", tracker.serialize())
-            stats.add(data)
+            val child = output.addChild()
+            child.store("uuid", UUIDUtil.STRING_CODEC, uuid)
+            tracker.serialize(child.childrenList("stats"))
         }
-        return stats
     }
 
-    public fun serialize(player: ServerPlayer): JsonArray {
-        return this.serialize(player.uuid)
-    }
-
-    public fun serialize(uuid: UUID): JsonArray {
-        return this.stats[uuid]?.serialize() ?: JsonArray()
-    }
-
-    internal fun deserialize(array: JsonArray) {
-        for (tracker in array.objects()) {
-            val uuid = UUID.fromString(tracker.string("uuid"))
-            this.getOrCreateTracker(uuid).deserialize(tracker.array("stats"))
+    internal fun deserialize(input: ValueInput.ValueInputList) {
+        for (child in input) {
+            val uuid = child.read("uuid", UUIDUtil.STRING_CODEC).getOrNull() ?: continue
+            this.getOrCreateTracker(uuid).deserialize(child.childrenListOrEmpty("stats"))
         }
     }
 }

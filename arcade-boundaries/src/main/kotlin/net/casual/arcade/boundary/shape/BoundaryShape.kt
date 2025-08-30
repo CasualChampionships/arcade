@@ -9,7 +9,7 @@ import com.mojang.serialization.MapCodec
 import net.casual.arcade.boundary.utils.BoundaryRegistries
 import net.casual.arcade.utils.MathUtils.forEachCorner
 import net.casual.arcade.utils.MathUtils.toAABB
-import net.casual.arcade.utils.codec.CodecProvider.Companion.register
+import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.shapes.ShapePoints
 import net.minecraft.core.BlockPos
