@@ -18,7 +18,7 @@ import net.minecraft.resources.ResourceLocation
 import java.util.concurrent.ConcurrentHashMap
 
 public class StatTracker {
-    private val stats = ConcurrentHashMap<StatType<*>, Stat<*>>()
+    private val stats = ConcurrentHashMap<Holder<StatType<*>>, Stat<*>>()
     private var frozen: Boolean = false
 
     public fun freeze() {
@@ -35,15 +35,15 @@ public class StatTracker {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     public fun <T> getStatValueOrDefault(holder: Holder<StatType<T>>): T {
-        val stat = this.stats[holder.value()] ?: return holder.value().default
-        @Suppress("UNCHECKED_CAST")
+        val stat = this.stats[holder as Holder<StatType<*>>] ?: return holder.value().default
         return (stat as Stat<T>).value
     }
 
+    @Suppress("UNCHECKED_CAST")
     public fun <T> getOrCreateStat(holder: Holder<StatType<T>>): Stat<T> {
-        @Suppress("UNCHECKED_CAST")
-        return this.stats.getOrPut(holder.value()) {
+        return this.stats.getOrPut(holder as Holder<StatType<*>>) {
             this.createStat(holder.value())
         } as Stat<T>
     }

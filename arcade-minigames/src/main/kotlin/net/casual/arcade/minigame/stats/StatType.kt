@@ -5,12 +5,16 @@
 package net.casual.arcade.minigame.stats
 
 import com.mojang.serialization.Codec
+import net.casual.arcade.minigame.utils.MinigameRegistries
+import net.minecraft.core.Holder
 
 public class StatType<T>(
     public val default: T,
     public val codec: Codec<T>
 ) {
     public companion object {
+        public val HOLDER_CODEC: Codec<Holder<StatType<*>>> = MinigameRegistries.STAT_TYPES.holderByNameCodec()
+
         public fun bool(default: Boolean = false): StatType<Boolean> {
             return StatType(default, Codec.BOOL)
         }
