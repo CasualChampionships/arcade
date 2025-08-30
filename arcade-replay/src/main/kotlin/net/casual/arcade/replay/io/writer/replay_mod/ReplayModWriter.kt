@@ -192,7 +192,7 @@ public class ReplayModWriter(
         }
         @Suppress("DEPRECATION")
         val pathHash = Hashing.sha1().hashString(packet.url, StandardCharsets.UTF_8).toString()
-        val path = ArcadeUtils.path.resolve("replay").resolve("packs").resolve(pathHash)
+        val path = ArcadeUtils.path.resolve("replays").resolve("packs").resolve(pathHash)
 
         val requestId = this.packId++
         if (!path.exists() || !this.writeResourcePack(path.readBytes(), packet.hash, requestId)) {
