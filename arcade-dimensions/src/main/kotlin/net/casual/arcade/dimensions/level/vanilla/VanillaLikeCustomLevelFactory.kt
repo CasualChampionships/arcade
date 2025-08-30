@@ -14,7 +14,7 @@ import net.casual.arcade.dimensions.level.factory.CustomLevelFactory
 import net.casual.arcade.dimensions.level.factory.CustomLevelFactoryConstructor
 import net.casual.arcade.dimensions.level.factory.SimpleCustomLevelFactory
 import net.casual.arcade.utils.ResourceUtils
-import net.casual.arcade.utils.codec.CodecProvider
+import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer

@@ -5,6 +5,8 @@
 package net.casual.arcade.minigame.managers
 
 import com.google.gson.JsonArray
+import com.google.gson.JsonElement
+import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import net.casual.arcade.minigame.stats.Stat
 import net.casual.arcade.minigame.stats.StatTracker
@@ -60,18 +62,10 @@ public class MinigameStatManager {
         return stats
     }
 
-    public fun serialize(player: ServerPlayer): JsonArray {
-        return this.serialize(player.uuid)
-    }
-
-    public fun serialize(uuid: UUID): JsonArray {
-        return this.stats[uuid]?.serialize() ?: JsonArray()
-    }
-
     internal fun deserialize(array: JsonArray) {
         for (tracker in array.objects()) {
             val uuid = UUID.fromString(tracker.string("uuid"))
-            this.getOrCreateTracker(uuid).deserialize(tracker.array("stats"))
+            this.getOrCreateTracker(uuid).deserialize(tracker.get("stats"))
         }
     }
 }

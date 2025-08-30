@@ -48,3 +48,15 @@ public fun <T> Iterable<T>.cycle(): Sequence<T> = sequence {
         }
     }
 }
+
+public fun <T> Iterator<T>.asMutable(): MutableIterator<T> {
+    if (this is MutableIterator<T>) {
+        return this
+    }
+    val wrapped = this
+    return object: MutableIterator<T> {
+        override fun hasNext() = wrapped.hasNext()
+        override fun next() = wrapped.next()
+        override fun remove() = throw UnsupportedOperationException("remove not supported")
+    }
+}

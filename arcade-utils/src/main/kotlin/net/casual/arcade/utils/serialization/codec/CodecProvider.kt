@@ -2,14 +2,18 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.utils.codec
+package net.casual.arcade.utils.serialization.codec
 
 import com.mojang.serialization.MapCodec
-import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.core.Registry
+import net.minecraft.resources.ResourceLocation
 
-@Deprecated("Moved", ReplaceWith("net.casual.arcade.utils.serialization.codec.CodecProvider"))
-public interface CodecProvider<T>: CodecProvider<T> {
+@Suppress("PropertyName")
+public interface CodecProvider<T> {
+    public val ID: ResourceLocation
+
+    public val CODEC: MapCodec<out T>
+
     public companion object {
         public fun <T> CodecProvider<out T>.register(registry: Registry<MapCodec<out T>>) {
             Registry.register(registry, this.ID, this.CODEC)

@@ -6,7 +6,7 @@ package net.casual.arcade.dimensions.level
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.casual.arcade.utils.codec.ArcadeExtraCodecs
+import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
 import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
 import net.minecraft.world.Difficulty
 import net.minecraft.world.level.GameRules

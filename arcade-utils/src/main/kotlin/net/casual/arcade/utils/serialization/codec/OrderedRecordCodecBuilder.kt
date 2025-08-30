@@ -2,7 +2,7 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.utils.codec
+package net.casual.arcade.utils.serialization.codec
 
 import com.mojang.datafixers.kinds.App
 import com.mojang.serialization.Codec
@@ -11,7 +11,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.util.codec.OrderedRecordCodecBuilderInstance
 import java.util.function.Function
 
-@Deprecated("Moved", ReplaceWith("net.casual.arcade.utils.serialization.codec.OrderedRecordCodecBuilder"))
 public object OrderedRecordCodecBuilder {
     public fun <O> instance(): OrderedRecordCodecBuilderInstance<O> {
         return OrderedRecordCodecBuilderInstance<O>()

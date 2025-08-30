@@ -9,13 +9,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import eu.pb4.polymer.virtualentity.api.ElementHolder
 import eu.pb4.polymer.virtualentity.api.attachment.ManualAttachment
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.EnumUtils
 import net.casual.arcade.utils.PlayerUtils.isChunkInViewDistance
-import net.casual.arcade.utils.codec.CodecProvider
+import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.core.Direction
 import net.minecraft.core.SectionPos
 import net.minecraft.network.protocol.Packet
@@ -25,7 +24,6 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.dimension.DimensionType
 import java.util.*
 import java.util.function.Consumer

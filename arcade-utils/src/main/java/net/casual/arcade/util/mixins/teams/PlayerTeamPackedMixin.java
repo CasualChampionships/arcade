@@ -7,7 +7,7 @@ package net.casual.arcade.util.mixins.teams;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.serialization.Codec;
 import net.casual.arcade.util.ducks.OverridableColor;
-import net.casual.arcade.utils.codec.ArcadeExtraCodecs;
+import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs;
 import net.minecraft.world.scores.PlayerTeam;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;

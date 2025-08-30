@@ -2,7 +2,7 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.utils.codec
+package net.casual.arcade.utils.serialization.codec
 
 import com.google.common.collect.HashBiMap
 import com.google.gson.JsonObject
@@ -33,7 +33,6 @@ import kotlin.enums.enumEntries
 import kotlin.io.path.pathString
 import kotlin.time.Duration
 
-@Deprecated("Moved", ReplaceWith("net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs"))
 public object ArcadeExtraCodecs {
     public val MUTABLE_INT: Codec<MutableInt> = Codec.INT.xmap(::MutableInt, MutableInt::getValue)
     public val MUTABLE_LONG: Codec<MutableLong> = Codec.LONG.xmap(::MutableLong, MutableLong::getValue)
@@ -135,7 +134,7 @@ public object ArcadeExtraCodecs {
         valueMapCodec: MapCodec<V>,
         keyName: String = "id"
     ): Codec<Map<K, V>> {
-        return this.keyedUnboundedMergedMap(keyCodec, valueMapCodec, keyName)
+        return keyedUnboundedMergedMap(keyCodec, valueMapCodec, keyName)
     }
 
     public fun <K, V> keyedUnboundedMergedMap(
@@ -143,7 +142,7 @@ public object ArcadeExtraCodecs {
         valueMapCodec: MapCodec<V>,
         keyName: String = "id"
     ): Codec<Map<K, V>> {
-        return this.unboundedMergedMap(keyCodec.fieldOf(keyName), valueMapCodec)
+        return unboundedMergedMap(keyCodec.fieldOf(keyName), valueMapCodec)
     }
 
     public fun <K, V> unboundedMergedMap(

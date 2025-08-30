@@ -9,7 +9,7 @@ import com.mojang.serialization.MapCodec
 import net.casual.arcade.minigame.area.BoxedArea
 import net.casual.arcade.minigame.area.PlaceableArea
 import net.casual.arcade.utils.ResourceUtils
-import net.casual.arcade.utils.codec.CodecProvider
+import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
 import net.casual.arcade.utils.encodedOptionalFieldOf
 import net.minecraft.core.Vec3i

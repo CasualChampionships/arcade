@@ -11,8 +11,8 @@ import net.casual.arcade.minigame.area.StructureArea
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.StructureUtils
-import net.casual.arcade.utils.codec.ArcadeExtraCodecs
-import net.casual.arcade.utils.codec.CodecProvider
+import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
+import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.core.Vec3i
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel

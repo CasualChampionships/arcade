@@ -7,7 +7,7 @@ package net.casual.arcade.utils.math.location
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.casual.arcade.utils.codec.ArcadeExtraCodecs
+import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
 import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.level.Level

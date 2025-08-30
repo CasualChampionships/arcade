@@ -13,7 +13,9 @@ public class StatType<T>(
     public val codec: Codec<T>
 ) {
     public companion object {
-        public val HOLDER_CODEC: Codec<Holder<StatType<*>>> = MinigameRegistries.STAT_TYPES.holderByNameCodec()
+        public val HOLDER_CODEC: Codec<Holder<StatType<*>>> = Codec.lazyInitialized {
+            MinigameRegistries.STAT_TYPES.holderByNameCodec()
+        }
 
         public fun bool(default: Boolean = false): StatType<Boolean> {
             return StatType(default, Codec.BOOL)

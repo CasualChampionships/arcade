@@ -9,7 +9,6 @@ import com.mojang.serialization.DataResult
 import com.mojang.serialization.Decoder
 import com.mojang.serialization.Encoder
 import com.mojang.serialization.JsonOps
-import net.casual.arcade.utils.json.JsonSerializer
 import net.minecraft.Util
 import net.minecraft.nbt.*
 import java.io.InputStream
@@ -261,18 +260,6 @@ public object JsonUtils {
 
     public fun JsonObject.objOrDefault(key: String, default: JsonObject = JsonObject()): JsonObject {
         return this.getWithNull(key)?.asJsonObject ?: default
-    }
-
-    public fun <T: Any> JsonObject.any(key: String, serializer: JsonSerializer<T>): T {
-        return serializer.deserialize(this.get(key))
-    }
-
-    public fun <T: Any> JsonObject.anyOrNull(key: String, serializer: JsonSerializer<T>): T? {
-        return serializer.deserialize(this.getWithNull(key) ?: return null)
-    }
-
-    public fun <T: Any> JsonObject.anyOrPut(key: String, serializer: JsonSerializer<T>, putter: () -> T): T {
-        return this.anyOrNull(key, serializer) ?: putter().also { this[key] = serializer.serialize(it) }
     }
 
     public operator fun JsonObject.set(key: String, value: String?) {

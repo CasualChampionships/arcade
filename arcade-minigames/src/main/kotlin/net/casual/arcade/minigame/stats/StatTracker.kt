@@ -5,16 +5,12 @@
 package net.casual.arcade.minigame.stats
 
 import com.google.gson.JsonArray
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.mojang.serialization.Codec
 import com.mojang.serialization.JsonOps
-import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.utils.JsonUtils.objects
-import net.casual.arcade.utils.JsonUtils.string
-import net.casual.arcade.utils.codec.ArcadeExtraCodecs
 import net.minecraft.core.Holder
-import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 import java.util.concurrent.ConcurrentHashMap
 
 public class StatTracker {
@@ -48,8 +44,10 @@ public class StatTracker {
         } as Stat<T>
     }
 
-    public fun serialize(): JsonArray {
+    public fun serialize(): JsonElement {
         val stats = JsonArray()
+        val mapped = this.stats.mapValues { (_, v) -> v.value }
+        CODEC.encodeStart(JsonOps.INSTANCE)
         for ((type, stat) in this.stats) {
             val statData = JsonObject()
 //            statData.addProperty("type", type.id.toString())
@@ -60,7 +58,8 @@ public class StatTracker {
         return stats
     }
 
-    public fun deserialize(stats: JsonArray) {
+    public fun deserialize(stats: JsonElement) {
+
         for (statData in stats.objects()) {
 //            val location = ResourceLocation.parse(statData.string("type"))
 //            val value = statData["value"]
@@ -69,15 +68,11 @@ public class StatTracker {
         }
     }
 
-    private fun <T> codec(type: StatType<T>): Codec<Map<StatType<*>, T>> {
-        return ArcadeExtraCodecs.keyedUnboundedMapCodec(
-            MinigameRegistries.STAT_TYPES.byNameCodec(),
-            type.codec.fieldOf("value"),
-            "type"
-        )
-    }
-
     private fun <T> createStat(type: StatType<T>): Stat<T> {
         return Stat(type).also { stat -> stat.frozen = this.frozen }
+    }
+
+    private companion object {
+        val CODEC = Codec.dispatchedMap(StatType.HOLDER_CODEC) { type -> type.value().codec }!!
     }
 }
