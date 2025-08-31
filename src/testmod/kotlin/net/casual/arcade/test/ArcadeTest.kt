@@ -25,7 +25,14 @@ object ArcadeTest: ModInitializer {
         TestEntityExtension.registerEvents()
 
         GlobalEventHandler.Server.register<ServerRegisterCommandEvent> {
-            it.register(FakePlayerCommand, LevelBoundaryCommand, PlayerHeadCommand, ReplayCommand, TestExtensionCommand)
+            it.register(
+                ArgumentTestCommand,
+                FakePlayerCommand,
+                LevelBoundaryCommand,
+                PlayerHeadCommand,
+                ReplayCommand,
+                TestExtensionCommand
+            )
         }
 
         Registry.register(
