@@ -23,7 +23,7 @@ public class KJsonCodecSerializer<T>(
 
     override fun deserialize(decoder: Decoder): T {
         if (decoder !is JsonDecoder) {
-            throw SerializationException("Cannot deserializer, decoder is not a JSON decoder")
+            throw SerializationException("Cannot deserialize, decoder is not a JSON decoder")
         }
         return this.codec.parse(this.ops, decoder.decodeJsonElement())
             .getPartialOrThrow(::SerializationException)
