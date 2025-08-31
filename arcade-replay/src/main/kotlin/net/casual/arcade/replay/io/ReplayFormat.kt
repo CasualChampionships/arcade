@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.replay.io
 
+import com.mojang.serialization.Codec
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.viewer.ReplayViewer
 import net.casual.arcade.replay.io.reader.ReplayReader
@@ -15,12 +16,13 @@ import net.casual.arcade.replay.io.writer.replay_mod.ReplayModWriter
 import net.casual.arcade.utils.convertCasing
 import net.casual.arcade.utils.string.PascalCase
 import net.casual.arcade.utils.string.SnakeCase
+import net.minecraft.util.StringRepresentable
 import java.nio.file.Path
 
 public enum class ReplayFormat(
     private val stable: Boolean,
     private val experimental: Boolean
-) {
+): StringRepresentable {
     ReplayMod(true, false),
     Flashback(true, true);
 
@@ -52,7 +54,13 @@ public enum class ReplayFormat(
         return this.name.convertCasing(PascalCase, SnakeCase)
     }
 
+    override fun getSerializedName(): String {
+        return this.id()
+    }
+
     public companion object {
+        public val CODEC: Codec<ReplayFormat> = StringRepresentable.fromEnum(ReplayFormat::values)
+
         public fun formatOf(path: Path): ReplayFormat? {
             return when {
                 ReplayModIO.isReplayFile(path) -> ReplayMod
