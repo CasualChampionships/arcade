@@ -220,10 +220,12 @@ public abstract class ReplayRecorder(
      * the recorder is permitted to pause recording, see
      * [canPauseRecording].
      *
+     * @param force Whether to force this recorder to pause.
      * @return Whether the recorder successfully paused.
      */
-    public fun pause(): Boolean {
-        if (!this.paused && this.canPauseRecording()) {
+    @JvmOverloads
+    public fun pause(force: Boolean = false): Boolean {
+        if (!this.paused && (force || this.canPauseRecording())) {
             this.lastPausedTimestamp = Clock.System.now()
             this.writer.pause()
             return true

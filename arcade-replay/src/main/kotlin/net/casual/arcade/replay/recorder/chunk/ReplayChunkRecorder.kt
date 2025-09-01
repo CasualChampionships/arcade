@@ -125,13 +125,7 @@ public class ReplayChunkRecorder internal constructor(
         this.dummy.isInvisible = true
 
         RejoinedReplayPlayer.rejoin(this.dummy, this)
-        val spawnPackets = ArrayList<Packet<*>>(2)
-        spawnPackets.add(ClientboundAddEntityPacket(this.dummy))
-        val tracked = this.dummy.entityData.nonDefaultValues
-        if (tracked != null) {
-            spawnPackets.add(ClientboundSetEntityDataPacket(this.dummy.id, tracked))
-        }
-        this.spawnPlayer(this.dummy, spawnPackets)
+        this.spawnPlayer()
         this.sendChunksAndEntities()
         GlobalEventHandler.Server.broadcast(ReplayChunkRecorderSnapshotEvent(this, true))
 
@@ -309,6 +303,7 @@ public class ReplayChunkRecorder internal constructor(
 
     override fun takeSnapshot() {
         RejoinedReplayPlayer.rejoin(this.dummy, this)
+        this.spawnPlayer()
         this.sendChunkViewDistance()
         this.sendChunks(ChunkSender.SeenEntities.all()) { pos -> this.writer.writeCachedChunk(pos) }
         for (recordable in this.recordables) {
@@ -442,6 +437,16 @@ public class ReplayChunkRecorder internal constructor(
         if (this.resume()) {
             GlobalEventHandler.Server.broadcast(ReplayChunkRecorderLoadedResumeEvent(this))
         }
+    }
+
+    private fun spawnPlayer() {
+        val spawnPackets = ArrayList<Packet<*>>(2)
+        spawnPackets.add(ClientboundAddEntityPacket(this.dummy))
+        val tracked = this.dummy.entityData.nonDefaultValues
+        if (tracked != null) {
+            spawnPackets.add(ClientboundSetEntityDataPacket(this.dummy.id, tracked))
+        }
+        this.spawnPlayer(this.dummy, spawnPackets)
     }
 
     private companion object {
