@@ -33,6 +33,8 @@ public class KJsonCodecSerializer<T>(
         if (encoder !is JsonEncoder) {
             throw SerializationException("Cannot serialize $value, encoder is not a JSON encoder")
         }
-        this.codec.encodeStart(this.ops, value)
+        val result = this.codec.encodeStart(this.ops, value)
+            .getOrThrow(::SerializationException)
+        encoder.encodeJsonElement(result)
     }
 }
