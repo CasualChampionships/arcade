@@ -7,6 +7,7 @@ package net.casual.arcade.replay.io
 import java.nio.file.Path
 import kotlin.io.path.extension
 import kotlin.io.path.isRegularFile
+import kotlin.io.path.name
 
 public object FlashbackIO {
     // Magic number flashback uses to verify that it's a flashback file
@@ -19,8 +20,18 @@ public object FlashbackIO {
     public const val METADATA_OLD: String = "$METADATA.old"
     public const val CHUNK_CACHES: String = "level_chunk_caches"
 
+    public const val FILE_EXTENSION: String = "zip"
+
     public fun isFlashbackFile(path: Path): Boolean {
-        return path.isRegularFile() && path.extension == "zip"
+        return path.isRegularFile() && path.extension == FILE_EXTENSION
+    }
+
+    public fun addFileExtension(name: String): String {
+        return "$name.$FILE_EXTENSION"
+    }
+
+    public fun addFileExtension(path: Path): Path {
+        return path.resolveSibling(this.addFileExtension(path.name))
     }
 
     public fun getChunkCacheFileIndex(index: Int): Int {
