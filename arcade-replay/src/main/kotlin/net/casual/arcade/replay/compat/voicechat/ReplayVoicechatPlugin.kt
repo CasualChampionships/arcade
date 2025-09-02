@@ -24,7 +24,6 @@ import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorders
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.EnumUtils
 import net.casual.arcade.utils.PlayerUtils.levelServer
-import net.minecraft.Util
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.common.ClientCommonPacketListener
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
@@ -66,8 +65,9 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
 
         val packet = event.packet
         val converter = event.voicechat.audioConverter
+        val decoded by lazy { this.decoder.decode(packet.opusEncodedData) }
         this.recordForReceiver(event) { format ->
-            cache.getOrCreate(format, decoder, converter, packet)
+            this.cache.getOrCreate(format, converter, packet, decoded)
         }
     }
 
@@ -78,8 +78,9 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
 
         val packet = event.packet
         val converter = event.voicechat.audioConverter
+        val decoded by lazy { this.decoder.decode(packet.opusEncodedData) }
         this.recordForReceiver(event) { format ->
-            cache.getOrCreate(format, decoder, converter, packet)
+            this.cache.getOrCreate(format, converter, packet, decoded)
         }
     }
 
@@ -90,37 +91,38 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
 
         val packet = event.packet
         val converter = event.voicechat.audioConverter
+        val decoded by lazy { this.decoder.decode(packet.opusEncodedData) }
         this.recordForReceiver(event) { format ->
-            cache.getOrCreate(format, decoder, converter, packet)
+            this.cache.getOrCreate(format, converter, packet, decoded)
         }
     }
 
     private fun onMicrophonePacket(event: MicrophonePacketEvent) {
         val connection = event.senderConnection ?: return
         val player = connection.getServerPlayer() ?: return
-        val server = player.levelServer
         val converter = event.voicechat.audioConverter
         val grouped = connection.isInGroup
+        val whispering = event.packet.isWhispering
         val distance = event.voicechat.voiceChatDistance.toFloat()
 
-        server.execute {
-            val map = EnumUtils.mapOf<ReplayFormat, Packet<ClientCommonPacketListener>>()
-            val lazy: (ReplayFormat) -> Packet<ClientCommonPacketListener> = { format ->
-                map.getOrPut(format) {
-                    this.cache.create(format, decoder, converter, event.packet, player.uuid, grouped, distance)
-                }
-            }
+        val decoded = this.decoder.decode(event.packet.opusEncodedData)
 
-            for (recorder in ReplayPlayerRecorders.get(player)) {
+        val map = EnumUtils.mapOf<ReplayFormat, Packet<ClientCommonPacketListener>>()
+        val lazy: (ReplayFormat) -> Packet<ClientCommonPacketListener> = { format ->
+            map.getOrPut(format) {
+                this.cache.create(format, converter, decoded, player.uuid, grouped, whispering, distance)
+            }
+        }
+
+        for (recorder in ReplayPlayerRecorders.get(player)) {
+            recorder.recordIfVoicechatEnabled { lazy.invoke(recorder.format) }
+        }
+
+        if (!grouped) {
+            val dimension = player.level().dimension()
+            val chunkPos = player.chunkPosition()
+            for (recorder in ReplayChunkRecorders.containing(dimension, chunkPos)) {
                 recorder.recordIfVoicechatEnabled { lazy.invoke(recorder.format) }
-            }
-
-            if (!grouped) {
-                val dimension = player.level().dimension()
-                val chunkPos = player.chunkPosition()
-                for (recorder in ReplayChunkRecorders.containing(dimension, chunkPos)) {
-                    recorder.recordIfVoicechatEnabled { lazy.invoke(recorder.format) }
-                }
             }
         }
     }
@@ -167,10 +169,8 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
         packet: (ReplayFormat) -> Packet<ClientCommonPacketListener>
     ) {
         val player = event.receiverConnection?.getServerPlayer() ?: return
-        player.levelServer.execute {
-            for (recorder in ReplayPlayerRecorders.get(player)) {
-                recorder.recordIfVoicechatEnabled { packet.invoke(recorder.format) }
-            }
+        for (recorder in ReplayPlayerRecorders.get(player)) {
+            recorder.recordIfVoicechatEnabled { packet.invoke(recorder.format) }
         }
     }
 

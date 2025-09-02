@@ -34,55 +34,51 @@ public class VoicechatPacketCache {
 
     public fun getOrCreate(
         format: ReplayFormat,
-        decoder: OpusDecoder,
         converter: AudioConverter,
-        packet: LocationalSoundPacket
+        packet: LocationalSoundPacket,
+        decoded: ShortArray
     ): Packet<ClientCommonPacketListener> {
         return this.universe[format]!!.getOrPut(packet) {
-            format.encoder().locational(
-                decoder, converter, packet.sender, packet.opusEncodedData, packet.position, packet.distance
-            )
+            format.encoder().locational(converter, packet.sender, decoded, packet.position, packet.distance)
         }
     }
 
     public fun getOrCreate(
         format: ReplayFormat,
-        decoder: OpusDecoder,
         converter: AudioConverter,
-        packet: EntitySoundPacket
+        packet: EntitySoundPacket,
+        decoded: ShortArray
     ): Packet<ClientCommonPacketListener> {
         return this.universe[format]!!.getOrPut(packet) {
-            format.encoder().entity(
-                decoder, converter, packet.sender, packet.opusEncodedData, packet.isWhispering, packet.distance
-            )
+            format.encoder().entity(converter, packet.sender, decoded, packet.isWhispering, packet.distance)
         }
     }
 
     public fun getOrCreate(
         format: ReplayFormat,
-        decoder: OpusDecoder,
         converter: AudioConverter,
-        packet: StaticSoundPacket
+        packet: StaticSoundPacket,
+        decoded: ShortArray
     ): Packet<ClientCommonPacketListener> {
         return this.universe[format]!!.getOrPut(packet) {
-            format.encoder().static(decoder, converter, packet.sender, packet.opusEncodedData)
+            format.encoder().static(converter, packet.sender, decoded)
         }
     }
 
     public fun create(
         format: ReplayFormat,
-        decoder: OpusDecoder,
         converter: AudioConverter,
-        packet: MicrophonePacket,
+        decoded: ShortArray,
         sender: UUID,
         grouped: Boolean,
+        whispering: Boolean,
         distance: Float
     ): Packet<ClientCommonPacketListener> {
         val encoder = format.encoder()
         if (grouped) {
-            return encoder.static(decoder, converter, sender, packet.opusEncodedData)
+            return encoder.static(converter, sender, decoded)
         }
-        return encoder.entity(decoder, converter, sender, packet.opusEncodedData, packet.isWhispering, distance)
+        return encoder.entity(converter, sender, decoded, whispering, distance)
     }
 
     private fun ReplayFormat.encoder(): Encoder {
@@ -94,28 +90,25 @@ public class VoicechatPacketCache {
 
     private interface Encoder {
         fun locational(
-            decoder: OpusDecoder,
             converter: AudioConverter,
             sender: UUID,
-            data: ByteArray,
+            decoded: ShortArray,
             position: Position,
             distance: Float
         ): Packet<ClientCommonPacketListener>
 
         fun entity(
-            decoder: OpusDecoder,
             converter: AudioConverter,
             sender: UUID,
-            data: ByteArray,
+            decoded: ShortArray,
             whispering: Boolean,
             distance: Float
         ): Packet<ClientCommonPacketListener>
 
         fun static(
-            decoder: OpusDecoder,
             converter: AudioConverter,
             sender: UUID,
-            data: ByteArray
+            decoded: ShortArray
         ): Packet<ClientCommonPacketListener>
     }
 
@@ -126,14 +119,13 @@ public class VoicechatPacketCache {
         const val VERSION: Int = 1
 
         override fun locational(
-            decoder: OpusDecoder,
             converter: AudioConverter,
             sender: UUID,
-            data: ByteArray,
+            decoded: ShortArray,
             position: Position,
             distance: Float
         ): Packet<ClientCommonPacketListener> {
-            return this.create(VoicechatPayload.REPLAY_MOD_LOCATIONAL_TYPE, sender, data, decoder, converter) {
+            return this.create(VoicechatPayload.REPLAY_MOD_LOCATIONAL_TYPE, sender, decoded, converter) {
                 writeDouble(position.x)
                 writeDouble(position.y)
                 writeDouble(position.z)
@@ -142,39 +134,34 @@ public class VoicechatPacketCache {
         }
 
         override fun entity(
-            decoder: OpusDecoder,
             converter: AudioConverter,
             sender: UUID,
-            data: ByteArray,
+            decoded: ShortArray,
             whispering: Boolean,
             distance: Float
         ): Packet<ClientCommonPacketListener> {
-            return this.create(VoicechatPayload.REPLAY_MOD_ENTITY_TYPE, sender, data, decoder, converter) {
+            return this.create(VoicechatPayload.REPLAY_MOD_ENTITY_TYPE, sender, decoded, converter) {
                 writeBoolean(whispering)
                 writeFloat(distance)
             }
         }
 
         override fun static(
-            decoder: OpusDecoder,
             converter: AudioConverter,
             sender: UUID,
-            data: ByteArray
+            decoded: ShortArray
         ): Packet<ClientCommonPacketListener> {
-            return this.create(VoicechatPayload.REPLAY_MOD_STATIC_TYPE, sender, data, decoder, converter)
+            return this.create(VoicechatPayload.REPLAY_MOD_STATIC_TYPE, sender, decoded, converter)
         }
 
         private fun create(
             type: CustomPacketPayload.Type<*>,
             sender: UUID,
-            encoded: ByteArray,
-            decoder: OpusDecoder,
+            decoded: ShortArray,
             converter: AudioConverter,
             additional: FriendlyByteBuf.() -> Unit = { }
         ): Packet<ClientCommonPacketListener> {
-            // We are forced to decode on the server-side since replay-voice-chat
-            // reads the raw packet data when it reads the replay.
-            val raw = converter.shortsToBytes(decoder.decode(encoded))
+            val raw = converter.shortsToBytes(decoded)
             val payload = VoicechatPayload.of(type) { buf ->
                 buf.writeShort(VERSION)
                 buf.writeUUID(sender)
@@ -191,54 +178,49 @@ public class VoicechatPacketCache {
         const val ENTITY_SOUND = 2
 
         override fun locational(
-            decoder: OpusDecoder,
             converter: AudioConverter,
             sender: UUID,
-            data: ByteArray,
+            decoded: ShortArray,
             position: Position,
             distance: Float
         ): Packet<ClientCommonPacketListener> {
-            return this.create(LOCATIONAL_SOUND, sender, data, decoder) {
+            return this.create(LOCATIONAL_SOUND, sender, decoded) {
                 writeVec3(Vec3(position.x, position.y, position.z))
                 writeFloat(distance)
             }
         }
 
         override fun entity(
-            decoder: OpusDecoder,
             converter: AudioConverter,
             sender: UUID,
-            data: ByteArray,
+            decoded: ShortArray,
             whispering: Boolean,
             distance: Float
         ): Packet<ClientCommonPacketListener> {
-            return this.create(ENTITY_SOUND, sender, data, decoder) {
+            return this.create(ENTITY_SOUND, sender, decoded) {
                 writeBoolean(whispering)
                 writeFloat(distance)
             }
         }
 
         override fun static(
-            decoder: OpusDecoder,
             converter: AudioConverter,
             sender: UUID,
-            data: ByteArray
+            decoded: ShortArray
         ): Packet<ClientCommonPacketListener> {
-            return this.create(STATIC_SOUND, sender, data, decoder)
+            return this.create(STATIC_SOUND, sender, decoded)
         }
 
         private fun create(
             type: Int,
             sender: UUID,
-            encoded: ByteArray,
-            decoder: OpusDecoder,
+            decoded: ShortArray,
             additional: FriendlyByteBuf.() -> Unit = { }
         ): ClientboundCustomPayloadPacket {
-            val raw = decoder.decode(encoded)
             val payload = VoicechatPayload.of(VoicechatPayload.FLASHBACK_TYPE) { buf ->
                 buf.writeUUID(sender)
-                buf.writeVarInt(raw.size)
-                for (sample in raw) {
+                buf.writeVarInt(decoded.size)
+                for (sample in decoded) {
                     buf.writeShort(sample.toInt())
                 }
                 buf.writeByte(type)
