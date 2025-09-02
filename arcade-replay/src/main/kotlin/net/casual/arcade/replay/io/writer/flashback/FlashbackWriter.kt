@@ -21,6 +21,7 @@ import net.casual.arcade.replay.util.flashback.FlashbackMarker.Location
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.DateTimeUtils
 import net.casual.arcade.utils.JsonUtils
+import net.casual.arcade.utils.getSpoofedOrRealDimension
 import net.minecraft.network.ConnectionProtocol
 import net.minecraft.network.ProtocolInfo
 import net.minecraft.network.RegistryFriendlyByteBuf
@@ -309,7 +310,8 @@ public class FlashbackWriter(
         val headRot = entity.yHeadRot
         val onGround = entity.onGround()
         this.executor.execute {
-            this.movement.put(level.dimension(), EntityMovement(id, position, rotation, headRot, onGround))
+            val movement = EntityMovement(id, position, rotation, headRot, onGround)
+            this.movement.put(level.getSpoofedOrRealDimension(), movement)
         }
         return CompletableFuture.completedFuture(EntityMovement.size())
     }

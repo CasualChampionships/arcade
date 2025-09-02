@@ -5,7 +5,7 @@
 package net.casual.arcade.dimensions.mixins.level;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.casual.arcade.dimensions.utils.DimensionUtilsKt;
+import net.casual.arcade.utils.LevelUtilsKt;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,6 +23,6 @@ public class ServerPlayerMixin {
         )
     )
     private ResourceKey<Level> onGetDimensionKey(ResourceKey<Level> original, ServerLevel level) {
-        return DimensionUtilsKt.getSpoofedOrRealDimension(level);
+        return LevelUtilsKt.getSpoofedOrRealDimension(level);
     }
 }
