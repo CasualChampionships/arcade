@@ -36,6 +36,10 @@ public class ComponentBuilderContext {
         return ComponentMutator.WRAP
     }
 
+    public fun list(vararg siblings: Component): List<Component> {
+        return siblings.asList()
+    }
+
     public companion object {
         public val INSTANCE: ComponentBuilderContext = ComponentBuilderContext()
     }

@@ -39,9 +39,31 @@ public operator fun MutableComponent.plus(other: Component): MutableComponent {
  * The equivalent of calling [append].
  *
  * @param other The component to append.
- * @return [this]
  */
 public operator fun MutableComponent.plusAssign(other: Component) {
+    this.append(other)
+}
+
+/**
+ * Appends a literal component of [other] to [this].
+ *
+ * The equivalent of calling [append].
+ *
+ * @param other The string to append.
+ * @return [this]
+ */
+public operator fun MutableComponent.plus(other: String): MutableComponent {
+    return this.append(other)
+}
+
+/**
+ * Appends a literal component of [other] to [this].
+ *
+ * The equivalent of calling [append].
+ *
+ * @param other The string to append.
+ */
+public operator fun MutableComponent.plusAssign(other: String) {
     this.append(other)
 }
 
