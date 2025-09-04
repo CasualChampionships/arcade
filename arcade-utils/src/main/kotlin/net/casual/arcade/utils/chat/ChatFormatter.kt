@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.utils.chat
 
-import net.casual.arcade.utils.ComponentUtils.color
-import net.casual.arcade.utils.ComponentUtils.strikethrough
+import net.casual.arcade.utils.component.color
+import net.casual.arcade.utils.component.strikethrough
 import net.minecraft.network.chat.Component
 
 /**

@@ -8,7 +8,7 @@ import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.Property
 import com.mojang.authlib.properties.PropertyMap
 import it.unimi.dsi.fastutil.objects.ReferenceSortedSets
-import net.casual.arcade.utils.ComponentUtils.unitalicise
+import net.casual.arcade.utils.component.unitalicize
 import net.minecraft.ChatFormatting
 import net.minecraft.core.Holder
 import net.minecraft.core.component.DataComponentType
@@ -44,7 +44,7 @@ public object ItemUtils {
     @JvmStatic
     public fun ItemStack.named(text: Component, italicized: Boolean = false): ItemStack {
         if (!italicized) {
-            this.set(DataComponents.CUSTOM_NAME, Component.empty().append(text).unitalicise())
+            this.set(DataComponents.CUSTOM_NAME, Component.empty().append(text).unitalicize())
         } else {
             this.set(DataComponents.CUSTOM_NAME, text)
         }

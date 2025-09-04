@@ -13,7 +13,7 @@ import net.casual.arcade.resources.font.providers.BitmapFontProvider
 import net.casual.arcade.resources.font.providers.FontProvider
 import net.casual.arcade.resources.font.providers.SpaceFontProvider
 import net.casual.arcade.resources.lang.LanguageEntry
-import net.casual.arcade.utils.ComponentUtils.withFont
+import net.casual.arcade.utils.component.font
 import net.casual.arcade.utils.JsonUtils
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
@@ -31,7 +31,7 @@ public abstract class FontResources(
     protected fun space(advance: Float): Component {
         val codepoint = this.nextCodepoint()
         this.spaces[codepoint] = advance
-        return Component.literal(Character.toString(codepoint)).withFont(id)
+        return Component.literal(Character.toString(codepoint)).font(id)
     }
 
     protected fun bitmap(
@@ -42,7 +42,7 @@ public abstract class FontResources(
         val codepoint = this.nextCodepointAsString()
         val bitmap = BitmapFontProvider(texture, ascent, height, listOf(codepoint))
         this.providers.add(bitmap)
-        return Component.literal(codepoint).withFont(id)
+        return Component.literal(codepoint).font(id)
     }
 
     protected fun translatable(
@@ -50,7 +50,7 @@ public abstract class FontResources(
         translations: Translatable.() -> Unit
     ): Component {
         Translatable(this, key).translations()
-        return Component.translatable(key).withFont(id)
+        return Component.translatable(key).font(id)
     }
 
     protected fun at(path: String): ResourceLocation {

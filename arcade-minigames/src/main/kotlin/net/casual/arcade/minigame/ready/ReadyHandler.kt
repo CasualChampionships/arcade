@@ -6,9 +6,9 @@ package net.casual.arcade.minigame.ready
 
 import net.casual.arcade.commands.function
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.utils.ComponentUtils.lime
-import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
+import net.casual.arcade.utils.component.lime
+import net.casual.arcade.utils.component.red
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Nameable

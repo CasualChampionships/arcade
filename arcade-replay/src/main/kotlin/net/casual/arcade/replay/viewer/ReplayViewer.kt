@@ -24,11 +24,11 @@ import net.casual.arcade.replay.viewer.ReplayViewerUtils.sendReplayPacket
 import net.casual.arcade.replay.viewer.ReplayViewerUtils.startViewingReplay
 import net.casual.arcade.replay.viewer.ReplayViewerUtils.stopViewingReplay
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.ComponentUtils.bold
-import net.casual.arcade.utils.ComponentUtils.lime
-import net.casual.arcade.utils.ComponentUtils.red
-import net.casual.arcade.utils.ComponentUtils.teal
-import net.casual.arcade.utils.ComponentUtils.yellow
+import net.casual.arcade.utils.component.bold
+import net.casual.arcade.utils.component.lime
+import net.casual.arcade.utils.component.red
+import net.casual.arcade.utils.component.teal
+import net.casual.arcade.utils.component.yellow
 import net.casual.arcade.utils.DateTimeUtils.formatHHMMSS
 import net.casual.arcade.utils.PlayerUtils.levelServer
 import net.minecraft.core.UUIDUtil

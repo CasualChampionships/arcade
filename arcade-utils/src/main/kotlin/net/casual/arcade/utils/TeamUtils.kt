@@ -9,7 +9,7 @@ import com.google.common.collect.LinkedHashMultimap
 import com.google.common.collect.Multimap
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.util.ducks.OverridableColor
-import net.casual.arcade.utils.ComponentUtils.joinToComponent
+import net.casual.arcade.utils.component.joinToComponent
 import net.casual.arcade.utils.ComponentUtils.prettyName
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.utils.PlayerUtils.player

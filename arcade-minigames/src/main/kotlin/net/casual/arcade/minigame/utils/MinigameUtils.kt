@@ -29,9 +29,9 @@ import net.casual.arcade.minigame.settings.MinigameSettings
 import net.casual.arcade.scheduler.MinecraftScheduler
 import net.casual.arcade.scheduler.task.Completable
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.ComponentUtils.gold
-import net.casual.arcade.utils.ComponentUtils.lime
-import net.casual.arcade.utils.ComponentUtils.red
+import net.casual.arcade.utils.component.gold
+import net.casual.arcade.utils.component.lime
+import net.casual.arcade.utils.component.red
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.countdown.Countdown

@@ -29,7 +29,6 @@ import net.casual.arcade.minigame.utils.MinigameUtils.isMinigameAdminOrHasPermis
 import net.casual.arcade.minigame.utils.MinigameUtils.isPlayerAnd
 import net.casual.arcade.minigame.utils.MinigameUtils.requiresAdminOrPermission
 import net.casual.arcade.scheduler.GlobalTickedScheduler
-import net.casual.arcade.utils.ComponentUtils.red
 import net.casual.arcade.utils.JsonUtils.arrayOrDefault
 import net.casual.arcade.utils.JsonUtils.obj
 import net.casual.arcade.utils.JsonUtils.objects
@@ -41,6 +40,7 @@ import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.chat.ChatFormatter
 import net.casual.arcade.utils.chat.PlayerChatFormatter
 import net.casual.arcade.utils.chat.PlayerFormattedChat
+import net.casual.arcade.utils.component.red
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.TeamArgument
 import net.minecraft.network.chat.Component

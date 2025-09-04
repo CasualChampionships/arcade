@@ -7,7 +7,7 @@ package net.casual.arcade.nametags
 import net.casual.arcade.nametags.extensions.EntityNametagExtension
 import net.casual.arcade.nametags.virtual.NametagHeight
 import net.casual.arcade.utils.TimeUtils.Ticks
-import net.casual.arcade.utils.impl.ColorARGB
+import net.casual.arcade.utils.color.ColorARGB
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
