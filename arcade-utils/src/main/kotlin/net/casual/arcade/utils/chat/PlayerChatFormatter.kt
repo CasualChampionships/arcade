@@ -4,13 +4,9 @@
  */
 package net.casual.arcade.utils.chat
 
-import net.casual.arcade.utils.ComponentUtils.appendSpaced
-import net.casual.arcade.utils.ComponentUtils.color
-import net.casual.arcade.utils.ComponentUtils.hover
 import net.casual.arcade.utils.ComponentUtils.literal
-import net.casual.arcade.utils.ComponentUtils.red
-import net.casual.arcade.utils.ComponentUtils.wrap
 import net.casual.arcade.utils.PlayerUtils.getChatUsername
+import net.casual.arcade.utils.component.*
 import net.casual.arcade.utils.team.DisplayableTeam
 import net.casual.arcade.utils.team.DisplayableTeam.Companion.displayable
 import net.minecraft.ChatFormatting.DARK_GRAY
@@ -34,7 +30,7 @@ public interface PlayerChatFormatter {
         }
 
         override fun format(player: ServerPlayer, message: PlayerFormattedChat): PlayerFormattedChat {
-            return message.copy(prefix = this.globe.wrap().appendSpaced(message.prefix))
+            return message.copy(prefix = this.globe.wrap().appendWithSpace(message.prefix))
         }
     }
 
@@ -42,7 +38,7 @@ public interface PlayerChatFormatter {
         override fun format(player: ServerPlayer, message: PlayerFormattedChat): PlayerFormattedChat {
             val icon = Component.literal("[\uD83D\uDD76]").withStyle(DARK_GRAY)
                 .hover(Component.translatable("arcade.chat.spectator"))
-            return message.copy(prefix = icon.wrap().appendSpaced(message.prefix))
+            return message.copy(prefix = icon.wrap().appendWithSpace(message.prefix))
         }
     }
 
@@ -50,7 +46,7 @@ public interface PlayerChatFormatter {
         override fun format(player: ServerPlayer, message: PlayerFormattedChat): PlayerFormattedChat {
             val icon = Component.literal("[\uD83D\uDC64]").red()
                 .hover(Component.translatable("arcade.chat.admin"))
-            return message.copy(prefix = icon.wrap().appendSpaced(message.prefix))
+            return message.copy(prefix = icon.wrap().appendWithSpace(message.prefix))
         }
     }
 
@@ -87,7 +83,7 @@ private class TeamChatFormatter(private val teamGetter: (ServerPlayer) -> Displa
         }
         icon.hover(name)
         return message.copy(
-            prefix = icon.wrap().appendSpaced(message.prefix),
+            prefix = icon.wrap().appendWithSpace(message.prefix),
             username = message.username ?: player.getChatUsername(false)
         )
     }

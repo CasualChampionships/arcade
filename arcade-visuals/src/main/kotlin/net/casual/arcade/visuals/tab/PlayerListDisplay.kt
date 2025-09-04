@@ -33,12 +33,15 @@ public open class PlayerListDisplay(
 ): TrackedPlayerUI(), TickableUI {
     private val previous = ArrayList<Entry>()
 
-    public var header: PlayerSpecificElement<Component> = ComponentElements.empty()
+    public var header: PlayerSpecificElement<out Component> = ComponentElements.empty()
         protected set
-    public var footer: PlayerSpecificElement<Component> = ComponentElements.empty()
+    public var footer: PlayerSpecificElement<out Component> = ComponentElements.empty()
         protected set
 
-    public open fun setDisplay(header: PlayerSpecificElement<Component>, footer: PlayerSpecificElement<Component>) {
+    public open fun setDisplay(
+        header: PlayerSpecificElement<out Component>,
+        footer: PlayerSpecificElement<out Component>
+    ) {
         this.header = header
         this.footer = footer
 

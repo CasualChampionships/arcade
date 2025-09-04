@@ -4,10 +4,10 @@
  */
 package net.casual.arcade.visuals.countdown
 
-import net.casual.arcade.utils.ComponentUtils.bold
-import net.casual.arcade.utils.ComponentUtils.lime
-import net.casual.arcade.utils.ComponentUtils.red
-import net.casual.arcade.utils.ComponentUtils.yellow
+import net.casual.arcade.utils.component.bold
+import net.casual.arcade.utils.component.lime
+import net.casual.arcade.utils.component.red
+import net.casual.arcade.utils.component.yellow
 import net.casual.arcade.utils.PlayerUtils.clearTitle
 import net.casual.arcade.utils.PlayerUtils.sendSound
 import net.casual.arcade.utils.PlayerUtils.sendTitle

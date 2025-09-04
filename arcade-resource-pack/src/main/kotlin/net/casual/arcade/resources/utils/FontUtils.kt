@@ -4,7 +4,52 @@
  */
 package net.casual.arcade.resources.utils
 
+import net.casual.arcade.resources.font.FontResources
+import net.casual.arcade.resources.font.spacing.SpacingFontResources
+import net.casual.arcade.utils.arcade
+import net.casual.arcade.utils.component.ComponentBuilderContext
+import net.casual.arcade.utils.component.font
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.MutableComponent
+import net.minecraft.network.chat.Style
+import net.minecraft.resources.ResourceLocation
+
+public fun MutableComponent.withDefaultFont(): MutableComponent {
+    return this.font(Style.DEFAULT_FONT)
+}
+
+public fun MutableComponent.withMiniFont(): MutableComponent {
+    return this.font(FontUtils.MINI_FONT)
+}
+
+public fun MutableComponent.withShiftedDownFont(shift: Int): MutableComponent {
+    return this.font(FontUtils.shiftedDownFont(shift))
+}
+
+public fun MutableComponent.withMiniShiftedDownFont(shift: Int): MutableComponent {
+    return this.font(FontUtils.miniShiftedDownFont(shift))
+}
+
+public fun MutableComponent.font(resources: FontResources): MutableComponent {
+    return this.font(resources.id)
+}
+
+@Suppress("UnusedReceiverParameter")
+public fun ComponentBuilderContext.spaced(advance: Float): Component {
+    return SpacingFontResources.composed(advance)
+}
+
 internal object FontUtils {
+    val MINI_FONT = arcade("mini_minecraft")
+
+    fun shiftedDownFont(shift: Int): ResourceLocation {
+        return arcade("default_shifted_down_$shift")
+    }
+
+    fun miniShiftedDownFont(shift: Int): ResourceLocation {
+        return arcade("mini_shifted_down_$shift")
+    }
+
     fun createDefaultFont(shift: Int = 0): String {
         return """
         {

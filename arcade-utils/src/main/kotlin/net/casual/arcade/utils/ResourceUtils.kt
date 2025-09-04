@@ -5,10 +5,19 @@
 package net.casual.arcade.utils
 
 import net.minecraft.resources.ResourceLocation
+import org.jetbrains.annotations.ApiStatus.Internal
 import java.util.*
 
+@Internal
+public fun arcade(path: String): ResourceLocation {
+    return ArcadeUtils.id(path)
+}
+
+public fun ResourceLocation(namespace: String, path: String): ResourceLocation {
+    return ResourceLocation.fromNamespaceAndPath(namespace, path)
+}
+
 public object ResourceUtils {
-    // @Deprecated("Use ArcadeUtils instead", ReplaceWith("ArcadeUtils.id(path)"))
     public fun arcade(path: String): ResourceLocation {
         return ArcadeUtils.id(path)
     }

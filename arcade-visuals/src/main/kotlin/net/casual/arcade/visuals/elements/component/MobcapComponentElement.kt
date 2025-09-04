@@ -5,7 +5,7 @@
 package net.casual.arcade.visuals.elements.component
 
 import it.unimi.dsi.fastutil.objects.Object2IntMaps
-import net.casual.arcade.utils.ComponentUtils.join
+import net.casual.arcade.utils.component.join
 import net.casual.arcade.visuals.elements.LevelSpecificElement
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component

@@ -7,8 +7,8 @@ package net.casual.arcade.resources.font.pixel
 import net.casual.arcade.resources.font.IndexedFontResources
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.ComponentUtils.color
-import net.casual.arcade.utils.ComponentUtils.wrap
+import net.casual.arcade.utils.component.color
+import net.casual.arcade.utils.component.wrap
 import net.minecraft.network.chat.Component
 import java.awt.image.BufferedImage
 

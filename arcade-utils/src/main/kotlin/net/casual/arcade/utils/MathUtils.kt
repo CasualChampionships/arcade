@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.utils
 
-import net.casual.arcade.utils.MathUtils.isAbove
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.Direction8
@@ -18,6 +17,10 @@ import org.joml.Quaternionf
 import kotlin.math.*
 
 public object MathUtils {
+    public fun cube(x: Double): Double {
+        return x * x * x
+    }
+
     public operator fun Vec3.component1(): Double = this.x
     public operator fun Vec3.component2(): Double = this.y
     public operator fun Vec3.component3(): Double = this.z

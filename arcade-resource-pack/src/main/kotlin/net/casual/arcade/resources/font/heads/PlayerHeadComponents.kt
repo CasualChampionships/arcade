@@ -12,11 +12,11 @@ import net.casual.arcade.resources.ArcadeResourcePacks
 import net.casual.arcade.resources.font.pixel.PixelFontResources
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.ComponentUtils.color
-import net.casual.arcade.utils.ComponentUtils.wrap
 import net.casual.arcade.utils.PlayerUtils.levelServer
 import net.casual.arcade.utils.PlayerUtils.player
 import net.casual.arcade.utils.ServerUtils
+import net.casual.arcade.utils.component.color
+import net.casual.arcade.utils.component.wrap
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer
