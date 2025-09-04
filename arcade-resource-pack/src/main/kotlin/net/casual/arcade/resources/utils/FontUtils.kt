@@ -18,6 +18,10 @@ public fun MutableComponent.withDefaultFont(): MutableComponent {
     return this.font(Style.DEFAULT_FONT)
 }
 
+public fun MutableComponent.withSpacingFont(): MutableComponent {
+    return this.font(SpacingFontResources)
+}
+
 public fun MutableComponent.withMiniFont(): MutableComponent {
     return this.font(FontUtils.MINI_FONT)
 }
