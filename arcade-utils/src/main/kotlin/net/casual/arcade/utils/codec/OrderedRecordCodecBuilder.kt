@@ -11,6 +11,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.util.codec.OrderedRecordCodecBuilderInstance
 import java.util.function.Function
 
+@Deprecated("Moved", ReplaceWith("net.casual.arcade.utils.serialization.codec.OrderedRecordCodecBuilder"))
 public object OrderedRecordCodecBuilder {
     public fun <O> instance(): OrderedRecordCodecBuilderInstance<O> {
         return OrderedRecordCodecBuilderInstance<O>()

@@ -130,8 +130,8 @@ public object Minigames: ModInitializer {
 
     public fun write(path: Path, minigame: Minigame) {
         val json = JsonObject()
-        val factory = minigame.internalFactory() ?:
-        throw MinigameSerializationException("Minigame ${minigame.id} is not serializable")
+        val factory = minigame.internalFactory()
+            ?: throw MinigameSerializationException("Minigame ${minigame.id} is not serializable")
 
         val encoded = MinigameFactory.CODEC.encodeStart(JsonOps.INSTANCE, factory).getOrThrow { message ->
             MinigameSerializationException("Failed to serialize minigame factory for ${minigame.id}: $message")

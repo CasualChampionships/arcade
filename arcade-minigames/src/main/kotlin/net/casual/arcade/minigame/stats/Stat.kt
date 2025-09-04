@@ -4,14 +4,13 @@
  */
 package net.casual.arcade.minigame.stats
 
-import com.google.gson.JsonElement
-
-public class Stat<T>(
-    public val stat: StatType<T>
+public class Stat<T: Any>(
+    public val type: StatType<T>
 ) {
-    public var value: T = this.stat.default
+    internal var frozen: Boolean = false
+
+    public var value: T = this.type.default
         private set
-    public var frozen: Boolean = false
 
     public fun modify(modifier: (current: T) -> T) {
         if (!this.frozen) {
@@ -19,12 +18,8 @@ public class Stat<T>(
         }
     }
 
-    public fun serialize(): JsonElement {
-        return this.stat.serializer.serialize(this.value)
-    }
-
-    public fun deserialize(element: JsonElement) {
-        this.value = this.stat.serializer.deserialize(element)
+    internal fun set(value: T) {
+        this.value = value
     }
 
     public companion object {

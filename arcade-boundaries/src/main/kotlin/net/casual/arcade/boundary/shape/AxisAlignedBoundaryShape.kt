@@ -12,7 +12,7 @@ import net.casual.arcade.boundary.shape.BoundaryShape.Status
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.MathUtils.getSizeVec
 import net.casual.arcade.utils.TimeUtils.Ticks
-import net.casual.arcade.utils.codec.CodecProvider
+import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.shapes.ShapePoints
 import net.casual.arcade.visuals.shapes.impl.CuboidShape

@@ -11,7 +11,7 @@ plugins {
     java
 }
 
-val modVersion = "0.6.1-beta.3"
+val modVersion = "0.6.1-beta.20"
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -145,6 +145,7 @@ loom {
             source(testmod)
         }
     }
+    createRemapConfigurations(testmod)
 }
 
 dependencies {
@@ -154,6 +155,8 @@ dependencies {
     include(libs.polymer.virtual.entity)
 
     include(modImplementation(libs.server.translations.get())!!)
+
+    "modTestmodRuntimeOnly"(libs.voicechat)
 
     val ignore = setOf(":arcade-datagen", ":arcade-events-client")
     for (subproject in project.subprojects) {

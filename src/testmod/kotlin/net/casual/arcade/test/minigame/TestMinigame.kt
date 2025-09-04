@@ -72,7 +72,12 @@ open class TestMinigame(
         this.ui.addNametag(PlayerNametag({ Component.literal("CustomNametags!") }))
     }
 
+    override fun factory(): MinigameFactory {
+        return TestMinigame
+    }
+
     companion object: MinigameFactory {
+        private val CODEC = MapCodec.unit(this)
         val ID = ResourceUtils.arcade("test_minigame")
 
         override fun create(context: MinigameCreationContext): Minigame {
@@ -80,7 +85,7 @@ open class TestMinigame(
         }
 
         override fun codec(): MapCodec<out MinigameFactory> {
-            return MapCodec.unit(this)
+            return CODEC
         }
     }
 }

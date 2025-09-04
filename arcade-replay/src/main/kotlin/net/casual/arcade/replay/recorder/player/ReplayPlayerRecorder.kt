@@ -16,16 +16,20 @@ import net.casual.arcade.utils.impl.WrappedTrackedEntity
 import net.casual.arcade.replay.io.writer.ReplayWriter
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
 import net.casual.arcade.utils.ClientboundAddEntityPacket
+import net.minecraft.core.NonNullList
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundBundlePacket
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
+import net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket
+import net.minecraft.network.protocol.game.ClientboundSetPlayerInventoryPacket
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ChunkTrackingView
 import net.minecraft.server.level.ServerEntity
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
@@ -51,6 +55,8 @@ public class ReplayPlayerRecorder internal constructor(
 ): ReplayRecorder(server, profile, settings, format, path), ChunkSender {
     private val player: ServerPlayer?
         get() = this.server.playerList.getPlayer(this.recordingPlayerUUID)
+
+    private val inventory = InventoryTracker()
 
     /**
      * The level that the player is currently in.
@@ -127,12 +133,28 @@ public class ReplayPlayerRecorder internal constructor(
     }
 
     /**
+     * Whether the current recorder can pause recording.
+     *
+     * @return Whether it can be paused.
+     */
+    override fun canPauseRecording(): Boolean {
+        return this.format == ReplayFormat.Flashback
+    }
+
+    /**
      * This updates the [ReplayPlayerRecorders] manager.
      *
      * @param future The future that will complete once the replay has closed.
      */
     override fun onClosing(future: CompletableFuture<Long>) {
         ReplayPlayerRecorders.close(this.server, this, future)
+    }
+
+    @Internal
+    override fun tick() {
+        super.tick()
+
+        this.inventory.update(this)
     }
 
     override fun takeSnapshot() {
@@ -217,5 +239,27 @@ public class ReplayPlayerRecorder internal constructor(
     @Internal
     public fun removePlayer(player: ServerPlayer) {
         this.record(ClientboundRemoveEntitiesPacket(player.id))
+    }
+
+    private class InventoryTracker {
+        var lastSelectedSlot: Int = -1
+        var lastHotbarItems: NonNullList<ItemStack> = NonNullList.withSize(9, ItemStack.EMPTY)
+
+        fun update(recorder: ReplayPlayerRecorder) {
+            val player = recorder.player ?: return
+            val selectedSlot = player.inventory.selectedSlot
+            if (selectedSlot != this.lastSelectedSlot) {
+                this.lastSelectedSlot = selectedSlot
+                recorder.record(ClientboundSetHeldSlotPacket(selectedSlot))
+            }
+
+            for (i in 0..< 9) {
+                val stack = player.inventory.getItem(i)
+                if (!ItemStack.matches(stack, this.lastHotbarItems[i])) {
+                    this.lastHotbarItems[i] = stack.copy()
+                    recorder.record(ClientboundSetPlayerInventoryPacket(i, stack))
+                }
+            }
+        }
     }
 }

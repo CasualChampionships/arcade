@@ -10,7 +10,7 @@ import net.casual.arcade.utils.MathUtils.component1
 import net.casual.arcade.utils.MathUtils.component2
 import net.casual.arcade.utils.MathUtils.component3
 import net.casual.arcade.utils.ResourceUtils
-import net.casual.arcade.utils.codec.CodecProvider
+import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.math.location.Location
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.phys.Vec2

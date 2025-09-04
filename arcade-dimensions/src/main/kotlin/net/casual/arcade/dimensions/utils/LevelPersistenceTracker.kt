@@ -12,7 +12,7 @@ import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.events.server.ServerStartEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.codec.ArcadeExtraCodecs
+import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
 import net.minecraft.Util
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtIo
@@ -122,7 +122,7 @@ public object LevelPersistenceTracker {
         GlobalEventHandler.Server.register<ServerSaveEvent> { (server) ->
             this.writeLevelKeysTo(this.getPersistenceDataPath(server), this.persistent.toList())
         }
-        GlobalEventHandler.Server.register<ServerStartEvent> { (server) ->
+        GlobalEventHandler.Server.register<ServerStartEvent>(priority = -100_000) { (server) ->
             this.cleanupTemporaryLevels(server)
         }
         GlobalEventHandler.Server.register<ServerTickEvent> { (server) ->

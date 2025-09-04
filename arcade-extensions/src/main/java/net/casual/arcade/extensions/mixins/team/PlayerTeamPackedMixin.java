@@ -7,7 +7,7 @@ package net.casual.arcade.extensions.mixins.team;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.serialization.Codec;
 import net.casual.arcade.extensions.ducks.ArcadeTeamDataHolder;
-import net.casual.arcade.utils.codec.ArcadeExtraCodecs;
+import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.scores.PlayerTeam;
 import org.jetbrains.annotations.Nullable;

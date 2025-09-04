@@ -12,6 +12,7 @@ import com.mojang.serialization.DataResult
 import com.mojang.serialization.Dynamic
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import net.casual.arcade.utils.TimeUtils
 import net.minecraft.Util
 import net.minecraft.core.registries.Registries
 import net.minecraft.nbt.NbtOps
@@ -30,7 +31,9 @@ import java.util.*
 import java.util.function.Function
 import kotlin.enums.enumEntries
 import kotlin.io.path.pathString
+import kotlin.time.Duration
 
+@Deprecated("Moved", ReplaceWith("net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs"))
 public object ArcadeExtraCodecs {
     public val MUTABLE_INT: Codec<MutableInt> = Codec.INT.xmap(::MutableInt, MutableInt::getValue)
     public val MUTABLE_LONG: Codec<MutableLong> = Codec.LONG.xmap(::MutableLong, MutableLong::getValue)
@@ -58,6 +61,7 @@ public object ArcadeExtraCodecs {
         { Dynamic(NbtOps.INSTANCE, it.createTag()) }
     )
     public val DIMENSION: Codec<ResourceKey<Level>> = ResourceKey.codec(Registries.DIMENSION)
+    public val DURATION: Codec<Duration> = Codec.STRING.comapFlatMap(TimeUtils::parseToDuration, Duration::toString)
 
     public fun <T> mapWithAlternative(primary: MapCodec<T>, alternative: MapCodec<T>): MapCodec<T> {
         return Codec.mapEither(primary, alternative).xmap(

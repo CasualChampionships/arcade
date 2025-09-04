@@ -13,6 +13,7 @@ import net.minecraft.commands.SharedSuggestionProvider
 import java.time.LocalTime
 import java.util.concurrent.CompletableFuture
 
+@Deprecated("Being removed from arcade")
 public class TimeArgument: CustomArgumentType<LocalTime>() {
     override fun parse(reader: StringReader): LocalTime {
         return LocalTime.parse(reader.readString())

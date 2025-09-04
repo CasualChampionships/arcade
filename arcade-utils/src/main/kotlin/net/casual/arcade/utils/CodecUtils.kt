@@ -7,9 +7,9 @@ package net.casual.arcade.utils
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.FieldEncoder
-import net.casual.arcade.utils.codec.EncodedOptionalFieldCodec
-import net.casual.arcade.utils.codec.FieldDecoderOfAny
-import net.casual.arcade.utils.codec.OptionalCodec
+import net.casual.arcade.utils.serialization.codec.EncodedOptionalFieldCodec
+import net.casual.arcade.utils.serialization.codec.FieldDecoderOfAny
+import net.casual.arcade.utils.serialization.codec.OptionalCodec
 import java.util.*
 import kotlin.collections.LinkedHashMap
 import kotlin.collections.LinkedHashSet

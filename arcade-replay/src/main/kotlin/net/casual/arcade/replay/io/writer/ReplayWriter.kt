@@ -46,7 +46,15 @@ public interface ReplayWriter {
 
     }
 
-    public fun prePacketRecord(packet: Packet<*>): Boolean
+    public fun pause() {
+
+    }
+
+    public fun resume() {
+
+    }
+
+    public fun canRecordPacket(packet: Packet<*>): Boolean
 
     public fun writePacket(
         packet: Packet<*>,
@@ -54,8 +62,6 @@ public interface ReplayWriter {
         timestamp: Duration,
         offThread: Boolean
     ): CompletableFuture<Int?>
-
-    public fun postPacketRecord(packet: Packet<*>)
 
     public fun writePlayer(player: ServerPlayer, packets: Collection<Packet<*>>) {
         for (packet in packets) {

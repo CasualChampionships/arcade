@@ -45,104 +45,13 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
         super(minecraftServer, connection, commonListenerCookie);
     }
 
-    // TODO: This should be re-written
-    @Inject(
-        method = "shouldHandleMessage",
-        at = @At("HEAD"),
-        cancellable = true
-    )
-    private void canAcceptPacket(Packet<?> packet, CallbackInfoReturnable<Boolean> cir) {
-        if (this.replay$viewer != null && !ReplayViewerPackets.serverboundBypass(packet)) {
-            cir.setReturnValue(false);
-        }
-    }
-
-    @Inject(
-        method = {
-            "handleAnimate",
-            "handleClientCommand",
-            "handleContainerButtonClick",
-            "handleContainerClick",
-            "handlePlaceRecipe",
-            "handleContainerClose",
-            "handleInteract",
-            "handleMovePlayer",
-            "handlePlayerAbilities",
-            "handlePlayerAction",
-            "handlePlayerCommand",
-            "handlePlayerInput",
-            "handleSetCarriedItem",
-            "handleSetCreativeModeSlot",
-            "handleSignUpdate",
-            "handleUseItemOn",
-            "handleUseItem",
-            "handleTeleportToEntityPacket",
-            "handlePaddleBoat",
-            "handleMoveVehicle",
-            "handleAcceptTeleportPacket",
-            "handleRecipeBookSeenRecipePacket",
-            "handleRecipeBookChangeSettingsPacket",
-            "handleSeenAdvancements",
-            "handleCustomCommandSuggestions",
-            "handleSetCommandBlock",
-            "handleSetCommandMinecart",
-            "handlePickItemFromBlock",
-            "handlePickItemFromEntity",
-            "handleRenameItem",
-            "handleSetBeaconPacket",
-            "handleSetStructureBlock",
-            "handleSelectTrade",
-            "handleEditBook",
-            "handleEntityTagQuery",
-            "handleContainerSlotStateChanged",
-            "handleBlockEntityTagQuery",
-            "handleSetJigsawBlock",
-            "handleJigsawGenerate",
-            "handleChangeDifficulty",
-            "handleLockDifficulty",
-            "handleChatSessionUpdate",
-            "handleChunkBatchReceived"
-        },
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V",
-            shift = At.Shift.AFTER
-        ),
-        cancellable = true
-    )
-    private void onServerboundPacket(@Coerce Packet<ServerGamePacketListener> packet, CallbackInfo ci) {
-        if (this.replay$viewer != null) {
-            this.replay$viewer.onServerboundPacket(packet);
-            ci.cancel();
-        }
-    }
-
-    @Inject(
-        method = {
-            "handleChat",
-            "handleChatCommand",
-            "handleSignedChatCommand"
-        },
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;tryHandleChat(Ljava/lang/String;Ljava/lang/Runnable;)V"
-        ),
-        cancellable = true
-    )
-    private void onServerboundChatPacket(@Coerce Packet<ServerGamePacketListener> packet, CallbackInfo ci) {
-        if (this.replay$viewer != null) {
-            ci.cancel();
-            this.server.execute(() -> this.replay$viewer.onServerboundPacket(packet));
-        }
-    }
-
     @Override
-    public void replay$startViewingReplay(ReplayViewer viewer) {
+    public void arcade$startViewingReplay(ReplayViewer viewer) {
         this.replay$viewer = viewer;
     }
 
     @Override
-    public void replay$stopViewingReplay() {
+    public void arcade$stopViewingReplay() {
         if (this.replay$viewer != null) {
             this.nextChatIndex = 0;
             this.lastSeenMessages = new LastSeenMessagesValidator(20);
@@ -153,12 +62,12 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
     }
 
     @Override
-    public void replay$sendReplayViewerPacket(Packet<?> packet) {
+    public void arcade$sendReplayViewerPacket(Packet<?> packet) {
         super.send(packet, null);
     }
 
     @Override
-    public ReplayViewer replay$getViewingReplay() {
+    public ReplayViewer arcade$getViewingReplay() {
         return this.replay$viewer;
     }
 

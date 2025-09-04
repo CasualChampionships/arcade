@@ -6,11 +6,12 @@ package net.casual.arcade.replay.recorder.chunk
 
 import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.replay.compat.polymer.PolymerPacketPatcher
-import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderPauseEvent
+import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderUnloadedPauseEvent
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderSnapshotEvent
-import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderUnpauseEvent
+import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderLoadedResumeEvent
 import net.casual.arcade.replay.io.ReplayFormat
 import net.casual.arcade.replay.mixins.chunk.WitherBossAccessor
 import net.casual.arcade.replay.mixins.rejoin.ChunkMapAccessor
@@ -19,6 +20,7 @@ import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder
 import net.casual.arcade.replay.recorder.rejoin.RejoinedReplayPlayer
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
+import net.casual.arcade.replay.recorder.settings.RecorderSettings.ChunkRecordingStrategy
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.ClientboundAddEntityPacket
 import net.casual.arcade.utils.impl.WrappedTrackedEntity
@@ -44,8 +46,6 @@ import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
 import java.util.stream.Collectors
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * An implementation of [ReplayRecorder] for recording chunk areas.
@@ -68,16 +68,12 @@ public class ReplayChunkRecorder internal constructor(
         player
     }
 
+    private val trackedPlayers = ReferenceOpenHashSet<ServerPlayer>()
+
     private val loadedChunks = LongOpenHashSet()
     private val sentChunks = LongOpenHashSet()
 
     private val recordables = HashSet<ReplayChunkRecordable>()
-
-    private var totalPausedTime = Duration.ZERO
-    private var lastPaused = Duration.ZERO
-
-    override val paused: Boolean
-        get() = this.lastPaused != Duration.ZERO
 
     /**
      * The level that the chunk recording is currently in.
@@ -129,13 +125,7 @@ public class ReplayChunkRecorder internal constructor(
         this.dummy.isInvisible = true
 
         RejoinedReplayPlayer.rejoin(this.dummy, this)
-        val spawnPackets = ArrayList<Packet<*>>(2)
-        spawnPackets.add(ClientboundAddEntityPacket(this.dummy))
-        val tracked = this.dummy.entityData.nonDefaultValues
-        if (tracked != null) {
-            spawnPackets.add(ClientboundSetEntityDataPacket(this.dummy.id, tracked))
-        }
-        this.spawnPlayer(this.dummy, spawnPackets)
+        this.spawnPlayer()
         this.sendChunksAndEntities()
         GlobalEventHandler.Server.broadcast(ReplayChunkRecorderSnapshotEvent(this, true))
 
@@ -162,6 +152,15 @@ public class ReplayChunkRecorder internal constructor(
     }
 
     /**
+     * Whether the current recorder can pause recording.
+     *
+     * @return Whether it can be paused.
+     */
+    override fun canPauseRecording(): Boolean {
+        return this.format == ReplayFormat.Flashback
+    }
+
+    /**
      * This gets called when the replay is closing. It removes all [ReplayChunkRecordable]s
      * and updates the [ReplayChunkRecorders] manager.
      *
@@ -177,16 +176,6 @@ public class ReplayChunkRecorder internal constructor(
         }
 
         ReplayChunkRecorders.close(this.server, this, future)
-    }
-
-    /**
-     * This gets the current timestamp (in milliseconds) of the replay recording.
-     * This subtracts the amount of time paused from the total recording time.
-     *
-     * @return The timestamp of the recording (in milliseconds).
-     */
-    override fun getTimestamp(): Duration {
-        return super.getTimestamp() - this.totalPausedTime - this.getCurrentPause()
     }
 
     /**
@@ -221,7 +210,6 @@ public class ReplayChunkRecorder internal constructor(
         meta.addProperty("chunks_world", this.chunks.level.dimension().toIdString())
         meta.addProperty("chunks_from", this.chunks.from.toString())
         meta.addProperty("chunks_to", this.chunks.to.toString())
-        meta.addProperty("paused_time_ms", this.totalPausedTime.inWholeMilliseconds)
     }
 
     /**
@@ -315,6 +303,7 @@ public class ReplayChunkRecorder internal constructor(
 
     override fun takeSnapshot() {
         RejoinedReplayPlayer.rejoin(this.dummy, this)
+        this.spawnPlayer()
         this.sendChunkViewDistance()
         this.sendChunks(ChunkSender.SeenEntities.all()) { pos -> this.writer.writeCachedChunk(pos) }
         for (recordable in this.recordables) {
@@ -336,6 +325,19 @@ public class ReplayChunkRecorder internal constructor(
     }
 
     @Internal
+    override fun tick() {
+        super.tick()
+
+        if (this.settings.chunkRecordingStrategy == ChunkRecordingStrategy.ChunkContainsNonSpectatorPlayer) {
+            if (this.trackedPlayers.all(ServerPlayer::isSpectator)) {
+                this.tryPauseAndBroadcast()
+            } else {
+                this.tryResumeAndBroadcast()
+            }
+        }
+    }
+
+    @Internal
     public fun addRecordable(recordable: ReplayChunkRecordable) {
         this.recordables.add(recordable)
     }
@@ -350,6 +352,18 @@ public class ReplayChunkRecorder internal constructor(
         if (entity is WitherBoss) {
             val recordable = ((entity as WitherBossAccessor).bossEvent as ReplayChunkRecordable)
             recordable.addRecorder(this)
+        } else if (entity is ServerPlayer) {
+            this.trackedPlayers.add(entity)
+
+            val resume = when (this.settings.chunkRecordingStrategy) {
+                ChunkRecordingStrategy.ChunkContainsPlayer -> true
+                ChunkRecordingStrategy.ChunkContainsNonSpectatorPlayer -> !entity.isSpectator
+                else -> false
+            }
+
+            if (resume) {
+                this.tryResumeAndBroadcast()
+            }
         }
     }
 
@@ -358,6 +372,18 @@ public class ReplayChunkRecorder internal constructor(
         if (entity is WitherBoss) {
             val recordable = ((entity as WitherBossAccessor).bossEvent as ReplayChunkRecordable)
             recordable.removeRecorder(this)
+        } else if (entity is ServerPlayer) {
+            this.trackedPlayers.remove(entity)
+
+            val pause = when (this.settings.chunkRecordingStrategy) {
+                ChunkRecordingStrategy.ChunkContainsPlayer -> this.trackedPlayers.isEmpty()
+                ChunkRecordingStrategy.ChunkContainsNonSpectatorPlayer -> this.trackedPlayers.all { it.isSpectator }
+                else -> false
+            }
+
+            if (pause) {
+                this.tryPauseAndBroadcast()
+            }
         }
     }
 
@@ -368,8 +394,10 @@ public class ReplayChunkRecorder internal constructor(
             return
         }
 
-        this.resume()
         this.loadedChunks.add(chunk.pos.toLong())
+        if (this.settings.chunkRecordingStrategy == ChunkRecordingStrategy.ChunkLoaded) {
+            this.tryResumeAndBroadcast()
+        }
 
         if (!this.sentChunks.contains(chunk.pos.toLong())) {
             this.sendChunk(chunk, ChunkSender.SeenEntities.mutable())
@@ -393,32 +421,32 @@ public class ReplayChunkRecorder internal constructor(
         this.loadedChunks.remove(pos.toLong())
 
         if (this.loadedChunks.isEmpty()) {
-            this.pause()
+            if (this.settings.chunkRecordingStrategy == ChunkRecordingStrategy.ChunkLoaded) {
+                this.tryPauseAndBroadcast()
+            }
         }
     }
 
-    private fun pause() {
-        if (!this.paused && this.settings.skipWhenChunksUnloaded) {
-            this.lastPaused = System.currentTimeMillis().milliseconds
-
-            GlobalEventHandler.Server.broadcast(ReplayChunkRecorderPauseEvent(this))
+    private fun tryPauseAndBroadcast() {
+        if (this.pause()) {
+            GlobalEventHandler.Server.broadcast(ReplayChunkRecorderUnloadedPauseEvent(this))
         }
     }
 
-    private fun resume() {
-        if (this.paused) {
-            this.totalPausedTime += this.getCurrentPause()
-            this.lastPaused = Duration.ZERO
-
-            GlobalEventHandler.Server.broadcast(ReplayChunkRecorderUnpauseEvent(this))
+    private fun tryResumeAndBroadcast() {
+        if (this.resume()) {
+            GlobalEventHandler.Server.broadcast(ReplayChunkRecorderLoadedResumeEvent(this))
         }
     }
 
-    private fun getCurrentPause(): Duration {
-        if (this.paused) {
-            return System.currentTimeMillis().milliseconds - this.lastPaused
+    private fun spawnPlayer() {
+        val spawnPackets = ArrayList<Packet<*>>(2)
+        spawnPackets.add(ClientboundAddEntityPacket(this.dummy))
+        val tracked = this.dummy.entityData.nonDefaultValues
+        if (tracked != null) {
+            spawnPackets.add(ClientboundSetEntityDataPacket(this.dummy.id, tracked))
         }
-        return Duration.ZERO
+        this.spawnPlayer(this.dummy, spawnPackets)
     }
 
     private companion object {

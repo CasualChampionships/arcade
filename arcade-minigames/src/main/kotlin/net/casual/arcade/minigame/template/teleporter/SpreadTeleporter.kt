@@ -8,7 +8,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.utils.ResourceUtils
-import net.casual.arcade.utils.codec.CodecProvider
+import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.visuals.shapes.impl.RegularPolygonShape
 import net.casual.arcade.visuals.shapes.ShapePoints.Companion.points

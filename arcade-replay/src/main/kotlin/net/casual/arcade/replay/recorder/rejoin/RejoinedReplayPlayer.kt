@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.CommonListenerCookie
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.entity.player.PlayerModelPart
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.scores.DisplaySlot
 import net.minecraft.world.scores.Objective
@@ -142,8 +143,7 @@ public class RejoinedReplayPlayer private constructor(
                 }
             }
             if (hidden.isNotEmpty()) {
-                listener.send(
-                    ReplayViewerUtils.createClientboundPlayerInfoUpdatePacket(
+                listener.send(ReplayViewerUtils.createClientboundPlayerInfoUpdatePacket(
                     EnumSet.of(Action.UPDATE_LISTED),
                     hidden
                 ))

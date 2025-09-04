@@ -156,6 +156,7 @@ public class FlashbackReader(
         val packet = this.viewer.gameProtocol.codec().decode(buffer)
         if (packet is ClientboundLoginPacket) {
             this.player = packet.playerId
+            this.viewer.markForTeleportation()
         }
         if (packet is ClientboundRespawnPacket) {
             this.respawned = true

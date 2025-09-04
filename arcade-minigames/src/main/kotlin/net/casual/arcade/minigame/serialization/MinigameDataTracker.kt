@@ -6,8 +6,6 @@ package net.casual.arcade.minigame.serialization
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.long
@@ -21,7 +19,11 @@ import net.minecraft.server.level.ServerPlayer
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.jvm.optionals.getOrNull
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
+@OptIn(ExperimentalTime::class)
 public class MinigameDataTracker(
     private val minigame: Minigame
 ) {
@@ -76,12 +78,6 @@ public class MinigameDataTracker(
             list.add(this.minigame.advancements.get(id) ?: continue)
         }
         return list
-    }
-
-    public fun toJson(): JsonObject {
-        return this.serialize { uuid, json ->
-            json.add("stats", this.minigame.stats.serialize(uuid))
-        }
     }
 
     internal fun serialize(modifier: ((UUID, JsonObject) -> Unit)? = null): JsonObject {

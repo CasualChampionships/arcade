@@ -23,12 +23,13 @@ import net.minecraft.server.level.ServerPlayer
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * This object manages all [ReplayPlayerRecorder]s.
  */
 public object ReplayPlayerRecorders {
-    private val recorders = Object2ObjectOpenHashMap<UUID, EnumMap<ReplayFormat, ReplayPlayerRecorder>>()
+    private val recorders = ConcurrentHashMap<UUID, EnumMap<ReplayFormat, ReplayPlayerRecorder>>()
     private val closing = ObjectOpenHashSet<ReplayPlayerRecorder>()
 
     /**
@@ -78,8 +79,7 @@ public object ReplayPlayerRecorders {
         }
 
         val recorder = ReplayPlayerRecorder(server, profile, settings, format, directory)
-        val recorders = this.recorders.getOrPut(profile.id, EnumUtils::mapOf)
-        require(recorders.put(format, recorder) == null) { "Overwrote previous ReplayPlayerRecorder!" }
+        this.addRecorder(recorder)
         return recorder
     }
 
@@ -120,6 +120,8 @@ public object ReplayPlayerRecorders {
     /**
      * Gets the recorders for a given player.
      *
+     * This call is *thread safe*.
+     *
      * @param player The player to get the recorder for.
      * @return The recorders for the player.
      */
@@ -131,6 +133,8 @@ public object ReplayPlayerRecorders {
     /**
      * Gets the recorders for a given player's uuid.
      *
+     * This call is *thread safe*.
+     *
      * @param uuid The uuid of the player to get the recorder for.
      * @return The recorders for the player.
      */
@@ -141,6 +145,8 @@ public object ReplayPlayerRecorders {
 
     /**
      * Gets a collection of all the currently recording player recorders.
+     *
+     * This call is *thread safe*.
      *
      * @return A collection of all the player recorders.
      */
@@ -201,11 +207,33 @@ public object ReplayPlayerRecorders {
     }
 
     internal fun close(server: MinecraftServer, recorder: ReplayPlayerRecorder, future: CompletableFuture<Long>) {
-        val uuid = recorder.recordingPlayerUUID
-        this.recorders[uuid]?.remove(recorder.format)
+        this.removeRecorder(recorder)
         this.closing.add(recorder)
         future.thenRunAsync({
             this.closing.remove(recorder)
         }, server)
+    }
+
+    private fun addRecorder(recorder: ReplayPlayerRecorder) {
+        // We copy-on-write for these inner maps
+        this.recorders.compute(recorder.recordingPlayerUUID) { _, map ->
+            val copy = if (map == null) EnumUtils.mapOf() else EnumMap(map)
+            require(copy.put(recorder.format, recorder) == null) { "Overwrote previous ReplayPlayerRecorder!" }
+            copy
+        }
+    }
+
+    private fun removeRecorder(recorder: ReplayPlayerRecorder) {
+        val uuid = recorder.recordingPlayerUUID
+        this.recorders.compute(uuid) { _, map ->
+            when (map) {
+                null -> null
+                else -> {
+                    val copy = EnumMap(map)
+                    copy.remove(recorder.format)
+                    if (copy.isEmpty()) null else copy
+                }
+            }
+        }
     }
 }

@@ -10,8 +10,18 @@ import java.nio.file.Path
 import kotlin.io.path.*
 
 public object ReplayModIO {
+    public const val FILE_EXTENSION: String = "mcpr"
+
     public fun isReplayFile(location: Path): Boolean {
-        return location.isRegularFile() && location.extension == "mcpr"
+        return location.isRegularFile() && location.extension == FILE_EXTENSION
+    }
+
+    public fun addFileExtension(name: String): String {
+        return "$name.${FILE_EXTENSION}"
+    }
+
+    public fun addFileExtension(path: Path): Path {
+        return path.resolveSibling(this.addFileExtension(path.name))
     }
 
     public fun deleteCaches(location: Path) {

@@ -9,6 +9,8 @@ import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
+import net.casual.arcade.replay.compat.voicechat.VoicechatPayload
+import net.casual.arcade.replay.io.FlashbackIO
 import net.casual.arcade.replay.io.writer.ReplayWriter
 import net.casual.arcade.replay.io.writer.ReplayWriter.Companion.close
 import net.casual.arcade.replay.recorder.ReplayRecorder
@@ -19,11 +21,13 @@ import net.casual.arcade.replay.util.flashback.FlashbackMarker.Location
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.DateTimeUtils
 import net.casual.arcade.utils.JsonUtils
+import net.casual.arcade.utils.getSpoofedOrRealDimension
 import net.minecraft.network.ConnectionProtocol
 import net.minecraft.network.ProtocolInfo
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.network.codec.ByteBufCodecs
 import net.minecraft.network.protocol.Packet
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
 import net.minecraft.network.protocol.common.ClientboundDisconnectPacket
 import net.minecraft.network.protocol.configuration.ClientboundFinishConfigurationPacket
 import net.minecraft.network.protocol.game.*
@@ -34,6 +38,7 @@ import net.minecraft.world.level.Level
 import org.apache.commons.io.file.PathUtils
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.io.path.name
 import kotlin.io.path.writer
 import kotlin.time.Duration
@@ -50,10 +55,12 @@ public class FlashbackWriter(
     private val chunks = Object2IntOpenHashMap<ChunkPacketIdentity>()
     private val recent = Object2ObjectOpenHashMap<ResourceKey<Level>, Long2IntOpenHashMap>()
 
+    private val forcePlaySnapshot = AtomicBoolean(false)
+
     private var dimension: ResourceKey<Level>? = null
 
+    private var ticksSinceLastSnapshot = 0
     private var ticks = 1
-    private var last = 0
 
     override var markers: Int = 0
 
@@ -85,25 +92,23 @@ public class FlashbackWriter(
 
         this.writeActionAsync(FlashbackAction.NextTick)
         this.ticks++
-        val ticks = this.ticks
-        val chunkTicks = ticks - this.last
-        if (chunkTicks < net.casual.arcade.replay.io.FlashbackIO.CHUNK_LENGTH && (previous == null || previous == this.dimension)) {
-            return
-        }
-        this.last = ticks
 
-        this.executor.execute {
-            this.writer.endChunk(ticks)
-            this.writer.startSnapshot()
-        }
-        this.recorder.takeSnapshot()
-        this.executor.execute {
-            this.writer.endSnapshot()
+        val ticks = this.ticks
+        val chunkTicks = ticks - this.ticksSinceLastSnapshot
+        if (chunkTicks >= FlashbackIO.CHUNK_LENGTH || (previous != null && previous != this.dimension)) {
+            this.startNewReplayChunk()
         }
     }
 
-    override fun prePacketRecord(packet: Packet<*>): Boolean {
-        return IGNORED_PACKETS.contains(packet::class.java)
+    override fun resume() {
+        this.startNewReplayChunk()
+        this.executor.execute {
+            this.forcePlaySnapshot.set(true)
+        }
+    }
+
+    override fun canRecordPacket(packet: Packet<*>): Boolean {
+        return !this.recorder.paused && !IGNORED_PACKETS.contains(packet::class.java)
     }
 
     override fun writePacket(
@@ -121,6 +126,10 @@ public class FlashbackWriter(
         val replacement = when (packet) {
             is ClientboundLevelChunkWithLightPacket -> return this.writeCachedChunk(packet, protocol)
             is ClientboundMoveEntityPacket -> return this.writeMovement(packet)
+            is ClientboundCustomPayloadPacket -> when (val payload = packet.payload) {
+                is VoicechatPayload -> return this.writeVoicechat(payload)
+                else -> packet
+            }
             else -> packet
         }
 
@@ -131,10 +140,6 @@ public class FlashbackWriter(
         }
     }
 
-    override fun postPacketRecord(packet: Packet<*>) {
-
-    }
-
     override fun writePlayer(player: ServerPlayer, packets: Collection<Packet<*>>) {
         val uuid = player.uuid
         val position = player.position()
@@ -142,7 +147,7 @@ public class FlashbackWriter(
         val headRot = player.yHeadRot
         val velocity = player.deltaMovement
         val profile = player.gameProfile
-        val gamemode = player.gameMode.gameModeForPlayer.id
+        val gamemode = player.gameMode().id
         this.writeActionAsync(FlashbackAction.CreatePlayer) { buf ->
             buf.writeUUID(uuid)
             buf.writeDouble(position.x)
@@ -194,7 +199,7 @@ public class FlashbackWriter(
     override fun close(duration: Duration, save: Boolean): CompletableFuture<Long> {
         val future = CompletableFuture.supplyAsync({
             fun write() {
-                this.writer.endChunk(this.ticks)
+                this.writer.endChunk(this.ticks, this.shouldForcePlaySnapshot())
                 this.writeCustomMeta()
                 FileUtils.zip(this.path, this.getOutputPath())
             }
@@ -202,6 +207,24 @@ public class FlashbackWriter(
         }, this.executor)
         this.executor.shutdown()
         return future
+    }
+
+    private fun startNewReplayChunk() {
+        val ticks = this.ticks
+        this.ticksSinceLastSnapshot = ticks
+
+        this.executor.execute {
+            this.writer.endChunk(ticks, this.shouldForcePlaySnapshot())
+            this.writer.startSnapshot()
+        }
+        this.recorder.takeSnapshot()
+        this.executor.execute {
+            this.writer.endSnapshot()
+        }
+    }
+
+    private fun shouldForcePlaySnapshot(): Boolean {
+        return this.forcePlaySnapshot.getAndSet(false)
     }
 
     private fun writeCachedChunk(
@@ -215,7 +238,7 @@ public class FlashbackWriter(
             var size = -buf.writerIndex()
             if (index == -1) {
                 index = this.chunks.size
-                val fileIndex = net.casual.arcade.replay.io.FlashbackIO.getChunkCacheFileIndex(index)
+                val fileIndex = FlashbackIO.getChunkCacheFileIndex(index)
                 this.writer.writeLevelChunk(fileIndex) { chunkBuf ->
                     val start = chunkBuf.writerIndex()
                     ReplayWriter.encodePacket(packet, protocol, chunkBuf)
@@ -287,9 +310,18 @@ public class FlashbackWriter(
         val headRot = entity.yHeadRot
         val onGround = entity.onGround()
         this.executor.execute {
-            this.movement.put(level.dimension(), EntityMovement(id, position, rotation, headRot, onGround))
+            val movement = EntityMovement(id, position, rotation, headRot, onGround)
+            this.movement.put(level.getSpoofedOrRealDimension(), movement)
         }
         return CompletableFuture.completedFuture(EntityMovement.size())
+    }
+
+    private fun writeVoicechat(payload: VoicechatPayload): CompletableFuture<Int?> {
+        return this.writeActionAsync(FlashbackAction.VoiceChat) { buf ->
+            val start = buf.writerIndex()
+            payload.record(buf)
+            buf.writerIndex() - start
+        }
     }
 
     public companion object {

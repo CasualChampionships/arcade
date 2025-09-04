@@ -4,8 +4,12 @@
  */
 package net.casual.arcade.replay.recorder.settings
 
-import net.casual.arcade.replay.util.io.FileSize
-import kotlin.time.Duration
+import com.google.gson.JsonElement
+import com.mojang.serialization.Codec
+import com.mojang.serialization.JsonOps
+import net.casual.arcade.replay.recorder.settings.RecorderSettings.*
+import net.casual.arcade.utils.encodedOptionalFieldOf
+import net.casual.arcade.utils.serialization.codec.OrderedRecordCodecBuilder
 
 public data class SimpleRecorderSettings(
     override val debug: Boolean = false,
@@ -14,22 +18,55 @@ public data class SimpleRecorderSettings(
     override val fixedDaylightCycle: Long = -1,
     override val includeResourcePacks: Boolean = true,
     override val chunkRecorderLoadRadius: Int = -1,
-    override val skipWhenChunksUnloaded: Boolean = false,
-    override val maxRawRecordingFileSize: FileSize = FileSize(0),
-    override val restartAfterMaxRawRecordingFileSize: Boolean = false,
-    override val maxRecordingDuration: Duration = Duration.ZERO,
-    override val restartAfterMaxRecordingDuration: Boolean = false,
-    override val ignoreCustomPayloadPackets: Boolean = false,
-    override val ignoreSoundPackets: Boolean = false,
-    override val ignoreLightPackets: Boolean = false,
-    override val ignoreChatPackets: Boolean = false,
-    override val ignoreActionBarPackets: Boolean = false,
-    override val ignoreScoreboardPackets: Boolean = false,
-    override val optimizeExplosionPackets: Boolean = true,
-    override val optimizeEntityPackets: Boolean = false,
+    override val chunkRecordingStrategy: ChunkRecordingStrategy = ChunkRecordingStrategy.Always,
+    override val limits: FileLimits = FileLimits.DEFAULT,
+    override val ignores: IgnorePackets = IgnorePackets.DEFAULT,
+    override val optimizes: OptimizePackets = OptimizePackets.DEFAULT,
+    override val recordHotbar: Boolean = false,
     override val recordVoiceChat: Boolean = false,
 ): RecorderSettings {
+    public fun asJson(): JsonElement {
+        return CODEC.encodeStart(JsonOps.INSTANCE, this).orThrow
+    }
+
     public companion object {
         public val DEFAULT: SimpleRecorderSettings = SimpleRecorderSettings()
+
+        public val CODEC: Codec<SimpleRecorderSettings> = OrderedRecordCodecBuilder.create { instance ->
+            instance.group(
+                Codec.BOOL.encodedOptionalFieldOf("debug", false).forGetter(RecorderSettings::debug),
+                Codec.STRING.encodedOptionalFieldOf("world_name", "World").forGetter(RecorderSettings::worldName),
+                Codec.STRING.encodedOptionalFieldOf("server_name", "Server").forGetter(RecorderSettings::serverName),
+                Codec.LONG.encodedOptionalFieldOf("fixed_daylight_cycle", -1L).forGetter(RecorderSettings::fixedDaylightCycle),
+                Codec.BOOL.encodedOptionalFieldOf("include_resource_packs", true).forGetter(RecorderSettings::includeResourcePacks),
+                Codec.INT.encodedOptionalFieldOf("chunk_recorder_load_radius", -1).forGetter(RecorderSettings::chunkRecorderLoadRadius),
+                ChunkRecordingStrategy.CODEC.encodedOptionalFieldOf("chunks_recorder_strategy", ChunkRecordingStrategy.Always).forGetter(RecorderSettings::chunkRecordingStrategy),
+                FileLimits.MAP_CODEC.orElse(FileLimits.DEFAULT).forGetter(RecorderSettings::limits),
+                IgnorePackets.MAP_CODEC.fieldOf("ignored_packets").orElse(IgnorePackets.DEFAULT).forGetter(RecorderSettings::ignores),
+                OptimizePackets.MAP_CODEC.fieldOf("optimized_packets").orElse(OptimizePackets.DEFAULT).forGetter(RecorderSettings::optimizes),
+                Codec.BOOL.encodedOptionalFieldOf("record_hotbar", false).forGetter(RecorderSettings::recordHotbar),
+                Codec.BOOL.encodedOptionalFieldOf("record_voice_chat", false).forGetter(RecorderSettings::recordVoiceChat)
+            ).apply(instance, ::SimpleRecorderSettings)
+        }
+
+        public fun RecorderSettings.asSimple(): SimpleRecorderSettings {
+            if (this is SimpleRecorderSettings) {
+                return this
+            }
+            return SimpleRecorderSettings(
+                this.debug,
+                this.worldName,
+                this.serverName,
+                this.fixedDaylightCycle,
+                this.includeResourcePacks,
+                this.chunkRecorderLoadRadius,
+                this.chunkRecordingStrategy,
+                this.limits,
+                this.ignores,
+                this.optimizes,
+                this.recordHotbar,
+                this.recordVoiceChat
+            )
+        }
     }
 }

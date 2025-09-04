@@ -6,6 +6,7 @@ package net.casual.arcade.replay.io.writer.flashback
 
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
+import net.casual.arcade.replay.io.FlashbackIO
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
 import net.casual.arcade.replay.util.flashback.FlashbackAction
 import net.casual.arcade.replay.util.flashback.FlashbackMarker
@@ -95,7 +96,7 @@ public class FlashbackChunkedWriter(
         }
     }
 
-    public fun endChunk(tick: Int) {
+    public fun endChunk(tick: Int, forceSnapshot: Boolean) {
         val name = "c${this.chunk++}.flashback"
 
         val copy = ByteArray(this.buffer.writerIndex())
@@ -104,10 +105,10 @@ public class FlashbackChunkedWriter(
         val chunk = this.directory.resolve(name)
         chunk.writeBytes(copy)
 
-        this.meta = this.meta.completeChunk(tick, name)
-        val meta = this.directory.resolve(net.casual.arcade.replay.io.FlashbackIO.METADATA)
+        this.meta = this.meta.completeChunk(tick, name, forceSnapshot)
+        val meta = this.directory.resolve(FlashbackIO.METADATA)
         if (meta.exists()) {
-            meta.moveTo(meta.resolveSibling(net.casual.arcade.replay.io.FlashbackIO.METADATA_OLD), true)
+            meta.moveTo(meta.resolveSibling(FlashbackIO.METADATA_OLD), true)
         }
 
         meta.writer().use {
@@ -125,7 +126,7 @@ public class FlashbackChunkedWriter(
             val copy = ByteArray(buffer.writerIndex())
             buffer.getBytes(0, copy)
 
-            val path = this.directory.resolve(net.casual.arcade.replay.io.FlashbackIO.CHUNK_CACHES).resolve("$fileIndex")
+            val path = this.directory.resolve(FlashbackIO.CHUNK_CACHES).resolve("$fileIndex")
             path.createParentDirectories()
             path.writeBytes(copy, StandardOpenOption.CREATE, StandardOpenOption.APPEND, StandardOpenOption.SYNC)
         } finally {
@@ -145,7 +146,7 @@ public class FlashbackChunkedWriter(
 
     private fun writeHeader() {
         this.buffer.writerIndex(0)
-        this.buffer.writeInt(net.casual.arcade.replay.io.FlashbackIO.MAGIC_NUMBER)
+        this.buffer.writeInt(FlashbackIO.MAGIC_NUMBER)
         this.buffer.writeVarInt(FlashbackAction.entries.size)
         for (action in FlashbackAction.entries) {
             this.buffer.writeResourceLocation(action.id)

@@ -47,7 +47,7 @@ public class FlashbackChunkedReader(
     }
 
     public fun shouldPlaySnapshot(): Boolean {
-        return this.current.value.meta.forcePlayerSnapshot
+        return this.current.value.meta.forcePlaySnapshot
     }
 
     public fun consumeSnapshot(consumer: (FlashbackAction, RegistryFriendlyByteBuf) -> Unit) {

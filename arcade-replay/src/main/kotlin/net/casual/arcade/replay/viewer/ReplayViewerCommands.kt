@@ -48,9 +48,11 @@ public object ReplayViewerCommands {
     }
 
     public fun handleCommand(command: String, viewer: ReplayViewer) {
-        val source = viewer.player.createCommandSourceStack().withSource(ReplayViewerCommandSource(viewer))
-        val result = this.dispatcher.parse(command, source)
-        viewer.server.commands.performCommand(result, command)
+        viewer.server.execute {
+            val source = viewer.player.createCommandSourceStack().withSource(ReplayViewerCommandSource(viewer))
+            val result = this.dispatcher.parse(command, source)
+            viewer.server.commands.performCommand(result, command)
+        }
     }
 
     private fun createReplayViewCommand(): LiteralArgumentBuilder<CommandSourceStack> {

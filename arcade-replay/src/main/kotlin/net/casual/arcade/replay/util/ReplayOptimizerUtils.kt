@@ -12,6 +12,7 @@ import net.minecraft.network.protocol.cookie.ClientboundCookieRequestPacket
 import net.minecraft.network.protocol.game.*
 import net.minecraft.network.protocol.login.ClientboundLoginCompressionPacket
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.packs.repository.Pack
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.item.PrimedTnt
 import net.minecraft.world.entity.projectile.Projectile
@@ -28,7 +29,6 @@ public object ReplayOptimizerUtils {
         ClientboundSetCameraPacket::class.java,
         ClientboundHorseScreenOpenPacket::class.java,
         ClientboundContainerClosePacket::class.java,
-        // TODO: Flashback uses this for first person mode:
         ClientboundContainerSetSlotPacket::class.java,
         ClientboundContainerSetContentPacket::class.java,
         ClientboundContainerSetDataPacket::class.java,
@@ -83,6 +83,11 @@ public object ReplayOptimizerUtils {
         ClientboundSoundPacket::class.java,
         ClientboundSoundEntityPacket::class.java
     )
+    // Set of all hotbar related packets
+    private val HOTBAR = setOf<Class<out Packet<*>>>(
+        ClientboundSetHeldSlotPacket::class.java,
+        ClientboundSetPlayerInventoryPacket::class.java
+    )
     // Set of all packets related to entity movement
     private val ENTITY_MOVEMENT = setOf<Class<out Packet<*>>>(
         ClientboundMoveEntityPacket.Pos::class.java,
@@ -104,17 +109,18 @@ public object ReplayOptimizerUtils {
 
     public fun shouldIgnorePacket(recorder: ReplayRecorder, packet: Packet<*>): Boolean {
         val isOnMainThread = recorder.server.isSameThread
-        if (recorder.settings.optimizeEntityPackets) {
-            if (isOnMainThread && optimiseEntity(recorder, packet)) {
+        if (recorder.settings.optimizes.entityPackets) {
+            if (isOnMainThread && this.optimiseEntity(recorder, packet)) {
                 return true
             }
         }
 
-        if (recorder.settings.ignoreCustomPayloadPackets && packet is ClientboundCustomPayloadPacket) {
+
+        if (recorder.settings.ignores.customPayloadPackets && packet is ClientboundCustomPayloadPacket) {
             return true
         }
 
-        if (recorder.settings.ignoreLightPackets && packet is ClientboundLightUpdatePacket) {
+        if (recorder.settings.ignores.lightPackets && packet is ClientboundLightUpdatePacket) {
             return true
         }
 
@@ -125,10 +131,13 @@ public object ReplayOptimizerUtils {
         }
 
         val type = packet::class.java
-        if (recorder.settings.ignoreSoundPackets && SOUNDS.contains(type)) {
+        if (!recorder.settings.recordHotbar && HOTBAR.contains(type)) {
             return true
         }
-        if (recorder.settings.ignoreChatPackets && CHAT.contains(type)) {
+        if (recorder.settings.ignores.soundPackets && SOUNDS.contains(type)) {
+            return true
+        }
+        if (recorder.settings.ignores.chatPackets && CHAT.contains(type)) {
             if (!(packet is ClientboundSystemChatPacket && packet.overlay)) {
                 return true
             }
@@ -139,12 +148,12 @@ public object ReplayOptimizerUtils {
             recorder.record(replacement)
             return true
         }
-        if (recorder.settings.ignoreActionBarPackets) {
+        if (recorder.settings.ignores.actionBarPackets) {
             if (packet is ClientboundSystemChatPacket && packet.overlay || packet is ClientboundSetActionBarTextPacket) {
                 return true
             }
         }
-        if (recorder.settings.ignoreScoreboardPackets && SCOREBOARD.contains(type)) {
+        if (recorder.settings.ignores.scoreboardPackets && SCOREBOARD.contains(type)) {
             return true
         }
         return IGNORED.contains(type)

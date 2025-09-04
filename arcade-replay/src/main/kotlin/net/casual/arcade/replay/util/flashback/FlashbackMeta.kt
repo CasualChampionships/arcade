@@ -5,7 +5,7 @@
 package net.casual.arcade.replay.util.flashback
 
 import com.mojang.serialization.Codec
-import net.casual.arcade.utils.codec.OrderedRecordCodecBuilder
+import net.casual.arcade.utils.serialization.codec.OrderedRecordCodecBuilder
 import net.minecraft.SharedConstants
 import net.minecraft.core.UUIDUtil
 import java.util.*
@@ -21,26 +21,22 @@ public data class FlashbackMeta(
     val markers: Map<String, FlashbackMarker> = mapOf(),
     val chunks: Map<String, ChunkMeta> = mapOf()
 ) {
-    public fun completeChunk(totalTicks: Int, chunkName: String): FlashbackMeta {
+    public fun completeChunk(totalTicks: Int, chunkName: String, forceSnapshot: Boolean): FlashbackMeta {
         val duration = totalTicks - this.totalTicks
         val copy = LinkedHashMap(this.chunks)
-        copy[chunkName] = ChunkMeta(duration)
+        copy[chunkName] = ChunkMeta(duration, forceSnapshot)
         return this.copy(totalTicks = totalTicks, chunks = copy)
     }
 
     public data class ChunkMeta(
         val duration: Int,
-        /**
-         * This property is only ever used when merging two
-         * replays, and for our purposes will always be `false`
-         */
-        val forcePlayerSnapshot: Boolean = false
+        val forcePlaySnapshot: Boolean
     ) {
         public companion object {
             public val CODEC: Codec<ChunkMeta> = OrderedRecordCodecBuilder.create { instance ->
                 instance.group(
                     Codec.INT.fieldOf("duration").forGetter(ChunkMeta::duration),
-                    Codec.BOOL.fieldOf("forcePlayerSnapshot").forGetter(ChunkMeta::forcePlayerSnapshot)
+                    Codec.BOOL.fieldOf("forcePlaySnapshot").forGetter(ChunkMeta::forcePlaySnapshot)
                 ).apply(instance, ::ChunkMeta)
             }
         }

@@ -66,19 +66,19 @@ public object ReplayViewerUtils {
     }
 
     public fun ServerGamePacketListenerImpl.sendReplayPacket(packet: Packet<*>) {
-        (this as ReplayViewable).`replay$sendReplayViewerPacket`(packet)
+        (this as ReplayViewable).`arcade$sendReplayViewerPacket`(packet)
     }
 
     public fun ServerGamePacketListenerImpl.startViewingReplay(viewer: ReplayViewer) {
-        (this as ReplayViewable).`replay$startViewingReplay`(viewer)
+        (this as ReplayViewable).`arcade$startViewingReplay`(viewer)
     }
 
     public fun ServerGamePacketListenerImpl.stopViewingReplay() {
-        (this as ReplayViewable).`replay$stopViewingReplay`()
+        (this as ReplayViewable).`arcade$stopViewingReplay`()
     }
 
     public fun ServerGamePacketListenerImpl.getViewingReplay(): ReplayViewer? {
-        return (this as ReplayViewable).`replay$getViewingReplay`()
+        return (this as ReplayViewable).`arcade$getViewingReplay`()
     }
 
     public fun createClientboundPlayerInfoUpdatePacket(

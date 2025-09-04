@@ -4,13 +4,13 @@
  */
 package net.casual.arcade.replay.recorder.chunk
 
-import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerStopEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.replay.io.ReplayFormat
+import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
 import net.casual.arcade.replay.recorder.settings.SimpleRecorderSettings
 import net.minecraft.network.protocol.Packet
@@ -20,14 +20,14 @@ import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.levelgen.structure.BoundingBox
 import java.nio.file.Path
-import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * This object manages all [ReplayChunkRecorder]s.
  */
 public object ReplayChunkRecorders {
-    private val recorders = Object2ReferenceOpenHashMap<String, ReplayChunkRecorder>()
+    private val recorders = ConcurrentHashMap<String, ReplayChunkRecorder>()
     private val closing = ObjectOpenHashSet<ReplayChunkRecorder>()
 
     /**
@@ -71,6 +71,8 @@ public object ReplayChunkRecorders {
     /**
      * Gets a [ReplayChunkRecorder] for a given name.
      *
+     * This call is *thread safe*.
+     *
      * @param name The name of the recorder.
      * @return The recorder instance with the given name, null if it doesn't exist.
      */
@@ -81,6 +83,8 @@ public object ReplayChunkRecorders {
 
     /**
      * Gets all the [ReplayChunkRecorder]s that contain a given [chunk] in the given [level].
+     *
+     * This call is *thread safe*.
      *
      * @param level The level to check in.
      * @param chunk The position the recorder must contain.
@@ -94,6 +98,8 @@ public object ReplayChunkRecorders {
     /**
      * Gets all the [ReplayChunkRecorder]s that intersect a given [box] in the given [level].
      *
+     * This call is *thread safe*.
+     *
      * @param level The level to check in.
      * @param box The bounding box the recorder must intersect with.
      * @return A list of chunk recorders.
@@ -105,6 +111,8 @@ public object ReplayChunkRecorders {
 
     /**
      * Gets a collection of all the currently recording chunk recorders.
+     *
+     * This call is *thread safe*.
      *
      * @return A collection of all the chunk recorders.
      */
@@ -188,9 +196,7 @@ public object ReplayChunkRecorders {
             }
         }
         GlobalEventHandler.Server.register<ServerTickEvent> {
-            for (recorder in this.recorders.values) {
-                recorder.tick()
-            }
+            this.recorders.values.forEach(ReplayRecorder::tick)
         }
     }
 

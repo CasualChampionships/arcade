@@ -5,7 +5,6 @@
 package net.casual.arcade.utils
 
 import net.casual.arcade.util.mixins.ChunkMapAccessor
-import net.casual.arcade.util.mixins.TrackedEntityAccessor
 import net.casual.arcade.utils.impl.WrappedTrackedEntity
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
@@ -17,7 +16,6 @@ import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.level.ChunkMap
 import net.minecraft.server.level.ServerEntity
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer

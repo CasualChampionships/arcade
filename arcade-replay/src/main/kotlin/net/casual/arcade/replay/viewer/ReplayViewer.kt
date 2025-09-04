@@ -10,6 +10,9 @@ import it.unimi.dsi.fastutil.ints.IntSets
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.longs.LongSets
 import kotlinx.coroutines.*
+import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.server.player.PlayerServerboundPacketEvent
 import net.casual.arcade.host.GlobalPackHost
 import net.casual.arcade.replay.ducks.PackTracker
 import net.casual.arcade.replay.io.reader.ReplayReader
@@ -61,7 +64,6 @@ import kotlin.io.path.nameWithoutExtension
 import kotlin.math.abs
 import kotlin.time.Duration
 
-@OptIn(ExperimentalCoroutinesApi::class)
 public class ReplayViewer internal constructor(
     supplier: (ReplayViewer) -> ReplayReader,
     public val connection: ServerGamePacketListenerImpl
@@ -74,8 +76,8 @@ public class ReplayViewer internal constructor(
     private var started = false
     private var teleported = false
 
-    @OptIn(DelicateCoroutinesApi::class)
-    private val coroutineContext = newSingleThreadContext("replay-viewer")
+    @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
+    private val coroutineContext: ExecutorCoroutineDispatcher = newSingleThreadContext("replay-viewer")
     private val coroutineScope = CoroutineScope(this.coroutineContext + Job())
 
     private var tickSpeed = 20.0F
@@ -211,14 +213,6 @@ public class ReplayViewer internal constructor(
         return false
     }
 
-    public fun onServerboundPacket(packet: Packet<*>) {
-        // To allow other packets, make sure you add them to the allowed packets in ReplayViewerPackets
-        when (packet) {
-            is ServerboundChatCommandPacket -> ReplayViewerCommands.handleCommand(packet.command, this)
-            is ServerboundChatCommandSignedPacket -> ReplayViewerCommands.handleCommand(packet.command, this)
-        }
-    }
-
     public fun getResourcePackUrl(hash: String): String {
         return this.packs.url(hash)
     }
@@ -235,6 +229,16 @@ public class ReplayViewer internal constructor(
 
     public fun markForTeleportation() {
         this.teleported = false
+    }
+
+    private fun handleServerboundPacket(packet: Packet<*>): Boolean {
+        // This is run async!
+        when (packet) {
+            is ServerboundChatCommandPacket -> ReplayViewerCommands.handleCommand(packet.command, this)
+            is ServerboundChatCommandSignedPacket -> ReplayViewerCommands.handleCommand(packet.command, this)
+            else -> return false
+        }
+        return true
     }
 
     private fun restart() {
@@ -630,8 +634,20 @@ public class ReplayViewer internal constructor(
         this.connection.sendReplayPacket(packet)
     }
 
-    private companion object {
-        const val VIEWER_ID = Int.MAX_VALUE - 10
-        val VIEWER_UUID: UUID = UUIDUtil.createOfflinePlayerUUID("-ViewingProfile-")
+    internal companion object {
+        private const val VIEWER_ID = Int.MAX_VALUE - 10
+        private val VIEWER_UUID: UUID = UUIDUtil.createOfflinePlayerUUID("-ViewingProfile-")
+
+        fun registerEvents() {
+            GlobalEventHandler.Server.register<PlayerServerboundPacketEvent>(::onPlayerServerboundPacket)
+        }
+
+        private fun onPlayerServerboundPacket(event: PlayerServerboundPacketEvent) {
+            val (player, packet) = event
+            val viewer = player.connection.getViewingReplay() ?: return
+            if (viewer.handleServerboundPacket(packet) || !ReplayViewerPackets.serverboundBypass(packet)) {
+                event.cancel()
+            }
+        }
     }
 }

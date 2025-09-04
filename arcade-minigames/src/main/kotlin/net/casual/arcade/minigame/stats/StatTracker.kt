@@ -4,17 +4,14 @@
  */
 package net.casual.arcade.minigame.stats
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import net.casual.arcade.utils.JsonUtils.objects
-import net.casual.arcade.utils.JsonUtils.string
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.core.Holder
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.jvm.optionals.getOrNull
 
 public class StatTracker {
-    private val unprocessed = ConcurrentHashMap<ResourceLocation, Pair<JsonElement, String>>()
-    private val stats = ConcurrentHashMap<StatType<*>, Stat<*>>()
+    private val stats = ConcurrentHashMap<Holder<StatType<*>>, Stat<*>>()
     private var frozen: Boolean = false
 
     public fun freeze() {
@@ -31,58 +28,42 @@ public class StatTracker {
         }
     }
 
-    public fun <T> getStatValueOrDefault(type: StatType<T>): T {
-        val unprocessed = this.unprocessed[type.id]
-        if (unprocessed != null) {
-            return type.serializer.deserialize(unprocessed.first)
-        }
-
-        val stat = this.stats[type] ?: return type.default
-        @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST")
+    public fun <T: Any> getStatValueOrDefault(holder: Holder<StatType<T>>): T {
+        val stat = this.stats[holder as Holder<StatType<*>>] ?: return holder.value().default
         return (stat as Stat<T>).value
     }
 
-    public fun <T> getOrCreateStat(type: StatType<T>): Stat<T> {
-        this.unprocessed.remove(type.id)?.let { (data, _) ->
-            val stat = this.createStat(type)
-            stat.deserialize(data)
-            this.stats[type] = stat
-            return stat
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        return this.stats.getOrPut(type) { this.createStat(type) } as Stat<T>
+    @Suppress("UNCHECKED_CAST")
+    public fun <T: Any> getOrCreateStat(holder: Holder<StatType<T>>): Stat<T> {
+        return this.stats.getOrPut(holder as Holder<StatType<*>>) {
+            this.createStat(holder.value())
+        } as Stat<T>
     }
 
-    public fun serialize(): JsonArray {
-        val stats = JsonArray()
+    public fun serialize(output: ValueOutput.ValueOutputList) {
         for ((type, stat) in this.stats) {
-            val statData = JsonObject()
-            statData.addProperty("type", type.id.toString())
-            statData.add("value", stat.serialize())
-            statData.addProperty("value_type", stat.stat.serializer.type())
-            stats.add(statData)
-        }
-        for ((type, stat) in this.unprocessed) {
-            val statData = JsonObject()
-            statData.addProperty("type", type.toString())
-            statData.add("value", stat.first)
-            statData.addProperty("value_type", stat.second)
-            stats.add(statData)
-        }
-        return stats
-    }
-
-    public fun deserialize(stats: JsonArray) {
-        for (statData in stats.objects()) {
-            val location = ResourceLocation.parse(statData.string("type"))
-            val value = statData["value"]
-            val type = statData.string("value_type")
-            this.unprocessed[location] = value to type
+            val child = output.addChild()
+            child.store("type", StatType.HOLDER_CODEC, type)
+            child.store("value", stat)
         }
     }
 
-    private fun <T> createStat(type: StatType<T>): Stat<T> {
+    @Suppress("UNCHECKED_CAST")
+    public fun deserialize(input: ValueInput.ValueInputList) {
+        for (child in input) {
+            val type = child.read("type", StatType.HOLDER_CODEC).getOrNull() ?: continue
+            val value = child.read("value", type.value().codec).getOrNull() ?: continue
+            val stat = this.getOrCreateStat(type as Holder<StatType<Any>>)
+            stat.set(value)
+        }
+    }
+
+    private fun <T: Any> createStat(type: StatType<T>): Stat<T> {
         return Stat(type).also { stat -> stat.frozen = this.frozen }
+    }
+
+    private fun <T: Any> ValueOutput.store(key: String, stat: Stat<T>) {
+        this.store(key, stat.type.codec, stat.value)
     }
 }

@@ -7,6 +7,6 @@ package net.casual.arcade.replay.events
 import net.casual.arcade.events.common.Event
 import net.casual.arcade.replay.recorder.ReplayRecorder
 
-public class ReplayRecorderCloseEvent(
+public data class ReplayRecorderCloseEvent(
     public val recorder: ReplayRecorder
 ): Event
