@@ -16,7 +16,8 @@ import net.minecraft.network.chat.contents.TranslatableContents
  * @param builder The builder which has context to build components.
  * @return The built component.
  */
-public inline fun <T: Component> component(builder: ComponentBuilderContext.() -> T): T {
+@Suppress("FunctionName")
+public inline fun <T: Component> Component(builder: ComponentBuilderContext.() -> T): T {
     return ComponentBuilderContext.INSTANCE.builder()
 }
 

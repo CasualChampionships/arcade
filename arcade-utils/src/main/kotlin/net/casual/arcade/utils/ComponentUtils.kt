@@ -404,6 +404,7 @@ public object ComponentUtils {
         return component
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun Component.greyscale(): MutableComponent {
         return this.mapColours { colour ->
@@ -412,6 +413,7 @@ public object ComponentUtils {
         }
     }
 
+    @Deprecated("Use replacement")
     @JvmStatic
     public fun Component.mapColours(mapper: (TextColor?) -> TextColor?): MutableComponent {
         val copy = this.plainCopy()

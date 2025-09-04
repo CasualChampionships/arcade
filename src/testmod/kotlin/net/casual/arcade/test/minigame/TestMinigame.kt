@@ -52,14 +52,14 @@ open class TestMinigame(
 
         val sidebar = FixedSidebar(ComponentElements.of(Component.literal("Example!")))
         sidebar.addRow(SidebarElements.withNoScore(SpacingFontResources.spaced(120)))
-        sidebar.addRow(SidebarElements.withNoScore(component {
+        sidebar.addRow(SidebarElements.withNoScore(Component {
             literal("Hello World", 0x2739B8, 0x8D379E, 0xF13484, 0xFF605D)
         }))
         this.ui.setSidebar(sidebar)
 
         val display = PlayerListDisplay(VanillaPlayerListEntries())
         val header = UniversalElement {
-            component {
+            Component {
                 literal("Testing Minigame").blue() + nl + wrap() +
                     literal("shadowless").shadowless().italicize().bold()
             }

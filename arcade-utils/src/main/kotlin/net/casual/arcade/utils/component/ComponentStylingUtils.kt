@@ -5,6 +5,7 @@
 package net.casual.arcade.utils.component
 
 import it.unimi.dsi.fastutil.ints.IntList
+import net.casual.arcade.utils.ColorUtils
 import net.casual.arcade.utils.ResourceLocation
 import net.casual.arcade.utils.color.ColorARGB
 import net.casual.arcade.utils.color.ColorOklab
@@ -14,6 +15,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.HoverEvent.EntityTooltipInfo
 import net.minecraft.network.chat.MutableComponent
+import net.minecraft.network.chat.TextColor
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
@@ -371,6 +373,37 @@ public fun MutableComponent.font(font: ResourceLocation): MutableComponent {
  */
 public fun MutableComponent.font(namespace: String, path: String): MutableComponent {
     return this.font(ResourceLocation(namespace, path))
+}
+
+/**
+ * Maps all the colors in the component such
+ * that the component becomes grayscale.
+ *
+ * @return The component in grayscale.
+ * @see mapColors
+ */
+public fun Component.grayscale(): MutableComponent {
+    return this.mapColors(fun(color): TextColor? {
+        if (color != null) {
+            return TextColor.fromRgb(ColorUtils.greyscale(color.value))
+        }
+        return null
+    })
+}
+
+/**
+ * Maps all colors in the component recursively.
+ *
+ * @param mapper The color mapper.
+ * @return The color mapped component.
+ */
+public fun Component.mapColors(mapper: (TextColor?) -> TextColor?): MutableComponent {
+    val copy = this.plainCopy()
+    copy.style = this.style.withColor(mapper.invoke(this.style.color))
+    for (siblings in this.siblings) {
+        copy.append(siblings.mapColors(mapper))
+    }
+    return copy
 }
 
 /**
