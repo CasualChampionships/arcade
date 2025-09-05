@@ -631,7 +631,7 @@ internal object MinigameCommand: CommandTree {
         val value = MinigameSettingValueArgument.getSettingsValue(context, "value")
         setting.deserializeAndSet(value)
         return context.source.success(
-            Component.translatable("minigame.command.setting.set.value", setting.get().toString())
+            Component.translatable("minigame.command.setting.set.value", setting.name, setting.get().toString())
         )
     }
 
