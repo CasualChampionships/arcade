@@ -6,11 +6,11 @@ package net.casual.arcade.replay.compat.voicechat
 
 import de.maxhenkel.voicechat.api.Position
 import de.maxhenkel.voicechat.api.audio.AudioConverter
-import de.maxhenkel.voicechat.api.opus.OpusDecoder
 import de.maxhenkel.voicechat.api.packets.EntitySoundPacket
 import de.maxhenkel.voicechat.api.packets.LocationalSoundPacket
-import de.maxhenkel.voicechat.api.packets.MicrophonePacket
 import de.maxhenkel.voicechat.api.packets.StaticSoundPacket
+import de.maxhenkel.voicechat.plugins.impl.packets.SoundPacketImpl
+import de.maxhenkel.voicechat.voice.common.SoundPacket
 import net.casual.arcade.replay.io.ReplayFormat
 import net.casual.arcade.utils.EnumUtils
 import net.minecraft.network.FriendlyByteBuf
@@ -18,13 +18,11 @@ import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.common.ClientCommonPacketListener
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.phys.Vec3
 import java.util.*
-import de.maxhenkel.voicechat.api.packets.Packet as VoicechatPacket
 
 public class VoicechatPacketCache {
-    private val universe = EnumUtils.mapOf<ReplayFormat, WeakHashMap<VoicechatPacket, Packet<ClientCommonPacketListener>>>()
+    private val universe = EnumUtils.mapOf<ReplayFormat, WeakHashMap<SoundPacket<*>, Packet<ClientCommonPacketListener>>>()
 
     init {
         for (format in ReplayFormat.entries) {
@@ -38,7 +36,7 @@ public class VoicechatPacketCache {
         packet: LocationalSoundPacket,
         decoded: ShortArray
     ): Packet<ClientCommonPacketListener> {
-        return this.universe[format]!!.getOrPut(packet) {
+        return this.universe[format]!!.getOrPut(packet.unwrap()) {
             format.encoder().locational(converter, packet.sender, decoded, packet.position, packet.distance)
         }
     }
@@ -49,7 +47,7 @@ public class VoicechatPacketCache {
         packet: EntitySoundPacket,
         decoded: ShortArray
     ): Packet<ClientCommonPacketListener> {
-        return this.universe[format]!!.getOrPut(packet) {
+        return this.universe[format]!!.getOrPut(packet.unwrap()) {
             format.encoder().entity(converter, packet.sender, decoded, packet.isWhispering, packet.distance)
         }
     }
@@ -60,7 +58,7 @@ public class VoicechatPacketCache {
         packet: StaticSoundPacket,
         decoded: ShortArray
     ): Packet<ClientCommonPacketListener> {
-        return this.universe[format]!!.getOrPut(packet) {
+        return this.universe[format]!!.getOrPut(packet.unwrap()) {
             format.encoder().static(converter, packet.sender, decoded)
         }
     }
@@ -79,6 +77,10 @@ public class VoicechatPacketCache {
             return encoder.static(converter, sender, decoded)
         }
         return encoder.entity(converter, sender, decoded, whispering, distance)
+    }
+
+    private fun de.maxhenkel.voicechat.api.packets.SoundPacket.unwrap(): SoundPacket<*> {
+        return (this as SoundPacketImpl).packet
     }
 
     private fun ReplayFormat.encoder(): Encoder {
