@@ -328,7 +328,7 @@ bossbar is constant. We can create one of these by constructing a `StaticBossbar
 val bossbar = StaticBossbar(
     title = Component.literal("My Bossbar"),
     progress = 0.5F,
-    colour = BossEvent.BossBarColor.BLUE,
+    color = BossEvent.BossBarColor.BLUE,
     overlay = BossEvent.BossBarOverlay.PROGRESS,
     dark = false,
     music = false,
@@ -352,7 +352,7 @@ bossbar.setTitle { player -> player.displayName }
 bossbar.setProgress(UniversalElement { server ->
     (server.tickCount % 24_000) / 24_000.0F
 }.cached())
-// Set the colour and overlay of the bossbar
+// Set the color and overlay of the bossbar
 bossbar.setStyle(
     LevelSpecificElement { level -> 
         when (level.dimension()) {
@@ -375,8 +375,8 @@ class MyCustomBossbar: CustomBossbar() {
         TODO("Not yet implemented")
     }
 
-    override fun getColour(player: ServerPlayer): BossEvent.BossBarColor {
-        return super.getColour(player)
+    override fun getColor(player: ServerPlayer): BossEvent.BossBarColor {
+        return super.getColor(player)
     }
 
     override fun getOverlay(player: ServerPlayer): BossEvent.BossBarOverlay {
@@ -434,7 +434,7 @@ class MyCustomTimerBossbar: TimerBossBar() {
 ```
 
 For example, like the grace bossbar in the image below, to achieve this effect, you 
-can create a resource pack and change one of the bossbar colour textures to be shorter.
+can create a resource pack and change one of the bossbar color textures to be shorter.
 
 ![Scaled Timer Bossbar](../assets/scaled_timer_bossbar.png)
 

@@ -15,8 +15,8 @@ public object BossbarColorElements {
     private val PURPLE = UniversalElement.constant(BossBarColor.PURPLE)
     private val WHITE = UniversalElement.constant(BossBarColor.WHITE)
 
-    public fun of(colour: BossBarColor): PlayerSpecificElement<BossBarColor> {
-        return when (colour) {
+    public fun of(color: BossBarColor): PlayerSpecificElement<BossBarColor> {
+        return when (color) {
             BossBarColor.PINK -> PINK
             BossBarColor.BLUE -> BLUE
             BossBarColor.RED -> RED

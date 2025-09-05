@@ -262,7 +262,7 @@ public object ItemUtils {
 
     @JvmStatic
     @JvmOverloads
-    public fun colouredHeadForFormatting(formatting: ChatFormatting, item: Item = Items.PLAYER_HEAD): ItemStack {
+    public fun coloredHeadForFormatting(formatting: ChatFormatting, item: Item = Items.PLAYER_HEAD): ItemStack {
         val texture = when (formatting) {
             ChatFormatting.BLACK -> HeadTextures.BLACK
             ChatFormatting.DARK_BLUE -> HeadTextures.DARK_BLUE

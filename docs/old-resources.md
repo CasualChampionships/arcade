@@ -45,7 +45,7 @@ val noSplitPadding: Component = PaddingNoSplitFontResources.padding(10)
 
 ### Player Heads
 
-To create player heads with components, we essentially just re-build the texture with coloured pixels.
+To create player heads with components, we essentially just re-build the texture with colored pixels.
 
 If you have this installed you can use the `PlayerHeadComponents` object to create player head components. You can do this by calling `PlayerHeadComponents#getHead`, since it requires fetching the player's skin, this runs asynchronously and returns a `CompletableFuture<Component>`, but you can instead call `PlayerHeadComponents#getHeadOrDefault` which will return a steve head if the player's head isn't available yet.
 

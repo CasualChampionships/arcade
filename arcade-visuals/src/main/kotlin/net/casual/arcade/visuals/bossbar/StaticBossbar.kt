@@ -15,7 +15,7 @@ import net.minecraft.world.BossEvent.BossBarOverlay
  *
  * @param title The title of the bar.
  * @param progress The progress of the bar.
- * @param colour The colour of the bar.
+ * @param color The color of the bar.
  * @param overlay The overlay of the bar.
  * @param dark Whether the player's world should be dark.
  * @param music Whether the player should player boss music.
@@ -32,9 +32,9 @@ public data class StaticBossbar(
      */
     val progress: Float = 1.0F,
     /**
-     * The colour of the bar.
+     * The color of the bar.
      */
-    val colour: BossBarColor = BossBarColor.WHITE,
+    val color: BossBarColor = BossBarColor.WHITE,
     /**
      * The overlay of the bar.
      */
@@ -80,14 +80,14 @@ public data class StaticBossbar(
     }
 
     /**
-     * This gets the colour of the [CustomBossbar] which will be
+     * This gets the color of the [CustomBossbar] which will be
      * displayed to the given [player].
      *
-     * @param player The player being displayed the colour.
+     * @param player The player being displayed the color.
      * @return The [BossBarColor] to set the bossbar to.
      */
-    override fun getColour(player: ServerPlayer): BossBarColor {
-        return this.colour
+    override fun getColor(player: ServerPlayer): BossBarColor {
+        return this.color
     }
 
     /**

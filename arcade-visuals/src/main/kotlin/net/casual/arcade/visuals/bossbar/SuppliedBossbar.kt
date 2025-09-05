@@ -16,7 +16,7 @@ import net.minecraft.world.BossEvent.BossBarOverlay
 public class SuppliedBossbar(
     private var title: PlayerSpecificElement<Component> = ComponentElements.empty(),
     private var progress: PlayerSpecificElement<Float> = UniversalElement.constant(0.0F),
-    private var colour: PlayerSpecificElement<BossBarColor> = BossbarColorElements.white(),
+    private var color: PlayerSpecificElement<BossBarColor> = BossbarColorElements.white(),
     private var overlay: PlayerSpecificElement<BossBarOverlay> = BossbarOverlayElements.progress()
 ): CustomBossbar(), TickableUI {
     private var dark = BooleanElements.alwaysFalse()
@@ -40,11 +40,11 @@ public class SuppliedBossbar(
     }
 
     public fun setStyle(
-        colour: PlayerSpecificElement<BossBarColor>? = null,
+        color: PlayerSpecificElement<BossBarColor>? = null,
         overlay: PlayerSpecificElement<BossBarOverlay>? = null
     ) {
-        if (colour != null) {
-            this.colour = colour
+        if (color != null) {
+            this.color = color
         }
         if (overlay != null) {
             this.overlay = overlay
@@ -98,14 +98,14 @@ public class SuppliedBossbar(
     }
 
     /**
-     * This gets the colour of the [CustomBossbar] which will be
+     * This gets the color of the [CustomBossbar] which will be
      * displayed to the given [player].
      *
-     * @param player The player being displayed the colour.
+     * @param player The player being displayed the color.
      * @return The [BossBarColor] to set the bossbar to.
      */
-    override fun getColour(player: ServerPlayer): BossBarColor {
-        return this.colour.get(player)
+    override fun getColor(player: ServerPlayer): BossBarColor {
+        return this.color.get(player)
     }
 
     /**
@@ -153,7 +153,7 @@ public class SuppliedBossbar(
     override fun tick(server: MinecraftServer) {
         this.title.tick(server)
         this.progress.tick(server)
-        this.colour.tick(server)
+        this.color.tick(server)
         this.overlay.tick(server)
         this.dark.tick(server)
         this.music.tick(server)

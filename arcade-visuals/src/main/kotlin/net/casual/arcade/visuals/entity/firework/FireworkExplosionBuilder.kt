@@ -9,8 +9,8 @@ import net.minecraft.world.item.component.FireworkExplosion
 import net.minecraft.world.item.component.FireworkExplosion.Shape
 
 public class FireworkExplosionBuilder {
-    private val primaryColours = IntArrayList()
-    private val fadeColours = IntArrayList()
+    private val primaryColors = IntArrayList()
+    private val fadeColors = IntArrayList()
 
     public var shape: Shape = Shape.SMALL_BALL
     public var hasTrail: Boolean = false
@@ -31,21 +31,21 @@ public class FireworkExplosionBuilder {
         return this
     }
 
-    public fun addPrimaryColours(vararg colours: Int): FireworkExplosionBuilder {
-        for (colour in colours) {
-            this.primaryColours.add(colour)
+    public fun addPrimaryColors(vararg colors: Int): FireworkExplosionBuilder {
+        for (color in colors) {
+            this.primaryColors.add(color)
         }
         return this
     }
 
-    public fun addFadeColours(vararg colours: Int): FireworkExplosionBuilder {
-        for (colour in colours) {
-            this.fadeColours.add(colour)
+    public fun addFadeColors(vararg colors: Int): FireworkExplosionBuilder {
+        for (color in colors) {
+            this.fadeColors.add(color)
         }
         return this
     }
 
     public fun build(): FireworkExplosion {
-        return FireworkExplosion(this.shape, this.primaryColours, this.fadeColours, this.hasTrail, this.hasTwinkle)
+        return FireworkExplosion(this.shape, this.primaryColors, this.fadeColors, this.hasTrail, this.hasTwinkle)
     }
 }

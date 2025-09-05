@@ -28,14 +28,14 @@ import net.minecraft.world.scores.Team
 
 public object TeamUtils {
     @Suppress("JoinDeclarationAndAssignment")
-    public val TEAM_COLOURS: Set<ChatFormatting>
-    public val TEAM_COLOURS_NO_GREY: Set<ChatFormatting>
+    public val TEAM_COLORS: Set<ChatFormatting>
+    public val TEAM_COLORS_NO_GREY: Set<ChatFormatting>
 
     private val ANIMALS = HashMap<ChatFormatting, List<String>>()
 
     init {
-        TEAM_COLOURS = entries.slice(0..< 16).toSet()
-        TEAM_COLOURS_NO_GREY = TEAM_COLOURS.toMutableSet().apply {
+        TEAM_COLORS = entries.slice(0..< 16).toSet()
+        TEAM_COLORS_NO_GREY = TEAM_COLORS.toMutableSet().apply {
             removeAll(setOf(BLACK, GRAY, DARK_GRAY, WHITE))
         }
 
@@ -139,8 +139,8 @@ public object TeamUtils {
     }
 
     @JvmStatic
-    public fun colouredHeadForTeam(team: Team): ItemStack {
-        val head = ItemUtils.colouredHeadForFormatting(team.color)
+    public fun coloredHeadForTeam(team: Team): ItemStack {
+        val head = ItemUtils.coloredHeadForFormatting(team.color)
         head.named(team.name)
         return head
     }
@@ -157,17 +157,17 @@ public object TeamUtils {
         val teams = Iterators.partition(mutable.iterator(), teamSize)
 
         val generated = ArrayList<PlayerTeam>()
-        val colours = TEAM_COLOURS.toMutableSet()
+        val colors = TEAM_COLORS.toMutableSet()
         for (players in teams) {
             var team: PlayerTeam? = null
             var i = 0
             while (team == null) {
-                team = getUnusedRandomTeam(server.scoreboard, colours)
+                team = getUnusedRandomTeam(server.scoreboard, colors)
                 if (i++ > 20) {
                     return null
                 }
             }
-            colours.remove(team.color)
+            colors.remove(team.color)
             team.isAllowFriendlyFire = friendlyFire
             team.collisionRule = collision
             for (player in players) {
@@ -180,17 +180,17 @@ public object TeamUtils {
 
     @JvmStatic
     public fun getUnusedRandomTeam(scoreboard: Scoreboard, formatting: Collection<ChatFormatting>): PlayerTeam? {
-        val colours = formatting.shuffled()
-        if (!TEAM_COLOURS.containsAll(colours)) {
-            throw IllegalArgumentException("Some colours are invalid for a team ${formatting}!")
+        val colors = formatting.shuffled()
+        if (!TEAM_COLORS.containsAll(colors)) {
+            throw IllegalArgumentException("Some colors are invalid for a team ${formatting}!")
         }
-        for (colour in colours) {
-            for (animal in ANIMALS[colour]!!.shuffled()) {
-                val teamName = "${colour.prettyName()}$animal"
+        for (color in colors) {
+            for (animal in ANIMALS[color]!!.shuffled()) {
+                val teamName = "${color.prettyName()}$animal"
                 val team = scoreboard.getPlayerTeam(teamName) ?: scoreboard.addPlayerTeam(teamName)
                 if (team.players.isEmpty()) {
-                    team.color = colour
-                    team.displayName = Component.literal("${colour.prettyName()} $animal").withStyle(colour)
+                    team.color = color
+                    team.displayName = Component.literal("${color.prettyName()} $animal").withStyle(color)
                     team.playerPrefix = team.formattedDisplayName.append(" ")
                     return team
                 }
@@ -201,9 +201,9 @@ public object TeamUtils {
 
     @JvmStatic
     public fun deleteAllRandomTeams(scoreboard: Scoreboard) {
-        for (colour in TEAM_COLOURS) {
-            for (animal in ANIMALS[colour]!!) {
-                val teamName = "${colour.prettyName()}$animal"
+        for (color in TEAM_COLORS) {
+            for (animal in ANIMALS[color]!!) {
+                val teamName = "${color.prettyName()}$animal"
                 val team = scoreboard.getPlayerTeam(teamName) ?: continue
                 scoreboard.removePlayerTeam(team)
             }

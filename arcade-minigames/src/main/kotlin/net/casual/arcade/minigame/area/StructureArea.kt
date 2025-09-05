@@ -15,7 +15,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 
 public class StructureArea(
     private val structure: StructureTemplate,
-    private val centre: Vec3i,
+    private val center: Vec3i,
     override val level: ServerLevel
 ): PlaceableArea {
     private val box by lazy(this::calculateBoundingBox)
@@ -25,7 +25,7 @@ public class StructureArea(
         val halfX = dimensions.x / 2 + 1
         val halfY = dimensions.y / 2 + 1
         val halfZ = dimensions.z / 2 + 1
-        val corner = BlockPos(this.centre.x - halfX, this.centre.y - halfY, this.centre.z - halfZ)
+        val corner = BlockPos(this.center.x - halfX, this.center.y - halfY, this.center.z - halfZ)
         return this.structure.placeInWorld(
             this.level,
             corner,
@@ -46,12 +46,12 @@ public class StructureArea(
         val halfY = dimensions.y / 2 + 1
         val halfZ = dimensions.z / 2 + 1
         return BoundingBox(
-            this.centre.x - halfX,
-            this.centre.y - halfY,
-            this.centre.z - halfZ,
-            this.centre.x + halfX,
-            this.centre.y + halfY,
-            this.centre.z + halfZ
+            this.center.x - halfX,
+            this.center.y - halfY,
+            this.center.z - halfZ,
+            this.center.x + halfX,
+            this.center.y + halfY,
+            this.center.z + halfZ
         )
     }
 }

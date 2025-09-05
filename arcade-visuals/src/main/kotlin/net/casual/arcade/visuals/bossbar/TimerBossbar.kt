@@ -127,7 +127,7 @@ public abstract class TimerBossbar: CustomBossbar(), TickableUI, Completable {
                     return title.invoke(this)
                 }
 
-                override fun getColour(player: ServerPlayer): BossEvent.BossBarColor {
+                override fun getColor(player: ServerPlayer): BossEvent.BossBarColor {
                     return color
                 }
 

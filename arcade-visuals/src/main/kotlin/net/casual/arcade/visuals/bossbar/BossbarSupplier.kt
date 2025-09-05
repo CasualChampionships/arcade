@@ -31,12 +31,25 @@ public interface BossbarSupplier {
     }
 
     /**
+     * This gets the color of the [BossbarSupplier] which will be
+     * displayed to the given [player].
+     *
+     * @param player The player being displayed the color.
+     * @return The [BossBarColor] to set the bossbar to.
+     */
+    public fun getColor(player: ServerPlayer): BossBarColor {
+        @Suppress("DEPRECATION")
+        return this.getColour(player)
+    }
+
+    /**
      * This gets the colour of the [BossbarSupplier] which will be
      * displayed to the given [player].
      *
      * @param player The player being displayed the colour.
      * @return The [BossBarColor] to set the bossbar to.
      */
+    @Deprecated("Use getColor instead", ReplaceWith("this.getColor(player)"))
     public fun getColour(player: ServerPlayer): BossBarColor {
         return BossBarColor.WHITE
     }

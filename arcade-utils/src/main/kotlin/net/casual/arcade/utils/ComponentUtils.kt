@@ -28,13 +28,13 @@ public object ComponentUtils {
     @Deprecated("Use Component.withMiniFont() instead")
     public val MINI_FONT: ResourceLocation = ResourceUtils.arcade("mini_minecraft")
 
-    private val formattingByColour = Int2ObjectOpenHashMap<ChatFormatting>()
+    private val formattingByColor = Int2ObjectOpenHashMap<ChatFormatting>()
     private val formattingToName: EnumMap<ChatFormatting, String>
 
     init {
         for (formatting in ChatFormatting.entries) {
-            val colour = formatting.color ?: continue
-            this.formattingByColour[colour] = formatting
+            val color = formatting.color ?: continue
+            this.formattingByColor[color] = formatting
         }
         this.formattingToName = EnumUtils.mapOf(
             BLACK to "Black",
@@ -258,7 +258,7 @@ public object ComponentUtils {
 
     @JvmStatic
     public fun colorToFormatting(color: Int): ChatFormatting? {
-        return this.formattingByColour[color]
+        return this.formattingByColor[color]
     }
 
     @Deprecated("Use replacement")
@@ -407,9 +407,9 @@ public object ComponentUtils {
     @Deprecated("Use replacement")
     @JvmStatic
     public fun Component.greyscale(): MutableComponent {
-        return this.mapColours { colour ->
-            colour ?: return@mapColours null
-            TextColor.fromRgb(ColorUtils.greyscale(colour.value))
+        return this.mapColours { color ->
+            color ?: return@mapColours null
+            TextColor.fromRgb(ColorUtils.greyscale(color.value))
         }
     }
 

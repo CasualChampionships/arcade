@@ -12,7 +12,6 @@ import net.minecraft.network.protocol.cookie.ClientboundCookieRequestPacket
 import net.minecraft.network.protocol.game.*
 import net.minecraft.network.protocol.login.ClientboundLoginCompressionPacket
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.server.packs.repository.Pack
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.item.PrimedTnt
 import net.minecraft.world.entity.projectile.Projectile
@@ -110,7 +109,7 @@ public object ReplayOptimizerUtils {
     public fun shouldIgnorePacket(recorder: ReplayRecorder, packet: Packet<*>): Boolean {
         val isOnMainThread = recorder.server.isSameThread
         if (recorder.settings.optimizes.entityPackets) {
-            if (isOnMainThread && this.optimiseEntity(recorder, packet)) {
+            if (isOnMainThread && this.optimizeEntity(recorder, packet)) {
                 return true
             }
         }
@@ -159,7 +158,7 @@ public object ReplayOptimizerUtils {
         return IGNORED.contains(type)
     }
 
-    private fun optimiseEntity(recorder: ReplayRecorder, packet: Packet<*>): Boolean {
+    private fun optimizeEntity(recorder: ReplayRecorder, packet: Packet<*>): Boolean {
         val type = packet::class.java
         val mapper = ENTITY_MAPPERS[type] ?: return false
         val entity = mapper(packet, recorder.level) ?: return false

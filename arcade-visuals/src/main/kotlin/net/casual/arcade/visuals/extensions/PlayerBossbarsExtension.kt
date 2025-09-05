@@ -44,7 +44,7 @@ internal class PlayerBossbarsExtension(
         val data = PlayerBossEvent(
             bar.uuid,
             bar.getTitle(this.player),
-            bar.getColour(this.player),
+            bar.getColor(this.player),
             bar.getOverlay(this.player)
         )
         data.progress = bar.getProgress(this.player)
@@ -80,10 +80,10 @@ internal class PlayerBossbarsExtension(
 
     internal fun updateStyle(bar: CustomBossbar) {
         val data = this.bars[bar] ?: return
-        val newColour = bar.getColour(this.player)
+        val newColor = bar.getColor(this.player)
         val newOverlay = bar.getOverlay(this.player)
-        if (newColour != data.color || newOverlay != data.overlay) {
-            data.color = newColour
+        if (newColor != data.color || newOverlay != data.overlay) {
+            data.color = newColor
             data.overlay = newOverlay
             this.player.connection.send(ClientboundBossEventPacket.createUpdateStylePacket(data))
         }
@@ -115,9 +115,9 @@ internal class PlayerBossbarsExtension(
     private class PlayerBossEvent(
         uuid: UUID,
         title: Component,
-        colour: BossBarColor,
+        color: BossBarColor,
         overlay: BossBarOverlay,
-    ): BossEvent(uuid, title, colour, overlay) {
+    ): BossEvent(uuid, title, color, overlay) {
         var ticks = 0
     }
 
