@@ -29,19 +29,25 @@ import net.minecraft.network.protocol.common.ClientCommonPacketListener
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
 import net.minecraft.server.level.ServerPlayer
 import org.jetbrains.annotations.ApiStatus.Internal
+import java.util.UUID
 
 @Internal
 public object ReplayVoicechatPlugin: VoicechatPlugin {
     private val cache = VoicechatPacketCache()
 
-    private lateinit var decoder: OpusDecoder
+    private lateinit var voicechatApi: VoicechatApi
+    private var decoders: HashMap<UUID, OpusDecoder> = HashMap()
 
     override fun getPluginId(): String {
         return "${ArcadeUtils.MOD_ID}_replay_recorder"
     }
+    private fun decodeForPlayer(player: ServerPlayer, data: ByteArray): ShortArray {
+        val decoder = decoders.getOrPut(player.uuid) { this.voicechatApi.createDecoder() }
+        return decoder.decode(data)
+    }
 
     override fun initialize(api: VoicechatApi) {
-        decoder = api.createDecoder()
+        voicechatApi = api
 
         GlobalEventHandler.Server.register<ReplayPlayerRecorderSnapshotEvent>(this::onPlayerRecorderSnapshot)
         GlobalEventHandler.Server.register<ReplayChunkRecorderSnapshotEvent>(this::onChunkRecorderSnapshot)
@@ -65,7 +71,7 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
 
         val packet = event.packet
         val converter = event.voicechat.audioConverter
-        val decoded by lazy { this.decoder.decode(packet.opusEncodedData) }
+        val decoded = decodeForPlayer(event.senderConnection?.player as ServerPlayer, packet.opusEncodedData)
         this.recordForReceiver(event) { format ->
             this.cache.getOrCreate(format, converter, packet, decoded)
         }
@@ -78,7 +84,7 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
 
         val packet = event.packet
         val converter = event.voicechat.audioConverter
-        val decoded by lazy { this.decoder.decode(packet.opusEncodedData) }
+        val decoded = decodeForPlayer(event.senderConnection?.player as ServerPlayer, packet.opusEncodedData)
         this.recordForReceiver(event) { format ->
             this.cache.getOrCreate(format, converter, packet, decoded)
         }
@@ -91,7 +97,7 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
 
         val packet = event.packet
         val converter = event.voicechat.audioConverter
-        val decoded by lazy { this.decoder.decode(packet.opusEncodedData) }
+        val decoded = decodeForPlayer(event.senderConnection?.player as ServerPlayer, packet.opusEncodedData)
         this.recordForReceiver(event) { format ->
             this.cache.getOrCreate(format, converter, packet, decoded)
         }
@@ -105,7 +111,7 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
         val whispering = event.packet.isWhispering
         val distance = event.voicechat.voiceChatDistance.toFloat()
 
-        val decoded = this.decoder.decode(event.packet.opusEncodedData)
+        val decoded = decodeForPlayer(event.senderConnection?.player as ServerPlayer, event.packet.opusEncodedData)
 
         val map = EnumUtils.mapOf<ReplayFormat, Packet<ClientCommonPacketListener>>()
         val lazy: (ReplayFormat) -> Packet<ClientCommonPacketListener> = { format ->
