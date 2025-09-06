@@ -74,7 +74,7 @@ public open class PlayerListDisplay(
         }
 
         for (i in 0..< size) {
-            val entry = this.checkEntryUpdate(i) ?: continue
+            val entry = this.checkEntryUpdate(i, i >= previousSize) ?: continue
             val clientbound = this.toClientboundEntry(i, entry)
             entries.add(clientbound)
             if (i < previousSize) {
@@ -172,12 +172,12 @@ public open class PlayerListDisplay(
         sender.accept(ClientboundTabListPacket(Component.empty(), Component.empty()))
     }
 
-    private fun checkEntryUpdate(index: Int): Entry? {
+    private fun checkEntryUpdate(index: Int, added: Boolean): Entry? {
         val entry = this.display.getEntryAt(index)
         val previous = this.previous[index]
         this.previous[index] = entry
 
-        if (entry.textures != previous.textures) {
+        if (entry.textures != previous.textures || added) {
             // The entire entry needs to be resent
             return entry
         }
