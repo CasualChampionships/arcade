@@ -33,6 +33,7 @@ import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
 import net.minecraft.server.level.ServerPlayer
 import org.jetbrains.annotations.ApiStatus.Internal
 import java.util.UUID
+import java.util.WeakHashMap
 import java.util.concurrent.TimeUnit
 
 @Internal
@@ -43,6 +44,8 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
 
     private val channels: Cache<UUID, OpusDecoder> = this.createDecoderCache()
     private val players: Cache<UUID, OpusDecoder> = this.createDecoderCache()
+
+    private val decodedOpusData = WeakHashMap<ByteArray, ShortArray>()
 
     override fun getPluginId(): String {
         return "${ArcadeUtils.MOD_ID}_replay_recorder"
@@ -74,7 +77,7 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
 
         val packet = event.packet
         val converter = event.voicechat.audioConverter
-        val decoded by lazy { this.decodeForChannel(packet.channelId, packet.opusEncodedData) }
+        val decoded = lazy { this.decodeForChannel(packet.channelId, packet.opusEncodedData) }
         this.recordForReceiver(event) { format ->
             this.cache.getOrCreate(format, converter, packet, decoded)
         }
@@ -87,7 +90,7 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
 
         val packet = event.packet
         val converter = event.voicechat.audioConverter
-        val decoded by lazy { this.decodeForChannel(packet.channelId, packet.opusEncodedData) }
+        val decoded = lazy { this.decodeForChannel(packet.channelId, packet.opusEncodedData) }
         this.recordForReceiver(event) { format ->
             this.cache.getOrCreate(format, converter, packet, decoded)
         }
@@ -100,7 +103,7 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
 
         val packet = event.packet
         val converter = event.voicechat.audioConverter
-        val decoded by lazy { this.decodeForChannel(packet.channelId, packet.opusEncodedData) }
+        val decoded = lazy { this.decodeForChannel(packet.channelId, packet.opusEncodedData) }
         this.recordForReceiver(event) { format ->
             this.cache.getOrCreate(format, converter, packet, decoded)
         }
@@ -175,19 +178,23 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
     }
 
     private fun decodeForChannel(channel: UUID, data: ByteArray): ShortArray {
-        val decoder = this.channels.get(channel) { this.api.createDecoder() }
-        return decoder.decode(data)
+        return this.decodedOpusData.getOrPut(data) {
+            val decoder = this.channels.get(channel) { this.api.createDecoder() }
+            decoder.decode(data)
+        }
     }
 
     private fun decodeForPlayer(player: UUID, data: ByteArray): ShortArray {
-        val decoder = this.players.get(player) { this.api.createDecoder() }
-        return decoder.decode(data)
+        return this.decodedOpusData.getOrPut(data) {
+            val decoder = this.players.get(player) { this.api.createDecoder() }
+            decoder.decode(data)
+        }
     }
 
     private fun createDecoderCache(): Cache<UUID, OpusDecoder> {
         return CacheBuilder.newBuilder()
             .removalListener<UUID, OpusDecoder> { it.value?.close() }
-            .expireAfterWrite(30, TimeUnit.SECONDS)
+            .expireAfterAccess(30, TimeUnit.SECONDS)
             .build()
     }
 
@@ -233,7 +240,7 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
     private fun recordAdditionalPackets(recorder: ReplayRecorder) {
         val server = Voicechat.SERVER.server
         if (server != null) {
-            val states = server.playerStateManager.states.associateBy { it.uuid }
+            val states = server.playerStateManager.states
             recorder.record(PlayerStatesPacket(states).toClientboundPacket())
             for (group in server.groupManager.groups.values) {
                 recorder.record(AddGroupPacket(group.toClientGroup()).toClientboundPacket())

@@ -13,7 +13,7 @@ replay-studio       = "3fdc6c42e3"
 
 # Compatability
 carpet        = "1.4.177"
-voicechat     = "fabric-1.21.8-2.5.35"
+voicechat     = "fabric-1.21.8-2.6.2"
 voicechat-api = "2.5.31"
 vmp           = "0.2.0+beta.7.205+1.21.8"
 c2me          = "0.3.5+alpha.0.3+1.21.8"

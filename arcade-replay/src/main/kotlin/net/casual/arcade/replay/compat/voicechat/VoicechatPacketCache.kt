@@ -34,10 +34,10 @@ public class VoicechatPacketCache {
         format: ReplayFormat,
         converter: AudioConverter,
         packet: LocationalSoundPacket,
-        decoded: ShortArray
+        decoded: Lazy<ShortArray>
     ): Packet<ClientCommonPacketListener> {
         return this.universe[format]!!.getOrPut(packet.unwrap()) {
-            format.encoder().locational(converter, packet.sender, decoded, packet.position, packet.distance)
+            format.encoder().locational(converter, packet.sender, decoded.value, packet.position, packet.distance)
         }
     }
 
@@ -45,10 +45,10 @@ public class VoicechatPacketCache {
         format: ReplayFormat,
         converter: AudioConverter,
         packet: EntitySoundPacket,
-        decoded: ShortArray
+        decoded: Lazy<ShortArray>
     ): Packet<ClientCommonPacketListener> {
         return this.universe[format]!!.getOrPut(packet.unwrap()) {
-            format.encoder().entity(converter, packet.sender, decoded, packet.isWhispering, packet.distance)
+            format.encoder().entity(converter, packet.sender, decoded.value, packet.isWhispering, packet.distance)
         }
     }
 
@@ -56,10 +56,10 @@ public class VoicechatPacketCache {
         format: ReplayFormat,
         converter: AudioConverter,
         packet: StaticSoundPacket,
-        decoded: ShortArray
+        decoded: Lazy<ShortArray>
     ): Packet<ClientCommonPacketListener> {
         return this.universe[format]!!.getOrPut(packet.unwrap()) {
-            format.encoder().static(converter, packet.sender, decoded)
+            format.encoder().static(converter, packet.sender, decoded.value)
         }
     }
 
