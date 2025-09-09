@@ -50,11 +50,13 @@ public fun ServerLevel.setSpoofedDimension(id: ResourceLocation) {
 }
 
 public fun ServerLevel.setSpoofedDimension(key: ResourceKey<Level>?) {
-    (this as SpoofedDimensionKeyHolder).`arcade$setSpoofedDimensionKey`(key)
+    if (this is SpoofedDimensionKeyHolder) {
+        this.`arcade$setSpoofedDimensionKey`(key)
+    }
 }
 
 public fun ServerLevel.getSpoofedDimension(): ResourceKey<Level>? {
-    return (this as SpoofedDimensionKeyHolder).`arcade$getSpoofedDimensionKey`()
+    return (this as? SpoofedDimensionKeyHolder)?.`arcade$getSpoofedDimensionKey`()
 }
 
 public fun ServerLevel.getSpoofedOrRealDimension(): ResourceKey<Level> {
