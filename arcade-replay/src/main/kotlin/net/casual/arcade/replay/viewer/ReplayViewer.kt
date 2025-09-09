@@ -135,8 +135,6 @@ public class ReplayViewer internal constructor(
 
         this.removeReplayState()
         this.addBackToServer()
-
-        ReplayViewers.remove(this.player.uuid)
     }
 
     public fun close() {
@@ -148,6 +146,8 @@ public class ReplayViewer internal constructor(
         }
         this.coroutineContext.close()
         this.connection.stopViewingReplay()
+
+        ReplayViewers.remove(this.player.uuid)
     }
 
     public fun jumpTo(timestamp: Duration): Boolean {
