@@ -72,13 +72,6 @@ public class FlashbackWriter(
 
     init {
         this.chunks.defaultReturnValue(-1)
-
-        // Initial snapshot is pointless
-        this.executor.execute {
-            this.writer.startSnapshot()
-            this.writer.endSnapshot()
-            this.writer.writeAction(FlashbackAction.NextTick)
-        }
     }
 
     override fun tick() {
@@ -104,6 +97,19 @@ public class FlashbackWriter(
         this.startNewReplayChunk()
         this.executor.execute {
             this.forcePlaySnapshot.set(true)
+        }
+    }
+
+    override fun beginInitialization() {
+        this.executor.execute {
+            this.writer.startSnapshot()
+        }
+    }
+
+    override fun endInitialization() {
+        this.executor.execute {
+            this.writer.endSnapshot()
+            this.writer.writeAction(FlashbackAction.NextTick)
         }
     }
 

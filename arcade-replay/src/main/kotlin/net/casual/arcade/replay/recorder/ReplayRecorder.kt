@@ -34,6 +34,7 @@ import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
 import net.minecraft.network.protocol.configuration.ConfigurationProtocols
 import net.minecraft.network.protocol.game.ClientboundBundlePacket
+import net.minecraft.network.protocol.game.ClientboundLoginPacket
 import net.minecraft.network.protocol.game.GameProtocols
 import net.minecraft.network.protocol.login.ClientboundLoginFinishedPacket
 import net.minecraft.network.protocol.login.LoginProtocols
@@ -48,6 +49,7 @@ import org.jetbrains.annotations.ApiStatus.Internal
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Consumer
 import kotlin.collections.ArrayList
 import kotlin.io.path.pathString
@@ -87,10 +89,11 @@ public abstract class ReplayRecorder(
 
     private var currentRecordingLength = Duration.ZERO
 
+    private var initialization = AtomicReference(InitializedState.Uninitialized)
+    private var ignore = false
+
     internal var started = false
         private set
-
-    private var ignore = false
 
     @Suppress("LeakingThis")
     protected val writer: ReplayWriter = this.format.writer(this.path).invoke(this)
@@ -187,12 +190,14 @@ public abstract class ReplayRecorder(
         val timestamp = this.getRecordingLength()
         this.currentRecordingLength = timestamp
 
+        this.runPreAutomaticInitialization()
         this.writer.writePacket(outgoing, protocol, timestamp, !safe).thenApply { bytes ->
             if (this.settings.debug && bytes != null) {
                 val type = outgoing.getDebugName()
                 this.packets.getOrPut(type) { DebugPacketData(type, 0, 0) }.increment(bytes)
             }
         }
+        this.runPostAutomaticInitialization(outgoing)
 
         this.checkRecordingStatus()
     }
@@ -205,7 +210,7 @@ public abstract class ReplayRecorder(
      * @return `true` if the recording started successfully `false` otherwise.
      */
     public fun start(mode: StartingMode = StartingMode.Start): Boolean {
-        if (!this.started && this.initialize()) {
+        if (!this.started && this.runManualInitialization()) {
             this.onStart(mode)
             return true
         }
@@ -440,7 +445,7 @@ public abstract class ReplayRecorder(
      * This starts the replay recording, note this is **not** called
      * to start a replay if a player is being recorded from the login phase.
      *
-     * This method should just simulate
+     * This method should just simulate the player joining the server.
      */
     protected abstract fun initialize(): Boolean
 
@@ -556,6 +561,31 @@ public abstract class ReplayRecorder(
         this.protocol = GameProtocols.CLIENTBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(this.server.registryAccess()))
     }
 
+    private fun runPreAutomaticInitialization() {
+        if (this.initialization.compareAndSet(InitializedState.Uninitialized, InitializedState.Automatic)) {
+            this.writer.beginInitialization()
+        }
+    }
+
+    private fun runPostAutomaticInitialization(packet: Packet<*>) {
+        if (packet is ClientboundLoginPacket) {
+            if (this.initialization.compareAndSet(InitializedState.Automatic, InitializedState.Initialized)) {
+                this.writer.endInitialization()
+            }
+        }
+    }
+
+    private fun runManualInitialization(): Boolean {
+        try {
+            this.initialization.set(InitializedState.Manual)
+            this.writer.beginInitialization()
+            return this.initialize()
+        } finally {
+            this.writer.endInitialization()
+            this.initialization.set(InitializedState.Initialized)
+        }
+    }
+
     private fun getCurrentPauseLength(now: Instant = Clock.System.now()): Duration {
         val timestamp = this.lastPausedTimestamp
         return if (timestamp != null) now - timestamp else Duration.ZERO
@@ -600,5 +630,12 @@ public abstract class ReplayRecorder(
                 Restart -> "Restarting"
             }
         }
+    }
+
+    private enum class InitializedState {
+        Uninitialized,
+        Automatic,
+        Manual,
+        Initialized
     }
 }

@@ -54,7 +54,17 @@ public interface ReplayWriter {
 
     }
 
-    public fun canRecordPacket(packet: Packet<*>): Boolean
+    public fun beginInitialization() {
+
+    }
+
+    public fun endInitialization() {
+
+    }
+
+    public fun canRecordPacket(packet: Packet<*>): Boolean {
+        return true
+    }
 
     public fun writePacket(
         packet: Packet<*>,

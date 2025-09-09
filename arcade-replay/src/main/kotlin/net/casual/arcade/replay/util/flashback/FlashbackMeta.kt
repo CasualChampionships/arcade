@@ -47,7 +47,7 @@ public data class FlashbackMeta(
             instance.group(
                 UUIDUtil.STRING_CODEC.fieldOf("uuid").forGetter(FlashbackMeta::uuid),
                 Codec.STRING.fieldOf("name").forGetter(FlashbackMeta::name),
-                Codec.STRING.fieldOf("version").forGetter(FlashbackMeta::version),
+                Codec.STRING.fieldOf("version_string").forGetter(FlashbackMeta::version),
                 Codec.STRING.fieldOf("world_name").forGetter(FlashbackMeta::worldName),
                 Codec.INT.fieldOf("data_version").forGetter(FlashbackMeta::dataVersion),
                 Codec.INT.fieldOf("protocol_version").forGetter(FlashbackMeta::protocolVersion),
