@@ -79,7 +79,7 @@ public class FlashbackChunkedWriter(
             throw IllegalStateException("Tried writing action before taking a snapshot!")
         }
         if (this.action != null) {
-             throw IllegalStateException("Tried writing action within another action!")
+            throw IllegalStateException("Tried writing action within another action!")
         }
         this.action = action
         try {

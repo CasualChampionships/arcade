@@ -515,7 +515,9 @@ public abstract class ReplayRecorder(
 
     @Internal
     public open fun tick() {
-        this.writer.tick()
+        if (this.initialization.get() == InitializedState.Initialized) {
+            this.writer.tick()
+        }
     }
 
     /**
