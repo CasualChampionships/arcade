@@ -154,7 +154,9 @@ public class ReplayPlayerRecorder internal constructor(
     override fun tick() {
         super.tick()
 
-        this.inventory.update(this)
+        if (this.settings.recordHotbar) {
+            this.inventory.update(this)
+        }
     }
 
     override fun takeSnapshot() {

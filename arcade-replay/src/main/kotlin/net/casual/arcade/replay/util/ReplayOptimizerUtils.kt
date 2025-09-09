@@ -133,6 +133,12 @@ public object ReplayOptimizerUtils {
         if (!recorder.settings.recordHotbar && HOTBAR.contains(type)) {
             return true
         }
+        if (recorder.settings.recordHotbar && packet is ClientboundSetPlayerInventoryPacket) {
+            if (packet.slot !in 0..< 9) {
+                return true
+            }
+        }
+
         if (recorder.settings.ignores.soundPackets && SOUNDS.contains(type)) {
             return true
         }
