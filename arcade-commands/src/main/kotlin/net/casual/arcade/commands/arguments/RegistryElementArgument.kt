@@ -12,6 +12,7 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.commands.type.CustomArgumentTypeInfo
+import net.casual.arcade.utils.toIdString
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.ResourceLocationArgument
 import net.minecraft.core.Holder
@@ -67,11 +68,11 @@ public class RegistryElementArgument<T>(
         public fun getHolder(access: RegistryAccess): Holder.Reference<T> {
             val registry = access.lookup(this.key.registryKey())
             if (registry.isEmpty) {
-                throw UNKNOWN_REGISTRY.create(this.key.registryKey().location())
+                throw UNKNOWN_REGISTRY.create(this.key.registryKey().toIdString())
             }
             val holder = registry.get().get(this.key)
             if (holder.isEmpty || !this.filter.invoke(this.key, holder.get().value())) {
-                throw INVALID_ELEMENT.create(this.key.location(), this.key.registryKey().location())
+                throw INVALID_ELEMENT.create(this.key.toIdString(), this.key.registryKey().toIdString())
             }
             return holder.get()
         }
