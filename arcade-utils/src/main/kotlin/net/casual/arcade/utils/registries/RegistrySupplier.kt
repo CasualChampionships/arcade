@@ -4,12 +4,12 @@
  */
 package net.casual.arcade.utils.registries
 
-import com.mojang.serialization.Lifecycle
-import net.minecraft.core.DefaultedMappedRegistry
-import net.minecraft.core.MappedRegistry
+import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder
 import net.minecraft.core.Registry
+import net.minecraft.core.WritableRegistry
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceKey
+import net.minecraft.resources.ResourceLocation
 
 public abstract class RegistrySupplier {
     private val loaders = ArrayList<() -> Unit>()
@@ -22,17 +22,20 @@ public abstract class RegistrySupplier {
     }
 
     protected fun <T> create(key: ResourceKey<Registry<T>>, bootstrap: (Registry<T>) -> Unit): Registry<T> {
-        return this.registerRegistry(
-            MappedRegistry(key, Lifecycle.stable(), false), bootstrap
-        )
+        return this.register(FabricRegistryBuilder.createSimple(key), bootstrap)
     }
 
-    protected fun <T> createDefaulted(key: ResourceKey<Registry<T>>, default: String, bootstrap: (Registry<T>) -> Unit): Registry<T> {
-        return this.registerRegistry(
-            DefaultedMappedRegistry(default, key, Lifecycle.stable(), false), bootstrap
-        )
+    protected fun <T> createDefaulted(key: ResourceKey<Registry<T>>, default: ResourceLocation, bootstrap: (Registry<T>) -> Unit): Registry<T> {
+        return this.register(FabricRegistryBuilder.createDefaulted(key, default), bootstrap)
     }
 
+    protected fun <T, R: WritableRegistry<T>> register(builder: FabricRegistryBuilder<T, R>, bootstrap: (Registry<T>) -> Unit): R {
+        val registry = builder.buildAndRegister()
+        this.loaders.add { bootstrap.invoke(registry) }
+        return registry
+    }
+
+    @Deprecated("Use fabric's registry build instead")
     protected fun <T> registerRegistry(registry: Registry<T>, bootstrap: (Registry<T>) -> Unit): Registry<T> {
         @Suppress("UNCHECKED_CAST")
         Registry.register(
