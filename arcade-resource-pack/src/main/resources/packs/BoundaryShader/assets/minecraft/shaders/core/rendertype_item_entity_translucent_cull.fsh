@@ -40,14 +40,17 @@ void main() {
             discard;
         }
 
-        float spherical = fog_spherical_distance(position);
-        float cylindrical = fog_cylindrical_distance(position);
-        float fogStart = 100;
-        float fogEnd = 120;
-        if (cylindrical > fogEnd) {
+        float fogStart = 150;
+        float fogEnd = 200;
+
+        bool insideBox = all(lessThanEqual(abs(position), vec3(fogEnd)));
+        if (!insideBox) {
             discard;
         }
-        fragColor = apply_fog(color, spherical, cylindrical, FogEnvironmentalStart, FogEnvironmentalEnd, fogStart, fogEnd, FogColor);
+
+        float dist = max(abs(position.x), max(abs(position.y), abs(position.z)));
+        float alpha = 1.0 - smoothstep(fogStart, fogEnd, dist);
+        fragColor = vec4(color.rgb, color.a * alpha);
         return;
     }
     // == Boundary End ==
