@@ -54,7 +54,7 @@ public object LevelPersistenceTracker {
 
     @JvmStatic
     public fun loadPersistentLevels(server: MinecraftServer): Collection<ResourceKey<Level>> {
-        this.persistent.addAll(this.readLevelKeysFrom(this.getTemporaryDataPath(server)))
+        this.persistent.addAll(this.readLevelKeysFrom(this.getPersistenceDataPath(server)))
         return this.persistent
     }
 
