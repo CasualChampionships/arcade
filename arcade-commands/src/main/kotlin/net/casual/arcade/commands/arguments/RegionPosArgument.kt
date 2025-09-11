@@ -18,10 +18,11 @@ import net.minecraft.commands.arguments.coordinates.ColumnPosArgument
 import net.minecraft.commands.arguments.coordinates.WorldCoordinate
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.ChunkPos
+import org.joml.Vector2i
 import java.util.concurrent.CompletableFuture
 
-public class ChunkPosArgument: CustomArgumentType<ChunkPosArgument.WorldChunksCoordinates>() {
-    override fun parse(reader: StringReader): WorldChunksCoordinates {
+public class RegionPosArgument: CustomArgumentType<RegionPosArgument.WorldRegionCoordinates>() {
+    override fun parse(reader: StringReader): WorldRegionCoordinates {
         val cursor = reader.cursor
         if (!reader.canRead()) {
             throw ColumnPosArgument.ERROR_NOT_COMPLETE.create()
@@ -34,7 +35,7 @@ public class ChunkPosArgument: CustomArgumentType<ChunkPosArgument.WorldChunksCo
         }
         reader.skip()
         val z = WorldCoordinate.parseInt(reader)
-        return WorldChunksCoordinates(x, z)
+        return WorldRegionCoordinates(x, z)
     }
 
     override fun <S> listSuggestions(
@@ -45,9 +46,10 @@ public class ChunkPosArgument: CustomArgumentType<ChunkPosArgument.WorldChunksCo
         if (source !is CommandSourceStack) {
             return Suggestions.empty()
         }
+
         val pos = ChunkPos(BlockPos.containing(source.position))
         val coords = listOf(
-            TextCoordinates("${pos.x}", "", "${pos.z}")
+            TextCoordinates("${pos.regionX}", "", "${pos.regionZ}")
         )
         return SharedSuggestionProvider.suggest2DCoordinates(
             builder.remaining, coords, builder, Commands.createValidator(this::parse)
@@ -58,24 +60,24 @@ public class ChunkPosArgument: CustomArgumentType<ChunkPosArgument.WorldChunksCo
         return CustomArgumentTypeInfo.of(ColumnPosArgument::class.java)
     }
 
-    public data class WorldChunksCoordinates(
+    public data class WorldRegionCoordinates(
         val x: WorldCoordinate,
         val z: WorldCoordinate
     )
 
     public companion object {
         @JvmStatic
-        public fun position(): ChunkPosArgument {
-            return ChunkPosArgument()
+        public fun region(): RegionPosArgument {
+            return RegionPosArgument()
         }
 
         @JvmStatic
-        public fun getPosition(context: CommandContext<CommandSourceStack>, name: String): ChunkPos {
-            val coordinates = context.getArgument(name, WorldChunksCoordinates::class.java)
+        public fun getRegion(context: CommandContext<CommandSourceStack>, name: String): Vector2i {
+            val coordinates = context.getArgument(name, WorldRegionCoordinates::class.java)
             val origin = ChunkPos(BlockPos.containing(context.source.position))
-            val x = coordinates.x.get(origin.x.toDouble()).toInt()
-            val z = coordinates.z.get(origin.z.toDouble()).toInt()
-            return ChunkPos(x, z)
+            val x = coordinates.x.get(origin.regionX.toDouble()).toInt()
+            val z = coordinates.z.get(origin.regionZ.toDouble()).toInt()
+            return Vector2i(x, z)
         }
     }
 }
