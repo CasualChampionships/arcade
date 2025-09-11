@@ -47,6 +47,10 @@ internal class VoicechatPayload private constructor(
             ResourceLocation.fromNamespaceAndPath("flashback", "voice_chat_sound")
         )
 
+        val ENCODED_FLASHBACK_TYPE = CustomPacketPayload.Type<VoicechatPayload>(
+            ResourceLocation.fromNamespaceAndPath("arcade-replay", "encoded_flashback_voice_chat_sound")
+        )
+
         fun of(type: CustomPacketPayload.Type<*>, writer: (FriendlyByteBuf) -> Unit): VoicechatPayload {
             return VoicechatPayload(type, writer)
         }

@@ -323,10 +323,17 @@ public class FlashbackWriter(
     }
 
     private fun writeVoicechat(payload: VoicechatPayload): CompletableFuture<Int?> {
-        return this.writeActionAsync(FlashbackAction.VoiceChat) { buf ->
+        return this.writeActionAsync(getActionForVoicechatPayload(payload)) { buf ->
             val start = buf.writerIndex()
             payload.record(buf)
             buf.writerIndex() - start
+        }
+    }
+
+    private fun getActionForVoicechatPayload(payload: VoicechatPayload): FlashbackAction {
+        return when (payload.type()) {
+            VoicechatPayload.ENCODED_FLASHBACK_TYPE -> FlashbackAction.EncodedVoiceChat
+            else -> FlashbackAction.VoiceChat
         }
     }
 

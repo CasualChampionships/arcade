@@ -146,6 +146,12 @@ public abstract class ReplayRecorder(
      */
     public abstract val rotation: Vec2
 
+    init {
+        if (this.format == ReplayFormat.ReplayMod && this.settings.compressVoiceChatData) {
+            throw IllegalArgumentException("The ReplayMod format does not support enabling 'compressVoiceChatData'!")
+        }
+    }
+
     /**
      * This records an outgoing clientbound packet to the
      * replay file.
