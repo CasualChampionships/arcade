@@ -129,16 +129,19 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
         val whispering = event.packet.isWhispering
         val distance = event.voicechat.voiceChatDistance.toFloat()
 
-        val map = EnumUtils.mapOf<ReplayFormat, Packet<ClientCommonPacketListener>>()
+        val decodedMap = EnumUtils.mapOf<ReplayFormat, Packet<ClientCommonPacketListener>>()
+        val encodedMap = EnumUtils.mapOf<ReplayFormat, Packet<ClientCommonPacketListener>>()
         val lazy: (ReplayFormat, Boolean) -> Packet<ClientCommonPacketListener> = { format, compress ->
             val data = event.packet.opusEncodedData
             if (!compress) {
-                map.getOrPut(format) {
+                decodedMap.getOrPut(format) {
                     val decoded = this.decodeForPlayer(player.uuid, data)
                     this.cache.create(format, converter, decoded, player.uuid, grouped, whispering, distance)
                 }
             } else {
-                EncodedVoicechatPackets.create(format, data, player.uuid, grouped, whispering, distance)
+                encodedMap.getOrPut(format) {
+                    EncodedVoicechatPackets.create(format, data, player.uuid, grouped, whispering, distance)
+                }
             }
         }
 
