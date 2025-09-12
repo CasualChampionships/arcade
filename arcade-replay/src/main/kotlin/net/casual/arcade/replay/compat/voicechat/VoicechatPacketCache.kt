@@ -22,6 +22,9 @@ import net.minecraft.world.phys.Vec3
 import java.util.*
 
 public class VoicechatPacketCache {
+    // FIXME: Currently this cache is kinda useless because [SoundPacket]
+    //   instances aren't unique to voice data they are holding.
+    //   We should really move ReplayVoicechatPlugin#decodedOpusData here.
     private val universe = EnumUtils.mapOf<ReplayFormat, WeakHashMap<SoundPacket<*>, Packet<ClientCommonPacketListener>>>()
 
     init {
@@ -34,10 +37,10 @@ public class VoicechatPacketCache {
         format: ReplayFormat,
         converter: AudioConverter,
         packet: LocationalSoundPacket,
-        decoded: Lazy<ShortArray>
+        decoded: ShortArray
     ): Packet<ClientCommonPacketListener> {
         return this.universe[format]!!.getOrPut(packet.unwrap()) {
-            format.encoder().locational(converter, packet.sender, decoded.value, packet.position, packet.distance)
+            format.encoder().locational(converter, packet.sender, decoded, packet.position, packet.distance)
         }
     }
 
@@ -45,10 +48,10 @@ public class VoicechatPacketCache {
         format: ReplayFormat,
         converter: AudioConverter,
         packet: EntitySoundPacket,
-        decoded: Lazy<ShortArray>
+        decoded: ShortArray
     ): Packet<ClientCommonPacketListener> {
         return this.universe[format]!!.getOrPut(packet.unwrap()) {
-            format.encoder().entity(converter, packet.sender, decoded.value, packet.isWhispering, packet.distance)
+            format.encoder().entity(converter, packet.sender, decoded, packet.isWhispering, packet.distance)
         }
     }
 
@@ -56,10 +59,10 @@ public class VoicechatPacketCache {
         format: ReplayFormat,
         converter: AudioConverter,
         packet: StaticSoundPacket,
-        decoded: Lazy<ShortArray>
+        decoded: ShortArray
     ): Packet<ClientCommonPacketListener> {
         return this.universe[format]!!.getOrPut(packet.unwrap()) {
-            format.encoder().static(converter, packet.sender, decoded.value)
+            format.encoder().static(converter, packet.sender, decoded)
         }
     }
 

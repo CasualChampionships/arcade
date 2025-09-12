@@ -114,6 +114,13 @@ public interface RecorderSettings {
     public val recordVoiceChat: Boolean
 
     /**
+     * Whether to record the voice chat data raw or compressed/encoded.
+     *
+     * Compressed mode is supported only for the Flashback format.
+     */
+    public val compressVoiceChatData: Boolean
+
+    /**
      * This enum represents how a chunk recorder should
      * record chunks over its lifetime.
      */

@@ -370,6 +370,16 @@ public abstract class ReplayRecorder(
     }
 
     /**
+     * Whether this recorder should compress recorded voicechat data.
+     *
+     * @return Whether to compress voicechat data.
+     */
+    public fun shouldCompressVoicechat(): Boolean {
+        // We simply disallow compression for ReplayMod, just ignore the setting if enabled
+        return this.settings.compressVoiceChatData && this.format == ReplayFormat.Flashback
+    }
+
+    /**
      * Returns whether a given player should be hidden from the player tab list.
      *
      * @return Whether the player should be hidden

@@ -7,20 +7,28 @@ package net.casual.arcade.replay
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorders
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorders
 import net.casual.arcade.replay.viewer.ReplayViewer
+import net.casual.arcade.utils.ResourceLocation
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.metadata.ModOrigin
 import net.fabricmc.loader.impl.metadata.AbstractModMetadata
+import net.minecraft.resources.ResourceLocation
 
 // TODO:
 //  - Add some sort of plugin system to allow compile only dependency
 //  - Add nametag support for replays
 public object ArcadeReplay: ModInitializer {
+    public const val MOD_ID: String = "arcade-replay"
+
     override fun onInitialize() {
         ReplayChunkRecorders.registerEvents()
         ReplayPlayerRecorders.registerEvents()
 
         ReplayViewer.registerEvents()
+    }
+
+    public fun id(path: String): ResourceLocation {
+        return ResourceLocation(MOD_ID, path)
     }
 
     internal fun getLoadedMods(): Map<String, String> {
