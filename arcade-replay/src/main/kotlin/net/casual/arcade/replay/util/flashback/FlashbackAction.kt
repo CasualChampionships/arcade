@@ -15,7 +15,7 @@ public enum class FlashbackAction(public val id: ResourceLocation) {
     MoveEntities("action/move_entities"),
     NextTick("action/next_tick"),
     VoiceChat("action/simple_voice_chat_sound_optional"),
-    EncodedVoiceChat(ArcadeReplay.id("action/encoded_simple_voice_chat_sound"));
+    EncodedVoiceChat(ArcadeReplay.id("action/encoded_simple_voice_chat_sound_optional"));
 
     constructor(path: String): this(FlashbackUtils.id(path))
 
