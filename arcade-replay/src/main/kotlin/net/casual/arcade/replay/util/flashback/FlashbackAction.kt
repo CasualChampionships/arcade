@@ -4,9 +4,10 @@
  */
 package net.casual.arcade.replay.util.flashback
 
+import net.casual.arcade.replay.ArcadeReplay
 import net.minecraft.resources.ResourceLocation
 
-public enum class FlashbackAction(namespace: String, path: String) {
+public enum class FlashbackAction(public val id: ResourceLocation) {
     CacheChunk("action/level_chunk_cached"),
     ConfigurationPacket("action/configuration_packet"),
     CreatePlayer("action/create_local_player"),
@@ -14,11 +15,9 @@ public enum class FlashbackAction(namespace: String, path: String) {
     MoveEntities("action/move_entities"),
     NextTick("action/next_tick"),
     VoiceChat("action/simple_voice_chat_sound_optional"),
-    EncodedVoiceChat("arcade-replay", "action/encoded_simple_voice_chat_sound");
+    EncodedVoiceChat(ArcadeReplay.id("action/encoded_simple_voice_chat_sound"));
 
-    constructor(path: String) : this(namespace = "flashback", path)
-
-    public val id: ResourceLocation = ResourceLocation.fromNamespaceAndPath(namespace, path)
+    constructor(path: String): this(FlashbackUtils.id(path))
 
     public companion object {
         private val idToAction = FlashbackAction.entries.associateBy { it.id }

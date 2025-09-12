@@ -146,12 +146,6 @@ public abstract class ReplayRecorder(
      */
     public abstract val rotation: Vec2
 
-    init {
-        if (this.format == ReplayFormat.ReplayMod && this.settings.compressVoiceChatData) {
-            throw IllegalArgumentException("The ReplayMod format does not support enabling 'compressVoiceChatData'!")
-        }
-    }
-
     /**
      * This records an outgoing clientbound packet to the
      * replay file.
@@ -373,6 +367,16 @@ public abstract class ReplayRecorder(
 
         builder.append("raw_size", FileUtils.formatSize(this.getRawRecordingSize()))
         return builder.toString()
+    }
+
+    /**
+     * Whether this recorder should compress recorded voicechat data.
+     *
+     * @return Whether to compress voicechat data.
+     */
+    public fun shouldCompressVoicechat(): Boolean {
+        // We simply disallow compression for ReplayMod, just ignore the setting if enabled
+        return this.settings.compressVoiceChatData && this.format == ReplayFormat.Flashback
     }
 
     /**

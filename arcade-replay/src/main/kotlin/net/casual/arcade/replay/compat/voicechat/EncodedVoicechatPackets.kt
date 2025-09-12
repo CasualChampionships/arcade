@@ -16,7 +16,6 @@ import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
 import net.minecraft.world.phys.Vec3
 import java.util.UUID
 
-
 public object EncodedVoicechatPackets {
     public fun get(
         format: ReplayFormat,
@@ -56,9 +55,9 @@ public object EncodedVoicechatPackets {
 
     private fun ReplayFormat.encoder(): Encoder {
         return when (this) {
-            ReplayFormat.ReplayMod -> throw RuntimeException("Recording encoded voice data " +
-                    "is not supported for the ReplayMod format")
             ReplayFormat.Flashback -> FlashbackEncoder
+            ReplayFormat.ReplayMod -> throw IllegalStateException("Recording encoded voice data " +
+                    "is not supported for the ReplayMod format")
         }
     }
 
