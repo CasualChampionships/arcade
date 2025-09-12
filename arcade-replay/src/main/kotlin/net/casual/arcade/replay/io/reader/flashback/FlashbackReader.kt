@@ -143,7 +143,7 @@ public class FlashbackReader(
             FlashbackAction.CacheChunk -> this.processCachedChunk(buffer, consumer)
             FlashbackAction.CreatePlayer -> this.processCreatePlayer(buffer, consumer)
             FlashbackAction.MoveEntities -> this.processMoveEntities(buffer, consumer)
-            FlashbackAction.VoiceChat -> { }
+            FlashbackAction.VoiceChat, FlashbackAction.EncodedVoiceChat -> { }
         }
     }
 
