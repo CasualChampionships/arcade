@@ -29,7 +29,7 @@ public class MinigameWorldData(
 
         override val id: ResourceLocation = ResourceUtils.arcade("world")
 
-        override fun get(archive: ReadableArchive, server: MinecraftServer): MinigameDataModule {
+        override fun get(archive: ReadableArchive, server: MinecraftServer): MinigameWorldData {
             if (archive.resolve(WORLD_DIRECTORY).notExists()) {
                 throw IllegalArgumentException("Cannot create world data module, no world directory exists!")
             }

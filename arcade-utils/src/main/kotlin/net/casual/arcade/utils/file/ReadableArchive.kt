@@ -32,6 +32,10 @@ public interface ReadableArchive: AutoCloseable {
             return ReadablePathArchive(path.nameWithoutExtension, path)
         }
 
+        public fun ReadableArchive.child(path: String): ReadableArchive {
+            return from(this.resolve(path))
+        }
+
         public fun <A> ReadableArchive.parse(
             path: String,
             decoder: Decoder<A>,

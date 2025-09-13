@@ -73,7 +73,7 @@ public object ServerUtils {
 
     @Internal
     @JvmStatic
-    public fun setServer(server: MinecraftServer) {
+    public fun setServer(server: MinecraftServer?) {
         this.instance = server
     }
 }

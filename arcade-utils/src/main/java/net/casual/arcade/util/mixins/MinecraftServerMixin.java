@@ -51,6 +51,14 @@ public abstract class MinecraftServerMixin implements CustomMOTD {
 		return original;
 	}
 
+    @Inject(
+        method = "stopServer",
+        at = @At("RETURN")
+    )
+    private void onStopServer(CallbackInfo ci) {
+        ServerUtils.setServer(null);
+    }
+
 	@Override
 	public void arcade$setMOTD(Component message) {
 		this.arcade$motd = message;
