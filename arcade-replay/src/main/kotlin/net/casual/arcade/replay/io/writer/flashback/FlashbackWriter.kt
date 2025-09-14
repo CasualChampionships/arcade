@@ -283,7 +283,7 @@ public class FlashbackWriter(
             val meta = JsonObject()
             this.recorder.addMetadata(meta)
             val path = this.path.resolve(ReplayWriter.ENTRY_ARCADE_REPLAY_META)
-            path.writer().use { JsonUtils.encode(meta, it) }
+            JsonUtils.encodeRaw(meta, path)
         } catch (exception: Exception) {
             ArcadeUtils.logger.error("Failed to write ServerReplay meta!", exception)
         }

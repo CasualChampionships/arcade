@@ -78,13 +78,13 @@ public class MinigameSerializer(
 
     private inline fun readAsJsonObjectFrom(path: Path, block: (JsonObject) -> Unit) {
         if (path.isRegularFile()) {
-            block.invoke(path.reader().use(JsonUtils::decodeToJsonObject))
+            block.invoke(JsonUtils.decodeRaw(path))
         }
     }
 
     private inline fun readAsJsonArrayFrom(path: Path, block: (JsonArray) -> Unit) {
         if (path.isRegularFile()) {
-            block.invoke(path.reader().use(JsonUtils::decodeToJsonArray))
+            block.invoke(JsonUtils.decodeRaw(path))
         }
     }
 
@@ -178,9 +178,7 @@ public class MinigameSerializer(
         val json = block.invoke()
         Util.ioPool().execute {
             try {
-                path.writer().use {
-                    JsonUtils.encode(json, it)
-                }
+                JsonUtils.encodeRaw(json, path)
             } catch (e: IOException) {
                 ArcadeUtils.logger.error("Failed to write minigame data to $path", e)
             }

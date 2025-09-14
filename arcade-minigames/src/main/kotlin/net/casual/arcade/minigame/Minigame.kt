@@ -513,7 +513,7 @@ public abstract class Minigame(
      * @param getter The property getter.
      */
     protected fun property(name: String, getter: () -> Any?) {
-        this.properties[name] = { JsonUtils.encodeToElement(getter.invoke()) }
+        this.properties[name] = { JsonUtils.encodeRaw(getter.invoke()) }
     }
 
     internal fun properties(): Collection<String> {

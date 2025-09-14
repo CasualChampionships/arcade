@@ -111,9 +111,7 @@ public class FlashbackChunkedWriter(
             meta.moveTo(meta.resolveSibling(FlashbackIO.METADATA_OLD), true)
         }
 
-        meta.writer().use {
-            JsonUtils.encodeWith(FlashbackMeta.CODEC, this.meta, it)
-        }
+        JsonUtils.encodeWith(this.meta, FlashbackMeta.CODEC, meta)
 
         this.snapshot = SnapshotState.Empty
         this.writeHeader()

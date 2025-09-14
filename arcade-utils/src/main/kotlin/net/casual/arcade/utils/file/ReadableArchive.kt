@@ -8,6 +8,7 @@ import com.mojang.serialization.Decoder
 import com.mojang.serialization.Dynamic
 import com.mojang.serialization.JsonOps
 import net.casual.arcade.utils.JsonUtils
+import net.casual.arcade.utils.serialization.createSerializationContext
 import net.minecraft.core.HolderLookup
 import net.minecraft.server.MinecraftServer
 import java.io.InputStream
@@ -47,18 +48,9 @@ public interface ReadableArchive: AutoCloseable {
             }
         }
 
-        public fun <A> ReadableArchive.parseJson(path: String, decoder: Decoder<A>): Result<A> {
+        public fun <A> ReadableArchive.parseJson(path: String, decoder: Decoder<A>, lookup: HolderLookup.Provider? = null): Result<A> {
             return this.parse(path, decoder) {
-                Dynamic(JsonOps.INSTANCE, JsonUtils.decodeToJsonElement(it.reader()))
-            }
-        }
-
-        public fun <A> ReadableArchive.parseJson(path: String, decoder: Decoder<A>, lookup: HolderLookup.Provider): Result<A> {
-            return this.parse(path, decoder) {
-                Dynamic(
-                    lookup.createSerializationContext(JsonOps.INSTANCE),
-                    JsonUtils.decodeToJsonElement(it.reader())
-                )
+                Dynamic(lookup.createSerializationContext(JsonOps.INSTANCE), JsonUtils.decodeRaw(it.reader()))
             }
         }
 

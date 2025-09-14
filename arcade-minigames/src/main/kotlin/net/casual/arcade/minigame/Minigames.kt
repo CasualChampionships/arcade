@@ -111,7 +111,7 @@ public object Minigames: ModInitializer {
         }
 
         val data = try {
-            factoryPath.reader().use(JsonUtils::decodeToJsonObject)
+            JsonUtils.decodeRaw<JsonObject>(factoryPath)
         } catch (e: IOException) {
             throw MinigameCreationException("Cannot create Minigame, failed to read $path")
         }
@@ -142,7 +142,7 @@ public object Minigames: ModInitializer {
         try {
             path.createDirectories()
 
-            path.resolve("factory.json").writer().use { JsonUtils.encode(json, it) }
+            JsonUtils.encodeRaw(json, path.resolve("factory.json"))
             minigame.serialization.saveTo(path)
         } catch (e: IOException) {
             throw MinigameSerializationException("Failed to write Minigame ${minigame.id} to $path", e)

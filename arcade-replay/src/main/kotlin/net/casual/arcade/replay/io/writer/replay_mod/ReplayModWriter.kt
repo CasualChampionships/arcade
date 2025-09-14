@@ -266,11 +266,11 @@ public class ReplayModWriter(
                 val meta = JsonObject()
                 this.recorder.addMetadata(meta)
 
-                JsonUtils.encode(meta, it)
+                JsonUtils.encodeRaw(meta, it)
             }
 
             this.replay.write(ENTRY_SERVER_REPLAY_PACKS).writer().use {
-                JsonUtils.encode(this.meta, it)
+                JsonUtils.encodeRaw(this.meta, it)
             }
         }
     }

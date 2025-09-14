@@ -214,7 +214,7 @@ public object ResourcePackUtils {
     public fun ResourcePackCreator.addLangsFrom(namespace: String, langs: Path) {
         this.creationEvent.register { builder ->
             for (lang in langs.listDirectoryEntries()) {
-                val translations = JsonUtils.decodeToJsonObject(lang.reader())
+                val translations = JsonUtils.decodeRaw<JsonObject>(lang.reader())
                 mergeJsons(builder, "assets/${namespace}/lang/${lang.name}", translations)
             }
         }
@@ -243,7 +243,7 @@ public object ResourcePackUtils {
     public fun ResourcePackCreator.addSounds(sounds: SoundResources) {
         this.afterInitialCreationEvent.register { builder ->
             // We can only have 1 sounds.json
-            val additional = JsonUtils.decodeToJsonObject(sounds.toJson())
+            val additional = JsonUtils.decodeRaw<JsonObject>(sounds.toJson().reader())
             mergeJsons(builder, "assets/${sounds.namespace}/sounds.json", additional)
         }
     }
@@ -315,7 +315,7 @@ public object ResourcePackUtils {
     private fun mergeJsons(builder: ResourcePackBuilder, path: String, additional: JsonObject) {
         val existing = builder.getData(path)
         val json = if (existing != null) {
-            JsonUtils.decodeToJsonObject(existing.decodeToString())
+            JsonUtils.decodeRaw(existing.decodeToString().reader())
         } else {
             JsonObject()
         }

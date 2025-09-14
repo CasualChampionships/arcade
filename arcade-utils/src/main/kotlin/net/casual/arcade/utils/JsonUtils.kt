@@ -9,64 +9,169 @@ import com.mojang.serialization.DataResult
 import com.mojang.serialization.Decoder
 import com.mojang.serialization.Encoder
 import com.mojang.serialization.JsonOps
+import net.casual.arcade.utils.serialization.createSerializationContext
 import net.minecraft.Util
+import net.minecraft.core.HolderLookup
 import net.minecraft.nbt.*
 import java.io.InputStream
 import java.io.Reader
+import java.nio.file.Path
 import java.util.*
+import kotlin.io.path.reader
+import kotlin.io.path.writer
 
 public object JsonUtils {
     public val GSON: Gson = GsonBuilder().setPrettyPrinting().serializeNulls().disableHtmlEscaping().create()
     public val MIN_GSON: Gson = GsonBuilder().serializeNulls().disableHtmlEscaping().create()
 
-    public inline fun <reified T: Any> decode(reader: Reader): T {
+    public inline fun <reified T: Any> decodeRaw(element: JsonElement): T {
+        return GSON.fromJson(element, T::class.java)
+    }
+
+    public inline fun <reified T: Any> decodeRaw(reader: Reader): T {
         return GSON.fromJson(reader, T::class.java)
     }
 
-    public fun <T> decodeWith(decoder: Decoder<T>, stream: InputStream): DataResult<T> {
-        return stream.reader().use { decoder.parse(JsonOps.INSTANCE, decodeToJsonElement(it)) }
+    public inline fun <reified T: Any> decodeRaw(path: Path): T {
+        return path.reader().use(this::decodeRaw)
     }
 
-    public fun <T> decodeWith(decoder: Decoder<T>, reader: Reader): DataResult<T> {
-        return decoder.parse(JsonOps.INSTANCE, decodeToJsonElement(reader))
+    public fun <T: Any> decodeWith(
+        decoder: Decoder<T>,
+        reader: Reader,
+        lookup: HolderLookup.Provider? = null
+    ): DataResult<T> {
+        return decoder.parse(lookup.createSerializationContext(JsonOps.INSTANCE), decodeRaw(reader))
     }
 
+    public fun <T: Any> decodeWithOr(
+        decoder: Decoder<T>,
+        reader: Reader,
+        lookup: HolderLookup.Provider? = null,
+        getter: () -> T
+    ): T {
+        return this.decodeWith(decoder, reader, lookup).resultOrPartial().orElseGet(getter)
+    }
+
+    public fun <T: Any> decodeWith(
+        decoder: Decoder<T>,
+        path: Path,
+        lookup: HolderLookup.Provider? = null
+    ): DataResult<T> {
+        path.reader().use { reader ->
+            return this.decodeWith(decoder, reader, lookup)
+        }
+    }
+
+    public fun <T: Any> decodeWithOr(
+        decoder: Decoder<T>,
+        path: Path,
+        lookup: HolderLookup.Provider? = null,
+        getter: () -> T
+    ): T {
+        path.reader().use { reader ->
+            return this.decodeWithOr(decoder, reader, lookup, getter)
+        }
+    }
+
+    public fun encodeRaw(any: Any?): JsonElement {
+        return GSON.toJsonTree(any)
+    }
+
+    public fun encodeRaw(any: Any?, appendable: Appendable) {
+        GSON.toJson(any, appendable)
+    }
+
+    public fun encodeRaw(any: Any?, path: Path) {
+        path.writer().use { this.encodeRaw(any, it) }
+    }
+
+    public fun <T: Any> encodeWith(
+        any: T,
+        encoder: Encoder<T>,
+        lookup: HolderLookup.Provider? = null
+    ): DataResult<JsonElement> {
+        return encoder.encodeStart(lookup.createSerializationContext(JsonOps.INSTANCE), any)
+    }
+
+    public fun <T: Any> encodeWith(
+        any: T,
+        encoder: Encoder<T>,
+        appendable: Appendable,
+        lookup: HolderLookup.Provider? = null
+    ) {
+        val encoded = this.encodeWith(any, encoder, lookup).getOrThrow(::IllegalArgumentException)
+        GSON.toJson(encoded, appendable)
+    }
+
+    public fun <T: Any> encodeWith(
+        any: T,
+        encoder: Encoder<T>,
+        path: Path,
+        lookup: HolderLookup.Provider? = null
+    ) {
+        path.writer().use { writer ->
+            this.encodeWith(any, encoder, writer, lookup)
+        }
+    }
+
+    @Deprecated("Use decodeRaw instead", ReplaceWith("this.decodeRaw(reader)"))
+    public inline fun <reified T: Any> decode(reader: Reader): T {
+        return this.decodeRaw(reader)
+    }
+
+    @Deprecated("Use decodeWith(..., reader) instead", ReplaceWith("this.decodeWith(decoder, stream.reader())"))
+    public fun <T: Any> decodeWith(decoder: Decoder<T>, stream: InputStream): DataResult<T> {
+        return this.decodeWith(decoder, stream.reader())
+    }
+
+    @Deprecated("Use decodeRaw instead", ReplaceWith("this.decodeRaw(reader)"))
     public fun decodeToJsonElement(reader: Reader): JsonElement {
-        return GSON.fromJson(reader, JsonElement::class.java)
+        return this.decodeRaw(reader)
     }
 
+    @Deprecated("Use decodeRaw instead", ReplaceWith("this.decodeRaw(reader)"))
     public fun decodeToJsonArray(reader: Reader): JsonArray {
-        return GSON.fromJson(reader, JsonArray::class.java)
+        return this.decodeRaw(reader)
     }
 
+    @Deprecated("Use decodeRaw instead", ReplaceWith("this.decodeRaw(reader)"))
     public fun decodeToJsonObject(reader: Reader): JsonObject {
-        return GSON.fromJson(reader, JsonObject::class.java)
+        return this.decodeRaw(reader)
     }
 
+    @Deprecated("Use decodeRaw instead", ReplaceWith("this.decodeRaw(string.reader())"))
     public fun decodeToJsonObject(string: String): JsonObject {
-        return GSON.fromJson(string, JsonObject::class.java)
+        return this.decodeRaw(string.reader())
     }
 
+    @Deprecated("Use encodeWith(any, encoder, writer) instead")
     public fun <T> encodeWith(encoder: Encoder<T>, any: T, writer: Appendable): Boolean {
         val result = encoder.encodeStart(JsonOps.INSTANCE, any).result()
         if (result.isPresent) {
-            encode(result.get(), writer)
+            this.encodeRaw(result.get(), writer)
             return true
         }
         return false
     }
 
+    @Deprecated("Replace with encodeRaw", ReplaceWith("this.encodeRaw(json, writer)"))
     public fun encode(json: JsonElement, writer: Appendable) {
-        GSON.toJson(json, writer)
+        this.encodeRaw(json, writer)
     }
 
+    @Deprecated("Replace with encodeRaw", ReplaceWith("this.encodeRaw(any, writer)"))
     public fun encode(any: Any, writer: Appendable) {
-        GSON.toJson(any, writer)
+        this.encodeRaw(any, writer)
     }
 
+    @Deprecated("Replace with encodeRaw", ReplaceWith("this.encodeRaw(any)"))
     public fun encodeToElement(any: Any?): JsonElement {
-        return GSON.toJsonTree(any)
+        return this.encodeRaw(any)
     }
+
+    // TODO: We should start deprecating the below methods
+    //   Replace with JsonValueInput/Output
 
     public fun JsonObject.getWithNull(key: String): JsonElement? {
         val value = this.get(key) ?: return null

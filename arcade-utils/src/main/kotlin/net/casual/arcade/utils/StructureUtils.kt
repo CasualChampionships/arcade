@@ -19,7 +19,8 @@ public object StructureUtils {
         return server.structureManager.readStructure(structureTag)
     }
 
-    public fun <A> readWithData(
+    @Deprecated("You should be using minigame modules instead")
+    public fun <A: Any> readWithData(
         path: Path,
         codec: Codec<A>,
         server: MinecraftServer = ServerUtils.getServer()
@@ -30,7 +31,7 @@ public object StructureUtils {
         return this.readZippedWithData(path, codec, server)
     }
 
-    private fun <A> readDirectoryWithData(
+    private fun <A: Any> readDirectoryWithData(
         path: Path,
         codec: Codec<A>,
         server: MinecraftServer
@@ -46,13 +47,11 @@ public object StructureUtils {
         if (dataPath.notExists()) {
             throw IllegalArgumentException("Missing 'data.json' in '$path'")
         }
-        val data = dataPath.inputStream().use { stream ->
-            JsonUtils.decodeWith(codec, stream)
-        }.orThrow
+        val data = JsonUtils.decodeWith(codec, dataPath, null).orThrow
         return read(structurePath, server) to data
     }
 
-    private fun <A> readZippedWithData(
+    private fun <A: Any> readZippedWithData(
         path: Path,
         codec: Codec<A>,
         server: MinecraftServer
@@ -72,8 +71,8 @@ public object StructureUtils {
             val structureTag = zip.getInputStream(structureEntry).use { stream ->
                 NbtIo.readCompressed(stream, NbtAccounter.unlimitedHeap())
             }
-            val data = zip.getInputStream(dataEntry).use { stream ->
-                JsonUtils.decodeWith(codec, stream)
+            val data = zip.getInputStream(dataEntry).reader().use { reader ->
+                JsonUtils.decodeWith(codec, reader)
             }.orThrow
             return server.structureManager.readStructure(structureTag) to data
         }
