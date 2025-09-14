@@ -18,9 +18,4 @@ public object TaskRegistryKeys: RegistryKeySupplier(ArcadeUtils.MOD_ID) {
 
 public object TaskRegistries: RegistrySupplier() {
     public val TASK_FACTORY: Registry<TaskFactory> = create(TaskRegistryKeys.TASK_FACTORY, TaskFactory::bootstrap)
-
-    @Internal
-    public fun init() {
-        this.load()
-    }
 }

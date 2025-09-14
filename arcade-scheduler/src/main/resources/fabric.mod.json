@@ -17,7 +17,7 @@
     "main": [
       {
         "adapter": "kotlin",
-        "value": "net.casual.arcade.scheduler.task.utils.TaskRegistries::init"
+        "value": "net.casual.arcade.scheduler.ArcadeScheduler"
       }
     ]
   },

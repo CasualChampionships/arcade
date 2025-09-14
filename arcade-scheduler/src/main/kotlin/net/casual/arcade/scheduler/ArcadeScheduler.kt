@@ -1,0 +1,14 @@
+package net.casual.arcade.scheduler
+
+import net.casual.arcade.scheduler.coroutine.ServerCoroutineUtils
+import net.casual.arcade.scheduler.task.utils.TaskRegistries
+import net.fabricmc.api.ModInitializer
+import org.jetbrains.annotations.ApiStatus.Internal
+
+@Internal
+public object ArcadeScheduler: ModInitializer {
+    override fun onInitialize() {
+        TaskRegistries.load()
+        ServerCoroutineUtils.registerEvents()
+    }
+}
