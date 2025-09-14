@@ -23,9 +23,11 @@ import net.casual.arcade.resources.pack.PackInfo
 import net.casual.arcade.resources.pack.PackState
 import net.casual.arcade.resources.pack.PackStatus
 import net.casual.arcade.resources.sound.SoundResources
+import net.casual.arcade.resources.utils.ResourcePackUtils.addLangsFrom
 import net.casual.arcade.resources.utils.ShaderUtils.ColorReplacer
 import net.casual.arcade.utils.JsonUtils
 import net.fabricmc.loader.api.FabricLoader
+import net.fabricmc.loader.api.ModContainer
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
@@ -174,11 +176,38 @@ public object ResourcePackUtils {
     }
 
     @JvmStatic
+    public fun ResourcePackCreator.addAssetsFrom(modid: String) {
+        val container = FabricLoader.getInstance().getModContainer(modid).orElseThrow(::IllegalArgumentException)
+        this.addAssetsFrom(container)
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addAssetsFrom(container: ModContainer) {
+        this.addAssetsFrom(container.findPath("assets").orElseThrow(::FileNotFoundException))
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addAssetsFrom(assets: Path) {
+        this.creationEvent.register { builder ->
+            builder.copyFromPath(assets, "assets/")
+        }
+    }
+
+    @JvmStatic
     public fun ResourcePackCreator.addLangsFromData(modid: String) {
         val container = FabricLoader.getInstance().getModContainer(modid).orElseThrow(::IllegalArgumentException)
+        this.addLangsFromData(modid, container)
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addLangsFromData(namespace: String, container: ModContainer) {
         val data = container.findPath("data").orElseThrow(::FileNotFoundException)
-        val langs = data.resolve(modid).resolve("lang")
-        this.addLangsFrom(modid, langs)
+        val langs = data.listDirectoryEntries()
+            .filter { it.isDirectory() && it.resolve("lang").isDirectory() }
+            .map { it.resolve("lang") }
+        for (lang in langs) {
+            this.addLangsFrom(namespace, lang)
+        }
     }
 
     @JvmStatic
@@ -232,13 +261,17 @@ public object ResourcePackUtils {
     @JvmStatic
     public fun ResourcePackCreator.addMissingItemModels(namespace: String) {
         val container = FabricLoader.getInstance().getModContainer(namespace).orElseThrow(::IllegalArgumentException)
-        val assets = container.findPath("assets").orElseThrow(::FileNotFoundException)
-        this.addMissingItemModelsInternal(namespace, assets)
+        this.addMissingItemModels(namespace, container)
     }
 
     @JvmStatic
-    public fun ResourcePackCreator.addMissingItemModels(namespace: String, source: Path) {
-        this.addMissingItemModelsInternal(namespace, source.resolve("assets"))
+    public fun ResourcePackCreator.addMissingItemModels(namespace: String, container: ModContainer) {
+        this.addMissingItemModels(namespace, container.findPath("assets").orElseThrow(::FileNotFoundException))
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addMissingItemModels(namespace: String, assets: Path) {
+        this.addMissingItemModelsInternal(namespace, assets)
     }
 
     @JvmStatic
