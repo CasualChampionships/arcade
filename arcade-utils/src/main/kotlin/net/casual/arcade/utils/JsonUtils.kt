@@ -13,12 +13,17 @@ import net.casual.arcade.utils.serialization.createSerializationContext
 import net.minecraft.Util
 import net.minecraft.core.HolderLookup
 import net.minecraft.nbt.*
+import java.io.IOException
 import java.io.InputStream
+import java.io.InputStreamReader
 import java.io.Reader
 import java.nio.file.Path
 import java.util.*
+import kotlin.io.path.isReadable
+import kotlin.io.path.notExists
 import kotlin.io.path.reader
 import kotlin.io.path.writer
+import kotlin.jvm.optionals.getOrNull
 
 public object JsonUtils {
     public val GSON: Gson = GsonBuilder().setPrettyPrinting().serializeNulls().disableHtmlEscaping().create()
@@ -58,8 +63,8 @@ public object JsonUtils {
         path: Path,
         lookup: HolderLookup.Provider? = null
     ): DataResult<T> {
-        path.reader().use { reader ->
-            return this.decodeWith(decoder, reader, lookup)
+        return this.getReaderSafely(path).flatMap { reader ->
+            reader.use { this.decodeWith(decoder, it, lookup) }
         }
     }
 
@@ -69,9 +74,8 @@ public object JsonUtils {
         lookup: HolderLookup.Provider? = null,
         getter: () -> T
     ): T {
-        path.reader().use { reader ->
-            return this.decodeWithOr(decoder, reader, lookup, getter)
-        }
+        val reader = this.getReaderSafely(path).result().getOrNull() ?: return getter.invoke()
+        return reader.use { this.decodeWithOr(decoder, it, lookup, getter) }
     }
 
     public fun encodeRaw(any: Any?): JsonElement {
@@ -492,6 +496,21 @@ public object JsonUtils {
             is StringTag -> JsonPrimitive(this.value)
             is NumericTag -> JsonPrimitive(this.box())
             else -> JsonNull.INSTANCE
+        }
+    }
+
+    private fun getReaderSafely(path: Path): DataResult<InputStreamReader> {
+        if (path.notExists()) {
+            return DataResult.error { "Path $path doesn't exist" }
+        }
+        if (!path.isReadable()) {
+            return DataResult.error { "Path $path is not readable" }
+        }
+        try {
+            return DataResult.success(path.reader())
+        } catch (exception: IOException) {
+            val message = exception.message
+            return DataResult.error { "Failed to open reader at $path: $message" }
         }
     }
 }
