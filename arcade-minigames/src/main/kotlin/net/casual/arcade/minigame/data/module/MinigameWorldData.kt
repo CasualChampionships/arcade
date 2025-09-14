@@ -4,12 +4,14 @@
  */
 package net.casual.arcade.minigame.data.module
 
-
+import net.casual.arcade.dimensions.utils.getDimensionPath
 import net.casual.arcade.minigame.data.MinigameDataModule
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.file.ReadableArchive
+import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
+import net.minecraft.world.level.Level
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.copyToRecursively
@@ -22,6 +24,10 @@ public class MinigameWorldData(
     public fun extract(destination: Path) {
         val world = this.archive.resolve(WORLD_DIRECTORY)
         world.copyToRecursively(destination, followLinks = false, overwrite = true)
+    }
+
+    public fun extract(server: MinecraftServer, dimension: ResourceKey<Level>) {
+        this.extract(server.getDimensionPath(dimension))
     }
 
     public companion object: MinigameDataModule.Provider {
