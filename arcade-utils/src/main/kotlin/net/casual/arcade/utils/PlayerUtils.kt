@@ -7,7 +7,7 @@ package net.casual.arcade.utils
 import net.casual.arcade.util.ducks.ConnectionFaultHolder
 import net.casual.arcade.util.ducks.SilentRecipeSender
 import net.casual.arcade.util.mixins.PlayerAdvancementsAccessor
-import net.casual.arcade.utils.PlayerUtils.isInViewDistance
+import net.casual.arcade.utils.PlayerUtils.username
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -58,6 +58,10 @@ public object PlayerUtils {
     @JvmStatic
     public val ServerPlayer.isSurvival: Boolean
         get() = this.isGameMode(GameType.SURVIVAL)
+
+    @JvmStatic
+    public val ServerPlayer.username: String
+        get() = this.gameProfile.name
 
     @JvmStatic
     public fun Iterable<ServerPlayer>.broadcast(packet: Packet<*>) {
