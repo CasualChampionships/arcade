@@ -7,6 +7,7 @@ package net.casual.arcade.utils.file
 import com.mojang.serialization.Decoder
 import com.mojang.serialization.Dynamic
 import com.mojang.serialization.JsonOps
+import kotlinx.io.files.FileNotFoundException
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.serialization.createSerializationContext
 import net.minecraft.core.HolderLookup
@@ -14,9 +15,7 @@ import net.minecraft.server.MinecraftServer
 import java.io.InputStream
 import java.nio.file.FileSystems
 import java.nio.file.Path
-import kotlin.io.path.extension
-import kotlin.io.path.inputStream
-import kotlin.io.path.nameWithoutExtension
+import kotlin.io.path.*
 
 public interface ReadableArchive: AutoCloseable {
     public val name: String
@@ -25,16 +24,29 @@ public interface ReadableArchive: AutoCloseable {
 
     public companion object {
         public fun from(path: Path): ReadableArchive {
-            if (path.extension == "zip") {
+            if (path.extension == "zip" && path.isReadable()) {
                 val system = FileSystems.newFileSystem(path)
                 val root = system.getPath("/")
                 return ReadablePathArchive(path.nameWithoutExtension, root) { system.close() }
             }
-            return ReadablePathArchive(path.nameWithoutExtension, path)
+            if (path.isDirectory()) {
+                return ReadablePathArchive(path.nameWithoutExtension, path)
+            }
+            throw FileNotFoundException("No archive at $path")
+        }
+
+        public fun from(path: Path, name: String): ReadableArchive {
+            val zip = path.resolve("$name.zip")
+            val dir = path.resolve(name)
+            return when {
+                zip.isReadable() -> this.from(zip)
+                dir.isDirectory() -> this.from(dir)
+                else -> throw FileNotFoundException("No archive at $dir")
+            }
         }
 
         public fun ReadableArchive.child(path: String): ReadableArchive {
-            return from(this.resolve(path))
+            return from(this.resolve("."), path)
         }
 
         public fun <A> ReadableArchive.parse(
