@@ -9,18 +9,31 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.casual.arcade.dimensions.level.CustomLevel;
+import net.casual.arcade.dimensions.level.LevelProperties;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundSetChunkCacheRadiusPacket;
+import net.minecraft.network.protocol.game.ClientboundSetSimulationDistancePacket;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Predicate;
 
 @Mixin(PlayerList.class)
-public class PlayerListMixin {
+public abstract class PlayerListMixin {
+    @Shadow
+    public abstract int getViewDistance();
+
+    @Shadow
+    public abstract int getSimulationDistance();
+
     @WrapOperation(
         method = "setViewDistance",
         at = @At(
@@ -71,6 +84,28 @@ public class PlayerListMixin {
     )
     private boolean onSetChunkCacheSimulationDistance(ServerChunkCache instance, int simulationDistance) {
         return !(instance.getLevel() instanceof CustomLevel custom) || custom.getProperties().getSimulationDistance().isEmpty();
+    }
+
+    @Inject(
+        method = "sendLevelInfo",
+        at = @At("RETURN")
+    )
+    private void onSendLevelInfo(ServerPlayer player, ServerLevel level, CallbackInfo ci) {
+        int viewDistance = this.getViewDistance();
+        int simulationDistance = this.getSimulationDistance();
+        if (level instanceof CustomLevel custom) {
+            LevelProperties properties = custom.getProperties();
+            if (properties.getViewDistance().isPresent()) {
+                viewDistance = properties.getViewDistance().get();
+            }
+            if (properties.getSimulationDistance().isPresent()) {
+                simulationDistance = properties.getSimulationDistance().get();
+            }
+        }
+
+        // We always have to send these in the case the player came from a custom dimension
+        player.connection.send(new ClientboundSetChunkCacheRadiusPacket(viewDistance));
+        player.connection.send(new ClientboundSetSimulationDistancePacket(simulationDistance));
     }
 
     @Unique
