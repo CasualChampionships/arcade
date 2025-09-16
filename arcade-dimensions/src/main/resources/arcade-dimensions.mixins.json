@@ -9,6 +9,7 @@
     "level.CommonPlayerSpawnInfoMixin",
     "level.MinecraftServerAccessor",
     "level.MinecraftServerMixin",
+    "level.PlayerListMixin",
     "level.ServerLevelAccessor",
     "level.ServerLevelMixin",
     "level.ServerPlayerMixin",

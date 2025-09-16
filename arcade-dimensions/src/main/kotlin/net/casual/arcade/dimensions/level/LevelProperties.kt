@@ -23,12 +23,16 @@ import java.util.*
  * @param weather The weather properties.
  * @param difficulty The difficulty properties.
  * @param gameRules The game rules.
+ * @param viewDistance The view distance in chunks.
+ * @param simulationDistance The simulation distance in chunks.
  */
 public class LevelProperties(
     public var dayTime: Optional<MutableLong> = Optional.empty(),
     public var weather: Optional<WeatherProperties> = Optional.empty(),
     public var difficulty: Optional<DifficultyProperties> = Optional.empty(),
-    public var gameRules: Optional<GameRules> = Optional.empty()
+    public var gameRules: Optional<GameRules> = Optional.empty(),
+    public var viewDistance: Optional<Int> = Optional.empty(),
+    public var simulationDistance: Optional<Int> = Optional.empty()
 ) {
     public class WeatherProperties(
         public var clearWeatherTime: Int = 0,
@@ -67,7 +71,9 @@ public class LevelProperties(
                 ArcadeExtraCodecs.MUTABLE_LONG.optionalFieldOf("day_time").forGetter(LevelProperties::dayTime),
                 WEATHER_CODEC.optionalFieldOf("weather").forGetter(LevelProperties::weather),
                 DIFFICULTY_CODEC.optionalFieldOf("difficulty").forGetter(LevelProperties::difficulty),
-                ArcadeExtraCodecs.GAMERULES.optionalFieldOf("game_rules").forGetter(LevelProperties::gameRules)
+                ArcadeExtraCodecs.GAMERULES.optionalFieldOf("game_rules").forGetter(LevelProperties::gameRules),
+                Codec.INT.optionalFieldOf("view_distance").forGetter(LevelProperties::viewDistance),
+                Codec.INT.optionalFieldOf("simulation_distance").forGetter(LevelProperties::simulationDistance)
             ).apply(instance, ::LevelProperties)
         }
     }

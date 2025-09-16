@@ -29,6 +29,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+import java.util.Optional;
+
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin extends Level implements SpoofedDimensionKeyHolder {
 	@Unique private ResourceKey<Level> arcade$spoofedKey = null;
@@ -56,12 +58,39 @@ public abstract class ServerLevelMixin extends Level implements SpoofedDimension
 		)
 	)
 	private WorldOptions modifyWorldOptions(WorldOptions original, MinecraftServer server) {
-		if ((Object) this instanceof CustomLevel) {
-			LevelGenerationOptions options = ((DerivedLevelData) this.serverLevelData).getOptions();
+        Optional<DerivedLevelData> optional = this.getCustomLevelData();
+		if (optional.isPresent()) {
+			LevelGenerationOptions options = optional.get().getOptions();
 			return new WorldOptions(options.getSeed(), options.getGenerateStructures(), original.generateBonusChest());
 		}
 		return original;
 	}
+
+    @ModifyExpressionValue(
+        method = "<init>",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/server/players/PlayerList;getViewDistance()I"
+        )
+    )
+    private int getLevelViewDistance(int original) {
+        return this.getCustomLevelData()
+            .flatMap(data -> data.getProperties().getViewDistance())
+            .orElse(original);
+    }
+
+    @ModifyExpressionValue(
+        method = "<init>",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/server/players/PlayerList;getSimulationDistance()I"
+        )
+    )
+    private int getLevelSimulationDistance(int original) {
+        return this.getCustomLevelData()
+            .flatMap(data -> data.getProperties().getSimulationDistance())
+            .orElse(original);
+    }
 
 	@Redirect(
 		method = "advanceWeatherCycle",
@@ -84,4 +113,12 @@ public abstract class ServerLevelMixin extends Level implements SpoofedDimension
 	public ResourceKey<Level> arcade$getSpoofedDimensionKey() {
 		return this.arcade$spoofedKey;
 	}
+
+    @Unique
+    private Optional<DerivedLevelData> getCustomLevelData() {
+        if ((Object) this instanceof CustomLevel) {
+            return Optional.of(((DerivedLevelData) this.serverLevelData));
+        }
+        return Optional.empty();
+    }
 }

@@ -312,6 +312,30 @@ public class CustomLevelBuilder {
     }
 
     /**
+     * Modifies the view distance for the level.
+     *
+     * @param chunks The view distance in chunks, must be a positive integer.
+     * @return This builder.
+     */
+    public fun viewDistance(chunks: Int): CustomLevelBuilder {
+        require(chunks >= 1) { "View distance must be a positive integer" }
+        this.properties.viewDistance = Optional.of(chunks)
+        return this
+    }
+
+    /**
+     * Modifies the simulation distance for the level.
+     *
+     * @param chunks The view distance in chunks, must be a positive integer.
+     * @return This builder.
+     */
+    public fun simulationDistance(chunks: Int): CustomLevelBuilder {
+        require(chunks >= 1) { "Simulation distance must be a positive integer" }
+        this.properties.simulationDistance = Optional.of(chunks)
+        return this
+    }
+
+    /**
      * Sets the level stem.
      *
      * This doesn't need to be specified if both the [dimensionType]
