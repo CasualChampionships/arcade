@@ -15,6 +15,7 @@ import net.minecraft.world.level.Level
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.copyToRecursively
+import kotlin.io.path.createDirectories
 import kotlin.io.path.notExists
 
 public class MinigameWorldData(
@@ -27,7 +28,7 @@ public class MinigameWorldData(
     }
 
     public fun extract(server: MinecraftServer, dimension: ResourceKey<Level>) {
-        this.extract(server.getDimensionPath(dimension))
+        this.extract(server.getDimensionPath(dimension).createDirectories())
     }
 
     public companion object: MinigameDataModule.Provider {
