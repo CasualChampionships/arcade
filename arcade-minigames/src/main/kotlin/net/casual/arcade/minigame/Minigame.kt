@@ -407,6 +407,8 @@ public abstract class Minigame(
      * @see close
      */
     public fun complete() {
+        this.data.end()
+
         GlobalEventHandler.Server.broadcast(MinigameCompleteEvent(this))
 
         this.close()

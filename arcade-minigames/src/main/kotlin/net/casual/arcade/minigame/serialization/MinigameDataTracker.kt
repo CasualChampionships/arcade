@@ -23,6 +23,7 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
+// TODO: What the hell is this class, why...?
 @OptIn(ExperimentalTime::class)
 public class MinigameDataTracker(
     private val minigame: Minigame
@@ -34,10 +35,16 @@ public class MinigameDataTracker(
         private set
 
     public fun start() {
-        this.startTime = Clock.System.now()
+        if (this.startTime == Instant.DISTANT_PAST) {
+            this.startTime = Clock.System.now()
+        }
     }
 
     public fun end() {
+        if (this.endTime != Instant.DISTANT_FUTURE) {
+            return
+        }
+
         for (player in this.minigame.players) {
             this.updatePlayer(player)
         }

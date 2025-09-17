@@ -11,7 +11,7 @@ plugins {
     java
 }
 
-val modVersion = "0.6.2-beta.28"
+val modVersion = "0.6.2-beta.29"
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -85,6 +85,12 @@ allprojects {
         }
     }
 
+    loom {
+        decompilerOptions.named("vineflower") {
+            options.put("mark-corresponding-synthetics", "1")
+        }
+    }
+
     publishing {
         publications {
             create<MavenPublication>("mavenJava") {
@@ -143,6 +149,7 @@ loom {
         create("testmodServer") {
             server()
             source(testmod)
+            vmArgs("-Dmixin.debug.export=true")
         }
     }
     createRemapConfigurations(testmod)
