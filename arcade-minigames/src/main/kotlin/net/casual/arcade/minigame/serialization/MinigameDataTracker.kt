@@ -9,6 +9,7 @@ import com.google.gson.JsonObject
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.JsonUtils.array
 import net.casual.arcade.utils.JsonUtils.long
+import net.casual.arcade.utils.JsonUtils.longOrNull
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.uuid
@@ -19,9 +20,7 @@ import net.minecraft.server.level.ServerPlayer
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.jvm.optionals.getOrNull
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
+import kotlin.time.*
 
 // TODO: What the hell is this class, why...?
 @OptIn(ExperimentalTime::class)
@@ -93,8 +92,12 @@ public class MinigameDataTracker(
         }
 
         val json = JsonObject()
-        json.addProperty("minigame_start_ms", this.startTime.toEpochMilliseconds())
-        json.addProperty("minigame_end_ms", this.endTime.toEpochMilliseconds())
+        if (!this.startTime.isDistantPast) {
+            json.addProperty("minigame_start_ms", this.startTime.toEpochMilliseconds())
+        }
+        if (!this.endTime.isDistantFuture) {
+            json.addProperty("minigame_end_ms", this.endTime.toEpochMilliseconds())
+        }
         json.addProperty("id", this.minigame.id.toString())
         json.addProperty("uuid", this.minigame.uuid.toString())
         val players = JsonArray()
@@ -107,8 +110,14 @@ public class MinigameDataTracker(
     }
 
     internal fun deserialize(json: JsonObject) {
-        this.startTime = Instant.fromEpochMilliseconds(json.long("minigame_start_ms"))
-        this.endTime = Instant.fromEpochMilliseconds(json.long("minigame_end_ms"))
+        val startMs = json.longOrNull("minigame_start_ms")
+        if (startMs != null) {
+            this.startTime = Instant.fromEpochMilliseconds(startMs)
+        }
+        val endMs = json.longOrNull("minigame_end_ms")
+        if (endMs != null) {
+            this.endTime = Instant.fromEpochMilliseconds(endMs)
+        }
 
         for (player in json.array("players").objects()) {
             this.players[player.uuid("uuid")] = player
