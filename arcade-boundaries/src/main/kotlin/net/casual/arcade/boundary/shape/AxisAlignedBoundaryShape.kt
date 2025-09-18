@@ -24,6 +24,8 @@ import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import java.util.*
 import java.util.function.Function
+import kotlin.collections.ArrayList
+import kotlin.math.abs
 
 /**
  * This is an implementation of [BoundaryShape] that
@@ -97,32 +99,40 @@ public class AxisAlignedBoundaryShape private constructor(
         val min = this.aabb.minPosition
         val max = this.aabb.maxPosition
 
-        if (!this.contains(point)) {
-            val clamped = Vec3(
-                if (axes.contains(Axis.X)) point.x.coerceIn(min.x, max.x) else point.x,
-                if (axes.contains(Axis.Y)) point.y.coerceIn(min.y, max.y) else point.y,
-                if (axes.contains(Axis.Z)) point.z.coerceIn(min.z, max.z) else point.z
-            )
-            return clamped.subtract(point)
+        val clamped = Vec3(
+            point.x.coerceIn(min.x, max.x),
+            point.y.coerceIn(min.y, max.y),
+            point.z.coerceIn(min.z, max.z)
+        )
+        val delta = clamped.subtract(point)
+
+        val masked = Vec3(
+            if (axes.contains(Axis.X)) delta.x else 0.0,
+            if (axes.contains(Axis.Y)) delta.y else 0.0,
+            if (axes.contains(Axis.Z)) delta.z else 0.0
+        )
+
+        if (masked.lengthSqr() > 0.0) {
+            return masked
         }
 
-        val candidates = mutableListOf<Vec3>()
+        val candidates = ArrayList<Vec3>()
         if (axes.contains(Axis.X)) {
-            val distToMinX = point.x - min.x
-            val distToMaxX = max.x - point.x
-            candidates += if (distToMinX < distToMaxX) Vec3(-distToMinX, 0.0, 0.0) else Vec3(distToMaxX, 0.0, 0.0)
+            val dMin = point.x - min.x
+            val dMax = max.x - point.x
+            candidates += if (dMin < dMax) Vec3(-dMin, 0.0, 0.0) else Vec3(dMax, 0.0, 0.0)
         }
         if (axes.contains(Axis.Y)) {
-            val distToMinY = point.y - min.y
-            val distToMaxY = max.y - point.y
-            candidates += if (distToMinY < distToMaxY) Vec3(0.0, -distToMinY, 0.0) else Vec3(0.0, distToMaxY, 0.0)
+            val dMin = point.y - min.y
+            val dMax = max.y - point.y
+            candidates += if (dMin < dMax) Vec3(0.0, -dMin, 0.0) else Vec3(0.0, dMax, 0.0)
         }
         if (axes.contains(Axis.Z)) {
-            val distToMinZ = point.z - min.z
-            val distToMaxZ = max.z - point.z
-            candidates += if (distToMinZ < distToMaxZ) Vec3(0.0, 0.0, -distToMinZ) else Vec3(0.0, 0.0, distToMaxZ)
+            val dMin = point.z - min.z
+            val dMax = max.z - point.z
+            candidates += if (dMin < dMax) Vec3(0.0, 0.0, -dMin) else Vec3(0.0, 0.0, dMax)
         }
-        return candidates.minBy { it.lengthSqr() }
+        return candidates.minBy(Vec3::lengthSqr)
     }
 
     override fun getStatus(): Status {
