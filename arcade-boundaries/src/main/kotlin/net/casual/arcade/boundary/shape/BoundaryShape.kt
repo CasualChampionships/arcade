@@ -7,15 +7,18 @@ package net.casual.arcade.boundary.shape
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.boundary.utils.BoundaryRegistries
+import net.casual.arcade.utils.EnumUtils
 import net.casual.arcade.utils.MathUtils.forEachCorner
 import net.casual.arcade.utils.MathUtils.toAABB
 import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.shapes.ShapePoints
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction.Axis
 import net.minecraft.core.Registry
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
+import java.util.EnumSet
 import java.util.function.Function
 
 /**
@@ -134,8 +137,21 @@ public interface BoundaryShape {
      * Gets the direction (with magnitude) from a given [point].
      *
      * @param point The point to get the direction to.
+     * @return The direction (with magnitude).
      */
-    public fun getDirectionFrom(point: Vec3): Vec3
+    public fun getDirectionFrom(point: Vec3): Vec3 {
+        return this.getDirectionFrom(point, EnumUtils.completeSet())
+    }
+
+    /**
+     * Gets the direction (with magnitude) from a given [point]
+     * on the specified [axes].
+     *
+     * @param point The point to get the direction to.
+     * @param axes The axes of direction.
+     * @return The direction (with magnitude).
+     */
+    public fun getDirectionFrom(point: Vec3, axes: EnumSet<Axis>): Vec3
 
     /**
      * Gets the status of the border, whether

@@ -6,6 +6,7 @@ package net.casual.arcade.utils
 
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
+import net.minecraft.core.Direction.Axis
 import net.minecraft.core.Direction8
 import net.minecraft.core.Vec3i
 import net.minecraft.util.Mth
@@ -14,6 +15,7 @@ import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.joml.Quaternionf
+import java.util.EnumSet
 import kotlin.math.*
 
 public object MathUtils {
@@ -308,6 +310,12 @@ public object MathUtils {
         return x >= this.minX && x < this.maxX
             && z >= this.minZ && z < this.maxZ
             && y < this.minY
+    }
+
+    public fun AABB.contains(point: Vec3, axes: EnumSet<Axis>): Boolean {
+        return (!axes.contains(Axis.X) || point.x in this.minX..this.maxX)
+            && (!axes.contains(Axis.Y) || point.y in this.minY..this.maxY)
+            && (!axes.contains(Axis.Z) || point.z in this.minZ..this.maxZ)
     }
 
     @JvmStatic

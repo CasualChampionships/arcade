@@ -16,10 +16,13 @@ import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.shapes.ShapePoints
 import net.casual.arcade.visuals.shapes.impl.CuboidShape
+import net.minecraft.core.Direction
+import net.minecraft.core.Direction.Axis
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.ExtraCodecs
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
+import java.util.*
 import java.util.function.Function
 
 /**
@@ -90,27 +93,36 @@ public class AxisAlignedBoundaryShape private constructor(
         return this.aabb.contains(point)
     }
 
-    override fun getDirectionFrom(point: Vec3): Vec3 {
+    override fun getDirectionFrom(point: Vec3, axes: EnumSet<Axis>): Vec3 {
         val min = this.aabb.minPosition
         val max = this.aabb.maxPosition
+
         if (!this.contains(point)) {
-            val clampedX = point.x.coerceIn(min.x, max.x)
-            val clampedY = point.y.coerceIn(min.y, max.y)
-            val clampedZ = point.z.coerceIn(min.z, max.z)
-            return Vec3(clampedX, clampedY, clampedZ).subtract(point)
+            val clamped = Vec3(
+                if (axes.contains(Axis.X)) point.x.coerceIn(min.x, max.x) else point.x,
+                if (axes.contains(Axis.Y)) point.y.coerceIn(min.y, max.y) else point.y,
+                if (axes.contains(Axis.Z)) point.z.coerceIn(min.z, max.z) else point.z
+            )
+            return clamped.subtract(point)
         }
 
-        val distToMinX = point.x - min.x
-        val distToMaxX = max.x - point.x
-        val distToMinY = point.y - min.y
-        val distToMaxY = max.y - point.y
-        val distToMinZ = point.z - min.z
-        val distToMaxZ = max.z - point.z
-
-        val xDir = if (distToMinX < distToMaxX) Vec3(-distToMinX, 0.0, 0.0) else Vec3(distToMaxX, 0.0, 0.0)
-        val yDir = if (distToMinY < distToMaxY) Vec3(0.0, -distToMinY, 0.0) else Vec3(0.0, distToMaxY, 0.0)
-        val zDir = if (distToMinZ < distToMaxZ) Vec3(0.0, 0.0, -distToMinZ) else Vec3(0.0, 0.0, distToMaxZ)
-        return listOf(xDir, yDir, zDir).minBy { it.lengthSqr() }
+        val candidates = mutableListOf<Vec3>()
+        if (axes.contains(Axis.X)) {
+            val distToMinX = point.x - min.x
+            val distToMaxX = max.x - point.x
+            candidates += if (distToMinX < distToMaxX) Vec3(-distToMinX, 0.0, 0.0) else Vec3(distToMaxX, 0.0, 0.0)
+        }
+        if (axes.contains(Axis.Y)) {
+            val distToMinY = point.y - min.y
+            val distToMaxY = max.y - point.y
+            candidates += if (distToMinY < distToMaxY) Vec3(0.0, -distToMinY, 0.0) else Vec3(0.0, distToMaxY, 0.0)
+        }
+        if (axes.contains(Axis.Z)) {
+            val distToMinZ = point.z - min.z
+            val distToMaxZ = max.z - point.z
+            candidates += if (distToMinZ < distToMaxZ) Vec3(0.0, 0.0, -distToMinZ) else Vec3(0.0, 0.0, distToMaxZ)
+        }
+        return candidates.minBy { it.lengthSqr() }
     }
 
     override fun getStatus(): Status {

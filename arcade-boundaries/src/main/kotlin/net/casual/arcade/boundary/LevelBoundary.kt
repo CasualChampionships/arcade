@@ -14,6 +14,7 @@ import net.casual.arcade.boundary.utils.ClientboundSetBorderWarningDistancePacke
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.core.TrackedPlayerUI
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction.Axis
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.server.level.ServerLevel
@@ -22,6 +23,7 @@ import net.minecraft.util.Mth
 import net.minecraft.world.level.border.WorldBorder
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
+import java.util.EnumSet
 import java.util.function.Consumer
 import kotlin.math.max
 
@@ -141,9 +143,22 @@ public class LevelBoundary(
      * Gets the direction (with magnitude) from a given [point].
      *
      * @param point The point to get the direction to.
+     * @return The direction (with magnitude).
      */
     public fun getDirectionFrom(point: Vec3): Vec3 {
         return this.shape.getDirectionFrom(point)
+    }
+
+    /**
+     * Gets the direction (with magnitude) from a given [point]
+     * on the specified [axes].
+     *
+     * @param point The point to get the direction to.
+     * @param axes The axes of direction.
+     * @return The direction (with magnitude).
+     */
+    public fun getDirectionFrom(point: Vec3, axes: EnumSet<Axis>): Vec3 {
+        return this.shape.getDirectionFrom(point, axes)
     }
 
     /**
