@@ -5,6 +5,7 @@
 package net.casual.arcade.minigame.mixins.gamemode;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.casual.arcade.minigame.gamemode.ExtendedGameMode;
 import net.casual.arcade.utils.PlayerUtils;
 import net.minecraft.server.level.ServerPlayer;
@@ -65,4 +66,12 @@ public class ServerPlayerGameModeMixin {
 		}
 		return original;
 	}
+
+    @ModifyReturnValue(
+        method = "isSurvival",
+        at = @At("RETURN")
+    )
+    private boolean isSurvivalLike(boolean original) {
+        return original && getExtendedGameMode(this.player) != ExtendedGameMode.AdventureSpectator;
+    }
 }
