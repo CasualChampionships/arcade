@@ -4,10 +4,9 @@
  */
 package net.casual.arcade.minigame.managers
 
+import com.google.common.collect.HashMultimap
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigameAddTagEvent
@@ -17,6 +16,7 @@ import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.set
 import net.casual.arcade.utils.JsonUtils.strings
 import net.casual.arcade.utils.JsonUtils.uuid
+import net.casual.arcade.utils.PlayerUtils.player
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
@@ -24,35 +24,68 @@ import java.util.*
 public class MinigameTagManager(
     private val minigame: Minigame
 ) {
-    private val players = Object2ObjectOpenHashMap<UUID, MutableSet<ResourceLocation>>()
+    private val players = HashMultimap.create<UUID, ResourceLocation>()
+    private val tags = HashMultimap.create<ResourceLocation, UUID>()
 
-    public fun get(player: ServerPlayer): Collection<ResourceLocation> {
-        return this.players[player.uuid] ?: listOf()
+    public fun get(uuid: UUID): Set<ResourceLocation> {
+        return this.players.get(uuid)
+    }
+
+    public fun get(player: ServerPlayer): Set<ResourceLocation> {
+        return this.get(player.uuid)
+    }
+
+    public fun has(uuid: UUID, tag: ResourceLocation): Boolean {
+        return this.players.containsEntry(uuid, tag)
     }
 
     public fun has(player: ServerPlayer, tag: ResourceLocation): Boolean {
-        return this.players[player.uuid]?.contains(tag) ?: false
+        return this.has(player.uuid, tag)
+    }
+
+    public fun add(uuid: UUID, tag: ResourceLocation): Boolean {
+        val success = this.players.put(uuid, tag)
+        this.tags.put(tag, uuid)
+        if (success) {
+            val player = this.minigame.server.player(uuid)
+            if (player != null) {
+                GlobalEventHandler.Server.broadcast(MinigameAddTagEvent(this.minigame, player, tag))
+            }
+        }
+        return success
     }
 
     public fun add(player: ServerPlayer, tag: ResourceLocation): Boolean {
-        val result = this.players.getOrPut(player.uuid) { ObjectOpenHashSet() }.add(tag)
-        if (result) {
-            GlobalEventHandler.Server.broadcast(MinigameAddTagEvent(this.minigame, player, tag))
+        return this.add(player.uuid, tag)
+    }
+
+    public fun remove(uuid: UUID, tag: ResourceLocation): Boolean {
+        val success = this.players.remove(uuid, tag)
+        this.tags.remove(tag, uuid)
+        if (success) {
+            val player = this.minigame.server.player(uuid)
+            if (player != null) {
+                GlobalEventHandler.Server.broadcast(MinigameRemoveTagEvent(this.minigame, player, tag))
+            }
         }
-        return result
+        return success
     }
 
     public fun remove(player: ServerPlayer, tag: ResourceLocation): Boolean {
-        val result = this.players[player.uuid]?.remove(tag) ?: false
-        if (result) {
-            GlobalEventHandler.Server.broadcast(MinigameRemoveTagEvent(this.minigame, player, tag))
-        }
-        return result
+        return this.remove(player.uuid, tag)
+    }
+
+    public fun getUUIDsFor(tag: ResourceLocation): Set<UUID> {
+        return this.tags.get(tag)
+    }
+
+    public fun getPlayersFor(tag: ResourceLocation): List<ServerPlayer> {
+        return this.getUUIDsFor(tag).mapNotNull { this.minigame.server.player(it) }
     }
 
     internal fun serialize(): JsonArray {
         val array = JsonArray()
-        for ((uuid, tags) in this.players) {
+        for ((uuid, tags) in this.players.asMap()) {
             val json = JsonObject()
             json["uuid"] = uuid.toString()
             val tagArray = JsonArray()
@@ -69,9 +102,10 @@ public class MinigameTagManager(
         for (json in array.objects()) {
             val uuid = json.uuid("uuid")
             val tags = json.array("tags").strings()
-            val set = this.players.getOrPut(uuid) { ObjectOpenHashSet() }
-            for (tag in tags) {
-                set.add(ResourceLocation.parse(tag))
+            val parsed = tags.map(ResourceLocation::parse)
+            this.players.putAll(uuid, parsed)
+            for (tag in parsed) {
+                this.tags.put(tag, uuid)
             }
         }
     }
