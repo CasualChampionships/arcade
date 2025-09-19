@@ -134,6 +134,17 @@ public class MinigameEffectsManager(
         }
     }
 
+    /**
+     * Check whether an observee is invisible for an observer.
+     *
+     * @param observee The observee player.
+     * @param observer The observer player.
+     * @return Whether the [observee] is invisible for the [observer].
+     */
+    public fun isInvisibleFor(observee: ServerPlayer, observer: ServerPlayer): Boolean {
+        return this.invisible.observable(observee, observer)
+    }
+
     public fun tickFreeze(entity: Entity) {
         this.frozen.add(entity.uuid)
     }
