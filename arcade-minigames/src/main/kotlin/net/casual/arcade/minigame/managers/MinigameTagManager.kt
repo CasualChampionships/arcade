@@ -75,6 +75,13 @@ public class MinigameTagManager(
         return this.remove(player.uuid, tag)
     }
 
+    public fun clear(tag: ResourceLocation) {
+        val players = this.tags.removeAll(tag)
+        for (player in players) {
+            this.remove(player, tag)
+        }
+    }
+
     public fun getUUIDsFor(tag: ResourceLocation): Set<UUID> {
         return this.tags.get(tag)
     }
