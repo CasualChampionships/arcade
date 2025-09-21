@@ -41,6 +41,10 @@ public class EntityMixin implements ExtensionHolder {
         Level level,
         CallbackInfo ci
     ) {
+        if (level.isClientSide) {
+            return;
+        }
+
         Entity entity = (Entity) (Object) this;
         if (entity instanceof Player || !EntityExtension.SHOULD_ATTACH_EXTENSION.get()) {
             return;
