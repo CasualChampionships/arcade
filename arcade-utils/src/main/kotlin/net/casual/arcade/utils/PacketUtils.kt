@@ -67,9 +67,9 @@ public fun Packet<*>.asClientGamePacket(): Packet<ClientGamePacketListener> {
 
 public inline fun ClientboundBundlePacket.modify(
     player: ServerPlayer,
-    modifier: (ServerPlayer, Packet<in ClientGamePacketListener>) -> Packet<in ClientGamePacketListener>?
+    modifier: (ServerPlayer, Packet<*>) -> Packet<*>?
 ): ClientboundBundlePacket {
-    val updated = ArrayList<Packet<in ClientGamePacketListener>>()
+    val updated = ArrayList<Packet<*>>()
     for (sub in this.subPackets()) {
         val new = modifier.invoke(player, sub) ?: continue
         if (new is ClientboundBundlePacket) {
@@ -78,7 +78,8 @@ public inline fun ClientboundBundlePacket.modify(
             updated.add(new)
         }
     }
-    return ClientboundBundlePacket(updated)
+    @Suppress("UNCHECKED_CAST")
+    return ClientboundBundlePacket(updated as List<Packet<in ClientGamePacketListener>>)
 }
 
 public fun Packet<*>.getDebugName(): String {

@@ -7,7 +7,10 @@ package net.casual.arcade.events.server.player
 import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.common.CancellableEvent
 import net.casual.arcade.events.threading.AsyncEvent
+import net.casual.arcade.utils.modify
 import net.minecraft.network.protocol.Packet
+import net.minecraft.network.protocol.game.ClientGamePacketListener
+import net.minecraft.network.protocol.game.ClientboundBundlePacket
 import net.minecraft.server.level.ServerPlayer
 
 public data class PlayerClientboundPacketEvent(
@@ -38,6 +41,17 @@ public data class PlayerClientboundPacketEvent(
                     this.cancel()
                 } else {
                     this.packet = packet
+                }
+            }
+        }
+
+        public inline fun PlayerClientboundPacketEvent.replacePacketRecursively(
+            replacement: (ServerPlayer, Packet<*>) -> Packet<*>?
+        ) {
+            this.replacePacket { player, packet ->
+                when (packet) {
+                    is ClientboundBundlePacket -> packet.modify(player, replacement)
+                    else -> replacement.invoke(player, packet)
                 }
             }
         }
