@@ -21,6 +21,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.util.Mth
+import net.minecraft.util.random.WeightedList
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntitySpawnReason
 import net.minecraft.world.entity.EntityType
@@ -63,13 +64,24 @@ public fun Entity.addVelocitySmooth(deltas: Vec3) {
     this.addVelocitySmooth(deltas)
 }
 
+/**
+ * This adds velocity to the player on the client-side,
+ * the calculation is also applied server-side for anti-cheat reasons.
+ *
+ * The benefit of this is that since the calculation is done
+ * client-side the velocity will appear smoother, especially
+ * on clients which have a laggier connection.
+ *
+ * @param deltas The velocity deltas to add.
+ */
 public fun ServerPlayer.addVelocitySmooth(deltas: Vec3) {
     this.addDeltaMovement(deltas)
     this.connection.send(ClientboundExplodePacket(
         Vec3(0.0, Int.MAX_VALUE.toDouble(), 0.0),
-        Optional.of(deltas),
+        0.0F, 0, Optional.of(deltas),
         ParticleTypes.CRIT,
-        SoundEvents.NOTE_BLOCK_BASEDRUM
+        SoundEvents.NOTE_BLOCK_BASEDRUM,
+        WeightedList.of()
     ))
 }
 

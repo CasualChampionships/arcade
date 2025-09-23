@@ -5,7 +5,6 @@
 package net.casual.arcade.npc
 
 import com.mojang.authlib.GameProfile
-import com.mojang.authlib.properties.PropertyMap
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import me.senseiwells.debug.api.server.DebugToolsPackets
@@ -18,9 +17,8 @@ import net.casual.arcade.npc.network.FakeLoginPacketListenerImpl
 import net.casual.arcade.npc.pathfinding.navigation.NPCAmphibiousPathNavigation
 import net.casual.arcade.npc.pathfinding.navigation.NPCPathNavigation
 import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.DynamicResolvableProfile
 import net.casual.arcade.utils.PlayerUtils.levelServer
-import net.minecraft.Util
-import net.minecraft.core.UUIDUtil
 import net.minecraft.network.Connection
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket
 import net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket
@@ -37,7 +35,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier
 import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes
 import net.minecraft.world.item.ProjectileWeaponItem
-import net.minecraft.world.item.component.ResolvableProfile
 import net.minecraft.world.level.pathfinder.PathType
 import net.minecraft.world.phys.AABB
 import java.util.*
@@ -177,13 +174,6 @@ public open class FakePlayer protected constructor(
         )
     }
 
-    override fun forceSetRotation(yRot: Float, xRot: Float) {
-        this.yRot = yRot
-        this.setYHeadRot(yRot)
-        this.xRot = xRot
-        this.setOldRot()
-    }
-
     override fun isClientAuthoritative(): Boolean {
         return false
     }
@@ -275,19 +265,14 @@ public open class FakePlayer protected constructor(
         ): CompletableFuture<T> {
             @Suppress("UNCHECKED_CAST")
             return this.joining.getOrPut(username) {
-                val resolvable = ResolvableProfile(Optional.of(username), Optional.empty(), PropertyMap())
-                resolvable.resolve().whenCompleteAsync({ _, throwable ->
+                val resolvable = DynamicResolvableProfile(username)
+                resolvable.resolveProfile(server.services().profileResolver).whenCompleteAsync({ _, throwable ->
                     this.joining.remove(username)
                     if (throwable != null) {
                         ArcadeUtils.logger.error("Fake player $username failed to join", throwable)
                     }
                 }, server).thenCompose { resolved ->
-                    val profile = if (resolved.id.get() == Util.NIL_UUID) {
-                        GameProfile(UUIDUtil.createOfflinePlayerUUID(username), username)
-                    } else {
-                        resolved.gameProfile
-                    }
-                    this.join(server, profile, supplier)
+                    this.join(server, resolved, supplier)
                 }
             } as CompletableFuture<T>
         }
@@ -297,12 +282,12 @@ public open class FakePlayer protected constructor(
             uuid: UUID,
             supplier: (MinecraftServer, ServerLevel, GameProfile) -> T
         ): CompletableFuture<T> {
-            val resolvable = ResolvableProfile(Optional.empty(), Optional.of(uuid), PropertyMap())
-            return resolvable.resolve().thenComposeAsync({ resolved ->
-                if (resolved.name.get().isEmpty()) {
+            val resolvable = DynamicResolvableProfile(uuid)
+            return resolvable.resolveProfile(server.services().profileResolver).thenComposeAsync({ resolved ->
+                if (resolved.name.isEmpty()) {
                     throw IllegalStateException("Resolved name was empty")
                 }
-                this.join(server, resolved.gameProfile, supplier)
+                this.join(server, resolved, supplier)
             }, server)
         }
 

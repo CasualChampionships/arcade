@@ -12,7 +12,7 @@ import net.casual.arcade.dimensions.utils.hasCustomLevel
 import net.casual.arcade.dimensions.utils.removeCustomLevel
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.utils.MinigameUtils.minigame
-import net.minecraft.core.BlockPos
+import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.minecraft.core.Vec3i
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
@@ -169,19 +169,21 @@ public class MinigameLevelManager(
     }
 
     public interface SpawnLocation {
-        public fun level(player: ServerPlayer): ServerLevel?
+        public val overridesPlayerSpawnPoint: Boolean
+            get() = false
 
-        public fun position(player: ServerPlayer): BlockPos?
+        public fun get(player: ServerPlayer): LocationWithLevel<ServerLevel>?
 
         public companion object {
-            public fun global(level: ServerLevel? = null, position: BlockPos? = null): SpawnLocation {
+            public fun global(
+                location: LocationWithLevel<ServerLevel>? = null,
+                overridesPlayerSpawnPoint: Boolean = false
+            ): SpawnLocation {
                 return object: SpawnLocation {
-                    override fun level(player: ServerPlayer): ServerLevel? {
-                        return level
-                    }
+                    override val overridesPlayerSpawnPoint: Boolean = overridesPlayerSpawnPoint
 
-                    override fun position(player: ServerPlayer): BlockPos? {
-                        return position
+                    override fun get(player: ServerPlayer): LocationWithLevel<ServerLevel>? {
+                        return location
                     }
                 }
             }

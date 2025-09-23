@@ -26,19 +26,19 @@ public abstract class MinecraftServerMixin {
 
     @Shadow private int emptyTicks;
 
-    @Shadow protected abstract int pauseWhileEmptySeconds();
+    @Shadow protected abstract int pauseWhenEmptySeconds();
 
     @Inject(
         method = "tickServer",
         at = @At("HEAD")
     )
     private void onPauseServer(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        int pauseWhileEmptyTicks = this.pauseWhileEmptySeconds() * 20;
-        if (pauseWhileEmptyTicks <= 0) {
+        int pauseWhenEmptyTicks = this.pauseWhenEmptySeconds() * 20;
+        if (pauseWhenEmptyTicks <= 0) {
             return;
         }
 
-        if (this.emptyTicks == pauseWhileEmptyTicks) {
+        if (this.emptyTicks == pauseWhenEmptyTicks) {
             for (ReplayChunkRecorder recorder : ReplayChunkRecorders.recorders()) {
                 recorder.pause(true);
                 this.arcade$paused.add(recorder);

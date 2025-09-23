@@ -8,7 +8,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.casual.arcade.dimensions.level.spawner.CustomMobSpawningRules;
 import net.casual.arcade.dimensions.level.spawner.extension.LevelCustomMobSpawningExtension;
-import net.casual.arcade.extensions.event.LevelExtensionEvent;
+import net.casual.arcade.extensions.utils.ExtensionUtilsKt;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ChunkPos;
@@ -33,7 +33,7 @@ public class NaturalSpawnerMixin {
 		Operation<Boolean> original,
 		ServerLevel level
 	) {
-		LevelCustomMobSpawningExtension extension = LevelExtensionEvent.getExtension(level, LevelCustomMobSpawningExtension.class);
+		LevelCustomMobSpawningExtension extension = ExtensionUtilsKt.getExtension(level, LevelCustomMobSpawningExtension.class);
 		CustomMobSpawningRules rules = extension.getRules();
 		if (rules == null) {
 			return original.call(instance, category, pos);

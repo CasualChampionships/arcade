@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.casual.arcade.dimensions.level.vanilla.VanillaLikeLevel;
 import net.casual.arcade.dimensions.level.vanilla.extension.DragonDataExtension;
 import net.casual.arcade.extensions.event.LevelExtensionEvent;
+import net.casual.arcade.extensions.utils.ExtensionUtilsKt;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
@@ -62,7 +63,7 @@ public abstract class ServerLevelMixin extends Level {
 			if (this.dragonFight == null && VanillaLikeLevel.getLikeDimension(this) == Level.END && this.dimensionTypeRegistration().is(BuiltinDimensionTypes.END)) {
 				ServerLevel level = (ServerLevel) (Object) this;
 				// We use an extension here because dragon data by default is stored for the entire server. We need it per level
-				DragonDataExtension extension = LevelExtensionEvent.getExtension(level, DragonDataExtension.class);
+				DragonDataExtension extension = ExtensionUtilsKt.getExtension(level, DragonDataExtension.class);
 				this.dragonFight = new EndDragonFight(level, this.getSeed(), extension.getDataOrDefault());
 			}
 		}));

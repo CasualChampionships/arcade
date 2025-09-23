@@ -13,7 +13,6 @@ import net.casual.arcade.dimensions.mixins.level.ServerLevelAccessor
 import net.casual.arcade.dimensions.utils.LevelPersistenceTracker
 import net.casual.arcade.dimensions.utils.getDimensionPath
 import net.casual.arcade.dimensions.utils.impl.DerivedLevelData
-import net.casual.arcade.dimensions.utils.impl.NullChunkProgressListener
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.get
 import net.minecraft.nbt.CompoundTag
@@ -24,14 +23,18 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.ProgressListener
+import net.minecraft.world.Difficulty
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.TicketStorage
 import net.minecraft.world.level.biome.BiomeManager
+import net.minecraft.world.level.storage.LevelData
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.io.IOException
 import java.nio.file.Path
+import java.util.*
 import java.util.concurrent.Executor
+import kotlin.collections.ArrayList
 import kotlin.io.path.createParentDirectories
 
 /**
@@ -72,7 +75,6 @@ public open class CustomLevel(
     DerivedLevelData(properties, options, server.worldData, server.worldData.overworldData()),
     key,
     options.stem.value(),
-    NullChunkProgressListener,
     options.debug,
     BiomeManager.obfuscateSeed(options.seed),
     ArrayList(),
@@ -97,7 +99,9 @@ public open class CustomLevel(
     public open fun onLoad() {
         this.loadCustomSpawners()
         this.loadForcedChunks()
-        this.setSpawnSettings(this.server.isSpawningMonsters)
+        this.setSpawnSettings(
+            this.levelData.difficulty != Difficulty.PEACEFUL && this.gameRules.get(GameRules.RULE_SPAWN_MONSTERS)
+        )
     }
 
     /**
@@ -128,6 +132,18 @@ public open class CustomLevel(
 
     override fun getSeed(): Long {
         return this.derivedLevelData.options.seed
+    }
+
+    override fun setRespawnData(respawnData: LevelData.RespawnData) {
+        if (this.properties.respawnData.isPresent) {
+            this.properties.respawnData = Optional.of(respawnData)
+            return
+        }
+        super.setRespawnData(respawnData)
+    }
+
+    override fun getRespawnData(): LevelData.RespawnData {
+        return this.properties.respawnData.orElseGet { super.getRespawnData() }
     }
 
     override fun save(progress: ProgressListener?, flush: Boolean, skip: Boolean) {

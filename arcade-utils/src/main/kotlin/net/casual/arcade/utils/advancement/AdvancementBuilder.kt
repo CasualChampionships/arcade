@@ -51,7 +51,7 @@ public class AdvancementBuilder {
     /**
      * The background image for the advancement display.
      */
-    public var background: ClientAsset? = null
+    public var background: ClientAsset.ResourceTexture? = null
 
     /**
      * The [AdvancementType] for the advancement.
@@ -150,7 +150,7 @@ public class AdvancementBuilder {
      * @param background The advancement background.
      * @return This [AdvancementBuilder] instance.
      */
-    public fun background(background: ClientAsset): AdvancementBuilder {
+    public fun background(background: ClientAsset.ResourceTexture): AdvancementBuilder {
         this.background = background
         return this
     }
@@ -162,7 +162,7 @@ public class AdvancementBuilder {
      * @return This [AdvancementBuilder] instance.
      */
     public fun background(background: ResourceLocation): AdvancementBuilder {
-        this.background = ClientAsset(background)
+        this.background = ClientAsset.ResourceTexture(background)
         return this
     }
 

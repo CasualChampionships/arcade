@@ -17,16 +17,10 @@ import org.spongepowered.asm.mixin.injection.At;
 public class EndPortalBlockMixin {
 	@ModifyExpressionValue(
 		method = "getPortalDestination",
-		at = {
-			@At(
-				value = "FIELD",
-				target = "Lnet/minecraft/world/level/Level;END:Lnet/minecraft/resources/ResourceKey;"
-			),
-			@At(
-				value = "FIELD",
-				target = "Lnet/minecraft/world/level/Level;OVERWORLD:Lnet/minecraft/resources/ResourceKey;"
-			)
-		}
+		at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/world/level/Level;END:Lnet/minecraft/resources/ResourceKey;"
+        )
 	)
 	private ResourceKey<Level> replaceVanillaKey(ResourceKey<Level> original, ServerLevel level) {
 		return VanillaLikeLevel.getReplacementDestinationFor(level, original);

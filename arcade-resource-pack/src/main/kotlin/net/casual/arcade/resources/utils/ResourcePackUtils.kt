@@ -299,7 +299,7 @@ public object ResourcePackUtils {
                 }
             }
             val modelsPath = "assets/$namespace/models/item/"
-            builder.forEachFile { path, _ ->
+            builder.forEachResource { path, _ ->
                 if (path.startsWith(modelsPath)) {
                     val definition = path.removePrefix(modelsPath)
                     val name = definition.substringAfterLast('/')

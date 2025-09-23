@@ -28,6 +28,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator
 import net.minecraft.world.level.dimension.DimensionType
 import net.minecraft.world.level.dimension.LevelStem
 import net.minecraft.world.level.levelgen.WorldOptions
+import net.minecraft.world.level.storage.LevelData.RespawnData
 import org.apache.commons.lang3.mutable.MutableLong
 import org.jetbrains.annotations.ApiStatus.Experimental
 import java.util.*
@@ -332,6 +333,17 @@ public class CustomLevelBuilder {
     public fun simulationDistance(chunks: Int): CustomLevelBuilder {
         require(chunks >= 1) { "Simulation distance must be a positive integer" }
         this.properties.simulationDistance = Optional.of(chunks)
+        return this
+    }
+
+    /**
+     * Sets the respawn data for this level.
+     *
+     * @param data The respawn location and position.
+     * @return This builder.
+     */
+    public fun respawnData(data: RespawnData): CustomLevelBuilder {
+        this.properties.respawnData = Optional.of(data)
         return this
     }
 

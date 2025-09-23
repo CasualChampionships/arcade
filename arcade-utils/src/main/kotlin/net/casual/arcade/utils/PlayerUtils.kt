@@ -18,6 +18,7 @@ import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction8
+import net.minecraft.core.GlobalPos
 import net.minecraft.core.Holder
 import net.minecraft.core.SectionPos
 import net.minecraft.core.particles.ParticleOptions
@@ -42,6 +43,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.GameType
+import net.minecraft.world.level.storage.LevelData
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.scores.PlayerTeam
@@ -134,13 +136,12 @@ public object PlayerUtils {
         force: Boolean = true,
         notify: Boolean = false
     ) {
-        val config = ServerPlayer.RespawnConfig(
-            location.level.dimension(),
-            BlockPos.containing(location.position),
+        val data = LevelData.RespawnData(
+            GlobalPos(location.level.dimension(), BlockPos.containing(location.position)),
             location.yRot,
-            force
+            location.xRot
         )
-        this.setRespawnPosition(config, notify)
+        this.setRespawnPosition(ServerPlayer.RespawnConfig(data, force), notify)
     }
 
     @JvmStatic

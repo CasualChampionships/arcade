@@ -24,7 +24,7 @@ public class EntityMixin {
         at = @At("HEAD")
     )
     private void onTickPre(CallbackInfo ci) {
-        if (!this.level.isClientSide) {
+        if (!this.level.isClientSide()) {
             EntityTickEvent event = new EntityTickEvent((Entity) (Object) this);
             GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
         }
@@ -35,7 +35,7 @@ public class EntityMixin {
         at = @At("HEAD")
     )
     private void onTickPost(CallbackInfo ci) {
-        if (!this.level.isClientSide) {
+        if (!this.level.isClientSide()) {
             EntityTickEvent event = new EntityTickEvent((Entity) (Object) this);
             GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
         }

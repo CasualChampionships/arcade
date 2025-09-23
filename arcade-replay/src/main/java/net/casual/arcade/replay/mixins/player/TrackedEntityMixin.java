@@ -4,8 +4,12 @@
  */
 package net.casual.arcade.replay.mixins.player;
 
+import com.llamalad7.mixinextras.sugar.Local;
+import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder;
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder;
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorders;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerPlayer;
@@ -44,6 +48,16 @@ public class TrackedEntityMixin {
             for (ReplayPlayerRecorder recorder : ReplayPlayerRecorders.get(player)) {
                 recorder.spawnPlayer(this.serverEntity);
             }
+        }
+    }
+
+    @Inject(
+        method = {"sendToTrackingPlayers", "sendToTrackingPlayersFiltered"},
+        at = @At("HEAD")
+    )
+    private void onBroadcast(CallbackInfo ci, @Local(argsOnly = true) Packet<? super ClientGamePacketListener> packet) {
+        if (this.entity instanceof ServerPlayer player) {
+            ReplayPlayerRecorders.record(player, packet);
         }
     }
 

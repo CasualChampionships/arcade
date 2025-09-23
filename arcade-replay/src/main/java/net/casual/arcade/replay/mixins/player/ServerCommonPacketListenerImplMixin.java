@@ -33,7 +33,7 @@ public abstract class ServerCommonPacketListenerImplMixin {
         )
     )
     private void onPacket(Packet<?> packet, ChannelFutureListener sendListener, CallbackInfo ci) {
-		ReplayPlayerRecorders.record(this.playerProfile().getId(), packet);
+		ReplayPlayerRecorders.record(this.playerProfile().id(), packet);
     }
 
     @Inject(
@@ -41,7 +41,7 @@ public abstract class ServerCommonPacketListenerImplMixin {
         at = @At("TAIL")
     )
     private void onDisconnect(DisconnectionDetails disconnectionDetails, CallbackInfo ci) {
-        ReplayPlayerRecorders.stop(this.playerProfile().getId());
+        ReplayPlayerRecorders.stop(this.playerProfile().id());
 
         if (this instanceof ReplayViewable viewable) {
             ReplayViewer viewer = viewable.arcade$getViewingReplay();

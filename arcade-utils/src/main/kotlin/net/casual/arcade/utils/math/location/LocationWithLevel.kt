@@ -82,6 +82,7 @@ public data class LocationWithLevel<L: Level>(
             return LocationWithLevel(Location(position, rotation), this)
         }
 
+        @JvmStatic
         public fun LocationWithLevel<ServerLevel>.asTeleportTransition(
             velocity: Vec3 = Vec3.ZERO,
             missingRespawnBlock: Boolean = false,

@@ -11,6 +11,7 @@ import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorders;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.particles.ExplosionParticleInfo;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
@@ -19,6 +20,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
@@ -90,14 +92,16 @@ public abstract class ServerLevelMixin extends Level {
         ExplosionInteraction interaction,
         ParticleOptions smallParticles,
         ParticleOptions largeParticles,
+        WeightedList<ExplosionParticleInfo> infos,
         Holder<SoundEvent> sound,
         CallbackInfo ci,
         @Local Vec3 pos,
-        @Local(ordinal = 2) ParticleOptions particles
+        @Local(ordinal = 2) ParticleOptions particles,
+        @Local int blocks
     ) {
         ChunkPos chunkPos = new ChunkPos(BlockPos.containing(posX, posY, posZ));
         for (ReplayChunkRecorder recorder : ReplayChunkRecorders.containing(this.dimension(), chunkPos)) {
-            recorder.record(new ClientboundExplodePacket(pos, Optional.empty(), particles, sound));
+            recorder.record(new ClientboundExplodePacket(pos, radius, blocks, Optional.empty(), particles, sound, infos));
         }
     }
 

@@ -1,28 +1,28 @@
 [versions]
-minecraft           = "1.21.8"
-fabric-loader       = "0.16.14"
-parchment           = "1.21.6:2025.06.29"
-fabric-api          = "0.129.0+1.21.8"
+minecraft           = "1.21.9-pre3"
+fabric-loader       = "0.17.2"
+parchment           = "1.21.8:2025.09.14"
+fabric-api          = "0.133.10+1.21.9"
 fabric-kotlin       = "1.13.5+kotlin.2.2.10"
-polymer             = "0.13.7+1.21.8"
-sgui                = "1.10.1+1.21.7"
-server-translations = "2.5.1+1.21.5"
+polymer             = "0.14.0-beta.1+1.21.9-pre1"
+sgui                = "1.11.0-rc.1+1.21.9"
+server-translations = "c+1.21.9-pre2"
 inject              = "3.1.4"
 debug-tools-api     = "1.0.17"
 replay-studio       = "3fdc6c42e3"
 
 # Compatability
 carpet        = "1.4.177"
-voicechat     = "fabric-1.21.8-2.6.2"
-voicechat-api = "2.5.31"
-vmp           = "0.2.0+beta.7.205+1.21.8"
-c2me          = "0.3.5+alpha.0.3+1.21.8"
+voicechat     = "fabric-1.21.9-pre3-2.6.4"
+voicechat-api = "2.6.0"
+vmp           = "0.2.0+beta.7.210+1.21.9-pre1"
+c2me          = "0.3.5+alpha.0.28+1.21.9-pre3"
 
 # Plugins
 fabric-loom = "1.11-SNAPSHOT"
 spotless    = "7.1.0"
-shadow        = "8.3.5"
-explosion     = "0.3.1"
+shadow      = "8.3.5"
+explosion   = "0.3.1"
 
 [libraries]
 minecraft              = { module = "com.mojang:minecraft"                 , version.ref = "minecraft" }

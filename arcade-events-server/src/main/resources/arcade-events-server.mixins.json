@@ -24,7 +24,7 @@
     "PlayerAdvancementsMixin",
     "PlayerListMixin",
     "PlayerMixin",
-    "RandomizbleContainerMixin",
+    "RandomizableContainerMixin",
     "RegistryDataLoaderMixin",
     "ScoreboardMixin",
     "ServerboundTeleportToEntityPacketAccessor",

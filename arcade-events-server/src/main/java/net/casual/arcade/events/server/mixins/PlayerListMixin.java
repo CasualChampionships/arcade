@@ -26,6 +26,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.server.players.PlayerList;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -123,9 +124,9 @@ public class PlayerListMixin {
 	private Component onPlayerCanLogin(
 		Component original,
 		SocketAddress socketAddress,
-		GameProfile gameProfile
+        NameAndId nameAndId
 	) {
-		PlayerRequestLoginEvent event = new PlayerRequestLoginEvent(this.server, gameProfile, socketAddress);
+		PlayerRequestLoginEvent event = new PlayerRequestLoginEvent(this.server, nameAndId, socketAddress);
 		if (original != null) {
 			event.deny(original);
 		}

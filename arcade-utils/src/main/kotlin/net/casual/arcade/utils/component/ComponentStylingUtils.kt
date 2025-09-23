@@ -12,6 +12,7 @@ import net.casual.arcade.utils.color.ColorOklab
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.FontDescription
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.HoverEvent.EntityTooltipInfo
 import net.minecraft.network.chat.MutableComponent
@@ -357,11 +358,21 @@ public fun MutableComponent.hover(stack: ItemStack): MutableComponent {
 /**
  * Sets the font of the component to the given [font].
  *
+ * @param font The font description.
+ * @return [this]
+ */
+public fun MutableComponent.font(font: FontDescription): MutableComponent {
+    return this.withStyle { style -> style.withFont(font) }
+}
+
+/**
+ * Sets the font of the component to the given [font].
+ *
  * @param font The resource location of the font to use.
  * @return [this]
  */
 public fun MutableComponent.font(font: ResourceLocation): MutableComponent {
-    return this.withStyle { style -> style.withFont(font) }
+    return this.font(FontDescription.Resource(font))
 }
 
 /**

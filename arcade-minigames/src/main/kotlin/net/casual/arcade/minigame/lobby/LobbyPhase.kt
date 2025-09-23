@@ -10,6 +10,7 @@ import net.casual.arcade.utils.ArcadeUtils
 import net.minecraft.world.level.GameType
 import net.minecraft.world.scores.Team
 
+@Deprecated("You should implement your own lobby minigame implementation")
 public enum class LobbyPhase(override val id: String): Phase<LobbyMinigame> {
     Waiting("waiting") {
         override fun initialize(minigame: LobbyMinigame) {

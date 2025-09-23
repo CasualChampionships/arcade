@@ -10,12 +10,13 @@ import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.component.ComponentBuilderContext
 import net.casual.arcade.utils.component.font
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.FontDescription
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Style
 import net.minecraft.resources.ResourceLocation
 
 public fun MutableComponent.withDefaultFont(): MutableComponent {
-    return this.font(Style.DEFAULT_FONT)
+    return this.font(FontDescription.DEFAULT)
 }
 
 public fun MutableComponent.withSpacingFont(): MutableComponent {

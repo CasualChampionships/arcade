@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.replay.mixins.chunk;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecordable;
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder;
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorders;
@@ -43,10 +44,10 @@ public class TrackedEntityMixin implements ReplayChunkRecordable {
     ServerEntity serverEntity;
 
     @Inject(
-        method = "broadcast",
+        method = {"sendToTrackingPlayers", "sendToTrackingPlayersFiltered"},
         at = @At("HEAD")
     )
-    private void onBroadcast(Packet<?> packet, CallbackInfo ci) {
+    private void onBroadcast(CallbackInfo ci, @Local(argsOnly = true) Packet<? super ClientGamePacketListener> packet) {
         for (ReplayChunkRecorder recorder : this.replay$chunks) {
             recorder.record(packet);
         }

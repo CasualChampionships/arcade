@@ -34,6 +34,7 @@ public object MinigameRegistries: RegistrySupplier() {
     public val ENTITY_TELEPORTER: Registry<MapCodec<out EntityTeleporter>> = create(MinigameRegistryKeys.ENTITY_TELEPORTER, EntityTeleporter::bootstrap)
     public val MINIGAME_CHAT_MODES: Registry<MapCodec<out MinigameChatMode>> = create(MinigameRegistryKeys.MINIGAME_CHAT_MODE, MinigameChatMode::bootstrap)
     public val MINIGAME_FACTORY: Registry<MapCodec<out MinigameFactory>> = create(MinigameRegistryKeys.MINIGAME_FACTORY, MinigameFactory::bootstrap)
+    @Deprecated("This API is being removed, you should implement your own")
     public val MINIGAMES_EVENT: Registry<MapCodec<out MinigamesTemplate>> = create(MinigameRegistryKeys.MINIGAMES_EVENT, MinigamesTemplate::bootstrap)
     public val MINIGAME_DATA_MODULE_PROVIDER: Registry<MinigameDataModule.Provider> = create(MinigameRegistryKeys.MINIGAME_DATA_MODULE_PROVIDER, MinigameDataModule.Provider::bootstrap)
     public val STAT_TYPES: Registry<StatType<*>> = create(MinigameRegistryKeys.STAT_TYPES) { ArcadeStats.load() }

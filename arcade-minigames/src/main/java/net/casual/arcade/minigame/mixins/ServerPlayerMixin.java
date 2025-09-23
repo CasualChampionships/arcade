@@ -6,28 +6,35 @@ package net.casual.arcade.minigame.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.casual.arcade.minigame.Minigame;
+import net.casual.arcade.minigame.managers.MinigameLevelManager;
 import net.casual.arcade.minigame.managers.MinigamePlayerManager;
 import net.casual.arcade.minigame.utils.MinigameUtils;
-import net.minecraft.core.BlockPos;
+import net.casual.arcade.utils.math.location.LocationWithLevel;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ServerPlayer.class)
-public class ServerPlayerMixin {
-	@Shadow @Final private MinecraftServer server;
+import java.util.Set;
 
-	@ModifyExpressionValue(
+@Mixin(ServerPlayer.class)
+public abstract class ServerPlayerMixin {
+    @ModifyExpressionValue(
 		method = "isPvpAllowed",
 		at = @At(
 			value = "INVOKE",
@@ -68,47 +75,62 @@ public class ServerPlayerMixin {
 		}
 	}
 
-	@Inject(
-		method = "adjustSpawnLocation",
-		at = @At("HEAD"),
-		cancellable = true
-	)
-	private void modifyAdjustedSpawnLocation(
-		ServerLevel level,
-		BlockPos pos,
-		CallbackInfoReturnable<BlockPos> cir
-	) {
-		ServerPlayer player = (ServerPlayer) (Object) this;
-		ServerPlayer old = this.server.getPlayerList().getPlayer(player.getUUID());
-		if (old != null) {
-			Minigame minigame = MinigameUtils.getMinigame(old);
-			if (minigame != null) {
-				BlockPos spawnPosition = minigame.getLevels().getSpawn().position(player);
-				if (spawnPosition != null) {
-					cir.setReturnValue(spawnPosition);
-				}
-			}
-		}
-	}
+    @Inject(
+        method = "findRespawnPositionAndUseSpawnBlock",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void onFindRespawnPositionAndUseSpawnBlock(
+        boolean useCharge,
+        TeleportTransition.PostTeleportTransition post,
+        CallbackInfoReturnable<TeleportTransition> cir
+    ) {
+        ServerPlayer player = (ServerPlayer) (Object) this;
+        TeleportTransition transition = this.getMinigameSpawn(player, false, post, true);
+        if (transition != null) {
+            cir.setReturnValue(transition);
+        }
+    }
 
-	@ModifyExpressionValue(
-		method = "findRespawnPositionAndUseSpawnBlock",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/server/MinecraftServer;overworld()Lnet/minecraft/server/level/ServerLevel;"
-		)
-	)
-	private ServerLevel getDefaultRespawnDimension(ServerLevel original) {
-		ServerPlayer player = (ServerPlayer) (Object) this;
-		Minigame minigame = MinigameUtils.getMinigame(player);
-		if (minigame != null) {
-			ServerLevel spawn = minigame.getLevels().getSpawn().level(player);
-			if (spawn != null) {
-				return spawn;
-			}
-		}
-		return original;
-	}
+    @WrapOperation(
+        method = "findRespawnPositionAndUseSpawnBlock",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/level/portal/TeleportTransition;missingRespawnBlock(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/level/portal/TeleportTransition$PostTeleportTransition;)Lnet/minecraft/world/level/portal/TeleportTransition;"
+        )
+    )
+    private TeleportTransition onFindMissingRespawnPosition(
+        ServerPlayer player,
+        TeleportTransition.PostTeleportTransition post,
+        Operation<TeleportTransition> original
+    ) {
+        TeleportTransition transition = this.getMinigameSpawn(player, true, post, false);
+        if (transition != null) {
+            return transition;
+        }
+
+        return original.call(player, post);
+    }
+
+    @WrapOperation(
+        method = "findRespawnPositionAndUseSpawnBlock",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/level/portal/TeleportTransition;createDefault(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/level/portal/TeleportTransition$PostTeleportTransition;)Lnet/minecraft/world/level/portal/TeleportTransition;"
+        )
+    )
+    private TeleportTransition onFindDefaultRespawnPosition(
+        ServerPlayer player,
+        TeleportTransition.PostTeleportTransition post,
+        Operation<TeleportTransition> original
+    ) {
+        TeleportTransition transition = this.getMinigameSpawn(player, false, post, false);
+        if (transition != null) {
+            return transition;
+        }
+
+        return original.call(player, post);
+    }
 
 	@WrapWithCondition(
 		method = "restoreFrom",
@@ -131,4 +153,30 @@ public class ServerPlayerMixin {
 	private boolean onIsKeepInventoryEnabled(boolean original) {
 		return MinigamePlayerManager.LOCAL_TRANSITION.get() == null && original;
 	}
+
+    @Unique
+    @Nullable
+    private TeleportTransition getMinigameSpawn(
+        ServerPlayer player,
+        boolean missingRespawnBlock,
+        TeleportTransition.PostTeleportTransition post,
+        boolean requiresOverrideSpawnPoint
+    ) {
+        Minigame minigame = MinigameUtils.getMinigame(player);
+        if (minigame == null) {
+            return null;
+        }
+        MinigameLevelManager.SpawnLocation spawn = minigame.getLevels().getSpawn();
+        if (requiresOverrideSpawnPoint && !spawn.getOverridesPlayerSpawnPoint()) {
+            return null;
+        }
+
+        LocationWithLevel<ServerLevel> location = minigame.getLevels().getSpawn().get(player);
+        if (location != null) {
+            return LocationWithLevel.asTeleportTransition(
+                location, Vec3.ZERO, missingRespawnBlock, false, Set.of(), post
+            );
+        }
+        return null;
+    }
 }

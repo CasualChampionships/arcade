@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.utils
 
+import com.google.common.collect.HashMultimap
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.Property
 import com.mojang.authlib.properties.PropertyMap
@@ -23,7 +24,6 @@ import net.minecraft.world.item.Items
 import net.minecraft.world.item.alchemy.Potion
 import net.minecraft.world.item.alchemy.PotionContents
 import net.minecraft.world.item.component.ItemLore
-import net.minecraft.world.item.component.ResolvableProfile
 import net.minecraft.world.item.component.TooltipDisplay
 import net.minecraft.world.item.enchantment.Enchantment
 import net.minecraft.world.item.enchantment.EnchantmentHelper
@@ -220,19 +220,18 @@ public object ItemUtils {
     @JvmOverloads
     public fun createTexturedHead(texture: String, item: Item = Items.PLAYER_HEAD): ItemStack {
         val stack = ItemStack(item)
-        val properties = PropertyMap()
+        val properties = PropertyMap(HashMultimap.create())
         properties.put("textures", Property("textures", texture))
-        val profile = ResolvableProfile(Optional.empty(), Optional.empty(), properties)
-
+        val profile = StaticResolvableProfile(properties = properties)
         stack.set(DataComponents.PROFILE, profile)
         return stack
     }
 
     @JvmStatic
     @JvmOverloads
-    public fun createPlayerHead(name: String, item: Item = Items.PLAYER_HEAD): ItemStack {
+    public fun createPlayerHead(username: String, item: Item = Items.PLAYER_HEAD): ItemStack {
         val stack = ItemStack(item)
-        val profile = ResolvableProfile(Optional.of(name), Optional.empty(), PropertyMap())
+        val profile = DynamicResolvableProfile(username)
         stack.set(DataComponents.PROFILE, profile)
         return stack
     }
@@ -241,7 +240,7 @@ public object ItemUtils {
     @JvmOverloads
     public fun createPlayerHead(uuid: UUID, item: Item = Items.PLAYER_HEAD): ItemStack {
         val stack = ItemStack(item)
-        val profile = ResolvableProfile(Optional.empty(), Optional.of(uuid), PropertyMap())
+        val profile = DynamicResolvableProfile(uuid)
         stack.set(DataComponents.PROFILE, profile)
         return stack
     }
@@ -250,7 +249,7 @@ public object ItemUtils {
     @JvmOverloads
     public fun createPlayerHead(profile: GameProfile, item: Item = Items.PLAYER_HEAD): ItemStack {
         val stack = ItemStack(item)
-        stack.set(DataComponents.PROFILE, ResolvableProfile(profile))
+        stack.set(DataComponents.PROFILE, StaticResolvableProfile(profile))
         return stack
     }
 

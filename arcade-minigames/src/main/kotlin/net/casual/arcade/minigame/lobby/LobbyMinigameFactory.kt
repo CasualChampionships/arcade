@@ -17,6 +17,7 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.Level
 
+@Deprecated("You should implement your own lobby minigame implementation")
 public data class LobbyMinigameFactory(
     private val dimension: ResourceKey<Level> = Level.OVERWORLD,
     private val area: PlaceableAreaTemplate = PlaceableAreaTemplate.DEFAULT,

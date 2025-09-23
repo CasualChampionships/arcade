@@ -28,16 +28,14 @@ public class ServerConfigurationPacketListenerImplMixin {
         method = "handleConfigurationFinished",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/players/PlayerList;placeNewPlayer(Lnet/minecraft/network/Connection;Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/server/network/CommonListenerCookie;)V",
-            shift = At.Shift.BEFORE
+            target = "Lnet/minecraft/server/network/config/PrepareSpawnTask;spawnPlayer(Lnet/minecraft/network/Connection;Lnet/minecraft/server/network/CommonListenerCookie;)Lnet/minecraft/server/level/ServerPlayer;"
         )
     )
-    @SuppressWarnings("DiscouragedShift")
     private void beforePlacePlayer(
         ServerboundFinishConfigurationPacket serverboundFinishConfigurationPacket,
         CallbackInfo ci
     ) {
-        Collection<ReplayPlayerRecorder> recorder = ReplayPlayerRecorders.get(this.gameProfile.getId());
+        Collection<ReplayPlayerRecorder> recorder = ReplayPlayerRecorders.get(this.gameProfile.id());
         recorder.forEach(ReplayPlayerRecorder::afterConfigure);
     }
 }

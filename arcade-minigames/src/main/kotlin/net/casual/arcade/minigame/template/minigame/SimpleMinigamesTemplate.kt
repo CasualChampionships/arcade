@@ -19,6 +19,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 
+@Deprecated("This API is being removed, you should implement your own")
 public open class SimpleMinigamesTemplate(
     override val name: String = "default",
     public val lobby: MinigameFactory = LobbyMinigameFactory.DEFAULT,

@@ -604,7 +604,7 @@ public class ReplayViewer internal constructor(
                 packet.yRot,
                 packet.type,
                 packet.data,
-                Vec3(packet.xa, packet.ya, packet.za),
+                packet.movement,
                 packet.yHeadRot.toDouble()
             )
         }

@@ -26,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 @Mixin(RandomizableContainer.class)
-public interface RandomizbleContainerMixin extends Container {
+public interface RandomizableContainerMixin extends Container {
 	@Shadow @Nullable Level getLevel();
 
 	@Shadow BlockPos getBlockPos();

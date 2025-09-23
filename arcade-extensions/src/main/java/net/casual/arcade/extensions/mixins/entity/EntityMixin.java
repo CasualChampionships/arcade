@@ -41,7 +41,7 @@ public class EntityMixin implements ExtensionHolder {
         Level level,
         CallbackInfo ci
     ) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
 

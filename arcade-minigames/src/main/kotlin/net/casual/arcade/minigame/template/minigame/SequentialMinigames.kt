@@ -30,6 +30,7 @@ import org.jetbrains.annotations.ApiStatus.Experimental
 import java.util.*
 
 @Experimental
+@Deprecated("This API is being removed, you should implement your own")
 public class SequentialMinigames(
     public var event: MinigamesTemplate,
     public val server: MinecraftServer

@@ -8,6 +8,7 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.lobby.LobbyMinigame
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 
+@Deprecated("This API is being removed, you should implement your own")
 public data class LobbyMoveToNextMinigameEvent(
     override val minigame: LobbyMinigame,
     public val next: Minigame

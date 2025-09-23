@@ -42,23 +42,19 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		super(server, connection, cookie);
 	}
 
-	@Inject(
-		method = "tick",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;resetPosition()V"
-		),
-		cancellable = true
-	)
-	private void onTick(CallbackInfo ci) {
-		if (!MinigameUtils.isTicking(this.player)) {
-			this.keepConnectionAlive();
-			ci.cancel();
-		}
-	}
-
 	@ModifyExpressionValue(
 		method = "tick",
+		at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/server/MinecraftServer;isPaused()Z"
+        )
+	)
+	private boolean onTick(boolean original) {
+        return original || !MinigameUtils.isTicking(this.player);
+    }
+
+	@ModifyExpressionValue(
+		method = "tickPlayer",
 		at = @At(
 			value = "FIELD",
 			target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;clientIsFloating:Z",

@@ -41,6 +41,7 @@ import net.casual.arcade.utils.component.green
 import net.casual.arcade.utils.component.join
 import net.casual.arcade.utils.component.lime
 import net.casual.arcade.utils.math.location.LocationWithLevel
+import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
 import net.casual.arcade.utils.time.MinecraftTimeUnit
 import net.casual.arcade.visuals.bossbar.TimerBossbar
 import net.minecraft.commands.CommandSourceStack
@@ -54,6 +55,7 @@ import net.minecraft.world.level.GameRules
 import net.minecraft.world.scores.PlayerTeam
 import java.util.*
 
+@Deprecated("You should implement your own lobby minigame implementation")
 public open class LobbyMinigame(
     server: MinecraftServer,
     uuid: UUID,
@@ -172,8 +174,7 @@ public open class LobbyMinigame(
     private fun onInitialize(event: MinigameInitializeEvent) {
         this.levels.add(this.area.level)
         this.levels.spawn = MinigameLevelManager.SpawnLocation.global(
-            this.area.level,
-            BlockPos.containing(this.spawn.position)
+            this.area.level.asLocation(this.spawn.position)
         )
 
         this.levels.setGameRules {

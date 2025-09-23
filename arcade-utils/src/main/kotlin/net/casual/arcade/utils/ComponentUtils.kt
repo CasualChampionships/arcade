@@ -470,12 +470,12 @@ public object ComponentUtils {
 
     @Deprecated("Use replacement")
     public fun MutableComponent.withFont(font: ResourceLocation): MutableComponent {
-        return this.withStyle { it.withFont(font) }
+        return this.withStyle { it.withFont(FontDescription.Resource(font)) }
     }
 
     @Deprecated("Use replacement")
     public fun MutableComponent.withDefaultFont(): MutableComponent {
-        return this.withFont(Style.DEFAULT_FONT)
+        return this.withStyle { it.withFont(FontDescription.DEFAULT) }
     }
 
     @Deprecated("Use replacement")

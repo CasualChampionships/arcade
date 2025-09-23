@@ -18,6 +18,7 @@ import org.jetbrains.annotations.ApiStatus.Experimental
 import java.util.function.Function
 
 @Experimental
+@Deprecated("This API is being removed, you should implement your own")
 public interface MinigamesTemplate {
     public val name: String
     public val minigames: List<MinigameFactory>

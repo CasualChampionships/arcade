@@ -10,6 +10,7 @@ import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
 import net.casual.arcade.utils.serialization.codec.OrderedRecordCodecBuilder
 import net.minecraft.world.Difficulty
 import net.minecraft.world.level.GameRules
+import net.minecraft.world.level.storage.LevelData
 import org.apache.commons.lang3.mutable.MutableLong
 import java.util.*
 
@@ -32,7 +33,8 @@ public class LevelProperties(
     public var difficulty: Optional<DifficultyProperties> = Optional.empty(),
     public var gameRules: Optional<GameRules> = Optional.empty(),
     public var viewDistance: Optional<Int> = Optional.empty(),
-    public var simulationDistance: Optional<Int> = Optional.empty()
+    public var simulationDistance: Optional<Int> = Optional.empty(),
+    public var respawnData: Optional<LevelData.RespawnData> = Optional.empty()
 ) {
     public class WeatherProperties(
         public var clearWeatherTime: Int = 0,
@@ -73,7 +75,8 @@ public class LevelProperties(
                 DIFFICULTY_CODEC.optionalFieldOf("difficulty").forGetter(LevelProperties::difficulty),
                 ArcadeExtraCodecs.GAMERULES.optionalFieldOf("game_rules").forGetter(LevelProperties::gameRules),
                 Codec.INT.optionalFieldOf("view_distance").forGetter(LevelProperties::viewDistance),
-                Codec.INT.optionalFieldOf("simulation_distance").forGetter(LevelProperties::simulationDistance)
+                Codec.INT.optionalFieldOf("simulation_distance").forGetter(LevelProperties::simulationDistance),
+                LevelData.RespawnData.CODEC.optionalFieldOf("respawn_data").forGetter(LevelProperties::respawnData)
             ).apply(instance, ::LevelProperties)
         }
     }

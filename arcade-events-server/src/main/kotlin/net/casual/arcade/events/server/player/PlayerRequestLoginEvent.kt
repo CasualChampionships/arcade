@@ -8,15 +8,21 @@ import com.mojang.authlib.GameProfile
 import net.casual.arcade.events.common.Event
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.players.NameAndId
 import java.net.SocketAddress
 
 public data class PlayerRequestLoginEvent(
     val server: MinecraftServer,
-    val profile: GameProfile,
+    val identification: NameAndId,
     val address: SocketAddress
 ): Event {
     val isAccepted: Boolean
         get() = this.reason == null
+
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated("Use identification instead")
+    val profile: GameProfile
+        get() = GameProfile(this.identification.id, this.identification.name)
 
     var reason: Component? = null
         private set

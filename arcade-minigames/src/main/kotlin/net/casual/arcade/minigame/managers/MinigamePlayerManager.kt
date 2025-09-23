@@ -38,6 +38,7 @@ import net.minecraft.world.level.portal.TeleportTransition
 import net.minecraft.world.level.storage.TagValueInput
 import net.minecraft.world.level.storage.TagValueOutput
 import net.minecraft.world.level.storage.ValueInput
+import org.jetbrains.annotations.ApiStatus.Experimental
 import org.jetbrains.annotations.ApiStatus.Internal
 import java.nio.file.Files
 import java.nio.file.Path
@@ -128,6 +129,7 @@ public class MinigamePlayerManager(
     public val adminPlayerCount: Int
         get() = this.connections.count { this.isAdmin(it.player) }
 
+    @Experimental
     public var keepPlayerData: Boolean = true
 
     init {
@@ -437,7 +439,9 @@ public class MinigamePlayerManager(
 
         val playerList = this.minigame.server.playerList
         val copy = this.createNewPlayer(existing)
-        val data = (playerList as PlayerListAccessor).playerIo.load(copy, ProblemReporter.DISCARDING)
+        val data = (playerList as PlayerListAccessor).playerIo.load(copy.nameAndId())
+            .map { TagValueInput.create(ProblemReporter.DISCARDING, copy.registryAccess(), it) }
+        data.ifPresent(copy::load)
         this.updatePlayerLocation(copy, data.getOrNull())
         return copy
     }

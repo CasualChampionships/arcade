@@ -307,7 +307,7 @@ private fun ServerLevel.removePlayers() {
 
     val overworld = this.server.overworld()
     for (player in players.toList()) {
-        val position = player.adjustSpawnLocation(overworld, overworld.sharedSpawnPos).bottomCenter
+        val position = player.adjustSpawnLocation(overworld, overworld.respawnData.pos()).bottomCenter
         player.teleportTo(overworld.asLocation(position))
     }
 

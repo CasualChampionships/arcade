@@ -12,11 +12,13 @@ import net.casual.arcade.resources.ArcadeResourcePacks
 import net.casual.arcade.resources.font.pixel.PixelFontResources
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.DynamicResolvableProfile
 import net.casual.arcade.utils.PlayerUtils.levelServer
 import net.casual.arcade.utils.PlayerUtils.player
 import net.casual.arcade.utils.ServerUtils
 import net.casual.arcade.utils.component.color
 import net.casual.arcade.utils.component.wrap
+import net.casual.arcade.utils.resolveProfileOrNull
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer
@@ -100,12 +102,13 @@ public class PlayerHeadComponents(private val shift: Int) {
             return getHead(player, force)
         }
 
-        val future = server.profileCache!!.getAsync(name).thenApply { optional ->
-            if (optional.isEmpty) {
+        val resolver = server.services().profileResolver
+        val future = DynamicResolvableProfile(name).resolveProfileOrNull(resolver).thenApply { profile ->
+            if (profile == null) {
                 invalidNames.add(name)
                 return@thenApply this.steve
             }
-            val uuid = optional.get().id
+            val uuid = profile.id
             // If they're in the uuid cache, they should've been
             // in the nameCache too, but we might as well check...
             val cached = this.uuidCache.getIfPresent(uuid)
@@ -113,9 +116,6 @@ public class PlayerHeadComponents(private val shift: Int) {
                 return@thenApply cached.join()
             }
 
-            // The previous profile didn't have textures
-            val profile = server.sessionService.fetchProfile(uuid, true)?.profile
-                ?: return@thenApply this.steve
             val skinUrl = this.getSkinUrl(profile, server) ?: return@thenApply this.steve
             val component = generateHead(skinUrl)
             if (existing != null) {
@@ -141,7 +141,7 @@ public class PlayerHeadComponents(private val shift: Int) {
     }
 
     private fun getSkinUrl(profile: GameProfile, server: MinecraftServer): String? {
-        return server.sessionService.getTextures(profile).skin?.url
+        return server.services().sessionService.getTextures(profile).skin?.url
     }
 
     private fun createSteveHead(): Component {
@@ -205,6 +205,7 @@ public class PlayerHeadComponents(private val shift: Int) {
         return Color(r, g, b, a)
     }
 
+    // TODO: Add vanilla's head component support
     public companion object {
         private val components = Int2ObjectOpenHashMap<PlayerHeadComponents>()
 
