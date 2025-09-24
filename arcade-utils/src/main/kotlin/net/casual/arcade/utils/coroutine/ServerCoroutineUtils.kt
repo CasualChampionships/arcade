@@ -2,15 +2,12 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.scheduler.coroutine
+package net.casual.arcade.utils.coroutine
 
-import it.unimi.dsi.fastutil.objects.Reference2ObjectFunction
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
 import kotlinx.coroutines.*
-import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
-import net.casual.arcade.events.server.ServerStopEvent
 import net.minecraft.server.MinecraftServer
+import org.jetbrains.annotations.ApiStatus
 import java.util.function.Function
 
 private val dispatchers = Reference2ObjectOpenHashMap<MinecraftServer, CoroutineScope>()
@@ -29,10 +26,9 @@ public fun <T> MinecraftServer.async(block: suspend CoroutineScope.() -> T): Def
     return dispatcher.async(block = block)
 }
 
-internal object ServerCoroutineUtils {
-    fun registerEvents() {
-        GlobalEventHandler.Server.register<ServerStopEvent> { (server) ->
-            dispatchers.remove(server)?.coroutineContext?.cancelChildren()
-        }
+@ApiStatus.Internal
+public object ServerCoroutineUtils {
+    public fun stopServer(server: MinecraftServer) {
+        dispatchers.remove(server)?.coroutineContext?.cancelChildren()
     }
 }

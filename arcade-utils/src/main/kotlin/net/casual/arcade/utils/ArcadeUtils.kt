@@ -4,6 +4,9 @@
  */
 package net.casual.arcade.utils
 
+import net.casual.arcade.utils.coroutine.ServerCoroutineUtils
+import net.casual.arcade.utils.registries.ArcadeUtilsRegistries
+import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
 import net.minecraft.resources.ResourceLocation
@@ -15,7 +18,7 @@ import java.util.function.Consumer
 import kotlin.io.path.createDirectories
 import kotlin.jvm.optionals.getOrNull
 
-public object ArcadeUtils {
+public object ArcadeUtils: ModInitializer {
     public const val MOD_ID: String = "arcade"
 
     @JvmField
@@ -47,5 +50,9 @@ public object ArcadeUtils {
     @JvmStatic
     public fun scopedProblemReporter(consumer: Consumer<ScopedCollector>) {
         this.createProblemReporter().use(consumer::accept)
+    }
+
+    override fun onInitialize() {
+        ArcadeUtilsRegistries.load()
     }
 }
