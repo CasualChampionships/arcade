@@ -7,6 +7,7 @@ package net.casual.arcade.utils
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.PropertyMap
 import com.mojang.datafixers.util.Either
+import net.casual.arcade.util.mixins.profile.ResolvableProfileInvoker
 import net.casual.arcade.util.mixins.profile.ResolvableProfilePartialInvoker
 import net.casual.arcade.util.mixins.profile.ResolvableProfileStaticInvoker
 import net.minecraft.server.players.ProfileResolver
@@ -53,4 +54,9 @@ public fun ResolvableProfile.resolveProfileOrNull(resolver: ProfileResolver): Co
         is Dynamic -> this.resolveProfile(resolver)
             .thenApply { profile -> if (profile === this.partialProfile()) null else profile }
     }
+}
+
+public fun ResolvableProfile.uuid(): Optional<UUID> {
+    val either = (this as ResolvableProfileInvoker).invokeUnpack()
+    return either.map({ Optional.of(it.id) }, { it.id })
 }

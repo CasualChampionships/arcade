@@ -4,7 +4,8 @@
  */
 package net.casual.arcade.resources.font.heads
 
-import com.mojang.authlib.properties.PropertyMap
+import net.casual.arcade.utils.DynamicResolvableProfile
+import net.casual.arcade.utils.StaticResolvableProfile
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.component.ResolvableProfile
@@ -17,13 +18,13 @@ public interface TexturedHeadComponents {
 }
 
 public suspend fun TexturedHeadComponents.getHeadFor(player: ServerPlayer): Component {
-    return this.getHeadFor(ResolvableProfile(player.gameProfile))
+    return this.getHeadFor(StaticResolvableProfile(player.gameProfile))
 }
 
 public suspend fun TexturedHeadComponents.getHeadFor(username: String): Component {
-    return this.getHeadFor(ResolvableProfile(Optional.of(username), Optional.empty(), PropertyMap()))
+    return this.getHeadFor(DynamicResolvableProfile(username))
 }
 
 public suspend fun TexturedHeadComponents.getHeadFor(uuid: UUID): Component {
-    return this.getHeadFor(ResolvableProfile(Optional.empty(), Optional.of(uuid), PropertyMap()))
+    return this.getHeadFor(DynamicResolvableProfile(uuid))
 }

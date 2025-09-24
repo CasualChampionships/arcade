@@ -21,10 +21,14 @@ import net.casual.arcade.utils.component.color
 import net.casual.arcade.utils.component.wrap
 import net.casual.arcade.utils.coroutine.async
 import net.casual.arcade.utils.coroutine.getNow
+import net.casual.arcade.utils.resolveProfileOrNull
+import net.casual.arcade.utils.uuid
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.Services
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.players.ProfileResolver
 import net.minecraft.world.item.component.ResolvableProfile
 import java.awt.Color
 import java.io.IOException
@@ -37,6 +41,7 @@ import kotlin.jvm.optionals.getOrNull
 
 public class PixelGridHeadComponents private constructor(
     private val shift: Int,
+    private val resolver: ProfileResolver,
     private val session: MinecraftSessionService
 ): TexturedHeadComponents {
     private val uuidCache = CacheBuilder.newBuilder()
@@ -58,8 +63,8 @@ public class PixelGridHeadComponents private constructor(
     }
 
     public suspend fun getHeadFor(resolvable: ResolvableProfile, force: Boolean = false): Component {
-        val username = resolvable.name.getOrNull()
-        val uuid = resolvable.id.getOrNull()
+        val username = resolvable.name().getOrNull()
+        val uuid = resolvable.uuid().getOrNull()
         if (username != null) {
             when (val existing = this.nameCache.getIfPresent(username)) {
                 is Success -> if (!force) return existing.component.await()
@@ -73,8 +78,8 @@ public class PixelGridHeadComponents private constructor(
             }
         }
 
-        val resolved = resolvable.resolve().await()
-        if (!resolved.isResolved) {
+        val resolved = resolvable.resolveProfileOrNull(this.resolver).await()
+        if (resolved == null) {
             if (username != null) {
                 this.nameCache.put(username, Invalid)
             }
@@ -84,15 +89,14 @@ public class PixelGridHeadComponents private constructor(
             return this.getDefault()
         }
 
-        val profile = resolved.gameProfile
-        val url = this.session.getTextures(profile).skin?.url
+        val url = this.session.getTextures(resolved).skin?.url
             ?: return this.getDefault()
         val deferred = withContext(Dispatchers.IO) {
             async { generateHead(url) }
         }
         val success = Success(deferred)
-        this.nameCache.put(profile.name, success)
-        this.uuidCache.put(profile.id, success)
+        this.nameCache.put(resolved.name, success)
+        this.uuidCache.put(resolved.id, success)
         return deferred.await()
     }
 
@@ -166,15 +170,24 @@ public class PixelGridHeadComponents private constructor(
     public companion object {
         private val components = WeakHashMap<Int, PixelGridHeadComponents>()
 
-        public fun get(shift: Int = 0, session: MinecraftSessionService): PixelGridHeadComponents {
+        public fun get(shift: Int = 0, services: Services): PixelGridHeadComponents {
+            return this.get(shift, services.profileResolver, services.sessionService)
+        }
+
+        public fun get(
+            shift: Int = 0,
+            resolver: ProfileResolver,
+            session: MinecraftSessionService
+        ): PixelGridHeadComponents {
             return this.components.computeIfAbsent(shift, Int2ObjectFunction { s ->
-                PixelGridHeadComponents(s, session)
+                PixelGridHeadComponents(s, resolver, session)
             })
         }
 
         public fun getHeadOrDefaultFor(player: ServerPlayer, shift: Int = 0): Component {
             val server = player.levelServer
-            val components = this.get(shift, server.sessionService)
+            val services = server.services()
+            val components = this.get(shift, services.profileResolver, services.sessionService)
             val deferred = server.async { components.getHeadFor(player) }
             return deferred.getNow(components.getDefault())
         }
@@ -184,7 +197,8 @@ public class PixelGridHeadComponents private constructor(
             server: MinecraftServer,
             shift: Int = 0
         ): Component {
-            val components = this.get(shift, server.sessionService)
+            val services = server.services()
+            val components = this.get(shift, services.profileResolver, services.sessionService)
             val deferred = server.async { components.getHeadFor(resolvable) }
             return deferred.getNow(components.getDefault())
         }

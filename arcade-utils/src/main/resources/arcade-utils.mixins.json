@@ -19,6 +19,7 @@
     "network.ServerCommonPacketListenerAccessor",
     "network.ServerCommonPacketListenerImplMixin",
     "network.ServerHandshakePacketListenerImplMixin",
+    "profile.ResolvableProfileInvoker",
     "profile.ResolvableProfilePartialInvoker",
     "profile.ResolvableProfileStaticInvoker",
     "teams.PlayerTeamMixin",
