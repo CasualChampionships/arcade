@@ -7,6 +7,8 @@ package net.casual.arcade.util.mixins;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.casual.arcade.util.ducks.CustomMOTD;
 import net.casual.arcade.utils.ServerUtils;
+import net.casual.arcade.utils.coroutine.ServerCoroutineUtils;
+import net.casual.arcade.utils.coroutine.ServerCoroutineUtilsKt;
 import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.status.ServerStatus;
@@ -57,6 +59,7 @@ public abstract class MinecraftServerMixin implements CustomMOTD {
     )
     private void onStopServer(CallbackInfo ci) {
         ServerUtils.setServer(null);
+        ServerCoroutineUtils.INSTANCE.stopServer((MinecraftServer) (Object) this);
     }
 
 	@Override

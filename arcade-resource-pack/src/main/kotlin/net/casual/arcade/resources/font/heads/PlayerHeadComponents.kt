@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit
 import javax.imageio.ImageIO
 import kotlin.io.path.inputStream
 
+@Deprecated("Use PixelGridHeadComponents instead")
 public class PlayerHeadComponents(private val shift: Int) {
     private val uuidCache = CacheBuilder.newBuilder()
         .expireAfterAccess(1, TimeUnit.MINUTES)

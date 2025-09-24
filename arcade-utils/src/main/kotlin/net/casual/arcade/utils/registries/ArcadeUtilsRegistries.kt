@@ -17,9 +17,4 @@ public object ArcadeUtilsRegistryKeys: RegistryKeySupplier(ArcadeUtils.MOD_ID) {
 
 public object ArcadeUtilsRegistries: RegistrySupplier() {
     public val LOCATION_PROVIDER: Registry<MapCodec<out LocationProvider>> = create(ArcadeUtilsRegistryKeys.LOCATION_PROVIDER, LocationProvider::bootstrap)
-
-    @Internal
-    public fun init() {
-        this.load()
-    }
 }
