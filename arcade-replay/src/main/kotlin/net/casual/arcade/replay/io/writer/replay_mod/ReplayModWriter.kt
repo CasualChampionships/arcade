@@ -14,6 +14,7 @@ import com.replaymod.replaystudio.protocol.PacketTypeRegistry
 import com.replaymod.replaystudio.replay.ReplayMetaData
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.EncoderException
+import kotlinx.atomicfu.atomic
 import net.casual.arcade.replay.io.ReplayModIO
 import net.casual.arcade.replay.io.writer.ReplayWriter
 import net.casual.arcade.replay.io.writer.ReplayWriter.Companion.close
@@ -21,6 +22,7 @@ import net.casual.arcade.replay.io.writer.ReplayWriter.Companion.encodePacket
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.util.FileUtils
 import net.casual.arcade.replay.util.ReplayMarker
+import net.casual.arcade.replay.util.io.ResourcePackCache
 import net.casual.arcade.replay.util.io.SizedZipReplayFile
 import net.casual.arcade.utils.*
 import net.minecraft.SharedConstants
@@ -51,19 +53,11 @@ public class ReplayModWriter(
     private val output: ReplayOutputStream = this.replay.writePacketData()
     private val meta: ReplayMetaData = this.createNewMeta()
 
-    private val packs = HashMap<Int, String>()
-    private var packId = 0
+    private val resourcePackId = atomic(0)
 
     override var markers: Int = 0
     override val closed: Boolean
         get() = this.executor.isShutdown
-
-    override fun canRecordPacket(packet: Packet<*>): Boolean {
-        return when (packet) {
-            is ClientboundResourcePackPushPacket -> this.downloadAndRecordResourcePack(packet)
-            else -> true
-        }
-    }
 
     override fun writePacket(
         packet: Packet<*>,
@@ -80,8 +74,13 @@ public class ReplayModWriter(
             }
         }
 
+        val replacement = when (packet) {
+            is ClientboundResourcePackPushPacket -> this.downloadAndRecordResourcePack(packet)
+            else -> packet
+        }
+
         return CompletableFuture.supplyAsync({
-            this.writePacketSync(packet, protocol, timestamp, offThread)
+            this.writePacketSync(replacement, protocol, timestamp, offThread)
         }, this.executor)
     }
 
@@ -186,63 +185,39 @@ public class ReplayModWriter(
         }
     }
 
-    private fun downloadAndRecordResourcePack(packet: ClientboundResourcePackPushPacket): Boolean {
-        if (!this.recorder.settings.includeResourcePacks || packet.url.startsWith("replay://")) {
-            return true
+    private fun downloadAndRecordResourcePack(
+        packet: ClientboundResourcePackPushPacket
+    ): ClientboundResourcePackPushPacket {
+        if (!this.recorder.settings.includeResourcePacks) {
+            return packet
         }
-        @Suppress("DEPRECATION")
-        val pathHash = Hashing.sha1().hashString(packet.url, StandardCharsets.UTF_8).toString()
-        val path = ArcadeUtils.path.resolve("replays").resolve("packs").resolve(pathHash)
 
-        val requestId = this.packId++
-        if (!path.exists() || !this.writeResourcePack(path.readBytes(), packet.hash, requestId)) {
-            CompletableFuture.runAsync {
-                path.parent.createDirectories()
-                val bytes = URI(packet.url).toURL().openStream().readAllBytes()
-                path.writeBytes(bytes)
-                if (!this.writeResourcePack(bytes, packet.hash, requestId)) {
-                    ArcadeUtils.logger.error("Resource pack hashes do not match! Pack '${packet.url}' will not be loaded...")
-                }
-            }.exceptionally {
-                ArcadeUtils.logger.error("Failed to download resource pack", it)
-                null
-            }
-        }
-        this.executor.execute {
-            this.packs[requestId] = packet.url
-        }
-        this.recorder.record(ClientboundResourcePackPushPacket(
-            packet.id,
-            "replay://${requestId}",
-            "",
-            packet.required,
-            packet.prompt
-        ))
-        return false
+        val packId = this.resourcePackId.getAndIncrement()
+        val expectedHash = packet.hash
+        ResourcePackCache.get(packet.url).thenAcceptAsync({ bytes ->
+            this.writeResourcePack(bytes, expectedHash, packId)
+        }, this.executor)
+        return ClientboundResourcePackPushPacket(
+            packet.id, "replay://$packId", "", packet.required, packet.prompt
+        )
     }
 
-    private fun writeResourcePack(bytes: ByteArray, expectedHash: String, id: Int): Boolean {
-        @Suppress("DEPRECATION")
-        val packHash = Hashing.sha1().hashBytes(bytes).toString()
-        if (expectedHash == "" || expectedHash == packHash) {
-            this.executor.execute {
-                try {
-                    val index = this.replay.resourcePackIndex ?: HashMap()
-                    val write = !index.containsValue(packHash)
-                    index[id] = packHash
-                    this.replay.writeResourcePackIndex(index)
-                    if (write) {
-                        this.replay.writeResourcePack(packHash).use {
-                            it.write(bytes)
-                        }
-                    }
-                } catch (e: IOException) {
-                    ArcadeUtils.logger.warn("Failed to write resource pack", e)
-                }
-            }
-            return true
+    private fun writeResourcePack(bytes: ByteArray, expectedHash: String, id: Int) {
+        val realHash = ResourcePackCache.hash(bytes)
+        if (expectedHash != "" && expectedHash != realHash) {
+            return
         }
-        return false
+
+        try {
+            val index = this.replay.resourcePackIndex ?: HashMap()
+            if (!index.containsValue(realHash)) {
+                this.replay.writeResourcePack(realHash).use { it.write(bytes) }
+            }
+            index[id] = realHash
+            this.replay.writeResourcePackIndex(index)
+        } catch (e: IOException) {
+            ArcadeUtils.logger.warn("Failed to write resource pack", e)
+        }
     }
 
     private fun createNewMeta(): ReplayMetaData {
@@ -268,16 +243,10 @@ public class ReplayModWriter(
 
                 JsonUtils.encodeRaw(meta, it)
             }
-
-            this.replay.write(ENTRY_SERVER_REPLAY_PACKS).writer().use {
-                JsonUtils.encodeRaw(this.meta, it)
-            }
         }
     }
 
     public companion object {
-        private const val ENTRY_SERVER_REPLAY_PACKS = "server_replay_packs.json"
-
         public fun dated(recordings: Path): (ReplayRecorder) -> ReplayModWriter {
             val date = DateTimeUtils.getFormattedDate()
             return { ReplayModWriter(it, FileUtils.findNextAvailable(recordings.resolve(date))) }

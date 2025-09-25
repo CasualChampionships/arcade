@@ -9,6 +9,8 @@ import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
+import kotlinx.atomicfu.atomic
+import kotlinx.io.IOException
 import net.casual.arcade.replay.compat.voicechat.VoicechatPayload
 import net.casual.arcade.replay.io.FlashbackIO
 import net.casual.arcade.replay.io.writer.ReplayWriter
@@ -18,6 +20,7 @@ import net.casual.arcade.replay.util.FileUtils
 import net.casual.arcade.replay.util.ReplayMarker
 import net.casual.arcade.replay.util.flashback.FlashbackAction
 import net.casual.arcade.replay.util.flashback.FlashbackMarker.Location
+import net.casual.arcade.replay.util.io.ResourcePackCache
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.DateTimeUtils
 import net.casual.arcade.utils.JsonUtils
@@ -29,6 +32,7 @@ import net.minecraft.network.codec.ByteBufCodecs
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
 import net.minecraft.network.protocol.common.ClientboundDisconnectPacket
+import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import net.minecraft.network.protocol.configuration.ClientboundFinishConfigurationPacket
 import net.minecraft.network.protocol.game.*
 import net.minecraft.resources.ResourceKey
@@ -38,9 +42,10 @@ import net.minecraft.world.level.Level
 import org.apache.commons.io.file.PathUtils
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.io.path.exists
 import kotlin.io.path.name
-import kotlin.io.path.writer
+import kotlin.io.path.notExists
+import kotlin.io.path.writeBytes
 import kotlin.time.Duration
 
 public class FlashbackWriter(
@@ -55,7 +60,8 @@ public class FlashbackWriter(
     private val chunks = Object2IntOpenHashMap<ChunkPacketIdentity>()
     private val recent = Object2ObjectOpenHashMap<ResourceKey<Level>, Long2IntOpenHashMap>()
 
-    private val forcePlaySnapshot = AtomicBoolean(false)
+    private val forcePlaySnapshot = atomic(false)
+    private val resourcePackId = atomic(0)
 
     private var dimension: ResourceKey<Level>? = null
 
@@ -96,7 +102,7 @@ public class FlashbackWriter(
     override fun resume() {
         this.startNewReplayChunk()
         this.executor.execute {
-            this.forcePlaySnapshot.set(true)
+            this.forcePlaySnapshot.value = true
         }
     }
 
@@ -132,6 +138,7 @@ public class FlashbackWriter(
         val replacement = when (packet) {
             is ClientboundLevelChunkWithLightPacket -> return this.writeCachedChunk(packet, protocol)
             is ClientboundMoveEntityPacket -> return this.writeMovement(packet)
+            is ClientboundResourcePackPushPacket -> this.downloadAndWriteResourcePack(packet)
             is ClientboundCustomPayloadPacket -> when (val payload = packet.payload) {
                 is VoicechatPayload -> return this.writeVoicechat(payload)
                 else -> packet
@@ -334,6 +341,48 @@ public class FlashbackWriter(
         return when (payload.type()) {
             VoicechatPayload.ENCODED_FLASHBACK_TYPE -> FlashbackAction.EncodedVoiceChat
             else -> FlashbackAction.VoiceChat
+        }
+    }
+
+    private fun downloadAndWriteResourcePack(
+        packet: ClientboundResourcePackPushPacket
+    ): ClientboundResourcePackPushPacket {
+        if (!this.recorder.settings.includeResourcePacks) {
+            return packet
+        }
+
+        val packId = this.resourcePackId.getAndIncrement()
+        val expectedHash = packet.hash
+        ResourcePackCache.get(packet.url).thenAcceptAsync({ bytes ->
+            this.writeResourcePack(bytes, expectedHash, packId)
+        }, this.executor)
+        return ClientboundResourcePackPushPacket(
+            packet.id, "replay://$packId", "", packet.required, packet.prompt
+        )
+    }
+
+    private fun writeResourcePack(bytes: ByteArray, expectedHash: String, packId: Int) {
+        val realHash = ResourcePackCache.hash(bytes)
+        if (expectedHash != "" && expectedHash != realHash) {
+            return
+        }
+
+        try {
+            val directory = this.path.resolve("resource_packs")
+            val pack = directory.resolve(realHash)
+            if (pack.notExists()) {
+                pack.writeBytes(bytes)
+            }
+
+            val indexPath = directory.resolve("index.json")
+            val index = when {
+                indexPath.exists() -> JsonUtils.decodeRaw<HashMap<Int, String>>(indexPath)
+                else -> HashMap()
+            }
+            index[packId] = expectedHash
+            JsonUtils.encodeRaw(index, indexPath)
+        } catch (e: IOException) {
+            ArcadeUtils.logger.warn("Failed to write resource pack", e)
         }
     }
 
