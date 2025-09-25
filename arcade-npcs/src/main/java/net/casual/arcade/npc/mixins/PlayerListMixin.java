@@ -23,8 +23,6 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(PlayerList.class)
 public class PlayerListMixin {
-    @Shadow @Final private MinecraftServer server;
-
     @WrapOperation(
         method = "placeNewPlayer",
         at = @At(

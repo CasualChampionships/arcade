@@ -42,10 +42,7 @@ import net.minecraft.world.level.Level
 import org.apache.commons.io.file.PathUtils
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
-import kotlin.io.path.exists
-import kotlin.io.path.name
-import kotlin.io.path.notExists
-import kotlin.io.path.writeBytes
+import kotlin.io.path.*
 import kotlin.time.Duration
 
 public class FlashbackWriter(
@@ -368,7 +365,7 @@ public class FlashbackWriter(
         }
 
         try {
-            val directory = this.path.resolve("resource_packs")
+            val directory = this.path.resolve("resource_packs").createDirectories()
             val pack = directory.resolve(realHash)
             if (pack.notExists()) {
                 pack.writeBytes(bytes)
@@ -379,7 +376,7 @@ public class FlashbackWriter(
                 indexPath.exists() -> JsonUtils.decodeRaw<HashMap<Int, String>>(indexPath)
                 else -> HashMap()
             }
-            index[packId] = expectedHash
+            index[packId] = realHash
             JsonUtils.encodeRaw(index, indexPath)
         } catch (e: IOException) {
             ArcadeUtils.logger.warn("Failed to write resource pack", e)
