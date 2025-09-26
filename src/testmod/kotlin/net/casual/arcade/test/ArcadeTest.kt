@@ -42,7 +42,7 @@ object ArcadeTest: ModInitializer {
         )
 
 //        this.playerHeadTests()
-//        this.boundaryTests()
+        this.boundaryTests()
     }
 
     private fun playerHeadTests() {
