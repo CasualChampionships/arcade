@@ -29,7 +29,7 @@ import java.util.*
 import java.util.function.Consumer
 
 public open class PlayerListDisplay(
-    private val display: PlayerListEntries
+    public var display: PlayerListEntries
 ): TrackedPlayerUI(), TickableUI {
     private val previous = ArrayList<Entry>()
 
