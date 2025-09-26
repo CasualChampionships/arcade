@@ -197,7 +197,7 @@ public open class PlayerListDisplay(
                 null,
                 true,
                 entry.latency,
-                GameType.SURVIVAL,
+                if (entry.spectatorFormat) GameType.SPECTATOR else GameType.SURVIVAL,
                 entry.display,
                 entry.showHat,
                 -index, // For some reason, Mojang does this in reverse
@@ -222,7 +222,7 @@ public open class PlayerListDisplay(
             profile,
             true,
             entry.latency,
-            GameType.SURVIVAL,
+            if (entry.spectatorFormat) GameType.SPECTATOR else GameType.SURVIVAL,
             entry.display,
             entry.showHat,
             -index,
