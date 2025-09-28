@@ -766,15 +766,15 @@ internal object MinigameCommand: CommandTree {
             minigame.chat.broadcastTo(Component.translatable("minigame.command.unpause.countdown", here), admins)
         }
         if (teams) {
-            minigame.ui.readier.areTeamsReady(minigame.teams.getPlayingTeams()).then(callback)
+            minigame.visuals.readier.areTeamsReady(minigame.teams.getPlayingTeams()).then(callback)
         } else {
-            minigame.ui.readier.arePlayersReady(minigame.players.playing).then(callback)
+            minigame.visuals.readier.arePlayersReady(minigame.players.playing).then(callback)
         }
         context.source.success(Component.translatable("minigame.command.unpause.ready.success"))
 
         return context.source.success {
             val here = Component.translatable("minigame.command.unpause.here").green().function { context ->
-                val awaiting = minigame.ui.readier.getUnreadyFormatted(context.server).join()
+                val awaiting = minigame.visuals.readier.getUnreadyFormatted(context.server).join()
                 val message = Component.translatable("minigame.command.unpause.ready.awaiting", awaiting)
                 minigame.chat.broadcastTo(message, context.player)
             }
@@ -801,7 +801,7 @@ internal object MinigameCommand: CommandTree {
 
         // We must use the global scheduler, because the minigame scheduler is paused
         val scheduler = GlobalTickedScheduler.temporaryScheduler(duration)
-        minigame.ui.countdown.countdown(minigame, duration, scheduler = scheduler).then {
+        minigame.visuals.countdown.countdown(minigame, duration, scheduler = scheduler).then {
             minigame.unpause()
         }
         context.source.success(Component.translatable("minigame.command.unpause.countdown.success"))

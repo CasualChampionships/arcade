@@ -56,7 +56,7 @@ open class TestMinigame(
         sidebar.addRow(SidebarElements.withNoScore(Component {
             literal("Hello World", 0x2739B8, 0x8D379E, 0xF13484, 0xFF605D)
         }))
-        this.ui.setSidebar(sidebar)
+        this.visuals.setSidebar(sidebar)
 
         val display = PlayerListDisplay(VanillaPlayerListEntries())
         val header = UniversalElement {
@@ -70,10 +70,10 @@ open class TestMinigame(
         }
         val footer = ComponentElements.empty()
         display.setDisplay(header, footer)
-        this.ui.setPlayerListDisplay(display)
+        this.visuals.setPlayerListDisplay(display)
 
-        this.ui.addNametag(PlayerNametag({ player -> player.displayName!! }))
-        this.ui.addNametag(PlayerNametag({ Component.literal("CustomNametags!") }))
+        this.visuals.addNametag(PlayerNametag({ player -> player.displayName!! }))
+        this.visuals.addNametag(PlayerNametag({ Component.literal("CustomNametags!") }))
     }
 
     override fun factory(): MinigameFactory {

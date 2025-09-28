@@ -36,9 +36,9 @@ import java.util.function.Consumer
  * It will handle displaying and updating UI to all the
  * players in a given minigame.
  *
- * @see Minigame.ui
+ * @see Minigame.visuals
  */
-public class MinigameUIManager(
+public class MinigameVisualsManager(
     private val minigame: Minigame
 ) {
     private val bossbars = ReferenceArrayList<CustomBossbar>()
@@ -88,7 +88,7 @@ public class MinigameUIManager(
      */
     public fun addBossbar(bar: CustomBossbar) {
         this.bossbars.add(bar)
-        this.loadUI(bar)
+        this.loadVisual(bar)
     }
 
     /**
@@ -101,7 +101,7 @@ public class MinigameUIManager(
      */
     public fun removeBossbar(bar: CustomBossbar) {
         if (this.bossbars.remove(bar)) {
-            this.removeUI(bar)
+            this.removeVisual(bar)
         }
     }
 
@@ -109,7 +109,7 @@ public class MinigameUIManager(
      * This removes **ALL** bossbars from the minigame.
      */
     public fun removeAllBossbars() {
-        this.removeAllUI(this.bossbars)
+        this.removeAllVisuals(this.bossbars)
     }
 
     /**
@@ -123,7 +123,7 @@ public class MinigameUIManager(
      */
     public fun addNametag(tag: PlayerNametag) {
         this.nametags.add(tag)
-        this.loadUI(tag)
+        this.loadVisual(tag)
     }
 
     /**
@@ -136,7 +136,7 @@ public class MinigameUIManager(
      */
     public fun removeNametag(tag: PlayerNametag) {
         if (this.nametags.remove(tag)) {
-            this.removeUI(tag)
+            this.removeVisual(tag)
         }
     }
 
@@ -144,7 +144,7 @@ public class MinigameUIManager(
      * This removes **ALL** nametags from the minigame.
      */
     public fun removeAllNametags() {
-        this.removeAllUI(this.nametags)
+        this.removeAllVisuals(this.nametags)
     }
 
     /**
@@ -158,7 +158,7 @@ public class MinigameUIManager(
     public fun setSidebar(sidebar: Sidebar) {
         this.removeSidebar()
         this.sidebar = sidebar
-        this.loadUI(sidebar)
+        this.loadVisual(sidebar)
     }
 
     /**
@@ -168,7 +168,7 @@ public class MinigameUIManager(
      * will no longer be displayed the sidebar.
      */
     public fun removeSidebar() {
-        this.removeUI(this.sidebar)
+        this.removeVisual(this.sidebar)
         this.sidebar = null
     }
 
@@ -183,7 +183,7 @@ public class MinigameUIManager(
     public fun setPlayerListDisplay(display: PlayerListDisplay) {
         this.removePlayerListDisplay()
         this.display = display
-        this.loadUI(display)
+        this.loadVisual(display)
     }
 
     /**
@@ -193,7 +193,7 @@ public class MinigameUIManager(
      * will no longer be displayed the tab display.
      */
     public fun removePlayerListDisplay() {
-        this.removeUI(this.display)
+        this.removeVisual(this.display)
         this.display = null
     }
 
@@ -211,28 +211,28 @@ public class MinigameUIManager(
         this.display?.resendToPlayer(player, sender)
     }
 
-    private fun loadUI(ui: VisualElement) {
+    private fun loadVisual(element: VisualElement) {
         for (player in this.minigame.players) {
-            ui.addPlayer(player)
+            element.addPlayer(player)
         }
-        if (ui is TickableVisualElement) {
-            this.tickables.add(ui)
+        if (element is TickableVisualElement) {
+            this.tickables.add(element)
         }
     }
 
-    private fun removeUI(ui: VisualElement?) {
-        if (ui != null) {
-            ui.clearPlayers()
-            if (ui is TickableVisualElement) {
-                this.tickables.remove(ui)
+    private fun removeVisual(element: VisualElement?) {
+        if (element != null) {
+            element.clearPlayers()
+            if (element is TickableVisualElement) {
+                this.tickables.remove(element)
             }
         }
     }
 
-    private fun removeAllUI(uis: MutableCollection<out VisualElement>) {
-        for (ui in uis) {
-            this.removeUI(ui)
+    private fun removeAllVisuals(visuals: MutableCollection<out VisualElement>) {
+        for (ui in visuals) {
+            this.removeVisual(ui)
         }
-        uis.clear()
+        visuals.clear()
     }
 }

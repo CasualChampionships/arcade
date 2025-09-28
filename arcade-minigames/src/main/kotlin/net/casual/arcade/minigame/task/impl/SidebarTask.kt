@@ -13,10 +13,10 @@ public open class SidebarTask(
     sidebar: Sidebar
 ): Task {
     init {
-        this.minigame.ui.setSidebar(sidebar)
+        this.minigame.visuals.setSidebar(sidebar)
     }
 
     override fun run() {
-        this.minigame.ui.removeSidebar()
+        this.minigame.visuals.removeSidebar()
     }
 }
