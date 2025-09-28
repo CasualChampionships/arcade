@@ -10,7 +10,7 @@ import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.re
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.core.TrackingVisualElement
-import net.casual.arcade.visuals.elements.ComponentElements
+import net.casual.arcade.visuals.utils.elements.ComponentElements
 import net.casual.arcade.visuals.elements.PlayerSpecificElement
 import net.casual.arcade.visuals.predicate.PlayerObserverPredicate
 import net.minecraft.network.chat.Component

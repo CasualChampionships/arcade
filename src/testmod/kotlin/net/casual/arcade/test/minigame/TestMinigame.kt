@@ -12,14 +12,13 @@ import net.casual.arcade.resources.utils.spaced
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.component.*
 import net.casual.arcade.utils.recipe.CraftingRecipeBuilder
-import net.casual.arcade.visuals.elements.ComponentElements
-import net.casual.arcade.visuals.elements.SidebarElements
+import net.casual.arcade.visuals.utils.elements.ComponentElements
+import net.casual.arcade.visuals.utils.elements.SidebarElements
 import net.casual.arcade.visuals.elements.UniversalElement
 import net.casual.arcade.visuals.nametag.PlayerNametag
 import net.casual.arcade.visuals.sidebar.FixedSidebar
 import net.casual.arcade.visuals.tab.PlayerListDisplay
 import net.casual.arcade.visuals.tab.VanillaPlayerListEntries
-import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer

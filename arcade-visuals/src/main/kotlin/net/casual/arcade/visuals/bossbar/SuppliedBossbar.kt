@@ -6,7 +6,11 @@ package net.casual.arcade.visuals.bossbar
 
 import net.casual.arcade.visuals.core.TickableVisualElement
 import net.casual.arcade.visuals.elements.*
-import net.casual.arcade.visuals.extensions.PlayerBossbarsExtension.Companion.bossbars
+import net.casual.arcade.visuals.extensions.PlayerBossbarsExtension.Companion.bossbarsExtension
+import net.casual.arcade.visuals.utils.elements.BooleanElements
+import net.casual.arcade.visuals.utils.elements.BossbarColorElements
+import net.casual.arcade.visuals.utils.elements.BossbarOverlayElements
+import net.casual.arcade.visuals.utils.elements.ComponentElements
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
@@ -27,7 +31,7 @@ public class SuppliedBossbar(
         this.title = title
 
         for (player in this.getPlayers()) {
-            player.bossbars.updateTitle(this)
+            player.bossbarsExtension.updateTitle(this)
         }
     }
 
@@ -35,7 +39,7 @@ public class SuppliedBossbar(
         this.progress = progress
 
         for (player in this.getPlayers()) {
-            player.bossbars.updateProgress(this)
+            player.bossbarsExtension.updateProgress(this)
         }
     }
 
@@ -51,7 +55,7 @@ public class SuppliedBossbar(
         }
 
         for (player in this.getPlayers()) {
-            player.bossbars.updateStyle(this)
+            player.bossbarsExtension.updateStyle(this)
         }
     }
 
@@ -71,7 +75,7 @@ public class SuppliedBossbar(
         }
 
         for (player in this.getPlayers()) {
-            player.bossbars.updateProperties(this)
+            player.bossbarsExtension.updateProperties(this)
         }
     }
 

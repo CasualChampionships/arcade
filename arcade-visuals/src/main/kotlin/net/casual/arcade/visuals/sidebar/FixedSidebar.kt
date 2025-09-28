@@ -5,7 +5,7 @@
 package net.casual.arcade.visuals.sidebar
 
 import net.casual.arcade.visuals.elements.PlayerSpecificElement
-import net.casual.arcade.visuals.extensions.PlayerSidebarExtension.Companion.sidebar
+import net.casual.arcade.visuals.extensions.PlayerSidebarExtension.Companion.sidebarExtension
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
@@ -29,7 +29,7 @@ public class FixedSidebar(title: PlayerSpecificElement<Component>): Sidebar(titl
         this.rows.addRow(index, row)
 
         for (player in this.getPlayers()) {
-            player.sidebar.addRow(index, row.get(player))
+            player.sidebarExtension.addRow(index, row.get(player))
         }
     }
 
@@ -37,7 +37,7 @@ public class FixedSidebar(title: PlayerSpecificElement<Component>): Sidebar(titl
         this.rows.setRow(index, row)
 
         for (player in this.getPlayers()) {
-            player.sidebar.setRow(index, row.get(player))
+            player.sidebarExtension.setRow(index, row.get(player))
         }
     }
 
@@ -45,7 +45,7 @@ public class FixedSidebar(title: PlayerSpecificElement<Component>): Sidebar(titl
         this.rows.removeRow(index)
 
         for (player in this.getPlayers()) {
-            player.sidebar.removeRow(index)
+            player.sidebarExtension.removeRow(index)
         }
     }
 

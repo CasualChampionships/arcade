@@ -2,8 +2,10 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.visuals.elements
+package net.casual.arcade.visuals.utils.elements
 
+import net.casual.arcade.visuals.elements.PlayerSpecificElement
+import net.casual.arcade.visuals.elements.UniversalElement
 import net.minecraft.network.chat.Component
 
 public object ComponentElements {

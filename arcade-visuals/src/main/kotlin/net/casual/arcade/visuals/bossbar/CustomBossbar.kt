@@ -5,7 +5,7 @@
 package net.casual.arcade.visuals.bossbar
 
 import net.casual.arcade.visuals.core.TrackingVisualElement
-import net.casual.arcade.visuals.extensions.PlayerBossbarsExtension.Companion.bossbars
+import net.casual.arcade.visuals.extensions.PlayerBossbarsExtension.Companion.bossbarsExtension
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket
@@ -41,15 +41,15 @@ public abstract class CustomBossbar: TrackingVisualElement(), BossbarSupplier {
     internal val uuid: UUID = Mth.createInsecureUUID()
 
     final override fun onAddPlayer(player: ServerPlayer) {
-        player.bossbars.add(this)
+        player.bossbarsExtension.add(this)
     }
 
     final override fun onRemovePlayer(player: ServerPlayer) {
-        player.bossbars.remove(this)
+        player.bossbarsExtension.remove(this)
     }
 
     override fun resendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
-        val event = player.bossbars.getEvent(this) ?: return
+        val event = player.bossbarsExtension.getEvent(this) ?: return
         sender.accept(ClientboundBossEventPacket.createAddPacket(event))
     }
 }
