@@ -8,8 +8,8 @@ import com.mojang.authlib.GameProfile
 import net.casual.arcade.utils.ClientboundPlayerInfoUpdatePacket
 import net.casual.arcade.utils.EnumUtils
 import net.casual.arcade.utils.PlayerUtils.levelServer
-import net.casual.arcade.visuals.core.TrackedPlayerUI
-import net.casual.arcade.visuals.core.TickableUI
+import net.casual.arcade.visuals.core.TrackingVisualElement
+import net.casual.arcade.visuals.core.TickableVisualElement
 import net.casual.arcade.visuals.elements.ComponentElements
 import net.casual.arcade.visuals.elements.PlayerSpecificElement
 import net.casual.arcade.visuals.extensions.PlayerTabDisplayExtension.Companion.tabDisplay
@@ -30,7 +30,7 @@ import java.util.function.Consumer
 
 public open class PlayerListDisplay(
     public var display: PlayerListEntries
-): TrackedPlayerUI(), TickableUI {
+): TrackingVisualElement(), TickableVisualElement {
     private val previous = ArrayList<Entry>()
 
     public var header: PlayerSpecificElement<out Component> = ComponentElements.empty()

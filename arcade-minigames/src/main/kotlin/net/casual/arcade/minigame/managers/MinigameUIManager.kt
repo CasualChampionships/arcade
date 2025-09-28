@@ -15,8 +15,8 @@ import net.casual.arcade.minigame.ready.MinigamePlayerReadyHandler
 import net.casual.arcade.minigame.ready.MinigameTeamReadyHandler
 import net.casual.arcade.minigame.ready.ReadyChecker
 import net.casual.arcade.visuals.bossbar.CustomBossbar
-import net.casual.arcade.visuals.core.PlayerUI
-import net.casual.arcade.visuals.core.TickableUI
+import net.casual.arcade.visuals.core.VisualElement
+import net.casual.arcade.visuals.core.TickableVisualElement
 import net.casual.arcade.visuals.countdown.Countdown
 import net.casual.arcade.visuals.countdown.TitledCountdown
 import net.casual.arcade.visuals.nametag.PlayerNametag
@@ -43,7 +43,7 @@ public class MinigameUIManager(
 ) {
     private val bossbars = ReferenceArrayList<CustomBossbar>()
     private val nametags = ReferenceArrayList<PlayerNametag>()
-    private val tickables = ReferenceLinkedOpenHashSet<TickableUI>()
+    private val tickables = ReferenceLinkedOpenHashSet<TickableVisualElement>()
 
     private var sidebar: Sidebar? = null
     private var display: PlayerListDisplay? = null
@@ -211,25 +211,25 @@ public class MinigameUIManager(
         this.display?.resendToPlayer(player, sender)
     }
 
-    private fun loadUI(ui: PlayerUI) {
+    private fun loadUI(ui: VisualElement) {
         for (player in this.minigame.players) {
             ui.addPlayer(player)
         }
-        if (ui is TickableUI) {
+        if (ui is TickableVisualElement) {
             this.tickables.add(ui)
         }
     }
 
-    private fun removeUI(ui: PlayerUI?) {
+    private fun removeUI(ui: VisualElement?) {
         if (ui != null) {
             ui.clearPlayers()
-            if (ui is TickableUI) {
+            if (ui is TickableVisualElement) {
                 this.tickables.remove(ui)
             }
         }
     }
 
-    private fun removeAllUI(uis: MutableCollection<out PlayerUI>) {
+    private fun removeAllUI(uis: MutableCollection<out VisualElement>) {
         for (ui in uis) {
             this.removeUI(ui)
         }

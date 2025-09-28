@@ -9,7 +9,7 @@ import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.ad
 import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.removeNametag
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.time.MinecraftTimeDuration
-import net.casual.arcade.visuals.core.TrackedPlayerUI
+import net.casual.arcade.visuals.core.TrackingVisualElement
 import net.casual.arcade.visuals.elements.ComponentElements
 import net.casual.arcade.visuals.elements.PlayerSpecificElement
 import net.casual.arcade.visuals.predicate.PlayerObserverPredicate
@@ -40,7 +40,7 @@ import java.util.function.Consumer
  * @param tag The [PlayerSpecificElement] to get the player's nametag.
  * @param observable The predicate to determine which
  * players can see the player's nametag.
- * @see TrackedPlayerUI
+ * @see TrackingVisualElement
  */
 public class PlayerNametag(
     /**
@@ -52,7 +52,7 @@ public class PlayerNametag(
      * the player's nametag.
      */
     private val observable: PlayerObserverPredicate = PlayerObserverPredicate { _, _ -> true },
-): TrackedPlayerUI(), Nametag {
+): TrackingVisualElement(), Nametag {
     override val updateInterval: MinecraftTimeDuration
         get() = this.interval.Ticks
 

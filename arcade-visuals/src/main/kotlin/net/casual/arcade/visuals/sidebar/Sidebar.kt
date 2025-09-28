@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.visuals.sidebar
 
-import net.casual.arcade.visuals.core.TrackedPlayerUI
-import net.casual.arcade.visuals.core.TickableUI
+import net.casual.arcade.visuals.core.TrackingVisualElement
+import net.casual.arcade.visuals.core.TickableVisualElement
 import net.casual.arcade.visuals.elements.PlayerSpecificElement
 import net.casual.arcade.visuals.extensions.PlayerSidebarExtension.Companion.sidebar
 import net.minecraft.network.chat.Component
@@ -14,7 +14,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.server.level.ServerPlayer
 import java.util.function.Consumer
 
-public abstract class Sidebar(title: PlayerSpecificElement<Component>): TrackedPlayerUI(), TickableUI {
+public abstract class Sidebar(title: PlayerSpecificElement<Component>): TrackingVisualElement(), TickableVisualElement {
     public var title: PlayerSpecificElement<Component> = title
         private set
 

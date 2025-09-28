@@ -7,9 +7,9 @@ package net.casual.arcade.visuals.core
 import net.minecraft.server.MinecraftServer
 
 /**
- * This interface represents a UI element that is tickable.
+ * This interface represents a visual element that is tickable.
  */
-public interface TickableUI {
+public interface TickableVisualElement: VisualElement {
     /**
      * This method is called every tick.
      */

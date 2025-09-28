@@ -5,10 +5,8 @@
 package net.casual.arcade.visuals.shapes.impl
 
 import net.casual.arcade.visuals.shapes.ShapePoints
-import net.casual.arcade.visuals.utils.impl.SegmentedShapeIterator
+import net.casual.arcade.visuals.shapes.segment.SegmentedShapeIterator
 import net.minecraft.world.phys.Vec3
-import org.joml.Quaterniond
-import org.joml.Vector3d
 import kotlin.math.cos
 import kotlin.math.sin
 

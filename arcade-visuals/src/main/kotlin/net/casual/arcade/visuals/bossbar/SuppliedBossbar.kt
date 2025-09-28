@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.visuals.bossbar
 
-import net.casual.arcade.visuals.core.TickableUI
+import net.casual.arcade.visuals.core.TickableVisualElement
 import net.casual.arcade.visuals.elements.*
 import net.casual.arcade.visuals.extensions.PlayerBossbarsExtension.Companion.bossbars
 import net.minecraft.network.chat.Component
@@ -18,7 +18,7 @@ public class SuppliedBossbar(
     private var progress: PlayerSpecificElement<Float> = UniversalElement.constant(0.0F),
     private var color: PlayerSpecificElement<BossBarColor> = BossbarColorElements.white(),
     private var overlay: PlayerSpecificElement<BossBarOverlay> = BossbarOverlayElements.progress()
-): CustomBossbar(), TickableUI {
+): CustomBossbar(), TickableVisualElement {
     private var dark = BooleanElements.alwaysFalse()
     private var music = BooleanElements.alwaysFalse()
     private var fog = BooleanElements.alwaysFalse()

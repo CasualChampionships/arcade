@@ -15,15 +15,15 @@ import java.util.function.Consumer
 
 /**
  * This is the base class for every server-side
- * UI component that supports multiple players.
+ * visual component that supports multiple players.
  *
  * You can set the component update interval
  * with the [setInterval] method.
- * And add, remove, or clear players from the UI
+ * And add, remove, or clear players from the visual
  * using [addPlayer], [removePlayer], and [clearPlayers]
  * respectively.
  */
-public abstract class TrackedPlayerUI: PlayerUI {
+public abstract class TrackingVisualElement: VisualElement {
     private val connections = ReferenceOpenHashSet<ServerGamePacketListenerImpl>()
 
     /**
@@ -49,8 +49,8 @@ public abstract class TrackedPlayerUI: PlayerUI {
     }
 
     /**
-     * Adds a player to the [TrackedPlayerUI] component.
-     * They will then be displayed the [TrackedPlayerUI] component.
+     * Adds a player to the [TrackingVisualElement] component.
+     * They will then be displayed the [TrackingVisualElement] component.
      *
      * @param player The player to add.
      */
@@ -61,8 +61,8 @@ public abstract class TrackedPlayerUI: PlayerUI {
     }
 
     /**
-     * Removes a player from the [TrackedPlayerUI] component.
-     * They will no longer be displayed the [TrackedPlayerUI] component.
+     * Removes a player from the [TrackingVisualElement] component.
+     * They will no longer be displayed the [TrackingVisualElement] component.
      *
      * @param player The player to remove.
      */
@@ -73,7 +73,7 @@ public abstract class TrackedPlayerUI: PlayerUI {
     }
 
     /**
-     * Clears all the players from the [TrackedPlayerUI] component.
+     * Clears all the players from the [TrackingVisualElement] component.
      */
     public override fun clearPlayers() {
         for (player in this.getPlayers()) {
@@ -92,9 +92,9 @@ public abstract class TrackedPlayerUI: PlayerUI {
 
     /**
      * Gets all the players that are being displayed
-     * the [TrackedPlayerUI] component.
+     * the [TrackingVisualElement] component.
      *
-     * @return All the players being displayed the [TrackedPlayerUI].
+     * @return All the players being displayed the [TrackingVisualElement].
      */
     public fun getPlayers(): List<ServerPlayer> {
         return this.connections.map { it.player }
