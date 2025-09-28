@@ -21,8 +21,7 @@ public class RotatedShape(
 
     private inner class WrappedIterator(
         private val wrapped: Iterator<Vec3>
-    ) : Iterator<Vec3> {
-
+    ): Iterator<Vec3> {
         override fun hasNext(): Boolean {
             return this.wrapped.hasNext()
         }

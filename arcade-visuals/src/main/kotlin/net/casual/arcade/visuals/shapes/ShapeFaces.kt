@@ -6,5 +6,5 @@ package net.casual.arcade.visuals.shapes
 
 import net.casual.arcade.visuals.shapes.faces.ShapeFace
 
-public interface ShapeFaces: Iterable<ShapeFace> {
-}
+// TODO:
+internal interface ShapeFaces: Iterable<ShapeFace>

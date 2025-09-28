@@ -12,7 +12,7 @@ import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.boundary.shape.BoundaryShape.Containment
 import net.casual.arcade.boundary.utils.ClientboundSetBorderWarningDistancePacket
 import net.casual.arcade.utils.time.MinecraftTimeDuration
-import net.casual.arcade.visuals.core.TrackedPlayerUI
+import net.casual.arcade.visuals.core.TrackingVisualElement
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction.Axis
 import net.minecraft.network.protocol.Packet
@@ -48,7 +48,7 @@ public class LevelBoundary(
      * The boundary renderer.
      */
     public val renderer: BoundaryRenderer,
-): TrackedPlayerUI() {
+): TrackingVisualElement() {
     /**
      * Determines how much damage to deal to the player
      * while they're outside the boundary.

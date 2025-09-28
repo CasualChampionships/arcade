@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.visuals.extensions
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerLeaveEvent
@@ -21,7 +22,7 @@ import java.util.*
 internal class PlayerBossbarsExtension(
     owner: ServerPlayer
 ): PlayerExtension(owner) {
-    private val bars = HashMap<CustomBossbar, PlayerBossEvent>()
+    private val bars = Object2ObjectOpenHashMap<CustomBossbar, PlayerBossEvent>()
 
     internal fun tick() {
         for ((bar, data) in this.bars) {
@@ -122,7 +123,7 @@ internal class PlayerBossbarsExtension(
     }
 
     companion object {
-        internal val ServerPlayer.bossbars
+        internal val ServerPlayer.bossbarsExtension
             get() = this.getExtension<PlayerBossbarsExtension>()
 
         internal fun registerEvents() {
@@ -130,10 +131,10 @@ internal class PlayerBossbarsExtension(
                 event.addExtension(::PlayerBossbarsExtension)
             }
             GlobalEventHandler.Server.register<PlayerLeaveEvent> { (player) ->
-                player.bossbars.disconnect()
+                player.bossbarsExtension.disconnect()
             }
             GlobalEventHandler.Server.register<PlayerTickEvent> { (player) ->
-                player.bossbars.tick()
+                player.bossbarsExtension.tick()
             }
         }
     }

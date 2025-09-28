@@ -13,10 +13,10 @@ public open class PlayerListTask(
     display: PlayerListDisplay
 ): Task {
     init {
-        this.minigame.ui.setPlayerListDisplay(display)
+        this.minigame.visuals.setPlayerListDisplay(display)
     }
 
     override fun run() {
-        this.minigame.ui.removePlayerListDisplay()
+        this.minigame.visuals.removePlayerListDisplay()
     }
 }

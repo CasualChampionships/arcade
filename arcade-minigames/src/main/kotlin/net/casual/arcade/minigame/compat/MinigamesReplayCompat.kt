@@ -24,7 +24,7 @@ internal object MinigamesReplayCompat {
         val minigame = player.getMinigame() ?: return
 
         // Resend all the minigame UI
-        minigame.ui.resendUI(player, recorder::record)
+        minigame.visuals.resendUI(player, recorder::record)
     }
 
     // Important note: if you are implementing a MinigameEvent, then you must
