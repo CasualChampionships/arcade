@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.TagKey
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.DamageType
+import kotlin.random.Random
 
 public fun <T> ResourceLocation.toKey(registryKey: ResourceKey<out Registry<T>>): ResourceKey<T> {
     return ResourceKey.create(registryKey, this)
@@ -38,4 +39,18 @@ public fun DamageSource.isOf(tag: TagKey<DamageType>): Boolean {
 
 public fun DamageSource.isOf(key: ResourceKey<DamageType>): Boolean {
     return this.typeHolder().isOf(key)
+}
+
+public fun <T> Registry<T>.getRandomSequence(random: Random = Random): Sequence<Holder.Reference<T>> {
+    val universe = this.registryKeySet().toMutableSet()
+    if (universe.isEmpty()) {
+        return emptySequence()
+    }
+    return sequence {
+        while (universe.isNotEmpty()) {
+            val key = universe.random(random)
+            universe.remove(key)
+            yield(get(key).orElseThrow())
+        }
+    }
 }
