@@ -6,10 +6,18 @@ package net.casual.arcade.guis.hotbar
 
 import net.minecraft.server.level.ServerPlayer
 
+/**
+ * How I want this to work:
+ *   - Users can specify items in each hotbar slot - like existing sgui functionality
+ *   - Users can specify passthrough slots, that is, slots the reference another slot
+ *     items can be moved from these slots
+ *   - When opening a container the hotbar gui should become 'dormant' and
+ */
+// What if instead of making a "Hotbar" gui, we just replace the entire player inventory.
+// I think this is actually not a bad idea...
+// We implement our own version of InventoryMenu that allows us to hook into events
 public open class HotbarGui(
     public val player: ServerPlayer
 ) {
-    init {
 
-    }
 }
