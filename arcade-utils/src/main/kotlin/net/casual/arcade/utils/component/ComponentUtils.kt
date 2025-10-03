@@ -4,11 +4,10 @@
  */
 package net.casual.arcade.utils.component
 
-import net.minecraft.network.chat.CommonComponents
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.MutableComponent
+import net.minecraft.network.chat.*
 import net.minecraft.network.chat.contents.PlainTextContents
 import net.minecraft.network.chat.contents.TranslatableContents
+import java.util.*
 
 /**
  * Creates a new [MutableComponent] using the given [builder].
@@ -192,5 +191,22 @@ public inline fun <T> Iterable<T>.joinToComponent(
     if (suffix != null) {
         component += suffix
     }
+    return component
+}
+
+/**
+ * Converts a [FormattedText] into a new [MutableComponent] instance.
+ *
+ * @return A new component with the text contents and styling.
+ */
+public fun FormattedText.toComponent(): MutableComponent {
+    if (this is Component) {
+        return this.copy()
+    }
+    val component = Component.empty()
+    this.visit<Unit>({ style, content ->
+        component.append(Component.literal(content).withStyle(style))
+        Optional.empty()
+    }, Style.EMPTY)
     return component
 }
