@@ -12,7 +12,7 @@ debug-tools-api     = "1.0.17"
 replay-studio       = "3fdc6c42e3"
 
 # Compatability
-carpet        = "1.4.177"
+carpet        = "1.4.185"
 voicechat     = "fabric-1.21.9-pre3-2.6.4"
 voicechat-api = "2.6.0"
 vmp           = "0.2.0+beta.7.210+1.21.9-pre1"
