@@ -22,15 +22,15 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import java.util.concurrent.CompletableFuture
+import kotlin.jvm.optionals.getOrNull
 
 public class RegistryElementArgument<T>(
-    private val key: ResourceKey<Registry<T>>,
+    private val keys: Set<ResourceKey<Registry<T>>>,
     private val filter: (ResourceKey<T>, T) -> Boolean
 ): CustomArgumentType<RegistryElementArgument.FilterableResourceKey<T>>() {
     override fun parse(reader: StringReader): FilterableResourceKey<T> {
         return FilterableResourceKey(
-            ResourceKey.create(this.key, ResourceLocation.read(reader)),
-            this.filter
+            this.keys, ResourceLocation.read(reader), this.filter
         )
     }
 
@@ -40,14 +40,15 @@ public class RegistryElementArgument<T>(
     ): CompletableFuture<Suggestions> {
         val source = context.source
         if (source is SharedSuggestionProvider) {
-            val optional = source.registryAccess().lookup(this.key)
-            if (optional.isPresent) {
-                val registry = optional.get()
-                return SharedSuggestionProvider.suggestResource(
+            val suggestions = this.keys.flatMap { key ->
+                source.registryAccess().lookup(key).map { registry ->
                     registry.entrySet().filter { (key, value) ->
                         this.filter.invoke(key, value)
-                    }.map { it.key.location() }, builder
-                )
+                    }.map { entry -> entry.key.location() }
+                }.orElseGet(::listOf)
+            }
+            if (suggestions.isNotEmpty()) {
+                return SharedSuggestionProvider.suggestResource(suggestions, builder)
             }
         }
         return super.listSuggestions(context, builder)
@@ -58,7 +59,8 @@ public class RegistryElementArgument<T>(
     }
 
     public data class FilterableResourceKey<T>(
-        private val key: ResourceKey<T>,
+        private val keys: Set<ResourceKey<Registry<T>>>,
+        private val id: ResourceLocation,
         private val filter: (ResourceKey<T>, T) -> Boolean
     ) {
         public fun getElement(access: RegistryAccess): T {
@@ -66,20 +68,19 @@ public class RegistryElementArgument<T>(
         }
 
         public fun getHolder(access: RegistryAccess): Holder.Reference<T> {
-            val registry = access.lookup(this.key.registryKey())
-            if (registry.isEmpty) {
-                throw UNKNOWN_REGISTRY.create(this.key.registryKey().toIdString())
+            for (key in this.keys) {
+                val registry = access.lookup(key).getOrNull() ?: continue
+                val holder = registry.get(this.id).getOrNull() ?: continue
+                if (this.filter.invoke(holder.key(), holder.value())) {
+                    return holder
+                }
             }
-            val holder = registry.get().get(this.key)
-            if (holder.isEmpty || !this.filter.invoke(this.key, holder.get().value())) {
-                throw INVALID_ELEMENT.create(this.key.toIdString(), this.key.registryKey().toIdString())
-            }
-            return holder.get()
+
+            throw INVALID_ELEMENT.create(this.id.toString(), this.keys.joinToString(" | ") { key -> key.toIdString() })
         }
     }
 
     public companion object {
-        private val UNKNOWN_REGISTRY = DynamicCommandExceptionType { Component.translatable("commands.arguments.registry.unknown", it) }
         private val INVALID_ELEMENT = Dynamic2CommandExceptionType { a, b -> Component.translatable("commands.arguments.registry.element.unknown", a, b) }
 
         @JvmStatic
@@ -88,7 +89,23 @@ public class RegistryElementArgument<T>(
             key: ResourceKey<Registry<T>>,
             filter: (ResourceKey<T>, T) -> Boolean = { _, _ -> true }
         ): RegistryElementArgument<T> {
-            return RegistryElementArgument(key, filter)
+            return RegistryElementArgument(setOf(key), filter)
+        }
+
+        @JvmStatic
+        @JvmOverloads
+        public fun <T> element(
+            keys: Set<ResourceKey<Registry<T>>>,
+            filter: (ResourceKey<T>, T) -> Boolean = { _, _ -> true }
+        ): RegistryElementArgument<T> {
+            return RegistryElementArgument(keys, filter)
+        }
+
+        public fun <T> element(
+            vararg keys: ResourceKey<Registry<T>>,
+            filter: (ResourceKey<T>, T) -> Boolean = { _, _ -> true }
+        ): RegistryElementArgument<T> {
+            return RegistryElementArgument(keys.toSet(), filter)
         }
 
         @JvmStatic

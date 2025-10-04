@@ -9,7 +9,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
 import java.util.*
 
-public object LiteralWidthResolver {
+public object LiteralWidthResolver: WidthResolver {
     private val widths = Int2IntOpenHashMap()
 
     init {
@@ -40,6 +40,21 @@ public object LiteralWidthResolver {
      */
     public fun width(codepoint: Int): Int {
         return this.widths.get(codepoint)
+    }
+
+    /**
+     * Calculates the width of the given [codepoint] in gui pixels,
+     * with the given style.
+     *
+     * This assumes the use of [Style.DEFAULT_FONT] as well as
+     * only using ascii characters.
+     *
+     * @param codepoint The codepoint to calculate the width of.
+     * @param style The style of the codepoint.
+     * @return The calculated width of the [codepoint] in gui pixels.
+     */
+    override fun width(codepoint: Int, style: Style): Int {
+        return this.width(codepoint) + if (style.isBold) 1 else 0
     }
 
     /**

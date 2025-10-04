@@ -11,6 +11,7 @@ import net.casual.arcade.resources.font.padding.PaddingNoSplitFontResources
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.player.PlayerModelPart
 import net.minecraft.world.scores.PlayerTeam
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
@@ -29,7 +30,8 @@ public interface PlayerListEntries {
         val display: Component,
         val textures: Texture = Texture.DEFAULT,
         val latency: Int = 0,
-        val showHat: Boolean = true
+        val showHat: Boolean = true,
+        val spectatorFormat: Boolean = false
     ) {
         public companion object {
             private val HIDDEN_PADDING = PaddingNoSplitFontResources.padding(-8)
@@ -46,7 +48,9 @@ public interface PlayerListEntries {
                 return Entry(
                     player.tabListDisplayName ?: PlayerTeam.formatNameForTeam(player.team, player.name),
                     Texture.fromProfile(player.gameProfile) ?: Texture.DEFAULT,
-                    player.connection.latency()
+                    player.connection.latency(),
+                    player.isModelPartShown(PlayerModelPart.HAT),
+                    player.isSpectator
                 )
             }
 

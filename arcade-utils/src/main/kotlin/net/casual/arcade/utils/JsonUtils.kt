@@ -5,6 +5,7 @@
 package net.casual.arcade.utils
 
 import com.google.gson.*
+import com.google.gson.reflect.TypeToken
 import com.mojang.serialization.DataResult
 import com.mojang.serialization.Decoder
 import com.mojang.serialization.Encoder
@@ -30,11 +31,11 @@ public object JsonUtils {
     public val MIN_GSON: Gson = GsonBuilder().serializeNulls().disableHtmlEscaping().create()
 
     public inline fun <reified T: Any> decodeRaw(element: JsonElement): T {
-        return GSON.fromJson(element, T::class.java)
+        return GSON.fromJson(element, object: TypeToken<T>() { })
     }
 
     public inline fun <reified T: Any> decodeRaw(reader: Reader): T {
-        return GSON.fromJson(reader, T::class.java)
+        return GSON.fromJson(reader, object: TypeToken<T>() { })
     }
 
     public inline fun <reified T: Any> decodeRaw(path: Path): T {
