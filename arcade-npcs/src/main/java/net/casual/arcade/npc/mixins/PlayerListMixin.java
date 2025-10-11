@@ -59,7 +59,7 @@ public class PlayerListMixin {
         ServerPlayer previous
     ) {
         if (previous instanceof FakePlayer fake) {
-            return fake.createRespawned(server, level, profile);
+            return fake.createRespawned(server, level, profile, clientInformation);
         }
         return original.call(server, level, profile, clientInformation);
     }

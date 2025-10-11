@@ -13,6 +13,8 @@
     "PlayerMixin",
     "ServerEntityMixin",
     "ServerLoginPacketListenerImplAccessor",
+    "configuration.PrepareSpawnTaskAccessor",
+    "configuration.PrepareSpawnTaskReadyMixin",
     "pathfinding.PathfindingContextAccessor"
   ],
   "injectors": {

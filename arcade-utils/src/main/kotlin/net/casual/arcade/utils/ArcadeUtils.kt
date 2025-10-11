@@ -15,6 +15,9 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.function.Consumer
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.io.path.createDirectories
 import kotlin.jvm.optionals.getOrNull
 
@@ -50,6 +53,14 @@ public object ArcadeUtils: ModInitializer {
     @JvmStatic
     public fun scopedProblemReporter(consumer: Consumer<ScopedCollector>) {
         this.createProblemReporter().use(consumer::accept)
+    }
+
+    @OptIn(ExperimentalContracts::class)
+    public inline fun scopedProblemReporter(consumer: (ScopedCollector) -> Unit) {
+        contract {
+            callsInPlace(consumer, InvocationKind.EXACTLY_ONCE)
+        }
+        this.createProblemReporter().use(consumer)
     }
 
     override fun onInitialize() {

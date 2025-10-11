@@ -10,6 +10,8 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import me.senseiwells.debug.api.server.DebugToolsPackets
 import net.casual.arcade.npc.ai.NPCLookControl
 import net.casual.arcade.npc.ai.NPCMoveControl
+import net.casual.arcade.npc.configuration.FakePlayerConfigurationTasks
+import net.casual.arcade.npc.configuration.FakePlayerConstructor
 import net.casual.arcade.npc.mixins.LivingEntityAccessor
 import net.casual.arcade.npc.network.FakeConnection
 import net.casual.arcade.npc.network.FakeGamePacketListenerImpl
@@ -28,6 +30,7 @@ import net.minecraft.server.level.ClientInformation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.CommonListenerCookie
+import net.minecraft.server.players.NameAndId
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.LivingEntity
@@ -36,16 +39,18 @@ import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes
 import net.minecraft.world.item.ProjectileWeaponItem
 import net.minecraft.world.level.pathfinder.PathType
+import net.minecraft.world.level.storage.TagValueInput
 import net.minecraft.world.phys.AABB
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
 @Suppress("LeakingThis")
-public open class FakePlayer protected constructor(
+public open class FakePlayer(
     server: MinecraftServer,
     level: ServerLevel,
-    profile: GameProfile
-): ServerPlayer(server, level, profile, ClientInformation.createDefault()) {
+    profile: GameProfile,
+    info: ClientInformation
+): ServerPlayer(server, level, profile, info) {
     private val pathfindingMalus = Object2FloatOpenHashMap<PathType>()
 
     public val moveControl: NPCMoveControl = NPCMoveControl(this)
@@ -55,9 +60,10 @@ public open class FakePlayer protected constructor(
     public open fun createRespawned(
         server: MinecraftServer,
         level: ServerLevel,
-        profile: GameProfile
+        profile: GameProfile,
+        info: ClientInformation
     ): FakePlayer {
-        return FakePlayer(server, level, profile)
+        return FakePlayer(server, level, profile, info)
     }
 
     public open fun createConnection(
@@ -228,30 +234,26 @@ public open class FakePlayer protected constructor(
         public fun <T: FakePlayer> join(
             server: MinecraftServer,
             profile: GameProfile,
-            supplier: (MinecraftServer, ServerLevel, GameProfile) -> T
+            constructor: FakePlayerConstructor<T>
         ): CompletableFuture<T> {
             val connection = FakeConnection()
             // We simulate the fake login packet listener for luckperms compatability
             val login = FakeLoginPacketListenerImpl(server, connection, profile)
             connection.setupInboundProtocol(LoginProtocols.SERVERBOUND, login)
-            return login.handleQueries().thenApplyAsync({
-                if (server.playerList.getPlayer(profile.id) != null) {
-                    throw IllegalArgumentException("Player with UUID ${profile.id} already exists")
-                }
-
-                val player = supplier.invoke(server, server.overworld(), profile) as FakePlayer
+            return login.handleQueries().thenComposeAsync({
+                val cookies = CommonListenerCookie.createInitial(profile, false)
+                FakePlayerConfigurationTasks.prepareAndSpawnPlayer(server, profile, connection, cookies, constructor)
+            }, server).thenApply { player ->
                 player.entityData.set(DATA_PLAYER_MODE_CUSTOMISATION, 0x7F)
-                server.playerList.placeNewPlayer(
-                    connection, player, CommonListenerCookie(profile, 0, player.clientInformation(), false)
-                )
                 server.connection.connections.add(connection)
                 player.connection.handleAcceptPlayerLoad(ServerboundPlayerLoadedPacket())
-
-                // I have no idea why, but we need to downcast to FakePlayer then upcast to T
-                // otherwise the kotlin compiler just refuses to compile this valid code???
                 @Suppress("UNCHECKED_CAST")
                 player as T
-            }, server)
+            }.whenComplete { _, throwable ->
+                if (throwable != null) {
+                    ArcadeUtils.logger.error("FakePlayer ${profile.name} failed to join", throwable)
+                }
+            }
         }
 
         public fun join(server: MinecraftServer, username: String): CompletableFuture<FakePlayer> {
@@ -261,7 +263,7 @@ public open class FakePlayer protected constructor(
         public fun <T: FakePlayer> join(
             server: MinecraftServer,
             username: String,
-            supplier: (MinecraftServer, ServerLevel, GameProfile) -> T
+            constructor: FakePlayerConstructor<T>
         ): CompletableFuture<T> {
             @Suppress("UNCHECKED_CAST")
             return this.joining.getOrPut(username) {
@@ -269,25 +271,25 @@ public open class FakePlayer protected constructor(
                 resolvable.resolveProfile(server.services().profileResolver).whenCompleteAsync({ _, throwable ->
                     this.joining.remove(username)
                     if (throwable != null) {
-                        ArcadeUtils.logger.error("Fake player $username failed to join", throwable)
+                        ArcadeUtils.logger.error("Couldn't resolve FakePlayer username: $username", throwable)
                     }
                 }, server).thenCompose { resolved ->
-                    this.join(server, resolved, supplier)
-                }
+                    this.join(server, resolved, constructor)
+                } as CompletableFuture<FakePlayer>
             } as CompletableFuture<T>
         }
 
         public fun <T: FakePlayer> join(
             server: MinecraftServer,
             uuid: UUID,
-            supplier: (MinecraftServer, ServerLevel, GameProfile) -> T
+            constructor: FakePlayerConstructor<T>
         ): CompletableFuture<T> {
             val resolvable = DynamicResolvableProfile(uuid)
             return resolvable.resolveProfile(server.services().profileResolver).thenComposeAsync({ resolved ->
                 if (resolved.name.isEmpty()) {
                     throw IllegalStateException("Resolved name was empty")
                 }
-                this.join(server, resolved, supplier)
+                this.join(server, resolved, constructor)
             }, server)
         }
 

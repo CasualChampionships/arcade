@@ -4,7 +4,10 @@
  */
 package net.casual.arcade.visuals.tab
 
+import com.google.common.collect.HashMultimap
+import com.google.common.collect.ImmutableMultimap
 import com.mojang.authlib.GameProfile
+import com.mojang.authlib.properties.PropertyMap
 import net.casual.arcade.utils.ClientboundPlayerInfoUpdatePacket
 import net.casual.arcade.utils.EnumUtils
 import net.casual.arcade.utils.PlayerUtils.levelServer
@@ -215,8 +218,8 @@ public open class PlayerListDisplay(
     }
 
     private fun toClientboundEntry(index: Int, entry: Entry): ClientboundPlayerInfoUpdatePacket.Entry {
-        val profile = this.createProfileForIndex(index)
-        profile.properties.put("textures", entry.textures.toProperty())
+        val properties = ImmutableMultimap.of("textures", entry.textures.toProperty())
+        val profile = this.createProfileForIndex(index, PropertyMap(properties))
         return ClientboundPlayerInfoUpdatePacket.Entry(
             profile.id,
             profile,
@@ -239,11 +242,12 @@ public open class PlayerListDisplay(
         return UUID(index.toLong() + 31, 0)
     }
 
-    private fun createProfileForIndex(index: Int): GameProfile {
+    private fun createProfileForIndex(index: Int, properties: PropertyMap = PropertyMap.EMPTY): GameProfile {
         val char = (0x00B4 + index).toChar()
         return GameProfile(
             this.createUUIDForIndex(index),
-            char.toString()
+            char.toString(),
+            properties
         )
     }
 
