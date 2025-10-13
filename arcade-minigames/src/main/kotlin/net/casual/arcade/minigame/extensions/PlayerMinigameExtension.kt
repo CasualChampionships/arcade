@@ -16,7 +16,7 @@ import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.minigame.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.PlayerUtils.levelServer
+import net.casual.arcade.utils.PlayerUtils.server
 import net.minecraft.core.UUIDUtil
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtAccounter
@@ -83,7 +83,7 @@ internal class PlayerMinigameExtension(
     }
 
     private fun getPath(): Path {
-        return Minigames.getPath(this.player.levelServer)
+        return Minigames.getPath(this.player.server)
             .resolve("players")
             .resolve(this.player.stringUUID + ".nbt")
     }

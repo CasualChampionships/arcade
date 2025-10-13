@@ -24,13 +24,9 @@ import net.casual.arcade.replay.viewer.ReplayViewerUtils.sendReplayPacket
 import net.casual.arcade.replay.viewer.ReplayViewerUtils.startViewingReplay
 import net.casual.arcade.replay.viewer.ReplayViewerUtils.stopViewingReplay
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.component.bold
-import net.casual.arcade.utils.component.lime
-import net.casual.arcade.utils.component.red
-import net.casual.arcade.utils.component.teal
-import net.casual.arcade.utils.component.yellow
 import net.casual.arcade.utils.DateTimeUtils.formatHHMMSS
-import net.casual.arcade.utils.PlayerUtils.levelServer
+import net.casual.arcade.utils.PlayerUtils.server
+import net.casual.arcade.utils.component.*
 import net.minecraft.core.UUIDUtil
 import net.minecraft.network.ConnectionProtocol
 import net.minecraft.network.ProtocolInfo
@@ -103,7 +99,7 @@ public class ReplayViewer internal constructor(
     )
 
     public val server: MinecraftServer
-        get() = this.player.levelServer
+        get() = this.player.server
 
     public val player: ServerPlayer
         get() = this.connection.player
@@ -365,7 +361,7 @@ public class ReplayViewer internal constructor(
 
     private fun addBackToServer() {
         val player = this.player
-        val server = player.levelServer
+        val server = player.server
         val playerList = server.playerList
         val level = player.level()
 
@@ -400,7 +396,7 @@ public class ReplayViewer internal constructor(
 
     private fun removeFromServer() {
         val player = this.player
-        val playerList = player.levelServer.playerList
+        val playerList = player.server.playerList
         playerList.broadcastAll(ClientboundPlayerInfoRemovePacket(listOf(player.uuid)))
         player.level().removePlayerImmediately(player, Entity.RemovalReason.CHANGED_DIMENSION)
         playerList.players.remove(player)
@@ -408,7 +404,7 @@ public class ReplayViewer internal constructor(
 
     private fun removeServerState() {
         val player = this.player
-        val server = player.levelServer
+        val server = player.server
         this.send(ClientboundPlayerInfoRemovePacket(server.playerList.players.map { it.uuid }))
         player.chunkTrackingView.forEach {
             this.send(ClientboundForgetLevelChunkPacket(it))

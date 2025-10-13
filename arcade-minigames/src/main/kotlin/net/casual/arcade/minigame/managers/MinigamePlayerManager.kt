@@ -17,8 +17,8 @@ import net.casual.arcade.minigame.mixins.PlayerListAccessor
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.minigame.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.PlayerUtils.levelServer
 import net.casual.arcade.utils.PlayerUtils.player
+import net.casual.arcade.utils.PlayerUtils.server
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.casual.arcade.utils.math.location.Location.Companion.location
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asTeleportTransition
@@ -450,7 +450,7 @@ public class MinigamePlayerManager(
         if (data != null) {
             val key = data.read("Dimension", Level.RESOURCE_KEY_CODEC).getOrNull()
             if (key != null) {
-                val level = player.levelServer.getLevel(key)
+                val level = player.server.getLevel(key)
                 if (level != null) {
                     player.teleportTo(player.location.with(level))
                     return

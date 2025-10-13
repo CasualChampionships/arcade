@@ -16,7 +16,7 @@ import net.casual.arcade.resources.ArcadeResourcePacks
 import net.casual.arcade.resources.font.pixel.PixelFontResources
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.PlayerUtils.levelServer
+import net.casual.arcade.utils.PlayerUtils.server
 import net.casual.arcade.utils.component.color
 import net.casual.arcade.utils.component.wrap
 import net.casual.arcade.utils.coroutine.async
@@ -185,7 +185,7 @@ public class PixelGridHeadComponents private constructor(
         }
 
         public fun getHeadOrDefaultFor(player: ServerPlayer, shift: Int = 0): Component {
-            val server = player.levelServer
+            val server = player.server
             val services = server.services()
             val components = this.get(shift, services.profileResolver, services.sessionService)
             val deferred = server.async { components.getHeadFor(player) }

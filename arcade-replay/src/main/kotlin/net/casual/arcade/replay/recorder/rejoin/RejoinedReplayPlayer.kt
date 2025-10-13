@@ -7,7 +7,7 @@ package net.casual.arcade.replay.recorder.rejoin
 import net.casual.arcade.replay.ducks.PackTracker
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.viewer.ReplayViewerUtils
-import net.casual.arcade.utils.PlayerUtils.levelServer
+import net.casual.arcade.utils.PlayerUtils.server
 import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.game.*
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket.Action
@@ -15,7 +15,6 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.CommonListenerCookie
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.entity.player.PlayerModelPart
-import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.scores.DisplaySlot
 import net.minecraft.world.scores.Objective
@@ -24,7 +23,7 @@ import java.util.*
 public class RejoinedReplayPlayer private constructor(
     public val original: ServerPlayer,
     public val recorder: ReplayRecorder
-): ServerPlayer(original.levelServer, original.level(), original.gameProfile, original.clientInformation()) {
+): ServerPlayer(original.server, original.level(), original.gameProfile, original.clientInformation()) {
     init {
         this.id = this.original.id
     }
@@ -70,7 +69,7 @@ public class RejoinedReplayPlayer private constructor(
             afterLogin: () -> Unit = {},
             shouldHidePlayer: (ServerPlayer) -> Boolean = { false }
         ) {
-            val server = player.levelServer
+            val server = player.server
             val players = server.playerList
             val level = player.level()
             val levelData = level.levelData

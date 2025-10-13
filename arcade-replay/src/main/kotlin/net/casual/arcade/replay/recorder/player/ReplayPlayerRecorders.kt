@@ -5,7 +5,6 @@
 package net.casual.arcade.replay.recorder.player
 
 import com.mojang.authlib.GameProfile
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
@@ -16,7 +15,7 @@ import net.casual.arcade.replay.recorder.rejoin.RejoinedReplayPlayer
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
 import net.casual.arcade.replay.recorder.settings.SimpleRecorderSettings
 import net.casual.arcade.utils.EnumUtils
-import net.casual.arcade.utils.PlayerUtils.levelServer
+import net.casual.arcade.utils.PlayerUtils.server
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
@@ -52,7 +51,7 @@ public object ReplayPlayerRecorders {
         if (player is RejoinedReplayPlayer) {
             throw IllegalArgumentException("Cannot create a ReplayPlayerRecorder for a rejoining player")
         }
-        return this.create(player.levelServer, player.gameProfile, directory, format, settings)
+        return this.create(player.server, player.gameProfile, directory, format, settings)
     }
 
     /**

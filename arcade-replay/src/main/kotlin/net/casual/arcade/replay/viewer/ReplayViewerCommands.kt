@@ -13,15 +13,12 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.tree.ArgumentCommandNode
 import com.mojang.brigadier.tree.CommandNode
-import com.mojang.brigadier.tree.RootCommandNode
 import net.casual.arcade.commands.*
 import net.casual.arcade.replay.viewer.ReplayViewerUtils.getViewingReplay
 import net.casual.arcade.utils.DateTimeUtils.formatHHMMSS
-import net.casual.arcade.utils.PlayerUtils.levelServer
 import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSource
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.TimeArgument
 import net.minecraft.commands.synchronization.SuggestionProviders
 import net.minecraft.network.chat.Component

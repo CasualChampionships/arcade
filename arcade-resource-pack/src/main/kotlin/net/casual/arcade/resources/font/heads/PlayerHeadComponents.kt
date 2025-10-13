@@ -13,8 +13,8 @@ import net.casual.arcade.resources.font.pixel.PixelFontResources
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.DynamicResolvableProfile
-import net.casual.arcade.utils.PlayerUtils.levelServer
 import net.casual.arcade.utils.PlayerUtils.player
+import net.casual.arcade.utils.PlayerUtils.server
 import net.casual.arcade.utils.ServerUtils
 import net.casual.arcade.utils.component.color
 import net.casual.arcade.utils.component.wrap
@@ -69,7 +69,7 @@ public class PlayerHeadComponents(private val shift: Int) {
         if (!force && existing != null) {
             return existing
         }
-        val skinUrl = this.getSkinUrl(player.gameProfile, player.levelServer)
+        val skinUrl = this.getSkinUrl(player.gameProfile, player.server)
             ?: return CompletableFuture.completedFuture(this.steve)
         val future = CompletableFuture.supplyAsync {
             val component = generateHead(skinUrl)

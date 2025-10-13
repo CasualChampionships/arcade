@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.commands.hidden
 
-import net.casual.arcade.utils.PlayerUtils.levelServer
+import net.casual.arcade.utils.PlayerUtils.server
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 
@@ -14,7 +14,7 @@ public class HiddenCommandContext(
     private var removed = false
 
     public val server: MinecraftServer
-        get() = this.player.levelServer
+        get() = this.player.server
 
     public fun remove() {
         this.removed = true

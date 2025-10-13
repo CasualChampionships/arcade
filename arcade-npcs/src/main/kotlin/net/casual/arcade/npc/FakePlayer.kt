@@ -20,7 +20,7 @@ import net.casual.arcade.npc.pathfinding.navigation.NPCAmphibiousPathNavigation
 import net.casual.arcade.npc.pathfinding.navigation.NPCPathNavigation
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.DynamicResolvableProfile
-import net.casual.arcade.utils.PlayerUtils.levelServer
+import net.casual.arcade.utils.PlayerUtils.server
 import net.minecraft.network.Connection
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket
 import net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket
@@ -30,7 +30,6 @@ import net.minecraft.server.level.ClientInformation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.CommonListenerCookie
-import net.minecraft.server.players.NameAndId
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.LivingEntity
@@ -39,7 +38,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes
 import net.minecraft.world.item.ProjectileWeaponItem
 import net.minecraft.world.level.pathfinder.PathType
-import net.minecraft.world.level.storage.TagValueInput
 import net.minecraft.world.phys.AABB
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -117,7 +115,7 @@ public open class FakePlayer(
         // The player will never send move packets,
         // so we need to manually move the player.
         // This keeps the ticket manager updated
-        if (this.levelServer.tickCount % 10 == 0) {
+        if (this.server.tickCount % 10 == 0) {
             this.connection.resetPosition()
             this.level().chunkSource.move(this)
         }

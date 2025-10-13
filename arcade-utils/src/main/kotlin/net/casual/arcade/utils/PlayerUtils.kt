@@ -7,7 +7,6 @@ package net.casual.arcade.utils
 import net.casual.arcade.util.ducks.ConnectionFaultHolder
 import net.casual.arcade.util.ducks.SilentRecipeSender
 import net.casual.arcade.util.mixins.PlayerAdvancementsAccessor
-import net.casual.arcade.utils.PlayerUtils.username
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -16,11 +15,7 @@ import net.casual.arcade.utils.impl.Sound
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.advancements.AdvancementHolder
-import net.minecraft.core.BlockPos
-import net.minecraft.core.Direction8
-import net.minecraft.core.GlobalPos
-import net.minecraft.core.Holder
-import net.minecraft.core.SectionPos
+import net.minecraft.core.*
 import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.*
@@ -54,7 +49,16 @@ public object PlayerUtils {
     private val HEALTH_BOOST = ResourceUtils.arcade("health_boost")
 
     @JvmStatic
+    @Deprecated("Replace With .server", ReplaceWith(
+        "this.server",
+        "net.casual.arcade.utils.PlayerUtils.levelServer",
+        "net.casual.arcade.utils.PlayerUtils.server"
+    ))
     public val ServerPlayer.levelServer: MinecraftServer
+        get() = this.server
+
+    @JvmStatic
+    public val ServerPlayer.server: MinecraftServer
         get() = this.level().server
 
     @JvmStatic
@@ -209,7 +213,7 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.getViewDistance(): Int {
-        return this.requestedViewDistance().coerceIn(2, this.levelServer.playerList.viewDistance)
+        return this.requestedViewDistance().coerceIn(2, this.server.playerList.viewDistance)
     }
 
     @JvmStatic
@@ -266,7 +270,7 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.spoofTeam(team: PlayerTeam) {
-        this.levelServer.playerList.broadcastAll(
+        this.server.playerList.broadcastAll(
             ClientboundSetPlayerTeamPacket.createPlayerPacket(team, this.scoreboardName, ADD)
         )
     }
@@ -332,14 +336,14 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.revokeAllAdvancements() {
-        for (advancement in this.levelServer.advancements.allAdvancements) {
+        for (advancement in this.server.advancements.allAdvancements) {
             this.revokeAdvancement(advancement)
         }
     }
 
     @JvmStatic
     public fun ServerPlayer.grantAllRecipesSilently() {
-        for (recipe in this.levelServer.recipeManager.recipes) {
+        for (recipe in this.server.recipeManager.recipes) {
             this.recipeBook.add(recipe.id)
         }
         this.markSilentRecipesDirty()
@@ -347,7 +351,7 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.revokeAllRecipes() {
-        this.resetRecipes(this.levelServer.recipeManager.recipes)
+        this.resetRecipes(this.server.recipeManager.recipes)
     }
 
     @JvmStatic
@@ -452,12 +456,12 @@ public object PlayerUtils {
     ) {
         val formatted = PlayerFormattedChat(prefix, username, message)
         val decorated = formatted.asComponent { CommonComponents.EMPTY }
-        for (player in this.levelServer.playerList.players) {
+        for (player in this.server.playerList.players) {
             if (filter.test(player)) {
                 player.sendSystemMessage(decorated)
             }
         }
-        this.levelServer.sendSystemMessage(decorated)
+        this.server.sendSystemMessage(decorated)
     }
 
     @JvmStatic
@@ -477,7 +481,7 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.broadcastUnsignedMessage(message: PlayerChatMessage) {
-        this.levelServer.playerList.broadcastChatMessage(message, this, ChatType.bind(ChatType.CHAT, this))
+        this.server.playerList.broadcastChatMessage(message, this, ChatType.bind(ChatType.CHAT, this))
     }
 
     @JvmStatic
@@ -505,12 +509,12 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.addToTeam(team: PlayerTeam) {
-        this.levelServer.scoreboard.addPlayerToTeam(this.scoreboardName, team)
+        this.server.scoreboard.addPlayerToTeam(this.scoreboardName, team)
     }
 
     @JvmStatic
     public fun ServerPlayer.removeFromTeam() {
-        this.levelServer.scoreboard.removePlayerFromTeam(this.scoreboardName)
+        this.server.scoreboard.removePlayerFromTeam(this.scoreboardName)
     }
 
     @JvmStatic

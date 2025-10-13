@@ -7,7 +7,7 @@ package net.casual.arcade.replay.recorder.rejoin
 import io.netty.channel.ChannelFutureListener
 import net.casual.arcade.replay.mixins.rejoin.ServerConfigurationPacketListenerImplAccessor
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.PlayerUtils.levelServer
+import net.casual.arcade.utils.PlayerUtils.server
 import net.minecraft.network.Connection
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.common.ServerboundPongPacket
@@ -21,7 +21,7 @@ public class RejoinConfigurationPacketListener(
     private val replay: RejoinedReplayPlayer,
     connection: Connection,
     cookies: CommonListenerCookie
-): ServerConfigurationPacketListenerImpl(replay.levelServer, connection, cookies) {
+): ServerConfigurationPacketListenerImpl(replay.server, connection, cookies) {
     @Suppress("CAST_NEVER_SUCCEEDS")
     private val tasks: Queue<ConfigurationTask>
         get() = (this as ServerConfigurationPacketListenerImplAccessor).tasks()
