@@ -20,10 +20,10 @@ import net.minecraft.util.StringRepresentable
 import java.nio.file.Path
 
 public enum class ReplayFormat(
-    private val stable: Boolean,
-    private val experimental: Boolean
+    public val supported: Boolean,
+    public val stable: Boolean,
 ): StringRepresentable {
-    ReplayMod(true, false),
+    ReplayMod(false, false),
     Flashback(true, true);
 
     public fun writer(recordings: Path): (ReplayRecorder) -> ReplayWriter {
@@ -41,10 +41,6 @@ public enum class ReplayFormat(
     }
 
     public fun warn(consumer: (String) -> Unit) {
-        if (this.experimental) {
-            consumer.invoke("${this.name} support is currently experimental: you may encounter issues with your recordings, including issues that may cause recordings to be corrupt, you have been warned!")
-            consumer.invoke("If you do encounter any issues please submit an issue report to https://github.com/senseiwells/ServerReplay/issues")
-        }
         if (!this.stable) {
             consumer.invoke("${this.name} support is currently unstable: ${this.name} hasn't released yet, your replays may not be compatible in the future, you have been warned!")
         }
