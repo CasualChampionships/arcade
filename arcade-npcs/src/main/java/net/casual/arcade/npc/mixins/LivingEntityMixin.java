@@ -5,6 +5,8 @@
 package net.casual.arcade.npc.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.casual.arcade.npc.FakePlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -25,5 +27,36 @@ public class LivingEntityMixin {
             return player.createAttributeSupplier();
         }
         return original;
+    }
+
+    // Fixes issues with fake players taking knockback when they shouldn't,
+    // this is really a bug with vanilla where players *should* take kb, but
+    // it never actually gets synced to their client, so it seems like they don't.
+    @WrapWithCondition(
+        method = "blockedByItem",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDD)V"
+        )
+    )
+    private boolean onKnockbackTarget(LivingEntity instance, double strength, double x, double z) {
+        return !(instance instanceof FakePlayer);
+    }
+
+    @WrapWithCondition(
+        method = "hurtServer",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDD)V"
+        )
+    )
+    private boolean onHurtKnockback(
+        LivingEntity instance,
+        double strength,
+        double x,
+        double z,
+        @Local(ordinal = 0) boolean blocked
+    ) {
+        return !(instance instanceof FakePlayer) || !blocked;
     }
 }
