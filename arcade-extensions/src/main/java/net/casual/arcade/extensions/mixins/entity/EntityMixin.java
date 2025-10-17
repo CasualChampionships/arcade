@@ -23,13 +23,16 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Entity.class)
-public class EntityMixin implements ExtensionHolder {
+public abstract class EntityMixin implements ExtensionHolder {
+    @Shadow private Level level;
+
     @Unique private ExtensionMap arcade$extensions;
 
     @Inject(
@@ -41,7 +44,7 @@ public class EntityMixin implements ExtensionHolder {
         Level level,
         CallbackInfo ci
     ) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
 
@@ -62,7 +65,7 @@ public class EntityMixin implements ExtensionHolder {
         )
     )
     private void onLoad(ValueInput input, CallbackInfo ci) {
-        if ((Object) this instanceof ServerPlayer) {
+        if ((Object) this instanceof ServerPlayer || this.level.isClientSide()) {
             return;
         }
         ValueInput child = input.childOrEmpty(ArcadeUtils.MOD_ID);
@@ -77,8 +80,10 @@ public class EntityMixin implements ExtensionHolder {
         )
     )
     private void onSave(ValueOutput output, CallbackInfo ci) {
-        ValueOutput child = output.child(ArcadeUtils.MOD_ID);
-        ExtensionHolder.serialize(this, child);
+        if (!this.level.isClientSide()) {
+            ValueOutput child = output.child(ArcadeUtils.MOD_ID);
+            ExtensionHolder.serialize(this, child);
+        }
     }
 
     @Inject(
@@ -90,7 +95,7 @@ public class EntityMixin implements ExtensionHolder {
         CallbackInfo ci,
         @Share("delayed") LocalRef<DelayedInvokers.Simple> delayedRef
     ) {
-        if (entity instanceof ServerPlayer) {
+        if (entity instanceof ServerPlayer || this.level.isClientSide()) {
             return;
         }
 
