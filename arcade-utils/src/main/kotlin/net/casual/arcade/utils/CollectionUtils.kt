@@ -4,6 +4,8 @@
  */
 package net.casual.arcade.utils
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
+
 public fun <E: Comparable<E>> MutableList<E>.addSorted(sorted: List<E>) {
     if (sorted.isEmpty()) {
         return
@@ -59,4 +61,13 @@ public fun <T> Iterator<T>.asMutable(): MutableIterator<T> {
         override fun next() = wrapped.next()
         override fun remove() = throw UnsupportedOperationException("remove not supported")
     }
+}
+
+public fun <K, V> Map<K, V>.deduplicateValues(): MutableMap<K, V> {
+    return this.deduplicateValuesTo(LinkedHashMap())
+}
+
+public fun <K, V> Map<K, V>.deduplicateValuesTo(destination: MutableMap<K, V>): MutableMap<K, V> {
+    val cache = Object2ObjectOpenHashMap<V, V>(this.size)
+    return this.mapValuesTo(destination) { (_, value) -> cache.getOrPut(value) { value } }
 }
