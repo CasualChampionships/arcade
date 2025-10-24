@@ -31,7 +31,7 @@ public open class SimpleNestedGui(
     }
 
     public fun openParentOrClose() {
-        this.parent?.open()
         this.close()
+        this.parent?.open()
     }
 }
