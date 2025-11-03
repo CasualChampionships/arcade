@@ -9,7 +9,7 @@ sgui                = "1.11.0-rc.1+1.21.9"
 server-translations = "2.5.2+1.21.9-pre3"
 inject              = "3.1.4"
 debug-tools-api     = "1.0.17"
-replay-studio       = "3fdc6c42e3"
+replay-studio       = "03d5609f77"
 
 # Compatability
 carpet        = "1.4.185"
