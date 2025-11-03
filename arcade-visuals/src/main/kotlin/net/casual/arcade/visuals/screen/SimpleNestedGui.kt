@@ -33,6 +33,7 @@ public open class SimpleNestedGui(
     public fun openParentOrClose() {
         val parent = this.parent
         if (parent != null) {
+            this.onClose()
             parent.open()
         } else {
             this.close()

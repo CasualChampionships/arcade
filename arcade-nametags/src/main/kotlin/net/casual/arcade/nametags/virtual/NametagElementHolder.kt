@@ -36,7 +36,7 @@ public open class NametagElementHolder(
     public val root: NametagHeightElement = NametagHeightElement(this.entity, NametagHeight.INITIAL)
 
     init {
-        this.addElement(this.root)
+        this.addElementWithoutUpdates(this.root)
     }
 
     public fun add(nametag: Nametag) {
@@ -56,8 +56,9 @@ public open class NametagElementHolder(
         for (connection in element.getObservers()) {
             element.sendRemovePackets(connection.player, connection::send)
             val watching = this.watching[connection] ?: continue
+            val wasStackEmpty = watching.isEmpty()
             watching.remove(element)
-            this.resendNametagStackFor(watching, connection, connection::send)
+            this.resendNametagStackFor(watching, wasStackEmpty, connection, connection::send)
         }
 
         this.removeElementWithoutUpdates(element)
@@ -95,6 +96,10 @@ public open class NametagElementHolder(
         return this.watching.containsKey(player.connection)
     }
 
+    public fun isWatchingNonEmpty(player: ServerPlayer): Boolean {
+        return this.watching[player.connection]?.isNotEmpty() ?: false
+    }
+
     override fun onTick() {
         for (observer in this.watchingPlayers) {
             this.updateObserver(observer, observer::send)
@@ -109,8 +114,6 @@ public open class NametagElementHolder(
         this.watchingPlayers.add(connection)
         (connection as HolderHolder).`polymer$addHolder`(this)
         val packets = ObjectArrayList<Packet<in ClientGamePacketListener>>()
-
-        this.root.startWatching(connection.player, packets::add)
 
         this.startWatchingExtraPackets(connection, packets::add)
 
@@ -183,13 +186,14 @@ public open class NametagElementHolder(
     ) {
         val elements = this.watching.getOrPut(connection, ::ReferenceLinkedOpenHashSet)
 
+        val wasStackEmpty = elements.isEmpty()
         var dirty = false
         for ((nametag, element) in this.nametags) {
             val watching = element.getObservers().contains(connection)
 
-            val canWatch = this.entity.broadcastToPlayer(connection.player) &&
-                    nametag.isObservable(this.entity, connection.player) &&
-                    nametag.isWithinRange(this.entity, connection.player)
+            val canWatch = this.entity.broadcastToPlayer(connection.player)
+                && nametag.isObservable(this.entity, connection.player)
+                && nametag.isWithinRange(this.entity, connection.player)
 
             if (watching) {
                 if (!canWatch) {
@@ -206,17 +210,22 @@ public open class NametagElementHolder(
         }
 
         if (dirty) {
-            this.resendNametagStackFor(elements, connection, consumer)
+            this.resendNametagStackFor(elements, wasStackEmpty, connection, consumer)
         }
     }
 
     protected open fun resendNametagStackFor(
         stack: Collection<NametagElement>,
+        wasStackEmpty: Boolean,
         connection: ServerGamePacketListenerImpl,
         consumer: Consumer<Packet<ClientGamePacketListener>>
     ) {
         if (stack.isEmpty()) {
+            consumer.accept(ClientboundRemoveEntitiesPacket(this.root.entityIds))
             return
+        }
+        if (wasStackEmpty) {
+            this.root.startWatching(connection.player, consumer)
         }
 
         var previous = this.root.id
