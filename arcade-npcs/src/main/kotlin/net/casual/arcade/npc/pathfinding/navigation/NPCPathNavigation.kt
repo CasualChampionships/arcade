@@ -18,6 +18,7 @@ import net.minecraft.tags.BlockTags
 import net.minecraft.util.Mth
 import net.minecraft.util.profiling.Profiler
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.level.PathNavigationRegion
 import net.minecraft.world.level.pathfinder.Path
@@ -450,6 +451,9 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
     }
 
     private fun getFollowRange(): Double {
+        if (this.player.attributes.hasAttribute(Attributes.FOLLOW_RANGE)) {
+            return this.player.getAttributeValue(Attributes.FOLLOW_RANGE)
+        }
         return 32.0
     }
 
