@@ -30,7 +30,7 @@ public object ArcadeResourcePacks: ModInitializer {
     public val ACTION_BAR_FONT_PACK: NamedResourcePackCreator by lazy {
         NamedResourcePackCreator.named("action_bar_font") {
             addAssetSource(path("packs/ActionBarFont"))
-            for (i in 1..64) {
+            for (i in 1..128) {
                 addFont(FontUtils.shiftedDownFont(i)) { FontUtils.createDefaultFont(i) }
             }
             packDescription = Component.literal("Shifts text on the action bar")
@@ -40,7 +40,7 @@ public object ArcadeResourcePacks: ModInitializer {
     public val MINI_ACTION_BAR_FONT_PACK: NamedResourcePackCreator by lazy {
         NamedResourcePackCreator.named("mini_action_bar_font") {
             addAssetSource(path("packs/MiniActionBarFont"))
-            for (i in 1..64) {
+            for (i in 1..128) {
                 addFont(FontUtils.miniShiftedDownFont(i)) { FontUtils.createMiniFont(i) }
             }
             packDescription = Component.literal("Shifts mini text on the action bar")
