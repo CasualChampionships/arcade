@@ -16,6 +16,8 @@ import net.minecraft.server.level.ServerPlayer
 // What if instead of making a "Hotbar" gui, we just replace the entire player inventory.
 // I think this is actually not a bad idea...
 // We implement our own version of InventoryMenu that allows us to hook into events
+// We need to be careful with how we implement this, since it's not virtual the items
+// *do* exist on the server-side and could potentially be exploited.
 public open class HotbarGui(
     public val player: ServerPlayer
 ) {
