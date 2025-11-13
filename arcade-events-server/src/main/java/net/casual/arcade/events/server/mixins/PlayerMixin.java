@@ -12,6 +12,7 @@ import com.mojang.datafixers.util.Either;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.ducks.ModifyActuallyHurt;
+import net.casual.arcade.events.server.entity.EntityDamageEvent;
 import net.casual.arcade.events.server.player.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -121,13 +122,23 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 		@Local(argsOnly = true) LocalFloatRef damage
 	) {
 		if ((Object) this instanceof ServerPlayer player) {
-			PlayerDamageEvent event = new PlayerDamageEvent(player, source, damage.get());
-			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
-			if (event.isCancelled()) {
+            // This overrides the LivingEntity method so we need to copy the logic here
+            EntityDamageEvent entityEvent = new EntityDamageEvent(player, source, damage.get());
+            GlobalEventHandler.Server.broadcast(entityEvent, BuiltInEventPhases.PRE_PHASES);
+            if (entityEvent.isCancelled()) {
+                this.arcade$setNotActuallyHurt();
+                ci.cancel();
+                return;
+            }
+
+			PlayerDamageEvent playerEvent = new PlayerDamageEvent(player, source, entityEvent.getAmount());
+			GlobalEventHandler.Server.broadcast(playerEvent, BuiltInEventPhases.PRE_PHASES);
+			if (playerEvent.isCancelled()) {
 				this.arcade$setNotActuallyHurt();
 				ci.cancel();
+                return;
 			}
-			damage.set(event.getAmount());
+			damage.set(playerEvent.getAmount());
 		}
 	}
 
@@ -146,8 +157,11 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 		CallbackInfo ci
 	) {
 		if ((Object) this instanceof ServerPlayer player) {
-			PlayerDamageEvent event = new PlayerDamageEvent(player, source, damageAmount);
-			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+            EntityDamageEvent entityEvent = new EntityDamageEvent(player, source, damageAmount);
+            GlobalEventHandler.Server.broadcast(entityEvent, BuiltInEventPhases.POST_PHASES);
+
+			PlayerDamageEvent playerEvent = new PlayerDamageEvent(player, source, damageAmount);
+			GlobalEventHandler.Server.broadcast(playerEvent, BuiltInEventPhases.POST_PHASES);
 		}
 	}
 
