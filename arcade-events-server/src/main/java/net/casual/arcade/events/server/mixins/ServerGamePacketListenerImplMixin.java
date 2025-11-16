@@ -27,8 +27,8 @@ import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
@@ -214,6 +214,19 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
         if (event.isCancelled()) {
             ci.cancel();
         }
+    }
+
+    @WrapWithCondition(
+        method = "handleAnimate",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/server/level/ServerPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"
+        )
+    )
+    private boolean onSwingHand(ServerPlayer instance, InteractionHand hand) {
+        PlayerClientSwingHandEvent event = new PlayerClientSwingHandEvent(instance, hand);
+        GlobalEventHandler.Server.broadcast(event);
+        return !event.isCancelled();
     }
 
 	@Inject(

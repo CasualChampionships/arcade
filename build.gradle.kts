@@ -163,7 +163,7 @@ dependencies {
 
     include(modImplementation(libs.server.translations.get())!!)
 
-    "modTestmodRuntimeOnly"(libs.voicechat)
+//    "modTestmodRuntimeOnly"(libs.voicechat)
 
     val ignore = setOf(":arcade-datagen", ":arcade-events-client")
     for (subproject in project.subprojects) {

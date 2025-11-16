@@ -7,16 +7,14 @@ package net.casual.arcade.guis.inventory
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.*
-import net.casual.arcade.events.threading.ThreadingTarget
 import net.casual.arcade.guis.core.SlotInteractAction
-import net.minecraft.network.protocol.game.ServerboundSwingPacket
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.player.Inventory
 
 internal object CustomInventoryEvents {
     fun registerEvents() {
-        GlobalEventHandler.Server.register<PlayerServerboundPacketEvent>(strategy = ThreadingTarget.ForceMainThread, listener = ::onPlayerServerboundPacket)
+        GlobalEventHandler.Server.register<PlayerClientSwingHandEvent>(priority = Int.MIN_VALUE, listener = ::onPlayerClientSwingHand)
         GlobalEventHandler.Server.register<PlayerTryAttackEvent>(priority = Int.MIN_VALUE, listener = ::onPlayerTryAttack)
         GlobalEventHandler.Server.register<PlayerItemUseEvent>(priority = Int.MIN_VALUE, listener = ::onPlayerItemUse)
         GlobalEventHandler.Server.register<PlayerEntityInteractionEvent>(priority = Int.MIN_VALUE, listener = ::onPlayerEntityInteraction)
@@ -28,13 +26,12 @@ internal object CustomInventoryEvents {
         GlobalEventHandler.Server.register<PlayerPickEntityEvent>(priority = Int.MIN_VALUE, listener = ::onPlayerPickEntity)
     }
 
-    private fun onPlayerServerboundPacket(event: PlayerServerboundPacketEvent) {
-        val (player, packet) = event
-        if (packet is ServerboundSwingPacket) {
-            val inventory = player.inventory
-            if (inventory is VirtualInventory) {
-                inventory.interact(inventory.selectedSlot, SlotInteractAction.Swing)
-            }
+    private fun onPlayerClientSwingHand(event: PlayerClientSwingHandEvent) {
+        val (player) = event
+        val inventory = player.inventory
+        if (inventory is VirtualInventory) {
+            inventory.interact(inventory.selectedSlot, SlotInteractAction.Swing)
+            event.cancel()
         }
     }
 

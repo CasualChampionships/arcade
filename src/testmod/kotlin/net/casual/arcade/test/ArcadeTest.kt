@@ -29,6 +29,7 @@ object ArcadeTest: ModInitializer {
                 ArgumentTestCommand,
                 CustomInventoryCommand,
                 FakePlayerCommand,
+                GuiTestCommand,
                 LevelBoundaryCommand,
                 PlayerHeadCommand,
                 ReplayCommand,

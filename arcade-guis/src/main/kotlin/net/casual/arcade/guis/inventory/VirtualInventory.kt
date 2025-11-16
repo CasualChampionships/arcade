@@ -5,6 +5,7 @@
 package net.casual.arcade.guis.inventory
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.casual.arcade.guis.core.SlotClickAction
 import net.casual.arcade.guis.core.SlotInteractAction
 import net.minecraft.server.level.ServerPlayer
@@ -17,7 +18,10 @@ public open class VirtualInventory(
     private val clickHandlers = Int2ObjectOpenHashMap<ClickHandler>()
     private val interactHandlers = Int2ObjectOpenHashMap<InteractHandler>()
 
-    private var defaultInteractHandler = InteractHandler { false }
+    private val interactCounters = Object2IntOpenHashMap<SlotInteractAction>()
+
+    private var defaultInteractHandler = InteractHandler { true }
+    private var interactionsPerTick = 1
 
     public fun setSlot(slot: Int, display: ItemStack, click: ClickHandler? = null, interact: InteractHandler? = null) {
         this.setItem(slot, display)
@@ -40,6 +44,10 @@ public open class VirtualInventory(
         this.defaultInteractHandler = handler
     }
 
+    public fun setInteractionsPerTick(interactions: Int) {
+        this.interactionsPerTick = interactions
+    }
+
     override fun menu(): CustomInventoryMenu {
         return VirtualInventoryMenu(this, this.player())
     }
@@ -49,8 +57,16 @@ public open class VirtualInventory(
     }
 
     public open fun interact(slot: Int, action: SlotInteractAction): Boolean {
-        val handler = this.interactHandlers.get(slot) ?: this.defaultInteractHandler
-        return handler.invoke(action)
+        if (this.interactCounters.addTo(action, 1) < this.interactionsPerTick) {
+            val handler = this.interactHandlers.get(slot) ?: this.defaultInteractHandler
+            return handler.invoke(action)
+        }
+        return true
+    }
+
+    override fun tick() {
+        this.interactCounters.clear()
+        super.tick()
     }
 
     final override fun getSlotWithRemainingSpace(stack: ItemStack): Int {
