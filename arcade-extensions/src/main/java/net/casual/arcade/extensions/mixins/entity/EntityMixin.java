@@ -12,6 +12,7 @@ import net.casual.arcade.extensions.event.EntityExtensionEvent;
 import net.casual.arcade.utils.ArcadeUtils;
 import net.casual.arcade.utils.entity.EntityTransferReason;
 import net.casual.arcade.utils.impl.DelayedInvokers;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
