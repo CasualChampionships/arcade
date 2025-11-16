@@ -4,6 +4,8 @@
  */
 package net.casual.arcade.events.server.mixins;
 
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -13,6 +15,7 @@ import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.ducks.ModifyActuallyHurt;
 import net.casual.arcade.events.server.player.*;
+import net.casual.arcade.utils.PlayerUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -98,21 +101,19 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 			PlayerEntityInteractionEvent event = new PlayerEntityInteractionEvent(player, entity, hand);
 			GlobalEventHandler.Server.broadcast(event);
 			if (event.isCancelled()) {
+                PlayerUtils.updateInteractionSlot(player, hand);
 				cir.setReturnValue(event.result());
 			}
 		}
 	}
 
+    @Definition(id = "getDamageAfterMagicAbsorb", method = "Lnet/minecraft/world/entity/player/Player;getDamageAfterMagicAbsorb(Lnet/minecraft/world/damagesource/DamageSource;F)F")
+    @Expression("? = ?.getDamageAfterMagicAbsorb(?, ?)")
     @Inject(
 		method = "actuallyHurt",
-		at = @At(
-			value = "INVOKE_ASSIGN",
-			target = "Lnet/minecraft/world/entity/player/Player;getDamageAfterMagicAbsorb(Lnet/minecraft/world/damagesource/DamageSource;F)F",
-			shift = At.Shift.AFTER
-		),
+		at = @At(value = "MIXINEXTRAS:EXPRESSION", shift = At.Shift.AFTER),
 		cancellable = true
 	)
-	@SuppressWarnings("DiscouragedShift")
 	private void onDamage(
 		ServerLevel level,
 		DamageSource source,

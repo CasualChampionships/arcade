@@ -4,11 +4,11 @@
  */
 package net.casual.arcade.guis
 
-import net.casual.arcade.guis.hotbar.PlayerHotbarGuiExtension
+import net.casual.arcade.guis.inventory.CustomInventoryEvents
 import net.fabricmc.api.ModInitializer
 
 public object ArcadeGuis: ModInitializer {
     override fun onInitialize() {
-        PlayerHotbarGuiExtension.registerEvents()
+        CustomInventoryEvents.registerEvents()
     }
 }

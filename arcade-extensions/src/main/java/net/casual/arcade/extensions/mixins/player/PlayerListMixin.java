@@ -11,8 +11,8 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.casual.arcade.extensions.Extension;
 import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.TransferableEntityExtension;
-import net.casual.arcade.extensions.TransferableEntityExtension.TransferReason;
 import net.casual.arcade.utils.ArcadeUtils;
+import net.casual.arcade.utils.entity.EntityTransferReason;
 import net.casual.arcade.utils.impl.DelayedInvokers;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
@@ -46,11 +46,11 @@ public class PlayerListMixin {
         DelayedInvokers.Simple delayed = new DelayedInvokers.Simple();
         delayedRef.set(delayed);
 
-        TransferReason transferReason = TransferReason.Other;
+        EntityTransferReason transferReason = EntityTransferReason.Other;
         if (reason == Entity.RemovalReason.KILLED) {
-            transferReason = TransferReason.Respawned;
+            transferReason = EntityTransferReason.Respawned;
         } else if (isMinigameRespawn.get()) {
-            transferReason = TransferReason.Minigame;
+            transferReason = EntityTransferReason.Minigame;
         }
         List<Extension> transferred = new ArrayList<>();
         for (Extension extension : ExtensionHolder.all((ExtensionHolder) player)) {
