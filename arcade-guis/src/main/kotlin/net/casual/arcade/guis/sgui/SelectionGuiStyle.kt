@@ -2,7 +2,7 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.guis.temp
+package net.casual.arcade.guis.sgui
 
 import net.minecraft.util.Mth
 
@@ -46,10 +46,10 @@ public interface SelectionGuiStyle {
         }
 
         public fun centered(width: Int, height: Int): SelectionGuiStyle {
-            if (width > 9 || width < 0) {
+            if (width !in 0..9) {
                 throw IllegalArgumentException("Invalid width argument $width")
             }
-            if (height > 5 || height < 0) {
+            if (height !in 0..5) {
                 throw IllegalArgumentException("Invalid height argument $height")
             }
             return CenteredStyle(width, height)

@@ -2,7 +2,7 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.guis.temp
+package net.casual.arcade.guis.sgui
 
 import net.casual.arcade.utils.ItemUtils.named
 import net.minecraft.network.chat.Component

@@ -6,7 +6,7 @@ import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.executes
 import net.casual.arcade.commands.literal
-import net.casual.arcade.guis.temp.PlayerInventoryViewGui
+import net.casual.arcade.guis.sgui.PlayerInventoryViewGui
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument

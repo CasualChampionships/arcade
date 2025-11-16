@@ -7,7 +7,7 @@ import net.casual.arcade.commands.executes
 import net.casual.arcade.commands.literal
 import net.casual.arcade.guis.core.SlotInteractAction
 import net.casual.arcade.guis.inventory.VirtualInventory
-import net.casual.arcade.guis.temp.setCustomInventory
+import net.casual.arcade.guis.utils.setCustomInventory
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.world.item.ItemStack

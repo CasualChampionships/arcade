@@ -11,6 +11,10 @@ import net.minecraft.world.inventory.InventoryMenu
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.inventory.Slot
 
+@Deprecated(
+    "Use the guis modules instead",
+    ReplaceWith("net.casual.arcade.guis.sgui.PlayerInventoryViewGui"),
+)
 public open class PlayerInventoryViewGui(
     protected val observee: ServerPlayer,
     observer: ServerPlayer

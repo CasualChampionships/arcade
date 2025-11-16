@@ -9,6 +9,10 @@ import eu.pb4.sgui.api.gui.SimpleGui
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.inventory.MenuType
 
+@Deprecated(
+    "Use the guis modules instead",
+    ReplaceWith("net.casual.arcade.guis.sgui.SimpleNestedGui"),
+)
 public open class SimpleNestedGui(
     type: MenuType<*>,
     player: ServerPlayer,

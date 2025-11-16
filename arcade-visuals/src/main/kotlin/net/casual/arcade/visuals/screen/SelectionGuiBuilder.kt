@@ -24,6 +24,10 @@ import net.minecraft.world.inventory.ClickType as ActionType
  * @param player The player that will be opening this gui.
  * @param components The default components used for the selection gui.
  */
+@Deprecated(
+    "Use the guis modules instead",
+    ReplaceWith("net.casual.arcade.guis.sgui.SelectionGuiBuilder"),
+)
 public class SelectionGuiBuilder(
     private val player: ServerPlayer,
     components: SelectionGuiComponents = SelectionGuiComponents.DEFAULT
