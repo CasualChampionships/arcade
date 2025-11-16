@@ -47,7 +47,7 @@ import java.util.*
 internal object MinigameCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("minigame") {
-            requiresPermission(2)
+            requiresPermission("arcade.command.minigame", 2)
 
             literal("list") {
                 executes(::listMinigames)
@@ -175,6 +175,7 @@ internal object MinigameCommand: CommandTree {
                 }
             }
             literal("admin") {
+                requiresPermission("arcade.command.minigame.admin", 2)
                 argument("minigame", MinigameArgument.minigame()) {
                     literal("add") {
                         executes(::selfAdminMinigame)
@@ -191,6 +192,7 @@ internal object MinigameCommand: CommandTree {
                 }
             }
             literal("settings") {
+                requiresPermission("arcade.command.minigame.settings", 2)
                 argument("minigame", MinigameArgument.minigame()) {
                     executes(::openMinigameSettings)
                     argument("setting", MinigameSettingArgument.setting("minigame")) {
@@ -281,6 +283,7 @@ internal object MinigameCommand: CommandTree {
                 }
             }
             literal("phase") {
+                requiresPermission("arcade.command.minigame.phase", 2)
                 argument("minigame", MinigameArgument.minigame()) {
                     executes(::getMinigamePhase)
                     literal("set") {
@@ -291,11 +294,13 @@ internal object MinigameCommand: CommandTree {
                 }
             }
             literal("pause") {
+                requiresPermission("arcade.command.minigame.pause", 2)
                 argument("minigame", MinigameArgument.minigame()) {
                     executes(::pauseMinigame)
                 }
             }
             literal("unpause") {
+                requiresPermission("arcade.command.minigame.unpause", 2)
                 argument("minigame", MinigameArgument.minigame()) {
                     executes(::unpauseMinigame)
                     literal("countdown") {

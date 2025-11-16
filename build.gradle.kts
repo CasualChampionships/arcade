@@ -11,7 +11,7 @@ plugins {
     java
 }
 
-val modVersion = "0.6.2-beta.66"
+val modVersion = "0.6.2-beta.69"
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -51,6 +51,7 @@ allprojects {
         modImplementation(libs.fabric.loader)
         modImplementation(libs.fabric.kotlin)
         modImplementation(libs.fabric.api)
+        modImplementation(libs.permissions)
     }
 
     kotlin {
@@ -160,6 +161,7 @@ dependencies {
     include(libs.polymer.blocks)
     include(libs.polymer.resource.pack)
     include(libs.polymer.virtual.entity)
+    include(libs.permissions)
 
     include(modImplementation(libs.server.translations.get())!!)
 

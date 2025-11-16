@@ -10,6 +10,7 @@ server-translations = "2.5.1+1.21.5"
 inject              = "3.1.4"
 debug-tools-api     = "1.0.17"
 replay-studio       = "3fdc6c42e3"
+permissions         = "0.4.0"
 
 # Compatability
 carpet        = "1.4.177"
@@ -37,6 +38,7 @@ sgui                   = { module = "eu.pb4:sgui"                          , ver
 server-translations    = { module = "xyz.nucleoid:server-translations-api" , version.ref = "server-translations" }
 debug-tools-api        = { module = "me.senseiwells:debug-tools-api"       , version.ref = "debug-tools-api" }
 replay-studio          = { module = "com.github.ReplayMod:ReplayStudio"    , version.ref = "replay-studio" }
+permissions            = { module = "me.lucko:fabric-permissions-api"      , version.ref = "permissions" }
 
 inject-api             = { module = "net.mcbrawls.inject:api"             , version.ref = "inject" }
 inject-http            = { module = "net.mcbrawls.inject:http"            , version.ref = "inject" }

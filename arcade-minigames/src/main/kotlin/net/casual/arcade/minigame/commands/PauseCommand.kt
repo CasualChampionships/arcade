@@ -26,7 +26,6 @@ internal object PauseCommand: CommandTree {
     private fun pauseSourceMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = context.source.player?.getMinigame()
             ?: return context.source.fail(Component.translatable("minigame.command.pause.noMinigame"))
-        minigame.pause()
         return context.source.success(
             Component.translatable("minigame.command.pause.success", minigame.uuid.toString())
         )
