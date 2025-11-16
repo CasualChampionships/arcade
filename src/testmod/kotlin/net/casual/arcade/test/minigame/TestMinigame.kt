@@ -12,14 +12,13 @@ import net.casual.arcade.resources.utils.spaced
 import net.casual.arcade.utils.ResourceUtils
 import net.casual.arcade.utils.component.*
 import net.casual.arcade.utils.recipe.CraftingRecipeBuilder
-import net.casual.arcade.visuals.elements.ComponentElements
-import net.casual.arcade.visuals.elements.SidebarElements
+import net.casual.arcade.visuals.utils.elements.ComponentElements
+import net.casual.arcade.visuals.utils.elements.SidebarElements
 import net.casual.arcade.visuals.elements.UniversalElement
 import net.casual.arcade.visuals.nametag.PlayerNametag
 import net.casual.arcade.visuals.sidebar.FixedSidebar
 import net.casual.arcade.visuals.tab.PlayerListDisplay
 import net.casual.arcade.visuals.tab.VanillaPlayerListEntries
-import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
@@ -57,7 +56,7 @@ open class TestMinigame(
         sidebar.addRow(SidebarElements.withNoScore(Component {
             literal("Hello World", 0x2739B8, 0x8D379E, 0xF13484, 0xFF605D)
         }))
-        this.ui.setSidebar(sidebar)
+        this.visuals.setSidebar(sidebar)
 
         val display = PlayerListDisplay(VanillaPlayerListEntries())
         val header = UniversalElement {
@@ -71,10 +70,10 @@ open class TestMinigame(
         }
         val footer = ComponentElements.empty()
         display.setDisplay(header, footer)
-        this.ui.setPlayerListDisplay(display)
+        this.visuals.setPlayerListDisplay(display)
 
-        this.ui.addNametag(PlayerNametag({ player -> player.displayName!! }))
-        this.ui.addNametag(PlayerNametag({ Component.literal("CustomNametags!") }))
+        this.visuals.addNametag(PlayerNametag({ player -> player.displayName!! }))
+        this.visuals.addNametag(PlayerNametag({ Component.literal("CustomNametags!") }))
     }
 
     override fun factory(): MinigameFactory {

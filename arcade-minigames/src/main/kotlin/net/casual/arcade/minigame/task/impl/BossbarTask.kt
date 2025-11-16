@@ -16,11 +16,11 @@ public open class BossbarTask<T: CustomBossbar>(
     public val bar: T
 ): Task {
     init {
-        this.minigame.ui.addBossbar(this.bar)
+        this.minigame.visuals.addBossbar(this.bar)
     }
 
     final override fun run() {
-        this.minigame.ui.removeBossbar(this.bar)
+        this.minigame.visuals.removeBossbar(this.bar)
     }
 
     public companion object {

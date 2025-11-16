@@ -8,11 +8,11 @@ import com.mojang.authlib.GameProfile
 import net.casual.arcade.utils.ClientboundPlayerInfoUpdatePacket
 import net.casual.arcade.utils.EnumUtils
 import net.casual.arcade.utils.PlayerUtils.levelServer
-import net.casual.arcade.visuals.core.TrackedPlayerUI
-import net.casual.arcade.visuals.core.TickableUI
-import net.casual.arcade.visuals.elements.ComponentElements
+import net.casual.arcade.visuals.core.TrackingVisualElement
+import net.casual.arcade.visuals.core.TickableVisualElement
+import net.casual.arcade.visuals.utils.elements.ComponentElements
 import net.casual.arcade.visuals.elements.PlayerSpecificElement
-import net.casual.arcade.visuals.extensions.PlayerTabDisplayExtension.Companion.tabDisplay
+import net.casual.arcade.visuals.extensions.PlayerTabDisplayExtension.Companion.tabDisplayExtension
 import net.casual.arcade.visuals.tab.PlayerListEntries.Entry
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
@@ -30,7 +30,7 @@ import java.util.function.Consumer
 
 public open class PlayerListDisplay(
     public var display: PlayerListEntries
-): TrackedPlayerUI(), TickableUI {
+): TrackingVisualElement(), TickableVisualElement {
     private val previous = ArrayList<Entry>()
 
     public var header: PlayerSpecificElement<out Component> = ComponentElements.empty()
@@ -46,7 +46,7 @@ public open class PlayerListDisplay(
         this.footer = footer
 
         for (player in this.getPlayers()) {
-            player.tabDisplay.setDisplay(header.get(player), footer.get(player))
+            player.tabDisplayExtension.setDisplay(header.get(player), footer.get(player))
         }
     }
 
@@ -126,20 +126,20 @@ public open class PlayerListDisplay(
     }
 
     override fun onAddPlayer(player: ServerPlayer) {
-        player.tabDisplay.set(this)
+        player.tabDisplayExtension.set(this)
 
         this.resendTo(player, PlayerConnectionConsumer(player.connection))
     }
 
     override fun onRemovePlayer(player: ServerPlayer) {
-        player.tabDisplay.remove()
+        player.tabDisplayExtension.remove()
 
         this.unsendTo(player, PlayerConnectionConsumer(player.connection))
     }
 
     override fun resendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
         if (sender !is PlayerConnectionConsumer) {
-            player.tabDisplay.resend(sender)
+            player.tabDisplayExtension.resend(sender)
         }
 
         val hiding = ArrayList<ClientboundPlayerInfoUpdatePacket.Entry>()

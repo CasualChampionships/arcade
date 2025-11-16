@@ -135,7 +135,7 @@ internal class PlayerSidebarExtension(
         private val objective = ScoreboardUtils.dummyObjective(OBJECTIVE_NAME)
         private val players = ArrayList<String>(16)
 
-        internal val ServerPlayer.sidebar
+        internal val ServerPlayer.sidebarExtension
             get() = this.getExtension<PlayerSidebarExtension>()
 
         private fun sendSetObjectivePacket(
@@ -194,10 +194,10 @@ internal class PlayerSidebarExtension(
                 event.addExtension(::PlayerSidebarExtension)
             }
             GlobalEventHandler.Server.register<PlayerLeaveEvent> { (player) ->
-                player.sidebar.disconnect()
+                player.sidebarExtension.disconnect()
             }
             GlobalEventHandler.Server.register<PlayerTickEvent> { (player) ->
-                player.sidebar.tick()
+                player.sidebarExtension.tick()
             }
         }
     }

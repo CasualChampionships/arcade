@@ -17,13 +17,13 @@ import net.casual.arcade.utils.JsonUtils.ints
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.TimeUtils.formatHHMMSS
 import net.casual.arcade.utils.time.MinecraftTimeDuration
-import net.casual.arcade.visuals.core.TickableUI
+import net.casual.arcade.visuals.core.TickableVisualElement
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.BossEvent
 
-public abstract class TimerBossbar: CustomBossbar(), TickableUI, Completable {
+public abstract class TimerBossbar: CustomBossbar(), TickableVisualElement, Completable {
     private val completable = Completable.Impl()
 
     private var ticks = -1

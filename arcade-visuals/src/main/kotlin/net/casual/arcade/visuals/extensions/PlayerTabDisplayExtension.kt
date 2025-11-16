@@ -75,7 +75,7 @@ internal class PlayerTabDisplayExtension(
     }
 
     companion object {
-        internal val ServerPlayer.tabDisplay
+        internal val ServerPlayer.tabDisplayExtension
             get() = this.getExtension<PlayerTabDisplayExtension>()
 
         internal fun registerEvents() {
@@ -83,10 +83,10 @@ internal class PlayerTabDisplayExtension(
                 event.addExtension(::PlayerTabDisplayExtension)
             }
             GlobalEventHandler.Server.register<PlayerLeaveEvent> { (player) ->
-                player.tabDisplay.disconnect()
+                player.tabDisplayExtension.disconnect()
             }
             GlobalEventHandler.Server.register<PlayerTickEvent> { (player) ->
-                player.tabDisplay.tick()
+                player.tabDisplayExtension.tick()
             }
         }
     }

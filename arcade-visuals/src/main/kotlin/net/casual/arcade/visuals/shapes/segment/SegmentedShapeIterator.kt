@@ -2,14 +2,14 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.visuals.utils.impl
+package net.casual.arcade.visuals.shapes.segment
 
 import net.minecraft.world.phys.Vec3
 import kotlin.math.max
 
 public class SegmentedShapeIterator private constructor(
     private val segments: List<SteppedShapeSegment>
-) : Iterator<Vec3> {
+): Iterator<Vec3> {
     private var index = 0
     private var step = 0
 
@@ -44,12 +44,12 @@ public class SegmentedShapeIterator private constructor(
 
         public fun of(points: Iterable<Vec3>, pointsPerUnit: Double, closed: Boolean): SegmentedShapeIterator {
             val segments = points.zipWithNext().mapTo(ArrayList()) { (a, b) ->
-                this.segmentToStepped(a, b, pointsPerUnit)
+                segmentToStepped(a, b, pointsPerUnit)
             }
             if (closed && segments.size > 1) {
                 val start = segments.last().end
                 val end = segments.first().start
-                segments.add(this.segmentToStepped(start, end, pointsPerUnit))
+                segments.add(segmentToStepped(start, end, pointsPerUnit))
             }
             return SegmentedShapeIterator(segments)
         }
