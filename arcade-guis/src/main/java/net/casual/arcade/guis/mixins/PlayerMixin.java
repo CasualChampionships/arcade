@@ -52,9 +52,10 @@ public class PlayerMixin implements ModifiableInventory {
     @Override
     public void arcade$setCustomInventory(CustomInventory inventory) {
         if ((Object) this instanceof ServerPlayer player) {
+            InventoryMenu previous = this.inventoryMenu;
             this.inventory = inventory;
             this.inventoryMenu = inventory.menu();
-            if (this.containerMenu == this.arcade$vanillaInventoryMenu) {
+            if (this.containerMenu == previous) {
                 this.containerMenu = this.inventoryMenu;
             }
             player.initInventoryMenu();
@@ -64,7 +65,11 @@ public class PlayerMixin implements ModifiableInventory {
 
     @Override
     public void arcade$removeCustomInventory() {
+        InventoryMenu previous = this.inventoryMenu;
         this.inventory = this.arcade$vanillaInventory;
         this.inventoryMenu = this.arcade$vanillaInventoryMenu;
+        if (this.containerMenu == previous) {
+            this.containerMenu = this.inventoryMenu;
+        }
     }
 }
