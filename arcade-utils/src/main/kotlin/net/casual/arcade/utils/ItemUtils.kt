@@ -63,6 +63,13 @@ public object ItemUtils {
     }
 
     @JvmStatic
+    public fun modelled(model: Item, item: Item = Items.POPPED_CHORUS_FRUIT): ItemStack {
+        val stack = ItemStack(item)
+        stack.setFrom(DataComponents.ITEM_MODEL, model)
+        return stack
+    }
+
+    @JvmStatic
     public fun Item.modelled(model: ResourceLocation): ItemStack {
         return ItemStack(this).modelled(model)
     }
