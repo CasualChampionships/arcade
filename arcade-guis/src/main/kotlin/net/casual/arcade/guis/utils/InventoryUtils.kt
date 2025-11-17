@@ -8,6 +8,9 @@ import net.casual.arcade.guis.ducks.ModifiableInventory
 import net.casual.arcade.guis.inventory.CustomInventory
 import net.minecraft.server.level.ServerPlayer
 
-public fun ServerPlayer.setCustomInventory(inventory: CustomInventory) {
+public fun ServerPlayer.setCustomInventory(inventory: CustomInventory, keepSelected: Boolean = true) {
+    if (keepSelected) {
+        inventory.selectedSlot = this.inventory.selectedSlot
+    }
     (this as ModifiableInventory).`arcade$setCustomInventory`(inventory)
 }
