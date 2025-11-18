@@ -7,12 +7,12 @@ package net.casual.arcade.utils
 import net.casual.arcade.util.ducks.ConnectionFaultHolder
 import net.casual.arcade.util.ducks.SilentRecipeSender
 import net.casual.arcade.util.mixins.PlayerAdvancementsAccessor
-import net.casual.arcade.utils.PlayerUtils.updateSelectedSlot
-import net.casual.arcade.utils.PlayerUtils.username
+import net.casual.arcade.utils.PlayerUtils.updateOffhandSlot
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.chat.PlayerFormattedChat
+import net.casual.arcade.utils.compat.SguiCompatLayer
 import net.casual.arcade.utils.impl.Sound
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.time.MinecraftTimeDuration
@@ -190,20 +190,12 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.updateSelectedSlot() {
-        val menu = this.inventoryMenu
-        val slot = this.inventory.selectedSlot + 36
-        val item = menu.getSlot(slot).item
-        val update = ClientboundContainerSetSlotPacket(menu.containerId, menu.incrementStateId(), slot, item)
-        this.connection.send(update)
+        this.updateInventorySlot(this.inventory.selectedSlot + 36)
     }
 
     @JvmStatic
     public fun ServerPlayer.updateOffhandSlot() {
-        val menu = this.inventoryMenu
-        val slot = InventoryMenu.SHIELD_SLOT
-        val item = menu.getSlot(slot).item
-        val update = ClientboundContainerSetSlotPacket(menu.containerId, menu.incrementStateId(), slot, item)
-        this.connection.send(update)
+        this.updateInventorySlot(InventoryMenu.SHIELD_SLOT)
     }
 
     @JvmStatic
@@ -211,6 +203,16 @@ public object PlayerUtils {
         when (hand) {
             InteractionHand.MAIN_HAND -> this.updateSelectedSlot()
             InteractionHand.OFF_HAND -> this.updateOffhandSlot()
+        }
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.updateInventorySlot(slot: Int) {
+        if (!SguiCompatLayer.isInGuiWithOverriddenInventory(this)) {
+            val menu = this.inventoryMenu
+            val item = menu.getSlot(slot).item
+            val update = ClientboundContainerSetSlotPacket(menu.containerId, menu.incrementStateId(), slot, item)
+            this.connection.send(update)
         }
     }
 
