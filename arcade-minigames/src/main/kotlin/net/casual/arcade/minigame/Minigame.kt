@@ -34,7 +34,6 @@ import net.casual.arcade.utils.PlayerUtils.revokeAdvancement
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.level.storage.TagValueInput
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.lang.reflect.ParameterizedType
 import java.nio.file.Path
@@ -112,11 +111,14 @@ public abstract class Minigame(
     public val tickrate: MinigameTickRateManager = MinigameTickRateManager(this)
 
     /**
-     * This manages all the UI for the minigame.
+     * This manages all the visuals for the minigame.
      *
-     * @see MinigameUIManager
+     * @see MinigameVisualsManager
      */
-    public val ui: MinigameUIManager = MinigameUIManager(this)
+    public val visuals: MinigameVisualsManager = MinigameVisualsManager(this)
+
+    @Deprecated("Use visuals instead", ReplaceWith("this.visuals"))
+    public val ui: MinigameVisualsManager by this::visuals
 
     /**
      * The resource pack manager for packs the minigame requires players to download.
@@ -601,7 +603,7 @@ public abstract class Minigame(
 
     private fun onServerTick(event: ServerTickEvent) {
         this.tickrate.tick()
-        this.ui.tick(event.server)
+        this.visuals.tick(event.server)
         if (this.ticking) {
             this.uptime++
             this.scheduler.tick()

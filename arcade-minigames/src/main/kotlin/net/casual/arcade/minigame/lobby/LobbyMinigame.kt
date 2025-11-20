@@ -352,27 +352,27 @@ public open class LobbyMinigame(
     private fun readyPlayers(context: CommandContext<CommandSourceStack>): Int {
         this.next ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
         this.setPhase(LobbyPhase.Readying)
-        this.ui.readier.arePlayersReady(this.getPlayersToReady()).thenOrNow(this::onReady)
+        this.visuals.readier.arePlayersReady(this.getPlayersToReady()).thenOrNow(this::onReady)
         return context.source.success("Successfully broadcasted ready check")
     }
 
     private fun readyTeams(context: CommandContext<CommandSourceStack>): Int {
         this.next ?: return context.source.fail("Cannot ready for next minigame, it has not been set!")
         this.setPhase(LobbyPhase.Readying)
-        this.ui.readier.areTeamsReady(this.getTeamsToReady()).thenOrNow(this::onReady)
+        this.visuals.readier.areTeamsReady(this.getTeamsToReady()).thenOrNow(this::onReady)
         return context.source.success("Successfully broadcasted ready check")
     }
 
     private fun awaitingReady(context: CommandContext<CommandSourceStack>): Int {
-        if (!this.ui.readier.isRunning()) {
+        if (!this.visuals.readier.isRunning()) {
             return context.source.fail("Not currently awaiting any players or teams to be ready")
         }
-        val awaiting = this.ui.readier.getUnreadyFormatted(context.source.server)
+        val awaiting = this.visuals.readier.getUnreadyFormatted(context.source.server)
         return context.source.success(Component.literal("Currently awaiting: ").append(awaiting.join()))
     }
 
     private fun completeReady(context: CommandContext<CommandSourceStack>): Int {
-        if (this.ui.readier.complete()) {
+        if (this.visuals.readier.complete()) {
             return context.source.success("Successfully completed ready check")
         }
         return context.source.fail("There was no ready check that needed to be completed")

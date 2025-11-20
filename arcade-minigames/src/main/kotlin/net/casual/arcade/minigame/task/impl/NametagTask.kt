@@ -13,10 +13,10 @@ public open class NametagTask(
     private val nametag: PlayerNametag
 ): Task {
     init {
-        this.minigame.ui.addNametag(this.nametag)
+        this.minigame.visuals.addNametag(this.nametag)
     }
 
     final override fun run() {
-        this.minigame.ui.removeNametag(this.nametag)
+        this.minigame.visuals.removeNametag(this.nametag)
     }
 }

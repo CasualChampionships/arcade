@@ -13,8 +13,8 @@ import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
 import net.casual.arcade.utils.teleportTo
-import net.casual.arcade.visuals.core.TickableUI
-import net.casual.arcade.visuals.core.TrackedPlayerUI
+import net.casual.arcade.visuals.core.TickableVisualElement
+import net.casual.arcade.visuals.core.TrackingVisualElement
 import net.casual.arcade.visuals.extensions.PlayerCameraExtension.Companion.cameraExtension
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
@@ -36,7 +36,7 @@ public class PlayerCamera(
     private val level: ServerLevel,
     private var position: Vec3,
     rotation: Vec2 = Vec2.ZERO
-): TrackedPlayerUI(), TickableUI {
+): TrackingVisualElement(), TickableVisualElement {
     private val holder = ElementHolder()
     private val attachment = ManualAttachment(this.holder, this.level, this::position)
     private val element = SimpleEntityElement(EntityType.ARMOR_STAND)

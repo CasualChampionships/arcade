@@ -9,12 +9,14 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Cancellable;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.ducks.ModifyActuallyHurt;
 import net.casual.arcade.events.server.entity.EntityBeforeLootEvent;
+import net.casual.arcade.events.server.entity.EntityDamageEvent;
 import net.casual.arcade.events.server.entity.EntityDeathEvent;
 import net.casual.arcade.events.server.entity.EntityDropLootEvent;
 import net.casual.arcade.events.server.player.*;
@@ -82,6 +84,51 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 		}
 		return true;
 	}
+
+    @Inject(
+        method = "actuallyHurt",
+        at = @At(
+            value = "INVOKE_ASSIGN",
+            target = "Lnet/minecraft/world/entity/LivingEntity;getDamageAfterMagicAbsorb(Lnet/minecraft/world/damagesource/DamageSource;F)F",
+            shift = At.Shift.AFTER
+        ),
+        cancellable = true
+    )
+    @SuppressWarnings("DiscouragedShift")
+    private void onDamage(
+        ServerLevel level,
+        DamageSource source,
+        float damageAmount,
+        CallbackInfo ci,
+        @Local(argsOnly = true) LocalFloatRef damage
+    ) {
+        // This is also copied into PlayerMixin.java
+        EntityDamageEvent entityEvent = new EntityDamageEvent((LivingEntity) (Object) this, source, damage.get());
+        GlobalEventHandler.Server.broadcast(entityEvent, BuiltInEventPhases.PRE_PHASES);
+        if (entityEvent.isCancelled()) {
+            this.arcade$setNotActuallyHurt();
+            ci.cancel();
+        }
+        damage.set(entityEvent.getAmount());
+    }
+
+    @Inject(
+        method = "actuallyHurt",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;gameEvent(Lnet/minecraft/core/Holder;)V",
+            shift = At.Shift.AFTER
+        )
+    )
+    private void onDamagePost(
+        ServerLevel level,
+        DamageSource source,
+        float damageAmount,
+        CallbackInfo ci
+    ) {
+        EntityDamageEvent entityEvent = new EntityDamageEvent((LivingEntity) (Object) this, source, damageAmount);
+        GlobalEventHandler.Server.broadcast(entityEvent, BuiltInEventPhases.POST_PHASES);
+    }
 
 	@WrapOperation(
 		method = "hurtServer",

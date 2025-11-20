@@ -44,7 +44,9 @@ public abstract class EntityMixin implements ExtensionHolder {
         Level level,
         CallbackInfo ci
     ) {
-        if (level.isClientSide()) {
+        // We have to use an instanceof check because polymer extends
+        // Level for their FakeWorld but isClientSide is marked false
+        if (!(level instanceof ServerLevel)) {
             return;
         }
 

@@ -2,7 +2,7 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.visuals.elements.component
+package net.casual.arcade.visuals.utils.elements.component
 
 import it.unimi.dsi.fastutil.objects.Object2IntMaps
 import net.casual.arcade.utils.component.join
@@ -16,7 +16,7 @@ public object MobcapComponentElement: LevelSpecificElement<Component> {
     override fun get(level: ServerLevel): Component {
         val counts = level.chunkSource.lastSpawnState?.mobCategoryCounts ?: Object2IntMaps.emptyMap()
         return MobCategory.entries.map {
-            Component.literal("${counts.getInt(it)}").withStyle(this.getColorForCategory(it))
+            Component.literal("${counts.getInt(it)}").withStyle(getColorForCategory(it))
         }.join(Component.literal(" | "))
     }
 

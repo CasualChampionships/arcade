@@ -6,25 +6,29 @@ package net.casual.arcade.visuals.core
 
 import net.minecraft.server.level.ServerPlayer
 
-public interface PlayerUI {
+/**
+ * Interface representing a visual component that
+ * can be viewed by multiple players.
+ */
+public interface VisualElement {
     /**
-     * Adds a player to the [PlayerUI] component.
-     * They will then be displayed the [PlayerUI] component.
+     * Adds a player to the [VisualElement] component.
+     * They will then be displayed the [VisualElement] component.
      *
      * @param player The player to add.
      */
     public fun addPlayer(player: ServerPlayer)
 
     /**
-     * Removes a player from the [PlayerUI] component.
-     * They will no longer be displayed the [PlayerUI] component.
+     * Removes a player from the [VisualElement] component.
+     * They will no longer be displayed the [VisualElement] component.
      *
      * @param player The player to remove.
      */
     public fun removePlayer(player: ServerPlayer)
 
     /**
-     * Clears all the players from the [PlayerUI] component.
+     * Clears all the players from the [VisualElement] component.
      */
     public fun clearPlayers()
 }

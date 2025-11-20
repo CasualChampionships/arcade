@@ -14,7 +14,7 @@ import net.minecraft.world.scores.Team
 public enum class LobbyPhase(override val id: String): Phase<LobbyMinigame> {
     Waiting("waiting") {
         override fun initialize(minigame: LobbyMinigame) {
-            minigame.ui.addBossbar(minigame.getBossbar())
+            minigame.visuals.addBossbar(minigame.getBossbar())
         }
 
         override fun start(minigame: LobbyMinigame, previous: Phase<LobbyMinigame>) {
@@ -29,7 +29,7 @@ public enum class LobbyPhase(override val id: String): Phase<LobbyMinigame> {
     Readying("readying"),
     Countdown("countdown") {
         override fun initialize(minigame: LobbyMinigame) {
-            minigame.ui.removeBossbar(minigame.getBossbar())
+            minigame.visuals.removeBossbar(minigame.getBossbar())
         }
 
         override fun start(minigame: LobbyMinigame, previous: Phase<LobbyMinigame>) {
@@ -40,7 +40,7 @@ public enum class LobbyPhase(override val id: String): Phase<LobbyMinigame> {
                 return
             }
 
-            minigame.ui.countdown.countdown(minigame).then {
+            minigame.visuals.countdown.countdown(minigame).then {
                 minigame.setPhase(Phase.end())
             }
             for (team in minigame.teams.getAllTeams()) {
