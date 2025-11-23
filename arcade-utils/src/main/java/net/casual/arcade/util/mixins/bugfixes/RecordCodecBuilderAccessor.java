@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 import java.util.function.Function;
 
+// TODO: Remove this when updating to 1.21.11, RecordCodecs are ordered by default!
 @Mixin(value = RecordCodecBuilder.class, remap = false)
 public interface RecordCodecBuilderAccessor<O, F> {
     @Accessor("getter") Function<O, F> getter();

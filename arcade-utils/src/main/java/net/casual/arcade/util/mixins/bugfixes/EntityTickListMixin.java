@@ -4,12 +4,10 @@
  */
 package net.casual.arcade.util.mixins.bugfixes;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.entity.EntityTickList;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -18,7 +16,7 @@ import java.util.function.Consumer;
 
 @Mixin(EntityTickList.class)
 public class EntityTickListMixin {
-    @Shadow private Int2ObjectMap<Entity> passive;
+    // @Shadow private Int2ObjectMap<Entity> passive;
 
     @Inject(
         method = "forEach",
@@ -30,7 +28,10 @@ public class EntityTickListMixin {
         )
     )
     private void onFinishIteration(Consumer<Entity> entity, CallbackInfo ci) {
+        // I removed this 'fix' because I think it causes a compatibility issue
+        // with async, pending testing
+
         // Fix a memory leak where entities don't get cleared from this map
-        this.passive.clear();
+        // this.passive.clear();
     }
 }
