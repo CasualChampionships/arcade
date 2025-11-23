@@ -12,6 +12,10 @@ import net.minecraft.util.Mth
  *
  * @see SelectionGuiBuilder
  */
+@Deprecated(
+    "Use the guis modules instead",
+    ReplaceWith("net.casual.arcade.guis.sgui.SelectionGuiStyle"),
+)
 public interface SelectionGuiStyle {
     public fun getSlots(): Collection<Int>
 

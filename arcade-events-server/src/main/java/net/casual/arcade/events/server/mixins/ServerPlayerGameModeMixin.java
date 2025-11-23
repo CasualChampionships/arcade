@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.events.server.mixins;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
@@ -13,9 +12,12 @@ import net.casual.arcade.events.server.player.PlayerBlockInteractionEvent;
 import net.casual.arcade.events.server.player.PlayerBlockMinedEvent;
 import net.casual.arcade.events.server.player.PlayerBlockStartMiningEvent;
 import net.casual.arcade.events.server.player.PlayerGameModeChangeEvent;
+import net.casual.arcade.utils.PlayerUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.world.InteractionHand;
@@ -32,15 +34,16 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerPlayerGameMode.class)
 public class ServerPlayerGameModeMixin {
 	@Shadow @Final protected ServerPlayer player;
-
 	@Shadow private GameType gameModeForPlayer;
+    @Shadow protected ServerLevel level;
 
-	@Inject(
+    @Inject(
 		method = "changeGameModeForPlayer",
 		at = @At(
 			value = "INVOKE",
@@ -80,6 +83,7 @@ public class ServerPlayerGameModeMixin {
 		PlayerBlockInteractionEvent event = new PlayerBlockInteractionEvent(player, stack, hand, hitResult);
 		GlobalEventHandler.Server.broadcast(event);
 		if (event.isCancelled()) {
+            PlayerUtils.updateInteractionSlot(player, hand);
 			cir.setReturnValue(event.result());
 		}
 		eventRef.set(event);
@@ -121,24 +125,26 @@ public class ServerPlayerGameModeMixin {
 		}
 	}
 
-	@ModifyExpressionValue(
+	@Inject(
 		method = "handleBlockBreakAction",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/server/level/ServerPlayer;blockActionRestricted(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/GameType;)Z"
-		)
-	)
-	private boolean isBreakingRestricted(
-		boolean original,
-		BlockPos pos,
-		ServerboundPlayerActionPacket.Action action,
-		Direction face
+		at = @At("HEAD"),
+        cancellable = true
+    )
+	private void onBlockStartMining(
+        BlockPos pos,
+        ServerboundPlayerActionPacket.Action action,
+        Direction face,
+        int maxBuildHeight,
+        int sequence,
+        CallbackInfo ci
 	) {
-		if (original) {
-			return true;
-		}
-		PlayerBlockStartMiningEvent event = new PlayerBlockStartMiningEvent(this.player, pos, face);
-		GlobalEventHandler.Server.broadcast(event);
-		return event.isCancelled();
+        if (action == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
+            PlayerBlockStartMiningEvent event = new PlayerBlockStartMiningEvent(this.player, pos, face);
+            GlobalEventHandler.Server.broadcast(event);
+            if (event.isCancelled()) {
+                this.player.connection.send(new ClientboundBlockUpdatePacket(pos, this.level.getBlockState(pos)));
+                ci.cancel();
+            }
+        }
 	}
 }

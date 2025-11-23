@@ -15,6 +15,10 @@ import net.minecraft.world.item.Items
  *
  * @see SelectionGuiBuilder
  */
+@Deprecated(
+    "Use the guis modules instead",
+    ReplaceWith("net.casual.arcade.guis.sgui.SelectionGuiComponents"),
+)
 public interface SelectionGuiComponents {
     /**
      * Gets the default title.

@@ -14,7 +14,6 @@ import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent.Compa
 import net.casual.arcade.events.server.player.PlayerPoseEvent
 import net.casual.arcade.extensions.EntityExtension
 import net.casual.arcade.extensions.Extension
-import net.casual.arcade.extensions.TransferableEntityExtension
 import net.casual.arcade.extensions.event.EntityExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.nametags.ArcadeNametags
@@ -22,6 +21,7 @@ import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.virtual.NametagElement
 import net.casual.arcade.nametags.virtual.NametagElementHolder
 import net.casual.arcade.utils.asClientGamePacket
+import net.casual.arcade.utils.entity.EntityTransferReason
 import net.casual.arcade.utils.impl.DelayedInvokers
 import net.casual.arcade.utils.modify
 import net.minecraft.network.protocol.Packet
@@ -46,7 +46,7 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
 
     override fun transfer(
         entity: Entity,
-        reason: TransferableEntityExtension.TransferReason,
+        reason: EntityTransferReason,
         delayed: DelayedInvokers
     ): Extension {
         val old = this.attachment ?: return EntityNametagExtension(entity)

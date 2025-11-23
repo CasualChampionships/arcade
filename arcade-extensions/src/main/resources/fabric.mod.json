@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "arcade-extensions",
   "version": "${version}",
-  "name": "Arcade Exentensions",
+  "name": "Arcade Extensions",
   "description": "",
   "authors": [
     "Sensei"

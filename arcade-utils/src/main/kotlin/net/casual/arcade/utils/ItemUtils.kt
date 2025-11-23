@@ -25,6 +25,7 @@ import net.minecraft.world.item.alchemy.PotionContents
 import net.minecraft.world.item.component.ItemLore
 import net.minecraft.world.item.component.ResolvableProfile
 import net.minecraft.world.item.component.TooltipDisplay
+import net.minecraft.world.item.component.UseCooldown
 import net.minecraft.world.item.enchantment.Enchantment
 import net.minecraft.world.item.enchantment.EnchantmentHelper
 import net.minecraft.world.level.block.LightBlock
@@ -60,6 +61,13 @@ public object ItemUtils {
     @JvmStatic
     public fun modelled(model: ResourceLocation, item: Item = Items.POPPED_CHORUS_FRUIT): ItemStack {
         return item.modelled(model)
+    }
+
+    @JvmStatic
+    public fun modelled(model: Item, item: Item = Items.POPPED_CHORUS_FRUIT): ItemStack {
+        val stack = ItemStack(item)
+        stack.setFrom(DataComponents.ITEM_MODEL, model)
+        return stack
     }
 
     @JvmStatic
@@ -168,6 +176,12 @@ public object ItemUtils {
     @JvmStatic
     public fun light(level: Int): ItemStack {
         return LightBlock.setLightOnStack(ItemStack(Items.LIGHT), level)
+    }
+
+    @JvmStatic
+    public fun ItemStack.setCooldownGroup(group: ResourceLocation): ItemStack {
+        this.set(DataComponents.USE_COOLDOWN, UseCooldown(0.0F, Optional.of(group)))
+        return this
     }
 
     @JvmStatic

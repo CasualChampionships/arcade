@@ -9,17 +9,33 @@ import eu.pb4.sgui.api.gui.SlotGuiInterface
 import net.casual.arcade.events.server.player.PlayerSlotClickEvent
 import net.minecraft.world.item.ItemStack
 
+@Deprecated(
+    "Use SguiUtils instead",
+    ReplaceWith("net.casual.arcade.guis.sgui.type"),
+)
 public val PlayerSlotClickEvent.type: ClickType
     get() = ClickType.toClickType(this.action, this.button, this.index)
 
+@Deprecated(
+    "Use SguiUtils instead",
+    ReplaceWith("net.casual.arcade.guis.sgui.setSlot"),
+)
 public fun SlotGuiInterface.setSlot(index: Int, stack: ItemStack, callback: () -> Unit) {
     this.setSlot(index, stack) { _, _, _, _ -> callback.invoke() }
 }
 
+@Deprecated(
+    "Use SguiUtils instead",
+    ReplaceWith("net.casual.arcade.guis.sgui.setSlot"),
+)
 public fun SlotGuiInterface.setSlot(index: Int, stack: ItemStack, callback: (ClickType) -> Unit) {
     this.setSlot(index, stack) { _, type, _, _ -> callback.invoke(type) }
 }
 
+@Deprecated(
+    "Use SguiUtils instead",
+    ReplaceWith("net.casual.arcade.guis.sgui.setSlotGrid"),
+)
 public fun SlotGuiInterface.setSlotGrid(
     origin: Int,
     width: Int,
@@ -30,6 +46,10 @@ public fun SlotGuiInterface.setSlotGrid(
     this.setSlotGrid(origin, width, height, { _, _ -> stack }, callback)
 }
 
+@Deprecated(
+    "Use SguiUtils instead",
+    ReplaceWith("net.casual.arcade.guis.sgui.setSlotGrid"),
+)
 public fun SlotGuiInterface.setSlotGrid(
     origin: Int,
     width: Int,
@@ -45,6 +65,10 @@ public fun SlotGuiInterface.setSlotGrid(
     }
 }
 
+@Deprecated(
+    "Use SguiUtils instead",
+    ReplaceWith("net.casual.arcade.guis.sgui.clearSlotGrid"),
+)
 public fun SlotGuiInterface.clearSlotGrid(origin: Int, width: Int, height: Int) {
     for (i in 0..< width) {
         for (j in 0..< height) {
