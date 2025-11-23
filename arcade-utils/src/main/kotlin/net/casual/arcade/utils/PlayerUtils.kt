@@ -7,6 +7,7 @@ package net.casual.arcade.utils
 import net.casual.arcade.util.ducks.ConnectionFaultHolder
 import net.casual.arcade.util.ducks.SilentRecipeSender
 import net.casual.arcade.util.mixins.PlayerAdvancementsAccessor
+import net.casual.arcade.utils.PlayerUtils.players
 import net.casual.arcade.utils.PlayerUtils.updateOffhandSlot
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
@@ -65,6 +66,10 @@ public object PlayerUtils {
     @JvmStatic
     public val ServerPlayer.username: String
         get() = this.gameProfile.name
+
+    @JvmStatic
+    public val MinecraftServer.players: List<ServerPlayer>
+        get() = this.playerList.players
 
     @JvmStatic
     public fun Iterable<ServerPlayer>.broadcast(packet: Packet<*>) {
