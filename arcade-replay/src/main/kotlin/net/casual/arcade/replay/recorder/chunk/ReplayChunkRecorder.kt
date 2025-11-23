@@ -8,7 +8,7 @@ import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.replay.compat.polymer.PolymerPacketPatcher
+import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderUnloadedPauseEvent
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderSnapshotEvent
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderLoadedResumeEvent
@@ -94,7 +94,7 @@ public class ReplayChunkRecorder internal constructor(
         get() = Vec2.ZERO
 
     override fun record(outgoing: Packet<*>) {
-        super.record(PolymerPacketPatcher.replace(this.dummy.connection, outgoing))
+        super.record(PolymerCompatLayer.replace(this.dummy.connection, outgoing))
     }
 
     /**

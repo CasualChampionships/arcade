@@ -9,7 +9,7 @@ import eu.pb4.sgui.api.gui.GuiInterface
 import eu.pb4.sgui.api.gui.SimpleGui
 import net.casual.arcade.minigame.settings.display.DisplayableSettings
 import net.casual.arcade.minigame.settings.display.MenuGameSetting
-import net.casual.arcade.visuals.screen.SelectionGuiBuilder
+import net.casual.arcade.guis.sgui.SelectionGuiBuilder
 
 public object SettingsGuiUtils {
     public fun SelectionGuiBuilder.addSettings(

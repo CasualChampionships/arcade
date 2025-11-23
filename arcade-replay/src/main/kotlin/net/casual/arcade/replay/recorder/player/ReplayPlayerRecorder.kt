@@ -6,14 +6,13 @@ package net.casual.arcade.replay.recorder.player
 
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.replay.compat.polymer.PolymerPacketPatcher
+import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.replay.events.player.ReplayPlayerRecorderSnapshotEvent
 import net.casual.arcade.replay.io.ReplayFormat
 import net.casual.arcade.replay.recorder.ChunkSender
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.recorder.rejoin.RejoinedReplayPlayer
 import net.casual.arcade.utils.impl.WrappedTrackedEntity
-import net.casual.arcade.replay.io.writer.ReplayWriter
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
 import net.casual.arcade.utils.ClientboundAddEntityPacket
 import net.minecraft.core.NonNullList
@@ -37,7 +36,6 @@ import org.jetbrains.annotations.ApiStatus.Internal
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
-import kotlin.io.path.nameWithoutExtension
 
 /**
  * An implementation of [ReplayRecorder] for recording players.
@@ -190,7 +188,7 @@ public class ReplayPlayerRecorder internal constructor(
      * @param packet The packet to be recorded.
      */
     override fun sendChunkPacket(packet: Packet<*>) {
-        this.record(PolymerPacketPatcher.replace(this.getPlayerOrThrow().connection, packet))
+        this.record(PolymerCompatLayer.replace(this.getPlayerOrThrow().connection, packet))
     }
 
     /**

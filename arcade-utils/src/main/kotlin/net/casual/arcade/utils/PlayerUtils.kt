@@ -7,10 +7,13 @@ package net.casual.arcade.utils
 import net.casual.arcade.util.ducks.ConnectionFaultHolder
 import net.casual.arcade.util.ducks.SilentRecipeSender
 import net.casual.arcade.util.mixins.PlayerAdvancementsAccessor
+import net.casual.arcade.utils.PlayerUtils.players
+import net.casual.arcade.utils.PlayerUtils.updateOffhandSlot
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.chat.PlayerFormattedChat
+import net.casual.arcade.utils.compat.SguiCompatLayer
 import net.casual.arcade.utils.impl.Sound
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.time.MinecraftTimeDuration
@@ -31,10 +34,12 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.stats.Stats
 import net.minecraft.util.Mth
+import net.minecraft.world.InteractionHand
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
 import net.minecraft.world.entity.ai.attributes.Attributes
+import net.minecraft.world.inventory.InventoryMenu
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.GameType
@@ -68,6 +73,10 @@ public object PlayerUtils {
     @JvmStatic
     public val ServerPlayer.username: String
         get() = this.gameProfile.name
+
+    @JvmStatic
+    public val MinecraftServer.players: List<ServerPlayer>
+        get() = this.playerList.players
 
     @JvmStatic
     public fun Iterable<ServerPlayer>.broadcast(packet: Packet<*>) {
@@ -192,11 +201,30 @@ public object PlayerUtils {
 
     @JvmStatic
     public fun ServerPlayer.updateSelectedSlot() {
-        val menu = this.inventoryMenu
-        val slot = this.inventory.selectedSlot + 36
-        val item = menu.getSlot(slot).item
-        val update = ClientboundContainerSetSlotPacket(menu.containerId, menu.incrementStateId(), slot, item)
-        this.connection.send(update)
+        this.updateInventorySlot(this.inventory.selectedSlot + 36)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.updateOffhandSlot() {
+        this.updateInventorySlot(InventoryMenu.SHIELD_SLOT)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.updateInteractionSlot(hand: InteractionHand) {
+        when (hand) {
+            InteractionHand.MAIN_HAND -> this.updateSelectedSlot()
+            InteractionHand.OFF_HAND -> this.updateOffhandSlot()
+        }
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.updateInventorySlot(slot: Int) {
+        if (!SguiCompatLayer.isInGuiWithOverriddenInventory(this)) {
+            val menu = this.inventoryMenu
+            val item = menu.getSlot(slot).item
+            val update = ClientboundContainerSetSlotPacket(menu.containerId, menu.incrementStateId(), slot, item)
+            this.connection.send(update)
+        }
     }
 
     @JvmStatic

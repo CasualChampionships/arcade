@@ -4,13 +4,18 @@
  */
 package net.casual.arcade.events.server.mixins;
 
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.brigadier.suggestion.Suggestions;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.player.*;
+import net.casual.arcade.utils.PlayerUtils;
 import net.minecraft.Util;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
@@ -22,9 +27,12 @@ import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -137,6 +145,89 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		original.call(instance, slotId, button, action, player);
 		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
 	}
+
+    @WrapWithCondition(
+        method = "handlePlayerAction",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/server/level/ServerPlayer;drop(Z)Z"
+        )
+    )
+    private boolean onPlayerAction(ServerPlayer instance, boolean all) {
+        PlayerDropItemEvent event = new PlayerDropItemEvent(instance, all);
+        GlobalEventHandler.Server.broadcast(event);
+        if (event.isCancelled()) {
+            PlayerUtils.updateSelectedSlot(this.player);
+            return false;
+        }
+        return true;
+    }
+
+    @Definition(id = "player", field = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;player:Lnet/minecraft/server/level/ServerPlayer;")
+    @Definition(id = "isSpectator", method = "Lnet/minecraft/server/level/ServerPlayer;isSpectator()Z")
+    @Expression("this.player.isSpectator() == 0")
+    @ModifyExpressionValue(
+        method = "handlePlayerAction",
+        at = @At(value = "MIXINEXTRAS:EXPRESSION", ordinal = 0)
+    )
+    private boolean onSwapHands(boolean original) {
+        if (!original) {
+            return false;
+        }
+        PlayerSwapOffhandEvent event = new PlayerSwapOffhandEvent(this.player);
+        GlobalEventHandler.Server.broadcast(event);
+        if (event.isCancelled()) {
+            PlayerUtils.updateSelectedSlot(this.player);
+            PlayerUtils.updateOffhandSlot(this.player);
+            return false;
+        }
+        return true;
+    }
+
+    @Inject(
+        method = "handlePickItemFromBlock",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/level/block/state/BlockState;getCloneItemStack(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Z)Lnet/minecraft/world/item/ItemStack;"
+        ),
+        cancellable = true
+    )
+    private void onPickBlock(ServerboundPickItemFromBlockPacket packet, CallbackInfo ci, @Local BlockState state) {
+        PlayerPickBlockEvent event = new PlayerPickBlockEvent(this.player, packet.pos(), state);
+        GlobalEventHandler.Server.broadcast(event);
+        if (event.isCancelled()) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(
+        method = "handlePickItemFromEntity",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/Entity;getPickResult()Lnet/minecraft/world/item/ItemStack;"
+        ),
+        cancellable = true
+    )
+    private void onPickEntity(ServerboundPickItemFromEntityPacket packet, CallbackInfo ci, @Local Entity entity) {
+        PlayerPickEntityEvent event = new PlayerPickEntityEvent(this.player, entity);
+        GlobalEventHandler.Server.broadcast(event);
+        if (event.isCancelled()) {
+            ci.cancel();
+        }
+    }
+
+    @WrapWithCondition(
+        method = "handleAnimate",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/server/level/ServerPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"
+        )
+    )
+    private boolean onSwingHand(ServerPlayer instance, InteractionHand hand) {
+        PlayerClientSwingHandEvent event = new PlayerClientSwingHandEvent(instance, hand);
+        GlobalEventHandler.Server.broadcast(event);
+        return !event.isCancelled();
+    }
 
 	@Inject(
 		method = "handlePlayerInput",

@@ -8,10 +8,9 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.extensions.*;
-import net.casual.arcade.extensions.TransferableEntityExtension.TransferReason;
-import net.casual.arcade.extensions.ducks.DebugFlagsHolder;
 import net.casual.arcade.extensions.event.EntityExtensionEvent;
 import net.casual.arcade.utils.ArcadeUtils;
+import net.casual.arcade.utils.entity.EntityTransferReason;
 import net.casual.arcade.utils.impl.DelayedInvokers;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -106,7 +105,7 @@ public abstract class EntityMixin implements ExtensionHolder {
 
         for (Extension extension : ExtensionHolder.all((ExtensionHolder) entity)) {
             if (extension instanceof TransferableEntityExtension transferable) {
-                TransferReason reason = TransferReason.Other;
+                EntityTransferReason reason = EntityTransferReason.Other;
                 Extension transferred = transferable.transfer((Entity) (Object) this, reason, delayed);
                 this.arcade$extensions.add(transferred);
             }

@@ -13,7 +13,6 @@ dependencies {
     modCompileOnly(libs.carpet)
     modCompileOnly(libs.vmp)
     modCompileOnly(explosion.fabric(libs.c2me))
-    modCompileOnly(libs.polymer.core)
     modCompileOnly(libs.voicechat)
     compileOnly(libs.voicechat.api)
 

@@ -11,7 +11,7 @@ plugins {
     java
 }
 
-val modVersion = "0.7.1-beta.7"
+val modVersion = "0.7.2-beta.1"
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -165,7 +165,7 @@ dependencies {
 
     include(modImplementation(libs.server.translations.get())!!)
 
-    "modTestmodRuntimeOnly"(libs.voicechat)
+//    "modTestmodRuntimeOnly"(libs.voicechat)
 
     val ignore = setOf(":arcade-datagen", ":arcade-events-client")
     for (subproject in project.subprojects) {
