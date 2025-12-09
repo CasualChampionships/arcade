@@ -75,6 +75,7 @@ public class FlashbackWriter(
 
     init {
         this.chunks.defaultReturnValue(-1)
+        this.path.createDirectories()
     }
 
     override fun tick() {

@@ -4,6 +4,8 @@
  */
 package net.casual.arcade.visuals.utils.elements
 
+import net.casual.arcade.utils.component.Component
+import net.casual.arcade.utils.component.ComponentBuilderContext
 import net.casual.arcade.visuals.elements.PlayerSpecificElement
 import net.casual.arcade.visuals.elements.UniversalElement
 import net.minecraft.network.chat.Component
@@ -13,6 +15,10 @@ public object ComponentElements {
 
     public fun of(component: Component): PlayerSpecificElement<Component> {
         return UniversalElement.constant(component)
+    }
+
+    public fun of(builder: ComponentBuilderContext.() -> Component): PlayerSpecificElement<Component> {
+        return UniversalElement.constant(Component(builder))
     }
 
     public fun empty(): PlayerSpecificElement<Component> {
