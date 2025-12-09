@@ -72,8 +72,8 @@ open class TestMinigame(
         display.setDisplay(header, footer)
         this.visuals.setPlayerListDisplay(display)
 
-        this.visuals.addNametag(PlayerNametag({ player -> player.displayName!! }))
-        this.visuals.addNametag(PlayerNametag({ Component.literal("CustomNametags!") }))
+        this.visuals.addNametag(PlayerNametag.simple({ player -> player.displayName!! }))
+        this.visuals.addNametag(PlayerNametag.simple({ Component.literal("CustomNametags!") }))
     }
 
     override fun factory(): MinigameFactory {

@@ -94,7 +94,9 @@ public class RejoinedReplayPlayer private constructor(
             listener.send(ClientboundPlayerAbilitiesPacket(player.abilities))
             listener.send(ClientboundSetHeldSlotPacket(player.inventory.selectedSlot))
             listener.send(ClientboundUpdateRecipesPacket(server.recipeManager.synchronizedItemProperties, server.recipeManager.synchronizedStonecutterRecipes))
-            players.sendPlayerPermissionLevel(player)
+            // We don't bother sending permissions. It may be useful for something,
+            // but it breaks luckperm api calls if the player is not real.
+            // players.sendPlayerPermissionLevel(player)
 
             player.recipeBook.sendInitialRecipeBook(player)
 

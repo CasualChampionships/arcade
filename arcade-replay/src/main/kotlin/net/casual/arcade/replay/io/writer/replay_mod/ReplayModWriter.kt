@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.replay.io.writer.replay_mod
 
-import com.google.common.hash.Hashing
 import com.google.gson.JsonObject
 import com.replaymod.replaystudio.data.Marker
 import com.replaymod.replaystudio.io.ReplayOutputStream
@@ -34,11 +33,9 @@ import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
 import net.minecraft.world.entity.EntityType
 import java.io.IOException
-import java.net.URI
-import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
-import kotlin.io.path.*
+import kotlin.io.path.name
 import kotlin.time.Duration
 import com.github.steveice10.netty.buffer.Unpooled as ReplayUnpooled
 import com.replaymod.replaystudio.protocol.Packet as ReplayPacket

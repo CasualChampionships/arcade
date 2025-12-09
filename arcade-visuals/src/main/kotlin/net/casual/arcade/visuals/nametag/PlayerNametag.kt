@@ -28,54 +28,49 @@ import java.util.function.Consumer
  * tag to whatever you wish.
  *
  * This name tag can be added to any player, it will
- * automatically remove their default name tag, furthermore,
- * you can add multiple name tags to each player which
- * all have a [observable] which determines which
- * other players can see the player's nametag.
+ * automatically remove their default name tag.
  *
  * This may be useful, for example, if you want to display
  * a player's health to their teammates and spectators but
  * not to enemies.
  *
- * @param tag The [PlayerSpecificElement] to get the player's nametag.
- * @param observable The predicate to determine which
- * players can see the player's nametag.
+ * @param nametag The nametag.
  * @see TrackingVisualElement
  */
 public class PlayerNametag(
     /**
-     * The [ComponentElements] to get the player's nametag.
+     * The nametag to give the player(s).
      */
-    public var tag: PlayerSpecificElement<Component>,
-    /**
-     * The predicate to determine which players can see
-     * the player's nametag.
-     */
-    private val observable: PlayerObserverPredicate = PlayerObserverPredicate { _, _ -> true },
-): TrackingVisualElement(), Nametag {
-    override val updateInterval: MinecraftTimeDuration
-        get() = this.interval.Ticks
-
-    override fun getComponent(observee: Entity): Component {
-        if (observee !is ServerPlayer) {
-            throw IllegalArgumentException("Cannot get PlayerNametag component for non-player!")
-        }
-        return this.tag.get(observee)
-    }
-
-    override fun isObservable(observee: Entity, observer: ServerPlayer): Boolean {
-        return this.observable.observable(observee, observer)
-    }
-
+    private val nametag: Nametag
+): TrackingVisualElement() {
     override fun onAddPlayer(player: ServerPlayer) {
-        player.addNametag(this)
+        player.addNametag(this.nametag)
     }
 
     override fun onRemovePlayer(player: ServerPlayer) {
-        player.removeNametag(this)
+        player.removeNametag(this.nametag)
     }
 
     override fun resendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
 
+    }
+
+    public companion object {
+        public fun simple(
+            component: PlayerSpecificElement<Component>,
+            predicate: PlayerObserverPredicate = PlayerObserverPredicate { _, _ -> true }
+        ): PlayerNametag {
+            val nametag = object: Nametag {
+                override fun getComponent(observee: Entity): Component {
+                    require(observee is ServerPlayer) { "Player nametag cannot be applied to entities" }
+                    return component.get(observee)
+                }
+
+                override fun isObservable(observee: Entity, observer: ServerPlayer): Boolean {
+                    return predicate.observable(observee, observer)
+                }
+            }
+            return PlayerNametag(nametag)
+        }
     }
 }
