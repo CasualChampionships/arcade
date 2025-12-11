@@ -8,7 +8,7 @@ import net.casual.arcade.scheduler.task.SavableTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.impl.CancellableTask
 import net.minecraft.core.Registry
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 /**
  * This interface is for creating tasks from serialized data.
@@ -22,7 +22,7 @@ public interface TaskFactory {
     /**
      * The id for the task that is being generated.
      */
-    public val id: ResourceLocation
+    public val id: Identifier
 
     /**
      * This creates a [Task] from the given [data].

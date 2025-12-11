@@ -16,7 +16,6 @@ import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.player.*;
 import net.casual.arcade.utils.PlayerUtils;
-import net.minecraft.Util;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.LastSeenMessages;
@@ -27,6 +26,7 @@ import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.util.Util;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -150,7 +150,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
         method = "handlePlayerAction",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/level/ServerPlayer;drop(Z)Z"
+            target = "Lnet/minecraft/server/level/ServerPlayer;drop(Z)V"
         )
     )
     private boolean onPlayerAction(ServerPlayer instance, boolean all) {

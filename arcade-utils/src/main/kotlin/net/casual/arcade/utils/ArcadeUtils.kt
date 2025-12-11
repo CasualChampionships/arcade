@@ -4,12 +4,11 @@
  */
 package net.casual.arcade.utils
 
-import net.casual.arcade.utils.coroutine.ServerCoroutineUtils
 import net.casual.arcade.utils.registries.ArcadeUtilsRegistries
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.util.ProblemReporter.ScopedCollector
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -41,8 +40,8 @@ public object ArcadeUtils: ModInitializer {
     }
 
     @JvmStatic
-    public fun id(path: String): ResourceLocation {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path)
+    public fun id(path: String): Identifier {
+        return Identifier.fromNamespaceAndPath(MOD_ID, path)
     }
 
     @JvmStatic

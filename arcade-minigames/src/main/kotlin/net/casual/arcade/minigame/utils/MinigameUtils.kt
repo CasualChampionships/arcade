@@ -7,6 +7,7 @@ package net.casual.arcade.minigame.utils
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
+import net.casual.arcade.commands.hasPermission
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
@@ -29,6 +30,7 @@ import net.casual.arcade.minigame.settings.MinigameSettings
 import net.casual.arcade.scheduler.MinecraftScheduler
 import net.casual.arcade.scheduler.task.Completable
 import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.PlayerUtils.hasPermission
 import net.casual.arcade.utils.component.gold
 import net.casual.arcade.utils.component.lime
 import net.casual.arcade.utils.component.red
@@ -40,6 +42,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.permissions.PermissionLevel
 import org.jetbrains.annotations.ApiStatus.Internal
 import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
@@ -79,7 +82,7 @@ public object MinigameUtils {
     @JvmStatic
     public inline fun <reified T: Minigame> ServerLevel.getMinigameOrThrow(): T {
         return this.getMinigame() ?: throw IllegalStateException(
-            "Dimension ${this.dimension().location()} has no single ongoing minigame (type: ${T::class.java.simpleName})"
+            "Dimension ${this.dimension().identifier()} has no single ongoing minigame (type: ${T::class.java.simpleName})"
         )
     }
 
@@ -133,11 +136,15 @@ public object MinigameUtils {
         return this.countdown(duration, interval, scheduler, players)
     }
 
-    public fun <T: ArgumentBuilder<CommandSourceStack, T>> T.requiresAdminOrPermission(level: Int = 2): T {
+    public fun <T: ArgumentBuilder<CommandSourceStack, T>> T.requiresAdminOrPermission(
+        level: PermissionLevel = PermissionLevel.GAMEMASTERS
+    ): T {
         return this.requires { source -> source.isMinigameAdminOrHasPermission(level) }
     }
 
-    public fun CommandSourceStack.isMinigameAdminOrHasPermission(level: Int = 2): Boolean {
+    public fun CommandSourceStack.isMinigameAdminOrHasPermission(
+        level: PermissionLevel = PermissionLevel.GAMEMASTERS
+    ): Boolean {
         if (!this.isPlayer) {
             return this.hasPermission(level)
         }
@@ -148,12 +155,14 @@ public object MinigameUtils {
         return this.isPlayer && predicate.test(this.playerOrException)
     }
 
-    public fun ServerPlayer.isMinigameAdminOrHasPermission(level: Int = 2): Boolean {
+    public fun ServerPlayer.isMinigameAdminOrHasPermission(
+        level: PermissionLevel = PermissionLevel.GAMEMASTERS
+    ): Boolean {
         val minigame = this.getMinigame()
         if (minigame != null && minigame.players.isAdmin(this)) {
             return true
         }
-        return this.hasPermissions(level)
+        return this.hasPermission(level)
     }
 
     public fun Minigame.addEventListener(listener: MinigameEventListener) {

@@ -14,7 +14,7 @@ import net.casual.arcade.utils.ClientboundLevelParticlesPacket
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import java.util.function.Consumer
@@ -82,7 +82,7 @@ public open class ParticleBoundaryRenderer(
         }
 
         public companion object: CodecProvider<Factory> {
-            override val ID: ResourceLocation = ArcadeUtils.id("particle_border_renderer")
+            override val ID: Identifier = ArcadeUtils.id("particle_border_renderer")
 
             override val CODEC: MapCodec<out Factory> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(

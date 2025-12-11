@@ -132,7 +132,7 @@ public class FlashbackChunkedReader(
 
         val actions = this.buffer.readVarInt()
         for (i in 0..<actions) {
-            val id = this.buffer.readResourceLocation()
+            val id = this.buffer.readIdentifier()
             val action = FlashbackAction.from(id)
             if (action == null) {
                 if (id.path.endsWith("optional")) {

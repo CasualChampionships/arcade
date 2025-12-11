@@ -8,14 +8,13 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.JsonUtils.array
-import net.casual.arcade.utils.JsonUtils.long
 import net.casual.arcade.utils.JsonUtils.longOrNull
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.JsonUtils.uuid
 import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
@@ -80,7 +79,7 @@ public class MinigameDataTracker(
         val json = this.players[uuid] ?: return listOf()
         val list = ArrayList<AdvancementHolder>()
         for (data in json.array("advancements").objects()) {
-            val id = ResourceLocation.parse(data.string("id"))
+            val id = Identifier.parse(data.string("id"))
             list.add(this.minigame.advancements.get(id) ?: continue)
         }
         return list

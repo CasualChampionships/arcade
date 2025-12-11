@@ -13,14 +13,14 @@ import net.casual.arcade.scheduler.task.SavableTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
 import net.casual.arcade.utils.JsonUtils.string
-import net.casual.arcade.utils.ResourceUtils
-import net.minecraft.resources.ResourceLocation
+import net.casual.arcade.utils.IdentifierUtils
+import net.minecraft.resources.Identifier
 
 public class PhaseChangeTask(
     private val minigame: Minigame,
     private val phase: Phase<out Minigame>
 ): SavableTask {
-    override val id: ResourceLocation = Companion.id
+    override val id: Identifier = Companion.id
 
     override fun run() {
         this.minigame.setPhase(this.phase)
@@ -33,7 +33,7 @@ public class PhaseChangeTask(
     }
 
     public companion object: MinigameTaskFactory<Minigame> {
-        override val id: ResourceLocation = ResourceUtils.arcade("phase_change")
+        override val id: Identifier = IdentifierUtils.arcade("phase_change")
 
         override fun create(context: MinigameTaskCreationContext<Minigame>): Task {
             val phaseId = context.data.string("phase")

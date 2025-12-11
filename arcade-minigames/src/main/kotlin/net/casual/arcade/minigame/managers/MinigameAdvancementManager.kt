@@ -19,7 +19,7 @@ import net.minecraft.advancements.AdvancementNode
 import net.minecraft.advancements.AdvancementTree
 import net.minecraft.advancements.TreeNodePosition
 import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
 
@@ -36,7 +36,7 @@ public class MinigameAdvancementManager(
     private val minigame: Minigame
 ) {
     private val tree = AdvancementTree()
-    private val reloaded = Object2ObjectOpenHashMap<UUID, Set<ResourceLocation>>()
+    private val reloaded = Object2ObjectOpenHashMap<UUID, Set<Identifier>>()
 
     init {
         this.minigame.events.register<MinigameAddPlayerEvent> { event ->
@@ -78,16 +78,16 @@ public class MinigameAdvancementManager(
     }
 
     /**
-     * This gets an advancement by its [ResourceLocation].
+     * This gets an advancement by its [Identifier].
      *
-     * @param id The [ResourceLocation] of the advancement.
+     * @param id The [Identifier] of the advancement.
      * @return The advancement or null if it does not exist.
      */
-    public fun get(id: ResourceLocation): AdvancementHolder? {
+    public fun get(id: Identifier): AdvancementHolder? {
         return this.getNode(id)?.holder()
     }
 
-    public fun getNode(id: ResourceLocation): AdvancementNode? {
+    public fun getNode(id: Identifier): AdvancementNode? {
         return this.tree.get(id)
     }
 

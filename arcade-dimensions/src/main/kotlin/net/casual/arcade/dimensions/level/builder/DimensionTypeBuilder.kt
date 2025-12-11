@@ -4,44 +4,41 @@
  */
 package net.casual.arcade.dimensions.level.builder
 
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.core.HolderSet
 import net.minecraft.tags.BlockTags
 import net.minecraft.tags.TagKey
 import net.minecraft.util.valueproviders.IntProvider
 import net.minecraft.util.valueproviders.UniformInt
+import net.minecraft.world.attribute.EnvironmentAttributeMap
 import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.dimension.BuiltinDimensionTypes
 import net.minecraft.world.level.dimension.DimensionType
-import net.minecraft.world.level.dimension.DimensionType.MonsterSettings
-import java.util.*
+import net.minecraft.world.level.dimension.DimensionType.*
+import net.minecraft.world.timeline.Timeline
 
 /**
  * Builder class for [DimensionType].
  */
 public class DimensionTypeBuilder {
-    public var fixedTime: OptionalLong = OptionalLong.empty()
+    public var hasFixedTime: Boolean = false
     public var hasSkyLight: Boolean = true
     public var hasCeiling: Boolean = false
-    public var ultraWarm: Boolean = false
-    public var natural: Boolean = true
     public var coordinateScale: Double = 1.0
-    public var bedWorks: Boolean = true
-    public var respawnAnchorWorks: Boolean = false
     public var minY: Int = -64
     public var height: Int = 384
     public var logicalHeight: Int = 384
     public var infiniburn: TagKey<Block> = BlockTags.INFINIBURN_OVERWORLD
-    public var effects: ResourceLocation = BuiltinDimensionTypes.OVERWORLD_EFFECTS
     public var ambientLight: Float = 0.0F
-    public var cloudHeight: Int? = null
 
-    public var piglinSafe: Boolean = false
-    public var hasRaids: Boolean = true
     public var monsterSpawnLightLevel: IntProvider = UniformInt.of(0, 7)
     public var monsterSpawnBlockLightLimit: Int = 0
 
-    public fun fixedTime(fixedTime: Long): DimensionTypeBuilder {
-        this.fixedTime = OptionalLong.of(fixedTime)
+    public var skybox: Skybox = Skybox.OVERWORLD
+    public var cardinalLightType: CardinalLightType = CardinalLightType.DEFAULT
+    public var environmentAttributes: EnvironmentAttributeMap = EnvironmentAttributeMap.EMPTY
+    public var timelines: HolderSet<Timeline> = HolderSet.empty()
+
+    public fun hasFixedTime(hasFixedTime: Boolean): DimensionTypeBuilder {
+        this.hasFixedTime = hasFixedTime
         return this
     }
 
@@ -55,28 +52,8 @@ public class DimensionTypeBuilder {
         return this
     }
 
-    public fun ultraWarm(ultraWarm: Boolean): DimensionTypeBuilder {
-        this.ultraWarm = ultraWarm
-        return this
-    }
-
-    public fun natural(natural: Boolean): DimensionTypeBuilder {
-        this.natural = natural
-        return this
-    }
-
     public fun coordinateScale(coordinateScale: Double): DimensionTypeBuilder {
         this.coordinateScale = coordinateScale
-        return this
-    }
-
-    public fun bedWorks(bedWorks: Boolean): DimensionTypeBuilder {
-        this.bedWorks = bedWorks
-        return this
-    }
-
-    public fun respawnAnchorWorks(respawnAnchorWorks: Boolean): DimensionTypeBuilder {
-        this.respawnAnchorWorks = respawnAnchorWorks
         return this
     }
 
@@ -100,28 +77,8 @@ public class DimensionTypeBuilder {
         return this
     }
 
-    public fun effects(effects: ResourceLocation): DimensionTypeBuilder {
-        this.effects = effects
-        return this
-    }
-
     public fun ambientLight(ambientLight: Float): DimensionTypeBuilder {
         this.ambientLight = ambientLight
-        return this
-    }
-
-    public fun cloudHeight(height: Int): DimensionTypeBuilder {
-        this.cloudHeight = height
-        return this
-    }
-
-    public fun piglinSafe(piglinSafe: Boolean): DimensionTypeBuilder {
-        this.piglinSafe = piglinSafe
-        return this
-    }
-
-    public fun hasRaids(hasRaids: Boolean): DimensionTypeBuilder {
-        this.hasRaids = hasRaids
         return this
     }
 
@@ -135,29 +92,52 @@ public class DimensionTypeBuilder {
         return this
     }
 
+    public fun skybox(skybox: Skybox): DimensionTypeBuilder {
+        this.skybox = skybox
+        return this
+    }
+
+    public fun cardinalLightType(cardinalLightType: CardinalLightType): DimensionTypeBuilder {
+        this.cardinalLightType = cardinalLightType
+        return this
+    }
+
+    public fun environmentAttributes(attributes: EnvironmentAttributeMap): DimensionTypeBuilder {
+        this.environmentAttributes = attributes
+        return this
+    }
+
+    public fun environmentAttributes(block: EnvironmentAttributeMap.Builder.() -> Unit): DimensionTypeBuilder {
+        val builder = EnvironmentAttributeMap.builder()
+        builder.putAll(this.environmentAttributes)
+        builder.block()
+        return this.environmentAttributes(builder.build())
+    }
+
+    public fun timelines(timelines: HolderSet<Timeline>): DimensionTypeBuilder {
+        this.timelines = timelines
+        return this
+    }
+
     public fun build(): DimensionType {
         return DimensionType(
-            this.fixedTime,
+            this.hasFixedTime,
             this.hasSkyLight,
             this.hasCeiling,
-            this.ultraWarm,
-            this.natural,
             this.coordinateScale,
-            this.bedWorks,
-            this.respawnAnchorWorks,
             this.minY,
             this.height,
             this.logicalHeight,
             this.infiniburn,
-            this.effects,
             this.ambientLight,
-            Optional.ofNullable(this.cloudHeight),
             MonsterSettings(
-                this.piglinSafe,
-                this.hasRaids,
                 this.monsterSpawnLightLevel,
                 this.monsterSpawnBlockLightLimit
-            )
+            ),
+            this.skybox,
+            this.cardinalLightType,
+            this.environmentAttributes,
+            this.timelines
         )
     }
 

@@ -15,7 +15,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.CommonListenerCookie
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.entity.player.PlayerModelPart
-import net.minecraft.world.level.GameRules
+import net.minecraft.world.level.gamerules.GameRules
 import net.minecraft.world.scores.DisplaySlot
 import net.minecraft.world.scores.Objective
 import java.util.*
@@ -81,9 +81,9 @@ public class RejoinedReplayPlayer private constructor(
                 players.maxPlayers,
                 players.viewDistance,
                 players.simulationDistance,
-                rules.getBoolean(GameRules.RULE_REDUCEDDEBUGINFO),
-                !rules.getBoolean(GameRules.RULE_DO_IMMEDIATE_RESPAWN),
-                rules.getBoolean(GameRules.RULE_LIMITED_CRAFTING),
+                rules.get(GameRules.REDUCED_DEBUG_INFO),
+                !rules.get(GameRules.IMMEDIATE_RESPAWN),
+                rules.get(GameRules.LIMITED_CRAFTING),
                 player.createCommonSpawnInfo(level),
                 false
             ))

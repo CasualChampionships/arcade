@@ -5,10 +5,10 @@
 package net.casual.arcade.utils.math.location.providers
 
 import com.mojang.serialization.MapCodec
-import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.math.location.Location
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 public class ExactLocationProvider(
     private val location: Location = Location.DEFAULT
@@ -22,7 +22,7 @@ public class ExactLocationProvider(
     }
 
     public companion object: CodecProvider<ExactLocationProvider> {
-        override val ID: ResourceLocation = ResourceUtils.arcade("exact")
+        override val ID: Identifier = IdentifierUtils.arcade("exact")
 
         override val CODEC: MapCodec<out ExactLocationProvider> = Location.MAP_CODEC.xmap(
             { location -> ExactLocationProvider(location) },

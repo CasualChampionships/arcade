@@ -9,7 +9,7 @@ import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.resources.utils.spaced
-import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.component.*
 import net.casual.arcade.utils.recipe.CraftingRecipeBuilder
 import net.casual.arcade.visuals.utils.elements.ComponentElements
@@ -20,7 +20,7 @@ import net.casual.arcade.visuals.sidebar.FixedSidebar
 import net.casual.arcade.visuals.tab.PlayerListDisplay
 import net.casual.arcade.visuals.tab.VanillaPlayerListEntries
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -35,7 +35,7 @@ open class TestMinigame(
     server: MinecraftServer,
     uuid: UUID
 ): Minigame(server, uuid) {
-    override val id: ResourceLocation get() = ID
+    override val id: Identifier get() = ID
 
     override fun phases(): Collection<Phase<out Minigame>> {
         return TestPhase.entries
@@ -46,7 +46,7 @@ open class TestMinigame(
         this.players.keepPlayerData = false
 
         this.recipes.add(CraftingRecipeBuilder.shapeless(this.server.registryAccess()) {
-            key(ResourceUtils.arcade("example"))
+            key(IdentifierUtils.arcade("example"))
             ingredients(Items.ITEM_FRAME, Items.BLACK_DYE)
             result(ItemStack(Items.NETHERITE_BLOCK))
         })
@@ -72,7 +72,7 @@ open class TestMinigame(
         display.setDisplay(header, footer)
         this.visuals.setPlayerListDisplay(display)
 
-        this.visuals.addNametag(PlayerNametag.simple({ player -> player.displayName!! }))
+        this.visuals.addNametag(PlayerNametag.simple({ player -> player.displayName }))
         this.visuals.addNametag(PlayerNametag.simple({ Component.literal("CustomNametags!") }))
     }
 
@@ -82,7 +82,7 @@ open class TestMinigame(
 
     companion object: MinigameFactory {
         private val CODEC = MapCodec.unit(this)
-        val ID = ResourceUtils.arcade("test_minigame")
+        val ID = IdentifierUtils.arcade("test_minigame")
 
         override fun create(context: MinigameCreationContext): Minigame {
             return TestMinigame(context.server, context.uuid)

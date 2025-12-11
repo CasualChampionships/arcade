@@ -107,7 +107,7 @@ public class FlashbackReader(
 
     override fun readMarkers(): Multimap<String?, ReplayMarker> {
         if (this.chunked.meta.markers.isEmpty()) {
-            return ImmutableMultimap.of()
+            return HashMultimap.create()
         }
 
         val map = HashMultimap.create<String?, ReplayMarker>()

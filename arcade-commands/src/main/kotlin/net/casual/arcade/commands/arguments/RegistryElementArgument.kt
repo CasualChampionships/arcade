@@ -7,30 +7,29 @@ package net.casual.arcade.commands.arguments
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType
-import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.commands.type.CustomArgumentTypeInfo
 import net.casual.arcade.utils.toIdString
 import net.minecraft.commands.SharedSuggestionProvider
-import net.minecraft.commands.arguments.ResourceLocationArgument
+import net.minecraft.commands.arguments.IdentifierArgument
 import net.minecraft.core.Holder
 import net.minecraft.core.Registry
 import net.minecraft.core.RegistryAccess
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 import java.util.concurrent.CompletableFuture
 import kotlin.jvm.optionals.getOrNull
 
-public class RegistryElementArgument<T>(
+public class RegistryElementArgument<T: Any>(
     private val keys: Set<ResourceKey<Registry<T>>>,
     private val filter: (ResourceKey<T>, T) -> Boolean
 ): CustomArgumentType<RegistryElementArgument.FilterableResourceKey<T>>() {
     override fun parse(reader: StringReader): FilterableResourceKey<T> {
         return FilterableResourceKey(
-            this.keys, ResourceLocation.read(reader), this.filter
+            this.keys, Identifier.read(reader), this.filter
         )
     }
 
@@ -44,7 +43,7 @@ public class RegistryElementArgument<T>(
                 source.registryAccess().lookup(key).map { registry ->
                     registry.entrySet().filter { (key, value) ->
                         this.filter.invoke(key, value)
-                    }.map { entry -> entry.key.location() }
+                    }.map { entry -> entry.key.identifier() }
                 }.orElseGet(::listOf)
             }
             if (suggestions.isNotEmpty()) {
@@ -55,12 +54,12 @@ public class RegistryElementArgument<T>(
     }
 
     override fun getArgumentInfo(): CustomArgumentTypeInfo<*> {
-        return CustomArgumentTypeInfo.of(ResourceLocationArgument::class.java)
+        return CustomArgumentTypeInfo.of(IdentifierArgument::class.java)
     }
 
-    public data class FilterableResourceKey<T>(
+    public data class FilterableResourceKey<T: Any>(
         private val keys: Set<ResourceKey<Registry<T>>>,
-        private val id: ResourceLocation,
+        private val id: Identifier,
         private val filter: (ResourceKey<T>, T) -> Boolean
     ) {
         public fun getElement(access: RegistryAccess): T {
@@ -85,7 +84,7 @@ public class RegistryElementArgument<T>(
 
         @JvmStatic
         @JvmOverloads
-        public fun <T> element(
+        public fun <T: Any> element(
             key: ResourceKey<Registry<T>>,
             filter: (ResourceKey<T>, T) -> Boolean = { _, _ -> true }
         ): RegistryElementArgument<T> {
@@ -94,14 +93,14 @@ public class RegistryElementArgument<T>(
 
         @JvmStatic
         @JvmOverloads
-        public fun <T> element(
+        public fun <T: Any> element(
             keys: Set<ResourceKey<Registry<T>>>,
             filter: (ResourceKey<T>, T) -> Boolean = { _, _ -> true }
         ): RegistryElementArgument<T> {
             return RegistryElementArgument(keys, filter)
         }
 
-        public fun <T> element(
+        public fun <T: Any> element(
             vararg keys: ResourceKey<Registry<T>>,
             filter: (ResourceKey<T>, T) -> Boolean = { _, _ -> true }
         ): RegistryElementArgument<T> {
@@ -109,12 +108,12 @@ public class RegistryElementArgument<T>(
         }
 
         @JvmStatic
-        public fun <T> getElement(context: CommandContext<out SharedSuggestionProvider>, string: String): T {
+        public fun <T: Any> getElement(context: CommandContext<out SharedSuggestionProvider>, string: String): T {
             return this.getHolder<T>(context, string).value()
         }
 
         @JvmStatic
-        public fun <T> getHolder(context: CommandContext<out SharedSuggestionProvider>, string: String): Holder.Reference<T> {
+        public fun <T: Any> getHolder(context: CommandContext<out SharedSuggestionProvider>, string: String): Holder.Reference<T> {
             @Suppress("UNCHECKED_CAST")
             val filterable = context.getArgument(string, FilterableResourceKey::class.java) as FilterableResourceKey<T>
             return filterable.getHolder(context.source.registryAccess())

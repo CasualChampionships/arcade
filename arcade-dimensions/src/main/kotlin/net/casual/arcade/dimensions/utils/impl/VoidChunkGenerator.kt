@@ -90,10 +90,6 @@ public class VoidChunkGenerator(biome: BiomeSource): ChunkGenerator(biome) {
         return WeightedList.of()
     }
 
-    override fun createStructures(registryAccess: RegistryAccess, structureState: ChunkGeneratorStructureState, structureManager: StructureManager, chunk: ChunkAccess, structureTemplateManager: StructureTemplateManager, dimension: ResourceKey<Level>) {
-        super.createStructures(registryAccess, structureState, structureManager, chunk, structureTemplateManager, dimension)
-    }
-
     override fun createReferences(level: WorldGenLevel, structureManager: StructureManager, chunk: ChunkAccess) {
 
     }

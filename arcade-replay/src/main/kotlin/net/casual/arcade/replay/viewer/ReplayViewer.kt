@@ -52,6 +52,7 @@ import net.minecraft.world.level.GameType
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.scores.DisplaySlot
 import net.minecraft.world.scores.Objective
+import net.minecraft.world.scores.Scoreboard
 import net.minecraft.world.scores.criteria.ObjectiveCriteria
 import java.io.InputStream
 import java.util.*
@@ -439,9 +440,8 @@ public class ReplayViewer internal constructor(
         }
         synchronized(this.objectives) {
             for (objective in this.objectives) {
-                @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
                 val dummy = Objective(
-                    null,
+                    Scoreboard(),
                     objective,
                     ObjectiveCriteria.DUMMY,
                     Component.empty(),
@@ -517,7 +517,7 @@ public class ReplayViewer internal constructor(
                     this.players.add(entry.profileId)
                 }
             }
-            is ClientboundPlayerInfoRemovePacket -> this.players.removeAll(packet.profileIds)
+            is ClientboundPlayerInfoRemovePacket -> this.players.removeAll(packet.profileIds.toSet())
             is ClientboundRespawnPacket -> this.teleported = false
         }
     }

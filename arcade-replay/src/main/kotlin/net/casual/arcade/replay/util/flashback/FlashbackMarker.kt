@@ -5,7 +5,7 @@
 package net.casual.arcade.replay.util.flashback
 
 import com.mojang.serialization.Codec
-import net.casual.arcade.utils.serialization.codec.OrderedRecordCodecBuilder
+import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.resources.ResourceKey
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
@@ -18,7 +18,7 @@ public data class FlashbackMarker(
 ) {
     public data class Location(val position: Vec3, val dimension: String) {
         public companion object {
-            public val CODEC: Codec<Location> = OrderedRecordCodecBuilder.create { instance ->
+            public val CODEC: Codec<Location> = RecordCodecBuilder.create { instance ->
                 instance.group(
                     Vec3.CODEC.fieldOf("position").forGetter(Location::position),
                     Codec.STRING.fieldOf("dimension").forGetter(Location::dimension)
@@ -32,7 +32,7 @@ public data class FlashbackMarker(
     }
 
     public companion object {
-        public val CODEC: Codec<FlashbackMarker> = OrderedRecordCodecBuilder.create { instance ->
+        public val CODEC: Codec<FlashbackMarker> = RecordCodecBuilder.create { instance ->
             instance.group(
                 // Flashback uses the British spelling of colour, this is intentional
                 Codec.INT.fieldOf("colour").forGetter(FlashbackMarker::color),

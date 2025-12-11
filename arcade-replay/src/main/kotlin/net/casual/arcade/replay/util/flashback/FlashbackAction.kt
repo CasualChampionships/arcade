@@ -5,9 +5,9 @@
 package net.casual.arcade.replay.util.flashback
 
 import net.casual.arcade.replay.ArcadeReplay
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
-public enum class FlashbackAction(public val id: ResourceLocation) {
+public enum class FlashbackAction(public val id: Identifier) {
     CacheChunk("action/level_chunk_cached"),
     ConfigurationPacket("action/configuration_packet"),
     CreatePlayer("action/create_local_player"),
@@ -22,7 +22,7 @@ public enum class FlashbackAction(public val id: ResourceLocation) {
     public companion object {
         private val idToAction = FlashbackAction.entries.associateBy { it.id }
 
-        public fun from(id: ResourceLocation): FlashbackAction? {
+        public fun from(id: Identifier): FlashbackAction? {
             return idToAction[id]
         }
     }

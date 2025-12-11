@@ -15,21 +15,21 @@ import net.casual.arcade.commands.type.CustomArgumentTypeInfo
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.minecraft.commands.SharedSuggestionProvider
-import net.minecraft.commands.arguments.ResourceLocationArgument
+import net.minecraft.commands.arguments.IdentifierArgument
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import java.util.concurrent.CompletableFuture
 import kotlin.jvm.optionals.getOrNull
 
 public class MinigameFactoryCodecArgument: CustomArgumentType<MapCodec<out MinigameFactory>>() {
     override fun parse(reader: StringReader): MapCodec<out MinigameFactory> {
-        val id = ResourceLocation.read(reader)
+        val id = Identifier.read(reader)
         return MinigameRegistries.MINIGAME_FACTORY.getOptional(id).getOrNull()
             ?: throw INVALID_FACTORY.create()
     }
 
     override fun getArgumentInfo(): CustomArgumentTypeInfo<*> {
-        return CustomArgumentTypeInfo.of(ResourceLocationArgument::class.java)
+        return CustomArgumentTypeInfo.of(IdentifierArgument::class.java)
     }
 
     override fun <S> listSuggestions(

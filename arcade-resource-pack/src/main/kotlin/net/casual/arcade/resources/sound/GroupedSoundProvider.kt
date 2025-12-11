@@ -6,13 +6,13 @@ package net.casual.arcade.resources.sound
 
 import net.casual.arcade.resources.sound.SoundProvider.Type.Event
 import net.casual.arcade.resources.sound.SoundProvider.Type.Sound
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 public class GroupedSoundProvider {
     private val providers = ArrayList<SoundProvider>()
 
     public fun sound(
-        location: ResourceLocation,
+        location: Identifier,
         volume: Float = 1.0F,
         pitch: Float = 1.0F,
         weight: Int = 1,
@@ -26,7 +26,7 @@ public class GroupedSoundProvider {
     }
 
     public fun event(
-        location: ResourceLocation,
+        location: Identifier,
         volume: Float = 1.0F,
         pitch: Float = 1.0F,
         weight: Int = 1,

@@ -8,7 +8,8 @@ import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.literal
 import net.casual.arcade.commands.success
-import net.casual.arcade.resources.font.heads.PlayerHeadComponents
+import net.casual.arcade.resources.font.heads.PixelGridHeadComponents
+import net.casual.arcade.utils.StaticResolvableProfile
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
@@ -40,7 +41,7 @@ object PlayerHeadCommand: CommandTree {
         shift: Int = IntegerArgumentType.getInteger(context, "shift")
     ): Int {
         val username = StringArgumentType.getString(context, "username")
-        val component = PlayerHeadComponents.getHeadOrDefault(username, context.source.server, shift)
+        val component = PixelGridHeadComponents.getHeadOrDefaultFor(StaticResolvableProfile(username), context.source.server, shift)
         return context.source.success(Component.literal("${username}'s head: ").append(component))
     }
 
@@ -48,7 +49,7 @@ object PlayerHeadCommand: CommandTree {
         context: CommandContext<CommandSourceStack>,
         shift: Int = IntegerArgumentType.getInteger(context, "shift")
     ): Int {
-        val component = PlayerHeadComponents.get(shift).getDefault()
+        val component = PixelGridHeadComponents.get(shift, context.source.server.services()).getDefault()
         return context.source.success(Component.literal("Default head: ").append(component))
     }
 }

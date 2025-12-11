@@ -16,16 +16,14 @@ import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.shapes.ShapePoints
 import net.casual.arcade.visuals.shapes.impl.CuboidShape
-import net.minecraft.core.Direction
 import net.minecraft.core.Direction.Axis
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.util.ExtraCodecs
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import java.util.*
 import java.util.function.Function
 import kotlin.collections.ArrayList
-import kotlin.math.abs
 
 /**
  * This is an implementation of [BoundaryShape] that
@@ -152,7 +150,7 @@ public class AxisAlignedBoundaryShape private constructor(
     }
 
     public companion object: CodecProvider<AxisAlignedBoundaryShape> {
-        override val ID: ResourceLocation = ArcadeUtils.id("axis_aligned_border_shape")
+        override val ID: Identifier = ArcadeUtils.id("axis_aligned_border_shape")
         override val CODEC: MapCodec<AxisAlignedBoundaryShape> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 State.CODEC.fieldOf("size_state").forGetter(AxisAlignedBoundaryShape::size),

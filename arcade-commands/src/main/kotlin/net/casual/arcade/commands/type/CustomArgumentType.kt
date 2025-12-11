@@ -23,17 +23,6 @@ public abstract class CustomArgumentType<T>: ArgumentType<T> {
 
     abstract override fun parse(reader: StringReader): T
 
-    override fun <S> parse(reader: StringReader, source: S): T {
-        return super.parse(reader, source)
-    }
-
-    override fun <S> listSuggestions(
-        context: CommandContext<S>,
-        builder: SuggestionsBuilder
-    ): CompletableFuture<Suggestions> {
-        return super.listSuggestions(context, builder)
-    }
-
     public open fun getSuggestionProvider(): SuggestionProvider<SharedSuggestionProvider>? {
         return SuggestionProviders.ASK_SERVER
     }

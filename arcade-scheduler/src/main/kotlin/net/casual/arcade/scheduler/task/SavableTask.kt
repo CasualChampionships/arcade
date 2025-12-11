@@ -7,7 +7,7 @@ package net.casual.arcade.scheduler.task
 import com.google.gson.JsonObject
 import net.casual.arcade.scheduler.task.serialization.TaskFactory
 import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 /**
@@ -45,7 +45,7 @@ public interface SavableTask: Task {
     /**
      * The id for the task that will be serialized.
      */
-    public val id: ResourceLocation
+    public val id: Identifier
 
     /**
      * This writes any additional data needed

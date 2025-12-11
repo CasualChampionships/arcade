@@ -24,7 +24,6 @@ import net.casual.arcade.utils.math.location.Location.Companion.location
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asTeleportTransition
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.locationWithLevel
 import net.casual.arcade.utils.teleportTo
-import net.minecraft.Util
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtAccounter
 import net.minecraft.nbt.NbtIo
@@ -32,6 +31,7 @@ import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.util.ProblemReporter
+import net.minecraft.util.Util
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.portal.TeleportTransition

@@ -14,7 +14,6 @@ import net.casual.arcade.dimensions.utils.LevelPersistenceTracker
 import net.casual.arcade.dimensions.utils.getDimensionPath
 import net.casual.arcade.dimensions.utils.impl.DerivedLevelData
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.get
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtIo
 import net.minecraft.nbt.NbtOps
@@ -24,10 +23,10 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.ProgressListener
 import net.minecraft.world.Difficulty
-import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.TicketStorage
 import net.minecraft.world.level.biome.BiomeManager
+import net.minecraft.world.level.gamerules.GameRules
 import net.minecraft.world.level.storage.LevelData
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.io.IOException
@@ -100,7 +99,7 @@ public open class CustomLevel(
         this.loadCustomSpawners()
         this.loadForcedChunks()
         this.setSpawnSettings(
-            this.levelData.difficulty != Difficulty.PEACEFUL && this.gameRules.get(GameRules.RULE_SPAWN_MONSTERS)
+            this.levelData.difficulty != Difficulty.PEACEFUL && this.gameRules.get(GameRules.SPAWN_MONSTERS)
         )
     }
 
@@ -118,7 +117,7 @@ public open class CustomLevel(
 
     override fun tickTime() {
         // super.tickTime() ticks the global scheduler
-        if (this.options.tickTime && this.gameRules.get(GameRules.RULE_DAYLIGHT)) {
+        if (this.options.tickTime && this.gameRules.get(GameRules.ADVANCE_TIME)) {
             ++this.dayTime
         }
     }

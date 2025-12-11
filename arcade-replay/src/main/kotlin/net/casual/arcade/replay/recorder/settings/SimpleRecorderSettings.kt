@@ -7,9 +7,9 @@ package net.casual.arcade.replay.recorder.settings
 import com.google.gson.JsonElement
 import com.mojang.serialization.Codec
 import com.mojang.serialization.JsonOps
+import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.replay.recorder.settings.RecorderSettings.*
 import net.casual.arcade.utils.encodedOptionalFieldOf
-import net.casual.arcade.utils.serialization.codec.OrderedRecordCodecBuilder
 
 public data class SimpleRecorderSettings(
     override val debug: Boolean = false,
@@ -33,7 +33,7 @@ public data class SimpleRecorderSettings(
     public companion object {
         public val DEFAULT: SimpleRecorderSettings = SimpleRecorderSettings()
 
-        public val CODEC: Codec<SimpleRecorderSettings> = OrderedRecordCodecBuilder.create { instance ->
+        public val CODEC: Codec<SimpleRecorderSettings> = RecordCodecBuilder.create { instance ->
             instance.group(
                 Codec.BOOL.encodedOptionalFieldOf("debug", false).forGetter(RecorderSettings::debug),
                 Codec.STRING.encodedOptionalFieldOf("world_name", "World").forGetter(RecorderSettings::worldName),

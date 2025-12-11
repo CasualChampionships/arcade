@@ -6,10 +6,10 @@ package net.casual.arcade.utils.math.location.providers
 
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.math.location.Location
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 public class RandomLocationProvider(
     private val locations: List<LocationProvider>
@@ -27,7 +27,7 @@ public class RandomLocationProvider(
     }
 
     public companion object: CodecProvider<RandomLocationProvider> {
-        override val ID: ResourceLocation = ResourceUtils.arcade("random")
+        override val ID: Identifier = IdentifierUtils.arcade("random")
 
         override val CODEC: MapCodec<out RandomLocationProvider> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(

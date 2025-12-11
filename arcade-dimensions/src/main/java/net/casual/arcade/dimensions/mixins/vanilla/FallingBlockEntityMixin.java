@@ -11,6 +11,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -23,9 +24,10 @@ public abstract class FallingBlockEntityMixin extends Entity {
 	@ModifyExpressionValue(
 		method = "teleport",
 		at = @At(
-			value = "FIELD",
-			target = "Lnet/minecraft/world/level/Level;END:Lnet/minecraft/resources/ResourceKey;"
-		)
+            value = "FIELD",
+            target = "Lnet/minecraft/world/level/Level;END:Lnet/minecraft/resources/ResourceKey;",
+            opcode = Opcodes.GETSTATIC
+        )
 	)
 	private ResourceKey<Level> replaceVanillaKey(ResourceKey<Level> original) {
 		return VanillaLikeLevel.getEndDimensionFor(this.level(), original);

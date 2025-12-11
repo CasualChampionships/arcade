@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.InventoryMenu;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -42,7 +43,8 @@ public class PlayerMixin implements ModifiableInventory {
         method = "addAdditionalSaveData",
         at = @At(
             value = "FIELD",
-            target = "Lnet/minecraft/world/entity/player/Player;inventory:Lnet/minecraft/world/entity/player/Inventory;"
+            target = "Lnet/minecraft/world/entity/player/Player;inventory:Lnet/minecraft/world/entity/player/Inventory;",
+            opcode = Opcodes.GETFIELD
         )
     )
     private Inventory getInventory(Inventory original) {

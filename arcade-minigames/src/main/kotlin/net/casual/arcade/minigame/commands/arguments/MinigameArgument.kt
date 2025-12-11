@@ -18,10 +18,10 @@ import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigames
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
-import net.minecraft.commands.arguments.ResourceLocationArgument
+import net.minecraft.commands.arguments.IdentifierArgument
 import net.minecraft.commands.arguments.UuidArgument
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import java.util.concurrent.CompletableFuture
 
 public class MinigameArgument: CustomArgumentType<MinigameArgument.Result>() {
@@ -45,7 +45,7 @@ public class MinigameArgument: CustomArgumentType<MinigameArgument.Result>() {
 
         }
 
-        val id = ResourceLocation.read(reader)
+        val id = Identifier.read(reader)
         val minigames = Minigames.get(id)
         if (minigames.size > 1) {
             throw TOO_MANY_MINIGAMES.create()
@@ -77,7 +77,7 @@ public class MinigameArgument: CustomArgumentType<MinigameArgument.Result>() {
     }
 
     override fun getArgumentInfo(): CustomArgumentTypeInfo<*> {
-        return CustomArgumentTypeInfo.of(ResourceLocationArgument::class.java)
+        return CustomArgumentTypeInfo.of(IdentifierArgument::class.java)
     }
 
     public class Result(private val minigame: Minigame?) {

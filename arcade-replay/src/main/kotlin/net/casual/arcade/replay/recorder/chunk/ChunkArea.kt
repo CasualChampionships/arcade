@@ -28,12 +28,12 @@ public class ChunkArea(
     /**
      * The north-west most chunk corner.
      */
-    public val from: ChunkPos
+    public val from: ChunkPos = ChunkPos(min(from.x, to.x), min(from.z, to.z))
 
     /**
      * The south-east most chunk corner.
      */
-    public val to: ChunkPos
+    public val to: ChunkPos = ChunkPos(max(from.x, to.x), max(from.z, to.z))
 
     /**
      * The center most chunk position.
@@ -46,9 +46,6 @@ public class ChunkArea(
     public val viewDistance: Int
 
     init {
-        this.from = ChunkPos(min(from.x, to.x), min(from.z, to.z))
-        this.to = ChunkPos(max(from.x, to.x), max(from.z, to.z))
-
         val dx = (this.to.x - this.from.x) / 2
         val dz = (this.to.z - this.from.z) / 2
         this.center = ChunkPos(this.from.x + dx, this.from.z + dz)
@@ -140,7 +137,7 @@ public class ChunkArea(
     }
 
     override fun toString(): String {
-        return "Chunks[in ${this.level.dimension().location()}, from (${this.from.x}, ${this.from.z}) to (${this.to.x}, ${this.to.z})]"
+        return "Chunks[in ${this.level.dimension().identifier()}, from (${this.from.x}, ${this.from.z}) to (${this.to.x}, ${this.to.z})]"
     }
 
     public companion object {

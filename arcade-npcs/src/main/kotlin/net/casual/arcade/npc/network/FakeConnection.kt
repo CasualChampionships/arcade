@@ -18,8 +18,7 @@ public class FakeConnection: Connection(PacketFlow.SERVERBOUND) {
         (this as ConnectionAccessor).setChannel(EmbeddedChannel())
     }
 
-    @Suppress("UnstableApiUsage")
-    override fun <T: PacketListener?> setupInboundProtocol(protocolInfo: ProtocolInfo<T>, listener: T) {
+    override fun <T: PacketListener> setupInboundProtocol(protocolInfo: ProtocolInfo<T>, listener: T) {
         // Prevent memory leaks with fabric api
         val old = this.packetListener
         if (old is NetworkHandlerExtensions) {

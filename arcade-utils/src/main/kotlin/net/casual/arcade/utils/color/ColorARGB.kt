@@ -7,8 +7,8 @@ package net.casual.arcade.utils.color
 import com.mojang.serialization.Codec
 import com.mojang.serialization.DataResult
 import net.casual.arcade.utils.MathUtils
-import net.minecraft.Util
 import net.minecraft.util.ARGB
+import net.minecraft.util.Util
 import java.util.*
 import java.util.stream.IntStream
 

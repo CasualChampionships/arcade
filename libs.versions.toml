@@ -1,16 +1,16 @@
 [versions]
-minecraft           = "1.21.9"
-fabric-loader       = "0.17.3"
-parchment           = "1.21.8:2025.09.14"
-fabric-api          = "0.138.3+1.21.10"
-fabric-kotlin       = "1.13.5+kotlin.2.2.10"
-polymer             = "0.14.0-beta.1+1.21.9-pre1"
+minecraft           = "1.21.11"
+fabric-loader       = "0.18.2"
+parchment           = "1.21.10:2025.10.12"
+fabric-api          = "0.139.4+1.21.11"
+fabric-kotlin       = "1.13.7+kotlin.2.2.21"
+polymer             = "0.15.0-beta.4+1.21.11-rc2"
 sgui                = "1.11.0-rc.1+1.21.9"
 server-translations = "2.5.2+1.21.9-pre3"
 inject              = "3.1.4"
 debug-tools-api     = "1.0.17"
 replay-studio       = "03d5609f77"
-permissions         = "0.5.0"
+permissions         = "0.6.1"
 
 # Compatability
 carpet        = "1.4.185"
@@ -20,9 +20,9 @@ vmp           = "0.2.0+beta.7.210+1.21.9-pre1"
 c2me          = "0.3.5+alpha.0.28+1.21.9-pre3"
 
 # Plugins
-fabric-loom = "1.11-SNAPSHOT"
-spotless    = "7.1.0"
-shadow      = "8.3.5"
+fabric-loom = "1.13-SNAPSHOT"
+spotless    = "8.1.0"
+shadow      = "9.3.0"
 explosion   = "0.3.1"
 
 [libraries]

@@ -13,12 +13,12 @@ import net.casual.arcade.events.server.ServerStartEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
-import net.minecraft.Util
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtIo
 import net.minecraft.nbt.NbtOps
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
+import net.minecraft.util.Util
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.storage.LevelResource
 import org.jetbrains.annotations.ApiStatus.Internal
@@ -113,7 +113,7 @@ public object LevelPersistenceTracker {
             path.deleteRecursively()
             return true
         } catch (e: IOException) {
-            ArcadeUtils.logger.error("Failed to cleanup temporary dimension ${dimension.location()}", e)
+            ArcadeUtils.logger.error("Failed to cleanup temporary dimension ${dimension.identifier()}", e)
             return false
         }
     }

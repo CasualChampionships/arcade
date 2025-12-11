@@ -25,7 +25,7 @@ import net.minecraft.core.Direction
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket.AttributeSnapshot
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.ai.attributes.AttributeInstance
@@ -43,7 +43,7 @@ public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExt
     public val hasRestrictedMovement: Boolean
         get() = this.attachment != null
 
-    override fun getId(): ResourceLocation {
+    override fun getId(): Identifier {
         return ArcadeUtils.id("movement_restriction")
     }
 

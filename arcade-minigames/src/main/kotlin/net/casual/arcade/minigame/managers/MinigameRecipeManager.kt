@@ -24,8 +24,8 @@ import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.protocol.game.ClientboundRecipeBookAddPacket
 import net.minecraft.network.protocol.game.ClientboundRecipeBookRemovePacket
+import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.crafting.*
@@ -271,7 +271,7 @@ public class MinigameRecipeManager(
         for ((player, recipes) in this.players.asMap()) {
             val json = JsonObject()
             json.addProperty("uuid", player.toString())
-            json.add("recipes", recipes.toJsonStringArray { it.location().toString() })
+            json.add("recipes", recipes.toJsonStringArray { it.identifier().toString() })
             array.add(json)
         }
         return array
@@ -281,7 +281,7 @@ public class MinigameRecipeManager(
         for (player in array.objects()) {
             val uuid = player.uuid("uuid")
             this.players.putAll(uuid, player.array("recipes").strings().map {
-                ResourceKey.create(Registries.RECIPE, ResourceLocation.parse(it))
+                ResourceKey.create(Registries.RECIPE, Identifier.parse(it))
             })
         }
     }

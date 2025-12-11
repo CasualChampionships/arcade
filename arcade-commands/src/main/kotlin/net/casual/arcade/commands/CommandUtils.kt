@@ -27,6 +27,9 @@ import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.permissions.Permission
+import net.minecraft.server.permissions.Permission.HasCommandLevel
+import net.minecraft.server.permissions.PermissionLevel
 import java.util.function.Supplier
 
 public val CommandSourceStack.location: Location
@@ -67,6 +70,14 @@ public fun CommandSourceStack.fail(literal: String): Int {
 public fun CommandSourceStack.fail(component: Component): Int {
     this.sendFailure(component)
     return 0
+}
+
+public fun CommandSourceStack.hasPermission(permission: PermissionLevel): Boolean {
+    return this.hasPermission(HasCommandLevel(permission))
+}
+
+public fun CommandSourceStack.hasPermission(permission: Permission): Boolean {
+    return this.permissions().hasPermission(permission)
 }
 
 public inline fun <S> CommandDispatcher<S>.registerLiteral(
@@ -131,7 +142,13 @@ public inline fun <reified E: Enum<E>, S, T: ArgumentBuilder<S, T>> ArgumentBuil
 }
 
 public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
-    permission: Int
+    permission: PermissionLevel
+): T {
+    return this.requires { it.hasPermission(HasCommandLevel(permission)) }
+}
+
+public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
+    permission: Permission
 ): T {
     return this.requires { it.hasPermission(permission) }
 }
@@ -144,7 +161,7 @@ public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSo
 
 public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
     permission: String,
-    fallback: Int
+    fallback: PermissionLevel
 ): T {
     return this.requires { Permissions.check(it, permission, fallback) }
 }

@@ -10,10 +10,10 @@ import net.casual.arcade.utils.asCompletableFuture
 import net.fabricmc.fabric.api.networking.v1.LoginPacketSender
 import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents
 import net.fabricmc.fabric.impl.networking.NetworkHandlerExtensions
-import net.minecraft.Util
 import net.minecraft.network.Connection
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerLoginPacketListenerImpl
+import net.minecraft.util.Util
 import java.util.concurrent.CompletableFuture
 
 public class FakeLoginPacketListenerImpl(
@@ -26,7 +26,7 @@ public class FakeLoginPacketListenerImpl(
         (this as ServerLoginPacketListenerImplAccessor).setProfile(this.profile)
     }
 
-    @Suppress("UnstableApiUsage", "CAST_NEVER_SUCCEEDS")
+    @Suppress("CAST_NEVER_SUCCEEDS")
     public fun handleQueries(): CompletableFuture<*> {
         val futures = ArrayList<CompletableFuture<*>>()
         val addon = (this as NetworkHandlerExtensions).addon as LoginPacketSender

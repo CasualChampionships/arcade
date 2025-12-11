@@ -12,15 +12,15 @@ import net.minecraft.resources.RegistryOps.RegistryInfoLookup
 import net.minecraft.resources.ResourceKey
 import java.util.Optional
 
-public data class RegistryLoadedFromResourcesEvent<T>(
+public data class RegistryLoadedFromResourcesEvent<T: Any>(
     val registry: WritableRegistry<T>,
     val infoLookup: RegistryInfoLookup
 ): MissingExecutorEvent {
-    public fun <T> lookup(registry: ResourceKey<Registry<T>>): Optional<HolderGetter<T>> {
+    public fun <T: Any> lookup(registry: ResourceKey<Registry<T>>): Optional<HolderGetter<T>> {
         return this.infoLookup.lookup(registry).map { it.getter }
     }
 
-    public fun <T> lookupOrThrow(registry: ResourceKey<Registry<T>>): HolderGetter<T> {
+    public fun <T: Any> lookupOrThrow(registry: ResourceKey<Registry<T>>): HolderGetter<T> {
         return this.lookup(registry).orElseThrow {
             IllegalStateException("Expected registry ${registry.registry()} to be present during dynamic registry load")
         }

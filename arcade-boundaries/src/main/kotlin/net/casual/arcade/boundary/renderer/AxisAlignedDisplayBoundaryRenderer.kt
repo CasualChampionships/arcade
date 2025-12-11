@@ -20,7 +20,7 @@ import net.minecraft.core.SectionPos
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundChunksBiomesPacket
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
@@ -185,7 +185,7 @@ public class AxisAlignedDisplayBoundaryRenderer(
         }
 
         public companion object: CodecProvider<Factory> {
-            override val ID: ResourceLocation = ArcadeUtils.id("axis_aligned_display_boundary_renderer")
+            override val ID: Identifier = ArcadeUtils.id("axis_aligned_display_boundary_renderer")
 
             override val CODEC: MapCodec<out Factory> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(

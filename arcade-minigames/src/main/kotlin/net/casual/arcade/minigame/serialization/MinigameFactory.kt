@@ -7,9 +7,7 @@ package net.casual.arcade.minigame.serialization
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.lobby.LobbyMinigameFactory
 import net.casual.arcade.minigame.utils.MinigameRegistries
-import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.minecraft.core.Registry
 import java.util.function.Function
 
@@ -24,8 +22,9 @@ public interface MinigameFactory {
                 .dispatch(MinigameFactory::codec, Function.identity())
         }
 
+        @Suppress("UNUSED_PARAMETER")
         internal fun bootstrap(registry: Registry<MapCodec<out MinigameFactory>>) {
-            LobbyMinigameFactory.register(registry)
+
         }
     }
 }

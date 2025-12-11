@@ -19,8 +19,10 @@ public fun ClientboundSetBorderSizePacket(size: Double): ClientboundSetBorderSiz
     return ClientboundSetBorderSizePacket(WORLD_BORDER)
 }
 
-public fun ClientboundSetBorderLerpSizePacket(old: Double, new: Double, millis: Long): ClientboundSetBorderLerpSizePacket {
-    WORLD_BORDER.lerpSizeBetween(old, new, millis)
+public fun ClientboundSetBorderLerpSizePacket(old: Double, new: Double, ticks: Long): ClientboundSetBorderLerpSizePacket {
+    // The game time parameter here is completely useless...
+    // They just add the duration to it then subtract the time from it to get back the duration
+    WORLD_BORDER.lerpSizeBetween(old, new, ticks, 0)
     return ClientboundSetBorderLerpSizePacket(WORLD_BORDER)
 }
 

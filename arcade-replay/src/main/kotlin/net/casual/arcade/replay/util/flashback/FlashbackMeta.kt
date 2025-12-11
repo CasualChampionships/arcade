@@ -5,7 +5,7 @@
 package net.casual.arcade.replay.util.flashback
 
 import com.mojang.serialization.Codec
-import net.casual.arcade.utils.serialization.codec.OrderedRecordCodecBuilder
+import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.SharedConstants
 import net.minecraft.core.UUIDUtil
 import java.util.*
@@ -33,7 +33,7 @@ public data class FlashbackMeta(
         val forcePlaySnapshot: Boolean
     ) {
         public companion object {
-            public val CODEC: Codec<ChunkMeta> = OrderedRecordCodecBuilder.create { instance ->
+            public val CODEC: Codec<ChunkMeta> = RecordCodecBuilder.create { instance ->
                 instance.group(
                     Codec.INT.fieldOf("duration").forGetter(ChunkMeta::duration),
                     Codec.BOOL.fieldOf("forcePlaySnapshot").forGetter(ChunkMeta::forcePlaySnapshot)
@@ -43,7 +43,7 @@ public data class FlashbackMeta(
     }
 
     public companion object {
-        public val CODEC: Codec<FlashbackMeta> = OrderedRecordCodecBuilder.create { instance ->
+        public val CODEC: Codec<FlashbackMeta> = RecordCodecBuilder.create { instance ->
             instance.group(
                 UUIDUtil.STRING_CODEC.fieldOf("uuid").forGetter(FlashbackMeta::uuid),
                 Codec.STRING.fieldOf("name").forGetter(FlashbackMeta::name),

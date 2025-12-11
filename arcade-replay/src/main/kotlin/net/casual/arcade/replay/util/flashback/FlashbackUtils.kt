@@ -4,13 +4,13 @@
  */
 package net.casual.arcade.replay.util.flashback
 
-import net.casual.arcade.utils.ResourceLocation
-import net.minecraft.resources.ResourceLocation
+import net.casual.arcade.utils.Identifier
+import net.minecraft.resources.Identifier
 
 public object FlashbackUtils {
     public const val MOD_ID: String = "flashback"
 
-    public fun id(path: String): ResourceLocation {
-        return ResourceLocation(MOD_ID, path)
+    public fun id(path: String): Identifier {
+        return Identifier(MOD_ID, path)
     }
 }

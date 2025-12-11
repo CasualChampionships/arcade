@@ -18,11 +18,12 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.permissions.PermissionLevel
 
 internal object ExtendedGameModeCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("extended-gamemode") {
-            requiresPermission(2)
+            requiresPermission(PermissionLevel.GAMEMASTERS)
             argument("gamemode", EnumArgument.enumeration<ExtendedGameMode>()) {
                 executes { setGameMode(it, listOf(it.source.playerOrException)) }
                 argument("targets", EntityArgument.players()) {

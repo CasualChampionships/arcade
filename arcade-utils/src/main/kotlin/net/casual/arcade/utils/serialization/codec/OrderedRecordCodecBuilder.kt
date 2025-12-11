@@ -8,19 +8,23 @@ import com.mojang.datafixers.kinds.App
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.casual.arcade.util.codec.OrderedRecordCodecBuilderInstance
 import java.util.function.Function
 
+@Deprecated("Use RecordCodecBuilder instead", ReplaceWith("RecordCodecBuilder"))
 public object OrderedRecordCodecBuilder {
-    public fun <O> instance(): OrderedRecordCodecBuilderInstance<O> {
-        return OrderedRecordCodecBuilderInstance<O>()
+    @Deprecated("Use RecordCodecBuilder instead", ReplaceWith(
+        "RecordCodecBuilder.mapCodec(builder)",
+        "com.mojang.serialization.codecs.RecordCodecBuilder"
+    ))
+    public fun <O> mapCodec(builder: Function<RecordCodecBuilder.Instance<O>, out App<RecordCodecBuilder.Mu<O>, O>>): MapCodec<O> {
+        return RecordCodecBuilder.mapCodec(builder)
     }
 
-    public fun <O> mapCodec(builder: Function<OrderedRecordCodecBuilderInstance<O>, out App<RecordCodecBuilder.Mu<O>, O>>): MapCodec<O> {
-        return RecordCodecBuilder.build(builder.apply(this.instance()))
-    }
-
-    public fun <O> create(builder: Function<OrderedRecordCodecBuilderInstance<O>, out App<RecordCodecBuilder.Mu<O>, O>>): Codec<O> {
-        return this.mapCodec(builder).codec()
+    @Deprecated("Use RecordCodecBuilder instead", ReplaceWith(
+        "RecordCodecBuilder.create(builder)",
+        "com.mojang.serialization.codecs.RecordCodecBuilder"
+    ))
+    public fun <O> create(builder: Function<RecordCodecBuilder.Instance<O>, out App<RecordCodecBuilder.Mu<O>, O>>): Codec<O> {
+        return RecordCodecBuilder.create(builder)
     }
 }

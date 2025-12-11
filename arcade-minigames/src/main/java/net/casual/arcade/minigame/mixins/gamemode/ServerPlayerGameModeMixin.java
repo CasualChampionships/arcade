@@ -11,6 +11,7 @@ import net.casual.arcade.utils.PlayerUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.world.level.GameType;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,9 +29,10 @@ public class ServerPlayerGameModeMixin {
 	@ModifyExpressionValue(
 		method = "changeGameModeForPlayer",
 		at = @At(
-			value = "FIELD",
-			target = "Lnet/minecraft/server/level/ServerPlayerGameMode;gameModeForPlayer:Lnet/minecraft/world/level/GameType;"
-		)
+            value = "FIELD",
+            target = "Lnet/minecraft/server/level/ServerPlayerGameMode;gameModeForPlayer:Lnet/minecraft/world/level/GameType;",
+            opcode = Opcodes.GETFIELD
+        )
 	)
 	private GameType currentGameType(GameType original) {
 		return null;
@@ -55,9 +57,10 @@ public class ServerPlayerGameModeMixin {
 	@ModifyExpressionValue(
 		method = {"useItemOn", "useItem"},
 		at = @At(
-			value = "FIELD",
-			target = "Lnet/minecraft/server/level/ServerPlayerGameMode;gameModeForPlayer:Lnet/minecraft/world/level/GameType;"
-		)
+            value = "FIELD",
+            target = "Lnet/minecraft/server/level/ServerPlayerGameMode;gameModeForPlayer:Lnet/minecraft/world/level/GameType;",
+            opcode = Opcodes.GETFIELD
+        )
 	)
 	private GameType onGetSpectator(GameType original, ServerPlayer player) {
 		if (getExtendedGameMode(player) == ExtendedGameMode.AdventureSpectator) {

@@ -26,6 +26,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
+import net.minecraft.world.attribute.EnvironmentAttributes
 import net.minecraft.world.level.Level
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
@@ -151,29 +152,30 @@ public class MinigameMusicManager(
         player.stopMusic(SoundEvents.MUSIC_GAME)
         player.stopMusic(SoundEvents.MUSIC_UNDER_WATER)
 
-        // All the biome music
-        val packets = cached.computeIfAbsent(player.level()) { level ->
-            val biomes = level.chunkSource.generator.biomeSource.possibleBiomes()
-            val packets = ArrayList<ClientboundStopSoundPacket>()
-            for (biome in biomes) {
-                val entries = biome.value().backgroundMusic.getOrNull()?.unwrap()
-                if (entries.isNullOrEmpty()) {
-                    continue
-                }
-                for (entry in entries) {
-                    val music = entry.value()
-                    val key = music.event.unwrapKey()
-                    if (key.isEmpty) {
-                        continue
-                    }
-                    packets.add(ClientboundStopSoundPacket(key.get().location(), SoundSource.MUSIC))
-                }
-            }
-            packets
-        }
-        for (packet in packets) {
-            player.connection.send(packet)
-        }
+        // TODO: All the biome music
+        // val packets = cached.computeIfAbsent(player.level()) { level ->
+        //     val biomes = level.chunkSource.generator.biomeSource.possibleBiomes()
+        //     val packets = ArrayList<ClientboundStopSoundPacket>()
+        //     for (biome in biomes) {
+        //         val music = biome.value().attributes.get(EnvironmentAttributes.BACKGROUND_MUSIC)
+        //         val entries = music?.unwrap()
+        //         if (entries.isNullOrEmpty()) {
+        //             continue
+        //         }
+        //         for (entry in entries) {
+        //             val music = entry.value()
+        //             val key = music.event.unwrapKey()
+        //             if (key.isEmpty) {
+        //                 continue
+        //             }
+        //             packets.add(ClientboundStopSoundPacket(key.get().location(), SoundSource.MUSIC))
+        //         }
+        //     }
+        //     packets
+        // }
+        // for (packet in packets) {
+        //     player.connection.send(packet)
+        // }
     }
 
     private fun suppressGameMusic(player: ServerPlayer) {
@@ -190,7 +192,7 @@ public class MinigameMusicManager(
     }
 
     private fun ServerPlayer.stopMusic(holder: Holder.Reference<SoundEvent>) {
-        this.connection.send(ClientboundStopSoundPacket(holder.key().location(), SoundSource.MUSIC))
+        this.connection.send(ClientboundStopSoundPacket(holder.key().identifier(), SoundSource.MUSIC))
     }
 
     private class PlayingSound(val timed: TimedSound, val end: Long)

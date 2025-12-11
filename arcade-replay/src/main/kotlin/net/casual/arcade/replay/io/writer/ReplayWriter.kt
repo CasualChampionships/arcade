@@ -123,7 +123,7 @@ public interface ReplayWriter {
 
                     val id = codec.typeToIdMap.getInt(CommonPacketTypes.CLIENTBOUND_CUSTOM_PAYLOAD)
                     buf.writeVarInt(id)
-                    buf.writeResourceLocation(payload.type().id)
+                    buf.writeIdentifier(payload.type().id)
                     payload.record(buf)
                     return
                 }

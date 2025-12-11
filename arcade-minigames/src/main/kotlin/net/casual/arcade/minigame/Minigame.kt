@@ -31,7 +31,7 @@ import net.casual.arcade.minigame.utils.MinigameUtils
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.PlayerUtils.getKillCreditWith
 import net.casual.arcade.utils.PlayerUtils.revokeAdvancement
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
@@ -263,9 +263,9 @@ public abstract class Minigame(
         get() = this.factory() != null
 
     /**
-     * The [ResourceLocation] of the [Minigame].
+     * The [Identifier] of the [Minigame].
      */
-    public abstract val id: ResourceLocation
+    public abstract val id: Identifier
 
     init {
         this.initialized = false
@@ -680,7 +680,7 @@ public abstract class Minigame(
         this.property("spies") { this.chat.spies.map { it.toString() } }
         this.property("playing_teams") { this.teams.getPlayingTeams().map { it.name } }
         this.property("eliminated_teams") { this.teams.getEliminatedTeams().map { it.name } }
-        this.property("levels") { this.levels.all().map { it.dimension().location().toString() } }
+        this.property("levels") { this.levels.all().map { it.dimension().identifier().toString() } }
         this.property("phases") { this.phases.map { it.id } }
         this.property("phase") { this.phase.id }
         this.property("ticking") { this.ticking }

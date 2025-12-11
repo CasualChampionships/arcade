@@ -14,11 +14,12 @@ import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
+import net.minecraft.server.permissions.PermissionLevel
 
 internal object PauseCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("pause") {
-            requiresPermission(4)
+            requiresPermission(PermissionLevel.ADMINS)
             executes(::pauseSourceMinigame)
         }
     }

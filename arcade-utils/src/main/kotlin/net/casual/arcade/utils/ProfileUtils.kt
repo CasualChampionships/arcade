@@ -48,7 +48,7 @@ public fun StaticResolvableProfile(
     return ResolvableProfileStaticInvoker.create(Either.right(partial), skin)
 }
 
-public fun ResolvableProfile.resolveProfileOrNull(resolver: ProfileResolver): CompletableFuture<GameProfile?> {
+public fun ResolvableProfile.resolveProfileOrNull(resolver: ProfileResolver): CompletableFuture<GameProfile> {
     return when (this) {
         is Static -> this.resolveProfile(resolver)
         is Dynamic -> this.resolveProfile(resolver)

@@ -51,7 +51,7 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 	}
 
 	@WrapOperation(
-		method = "attack",
+		method = "doSweepAttack",
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/world/entity/LivingEntity;hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z"

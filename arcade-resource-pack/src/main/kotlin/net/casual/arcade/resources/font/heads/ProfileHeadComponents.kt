@@ -10,7 +10,7 @@ import net.casual.arcade.utils.component.font
 import net.minecraft.core.ClientAsset
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.FontDescription
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.PlayerSkin
 import net.minecraft.world.item.component.ResolvableProfile
@@ -51,7 +51,7 @@ public object ProfileHeadComponents: TexturedHeadComponents {
     }
 
     private fun createSteveSkinPatch(): PlayerSkin.Patch {
-        val steve = ResourceLocation.withDefaultNamespace("entity/player/wide/steve")
+        val steve = Identifier.withDefaultNamespace("entity/player/wide/steve")
         return PlayerSkin.Patch(
             Optional.of(ClientAsset.ResourceTexture(steve)),
             Optional.empty(),

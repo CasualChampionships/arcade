@@ -9,12 +9,12 @@ import net.casual.arcade.minigame.data.module.MinigameWorldData
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.utils.file.ReadableArchive
 import net.minecraft.core.Registry
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 
 public interface MinigameDataModule {
     public interface Provider {
-        public val id: ResourceLocation
+        public val id: Identifier
 
         public fun get(archive: ReadableArchive, server: MinecraftServer): MinigameDataModule
 

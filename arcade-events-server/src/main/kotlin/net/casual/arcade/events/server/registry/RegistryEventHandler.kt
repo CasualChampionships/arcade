@@ -18,7 +18,7 @@ public object RegistryEventHandler: EventListener<RegistryLoadedFromResourcesEve
     private var closed = false
 
     @JvmStatic
-    public fun <T> register(
+    public fun <T: Any> register(
         key: ResourceKey<Registry<T>>,
         listener: EventListener<RegistryLoadedFromResourcesEvent<T>>
     ) {
@@ -57,7 +57,7 @@ public object RegistryEventHandler: EventListener<RegistryLoadedFromResourcesEve
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T> invokeListeners(event: RegistryLoadedFromResourcesEvent<T>) {
+    private fun <T: Any> invokeListeners(event: RegistryLoadedFromResourcesEvent<T>) {
         val listeners = listeners.get(event.registry.key())
             .map { it as EventListener<RegistryLoadedFromResourcesEvent<T>> }
             .sorted()

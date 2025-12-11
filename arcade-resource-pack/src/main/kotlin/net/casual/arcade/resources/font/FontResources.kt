@@ -13,14 +13,15 @@ import net.casual.arcade.resources.font.providers.BitmapFontProvider
 import net.casual.arcade.resources.font.providers.FontProvider
 import net.casual.arcade.resources.font.providers.SpaceFontProvider
 import net.casual.arcade.resources.lang.LanguageEntry
+import net.casual.arcade.utils.Identifier
 import net.casual.arcade.utils.component.font
 import net.casual.arcade.utils.JsonUtils
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import org.apache.commons.lang3.mutable.MutableInt
 
 public abstract class FontResources(
-    public val id: ResourceLocation,
+    public val id: Identifier,
     pua: FontPUA = FontPUA.Plane0
 ) {
     private val languages = HashMultimap.create<String, LanguageEntry>()
@@ -35,7 +36,7 @@ public abstract class FontResources(
     }
 
     protected fun bitmap(
-        texture: ResourceLocation,
+        texture: Identifier,
         ascent: Int = 8,
         height: Int = 8
     ): Component {
@@ -53,8 +54,8 @@ public abstract class FontResources(
         return Component.translatable(key).font(id)
     }
 
-    protected fun at(path: String): ResourceLocation {
-        return ResourceLocation.fromNamespaceAndPath(this.id.namespace, "font/$path")
+    protected fun at(path: String): Identifier {
+        return Identifier(this.id.namespace, "font/$path")
     }
 
     internal fun toJson(): String {
@@ -102,7 +103,7 @@ public abstract class FontResources(
 
         public fun bitmap(
             lang: String,
-            texture: ResourceLocation,
+            texture: Identifier,
             ascent: Int = 8,
             height: Int = 8
         ) {

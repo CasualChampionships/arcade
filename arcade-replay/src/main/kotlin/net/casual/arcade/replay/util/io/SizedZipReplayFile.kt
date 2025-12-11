@@ -21,10 +21,10 @@ public class SizedZipReplayFile(
     override fun write(entry: String): OutputStream {
         val mutable = MutableLong()
         this.entries[entry] = mutable
-        return net.casual.arcade.replay.util.io.CounterOutputStream(super.write(entry), mutable)
+        return CounterOutputStream(super.write(entry), mutable)
     }
 
     public fun getRawFileSize(): Long {
-        return this.entries.values.fold(0L) { a, l -> a + l.value }
+        return this.entries.values.fold(0L) { a, l -> a + l.toLong() }
     }
 }

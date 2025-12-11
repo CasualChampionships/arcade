@@ -6,15 +6,15 @@ package net.casual.arcade.minigame.template.area
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
+import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.minigame.area.BoxedArea
 import net.casual.arcade.minigame.area.PlaceableArea
-import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.encodedOptionalFieldOf
 import net.casual.arcade.utils.serialization.codec.CodecProvider
-import net.casual.arcade.utils.serialization.codec.OrderedRecordCodecBuilder
 import net.minecraft.core.Vec3i
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
@@ -34,9 +34,9 @@ public class BoxedAreaTemplate(
     }
 
     public companion object: CodecProvider<BoxedAreaTemplate> {
-        override val ID: ResourceLocation = ResourceUtils.arcade("boxed")
+        override val ID: Identifier = IdentifierUtils.arcade("boxed")
 
-        override val CODEC: MapCodec<BoxedAreaTemplate> = OrderedRecordCodecBuilder.mapCodec { instance ->
+        override val CODEC: MapCodec<BoxedAreaTemplate> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 Vec3i.CODEC.encodedOptionalFieldOf("position", Vec3i.ZERO).forGetter(BoxedAreaTemplate::position),
                 Codec.INT.encodedOptionalFieldOf("radius", 20).forGetter(BoxedAreaTemplate::radius),

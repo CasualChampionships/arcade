@@ -17,7 +17,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.level.Level
 
@@ -121,7 +121,7 @@ public object ArcadeDimensions: ModInitializer {
      * @return The level, or `null` if it does not exist.
      */
     @JvmStatic
-    public fun load(server: MinecraftServer, location: ResourceLocation): CustomLevel? {
+    public fun load(server: MinecraftServer, location: Identifier): CustomLevel? {
         return server.loadCustomLevel(location)
     }
 
@@ -163,7 +163,7 @@ public object ArcadeDimensions: ModInitializer {
      * @return The level.
      */
     @JvmStatic
-    public fun loadOrAdd(server: MinecraftServer, location: ResourceLocation, block: CustomLevelBuilder.() -> Unit): CustomLevel {
+    public fun loadOrAdd(server: MinecraftServer, location: Identifier, block: CustomLevelBuilder.() -> Unit): CustomLevel {
         return server.loadOrAddCustomLevel(location, block)
     }
 

@@ -11,13 +11,13 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.managers.MinigameChatManager
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.utils.PlayerUtils.server
-import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.chat.PlayerChatFormatter
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.minecraft.core.Registry
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.ExtraCodecs
@@ -64,7 +64,7 @@ public interface MinigameChatMode {
     }
 
     public data object Global: MinigameChatMode, CodecProvider<Global> {
-        override val ID: ResourceLocation = ResourceUtils.arcade("spectator")
+        override val ID: Identifier = IdentifierUtils.arcade("spectator")
         override val CODEC: MapCodec<Global> = MapCodec.unit(Global)
 
         override val name: Component = Component.translatable("minigame.chat.mode.global")
@@ -92,7 +92,7 @@ public interface MinigameChatMode {
     }
 
     public data object Spectator: MinigameChatMode, CodecProvider<Spectator> {
-        override val ID: ResourceLocation = ResourceUtils.arcade("spectator")
+        override val ID: Identifier = IdentifierUtils.arcade("spectator")
         override val CODEC: MapCodec<Spectator> = MapCodec.unit(Spectator)
 
         override val name: Component = Component.translatable("minigame.chat.mode.spectator")
@@ -120,7 +120,7 @@ public interface MinigameChatMode {
     }
 
     public data object Admin: MinigameChatMode, CodecProvider<Admin> {
-        override val ID: ResourceLocation = ResourceUtils.arcade("admin")
+        override val ID: Identifier = IdentifierUtils.arcade("admin")
         override val CODEC: MapCodec<Admin> = MapCodec.unit(Admin)
 
         override val name: Component = Component.translatable("minigame.chat.mode.admin")
@@ -148,7 +148,7 @@ public interface MinigameChatMode {
     }
 
     public data object OwnTeam: MinigameChatMode, CodecProvider<OwnTeam> {
-        override val ID: ResourceLocation = ResourceUtils.arcade("own_team")
+        override val ID: Identifier = IdentifierUtils.arcade("own_team")
         override val CODEC: MapCodec<OwnTeam> = MapCodec.unit(OwnTeam)
 
         override val name: Component = Component.translatable("minigame.chat.mode.team")
@@ -213,7 +213,7 @@ public interface MinigameChatMode {
         }
 
         public companion object: CodecProvider<Team> {
-            override val ID: ResourceLocation = ResourceUtils.arcade("team")
+            override val ID: Identifier = IdentifierUtils.arcade("team")
 
             override val CODEC: MapCodec<Team> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(

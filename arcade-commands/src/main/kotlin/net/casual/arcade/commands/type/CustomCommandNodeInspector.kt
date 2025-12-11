@@ -9,12 +9,12 @@ import com.mojang.brigadier.tree.CommandNode
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.synchronization.SuggestionProviders
 import net.minecraft.network.protocol.game.ClientboundCommandsPacket.NodeInspector
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 public class CustomCommandNodeInspector(
     private val wrapped: NodeInspector<CommandSourceStack>
 ): NodeInspector<CommandSourceStack> {
-    override fun suggestionId(node: ArgumentCommandNode<CommandSourceStack, *>): ResourceLocation? {
+    override fun suggestionId(node: ArgumentCommandNode<CommandSourceStack, *>): Identifier? {
         val type = node.type
         if (type is CustomArgumentType<*>) {
             val provider = type.getSuggestionProvider()

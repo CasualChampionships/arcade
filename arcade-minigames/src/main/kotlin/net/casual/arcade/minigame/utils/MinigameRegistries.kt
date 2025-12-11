@@ -11,7 +11,6 @@ import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.stats.ArcadeStats
 import net.casual.arcade.minigame.stats.StatType
 import net.casual.arcade.minigame.template.area.PlaceableAreaTemplate
-import net.casual.arcade.minigame.template.minigame.MinigamesTemplate
 import net.casual.arcade.minigame.template.teleporter.EntityTeleporter
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.registries.RegistryKeySupplier
@@ -23,7 +22,6 @@ public object MinigameRegistryKeys: RegistryKeySupplier(ArcadeUtils.MOD_ID) {
     public val PLACEABLE_AREA_TEMPLATE: ResourceKey<Registry<MapCodec<out PlaceableAreaTemplate>>> = create("placeable_area_template")
     public val ENTITY_TELEPORTER: ResourceKey<Registry<MapCodec<out EntityTeleporter>>> = create("entity_teleporter")
     public val MINIGAME_CHAT_MODE: ResourceKey<Registry<MapCodec<out MinigameChatMode>>> = create("minigame_chat_mode")
-    public val MINIGAMES_EVENT: ResourceKey<Registry<MapCodec<out MinigamesTemplate>>> = create("minigames_event")
     public val MINIGAME_FACTORY: ResourceKey<Registry<MapCodec<out MinigameFactory>>> = create("minigame_factory")
     public val MINIGAME_DATA_MODULE_PROVIDER: ResourceKey<Registry<MinigameDataModule.Provider>> = create("minigame_data_module_provider")
     public val STAT_TYPES: ResourceKey<Registry<StatType<*>>> = create("stat_types")
@@ -34,8 +32,6 @@ public object MinigameRegistries: RegistrySupplier() {
     public val ENTITY_TELEPORTER: Registry<MapCodec<out EntityTeleporter>> = create(MinigameRegistryKeys.ENTITY_TELEPORTER, EntityTeleporter::bootstrap)
     public val MINIGAME_CHAT_MODES: Registry<MapCodec<out MinigameChatMode>> = create(MinigameRegistryKeys.MINIGAME_CHAT_MODE, MinigameChatMode::bootstrap)
     public val MINIGAME_FACTORY: Registry<MapCodec<out MinigameFactory>> = create(MinigameRegistryKeys.MINIGAME_FACTORY, MinigameFactory::bootstrap)
-    @Deprecated("This API is being removed, you should implement your own")
-    public val MINIGAMES_EVENT: Registry<MapCodec<out MinigamesTemplate>> = create(MinigameRegistryKeys.MINIGAMES_EVENT, MinigamesTemplate::bootstrap)
     public val MINIGAME_DATA_MODULE_PROVIDER: Registry<MinigameDataModule.Provider> = create(MinigameRegistryKeys.MINIGAME_DATA_MODULE_PROVIDER, MinigameDataModule.Provider::bootstrap)
     public val STAT_TYPES: Registry<StatType<*>> = create(MinigameRegistryKeys.STAT_TYPES) { ArcadeStats.load() }
 }

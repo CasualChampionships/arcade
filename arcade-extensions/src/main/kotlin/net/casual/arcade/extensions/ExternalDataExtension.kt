@@ -6,10 +6,10 @@ package net.casual.arcade.extensions
 
 import kotlinx.io.IOException
 import net.casual.arcade.utils.ArcadeUtils
-import net.minecraft.Util
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtIo
 import net.minecraft.nbt.Tag
+import net.minecraft.util.Util
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.nio.file.Path
 import kotlin.io.path.createParentDirectories

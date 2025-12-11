@@ -7,8 +7,6 @@ package net.casual.arcade.utils
 import net.casual.arcade.util.ducks.ConnectionFaultHolder
 import net.casual.arcade.util.ducks.SilentRecipeSender
 import net.casual.arcade.util.mixins.PlayerAdvancementsAccessor
-import net.casual.arcade.utils.PlayerUtils.players
-import net.casual.arcade.utils.PlayerUtils.updateOffhandSlot
 import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -29,6 +27,9 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ChunkTrackingView
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerCommonPacketListenerImpl
+import net.minecraft.server.permissions.Permission
+import net.minecraft.server.permissions.Permission.HasCommandLevel
+import net.minecraft.server.permissions.PermissionLevel
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
@@ -51,7 +52,7 @@ import java.util.*
 import java.util.function.Predicate
 
 public object PlayerUtils {
-    private val HEALTH_BOOST = ResourceUtils.arcade("health_boost")
+    private val HEALTH_BOOST = IdentifierUtils.arcade("health_boost")
 
     @JvmStatic
     @Deprecated("Replace With .server", ReplaceWith(
@@ -79,6 +80,16 @@ public object PlayerUtils {
         get() = this.playerList.players
 
     @JvmStatic
+    public fun ServerPlayer.hasPermission(level: PermissionLevel): Boolean {
+        return this.hasPermission(HasCommandLevel(level))
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.hasPermission(permission: Permission): Boolean {
+        return this.permissions().hasPermission(permission)
+    }
+
+    @JvmStatic
     public fun Iterable<ServerPlayer>.broadcast(packet: Packet<*>) {
         for (player in this) {
             player.connection.send(packet)
@@ -100,8 +111,11 @@ public object PlayerUtils {
 
     @JvmStatic
     @JvmOverloads
-    public fun Iterable<ServerPlayer>.broadcastToOps(message: Component, level: Int = 2) {
-        this.broadcast(message) { it.hasPermissions(level) }
+    public fun Iterable<ServerPlayer>.broadcastToOps(
+        message: Component,
+        permission: Permission = HasCommandLevel(PermissionLevel.GAMEMASTERS)
+    ) {
+        this.broadcast(message) { it.hasPermission(permission) }
     }
 
     @JvmStatic
@@ -111,15 +125,17 @@ public object PlayerUtils {
             if (component.siblings.isNotEmpty()) {
                 component.append(", ")
             }
-            component.append(player.displayName!!)
+            component.append(player.displayName)
         }
         return component
     }
 
     @JvmStatic
     @JvmOverloads
-    public fun Iterable<ServerPlayer>.ops(level: Int = 2): List<ServerPlayer> {
-        return this.filter { it.hasPermissions(level) }
+    public fun Iterable<ServerPlayer>.ops(
+        permission: Permission = HasCommandLevel(PermissionLevel.GAMEMASTERS)
+    ): List<ServerPlayer> {
+        return this.filter { it.hasPermission(permission) }
     }
 
     @JvmStatic

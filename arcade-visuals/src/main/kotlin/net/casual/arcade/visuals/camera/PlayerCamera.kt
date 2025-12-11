@@ -77,7 +77,7 @@ public class PlayerCamera(
 
     override fun onAddPlayer(player: ServerPlayer) {
         player.cameraExtension.set(this)
-        player.camera = player
+        player.setCamera(player)
         player.teleportTo(this.level.asLocation(this.position))
         this.sendGamemodePacket(player, GameType.SPECTATOR)
 

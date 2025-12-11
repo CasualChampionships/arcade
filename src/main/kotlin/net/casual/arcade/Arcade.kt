@@ -5,10 +5,10 @@
 package net.casual.arcade
 
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.utils.IdentifierUtils
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.ModContainer
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import org.slf4j.Logger
 import java.nio.file.Path
 
@@ -31,14 +31,14 @@ public object Arcade: ModInitializer {
         get() = ArcadeUtils.path
 
     /**
-     * Creates a [ResourceLocation] with the namespace of [MOD_ID].
+     * Creates a [Identifier] with the namespace of [MOD_ID].
      *
-     * @param path The path of the [ResourceLocation].
-     * @return The created [ResourceLocation].
+     * @param path The path of the [Identifier].
+     * @return The created [Identifier].
      */
     @JvmStatic
-    public fun id(path: String): ResourceLocation {
-        return ResourceUtils.arcade(path)
+    public fun id(path: String): Identifier {
+        return IdentifierUtils.arcade(path)
     }
 
     override fun onInitialize() {

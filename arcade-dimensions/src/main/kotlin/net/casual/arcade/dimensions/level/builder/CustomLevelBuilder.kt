@@ -14,19 +14,19 @@ import net.casual.arcade.dimensions.level.LevelProperties.WeatherProperties
 import net.casual.arcade.dimensions.level.factory.CustomLevelFactoryConstructor
 import net.casual.arcade.dimensions.level.spawner.CustomSpawnerFactory
 import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
-import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.setSpoofedDimension
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.Registries
+import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.flag.FeatureFlagSet
-import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.chunk.ChunkGenerator
 import net.minecraft.world.level.dimension.DimensionType
 import net.minecraft.world.level.dimension.LevelStem
+import net.minecraft.world.level.gamerules.GameRules
 import net.minecraft.world.level.levelgen.WorldOptions
 import net.minecraft.world.level.storage.LevelData.RespawnData
 import org.apache.commons.lang3.mutable.MutableLong
@@ -196,7 +196,7 @@ public class CustomLevelBuilder {
      * @param location The dimension key location.
      * @return This builder.
      */
-    public fun dimensionKey(location: ResourceLocation): CustomLevelBuilder {
+    public fun dimensionKey(location: Identifier): CustomLevelBuilder {
         this.key = ResourceKey.create(Registries.DIMENSION, location)
         return this
     }
@@ -210,7 +210,7 @@ public class CustomLevelBuilder {
      * @return This builder.
      */
     public fun randomDimensionKey(): CustomLevelBuilder {
-        this.dimensionKey(ResourceUtils.random())
+        this.dimensionKey(IdentifierUtils.random())
         return this
     }
 
@@ -640,7 +640,7 @@ public class CustomLevelBuilder {
      * @param key The dimension key id to spoof.
      * @return This builder.
      */
-    public fun spoofedDimensionKey(key: ResourceLocation): CustomLevelBuilder {
+    public fun spoofedDimensionKey(key: Identifier): CustomLevelBuilder {
         this.spoofedKey = ResourceKey.create(Registries.DIMENSION, key)
         return this
     }

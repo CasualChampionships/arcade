@@ -54,7 +54,7 @@ public enum class RecipeModifier {
         override fun modifySingle(minigame: Minigame, player: ServerPlayer, recipe: RecipeHolder<*>): Component {
             minigame.recipes.grant(player, recipe.id)
             return Component.translatable(
-                "minigame.command.recipe.grant.single", recipe.id.location().toString(), player.scoreboardName
+                "minigame.command.recipe.grant.single", recipe.id.identifier().toString(), player.scoreboardName
             )
         }
 
@@ -67,7 +67,7 @@ public enum class RecipeModifier {
         override fun modifySingle(minigame: Minigame, player: ServerPlayer, recipe: RecipeHolder<*>): Component {
             minigame.recipes.revoke(player, recipe.id)
             return Component.translatable(
-                "minigame.command.recipe.revoke.single", recipe.id.location().toString(), player.scoreboardName
+                "minigame.command.recipe.revoke.single", recipe.id.identifier().toString(), player.scoreboardName
             )
         }
 

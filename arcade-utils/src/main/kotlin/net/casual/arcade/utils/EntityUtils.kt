@@ -158,7 +158,7 @@ public fun <T: Entity> EntityType<T>.spawn(
 }
 
 public object SynchedDataUtils {
-    public fun <T> replaceSynchedData(
+    public fun <T: Any> replaceSynchedData(
         data: MutableList<SynchedEntityData.DataValue<*>>,
         accessor: EntityDataAccessor<T>,
         replacer: (T, Consumer<SynchedEntityData.DataValue<*>>) -> Unit

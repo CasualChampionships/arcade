@@ -5,12 +5,12 @@
 package net.casual.arcade.events.server.player
 
 import net.minecraft.nbt.Tag
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 
 public data class PlayerCustomClickActionEvent(
     override val player: ServerPlayer,
-    val id: ResourceLocation,
+    val id: Identifier,
     val payload: Tag?
 ): PlayerEvent {
     private var consumed: Boolean = false

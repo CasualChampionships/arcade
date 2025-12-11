@@ -15,8 +15,8 @@ import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.boolean
 import net.casual.arcade.utils.JsonUtils.int
 import net.casual.arcade.utils.JsonUtils.ints
-import net.casual.arcade.utils.ResourceUtils
-import net.minecraft.resources.ResourceLocation
+import net.casual.arcade.utils.IdentifierUtils
+import net.minecraft.resources.Identifier
 import org.jetbrains.annotations.ApiStatus.Internal
 import java.io.Serializable
 
@@ -92,7 +92,7 @@ public sealed class CancellableTask(
 
     @Internal
     public class Savable(wrapped: Task): CancellableTask(wrapped), SavableTask {
-        override val id: ResourceLocation = Companion.id
+        override val id: Identifier = Companion.id
 
         override fun serialize(context: TaskSerializationContext): JsonObject {
             val data = JsonObject()
@@ -118,7 +118,7 @@ public sealed class CancellableTask(
 
         @Internal
         public companion object: TaskFactory {
-            override val id: ResourceLocation = ResourceUtils.arcade("internal_savable_cancellable")
+            override val id: Identifier = IdentifierUtils.arcade("internal_savable_cancellable")
 
             override fun create(context: TaskCreationContext): Task {
                 val data = context.data

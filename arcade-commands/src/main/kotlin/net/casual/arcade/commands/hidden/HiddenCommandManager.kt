@@ -10,21 +10,20 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.events.server.player.PlayerCustomClickActionEvent
-import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.network.chat.ClickEvent
-import net.minecraft.resources.ResourceLocation
-import net.minecraft.server.level.ServerPlayer
+import net.minecraft.resources.Identifier
 import java.util.*
 
 public object HiddenCommandManager {
-    private val commands = Object2ObjectOpenHashMap<ResourceLocation, HiddenCommand>()
+    private val commands = Object2ObjectOpenHashMap<Identifier, HiddenCommand>()
 
-    private val deletion = Int2ObjectOpenHashMap<ArrayList<ResourceLocation>>()
+    private val deletion = Int2ObjectOpenHashMap<ArrayList<Identifier>>()
     private var ticks = 0
 
     public fun register(timeout: MinecraftTimeDuration, command: HiddenCommand): ClickEvent.Custom {
-        val id = ResourceUtils.random()
+        val id = IdentifierUtils.random()
         this.commands[id] = command
         this.deletion.getOrPut(this.ticks + timeout.ticks, ::ArrayList).add(id)
         return ClickEvent.Custom(id, Optional.empty())

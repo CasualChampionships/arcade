@@ -14,7 +14,7 @@ public class ReplayMixinConfig: IMixinConfigPlugin {
     private companion object {
         const val MIXIN_COMPAT = "net.casual.arcade.replay.mixins.compat."
 
-        val incompatible: HashMultimap<String, String> = HashMultimap.create<String, String>()
+        val incompatible: HashMultimap<String, String> = HashMultimap.create()
 
         init {
             incompatible.put("net.casual.arcade.replay.mixins.chunk.ChunkMapMixin", "c2me")

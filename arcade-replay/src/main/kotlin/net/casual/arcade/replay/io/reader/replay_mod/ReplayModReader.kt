@@ -76,7 +76,7 @@ public class ReplayModReader(
     override fun readMarkers(): Multimap<String?, ReplayMarker> {
         val markers = this.replay.markers.orNull()
         if (markers.isNullOrEmpty()) {
-            return ImmutableMultimap.of()
+            return HashMultimap.create()
         }
 
         val multimap = HashMultimap.create<String?, ReplayMarker>()

@@ -33,10 +33,10 @@ import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.obj
 import net.casual.arcade.utils.JsonUtils.uuid
 import net.fabricmc.api.ModInitializer
-import net.minecraft.Util
 import net.minecraft.core.Registry
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
+import net.minecraft.util.Util
 import net.minecraft.world.level.storage.LevelResource
 import java.io.IOException
 import java.nio.file.Path
@@ -50,7 +50,7 @@ import kotlin.jvm.optionals.getOrNull
  */
 public object Minigames: ModInitializer {
     private val ALL = LinkedHashMap<UUID, Minigame>()
-    private val BY_ID = LinkedHashMultimap.create<ResourceLocation, Minigame>()
+    private val BY_ID = LinkedHashMultimap.create<Identifier, Minigame>()
 
     /**
      * This method gets all the current running minigames.
@@ -72,17 +72,17 @@ public object Minigames: ModInitializer {
     }
 
     /**
-     * This gets all the minigames that are associated with a given [ResourceLocation].
+     * This gets all the minigames that are associated with a given [Identifier].
      *
      * @param id The id of the minigame.
      * @return All the minigames with the given id.
      */
-    public fun get(id: ResourceLocation): List<Minigame> {
+    public fun get(id: Identifier): List<Minigame> {
         return this.BY_ID.get(id).toList()
     }
 
     public fun create(
-        id: ResourceLocation,
+        id: Identifier,
         context: MinigameCreationContext,
         data: Dynamic<*> = Dynamic(JsonOps.INSTANCE)
     ): Minigame {
@@ -173,7 +173,7 @@ public object Minigames: ModInitializer {
         Registry.register(TaskRegistries.TASK_FACTORY, PhaseChangeTask.id, PhaseChangeTask)
     }
 
-    internal fun allById(): Map<ResourceLocation, Collection<Minigame>> {
+    internal fun allById(): Map<Identifier, Collection<Minigame>> {
         return this.BY_ID.asMap()
     }
 

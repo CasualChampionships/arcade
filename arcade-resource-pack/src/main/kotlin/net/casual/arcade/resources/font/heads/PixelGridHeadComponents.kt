@@ -5,6 +5,7 @@
 package net.casual.arcade.resources.font.heads
 
 import com.google.common.cache.CacheBuilder
+import com.google.common.collect.MapMaker
 import com.mojang.authlib.minecraft.MinecraftSessionService
 import it.unimi.dsi.fastutil.ints.Int2ObjectFunction
 import kotlinx.coroutines.Deferred
@@ -168,7 +169,7 @@ public class PixelGridHeadComponents private constructor(
     private data class Success(val component: Deferred<Component>): Result
 
     public companion object {
-        private val components = WeakHashMap<Int, PixelGridHeadComponents>()
+        private val components = MapMaker().weakValues().makeMap<Int, PixelGridHeadComponents>()
 
         public fun get(shift: Int = 0, services: Services): PixelGridHeadComponents {
             return this.get(shift, services.profileResolver, services.sessionService)

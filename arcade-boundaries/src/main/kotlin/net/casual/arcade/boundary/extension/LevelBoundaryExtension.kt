@@ -14,7 +14,7 @@ import net.casual.arcade.extensions.DataExtension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.utils.ArcadeUtils
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.storage.ValueInput
@@ -47,7 +47,7 @@ public class LevelBoundaryExtension(
         this.boundary?.removePlayer(player)
     }
 
-    override fun getId(): ResourceLocation {
+    override fun getId(): Identifier {
         return ArcadeUtils.id("boundary")
     }
 

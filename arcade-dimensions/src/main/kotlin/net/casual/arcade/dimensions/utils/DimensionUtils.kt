@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.dimensions.utils
 
-import net.casual.arcade.util.ducks.SpoofedDimensionKeyHolder
 import net.casual.arcade.dimensions.level.CustomLevel
 import net.casual.arcade.dimensions.level.LevelPersistence
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
@@ -18,8 +17,8 @@ import net.casual.arcade.utils.teleportTo
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
@@ -52,7 +51,7 @@ public fun MinecraftServer.addCustomLevel(level: CustomLevel): CustomLevel {
     if (levels.containsKey(dimension)) {
         if (levels[dimension] !== level) {
             throw IllegalArgumentException(
-                "Tried to add level ${dimension.location()} when a different level is registered with that key"
+                "Tried to add level ${dimension.identifier()} when a different level is registered with that key"
             )
         }
         return level
@@ -122,7 +121,7 @@ public inline fun MinecraftServer.addCustomLevel(block: CustomLevelBuilder.() ->
  * @param location The location of the level.
  * @return The level, or `null` if it does not exist.
  */
-public fun MinecraftServer.loadCustomLevel(location: ResourceLocation): CustomLevel? {
+public fun MinecraftServer.loadCustomLevel(location: Identifier): CustomLevel? {
     return this.loadCustomLevel(ResourceKey.create(Registries.DIMENSION, location))
 }
 
@@ -169,7 +168,7 @@ public fun MinecraftServer.loadCustomLevel(key: ResourceKey<Level>): CustomLevel
  * @return The level.
  */
 public inline fun MinecraftServer.loadOrAddCustomLevel(
-    location: ResourceLocation,
+    location: Identifier,
     block: CustomLevelBuilder.() -> Unit
 ): CustomLevel {
     return this.loadCustomLevel(location) ?: this.addCustomLevel { dimensionKey(location).block() }

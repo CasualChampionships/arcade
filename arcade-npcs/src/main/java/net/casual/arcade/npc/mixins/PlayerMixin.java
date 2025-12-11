@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(Player.class)
 public class PlayerMixin {
     @ModifyExpressionValue(
-        method = "attack",
+        method = "causeExtraKnockback",
         at = @At(
             value = "FIELD",
             target = "Lnet/minecraft/world/entity/Entity;hurtMarked:Z",

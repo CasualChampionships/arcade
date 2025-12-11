@@ -147,7 +147,7 @@ public class FlashbackChunkedWriter(
         this.buffer.writeInt(FlashbackIO.MAGIC_NUMBER)
         this.buffer.writeVarInt(FlashbackAction.entries.size)
         for (action in FlashbackAction.entries) {
-            this.buffer.writeResourceLocation(action.id)
+            this.buffer.writeIdentifier(action.id)
         }
     }
 

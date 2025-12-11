@@ -6,13 +6,13 @@ package net.casual.arcade.replay.recorder.settings
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
+import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.replay.io.ReplayFormat
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.util.io.FileSize
 import net.casual.arcade.utils.convertCasing
 import net.casual.arcade.utils.encodedOptionalFieldOf
 import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
-import net.casual.arcade.utils.serialization.codec.OrderedRecordCodecBuilder
 import net.casual.arcade.utils.string.PascalCase
 import net.casual.arcade.utils.string.SnakeCase
 import net.minecraft.util.StringRepresentable
@@ -217,7 +217,7 @@ public interface RecorderSettings {
         public companion object {
             public val DEFAULT: FileLimits = FileLimits()
 
-            public val MAP_CODEC: MapCodec<FileLimits> = OrderedRecordCodecBuilder.mapCodec { instance ->
+            public val MAP_CODEC: MapCodec<FileLimits> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(
                     FileSize.CODEC.fieldOf("max_raw_recording_file_size").forGetter(FileLimits::maxRawSize),
                     Codec.BOOL.fieldOf("restart_after_max_raw_recording_file_size").forGetter(FileLimits::restartAfterMaxRawSize),
@@ -260,7 +260,7 @@ public interface RecorderSettings {
         public companion object {
             public val DEFAULT: IgnorePackets = IgnorePackets()
 
-            public val MAP_CODEC: MapCodec<IgnorePackets> = OrderedRecordCodecBuilder.mapCodec { instance ->
+            public val MAP_CODEC: MapCodec<IgnorePackets> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(
                     Codec.BOOL.encodedOptionalFieldOf("custom_payload_packets", false).forGetter(IgnorePackets::customPayloadPackets),
                     Codec.BOOL.encodedOptionalFieldOf("sound_packets", false).forGetter(IgnorePackets::soundPackets),
@@ -292,7 +292,7 @@ public interface RecorderSettings {
         public companion object {
             public val DEFAULT: OptimizePackets = OptimizePackets()
 
-            public val MAP_CODEC: MapCodec<OptimizePackets> = OrderedRecordCodecBuilder.mapCodec { instance ->
+            public val MAP_CODEC: MapCodec<OptimizePackets> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(
                     Codec.BOOL.encodedOptionalFieldOf("explosion_packets", true).forGetter(OptimizePackets::explosionPackets),
                     Codec.BOOL.encodedOptionalFieldOf("entity_packets", false).forGetter(OptimizePackets::entityPackets)

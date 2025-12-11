@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerEntity;
 import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -19,7 +20,8 @@ public class ServerEntityMixin {
         method = "sendPairingData",
         at = @At(
             value = "FIELD",
-            target = "Lnet/minecraft/server/level/ServerEntity;trackedDataValues:Ljava/util/List;"
+            target = "Lnet/minecraft/server/level/ServerEntity;trackedDataValues:Ljava/util/List;",
+            opcode = Opcodes.GETFIELD
         )
     )
     private List<SynchedEntityData.DataValue<?>> onGetTrackedDataValues(

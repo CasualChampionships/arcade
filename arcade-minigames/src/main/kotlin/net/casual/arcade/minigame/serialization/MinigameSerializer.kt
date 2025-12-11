@@ -31,18 +31,15 @@ import net.casual.arcade.utils.JsonUtils.uuidOrNull
 import net.casual.arcade.utils.JsonUtils.uuids
 import net.casual.arcade.utils.serialization.json.JsonValueInput
 import net.casual.arcade.utils.serialization.json.JsonValueOutput
-import net.minecraft.Util
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
+import net.minecraft.util.Util
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 import org.jetbrains.annotations.ApiStatus.Internal
 import java.io.*
 import java.nio.file.Path
 import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.io.path.isRegularFile
-import kotlin.io.path.reader
-import kotlin.io.path.writer
 import kotlin.jvm.optionals.getOrNull
 
 @Internal
@@ -167,7 +164,7 @@ public class MinigameSerializer(
         } else {
             val id = definition.stringOrNull("id") ?: return null
             val custom = definition.objOrDefault("custom")
-            val factory = TaskRegistries.TASK_FACTORY.getOptional(ResourceLocation.parse(id)).getOrNull() ?: return null
+            val factory = TaskRegistries.TASK_FACTORY.getOptional(Identifier.parse(id)).getOrNull() ?: return null
             factory.create(context.createSubContext(custom))
         }
         context.generated.put(identity, task)

@@ -15,5 +15,5 @@ import java.util.*
 
 @Suppress("FunctionName")
 public fun PlayerTask(player: ServerPlayer, task: CaptureConsumerTask<ServerPlayer>): Task {
-    return CaptureTask<UUID, ServerPlayer>(player.uuid, { ServerUtils.getServerOrNull()?.player(it) }, CaptureSerializer.same(), task)
+    return CaptureTask(player.uuid, { ServerUtils.getServerOrNull()?.player(it) }, CaptureSerializer.same(), task)
 }

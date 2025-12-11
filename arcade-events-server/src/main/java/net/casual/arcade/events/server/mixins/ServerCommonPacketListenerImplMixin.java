@@ -90,7 +90,7 @@ public abstract class ServerCommonPacketListenerImplMixin {
 		method = "handleCustomClickAction",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/server/MinecraftServer;handleCustomClickAction(Lnet/minecraft/resources/ResourceLocation;Ljava/util/Optional;)V"
+			target = "Lnet/minecraft/server/MinecraftServer;handleCustomClickAction(Lnet/minecraft/resources/Identifier;Ljava/util/Optional;)V"
 		),
 		cancellable = true
 	)

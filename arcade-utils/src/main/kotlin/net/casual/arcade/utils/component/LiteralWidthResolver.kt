@@ -6,6 +6,7 @@ package net.casual.arcade.utils.component
 
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.FontDescription
 import net.minecraft.network.chat.Style
 import java.util.*
 
@@ -32,7 +33,7 @@ public object LiteralWidthResolver: WidthResolver {
     /**
      * Calculates the width of the given [codepoint] in gui pixels.
      *
-     * This assumes the use of [Style.DEFAULT_FONT] as well as
+     * This assumes the use of [FontDescription.DEFAULT] as well as
      * only using ascii characters.
      *
      * @param codepoint The codepoint to calculate the width of.
@@ -46,7 +47,7 @@ public object LiteralWidthResolver: WidthResolver {
      * Calculates the width of the given [codepoint] in gui pixels,
      * with the given style.
      *
-     * This assumes the use of [Style.DEFAULT_FONT] as well as
+     * This assumes the use of [FontDescription.DEFAULT] as well as
      * only using ascii characters.
      *
      * @param codepoint The codepoint to calculate the width of.
@@ -60,7 +61,7 @@ public object LiteralWidthResolver: WidthResolver {
     /**
      * Calculates the width of the given [string] in gui pixels.
      *
-     * This assumes the use of [Style.DEFAULT_FONT] as well as
+     * This assumes the use of [FontDescription.DEFAULT] as well as
      * only using ascii characters.
      *
      * @param string The string to calculate the width of.
@@ -75,7 +76,7 @@ public object LiteralWidthResolver: WidthResolver {
      *
      * This only works on *literal* components,
      * and assumes that the component is using the
-     * [Style.DEFAULT_FONT].
+     * [FontDescription.DEFAULT].
      *
      * This also assumes that only ascii characters are
      * used within the [component].

@@ -34,20 +34,21 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.ComponentArgument
 import net.minecraft.commands.arguments.EntityArgument
-import net.minecraft.commands.arguments.ResourceLocationArgument
+import net.minecraft.commands.arguments.IdentifierArgument
 import net.minecraft.commands.arguments.TeamArgument
 import net.minecraft.commands.arguments.TimeArgument
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.permissions.PermissionLevel
 import java.util.*
 
 internal object MinigameCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("minigame") {
-            requiresPermission("arcade.command.minigame", 2)
+            requiresPermission("arcade.command.minigame", PermissionLevel.GAMEMASTERS)
 
             literal("list") {
                 executes(::listMinigames)
@@ -175,7 +176,6 @@ internal object MinigameCommand: CommandTree {
                 }
             }
             literal("admin") {
-                requiresPermission("arcade.command.minigame.admin", 2)
                 argument("minigame", MinigameArgument.minigame()) {
                     literal("add") {
                         executes(::selfAdminMinigame)
@@ -192,7 +192,6 @@ internal object MinigameCommand: CommandTree {
                 }
             }
             literal("settings") {
-                requiresPermission("arcade.command.minigame.settings", 2)
                 argument("minigame", MinigameArgument.minigame()) {
                     executes(::openMinigameSettings)
                     argument("setting", MinigameSettingArgument.setting("minigame")) {
@@ -218,7 +217,7 @@ internal object MinigameCommand: CommandTree {
                 argument("minigame", MinigameArgument.minigame()) {
                     argument("modifier", EnumArgument.enumeration<AdvancementModifier>()) {
                         literal("only") {
-                            argument("advancement", ResourceLocationArgument.id()) {
+                            argument("advancement", IdentifierArgument.id()) {
                                 suggests { context, builder ->
                                     val minigame = MinigameArgument.getMinigame(context, "minigame")
                                     SharedSuggestionProvider.suggestResource(minigame.advancements.all().map { it.id }, builder)
@@ -240,10 +239,10 @@ internal object MinigameCommand: CommandTree {
                 argument("minigame", MinigameArgument.minigame()) {
                     argument("modifier", EnumArgument.enumeration<RecipeModifier>()) {
                         literal("only") {
-                            argument("recipe", ResourceLocationArgument.id()) {
+                            argument("recipe", IdentifierArgument.id()) {
                                 suggests { context, builder ->
                                     val minigame = MinigameArgument.getMinigame(context, "minigame")
-                                    SharedSuggestionProvider.suggestResource(minigame.recipes.all().map { it.id.location() }, builder)
+                                    SharedSuggestionProvider.suggestResource(minigame.recipes.all().map { it.id.identifier() }, builder)
                                 }
                                 argument("player", EntityArgument.players()) {
                                     executes(::modifyMinigameRecipe)
@@ -262,16 +261,16 @@ internal object MinigameCommand: CommandTree {
                 argument("minigame", MinigameArgument.minigame()) {
                     argument("player", EntityArgument.player()) {
                         literal("add") {
-                            argument("tag", ResourceLocationArgument.id()) {
+                            argument("tag", IdentifierArgument.id()) {
                                 executes(::addPlayerTag)
                             }
                         }
                         literal("remove") {
-                            argument("tag", ResourceLocationArgument.id()) {
+                            argument("tag", IdentifierArgument.id()) {
                                 suggests { context ->
                                     val minigame = MinigameArgument.getMinigame(context, "minigame")
                                     val player = EntityArgument.getPlayer(context, "player")
-                                    minigame.tags.get(player).map(ResourceLocation::toString)
+                                    minigame.tags.get(player).map(Identifier::toString)
                                 }
                                 executes(::removePlayerTag)
                             }
@@ -283,7 +282,6 @@ internal object MinigameCommand: CommandTree {
                 }
             }
             literal("phase") {
-                requiresPermission("arcade.command.minigame.phase", 2)
                 argument("minigame", MinigameArgument.minigame()) {
                     executes(::getMinigamePhase)
                     literal("set") {
@@ -294,13 +292,11 @@ internal object MinigameCommand: CommandTree {
                 }
             }
             literal("pause") {
-                requiresPermission("arcade.command.minigame.pause", 2)
                 argument("minigame", MinigameArgument.minigame()) {
                     executes(::pauseMinigame)
                 }
             }
             literal("unpause") {
-                requiresPermission("arcade.command.minigame.unpause", 2)
                 argument("minigame", MinigameArgument.minigame()) {
                     executes(::unpauseMinigame)
                     literal("countdown") {
@@ -643,7 +639,7 @@ internal object MinigameCommand: CommandTree {
     private fun modifyMinigameAdvancement(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val modifier = EnumArgument.getEnumeration<AdvancementModifier>(context, "modifier")
-        val id = ResourceLocationArgument.getId(context, "advancement")
+        val id = IdentifierArgument.getId(context, "advancement")
         val player = EntityArgument.getPlayer(context, "player")
         val advancement = minigame.advancements.get(id)
             ?: return context.source.fail(Component.translatable("minigame.command.advancement.unknown"))
@@ -660,7 +656,7 @@ internal object MinigameCommand: CommandTree {
     private fun modifyMinigameRecipe(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val modifier = EnumArgument.getEnumeration<RecipeModifier>(context, "modifier")
-        val id = ResourceLocationArgument.getId(context, "recipe")
+        val id = IdentifierArgument.getId(context, "recipe")
         val player = EntityArgument.getPlayer(context, "player")
         val recipe = minigame.recipes.get(ResourceKey.create(Registries.RECIPE, id))
             ?: return context.source.fail(Component.translatable("minigame.command.recipe.unknown"))
@@ -686,7 +682,7 @@ internal object MinigameCommand: CommandTree {
     private fun addPlayerTag(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val player = EntityArgument.getPlayer(context, "player")
-        val tag = ResourceLocationArgument.getId(context, "tag")
+        val tag = IdentifierArgument.getId(context, "tag")
 
         if (!minigame.tags.add(player, tag)) {
             return context.source.fail(
@@ -701,7 +697,7 @@ internal object MinigameCommand: CommandTree {
     private fun removePlayerTag(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val player = EntityArgument.getPlayer(context, "player")
-        val tag = ResourceLocationArgument.getId(context, "tag")
+        val tag = IdentifierArgument.getId(context, "tag")
 
         if (!minigame.tags.remove(player, tag)) {
             return context.source.fail(

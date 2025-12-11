@@ -10,7 +10,7 @@ import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.extensions.DataExtension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.utils.ArcadeUtils
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 import org.jetbrains.annotations.ApiStatus.Internal
@@ -20,7 +20,7 @@ import kotlin.jvm.optionals.getOrNull
 public class LevelCustomMobSpawningExtension: DataExtension {
     public var rules: CustomMobSpawningRules? = null
 
-    override fun getId(): ResourceLocation {
+    override fun getId(): Identifier {
         return ArcadeUtils.id("custom_mob_spawning")
     }
 

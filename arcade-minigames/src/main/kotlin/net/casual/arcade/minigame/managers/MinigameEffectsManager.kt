@@ -16,7 +16,7 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
 import net.casual.arcade.visuals.utils.modifySharedFlags
-import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.modify
 import net.casual.arcade.visuals.predicate.EntityObserverPredicate
@@ -279,6 +279,6 @@ public class MinigameEffectsManager(
     private companion object {
         val INFINITE_NIGHT_VISION = MobEffectInstance(NIGHT_VISION, INFINITE_DURATION, 0, false, false, false)
 
-        val FULL_BRIGHT = ResourceUtils.arcade("full_bright")
+        val FULL_BRIGHT = IdentifierUtils.arcade("full_bright")
     }
 }

@@ -9,7 +9,7 @@ import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.extensions.DataExtension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.utils.ArcadeUtils
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.dimension.end.EndDragonFight
@@ -26,7 +26,7 @@ internal class DragonDataExtension(
         return this.data ?: EndDragonFight.Data.DEFAULT
     }
 
-    override fun getId(): ResourceLocation {
+    override fun getId(): Identifier {
         return ArcadeUtils.id("dragon_data")
     }
 

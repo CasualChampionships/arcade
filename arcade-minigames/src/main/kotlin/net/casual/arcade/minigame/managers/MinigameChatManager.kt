@@ -36,7 +36,7 @@ import net.casual.arcade.utils.JsonUtils.uuid
 import net.casual.arcade.utils.JsonUtils.uuids
 import net.casual.arcade.utils.PlayerUtils.getChatUsername
 import net.casual.arcade.utils.PlayerUtils.player
-import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.chat.ChatFormatter
 import net.casual.arcade.utils.chat.PlayerChatFormatter
 import net.casual.arcade.utils.chat.PlayerFormattedChat
@@ -44,7 +44,7 @@ import net.casual.arcade.utils.component.red
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.TeamArgument
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
 
@@ -521,6 +521,6 @@ public class MinigameChatManager(
     }
 
     public companion object {
-        public val MUTED: ResourceLocation = ResourceUtils.arcade("muted")
+        public val MUTED: Identifier = IdentifierUtils.arcade("muted")
     }
 }

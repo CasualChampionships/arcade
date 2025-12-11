@@ -9,18 +9,16 @@ import com.google.gson.JsonObject
 import com.mojang.datafixers.util.Either
 import com.mojang.serialization.Codec
 import com.mojang.serialization.DataResult
-import com.mojang.serialization.Dynamic
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.utils.TimeUtils
-import net.minecraft.Util
 import net.minecraft.core.registries.Registries
-import net.minecraft.nbt.NbtOps
 import net.minecraft.resources.ResourceKey
 import net.minecraft.util.ExtraCodecs
+import net.minecraft.util.Util
 import net.minecraft.world.flag.FeatureFlagSet
-import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.gamerules.GameRules
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
@@ -34,8 +32,8 @@ import kotlin.io.path.pathString
 import kotlin.time.Duration
 
 public object ArcadeExtraCodecs {
-    public val MUTABLE_INT: Codec<MutableInt> = Codec.INT.xmap(::MutableInt, MutableInt::getValue)
-    public val MUTABLE_LONG: Codec<MutableLong> = Codec.LONG.xmap(::MutableLong, MutableLong::getValue)
+    public val MUTABLE_INT: Codec<MutableInt> = Codec.INT.xmap(::MutableInt, MutableInt::toInt)
+    public val MUTABLE_LONG: Codec<MutableLong> = Codec.LONG.xmap(::MutableLong, MutableLong::toLong)
     public val INT_RANGE: Codec<IntRange> = Codec.INT.listOf().comapFlatMap(
         { Util.fixedSize(it, 2).map { range -> IntRange(range[0], range[1]) } },
         { range -> listOf(range.first, range.last) }
@@ -55,10 +53,7 @@ public object ArcadeExtraCodecs {
         { json -> if (json !is JsonObject) DataResult.error { "Input wasn't JsonObject" } else DataResult.success(json) },
         { json -> json }
     )
-    public val GAMERULES: Codec<GameRules> = Codec.PASSTHROUGH.xmap(
-        { GameRules(FeatureFlagSet.of(), it) },
-        { Dynamic(NbtOps.INSTANCE, it.createTag()) }
-    )
+    public val GAMERULES: Codec<GameRules> = GameRules.codec(FeatureFlagSet.of())
     public val DIMENSION: Codec<ResourceKey<Level>> = ResourceKey.codec(Registries.DIMENSION)
     public val DURATION: Codec<Duration> = Codec.STRING.comapFlatMap(TimeUtils::parseToDuration, Duration::toString)
 
@@ -83,7 +78,7 @@ public object ArcadeExtraCodecs {
         builder: RecordCodecBuilder<T, S>,
         applier: (T, S) -> T
     ): MapCodec<T> {
-        return OrderedRecordCodecBuilder.mapCodec { instance ->
+        return RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 this.forGetter(Function.identity()), builder
             ).apply(instance, applier)
@@ -97,7 +92,7 @@ public object ArcadeExtraCodecs {
     }
 
     public fun <E: Enum<E>> enum(constants: Map<String, E>): Codec<E> {
-        val map = HashBiMap.create<String, E>(constants)
+        val map = HashBiMap.create(constants)
         val inverse = map.inverse()
         return Codec.STRING.xmap(map::get, inverse::get)
     }
@@ -149,7 +144,7 @@ public object ArcadeExtraCodecs {
         keyCodec: MapCodec<K>,
         valueMapCodec: MapCodec<V>
     ): Codec<Map<K, V>> {
-        val entryCodec = OrderedRecordCodecBuilder.create<Pair<K, V>> { instance ->
+        val entryCodec = RecordCodecBuilder.create<Pair<K, V>> { instance ->
             instance.group(
                 keyCodec.forGetter { it.first },
                 valueMapCodec.forGetter { it.second }

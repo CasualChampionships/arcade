@@ -5,10 +5,10 @@
 package net.casual.arcade.resources.font
 
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 public abstract class IndexedFontResources(
-    id: ResourceLocation,
+    id: Identifier,
     pua: FontPUA = FontPUA.Plane0
 ): FontResources(id, pua) {
     @PublishedApi internal val components: ArrayList<Component> = ArrayList()

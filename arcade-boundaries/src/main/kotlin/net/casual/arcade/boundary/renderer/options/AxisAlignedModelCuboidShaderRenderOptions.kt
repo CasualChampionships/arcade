@@ -25,7 +25,7 @@ public class AxisAlignedModelCuboidShaderRenderOptions: AxisAlignedModelRenderOp
         val model = shape.getStatus().choose(this.stationary, this.shrinking, this.growing)
         stack.set(DataComponents.ITEM_MODEL, model)
         val size = shape.size()
-        val color = when (face.axis!!) {
+        val color = when (face.axis) {
             Direction.Axis.X -> pack(size.z / 2, size.y / 2)
             Direction.Axis.Y -> pack(size.x / 2, size.z / 2)
             Direction.Axis.Z -> pack(size.x / 2, size.y / 2)

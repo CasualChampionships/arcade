@@ -30,8 +30,8 @@ public class NearbyEntityTrackingMixin {
     )
     private void onPlayerTrackingTick(
         CallbackInfo ci,
-        @Local ServerPlayer player,
-        @Local boolean positionUpdated
+        @Local(name = "player") ServerPlayer player,
+        @Local(name = "isPlayerPositionUpdated") boolean positionUpdated
     ) {
         if (positionUpdated) {
             ServerLevel level = player.level();

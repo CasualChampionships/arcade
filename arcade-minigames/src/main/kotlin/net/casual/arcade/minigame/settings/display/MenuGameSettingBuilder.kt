@@ -14,7 +14,7 @@ import net.casual.arcade.utils.ItemUtils.enableGlint
 import net.casual.arcade.utils.ItemUtils.hasGlint
 import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
 import net.casual.arcade.utils.time.MinecraftTimeDuration
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 import java.util.*
@@ -125,7 +125,7 @@ public class MenuGameSettingBuilder<T: Any>(
         private val float = GameSetting.generator(Codec.FLOAT)
         private val double = GameSetting.generator(Codec.DOUBLE)
         private val string = GameSetting.generator(Codec.STRING)
-        private val id = GameSetting.generator(ResourceLocation.CODEC)
+        private val id = GameSetting.generator(Identifier.CODEC)
         private val time = GameSetting.generator(MinecraftTimeDuration.CODEC)
 
         public fun bool(): MenuGameSettingBuilder<Boolean> {
@@ -176,11 +176,11 @@ public class MenuGameSettingBuilder<T: Any>(
             return string().apply(block).build()
         }
 
-        public fun id(): MenuGameSettingBuilder<ResourceLocation> {
+        public fun id(): MenuGameSettingBuilder<Identifier> {
             return MenuGameSettingBuilder(this.id)
         }
 
-        public fun id(block: MenuGameSettingBuilder<ResourceLocation>.() -> Unit): MenuGameSetting<ResourceLocation> {
+        public fun id(block: MenuGameSettingBuilder<Identifier>.() -> Unit): MenuGameSetting<Identifier> {
             return id().apply(block).build()
         }
 

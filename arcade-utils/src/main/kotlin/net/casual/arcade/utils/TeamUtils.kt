@@ -191,7 +191,7 @@ public object TeamUtils {
                 if (team.players.isEmpty()) {
                     team.color = color
                     team.displayName = Component.literal("${color.prettyName()} $animal").withStyle(color)
-                    team.playerPrefix = team.formattedDisplayName.append(" ")
+                    team.setPlayerPrefix(team.formattedDisplayName.append(" "))
                     return team
                 }
             }

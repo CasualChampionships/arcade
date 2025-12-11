@@ -11,10 +11,10 @@ import net.casual.arcade.boundary.renderer.options.ParticleRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.serialization.codec.CodecProvider
-import net.minecraft.Util
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.util.Util
 
 /**
  * Extension of [ParticleBoundaryRenderer] that updates asynchronously
@@ -56,7 +56,7 @@ public class AsyncParticleBoundaryRenderer(
         }
 
         public companion object: CodecProvider<Factory> {
-            override val ID: ResourceLocation = ArcadeUtils.id("async_particle_border_renderer")
+            override val ID: Identifier = ArcadeUtils.id("async_particle_border_renderer")
 
             override val CODEC: MapCodec<out Factory> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(

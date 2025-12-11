@@ -5,8 +5,9 @@
 package net.casual.arcade.visuals.tab
 
 import com.google.common.collect.Iterables
-import net.casual.arcade.resources.font.heads.PlayerHeadComponents
+import net.casual.arcade.resources.font.heads.PixelGridHeadComponents
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
+import net.casual.arcade.utils.StaticResolvableProfile
 import net.casual.arcade.utils.component.color
 import net.casual.arcade.utils.component.italicize
 import net.casual.arcade.utils.TeamUtils.color
@@ -80,7 +81,7 @@ public open class TeamListEntries: PlayerListEntries {
         team: PlayerTeam,
         player: ServerPlayer?
     ): PlayerListEntries.Entry {
-        val head = PlayerHeadComponents.getHeadOrDefault(username)
+        val head = PixelGridHeadComponents.getHeadOrDefaultFor(StaticResolvableProfile(username), server)
         val name = when {
             player == null -> Component.literal(username).color(0x808080)
             player.isSpectator -> Component.literal(username).color(team).italicize()

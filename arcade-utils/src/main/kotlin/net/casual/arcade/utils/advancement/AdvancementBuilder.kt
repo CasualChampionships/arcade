@@ -5,10 +5,10 @@
 package net.casual.arcade.utils.advancement
 
 import net.minecraft.advancements.*
-import net.minecraft.advancements.critereon.ImpossibleTrigger
+import net.minecraft.advancements.criterion.ImpossibleTrigger
 import net.minecraft.core.ClientAsset
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ItemLike
 import java.util.*
@@ -26,12 +26,12 @@ public class AdvancementBuilder {
     /**
      * The parent [Advancement], may be null if this has no parent.
      */
-    public var parent: ResourceLocation? = null
+    public var parent: Identifier? = null
 
     /**
-     * This is the [ResourceLocation] of the advancement.
+     * This is the [Identifier] of the advancement.
      */
-    public var id: ResourceLocation? = null
+    public var id: Identifier? = null
 
     /**
      * This is the display [ItemStack].
@@ -95,7 +95,7 @@ public class AdvancementBuilder {
      * @param id The advancement id.
      * @return This [AdvancementBuilder] instance.
      */
-    public fun id(id: ResourceLocation): AdvancementBuilder {
+    public fun id(id: Identifier): AdvancementBuilder {
         this.id = id
         return this
     }
@@ -161,7 +161,7 @@ public class AdvancementBuilder {
      * @param background The advancement background.
      * @return This [AdvancementBuilder] instance.
      */
-    public fun background(background: ResourceLocation): AdvancementBuilder {
+    public fun background(background: Identifier): AdvancementBuilder {
         this.background = ClientAsset.ResourceTexture(background)
         return this
     }

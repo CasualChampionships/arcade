@@ -7,12 +7,12 @@ package net.casual.arcade.replay
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorders
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorders
 import net.casual.arcade.replay.viewer.ReplayViewer
-import net.casual.arcade.utils.ResourceLocation
+import net.casual.arcade.utils.Identifier
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.metadata.ModOrigin
 import net.fabricmc.loader.impl.metadata.AbstractModMetadata
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 // TODO:
 //  - Add some sort of plugin system to allow compile only dependency
@@ -27,8 +27,8 @@ public object ArcadeReplay: ModInitializer {
         ReplayViewer.registerEvents()
     }
 
-    public fun id(path: String): ResourceLocation {
-        return ResourceLocation(MOD_ID, path)
+    public fun id(path: String): Identifier {
+        return Identifier(MOD_ID, path)
     }
 
     internal fun getLoadedMods(): Map<String, String> {

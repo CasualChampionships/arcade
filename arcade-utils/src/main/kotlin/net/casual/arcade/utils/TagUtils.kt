@@ -8,13 +8,14 @@ import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.ExtraCodecs
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.joml.Vector3f
+import org.joml.Vector3fc
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
@@ -61,7 +62,7 @@ public fun CompoundTag.putVector3f(key: String, vec: Vector3f) {
     "net.minecraft.util.ExtraCodecs",
     "kotlin.jvm.optionals.getOrNull"
 ))
-public fun CompoundTag.getVector3fOrNull(key: String): Vector3f? {
+public fun CompoundTag.getVector3fOrNull(key: String): Vector3fc? {
     return this.read(key, ExtraCodecs.VECTOR3F).getOrNull()
 }
 
@@ -117,16 +118,16 @@ public fun CompoundTag.getVec2OrNull(key: String): Vec2? {
     "this.store(key, ResourceLocation.CODEC, id)",
     "net.minecraft.resources.ResourceLocation"
 ))
-public fun CompoundTag.putId(key: String, id: ResourceLocation) {
-    this.store(key, ResourceLocation.CODEC, id)
+public fun CompoundTag.putId(key: String, id: Identifier) {
+    this.store(key, Identifier.CODEC, id)
 }
 
 @Deprecated("Use provided read method", ReplaceWith(
     "this.read(key, ResourceLocation.CODEC).get()",
     "net.minecraft.resources.ResourceLocation"
 ))
-public fun CompoundTag.getId(key: String): ResourceLocation {
-    return this.read(key, ResourceLocation.CODEC).get()
+public fun CompoundTag.getId(key: String): Identifier {
+    return this.read(key, Identifier.CODEC).get()
 }
 
 @Deprecated("Use provided store method", ReplaceWith(

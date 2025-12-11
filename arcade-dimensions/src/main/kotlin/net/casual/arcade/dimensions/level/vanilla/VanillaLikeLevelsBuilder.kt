@@ -7,7 +7,7 @@ package net.casual.arcade.dimensions.level.vanilla
 import net.casual.arcade.dimensions.level.CustomLevel
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.utils.EnumUtils
-import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.utils.IdentifierUtils
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.level.Level
@@ -39,7 +39,7 @@ public class VanillaLikeLevelsBuilder {
     public fun add(vararg dimensions: VanillaDimension): VanillaLikeLevelsBuilder {
         for (dimension in dimensions) {
             this.set(dimension) {
-                dimensionKey(ResourceUtils.random { "${dimension.serializedName}_$it" })
+                dimensionKey(IdentifierUtils.random { "${dimension.serializedName}_$it" })
             }
         }
         return this

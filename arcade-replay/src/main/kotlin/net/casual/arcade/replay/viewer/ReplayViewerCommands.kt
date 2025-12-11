@@ -27,7 +27,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundCommandsPacket
 import net.minecraft.network.protocol.game.ClientboundCommandsPacket.NodeInspector
 import net.minecraft.network.protocol.game.ClientboundSystemChatPacket
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import java.util.function.Consumer
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -233,7 +233,7 @@ public object ReplayViewerCommands {
     }
 
     private object ReplayViewerNodeInspector: NodeInspector<CommandSourceStack> {
-        override fun suggestionId(node: ArgumentCommandNode<CommandSourceStack, *>): ResourceLocation? {
+        override fun suggestionId(node: ArgumentCommandNode<CommandSourceStack, *>): Identifier? {
             val suggestions = node.customSuggestions
             return if (suggestions != null) SuggestionProviders.getName(suggestions) else null
         }

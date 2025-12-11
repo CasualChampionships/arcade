@@ -11,9 +11,9 @@ import com.mojang.serialization.Decoder
 import com.mojang.serialization.Encoder
 import com.mojang.serialization.JsonOps
 import net.casual.arcade.utils.serialization.createSerializationContext
-import net.minecraft.Util
 import net.minecraft.core.HolderLookup
 import net.minecraft.nbt.*
+import net.minecraft.util.Util
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader

@@ -7,8 +7,8 @@ package net.casual.arcade.utils.recipe
 import net.minecraft.core.HolderLookup.Provider
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.Registries
+import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -39,7 +39,7 @@ public object CraftingRecipeBuilder {
         public var height: Int = 0
         public var result: ItemStack = ItemStack.EMPTY
 
-        public fun key(id: ResourceLocation): Shaped {
+        public fun key(id: Identifier): Shaped {
             this.key = ResourceKey.create(Registries.RECIPE, id)
             return this
         }
@@ -109,7 +109,7 @@ public object CraftingRecipeBuilder {
         public var group: String = ""
         public var result: ItemStack = ItemStack.EMPTY
 
-        public fun key(id: ResourceLocation): Shapeless {
+        public fun key(id: Identifier): Shapeless {
             this.key = ResourceKey.create(Registries.RECIPE, id)
             return this
         }

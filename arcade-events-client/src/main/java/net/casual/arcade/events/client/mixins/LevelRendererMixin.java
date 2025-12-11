@@ -4,6 +4,8 @@
  */
 package net.casual.arcade.events.client.mixins;
 
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
@@ -100,9 +102,11 @@ public class LevelRendererMixin {
         GlobalEventHandler.Client.broadcast(eventRef.get(), Set.of(LevelRenderEvent.BLOCK_ENTITIES));
     }
 
+    @Definition(id = "render", method = "Lnet/minecraft/client/renderer/gizmos/DrawableGizmoPrimitives;render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/state/CameraRenderState;Lorg/joml/Matrix4f;)V")
+    @Expression("?.render(?, ?, ?, ?)")
     @Inject(
         method = "method_62214",
-        at = @At(value = "CONSTANT", args = "stringValue=debug")
+        at = @At(value = "MIXINEXTRAS:EXPRESSION", shift = At.Shift.AFTER)
     )
     private void onDebug(CallbackInfo ci, @Share("event") LocalRef<LevelRenderEvent> eventRef) {
         GlobalEventHandler.Client.broadcast(eventRef.get(), Set.of(LevelRenderEvent.DEBUG));

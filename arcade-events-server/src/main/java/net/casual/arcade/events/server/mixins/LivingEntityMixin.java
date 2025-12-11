@@ -4,6 +4,8 @@
  */
 package net.casual.arcade.events.server.mixins;
 
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -29,6 +31,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -42,16 +45,13 @@ import java.util.function.Consumer;
 public class LivingEntityMixin implements ModifyActuallyHurt {
 	@Unique private boolean arcade$wasActuallyHurt = false;
 
-	@Inject(
+	@Definition(id = "calculateFallDamage", method = "Lnet/minecraft/world/entity/LivingEntity;calculateFallDamage(DF)I")
+    @Expression("? = ?.calculateFallDamage(?, ?)")
+    @Inject(
 		method = "causeFallDamage",
-		at = @At(
-			value = "INVOKE_ASSIGN",
-			target = "Lnet/minecraft/world/entity/LivingEntity;calculateFallDamage(DF)I",
-			shift = At.Shift.AFTER
-		),
+		at = @At(value = "MIXINEXTRAS:EXPRESSION", shift = At.Shift.AFTER),
 		cancellable = true
 	)
-	@SuppressWarnings("DiscouragedShift")
 	private void onFallDamage(
 		double distance,
 		float multiplier,
@@ -85,16 +85,13 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 		return true;
 	}
 
+    @Definition(id = "getDamageAfterMagicAbsorb", method = "Lnet/minecraft/world/entity/LivingEntity;getDamageAfterMagicAbsorb(Lnet/minecraft/world/damagesource/DamageSource;F)F")
+    @Expression("? = ?.getDamageAfterMagicAbsorb(?, ?)")
     @Inject(
         method = "actuallyHurt",
-        at = @At(
-            value = "INVOKE_ASSIGN",
-            target = "Lnet/minecraft/world/entity/LivingEntity;getDamageAfterMagicAbsorb(Lnet/minecraft/world/damagesource/DamageSource;F)F",
-            shift = At.Shift.AFTER
-        ),
+        at = @At(value = "MIXINEXTRAS:EXPRESSION", shift = At.Shift.AFTER),
         cancellable = true
     )
-    @SuppressWarnings("DiscouragedShift")
     private void onDamage(
         ServerLevel level,
         DamageSource source,
@@ -222,7 +219,7 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 		method = "onAttributeUpdated",
 		at = @At("HEAD")
 	)
-	private void onAttributeUpdate(Holder<Attribute> attribute, CallbackInfo ci) {
+	private void onAttributeUpdate(Holder<@NotNull Attribute> attribute, CallbackInfo ci) {
 		if ((Object) this instanceof ServerPlayer player) {
 			PlayerAttributeUpdatedEvent event = new PlayerAttributeUpdatedEvent(player, attribute);
 			GlobalEventHandler.Server.broadcast(event);

@@ -60,7 +60,7 @@ public open class PlayerInventoryViewGui(
     protected open fun loadBackground() {
         this.title = this.observee.displayName
 
-        this.setSlot(3, ItemUtils.createPlayerHead(this.observee).named(this.observee.displayName!!))
+        this.setSlot(3, ItemUtils.createPlayerHead(this.observee).named(this.observee.displayName))
     }
 
     protected open fun mapOffhandSlot(): Int {

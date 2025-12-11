@@ -25,13 +25,14 @@ import net.casual.arcade.resources.pack.PackStatus
 import net.casual.arcade.resources.sound.SoundResources
 import net.casual.arcade.resources.utils.ResourcePackUtils.addLangsFrom
 import net.casual.arcade.resources.utils.ShaderUtils.ColorReplacer
+import net.casual.arcade.utils.Identifier
 import net.casual.arcade.utils.JsonUtils
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerCommonPacketListenerImpl
 import java.io.FileNotFoundException
@@ -221,7 +222,7 @@ public object ResourcePackUtils {
     }
 
     @JvmStatic
-    public fun ResourcePackCreator.addFont(id: ResourceLocation, generator: () -> String) {
+    public fun ResourcePackCreator.addFont(id: Identifier, generator: () -> String) {
         this.creationEvent.register { builder ->
             val fontDefinition = generator.invoke().encodeToByteArray()
             builder.addData("assets/${id.namespace}/font/${id.path}.json", fontDefinition)
@@ -336,7 +337,7 @@ public object ResourcePackUtils {
     }
 
     private fun tryAddMissingItemModelDefinitionRaw(namespace: String, relative: String, name: String, builder: ResourcePackBuilder) {
-        val location = ResourceLocation.fromNamespaceAndPath(namespace, "item/$relative$name")
+        val location = Identifier(namespace, "item/$relative$name")
         builder.addData("assets/$namespace/items/$relative$name.json", getDefaultItemModelDefinition(location))
     }
 
@@ -345,12 +346,12 @@ public object ResourcePackUtils {
         val relative = (path.parent.toString() + "/").removePrefix(dir)
         val model = "$relative$name.json"
         if (models.resolve(model).notExists()) {
-            val location = ResourceLocation.fromNamespaceAndPath(namespace, "item/$relative$name")
+            val location = Identifier(namespace, "item/$relative$name")
             builder.addData("assets/$namespace/models/item/$model", getDefaultItemModel(location))
         }
     }
 
-    private fun getDefaultItemModelDefinition(location: ResourceLocation): ByteArray {
+    private fun getDefaultItemModelDefinition(location: Identifier): ByteArray {
         return """
         {
           "model": {
@@ -361,7 +362,7 @@ public object ResourcePackUtils {
         """.trimIndent().encodeToByteArray()
     }
 
-    private fun getDefaultItemModel(location: ResourceLocation): ByteArray {
+    private fun getDefaultItemModel(location: Identifier): ByteArray {
         return """
         {
           "parent": "minecraft:item/generated",

@@ -8,7 +8,7 @@ import net.casual.arcade.extensions.DataExtension
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.ArcadeUtils
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.GameType
 import net.minecraft.world.level.storage.ValueInput
@@ -49,7 +49,7 @@ internal class ExtendedGameModePlayerExtension(
         this.gameMode = ExtendedGameMode.fromVanilla(type)
     }
 
-    override fun getId(): ResourceLocation {
+    override fun getId(): Identifier {
         return ArcadeUtils.id("extended_game_mode")
     }
 

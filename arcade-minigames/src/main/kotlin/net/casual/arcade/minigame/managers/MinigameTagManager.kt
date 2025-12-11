@@ -17,33 +17,33 @@ import net.casual.arcade.utils.JsonUtils.set
 import net.casual.arcade.utils.JsonUtils.strings
 import net.casual.arcade.utils.JsonUtils.uuid
 import net.casual.arcade.utils.PlayerUtils.player
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
 
 public class MinigameTagManager(
     private val minigame: Minigame
 ) {
-    private val players = HashMultimap.create<UUID, ResourceLocation>()
-    private val tags = HashMultimap.create<ResourceLocation, UUID>()
+    private val players = HashMultimap.create<UUID, Identifier>()
+    private val tags = HashMultimap.create<Identifier, UUID>()
 
-    public fun get(uuid: UUID): Set<ResourceLocation> {
+    public fun get(uuid: UUID): Set<Identifier> {
         return this.players.get(uuid)
     }
 
-    public fun get(player: ServerPlayer): Set<ResourceLocation> {
+    public fun get(player: ServerPlayer): Set<Identifier> {
         return this.get(player.uuid)
     }
 
-    public fun has(uuid: UUID, tag: ResourceLocation): Boolean {
+    public fun has(uuid: UUID, tag: Identifier): Boolean {
         return this.players.containsEntry(uuid, tag)
     }
 
-    public fun has(player: ServerPlayer, tag: ResourceLocation): Boolean {
+    public fun has(player: ServerPlayer, tag: Identifier): Boolean {
         return this.has(player.uuid, tag)
     }
 
-    public fun add(uuid: UUID, tag: ResourceLocation): Boolean {
+    public fun add(uuid: UUID, tag: Identifier): Boolean {
         val success = this.players.put(uuid, tag)
         this.tags.put(tag, uuid)
         if (success) {
@@ -55,11 +55,11 @@ public class MinigameTagManager(
         return success
     }
 
-    public fun add(player: ServerPlayer, tag: ResourceLocation): Boolean {
+    public fun add(player: ServerPlayer, tag: Identifier): Boolean {
         return this.add(player.uuid, tag)
     }
 
-    public fun remove(uuid: UUID, tag: ResourceLocation): Boolean {
+    public fun remove(uuid: UUID, tag: Identifier): Boolean {
         val success = this.players.remove(uuid, tag)
         this.tags.remove(tag, uuid)
         if (success) {
@@ -71,22 +71,22 @@ public class MinigameTagManager(
         return success
     }
 
-    public fun remove(player: ServerPlayer, tag: ResourceLocation): Boolean {
+    public fun remove(player: ServerPlayer, tag: Identifier): Boolean {
         return this.remove(player.uuid, tag)
     }
 
-    public fun clear(tag: ResourceLocation) {
+    public fun clear(tag: Identifier) {
         val players = this.tags.removeAll(tag)
         for (player in players) {
             this.remove(player, tag)
         }
     }
 
-    public fun getUUIDsFor(tag: ResourceLocation): Set<UUID> {
+    public fun getUUIDsFor(tag: Identifier): Set<UUID> {
         return this.tags.get(tag)
     }
 
-    public fun getPlayersFor(tag: ResourceLocation): List<ServerPlayer> {
+    public fun getPlayersFor(tag: Identifier): List<ServerPlayer> {
         return this.getUUIDsFor(tag).mapNotNull { this.minigame.server.player(it) }
     }
 
@@ -109,7 +109,7 @@ public class MinigameTagManager(
         for (json in array.objects()) {
             val uuid = json.uuid("uuid")
             val tags = json.array("tags").strings()
-            val parsed = tags.map(ResourceLocation::parse)
+            val parsed = tags.map(Identifier::parse)
             this.players.putAll(uuid, parsed)
             for (tag in parsed) {
                 this.tags.put(tag, uuid)

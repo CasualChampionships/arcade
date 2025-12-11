@@ -14,13 +14,14 @@ import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.TimeArgument
 import net.minecraft.commands.arguments.coordinates.Vec3Argument
+import net.minecraft.server.permissions.PermissionLevel
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 
 object LevelBoundaryCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("boundary") {
-            requiresPermission(2)
+            requiresPermission(PermissionLevel.GAMEMASTERS)
             literal("create") {
                 executes(::createBoundary)
             }

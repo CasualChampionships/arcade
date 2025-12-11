@@ -18,5 +18,5 @@ public data class CommandBlockExecuteEvent(
     val command: String
 ): CancellableEvent.Default(), LocatedLevelEvent {
     override val pos: BlockPos
-        get() = BlockPos.containing(this.commandBlock.position)
+        get() = BlockPos.containing(this.source.position)
 }

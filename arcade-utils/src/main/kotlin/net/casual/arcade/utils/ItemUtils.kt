@@ -15,7 +15,7 @@ import net.minecraft.core.Holder
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.Item
@@ -59,7 +59,7 @@ public object ItemUtils {
     }
 
     @JvmStatic
-    public fun modelled(model: ResourceLocation, item: Item = Items.POPPED_CHORUS_FRUIT): ItemStack {
+    public fun modelled(model: Identifier, item: Item = Items.POPPED_CHORUS_FRUIT): ItemStack {
         return item.modelled(model)
     }
 
@@ -71,12 +71,12 @@ public object ItemUtils {
     }
 
     @JvmStatic
-    public fun Item.modelled(model: ResourceLocation): ItemStack {
+    public fun Item.modelled(model: Identifier): ItemStack {
         return ItemStack(this).modelled(model)
     }
 
     @JvmStatic
-    public fun ItemStack.modelled(model: ResourceLocation): ItemStack {
+    public fun ItemStack.modelled(model: Identifier): ItemStack {
         this.set(DataComponents.ITEM_MODEL, model)
         return this
     }
@@ -164,12 +164,12 @@ public object ItemUtils {
     }
 
     @JvmStatic
-    public fun <T> ItemStack.setFrom(type: DataComponentType<T>, from: ItemStack) {
+    public fun <T: Any> ItemStack.setFrom(type: DataComponentType<T>, from: ItemStack) {
         this.set(type, from.get(type))
     }
 
     @JvmStatic
-    public fun <T> ItemStack.setFrom(type: DataComponentType<T>, from: Item) {
+    public fun <T: Any> ItemStack.setFrom(type: DataComponentType<T>, from: Item) {
         this.set(type, from.components().get(type))
     }
 
@@ -179,7 +179,7 @@ public object ItemUtils {
     }
 
     @JvmStatic
-    public fun ItemStack.setCooldownGroup(group: ResourceLocation): ItemStack {
+    public fun ItemStack.setCooldownGroup(group: Identifier): ItemStack {
         this.set(DataComponents.USE_COOLDOWN, UseCooldown(0.0F, Optional.of(group)))
         return this
     }

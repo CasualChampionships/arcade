@@ -43,7 +43,7 @@ public class BaseFireBlockMixin {
 				List<Mob> entities = serverLevel.getEntitiesOfClass(Mob.class, AABB.of(new BoundingBox(pos)));
 				for (Mob entity : entities) {
 					if (entity.isNoAi()) {
-						state.entityInside(level, pos, entity, ((EntityAccessor) entity).getInsideEffectCollector());
+						state.entityInside(level, pos, entity, ((EntityAccessor) entity).getInsideEffectCollector(), true);
 					}
 				}
 			}

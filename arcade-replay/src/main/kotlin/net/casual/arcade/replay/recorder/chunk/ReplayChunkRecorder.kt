@@ -194,7 +194,7 @@ public class ReplayChunkRecorder internal constructor(
      * @see getStatus
      */
     override fun appendToStatus(builder: ToStringBuilder) {
-        builder.append("chunks_world", this.chunks.level.dimension().location())
+        builder.append("chunks_world", this.chunks.level.dimension().identifier())
         builder.append("chunks_from", this.chunks.from)
         builder.append("chunks_to", this.chunks.to)
     }

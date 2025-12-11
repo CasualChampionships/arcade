@@ -6,7 +6,7 @@ package net.casual.arcade.utils.component
 
 import it.unimi.dsi.fastutil.ints.IntList
 import net.casual.arcade.utils.ColorUtils
-import net.casual.arcade.utils.ResourceLocation
+import net.casual.arcade.utils.Identifier
 import net.casual.arcade.utils.color.ColorARGB
 import net.casual.arcade.utils.color.ColorOklab
 import net.minecraft.ChatFormatting
@@ -17,10 +17,11 @@ import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.HoverEvent.EntityTooltipInfo
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.TextColor
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
 import java.net.URI
+import java.util.*
 
 /**
  * Sets the color of the component to the given [color].
@@ -371,7 +372,7 @@ public fun MutableComponent.font(font: FontDescription): MutableComponent {
  * @param font The resource location of the font to use.
  * @return [this]
  */
-public fun MutableComponent.font(font: ResourceLocation): MutableComponent {
+public fun MutableComponent.font(font: Identifier): MutableComponent {
     return this.font(FontDescription.Resource(font))
 }
 
@@ -383,7 +384,7 @@ public fun MutableComponent.font(font: ResourceLocation): MutableComponent {
  * @return [this]
  */
 public fun MutableComponent.font(namespace: String, path: String): MutableComponent {
-    return this.font(ResourceLocation(namespace, path))
+    return this.font(Identifier(namespace, path))
 }
 
 /**
@@ -395,7 +396,7 @@ public fun MutableComponent.font(namespace: String, path: String): MutableCompon
  */
 public fun Component.grayscale(): MutableComponent {
     return this.mapColors(fun(color): TextColor? {
-        if (color != null) {
+        if (color !== null) {
             return TextColor.fromRgb(ColorUtils.greyscale(color.value))
         }
         return null

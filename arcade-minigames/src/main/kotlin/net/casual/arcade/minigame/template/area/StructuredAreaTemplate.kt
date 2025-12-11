@@ -9,12 +9,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.minigame.area.PlaceableArea
 import net.casual.arcade.minigame.area.StructureArea
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.StructureUtils
 import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.core.Vec3i
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import java.io.IOException
 import java.nio.file.Path
@@ -43,7 +43,7 @@ public class StructuredAreaTemplate(
     }
 
     public companion object: CodecProvider<StructuredAreaTemplate> {
-        override val ID: ResourceLocation = ResourceUtils.arcade("structured")
+        override val ID: Identifier = IdentifierUtils.arcade("structured")
 
         override val CODEC: MapCodec<StructuredAreaTemplate> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(

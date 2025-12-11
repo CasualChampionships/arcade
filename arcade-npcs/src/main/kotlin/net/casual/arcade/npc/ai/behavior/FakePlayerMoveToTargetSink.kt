@@ -139,7 +139,7 @@ public class FakePlayerMoveToTargetSink(
         }
 
         val vec3 = this.getPosTowards(
-            player, 10, 7, Vec3.atBottomCenterOf(blockPos), Math.PI / 2
+            player, 10.0, 7, Vec3.atBottomCenterOf(blockPos), Math.PI / 2
         )
         if (vec3 != null) {
             this.path = player.navigation.createPath(vec3.x, vec3.y, vec3.z, 0)
@@ -150,11 +150,11 @@ public class FakePlayerMoveToTargetSink(
     }
 
     @Suppress("SameParameterValue")
-    private fun getPosTowards(player: FakePlayer, radius: Int, yRange: Int, position: Vec3, amplifier: Double): Vec3? {
+    private fun getPosTowards(player: FakePlayer, radius: Double, yRange: Int, position: Vec3, amplifier: Double): Vec3? {
         val delta = position.subtract(player.x, player.y, player.z)
         return RandomPos.generateRandomPos({
             val pos = RandomPos.generateRandomDirectionWithinRadians(
-                player.random, radius, yRange, 0, delta.x, delta.z, amplifier
+                player.random, radius, radius, yRange, 0, delta.x, delta.z, amplifier
             )
             if (pos == null) null else BlockPos.containing(player.x + pos.x, player.y + pos.y, player.z + pos.z)
         }, { _ -> 0.0 })

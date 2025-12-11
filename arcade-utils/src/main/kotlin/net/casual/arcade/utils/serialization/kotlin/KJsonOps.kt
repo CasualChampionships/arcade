@@ -227,23 +227,23 @@ public object KJsonOps: DynamicOps<JsonElement> {
         }
         val value: BigDecimal = NumberLimits.parseBigDecimal(input.content)
         try {
-            val l = value.longValueExact();
+            val l = value.longValueExact()
             if (l.toByte().toLong() == l) {
-                return outOps.createByte(l.toByte());
+                return outOps.createByte(l.toByte())
             }
             if (l.toShort().toLong() == l) {
-                return outOps.createShort(l.toShort());
+                return outOps.createShort(l.toShort())
             }
             if (l.toInt().toLong() == l) {
-                return outOps.createInt(l.toInt());
+                return outOps.createInt(l.toInt())
             }
-            return outOps.createLong(l);
+            return outOps.createLong(l)
         } catch (e: ArithmeticException) {
             val d = value.toDouble()
             if (d.toFloat().toDouble() == d) {
-                return outOps.createFloat(d.toFloat());
+                return outOps.createFloat(d.toFloat())
             }
-            return outOps.createDouble(d);
+            return outOps.createDouble(d)
         }
     }
 }

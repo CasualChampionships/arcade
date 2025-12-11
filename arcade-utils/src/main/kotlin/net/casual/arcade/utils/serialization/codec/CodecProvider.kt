@@ -6,11 +6,11 @@ package net.casual.arcade.utils.serialization.codec
 
 import com.mojang.serialization.MapCodec
 import net.minecraft.core.Registry
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 @Suppress("PropertyName")
 public interface CodecProvider<T> {
-    public val ID: ResourceLocation
+    public val ID: Identifier
 
     public val CODEC: MapCodec<out T>
 

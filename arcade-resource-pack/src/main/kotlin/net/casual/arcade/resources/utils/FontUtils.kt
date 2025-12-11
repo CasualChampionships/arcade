@@ -12,8 +12,7 @@ import net.casual.arcade.utils.component.font
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.FontDescription
 import net.minecraft.network.chat.MutableComponent
-import net.minecraft.network.chat.Style
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 public fun MutableComponent.withDefaultFont(): MutableComponent {
     return this.font(FontDescription.DEFAULT)
@@ -47,11 +46,11 @@ public fun ComponentBuilderContext.spaced(advance: Float): Component {
 internal object FontUtils {
     val MINI_FONT = arcade("mini_minecraft")
 
-    fun shiftedDownFont(shift: Int): ResourceLocation {
+    fun shiftedDownFont(shift: Int): Identifier {
         return arcade("default_shifted_down_$shift")
     }
 
-    fun miniShiftedDownFont(shift: Int): ResourceLocation {
+    fun miniShiftedDownFont(shift: Int): Identifier {
         return arcade("mini_shifted_down_$shift")
     }
 

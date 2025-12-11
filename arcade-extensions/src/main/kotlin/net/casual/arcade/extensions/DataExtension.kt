@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.extensions
 
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
@@ -59,7 +59,7 @@ public interface DataExtension: Extension {
      *
      * @return The id of your extension.
      */
-    public fun getId(): ResourceLocation
+    public fun getId(): Identifier
 
     /**
      * This method serializes any data in your extension.

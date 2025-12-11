@@ -7,8 +7,9 @@ package net.casual.arcade.dimensions.mixins.vanilla;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.casual.arcade.dimensions.level.vanilla.VanillaLikeLevel;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.entity.projectile.ThrownEnderpearl;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -21,7 +22,7 @@ public class ThrownEnderpearlMixin {
 			target = "Lnet/minecraft/world/level/Level;dimension()Lnet/minecraft/resources/ResourceKey;"
 		)
 	)
-	private ResourceKey<Level> getLikeDimension(ResourceKey<Level> original, Level level) {
+	private ResourceKey<@NotNull Level> getLikeDimension(ResourceKey<@NotNull Level> original, Level level) {
 		return VanillaLikeLevel.getLikeDimension(level);
 	}
 }

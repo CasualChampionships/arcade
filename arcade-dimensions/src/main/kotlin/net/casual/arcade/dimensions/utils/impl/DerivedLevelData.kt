@@ -7,10 +7,11 @@ package net.casual.arcade.dimensions.utils.impl
 import net.casual.arcade.dimensions.level.LevelGenerationOptions
 import net.casual.arcade.dimensions.level.LevelProperties
 import net.minecraft.world.Difficulty
-import net.minecraft.world.level.GameRules
+import net.minecraft.world.level.gamerules.GameRules
 import net.minecraft.world.level.storage.DerivedLevelData
 import net.minecraft.world.level.storage.ServerLevelData
 import net.minecraft.world.level.storage.WorldData
+import org.apache.commons.lang3.mutable.MutableLong
 import org.jetbrains.annotations.ApiStatus.Internal
 
 @Internal
@@ -21,8 +22,7 @@ internal class DerivedLevelData(
     levelData: ServerLevelData
 ): DerivedLevelData(worldData, levelData) {
     override fun getDayTime(): Long {
-        return this.properties.dayTime.map { it.value }
-            .orElseGet { super.getDayTime() }
+        return this.properties.dayTime.map(MutableLong::toLong).orElseGet { super.getDayTime() }
     }
 
     override fun setDayTime(time: Long) {

@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -19,7 +20,8 @@ public class TheEndGatewayBlockEntityMixin {
 		method = "getPortalPosition",
 		at = @At(
 			value = "FIELD",
-			target = "Lnet/minecraft/world/level/Level;END:Lnet/minecraft/resources/ResourceKey;"
+			target = "Lnet/minecraft/world/level/Level;END:Lnet/minecraft/resources/ResourceKey;",
+            opcode = Opcodes.GETSTATIC
 		)
 	)
 	private ResourceKey<Level> replaceEndKey(ResourceKey<Level> original, ServerLevel level) {

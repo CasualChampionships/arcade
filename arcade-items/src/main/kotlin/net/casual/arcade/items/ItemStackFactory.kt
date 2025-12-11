@@ -5,7 +5,7 @@
 package net.casual.arcade.items
 
 import net.minecraft.core.component.DataComponents
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import kotlin.reflect.KProperty
@@ -31,7 +31,7 @@ public fun interface ItemStackFactory {
     public class Modeller internal constructor(public val item: Item) {
         private val factories = ArrayList<ItemStackFactory>()
 
-        public fun modelled(model: ResourceLocation): ItemStackFactory {
+        public fun modelled(model: Identifier): ItemStackFactory {
             val factory = ItemStackFactory {
                 val stack = ItemStack(this.item)
                 stack.set(DataComponents.ITEM_MODEL, model)
@@ -41,7 +41,7 @@ public fun interface ItemStackFactory {
             return factory
         }
 
-        public fun modelled(model: ResourceLocation, modifier: (ItemStack) -> Unit): ItemStackFactory {
+        public fun modelled(model: Identifier, modifier: (ItemStack) -> Unit): ItemStackFactory {
             val factory = ItemStackFactory {
                 val stack = ItemStack(this.item)
                 modifier.invoke(stack)

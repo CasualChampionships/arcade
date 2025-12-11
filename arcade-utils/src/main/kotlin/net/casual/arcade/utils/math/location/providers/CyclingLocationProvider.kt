@@ -6,10 +6,10 @@ package net.casual.arcade.utils.math.location.providers
 
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.casual.arcade.utils.ResourceUtils
+import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.math.location.Location
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 public class CyclingLocationProvider(
     private val locations: List<LocationProvider>
@@ -45,7 +45,7 @@ public class CyclingLocationProvider(
     }
 
     public companion object: CodecProvider<CyclingLocationProvider> {
-        override val ID: ResourceLocation = ResourceUtils.arcade("cycling")
+        override val ID: Identifier = IdentifierUtils.arcade("cycling")
 
         override val CODEC: MapCodec<out CyclingLocationProvider> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(

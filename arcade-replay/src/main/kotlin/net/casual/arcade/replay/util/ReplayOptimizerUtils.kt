@@ -26,7 +26,6 @@ public object ReplayOptimizerUtils {
         ClientboundUpdateAdvancementsPacket::class.java,
         ClientboundSelectAdvancementsTabPacket::class.java,
         ClientboundSetCameraPacket::class.java,
-        ClientboundHorseScreenOpenPacket::class.java,
         ClientboundContainerClosePacket::class.java,
         ClientboundContainerSetSlotPacket::class.java,
         ClientboundContainerSetContentPacket::class.java,

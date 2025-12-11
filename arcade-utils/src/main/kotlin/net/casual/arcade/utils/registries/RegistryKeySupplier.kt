@@ -4,12 +4,12 @@
  */
 package net.casual.arcade.utils.registries
 
+import net.casual.arcade.utils.Identifier
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 
 public abstract class RegistryKeySupplier(private val namespace: String) {
-    protected fun <T> create(path: String): ResourceKey<Registry<T>> {
-        return ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(this.namespace, path))
+    protected fun <T: Any> create(path: String): ResourceKey<Registry<T>> {
+        return ResourceKey.createRegistryKey(Identifier(this.namespace, path))
     }
 }

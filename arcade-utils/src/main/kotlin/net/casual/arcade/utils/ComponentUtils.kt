@@ -14,19 +14,19 @@ import net.minecraft.network.chat.*
 import net.minecraft.network.chat.HoverEvent.EntityTooltipInfo
 import net.minecraft.network.chat.contents.PlainTextContents
 import net.minecraft.network.chat.contents.TranslatableContents
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
 import java.net.URI
 import java.util.*
 import kotlin.reflect.KProperty
 
-@Suppress("DEPRECATION")
+@Suppress("DEPRECATION_ERROR")
 public object ComponentUtils {
-    @Deprecated("Use Component.withSpacingFont() instead")
-    public val SPACING_FONT: ResourceLocation = ResourceUtils.arcade("spacing")
-    @Deprecated("Use Component.withMiniFont() instead")
-    public val MINI_FONT: ResourceLocation = ResourceUtils.arcade("mini_minecraft")
+    @Deprecated("Use Component.withSpacingFont() instead", level = DeprecationLevel.ERROR)
+    public val SPACING_FONT: Identifier = IdentifierUtils.arcade("spacing")
+    @Deprecated("Use Component.withMiniFont() instead", level = DeprecationLevel.ERROR)
+    public val MINI_FONT: Identifier = IdentifierUtils.arcade("mini_minecraft")
 
     private val formattingByColor = Int2ObjectOpenHashMap<ChatFormatting>()
     private val formattingToName: EnumMap<ChatFormatting, String>
@@ -56,11 +56,13 @@ public object ComponentUtils {
         )
     }
 
+    @Deprecated("For removal")
     public fun negativeWidthOf(component: Component): MutableComponent {
         val key = getTranslationKeyOf(component)
         return Component.translatable("$key.negativeWidth").withSpacingFont()
     }
 
+    @Deprecated("For removal")
     public fun widthDifferenceBetween(first: Component, second: Component): MutableComponent {
         val key = "${getTranslationKeyOf(first)}.difference.${getTranslationKeyOf(second).substringAfterLast('.')}"
         return Component.translatable(key).withSpacingFont()
@@ -74,7 +76,7 @@ public object ComponentUtils {
         return contents.key
     }
 
-    @Deprecated("Use replacement", ReplaceWith("component.getWidth()", "net.casual.arcade.utils.component.getWidth"))
+    @Deprecated("Use replacement", ReplaceWith("component.getWidth()", "net.casual.arcade.utils.component.getWidth"), level = DeprecationLevel.ERROR)
     public fun widthOf(component: Component): Int {
         return component.getWidth()
     }
@@ -84,7 +86,8 @@ public object ComponentUtils {
         ReplaceWith(
             "LiteralWidthResolver.width(string)",
             "net.casual.arcade.utils.component.LiteralWidthResolver"
-        )
+        ),
+        level = DeprecationLevel.ERROR
     )
     public fun widthOf(string: String): Int {
         return LiteralWidthResolver.width(string)
@@ -95,7 +98,8 @@ public object ComponentUtils {
         ReplaceWith(
             "LiteralWidthResolver.width(char)",
             "net.casual.arcade.utils.component.LiteralWidthResolver"
-        )
+        ),
+        level = DeprecationLevel.ERROR
     )
     public fun widthOf(char: Char): Int {
         return LiteralWidthResolver.width(char)
@@ -107,7 +111,8 @@ public object ComponentUtils {
         ReplaceWith(
             "Component.literal(this)",
             "net.minecraft.network.chat.Component", "net.casual.arcade.utils.ComponentUtils.literal"
-        )
+        ),
+        level = DeprecationLevel.ERROR
     )
     public fun String.literal(): MutableComponent {
         return Component.literal(this)
@@ -119,14 +124,15 @@ public object ComponentUtils {
             "this.isEmpty()",
             "net.casual.arcade.utils.ComponentUtils.isEmpty",
             "net.casual.arcade.utils.component.isEmpty"
-        )
+        ),
+        level = DeprecationLevel.ERROR
     )
     @JvmStatic
     public fun Component.isEmpty(): Boolean {
         return this.contents == PlainTextContents.EMPTY && this.siblings.all { it.isEmpty() }
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.appendSpaced(
         other: Component,
@@ -141,55 +147,55 @@ public object ComponentUtils {
         return this.append(space).append(other)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun Component.wrap(): MutableComponent {
         return Component.empty().append(this)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.click(event: ClickEvent): MutableComponent {
         return this.withStyle { it.withClickEvent(event) }
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.command(command: String): MutableComponent {
         return this.click(ClickEvent.RunCommand(command))
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.suggestCommand(command: String): MutableComponent {
         return this.click(ClickEvent.SuggestCommand(command))
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.link(link: String): MutableComponent {
         return this.link(URI.create(link))
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.link(link: URI): MutableComponent {
         return this.click(ClickEvent.OpenUrl(link))
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.hover(string: String): MutableComponent {
         return this.hover(Component.literal(string))
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.hover(component: Component): MutableComponent {
         return this.withStyle { it.withHoverEvent(HoverEvent.ShowText(component)) }
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.hover(entity: Entity): MutableComponent {
         return this.withStyle {
@@ -197,55 +203,55 @@ public object ComponentUtils {
         }
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.hover(item: ItemStack): MutableComponent {
         return this.withStyle { it.withHoverEvent(HoverEvent.ShowItem(item)) }
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.bold(): MutableComponent {
         return this.withStyle(BOLD)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.unbold(): MutableComponent {
         return this.withStyle { it.withBold(false) }
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.underline(): MutableComponent {
         return this.withStyle(UNDERLINE)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.noUnderline(): MutableComponent {
         return this.withStyle { it.withUnderlined(false) }
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.italicise(): MutableComponent {
         return this.withStyle(ITALIC)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.unitalicise(): MutableComponent {
         return this.withStyle { it.withItalic(false) }
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.strikethrough(): MutableComponent {
         return this.withStyle(STRIKETHROUGH)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.unstrikethrough(): MutableComponent {
         return this.withStyle { it.withStrikethrough(false) }
@@ -261,115 +267,115 @@ public object ComponentUtils {
         return this.formattingByColor[color]
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.red(): MutableComponent {
         return this.withStyle(RED)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.crimson(): MutableComponent {
         return this.withStyle(DARK_RED)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.navy(): MutableComponent {
         return this.withStyle(DARK_BLUE)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.blue(): MutableComponent {
         return this.withStyle(BLUE)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.aqua(): MutableComponent {
         return this.withStyle(AQUA)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.teal(): MutableComponent {
         return this.withStyle(DARK_AQUA)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.gold(): MutableComponent {
         return this.withStyle(GOLD)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.pink(): MutableComponent {
         return this.withStyle(LIGHT_PURPLE)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.purple(): MutableComponent {
         return this.withStyle(DARK_PURPLE)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.lime(): MutableComponent {
         return this.withStyle(GREEN)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.green(): MutableComponent {
         return this.withStyle(DARK_GREEN)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.yellow(): MutableComponent {
         return this.withStyle(YELLOW)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.white(): MutableComponent {
         return this.withStyle(WHITE)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.grey(): MutableComponent {
         return this.withStyle(GRAY)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.slate(): MutableComponent {
         return this.withStyle(DARK_GRAY)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.black(): MutableComponent {
         return this.withStyle(BLACK)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.color(color: Int): MutableComponent {
         return this.withStyle { it.withColor(color) }
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun MutableComponent.shadow(color: Int): MutableComponent {
         return this.withStyle { it.withShadowColor(color) }
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun Iterable<Component>.join(
         separator: Component = Component.literal(", "),
@@ -379,7 +385,7 @@ public object ComponentUtils {
         return this.joinToComponent(separator, prefix, postfix) { it }
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun <T> Iterable<T>.joinToComponent(
         separator: Component = Component.literal(", "),
@@ -404,7 +410,7 @@ public object ComponentUtils {
         return component
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun Component.greyscale(): MutableComponent {
         return this.mapColours { color ->
@@ -413,7 +419,7 @@ public object ComponentUtils {
         }
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun Component.mapColours(mapper: (TextColor?) -> TextColor?): MutableComponent {
         val copy = this.plainCopy()
@@ -425,7 +431,7 @@ public object ComponentUtils {
         return copy
     }
 
-    @Deprecated("For removal")
+    @Deprecated("For removal", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun Component.toFormattedString(): String {
         val visitor = StringifyVisitor()
@@ -433,7 +439,7 @@ public object ComponentUtils {
         return visitor.toString()
     }
 
-    @Deprecated("For removal")
+    @Deprecated("For removal", level = DeprecationLevel.ERROR)
     @JvmStatic
     public fun Style.toChatFormatting(): Set<ChatFormatting> {
         if (this.isEmpty) {
@@ -468,37 +474,37 @@ public object ComponentUtils {
         return formats
     }
 
-    @Deprecated("Use replacement")
-    public fun MutableComponent.withFont(font: ResourceLocation): MutableComponent {
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
+    public fun MutableComponent.withFont(font: Identifier): MutableComponent {
         return this.withStyle { it.withFont(FontDescription.Resource(font)) }
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     public fun MutableComponent.withDefaultFont(): MutableComponent {
         return this.withStyle { it.withFont(FontDescription.DEFAULT) }
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     public fun MutableComponent.withShiftedDownFont(shift: Int): MutableComponent {
-        return this.withFont(ResourceUtils.arcade("default_shifted_down_${shift}"))
+        return this.withFont(IdentifierUtils.arcade("default_shifted_down_${shift}"))
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     public fun MutableComponent.withMiniShiftedDownFont(shift: Int): MutableComponent {
-        return this.withFont(ResourceUtils.arcade("mini_shifted_down_${shift}"))
+        return this.withFont(IdentifierUtils.arcade("mini_shifted_down_${shift}"))
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     public fun MutableComponent.withSpacingFont(): MutableComponent {
         return this.withFont(SPACING_FONT)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     public fun MutableComponent.shadowless(): MutableComponent {
         return this.shadow(0)
     }
 
-    @Deprecated("Use replacement")
+    @Deprecated("Use replacement", level = DeprecationLevel.ERROR)
     public fun MutableComponent.mini(): MutableComponent {
         return this.withFont(MINI_FONT)
     }
@@ -520,7 +526,7 @@ public object ComponentUtils {
     }
 
     public fun interface ComponentGenerator {
-        public fun generate(vararg args: Any?): MutableComponent
+        public fun generate(vararg args: Any): MutableComponent
     }
 
     public class ConstantComponentGenerator(

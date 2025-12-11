@@ -9,8 +9,9 @@ import com.mojang.serialization.JsonOps
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import net.casual.arcade.resources.sound.SoundProvider.Type.Event
 import net.casual.arcade.resources.sound.SoundProvider.Type.Sound
+import net.casual.arcade.utils.Identifier
 import net.casual.arcade.utils.JsonUtils
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvent
 
 public abstract class SoundResources(
@@ -19,7 +20,7 @@ public abstract class SoundResources(
     private val providers = Object2ObjectLinkedOpenHashMap<String, List<SoundProvider>>()
 
     protected fun sound(
-        location: ResourceLocation,
+        location: Identifier,
         volume: Float = 1.0F,
         pitch: Float = 1.0F,
         stream: Boolean = false,
@@ -30,11 +31,11 @@ public abstract class SoundResources(
     ): SoundEvent {
         val provider = SoundProvider(location, volume, pitch, 1, stream, attenuationDistance, preload, Sound)
         this.providers[id] = listOf(provider)
-        return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, dynamicRange)
+        return this.register(Identifier(this.namespace, id), attenuationDistance, dynamicRange)
     }
 
     protected fun event(
-        location: ResourceLocation,
+        location: Identifier,
         volume: Float = 1.0F,
         pitch: Float = 1.0F,
         stream: Boolean = false,
@@ -45,7 +46,7 @@ public abstract class SoundResources(
     ): SoundEvent {
         val provider = SoundProvider(location, volume, pitch, 1, stream, attenuationDistance, preload, Event)
         this.providers[id] = listOf(provider)
-        return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, dynamicRange)
+        return this.register(Identifier(this.namespace, id), attenuationDistance, dynamicRange)
     }
 
     protected fun group(
@@ -57,11 +58,11 @@ public abstract class SoundResources(
         val grouped = GroupedSoundProvider()
         grouped.builder()
         this.providers[id] = grouped.getProviders()
-        return this.register(ResourceLocation.fromNamespaceAndPath(this.namespace, id), attenuationDistance, dynamicRange)
+        return this.register(Identifier(this.namespace, id), attenuationDistance, dynamicRange)
     }
 
-    protected fun at(path: String): ResourceLocation {
-        return ResourceLocation.fromNamespaceAndPath(this.namespace, path)
+    protected fun at(path: String): Identifier {
+        return Identifier(this.namespace, path)
     }
 
     internal fun toJson(): String {
@@ -76,7 +77,7 @@ public abstract class SoundResources(
         return JsonUtils.MIN_GSON.toJson(json)
     }
 
-    private fun register(id: ResourceLocation, distance: Int, dynamicRange: Boolean): SoundEvent {
+    private fun register(id: Identifier, distance: Int, dynamicRange: Boolean): SoundEvent {
         val sound = if (dynamicRange) {
             SoundEvent.createVariableRangeEvent(id)
         } else {

@@ -3,8 +3,10 @@
   "minVersion": "0.8",
   "package": "net.casual.arcade.dimensions.mixins",
   "compatibilityLevel": "JAVA_17",
+  "mixinextras": {
+    "minVersion": "0.5.0"
+  },
   "mixins": [
-    "command.GameRuleCommandMixin",
     "command.RequiredArgumentBuilderMixin",
     "level.CommonPlayerSpawnInfoMixin",
     "level.MinecraftServerAccessor",
@@ -13,7 +15,6 @@
     "level.ServerLevelAccessor",
     "level.ServerLevelMixin",
     "level.ServerPlayerMixin",
-    "level.ServerWaypointManagerMixin",
     "level.spawning.LocalMobCapCalculatorMixin",
     "level.spawning.MobCountsMixin",
     "level.spawning.NaturalSpawnerAccessor",
