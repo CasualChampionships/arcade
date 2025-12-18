@@ -23,9 +23,8 @@ loom {
     accessWidenerPath.set(file("src/main/resources/arcade-replay.accesswidener"))
 }
 
-components {
-    val component = getByName<AdhocComponentWithVariants>("java")
-    component.withVariantsFromConfiguration(configurations.shadowRuntimeElements.get()) { skip() }
+configurations.named("shadowRuntimeElements") {
+    artifacts.clear()
 }
 
 tasks {

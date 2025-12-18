@@ -20,7 +20,7 @@ vmp           = "0.2.0+beta.7.210+1.21.9-pre1"
 c2me          = "0.3.5+alpha.0.28+1.21.9-pre3"
 
 # Plugins
-fabric-loom = "1.13-SNAPSHOT"
+fabric-loom = "1.14-SNAPSHOT"
 spotless    = "8.1.0"
 shadow      = "9.3.0"
 explosion   = "0.3.1"
