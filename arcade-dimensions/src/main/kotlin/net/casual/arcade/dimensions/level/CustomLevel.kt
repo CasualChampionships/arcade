@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.dimensions.level
 
+import com.mojang.serialization.Dynamic
 import net.casual.arcade.dimensions.ArcadeDimensions
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.level.factory.CustomLevelFactory
@@ -14,14 +15,18 @@ import net.casual.arcade.dimensions.utils.LevelPersistenceTracker
 import net.casual.arcade.dimensions.utils.getDimensionPath
 import net.casual.arcade.dimensions.utils.impl.DerivedLevelData
 import net.casual.arcade.utils.ArcadeUtils
+import net.minecraft.SharedConstants
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtIo
 import net.minecraft.nbt.NbtOps
+import net.minecraft.nbt.NbtUtils
 import net.minecraft.resources.RegistryOps
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.ProgressListener
+import net.minecraft.util.datafix.DataFixTypes
+import net.minecraft.util.datafix.fixes.References
 import net.minecraft.world.Difficulty
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.TicketStorage
@@ -35,6 +40,7 @@ import java.util.*
 import java.util.concurrent.Executor
 import kotlin.collections.ArrayList
 import kotlin.io.path.createParentDirectories
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * Custom [ServerLevel] implementation allowing for
@@ -155,7 +161,7 @@ public open class CustomLevel(
             val compound = CompoundTag()
             val ops = RegistryOps.create(NbtOps.INSTANCE, this.registryAccess())
             compound.put("factory", CustomLevelFactory.CODEC.encodeStart(ops, this.factory).orThrow)
-
+            NbtUtils.addCurrentDataVersion(compound)
             val path = getDimensionDataPath(this.server, this.dimension())
             path.createParentDirectories()
             NbtIo.write(compound, path)
@@ -196,7 +202,7 @@ public open class CustomLevel(
         public fun read(server: MinecraftServer, dimension: ResourceKey<Level>): CustomLevel? {
             val path = this.getDimensionDataPath(server, dimension)
             try {
-                val compound = NbtIo.read(path) ?: return null
+                val compound = this.readDimensionData(server, path) ?: return null
                 val ops = RegistryOps.create(NbtOps.INSTANCE, server.registryAccess())
                 val factory = CustomLevelFactory.CODEC.parse(ops, compound.get("factory")).orThrow
                 return factory.create(server, dimension)
@@ -204,6 +210,26 @@ public open class CustomLevel(
                 ArcadeUtils.logger.error("Failed to load custom level data", e)
                 return null
             }
+        }
+
+        private fun readDimensionData(server: MinecraftServer, path: Path): CompoundTag? {
+            val compound = NbtIo.read(path) ?: return null
+            var version = NbtUtils.getDataVersion(compound)
+            if (version == -1) {
+                version = 4440
+
+                val properties = compound.getCompound("factory")
+                    .flatMap { factory -> factory.getCompound("properties") }
+                    .getOrNull() ?: return compound
+                val rules = properties.getCompound("game_rules").getOrNull() ?: return compound
+
+                val copy = CompoundTag()
+                copy.put("GameRules", rules)
+                val fixed = DataFixTypes.LEVEL.updateToCurrentVersion(server.fixerUpper, copy, version)
+                properties.put("game_rules", fixed.getCompoundOrEmpty("game_rules"))
+                return compound
+            }
+            return compound
         }
 
         private fun getDimensionDataPath(server: MinecraftServer, dimension: ResourceKey<Level>): Path {
