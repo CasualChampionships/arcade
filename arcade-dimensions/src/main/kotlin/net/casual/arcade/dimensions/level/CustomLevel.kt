@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.dimensions.level
 
-import com.mojang.serialization.Dynamic
 import net.casual.arcade.dimensions.ArcadeDimensions
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.level.factory.CustomLevelFactory
@@ -15,7 +14,6 @@ import net.casual.arcade.dimensions.utils.LevelPersistenceTracker
 import net.casual.arcade.dimensions.utils.getDimensionPath
 import net.casual.arcade.dimensions.utils.impl.DerivedLevelData
 import net.casual.arcade.utils.ArcadeUtils
-import net.minecraft.SharedConstants
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtIo
 import net.minecraft.nbt.NbtOps
@@ -26,7 +24,6 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.ProgressListener
 import net.minecraft.util.datafix.DataFixTypes
-import net.minecraft.util.datafix.fixes.References
 import net.minecraft.world.Difficulty
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.TicketStorage
@@ -38,7 +35,6 @@ import java.io.IOException
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.Executor
-import kotlin.collections.ArrayList
 import kotlin.io.path.createParentDirectories
 import kotlin.jvm.optionals.getOrNull
 
