@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(FlowingFluid.class)
 public class FlowingFluidMixin {
 	@ModifyReturnValue(
-		method = "canMaybePassThrough",
+		method = "canMaybePassThrough(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/Direction;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/material/FluidState;)Z",
 		at = @At("RETURN")
 	)
 	private boolean onCanSpreadTo(

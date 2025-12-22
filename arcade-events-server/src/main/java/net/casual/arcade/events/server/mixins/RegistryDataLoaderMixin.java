@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(RegistryDataLoader.class)
 public class RegistryDataLoaderMixin {
 	@Inject(
-		method = "loadContentsFromManager",
+		method = "loadContentsFromManager(Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/resources/RegistryOps$RegistryInfoLookup;Lnet/minecraft/core/WritableRegistry;Lcom/mojang/serialization/Decoder;Ljava/util/Map;)V",
 		at = @At("TAIL")
 	)
 	private static <E> void onLoadRegistry(
