@@ -24,7 +24,7 @@ import java.util.Optional;
 @Mixin(Scoreboard.class)
 public class ScoreboardMixin {
     @Inject(
-        method = "loadPlayerTeam",
+        method = "loadPlayerTeam(Lnet/minecraft/world/scores/PlayerTeam$Packed;)V",
         at = @At("TAIL")
     )
     private void onLoadPlayerTeam(
