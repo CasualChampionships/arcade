@@ -13,15 +13,15 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ClientboundLevelChunkPacketData.BlockEntityInfo.class)
 public interface BlockEntityInfoAccessor {
-    @Accessor
+    @Accessor("packedXZ")
     int getPackedXZ();
 
-    @Accessor
+    @Accessor("y")
     int getY();
 
-    @Accessor
+    @Accessor("type")
     BlockEntityType<?> getType();
 
-    @Accessor
+    @Accessor("tag")
     @Nullable CompoundTag getTag();
 }
