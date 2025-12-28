@@ -5,6 +5,7 @@
 package net.casual.arcade.dimensions.mixins.level;
 
 import com.google.common.collect.Lists;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.casual.arcade.dimensions.ArcadeDimensions;
 import net.casual.arcade.dimensions.level.CustomLevel;
 import net.casual.arcade.dimensions.utils.LevelPersistenceTracker;
@@ -21,6 +22,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(MinecraftServer.class)
 public abstract class MinecraftServerMixin {
 	@Shadow public abstract Iterable<ServerLevel> getAllLevels();
+
+	@ModifyExpressionValue(
+		method = "tickChildren",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/MinecraftServer;getAllLevels()Ljava/lang/Iterable;"
+		)
+	)
+	private Iterable<ServerLevel> copyLevelIterable(Iterable<ServerLevel> original) {
+		// We do this in the case that someone adds a level
+		// during the world tick phase which would normally throw a CME
+		return Lists.newArrayList(original);
+	}
 
 	@Inject(
 		method = "createLevels",
