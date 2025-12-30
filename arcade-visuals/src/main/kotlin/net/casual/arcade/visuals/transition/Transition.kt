@@ -14,12 +14,21 @@ import kotlin.math.roundToInt
 
 public interface Transition {
     @OverrideOnly
-    public fun beforeTransition(players: Collection<ServerPlayer>, interval: MinecraftTimeDuration) {
+    public fun beforeTransition(
+        players: Collection<ServerPlayer>,
+        interval: MinecraftTimeDuration,
+        updates: Int
+    ) {
 
     }
 
     @OverrideOnly
-    public fun updateTransition(players: Collection<ServerPlayer>, current: Int, remaining: MinecraftTimeDuration)
+    public fun updateTransition(
+        players: Collection<ServerPlayer>,
+        current: Int,
+        total: Int,
+        remaining: MinecraftTimeDuration
+    )
 
     @OverrideOnly
     public fun afterTransition(players: Collection<ServerPlayer>) {
@@ -33,10 +42,11 @@ public interface Transition {
         players: () -> Collection<ServerPlayer>
     ) {
         var remaining = duration
-        var current = (remaining / interval).roundToInt()
-        this.beforeTransition(players.invoke(), interval)
+        val total = (remaining / interval).roundToInt()
+        var current = total
+        this.beforeTransition(players.invoke(), interval, total)
         while (remaining > MinecraftTimeDuration.ZERO) {
-            this.updateTransition(players.invoke(), current--, remaining)
+            this.updateTransition(players.invoke(), current--, total, remaining)
             remaining -= interval
             if (remaining > MinecraftTimeDuration.ZERO) {
                 delay(interval)

@@ -45,7 +45,11 @@ public interface TitledCountdown: Transition {
         )
     }
 
-    override fun beforeTransition(players: Collection<ServerPlayer>, interval: MinecraftTimeDuration) {
+    override fun beforeTransition(
+        players: Collection<ServerPlayer>,
+        interval: MinecraftTimeDuration,
+        updates: Int
+    ) {
         for (player in players) {
             player.setTitleAnimation(0.Ticks, interval * 2, 0.Ticks)
         }
