@@ -61,9 +61,10 @@ public interface TitledCountdown: Transition {
         total: Int,
         remaining: MinecraftTimeDuration
     ) {
-        val title = this.getCountdownTitle(current)
-        val subtitle = this.getCountdownSubtitle(current)
-        val sound = this.getCountdownSound(current)
+        val index = total - current
+        val title = this.getCountdownTitle(index)
+        val subtitle = this.getCountdownSubtitle(index)
+        val sound = this.getCountdownSound(index)
         for (player in players) {
             player.sendTitle(title, subtitle)
             if (sound != null) {
@@ -73,9 +74,7 @@ public interface TitledCountdown: Transition {
     }
 
     override fun afterTransition(players: Collection<ServerPlayer>) {
-        for (player in players) {
-            player.clearTitle()
-        }
+
     }
 
     public companion object {

@@ -43,10 +43,10 @@ public interface Transition {
     ) {
         var remaining = duration
         val total = (remaining / interval).roundToInt()
-        var current = total
+        var current = 0
         this.beforeTransition(players.invoke(), interval, total)
         while (remaining > MinecraftTimeDuration.ZERO) {
-            this.updateTransition(players.invoke(), current--, total, remaining)
+            this.updateTransition(players.invoke(), current++, total, remaining)
             remaining -= interval
             if (remaining > MinecraftTimeDuration.ZERO) {
                 delay(interval)
