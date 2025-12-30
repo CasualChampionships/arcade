@@ -7,7 +7,7 @@ package net.casual.arcade.visuals.camera
 import eu.pb4.polymer.virtualentity.api.ElementHolder
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils
 import eu.pb4.polymer.virtualentity.api.attachment.ManualAttachment
-import eu.pb4.polymer.virtualentity.api.elements.SimpleEntityElement
+import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement
 import net.casual.arcade.utils.ClientboundPlayerInfoUpdatePacket
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
@@ -25,7 +25,6 @@ import net.minecraft.network.protocol.game.ClientboundSetCameraPacket
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.entity.EntityType
 import net.minecraft.world.level.GameType
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
@@ -39,13 +38,20 @@ public class PlayerCamera(
 ): TrackingVisualElement(), TickableVisualElement {
     private val holder = ElementHolder()
     private val attachment = ManualAttachment(this.holder, this.level, this::position)
-    private val element = SimpleEntityElement(EntityType.ARMOR_STAND)
+    private val element = ItemDisplayElement()
+
+    private var path: CameraPath? = null
+    private var loop: Boolean = false
+    private var progress = -1
 
     public constructor(location: LocationWithLevel<ServerLevel>): this(location.level, location.position, location.rotation)
 
     init {
         this.holder.addElement(this.element)
         this.setRotation(rotation)
+
+        this.element.teleportDuration = 3
+        this.element.startInterpolation = 0
     }
 
     public fun setPosition(position: Vec3) {
@@ -62,6 +68,19 @@ public class PlayerCamera(
         this.setRotation(location.rotation)
     }
 
+    public fun setPath(path: CameraPath) {
+        this.path = path
+    }
+
+    public fun startPath(loop: Boolean = this.loop) {
+        this.progress = 0
+        this.loop = loop
+    }
+
+    public fun stopPath() {
+        this.progress = -1
+    }
+
     public fun destroy() {
         this.attachment.destroy()
     }
@@ -73,6 +92,8 @@ public class PlayerCamera(
 
     override fun tick(server: MinecraftServer) {
         this.holder.tick()
+
+        this.tickPath()
     }
 
     override fun onAddPlayer(player: ServerPlayer) {
@@ -104,5 +125,43 @@ public class PlayerCamera(
             Entry(player.uuid, null, false, 0, gamemode, null, false, 0, null)
         )
         player.connection.send(ClientboundPlayerInfoUpdatePacket(action, entry))
+    }
+
+    private fun tickPath() {
+        val path = this.path ?: return
+        if (this.progress < 0) {
+            return
+        }
+
+        val keyframes = path.keyframes
+        val times = path.times
+
+        var index = 0
+        while (index < times.size - 2) {
+            if (this.progress < times[index + 1]) {
+                break
+            }
+            index++
+        }
+
+        val nextIndex = index + 1
+        val targetKeyframe = keyframes[nextIndex]
+
+        val startTick = times[index]
+        val segmentDuration = targetKeyframe.duration.ticks
+        val ticksIntoSegment = this.progress - startTick
+        val segmentProgress = if (segmentDuration <= 0) 1.0F else ticksIntoSegment.toFloat() / segmentDuration.toFloat()
+
+        val target = path.interpolator.interpolate(path, index, this.progress.toDouble(), segmentProgress)
+
+        this.setLocation(target)
+
+        if (++this.progress >= path.duration.ticks) {
+            if (this.loop) {
+                this.progress = 0
+            } else {
+                this.stopPath()
+            }
+        }
     }
 }
