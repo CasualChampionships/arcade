@@ -55,7 +55,12 @@ public interface TitledCountdown: Transition {
         }
     }
 
-    override fun updateTransition(players: Collection<ServerPlayer>, current: Int, remaining: MinecraftTimeDuration) {
+    override fun updateTransition(
+        players: Collection<ServerPlayer>,
+        current: Int,
+        total: Int,
+        remaining: MinecraftTimeDuration
+    ) {
         val title = this.getCountdownTitle(current)
         val subtitle = this.getCountdownSubtitle(current)
         val sound = this.getCountdownSound(current)
