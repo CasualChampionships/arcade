@@ -11,6 +11,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import net.casual.arcade.scheduler.MinecraftTaskScheduler
 import net.casual.arcade.scheduler.task.impl.CancellableTask
+import net.casual.arcade.utils.ServerUtils
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.scheduler.MinecraftSchedulerHolder
 import net.casual.arcade.utils.time.MinecraftTimeDuration
@@ -25,7 +26,11 @@ private class MinecraftSchedulerDispatcher(
     override val scheduler: MinecraftTaskScheduler
 ): CoroutineDispatcher(), Delay, MinecraftSchedulerHolder {
     override fun dispatch(context: CoroutineContext, block: Runnable) {
-        scheduler.schedule(MinecraftTimeDuration.ZERO) { block.run() }
+        if (!ServerUtils.isOnServerThread()) {
+            scheduler.schedule(MinecraftTimeDuration.ZERO) { block.run() }
+        } else {
+            block.run()
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

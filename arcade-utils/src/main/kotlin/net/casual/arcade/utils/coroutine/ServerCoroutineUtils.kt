@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.await
+import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.scheduler.MinecraftSchedulerHolder
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.server.MinecraftServer
@@ -59,7 +60,7 @@ public suspend fun delay(duration: MinecraftTimeDuration): Unit = coroutineScope
     val interceptor = coroutineContext[ContinuationInterceptor]
     if (interceptor is MinecraftSchedulerHolder) {
         return@coroutineScope suspendCancellableCoroutine { cont ->
-            interceptor.scheduler.schedule(duration) {
+            interceptor.scheduler.schedule(duration - 1.Ticks) {
                 cont.resume(Unit)
             }
         }
@@ -69,7 +70,7 @@ public suspend fun delay(duration: MinecraftTimeDuration): Unit = coroutineScope
         ?: throw IllegalStateException("Cannot run tickDelay on non-minecraft coroutine")
     val server = context.server
     val delays = delays.getOrPut(server, ::Int2ObjectOpenHashMap)
-    val global = ticks.getInt(server) + duration.ticks
+    val global = ticks.getInt(server) + duration.ticks - 1
     val queue = delays.getOrPut(global) { ArrayDeque(1) }
     val deferred = CompletableDeferred<Unit>()
     queue.add(deferred)
