@@ -36,7 +36,8 @@ object ArcadeTest: ModInitializer {
                 PlayerHeadCommand,
                 ReplayCommand,
                 ExtensionTestCommand,
-                PlayerCameraTestCommand
+                PlayerCameraTestCommand,
+                TransitionTestCommand
             )
         }
 

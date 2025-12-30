@@ -4,9 +4,11 @@
  */
 package net.casual.arcade.minigame.lobby
 
+import kotlinx.coroutines.withContext
 import net.casual.arcade.minigame.phase.Phase
-import net.casual.arcade.minigame.utils.MinigameUtils.countdown
+import net.casual.arcade.scheduler.utils.asCoroutineDispatcher
 import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.coroutine.launch
 import net.minecraft.world.level.GameType
 import net.minecraft.world.scores.Team
 
@@ -39,8 +41,11 @@ public enum class LobbyPhase(override val id: String): Phase<LobbyMinigame> {
                 return
             }
 
-            minigame.visuals.countdown.countdown(minigame).then {
-                minigame.setPhase(Phase.end())
+            minigame.server.launch {
+                withContext(minigame.scheduler.asPhasedScheduler().asCoroutineDispatcher()) {
+                    minigame.visuals.countdown.transition(players = minigame.players::all)
+                    minigame.setPhase(Phase.end())
+                }
             }
             for (team in minigame.teams.getAllTeams()) {
                 team.collisionRule = Team.CollisionRule.ALWAYS

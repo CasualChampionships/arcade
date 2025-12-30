@@ -9,6 +9,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.serialization.JsonOps
+import kotlinx.coroutines.withContext
 import net.casual.arcade.commands.*
 import net.casual.arcade.commands.arguments.EnumArgument
 import net.casual.arcade.minigame.Minigame
@@ -17,16 +18,18 @@ import net.casual.arcade.minigame.commands.arguments.*
 import net.casual.arcade.minigame.commands.arguments.MinigameSettingsOptionArgument.Companion.INVALID_SETTING_OPTION
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.utils.AdvancementModifier
-import net.casual.arcade.minigame.utils.MinigameUtils.countdown
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.minigame.utils.RecipeModifier
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.task.Task
+import net.casual.arcade.scheduler.utils.asCoroutineDispatcher
 import net.casual.arcade.utils.JsonUtils
+import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.chat.ChatFormatter
 import net.casual.arcade.utils.component.green
 import net.casual.arcade.utils.component.join
 import net.casual.arcade.utils.component.suggestCommand
+import net.casual.arcade.utils.coroutine.launch
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.casual.arcade.utils.time.MinecraftTimeUnit
 import net.minecraft.commands.CommandBuildContext
@@ -806,8 +809,11 @@ internal object MinigameCommand: CommandTree {
 
         // We must use the global scheduler, because the minigame scheduler is paused
         val scheduler = GlobalTickedScheduler.temporaryScheduler(duration)
-        minigame.visuals.countdown.countdown(minigame, duration, scheduler = scheduler).then {
-            minigame.unpause()
+        context.source.server.launch {
+            withContext(scheduler.asCoroutineDispatcher()) {
+                minigame.visuals.countdown.transition(duration, players = minigame.players::all)
+                minigame.unpause()
+            }
         }
         context.source.success(Component.translatable("minigame.command.unpause.countdown.success"))
         return context.source.success {

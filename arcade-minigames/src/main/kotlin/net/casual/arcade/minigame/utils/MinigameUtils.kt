@@ -7,6 +7,9 @@ package net.casual.arcade.minigame.utils
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
@@ -26,8 +29,9 @@ import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.settings.MinigameSettings
-import net.casual.arcade.scheduler.MinecraftScheduler
+import net.casual.arcade.scheduler.MinecraftTaskScheduler
 import net.casual.arcade.scheduler.task.Completable
+import net.casual.arcade.scheduler.utils.asCoroutineDispatcher
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.component.gold
 import net.casual.arcade.utils.component.lime
@@ -123,11 +127,12 @@ public object MinigameUtils {
      * @return A [Completable] that will complete when the countdown is finished.
      */
     @JvmStatic
+    @Deprecated("Use Transition.transition")
     public fun Countdown.countdown(
         minigame: Minigame,
         duration: MinecraftTimeDuration = 10.Seconds,
         interval: MinecraftTimeDuration = 1.Seconds,
-        scheduler: MinecraftScheduler = minigame.scheduler.asPhasedScheduler(),
+        scheduler: MinecraftTaskScheduler = minigame.scheduler.asPhasedScheduler(),
         players: () -> Collection<ServerPlayer> = minigame.players::all
     ): Completable {
         return this.countdown(duration, interval, scheduler, players)

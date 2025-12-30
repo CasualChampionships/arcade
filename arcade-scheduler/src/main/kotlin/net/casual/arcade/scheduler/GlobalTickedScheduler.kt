@@ -13,19 +13,19 @@ import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 
 /**
- * This is a global implementation of a [TickedScheduler], you
+ * This is a global implementation of a [TickedTaskScheduler], you
  * can schedule any [Task]s here, and they will be
  * run later.
  *
- * However, it is advised that you use your own [MinecraftScheduler]
+ * However, it is advised that you use your own [MinecraftTaskScheduler]
  * as it allows you more flexibility.
  *
- * @see MinecraftScheduler
- * @see TickedScheduler
+ * @see MinecraftTaskScheduler
+ * @see TickedTaskScheduler
  */
 public object GlobalTickedScheduler {
-    private val schedulers = ArrayList<TickedScheduler>()
-    private val scheduler = TickedScheduler()
+    private val schedulers = ArrayList<TickedTaskScheduler>()
+    private val scheduler = TickedTaskScheduler()
 
     init {
         GlobalEventHandler.Server.register<ServerTickEvent>(phase = POST) {
@@ -36,7 +36,7 @@ public object GlobalTickedScheduler {
         }
     }
 
-    public fun get(): MinecraftScheduler {
+    public fun get(): MinecraftTaskScheduler {
         return this.scheduler
     }
 
@@ -91,11 +91,12 @@ public object GlobalTickedScheduler {
     @JvmName("temporaryScheduler")
     public fun temporaryScheduler(
         lifetime: MinecraftTimeDuration
-    ): TickedScheduler {
-        val temporary = TickedScheduler()
+    ): TickedTaskScheduler {
+        val temporary = TickedTaskScheduler()
         this.schedulers.add(temporary)
         this.schedule(lifetime + 1.Ticks) {
             this.schedulers.remove(temporary)
+            temporary.cancelAll()
         }
         return temporary
     }
