@@ -54,7 +54,10 @@ public class MinecraftServerMixin {
 
 	@Inject(
 		method = "tickServer",
-		at = @At("HEAD")
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/MinecraftServer;tickChildren(Ljava/util/function/BooleanSupplier;)V"
+		)
 	)
 	private void preTick(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
 		ServerTickEvent event = new ServerTickEvent((MinecraftServer) (Object) this);

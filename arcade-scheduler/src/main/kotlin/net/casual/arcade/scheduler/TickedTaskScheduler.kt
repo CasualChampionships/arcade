@@ -19,15 +19,18 @@ import net.casual.arcade.utils.time.MinecraftTimeDuration
 import java.util.*
 import java.util.function.IntFunction
 
+@Deprecated("Use TickedTaskScheduler instead")
+public typealias TickedScheduler = TickedTaskScheduler
+
 /**
- * This class is an implementation of [MinecraftScheduler] which
+ * This class is an implementation of [MinecraftTaskScheduler] which
  * allows you to schedule [Task]s for a later time on the
  * main server thread.
  *
- * @see MinecraftScheduler
+ * @see MinecraftTaskScheduler
  * @see GlobalTickedScheduler
  */
-public class TickedScheduler: MinecraftScheduler {
+public class TickedTaskScheduler: MinecraftTaskScheduler {
     private val tasks: Int2ObjectMap<Queue<Task>> = Int2ObjectOpenHashMap()
     private var tickCount = 0
 
@@ -81,13 +84,13 @@ public class TickedScheduler: MinecraftScheduler {
 
     /**
      * This method will schedule a [task] to be run
-     * after a given [duration].
+     * after a given [delay].
      *
-     * @param duration The duration to wait before running the [task].
+     * @param delay The duration to wait before running the [task].
      * @param task The task to be scheduled.
      */
-    override fun schedule(duration: MinecraftTimeDuration, task: Task) {
-        this.tasks.computeIfAbsent(this.tickCount + duration.ticks, IntFunction { ArrayDeque() }).add(task)
+    override fun schedule(delay: MinecraftTimeDuration, task: Task) {
+        this.tasks.computeIfAbsent(this.tickCount + delay.ticks, IntFunction { ArrayDeque() }).add(task)
     }
 
     public fun serialize(context: TaskSerializationContext): JsonArray {

@@ -5,8 +5,8 @@
 package net.casual.arcade.minigame.managers
 
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.scheduler.MinecraftScheduler
-import net.casual.arcade.scheduler.TickedScheduler
+import net.casual.arcade.scheduler.MinecraftTaskScheduler
+import net.casual.arcade.scheduler.TickedTaskScheduler
 import net.casual.arcade.scheduler.task.SavableTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.impl.CancellableTask
@@ -14,7 +14,7 @@ import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.utils.time.MinecraftTimeUnit
 
 /**
- * This is an implementation of [MinigameScheduler] that allows for
+ * This is an implementation of [MinigameTaskScheduler] that allows for
  * scheduling for a minigame as well as each phase of the minigame.
  *
  * If you schedule a task and the minigame ends, then the task will
@@ -25,19 +25,19 @@ import net.casual.arcade.utils.time.MinecraftTimeUnit
  * All [SavableTask]s that are scheduled, either to the minigame or
  * to a minigame phase, will be saved if your minigame is serializable.
  *
- * @see MinecraftScheduler
+ * @see MinecraftTaskScheduler
  * @see Minigame
  */
-public class MinigameScheduler: MinecraftScheduler {
-    internal val minigame = TickedScheduler()
-    internal val phased = TickedScheduler()
+public class MinigameTaskScheduler: MinecraftTaskScheduler {
+    internal val minigame = TickedTaskScheduler()
+    internal val phased = TickedTaskScheduler()
 
     /**
      * This returns the phased scheduler.
      *
      * @return The phased scheduler.
      */
-    public fun asPhasedScheduler(): MinecraftScheduler {
+    public fun asPhasedScheduler(): MinecraftTaskScheduler {
         return this.phased
     }
 
@@ -48,13 +48,13 @@ public class MinigameScheduler: MinecraftScheduler {
 
     /**
      * This method will schedule a [task] to be run
-     * after a given [duration].
+     * after a given [delay].
      *
-     * @param duration The duration to wait before running the [task].
+     * @param delay The duration to wait before running the [task].
      * @param task The runnable to be scheduled.
      */
-    override fun schedule(duration: MinecraftTimeDuration, task: Task) {
-        this.minigame.schedule(duration, task)
+    override fun schedule(delay: MinecraftTimeDuration, task: Task) {
+        this.minigame.schedule(delay, task)
     }
 
     /**

@@ -17,11 +17,11 @@ import net.casual.arcade.minigame.ready.ReadyChecker
 import net.casual.arcade.visuals.bossbar.CustomBossbar
 import net.casual.arcade.visuals.core.VisualElement
 import net.casual.arcade.visuals.core.TickableVisualElement
-import net.casual.arcade.visuals.countdown.Countdown
-import net.casual.arcade.visuals.countdown.TitledCountdown
 import net.casual.arcade.visuals.nametag.PlayerNametag
 import net.casual.arcade.visuals.sidebar.Sidebar
 import net.casual.arcade.visuals.tab.PlayerListDisplay
+import net.casual.arcade.visuals.transition.TitledCountdown
+import net.casual.arcade.visuals.transition.Transition
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
@@ -48,7 +48,7 @@ public class MinigameVisualsManager(
     private var sidebar: Sidebar? = null
     private var display: PlayerListDisplay? = null
 
-    public var countdown: Countdown = TitledCountdown.titled()
+    public var countdown: Transition = TitledCountdown.titled()
     public var readier: ReadyChecker = ReadyChecker(
         MinigamePlayerReadyHandler(this.minigame),
         MinigameTeamReadyHandler(this.minigame)

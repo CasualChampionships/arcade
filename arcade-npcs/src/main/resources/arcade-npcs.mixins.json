@@ -16,6 +16,7 @@
     "PlayerMixin",
     "ServerEntityMixin",
     "ServerLoginPacketListenerImplAccessor",
+    "bugfixes.TrackedEntityMixin",
     "configuration.PrepareSpawnTaskAccessor",
     "configuration.PrepareSpawnTaskReadyMixin",
     "pathfinding.PathfindingContextAccessor"

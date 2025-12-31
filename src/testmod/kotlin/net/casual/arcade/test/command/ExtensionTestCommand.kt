@@ -12,9 +12,9 @@ import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument
 
-object TestExtensionCommand: CommandTree {
+object ExtensionTestCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
-        return CommandTree.buildLiteral("test-extension") {
+        return CommandTree.buildLiteral("extension-test") {
             literal("get") {
                 argument("entity", EntityArgument.entity()) {
                     executes(::getExtensionValue)

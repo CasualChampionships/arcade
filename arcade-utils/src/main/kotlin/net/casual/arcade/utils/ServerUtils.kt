@@ -48,6 +48,11 @@ public object ServerUtils {
     }
 
     @JvmStatic
+    public fun isOnServerThread(): Boolean {
+        return this.getServerOrNull()?.isSameThread ?: false
+    }
+
+    @JvmStatic
     public fun getRegistryAccessOrEmpty(): RegistryAccess {
         return this.getServerOrNull()?.registryAccess() ?: RegistryAccess.EMPTY
     }

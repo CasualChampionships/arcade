@@ -2,7 +2,7 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.visuals.countdown
+package net.casual.arcade.visuals.transition
 
 import net.casual.arcade.utils.component.bold
 import net.casual.arcade.utils.component.lime
@@ -20,8 +20,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
-@Deprecated("Use transition.TitledCountdown instead")
-public interface TitledCountdown: Countdown {
+public interface TitledCountdown: Transition {
     @OverrideOnly
     public fun getCountdownTitle(current: Int): Component {
         return DEFAULT_TITLE
@@ -46,16 +45,26 @@ public interface TitledCountdown: Countdown {
         )
     }
 
-    override fun beforeCountdown(players: Collection<ServerPlayer>, interval: MinecraftTimeDuration) {
+    override fun beforeTransition(
+        players: Collection<ServerPlayer>,
+        interval: MinecraftTimeDuration,
+        updates: Int
+    ) {
         for (player in players) {
             player.setTitleAnimation(0.Ticks, interval * 2, 0.Ticks)
         }
     }
 
-    override fun sendCountdown(players: Collection<ServerPlayer>, current: Int, remaining: MinecraftTimeDuration) {
-        val title = this.getCountdownTitle(current)
-        val subtitle = this.getCountdownSubtitle(current)
-        val sound = this.getCountdownSound(current)
+    override fun updateTransition(
+        players: Collection<ServerPlayer>,
+        current: Int,
+        total: Int,
+        remaining: MinecraftTimeDuration
+    ) {
+        val index = total - current
+        val title = this.getCountdownTitle(index)
+        val subtitle = this.getCountdownSubtitle(index)
+        val sound = this.getCountdownSound(index)
         for (player in players) {
             player.sendTitle(title, subtitle)
             if (sound != null) {
@@ -64,17 +73,15 @@ public interface TitledCountdown: Countdown {
         }
     }
 
-    override fun afterCountdown(players: Collection<ServerPlayer>) {
-        for (player in players) {
-            player.clearTitle()
-        }
+    override fun afterTransition(players: Collection<ServerPlayer>) {
+
     }
 
     public companion object {
         @JvmField
         public val DEFAULT_TITLE: Component = Component.literal("Starting In:").bold()
 
-        public fun titled(title: Component = DEFAULT_TITLE): Countdown {
+        public fun titled(title: Component = DEFAULT_TITLE): TitledCountdown {
             return object: TitledCountdown {
                 override fun getCountdownTitle(current: Int): Component {
                     return title

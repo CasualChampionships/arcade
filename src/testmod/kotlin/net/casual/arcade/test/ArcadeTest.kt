@@ -24,6 +24,8 @@ object ArcadeTest: ModInitializer {
     override fun onInitialize() {
         TestEntityExtension.registerEvents()
 
+        PlayerCameraTestCommand.registerEvents()
+
         GlobalEventHandler.Server.register<ServerRegisterCommandEvent> {
             it.register(
                 ArgumentTestCommand,
@@ -33,7 +35,9 @@ object ArcadeTest: ModInitializer {
                 LevelBoundaryCommand,
                 PlayerHeadCommand,
                 ReplayCommand,
-                TestExtensionCommand
+                ExtensionTestCommand,
+                PlayerCameraTestCommand,
+                TransitionTestCommand
             )
         }
 
