@@ -126,6 +126,5 @@ internal class PlayerCameraOverlayExtension(player: ServerPlayer): PlayerExtensi
             }
             return packet
         }
-
     }
 }
