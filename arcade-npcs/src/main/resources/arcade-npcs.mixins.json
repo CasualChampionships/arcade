@@ -13,6 +13,7 @@
     "PlayerMixin",
     "ServerEntityMixin",
     "ServerLoginPacketListenerImplAccessor",
+    "bugfixes.TrackedEntityMixin",
     "pathfinding.PathfindingContextAccessor"
   ],
   "injectors": {
