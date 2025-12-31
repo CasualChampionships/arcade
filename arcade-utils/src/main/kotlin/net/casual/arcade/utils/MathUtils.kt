@@ -4,6 +4,10 @@
  */
 package net.casual.arcade.utils
 
+import net.casual.arcade.utils.MathUtils.component1
+import net.casual.arcade.utils.MathUtils.component2
+import net.casual.arcade.utils.MathUtils.component3
+import net.casual.arcade.utils.MathUtils.distanceToSegment
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.Direction.Axis
@@ -15,7 +19,7 @@ import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.joml.Quaternionf
-import java.util.EnumSet
+import java.util.*
 import kotlin.math.*
 
 public object MathUtils {
@@ -48,6 +52,16 @@ public object MathUtils {
 
     public fun min(a: Vec3, value: Double): Vec3 {
         return Vec3(min(a.x, value), min(a.y, value), min(a.z, value))
+    }
+
+    public fun Vec2.asDirection(): Vec3 {
+        val realXRot = this.x * Mth.DEG_TO_RAD
+        val realYRot = -this.y * Mth.DEG_TO_RAD
+        val yCos = cos(realYRot)
+        val ySin = sin(realYRot)
+        val xCos = cos(realXRot)
+        val xSin = sin(realXRot)
+        return Vec3((ySin * xCos).toDouble(), -xSin.toDouble(), (yCos * xCos).toDouble())
     }
 
     public fun Vec3.verticalDistanceTo(other: Vec3): Double {
