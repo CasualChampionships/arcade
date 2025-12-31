@@ -6,6 +6,7 @@ package net.casual.arcade.visuals
 
 import net.casual.arcade.visuals.extensions.PlayerBossbarsExtension
 import net.casual.arcade.visuals.extensions.PlayerCameraExtension
+import net.casual.arcade.visuals.extensions.PlayerCameraOverlayExtension
 import net.casual.arcade.visuals.extensions.PlayerSidebarExtension
 import net.casual.arcade.visuals.extensions.PlayerTabDisplayExtension
 import net.fabricmc.api.ModInitializer
@@ -16,5 +17,6 @@ public object ArcadeVisuals: ModInitializer {
         PlayerTabDisplayExtension.registerEvents()
         PlayerBossbarsExtension.registerEvents()
         PlayerCameraExtension.registerEvents()
+        PlayerCameraOverlayExtension.registerEvents()
     }
 }
