@@ -12,6 +12,7 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerAttributeUpdatedEvent
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
+import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
 import net.casual.arcade.events.server.player.PlayerTickEvent
 import net.casual.arcade.extensions.DataExtension
 import net.casual.arcade.extensions.PlayerExtension
@@ -150,6 +151,9 @@ public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExt
             }
             GlobalEventHandler.Server.register<PlayerTickEvent> {
                 it.player.getExtension<PlayerMovementRestrictionExtension>().tick()
+            }
+            GlobalEventHandler.Server.register<PlayerDimensionChangeEvent> {
+                it.player.unrestrictMovement()
             }
             GlobalEventHandler.Server.register<PlayerAttributeUpdatedEvent>(::onPlayerAttributeUpdated)
             GlobalEventHandler.Server.register<PlayerClientboundPacketEvent>(::onPlayerClientboundPacket)
