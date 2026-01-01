@@ -61,7 +61,7 @@ public class ReplayChunkRecorder internal constructor(
     settings: RecorderSettings,
     format: ReplayFormat,
     path: Path,
-): ReplayRecorder(chunks.level.server, PROFILE, settings, format, path), ChunkSender {
+): ReplayRecorder(chunks.level.server!!, PROFILE, settings, format, path), ChunkSender {
     private val dummy by lazy {
         val player = ServerPlayer(this.server, this.chunks.level, PROFILE, ClientInformation.createDefault())
         ReplayChunkGamePacketListener(this, player)
