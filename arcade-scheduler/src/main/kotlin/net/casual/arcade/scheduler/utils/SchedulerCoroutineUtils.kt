@@ -13,7 +13,7 @@ import net.casual.arcade.scheduler.MinecraftTaskScheduler
 import net.casual.arcade.scheduler.task.impl.CancellableTask
 import net.casual.arcade.utils.ServerUtils
 import net.casual.arcade.utils.TimeUtils.Ticks
-import net.casual.arcade.utils.scheduler.MinecraftSchedulerHolder
+import net.casual.arcade.utils.coroutine.MinecraftSchedulerDelay
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import kotlin.coroutines.CoroutineContext
 
@@ -23,8 +23,8 @@ public fun MinecraftTaskScheduler.asCoroutineDispatcher(): CoroutineDispatcher {
 
 @OptIn(InternalCoroutinesApi::class)
 private class MinecraftSchedulerDispatcher(
-    override val scheduler: MinecraftTaskScheduler
-): CoroutineDispatcher(), Delay, MinecraftSchedulerHolder {
+    val scheduler: MinecraftTaskScheduler
+): CoroutineDispatcher(), Delay, MinecraftSchedulerDelay {
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         if (!ServerUtils.isOnServerThread()) {
             scheduler.schedule(MinecraftTimeDuration.ZERO) { block.run() }
@@ -35,14 +35,20 @@ private class MinecraftSchedulerDispatcher(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun scheduleResumeAfterDelay(timeMillis: Long, continuation: CancellableContinuation<Unit>) {
+        // We round up the number of ticks
         val ticks = (timeMillis + MS_PER_TICK - 1) / MS_PER_TICK
 
-        val duration = ticks.toInt().Ticks
+        val delay = ticks.toInt().Ticks
+        this.scheduleResumeAfterDelay(delay, continuation)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun scheduleResumeAfterDelay(delay: MinecraftTimeDuration, continuation: CancellableContinuation<Unit>) {
         val task = CancellableTask.of {
             with(continuation) { resumeUndispatched(Unit) }
         }
 
-        this.scheduler.schedule(duration, task)
+        this.scheduler.schedule(delay, task)
 
         continuation.invokeOnCancellation { task.cancel() }
         task.ifCancelled { continuation.cancel() }

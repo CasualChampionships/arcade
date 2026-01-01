@@ -8,20 +8,16 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
 import kotlinx.coroutines.*
-import kotlinx.coroutines.future.await
 import net.casual.arcade.utils.TimeUtils.Ticks
-import net.casual.arcade.utils.scheduler.MinecraftSchedulerHolder
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.server.MinecraftServer
 import org.jetbrains.annotations.ApiStatus
 import org.slf4j.LoggerFactory
-import java.util.ArrayDeque
+import java.util.*
 import java.util.Queue
-import java.util.concurrent.CompletableFuture
 import java.util.function.Function
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.resume
 
 private val logger = LoggerFactory.getLogger("ServerCoroutineScope")
 
@@ -52,17 +48,15 @@ public fun MinecraftServer.getCoroutineScope(): CoroutineScope {
     })
 }
 
-public suspend fun delay(duration: MinecraftTimeDuration): Unit = coroutineScope {
+public suspend fun delay(duration: MinecraftTimeDuration): Unit = coroutineScope cs@ {
     if (duration <= MinecraftTimeDuration.ZERO) {
-        return@coroutineScope
+        return@cs
     }
 
     val interceptor = coroutineContext[ContinuationInterceptor]
-    if (interceptor is MinecraftSchedulerHolder) {
-        return@coroutineScope suspendCancellableCoroutine { cont ->
-            interceptor.scheduler.schedule(duration - 1.Ticks) {
-                cont.resume(Unit)
-            }
+    if (interceptor is MinecraftSchedulerDelay) {
+        return@cs suspendCancellableCoroutine { cont ->
+            interceptor.scheduleResumeAfterDelay(duration - 1.Ticks, cont)
         }
     }
 

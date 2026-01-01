@@ -6,7 +6,6 @@ package net.casual.arcade.scheduler
 
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.utils.TimeUtils.Ticks
-import net.casual.arcade.utils.scheduler.MinecraftScheduler
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 
 @Deprecated("Use MinecraftTaskScheduler instead")
@@ -19,7 +18,7 @@ public typealias MinecraftScheduler = MinecraftTaskScheduler
  * @see TickedTaskScheduler
  * @see GlobalTickedScheduler
  */
-public interface MinecraftTaskScheduler: MinecraftScheduler {
+public interface MinecraftTaskScheduler {
     /**
      * This method will schedule a [task] to be run
      * after a given [delay].
@@ -28,17 +27,6 @@ public interface MinecraftTaskScheduler: MinecraftScheduler {
      * @param task The task to be scheduled.
      */
     public fun schedule(delay: MinecraftTimeDuration, task: Task)
-
-    /**
-     * This method will schedule a [task] to be run
-     * after a given [delay].
-     *
-     * @param delay The duration to wait before running the [task].
-     * @param task The task to be scheduled.
-     */
-    override fun schedule(delay: MinecraftTimeDuration, task: Runnable) {
-        this.schedule(delay, task as? Task ?: Task(task::run))
-    }
 
     /**
      * This schedules a [task] in a loop with a given
