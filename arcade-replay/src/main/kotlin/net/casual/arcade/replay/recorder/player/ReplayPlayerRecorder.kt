@@ -14,8 +14,10 @@ import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.recorder.rejoin.RejoinedReplayPlayer
 import net.casual.arcade.utils.impl.WrappedTrackedEntity
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
+import net.casual.arcade.replay.util.ReplayPacketUtils
 import net.casual.arcade.utils.ClientboundAddEntityPacket
 import net.minecraft.core.NonNullList
+import net.minecraft.core.component.DataComponents
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundBundlePacket
@@ -28,6 +30,8 @@ import net.minecraft.server.level.ServerEntity
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.decoration.ItemFrame
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.phys.Vec2
@@ -111,6 +115,7 @@ public class ReplayPlayerRecorder internal constructor(
         val player = this.player ?: return false
         RejoinedReplayPlayer.rejoin(player, this)
         this.spawnPlayer(player, listOf(ClientboundAddEntityPacket(player)))
+        this.recordMapData(player)
         this.sendChunksAndEntities()
         GlobalEventHandler.Server.broadcast(ReplayPlayerRecorderSnapshotEvent(this, true))
         return true
@@ -158,7 +163,9 @@ public class ReplayPlayerRecorder internal constructor(
     }
 
     override fun takeSnapshot() {
-        RejoinedReplayPlayer.rejoin(this.getPlayerOrThrow(), this)
+        val player = this.getPlayerOrThrow()
+        RejoinedReplayPlayer.rejoin(player, this)
+        this.recordMapData(player)
         this.sendChunksAndEntities { pos -> this.writer.writeCachedChunk(pos) }
         GlobalEventHandler.Server.broadcast(ReplayPlayerRecorderSnapshotEvent(this, false))
     }
@@ -239,6 +246,24 @@ public class ReplayPlayerRecorder internal constructor(
     @Internal
     public fun removePlayer(player: ServerPlayer) {
         this.record(ClientboundRemoveEntitiesPacket(player.id))
+    }
+
+    private fun recordMapData(player: ServerPlayer) {
+        for (i in 0..<player.inventory.containerSize) {
+            val stack = player.inventory.getItem(i)
+            if (!stack.isEmpty) {
+                val id = stack.get(DataComponents.MAP_ID) ?: continue
+                val packet = ReplayPacketUtils.createMapPacket(id, player.level()) ?: continue
+                this.record(packet)
+            }
+        }
+
+        val frames = player.level().getEntities(EntityType.ITEM_FRAME, ItemFrame::hasFramedMap)
+        for (frame in frames) {
+            val id = frame.item.get(DataComponents.MAP_ID) ?: continue
+            val packet = ReplayPacketUtils.createMapPacket(id, player.level()) ?: continue
+            this.record(packet)
+        }
     }
 
     private class InventoryTracker {
