@@ -158,7 +158,7 @@ public class FlashbackWriter(
         val headRot = player.yHeadRot
         val velocity = player.deltaMovement
         val profile = player.gameProfile
-        val gamemode = player.gameMode().id
+        val gamemode = player.gameMode()!!.id
         this.writeActionAsync(FlashbackAction.CreatePlayer) { buf ->
             buf.writeUUID(uuid)
             buf.writeDouble(position.x)

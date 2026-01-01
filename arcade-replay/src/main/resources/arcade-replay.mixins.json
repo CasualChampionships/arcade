@@ -14,6 +14,7 @@
     "chunk.PlayerListMixin",
     "chunk.RaidMixin",
     "chunk.ServerBossEventMixin",
+    "chunk.ServerEntityMixin",
     "chunk.TrackedEntityMixin",
     "chunk.WitherBossAccessor",
     "common.MinecraftServerMixin",

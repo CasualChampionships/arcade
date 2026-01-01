@@ -26,7 +26,9 @@ import net.casual.arcade.replay.util.ReplayMarker
 import net.casual.arcade.replay.util.ReplayOptimizerUtils
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
 import net.casual.arcade.replay.recorder.settings.SimpleRecorderSettings.Companion.asSimple
+import net.casual.arcade.replay.util.ReplayPacketUtils
 import net.casual.arcade.utils.ArcadeUtils
+import net.minecraft.core.component.DataComponents
 import net.minecraft.network.ConnectionProtocol
 import net.minecraft.network.ProtocolInfo
 import net.minecraft.network.RegistryFriendlyByteBuf
@@ -41,6 +43,8 @@ import net.minecraft.network.protocol.login.LoginProtocols
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.decoration.ItemFrame
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.apache.commons.lang3.builder.StandardToStringStyle
@@ -491,6 +495,23 @@ public abstract class ReplayRecorder(
             }
         }
         return true
+    }
+
+    /**
+     * Sends all map data for the item frames in the world.
+     *
+     * @param filter Filter for any item frames that shouldn't be recorded.
+     */
+    protected fun sendItemFrameMapData(filter: (ItemFrame) -> Boolean = { true }) {
+        val level = this.level
+        val frames = level.getEntities(EntityType.ITEM_FRAME, ItemFrame::hasFramedMap)
+        for (frame in frames) {
+            if (filter.invoke(frame)) {
+                val id = frame.item.get(DataComponents.MAP_ID) ?: continue
+                val packet = ReplayPacketUtils.createMapPacket(id, level) ?: continue
+                this.record(packet)
+            }
+        }
     }
 
     /**

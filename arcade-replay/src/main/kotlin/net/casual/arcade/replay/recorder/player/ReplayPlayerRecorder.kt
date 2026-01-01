@@ -30,8 +30,6 @@ import net.minecraft.server.level.ServerEntity
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.EntityType
-import net.minecraft.world.entity.decoration.ItemFrame
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.phys.Vec2
@@ -115,7 +113,7 @@ public class ReplayPlayerRecorder internal constructor(
         val player = this.player ?: return false
         RejoinedReplayPlayer.rejoin(player, this)
         this.spawnPlayer(player, listOf(ClientboundAddEntityPacket(player)))
-        this.recordMapData(player)
+        this.sendMapData(player)
         this.sendChunksAndEntities()
         GlobalEventHandler.Server.broadcast(ReplayPlayerRecorderSnapshotEvent(this, true))
         return true
@@ -165,7 +163,7 @@ public class ReplayPlayerRecorder internal constructor(
     override fun takeSnapshot() {
         val player = this.getPlayerOrThrow()
         RejoinedReplayPlayer.rejoin(player, this)
-        this.recordMapData(player)
+        this.sendMapData(player)
         this.sendChunksAndEntities { pos -> this.writer.writeCachedChunk(pos) }
         GlobalEventHandler.Server.broadcast(ReplayPlayerRecorderSnapshotEvent(this, false))
     }
@@ -248,7 +246,7 @@ public class ReplayPlayerRecorder internal constructor(
         this.record(ClientboundRemoveEntitiesPacket(player.id))
     }
 
-    private fun recordMapData(player: ServerPlayer) {
+    private fun sendMapData(player: ServerPlayer) {
         for (i in 0..<player.inventory.containerSize) {
             val stack = player.inventory.getItem(i)
             if (!stack.isEmpty) {
@@ -258,12 +256,7 @@ public class ReplayPlayerRecorder internal constructor(
             }
         }
 
-        val frames = player.level().getEntities(EntityType.ITEM_FRAME, ItemFrame::hasFramedMap)
-        for (frame in frames) {
-            val id = frame.item.get(DataComponents.MAP_ID) ?: continue
-            val packet = ReplayPacketUtils.createMapPacket(id, player.level()) ?: continue
-            this.record(packet)
-        }
+        this.sendItemFrameMapData()
     }
 
     private class InventoryTracker {

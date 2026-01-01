@@ -83,7 +83,7 @@ public class ChunkArea(
         return this.to.x >= fromX && this.from.x <= toX && this.to.z >= fromZ && this.from.z <= toZ
     }
 
-    private fun contains(pos: ChunkPos): Boolean {
+    internal fun contains(pos: ChunkPos): Boolean {
         return this.from.x <= pos.x && this.from.z <= pos.z && this.to.x >= pos.x && this.to.z >= pos.z
     }
 
