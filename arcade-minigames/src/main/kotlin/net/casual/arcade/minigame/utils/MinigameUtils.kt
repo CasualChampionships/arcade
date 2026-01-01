@@ -8,6 +8,7 @@ import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.casual.arcade.events.EventListener
@@ -37,6 +38,8 @@ import net.casual.arcade.utils.component.gold
 import net.casual.arcade.utils.component.lime
 import net.casual.arcade.utils.component.red
 import net.casual.arcade.utils.TimeUtils.Seconds
+import net.casual.arcade.utils.coroutine.async
+import net.casual.arcade.utils.coroutine.launch
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.countdown.Countdown
 import net.minecraft.commands.CommandSourceStack
@@ -116,6 +119,22 @@ public object MinigameUtils {
             return predicate.test(minigames.first())
         }
         return false
+    }
+
+    public inline fun Minigame.launch(crossinline block: suspend CoroutineScope.() -> Unit) {
+        this.server.launch {
+            withContext(scheduler.asCoroutineDispatcher()) {
+                block.invoke(this)
+            }
+        }
+    }
+
+    public inline fun <T> Minigame.async(crossinline block: suspend CoroutineScope.() -> T): Deferred<T> {
+        return this.server.async {
+            withContext(scheduler.asCoroutineDispatcher()) {
+                block.invoke(this)
+            }
+        }
     }
 
     /**
