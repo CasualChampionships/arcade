@@ -21,7 +21,7 @@ import net.minecraft.core.component.DataComponents
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.entity.EquipmentSlot
@@ -33,9 +33,9 @@ import net.minecraft.world.item.equipment.Equippable
 import kotlin.jvm.optionals.getOrNull
 
 internal class PlayerCameraOverlayExtension(player: ServerPlayer): PlayerExtension(player) {
-    private var overlay: ResourceLocation? = null
+    private var overlay: Identifier? = null
 
-    fun setOverlay(overlay: ResourceLocation) {
+    fun setOverlay(overlay: Identifier) {
         this.overlay = overlay
         this.updateHeadSlot()
     }

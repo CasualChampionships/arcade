@@ -10,13 +10,13 @@ import net.casual.arcade.visuals.utils.clearCameraOverlay
 import net.casual.arcade.visuals.utils.setCameraOverlay
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.commands.arguments.ResourceLocationArgument
+import net.minecraft.commands.arguments.IdentifierArgument
 
 object CameraOverlayCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("camera-overlay") {
             literal("set") {
-                argument("overlay", ResourceLocationArgument.id()) {
+                argument("overlay", IdentifierArgument.id()) {
                     executes(::setOverlay)
                 }
             }
@@ -28,7 +28,7 @@ object CameraOverlayCommand: CommandTree {
 
     private fun setOverlay(context: CommandContext<CommandSourceStack>) {
         val player = context.source.playerOrException
-        val overlay = ResourceLocationArgument.getId(context, "overlay")
+        val overlay = IdentifierArgument.getId(context, "overlay")
         player.setCameraOverlay(overlay)
     }
 

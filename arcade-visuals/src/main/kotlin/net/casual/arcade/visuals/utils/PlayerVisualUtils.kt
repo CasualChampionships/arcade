@@ -5,10 +5,10 @@
 package net.casual.arcade.visuals.utils
 
 import net.casual.arcade.visuals.extensions.PlayerCameraOverlayExtension.Companion.cameraOverlayExtension
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 
-public fun ServerPlayer.setCameraOverlay(overlay: ResourceLocation) {
+public fun ServerPlayer.setCameraOverlay(overlay: Identifier) {
     this.cameraOverlayExtension.setOverlay(overlay)
 }
 
