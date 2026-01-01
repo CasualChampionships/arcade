@@ -422,13 +422,13 @@ public class ReplayChunkRecorder internal constructor(
 
         if (this.loadedChunks.isEmpty()) {
             if (this.settings.chunkRecordingStrategy == ChunkRecordingStrategy.ChunkLoaded) {
-                this.tryPauseAndBroadcast()
+                this.tryPauseAndBroadcast(true)
             }
         }
     }
 
-    private fun tryPauseAndBroadcast() {
-        if (this.pause()) {
+    private fun tryPauseAndBroadcast(force: Boolean = false) {
+        if (this.pause(force)) {
             GlobalEventHandler.Server.broadcast(ReplayChunkRecorderUnloadedPauseEvent(this))
         }
     }
