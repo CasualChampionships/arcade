@@ -29,6 +29,7 @@ object ArcadeTest: ModInitializer {
         GlobalEventHandler.Server.register<ServerRegisterCommandEvent> {
             it.register(
                 ArgumentTestCommand,
+                CameraOverlayCommand,
                 CustomInventoryCommand,
                 FakePlayerCommand,
                 GuiTestCommand,

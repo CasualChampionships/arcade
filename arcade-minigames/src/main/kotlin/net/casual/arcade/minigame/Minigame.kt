@@ -437,6 +437,9 @@ public abstract class Minigame(
 
         this.data.end()
 
+        this.scheduler.minigame.cancelAll()
+        this.scheduler.phased.cancelAll()
+
         GlobalEventHandler.Server.broadcast(MinigameCloseEvent(this))
         this.players.close()
         this.levels.close()
@@ -446,9 +449,6 @@ public abstract class Minigame(
 
         GlobalEventHandler.Server.removeProvider(this.events)
         this.events.clear()
-
-        this.scheduler.minigame.cancelAll()
-        this.scheduler.phased.cancelAll()
 
         this.initialized = false
         this.phase = Phase.none()
