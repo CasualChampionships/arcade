@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.boundary.LevelBoundary
 import net.casual.arcade.boundary.extension.LevelBoundaryExtension.Companion.levelBoundary
 import net.casual.arcade.boundary.renderer.AxisAlignedDisplayBoundaryRenderer
+import net.casual.arcade.boundary.renderer.ParticleBoundaryRenderer
 import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
 import net.casual.arcade.boundary.shape.AxisAlignedBoundaryShape
 import net.casual.arcade.commands.*

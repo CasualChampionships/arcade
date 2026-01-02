@@ -27,6 +27,4 @@ dependencies {
 }
 ```
 
-## Usage
-
 > ### [Basic Usage](basic-usage.md)
