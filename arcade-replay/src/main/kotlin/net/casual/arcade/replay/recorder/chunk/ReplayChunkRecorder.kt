@@ -32,9 +32,12 @@ import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheRadiusPacket
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
+import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket
 import net.minecraft.server.level.ClientInformation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.effect.MobEffectInstance
+import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.boss.wither.WitherBoss
 import net.minecraft.world.level.ChunkPos
@@ -453,16 +456,19 @@ public class ReplayChunkRecorder internal constructor(
     }
 
     private fun spawnPlayer() {
-        val spawnPackets = ArrayList<Packet<*>>(2)
+        val spawnPackets = ArrayList<Packet<*>>(3)
         spawnPackets.add(ClientboundAddEntityPacket(this.dummy))
         val tracked = this.dummy.entityData.nonDefaultValues
         if (tracked != null) {
             spawnPackets.add(ClientboundSetEntityDataPacket(this.dummy.id, tracked))
+            spawnPackets.add(ClientboundUpdateMobEffectPacket(this.dummy.id, INVISIBILITY, false))
         }
         this.spawnPlayer(this.dummy, spawnPackets)
     }
 
     private companion object {
         private val PROFILE = UUIDUtil.createOfflineProfile("-ChunkRecorder-")
+
+        private val INVISIBILITY = MobEffectInstance(MobEffects.INVISIBILITY, MobEffectInstance.INFINITE_DURATION, 0, false, true)
     }
 }

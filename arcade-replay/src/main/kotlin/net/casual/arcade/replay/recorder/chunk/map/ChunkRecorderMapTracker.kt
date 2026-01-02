@@ -24,8 +24,6 @@ public class ChunkRecorderMapTracker(
 
     private var decorationsDirty = true
 
-    private var tick = 0
-
     public fun createNextUpdatePacket(id: MapId): ClientboundMapItemDataPacket? {
         var patch: MapItemSavedData.MapPatch? = null
         if (this.colorsDirty) {
@@ -33,7 +31,7 @@ public class ChunkRecorderMapTracker(
             patch = this.createPatch()
         }
         var decorations: List<MapDecoration>? = null
-        if (this.decorationsDirty && this.tick++ % 5 == 0) {
+        if (this.decorationsDirty) {
             this.decorationsDirty = false
             decorations = this.data.decorations.toList()
         }
