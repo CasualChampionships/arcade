@@ -14,3 +14,7 @@ public fun ServerPlayer.setCustomInventory(inventory: CustomInventory, keepSelec
     }
     (this as ModifiableInventory).`arcade$setCustomInventory`(inventory)
 }
+
+public fun ServerPlayer.removeCustomInventory() {
+    (this as ModifiableInventory).`arcade$removeCustomInventory`()
+}
