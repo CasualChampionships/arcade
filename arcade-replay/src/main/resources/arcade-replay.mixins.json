@@ -11,6 +11,7 @@
     "chunk.ChunkHolderMixin",
     "chunk.ChunkMapMixin",
     "chunk.EndDragonFightMixin",
+    "chunk.MapItemSavedDataMixin",
     "chunk.PlayerListMixin",
     "chunk.RaidMixin",
     "chunk.ServerBossEventMixin",

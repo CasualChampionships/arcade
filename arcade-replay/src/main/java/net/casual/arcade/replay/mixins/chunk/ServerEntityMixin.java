@@ -5,9 +5,12 @@
 package net.casual.arcade.replay.mixins.chunk;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import net.casual.arcade.replay.ducks.ChunkTrackedMapData;
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecordable;
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder;
+import net.casual.arcade.replay.recorder.chunk.map.ChunkRecorderMapTracker;
 import net.casual.arcade.utils.EntityUtilsKt;
+import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.saveddata.maps.MapId;
@@ -36,7 +39,11 @@ public class ServerEntityMixin {
         ReplayChunkRecordable recordable = (ReplayChunkRecordable) EntityUtilsKt.getTrackedEntity(this.entity);
         if (recordable != null) {
             for (ReplayChunkRecorder recorder : recordable.getRecorders()) {
-                recorder.updateMapTracker(id, data);
+                ChunkRecorderMapTracker tracker = ((ChunkTrackedMapData) data).arcade$getTrackerForRecorder(recorder);
+                ClientboundMapItemDataPacket packet = tracker.createNextUpdatePacket(id);
+                if (packet != null) {
+                    recorder.record(packet);
+                }
             }
         }
     }

@@ -76,7 +76,6 @@ public class ReplayChunkRecorder internal constructor(
     }
 
     private val trackedPlayers = ReferenceOpenHashSet<ServerPlayer>()
-    private val trackedMaps = Object2ObjectOpenHashMap<MapId, ChunkRecorderMapTracker>()
 
     private val loadedChunks = LongOpenHashSet()
     private val sentChunks = LongOpenHashSet()
@@ -434,13 +433,6 @@ public class ReplayChunkRecorder internal constructor(
                 this.tryPauseAndBroadcast(true)
             }
         }
-    }
-
-    @Internal
-    public fun updateMapTracker(id: MapId, data: MapItemSavedData) {
-        val tracker = this.trackedMaps.getOrPut(id) { ChunkRecorderMapTracker(data) }
-        val packet = tracker.createNextUpdatePacket(id) ?: return
-        this.record(packet)
     }
 
     private fun tryPauseAndBroadcast(force: Boolean = false) {
