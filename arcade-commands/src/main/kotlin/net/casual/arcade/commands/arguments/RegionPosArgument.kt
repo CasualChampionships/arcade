@@ -21,6 +21,10 @@ import net.minecraft.world.level.ChunkPos
 import org.joml.Vector2i
 import java.util.concurrent.CompletableFuture
 
+/**
+ * Argument type that allows specifying a region position
+ * in the format of `<x> <z>`.
+ */
 public class RegionPosArgument: CustomArgumentType<RegionPosArgument.WorldRegionCoordinates>() {
     override fun parse(reader: StringReader): WorldRegionCoordinates {
         val cursor = reader.cursor

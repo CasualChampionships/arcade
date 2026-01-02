@@ -23,6 +23,19 @@ import net.minecraft.resources.ResourceKey
 import java.util.concurrent.CompletableFuture
 import kotlin.jvm.optionals.getOrNull
 
+/**
+ * Argument type that allows specifying any registry
+ * element for the given registries.
+ *
+ * This argument type works very much like [IdentifierArgument],
+ * but only allows specifying valid [Identifier]s for the
+ * registries. It resolves the [Identifier] to either
+ * a [Holder.Reference] or the direct value.
+ *
+ * @param T The type of the registry.
+ * @param keys The set of registry keys to allow.
+ * @param filter A filter for selectable registry elements.
+ */
 public class RegistryElementArgument<T: Any>(
     private val keys: Set<ResourceKey<Registry<T>>>,
     private val filter: (ResourceKey<T>, T) -> Boolean

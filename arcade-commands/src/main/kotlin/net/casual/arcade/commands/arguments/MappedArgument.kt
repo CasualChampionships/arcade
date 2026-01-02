@@ -15,6 +15,16 @@ import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.network.chat.Component
 import java.util.concurrent.CompletableFuture
 
+/**
+ * Argument type for any values of [T], provided
+ * as [options] with a [String] key.
+ *
+ * Only valid keys will be permitted and this
+ * argument will autocomplete valid keys.
+ *
+ * @param T The type of the argument value.
+ * @param options The valid argument options.
+ */
 public open class MappedArgument<T>(
     private val options: Map<String, T>
 ): CustomArgumentType<T>() {

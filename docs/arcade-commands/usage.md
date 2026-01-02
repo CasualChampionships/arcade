@@ -4,7 +4,7 @@
 
 ## Creating Commands
 
-The `CommandUtils` and `CommandTree` objects provide utilities for creating 
+The `CommandTree` type and utilities in `CommandUtils` allow for creating 
 much more readable command trees in kotlin.
 
 We start by calling `CommandTree.buildLiteral` or `CommandTree.createLiteral`
@@ -24,7 +24,7 @@ We can add suggestions, requirements, literal subcommands and add arguments:
 ```kotlin
 fun createExampleCommand(): LiteralArgumentBuilder<CommandSourceStack> {
     return CommandTree.buildLiteral("example") {
-        requiresPermission(2)
+        requiresPermission(PermissionLevel.GAMEMASTERS)
         argument("argument", StringArgumentType.string()) {
             requires { it.level.dimension() == Level.OVERWORLD }
             executes { /* Command logic */ }
@@ -52,8 +52,8 @@ to be synchronized with the client. Arcade works around this with lots of
 trickery and allows you to easily implement your own argument types as
 well as implementing some basic ones.
 
-By default, Arcade implements `EnumArgument`, `MappedArgument`, 
-`RegistryElementArgument`, `TimeArgument`, and `TimeZoneArgument`.
+By default, Arcade implements `ChunkPosArgument`, `EnumArgument`, `MappedArgument`, 
+`RegionPosArgument`, and `RegistryElementArgument`.
 
 `EnumArgument`s can be created with an Enum `Class` and it will
 allow you to use the enum instances as arguments. Similarly,
@@ -104,7 +104,7 @@ fun createExampleCommand(): LiteralArgumentBuilder<CommandSourceStack> {
 }
 ```
 
-The other two built-in argument types are self-explanatory. 
+Further documentation of the argument types can be found in the KDocs. 
 
 ### Implementing Your Own Argument Type
 
@@ -142,8 +142,8 @@ class ExampleArgumentType: CustomArgumentType<String>() {
     // ...
     
     override fun getArgumentInfo(): CustomArgumentTypeInfo<*> {
-        // We're now pretending to be a ResourceLocationArgument
-        return CustomArgumentTypeInfo.of(ResourceLocationArgument::class.java)
+        // We're now pretending to be a IdentifierArgument
+        return CustomArgumentTypeInfo.of(IdentifierArgument::class.java)
     }
 }
 ```
@@ -151,59 +151,27 @@ class ExampleArgumentType: CustomArgumentType<String>() {
 For more complex argument types (that require arguments), such as `StringArgumentType`
 you will need to implement `CustomArgumentTypeInfo` yourself.
 
-## Hidden Commands
 
-Hidden commands are an invaluable tool, especially in combination with
-`Component`s as they allow you to register temporary commands with any
-callback for a player that runs that 'command'.
+## Command Managers
 
-You can register a hidden command using the `HiddenCommandManager`:
-```kotlin
-fun registerMyHiddenCommand() {
-    val command: String = HiddenCommandManager.register(
-        timeout = 10.Seconds,
-        command = { context ->
-            println("${context.player.scoreboardName} ran my hidden command!")
-        }
-    )
-}
-```
-This returns a string containing the command which can be run, the
-format of which is undefined.
+Arcade provides dynamic command managers which allow you to register
+commands which aren't registered directly to the `MinecraftServer`'s
+command dispatcher.
 
-This is most useful as previously mentioned with `Components` as we can
-make functions that get run whenever a player clicks on a chat message.
-We do this by using the `function` extension function on `MutableComponent`s.
+The rationale for this is that it allows you to register and unregister
+commands at runtime, as well as allowing for commands to be registered
+at any time, not only during server start.
 
 ```kotlin
-fun sendMyHiddenCommand(player: ServerPlayer) {
-    player.sendSystemMessage(
-        Component.literal("[CLICK HERE]").function {
-            println("Player ${it.player.scoreboardName} clicked the message!")
-        }
-    )
-}
-```
+val server: MinecraftServer = // ...
+val manager = CommandManager(server)
+manager.register(object: CommandTree {
+    override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
+        TODO("Not yet implemented")
+    }
+})
+GlobalCommandManager.addManager(manager)
 
-We can also instead use `singleUseFunction` to denote that the function may
-only be called once:
-```kotlin
-fun sendMyHiddenCommand(player: ServerPlayer) {
-    player.sendSystemMessage(
-        Component.literal("[CLICK HERE]").singleUseFunction {
-            println("Player ${it.player.scoreboardName} clicked the message!")
-        }
-    )
-}
+// Later...
+GlobalCommandManager.removeManager(manager)
 ```
-Once the player has clicked the message, it will no longer function on later clicks.
-If we send the same component to multiple players, it will still limit it to
-the first player who clicked the message.
-
-> [!IMPORTANT]
-> Even if you send a component with a function to only a specific player, it is
-> theoretically possible that another player may run the command given they know
-> what it is.
-> 
-> Although unlikely, if your application requires only the player that was sent
-> the message to be able to click it, you ***should*** add a check.

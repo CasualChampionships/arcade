@@ -16,6 +16,7 @@ import net.minecraft.network.chat.ClickEvent
 import net.minecraft.resources.Identifier
 import java.util.*
 
+// TODO: This probably shouldn't be in this module anymore?
 public object HiddenCommandManager {
     private val commands = Object2ObjectOpenHashMap<Identifier, HiddenCommand>()
 

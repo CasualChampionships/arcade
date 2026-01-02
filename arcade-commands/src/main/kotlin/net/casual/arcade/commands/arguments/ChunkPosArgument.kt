@@ -20,6 +20,10 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.level.ChunkPos
 import java.util.concurrent.CompletableFuture
 
+/**
+ * Argument type that allows specifying a chunk position
+ * in the format of `<x> <z>`.
+ */
 public class ChunkPosArgument: CustomArgumentType<ChunkPosArgument.WorldChunksCoordinates>() {
     override fun parse(reader: StringReader): WorldChunksCoordinates {
         val cursor = reader.cursor

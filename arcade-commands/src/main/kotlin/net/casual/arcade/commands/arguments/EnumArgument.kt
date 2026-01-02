@@ -8,6 +8,16 @@ import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.commands.type.CustomStringArgumentInfo
 import net.casual.arcade.utils.EnumUtils
 
+/**
+ * This argument type specifies an enum value.
+ *
+ * Only enum values are permitted for this argument,
+ * and this type has autocompletion for available values.
+ *
+ * @param E The enum type.
+ * @param clazz The enum class.
+ * @param mapper A mapper to map enum values to a string, it's name by default.
+ */
 public class EnumArgument<E: Enum<E>> @JvmOverloads constructor(
     clazz: Class<E>,
     mapper: (E) -> String = Enum<E>::name
