@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(value = NearbyEntityTracking.class, remap = false)
 public class NearbyEntityTrackingMixin {
     @Inject(
-        method = "tick",
+        method = "tick0",
         at = @At(
             value = "INVOKE",
             target = "Lcom/ishland/vmp/common/playerwatching/ServerPlayerEntityExtension;vmpTracking$updatePosition()V"

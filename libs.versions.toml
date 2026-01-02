@@ -16,8 +16,8 @@ permissions         = "0.6.1"
 carpet        = "1.4.185"
 voicechat     = "fabric-1.21.9-pre3-2.6.4"
 voicechat-api = "2.6.0"
-vmp           = "0.2.0+beta.7.210+1.21.9-pre1"
-c2me          = "0.3.5+alpha.0.28+1.21.9-pre3"
+vmp           = "0.2.0+beta.7.223+1.21.11"
+c2me          = "0.3.6.0.0"
 
 # Plugins
 fabric-loom = "1.14-SNAPSHOT"
