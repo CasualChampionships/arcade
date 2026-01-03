@@ -140,6 +140,22 @@ public object MinigameUtils {
         }
     }
 
+    public inline fun Minigame.launchPhased(crossinline block: suspend CoroutineScope.() -> Unit) {
+        this.server.launch {
+            withContext(scheduler.asPhasedScheduler().asCoroutineDispatcher()) {
+                block.invoke(this)
+            }
+        }
+    }
+
+    public inline fun <T> Minigame.asyncPhased(crossinline block: suspend CoroutineScope.() -> T): Deferred<T> {
+        return this.server.async {
+            withContext(scheduler.asPhasedScheduler().asCoroutineDispatcher()) {
+                block.invoke(this)
+            }
+        }
+    }
+
     /**
      * This counts down for the specified duration, and sends
      * the countdown to all players for a given minigame.
