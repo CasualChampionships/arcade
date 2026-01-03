@@ -8,7 +8,7 @@ In addition to the built-in default settings, you are able to implement your
 own settings using this system, all the settings are accessible and 
 configurable in-game through a gui.
 
-![Image of Settings gui](../assets/settings_gui.png)
+![Image of Settings gui](../arcade-visuals/images/settings_gui.png)
 
 ## Built-In Settings
 
@@ -127,7 +127,7 @@ val setting: MenuGameSetting<Int> = MenuGameSettingBuilder.int32 {
 ```
 
 This will result in the following gui:
-![Image of the custom setting](../assets/custom_setting.png)
+![Image of the custom setting](../arcade-visuals/images/custom_setting.png)
 
 We can also add listeners to our setting to get notified when the setting is changed:
 ```kotlin
@@ -223,7 +223,7 @@ class ExampleSettings(minigame: Minigame<*>): MinigameSettings(minigame) {
 
 The default options for booleans are a green stained-glass pane and red stained-glass pane for enabling and disabling respectively:
 
-![Image of default options](../assets/default_options.png)
+![Image of default options](../arcade-visuals/images/default_options.png)
 
 However, we can also customize the defaults by extending the `DisplayableSettingsDefaults` class and overriding the `options` method:
 
@@ -250,7 +250,7 @@ These defaults will then be applied to all settings that use the default options
 
 Here's an example of customized default options:
 
-![Image of custom default options](../assets/custom_default_options.png)
+![Image of custom default options](../arcade-visuals/images/custom_default_options.png)
 
 ## Modifying The UI
 
@@ -277,6 +277,6 @@ gui listing all the minigame settings, and the `createOptionsGuiBuilder`
 returns the builder responsible for creating the gui listing all the options 
 for a given minigame setting.
 
-The specifics on how to customize these are discussed in the [GUI Section](gui.md).
+The specifics on how to customize these are discussed in the [GUI Section](visuals.md).
 
 > See the next section on [Teams](teams.md)

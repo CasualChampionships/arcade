@@ -19,17 +19,19 @@ repositories {
 }
 
 dependencies {
-    include(modImplementation("net.casualchampionships:arcade-minigames:0.5.2-beta.1+1.21.8")!!)
+    include(modImplementation("net.casualchampionships:arcade-minigames:0.8.0-beta.11+1.21.11")!!)
 
-    include(modImplementation("net.casualchampionships:arcade-commands:0.5.2-beta.1+1.21.8")!!)
-    include(modImplementation("net.casualchampionships:arcade-dimensions:0.5.2-beta.1+1.21.8")!!)
-    include(modImplementation("net.casualchampionships:arcade-event-registry:0.5.2-beta.1+1.21.8")!!)
-    include(modImplementation("net.casualchampionships:arcade-events-server:0.5.2-beta.1+1.21.8")!!)
-    include(modImplementation("net.casualchampionships:arcade-extensions:0.5.2-beta.1+1.21.8")!!)
-    include(modImplementation("net.casualchampionships:arcade-resource-pack:0.5.2-beta.1+1.21.8")!!)
-    include(modImplementation("net.casualchampionships:arcade-scheduler:0.5.2-beta.1+1.21.8")!!)
-    include(modImplementation("net.casualchampionships:arcade-utils:0.5.2-beta.1+1.21.8")!!)
-    include(modImplementation("net.casualchampionships:arcade-visuals:0.5.2-beta.1+1.21.8")!!)
+    include(modImplementation("net.casualchampionships:arcade-commands:0.8.0-beta.11+1.21.11")!!)
+    include(modImplementation("net.casualchampionships:arcade-dimensions:0.8.0-beta.11+1.21.11")!!)
+    include(modImplementation("net.casualchampionships:arcade-event-registry:0.8.0-beta.11+1.21.11")!!)
+    include(modImplementation("net.casualchampionships:arcade-events-server:0.8.0-beta.11+1.21.11")!!)
+    include(modImplementation("net.casualchampionships:arcade-extensions:0.8.0-beta.11+1.21.11")!!)
+    include(modImplementation("net.casualchampionships:arcade-guis:0.8.0-beta.11+1.21.11")!!)
+    include(modImplementation("net.casualchampionships:arcade-replay:0.8.0-beta.11+1.21.11")!!)
+    include(modImplementation("net.casualchampionships:arcade-resource-pack:0.8.0-beta.11+1.21.11")!!)
+    include(modImplementation("net.casualchampionships:arcade-scheduler:0.8.0-beta.11+1.21.11")!!)
+    include(modImplementation("net.casualchampionships:arcade-utils:0.8.0-beta.11+1.21.11")!!)
+    include(modImplementation("net.casualchampionships:arcade-visuals:0.8.0-beta.11+1.21.11")!!)
 }
 ```
 
@@ -41,17 +43,15 @@ dependencies {
 > ### [Events](events.md)
 > ### [Scheduling](scheduling.md)
 > ### [Commands](commands.md)
-> ### [GUI](gui.md)
+> ### [GUI](visuals.md)
 > ### [Resource Packs](resource_packs.md)
  
-### Under Construction 
+### 🚧 Under Construction 
 
 > ### [Chat](chat.md)
 > ### [Advancements](advancements.md)
 > ### [Recipes](recipes.md)
 > ### [Effects](effects.md)
 > ### [Stats](stats.md)
-
-> ### [Lobby](lobby.md)
 
 > ### [Serialization](serialization.md)

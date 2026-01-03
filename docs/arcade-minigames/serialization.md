@@ -1,3 +1,3 @@
 # Serialization
 
-> Return to [table of contents](getting_started.md)
+> Return to [table of contents](getting-started.md)

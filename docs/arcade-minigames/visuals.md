@@ -1,35 +1,35 @@
-# GUI
+# Visuals
 
 > Return to [table of contents](getting-started.md)
 
-Arcade provides a wide array of gui components, read the [GUI Section](../arcade-visuals/getting-started.md) 
+Arcade provides a wide array of visual components, read the [Visuals Section](../arcade-visuals/getting-started.md) 
 to see more information about those. 
 This section is dedicated to how those gui components can be integrated within 
 minigames.
 
-All the gui elements are handled by a `MinigameUIManager`, you can add all of 
-your gui components to this manager, and it will ensure that players will be 
+All the gui elements are handled by a `MinigameVisualsManager`, you can add all of 
+your visual components to this manager, and it will ensure that players will be 
 displayed the components, and they will be updated for those players. If a 
-player joins the minigame, it will correctly update all the player's ui, and if
-a player leaves, all the ui will be removed.
+player joins the minigame, it will correctly update all the player's visuals, and if
+a player leaves, all the visuals will be removed.
 
-## Adding & Removing UI Components
+## Adding & Removing Visual Components
 
-We simply construct our ui component then add it to the manager using one of the respective methods, once registered, the minigame will handle any ticking or updating that is needed for that component:
+We simply construct our visual component then add it to the manager using one of the respective methods, once registered, the minigame will handle any ticking or updating that is needed for that component:
 ```kotlin
 val minigame: Minigame = // ...
 
 val bossbar: CustomBossbar = // ...
-minigame.ui.addBossbar(bossbar)
+minigame.visuals.addBossbar(bossbar)
 
-val nametag: PlayerNameTag = // ...
-minigame.ui.addNameTag(nametag)
+val nametag: PlayerNametag = // ...
+minigame.visuals.addNametag(nametag)
 
 val sidebar: Sidebar = // ...
-minigame.ui.setSidebar(sidebar)
+minigame.visuals.setSidebar(sidebar)
 
 val display: PlayerListDisplay = // ...
-minigame.ui.setPlayerListDisplay(display)
+minigame.visuals.setPlayerListDisplay(display)
 ```
 
 > [!NOTE]
@@ -41,19 +41,19 @@ We can also remove any elements with their respective methods:
 val minigame: Minigame = // ...
 
 val bossbar: CustomBossbar = // ...
-minigame.ui.removeBossbar(bossbar)
-minigame.ui.removeAllBossbars()
+minigame.visuals.removeBossbar(bossbar)
+minigame.visuals.removeAllBossbars()
 
-val nametag: PlayerNameTag = // ...
-minigame.ui.removeNametag(nametag)
-minigame.ui.removeAllNametags()
+val nametag: PlayerNametag = // ...
+minigame.visuals.removeNametag(nametag)
+minigame.visuals.removeAllNametags()
 
-minigame.ui.removeSidebar()
+minigame.visuals.removeSidebar()
 
-minigame.ui.removePlayerListDisplay()
+minigame.visuals.removePlayerListDisplay()
 ```
 
-There are also two additional things that the ui manager controls, that is the 
+There are also two additional things that the visual manager controls, that is the 
 `Countdown` and `ReadyChecker`, these are used in minigames by default when 
 unpausing to check that all players are ready, and then a countdown begins. You
 may also want to use these for other applications. These will have default 
@@ -62,24 +62,25 @@ implementations, but you can overwrite them.
 ```kotlin
 val minigame: Minigame = // ...
     
-minigame.ui.countdown = TitledCountdown.titled(Component.literal("My Titled Countdown!"))
+minigame.visuals.countdown = TitledCountdown.titled(Component.literal("My Titled Countdown!"))
 
-// Utility method for countdowns specifically for minigames
-// this will default to using the minigame scheduler and
-// also only display this for the minigame players by default
-minigame.ui.countdown.countdown(minigame, 10.Seconds, 1.Seconds).then {
-    println("Minigame Countdown!")
+// Launch a co-routine on the minigame scheduler
+minigame.launch {
+    // This transition is suspending
+    minigame.visuals.countdown.transition(10.Seconds, 1.Seconds, minigame.players::all)
+    // Executes *after* our transition is complete!
+    println("Minigame Countdown Finished!")
 }
 
-minigame.ui.readier = // ...
+minigame.visuals.readier = // ...
     
 // We can then use this to check if players are ready
-minigame.ui.readier.arePlayersReady(minigame.players.playing).then {
+minigame.visuals.readier.arePlayersReady(minigame.players.playing).then {
     println("Playing players are ready!")
 }
 ```
 
-## Phased UI Components
+## Phased Visual Components
 
 Previously in the [Scheduling Section](scheduling.md) we briefly talked about 
 the `BossbarTask`, the purpose of this task is to be able to display a bossbar 
@@ -88,7 +89,7 @@ phase the bossbar will be removed appropriately.
 
 Each gui component has a respective task that does this:
 - `BossbarTask`
-- `NameTagTask`
+- `NametagTask`
 - `PlayerListTask`
 - `SidebarTask`
 
@@ -116,11 +117,11 @@ enum class ExamplePhases(
 ): Phase<ExampleMinigame> {
     Grace("grace") {
         override fun initialize(minigame: ExampleMinigame) {
-            minigame.ui.addBossbar(minigame.bossbar)
+            minigame.visuals.addBossbar(minigame.bossbar)
         }
         
         override fun end(minigame: ExampleMinigame, next: Phase<ExampleMinigame>) {
-            minigame.ui.removeBossbar(minigame.bossbar)
+            minigame.visuals.removeBossbar(minigame.bossbar)
         }
     }
     // ...
@@ -158,11 +159,11 @@ open class BossbarTask<T: CustomBossbar>(
     val bar: T
 ): Task {
     init {
-        this.minigame.ui.addBossbar(this.bar)
+        this.minigame.visuals.addBossbar(this.bar)
     }
 
     final override fun run() {
-        this.minigame.ui.removeBossbar(this.bar)
+        this.minigame.visuals.removeBossbar(this.bar)
     }
 }
 ```

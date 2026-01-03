@@ -68,7 +68,7 @@ We can customize and configure how elements are displayed in our menus. By defau
 this will be from left to right and top to bottom, until the page is full, then the 
 next page will continue displaying elements:
 
-![Default Selection Screen Layout](../assets/selection_screen_default.png)
+![Default Selection Screen Layout](images/selection_screen_default.png)
 
 We can customize this by specifying a style; this determines which slots in the gui 
 can be filled with our selectable elements.
@@ -84,7 +84,7 @@ provides a style that puts all the elements in the center of the page:
 builder.style = SelectionGuiStyle.centered(width = 5, height = 3)
 ```
 
-![Styled Selection Screen Layout](../assets/selection_screen_styled.png)
+![Styled Selection Screen Layout](images/selection_screen_styled.png)
 
 #### Components
 
@@ -204,37 +204,37 @@ val element: UniversalElement<Int> = UniversalElement { server ->
 
 ## Player Interfaces
 
-Most GUI elements that we're going to discuss will inherit the class `PlayerUI`, 
+Most Visual elements that we're going to discuss will inherit the class `TrackingVisualElement`, 
 this is a class that just manages what players are able to view a given gui component, 
 keeps track of who is watching what and how often the ui should be updated.
 
 Whether it's a sidebar, bossbar, or tab display, we can add, remove, and clear players:
 ```kotlin
 val player: ServerPlayer = // ...
-val uiComponent: PlayerUI = // ...
+val visual: TrackingVisualElement = // ...
 
 // Player can now view this ui component
-uiComponent.addPlayer(player)
+visual.addPlayer(player)
 // Player cannot view this ui component anymore
-uiComponent.removePlayer(player)
+visual.removePlayer(player)
 // Removes all watching players
-uiComponent.clearPlayers()
+visual.clearPlayers()
 // Gets all watching players
-val watching: List<ServerPlayer> = uiComponent.getPlayers()
+val watching: List<ServerPlayer> = visual.getPlayers()
 ```
 
 And we can change the update interval, this just specifies how many ticks should 
 occur before the ui recalculates its state and sends updates to watching players. 
 By default, this will happen every tick.
 ```kotlin
-val uiComponent: PlayerUI = // ...
+val visual: TrackingVisualElement = // ...
 // An update will now happen every second
-uiComponent.setInterval(20)
+    visual.setInterval(20)
 ```
 
 > [!NOTE]
-> If you're using these GUI components in a minigame, the minigame will handle all 
-> the player management for you, see the section on [Minigame GUI](../arcade-minigames/gui.md) 
+> If you're using these visual components in a minigame, the minigame will handle all 
+> the player management for you, see the section on [Minigame Visuals](../arcade-minigames/visuals.md) 
 > for more information.
 
 ## Sidebar
@@ -243,13 +243,13 @@ The sidebar is a very powerful tool that minigames have to display user interfac
 Arcade provides an api to display ui on a per-player basis dynamically. 
 We can display up to 14 lines of text on the side of our player's screens.
 
-Let's take a look at the `Sidebar` class, this manages a sidebar for our players. 
+Let's take a look at the `FixedSidebar` class, this manages a sidebar for our players. 
 We can construct our sidebar providing a `PlayerSpecificElement<Component>` for the 
 title of the sidebar:
 
 ```kotlin
 // The ComponentElement object provides some utilities
-val sidebar = Sidebar(ComponentElements.of(Component.literal("Sidebar Title")))
+val sidebar = FixedSidebar(ComponentElements.of(Component.literal("Sidebar Title")))
 ```
 
 To add rows to our sidebar we must first discuss `SidebarComponents`, which is just 
@@ -265,14 +265,14 @@ SidebarComponent.withCustomScore(
 )
 ```
 
-Now we can add these components to our `ArcadeSidebar` using the 
-`ArcadeSidebar#addRow` method. This takes in `PlayerSpecificElement<SidebarComponent>`. 
+Now we can add these components to our `Sidebar` using the 
+`FixedSidebar#addRow` method. This takes in `PlayerSpecificElement<SidebarComponent>`. 
 By default `addRow` will append the rows to the bottom of the sidebar, you can also 
 specify the index at which you want to insert your element using 
 `addRow(index, element)`, or if you want to overwrite a row you can use 
 `setRow(index, element)`.
 ```kotlin
-val sidebar = Sidebar(ComponentElements.of(Component.literal("Sidebar Title")))
+val sidebar = FixedSidebar(ComponentElements.of(Component.literal("Sidebar Title")))
 
 val displayElement = SidebarComponent.withNoScore(Component.literal("My Display Element"))
 sidebar.addRow(UniversalElement.constant(displayElement))
@@ -285,11 +285,11 @@ sidebar.addRow(UniversalElement.constant(displayScore))
 ```
 
 These elements would result in a sidebar looking like so:
-![Sidebar Components Example](../assets/sidebar_components.png)
+![Sidebar Components Example](images/sidebar_components.png)
 
 Now lets make our sidebar dynamic, providing some updatable elements:
 ```kotlin
-val sidebar = Sidebar(ComponentElements.of(Component.literal("Sidebar Title")))
+val sidebar = FixedSidebar(ComponentElements.of(Component.literal("Sidebar Title")))
 
 // Empty sidebar component
 sidebar.addRow(SidebarElements.empty())
@@ -312,7 +312,7 @@ sidebar.addRow(SidebarElements.empty())
 ```
 
 In game this looks like so:
-![Example Sidebar](../assets/example_sidebar.png)
+![Example Sidebar](images/example_sidebar.png)
 
 ## Bossbars
 
@@ -340,7 +340,7 @@ bossbar.addPlayer(player)
 ```
 
 This will result in the following bossbar:
-![Static Bossbar Example](../assets/static_bossbar.png)
+![Static Bossbar Example](images/static_bossbar.png)
 
 ### Dynamic Bossbars
 
@@ -366,7 +366,7 @@ bossbar.setStyle(
 ```
 
 This results in the following bossbar:
-![Supplied Bossbar Example](../assets/supplied_bossbar.png)
+![Supplied Bossbar Example](images/supplied_bossbar.png)
 
 We can also directly extend the `CustomBossbar` class and implement our own methods, if you'd prefer:
 ```kotlin
@@ -436,7 +436,7 @@ class MyCustomTimerBossbar: TimerBossBar() {
 For example, like the grace bossbar in the image below, to achieve this effect, you 
 can create a resource pack and change one of the bossbar color textures to be shorter.
 
-![Scaled Timer Bossbar](../assets/scaled_timer_bossbar.png)
+![Scaled Timer Bossbar](images/scaled_timer_bossbar.png)
 
 Once you have your bossbar implemented, we can now make use of the timing features.
 
@@ -471,7 +471,7 @@ current players online. Arcade extends this functionality by giving you full con
 of what is displayed in the tab display.
 
 To create a tab display, we can construct an instance of `PlayerListDisplay`, 
-as with the bossbars and sidebar this extends `PlayerUI`. 
+as with the bossbars and sidebar this extends `TrackingVisualElement`. 
 To construct this we need to provide some `PlayerListEntries`, the next section will 
 discuss this in more detail.
 
@@ -508,7 +508,7 @@ a negative padding resource pack. More information about these packs in the
 
 Here's an example of what `TeamListEntries` look like:
 
-![Tab Display With TeamListEntries](../assets/team_list_entries.png)
+![Tab Display With TeamListEntries](images/team_list_entries.png)
 
 You can extend this class to modify the formatting and customize what teams are 
 displayed.
@@ -558,48 +558,47 @@ display.setDisplay(
 
 This will look like so:
 
-![Example Header And Footer](../assets/header_and_footer.png)
+![Example Header And Footer](images/header_and_footer.png)
 
 ## Nametags
 
 Nametags in vanilla are quite limiting, you can only have two nametags, and you have 
-very little configurability over what is displayed on them. Arcade allows you to 
-have more control by using [CustomNameTags](https://github.com/senseiwells/CustomNameTags). 
-Arcade implements this system into it's `PlayerUI` system and uses `PlayerSpecificElement<Component>`s 
+very little configurability over what is displayed on them.  
+Arcade implements this system into it's `TrackingVisualElement` system and uses `PlayerSpecificElement<Component>`s 
 to determine what is displayed on the nametag. Arcade's nametags also allow you to 
 configure who can see which nametags.
 
-To create a basic nametag we just construct `PlayerNameTag` providing it a 
+To create a basic nametag we just construct `PlayerNametag` providing it a 
 `PlayerSpecificElement<Component>`:
 
 ```kotlin
-val nametag = PlayerNameTag({ player -> Component.literal("[CNT] ").append(player.displayName) })
+val nametag = PlayerNametag.simple({ player -> Component.literal("[CNT] ").append(player.displayName) })
 ```
 Adding players to this nametag will make the nametag display for these players:
-![Single Nametag Example](../assets/nametag_example.png)
+![Single Nametag Example](images/nametag_example.png)
 
 And we can add as many nametags as we please with this system:
 ```kotlin
-val nametag = PlayerNameTag({ player -> Component.literal("[CNT] ").append(player.displayName) })
+val nametag = PlayerNametag.simple({ player -> Component.literal("[CNT] ").append(player.displayName) })
 nametag.addPlayer(/* */)
 
-val nametagTwo = PlayerNameTag(ComponentElements.of(Component.literal("Electric Boogaloo")))
+val nametagTwo = PlayerNametag.simple(ComponentElements.of(Component.literal("Electric Boogaloo")))
 nametagTwo.addPlayer(/* */)
 ```
 
-![Multiple Nametag Example](../assets/multiple_nametag_example.png)
+![Multiple Nametag Example](images/multiple_nametag_example.png)
 
 Now, what if we only want to display some nametags under certain conditions. 
-We can make use of `PlayerNameTag`'s observer predicates. This is a functional 
+We can make use of `PlayerNametag`'s observer predicates. This is a functional 
 interface which takes in two `ServerPlayer`s (the first being the **observee**, 
 the second being the **observer**) and returns whether the **observer** should be 
 able to observe the **observee**.
 
 ```kotlin
-val nametag = PlayerNameTag({ player -> Component.literal("[CNT] ").append(player.displayName) })
-val healthTag = PlayerNameTag({ player -> Component.literal("${player.health} ❤") })
+val nametag = PlayerNametag({ player -> Component.literal("[CNT] ").append(player.displayName) })
+val healthTag = PlayerNametag({ player -> Component.literal("${player.health} ❤") })
 
-val healthWarningTag = PlayerNameTag(
+val healthWarningTag = PlayerNametag(
     ComponentElements.of(Component.literal("< 5 hearts!")),
     // We say that an observer can only see this nametag if
     // they are in spectator AND the observee is under 5 hearts
@@ -609,20 +608,17 @@ val healthWarningTag = PlayerNameTag(
 
 And below, you can see what this would look like in game:
 
-![Observer Predicate Example](../assets/observee_predicate.png)
+![Observer Predicate Example](images/observee_predicate.png)
 
 ## Other
 
-There are some other small miscellaneous GUI elements that Arcade provides.
+There are some other small miscellaneous visual elements that Arcade provides.
 
-### Countdowns
+### Transitions
 
 In minigames, it's common to want a countdown. Arcade provides an interface for 
-easily creating these. There is a generic `Countdown` interface, as well as a 
-`TitledCountdown` interface. The `Countdown` interface is intended for if you wish 
-to create a countdown system that doesn't use Minecraft's titles, and for example, 
-uses chat instead, but for most cases you will probably want to be using 
-`TitledCountdown`s.
+easily creating these. There is a generic `Transitions` interface, as well as a 
+`TitledCountdown` interface.
 
 To create a titled countdown we can simply call `TitledCountdown#titled`, you can 
 optionally pass in your title if you wish it to be different from the default:
@@ -631,24 +627,20 @@ optionally pass in your title if you wish it to be different from the default:
 val countdown = TitledCountdown.titled()
 ```
 
-Then to initiate the countdown you call `Countdown#countdown` passing in a duration 
-for the countdown, an interval between the counts, a `MinecraftSheduler` implementation, 
-and a player provider. By default, the duration will be 10 seconds, the interval 
-will be 1 second, the `GlobalTickedScheduler` will be used, and the countdown will 
-be broadcasted to all online players.
+Then to initiate the countdown you call `Transition#transition` which is a suspending
+function which takes a duration and interval between transition updates (counts in this case),
+and suspends until the transition is fully complete.
+By default, the duration will be 10 seconds, the interval will be 1 second.
 
 ```kotlin
-// Gets all online players
-val players: () -> Collection<ServerPlayer> = PlayerUtils::players
-countdown.countdown(
-    5.Seconds,
-    1.Seconds,
-    GlobalTickedScheduler.asScheduler(),
-    players
-)
+val server: MinecraftServer = // ...
+server.launch {
+    countdown.transition(5.Seconds, 1.Seconds) { server.players }
+    println("Countdown finished!")
+}
 ```
 
-![Example Of Titled Countdown](../assets/countdown_example.png)
+![Example Of Titled Countdown](images/countdown_example.png)
 
 If you want more control over the formatting and display of the `TitledCountdown` 
 you can create your own implementation and override the respective methods.

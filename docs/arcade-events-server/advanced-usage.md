@@ -19,7 +19,7 @@ If you try to register your event too late, an exception will be thrown.
 ```kotlin
 override fun onInitialize() {
     RegistryEventHandler.register(Registries.DIMENSION_TYPE) { (registry) ->
-        Registry.register(registry, ResourceLocation.withDefaultNamespace("foo"), DimensionType(/* */))
+        Registry.register(registry, Identifier.withDefaultNamespace("foo"), DimensionType(/* */))
     }
 }
 ```

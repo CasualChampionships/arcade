@@ -76,19 +76,21 @@ By default, if a player dies without a respawn point, or with an obstructed resp
 val minigame: Minigame = // ...
 
 // This will make the default spawn point be in the nether around (1500, 64, 3000)
-minigame.levels.spawn = SpawnLocation.global(minigame.server.nether(), BlockPos(1500, 64, 3000))
+minigame.levels.spawn = MinigameLevelManager.SpawnLocation.global(
+    location = minigame.server.nether().asLocation(Vec3(1500.0, 64.0, 3000.0)),
+    overridesPlayerSpawnPoint = false
+)
 ```
 
 If you need, you can also specify the spawn location on a per-player basis.
 
 ```kotlin
-class MySpawnLocation: SpawnLocation {
-    override fun level(player: ServerPlayer): ServerLevel? {
-        TODO("Logic for determining dimension for player spawn")
-    }
+class MySpawnLocation: MinigameLevelManager.SpawnLocation {
+    override val overridesPlayerSpawnPoint: Boolean
+        get() = false
 
-    override fun position(player: ServerPlayer): BlockPos? {
-        TODO("Logic for determining position for player spawn")
+    override fun get(player: ServerPlayer): LocationWithLevel<ServerLevel>? {
+        TODO("Logic for determining location for player spawn")
     }
 }
 ```

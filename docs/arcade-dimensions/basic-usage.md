@@ -23,7 +23,7 @@ We **must** specify a dimension key, and we **must** specify a level stem.
 ```kotlin
 val key = ResourceKey.create(
     Registries.DIMENSION,
-    ResourceLocation.withDefaultNamespace("foo")
+    Identifier.withDefaultNamespace("foo")
 )
 
 val builder = CustomLevelBuilder()
@@ -40,7 +40,7 @@ behaviour when the client believes it's in a specific dimension.
 ```kotlin
 val key = ResourceKey.create(
     Registries.DIMENSION,
-    ResourceLocation.withDefaultNamespace("spoofed")
+    Identifier.withDefaultNamespace("spoofed")
 )
 
 val builder = CustomLevelBuilder()
@@ -71,7 +71,7 @@ by registering it in your mod initializer:
 override fun onInitialize() {
     val dimensionTypeKey = ResourceKey.create(
         Registries.DIMENSION_TYPE,
-        ResourceLocation.withDefaultNamespace("foo")
+        Identifier.withDefaultNamespace("foo")
     )
     RegistryEventHandler.register(Registries.DIMENSION_TYPE) { (registry) ->
         Registry.register(registry, dimensionTypeKey, DimensionTypeBuilder.build {
@@ -133,7 +133,7 @@ val builder = CustomLevelBuilder()
         locked = false
     }
     .gameRules { // Modify the game rules
-        set(GameRules.RULE_DO_IMMEDIATE_RESPAWN, true)
+        set(GameRules.IMMEDIATE_RESPAWN, true)
     }
 
 ```
@@ -257,12 +257,12 @@ as we know the dimension key for the world.
 val server: MinecraftServer = // ...
 val key = ResourceKey.create(
     Registries.DIMENSION,
-    ResourceLocation.withDefaultNamespace("foo")
+    Identifier.withDefaultNamespace("foo")
 )
     
 var level: ServerLevel? = server.loadCustomLevel(key)
 // We can also just provide the location:
-level = server.loadCustomLevel(key.location())
+level = server.loadCustomLevel(key.identifier())
 ```
 
 This will firstly check if a level with the given key is already loaded, if it is,
@@ -279,7 +279,7 @@ function is provided which is lazy and will only be invoked if the level fails t
 val server: MinecraftServer = // ...
 val key = ResourceKey.create(
     Registries.DIMENSION,
-    ResourceLocation.withDefaultNamespace("foo")
+    Identifier.withDefaultNamespace("foo")
 )
 
 server.loadOrAddCustomLevel(key) { // CustomLevelBuilder

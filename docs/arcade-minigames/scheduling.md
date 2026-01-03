@@ -1,6 +1,6 @@
 # Scheduling
 
-> Return to [table of contents](getting_started.md)
+> Return to [table of contents](getting-started.md)
 
 Scheduling is key to implementing a minigame, there are lots of things that you
 will want to do in the future, and the scheduling API allows you to do this. If
@@ -102,5 +102,22 @@ change phases then the bossbar will still be removed.
 
 There are many custom implementations of tasks; however, we will discuss them 
 later in the documentation when their purpose becomes clear.
+
+## Co-routines
+
+Minigame schedulers have coroutine support, and we can easily launch
+coroutines with the utility extension functions:
+```kotlin
+val minigame: Minigame = // ...
+    
+minigame.launch {  }
+minigame.async {  }
+minigame.launchPhased { }
+minigame.asyncPhased {  }
+```
+Coroutines launched from `launch` and `async` run on the minigame's default
+scheduler, and will be cancelled when the minigame is closed. Coroutines 
+launched from the phased variations will run on the minigame's phased
+scheduler, and will additionally be cancelled when the minigame changes phase.
 
 > See the next section on [Commands](commands.md)

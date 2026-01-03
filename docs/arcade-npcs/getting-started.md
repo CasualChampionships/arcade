@@ -1,9 +1,6 @@
-# Extensions
+# NPCs
 
-Extensions are a powerful tool allowing you to store additional data for existing
-Minecraft classes without the need to use your own mixins and duck interfaces.
 
-The extension api is built on-top of the events api to register extensions.
 
 ## Adding to Dependencies
 
@@ -16,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    include(modImplementation("net.casualchampionships:arcade-extensions:0.8.0-beta.11+1.21.11")!!)
+    include(modImplementation("net.casualchampionships:arcade-npcs:0.8.0-beta.11+1.21.11")!!)
 
     include(modImplementation("net.casualchampionships:arcade-event-registry:0.8.0-beta.11+1.21.11")!!)
     include(modImplementation("net.casualchampionships:arcade-events-server:0.8.0-beta.11+1.21.11")!!)

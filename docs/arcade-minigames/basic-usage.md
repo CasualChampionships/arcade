@@ -15,7 +15,7 @@ class ExampleMinigame(
     server: MinecraftServer,
     uuid: UUID
 ): Minigame(server, uuid) {
-    override val id: ResourceLocation = TODO("Not yet implemented")
+    override val id: Identifier = TODO("Not yet implemented")
 
     override fun phases(): Collection<Phase<ExampleMinigame>> {
         TODO("Not yet implemented")
@@ -35,7 +35,7 @@ class ExampleMinigame(
     server: MinecraftServer,
     uuid: UUID
 ): Minigame(server, uuid) {
-    override val id: ResourceLocation = ResourceLocation.fromNamespaceAndPath("modid", "example")
+    override val id: Identifier = Identifier.fromNamespaceAndPath("modid", "example")
 
     override fun phases(): Collection<Phase<ExampleMinigame>> {
         TODO("Not yet implemented")
@@ -100,7 +100,7 @@ class ExampleMinigame(
     server: MinecraftServer,
     uuid: UUID
 ): Minigame(server, uuid) {
-    override val id: ResourceLocation = ResourceLocation.fromNamespaceAndPath("modid", "example")
+    override val id: Identifier = Identifier.fromNamespaceAndPath("modid", "example")
 
     override fun phases(): Collection<Phase<ExampleMinigame>> {
         return listOf(ExamplePhases.Grace, ExamplePhases.Active, ExamplePhases.DeathMatch)
@@ -172,7 +172,7 @@ enum class ExamplePhases(
     DeathMatch("death_match") {
         override fun start(minigame: ExampleMinigame, previous: Phase<ExampleMinigame>) {
             // Change to location of the arena
-            val location = Location.of()
+            val location: Location = // ...
             for (player in minigame.players.playing) {
                 player.teleportTo(location)
             }
@@ -192,7 +192,7 @@ class ExampleMinigame(
     server: MinecraftServer,
     uuid: UUID
 ): Minigame(server, uuid) {
-    override val id: ResourceLocation = ResourceLocation.fromNamespaceAndPath("modid", "example")
+    override val id: Identifier = Identifier.fromNamespaceAndPath("modid", "example")
 
     override fun phases(): Collection<Phase<ExampleMinigame>> {
         return listOf(ExamplePhases.Grace, ExamplePhases.Active, ExamplePhases.DeathMatch)
@@ -233,7 +233,7 @@ enum class ExamplePhases(
     DeathMatch("death_match") {
         override fun start(minigame: ExampleMinigame, previous: Phase<ExampleMinigame>) {
             // Change to location of the arena
-            val location = Location.of()
+            val location: Location = // ...
             for (player in minigame.players.playing) {
                 player.teleportTo(location)
             }
@@ -245,7 +245,7 @@ class ExampleMinigame(
     server: MinecraftServer,
     uuid: UUID
 ): Minigame(server, uuid) {
-    override val id: ResourceLocation = ResourceLocation.fromNamespaceAndPath("modid", "example")
+    override val id: Identifier = Identifier.fromNamespaceAndPath("modid", "example")
 
     override fun phases(): Collection<Phase<ExampleMinigame>> {
         return listOf(ExamplePhases.Grace, ExamplePhases.Active, ExamplePhases.DeathMatch)
@@ -285,7 +285,7 @@ object ExampleMinigameMod: ModInitializer {
     override fun onInitialize() {
         Registry.register(
             MinigameRegistries.MINIGAME_FACTORY,
-            ResourceLocation.fromNamespaceAndPath("modid", "example"),
+            Identifier.fromNamespaceAndPath("modid", "example"),
             ExampleMinigameFactory.codec()
         )
     }
