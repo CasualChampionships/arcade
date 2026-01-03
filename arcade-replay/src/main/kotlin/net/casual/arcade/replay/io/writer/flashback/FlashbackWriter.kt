@@ -200,7 +200,7 @@ public class FlashbackWriter(
     }
 
     override fun getRawRecordingSize(): Long {
-        return PathUtils.sizeOf(this.path)
+        return this.writer.getWrittenBytes()
     }
 
     override fun getOutputPath(): Path {

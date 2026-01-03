@@ -59,6 +59,7 @@ import kotlin.collections.ArrayList
 import kotlin.io.path.pathString
 import kotlin.time.Clock
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
@@ -92,6 +93,8 @@ public abstract class ReplayRecorder(
     private var lastPausedTimestamp: Instant? = null
 
     private var currentRecordingLength = Duration.ZERO
+
+    private var lastFileSizeCheckTimestamp: Instant? = null
 
     private var initialization = AtomicReference(InitializedState.Uninitialized)
     private var ignore = false
@@ -641,15 +644,20 @@ public abstract class ReplayRecorder(
             }
         }
 
-        val maxFileSize = this.settings.limits.maxRawSize
-        if (maxFileSize.bytes > 0) {
-            if (this.getRawRecordingSize() > maxFileSize.bytes) {
-                this.stop(true)
-                GlobalEventHandler.Server.broadcast(ReplayRecorderFileSizeLimitEvent(this))
-                if (this.settings.limits.restartAfterMaxRawSize) {
-                    this.restart()
+        val now = Clock.System.now()
+        val lastFileSizeCheckTimestamp = this.lastFileSizeCheckTimestamp
+        if (lastFileSizeCheckTimestamp == null || lastFileSizeCheckTimestamp < now - 1.minutes) {
+            this.lastFileSizeCheckTimestamp = now
+            val maxFileSize = this.settings.limits.maxRawSize
+            if (maxFileSize.bytes > 0) {
+                if (this.getRawRecordingSize() > maxFileSize.bytes) {
+                    this.stop(true)
+                    GlobalEventHandler.Server.broadcast(ReplayRecorderFileSizeLimitEvent(this))
+                    if (this.settings.limits.restartAfterMaxRawSize) {
+                        this.restart()
+                    }
+                    return
                 }
-                return
             }
         }
     }

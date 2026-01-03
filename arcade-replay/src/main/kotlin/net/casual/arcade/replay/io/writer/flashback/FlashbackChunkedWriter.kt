@@ -6,6 +6,7 @@ package net.casual.arcade.replay.io.writer.flashback
 
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
+import kotlinx.atomicfu.atomic
 import net.casual.arcade.replay.io.FlashbackIO
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
 import net.casual.arcade.replay.util.flashback.FlashbackAction
@@ -32,6 +33,8 @@ public class FlashbackChunkedWriter(
     private var chunk = 0
 
     private val markers = HashMap<String, FlashbackMarker>()
+
+    private var written = atomic(0L)
 
     public var meta: FlashbackMeta = FlashbackMeta(worldName = settings.worldName)
         private set
@@ -104,6 +107,7 @@ public class FlashbackChunkedWriter(
 
         val chunk = this.directory.resolve(name)
         chunk.writeBytes(copy)
+        this.written += copy.size.toLong()
 
         this.meta = this.meta.completeChunk(tick, name, forceSnapshot)
         val meta = this.directory.resolve(FlashbackIO.METADATA)
@@ -127,6 +131,7 @@ public class FlashbackChunkedWriter(
             val path = this.directory.resolve(FlashbackIO.CHUNK_CACHES).resolve("$fileIndex")
             path.createParentDirectories()
             path.writeBytes(copy, StandardOpenOption.CREATE, StandardOpenOption.APPEND, StandardOpenOption.SYNC)
+            this.written += copy.size.toLong()
         } finally {
             buffer.release()
         }
@@ -140,6 +145,10 @@ public class FlashbackChunkedWriter(
     public fun close() {
         this.buffer.release()
         this.directory.deleteRecursively()
+    }
+
+    public fun getWrittenBytes(): Long {
+        return this.written.value + this.buffer.writerIndex()
     }
 
     private fun writeHeader() {
