@@ -17,7 +17,6 @@
     "ServerPlayerMixin",
     "TrackedEntityAccessor",
     "bugfixes.EntityTickListMixin",
-    "bugfixes.RecordCodecBuilderAccessor",
     "network.ConnectionMixin",
     "network.ServerCommonPacketListenerAccessor",
     "network.ServerCommonPacketListenerImplMixin",

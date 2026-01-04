@@ -65,7 +65,7 @@ public object PlayerUtils {
 
     @JvmStatic
     public val ServerPlayer.server: MinecraftServer
-        get() = this.level().server
+        get() = this.level().server!!
 
     @JvmStatic
     public val ServerPlayer.isSurvival: Boolean
