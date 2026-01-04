@@ -5,7 +5,5 @@ moduleDependencies(project, listOf(
 ))
 
 dependencies {
-    // TODO: Remove
-    include(modApi(libs.sgui.get())!!)
     modImplementation(libs.polymer.virtual.entity)
 }
