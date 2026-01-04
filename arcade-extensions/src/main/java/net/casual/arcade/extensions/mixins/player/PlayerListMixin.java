@@ -56,6 +56,8 @@ public class PlayerListMixin {
         for (Extension extension : ExtensionHolder.all((ExtensionHolder) player)) {
             if (extension instanceof TransferableEntityExtension transferable) {
                 transferred.add(transferable.transfer(respawned, transferReason, delayed));
+            } else {
+                transferred.add(extension);
             }
         }
         for (Extension extension : transferred) {

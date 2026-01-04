@@ -108,6 +108,8 @@ public abstract class EntityMixin implements ExtensionHolder {
                 EntityTransferReason reason = EntityTransferReason.Other;
                 Extension transferred = transferable.transfer((Entity) (Object) this, reason, delayed);
                 this.arcade$extensions.add(transferred);
+            } else {
+                this.arcade$extensions.add(extension);
             }
         }
     }
