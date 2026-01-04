@@ -7,7 +7,6 @@
     "minVersion": "0.5.0"
   },
   "mixins": [
-    "ArgumentBuilderMixin",
     "ArgumentNodeStubMixin",
     "ArgumentTypeInfosAccessor",
     "CommandDispatcherMixin",
