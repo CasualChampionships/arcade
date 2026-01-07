@@ -42,8 +42,8 @@ public interface ExtensionHolder {
         @JvmStatic
         public fun ExtensionHolder.deserialize(input: ValueInput) {
             for (extension in this.all()) {
-                if (extension is DataExtension) {
-                    val child = input.childOrEmpty(extension.getId().toString())
+                if (extension is SerializableExtension) {
+                    val child = input.childOrEmpty(extension.id().toString())
                     extension.deserialize(child)
                 }
             }
@@ -52,8 +52,8 @@ public interface ExtensionHolder {
         @JvmStatic
         public fun ExtensionHolder.serialize(output: ValueOutput) {
             for (extension in this.all()) {
-                if (extension is DataExtension) {
-                    val child = output.child(extension.getId().toString())
+                if (extension is SerializableExtension) {
+                    val child = output.child(extension.id().toString())
                     extension.serialize(child)
                 }
             }

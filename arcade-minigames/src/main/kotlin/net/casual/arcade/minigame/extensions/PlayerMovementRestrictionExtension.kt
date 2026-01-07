@@ -14,7 +14,7 @@ import net.casual.arcade.events.server.player.PlayerAttributeUpdatedEvent
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
 import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
 import net.casual.arcade.events.server.player.PlayerTickEvent
-import net.casual.arcade.extensions.DataExtension
+import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
@@ -36,7 +36,7 @@ import net.minecraft.world.level.storage.ValueOutput
 import net.minecraft.world.phys.Vec3
 import org.jetbrains.annotations.VisibleForTesting
 
-public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExtension(player), DataExtension {
+public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExtension(player), SerializableExtension {
     private var attachment: EntityAttachment? = null
     private var position: Vec3 = Vec3.ZERO
     private var persist: Boolean = false
@@ -44,7 +44,7 @@ public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExt
     public val hasRestrictedMovement: Boolean
         get() = this.attachment != null
 
-    override fun getId(): Identifier {
+    override fun id(): Identifier {
         return ArcadeUtils.id("movement_restriction")
     }
 

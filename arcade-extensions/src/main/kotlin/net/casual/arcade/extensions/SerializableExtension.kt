@@ -9,39 +9,41 @@ import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
+@Deprecated("Use SerializableExtension instead")
+public typealias DataExtension = SerializableExtension
+
 /**
  * This interface is an extension of [Extension] that allows
  * you to further serialize any data in your [Extension].
  *
  * Building off the previous example in [Extension] to now
- * make it a DataExtension:
+ * make it a [SerializableExtension]:
  * ```kotlin
- * public class MyLevelExtension: DataExtension {
- *     public var lastModifiedBlockPos: BlockPos? = null
+ * class MyLevelExtension: SerializableExtension {
+ *     var lastModifiedBlockPos: BlockPos? = null
  *
- *     override fun getName(): String {
- *         return "arcade_my_level_extension"
+ *     override fun serialize(output: ValueOutput) {
+ *         output.storeNullable("last_modified_pos", BlockPos.CODEC, this.lastModifiedBlockPos)
  *     }
  *
- *     override fun serialize(): Tag? {
- *         val pos = this.lastModifiedBlockPos ?: return null
- *         return NbtUtils.writeBlockPos(pos)
+ *     override fun deserialize(input: ValueInput) {
+ *         this.lastModifiedBlockPos = input.read("last_modified_pos", BlockPos.CODEC).getOrNull()
  *     }
  *
- *     override fun deserialize(element: Tag) {
- *         this.lastModifiedBlockPos = NbtUtils.readBlockPos(element as CompoundTag)
+ *     override fun id(): Identifier {
+ *         return Identifier("example", "my_level_extension")
  *     }
  *
- *     public companion object {
- *         public val ServerLevel.myExtension: MyLevelExtension
- *             get() = this.getExtension(MyLevelExtension::class.java)
+ *     companion object {
+ *         val ServerLevel.myExtension: MyLevelExtension
+ *             get() = this.getExtension()
  *
  *         // This must be called in your ModInitializer
- *         public fun registerEvents() {
- *             GlobalEventHandler.register<LevelExtensionEvent> { event ->
+ *         internal fun registerEvents() {
+ *             GlobalEventHandler.Server.register<LevelExtensionEvent> { event ->
  *                 event.addExtension(MyLevelExtension())
  *             }
- *             GlobalEventHandler.register<LevelBlockChangedEvent> { (level, pos, _, _) ->
+ *             GlobalEventHandler.Server.register<LevelBlockChangedEvent> { (level, pos, _, _) ->
  *                 level.myExtension.lastModifiedBlockPos = pos
  *             }
  *         }
@@ -53,13 +55,13 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  *
  * @see Extension
  */
-public interface DataExtension: Extension {
+public interface SerializableExtension: Extension {
     /**
      * This gets the id of your extension.
      *
      * @return The id of your extension.
      */
-    public fun getId(): Identifier
+    public fun id(): Identifier
 
     /**
      * This method serializes any data in your extension.

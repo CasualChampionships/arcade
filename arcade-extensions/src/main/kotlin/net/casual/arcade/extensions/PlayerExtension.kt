@@ -5,7 +5,7 @@
 package net.casual.arcade.extensions
 
 import net.casual.arcade.utils.entity.EntityTransferReason
-import net.casual.arcade.utils.impl.DelayedInvokers
+import net.casual.arcade.utils.impl.DelayedActions
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.entity.Entity
@@ -17,14 +17,14 @@ import net.minecraft.world.entity.Entity
  * must extend this class, it is recommended to do so, as
  * it holds a reference to the [connection] instead of the player.
  * This handles the case where the player instance is replaced
- * as a result of the player respawning.
+ * as a result of the player respawning as we will still have
+ * the correct reference to the new [player].
  *
  * By default, the same instance of the extension is kept for
- * new instances of [ServerPlayer] that are created, these can
- * be either from the player respawning, or the player going through
- * something like the end portal.
+ * new instances of [ServerPlayer] that are created, but you
+ * can define your own behavior by overriding [transfer].
  *
- * You can also implement [DataExtension].
+ * You can also implement [SerializableExtension].
  *
  * @param connection The connection of the player.
  * @see Extension
@@ -48,7 +48,7 @@ public abstract class PlayerExtension(
     public open fun transfer(
         player: ServerPlayer,
         reason: EntityTransferReason,
-        delayed: DelayedInvokers
+        delayed: DelayedActions
     ): Extension {
         return this
     }
@@ -56,7 +56,7 @@ public abstract class PlayerExtension(
     final override fun transfer(
         entity: Entity,
         reason: EntityTransferReason,
-        delayed: DelayedInvokers
+        delayed: DelayedActions
     ): Extension {
         return this.transfer(entity as ServerPlayer, reason, delayed)
     }

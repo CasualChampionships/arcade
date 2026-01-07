@@ -22,7 +22,7 @@ import net.casual.arcade.nametags.virtual.NametagElement
 import net.casual.arcade.nametags.virtual.NametagElementHolder
 import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.entity.EntityTransferReason
-import net.casual.arcade.utils.impl.DelayedInvokers
+import net.casual.arcade.utils.impl.DelayedActions
 import net.casual.arcade.utils.modify
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
@@ -47,7 +47,7 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
     override fun transfer(
         entity: Entity,
         reason: EntityTransferReason,
-        delayed: DelayedInvokers
+        delayed: DelayedActions
     ): Extension {
         val old = this.attachment ?: return EntityNametagExtension(entity)
         val elements = (old.holder() as? NametagElementHolder)?.getNametagElements() ?: listOf()

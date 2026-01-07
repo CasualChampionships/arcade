@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.minigame.gamemode
 
-import net.casual.arcade.extensions.DataExtension
+import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.ArcadeUtils
@@ -16,7 +16,7 @@ import net.minecraft.world.level.storage.ValueOutput
 
 internal class ExtendedGameModePlayerExtension(
     player: ServerPlayer
-): PlayerExtension(player), DataExtension {
+): PlayerExtension(player), SerializableExtension {
     private var gameMode = ExtendedGameMode.None
     private var changedGameMode = false
 
@@ -49,7 +49,7 @@ internal class ExtendedGameModePlayerExtension(
         this.gameMode = ExtendedGameMode.fromVanilla(type)
     }
 
-    override fun getId(): Identifier {
+    override fun id(): Identifier {
         return ArcadeUtils.id("extended_game_mode")
     }
 

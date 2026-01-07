@@ -7,7 +7,7 @@ package net.casual.arcade.dimensions.level.spawner.extension
 import net.casual.arcade.dimensions.level.spawner.CustomMobSpawningRules
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
-import net.casual.arcade.extensions.DataExtension
+import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.utils.ArcadeUtils
 import net.minecraft.resources.Identifier
@@ -17,10 +17,10 @@ import org.jetbrains.annotations.ApiStatus.Internal
 import kotlin.jvm.optionals.getOrNull
 
 @Internal
-public class LevelCustomMobSpawningExtension: DataExtension {
+public class LevelCustomMobSpawningExtension: SerializableExtension {
     public var rules: CustomMobSpawningRules? = null
 
-    override fun getId(): Identifier {
+    override fun id(): Identifier {
         return ArcadeUtils.id("custom_mob_spawning")
     }
 

@@ -23,3 +23,5 @@ dependencies {
     include(modImplementation("net.casualchampionships:arcade-utils:0.8.0-beta.11+1.21.11")!!)
 }
 ```
+
+> ### [Usage](usage.md)

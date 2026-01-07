@@ -11,6 +11,11 @@ public enum class EntityTransferReason {
     Respawned,
 
     /**
+     * An entity was converted from another entity.
+     */
+    Converted,
+
+    /**
      * The player transferred between minigames,
      * and the minigame doesn't keep player data.
      */

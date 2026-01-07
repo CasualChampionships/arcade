@@ -13,7 +13,7 @@ import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.TransferableEntityExtension;
 import net.casual.arcade.utils.ArcadeUtils;
 import net.casual.arcade.utils.entity.EntityTransferReason;
-import net.casual.arcade.utils.impl.DelayedInvokers;
+import net.casual.arcade.utils.impl.DelayedActions;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.Entity;
@@ -41,9 +41,9 @@ public class PlayerListMixin {
         CallbackInfoReturnable<ServerPlayer> cir,
         @Local(ordinal = 1) ServerPlayer respawned,
         @Share(namespace = ArcadeUtils.MOD_ID, value = "isMinigameRespawn") LocalBooleanRef isMinigameRespawn,
-        @Share("delayed") LocalRef<DelayedInvokers.Simple> delayedRef
+        @Share("delayed") LocalRef<DelayedActions.Simple> delayedRef
     ) {
-        DelayedInvokers.Simple delayed = new DelayedInvokers.Simple();
+        DelayedActions.Simple delayed = new DelayedActions.Simple();
         delayedRef.set(delayed);
 
         EntityTransferReason transferReason = EntityTransferReason.Other;
@@ -74,8 +74,8 @@ public class PlayerListMixin {
         boolean keepInventory,
         Entity.RemovalReason reason,
         CallbackInfoReturnable<ServerPlayer> cir,
-        @Share("delayed") LocalRef<DelayedInvokers.Simple> delayedRef
+        @Share("delayed") LocalRef<DelayedActions.Simple> delayedRef
     ) {
-        delayedRef.get().invoke();
+        delayedRef.get().run();
     }
 }

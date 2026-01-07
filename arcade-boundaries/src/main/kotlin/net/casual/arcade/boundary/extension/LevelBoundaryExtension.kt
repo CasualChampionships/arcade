@@ -10,7 +10,7 @@ import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.entity.EntityStartTrackingEvent
 import net.casual.arcade.events.server.entity.EntityStopTrackingEvent
 import net.casual.arcade.events.server.level.LevelTickEvent
-import net.casual.arcade.extensions.DataExtension
+import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.utils.ArcadeUtils
@@ -23,7 +23,7 @@ import kotlin.jvm.optionals.getOrNull
 
 public class LevelBoundaryExtension(
     private val level: ServerLevel
-): DataExtension {
+): SerializableExtension {
     private var boundary: LevelBoundary? = null
 
     private fun setBoundary(boundary: LevelBoundary) {
@@ -47,7 +47,7 @@ public class LevelBoundaryExtension(
         this.boundary?.removePlayer(player)
     }
 
-    override fun getId(): Identifier {
+    override fun id(): Identifier {
         return ArcadeUtils.id("boundary")
     }
 

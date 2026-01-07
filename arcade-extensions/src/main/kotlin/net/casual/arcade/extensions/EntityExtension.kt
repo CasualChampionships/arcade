@@ -4,33 +4,26 @@
  */
 package net.casual.arcade.extensions
 
-import net.casual.arcade.extensions.ExtensionHolder.Companion.add
-import net.casual.arcade.extensions.ExtensionHolder.Companion.all
-import net.casual.arcade.extensions.ExtensionHolder.Companion.get
-import net.casual.arcade.utils.ArcadeUtils
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 import org.jetbrains.annotations.ApiStatus.Internal
 
-public abstract class EntityExtension private constructor(
-    private val provider: () -> Entity
-): TransferableEntityExtension {
+/**
+ * An abstract class for all [Entity] extensions.
+ *
+ * It is recommended that all extensions that are
+ * added to entities inherit this class as it implements
+ * the [TransferableEntityExtension] and also provides
+ * compatibility for certain mods.
+ *
+ * @param entity The entity that the extension is attached to.
+ * @see TransferableEntityExtension
+ */
+public abstract class EntityExtension(
     public val entity: Entity
-        get() = this.provider.invoke()
-
-    public constructor(entity: Entity): this(provider(entity))
-
+): TransferableEntityExtension {
     public companion object {
         @Internal
         @JvmField
         public val SHOULD_ATTACH_EXTENSION: ThreadLocal<Boolean> = ThreadLocal.withInitial { true }
-
-        private fun provider(entity: Entity): () -> Entity {
-            if (entity is ServerPlayer) {
-                val connection = entity.connection
-                return { connection.player }
-            }
-            return { entity }
-        }
     }
 }
