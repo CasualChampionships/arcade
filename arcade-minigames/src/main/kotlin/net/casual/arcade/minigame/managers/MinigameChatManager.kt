@@ -481,7 +481,7 @@ public class MinigameChatManager(
 
     private fun registerCommand() {
         this.minigame.commands.register(CommandTree.buildLiteral("chat") {
-            requires { !minigame.settings.isChatGlobal && minigame.settings.enableChatCommand.get(it.playerOrException) }
+            requires { !minigame.settings.isChatGlobal && minigame.settings.enableChatCommand.get(it.player) }
             literal("team") {
                 argument("team", TeamArgument.team()) {
                     requiresAdminOrPermission()

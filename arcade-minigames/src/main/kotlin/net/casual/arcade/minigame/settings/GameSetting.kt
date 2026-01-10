@@ -24,8 +24,11 @@ public class GameSetting<T: Any>(
         return this.value
     }
 
-    public fun get(player: ServerPlayer): T {
-        return this.override(player) ?: this.get()
+    public fun get(player: ServerPlayer?): T {
+        if (player == null) {
+            return this.get()
+        }
+        return this.override.invoke(player) ?: this.get()
     }
 
     public fun set(value: T) {
