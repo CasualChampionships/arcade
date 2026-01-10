@@ -35,7 +35,7 @@ allprojects {
         maven("https://api.modrinth.com/maven")
         maven("https://maven.nucleoid.xyz")
         maven("https://maven.maxhenkel.de/repository/public")
-        maven("https://maven.andante.dev/releases/")
+        maven("https://maven.mcbrawls.net/releases/")
         maven("https://maven4.bai.lol")
         mavenCentral()
     }
