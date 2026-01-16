@@ -18,6 +18,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import java.util.function.Consumer
 
+@Deprecated("Use PlayerSpecificTextDisplayElement instead")
 public open class SpecificComponentDisplayElement(
     private var component: PlayerSpecificElement<Component>
 ): TextDisplayElement() {
