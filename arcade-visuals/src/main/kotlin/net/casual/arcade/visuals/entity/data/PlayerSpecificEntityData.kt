@@ -79,14 +79,21 @@ public class PlayerSpecificEntityData {
     public fun getDirtyEntries(observer: UUID): List<SynchedEntityData.DataValue<*>>? {
         var dirty: MutableList<SynchedEntityData.DataValue<*>>? = null
         if (this.dirty.remove(observer)) {
-            val entries = this.overrides[observer]?.values ?: return null
-            for (entry in entries) {
-                if (entry.dirty) {
-                    entry.dirty = false
-                    if (dirty == null) {
-                        dirty = ArrayList()
-                    }
-                    dirty.add(entry.serialize())
+            val entries = this.overrides[observer]?.int2ObjectEntrySet()?.fastIterator() ?: return null
+            for (pair in entries) {
+                val entry = pair.value
+                if (!entry.dirty) {
+                    continue
+                }
+                entry.dirty = false
+                if (dirty == null) {
+                    dirty = ArrayList()
+                }
+                dirty.add(entry.serialize())
+
+                val base = this.base.getOrNull(pair.intKey) ?: continue
+                if (base.value == entry.value) {
+                    entries.remove()
                 }
             }
         }
