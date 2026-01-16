@@ -23,12 +23,22 @@ public open class PlayerSpecificItemDisplayElement(): PlayerSpecificDisplayEleme
         this.data.set(observer.uuid, DisplayTrackedData.Item.ITEM, stack)
     }
 
+    public fun modifyItemStack(modifier: (ItemStack) -> ItemStack) {
+        this.data.modifyEntry(DisplayTrackedData.Item.ITEM, false, modifier)
+    }
+
     public fun setItemDisplayContext(context: ItemDisplayContext) {
         this.data.modifyEntry(DisplayTrackedData.Item.ITEM_DISPLAY) { context.id }
     }
 
     public fun setItemDisplayContextFor(observer: ServerPlayer, context: ItemDisplayContext) {
         this.data.set(observer.uuid, DisplayTrackedData.Item.ITEM_DISPLAY, context.id)
+    }
+
+    public fun modifyItemDisplayContext(modifier: (ItemDisplayContext) -> ItemDisplayContext) {
+        this.data.modifyEntry(DisplayTrackedData.Item.ITEM_DISPLAY, false) { current ->
+            modifier.invoke(ItemDisplayContext.BY_ID.apply(current.toInt())).id
+        }
     }
 
     override fun getEntityType(): EntityType<*> {

@@ -22,6 +22,10 @@ public class PlayerSpecificBlockDisplayElement(): PlayerSpecificDisplayElement()
         this.data.set(observer.uuid, DisplayTrackedData.Block.BLOCK_STATE, state)
     }
 
+    public fun modifyBlockState(modifier: (BlockState) -> BlockState) {
+        this.data.modifyEntry(DisplayTrackedData.Block.BLOCK_STATE, false, modifier)
+    }
+
     override fun getEntityType(): EntityType<*> {
         return EntityType.BLOCK_DISPLAY
     }

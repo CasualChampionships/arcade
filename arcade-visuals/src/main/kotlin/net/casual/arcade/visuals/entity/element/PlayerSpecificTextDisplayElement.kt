@@ -24,6 +24,10 @@ public open class PlayerSpecificTextDisplayElement(): PlayerSpecificDisplayEleme
         this.data.set(observer.uuid, DisplayTrackedData.Text.TEXT, component)
     }
 
+    public fun modifyText(modifier: (Component) -> Component) {
+        this.data.modifyEntry(DisplayTrackedData.Text.TEXT, false, modifier)
+    }
+
     public fun setLineWidth(width: Int) {
         this.data.modifyEntry(DisplayTrackedData.Text.LINE_WIDTH) { width }
     }

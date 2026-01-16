@@ -24,6 +24,10 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
         this.data.set(observer.uuid, DisplayTrackedData.TRANSLATION, Vector3f(translation))
     }
 
+    public fun modifyTranslation(modifier: (Vector3fc) -> Vector3fc) {
+        this.data.modifyEntry(DisplayTrackedData.TRANSLATION, false) { current -> Vector3f(modifier.invoke(current)) }
+    }
+
     public fun setScale(scale: Vector3fc) {
         val copy = Vector3f(scale)
         this.data.modifyEntry(DisplayTrackedData.SCALE) { copy }
@@ -31,6 +35,10 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
 
     public fun setScaleFor(observer: ServerPlayer, scale: Vector3fc) {
         this.data.set(observer.uuid, DisplayTrackedData.SCALE, Vector3f(scale))
+    }
+
+    public fun modifyScale(modifier: (Vector3fc) -> Vector3fc) {
+        this.data.modifyEntry(DisplayTrackedData.SCALE, false) { current -> Vector3f(modifier.invoke(current)) }
     }
 
     public fun setLeftRotation(rotation: Quaternionfc) {
@@ -42,6 +50,10 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
         this.data.set(observer.uuid, DisplayTrackedData.LEFT_ROTATION, Quaternionf(rotation))
     }
 
+    public fun modifyLeftRotation(modifier: (Quaternionfc) -> Quaternionfc) {
+        this.data.modifyEntry(DisplayTrackedData.LEFT_ROTATION, false) { current -> Quaternionf(modifier.invoke(current)) }
+    }
+
     public fun setRightRotation(rotation: Quaternionfc) {
         val copy = Quaternionf(rotation)
         this.data.modifyEntry(DisplayTrackedData.RIGHT_ROTATION) { copy }
@@ -49,6 +61,10 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
 
     public fun setRightRotationFor(observer: ServerPlayer, rotation: Quaternionfc) {
         this.data.set(observer.uuid, DisplayTrackedData.RIGHT_ROTATION, Quaternionf(rotation))
+    }
+
+    public fun modifyRightRotation(modifier: (Quaternionfc) -> Quaternionfc) {
+        this.data.modifyEntry(DisplayTrackedData.RIGHT_ROTATION, false) { current -> Quaternionf(modifier.invoke(current)) }
     }
 
     public fun setTransformation(transformation: Transformation) {

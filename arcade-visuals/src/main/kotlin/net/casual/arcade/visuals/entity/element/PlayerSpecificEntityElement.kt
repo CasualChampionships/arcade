@@ -22,6 +22,7 @@ import java.util.*
 import java.util.function.Consumer
 import kotlin.experimental.and
 import kotlin.experimental.or
+import kotlin.jvm.optionals.getOrNull
 
 public abstract class PlayerSpecificEntityElement: AbstractElement() {
     public val data: PlayerSpecificEntityData = PlayerSpecificEntityData(this.getEntityType())
@@ -60,12 +61,20 @@ public abstract class PlayerSpecificEntityElement: AbstractElement() {
         this.data.set(observer.uuid, EntityTrackedData.POSE, pose)
     }
 
+    public fun modifyPose(modifier: (Pose) -> Pose) {
+        this.data.modifyEntry(EntityTrackedData.POSE, false) { current -> modifier.invoke(current) }
+    }
+
     public fun setOnFire(onFire: Boolean) {
         this.modifyFlagEntry(EntityTrackedData.ON_FIRE_FLAG_INDEX, onFire)
     }
 
     public fun setOnFireFor(observer: ServerPlayer, onFire: Boolean) {
         this.modifyFlagEntryFor(observer, EntityTrackedData.ON_FIRE_FLAG_INDEX, onFire)
+    }
+
+    public fun modifyOnFire(modifier: (Boolean) -> Boolean) {
+        this.modifyFlagEntry(EntityTrackedData.ON_FIRE_FLAG_INDEX, modifier)
     }
 
     public fun setCrouching(crouching: Boolean) {
@@ -76,12 +85,20 @@ public abstract class PlayerSpecificEntityElement: AbstractElement() {
         this.modifyFlagEntryFor(observer, EntityTrackedData.SNEAKING_FLAG_INDEX, crouching)
     }
 
+    public fun modifyCrouching(modifier: (Boolean) -> Boolean) {
+        this.modifyFlagEntry(EntityTrackedData.SNEAKING_FLAG_INDEX, modifier)
+    }
+
     public fun setSprinting(sprinting: Boolean) {
         this.modifyFlagEntry(EntityTrackedData.SPRINTING_FLAG_INDEX, sprinting)
     }
 
     public fun setSprintingFor(observer: ServerPlayer, sprinting: Boolean) {
         this.modifyFlagEntryFor(observer, EntityTrackedData.SPRINTING_FLAG_INDEX, sprinting)
+    }
+
+    public fun modifySprinting(modifier: (Boolean) -> Boolean) {
+        this.modifyFlagEntry(EntityTrackedData.SPRINTING_FLAG_INDEX, modifier)
     }
 
     public fun setGlowing(glowing: Boolean) {
@@ -92,12 +109,20 @@ public abstract class PlayerSpecificEntityElement: AbstractElement() {
         this.modifyFlagEntryFor(observer, EntityTrackedData.GLOWING_FLAG_INDEX, glowing)
     }
 
+    public fun modifyGlowing(modifier: (Boolean) -> Boolean) {
+        this.modifyFlagEntry(EntityTrackedData.GLOWING_FLAG_INDEX, modifier)
+    }
+
     public fun setInvisible(invisible: Boolean) {
         this.modifyFlagEntry(EntityTrackedData.INVISIBLE_FLAG_INDEX, invisible)
     }
 
     public fun setInvisibleFor(observer: ServerPlayer, invisible: Boolean) {
         this.modifyFlagEntryFor(observer, EntityTrackedData.INVISIBLE_FLAG_INDEX, invisible)
+    }
+
+    public fun modifyInvisible(modifier: (Boolean) -> Boolean) {
+        this.modifyFlagEntry(EntityTrackedData.INVISIBLE_FLAG_INDEX, modifier)
     }
 
     public fun setCustomName(name: Component?) {
@@ -110,6 +135,12 @@ public abstract class PlayerSpecificEntityElement: AbstractElement() {
         this.data.set(observer.uuid, EntityTrackedData.CUSTOM_NAME, optional)
     }
 
+    public fun modifyCustomName(modifier: (Component?) -> Component?) {
+        this.data.modifyEntry(EntityTrackedData.CUSTOM_NAME, false) { current ->
+            Optional.ofNullable(modifier.invoke(current.getOrNull()))
+        }
+    }
+
     public fun setSilent(silent: Boolean) {
         this.data.modifyEntry(EntityTrackedData.SILENT) { silent }
     }
@@ -118,12 +149,20 @@ public abstract class PlayerSpecificEntityElement: AbstractElement() {
         this.data.set(observer.uuid, EntityTrackedData.SILENT, silent)
     }
 
+    public fun modifySilent(modifier: (Boolean) -> Boolean) {
+        this.data.modifyEntry(EntityTrackedData.SILENT, false) { current -> modifier.invoke(current) }
+    }
+
     public fun setNoGravity(noGravity: Boolean) {
         this.data.modifyEntry(EntityTrackedData.NO_GRAVITY) { noGravity }
     }
 
     public fun setNoGravityFor(observer: ServerPlayer, noGravity: Boolean) {
         this.data.set(observer.uuid, EntityTrackedData.NO_GRAVITY, noGravity)
+    }
+
+    public fun modifyNoGravity(modifier: (Boolean) -> Boolean) {
+        this.data.modifyEntry(EntityTrackedData.NO_GRAVITY, false) { current -> modifier.invoke(current) }
     }
 
     protected fun modifyFlagEntry(flag: Int, value: Boolean) {
@@ -135,6 +174,13 @@ public abstract class PlayerSpecificEntityElement: AbstractElement() {
     protected fun modifyFlagEntryFor(observer: ServerPlayer, flag: Int, value: Boolean) {
         val flags = this.data.get(observer.uuid, EntityTrackedData.FLAGS) ?: return
         this.data.set(observer.uuid, EntityTrackedData.FLAGS, flags.updateFlag(flag, value))
+    }
+
+    protected fun modifyFlagEntry(flag: Int, modifier: (Boolean) -> Boolean) {
+        this.data.modifyEntry(EntityTrackedData.FLAGS, false) { flags ->
+            val current = (flags.toInt() shr flag) and 1 != 0
+            flags.updateFlag(flag, modifier.invoke(current))
+        }
     }
 
     protected open fun createSpawnPacket(observer: ServerPlayer): Packet<ClientGamePacketListener> {
