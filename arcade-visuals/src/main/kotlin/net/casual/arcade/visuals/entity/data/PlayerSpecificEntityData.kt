@@ -47,6 +47,10 @@ public class PlayerSpecificEntityData {
         this.dirty.remove(observer)
     }
 
+    public fun isOverridden(observer: UUID, accessor: EntityDataAccessor<*>): Boolean {
+        return this.overrides[observer]?.containsKey(accessor.id) ?: false
+    }
+
     public fun getDirtyObservers(): Set<UUID> {
         return this.dirty
     }
@@ -57,6 +61,13 @@ public class PlayerSpecificEntityData {
             entry.value = value
             entry.dirty = true
             this.dirty.add(observer)
+        }
+    }
+
+    public fun <T> setToBase(observer: UUID, accessor: EntityDataAccessor<T>) {
+        val base = this.getBaseEntry(accessor) ?: return
+        if (this.isOverridden(observer, accessor)) {
+            this.set(observer, accessor, base.value, true)
         }
     }
 

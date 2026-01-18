@@ -23,6 +23,10 @@ public open class PlayerSpecificItemDisplayElement(): PlayerSpecificDisplayEleme
         this.data.set(observer.uuid, DisplayTrackedData.Item.ITEM, stack)
     }
 
+    public fun setItemStackToBaseFor(observer: ServerPlayer) {
+        this.data.setToBase(observer.uuid, DisplayTrackedData.Item.ITEM)
+    }
+
     public fun modifyItemStack(modifier: (ItemStack) -> ItemStack) {
         this.data.modifyEntry(DisplayTrackedData.Item.ITEM, false, modifier)
     }
@@ -33,6 +37,10 @@ public open class PlayerSpecificItemDisplayElement(): PlayerSpecificDisplayEleme
 
     public fun setItemDisplayContextFor(observer: ServerPlayer, context: ItemDisplayContext) {
         this.data.set(observer.uuid, DisplayTrackedData.Item.ITEM_DISPLAY, context.id)
+    }
+
+    public fun setItemDisplayContextToBaseFor(observer: ServerPlayer) {
+        this.data.setToBase(observer.uuid, DisplayTrackedData.Item.ITEM_DISPLAY)
     }
 
     public fun modifyItemDisplayContext(modifier: (ItemDisplayContext) -> ItemDisplayContext) {

@@ -22,6 +22,10 @@ public class PlayerSpecificBlockDisplayElement(): PlayerSpecificDisplayElement()
         this.data.set(observer.uuid, DisplayTrackedData.Block.BLOCK_STATE, state)
     }
 
+    public fun setBlockStateToBaseFor(observer: ServerPlayer) {
+        this.data.setToBase(observer.uuid, DisplayTrackedData.Block.BLOCK_STATE)
+    }
+
     public fun modifyBlockState(modifier: (BlockState) -> BlockState) {
         this.data.modifyEntry(DisplayTrackedData.Block.BLOCK_STATE, false, modifier)
     }

@@ -24,6 +24,10 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
         this.data.set(observer.uuid, DisplayTrackedData.TRANSLATION, Vector3f(translation))
     }
 
+    public fun setTranslationToBaseFor(observer: ServerPlayer) {
+        this.data.setToBase(observer.uuid, DisplayTrackedData.TRANSLATION)
+    }
+
     public fun modifyTranslation(modifier: (Vector3fc) -> Vector3fc) {
         this.data.modifyEntry(DisplayTrackedData.TRANSLATION, false) { current -> Vector3f(modifier.invoke(current)) }
     }
@@ -35,6 +39,10 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
 
     public fun setScaleFor(observer: ServerPlayer, scale: Vector3fc) {
         this.data.set(observer.uuid, DisplayTrackedData.SCALE, Vector3f(scale))
+    }
+
+    public fun setScaleToBaseFor(observer: ServerPlayer) {
+        this.data.setToBase(observer.uuid, DisplayTrackedData.SCALE)
     }
 
     public fun modifyScale(modifier: (Vector3fc) -> Vector3fc) {
@@ -50,6 +58,10 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
         this.data.set(observer.uuid, DisplayTrackedData.LEFT_ROTATION, Quaternionf(rotation))
     }
 
+    public fun setLeftRotationToBaseFor(observer: ServerPlayer) {
+        this.data.setToBase(observer.uuid, DisplayTrackedData.LEFT_ROTATION)
+    }
+
     public fun modifyLeftRotation(modifier: (Quaternionfc) -> Quaternionfc) {
         this.data.modifyEntry(DisplayTrackedData.LEFT_ROTATION, false) { current -> Quaternionf(modifier.invoke(current)) }
     }
@@ -61,6 +73,10 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
 
     public fun setRightRotationFor(observer: ServerPlayer, rotation: Quaternionfc) {
         this.data.set(observer.uuid, DisplayTrackedData.RIGHT_ROTATION, Quaternionf(rotation))
+    }
+
+    public fun setRightRotationToBaseFor(observer: ServerPlayer) {
+        this.data.setToBase(observer.uuid, DisplayTrackedData.RIGHT_ROTATION)
     }
 
     public fun modifyRightRotation(modifier: (Quaternionfc) -> Quaternionfc) {
@@ -141,6 +157,10 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
         this.data.set(observer.uuid, DisplayTrackedData.BILLBOARD, byte)
     }
 
+    public fun setBillboardConstraintsToBaseFor(observer: ServerPlayer) {
+        this.data.setToBase(observer.uuid, DisplayTrackedData.BILLBOARD)
+    }
+
     public fun setBrightness(brightness: Brightness) {
         val packed = brightness.pack()
         this.data.modifyEntry(DisplayTrackedData.BRIGHTNESS) { packed }
@@ -151,12 +171,20 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
         this.data.set(observer.uuid, DisplayTrackedData.BRIGHTNESS, packed)
     }
 
+    public fun setBrightnessToBaseFor(observer: ServerPlayer) {
+        this.data.setToBase(observer.uuid, DisplayTrackedData.BRIGHTNESS)
+    }
+
     public fun setViewRange(range: Float) {
         this.data.modifyEntry(DisplayTrackedData.VIEW_RANGE) { range }
     }
 
     public fun setViewRangeFor(observer: ServerPlayer, range: Float) {
         this.data.set(observer.uuid, DisplayTrackedData.VIEW_RANGE, range)
+    }
+
+    public fun setViewRangeToBaseFor(observer: ServerPlayer) {
+        this.data.setToBase(observer.uuid, DisplayTrackedData.VIEW_RANGE)
     }
 
     public fun setShadowRadius(radius: Float) {
@@ -167,6 +195,10 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
         this.data.set(observer.uuid, DisplayTrackedData.SHADOW_RADIUS, radius)
     }
 
+    public fun setShadowRadiusToBaseFor(observer: ServerPlayer) {
+        this.data.setToBase(observer.uuid, DisplayTrackedData.SHADOW_RADIUS)
+    }
+
     public fun setShadowStrength(strength: Float) {
         this.data.modifyEntry(DisplayTrackedData.SHADOW_STRENGTH) { strength }
     }
@@ -175,11 +207,19 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
         this.data.set(observer.uuid, DisplayTrackedData.SHADOW_STRENGTH, strength)
     }
 
+    public fun setShadowStrengthToBaseFor(observer: ServerPlayer) {
+        this.data.setToBase(observer.uuid, DisplayTrackedData.SHADOW_STRENGTH)
+    }
+
     public fun setGlowColorOverride(color: Int) {
         this.data.modifyEntry(DisplayTrackedData.GLOW_COLOR_OVERRIDE) { color }
     }
 
     public fun setGlowColorOverrideFor(observer: ServerPlayer, color: Int) {
         this.data.set(observer.uuid, DisplayTrackedData.GLOW_COLOR_OVERRIDE, color)
+    }
+
+    public fun setGlowColorOverrideToBaseFor(observer: ServerPlayer) {
+        this.data.setToBase(observer.uuid, DisplayTrackedData.GLOW_COLOR_OVERRIDE)
     }
 }

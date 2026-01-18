@@ -24,6 +24,10 @@ public open class PlayerSpecificTextDisplayElement(): PlayerSpecificDisplayEleme
         this.data.set(observer.uuid, DisplayTrackedData.Text.TEXT, component)
     }
 
+    public fun setTextToBaseFor(observer: ServerPlayer) {
+        this.data.setToBase(observer.uuid, DisplayTrackedData.Text.TEXT)
+    }
+
     public fun modifyText(modifier: (Component) -> Component) {
         this.data.modifyEntry(DisplayTrackedData.Text.TEXT, false, modifier)
     }
