@@ -420,6 +420,11 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    public fun ServerPlayer.sendActionBarMessage(component: Component) {
+        this.connection.send(ClientboundSetActionBarTextPacket(component))
+    }
+
+    @JvmStatic
     @JvmOverloads
     public fun ServerPlayer.sendSound(sound: Sound, position: Vec3 = this.position()) {
         this.sendSound(sound.event, sound.source, position, sound.volume, sound.pitch, sound.static)
