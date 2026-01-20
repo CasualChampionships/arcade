@@ -26,6 +26,7 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntitySpawnReason
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.Relative
+import net.minecraft.world.entity.ai.attributes.AttributeInstance
 import net.minecraft.world.level.levelgen.structure.Structure
 import net.minecraft.world.phys.Vec3
 import java.util.*
@@ -155,6 +156,10 @@ public fun <T: Entity> EntityType<T>.spawn(
         entity.setYBodyRot(location.yRot)
     }
     return this.spawn(location.level, consumer, BlockPos.containing(location.position), reason, false, false)
+}
+
+public fun AttributeInstance.resetBaseValue() {
+    this.baseValue = this.attribute.value().defaultValue
 }
 
 public object SynchedDataUtils {

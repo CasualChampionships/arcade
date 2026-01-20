@@ -15,10 +15,10 @@ import net.casual.arcade.resources.font.providers.SpaceFontProvider
 import net.casual.arcade.resources.lang.LanguageEntry
 import net.casual.arcade.utils.Identifier
 import net.casual.arcade.utils.component.font
-import net.casual.arcade.utils.JsonUtils
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import org.apache.commons.lang3.mutable.MutableInt
+import java.awt.image.BufferedImage
 
 public abstract class FontResources(
     public val id: Identifier,
@@ -27,6 +27,7 @@ public abstract class FontResources(
     private val languages = HashMultimap.create<String, LanguageEntry>()
     private val codepoint = MutableInt(pua.codepoint)
     private val providers = ArrayList<FontProvider>()
+    private val bitmaps = Object2ObjectOpenHashMap<ResourceLocation, BitmapGenerator>()
     private val spaces by lazy(::createSpaces)
 
     protected fun space(advance: Float): Component {
@@ -38,11 +39,15 @@ public abstract class FontResources(
     protected fun bitmap(
         texture: Identifier,
         ascent: Int = 8,
-        height: Int = 8
+        height: Int = 8,
+        generator: BitmapGenerator? = null
     ): Component {
         val codepoint = this.nextCodepointAsString()
-        val bitmap = BitmapFontProvider(texture, ascent, height, listOf(codepoint))
+        val bitmap = BitmapFontProvider(texture.addPNGSuffix(), ascent, height, listOf(codepoint))
         this.providers.add(bitmap)
+        if (generator != null) {
+            this.bitmaps[texture.removePNGSuffix()] = generator
+        }
         return Component.literal(codepoint).font(id)
     }
 
@@ -58,11 +63,11 @@ public abstract class FontResources(
         return Identifier(this.id.namespace, "font/$path")
     }
 
-    internal fun toJson(): String {
+    internal fun getProvidersJson(): JsonObject {
         val json = JsonObject()
         val result = FontProvider.CODEC.listOf().encodeStart(JsonOps.INSTANCE, this.providers).orThrow
         json.add("providers", result)
-        return JsonUtils.MIN_GSON.toJson(json)
+        return json
     }
 
     internal fun getLangJsons(): Map<String, JsonObject> {
@@ -77,6 +82,28 @@ public abstract class FontResources(
         return langs
     }
 
+    internal fun getGeneratedBitmaps(): Map<ResourceLocation, BufferedImage> {
+        val bitmaps = Object2ObjectOpenHashMap<ResourceLocation, BufferedImage>()
+        for ((id, generator) in this.bitmaps) {
+            bitmaps[id] = generator.generate(id)
+        }
+        return bitmaps
+    }
+
+    private fun ResourceLocation.addPNGSuffix(): ResourceLocation {
+        if (!this.path.endsWith(".png")) {
+            return this.withSuffix(".png")
+        }
+        return this
+    }
+
+    private fun ResourceLocation.removePNGSuffix(): ResourceLocation {
+        if (this.path.endsWith(".png")) {
+            return this.withPath { path -> path.removeSuffix(".png") }
+        }
+        return this
+    }
+
     private fun nextCodepoint(): Int {
         return this.codepoint.andIncrement
     }
@@ -89,6 +116,10 @@ public abstract class FontResources(
         val spaces = Int2FloatLinkedOpenHashMap()
         this.providers.add(SpaceFontProvider(spaces))
         return spaces
+    }
+
+    protected fun interface BitmapGenerator {
+        public fun generate(id: ResourceLocation): BufferedImage
     }
 
     protected class Translatable(
