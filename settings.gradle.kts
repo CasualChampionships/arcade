@@ -19,6 +19,7 @@ include(
     ":arcade-resource-pack-host",
     ":arcade-scheduler",
     ":arcade-utils",
+    ":arcade-virtual-entities",
     ":arcade-visuals",
 )
 

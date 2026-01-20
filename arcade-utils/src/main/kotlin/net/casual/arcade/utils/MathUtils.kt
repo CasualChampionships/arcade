@@ -38,6 +38,30 @@ public object MathUtils {
     public operator fun Vec3i.component2(): Int = this.y
     public operator fun Vec3i.component3(): Int = this.z
 
+    public operator fun Vec3.plus(other: Vec3): Vec3 {
+        return this.add(other)
+    }
+
+    public operator fun Vec3.minus(other: Vec3): Vec3 {
+        return this.subtract(other)
+    }
+
+    public operator fun Vec3.times(factor: Double): Vec3 {
+        return this.scale(factor)
+    }
+
+    public operator fun Vec2.plus(other: Vec2): Vec2 {
+        return this.add(other)
+    }
+
+    public operator fun Vec2.minus(other: Vec2): Vec2 {
+        return Vec2(this.x - other.x, this.y - other.y)
+    }
+
+    public operator fun Vec2.times(factor: Float): Vec2 {
+        return Vec2(this.x * factor, this.y * factor)
+    }
+
     public fun max(a: Vec3, b: Vec3): Vec3 {
         return Vec3(max(a.x, b.x), max(a.y, b.y), max(a.z, b.z))
     }
