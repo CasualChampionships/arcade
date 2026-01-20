@@ -29,11 +29,11 @@ public class PlayerSpecificEntityData {
         }
     }
 
-    public fun <T> get(observer: UUID, accessor: EntityDataAccessor<T>): T? {
+    public fun <T: Any> get(observer: UUID, accessor: EntityDataAccessor<T>): T? {
         return this.getEntry(observer, accessor)?.value
     }
 
-    public fun <T> getEntry(observer: UUID, accessor: EntityDataAccessor<T>): Entry<T>? {
+    public fun <T: Any> getEntry(observer: UUID, accessor: EntityDataAccessor<T>): Entry<T>? {
         return this.getOverriddenEntry(observer, accessor) ?: this.getBaseEntry(accessor)
     }
 
@@ -55,7 +55,7 @@ public class PlayerSpecificEntityData {
         return this.dirty
     }
 
-    public fun <T> set(observer: UUID, accessor: EntityDataAccessor<T>, value: T, force: Boolean = false) {
+    public fun <T: Any> set(observer: UUID, accessor: EntityDataAccessor<T>, value: T, force: Boolean = false) {
         val entry = this.getOrCreateOverriddenEntry(observer, accessor) ?: return
         if (force || value != entry.value) {
             entry.value = value
@@ -64,14 +64,14 @@ public class PlayerSpecificEntityData {
         }
     }
 
-    public fun <T> setToBase(observer: UUID, accessor: EntityDataAccessor<T>) {
+    public fun <T: Any> setToBase(observer: UUID, accessor: EntityDataAccessor<T>) {
         val base = this.getBaseEntry(accessor) ?: return
         if (this.isOverridden(observer, accessor)) {
             this.set(observer, accessor, base.value, true)
         }
     }
 
-    public fun <T> modifyEntry(accessor: EntityDataAccessor<T>, force: Boolean = false, modifier: (T) -> T) {
+    public fun <T: Any> modifyEntry(accessor: EntityDataAccessor<T>, force: Boolean = false, modifier: (T) -> T) {
         val base = this.getBaseEntry(accessor) ?: return
         base.value = modifier.invoke(base.value)
         base.dirty = true
@@ -126,7 +126,7 @@ public class PlayerSpecificEntityData {
     }
 
     @Suppress("UNCHECKED_CAST")
-    public fun <T> getBaseEntry(accessor: EntityDataAccessor<T>): Entry<T>? {
+    public fun <T: Any> getBaseEntry(accessor: EntityDataAccessor<T>): Entry<T>? {
         val entry = this.base.getOrElse(accessor.id) {
             return null
         }
@@ -166,18 +166,18 @@ public class PlayerSpecificEntityData {
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T> getOverriddenEntry(observer: UUID, accessor: EntityDataAccessor<T>): Entry<T>? {
+    private fun <T: Any> getOverriddenEntry(observer: UUID, accessor: EntityDataAccessor<T>): Entry<T>? {
         return (this.overrides[observer]?.get(accessor.id) as? Entry<T>)
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T> getOrCreateOverriddenEntry(observer: UUID, accessor: EntityDataAccessor<T>): Entry<T>? {
+    private fun <T: Any> getOrCreateOverriddenEntry(observer: UUID, accessor: EntityDataAccessor<T>): Entry<T>? {
         val base = this.getBaseEntry(accessor) ?: return null
         val overrides = this.overrides.getOrPut(observer, ::Int2ObjectOpenHashMap)
         return overrides.getOrPut(accessor.id, base::copy) as Entry<T>
     }
 
-    public class Entry<T>(
+    public class Entry<T: Any>(
         private val accessor: EntityDataAccessor<T>,
         private var initialValue: T
     ) {

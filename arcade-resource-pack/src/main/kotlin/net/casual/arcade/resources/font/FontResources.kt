@@ -27,7 +27,7 @@ public abstract class FontResources(
     private val languages = HashMultimap.create<String, LanguageEntry>()
     private val codepoint = MutableInt(pua.codepoint)
     private val providers = ArrayList<FontProvider>()
-    private val bitmaps = Object2ObjectOpenHashMap<ResourceLocation, BitmapGenerator>()
+    private val bitmaps = Object2ObjectOpenHashMap<Identifier, BitmapGenerator>()
     private val spaces by lazy(::createSpaces)
 
     protected fun space(advance: Float): Component {
@@ -82,22 +82,22 @@ public abstract class FontResources(
         return langs
     }
 
-    internal fun getGeneratedBitmaps(): Map<ResourceLocation, BufferedImage> {
-        val bitmaps = Object2ObjectOpenHashMap<ResourceLocation, BufferedImage>()
+    internal fun getGeneratedBitmaps(): Map<Identifier, BufferedImage> {
+        val bitmaps = Object2ObjectOpenHashMap<Identifier, BufferedImage>()
         for ((id, generator) in this.bitmaps) {
             bitmaps[id] = generator.generate(id)
         }
         return bitmaps
     }
 
-    private fun ResourceLocation.addPNGSuffix(): ResourceLocation {
+    private fun Identifier.addPNGSuffix(): Identifier {
         if (!this.path.endsWith(".png")) {
             return this.withSuffix(".png")
         }
         return this
     }
 
-    private fun ResourceLocation.removePNGSuffix(): ResourceLocation {
+    private fun Identifier.removePNGSuffix(): Identifier {
         if (this.path.endsWith(".png")) {
             return this.withPath { path -> path.removeSuffix(".png") }
         }
@@ -118,10 +118,12 @@ public abstract class FontResources(
         return spaces
     }
 
+    @Suppress("RedundantVisibilityModifier")
     protected fun interface BitmapGenerator {
-        public fun generate(id: ResourceLocation): BufferedImage
+        public fun generate(id: Identifier): BufferedImage
     }
 
+    @Suppress("RedundantVisibilityModifier")
     protected class Translatable(
         private val resources: FontResources,
         private val key: String
