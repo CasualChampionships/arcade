@@ -1,18 +1,35 @@
+/*
+ * Copyright (c) 2026 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
 package net.casual.arcade.virtual.entity
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
+import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
+import net.casual.arcade.virtual.entity.utils.canAttachTo
+import net.casual.arcade.virtual.entity.utils.startObservingAndSendPackets
+import net.casual.arcade.virtual.entity.utils.stopObservingAndSendPackets
 import net.minecraft.server.level.ServerPlayer
 
-public open class SimpleParentVirtualEntity: TrackingVirtualEntity(), ParentVirtualEntity {
-    protected val children: MutableList<VirtualEntity> = ObjectArrayList()
+public open class SimpleParentVirtualEntity(
+    override val attachment: VirtualEntityAttachment
+): TrackingVirtualEntity(), ParentVirtualEntity {
+    protected val children: MutableSet<VirtualEntity> = ObjectLinkedOpenHashSet()
 
-    public fun addChild(child: VirtualEntity) {
-        this.children.add(child)
-
-        for (observer in this.observers()) {
-            child.startObserving(observer)
-
+    override fun attach(entity: VirtualEntity): Boolean {
+        if (entity.canAttachTo(this) && this.children.add(entity)) {
+            this.connections.forEach { connection -> entity.startObservingAndSendPackets(connection.player) }
+            return true
         }
+        return false
+    }
+
+    override fun detach(entity: VirtualEntity): Boolean {
+        if (this.children.remove(entity)) {
+            this.connections.forEach { connection -> entity.stopObservingAndSendPackets(connection.player) }
+            return true
+        }
+        return false
     }
 
     override fun startObserving(observer: ServerPlayer) {

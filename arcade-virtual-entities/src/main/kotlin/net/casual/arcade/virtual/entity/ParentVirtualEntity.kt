@@ -1,18 +1,31 @@
+/*
+ * Copyright (c) 2026 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
 package net.casual.arcade.virtual.entity
 
-import net.casual.arcade.utils.math.location.Location
+import net.casual.arcade.utils.math.location.LocationWithLevel
+import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.minecraft.network.protocol.Packet
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 
-public interface ParentVirtualEntity: VirtualEntity {
+public interface ParentVirtualEntity: VirtualEntity, VirtualEntityAttachment {
     public val canInteractWithChildren: Boolean
         get() = false
 
+    override val origin: LocationWithLevel<ServerLevel>
+        get() = this.attachment.origin
+
     public fun children(): Collection<VirtualEntity>
 
-    override fun tick(attachment: VirtualEntityAttachment) {
+    override fun attached(): Collection<VirtualEntity> {
+        return this.children()
+    }
+
+    override fun tick() {
         for (child in this.children()) {
-            child.tick(attachment)
+            child.tick()
         }
     }
 
@@ -28,15 +41,15 @@ public interface ParentVirtualEntity: VirtualEntity {
         }
     }
 
-    override fun sendSpawnPackets(observer: ServerPlayer, origin: Location, consumer: (Packet<*>) -> Unit) {
+    override fun sendSpawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
         for (child in this.children()) {
-            child.sendSpawnPackets(observer, origin, consumer)
+            child.sendSpawnPackets(observer, consumer)
         }
     }
 
-    override fun sendDespawnPackets(observer: ServerPlayer, origin: Location, consumer: (Packet<*>) -> Unit) {
+    override fun sendDespawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
         for (child in this.children()) {
-            child.sendDespawnPackets(observer, origin, consumer)
+            child.sendDespawnPackets(observer, consumer)
         }
     }
 }

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2026 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
 package net.casual.arcade.virtual.entity.utils
 
 import net.casual.arcade.virtual.entity.mixins.ServerEntityAccessor
@@ -43,10 +47,15 @@ public object VirtualEntityPacketUtils {
         return ClientboundMoveEntityPacket.PosRot(id, xa.toShort(), ya.toShort(), za.toShort(), newYRot, newXRot, false)
     }
 
-    public fun createRotationPacket(id: Int, rotation: Vec2): ClientboundMoveEntityPacket.Rot {
-        return ClientboundMoveEntityPacket.Rot(
-            id, Mth.packDegrees(rotation.y), Mth.packDegrees(rotation.x), false
-        )
+    public fun createRotationPacket(id: Int, oldRot: Vec2, newRot: Vec2): ClientboundMoveEntityPacket.Rot? {
+        val oldXRot = Mth.packDegrees(oldRot.x)
+        val oldYRot = Mth.packDegrees(oldRot.y)
+        val newXRot = Mth.packDegrees(newRot.x)
+        val newYRot = Mth.packDegrees(newRot.y)
+        if (abs(newYRot - oldYRot) >= 1 && abs(newXRot - oldXRot) >= 1) {
+            return ClientboundMoveEntityPacket.Rot(id, newYRot, newXRot, false)
+        }
+        return null
     }
 
     public fun createPositionMoveRotation(pos: Vec3, rot: Vec2): PositionMoveRotation {

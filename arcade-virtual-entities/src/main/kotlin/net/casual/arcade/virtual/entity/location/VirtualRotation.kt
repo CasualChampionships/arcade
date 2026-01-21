@@ -1,10 +1,12 @@
-package net.casual.arcade.virtual.entity.utils
+/*
+ * Copyright (c) 2026 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
+package net.casual.arcade.virtual.entity.location
 
 import net.casual.arcade.utils.MathUtils.minus
 import net.casual.arcade.utils.MathUtils.plus
-import net.casual.arcade.virtual.entity.VirtualEntity
 import net.minecraft.world.phys.Vec2
-import net.minecraft.world.phys.Vec3
 
 public sealed interface VirtualRotation {
     public fun get(origin: Vec2): Vec2

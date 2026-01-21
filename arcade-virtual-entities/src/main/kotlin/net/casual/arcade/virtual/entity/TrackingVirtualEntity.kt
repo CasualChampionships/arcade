@@ -1,13 +1,15 @@
+/*
+ * Copyright (c) 2026 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
 package net.casual.arcade.virtual.entity
 
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
-import net.casual.arcade.virtual.entity.data.PlayerSpecificEntityData
-import net.casual.arcade.virtual.entity.utils.VirtualPosition
-import net.casual.arcade.virtual.entity.utils.VirtualRotation
+import net.casual.arcade.virtual.entity.location.VirtualPosition
+import net.casual.arcade.virtual.entity.location.VirtualRotation
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
-import net.minecraft.world.entity.EntityType
 import java.util.*
 
 /**

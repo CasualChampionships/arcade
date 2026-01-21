@@ -1,10 +1,14 @@
+/*
+ * Copyright (c) 2026 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
 package net.casual.arcade.virtual.entity
 
-import net.casual.arcade.utils.math.location.Location
+import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.mixins.EntityAccessor
-import net.casual.arcade.virtual.entity.utils.EntityInteraction
-import net.casual.arcade.virtual.entity.utils.VirtualPosition
-import net.casual.arcade.virtual.entity.utils.VirtualRotation
+import net.casual.arcade.virtual.entity.interaction.EntityInteraction
+import net.casual.arcade.virtual.entity.location.VirtualPosition
+import net.casual.arcade.virtual.entity.location.VirtualRotation
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
@@ -27,6 +31,11 @@ import java.util.*
  */
 public interface VirtualEntity {
     /**
+     * The virtual entity's attachment.
+     */
+    public val attachment: VirtualEntityAttachment
+
+    /**
      * The virtual entity's id.
      */
     public val id: Int
@@ -46,15 +55,15 @@ public interface VirtualEntity {
      */
     public var rotation: VirtualRotation
 
-    public fun tick(attachment: VirtualEntityAttachment)
+    public fun tick()
 
     public fun startObserving(observer: ServerPlayer)
 
     public fun stopObserving(observer: ServerPlayer)
 
-    public fun sendSpawnPackets(observer: ServerPlayer, origin: Location, consumer: (Packet<*>) -> Unit)
+    public fun sendSpawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit)
 
-    public fun sendDespawnPackets(observer: ServerPlayer, origin: Location, consumer: (Packet<*>) -> Unit)
+    public fun sendDespawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit)
 
     public fun getInteractionHandler(player: ServerPlayer): InteractionHandler? {
         return null
