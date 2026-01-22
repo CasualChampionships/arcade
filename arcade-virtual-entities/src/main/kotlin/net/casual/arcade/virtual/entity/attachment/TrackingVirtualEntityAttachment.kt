@@ -59,11 +59,7 @@ public abstract class TrackingVirtualEntityAttachment: RootVirtualEntityAttachme
     }
 
     override fun attach(entity: VirtualEntity): Boolean {
-        if (entity.canAttachTo(this) && this.attached.add(entity)) {
-            this.connections.forEach { connection -> entity.startObservingAndSendPackets(connection.player) }
-            return true
-        }
-        return false
+        return entity.canAttachTo(this) && this.attached.add(entity)
     }
 
     override fun detach(entity: VirtualEntity): Boolean {

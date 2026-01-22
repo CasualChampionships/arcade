@@ -71,8 +71,9 @@ public fun VirtualEntity.startObservingAndSendPackets(observer: ServerPlayer) {
 }
 
 public fun VirtualEntity.stopObservingAndSendPackets(observer: ServerPlayer) {
-    if (this.stopObserving(observer)) {
+    if (this.isObserving(observer)) {
         this.sendDespawnPackets(observer)
+        this.stopObserving(observer)
     }
 }
 

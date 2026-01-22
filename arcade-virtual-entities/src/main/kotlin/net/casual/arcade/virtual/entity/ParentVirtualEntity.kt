@@ -6,6 +6,7 @@ package net.casual.arcade.virtual.entity
 
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
+import net.casual.arcade.virtual.entity.attachment.anchor.ParentAttachmentAnchor
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
 
@@ -14,7 +15,7 @@ public interface ParentVirtualEntity: VirtualEntity, VirtualEntityAttachment {
         get() = false
 
     override val anchor: AttachmentAnchor
-        get() = this.attachment.anchor
+        get() = ParentAttachmentAnchor(this)
 
     public fun children(): Collection<VirtualEntity>
 

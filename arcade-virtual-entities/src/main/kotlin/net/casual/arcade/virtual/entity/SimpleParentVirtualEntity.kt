@@ -6,6 +6,7 @@ package net.casual.arcade.virtual.entity
 
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
+import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.utils.canAttachTo
 import net.casual.arcade.virtual.entity.utils.startObservingAndSendPackets
 import net.casual.arcade.virtual.entity.utils.stopObservingAndSendPackets
@@ -16,12 +17,27 @@ public open class SimpleParentVirtualEntity(
 ): TrackingVirtualEntity(), ParentVirtualEntity {
     protected val children: MutableSet<VirtualEntity> = ObjectLinkedOpenHashSet()
 
-    override fun attach(entity: VirtualEntity): Boolean {
-        if (entity.canAttachTo(this) && this.children.add(entity)) {
-            this.connections.forEach { connection -> entity.startObservingAndSendPackets(connection.player) }
-            return true
+    override val anchor: AttachmentAnchor = super.anchor
+
+    override fun tick() {
+        for (connection in this.connections) {
+            val observer = connection.player
+            for (child in this.children) {
+                val isObserving = child.isObserving(observer)
+                val canObserve = child.canObserve(observer)
+                if (!isObserving && canObserve) {
+                    child.startObservingAndSendPackets(observer)
+                } else if (isObserving && !canObserve) {
+                    child.stopObservingAndSendPackets(observer)
+                }
+            }
         }
-        return false
+
+        super.tick()
+    }
+
+    override fun attach(entity: VirtualEntity): Boolean {
+        return entity.canAttachTo(this) && this.children.add(entity)
     }
 
     override fun detach(entity: VirtualEntity): Boolean {
@@ -33,13 +49,19 @@ public open class SimpleParentVirtualEntity(
     }
 
     override fun startObserving(observer: ServerPlayer): Boolean {
-        return super<TrackingVirtualEntity>.startObserving(observer)
-            && super<ParentVirtualEntity>.startObserving(observer)
+        if (super<TrackingVirtualEntity>.startObserving(observer)) {
+            super<ParentVirtualEntity>.startObserving(observer)
+            return true
+        }
+        return false
     }
 
     override fun stopObserving(observer: ServerPlayer): Boolean {
-        return super<TrackingVirtualEntity>.stopObserving(observer)
-            && super<ParentVirtualEntity>.stopObserving(observer)
+        if (super<TrackingVirtualEntity>.stopObserving(observer)) {
+            super<ParentVirtualEntity>.stopObserving(observer)
+            return true
+        }
+        return false
     }
 
     override fun children(): Collection<VirtualEntity> {

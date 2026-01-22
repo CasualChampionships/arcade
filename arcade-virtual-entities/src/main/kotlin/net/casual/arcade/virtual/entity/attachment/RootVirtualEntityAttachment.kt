@@ -32,8 +32,9 @@ public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
 
         val collector = VirtualEntityPacketCollector()
         for (entity in this.attached()) {
-            if (entity.stopObserving(observer)) {
+            if (entity.isObserving(observer)) {
                 entity.sendDespawnPackets(observer, collector::add)
+                entity.stopObserving(observer)
             }
         }
         collector.optimize().bundle().send(observer.connection::send)
