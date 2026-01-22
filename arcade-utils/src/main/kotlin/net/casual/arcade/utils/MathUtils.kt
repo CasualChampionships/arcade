@@ -31,8 +31,8 @@ public object MathUtils {
     public operator fun Vec3.component2(): Double = this.y
     public operator fun Vec3.component3(): Double = this.z
 
-    public operator fun Vec2.component1(): Float = this.y
-    public operator fun Vec2.component2(): Float = this.x
+    public operator fun Vec2.component1(): Float = this.x
+    public operator fun Vec2.component2(): Float = this.y
 
     public operator fun Vec3i.component1(): Int = this.x
     public operator fun Vec3i.component2(): Int = this.y

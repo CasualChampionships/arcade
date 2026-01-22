@@ -50,11 +50,15 @@ public abstract class TrackingVirtualEntity: VirtualEntity {
         }
     }
 
-    override fun startObserving(observer: ServerPlayer) {
-        this.connections.add(observer.connection)
+    override fun startObserving(observer: ServerPlayer): Boolean {
+        return this.canObserve(observer) && this.connections.add(observer.connection)
     }
 
-    override fun stopObserving(observer: ServerPlayer) {
-        this.connections.remove(observer.connection)
+    override fun stopObserving(observer: ServerPlayer): Boolean {
+        return this.connections.remove(observer.connection)
+    }
+
+    override fun isObserving(observer: ServerPlayer): Boolean {
+        return this.connections.contains(observer.connection)
     }
 }

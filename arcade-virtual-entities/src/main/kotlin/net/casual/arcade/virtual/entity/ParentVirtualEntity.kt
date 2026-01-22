@@ -4,21 +4,21 @@
  */
 package net.casual.arcade.virtual.entity
 
-import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
+import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.minecraft.network.protocol.Packet
-import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 
 public interface ParentVirtualEntity: VirtualEntity, VirtualEntityAttachment {
     public val canInteractWithChildren: Boolean
         get() = false
 
-    override val origin: LocationWithLevel<ServerLevel>
-        get() = this.attachment.origin
+    override val anchor: AttachmentAnchor
+        get() = this.attachment.anchor
 
     public fun children(): Collection<VirtualEntity>
 
+    @Deprecated("Call ParentVirtualEntity.children() instead")
     override fun attached(): Collection<VirtualEntity> {
         return this.children()
     }
@@ -29,27 +29,35 @@ public interface ParentVirtualEntity: VirtualEntity, VirtualEntityAttachment {
         }
     }
 
-    override fun startObserving(observer: ServerPlayer) {
+    override fun startObserving(observer: ServerPlayer): Boolean {
+        var success = false
         for (child in this.children()) {
-            child.startObserving(observer)
+            success = success or child.startObserving(observer)
         }
+        return success
     }
 
-    override fun stopObserving(observer: ServerPlayer) {
+    override fun stopObserving(observer: ServerPlayer): Boolean {
+        var success = false
         for (child in this.children()) {
-            child.stopObserving(observer)
+            success = success or child.stopObserving(observer)
         }
+        return success
     }
 
     override fun sendSpawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
         for (child in this.children()) {
-            child.sendSpawnPackets(observer, consumer)
+            if (child.isObserving(observer)) {
+                child.sendSpawnPackets(observer, consumer)
+            }
         }
     }
 
     override fun sendDespawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
         for (child in this.children()) {
-            child.sendDespawnPackets(observer, consumer)
+            if (child.isObserving(observer)) {
+                child.sendDespawnPackets(observer, consumer)
+            }
         }
     }
 }

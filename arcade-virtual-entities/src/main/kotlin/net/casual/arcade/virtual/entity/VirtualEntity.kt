@@ -9,6 +9,7 @@ import net.casual.arcade.virtual.entity.mixins.EntityAccessor
 import net.casual.arcade.virtual.entity.interaction.EntityInteraction
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
+import net.casual.arcade.virtual.entity.utils.location
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
@@ -57,13 +58,23 @@ public interface VirtualEntity {
 
     public fun tick()
 
-    public fun startObserving(observer: ServerPlayer)
+    public fun startObserving(observer: ServerPlayer): Boolean
 
-    public fun stopObserving(observer: ServerPlayer)
+    public fun stopObserving(observer: ServerPlayer): Boolean
+
+    public fun isObserving(observer: ServerPlayer): Boolean
 
     public fun sendSpawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit)
 
     public fun sendDespawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit)
+
+    public fun canObserve(observer: ServerPlayer): Boolean {
+        return this.location().position.closerThan(observer.position(), this.observableRange())
+    }
+
+    public fun observableRange(): Double {
+        return DEFAULT_OBSERVABLE_RANGE
+    }
 
     public fun getInteractionHandler(player: ServerPlayer): InteractionHandler? {
         return null
@@ -74,6 +85,8 @@ public interface VirtualEntity {
     }
 
     public companion object {
+        public const val DEFAULT_OBSERVABLE_RANGE: Double = 64.0
+
         @JvmStatic
         public fun getNextEntityId(): Int {
             return EntityAccessor.accessEntityCounter().incrementAndGet()

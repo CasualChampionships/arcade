@@ -7,26 +7,43 @@ package net.casual.arcade.virtual.entity.utils
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.virtual.entity.VirtualEntity
+import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
+import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor
+import net.casual.arcade.virtual.entity.attachment.anchor.LevelAttachmentAnchor
+import net.casual.arcade.virtual.entity.extensions.EntityAttachmentExtension.Companion.attachmentExtension
 import net.casual.arcade.virtual.entity.extensions.LevelAttachmentExtension.Companion.attachmentExtension
 import net.casual.arcade.virtual.entity.extensions.PlayerAttachmentObserverExtension.Companion.attachmentObserver
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.Entity
 
-public fun ServerLevel.addVirtualEntity(entity: VirtualEntity): Boolean {
-    return this.attachmentExtension.attachment.attach(entity)
+public fun <T: RootVirtualEntityAttachment> ServerLevel.createVirtualEntityAttachment(factory: (LevelAttachmentAnchor) -> T): T {
+    return this.attachmentExtension.add(factory)
 }
 
-public fun ServerLevel.removeVirtualEntity(entity: VirtualEntity): Boolean {
-    return this.attachmentExtension.attachment.detach(entity)
+public fun ServerLevel.removeVirtualEntityAttachment(attachment: RootVirtualEntityAttachment): Boolean {
+    return this.attachmentExtension.remove(attachment)
 }
 
 public fun ServerLevel.getVirtualEntities(): Collection<VirtualEntity> {
-    return this.attachmentExtension.attachment.attached()
+    return this.attachmentExtension.getAttachedVirtualEntities()
+}
+
+public fun <T: RootVirtualEntityAttachment> Entity.createVirtualEntityAttachment(factory: (EntityAttachmentAnchor) -> T): T {
+    return this.attachmentExtension.add(factory)
+}
+
+public fun Entity.removeVirtualEntityAttachment(attachment: RootVirtualEntityAttachment): Boolean {
+    return this.attachmentExtension.remove(attachment)
+}
+
+public fun Entity.getVirtualEntities(): Collection<VirtualEntity> {
+    return this.attachmentExtension.getAttachedVirtualEntities()
 }
 
 public fun VirtualEntity.location(): LocationWithLevel<ServerLevel> {
-    val origin = this.attachment.origin
+    val origin = this.attachment.anchor.location()
     val absolute = Location(this.position.get(origin.position), this.rotation.get(origin.rotation))
     return origin.copy(location = absolute)
 }
@@ -48,33 +65,19 @@ public fun VirtualEntity.sendDespawnPackets(observer: ServerPlayer) {
 }
 
 public fun VirtualEntity.startObservingAndSendPackets(observer: ServerPlayer) {
-    this.startObserving(observer)
-    this.sendSpawnPackets(observer)
+    if (this.startObserving(observer)) {
+        this.sendSpawnPackets(observer)
+    }
 }
 
 public fun VirtualEntity.stopObservingAndSendPackets(observer: ServerPlayer) {
-    this.stopObserving(observer)
-    this.sendDespawnPackets(observer)
+    if (this.stopObserving(observer)) {
+        this.sendDespawnPackets(observer)
+    }
 }
 
-public fun VirtualEntityAttachment.startObservingAttachedFor(observer: ServerPlayer) {
-    observer.attachmentObserver.startObserving(this)
-
-    val collector = VirtualEntityPacketCollector()
-    for (entity in this.attached()) {
-        entity.startObserving(observer)
-        entity.sendSpawnPackets(observer, collector::add)
-    }
-    collector.optimize().bundle().send(observer.connection::send)
-}
-
-public fun VirtualEntityAttachment.stopObservingAttachedFor(observer: ServerPlayer) {
-    observer.attachmentObserver.stopObserving(this)
-
-    val collector = VirtualEntityPacketCollector()
-    for (entity in this.attached()) {
-        entity.startObserving(observer)
-        entity.sendDespawnPackets(observer, collector::add)
-    }
-    collector.optimize().bundle().send(observer.connection::send)
+public inline fun <T: VirtualEntity> VirtualEntityAttachment.attach(factory: (VirtualEntityAttachment) -> T): T {
+    val entity = factory.invoke(this)
+    this.attach(entity)
+    return entity
 }

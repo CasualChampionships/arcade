@@ -4,12 +4,11 @@
  */
 package net.casual.arcade.virtual.entity.attachment
 
-import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.virtual.entity.VirtualEntity
-import net.minecraft.server.level.ServerLevel
+import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 
 public interface VirtualEntityAttachment {
-    public val origin: LocationWithLevel<ServerLevel>
+    public val anchor: AttachmentAnchor
 
     public fun attach(entity: VirtualEntity): Boolean
 

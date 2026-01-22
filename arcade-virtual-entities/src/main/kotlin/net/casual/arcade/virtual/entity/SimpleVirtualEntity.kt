@@ -74,6 +74,10 @@ public open class SimpleVirtualEntity(
         consumer.invoke(ClientboundRemoveEntitiesPacket(this.id))
     }
 
+    override fun observableRange(): Double {
+        return this.type.clientTrackingRange() * 16.0
+    }
+
     protected open fun createSpawnPacket(): ClientboundAddEntityPacket {
         val location = this.location()
         val (x, y, z) = location.position

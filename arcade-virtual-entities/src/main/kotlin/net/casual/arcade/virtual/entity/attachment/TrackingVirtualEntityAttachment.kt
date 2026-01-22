@@ -11,7 +11,7 @@ import net.casual.arcade.virtual.entity.utils.*
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 
-public abstract class TrackedVirtualEntityAttachment: VirtualEntityAttachment {
+public abstract class TrackingVirtualEntityAttachment: RootVirtualEntityAttachment {
     private val attached = ObjectLinkedOpenHashSet<VirtualEntity>()
     protected val connections: MutableSet<ServerGamePacketListenerImpl> = ObjectOpenHashSet()
 
@@ -19,15 +19,42 @@ public abstract class TrackedVirtualEntityAttachment: VirtualEntityAttachment {
         return this.connections.map { it.player }
     }
 
-    public fun startObserving(observer: ServerPlayer) {
+    override fun tick() {
+        for (connection in this.connections) {
+            val observer = connection.player
+            for (entity in this.attached) {
+                val isObserving = entity.isObserving(observer)
+                val canObserve = entity.canObserve(observer)
+                if (!isObserving && canObserve) {
+                    entity.startObservingAndSendPackets(observer)
+                } else if (isObserving && !canObserve) {
+                    entity.stopObservingAndSendPackets(observer)
+                }
+            }
+        }
+
+        super.tick()
+    }
+
+    public override fun startObservingAttached(observer: ServerPlayer, quietly: Boolean) {
         if (this.connections.add(observer.connection)) {
-            this.startObservingAttachedFor(observer)
+            super.startObservingAttached(observer, quietly)
         }
     }
 
-    public fun stopObserving(observer: ServerPlayer) {
+    public override fun stopObservingAttached(observer: ServerPlayer) {
         if (this.connections.remove(observer.connection)) {
-            this.stopObservingAttachedFor(observer)
+            super.stopObservingAttached(observer)
+        }
+    }
+
+    public open fun updateObservingAttached(updated: Set<ServerPlayer>) {
+        val previous = this.connections.mapTo(ObjectOpenHashSet()) { connection -> connection.player }
+        for (observer in (previous - updated)) {
+            this.stopObservingAttached(observer)
+        }
+        for (observer in (updated - previous)) {
+            this.startObservingAttached(observer)
         }
     }
 
@@ -47,17 +74,7 @@ public abstract class TrackedVirtualEntityAttachment: VirtualEntityAttachment {
         return false
     }
 
-    override fun attached(): Collection<VirtualEntity> {
+    final override fun attached(): Collection<VirtualEntity> {
         return this.attached
-    }
-
-    protected fun updateObservers(updated: Set<ServerPlayer>) {
-        val previous = this.connections.mapTo(ObjectOpenHashSet()) { connection -> connection.player }
-        for (observer in (previous - updated)) {
-            this.stopObserving(observer)
-        }
-        for (observer in (updated - previous)) {
-            this.startObserving(observer)
-        }
     }
 }

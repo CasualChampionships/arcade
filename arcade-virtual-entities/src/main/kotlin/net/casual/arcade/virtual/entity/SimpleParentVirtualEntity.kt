@@ -32,14 +32,14 @@ public open class SimpleParentVirtualEntity(
         return false
     }
 
-    override fun startObserving(observer: ServerPlayer) {
-        super<TrackingVirtualEntity>.startObserving(observer)
-        super<ParentVirtualEntity>.startObserving(observer)
+    override fun startObserving(observer: ServerPlayer): Boolean {
+        return super<TrackingVirtualEntity>.startObserving(observer)
+            && super<ParentVirtualEntity>.startObserving(observer)
     }
 
-    override fun stopObserving(observer: ServerPlayer) {
-        super<TrackingVirtualEntity>.stopObserving(observer)
-        super<ParentVirtualEntity>.stopObserving(observer)
+    override fun stopObserving(observer: ServerPlayer): Boolean {
+        return super<TrackingVirtualEntity>.stopObserving(observer)
+            && super<ParentVirtualEntity>.stopObserving(observer)
     }
 
     override fun children(): Collection<VirtualEntity> {

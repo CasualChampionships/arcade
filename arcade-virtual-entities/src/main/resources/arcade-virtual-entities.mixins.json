@@ -8,7 +8,8 @@
   },
   "mixins": [
     "EntityAccessor",
-    "ServerEntityAccessor"
+    "ServerEntityAccessor",
+    "ServerEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
