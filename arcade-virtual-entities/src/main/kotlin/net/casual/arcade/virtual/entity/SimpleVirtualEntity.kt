@@ -9,16 +9,22 @@ import net.casual.arcade.utils.MathUtils.component2
 import net.casual.arcade.utils.MathUtils.component3
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.data.PlayerSpecificEntityData
+import net.casual.arcade.virtual.entity.utils.EntityDataAccessors
+import net.casual.arcade.virtual.entity.utils.EntityDataSharedFlags
 import net.casual.arcade.virtual.entity.utils.VirtualEntityPacketUtils
 import net.casual.arcade.virtual.entity.utils.location
+import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.Pose
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
+import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * A simple implementation of [VirtualEntity].
@@ -150,5 +156,181 @@ public open class SimpleVirtualEntity(
             this.lastSyncedRot = current
         }
         return this.lastSyncedRot
+    }
+
+    public fun setPose(pose: Pose) {
+        this.data.modifyEntry(EntityDataAccessors.POSE) { pose }
+    }
+
+    public fun setPoseFor(observer: ServerPlayer, pose: Pose) {
+        this.data.set(observer.uuid, EntityDataAccessors.POSE, pose)
+    }
+
+    public fun setBasePoseFor(observer: ServerPlayer) {
+        this.data.setToBase(observer.uuid, EntityDataAccessors.POSE)
+    }
+
+    public fun modifyPose(modifier: (Pose) -> Pose) {
+        this.data.modifyEntry(EntityDataAccessors.POSE, false) { current -> modifier.invoke(current) }
+    }
+
+    public fun setOnFire(onFire: Boolean) {
+        this.modifyFlagEntry(EntityDataSharedFlags.ON_FIRE, onFire)
+    }
+
+    public fun setOnFireFor(observer: ServerPlayer, onFire: Boolean) {
+        this.modifyFlagEntryFor(observer, EntityDataSharedFlags.ON_FIRE, onFire)
+    }
+
+    public fun setOnFireToBaseFor(observer: ServerPlayer) {
+        this.modifyFlagEntryToBaseFor(observer, EntityDataSharedFlags.ON_FIRE)
+    }
+
+    public fun modifyOnFire(modifier: (Boolean) -> Boolean) {
+        this.modifyFlagEntry(EntityDataSharedFlags.ON_FIRE, modifier)
+    }
+
+    public fun setCrouching(crouching: Boolean) {
+        this.modifyFlagEntry(EntityDataSharedFlags.SHIFT_KEY_DOWN, crouching)
+    }
+
+    public fun setCrouchingFor(observer: ServerPlayer, crouching: Boolean) {
+        this.modifyFlagEntryFor(observer, EntityDataSharedFlags.SHIFT_KEY_DOWN, crouching)
+    }
+
+    public fun setCrouchingToBaseFor(observer: ServerPlayer) {
+        this.modifyFlagEntryToBaseFor(observer, EntityDataSharedFlags.SHIFT_KEY_DOWN)
+    }
+
+    public fun modifyCrouching(modifier: (Boolean) -> Boolean) {
+        this.modifyFlagEntry(EntityDataSharedFlags.SHIFT_KEY_DOWN, modifier)
+    }
+
+    public fun setSprinting(sprinting: Boolean) {
+        this.modifyFlagEntry(EntityDataSharedFlags.SPRINTING, sprinting)
+    }
+
+    public fun setSprintingFor(observer: ServerPlayer, sprinting: Boolean) {
+        this.modifyFlagEntryFor(observer, EntityDataSharedFlags.SPRINTING, sprinting)
+    }
+
+    public fun setSprintingToBaseFor(observer: ServerPlayer) {
+        this.modifyFlagEntryToBaseFor(observer, EntityDataSharedFlags.SPRINTING)
+    }
+
+    public fun modifySprinting(modifier: (Boolean) -> Boolean) {
+        this.modifyFlagEntry(EntityDataSharedFlags.SPRINTING, modifier)
+    }
+
+    public fun setGlowing(glowing: Boolean) {
+        this.modifyFlagEntry(EntityDataSharedFlags.GLOWING, glowing)
+    }
+
+    public fun setGlowingFor(observer: ServerPlayer, glowing: Boolean) {
+        this.modifyFlagEntryFor(observer, EntityDataSharedFlags.GLOWING, glowing)
+    }
+
+    public fun setGlowingToBaseFor(observer: ServerPlayer) {
+        this.modifyFlagEntryToBaseFor(observer, EntityDataSharedFlags.GLOWING)
+    }
+
+    public fun modifyGlowing(modifier: (Boolean) -> Boolean) {
+        this.modifyFlagEntry(EntityDataSharedFlags.GLOWING, modifier)
+    }
+
+    public fun setInvisible(invisible: Boolean) {
+        this.modifyFlagEntry(EntityDataSharedFlags.INVISIBLE, invisible)
+    }
+
+    public fun setInvisibleFor(observer: ServerPlayer, invisible: Boolean) {
+        this.modifyFlagEntryFor(observer, EntityDataSharedFlags.INVISIBLE, invisible)
+    }
+
+    public fun setInvisibleToBaseFor(observer: ServerPlayer) {
+        this.modifyFlagEntryToBaseFor(observer, EntityDataSharedFlags.INVISIBLE)
+    }
+
+    public fun modifyInvisible(modifier: (Boolean) -> Boolean) {
+        this.modifyFlagEntry(EntityDataSharedFlags.INVISIBLE, modifier)
+    }
+
+    public fun setCustomName(name: Component?) {
+        val optional = Optional.ofNullable(name)
+        this.data.modifyEntry(EntityDataAccessors.CUSTOM_NAME) { optional }
+    }
+
+    public fun setCustomNameFor(observer: ServerPlayer, name: Component?) {
+        val optional = Optional.ofNullable(name)
+        this.data.set(observer.uuid, EntityDataAccessors.CUSTOM_NAME, optional)
+    }
+
+    public fun setCustomNameToBaseFor(observer: ServerPlayer) {
+        this.data.setToBase(observer.uuid, EntityDataAccessors.CUSTOM_NAME)
+    }
+
+    public fun modifyCustomName(modifier: (Component?) -> Component?) {
+        this.data.modifyEntry(EntityDataAccessors.CUSTOM_NAME, false) { current ->
+            Optional.ofNullable(modifier.invoke(current.getOrNull()))
+        }
+    }
+
+    public fun setSilent(silent: Boolean) {
+        this.data.modifyEntry(EntityDataAccessors.SILENT) { silent }
+    }
+
+    public fun setSilentFor(observer: ServerPlayer, silent: Boolean) {
+        this.data.set(observer.uuid, EntityDataAccessors.SILENT, silent)
+    }
+
+    public fun setSilentToBaseFor(observer: ServerPlayer) {
+        this.data.setToBase(observer.uuid, EntityDataAccessors.SILENT)
+    }
+
+    public fun modifySilent(modifier: (Boolean) -> Boolean) {
+        this.data.modifyEntry(EntityDataAccessors.SILENT, false) { current -> modifier.invoke(current) }
+    }
+
+    public fun setNoGravity(noGravity: Boolean) {
+        this.data.modifyEntry(EntityDataAccessors.NO_GRAVITY) { noGravity }
+    }
+
+    public fun setNoGravityFor(observer: ServerPlayer, noGravity: Boolean) {
+        this.data.set(observer.uuid, EntityDataAccessors.NO_GRAVITY, noGravity)
+    }
+
+    public fun setNoGravityToBaseFor(observer: ServerPlayer) {
+        this.data.setToBase(observer.uuid, EntityDataAccessors.NO_GRAVITY)
+    }
+
+    public fun modifyNoGravity(modifier: (Boolean) -> Boolean) {
+        this.data.modifyEntry(EntityDataAccessors.NO_GRAVITY, false) { current -> modifier.invoke(current) }
+    }
+
+    protected fun modifyFlagEntry(flag: Int, value: Boolean) {
+        this.data.modifyEntry(EntityDataAccessors.SHARED_FLAGS) { flags ->
+            EntityDataSharedFlags.updateFlag(flags, flag, value)
+        }
+    }
+
+    protected fun modifyFlagEntryFor(observer: ServerPlayer, flag: Int, value: Boolean) {
+        val flags = this.data.get(observer.uuid, EntityDataAccessors.SHARED_FLAGS) ?: return
+        this.data.set(
+            observer.uuid, EntityDataAccessors.SHARED_FLAGS, EntityDataSharedFlags.updateFlag(flags, flag, value)
+        )
+    }
+
+    protected fun modifyFlagEntryToBaseFor(observer: ServerPlayer, flag: Int) {
+        val base = this.data.getBaseEntry(EntityDataAccessors.SHARED_FLAGS) ?: return
+        if (this.data.isOverridden(observer.uuid, EntityDataAccessors.SHARED_FLAGS)) {
+            val current = (base.value.toInt() shr flag) and 1 != 0
+            this.modifyFlagEntryFor(observer, flag, current)
+        }
+    }
+
+    protected fun modifyFlagEntry(flag: Int, modifier: (Boolean) -> Boolean) {
+        this.data.modifyEntry(EntityDataAccessors.SHARED_FLAGS, false) { flags ->
+            val current = (flags.toInt() shr flag) and 1 != 0
+            EntityDataSharedFlags.updateFlag(flags, flag, modifier.invoke(current))
+        }
     }
 }
