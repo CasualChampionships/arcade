@@ -10,7 +10,6 @@ import net.casual.arcade.visuals.extensions.PlayerCameraOverlayExtension
 import net.casual.arcade.visuals.extensions.PlayerSidebarExtension
 import net.casual.arcade.visuals.extensions.PlayerTabDisplayExtension
 import net.fabricmc.api.ModInitializer
-import net.fabricmc.fabric.api.networking.v1.PlayerLookup
 
 public object ArcadeVisuals: ModInitializer {
     override fun onInitialize() {

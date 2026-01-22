@@ -6,7 +6,6 @@ import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.executes
 import net.casual.arcade.commands.literal
 import net.casual.arcade.utils.MathUtils.rotationAnglesTowards
-import net.casual.arcade.utils.MathUtils.rotationTowards
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.coroutine.delay
