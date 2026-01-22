@@ -52,7 +52,7 @@ public object VirtualEntityPacketUtils {
         val oldYRot = Mth.packDegrees(oldRot.y)
         val newXRot = Mth.packDegrees(newRot.x)
         val newYRot = Mth.packDegrees(newRot.y)
-        if (abs(newYRot - oldYRot) >= 1 && abs(newXRot - oldXRot) >= 1) {
+        if (abs(newYRot - oldYRot) >= 1 || abs(newXRot - oldXRot) >= 1) {
             return ClientboundMoveEntityPacket.Rot(id, newYRot, newXRot, false)
         }
         return null
