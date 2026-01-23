@@ -4,20 +4,15 @@
  */
 package net.casual.arcade.virtual.entity.utils
 
-import net.casual.arcade.virtual.entity.mixins.BlockDisplayAccessor
-import net.casual.arcade.virtual.entity.mixins.DisplayAccessor
-import net.casual.arcade.virtual.entity.mixins.EntityAccessor
-import net.casual.arcade.virtual.entity.mixins.ItemDisplayAccessor
-import net.casual.arcade.virtual.entity.mixins.TextDisplayAccessor
+import net.casual.arcade.virtual.entity.mixins.*
 import net.minecraft.network.chat.Component
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.world.entity.Pose
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.state.BlockState
-import org.apache.commons.codec.binary.Hex
 import org.joml.Quaternionfc
 import org.joml.Vector3fc
-import java.util.Optional
+import java.util.*
 
 public object EntityDataAccessors {
     public val SHARED_FLAGS: EntityDataAccessor<Byte>

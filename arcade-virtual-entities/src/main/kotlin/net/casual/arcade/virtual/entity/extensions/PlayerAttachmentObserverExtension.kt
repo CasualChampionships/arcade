@@ -13,7 +13,12 @@ import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.virtual.entity.ParentVirtualEntity
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
+import net.casual.arcade.virtual.entity.interaction.EntityInteraction
+import net.casual.arcade.virtual.entity.mixins.ServerboundInteractPacketAccessor
+import net.minecraft.network.protocol.game.ServerboundInteractPacket
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.phys.Vec3
 
 internal class PlayerAttachmentObserverExtension(player: ServerPlayer): PlayerExtension(player) {
     private val observing = ObjectOpenHashSet<VirtualEntityAttachment>()
@@ -26,7 +31,27 @@ internal class PlayerAttachmentObserverExtension(player: ServerPlayer): PlayerEx
         this.observing.remove(attachment)
     }
 
-    fun findInteractableVirtualEntity(id: Int): VirtualEntity? {
+    fun tryInteractWithVirtualEntity(packet: ServerboundInteractPacket): Boolean {
+        val id = (packet as ServerboundInteractPacketAccessor).accessEntityId()
+        val entity = this.findInteractableVirtualEntity(id) ?: return false
+        val handler = entity.getInteractionHandler(this.player) ?: return false
+        packet.dispatch(object: ServerboundInteractPacket.Handler {
+            override fun onInteraction(hand: InteractionHand) {
+                handler.interact(player, EntityInteraction.Use(hand))
+            }
+
+            override fun onInteraction(hand: InteractionHand, position: Vec3) {
+                handler.interact(player, EntityInteraction.UseAt(hand, position))
+            }
+
+            override fun onAttack() {
+                handler.interact(player, EntityInteraction.Attack)
+            }
+        })
+        return true
+    }
+
+    private fun findInteractableVirtualEntity(id: Int): VirtualEntity? {
         for (attachment in this.observing) {
             for (entity in attachment.attached()) {
                 val result = this.findInteractableVirtualEntity(id, entity)
@@ -37,6 +62,7 @@ internal class PlayerAttachmentObserverExtension(player: ServerPlayer): PlayerEx
         }
         return null
     }
+
 
     private fun findInteractableVirtualEntity(id: Int, entity: VirtualEntity): VirtualEntity? {
         if (id == entity.id) {
@@ -54,6 +80,7 @@ internal class PlayerAttachmentObserverExtension(player: ServerPlayer): PlayerEx
     }
 
     companion object {
+        @JvmStatic
         val ServerPlayer.attachmentObserver: PlayerAttachmentObserverExtension
             get() = this.getExtension()
 

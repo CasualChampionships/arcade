@@ -11,8 +11,10 @@
     "DisplayAccessor",
     "EntityAccessor",
     "ItemDisplayAccessor",
+    "ServerboundInteractPacketAccessor",
     "ServerEntityAccessor",
     "ServerEntityMixin",
+    "ServerGamePacketListenerImplMixin",
     "TextDisplayAccessor"
   ],
   "injectors": {
