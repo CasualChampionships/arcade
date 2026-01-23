@@ -24,7 +24,7 @@ public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
                 entity.sendSpawnPackets(observer, collector::add)
             }
         }
-        collector.optimize().bundle().send(observer.connection::send)
+        collector.bundle().send(observer.connection::send)
     }
 
     public fun stopObservingAttached(observer: ServerPlayer) {

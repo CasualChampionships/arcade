@@ -54,7 +54,7 @@ public fun VirtualEntity.canAttachTo(attachment: VirtualEntityAttachment): Boole
 public fun VirtualEntity.sendSpawnPackets(observer: ServerPlayer) {
     val collector = VirtualEntityPacketCollector()
     this.sendSpawnPackets(observer, collector::add)
-    collector.optimize().bundle().send(observer.connection::send)
+    collector.bundle().send(observer.connection::send)
 }
 
 public fun VirtualEntity.sendDespawnPackets(observer: ServerPlayer) {

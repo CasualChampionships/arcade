@@ -6,11 +6,13 @@ package net.casual.arcade.virtual.entity.utils
 
 import it.unimi.dsi.fastutil.ints.IntArrayList
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
+import it.unimi.dsi.fastutil.objects.ObjectListIterator
 import net.casual.arcade.utils.asClientGamePacket
 import net.minecraft.network.protocol.BundlerInfo
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundBundlePacket
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
 
 public class VirtualEntityPacketCollector {
     private val collected = ObjectArrayList<Packet<*>>()
@@ -21,9 +23,18 @@ public class VirtualEntityPacketCollector {
     }
 
     public fun optimize(): VirtualEntityPacketCollector {
-        // We can optimize ClientboundRemoveEntityPacket
-        // by collecting ClientboundRemoveEntityPackets adjacent
-        // to each other and merging the entity id lists
+        if (this.collected.size <= 1) {
+            return this
+        }
+
+        val optimized = ObjectArrayList<Packet<*>>()
+        val iterator = this.collected.listIterator()
+        for (packet in iterator) {
+            optimized.add(this.tryOptimizePacket(packet, iterator))
+        }
+
+        this.collected.clear()
+        this.collected.addAll(optimized)
         return this
     }
 
@@ -61,5 +72,21 @@ public class VirtualEntityPacketCollector {
         for (packet in this.collected) {
             consumer.invoke(packet)
         }
+    }
+
+    private fun tryOptimizePacket(packet: Packet<*>, iterator: ObjectListIterator<Packet<*>>): Packet<*> {
+        if (packet is ClientboundRemoveEntitiesPacket) {
+            val removed = IntArrayList(packet.entityIds)
+            while (iterator.hasNext()) {
+                val next = iterator.next()
+                if (next !is ClientboundRemoveEntitiesPacket) {
+                    iterator.back(1)
+                    break
+                }
+                removed.addAll(next.entityIds)
+            }
+            return ClientboundRemoveEntitiesPacket(removed)
+        }
+        return packet
     }
 }
