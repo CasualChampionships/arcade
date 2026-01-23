@@ -18,8 +18,6 @@ import net.casual.arcade.utils.getTrackingPlayers
 import net.casual.arcade.utils.impl.DelayedActions
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
-import net.casual.arcade.virtual.entity.attachment.TrackingVirtualEntityAttachment
-import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener

@@ -7,7 +7,9 @@ package net.casual.arcade.virtual.entity.attachment
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.virtual.entity.VirtualEntity
-import net.casual.arcade.virtual.entity.utils.*
+import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils
+import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.attachAndUpdateTracking
+import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.detachAndUpdateTracking
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 
@@ -20,18 +22,7 @@ public abstract class TrackingVirtualEntityAttachment: RootVirtualEntityAttachme
     }
 
     override fun tick() {
-        for (connection in this.connections) {
-            val observer = connection.player
-            for (entity in this.attached) {
-                val isObserving = entity.isObserving(observer)
-                val canObserve = entity.canObserve(observer)
-                if (!isObserving && canObserve) {
-                    entity.startObservingAndSendPackets(observer)
-                } else if (isObserving && !canObserve) {
-                    entity.stopObservingAndSendPackets(observer)
-                }
-            }
-        }
+        VirtualEntityTrackingUtils.updateTrackedVirtualEntitiesFor(this.connections, this.attached)
 
         super.tick()
     }
@@ -59,15 +50,11 @@ public abstract class TrackingVirtualEntityAttachment: RootVirtualEntityAttachme
     }
 
     override fun attach(entity: VirtualEntity): Boolean {
-        return entity.canAttachTo(this) && this.attached.add(entity)
+        return this.attachAndUpdateTracking(entity, this.attached, this.connections)
     }
 
     override fun detach(entity: VirtualEntity): Boolean {
-        if (this.attached.remove(entity)) {
-            this.connections.forEach { connection -> entity.stopObservingAndSendPackets(connection.player) }
-            return true
-        }
-        return false
+        return this.detachAndUpdateTracking(entity, this.attached, this.connections)
     }
 
     final override fun attached(): Collection<VirtualEntity> {

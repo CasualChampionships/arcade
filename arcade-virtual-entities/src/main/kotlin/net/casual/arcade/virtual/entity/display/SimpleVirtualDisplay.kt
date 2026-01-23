@@ -7,7 +7,6 @@ package net.casual.arcade.virtual.entity.display
 import com.mojang.math.Transformation
 import net.casual.arcade.virtual.entity.SimpleVirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
-import net.casual.arcade.virtual.entity.utils.EntityDataAccessors
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Brightness
 import net.minecraft.world.entity.Display

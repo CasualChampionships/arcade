@@ -7,9 +7,9 @@ package net.casual.arcade.virtual.entity
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
-import net.casual.arcade.virtual.entity.utils.canAttachTo
-import net.casual.arcade.virtual.entity.utils.startObservingAndSendPackets
-import net.casual.arcade.virtual.entity.utils.stopObservingAndSendPackets
+import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils
+import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.attachAndUpdateTracking
+import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.detachAndUpdateTracking
 import net.minecraft.server.level.ServerPlayer
 
 public open class SimpleParentVirtualEntity(
@@ -20,32 +20,17 @@ public open class SimpleParentVirtualEntity(
     override val anchor: AttachmentAnchor = super.anchor
 
     override fun tick() {
-        for (connection in this.connections) {
-            val observer = connection.player
-            for (child in this.children) {
-                val isObserving = child.isObserving(observer)
-                val canObserve = child.canObserve(observer)
-                if (!isObserving && canObserve) {
-                    child.startObservingAndSendPackets(observer)
-                } else if (isObserving && !canObserve) {
-                    child.stopObservingAndSendPackets(observer)
-                }
-            }
-        }
+        VirtualEntityTrackingUtils.updateTrackedVirtualEntitiesFor(this.connections, this.children)
 
         super.tick()
     }
 
     override fun attach(entity: VirtualEntity): Boolean {
-        return entity.canAttachTo(this) && this.children.add(entity)
+        return this.attachAndUpdateTracking(entity, this.children, this.connections)
     }
 
     override fun detach(entity: VirtualEntity): Boolean {
-        if (this.children.remove(entity)) {
-            this.connections.forEach { connection -> entity.stopObservingAndSendPackets(connection.player) }
-            return true
-        }
-        return false
+        return this.detachAndUpdateTracking(entity, this.children, this.connections)
     }
 
     override fun startObserving(observer: ServerPlayer): Boolean {

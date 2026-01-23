@@ -5,10 +5,10 @@
 package net.casual.arcade.virtual.entity
 
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
-import net.casual.arcade.virtual.entity.mixins.EntityAccessor
 import net.casual.arcade.virtual.entity.interaction.EntityInteraction
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
+import net.casual.arcade.virtual.entity.mixins.EntityAccessor
 import net.casual.arcade.virtual.entity.utils.location
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer

@@ -15,11 +15,9 @@ import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
-import net.casual.arcade.virtual.entity.attachment.TrackingVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.LevelAttachmentAnchor
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
-import java.util.Observable
 
 internal class LevelAttachmentExtension(level: ServerLevel): Extension {
     private val attachments = ObjectLinkedOpenHashSet<RootVirtualEntityAttachment>()

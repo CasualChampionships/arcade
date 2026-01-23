@@ -5,7 +5,6 @@
 package net.casual.arcade.virtual.entity.display
 
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
-import net.casual.arcade.virtual.entity.utils.EntityDataAccessors
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.item.ItemDisplayContext
