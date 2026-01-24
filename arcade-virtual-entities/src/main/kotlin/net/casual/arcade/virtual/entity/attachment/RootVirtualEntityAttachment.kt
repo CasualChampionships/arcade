@@ -8,6 +8,12 @@ import net.casual.arcade.virtual.entity.extensions.PlayerAttachmentObserverExten
 import net.casual.arcade.virtual.entity.utils.VirtualEntityPacketCollector
 import net.minecraft.server.level.ServerPlayer
 
+/**
+ * This interface is the root of all [VirtualEntityAttachment]s.
+ *
+ * This interface provides [startObservingAttached] and [stopObservingAttached]
+ * allowing observers to observe all the attached entities.
+ */
 public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
     public fun startObservingAttached(observer: ServerPlayer, quietly: Boolean = false) {
         observer.attachmentObserver.startObserving(this)

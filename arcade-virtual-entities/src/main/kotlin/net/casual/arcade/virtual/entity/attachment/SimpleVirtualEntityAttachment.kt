@@ -6,6 +6,9 @@ package net.casual.arcade.virtual.entity.attachment
 
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 
+/**
+ * Simple implementation of [VirtualEntityAttachment].
+ */
 public open class SimpleVirtualEntityAttachment(
     override val anchor: AttachmentAnchor
 ): TrackingVirtualEntityAttachment()

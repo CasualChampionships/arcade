@@ -10,13 +10,29 @@ import net.casual.arcade.virtual.entity.attachment.anchor.ParentAttachmentAnchor
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
 
+/**
+ * This interface represents a [VirtualEntity] which can
+ * have children [VirtualEntity]s attached to it.
+ *
+ * @see VirtualEntity
+ * @see VirtualEntityAttachment
+ */
 public interface ParentVirtualEntity: VirtualEntity, VirtualEntityAttachment {
+    /**
+     * Whether the children should be searched for
+     * interaction handlers or not.
+     */
     public val canInteractWithChildren: Boolean
         get() = false
 
     override val anchor: AttachmentAnchor
         get() = ParentAttachmentAnchor(this)
 
+    /**
+     * Gets all the children virtual entities.
+     *
+     * @return The children virtual entities.
+     */
     public fun children(): Collection<VirtualEntity>
 
     @Deprecated("Call ParentVirtualEntity.children() instead")

@@ -29,6 +29,9 @@ import kotlin.jvm.optionals.getOrNull
 /**
  * A simple implementation of [VirtualEntity].
  *
+ * This virtual entity can be any [type], appropriate
+ * default entity data will be generated.
+ *
  * @param type The type of the virtual entity.
  */
 public open class SimpleVirtualEntity(

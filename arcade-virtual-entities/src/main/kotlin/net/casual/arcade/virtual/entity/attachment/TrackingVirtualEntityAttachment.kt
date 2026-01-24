@@ -13,6 +13,12 @@ import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.detachA
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 
+/**
+ * A [RootVirtualEntityAttachment] implementation which keeps track
+ * of the players which are currently observing it.
+ *
+ * @see RootVirtualEntityAttachment
+ */
 public abstract class TrackingVirtualEntityAttachment: RootVirtualEntityAttachment {
     private val attached = ObjectLinkedOpenHashSet<VirtualEntity>()
     protected val connections: MutableSet<ServerGamePacketListenerImpl> = ObjectOpenHashSet()
@@ -23,7 +29,7 @@ public abstract class TrackingVirtualEntityAttachment: RootVirtualEntityAttachme
 
     override fun tick() {
         VirtualEntityTrackingUtils.updateTrackedVirtualEntitiesFor(this.connections, this.attached)
-
+        this.updateAttached()
         super.tick()
     }
 
@@ -59,5 +65,18 @@ public abstract class TrackingVirtualEntityAttachment: RootVirtualEntityAttachme
 
     final override fun attached(): Collection<VirtualEntity> {
         return this.attached
+    }
+
+    /**
+     * This method should be overridden if you
+     * want to update the [attached] elements
+     * every tick.
+     *
+     * This method gets called *after* observers
+     * have been updated but *before* changes have been
+     * broadcasted to observers.
+     */
+    protected open fun updateAttached() {
+
     }
 }

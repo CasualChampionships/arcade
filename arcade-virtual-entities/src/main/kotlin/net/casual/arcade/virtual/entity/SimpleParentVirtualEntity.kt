@@ -12,6 +12,9 @@ import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.attachA
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.detachAndUpdateTracking
 import net.minecraft.server.level.ServerPlayer
 
+/**
+ * Simple implementation of [ParentVirtualEntity].
+ */
 public open class SimpleParentVirtualEntity(
     override val attachment: VirtualEntityAttachment
 ): TrackingVirtualEntity(), ParentVirtualEntity {
@@ -21,7 +24,7 @@ public open class SimpleParentVirtualEntity(
 
     override fun tick() {
         VirtualEntityTrackingUtils.updateTrackedVirtualEntitiesFor(this.connections, this.children)
-
+        this.updateChildren()
         super.tick()
     }
 
@@ -51,5 +54,18 @@ public open class SimpleParentVirtualEntity(
 
     override fun children(): Collection<VirtualEntity> {
         return this.children
+    }
+
+    /**
+     * This method should be overridden if you
+     * want to update the [children] elements
+     * every tick.
+     *
+     * This method gets called *after* observers
+     * have been updated but *before* changes have been
+     * broadcasted to observers.
+     */
+    protected open fun updateChildren() {
+
     }
 }
