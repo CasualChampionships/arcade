@@ -16,15 +16,15 @@ public class PlayerSpecificBlockDisplayElement(): PlayerSpecificDisplayElement()
     }
 
     public fun setBlockState(state: BlockState) {
-        this.data.modifyEntry(DisplayTrackedData.Block.BLOCK_STATE) { state }
+        this.setDataEntry(DisplayTrackedData.Block.BLOCK_STATE, state)
     }
 
     public fun setBlockStateFor(observer: ServerPlayer, state: BlockState) {
-        this.data.set(observer.uuid, DisplayTrackedData.Block.BLOCK_STATE, state)
+        this.setDataEntryFor(observer, DisplayTrackedData.Block.BLOCK_STATE, state)
     }
 
     public fun setBlockStateToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayTrackedData.Block.BLOCK_STATE)
+        this.setBaseDataEntryFor(observer, DisplayTrackedData.Block.BLOCK_STATE)
     }
 
     public fun modifyBlockState(modifier: (BlockState) -> BlockState) {

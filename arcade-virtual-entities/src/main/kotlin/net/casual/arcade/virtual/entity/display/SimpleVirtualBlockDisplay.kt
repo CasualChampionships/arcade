@@ -14,18 +14,18 @@ public open class SimpleVirtualBlockDisplay(
     attachment: VirtualEntityAttachment
 ): SimpleVirtualDisplay(EntityType.BLOCK_DISPLAY, attachment) {
     public fun setBlockState(state: BlockState) {
-        this.data.modifyEntry(BlockDisplayDataAccessors.BLOCK_STATE) { state }
+        this.setDataEntry(BlockDisplayDataAccessors.BLOCK_STATE, state)
     }
 
     public fun setBlockStateFor(observer: ServerPlayer, state: BlockState) {
-        this.data.set(observer.uuid, BlockDisplayDataAccessors.BLOCK_STATE, state)
+        this.setDataEntryFor(observer, BlockDisplayDataAccessors.BLOCK_STATE, state)
     }
 
     public fun setBlockStateToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, BlockDisplayDataAccessors.BLOCK_STATE)
+        this.setBaseDataEntryFor(observer, BlockDisplayDataAccessors.BLOCK_STATE)
     }
 
     public fun modifyBlockState(modifier: (BlockState) -> BlockState) {
-        this.data.modifyEntry(BlockDisplayDataAccessors.BLOCK_STATE, false, modifier)
+        this.modifyDataEntry(BlockDisplayDataAccessors.BLOCK_STATE, modifier)
     }
 }

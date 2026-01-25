@@ -23,84 +23,84 @@ public abstract class SimpleVirtualDisplay(
 ): SimpleVirtualEntity(type, attachment) {
     public fun setTranslation(translation: Vector3fc) {
         val copy = Vector3f(translation)
-        this.data.modifyEntry(DisplayDataAccessors.TRANSLATION) { copy }
+        this.setDataEntry(DisplayDataAccessors.TRANSLATION, copy)
     }
 
     public fun setTranslationFor(observer: ServerPlayer, translation: Vector3fc) {
-        this.data.set(observer.uuid, DisplayDataAccessors.TRANSLATION, Vector3f(translation))
+        this.setDataEntryFor(observer, DisplayDataAccessors.TRANSLATION, Vector3f(translation))
     }
 
     public fun setTranslationToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayDataAccessors.TRANSLATION)
+        this.setBaseDataEntryFor(observer, DisplayDataAccessors.TRANSLATION)
     }
 
     public fun modifyTranslation(modifier: (Vector3fc) -> Vector3fc) {
-        this.data.modifyEntry(DisplayDataAccessors.TRANSLATION, false) { current -> Vector3f(modifier.invoke(current)) }
+        this.modifyDataEntry(DisplayDataAccessors.TRANSLATION) { current -> Vector3f(modifier.invoke(current)) }
     }
 
     public fun setScale(scale: Vector3fc) {
         val copy = Vector3f(scale)
-        this.data.modifyEntry(DisplayDataAccessors.SCALE) { copy }
+        this.setDataEntry(DisplayDataAccessors.SCALE, copy)
     }
 
     public fun setScaleFor(observer: ServerPlayer, scale: Vector3fc) {
-        this.data.set(observer.uuid, DisplayDataAccessors.SCALE, Vector3f(scale))
+        this.setDataEntryFor(observer, DisplayDataAccessors.SCALE, Vector3f(scale))
     }
 
     public fun setScaleToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayDataAccessors.SCALE)
+        this.setBaseDataEntryFor(observer, DisplayDataAccessors.SCALE)
     }
 
     public fun modifyScale(modifier: (Vector3fc) -> Vector3fc) {
-        this.data.modifyEntry(DisplayDataAccessors.SCALE, false) { current -> Vector3f(modifier.invoke(current)) }
+        this.modifyDataEntry(DisplayDataAccessors.SCALE) { current -> Vector3f(modifier.invoke(current)) }
     }
 
     public fun setLeftRotation(rotation: Quaternionfc) {
         val copy = Quaternionf(rotation)
-        this.data.modifyEntry(DisplayDataAccessors.LEFT_ROTATION) { copy }
+        this.setDataEntry(DisplayDataAccessors.LEFT_ROTATION, copy)
     }
 
     public fun setLeftRotationFor(observer: ServerPlayer, rotation: Quaternionfc) {
-        this.data.set(observer.uuid, DisplayDataAccessors.LEFT_ROTATION, Quaternionf(rotation))
+        this.setDataEntryFor(observer, DisplayDataAccessors.LEFT_ROTATION, Quaternionf(rotation))
     }
 
     public fun setLeftRotationToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayDataAccessors.LEFT_ROTATION)
+        this.setBaseDataEntryFor(observer, DisplayDataAccessors.LEFT_ROTATION)
     }
 
     public fun modifyLeftRotation(modifier: (Quaternionfc) -> Quaternionfc) {
-        this.data.modifyEntry(DisplayDataAccessors.LEFT_ROTATION, false) { current -> Quaternionf(modifier.invoke(current)) }
+        this.modifyDataEntry(DisplayDataAccessors.LEFT_ROTATION) { current -> Quaternionf(modifier.invoke(current)) }
     }
 
     public fun setRightRotation(rotation: Quaternionfc) {
         val copy = Quaternionf(rotation)
-        this.data.modifyEntry(DisplayDataAccessors.RIGHT_ROTATION) { copy }
+        this.setDataEntry(DisplayDataAccessors.RIGHT_ROTATION, copy)
     }
 
     public fun setRightRotationFor(observer: ServerPlayer, rotation: Quaternionfc) {
-        this.data.set(observer.uuid, DisplayDataAccessors.RIGHT_ROTATION, Quaternionf(rotation))
+        this.setDataEntryFor(observer, DisplayDataAccessors.RIGHT_ROTATION, Quaternionf(rotation))
     }
 
     public fun setRightRotationToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayDataAccessors.RIGHT_ROTATION)
+        this.setBaseDataEntryFor(observer, DisplayDataAccessors.RIGHT_ROTATION)
     }
 
     public fun modifyRightRotation(modifier: (Quaternionfc) -> Quaternionfc) {
-        this.data.modifyEntry(DisplayDataAccessors.RIGHT_ROTATION, false) { current -> Quaternionf(modifier.invoke(current)) }
+        this.modifyDataEntry(DisplayDataAccessors.RIGHT_ROTATION) { current -> Quaternionf(modifier.invoke(current)) }
     }
 
     public fun setTransformation(transformation: Transformation) {
-        this.data.modifyEntry(DisplayDataAccessors.TRANSLATION) { transformation.translation }
-        this.data.modifyEntry(DisplayDataAccessors.LEFT_ROTATION) { transformation.leftRotation }
-        this.data.modifyEntry(DisplayDataAccessors.SCALE) { transformation.scale }
-        this.data.modifyEntry(DisplayDataAccessors.RIGHT_ROTATION) { transformation.rightRotation }
+        this.modifyDataEntry(DisplayDataAccessors.TRANSLATION) { transformation.translation }
+        this.modifyDataEntry(DisplayDataAccessors.LEFT_ROTATION) { transformation.leftRotation }
+        this.modifyDataEntry(DisplayDataAccessors.SCALE) { transformation.scale }
+        this.modifyDataEntry(DisplayDataAccessors.RIGHT_ROTATION) { transformation.rightRotation }
     }
 
     public fun setTransformationFor(observer: ServerPlayer, transformation: Transformation) {
-        this.data.set(observer.uuid, DisplayDataAccessors.TRANSLATION, transformation.translation)
-        this.data.set(observer.uuid, DisplayDataAccessors.LEFT_ROTATION, transformation.leftRotation)
-        this.data.set(observer.uuid, DisplayDataAccessors.SCALE, transformation.scale)
-        this.data.set(observer.uuid, DisplayDataAccessors.RIGHT_ROTATION, transformation.rightRotation)
+        this.setDataEntryFor(observer, DisplayDataAccessors.TRANSLATION, transformation.translation)
+        this.setDataEntryFor(observer, DisplayDataAccessors.LEFT_ROTATION, transformation.leftRotation)
+        this.setDataEntryFor(observer, DisplayDataAccessors.SCALE, transformation.scale)
+        this.setDataEntryFor(observer, DisplayDataAccessors.RIGHT_ROTATION, transformation.rightRotation)
     }
 
     public fun isTransformationDirtyFor(observer: ServerPlayer): Boolean {
@@ -111,27 +111,27 @@ public abstract class SimpleVirtualDisplay(
     }
 
     public fun setTransformationInterpolation(ticks: Int) {
-        this.data.modifyEntry(DisplayDataAccessors.TRANSFORMATION_INTERPOLATION_DURATION) { ticks }
+        this.setDataEntry(DisplayDataAccessors.TRANSFORMATION_INTERPOLATION_DURATION, ticks)
     }
 
     public fun setTransformationInterpolationFor(observer: ServerPlayer, ticks: Int) {
-        this.data.set(observer.uuid, DisplayDataAccessors.TRANSFORMATION_INTERPOLATION_DURATION, ticks)
+        this.setDataEntryFor(observer, DisplayDataAccessors.TRANSFORMATION_INTERPOLATION_DURATION, ticks)
     }
 
     public fun setTeleportationInterpolation(ticks: Int) {
-        this.data.modifyEntry(DisplayDataAccessors.POS_ROT_INTERPOLATION_DURATION) { ticks }
+        this.setDataEntry(DisplayDataAccessors.POS_ROT_INTERPOLATION_DURATION, ticks)
     }
 
     public fun setTeleportationInterpolationFor(observer: ServerPlayer, ticks: Int) {
-        this.data.set(observer.uuid, DisplayDataAccessors.POS_ROT_INTERPOLATION_DURATION, ticks)
+        this.setDataEntryFor(observer, DisplayDataAccessors.POS_ROT_INTERPOLATION_DURATION, ticks)
     }
 
     public fun setStartInterpolation(start: Int) {
-        this.data.modifyEntry(DisplayDataAccessors.TRANSFORMATION_INTERPOLATION_START_DELTA_TICKS) { start }
+        this.setDataEntry(DisplayDataAccessors.TRANSFORMATION_INTERPOLATION_START_DELTA_TICKS, start)
     }
 
     public fun setStartInterpolationFor(observer: ServerPlayer, start: Int) {
-        this.data.set(observer.uuid, DisplayDataAccessors.TRANSFORMATION_INTERPOLATION_START_DELTA_TICKS, start)
+        this.setDataEntryFor(observer, DisplayDataAccessors.TRANSFORMATION_INTERPOLATION_START_DELTA_TICKS, start)
     }
 
     public fun startInterpolation() {
@@ -140,7 +140,7 @@ public abstract class SimpleVirtualDisplay(
 
     public fun startInterpolationFor(observer: ServerPlayer) {
         val previous = this.data.get(observer.uuid, DisplayDataAccessors.TRANSFORMATION_INTERPOLATION_START_DELTA_TICKS) ?: return
-        this.data.set(observer.uuid, DisplayDataAccessors.TRANSFORMATION_INTERPOLATION_START_DELTA_TICKS, previous)
+        this.setDataEntryFor(observer, DisplayDataAccessors.TRANSFORMATION_INTERPOLATION_START_DELTA_TICKS, previous)
     }
 
     public fun startInterpolationIfDirty() {
@@ -154,77 +154,77 @@ public abstract class SimpleVirtualDisplay(
 
     public fun setBillboardConstraints(constraints: Display.BillboardConstraints) {
         val byte = constraints.ordinal.toByte()
-        this.data.modifyEntry(DisplayDataAccessors.BILLBOARD_RENDER_CONSTRAINTS) { byte }
+        this.setDataEntry(DisplayDataAccessors.BILLBOARD_RENDER_CONSTRAINTS, byte)
     }
 
     public fun setBillboardConstraintsFor(observer: ServerPlayer, constraints: Display.BillboardConstraints) {
         val byte = constraints.ordinal.toByte()
-        this.data.set(observer.uuid, DisplayDataAccessors.BILLBOARD_RENDER_CONSTRAINTS, byte)
+        this.setDataEntryFor(observer, DisplayDataAccessors.BILLBOARD_RENDER_CONSTRAINTS, byte)
     }
 
     public fun setBillboardConstraintsToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayDataAccessors.BILLBOARD_RENDER_CONSTRAINTS)
+        this.setBaseDataEntryFor(observer, DisplayDataAccessors.BILLBOARD_RENDER_CONSTRAINTS)
     }
 
     public fun setBrightness(brightness: Brightness) {
         val packed = brightness.pack()
-        this.data.modifyEntry(DisplayDataAccessors.BRIGHTNESS_OVERRIDE) { packed }
+        this.setDataEntry(DisplayDataAccessors.BRIGHTNESS_OVERRIDE, packed)
     }
 
     public fun setBrightnessFor(observer: ServerPlayer, brightness: Brightness) {
         val packed = brightness.pack()
-        this.data.set(observer.uuid, DisplayDataAccessors.BRIGHTNESS_OVERRIDE, packed)
+        this.setDataEntryFor(observer, DisplayDataAccessors.BRIGHTNESS_OVERRIDE, packed)
     }
 
     public fun setBrightnessToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayDataAccessors.BRIGHTNESS_OVERRIDE)
+        this.setBaseDataEntryFor(observer, DisplayDataAccessors.BRIGHTNESS_OVERRIDE)
     }
 
     public fun setViewRange(range: Float) {
-        this.data.modifyEntry(DisplayDataAccessors.VIEW_RANGE) { range }
+        this.setDataEntry(DisplayDataAccessors.VIEW_RANGE, range)
     }
 
     public fun setViewRangeFor(observer: ServerPlayer, range: Float) {
-        this.data.set(observer.uuid, DisplayDataAccessors.VIEW_RANGE, range)
+        this.setDataEntryFor(observer, DisplayDataAccessors.VIEW_RANGE, range)
     }
 
     public fun setViewRangeToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayDataAccessors.VIEW_RANGE)
+        this.setBaseDataEntryFor(observer, DisplayDataAccessors.VIEW_RANGE)
     }
 
     public fun setShadowRadius(radius: Float) {
-        this.data.modifyEntry(DisplayDataAccessors.SHADOW_RADIUS) { radius }
+        this.setDataEntry(DisplayDataAccessors.SHADOW_RADIUS, radius)
     }
 
     public fun setShadowRadiusFor(observer: ServerPlayer, radius: Float) {
-        this.data.set(observer.uuid, DisplayDataAccessors.SHADOW_RADIUS, radius)
+        this.setDataEntryFor(observer, DisplayDataAccessors.SHADOW_RADIUS, radius)
     }
 
     public fun setShadowRadiusToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayDataAccessors.SHADOW_RADIUS)
+        this.setBaseDataEntryFor(observer, DisplayDataAccessors.SHADOW_RADIUS)
     }
 
     public fun setShadowStrength(strength: Float) {
-        this.data.modifyEntry(DisplayDataAccessors.SHADOW_STRENGTH) { strength }
+        this.setDataEntry(DisplayDataAccessors.SHADOW_STRENGTH, strength)
     }
 
     public fun setShadowStrengthFor(observer: ServerPlayer, strength: Float) {
-        this.data.set(observer.uuid, DisplayDataAccessors.SHADOW_STRENGTH, strength)
+        this.setDataEntryFor(observer, DisplayDataAccessors.SHADOW_STRENGTH, strength)
     }
 
     public fun setShadowStrengthToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayDataAccessors.SHADOW_STRENGTH)
+        this.setBaseDataEntryFor(observer, DisplayDataAccessors.SHADOW_STRENGTH)
     }
 
     public fun setGlowColorOverride(color: Int) {
-        this.data.modifyEntry(DisplayDataAccessors.GLOW_COLOR_OVERRIDE) { color }
+        this.setDataEntry(DisplayDataAccessors.GLOW_COLOR_OVERRIDE, color)
     }
 
     public fun setGlowColorOverrideFor(observer: ServerPlayer, color: Int) {
-        this.data.set(observer.uuid, DisplayDataAccessors.GLOW_COLOR_OVERRIDE, color)
+        this.setDataEntryFor(observer, DisplayDataAccessors.GLOW_COLOR_OVERRIDE, color)
     }
 
     public fun setGlowColorOverrideToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayDataAccessors.GLOW_COLOR_OVERRIDE)
+        this.setBaseDataEntryFor(observer, DisplayDataAccessors.GLOW_COLOR_OVERRIDE)
     }
 }

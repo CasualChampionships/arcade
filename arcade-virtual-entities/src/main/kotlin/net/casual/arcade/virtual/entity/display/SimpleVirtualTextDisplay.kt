@@ -18,54 +18,54 @@ public open class SimpleVirtualTextDisplay(
     attachment: VirtualEntityAttachment
 ): SimpleVirtualDisplay(EntityType.TEXT_DISPLAY, attachment) {
     public fun setText(component: Component) {
-        this.data.modifyEntry(TextDisplayDataAccessors.TEXT) { component }
+        this.setDataEntry(TextDisplayDataAccessors.TEXT, component)
     }
 
     public fun setTextFor(observer: ServerPlayer, component: Component) {
-        this.data.set(observer.uuid, TextDisplayDataAccessors.TEXT, component)
+        this.setDataEntryFor(observer, TextDisplayDataAccessors.TEXT, component)
     }
 
     public fun setTextToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, TextDisplayDataAccessors.TEXT)
+        this.setBaseDataEntryFor(observer, TextDisplayDataAccessors.TEXT)
     }
 
     public fun modifyText(modifier: (Component) -> Component) {
-        this.data.modifyEntry(TextDisplayDataAccessors.TEXT, false, modifier)
+        this.modifyDataEntry(TextDisplayDataAccessors.TEXT, modifier)
     }
 
     public fun setLineWidth(width: Int) {
-        this.data.modifyEntry(TextDisplayDataAccessors.LINE_WIDTH) { width }
+        this.setDataEntry(TextDisplayDataAccessors.LINE_WIDTH, width)
     }
 
     public fun setLineWidthFor(observer: ServerPlayer, width: Int) {
-        this.data.set(observer.uuid, TextDisplayDataAccessors.LINE_WIDTH, width)
+        this.setDataEntryFor(observer, TextDisplayDataAccessors.LINE_WIDTH, width)
     }
 
     public fun setTextOpacity(opacity: Byte) {
-        this.data.modifyEntry(TextDisplayDataAccessors.TEXT_OPACITY) { opacity }
+        this.setDataEntry(TextDisplayDataAccessors.TEXT_OPACITY, opacity)
     }
 
     public fun setTextOpacityFor(observer: ServerPlayer, opacity: Byte) {
-        this.data.set(observer.uuid, TextDisplayDataAccessors.TEXT_OPACITY, opacity)
+        this.setDataEntryFor(observer, TextDisplayDataAccessors.TEXT_OPACITY, opacity)
     }
 
     public fun setBackgroundColor(color: Int) {
-        this.data.modifyEntry(TextDisplayDataAccessors.BACKGROUND_COLOR) { color }
+        this.setDataEntry(TextDisplayDataAccessors.BACKGROUND_COLOR, color)
     }
 
     public fun setBackgroundColorFor(observer: ServerPlayer, color: Int) {
-        this.data.set(observer.uuid, TextDisplayDataAccessors.BACKGROUND_COLOR, color)
+        this.setDataEntryFor(observer, TextDisplayDataAccessors.BACKGROUND_COLOR, color)
     }
 
     public fun setTextAlignment(alignment: Display.TextDisplay.Align) {
-        this.data.modifyEntry(TextDisplayDataAccessors.STYLE_FLAGS) { flags ->
+        this.modifyDataEntry(TextDisplayDataAccessors.STYLE_FLAGS) { flags ->
             this.updateAlignmentFlags(flags, alignment)
         }
     }
 
     public fun setTextAlignmentFor(observer: ServerPlayer, alignment: Display.TextDisplay.Align) {
         val flags = this.data.get(observer.uuid, TextDisplayDataAccessors.STYLE_FLAGS) ?: return
-        this.data.set(observer.uuid, TextDisplayDataAccessors.STYLE_FLAGS, this.updateAlignmentFlags(flags, alignment))
+        this.setDataEntryFor(observer, TextDisplayDataAccessors.STYLE_FLAGS, this.updateAlignmentFlags(flags, alignment))
     }
 
     public fun setShadow(shadow: Boolean) {
@@ -89,14 +89,14 @@ public open class SimpleVirtualTextDisplay(
     }
 
     protected fun modifyDisplayFlagEntry(flag: Byte, value: Boolean) {
-        this.data.modifyEntry(TextDisplayDataAccessors.STYLE_FLAGS) { flags ->
+        this.modifyDataEntry(TextDisplayDataAccessors.STYLE_FLAGS) { flags ->
             flags.updateFlag(flag, value)
         }
     }
 
     protected fun modifyDisplayFlagEntryFor(observer: ServerPlayer, flag: Byte, value: Boolean) {
         val flags = this.data.get(observer.uuid, TextDisplayDataAccessors.STYLE_FLAGS) ?: return
-        this.data.set(observer.uuid, TextDisplayDataAccessors.STYLE_FLAGS, flags.updateFlag(flag, value))
+        this.setDataEntryFor(observer, TextDisplayDataAccessors.STYLE_FLAGS, flags.updateFlag(flag, value))
     }
 
     protected fun updateAlignmentFlags(flags: Byte, alignment: Display.TextDisplay.Align): Byte {

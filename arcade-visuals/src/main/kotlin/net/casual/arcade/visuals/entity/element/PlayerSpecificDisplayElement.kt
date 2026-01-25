@@ -18,7 +18,7 @@ import org.joml.Vector3fc
 public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement() {
     public fun setTranslation(translation: Vector3fc) {
         val copy = Vector3f(translation)
-        this.data.modifyEntry(DisplayTrackedData.TRANSLATION) { copy }
+        this.setDataEntry(DisplayTrackedData.TRANSLATION, copy)
     }
 
     public fun setTranslationFor(observer: ServerPlayer, translation: Vector3fc) {
@@ -26,16 +26,16 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
     }
 
     public fun setTranslationToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayTrackedData.TRANSLATION)
+        this.setBaseDataEntryFor(observer, DisplayTrackedData.TRANSLATION)
     }
 
     public fun modifyTranslation(modifier: (Vector3fc) -> Vector3fc) {
-        this.data.modifyEntry(DisplayTrackedData.TRANSLATION, false) { current -> Vector3f(modifier.invoke(current)) }
+        this.modifyDataEntry(DisplayTrackedData.TRANSLATION) { current -> Vector3f(modifier.invoke(current)) }
     }
 
     public fun setScale(scale: Vector3fc) {
         val copy = Vector3f(scale)
-        this.data.modifyEntry(DisplayTrackedData.SCALE) { copy }
+        this.setDataEntry(DisplayTrackedData.SCALE, copy)
     }
 
     public fun setScaleFor(observer: ServerPlayer, scale: Vector3fc) {
@@ -43,16 +43,16 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
     }
 
     public fun setScaleToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayTrackedData.SCALE)
+        this.setBaseDataEntryFor(observer, DisplayTrackedData.SCALE)
     }
 
     public fun modifyScale(modifier: (Vector3fc) -> Vector3fc) {
-        this.data.modifyEntry(DisplayTrackedData.SCALE, false) { current -> Vector3f(modifier.invoke(current)) }
+        this.modifyDataEntry(DisplayTrackedData.SCALE) { current -> Vector3f(modifier.invoke(current)) }
     }
 
     public fun setLeftRotation(rotation: Quaternionfc) {
         val copy = Quaternionf(rotation)
-        this.data.modifyEntry(DisplayTrackedData.LEFT_ROTATION) { copy }
+        this.setDataEntry(DisplayTrackedData.LEFT_ROTATION, copy)
     }
 
     public fun setLeftRotationFor(observer: ServerPlayer, rotation: Quaternionfc) {
@@ -60,16 +60,16 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
     }
 
     public fun setLeftRotationToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayTrackedData.LEFT_ROTATION)
+        this.setBaseDataEntryFor(observer, DisplayTrackedData.LEFT_ROTATION)
     }
 
     public fun modifyLeftRotation(modifier: (Quaternionfc) -> Quaternionfc) {
-        this.data.modifyEntry(DisplayTrackedData.LEFT_ROTATION, false) { current -> Quaternionf(modifier.invoke(current)) }
+        this.modifyDataEntry(DisplayTrackedData.LEFT_ROTATION) { current -> Quaternionf(modifier.invoke(current)) }
     }
 
     public fun setRightRotation(rotation: Quaternionfc) {
         val copy = Quaternionf(rotation)
-        this.data.modifyEntry(DisplayTrackedData.RIGHT_ROTATION) { copy }
+        this.setDataEntry(DisplayTrackedData.RIGHT_ROTATION, copy)
     }
 
     public fun setRightRotationFor(observer: ServerPlayer, rotation: Quaternionfc) {
@@ -77,11 +77,11 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
     }
 
     public fun setRightRotationToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayTrackedData.RIGHT_ROTATION)
+        this.setBaseDataEntryFor(observer, DisplayTrackedData.RIGHT_ROTATION)
     }
 
     public fun modifyRightRotation(modifier: (Quaternionfc) -> Quaternionfc) {
-        this.data.modifyEntry(DisplayTrackedData.RIGHT_ROTATION, false) { current -> Quaternionf(modifier.invoke(current)) }
+        this.modifyDataEntry(DisplayTrackedData.RIGHT_ROTATION) { current -> Quaternionf(modifier.invoke(current)) }
     }
 
     public fun setTransformation(transformation: Transformation) {
@@ -106,27 +106,27 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
     }
 
     public fun setTransformationInterpolation(ticks: Int) {
-        this.data.modifyEntry(DisplayTrackedData.INTERPOLATION_DURATION) { ticks }
+        this.setDataEntry(DisplayTrackedData.INTERPOLATION_DURATION, ticks)
     }
 
     public fun setTransformationInterpolationFor(observer: ServerPlayer, ticks: Int) {
-        this.data.set(observer.uuid, DisplayTrackedData.INTERPOLATION_DURATION, ticks)
+        this.setDataEntryFor(observer, DisplayTrackedData.INTERPOLATION_DURATION, ticks)
     }
 
     public fun setTeleportationInterpolation(ticks: Int) {
-        this.data.modifyEntry(DisplayTrackedData.TELEPORTATION_DURATION) { ticks }
+        this.setDataEntry(DisplayTrackedData.TELEPORTATION_DURATION, ticks)
     }
 
     public fun setTeleportationInterpolationFor(observer: ServerPlayer, ticks: Int) {
-        this.data.set(observer.uuid, DisplayTrackedData.TELEPORTATION_DURATION, ticks)
+        this.setDataEntryFor(observer, DisplayTrackedData.TELEPORTATION_DURATION, ticks)
     }
 
     public fun setStartInterpolation(start: Int) {
-        this.data.modifyEntry(DisplayTrackedData.START_INTERPOLATION) { start }
+        this.setDataEntry(DisplayTrackedData.START_INTERPOLATION, start)
     }
 
     public fun setStartInterpolationFor(observer: ServerPlayer, start: Int) {
-        this.data.set(observer.uuid, DisplayTrackedData.START_INTERPOLATION, start)
+        this.setDataEntryFor(observer, DisplayTrackedData.START_INTERPOLATION, start)
     }
 
     public fun startInterpolation() {
@@ -135,7 +135,7 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
 
     public fun startInterpolationFor(observer: ServerPlayer) {
         val previous = this.data.get(observer.uuid, DisplayTrackedData.START_INTERPOLATION) ?: return
-        this.data.set(observer.uuid, DisplayTrackedData.START_INTERPOLATION, previous)
+        this.setDataEntryFor(observer, DisplayTrackedData.START_INTERPOLATION, previous)
     }
 
     public fun startInterpolationIfDirty() {
@@ -150,77 +150,77 @@ public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement(
 
     public fun setBillboardConstraints(constraints: Display.BillboardConstraints) {
         val byte = constraints.ordinal.toByte()
-        this.data.modifyEntry(DisplayTrackedData.BILLBOARD) { byte }
+        this.setDataEntry(DisplayTrackedData.BILLBOARD, byte)
     }
 
     public fun setBillboardConstraintsFor(observer: ServerPlayer, constraints: Display.BillboardConstraints) {
         val byte = constraints.ordinal.toByte()
-        this.data.set(observer.uuid, DisplayTrackedData.BILLBOARD, byte)
+        this.setDataEntryFor(observer, DisplayTrackedData.BILLBOARD, byte)
     }
 
     public fun setBillboardConstraintsToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayTrackedData.BILLBOARD)
+        this.setBaseDataEntryFor(observer, DisplayTrackedData.BILLBOARD)
     }
 
     public fun setBrightness(brightness: Brightness) {
         val packed = brightness.pack()
-        this.data.modifyEntry(DisplayTrackedData.BRIGHTNESS) { packed }
+        this.setDataEntry(DisplayTrackedData.BRIGHTNESS, packed)
     }
 
     public fun setBrightnessFor(observer: ServerPlayer, brightness: Brightness) {
         val packed = brightness.pack()
-        this.data.set(observer.uuid, DisplayTrackedData.BRIGHTNESS, packed)
+        this.setDataEntryFor(observer, DisplayTrackedData.BRIGHTNESS, packed)
     }
 
     public fun setBrightnessToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayTrackedData.BRIGHTNESS)
+        this.setBaseDataEntryFor(observer, DisplayTrackedData.BRIGHTNESS)
     }
 
     public fun setViewRange(range: Float) {
-        this.data.modifyEntry(DisplayTrackedData.VIEW_RANGE) { range }
+        this.setDataEntry(DisplayTrackedData.VIEW_RANGE, range)
     }
 
     public fun setViewRangeFor(observer: ServerPlayer, range: Float) {
-        this.data.set(observer.uuid, DisplayTrackedData.VIEW_RANGE, range)
+        this.setDataEntryFor(observer, DisplayTrackedData.VIEW_RANGE, range)
     }
 
     public fun setViewRangeToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayTrackedData.VIEW_RANGE)
+        this.setBaseDataEntryFor(observer, DisplayTrackedData.VIEW_RANGE)
     }
 
     public fun setShadowRadius(radius: Float) {
-        this.data.modifyEntry(DisplayTrackedData.SHADOW_RADIUS) { radius }
+        this.setDataEntry(DisplayTrackedData.SHADOW_RADIUS, radius)
     }
 
     public fun setShadowRadiusFor(observer: ServerPlayer, radius: Float) {
-        this.data.set(observer.uuid, DisplayTrackedData.SHADOW_RADIUS, radius)
+        this.setDataEntryFor(observer, DisplayTrackedData.SHADOW_RADIUS, radius)
     }
 
     public fun setShadowRadiusToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayTrackedData.SHADOW_RADIUS)
+        this.setBaseDataEntryFor(observer, DisplayTrackedData.SHADOW_RADIUS)
     }
 
     public fun setShadowStrength(strength: Float) {
-        this.data.modifyEntry(DisplayTrackedData.SHADOW_STRENGTH) { strength }
+        this.setDataEntry(DisplayTrackedData.SHADOW_STRENGTH, strength)
     }
 
     public fun setShadowStrengthFor(observer: ServerPlayer, strength: Float) {
-        this.data.set(observer.uuid, DisplayTrackedData.SHADOW_STRENGTH, strength)
+        this.setDataEntryFor(observer, DisplayTrackedData.SHADOW_STRENGTH, strength)
     }
 
     public fun setShadowStrengthToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayTrackedData.SHADOW_STRENGTH)
+        this.setBaseDataEntryFor(observer, DisplayTrackedData.SHADOW_STRENGTH)
     }
 
     public fun setGlowColorOverride(color: Int) {
-        this.data.modifyEntry(DisplayTrackedData.GLOW_COLOR_OVERRIDE) { color }
+        this.setDataEntry(DisplayTrackedData.GLOW_COLOR_OVERRIDE, color)
     }
 
     public fun setGlowColorOverrideFor(observer: ServerPlayer, color: Int) {
-        this.data.set(observer.uuid, DisplayTrackedData.GLOW_COLOR_OVERRIDE, color)
+        this.setDataEntryFor(observer, DisplayTrackedData.GLOW_COLOR_OVERRIDE, color)
     }
 
     public fun setGlowColorOverrideToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayTrackedData.GLOW_COLOR_OVERRIDE)
+        this.setBaseDataEntryFor(observer, DisplayTrackedData.GLOW_COLOR_OVERRIDE)
     }
 }

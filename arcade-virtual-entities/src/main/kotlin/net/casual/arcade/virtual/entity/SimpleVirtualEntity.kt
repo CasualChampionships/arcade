@@ -18,6 +18,7 @@ import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
+import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.Pose
@@ -161,20 +162,36 @@ public open class SimpleVirtualEntity(
         return this.lastSyncedRot
     }
 
+    public fun <T: Any> setDataEntry(accessor: EntityDataAccessor<T>, value: T) {
+        this.modifyDataEntry(accessor) { value }
+    }
+    
+    public fun <T: Any> setDataEntryFor(observer: ServerPlayer, accessor: EntityDataAccessor<T>, value: T) {
+        this.data.set(observer.uuid, accessor, value)
+    }
+    
+    public fun <T: Any> setBaseDataEntryFor(observer: ServerPlayer, accessor: EntityDataAccessor<T>) {
+        this.data.setToBase(observer.uuid, accessor)
+    }
+    
+    public fun <T: Any> modifyDataEntry(accessor: EntityDataAccessor<T>, modifier: (T) -> T) {
+        this.data.modifyEntry(accessor, false, modifier)
+    }
+
     public fun setPose(pose: Pose) {
-        this.data.modifyEntry(EntityDataAccessors.POSE) { pose }
+        this.setDataEntry(EntityDataAccessors.POSE, pose)
     }
 
     public fun setPoseFor(observer: ServerPlayer, pose: Pose) {
-        this.data.set(observer.uuid, EntityDataAccessors.POSE, pose)
+        this.setDataEntryFor(observer, EntityDataAccessors.POSE, pose)
     }
 
     public fun setBasePoseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, EntityDataAccessors.POSE)
+        this.setBaseDataEntryFor(observer, EntityDataAccessors.POSE)
     }
 
     public fun modifyPose(modifier: (Pose) -> Pose) {
-        this.data.modifyEntry(EntityDataAccessors.POSE, false) { current -> modifier.invoke(current) }
+        this.modifyDataEntry(EntityDataAccessors.POSE) { current -> modifier.invoke(current) }
     }
 
     public fun setOnFire(onFire: Boolean) {
@@ -259,66 +276,66 @@ public open class SimpleVirtualEntity(
 
     public fun setCustomName(name: Component?) {
         val optional = Optional.ofNullable(name)
-        this.data.modifyEntry(EntityDataAccessors.CUSTOM_NAME) { optional }
+        this.setDataEntry(EntityDataAccessors.CUSTOM_NAME, optional)
     }
 
     public fun setCustomNameFor(observer: ServerPlayer, name: Component?) {
         val optional = Optional.ofNullable(name)
-        this.data.set(observer.uuid, EntityDataAccessors.CUSTOM_NAME, optional)
+        this.setDataEntryFor(observer, EntityDataAccessors.CUSTOM_NAME, optional)
     }
 
     public fun setCustomNameToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, EntityDataAccessors.CUSTOM_NAME)
+        this.setBaseDataEntryFor(observer, EntityDataAccessors.CUSTOM_NAME)
     }
 
     public fun modifyCustomName(modifier: (Component?) -> Component?) {
-        this.data.modifyEntry(EntityDataAccessors.CUSTOM_NAME, false) { current ->
+        this.modifyDataEntry(EntityDataAccessors.CUSTOM_NAME) { current ->
             Optional.ofNullable(modifier.invoke(current.getOrNull()))
         }
     }
 
     public fun setSilent(silent: Boolean) {
-        this.data.modifyEntry(EntityDataAccessors.SILENT) { silent }
+        this.setDataEntry(EntityDataAccessors.SILENT, silent)
     }
 
     public fun setSilentFor(observer: ServerPlayer, silent: Boolean) {
-        this.data.set(observer.uuid, EntityDataAccessors.SILENT, silent)
+        this.setDataEntryFor(observer, EntityDataAccessors.SILENT, silent)
     }
 
     public fun setSilentToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, EntityDataAccessors.SILENT)
+        this.setBaseDataEntryFor(observer, EntityDataAccessors.SILENT)
     }
 
     public fun modifySilent(modifier: (Boolean) -> Boolean) {
-        this.data.modifyEntry(EntityDataAccessors.SILENT, false) { current -> modifier.invoke(current) }
+        this.modifyDataEntry(EntityDataAccessors.SILENT) { current -> modifier.invoke(current) }
     }
 
     public fun setNoGravity(noGravity: Boolean) {
-        this.data.modifyEntry(EntityDataAccessors.NO_GRAVITY) { noGravity }
+        this.setDataEntry(EntityDataAccessors.NO_GRAVITY, noGravity)
     }
 
     public fun setNoGravityFor(observer: ServerPlayer, noGravity: Boolean) {
-        this.data.set(observer.uuid, EntityDataAccessors.NO_GRAVITY, noGravity)
+        this.setDataEntryFor(observer, EntityDataAccessors.NO_GRAVITY, noGravity)
     }
 
     public fun setNoGravityToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, EntityDataAccessors.NO_GRAVITY)
+        this.setBaseDataEntryFor(observer, EntityDataAccessors.NO_GRAVITY)
     }
 
     public fun modifyNoGravity(modifier: (Boolean) -> Boolean) {
-        this.data.modifyEntry(EntityDataAccessors.NO_GRAVITY, false) { current -> modifier.invoke(current) }
+        this.modifyDataEntry(EntityDataAccessors.NO_GRAVITY) { current -> modifier.invoke(current) }
     }
 
     protected fun modifyFlagEntry(flag: Int, value: Boolean) {
-        this.data.modifyEntry(EntityDataAccessors.SHARED_FLAGS) { flags ->
+        this.modifyDataEntry(EntityDataAccessors.SHARED_FLAGS) { flags ->
             EntityDataSharedFlags.updateFlag(flags, flag, value)
         }
     }
 
     protected fun modifyFlagEntryFor(observer: ServerPlayer, flag: Int, value: Boolean) {
         val flags = this.data.get(observer.uuid, EntityDataAccessors.SHARED_FLAGS) ?: return
-        this.data.set(
-            observer.uuid, EntityDataAccessors.SHARED_FLAGS, EntityDataSharedFlags.updateFlag(flags, flag, value)
+        this.setDataEntryFor(
+            observer, EntityDataAccessors.SHARED_FLAGS, EntityDataSharedFlags.updateFlag(flags, flag, value)
         )
     }
 
@@ -331,7 +348,7 @@ public open class SimpleVirtualEntity(
     }
 
     protected fun modifyFlagEntry(flag: Int, modifier: (Boolean) -> Boolean) {
-        this.data.modifyEntry(EntityDataAccessors.SHARED_FLAGS, false) { flags ->
+        this.modifyDataEntry(EntityDataAccessors.SHARED_FLAGS) { flags ->
             val current = (flags.toInt() shr flag) and 1 != 0
             EntityDataSharedFlags.updateFlag(flags, flag, modifier.invoke(current))
         }

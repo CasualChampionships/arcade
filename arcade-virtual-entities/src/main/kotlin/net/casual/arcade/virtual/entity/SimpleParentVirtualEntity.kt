@@ -24,7 +24,6 @@ public open class SimpleParentVirtualEntity(
     override val anchor: AttachmentAnchor = super.anchor
 
     override fun tick() {
-        DynamicResolvableProfile()
         VirtualEntityTrackingUtils.updateTrackedVirtualEntitiesFor(this.connections, this.children)
         this.updateChildren()
         super.tick()
