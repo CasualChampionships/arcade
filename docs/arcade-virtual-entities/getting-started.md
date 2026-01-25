@@ -13,6 +13,9 @@ virtual entity api, but aims to fix some of the complexities with polymer's impl
 
 ## Adding to Dependencies
 
+The extensions module depends on some other arcade modules; it's recommended that you
+include all of these.
+
 ```kts
 repositories {
     maven("https://maven.supersanta.me/snapshots")
