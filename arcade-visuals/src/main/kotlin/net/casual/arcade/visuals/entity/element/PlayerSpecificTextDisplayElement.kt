@@ -11,21 +11,22 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Display
 import net.minecraft.world.entity.EntityType
 
+@Deprecated("Use arcade's virtual entity implementation instead")
 public open class PlayerSpecificTextDisplayElement(): PlayerSpecificDisplayElement() {
     public constructor(component: Component): this() {
         this.setText(component)
     }
 
     public fun setText(component: Component) {
-        this.data.modifyEntry(DisplayTrackedData.Text.TEXT) { component }
+        this.setDataEntry(DisplayTrackedData.Text.TEXT, component)
     }
 
     public fun setTextFor(observer: ServerPlayer, component: Component) {
-        this.data.set(observer.uuid, DisplayTrackedData.Text.TEXT, component)
+        this.setDataEntryFor(observer, DisplayTrackedData.Text.TEXT, component)
     }
 
     public fun setTextToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayTrackedData.Text.TEXT)
+        this.setBaseDataEntryFor(observer, DisplayTrackedData.Text.TEXT)
     }
 
     public fun modifyText(modifier: (Component) -> Component) {
@@ -33,27 +34,27 @@ public open class PlayerSpecificTextDisplayElement(): PlayerSpecificDisplayEleme
     }
 
     public fun setLineWidth(width: Int) {
-        this.data.modifyEntry(DisplayTrackedData.Text.LINE_WIDTH) { width }
+        this.setDataEntry(DisplayTrackedData.Text.LINE_WIDTH, width)
     }
 
     public fun setLineWidthFor(observer: ServerPlayer, width: Int) {
-        this.data.set(observer.uuid, DisplayTrackedData.Text.LINE_WIDTH, width)
+        this.setDataEntryFor(observer, DisplayTrackedData.Text.LINE_WIDTH, width)
     }
 
     public fun setTextOpacity(opacity: Byte) {
-        this.data.modifyEntry(DisplayTrackedData.Text.TEXT_OPACITY) { opacity }
+        this.setDataEntry(DisplayTrackedData.Text.TEXT_OPACITY, opacity)
     }
 
     public fun setTextOpacityFor(observer: ServerPlayer, opacity: Byte) {
-        this.data.set(observer.uuid, DisplayTrackedData.Text.TEXT_OPACITY, opacity)
+        this.setDataEntryFor(observer, DisplayTrackedData.Text.TEXT_OPACITY, opacity)
     }
 
     public fun setBackgroundColor(color: Int) {
-        this.data.modifyEntry(DisplayTrackedData.Text.BACKGROUND) { color }
+        this.setDataEntry(DisplayTrackedData.Text.BACKGROUND, color)
     }
 
     public fun setBackgroundColorFor(observer: ServerPlayer, color: Int) {
-        this.data.set(observer.uuid, DisplayTrackedData.Text.BACKGROUND, color)
+        this.setDataEntryFor(observer, DisplayTrackedData.Text.BACKGROUND, color)
     }
 
     public fun setTextAlignment(alignment: Display.TextDisplay.Align) {

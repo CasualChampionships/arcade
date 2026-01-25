@@ -4,8 +4,6 @@
  */
 package net.casual.arcade.nametags.extensions
 
-import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket
-import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils
 import eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
@@ -21,6 +19,7 @@ import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.virtual.NametagElement
 import net.casual.arcade.nametags.virtual.NametagElementHolder
 import net.casual.arcade.utils.asClientGamePacket
+import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.utils.entity.EntityTransferReason
 import net.casual.arcade.utils.impl.DelayedActions
 import net.casual.arcade.utils.modify
@@ -31,6 +30,7 @@ import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.Pose
+import net.casual.arcade.utils.ClientboundSetPassengersPacket as createSetPassengersPacket
 
 public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
     private val holder = ArcadeNametags.createNametagElementHolder(entity)
@@ -120,9 +120,8 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
             val vehicle = player.level().getEntity(packet.vehicle) ?: return packet
             val holder = vehicle.getExtension<EntityNametagExtension>().getHolder()
             if (holder != null && holder.isMountedToOwner()) {
-                val updated = VirtualEntityUtils.createRidePacket(packet.vehicle, packet.passengers + holder.root.id)
-                EntityAttachedPacket.setIfEmpty(updated, EntityAttachedPacket.get(updated))
-                return updated
+                val updated = createSetPassengersPacket(packet.vehicle, packet.passengers + holder.root.id)
+                return PolymerCompatLayer.updatePacket(packet, updated)
             }
             return packet
         }

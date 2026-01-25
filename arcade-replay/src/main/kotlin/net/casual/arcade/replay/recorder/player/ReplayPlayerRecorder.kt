@@ -193,7 +193,7 @@ public class ReplayPlayerRecorder internal constructor(
      * @param packet The packet to be recorded.
      */
     override fun sendChunkPacket(packet: Packet<*>) {
-        this.record(PolymerCompatLayer.replace(this.getPlayerOrThrow().connection, packet))
+        this.record(PolymerCompatLayer.replacePacket(this.getPlayerOrThrow().connection, packet))
     }
 
     /**

@@ -10,21 +10,22 @@ import net.minecraft.world.entity.EntityType
 import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.item.ItemStack
 
+@Deprecated("Use arcade's virtual entity implementation instead")
 public open class PlayerSpecificItemDisplayElement(): PlayerSpecificDisplayElement() {
     public constructor(stack: ItemStack): this() {
         this.setItemStack(stack)
     }
 
     public fun setItemStack(stack: ItemStack) {
-        this.data.modifyEntry(DisplayTrackedData.Item.ITEM) { stack }
+        this.setDataEntry(DisplayTrackedData.Item.ITEM, stack)
     }
 
     public fun setItemStackFor(observer: ServerPlayer, stack: ItemStack) {
-        this.data.set(observer.uuid, DisplayTrackedData.Item.ITEM, stack)
+        this.setDataEntryFor(observer, DisplayTrackedData.Item.ITEM, stack)
     }
 
     public fun setItemStackToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayTrackedData.Item.ITEM)
+        this.setBaseDataEntryFor(observer, DisplayTrackedData.Item.ITEM)
     }
 
     public fun modifyItemStack(modifier: (ItemStack) -> ItemStack) {
@@ -40,11 +41,11 @@ public open class PlayerSpecificItemDisplayElement(): PlayerSpecificDisplayEleme
     }
 
     public fun setItemDisplayContextToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, DisplayTrackedData.Item.ITEM_DISPLAY)
+        this.setBaseDataEntryFor(observer, DisplayTrackedData.Item.ITEM_DISPLAY)
     }
 
     public fun modifyItemDisplayContext(modifier: (ItemDisplayContext) -> ItemDisplayContext) {
-        this.data.modifyEntry(DisplayTrackedData.Item.ITEM_DISPLAY, false) { current ->
+        this.modifyDataEntry(DisplayTrackedData.Item.ITEM_DISPLAY) { current ->
             modifier.invoke(ItemDisplayContext.BY_ID.apply(current.toInt())).id
         }
     }

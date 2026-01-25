@@ -12,6 +12,7 @@ import net.casual.arcade.visuals.entity.data.PlayerSpecificEntityData
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
+import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.EntityType
@@ -24,6 +25,7 @@ import kotlin.experimental.and
 import kotlin.experimental.or
 import kotlin.jvm.optionals.getOrNull
 
+@Deprecated("Use arcade's virtual entity implementation instead")
 public abstract class PlayerSpecificEntityElement: AbstractElement() {
     public val data: PlayerSpecificEntityData = PlayerSpecificEntityData(this.getEntityType())
     public val id: Int = VirtualEntityUtils.requestEntityId()
@@ -53,20 +55,36 @@ public abstract class PlayerSpecificEntityElement: AbstractElement() {
         }
     }
 
+    public fun <T: Any> setDataEntry(accessor: EntityDataAccessor<T>, value: T) {
+        this.modifyDataEntry(accessor) { value }
+    }
+
+    public fun <T: Any> setDataEntryFor(observer: ServerPlayer, accessor: EntityDataAccessor<T>, value: T) {
+        this.data.set(observer.uuid, accessor, value)
+    }
+
+    public fun <T: Any> setBaseDataEntryFor(observer: ServerPlayer, accessor: EntityDataAccessor<T>) {
+        this.data.setToBase(observer.uuid, accessor)
+    }
+
+    public fun <T: Any> modifyDataEntry(accessor: EntityDataAccessor<T>, modifier: (T) -> T) {
+        this.data.modifyEntry(accessor, false, modifier)
+    }
+
     public fun setPose(pose: Pose) {
-        this.data.modifyEntry(EntityTrackedData.POSE) { pose }
+        this.setDataEntry(EntityTrackedData.POSE, pose)
     }
 
     public fun setPoseFor(observer: ServerPlayer, pose: Pose) {
-        this.data.set(observer.uuid, EntityTrackedData.POSE, pose)
+        this.setDataEntryFor(observer, EntityTrackedData.POSE, pose)
     }
 
     public fun setBasePoseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, EntityTrackedData.POSE)
+        this.setBaseDataEntryFor(observer, EntityTrackedData.POSE)
     }
 
     public fun modifyPose(modifier: (Pose) -> Pose) {
-        this.data.modifyEntry(EntityTrackedData.POSE, false) { current -> modifier.invoke(current) }
+        this.modifyDataEntry(EntityTrackedData.POSE) { current -> modifier.invoke(current) }
     }
 
     public fun setOnFire(onFire: Boolean) {
@@ -151,54 +169,54 @@ public abstract class PlayerSpecificEntityElement: AbstractElement() {
 
     public fun setCustomName(name: Component?) {
         val optional = Optional.ofNullable(name)
-        this.data.modifyEntry(EntityTrackedData.CUSTOM_NAME) { optional }
+        this.setDataEntry(EntityTrackedData.CUSTOM_NAME, optional)
     }
 
     public fun setCustomNameFor(observer: ServerPlayer, name: Component?) {
         val optional = Optional.ofNullable(name)
-        this.data.set(observer.uuid, EntityTrackedData.CUSTOM_NAME, optional)
+        this.setDataEntryFor(observer, EntityTrackedData.CUSTOM_NAME, optional)
     }
 
     public fun setCustomNameToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, EntityTrackedData.CUSTOM_NAME)
+        this.setBaseDataEntryFor(observer, EntityTrackedData.CUSTOM_NAME)
     }
 
     public fun modifyCustomName(modifier: (Component?) -> Component?) {
-        this.data.modifyEntry(EntityTrackedData.CUSTOM_NAME, false) { current ->
+        this.modifyDataEntry(EntityTrackedData.CUSTOM_NAME) { current ->
             Optional.ofNullable(modifier.invoke(current.getOrNull()))
         }
     }
 
     public fun setSilent(silent: Boolean) {
-        this.data.modifyEntry(EntityTrackedData.SILENT) { silent }
+        this.setDataEntry(EntityTrackedData.SILENT, silent)
     }
 
     public fun setSilentFor(observer: ServerPlayer, silent: Boolean) {
-        this.data.set(observer.uuid, EntityTrackedData.SILENT, silent)
+        this.setDataEntryFor(observer, EntityTrackedData.SILENT, silent)
     }
 
     public fun setSilentToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, EntityTrackedData.SILENT)
+        this.setBaseDataEntryFor(observer, EntityTrackedData.SILENT)
     }
 
     public fun modifySilent(modifier: (Boolean) -> Boolean) {
-        this.data.modifyEntry(EntityTrackedData.SILENT, false) { current -> modifier.invoke(current) }
+        this.modifyDataEntry(EntityTrackedData.SILENT) { current -> modifier.invoke(current) }
     }
 
     public fun setNoGravity(noGravity: Boolean) {
-        this.data.modifyEntry(EntityTrackedData.NO_GRAVITY) { noGravity }
+        this.setDataEntry(EntityTrackedData.NO_GRAVITY, noGravity)
     }
 
     public fun setNoGravityFor(observer: ServerPlayer, noGravity: Boolean) {
-        this.data.set(observer.uuid, EntityTrackedData.NO_GRAVITY, noGravity)
+        this.setDataEntryFor(observer, EntityTrackedData.NO_GRAVITY, noGravity)
     }
 
     public fun setNoGravityToBaseFor(observer: ServerPlayer) {
-        this.data.setToBase(observer.uuid, EntityTrackedData.NO_GRAVITY)
+        this.setBaseDataEntryFor(observer, EntityTrackedData.NO_GRAVITY)
     }
 
     public fun modifyNoGravity(modifier: (Boolean) -> Boolean) {
-        this.data.modifyEntry(EntityTrackedData.NO_GRAVITY, false) { current -> modifier.invoke(current) }
+        this.modifyDataEntry(EntityTrackedData.NO_GRAVITY) { current -> modifier.invoke(current) }
     }
 
     protected fun modifyFlagEntry(flag: Int, value: Boolean) {
@@ -221,7 +239,7 @@ public abstract class PlayerSpecificEntityElement: AbstractElement() {
     }
 
     protected fun modifyFlagEntry(flag: Int, modifier: (Boolean) -> Boolean) {
-        this.data.modifyEntry(EntityTrackedData.FLAGS, false) { flags ->
+        this.modifyDataEntry(EntityTrackedData.FLAGS) { flags ->
             val current = (flags.toInt() shr flag) and 1 != 0
             flags.updateFlag(flag, modifier.invoke(current))
         }
