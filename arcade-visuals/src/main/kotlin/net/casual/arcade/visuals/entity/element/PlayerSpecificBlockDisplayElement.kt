@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.level.block.state.BlockState
 
+@Deprecated("Use arcade's virtual entity implementation instead")
 public class PlayerSpecificBlockDisplayElement(): PlayerSpecificDisplayElement() {
     public constructor(state: BlockState): this() {
         this.setBlockState(state)

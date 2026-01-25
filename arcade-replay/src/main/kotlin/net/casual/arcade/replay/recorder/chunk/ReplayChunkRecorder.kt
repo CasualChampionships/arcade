@@ -6,7 +6,6 @@ package net.casual.arcade.replay.recorder.chunk
 
 import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.utils.compat.PolymerCompatLayer
@@ -18,7 +17,6 @@ import net.casual.arcade.replay.mixins.chunk.WitherBossAccessor
 import net.casual.arcade.replay.mixins.rejoin.ChunkMapAccessor
 import net.casual.arcade.replay.recorder.ChunkSender
 import net.casual.arcade.replay.recorder.ReplayRecorder
-import net.casual.arcade.replay.recorder.chunk.map.ChunkRecorderMapTracker
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder
 import net.casual.arcade.replay.recorder.rejoin.RejoinedReplayPlayer
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
@@ -43,8 +41,6 @@ import net.minecraft.world.entity.boss.wither.WitherBoss
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.chunk.LevelChunk
 import net.minecraft.world.level.levelgen.Heightmap
-import net.minecraft.world.level.saveddata.maps.MapId
-import net.minecraft.world.level.saveddata.maps.MapItemSavedData
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.apache.commons.lang3.builder.ToStringBuilder
@@ -101,7 +97,7 @@ public class ReplayChunkRecorder internal constructor(
         get() = Vec2.ZERO
 
     override fun record(outgoing: Packet<*>) {
-        super.record(PolymerCompatLayer.replace(this.dummy.connection, outgoing))
+        super.record(PolymerCompatLayer.replacePacket(this.dummy.connection, outgoing))
     }
 
     /**

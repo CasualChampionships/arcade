@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Display
 import net.minecraft.world.entity.EntityType
 
+@Deprecated("Use arcade's virtual entity implementation instead")
 public open class PlayerSpecificTextDisplayElement(): PlayerSpecificDisplayElement() {
     public constructor(component: Component): this() {
         this.setText(component)

@@ -62,37 +62,37 @@ public interface EntityAccessor {
     }
 
     @Accessor("FLAG_ONFIRE")
-    static int getOnFireFlag() {
+    static int accessOnFireFlag() {
         throw new AssertionError();
     }
 
     @Accessor("FLAG_SHIFT_KEY_DOWN")
-    static int getShiftKeyDownFlag() {
+    static int accessShiftKeyDownFlag() {
         throw new AssertionError();
     }
 
     @Accessor("FLAG_SPRINTING")
-    static int getSprintingFlag() {
+    static int accessSprintingFlag() {
         throw new AssertionError();
     }
 
     @Accessor("FLAG_SWIMMING")
-    static int getSwimmingFlag() {
+    static int accessSwimmingFlag() {
         throw new AssertionError();
     }
 
     @Accessor("FLAG_INVISIBLE")
-    static int getInvisibleFlag() {
+    static int accessInvisibleFlag() {
         throw new AssertionError();
     }
 
     @Accessor("FLAG_GLOWING")
-    static int getGlowingFlag() {
+    static int accessGlowingFlag() {
         throw new AssertionError();
     }
 
     @Accessor("FLAG_FALL_FLYING")
-    static int getFallFlyingFlag() {
+    static int accessFallFlyingFlag() {
         throw new AssertionError();
     }
 }

@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.virtual.entity.data
 
-import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers
+import eu.pb4.polymer.core.api.entity.PolymerEntityUtils
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
@@ -32,8 +32,7 @@ public class PlayerSpecificEntityData {
     private val base: Array<Entry<*>>
 
     public constructor(type: EntityType<*>) {
-        @Suppress("UnstableApiUsage")
-        val examples = InternalEntityHelpers.getExampleTrackedDataOfEntityType(type)
+        val examples = PolymerEntityUtils.getDefaultTrackedData(type)
         this.base = Array(examples.size) { i ->
             val example = examples[i]
             Entry(example.accessor as EntityDataAccessor<in Any>, example.value)

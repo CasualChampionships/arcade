@@ -5,18 +5,19 @@
 package net.casual.arcade.virtual.entity.utils
 
 import net.casual.arcade.virtual.entity.mixins.EntityAccessor
+import net.casual.arcade.virtual.entity.mixins.LivingEntityAccessor
 import net.minecraft.world.entity.Display.TextDisplay
 import kotlin.experimental.and
 import kotlin.experimental.or
 
 public object EntityDataSharedFlags {
-    public val ON_FIRE: Int = EntityAccessor.getOnFireFlag()
-    public val SHIFT_KEY_DOWN: Int = EntityAccessor.getShiftKeyDownFlag()
-    public val SPRINTING: Int = EntityAccessor.getSprintingFlag()
-    public val SWIMMING: Int = EntityAccessor.getSwimmingFlag()
-    public val INVISIBLE: Int = EntityAccessor.getInvisibleFlag()
-    public val GLOWING: Int = EntityAccessor.getGlowingFlag()
-    public val FALL_FLYING: Int = EntityAccessor.getFallFlyingFlag()
+    public val ON_FIRE: Int = EntityAccessor.accessOnFireFlag()
+    public val SHIFT_KEY_DOWN: Int = EntityAccessor.accessShiftKeyDownFlag()
+    public val SPRINTING: Int = EntityAccessor.accessSprintingFlag()
+    public val SWIMMING: Int = EntityAccessor.accessSwimmingFlag()
+    public val INVISIBLE: Int = EntityAccessor.accessInvisibleFlag()
+    public val GLOWING: Int = EntityAccessor.accessGlowingFlag()
+    public val FALL_FLYING: Int = EntityAccessor.accessFallFlyingFlag()
 
     public fun updateFlag(flags: Byte, flag: Int, value: Boolean): Byte {
         return if (value) {
@@ -28,6 +29,12 @@ public object EntityDataSharedFlags {
 
     public fun updateFlag(flags: Byte, flag: Byte, value: Boolean): Byte {
         return this.updateFlag(flags, flag.toInt(), value)
+    }
+
+    public object LivingEntity {
+        public val IS_USING: Int = LivingEntityAccessor.accessIsUsingFlag()
+        public val OFF_HAND: Int = LivingEntityAccessor.accessOffHandFlag()
+        public val SPIN_ATTACK: Int = LivingEntityAccessor.accessSpinAttackFlag()
     }
 
     public object Display {

@@ -5,6 +5,8 @@
 package net.casual.arcade.virtual.entity.utils
 
 import net.casual.arcade.virtual.entity.mixins.*
+import net.minecraft.core.BlockPos
+import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.network.chat.Component
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.world.entity.Pose
@@ -38,6 +40,29 @@ public object EntityDataAccessors {
 
     public val TICKS_FROZEN: EntityDataAccessor<Int>
         get() = EntityAccessor.accessTicksFrozenAccessor()
+
+    public object LivingEntity {
+        public val FLAGS: EntityDataAccessor<Byte>
+            get() = LivingEntityAccessor.accessLivingEntityFlagsAccessor()
+
+        public val HEALTH: EntityDataAccessor<Float>
+            get() = LivingEntityAccessor.accessHealthAccessor()
+
+        public val EFFECT_PARTICLES: EntityDataAccessor<List<ParticleOptions>>
+            get() = LivingEntityAccessor.accessEffectParticlesAccessor()
+
+        public val EFFECT_AMBIENCE: EntityDataAccessor<Boolean>
+            get() = LivingEntityAccessor.accessEffectAmbienceAccessor()
+
+        public val ARROW_COUNT: EntityDataAccessor<Int>
+            get() = LivingEntityAccessor.accessArrowCountAccessor()
+
+        public val STINGER_COUNT: EntityDataAccessor<Int>
+            get() = LivingEntityAccessor.accessStingerCountAccessor()
+
+        public val SLEEPING_POS: EntityDataAccessor<Optional<BlockPos>>
+            get() = LivingEntityAccessor.accessSleepingPosAccessor()
+    }
 
     public object Display {
         public val TRANSFORMATION_INTERPOLATION_START_DELTA_TICKS: EntityDataAccessor<Int>

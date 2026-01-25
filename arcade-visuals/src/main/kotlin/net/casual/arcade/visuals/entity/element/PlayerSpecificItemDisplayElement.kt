@@ -10,6 +10,7 @@ import net.minecraft.world.entity.EntityType
 import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.item.ItemStack
 
+@Deprecated("Use arcade's virtual entity implementation instead")
 public open class PlayerSpecificItemDisplayElement(): PlayerSpecificDisplayElement() {
     public constructor(stack: ItemStack): this() {
         this.setItemStack(stack)

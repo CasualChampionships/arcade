@@ -24,6 +24,7 @@ import kotlin.experimental.and
 import kotlin.experimental.or
 import kotlin.jvm.optionals.getOrNull
 
+@Deprecated("Use arcade's virtual entity implementation instead")
 public abstract class PlayerSpecificEntityElement: AbstractElement() {
     public val data: PlayerSpecificEntityData = PlayerSpecificEntityData(this.getEntityType())
     public val id: Int = VirtualEntityUtils.requestEntityId()

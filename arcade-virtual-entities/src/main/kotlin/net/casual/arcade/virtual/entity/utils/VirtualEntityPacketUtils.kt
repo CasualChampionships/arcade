@@ -4,10 +4,14 @@
  */
 package net.casual.arcade.virtual.entity.utils
 
+import io.netty.buffer.Unpooled
 import net.casual.arcade.virtual.entity.mixins.ServerEntityAccessor
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundEntityPositionSyncPacket
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket
+import net.minecraft.network.protocol.game.ClientboundSetCameraPacket
+import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket
 import net.minecraft.network.protocol.game.VecDeltaCodec
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.PositionMoveRotation

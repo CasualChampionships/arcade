@@ -5,8 +5,10 @@
 package net.casual.arcade.utils
 
 import io.netty.buffer.ByteBuf
+import io.netty.buffer.Unpooled
 import net.casual.arcade.util.mixins.ClientboundPlayerInfoUpdatePacketAccessor
 import net.minecraft.core.particles.ParticleOptions
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
 import net.minecraft.network.protocol.game.*
@@ -58,6 +60,19 @@ public fun ClientboundLevelParticlesPacket(
     return ClientboundLevelParticlesPacket(
         options, overrideLimiter, alwaysRender, position.x, position.y, position.z, xDist, yDist, zDist, speed, count
     )
+}
+
+public fun ClientboundSetCameraPacket(camera: Int): ClientboundSetCameraPacket {
+    val buf = FriendlyByteBuf(Unpooled.buffer())
+    buf.writeVarInt(camera)
+    return ClientboundSetCameraPacket.STREAM_CODEC.decode(buf)
+}
+
+public fun ClientboundSetPassengersPacket(vehicle: Int, passengers: IntArray): ClientboundSetPassengersPacket {
+    val buf = FriendlyByteBuf(Unpooled.buffer())
+    buf.writeVarInt(vehicle)
+    buf.writeVarIntArray(passengers)
+    return ClientboundSetPassengersPacket.STREAM_CODEC.decode(buf)
 }
 
 public fun Packet<*>.asClientGamePacket(): Packet<ClientGamePacketListener> {

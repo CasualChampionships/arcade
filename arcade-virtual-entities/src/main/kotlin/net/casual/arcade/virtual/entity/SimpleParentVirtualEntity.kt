@@ -5,6 +5,7 @@
 package net.casual.arcade.virtual.entity
 
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
+import net.casual.arcade.utils.DynamicResolvableProfile
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils
@@ -23,6 +24,7 @@ public open class SimpleParentVirtualEntity(
     override val anchor: AttachmentAnchor = super.anchor
 
     override fun tick() {
+        DynamicResolvableProfile()
         VirtualEntityTrackingUtils.updateTrackedVirtualEntitiesFor(this.connections, this.children)
         this.updateChildren()
         super.tick()

@@ -14,6 +14,7 @@ import org.joml.Quaternionfc
 import org.joml.Vector3f
 import org.joml.Vector3fc
 
+@Deprecated("Use arcade's virtual entity implementation instead")
 public abstract class PlayerSpecificDisplayElement: PlayerSpecificEntityElement() {
     public fun setTranslation(translation: Vector3fc) {
         val copy = Vector3f(translation)
