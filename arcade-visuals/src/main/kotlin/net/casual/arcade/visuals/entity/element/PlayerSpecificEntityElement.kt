@@ -12,6 +12,7 @@ import net.casual.arcade.visuals.entity.data.PlayerSpecificEntityData
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
+import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.EntityType
@@ -52,6 +53,22 @@ public abstract class PlayerSpecificEntityElement: AbstractElement() {
             this.yRot = yRot
             this.isRotationDirty = true
         }
+    }
+
+    public fun <T: Any> setDataEntry(accessor: EntityDataAccessor<T>, value: T) {
+        this.modifyDataEntry(accessor) { value }
+    }
+
+    public fun <T: Any> setDataEntryFor(observer: ServerPlayer, accessor: EntityDataAccessor<T>, value: T) {
+        this.data.set(observer.uuid, accessor, value)
+    }
+
+    public fun <T: Any> setBaseDataEntryFor(observer: ServerPlayer, accessor: EntityDataAccessor<T>) {
+        this.data.setToBase(observer.uuid, accessor)
+    }
+
+    public fun <T: Any> modifyDataEntry(accessor: EntityDataAccessor<T>, modifier: (T) -> T) {
+        this.data.modifyEntry(accessor, false, modifier)
     }
 
     public fun setPose(pose: Pose) {
