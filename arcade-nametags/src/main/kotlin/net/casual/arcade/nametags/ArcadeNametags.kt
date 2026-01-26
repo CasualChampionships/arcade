@@ -5,7 +5,7 @@
 package net.casual.arcade.nametags
 
 import net.casual.arcade.nametags.extensions.EntityNametagExtension
-import net.casual.arcade.nametags.virtual.NametagElementHolder
+import net.casual.arcade.nametags.polymer.virtual.NametagElementHolder
 import net.fabricmc.api.ModInitializer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity

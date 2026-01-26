@@ -2,7 +2,7 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.nametags.virtual
+package net.casual.arcade.nametags.polymer.virtual
 
 import eu.pb4.polymer.virtualentity.api.elements.VirtualElement.InteractionHandler
 import net.minecraft.network.protocol.game.ServerboundInteractPacket
@@ -11,6 +11,7 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.Vec3
 
+@Deprecated("Replace with arcade's VE implementation")
 public class RetargetingInteractionHandler(
     public val owner: Entity
 ): InteractionHandler {

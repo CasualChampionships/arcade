@@ -2,7 +2,7 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.nametags.virtual
+package net.casual.arcade.nametags.polymer.virtual
 
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils
 import eu.pb4.polymer.virtualentity.api.elements.AbstractElement
@@ -22,6 +22,7 @@ import net.minecraft.world.phys.Vec3
 import java.util.*
 import java.util.function.Consumer
 
+@Deprecated("Replace with arcade's VE implementation")
 public class NametagHeightElement(
     private val entity: Entity,
     public val height: NametagHeight

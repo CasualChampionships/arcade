@@ -16,8 +16,8 @@ import net.casual.arcade.extensions.event.EntityExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.nametags.ArcadeNametags
 import net.casual.arcade.nametags.Nametag
-import net.casual.arcade.nametags.virtual.NametagElement
-import net.casual.arcade.nametags.virtual.NametagElementHolder
+import net.casual.arcade.nametags.polymer.virtual.NametagElement
+import net.casual.arcade.nametags.polymer.virtual.NametagElementHolder
 import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.utils.entity.EntityTransferReason

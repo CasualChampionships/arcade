@@ -2,7 +2,7 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.nametags.virtual
+package net.casual.arcade.nametags.polymer.virtual
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils
@@ -24,7 +24,9 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.Vec3
 import java.util.function.Consumer
+import kotlin.collections.iterator
 
+@Deprecated("Replace with arcade's VE implementation")
 public open class NametagElementHolder(
     protected val entity: Entity
 ): ElementHolder() {
