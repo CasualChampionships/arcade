@@ -175,7 +175,7 @@ public open class SimpleVirtualEntity(
     }
     
     public fun <T: Any> modifyDataEntry(accessor: EntityDataAccessor<T>, modifier: (T) -> T) {
-        this.data.modifyEntry(accessor, false, modifier)
+        this.data.modify(accessor, false, modifier)
     }
 
     public fun setPose(pose: Pose) {

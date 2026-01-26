@@ -135,7 +135,7 @@ public abstract class SimpleVirtualDisplay(
     }
 
     public fun startInterpolation() {
-        this.data.modifyEntry(DisplayDataAccessors.TRANSFORMATION_INTERPOLATION_START_DELTA_TICKS, true) { value -> value }
+        this.data.modify(DisplayDataAccessors.TRANSFORMATION_INTERPOLATION_START_DELTA_TICKS, true) { value -> value }
     }
 
     public fun startInterpolationFor(observer: ServerPlayer) {
