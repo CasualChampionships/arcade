@@ -206,7 +206,9 @@ public abstract class ReplayRecorder(
         }
         this.runPostAutomaticInitialization(outgoing)
 
-        this.checkRecordingStatus()
+        if (safe) {
+            this.checkRecordingStatus()
+        }
     }
 
     /**
