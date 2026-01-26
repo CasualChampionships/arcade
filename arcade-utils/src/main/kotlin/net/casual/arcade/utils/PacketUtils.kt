@@ -75,6 +75,13 @@ public fun ClientboundSetPassengersPacket(vehicle: Int, passengers: IntArray): C
     return ClientboundSetPassengersPacket.STREAM_CODEC.decode(buf)
 }
 
+public fun ClientboundRotateHeadPacket(entity: Int, rot: Byte): ClientboundRotateHeadPacket {
+    val buf = FriendlyByteBuf(Unpooled.buffer())
+    buf.writeVarInt(entity)
+    buf.writeByte(rot.toInt())
+    return ClientboundRotateHeadPacket.STREAM_CODEC.decode(buf)
+}
+
 public fun Packet<*>.asClientGamePacket(): Packet<ClientGamePacketListener> {
     @Suppress("UNCHECKED_CAST")
     return this as Packet<ClientGamePacketListener>

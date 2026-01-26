@@ -49,8 +49,9 @@ public open class SimpleVirtualEntity(
     override var position: VirtualPosition = VirtualPosition.DEFAULT
     override var rotation: VirtualRotation = VirtualRotation.DEFAULT
 
-    private lateinit var lastSyncedPos: Vec3
-    private lateinit var lastSyncedRot: Vec2
+    private var lastSyncedPos: Vec3? = null
+    private var lastSyncedRot: Vec2? = null
+    private var lastSyncedHeadRot: Float? = null
 
     /**
      * The entity data for this virtual entity.
@@ -102,8 +103,9 @@ public open class SimpleVirtualEntity(
         val location = this.location()
         val (x, y, z) = this.getLastSyncedPosition(location.position)
         val (xRot, yRot) = this.getLastSyncedRotation(location.rotation)
+        val headRot = this.getLastSyncedHeadRotation(yRot)
         return ClientboundAddEntityPacket(
-            this.id, this.uuid, x, y, z, xRot, yRot, this.type, 0, Vec3.ZERO, yRot.toDouble()
+            this.id, this.uuid, x, y, z, xRot, yRot, this.type, 0, Vec3.ZERO, headRot.toDouble()
         )
     }
 
@@ -128,6 +130,7 @@ public open class SimpleVirtualEntity(
                 this.observers.broadcast(packet)
                 this.lastSyncedRot = currentRot
             }
+            this.sendDirtyHeadRotation(currentRot.y)
             return
         }
 
@@ -145,6 +148,15 @@ public open class SimpleVirtualEntity(
                 this.lastSyncedRot = currentRot
             }
         }
+        this.sendDirtyHeadRotation(currentRot.y)
+    }
+
+    protected fun sendDirtyHeadRotation(yHeadRot: Float) {
+        val previousHeadRot = this.getLastSyncedHeadRotation(yHeadRot)
+        val packet = VirtualEntityPacketUtils.createHeadRotationPacket(this.id, previousHeadRot, yHeadRot)
+        if (packet != null) {
+            this.observers.broadcast(packet)
+        }
     }
 
     protected open fun sendDirtyEntityData() {
@@ -159,17 +171,24 @@ public open class SimpleVirtualEntity(
     }
 
     protected fun getLastSyncedPosition(current: Vec3): Vec3 {
-        if (!this::lastSyncedPos.isInitialized) {
+        if (this.lastSyncedPos == null) {
             this.lastSyncedPos = current
         }
-        return this.lastSyncedPos
+        return this.lastSyncedPos!!
     }
 
     protected fun getLastSyncedRotation(current: Vec2): Vec2 {
-        if (!this::lastSyncedRot.isInitialized) {
+        if (this.lastSyncedRot == null) {
             this.lastSyncedRot = current
         }
-        return this.lastSyncedRot
+        return this.lastSyncedRot!!
+    }
+
+    protected fun getLastSyncedHeadRotation(current: Float): Float {
+        if (this.lastSyncedHeadRot == null) {
+            this.lastSyncedHeadRot = current
+        }
+        return this.lastSyncedHeadRot!!
     }
 
     public fun <T: Any> setDataEntry(accessor: EntityDataAccessor<T>, value: T) {
