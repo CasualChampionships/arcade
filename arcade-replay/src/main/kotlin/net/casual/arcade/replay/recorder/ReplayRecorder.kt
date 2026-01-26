@@ -205,10 +205,6 @@ public abstract class ReplayRecorder(
             }
         }
         this.runPostAutomaticInitialization(outgoing)
-
-        if (safe) {
-            this.checkRecordingStatus()
-        }
     }
 
     /**
@@ -553,6 +549,8 @@ public abstract class ReplayRecorder(
     public open fun tick() {
         if (this.initialization.get() == InitializedState.Initialized) {
             this.writer.tick()
+
+            this.checkRecordingStatus()
         }
     }
 
