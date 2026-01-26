@@ -5,6 +5,8 @@
 package net.casual.arcade.virtual.entity.display
 
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
+import net.casual.arcade.virtual.entity.tracker.ObserverTracker
+import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.utils.EntityDataSharedFlags
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
@@ -15,8 +17,9 @@ import net.casual.arcade.virtual.entity.utils.EntityDataAccessors.Display.Text a
 import net.casual.arcade.virtual.entity.utils.EntityDataSharedFlags.Display.Text as TextDisplayDataSharedFlags
 
 public open class SimpleVirtualTextDisplay(
-    attachment: VirtualEntityAttachment
-): SimpleVirtualDisplay(EntityType.TEXT_DISPLAY, attachment) {
+    attachment: VirtualEntityAttachment,
+    observers: ObserverTracker = SimpleObserverTracker()
+): SimpleVirtualDisplay(EntityType.TEXT_DISPLAY, attachment, observers) {
     public fun setText(component: Component) {
         this.setDataEntry(TextDisplayDataAccessors.TEXT, component)
     }

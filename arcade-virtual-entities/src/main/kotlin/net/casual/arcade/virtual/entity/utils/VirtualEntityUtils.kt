@@ -13,6 +13,8 @@ import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor
 import net.casual.arcade.virtual.entity.attachment.anchor.LevelAttachmentAnchor
 import net.casual.arcade.virtual.entity.extensions.EntityAttachmentExtension.Companion.attachmentExtension
 import net.casual.arcade.virtual.entity.extensions.LevelAttachmentExtension.Companion.attachmentExtension
+import net.casual.arcade.virtual.entity.tracker.ObserverTracker
+import net.casual.arcade.virtual.entity.tracker.ParentObserverTracker
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
@@ -64,20 +66,32 @@ public fun VirtualEntity.sendDespawnPackets(observer: ServerPlayer) {
 }
 
 public fun VirtualEntity.startObservingAndSendPackets(observer: ServerPlayer) {
-    if (this.startObserving(observer)) {
+    if (this.canObserve(observer) && this.observers.startObserving(observer)) {
         this.sendSpawnPackets(observer)
     }
 }
 
 public fun VirtualEntity.stopObservingAndSendPackets(observer: ServerPlayer) {
-    if (this.isObserving(observer)) {
+    if (this.observers.isObserving(observer)) {
         this.sendDespawnPackets(observer)
-        this.stopObserving(observer)
+        this.observers.stopObserving(observer)
     }
+}
+
+public fun VirtualEntityAttachment.createParentObserverTracker(): ParentObserverTracker {
+    return ParentObserverTracker(this.observers)
 }
 
 public inline fun <T: VirtualEntity> VirtualEntityAttachment.attach(factory: (VirtualEntityAttachment) -> T): T {
     val entity = factory.invoke(this)
+    this.attach(entity)
+    return entity
+}
+
+public inline fun <T: VirtualEntity> VirtualEntityAttachment.attachWithParentObservers(
+    factory: (VirtualEntityAttachment, ObserverTracker) -> T
+): T {
+    val entity = factory.invoke(this, this.createParentObserverTracker())
     this.attach(entity)
     return entity
 }

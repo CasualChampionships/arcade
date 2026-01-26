@@ -7,6 +7,9 @@ package net.casual.arcade.virtual.entity.attachment
 import net.casual.arcade.virtual.entity.ParentVirtualEntity
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
+import net.casual.arcade.virtual.entity.tracker.ObserverTracker
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 /**
  * This interface allows for the attaching of [VirtualEntity]s.
@@ -23,6 +26,12 @@ public interface VirtualEntityAttachment {
      * The anchor for this attachment.
      */
     public val anchor: AttachmentAnchor
+
+    /**
+     * The observer tracker for this attachment.
+     */
+    @get:OverrideOnly
+    public val observers: ObserverTracker
 
     /**
      * Attaches a given [entity] to this attachment.

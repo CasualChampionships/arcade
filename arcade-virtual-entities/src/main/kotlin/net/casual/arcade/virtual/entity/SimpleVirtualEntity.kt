@@ -9,6 +9,10 @@ import net.casual.arcade.utils.MathUtils.component2
 import net.casual.arcade.utils.MathUtils.component3
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.data.PlayerSpecificEntityData
+import net.casual.arcade.virtual.entity.location.VirtualPosition
+import net.casual.arcade.virtual.entity.location.VirtualRotation
+import net.casual.arcade.virtual.entity.tracker.ObserverTracker
+import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.utils.EntityDataAccessors
 import net.casual.arcade.virtual.entity.utils.EntityDataSharedFlags
 import net.casual.arcade.virtual.entity.utils.VirtualEntityPacketUtils
@@ -37,8 +41,14 @@ import kotlin.jvm.optionals.getOrNull
  */
 public open class SimpleVirtualEntity(
     public val type: EntityType<*>,
-    override val attachment: VirtualEntityAttachment
-): TrackingVirtualEntity() {
+    override val attachment: VirtualEntityAttachment,
+    override val observers: ObserverTracker = SimpleObserverTracker()
+): VirtualEntity {
+    override val id: Int = VirtualEntity.getNextEntityId()
+    override val uuid: UUID = UUID.randomUUID()
+    override var position: VirtualPosition = VirtualPosition.DEFAULT
+    override var rotation: VirtualRotation = VirtualRotation.DEFAULT
+
     private lateinit var lastSyncedPos: Vec3
     private lateinit var lastSyncedRot: Vec2
 
@@ -90,8 +100,8 @@ public open class SimpleVirtualEntity(
 
     protected open fun createSpawnPacket(): ClientboundAddEntityPacket {
         val location = this.location()
-        val (x, y, z) = location.position
-        val (xRot, yRot) = location.rotation
+        val (x, y, z) = this.getLastSyncedPosition(location.position)
+        val (xRot, yRot) = this.getLastSyncedRotation(location.rotation)
         return ClientboundAddEntityPacket(
             this.id, this.uuid, x, y, z, xRot, yRot, this.type, 0, Vec3.ZERO, yRot.toDouble()
         )
@@ -115,7 +125,7 @@ public open class SimpleVirtualEntity(
         if (this.isPassenger) {
             val packet = VirtualEntityPacketUtils.createRotationPacket(this.id, previousRot, currentRot)
             if (packet != null) {
-                this.broadcast(packet)
+                this.observers.broadcast(packet)
                 this.lastSyncedRot = currentRot
             }
             return
@@ -127,7 +137,7 @@ public open class SimpleVirtualEntity(
             this.id, previousPos, currentPos, previousRot, currentRot
         )
         if (packet != null) {
-            this.broadcast(packet)
+            this.observers.broadcast(packet)
             if (VirtualEntityPacketUtils.isEntityPositionPacket(packet)) {
                 this.lastSyncedPos = currentPos
             }
@@ -139,7 +149,7 @@ public open class SimpleVirtualEntity(
 
     protected open fun sendDirtyEntityData() {
         val base = this.data.getDirtyBaseEntries()
-        for (connection in this.connections) {
+        for (connection in this.observers.connections()) {
             val overridden = this.data.getDirtyEntries(connection.player.uuid)
             val merged = PlayerSpecificEntityData.mergeEntityData(base, overridden)
             if (merged != null) {

@@ -7,6 +7,7 @@ package net.casual.arcade.virtual.entity.display
 import com.mojang.math.Transformation
 import net.casual.arcade.virtual.entity.SimpleVirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
+import net.casual.arcade.virtual.entity.tracker.ObserverTracker
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Brightness
 import net.minecraft.world.entity.Display
@@ -19,8 +20,9 @@ import net.casual.arcade.virtual.entity.utils.EntityDataAccessors.Display as Dis
 
 public abstract class SimpleVirtualDisplay(
     type: EntityType<out Display>,
-    attachment: VirtualEntityAttachment
-): SimpleVirtualEntity(type, attachment) {
+    attachment: VirtualEntityAttachment,
+    observers: ObserverTracker
+): SimpleVirtualEntity(type, attachment, observers) {
     public fun setTranslation(translation: Vector3fc) {
         val copy = Vector3f(translation)
         this.setDataEntry(DisplayDataAccessors.TRANSLATION, copy)
@@ -144,8 +146,7 @@ public abstract class SimpleVirtualDisplay(
     }
 
     public fun startInterpolationIfDirty() {
-        for (connection in this.connections) {
-            val observer = connection.player
+        for (observer in this.observers) {
             if (this.isTransformationDirtyFor(observer)) {
                 this.startInterpolationFor(observer)
             }

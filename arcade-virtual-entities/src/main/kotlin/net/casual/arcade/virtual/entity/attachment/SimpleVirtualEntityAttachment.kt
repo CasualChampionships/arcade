@@ -4,11 +4,52 @@
  */
 package net.casual.arcade.virtual.entity.attachment
 
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
+import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
+import net.casual.arcade.virtual.entity.tracker.ObserverTracker
+import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
+import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils
+import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.attachAndUpdateTracking
+import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.detachAndUpdateTracking
 
 /**
  * Simple implementation of [VirtualEntityAttachment].
  */
 public open class SimpleVirtualEntityAttachment(
     override val anchor: AttachmentAnchor
-): TrackingVirtualEntityAttachment()
+): RootVirtualEntityAttachment {
+    private val attached = ObjectLinkedOpenHashSet<VirtualEntity>()
+    override val observers: ObserverTracker = SimpleObserverTracker()
+
+    override fun tick() {
+        VirtualEntityTrackingUtils.updateTrackedVirtualEntitiesFor(this.observers.connections(), this.attached)
+        this.updateAttached()
+        super.tick()
+    }
+
+    override fun attach(entity: VirtualEntity): Boolean {
+        return this.attachAndUpdateTracking(entity, this.observers.connections(), this.attached)
+    }
+
+    override fun detach(entity: VirtualEntity): Boolean {
+        return this.detachAndUpdateTracking(entity, this.observers.connections(), this.attached)
+    }
+
+    final override fun attached(): Collection<VirtualEntity> {
+        return this.attached
+    }
+
+    /**
+     * This method should be overridden if you
+     * want to update the [attached] elements
+     * every tick.
+     *
+     * This method gets called *after* observers
+     * have been updated but *before* changes have been
+     * broadcasted to observers.
+     */
+    protected open fun updateAttached() {
+
+    }
+}

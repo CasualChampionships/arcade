@@ -11,11 +11,11 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl
 public object VirtualEntityTrackingUtils {
     public fun VirtualEntityAttachment.attachAndUpdateTracking(
         entity: VirtualEntity,
-        tracked: MutableCollection<VirtualEntity>,
-        connections: Iterable<ServerGamePacketListenerImpl>
+        connections: Iterable<ServerGamePacketListenerImpl>,
+        tracked: MutableCollection<VirtualEntity>
     ): Boolean {
         if (entity.canAttachTo(this) && tracked.add(entity)) {
-            connections.forEach { connection -> entity.stopObservingAndSendPackets(connection.player) }
+            connections.forEach { connection -> entity.startObservingAndSendPackets(connection.player) }
             return true
         }
         return false
@@ -24,8 +24,8 @@ public object VirtualEntityTrackingUtils {
     @Suppress("UnusedReceiverParameter")
     public fun VirtualEntityAttachment.detachAndUpdateTracking(
         entity: VirtualEntity,
-        tracked: MutableCollection<VirtualEntity>,
-        connections: Iterable<ServerGamePacketListenerImpl>
+        connections: Iterable<ServerGamePacketListenerImpl>,
+        tracked: MutableCollection<VirtualEntity>
     ): Boolean {
         if (tracked.remove(entity)) {
             connections.forEach { connection -> entity.stopObservingAndSendPackets(connection.player) }
@@ -41,11 +41,9 @@ public object VirtualEntityTrackingUtils {
         for (connection in connections) {
             val observer = connection.player
             for (entity in entities) {
-                val isObserving = entity.isObserving(observer)
-                val canObserve = entity.canObserve(observer)
-                if (!isObserving && canObserve) {
+                if (!entity.observers.isObserving(observer)) {
                     entity.startObservingAndSendPackets(observer)
-                } else if (isObserving && !canObserve) {
+                } else if (!entity.canObserve(observer)) {
                     entity.stopObservingAndSendPackets(observer)
                 }
             }
