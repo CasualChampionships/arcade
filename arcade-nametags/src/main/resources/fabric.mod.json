@@ -21,9 +21,6 @@
       }
     ]
   },
-  "mixins": [
-    "arcade-nametags.mixins.json"
-  ],
   "depends": {
     "minecraft": "${minecraft_dependency}",
     "fabricloader": ">=${fabric_loader_dependency}",
