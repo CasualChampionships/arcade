@@ -67,7 +67,7 @@ public class NametagHeightVirtualEntity(
             val data = SimpleEntityData(EntityType.ARMOR_STAND)
             data.set(EntityDataAccessors.SILENT, true)
             data.set(EntityDataAccessors.NO_GRAVITY, true)
-            data.set(EntityDataAccessors.SHARED_FLAGS, (1 shl EntityDataSharedFlags.INVISIBLE).toByte())
+            data.set(EntityDataAccessors.SHARED_FLAGS, EntityDataSharedFlags.INVISIBLE.toByte())
             data.set(EntityDataAccessors.LivingEntity.HEALTH, 0.0F)
             data.getChangedEntries()!!
         }

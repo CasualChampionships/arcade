@@ -371,15 +371,21 @@ public open class SimpleVirtualEntity(
     protected fun modifyFlagEntryToBaseFor(observer: ServerPlayer, flag: Int) {
         val base = this.data.getBaseEntry(EntityDataAccessors.SHARED_FLAGS) ?: return
         if (this.data.isOverridden(observer.uuid, EntityDataAccessors.SHARED_FLAGS)) {
-            val current = (base.value.toInt() shr flag) and 1 != 0
+            val current = base.value.toInt() and flag != 0
             this.modifyFlagEntryFor(observer, flag, current)
         }
     }
 
     protected fun modifyFlagEntry(flag: Int, modifier: (Boolean) -> Boolean) {
         this.modifyDataEntry(EntityDataAccessors.SHARED_FLAGS) { flags ->
-            val current = (flags.toInt() shr flag) and 1 != 0
+            val current = flags.toInt() and flag != 0
             EntityDataSharedFlags.updateFlag(flags, flag, modifier.invoke(current))
+        }
+    }
+
+    public companion object {
+        public fun typed(type: EntityType<*>): (VirtualEntityAttachment, ObserverTracker) -> SimpleVirtualEntity {
+            return { attachment, observers -> SimpleVirtualEntity(type, attachment, observers) }
         }
     }
 }

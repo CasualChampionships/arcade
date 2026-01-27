@@ -7,16 +7,18 @@ package net.casual.arcade.nametags.virtual
 import com.google.common.collect.Iterables
 import com.google.common.collect.LinkedHashMultimap
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceLinkedOpenHashMap
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.nametagExtension
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor
 import net.casual.arcade.virtual.entity.tracker.ObserverTracker
-import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
+import net.casual.arcade.virtual.entity.utils.createParentObserverTracker
 import net.casual.arcade.virtual.entity.utils.startObservingAndSendPackets
 import net.casual.arcade.virtual.entity.utils.stopObservingAndSendPackets
 import net.minecraft.network.protocol.Packet
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.entity.Entity
@@ -24,14 +26,15 @@ import net.casual.arcade.utils.ClientboundSetPassengersPacket as createSetPassen
 
 public class NametagVirtualEntityAttachment(
     override val anchor: EntityAttachmentAnchor,
-): RootVirtualEntityAttachment {
+): RootVirtualEntityAttachment, ObserverTracker {
     private val nametags = Reference2ReferenceLinkedOpenHashMap<Nametag, NametagVirtualEntity>()
     private val tracked = LinkedHashMultimap.create<ServerGamePacketListenerImpl, NametagVirtualEntity>()
+    private val connections = ReferenceLinkedOpenHashSet<ServerGamePacketListenerImpl>()
 
-    override val observers: ObserverTracker = SimpleObserverTracker()
+    override val observers: ObserverTracker get() = this
 
     private val root = NametagHeightVirtualEntity(
-        this, this.observers, NametagHeight.INITIAL, RetargetingInteractionHandler(this.entity)
+        this, this.createParentObserverTracker(), NametagHeight.INITIAL, RetargetingInteractionHandler(this.entity)
     )
 
     private val entity: Entity
@@ -108,8 +111,29 @@ public class NametagVirtualEntityAttachment(
         return Iterables.concat(this.nametags.values, listOf(this.root))
     }
 
+    override fun connections(): Collection<ServerGamePacketListenerImpl> {
+        return this.connections
+    }
+
+    override fun startObserving(observer: ServerPlayer): Boolean {
+        return this.connections.add(observer.connection)
+    }
+
+    override fun stopObserving(observer: ServerPlayer) {
+        this.connections.remove(observer.connection)
+        this.tracked.removeAll(observer.connection)
+    }
+
+    override fun isObserving(observer: ServerPlayer): Boolean {
+        return this.connections.contains(observer.connection)
+    }
+
     public fun isObservingNonEmpty(observer: ServerPlayer): Boolean {
         return this.tracked[observer.connection].isNotEmpty()
+    }
+
+    override fun shouldDelayObserving(): Boolean {
+        return true
     }
 
     private fun updateObserver(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
@@ -117,13 +141,9 @@ public class NametagVirtualEntityAttachment(
         val tracked = this.tracked.get(connection)
         val wasStackEmpty = tracked.isEmpty()
         var dirty = false
-        for ((nametag, entity) in this.nametags) {
+        for (entity in this.nametags.values) {
             val watching = entity.observers.isObserving(observer)
-
-            val canWatch = this.entity.broadcastToPlayer(connection.player)
-                && nametag.isObservable(this.entity, connection.player)
-                && nametag.isWithinRange(this.entity, connection.player)
-
+            val canWatch = entity.canObserve(observer)
             if (watching) {
                 if (!canWatch) {
                     tracked.remove(entity)
@@ -154,6 +174,7 @@ public class NametagVirtualEntityAttachment(
         }
         if (wasStackEmpty) {
             this.root.sendSpawnPackets(observer, consumer)
+            consumer.invoke(this.entity.nametagExtension.createUpdatePassengersPacket(observer, this.root))
         }
 
         var previous = this.root.id
@@ -168,6 +189,7 @@ public class NametagVirtualEntityAttachment(
             previous = entity.getVehicleId()
         }
 
-        this.entity.nametagExtension.broadcastUpdatePassengersPacket(this.observers, this.root)
+        // We remove the topmost height entity, we don't need it (nothing is mounted on it)
+        consumer.invoke(ClientboundRemoveEntitiesPacket(previous))
     }
 }

@@ -6,12 +6,16 @@ package net.casual.arcade.nametags.virtual
 
 import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.virtual.entity.SimpleParentVirtualEntity
+import net.casual.arcade.virtual.entity.SimpleVirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.display.SimpleVirtualTextDisplay
+import net.casual.arcade.virtual.entity.location.VirtualRotation
 import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Display
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.phys.Vec2
 import org.joml.Vector3f
 
 public class NametagVirtualEntity(
@@ -36,8 +40,10 @@ public class NametagVirtualEntity(
         this.background.setSeeThrough(this.nametag.isVisibleThroughWalls(this.entity))
         this.background.setTextOpacity(30)
         this.foreground.setSeeThrough(false)
-        this.foreground.setTextOpacity(127)
-        this.foreground.setBackgroundColor(0x00000000)
+        this.foreground.setTextOpacity(-1)
+        // This is a weird hack, if we set the background color
+        // to 0 then Minecraft renders it in a different order
+        this.foreground.setBackgroundColor(1)
 
         val color = this.nametag.backgroundColor
         if (color == null) {
@@ -59,14 +65,14 @@ public class NametagVirtualEntity(
         // When the player sneaks, the background becomes
         // non-see-through and the foreground becomes invisible
         this.background.setSeeThrough(false)
-        this.foreground.setTextOpacity(-128)
+        this.foreground.setTextOpacity(-127)
 
         this.sneaking = true
     }
 
     public fun unsneak() {
         this.background.setSeeThrough(this.nametag.isVisibleThroughWalls(this.entity))
-        this.foreground.setTextOpacity(127)
+        this.foreground.setTextOpacity(-1)
 
         this.sneaking = false
     }
@@ -86,8 +92,15 @@ public class NametagVirtualEntity(
         this.background.setSeeThrough(!this.sneaking && this.nametag.isVisibleThroughWalls(this.entity))
     }
 
+    override fun canObserve(observer: ServerPlayer): Boolean {
+        return this.entity.broadcastToPlayer(observer)
+            && this.nametag.isObservable(this.entity, observer)
+            && this.nametag.isWithinRange(this.entity, observer)
+    }
+
     private fun initializeTextDisplay(entity: SimpleVirtualTextDisplay) {
         entity.isPassenger = true
+        entity.rotation = VirtualRotation.Absolute(Vec2.ZERO)
         entity.setBillboardConstraints(Display.BillboardConstraints.CENTER)
         entity.setTranslation(Vector3f(0.0F, -0.2F, 0.0F))
         entity.setInvisible(true)

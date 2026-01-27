@@ -39,6 +39,10 @@ public class VirtualEntityPacketCollector {
     }
 
     public fun bundle(): VirtualEntityPacketCollector {
+        if (this.collected.size <= 1) {
+            return this
+        }
+
         val bundled = ObjectArrayList<ClientboundBundlePacket>()
 
         var bundle = ObjectArrayList<Packet<ClientGamePacketListener>>()
