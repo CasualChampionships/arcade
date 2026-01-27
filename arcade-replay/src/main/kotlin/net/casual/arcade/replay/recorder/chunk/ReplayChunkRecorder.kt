@@ -31,6 +31,7 @@ import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheRadiusPacket
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket
+import net.minecraft.server.TickTask
 import net.minecraft.server.level.ClientInformation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
@@ -400,7 +401,11 @@ public class ReplayChunkRecorder internal constructor(
 
         this.loadedChunks.add(chunk.pos.toLong())
         if (this.settings.chunkRecordingStrategy == ChunkRecordingStrategy.ChunkLoaded) {
-            this.tryResumeAndBroadcast()
+            // We need to schedule this because otherwise we could run into a CME
+            // as this method is called while iterating chunks, and we may cause
+            // chunks to be loaded when taking a flashback snapshot
+            val task = TickTask(this.server.tickCount, this::tryResumeAndBroadcast)
+            this.server.schedule(task)
         }
 
         if (!this.sentChunks.contains(chunk.pos.toLong())) {
