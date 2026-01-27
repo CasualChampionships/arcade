@@ -40,6 +40,7 @@ object ArcadeTest: ModInitializer {
                 FakePlayerCommand,
                 GuiTestCommand,
                 LevelBoundaryCommand,
+                NametagTestCommand,
                 PlayerHeadCommand,
                 ReplayCommand,
                 ExtensionTestCommand,
@@ -56,7 +57,7 @@ object ArcadeTest: ModInitializer {
         )
 
 //        this.playerHeadTests()
-        this.boundaryTests()
+//        this.boundaryTests()
 
         ResourcePackTests.run()
     }

@@ -81,4 +81,18 @@ public interface Nametag {
     public fun isVisibleThroughWalls(observee: Entity): Boolean {
         return true
     }
+
+    public companion object {
+        public fun simple(name: Component): Nametag {
+            return object: Nametag {
+                override fun getComponent(observee: Entity): Component {
+                    return name
+                }
+
+                override fun isObservable(observee: Entity, observer: ServerPlayer): Boolean {
+                    return true
+                }
+            }
+        }
+    }
 }

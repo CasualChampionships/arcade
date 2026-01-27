@@ -87,6 +87,18 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
         return this.attachment.value
     }
 
+    internal fun sneak() {
+        if (this.attachment.isInitialized()) {
+            this.getAttachment().sneak()
+        }
+    }
+
+    internal fun unsneak() {
+        if (this.attachment.isInitialized()) {
+            this.getAttachment().unsneak()
+        }
+    }
+
     internal fun broadcastUpdatePassengersPacket(observers: ObserverTracker, root: VirtualEntity) {
         val mount = this.mount
         val self = ClientboundSetPassengersPacket(this.entity)
@@ -153,9 +165,9 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
             GlobalEventHandler.Server.register<PlayerPoseEvent> { (player, previous, updated) ->
                 if (previous != updated) {
                     if (previous == Pose.CROUCHING) {
-                        player.nametagExtension.getAttachment().unsneak()
+                        player.nametagExtension.sneak()
                     } else if (updated == Pose.CROUCHING) {
-                        player.nametagExtension.getAttachment().sneak()
+                        player.nametagExtension.unsneak()
                     }
                 }
             }
