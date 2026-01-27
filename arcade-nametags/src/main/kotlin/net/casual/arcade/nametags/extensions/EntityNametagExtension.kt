@@ -21,6 +21,8 @@ import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.utils.entity.EntityTransferReason
 import net.casual.arcade.utils.impl.DelayedActions
 import net.casual.arcade.utils.modify
+import net.casual.arcade.virtual.entity.VirtualEntity
+import net.casual.arcade.virtual.entity.tracker.ObserverTracker
 import net.casual.arcade.virtual.entity.utils.createVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.utils.removeVirtualEntityAttachment
 import net.minecraft.network.protocol.Packet
@@ -34,8 +36,32 @@ import org.jetbrains.annotations.ApiStatus.Internal
 import net.casual.arcade.utils.ClientboundSetPassengersPacket as createSetPassengersPacket
 
 public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
-    // TODO: Only players?
     private val attachment = lazy { this.entity.createVirtualEntityAttachment(::NametagVirtualEntityAttachment) }
+
+    private var mount: VirtualEntity? = null
+
+    public fun add(nametag: Nametag) {
+        this.getAttachment().attach(nametag)
+    }
+
+    public fun remove(nametag: Nametag) {
+        if (this.attachment.isInitialized()) {
+            this.getAttachment().detach(nametag)
+        }
+    }
+
+    public fun removeAll() {
+        if (this.attachment.isInitialized()) {
+            this.getAttachment().detachAll()
+        }
+    }
+
+    public fun all(): Collection<Nametag> {
+        if (this.attachment.isInitialized()) {
+            return this.getAttachment().getNametags()
+        }
+        return listOf()
+    }
 
     override fun transfer(
         entity: Entity,
@@ -61,29 +87,59 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
         return this.attachment.value
     }
 
+    internal fun broadcastUpdatePassengersPacket(observers: ObserverTracker, root: VirtualEntity) {
+        val mount = this.mount
+        val self = ClientboundSetPassengersPacket(this.entity)
+        if (mount == null) {
+            observers.broadcast(self)
+            return
+        }
+        observers.broadcast { observer, consumer ->
+            consumer.invoke(
+                if (mount.observers.isObserving(observer)) createSetPassengersPacket(mount.id, root.id) else self
+            )
+        }
+    }
+
+    internal fun updatePassengersPacket(packet: ClientboundSetPassengersPacket): ClientboundSetPassengersPacket {
+        if (!this.attachment.isInitialized() || this.mount != null) {
+            return packet
+        }
+
+        val updated = createSetPassengersPacket(packet.vehicle, packet.passengers + this.getAttachment().getRootId())
+        return PolymerCompatLayer.updatePacket(packet, updated)
+    }
+
     public companion object {
+        @JvmStatic
+        public val Entity.nametagExtension: EntityNametagExtension
+            get() = this.getExtension()
+
+        @Deprecated("Use nametagExtension instead")
         public fun Entity.addNametag(nametag: Nametag): Boolean {
-            val holder = this.getExtension<EntityNametagExtension>().getAttachment()
-            holder.attach(nametag)
+            this.nametagExtension.add(nametag)
             return true
         }
 
+        @Deprecated("Use nametagExtension instead")
         public fun Entity.removeNametag(nametag: Nametag): Boolean {
-            val holder = this.getExtension<EntityNametagExtension>().getAttachment()
-            holder.detach(nametag)
+            this.nametagExtension.remove(nametag)
             return true
         }
 
+        @Deprecated("Use nametagExtension instead")
         public fun Entity.getNametags(): Collection<Nametag> {
-            return this.getNametagsElements().map { it.nametag }
+            return this.nametagExtension.all()
         }
 
+        @Deprecated("For removal")
         public fun Entity.getNametagsElements(): Collection<NametagVirtualEntity> {
-            return this.getExtension<EntityNametagExtension>().getAttachment().getNametagEntities()
+            return this.nametagExtension.getAttachment().getNametagEntities()
         }
 
+        @Deprecated("Use nametagExtension instead")
         public fun Entity.removeNametags() {
-            this.getExtension<EntityNametagExtension>().getAttachment().detachAll()
+            this.nametagExtension.removeAll()
         }
 
         internal fun registerEvents() {
@@ -96,9 +152,9 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
             GlobalEventHandler.Server.register<PlayerPoseEvent> { (player, previous, updated) ->
                 if (previous != updated) {
                     if (previous == Pose.CROUCHING) {
-                        player.getExtension<EntityNametagExtension>().getAttachment().unsneak()
+                        player.nametagExtension.getAttachment().unsneak()
                     } else if (updated == Pose.CROUCHING) {
-                        player.getExtension<EntityNametagExtension>().getAttachment().sneak()
+                        player.nametagExtension.getAttachment().sneak()
                     }
                 }
             }
@@ -113,12 +169,7 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
             }
 
             val vehicle = player.level().getEntity(packet.vehicle) ?: return packet
-            val holder = vehicle.getExtension<EntityNametagExtension>().getAttachment()
-            if (holder != null) {
-                val updated = createSetPassengersPacket(packet.vehicle, packet.passengers + holder.getRootId())
-                return PolymerCompatLayer.updatePacket(packet, updated)
-            }
-            return packet
+            return vehicle.nametagExtension.updatePassengersPacket(packet)
         }
     }
 }

@@ -8,7 +8,9 @@ import com.google.common.collect.Iterables
 import com.google.common.collect.LinkedHashMultimap
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceLinkedOpenHashMap
 import it.unimi.dsi.fastutil.objects.ReferenceCollection
+import it.unimi.dsi.fastutil.objects.ReferenceSortedSet
 import net.casual.arcade.nametags.Nametag
+import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.nametagExtension
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
@@ -78,6 +80,10 @@ public class NametagVirtualEntityAttachment(
         for (entity in this.nametags.values)  {
             entity.unsneak()
         }
+    }
+
+    public fun getNametags(): Set<Nametag> {
+        return this.nametags.keys
     }
 
     public fun getNametagEntities(): Collection<NametagVirtualEntity> {
@@ -166,6 +172,6 @@ public class NametagVirtualEntityAttachment(
             previous = entity.getVehicleId()
         }
 
-        consumer.invoke(ClientboundSetPassengersPacket(this.entity))
+        this.entity.nametagExtension.broadcastUpdatePassengersPacket(this.observers, this.root)
     }
 }
