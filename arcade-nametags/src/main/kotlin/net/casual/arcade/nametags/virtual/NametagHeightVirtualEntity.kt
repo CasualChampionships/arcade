@@ -4,20 +4,17 @@
  */
 package net.casual.arcade.nametags.virtual
 
-import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils
 import net.casual.arcade.utils.MathUtils.component1
 import net.casual.arcade.utils.MathUtils.component2
 import net.casual.arcade.utils.MathUtils.component3
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
-import net.casual.arcade.virtual.entity.data.PlayerSpecificEntityData
 import net.casual.arcade.virtual.entity.data.SimpleEntityData
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
 import net.casual.arcade.virtual.entity.tracker.ObserverTracker
 import net.casual.arcade.virtual.entity.utils.EntityDataAccessors
 import net.casual.arcade.virtual.entity.utils.EntityDataSharedFlags
-import net.casual.arcade.virtual.entity.utils.createParentObserverTracker
 import net.casual.arcade.virtual.entity.utils.location
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
@@ -35,7 +32,7 @@ public class NametagHeightVirtualEntity(
     private val height: NametagHeight,
     private val handler: VirtualEntity.InteractionHandler = PassthroughInteractionHandler
 ): VirtualEntity {
-    override val id: Int = VirtualEntityUtils.requestEntityId()
+    override val id: Int = VirtualEntity.getNextEntityId()
     override val uuid: UUID = UUID.randomUUID()
     override var position: VirtualPosition = VirtualPosition.DEFAULT
     override var rotation: VirtualRotation = VirtualRotation.DEFAULT
