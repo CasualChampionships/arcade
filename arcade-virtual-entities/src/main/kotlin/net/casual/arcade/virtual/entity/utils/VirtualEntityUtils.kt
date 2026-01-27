@@ -44,10 +44,9 @@ public fun Entity.getVirtualEntities(): Collection<VirtualEntity> {
     return this.attachmentExtension.getAttachedVirtualEntities()
 }
 
-public fun VirtualEntity.location(): LocationWithLevel<ServerLevel> {
+public fun VirtualEntity.location(): Location {
     val origin = this.attachment.anchor.location()
-    val absolute = Location(this.position.get(origin.position), this.rotation.get(origin.rotation))
-    return origin.copy(location = absolute)
+    return Location(this.position.get(origin.position), this.rotation.get(origin.rotation))
 }
 
 public fun VirtualEntity.canAttachTo(attachment: VirtualEntityAttachment): Boolean {

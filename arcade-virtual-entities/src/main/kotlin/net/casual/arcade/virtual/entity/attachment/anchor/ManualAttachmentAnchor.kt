@@ -12,7 +12,11 @@ public class ManualAttachmentAnchor(
     public var location: Location,
     public val level: ServerLevel
 ): AttachmentAnchor {
-    override fun location(): LocationWithLevel<ServerLevel> {
-        return this.location.with(this.level)
+    override fun location(): Location {
+        return this.location
+    }
+
+    override fun level(): ServerLevel {
+        return this.level
     }
 }

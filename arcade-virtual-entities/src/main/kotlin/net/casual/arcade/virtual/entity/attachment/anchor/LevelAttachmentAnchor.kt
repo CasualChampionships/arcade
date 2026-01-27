@@ -11,7 +11,11 @@ import net.minecraft.server.level.ServerLevel
 public class LevelAttachmentAnchor(
     public val level: ServerLevel
 ): AttachmentAnchor {
-    override fun location(): LocationWithLevel<ServerLevel> {
-        return Location.DEFAULT.with(this.level)
+    override fun location(): Location {
+        return Location.DEFAULT
+    }
+
+    override fun level(): ServerLevel {
+        return this.level
     }
 }

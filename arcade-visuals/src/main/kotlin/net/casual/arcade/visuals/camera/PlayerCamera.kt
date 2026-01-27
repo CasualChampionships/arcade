@@ -82,8 +82,12 @@ public class PlayerCamera(
         player.teleportTo(location)
     }
 
-    override fun location(): LocationWithLevel<ServerLevel> {
-        return this.location.with(this.level)
+    override fun location(): Location {
+        return this.location
+    }
+
+    override fun level(): ServerLevel {
+        return this.level
     }
 
     override fun tick(server: MinecraftServer) {
@@ -95,7 +99,7 @@ public class PlayerCamera(
     override fun onAddPlayer(player: ServerPlayer) {
         player.cameraExtension.set(this)
         player.setCamera(player)
-        player.teleportTo(this.location())
+        player.teleportTo(this.location().with(this.level))
         this.sendGamemodePacket(player, GameType.SPECTATOR, player.connection::send)
 
         this.attachment.startObservingAttached(player)
