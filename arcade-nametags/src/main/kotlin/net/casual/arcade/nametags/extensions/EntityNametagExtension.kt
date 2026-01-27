@@ -95,9 +95,10 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
             return
         }
         observers.broadcast { observer, consumer ->
-            consumer.invoke(
-                if (mount.observers.isObserving(observer)) createSetPassengersPacket(mount.id, root.id) else self
-            )
+            consumer.invoke(when {
+                !mount.observers.isObserving(observer) -> self
+                else -> createSetPassengersPacket(mount.id, intArrayOf(root.id))
+            })
         }
     }
 

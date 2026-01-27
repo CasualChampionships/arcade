@@ -80,6 +80,11 @@ public object PlayerUtils {
         get() = this.playerList.players
 
     @JvmStatic
+    public fun ServerPlayer.getGameMode(): GameType {
+        return this.gameMode.gameModeForPlayer
+    }
+
+    @JvmStatic
     public fun ServerPlayer.hasPermission(level: PermissionLevel): Boolean {
         return this.hasPermission(HasCommandLevel(level))
     }

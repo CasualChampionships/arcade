@@ -7,11 +7,8 @@ package net.casual.arcade.nametags.virtual
 import com.google.common.collect.Iterables
 import com.google.common.collect.LinkedHashMultimap
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceLinkedOpenHashMap
-import it.unimi.dsi.fastutil.objects.ReferenceCollection
-import it.unimi.dsi.fastutil.objects.ReferenceSortedSet
 import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.nametagExtension
-import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor
@@ -20,7 +17,6 @@ import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.utils.startObservingAndSendPackets
 import net.casual.arcade.virtual.entity.utils.stopObservingAndSendPackets
 import net.minecraft.network.protocol.Packet
-import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.entity.Entity

@@ -75,13 +75,6 @@ public fun ClientboundSetPassengersPacket(vehicle: Int, passengers: IntArray): C
     return ClientboundSetPassengersPacket.STREAM_CODEC.decode(buf)
 }
 
-public fun ClientboundSetPassengersPacket(vehicle: Int, vararg passengers: Int): ClientboundSetPassengersPacket {
-    val buf = FriendlyByteBuf(Unpooled.buffer())
-    buf.writeVarInt(vehicle)
-    buf.writeVarIntArray(passengers)
-    return ClientboundSetPassengersPacket.STREAM_CODEC.decode(buf)
-}
-
 public fun ClientboundRotateHeadPacket(entity: Int, rot: Byte): ClientboundRotateHeadPacket {
     val buf = FriendlyByteBuf(Unpooled.buffer())
     buf.writeVarInt(entity)
