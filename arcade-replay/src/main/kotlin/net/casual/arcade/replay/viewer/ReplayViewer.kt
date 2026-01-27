@@ -374,6 +374,7 @@ public class ReplayViewer internal constructor(
         RejoinedReplayPlayer.place(player, this.connection, afterLogin = {
             this.synchronizeClientLevel()
         })
+        playerList.sendPlayerPermissionLevel(player)
 
         (player as EntityInvoker).removeRemovalReason()
         level.addNewPlayer(player)
