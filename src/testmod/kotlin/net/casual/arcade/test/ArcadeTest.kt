@@ -46,7 +46,8 @@ object ArcadeTest: ModInitializer {
                 ExtensionTestCommand,
                 PlayerCameraTestCommand,
                 TransitionTestCommand,
-                VirtualEntityTestCommand
+                VirtualEntityTestCommand,
+                RestrictMovementTestCommand
             )
         }
 
