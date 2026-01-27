@@ -23,17 +23,17 @@ public open class SimpleVirtualEntityAttachment(
     override val observers: ObserverTracker = SimpleObserverTracker()
 
     override fun tick() {
-        VirtualEntityTrackingUtils.updateTrackedVirtualEntitiesFor(this.observers.connections(), this.attached)
+        VirtualEntityTrackingUtils.updateTrackedVirtualEntitiesFor(this.observers, this.attached)
         this.updateAttached()
         super.tick()
     }
 
     override fun attach(entity: VirtualEntity): Boolean {
-        return this.attachAndUpdateTracking(entity, this.observers.connections(), this.attached)
+        return this.attachAndUpdateTracking(entity, this.observers, this.attached)
     }
 
     override fun detach(entity: VirtualEntity): Boolean {
-        return this.detachAndUpdateTracking(entity, this.observers.connections(), this.attached)
+        return this.detachAndUpdateTracking(entity, this.observers, this.attached)
     }
 
     final override fun attached(): Collection<VirtualEntity> {

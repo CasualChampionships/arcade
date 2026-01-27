@@ -51,8 +51,17 @@ public interface ObserverTracker: Iterable<ServerPlayer> {
      * @param packet The packet to broadcast.
      */
     public fun broadcast(packet: Packet<*>) {
+        this.broadcast { player, consumer -> consumer.invoke(packet) }
+    }
+
+    /**
+     * Broadcasts packets to players using the provided sender lambda.
+     *
+     * @param sender The sender lambda.
+     */
+    public fun broadcast(sender: (observer: ServerPlayer, consumer: (Packet<*>) -> Unit) -> Unit) {
         for (connection in this.connections()) {
-            connection.send(packet)
+            sender.invoke(connection.player, connection::send)
         }
     }
 

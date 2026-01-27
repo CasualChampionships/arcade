@@ -2,7 +2,7 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.nametags.polymer.virtual
+package net.casual.arcade.nametags.virtual
 
 import com.mojang.serialization.Codec
 import net.casual.arcade.utils.IdentifierUtils
@@ -10,7 +10,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
 import net.minecraft.world.entity.ai.attributes.Attributes
 
-@Deprecated("Replace with arcade's VE implementation")
 public class NametagHeight private constructor(
     public val value: Double
 ) {

@@ -6,16 +6,19 @@ package net.casual.arcade.virtual.entity.utils
 
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
+import net.casual.arcade.virtual.entity.tracker.ObserverTracker
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 
 public object VirtualEntityTrackingUtils {
     public fun VirtualEntityAttachment.attachAndUpdateTracking(
         entity: VirtualEntity,
-        connections: Iterable<ServerGamePacketListenerImpl>,
+        observers: ObserverTracker,
         tracked: MutableCollection<VirtualEntity>
     ): Boolean {
         if (entity.canAttachTo(this) && tracked.add(entity)) {
-            connections.forEach { connection -> entity.startObservingAndSendPackets(connection.player) }
+            observers.broadcast { observer, consumer ->
+                entity.startObservingAndSendPackets(observer, consumer)
+            }
             return true
         }
         return false
@@ -24,27 +27,28 @@ public object VirtualEntityTrackingUtils {
     @Suppress("UnusedReceiverParameter")
     public fun VirtualEntityAttachment.detachAndUpdateTracking(
         entity: VirtualEntity,
-        connections: Iterable<ServerGamePacketListenerImpl>,
+        observers: ObserverTracker,
         tracked: MutableCollection<VirtualEntity>
     ): Boolean {
         if (tracked.remove(entity)) {
-            connections.forEach { connection -> entity.stopObservingAndSendPackets(connection.player) }
+            observers.broadcast { observer, consumer ->
+                entity.stopObservingAndSendPackets(observer, consumer)
+            }
             return true
         }
         return false
     }
 
     public fun updateTrackedVirtualEntitiesFor(
-        connections: Iterable<ServerGamePacketListenerImpl>,
+        observers: ObserverTracker,
         entities: Iterable<VirtualEntity>
     ) {
-        for (connection in connections) {
-            val observer = connection.player
+        observers.broadcast { observer, consumer ->
             for (entity in entities) {
                 if (!entity.observers.isObserving(observer)) {
-                    entity.startObservingAndSendPackets(observer)
+                    entity.startObservingAndSendPackets(observer, consumer)
                 } else if (!entity.canObserve(observer)) {
-                    entity.stopObservingAndSendPackets(observer)
+                    entity.stopObservingAndSendPackets(observer, consumer)
                 }
             }
         }

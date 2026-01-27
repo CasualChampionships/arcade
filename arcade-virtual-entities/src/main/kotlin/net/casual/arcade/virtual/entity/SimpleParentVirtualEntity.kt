@@ -33,20 +33,20 @@ public open class SimpleParentVirtualEntity(
     override val anchor: AttachmentAnchor = super.anchor
 
     override fun tick() {
-        VirtualEntityTrackingUtils.updateTrackedVirtualEntitiesFor(this.observers.connections(), this.children)
+        VirtualEntityTrackingUtils.updateTrackedVirtualEntitiesFor(this.observers, this.children)
         this.updateChildren()
         super.tick()
     }
 
     override fun attach(entity: VirtualEntity): Boolean {
-        return this.attachAndUpdateTracking(entity, this.observers.connections(), this.children)
+        return this.attachAndUpdateTracking(entity, this.observers, this.children)
     }
 
     override fun detach(entity: VirtualEntity): Boolean {
-        return this.detachAndUpdateTracking(entity, this.observers.connections(), this.children)
+        return this.detachAndUpdateTracking(entity, this.observers, this.children)
     }
 
-    override fun children(): Collection<VirtualEntity> {
+    override fun children(): Iterable<VirtualEntity> {
         return this.children
     }
 

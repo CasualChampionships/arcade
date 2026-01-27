@@ -10,6 +10,7 @@ import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData
 import eu.pb4.polymer.virtualentity.api.tracker.SimpleDataTracker
 import it.unimi.dsi.fastutil.ints.IntList
 import net.casual.arcade.nametags.mixins.LivingEntityAccessor
+import net.casual.arcade.nametags.virtual.NametagHeight
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket

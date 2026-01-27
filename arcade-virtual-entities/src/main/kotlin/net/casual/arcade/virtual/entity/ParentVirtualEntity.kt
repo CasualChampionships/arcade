@@ -33,10 +33,10 @@ public interface ParentVirtualEntity: VirtualEntity, VirtualEntityAttachment {
      *
      * @return The children virtual entities.
      */
-    public fun children(): Collection<VirtualEntity>
+    public fun children(): Iterable<VirtualEntity>
 
     @Deprecated("Call ParentVirtualEntity.children() instead")
-    override fun attached(): Collection<VirtualEntity> {
+    override fun attached(): Iterable<VirtualEntity> {
         return this.children()
     }
 

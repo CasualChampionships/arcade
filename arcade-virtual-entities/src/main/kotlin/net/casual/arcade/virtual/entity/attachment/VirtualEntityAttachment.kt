@@ -50,12 +50,12 @@ public interface VirtualEntityAttachment {
     public fun detach(entity: VirtualEntity): Boolean
 
     /**
-     * Gets a collection of all the attached virtual
+     * Gets a iterable of all the attached virtual
      * entities.
      *
      * @return The attached virtual entities.
      */
-    public fun attached(): Collection<VirtualEntity>
+    public fun attached(): Iterable<VirtualEntity>
 
     /**
      * Ticks the virtual entity attachment.

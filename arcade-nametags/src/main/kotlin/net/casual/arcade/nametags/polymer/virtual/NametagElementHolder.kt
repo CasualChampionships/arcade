@@ -14,6 +14,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceLinkedOpenHashMap
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.nametags.Nametag
+import net.casual.arcade.nametags.virtual.NametagHeight
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundBundlePacket

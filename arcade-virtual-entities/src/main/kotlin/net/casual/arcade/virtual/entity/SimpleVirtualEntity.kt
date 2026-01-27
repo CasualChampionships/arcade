@@ -161,11 +161,11 @@ public open class SimpleVirtualEntity(
 
     protected open fun sendDirtyEntityData() {
         val base = this.data.getDirtyBaseEntries()
-        for (connection in this.observers.connections()) {
-            val overridden = this.data.getDirtyEntries(connection.player.uuid)
+        this.observers.broadcast { player, consumer ->
+            val overridden = this.data.getDirtyEntries(player.uuid)
             val merged = PlayerSpecificEntityData.mergeEntityData(base, overridden)
             if (merged != null) {
-                connection.send(ClientboundSetEntityDataPacket(this.id, merged))
+                consumer.invoke(ClientboundSetEntityDataPacket(this.id, merged))
             }
         }
     }
