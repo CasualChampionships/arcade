@@ -58,7 +58,7 @@ object ArcadeTest: ModInitializer {
         )
 
 //        this.playerHeadTests()
-//        this.boundaryTests()
+        this.boundaryTests()
 
         ResourcePackTests.run()
     }
