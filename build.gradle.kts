@@ -160,7 +160,6 @@ dependencies {
     include(libs.polymer.core)
     include(libs.polymer.blocks)
     include(libs.polymer.resource.pack)
-    include(libs.polymer.virtual.entity)
     include(libs.permissions)
 
     include(modImplementation(libs.server.translations.get())!!)
