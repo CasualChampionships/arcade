@@ -27,6 +27,7 @@ import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.DateTimeUtils.formatHHMMSS
 import net.casual.arcade.utils.PlayerUtils.server
 import net.casual.arcade.utils.component.*
+import net.minecraft.client.Minecraft
 import net.minecraft.core.UUIDUtil
 import net.minecraft.network.ConnectionProtocol
 import net.minecraft.network.ProtocolInfo
@@ -283,7 +284,7 @@ public class ReplayViewer internal constructor(
                     delay((time - lastTime) / this.speedMultiplier.toDouble())
                 }
 
-                while (this.paused || this.server.isPaused) {
+                while (this.shouldPauseStreaming()) {
                     delay(50)
                 }
 
@@ -342,6 +343,10 @@ public class ReplayViewer internal constructor(
             this.send(ClientboundBossEventPacket.createUpdateProgressPacket(this.bossbar))
             this.send(ClientboundBossEventPacket.createUpdateNamePacket(this.bossbar))
         }
+    }
+
+    private fun shouldPauseStreaming(): Boolean {
+        return this.paused || (this.server.isSingleplayer && Minecraft.getInstance().isPaused)
     }
 
     private fun sendTickingState() {
