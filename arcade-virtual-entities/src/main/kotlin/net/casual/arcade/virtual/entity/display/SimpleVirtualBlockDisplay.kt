@@ -5,14 +5,17 @@
 package net.casual.arcade.virtual.entity.display
 
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
+import net.casual.arcade.virtual.entity.tracker.ObserverTracker
+import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.casual.arcade.virtual.entity.utils.EntityDataAccessors.Display.Block as BlockDisplayDataAccessors
 
 public open class SimpleVirtualBlockDisplay(
-    attachment: VirtualEntityAttachment
-): SimpleVirtualDisplay(EntityType.BLOCK_DISPLAY, attachment) {
+    attachment: VirtualEntityAttachment,
+    observers: ObserverTracker = SimpleObserverTracker()
+): SimpleVirtualDisplay(EntityType.BLOCK_DISPLAY, attachment, observers) {
     public fun setBlockState(state: BlockState) {
         this.setDataEntry(BlockDisplayDataAccessors.BLOCK_STATE, state)
     }

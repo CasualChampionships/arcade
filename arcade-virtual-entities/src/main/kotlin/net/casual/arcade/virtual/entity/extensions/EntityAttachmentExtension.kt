@@ -75,10 +75,8 @@ internal class EntityAttachmentExtension(entity: Entity): EntityExtension(entity
     fun sendObservingSpawnPackets(observer: ServerPlayer, consumer: Consumer<Packet<ClientGamePacketListener>>) {
         if (this.attachments.isInitialized()) {
             for (attachment in this.attachments.value) {
-                for (entity in attachment.attached()) {
-                    entity.sendSpawnPackets(observer) { packet ->
-                        consumer.accept(packet.asClientGamePacket())
-                    }
+                attachment.sendObservingAttachedSpawnPackets(observer) { packet ->
+                    consumer.accept(packet.asClientGamePacket())
                 }
             }
         }

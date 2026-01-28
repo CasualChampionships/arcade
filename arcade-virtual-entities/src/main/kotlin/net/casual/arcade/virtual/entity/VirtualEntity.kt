@@ -9,6 +9,7 @@ import net.casual.arcade.virtual.entity.interaction.EntityInteraction
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
 import net.casual.arcade.virtual.entity.mixins.EntityAccessor
+import net.casual.arcade.virtual.entity.tracker.ObserverTracker
 import net.casual.arcade.virtual.entity.utils.location
 import net.casual.arcade.virtual.entity.utils.startObservingAndSendPackets
 import net.casual.arcade.virtual.entity.utils.stopObservingAndSendPackets
@@ -39,6 +40,11 @@ public interface VirtualEntity {
     public val attachment: VirtualEntityAttachment
 
     /**
+     * The observer tracker for this virtual entity.
+     */
+    public val observers: ObserverTracker
+
+    /**
      * The virtual entity's id.
      */
     public val id: Int
@@ -66,35 +72,6 @@ public interface VirtualEntity {
      * depends on the [VirtualEntityAttachment].
      */
     public fun tick()
-
-    /**
-     * This function is called when an [observer]
-     * wants to start observing this virtual entity.
-     *
-     * @param observer The player to start observing.
-     * @return Whether the [observer] can start observing.
-     * @see startObservingAndSendPackets
-     */
-    public fun startObserving(observer: ServerPlayer): Boolean
-
-    /**
-     * This function is called when an [observer]
-     * wants to stop observing this virtual entity.
-     *
-     * @param observer The player to stop observing.
-     * @return Whether the [observer] was previously observing.
-     * @see stopObservingAndSendPackets
-     */
-    public fun stopObserving(observer: ServerPlayer): Boolean
-
-    /**
-     * Checks whether an [observer] is observing this
-     * virtual entity.
-     *
-     * @param observer The player to check.
-     * @return Whether the [observer] is observing.
-     */
-    public fun isObserving(observer: ServerPlayer): Boolean
 
     /**
      * This function sends this virtual entity's spawn packets

@@ -4,9 +4,17 @@
  */
 package net.casual.arcade.virtual.entity.attachment.anchor
 
+import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.minecraft.server.level.ServerLevel
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.ApiStatus.Experimental
 
 public interface AttachmentAnchor {
-    public fun location(): LocationWithLevel<ServerLevel>
+    public fun location(): Location
+
+    @Experimental
+    public fun level(): ServerLevel? {
+        return null
+    }
 }

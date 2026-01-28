@@ -16,6 +16,7 @@ import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
 import net.casual.arcade.virtual.entity.utils.attach
+import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
 import net.casual.arcade.virtual.entity.utils.createVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.utils.removeVirtualEntityAttachment
 import net.casual.arcade.visuals.shapes.impl.RegularPolygonShape
@@ -42,9 +43,9 @@ object VirtualEntityTestCommand: CommandTree {
         val shape = RegularPolygonShape(position, 5.0, 10)
         val attachment = level.createVirtualEntityAttachment(::SimpleVirtualEntityAttachment)
         for (point in shape) {
-            val zombie = attachment.attach { SimpleVirtualEntity(EntityType.ZOMBIE, it) }
+            val zombie = attachment.attach { a -> SimpleVirtualEntity(EntityType.ZOMBIE, a) }
             zombie.position = VirtualPosition.Absolute(point)
-            zombie.rotation = VirtualRotation.Absolute(point.rotation())
+            zombie.rotation = VirtualRotation.Absolute(point.rotationAnglesTowards(position))
         }
         context.source.server.launch {
             delay(10.Seconds)
@@ -56,13 +57,16 @@ object VirtualEntityTestCommand: CommandTree {
         val level = context.source.level
         val position = context.source.position
         val attachment = level.createVirtualEntityAttachment(::SimpleVirtualEntityAttachment)
-        val root = attachment.attach { SimpleParentVirtualEntity(it) }
+        val root = attachment.attach(::SimpleParentVirtualEntity)
         root.position = VirtualPosition.Absolute(position)
         val shape = RegularPolygonShape(Vec3.ZERO, 3.0, 10)
         for (point in shape) {
-            val slime = root.attach { SimpleVirtualEntity(EntityType.SLIME, it) }
-            slime.position = VirtualPosition.Relative(point)
-            slime.rotation = VirtualRotation.Absolute(point.rotationAnglesTowards(Vec3.ZERO))
+            root.attachWithParentObservers { a, o ->
+                val slime = SimpleVirtualEntity(EntityType.SLIME, a, o)
+                slime.position = VirtualPosition.Relative(point)
+                slime.rotation = VirtualRotation.Absolute(point.rotationAnglesTowards(Vec3.ZERO))
+                slime
+            }
         }
         context.source.server.launch {
             repeat(50) {

@@ -9,6 +9,10 @@ import net.casual.arcade.utils.MathUtils.component2
 import net.casual.arcade.utils.MathUtils.component3
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.data.PlayerSpecificEntityData
+import net.casual.arcade.virtual.entity.location.VirtualPosition
+import net.casual.arcade.virtual.entity.location.VirtualRotation
+import net.casual.arcade.virtual.entity.tracker.ObserverTracker
+import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.utils.EntityDataAccessors
 import net.casual.arcade.virtual.entity.utils.EntityDataSharedFlags
 import net.casual.arcade.virtual.entity.utils.VirtualEntityPacketUtils
@@ -37,10 +41,17 @@ import kotlin.jvm.optionals.getOrNull
  */
 public open class SimpleVirtualEntity(
     public val type: EntityType<*>,
-    override val attachment: VirtualEntityAttachment
-): TrackingVirtualEntity() {
-    private lateinit var lastSyncedPos: Vec3
-    private lateinit var lastSyncedRot: Vec2
+    override val attachment: VirtualEntityAttachment,
+    override val observers: ObserverTracker = SimpleObserverTracker()
+): VirtualEntity {
+    override val id: Int = VirtualEntity.getNextEntityId()
+    override val uuid: UUID = UUID.randomUUID()
+    override var position: VirtualPosition = VirtualPosition.DEFAULT
+    override var rotation: VirtualRotation = VirtualRotation.DEFAULT
+
+    private var lastSyncedPos: Vec3? = null
+    private var lastSyncedRot: Vec2? = null
+    private var lastSyncedHeadRot: Float? = null
 
     /**
      * The entity data for this virtual entity.
@@ -90,10 +101,11 @@ public open class SimpleVirtualEntity(
 
     protected open fun createSpawnPacket(): ClientboundAddEntityPacket {
         val location = this.location()
-        val (x, y, z) = location.position
-        val (xRot, yRot) = location.rotation
+        val (x, y, z) = this.getLastSyncedPosition(location.position)
+        val (xRot, yRot) = this.getLastSyncedRotation(location.rotation)
+        val headRot = this.getLastSyncedHeadRotation(yRot)
         return ClientboundAddEntityPacket(
-            this.id, this.uuid, x, y, z, xRot, yRot, this.type, 0, Vec3.ZERO, yRot.toDouble()
+            this.id, this.uuid, x, y, z, xRot, yRot, this.type, 0, Vec3.ZERO, headRot.toDouble()
         )
     }
 
@@ -115,9 +127,10 @@ public open class SimpleVirtualEntity(
         if (this.isPassenger) {
             val packet = VirtualEntityPacketUtils.createRotationPacket(this.id, previousRot, currentRot)
             if (packet != null) {
-                this.broadcast(packet)
+                this.observers.broadcast(packet)
                 this.lastSyncedRot = currentRot
             }
+            this.sendDirtyHeadRotation(currentRot.y)
             return
         }
 
@@ -127,7 +140,7 @@ public open class SimpleVirtualEntity(
             this.id, previousPos, currentPos, previousRot, currentRot
         )
         if (packet != null) {
-            this.broadcast(packet)
+            this.observers.broadcast(packet)
             if (VirtualEntityPacketUtils.isEntityPositionPacket(packet)) {
                 this.lastSyncedPos = currentPos
             }
@@ -135,31 +148,47 @@ public open class SimpleVirtualEntity(
                 this.lastSyncedRot = currentRot
             }
         }
+        this.sendDirtyHeadRotation(currentRot.y)
+    }
+
+    protected fun sendDirtyHeadRotation(yHeadRot: Float) {
+        val previousHeadRot = this.getLastSyncedHeadRotation(yHeadRot)
+        val packet = VirtualEntityPacketUtils.createHeadRotationPacket(this.id, previousHeadRot, yHeadRot)
+        if (packet != null) {
+            this.observers.broadcast(packet)
+        }
     }
 
     protected open fun sendDirtyEntityData() {
         val base = this.data.getDirtyBaseEntries()
-        for (connection in this.connections) {
-            val overridden = this.data.getDirtyEntries(connection.player.uuid)
+        this.observers.broadcast { player, consumer ->
+            val overridden = this.data.getDirtyEntries(player.uuid)
             val merged = PlayerSpecificEntityData.mergeEntityData(base, overridden)
             if (merged != null) {
-                connection.send(ClientboundSetEntityDataPacket(this.id, merged))
+                consumer.invoke(ClientboundSetEntityDataPacket(this.id, merged))
             }
         }
     }
 
     protected fun getLastSyncedPosition(current: Vec3): Vec3 {
-        if (!this::lastSyncedPos.isInitialized) {
+        if (this.lastSyncedPos == null) {
             this.lastSyncedPos = current
         }
-        return this.lastSyncedPos
+        return this.lastSyncedPos!!
     }
 
     protected fun getLastSyncedRotation(current: Vec2): Vec2 {
-        if (!this::lastSyncedRot.isInitialized) {
+        if (this.lastSyncedRot == null) {
             this.lastSyncedRot = current
         }
-        return this.lastSyncedRot
+        return this.lastSyncedRot!!
+    }
+
+    protected fun getLastSyncedHeadRotation(current: Float): Float {
+        if (this.lastSyncedHeadRot == null) {
+            this.lastSyncedHeadRot = current
+        }
+        return this.lastSyncedHeadRot!!
     }
 
     public fun <T: Any> setDataEntry(accessor: EntityDataAccessor<T>, value: T) {
@@ -175,7 +204,7 @@ public open class SimpleVirtualEntity(
     }
     
     public fun <T: Any> modifyDataEntry(accessor: EntityDataAccessor<T>, modifier: (T) -> T) {
-        this.data.modifyEntry(accessor, false, modifier)
+        this.data.modify(accessor, false, modifier)
     }
 
     public fun setPose(pose: Pose) {
@@ -342,15 +371,21 @@ public open class SimpleVirtualEntity(
     protected fun modifyFlagEntryToBaseFor(observer: ServerPlayer, flag: Int) {
         val base = this.data.getBaseEntry(EntityDataAccessors.SHARED_FLAGS) ?: return
         if (this.data.isOverridden(observer.uuid, EntityDataAccessors.SHARED_FLAGS)) {
-            val current = (base.value.toInt() shr flag) and 1 != 0
+            val current = base.value.toInt() and flag != 0
             this.modifyFlagEntryFor(observer, flag, current)
         }
     }
 
     protected fun modifyFlagEntry(flag: Int, modifier: (Boolean) -> Boolean) {
         this.modifyDataEntry(EntityDataAccessors.SHARED_FLAGS) { flags ->
-            val current = (flags.toInt() shr flag) and 1 != 0
+            val current = flags.toInt() and flag != 0
             EntityDataSharedFlags.updateFlag(flags, flag, modifier.invoke(current))
+        }
+    }
+
+    public companion object {
+        public fun typed(type: EntityType<*>): (VirtualEntityAttachment, ObserverTracker) -> SimpleVirtualEntity {
+            return { attachment, observers -> SimpleVirtualEntity(type, attachment, observers) }
         }
     }
 }

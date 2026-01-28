@@ -7,6 +7,9 @@ package net.casual.arcade.virtual.entity.attachment
 import net.casual.arcade.virtual.entity.ParentVirtualEntity
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
+import net.casual.arcade.virtual.entity.tracker.ObserverTracker
+import org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 /**
  * This interface allows for the attaching of [VirtualEntity]s.
@@ -25,6 +28,12 @@ public interface VirtualEntityAttachment {
     public val anchor: AttachmentAnchor
 
     /**
+     * The observer tracker for this attachment.
+     */
+    @get:OverrideOnly
+    public val observers: ObserverTracker
+
+    /**
      * Attaches a given [entity] to this attachment.
      *
      * @param entity The entity to attach.
@@ -41,12 +50,12 @@ public interface VirtualEntityAttachment {
     public fun detach(entity: VirtualEntity): Boolean
 
     /**
-     * Gets a collection of all the attached virtual
+     * Gets a iterable of all the attached virtual
      * entities.
      *
      * @return The attached virtual entities.
      */
-    public fun attached(): Collection<VirtualEntity>
+    public fun attached(): Iterable<VirtualEntity>
 
     /**
      * Ticks the virtual entity attachment.

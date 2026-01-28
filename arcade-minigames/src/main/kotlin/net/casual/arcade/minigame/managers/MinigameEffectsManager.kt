@@ -6,7 +6,6 @@ package net.casual.arcade.minigame.managers
 
 import com.google.common.collect.HashMultimap
 import com.google.common.collect.Multimap
-import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
@@ -19,6 +18,8 @@ import net.casual.arcade.visuals.utils.modifySharedFlags
 import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.modify
+import net.casual.arcade.virtual.entity.utils.EntityDataAccessors
+import net.casual.arcade.virtual.entity.utils.EntityDataSharedFlags
 import net.casual.arcade.visuals.predicate.EntityObserverPredicate
 import net.casual.arcade.visuals.predicate.PlayerObserverPredicate
 import net.casual.arcade.visuals.predicate.PlayerObserverPredicate.Companion.toPlayer
@@ -171,9 +172,9 @@ public class MinigameEffectsManager(
         observer: ServerPlayer,
         consumer: (ClientboundSetEntityDataPacket) -> Unit = observer.connection::send
     ) {
-        val flags = observee.entityData.get(EntityTrackedData.FLAGS)
+        val flags = observee.entityData.get(EntityDataAccessors.SHARED_FLAGS)
         val modified = this.modifySharedEntityFlags(observee, observer, flags)
-        val dirty = listOf(DataValue.create(EntityTrackedData.FLAGS, modified))
+        val dirty = listOf(DataValue.create(EntityDataAccessors.SHARED_FLAGS, modified))
         consumer(ClientboundSetEntityDataPacket(observee.id, dirty))
     }
 
@@ -268,10 +269,10 @@ public class MinigameEffectsManager(
     ): Byte {
         var modified = flags
         if (this.glowing.observable(observee, observer)) {
-            modified = this.enableFlag(flags, EntityTrackedData.GLOWING_FLAG_INDEX)
+            modified = this.enableFlag(flags, EntityDataSharedFlags.GLOWING)
         }
         if (this.invisible.observable(observee, observer)) {
-            modified = this.enableFlag(flags, EntityTrackedData.INVISIBLE_FLAG_INDEX)
+            modified = this.enableFlag(flags, EntityDataSharedFlags.INVISIBLE)
         }
         return modified
     }

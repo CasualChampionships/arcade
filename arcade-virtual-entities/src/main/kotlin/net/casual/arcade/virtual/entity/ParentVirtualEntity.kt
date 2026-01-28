@@ -33,10 +33,10 @@ public interface ParentVirtualEntity: VirtualEntity, VirtualEntityAttachment {
      *
      * @return The children virtual entities.
      */
-    public fun children(): Collection<VirtualEntity>
+    public fun children(): Iterable<VirtualEntity>
 
     @Deprecated("Call ParentVirtualEntity.children() instead")
-    override fun attached(): Collection<VirtualEntity> {
+    override fun attached(): Iterable<VirtualEntity> {
         return this.children()
     }
 
@@ -46,25 +46,9 @@ public interface ParentVirtualEntity: VirtualEntity, VirtualEntityAttachment {
         }
     }
 
-    override fun startObserving(observer: ServerPlayer): Boolean {
-        var success = false
-        for (child in this.children()) {
-            success = success or child.startObserving(observer)
-        }
-        return success
-    }
-
-    override fun stopObserving(observer: ServerPlayer): Boolean {
-        var success = false
-        for (child in this.children()) {
-            success = success or child.stopObserving(observer)
-        }
-        return success
-    }
-
     override fun sendSpawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
         for (child in this.children()) {
-            if (child.isObserving(observer)) {
+            if (child.observers.isObserving(observer)) {
                 child.sendSpawnPackets(observer, consumer)
             }
         }
@@ -72,7 +56,7 @@ public interface ParentVirtualEntity: VirtualEntity, VirtualEntityAttachment {
 
     override fun sendDespawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
         for (child in this.children()) {
-            if (child.isObserving(observer)) {
+            if (child.observers.isObserving(observer)) {
                 child.sendDespawnPackets(observer, consumer)
             }
         }

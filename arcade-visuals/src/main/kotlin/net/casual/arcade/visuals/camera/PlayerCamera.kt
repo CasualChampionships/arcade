@@ -4,15 +4,17 @@
  */
 package net.casual.arcade.visuals.camera
 
-import eu.pb4.polymer.virtualentity.api.ElementHolder
-import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils
-import eu.pb4.polymer.virtualentity.api.attachment.ManualAttachment
-import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement
 import net.casual.arcade.utils.ClientboundPlayerInfoUpdatePacket
+import net.casual.arcade.utils.PlayerUtils.getGameMode
+import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.math.location.Location
+import net.casual.arcade.utils.math.location.Location.Companion.withRotation
 import net.casual.arcade.utils.math.location.LocationWithLevel
-import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
 import net.casual.arcade.utils.teleportTo
+import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
+import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
+import net.casual.arcade.virtual.entity.display.SimpleVirtualItemDisplay
+import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
 import net.casual.arcade.visuals.core.TickableVisualElement
 import net.casual.arcade.visuals.core.TrackingVisualElement
 import net.casual.arcade.visuals.extensions.PlayerCameraExtension.Companion.cameraExtension
@@ -30,42 +32,36 @@ import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import java.util.*
 import java.util.function.Consumer
+import net.casual.arcade.utils.ClientboundSetCameraPacket as createSetCameraPacket
 
 public class PlayerCamera(
     private val level: ServerLevel,
-    private var position: Vec3,
-    rotation: Vec2 = Vec2.ZERO
-): TrackingVisualElement(), TickableVisualElement {
-    private val holder = ElementHolder()
-    private val attachment = ManualAttachment(this.holder, this.level, this::position)
-    private val element = ItemDisplayElement()
+    private var location: Location
+): TrackingVisualElement(), TickableVisualElement, AttachmentAnchor {
+    private val attachment = SimpleVirtualEntityAttachment(this)
+    private val camera = this.attachment.attachWithParentObservers(::SimpleVirtualItemDisplay)
 
     private var path: CameraPath? = null
     private var loop: Boolean = false
     private var progress = -1
 
-    public constructor(location: LocationWithLevel<ServerLevel>): this(location.level, location.position, location.rotation)
+    public constructor(location: LocationWithLevel<ServerLevel>): this(location.level, location.location)
 
     init {
-        this.holder.addElement(this.element)
-        this.setRotation(rotation)
-
-        this.element.teleportDuration = 3
-        this.element.startInterpolation = 0
+        this.camera.setTeleportationInterpolation(3)
+        this.camera.setStartInterpolation(0)
     }
 
     public fun setPosition(position: Vec3) {
-        this.position = position
+        this.location = position.withRotation(this.location.rotation)
     }
 
     public fun setRotation(rotation: Vec2) {
-        this.element.pitch = rotation.x
-        this.element.yaw = rotation.y
+        this.location = this.location.position.withRotation(rotation)
     }
 
     public fun setLocation(location: Location) {
-        this.setPosition(location.position)
-        this.setRotation(location.rotation)
+        this.location = location
     }
 
     public fun setPath(path: CameraPath) {
@@ -81,17 +77,21 @@ public class PlayerCamera(
         this.progress = -1
     }
 
-    public fun destroy() {
-        this.attachment.destroy()
-    }
-
     public fun removePlayer(player: ServerPlayer, location: LocationWithLevel<ServerLevel>) {
         this.removePlayer(player)
         player.teleportTo(location)
     }
 
+    override fun location(): Location {
+        return this.location
+    }
+
+    override fun level(): ServerLevel {
+        return this.level
+    }
+
     override fun tick(server: MinecraftServer) {
-        this.holder.tick()
+        this.attachment.tick()
 
         this.tickPath()
     }
@@ -99,32 +99,34 @@ public class PlayerCamera(
     override fun onAddPlayer(player: ServerPlayer) {
         player.cameraExtension.set(this)
         player.setCamera(player)
-        player.teleportTo(this.level.asLocation(this.position))
-        this.sendGamemodePacket(player, GameType.SPECTATOR)
+        player.teleportTo(this.location().with(this.level))
+        this.sendGamemodePacket(player, GameType.SPECTATOR, player.connection::send)
 
-        this.attachment.startWatching(player)
-        player.connection.send(VirtualEntityUtils.createSetCameraEntityPacket(this.element.entityId))
+        this.attachment.startObservingAttached(player)
+        player.connection.send(createSetCameraPacket(this.camera.id))
     }
 
     override fun onRemovePlayer(player: ServerPlayer) {
         player.cameraExtension.remove()
-        this.sendGamemodePacket(player, player.gameMode())
+        this.sendGamemodePacket(player, player.getGameMode(), player.connection::send)
         player.connection.send(ClientboundSetCameraPacket(player))
-        this.attachment.stopWatching(player)
+        this.attachment.stopObservingAttached(player)
     }
 
     override fun resendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
-
+        this.sendGamemodePacket(player, GameType.SPECTATOR, sender)
+        this.camera.sendSpawnPackets(player) { sender.accept(it.asClientGamePacket()) }
+        sender.accept(createSetCameraPacket(this.camera.id))
     }
 
-    private fun sendGamemodePacket(player: ServerPlayer, gamemode: GameType) {
+    private fun sendGamemodePacket(player: ServerPlayer, gamemode: GameType, sender: Consumer<Packet<ClientGamePacketListener>>) {
         val packet = ClientboundGameEventPacket(ClientboundGameEventPacket.CHANGE_GAME_MODE, gamemode.id.toFloat())
-        player.connection.send(packet)
+        sender.accept(packet)
         val action = EnumSet.of(Action.UPDATE_GAME_MODE)
         val entry = listOf(
             Entry(player.uuid, null, false, 0, gamemode, null, false, 0, null)
         )
-        player.connection.send(ClientboundPlayerInfoUpdatePacket(action, entry))
+        sender.accept(ClientboundPlayerInfoUpdatePacket(action, entry))
     }
 
     private fun tickPath() {

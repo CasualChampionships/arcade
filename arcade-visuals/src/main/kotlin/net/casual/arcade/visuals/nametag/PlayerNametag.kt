@@ -5,12 +5,8 @@
 package net.casual.arcade.visuals.nametag
 
 import net.casual.arcade.nametags.Nametag
-import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.addNametag
-import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.removeNametag
-import net.casual.arcade.utils.TimeUtils.Ticks
-import net.casual.arcade.utils.time.MinecraftTimeDuration
+import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.nametagExtension
 import net.casual.arcade.visuals.core.TrackingVisualElement
-import net.casual.arcade.visuals.utils.elements.ComponentElements
 import net.casual.arcade.visuals.elements.PlayerSpecificElement
 import net.casual.arcade.visuals.predicate.PlayerObserverPredicate
 import net.minecraft.network.chat.Component
@@ -44,11 +40,11 @@ public class PlayerNametag(
     private val nametag: Nametag
 ): TrackingVisualElement() {
     override fun onAddPlayer(player: ServerPlayer) {
-        player.addNametag(this.nametag)
+        player.nametagExtension.add(this.nametag)
     }
 
     override fun onRemovePlayer(player: ServerPlayer) {
-        player.removeNametag(this.nametag)
+        player.nametagExtension.remove(this.nametag)
     }
 
     override fun resendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {

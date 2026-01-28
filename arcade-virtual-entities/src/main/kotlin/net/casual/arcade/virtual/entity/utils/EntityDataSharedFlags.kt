@@ -11,19 +11,21 @@ import kotlin.experimental.and
 import kotlin.experimental.or
 
 public object EntityDataSharedFlags {
-    public val ON_FIRE: Int = EntityAccessor.accessOnFireFlag()
-    public val SHIFT_KEY_DOWN: Int = EntityAccessor.accessShiftKeyDownFlag()
-    public val SPRINTING: Int = EntityAccessor.accessSprintingFlag()
-    public val SWIMMING: Int = EntityAccessor.accessSwimmingFlag()
-    public val INVISIBLE: Int = EntityAccessor.accessInvisibleFlag()
-    public val GLOWING: Int = EntityAccessor.accessGlowingFlag()
-    public val FALL_FLYING: Int = EntityAccessor.accessFallFlyingFlag()
+    // For some unknown reason the flags in Entity are the indexes,
+    // but all the other flags are the values, i.e. 1 << index
+    public val ON_FIRE: Int = 1 shl EntityAccessor.accessOnFireFlag()
+    public val SHIFT_KEY_DOWN: Int = 1 shl EntityAccessor.accessShiftKeyDownFlag()
+    public val SPRINTING: Int = 1 shl EntityAccessor.accessSprintingFlag()
+    public val SWIMMING: Int = 1 shl EntityAccessor.accessSwimmingFlag()
+    public val INVISIBLE: Int = 1 shl EntityAccessor.accessInvisibleFlag()
+    public val GLOWING: Int = 1 shl EntityAccessor.accessGlowingFlag()
+    public val FALL_FLYING: Int = 1 shl EntityAccessor.accessFallFlyingFlag()
 
     public fun updateFlag(flags: Byte, flag: Int, value: Boolean): Byte {
         return if (value) {
-            flags or (1 shl flag).toByte()
+            flags or flag.toByte()
         } else {
-            flags and (1 shl flag).inv().toByte()
+            flags and flag.inv().toByte()
         }
     }
 

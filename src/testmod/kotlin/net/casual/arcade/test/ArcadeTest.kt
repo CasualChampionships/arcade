@@ -40,13 +40,14 @@ object ArcadeTest: ModInitializer {
                 FakePlayerCommand,
                 GuiTestCommand,
                 LevelBoundaryCommand,
+                NametagTestCommand,
                 PlayerHeadCommand,
                 ReplayCommand,
                 ExtensionTestCommand,
                 PlayerCameraTestCommand,
-                PlayerSpecificElementTestCommand,
                 TransitionTestCommand,
-                VirtualEntityTestCommand
+                VirtualEntityTestCommand,
+                RestrictMovementTestCommand
             )
         }
 

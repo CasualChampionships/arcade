@@ -4,10 +4,12 @@
  */
 package net.casual.arcade.virtual.entity.utils
 
+import net.casual.arcade.utils.ClientboundRotateHeadPacket
 import net.casual.arcade.virtual.entity.mixins.ServerEntityAccessor
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundEntityPositionSyncPacket
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket
+import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket
 import net.minecraft.network.protocol.game.VecDeltaCodec
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.PositionMoveRotation
@@ -54,6 +56,15 @@ public object VirtualEntityPacketUtils {
         val newYRot = Mth.packDegrees(newRot.y)
         if (abs(newYRot - oldYRot) >= 1 || abs(newXRot - oldXRot) >= 1) {
             return ClientboundMoveEntityPacket.Rot(id, newYRot, newXRot, false)
+        }
+        return null
+    }
+
+    public fun createHeadRotationPacket(id: Int, oldRot: Float, newRot: Float): ClientboundRotateHeadPacket? {
+        val oldHeadRot = Mth.packDegrees(oldRot)
+        val newHeadRot = Mth.packDegrees(newRot)
+        if (abs(oldHeadRot - newHeadRot) >= 1) {
+            return ClientboundRotateHeadPacket(id, newHeadRot)
         }
         return null
     }
