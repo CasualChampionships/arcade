@@ -1,4 +1,4 @@
-package net.casual.arcade.test.command
+package net.casual.arcade.test.commands
 
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
@@ -14,6 +14,7 @@ import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 
+@Suppress("unused")
 object PlayerHeadCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("player-head") {

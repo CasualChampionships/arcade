@@ -1,4 +1,4 @@
-package net.casual.arcade.test.command
+package net.casual.arcade.test.commands
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
@@ -7,17 +7,24 @@ import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.literal
 import net.casual.arcade.commands.success
 import net.casual.arcade.extensions.utils.getExtension
-import net.casual.arcade.test.extension.TestEntityExtension
+import net.casual.arcade.test.extensions.TestEntityExtension
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument
 
-object ExtensionTestCommand: CommandTree {
+@Suppress("unused")
+object ExtensionCommand: CommandTree {
+    fun registerEvents() {
+        TestEntityExtension.registerEvents()
+    }
+
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
-        return CommandTree.buildLiteral("extension-test") {
-            literal("get") {
-                argument("entity", EntityArgument.entity()) {
-                    executes(::getExtensionValue)
+        return CommandTree.buildLiteral("extension") {
+            literal("entity") {
+                literal("get") {
+                    argument("entity", EntityArgument.entity()) {
+                        executes(::getExtensionValue)
+                    }
                 }
             }
         }

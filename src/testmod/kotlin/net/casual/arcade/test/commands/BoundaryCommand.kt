@@ -1,4 +1,4 @@
-package net.casual.arcade.test.command
+package net.casual.arcade.test.commands
 
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
@@ -6,7 +6,6 @@ import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.boundary.LevelBoundary
 import net.casual.arcade.boundary.extension.LevelBoundaryExtension.Companion.levelBoundary
 import net.casual.arcade.boundary.renderer.AxisAlignedDisplayBoundaryRenderer
-import net.casual.arcade.boundary.renderer.ParticleBoundaryRenderer
 import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
 import net.casual.arcade.boundary.shape.AxisAlignedBoundaryShape
 import net.casual.arcade.commands.*
@@ -19,10 +18,10 @@ import net.minecraft.server.permissions.PermissionLevel
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 
-object LevelBoundaryCommand: CommandTree {
+@Suppress("unused")
+object BoundaryCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("boundary") {
-            requiresPermission(PermissionLevel.GAMEMASTERS)
             literal("create") {
                 executes(::createBoundary)
             }

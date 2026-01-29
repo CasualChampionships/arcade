@@ -1,4 +1,4 @@
-package net.casual.arcade.test.command
+package net.casual.arcade.test.commands
 
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.arguments.BoolArgumentType
@@ -23,12 +23,13 @@ import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.TimeArgument
 
+@Suppress("unused")
 object PlayerCameraTestCommand: CommandTree {
     private lateinit var camera: PlayerCamera
 
     private var path = CameraPath.Builder()
 
-    internal fun registerEvents() {
+    fun registerEvents() {
         GlobalEventHandler.Server.register<ServerTickEvent> { (server) ->
             if (this::camera.isInitialized) {
                 this.camera.tick(server)

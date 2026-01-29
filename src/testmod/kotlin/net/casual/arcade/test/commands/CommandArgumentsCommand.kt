@@ -1,4 +1,4 @@
-package net.casual.arcade.test.command
+package net.casual.arcade.test.commands
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
@@ -7,9 +7,10 @@ import net.casual.arcade.commands.arguments.ChunkPosArgument
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 
-object ArgumentTestCommand: CommandTree {
+@Suppress("unused")
+object CommandArgumentsCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
-        return CommandTree.buildLiteral("argument-test") {
+        return CommandTree.buildLiteral("command-arguments") {
             literal("chunk-pos") {
                 argument("pos", ChunkPosArgument.position()) {
                     executes(::outputChunkPos)

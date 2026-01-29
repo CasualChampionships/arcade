@@ -1,4 +1,4 @@
-package net.casual.arcade.test.extension
+package net.casual.arcade.test.extensions
 
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register

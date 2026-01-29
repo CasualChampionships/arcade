@@ -19,6 +19,9 @@ voicechat-api = "2.6.0"
 vmp           = "0.2.0+beta.7.223+1.21.11"
 c2me          = "0.3.6.0.0"
 
+# Testing
+reflections = "0.10.2"
+
 # Plugins
 fabric-loom = "1.14-SNAPSHOT"
 spotless    = "8.1.0"
@@ -50,6 +53,9 @@ voicechat     = { module = "maven.modrinth:simple-voice-chat"    , version.ref =
 voicechat-api = { module = "de.maxhenkel.voicechat:voicechat-api", version.ref = "voicechat-api" }
 vmp           = { module = "maven.modrinth:vmp-fabric"           , version.ref = "vmp" }
 c2me          = { module = "maven.modrinth:c2me-fabric"          , version.ref = "c2me" }
+
+# Testing
+reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
 
 [plugins]
 fabric-loom = { id = "fabric-loom"          , version.ref = "fabric-loom" }

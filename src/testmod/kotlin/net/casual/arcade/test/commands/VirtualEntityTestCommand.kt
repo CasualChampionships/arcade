@@ -1,4 +1,4 @@
-package net.casual.arcade.test.command
+package net.casual.arcade.test.commands
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
@@ -25,9 +25,10 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.phys.Vec3
 
+@Suppress("unused")
 object VirtualEntityTestCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
-        return CommandTree.buildLiteral("virtual-entity-test") {
+        return CommandTree.buildLiteral("virtual-entity") {
             literal("level-attachment") {
                 executes(::testLevelAttachment)
             }

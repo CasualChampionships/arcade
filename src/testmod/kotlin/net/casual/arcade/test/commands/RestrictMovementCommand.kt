@@ -1,4 +1,4 @@
-package net.casual.arcade.test.command
+package net.casual.arcade.test.commands
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
@@ -10,9 +10,10 @@ import net.casual.arcade.minigame.extensions.PlayerMovementRestrictionExtension.
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 
-object RestrictMovementTestCommand: CommandTree {
+@Suppress("unused")
+object RestrictMovementCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
-        return CommandTree.buildLiteral("restrict-movement-test") {
+        return CommandTree.buildLiteral("restrict-movement") {
             literal("restrict") {
                 executes(::restrictMovement)
             }

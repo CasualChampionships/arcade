@@ -1,4 +1,4 @@
-package net.casual.arcade.test.command
+package net.casual.arcade.test.commands
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
@@ -14,9 +14,10 @@ import net.casual.arcade.visuals.transition.TitledCountdown
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 
+@Suppress("unused")
 object TransitionTestCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
-        return CommandTree.buildLiteral("transition-test") {
+        return CommandTree.buildLiteral("transition") {
             executes(::run)
         }
     }

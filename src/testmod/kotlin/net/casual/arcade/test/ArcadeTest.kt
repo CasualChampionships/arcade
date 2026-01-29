@@ -9,46 +9,24 @@ import net.casual.arcade.host.GlobalPackHost
 import net.casual.arcade.host.PackHost
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.resources.ArcadeResourcePacks
-import net.casual.arcade.resources.ArcadeResourcePacks.path
 import net.casual.arcade.resources.creator.NamedResourcePackCreator
-import net.casual.arcade.resources.font.pixel.PixelFontResources
-import net.casual.arcade.resources.utils.ResourcePackUtils.addFont
 import net.casual.arcade.resources.utils.ResourcePackUtils.addPack
 import net.casual.arcade.resources.utils.ResourcePackUtils.sendResourcePack
 import net.casual.arcade.resources.utils.ResourcePackUtils.toPackInfo
-import net.casual.arcade.test.command.*
-import net.casual.arcade.test.extension.TestEntityExtension
+import net.casual.arcade.test.commands.*
+import net.casual.arcade.test.extensions.TestEntityExtension
 import net.casual.arcade.test.minigame.TestMinigame
-import net.casual.arcade.test.resource_pack.CustomFontResources
 import net.casual.arcade.test.resource_pack.ResourcePackTests
 import net.casual.arcade.utils.ArcadeUtils
 import net.fabricmc.api.ModInitializer
 import net.minecraft.core.Registry
-import net.minecraft.network.chat.Component
 
 object ArcadeTest: ModInitializer {
     override fun onInitialize() {
-        TestEntityExtension.registerEvents()
-
-        PlayerCameraTestCommand.registerEvents()
+        ArcadeTestCommand.registerEvents()
 
         GlobalEventHandler.Server.register<ServerRegisterCommandEvent> {
-            it.register(
-                ArgumentTestCommand,
-                CameraOverlayCommand,
-                CustomInventoryCommand,
-                FakePlayerCommand,
-                GuiTestCommand,
-                LevelBoundaryCommand,
-                NametagTestCommand,
-                PlayerHeadCommand,
-                ReplayCommand,
-                ExtensionTestCommand,
-                PlayerCameraTestCommand,
-                TransitionTestCommand,
-                VirtualEntityTestCommand,
-                RestrictMovementTestCommand
-            )
+            it.register(ArcadeTestCommand)
         }
 
         Registry.register(

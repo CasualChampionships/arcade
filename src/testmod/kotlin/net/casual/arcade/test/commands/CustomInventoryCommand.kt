@@ -1,4 +1,4 @@
-package net.casual.arcade.test.command
+package net.casual.arcade.test.commands
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
@@ -13,6 +13,7 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 
+@Suppress("unused")
 object CustomInventoryCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("custom-inventory") {

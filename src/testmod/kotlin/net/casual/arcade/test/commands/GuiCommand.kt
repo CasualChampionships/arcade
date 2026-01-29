@@ -1,4 +1,4 @@
-package net.casual.arcade.test.command
+package net.casual.arcade.test.commands
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
@@ -11,9 +11,10 @@ import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument
 
-object GuiTestCommand: CommandTree {
+@Suppress("unused")
+object GuiCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
-        return CommandTree.buildLiteral("gui-test") {
+        return CommandTree.buildLiteral("gui") {
             literal("view-inventory") {
                 argument("target", EntityArgument.player()) {
                     executes(::viewInventory)

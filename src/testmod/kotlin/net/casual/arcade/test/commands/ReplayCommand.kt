@@ -1,4 +1,4 @@
-package net.casual.arcade.test.command
+package net.casual.arcade.test.commands
 
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
@@ -21,6 +21,7 @@ import net.minecraft.server.level.ServerPlayer
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 
+@Suppress("unused")
 object ReplayCommand: BasicReplayCommand(ArcadeUtils.path.resolve("replays").createDirectories()) {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return super.create(buildContext).apply {
