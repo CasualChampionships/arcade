@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.events
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import it.unimi.dsi.fastutil.objects.ObjectSets
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap
@@ -75,7 +76,7 @@ public enum class GlobalEventHandler(
         }
 
         @Suppress("UNCHECKED_CAST")
-        val listeners = ArrayList(this.getListenersFor(type)) as MutableList<EventListener<T>>
+        val listeners = ObjectArrayList(this.getListenersFor(type)) as ObjectArrayList<EventListener<T>>
         try {
             this.stack.get().addTo(type, 1)
 

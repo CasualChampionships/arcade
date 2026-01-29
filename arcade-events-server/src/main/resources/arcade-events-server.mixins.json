@@ -17,7 +17,6 @@
     "ConnectionMixin",
     "EntityCallbacksMixin",
     "EntityMixin",
-    "FlowingFluidMixin",
     "InteractionHandlerMixin",
     "ItemStackMixin",
     "LivingEntityMixin",
