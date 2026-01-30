@@ -10,6 +10,7 @@ import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
+import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent.Companion.replacePacketRecursively
 import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
 import net.casual.arcade.events.server.player.PlayerRespawnEvent
 import net.casual.arcade.minigame.Minigame
@@ -221,15 +222,17 @@ public class MinigameEffectsManager(
     }
 
     private fun onPlayerPacket(event: PlayerClientboundPacketEvent) {
-        event.packet = this.updatePacket(event.player, event.packet)
+        event.replacePacketRecursively(this::updatePacket)
     }
 
-    private fun updatePacket(player: ServerPlayer, packet: Packet<*>): Packet<ClientGamePacketListener> {
-        if (packet is ClientboundBundlePacket) {
-            return packet.modify(player, this::updatePacket)
-        }
-
+    private fun updatePacket(player: ServerPlayer, packet: Packet<*>): Packet<*> {
         if (packet is ClientboundUpdateMobEffectPacket) {
+            if (packet.entityId == player.id && packet.effect.value() == NIGHT_VISION.value() && this.hasFullbright(player)) {
+                return ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION, false)
+            }
+            return packet
+        }
+        if (packet is ClientboundRemoveMobEffectPacket) {
             if (packet.entityId == player.id && packet.effect.value() == NIGHT_VISION.value() && this.hasFullbright(player)) {
                 return ClientboundUpdateMobEffectPacket(player.id, INFINITE_NIGHT_VISION, false)
             }
@@ -254,7 +257,7 @@ public class MinigameEffectsManager(
             return packet.modifySharedFlags(player, this::modifySharedEntityFlags)
         }
 
-        return packet.asClientGamePacket()
+        return packet
     }
 
     private fun enableFlag(flags: Byte, flag: Int): Byte {
