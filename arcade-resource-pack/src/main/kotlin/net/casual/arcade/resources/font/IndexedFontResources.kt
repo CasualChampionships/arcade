@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.resources.font
 
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import kotlin.math.roundToInt
@@ -27,7 +27,7 @@ public abstract class IndexedFontResources(
         id: Identifier,
         pua: FontPUA = FontPUA.Plane0
     ): IndexedFontResources(id, pua) {
-        private val batches = Int2IntOpenHashMap()
+        private val batches = Int2ObjectOpenHashMap<BatchInfo>()
         private var current = 0
 
         protected fun batch(block: () -> Unit): Batch {
@@ -35,23 +35,25 @@ public abstract class IndexedFontResources(
             block.invoke()
             val end = this.components.size
             val index = this.current++
-            batches[index] = end - start
+            this.batches[index] = BatchInfo(start, end - start)
             return Batch(index)
         }
 
         protected open fun get(batch: Batch, progress: Double): Component {
-            val size = this.batches[batch.index]
+            val (start, size) = this.batches[batch.index]
             val offset = (progress.coerceIn(0.0, 1.0) * (size - 1)).roundToInt()
-            return this.get(batch.index + offset)
+            return this.get(start + offset)
         }
 
         protected open fun get(batch: Batch, offset: Int): Component {
-            val size = this.batches[batch.index]
+            val (start, size) = this.batches[batch.index]
             require(offset < size) { "Offset $offset out of bounds for batch ${batch.index} with size $size!" }
-            return this.get(batch.index + offset)
+            return this.get(start + offset)
         }
 
         @JvmInline
         public value class Batch(internal val index: Int)
+
+        private data class BatchInfo(val start: Int, val size: Int)
     }
 }
