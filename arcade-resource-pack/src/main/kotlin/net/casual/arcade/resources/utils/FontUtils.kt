@@ -47,10 +47,12 @@ public fun ComponentBuilderContext.spaced(advance: Float): Component {
 
 public inline fun ComponentBuilderContext.offset(
     advance: Float,
+    width: Float = 0.0F,
     crossinline block: () -> Component
 ): ComponentMutator {
+    val adjustment = 1.0F - width
     return ComponentMutator { original ->
-        original + spaced(advance) + block.invoke() + spaced(-advance - 1.0F)
+        original + spaced(advance) + block.invoke() + spaced(-advance + adjustment)
     }
 }
 
