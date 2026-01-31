@@ -21,6 +21,8 @@
     "network.ServerCommonPacketListenerAccessor",
     "network.ServerCommonPacketListenerImplMixin",
     "network.ServerHandshakePacketListenerImplMixin",
+    "profile.ProfileResolverCachedAccessor",
+    "profile.ResolvableProfileDynamicMixin",
     "profile.ResolvableProfileInvoker",
     "profile.ResolvableProfilePartialInvoker",
     "profile.ResolvableProfileStaticInvoker",
