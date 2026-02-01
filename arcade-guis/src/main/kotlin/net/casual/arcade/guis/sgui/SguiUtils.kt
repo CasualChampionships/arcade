@@ -44,3 +44,11 @@ public fun SlotGuiInterface.setSlotGrid(
         }
     }
 }
+
+public fun SlotGuiInterface.clearSlotGrid(origin: Int, width: Int, height: Int) {
+    for (i in 0..< width) {
+        for (j in 0..< height) {
+            this.clearSlot(origin + j * 9 + i)
+        }
+    }
+}
