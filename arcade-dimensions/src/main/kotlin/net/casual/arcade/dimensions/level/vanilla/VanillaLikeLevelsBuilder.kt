@@ -39,7 +39,7 @@ public class VanillaLikeLevelsBuilder {
     public fun add(vararg dimensions: VanillaDimension): VanillaLikeLevelsBuilder {
         for (dimension in dimensions) {
             this.set(dimension) {
-                dimensionKey(IdentifierUtils.random { "${dimension.serializedName}_$it" })
+                dimensionKey(IdentifierUtils.random { "${dimension.getDimensionKey().identifier().path}_$it" })
             }
         }
         return this
