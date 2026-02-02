@@ -12,6 +12,8 @@ public class ManualAttachmentAnchor(
     public var location: Location,
     public val level: ServerLevel
 ): AttachmentAnchor {
+    public constructor(location: LocationWithLevel<ServerLevel>): this(location.location, location.level)
+
     override fun location(): Location {
         return this.location
     }

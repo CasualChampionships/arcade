@@ -10,6 +10,7 @@
     "BlockDisplayAccessor",
     "DisplayAccessor",
     "EntityAccessor",
+    "InteractionAccessor",
     "ItemDisplayAccessor",
     "LivingEntityAccessor",
     "ServerboundInteractPacketAccessor",

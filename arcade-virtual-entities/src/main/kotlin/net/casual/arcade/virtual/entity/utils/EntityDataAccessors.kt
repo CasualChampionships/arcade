@@ -94,6 +94,23 @@ public object EntityDataAccessors {
             get() = LivingEntityAccessor.accessSleepingPosAccessor()
     }
 
+    public object Interaction {
+        @JvmStatic
+        @get:JvmName("getWidth")
+        public val WIDTH: EntityDataAccessor<Float>
+            get() = InteractionAccessor.accessWidthAccessor()
+
+        @JvmStatic
+        @get:JvmName("getHeight")
+        public val HEIGHT: EntityDataAccessor<Float>
+            get() = InteractionAccessor.accessHeightAccessor()
+
+        @JvmStatic
+        @get:JvmName("getResponse")
+        public val RESPONSE: EntityDataAccessor<Boolean>
+            get() = InteractionAccessor.accessResponseAccessor()
+    }
+
     public object Display {
         @JvmStatic
         @get:JvmName("getTransformationInterpolationStartDeltaTicks")

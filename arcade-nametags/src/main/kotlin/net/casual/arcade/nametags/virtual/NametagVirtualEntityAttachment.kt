@@ -128,8 +128,8 @@ public class NametagVirtualEntityAttachment(
         return this.connections.contains(observer.connection)
     }
 
-    public fun isObservingNonEmpty(observer: ServerPlayer): Boolean {
-        return this.tracked[observer.connection].isNotEmpty()
+    public fun isObservingEmpty(observer: ServerPlayer): Boolean {
+        return this.tracked[observer.connection].isEmpty()
     }
 
     override fun shouldDelayObserving(): Boolean {
@@ -174,7 +174,7 @@ public class NametagVirtualEntityAttachment(
         }
         if (wasStackEmpty) {
             this.root.sendSpawnPackets(observer, consumer)
-            consumer.invoke(this.entity.nametagExtension.createUpdatePassengersPacket(observer, this.root))
+            consumer.invoke(this.entity.nametagExtension.createUpdatePassengersPacket(observer))
         }
 
         var previous = this.root.id

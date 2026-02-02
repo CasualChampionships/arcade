@@ -22,7 +22,6 @@ import net.casual.arcade.utils.entity.EntityTransferReason
 import net.casual.arcade.utils.impl.DelayedActions
 import net.casual.arcade.utils.modify
 import net.casual.arcade.virtual.entity.VirtualEntity
-import net.casual.arcade.virtual.entity.tracker.ObserverTracker
 import net.casual.arcade.virtual.entity.utils.createVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.utils.removeVirtualEntityAttachment
 import net.minecraft.network.protocol.Packet
@@ -32,6 +31,7 @@ import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.Pose
+import org.jetbrains.annotations.ApiStatus.Experimental
 import org.jetbrains.annotations.ApiStatus.Internal
 import net.casual.arcade.utils.ClientboundSetPassengersPacket as createSetPassengersPacket
 
@@ -61,6 +61,18 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
             return this.getAttachment().getNametags()
         }
         return listOf()
+    }
+
+    @Experimental
+    public fun setMount(mount: VirtualEntity) {
+        this.mount = mount
+        this.broadcastUpdatedMount()
+    }
+
+    @Experimental
+    public fun removeMount() {
+        this.mount = null
+        this.broadcastUpdatedMount()
     }
 
     override fun transfer(
@@ -99,21 +111,37 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
         }
     }
 
-    internal fun createUpdatePassengersPacket(observer: ServerPlayer, root: VirtualEntity): ClientboundSetPassengersPacket {
+    internal fun createUpdatePassengersPacket(observer: ServerPlayer): ClientboundSetPassengersPacket {
         val mount = this.mount
         return when {
             mount == null || !mount.observers.isObserving(observer) -> ClientboundSetPassengersPacket(this.entity)
-            else -> createSetPassengersPacket(mount.id, intArrayOf(root.id))
+            else -> createSetPassengersPacket(mount.id, this.getRootPassengers(observer))
         }
     }
 
-    internal fun updatePassengersPacket(packet: ClientboundSetPassengersPacket): ClientboundSetPassengersPacket {
+    internal fun updatePassengersPacket(
+        observer: ServerPlayer,
+        packet: ClientboundSetPassengersPacket
+    ): ClientboundSetPassengersPacket {
         if (!this.attachment.isInitialized() || this.mount != null) {
             return packet
         }
 
-        val updated = createSetPassengersPacket(packet.vehicle, packet.passengers + this.getAttachment().getRootId())
+        val updated = createSetPassengersPacket(packet.vehicle, packet.passengers + this.getRootPassengers(observer))
         return PolymerCompatLayer.updatePacket(packet, updated)
+    }
+
+    private fun getRootPassengers(observer: ServerPlayer): IntArray {
+        val empty = this.getAttachment().isObservingEmpty(observer)
+        return if (empty) intArrayOf() else intArrayOf(this.getAttachment().getRootId())
+    }
+
+    private fun broadcastUpdatedMount() {
+        if (this.attachment.isInitialized()) {
+            this.attachment.value.broadcast { observer, consumer ->
+                consumer.invoke(this.createUpdatePassengersPacket(observer))
+            }
+        }
     }
 
     public companion object {
@@ -175,7 +203,7 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
             }
 
             val vehicle = player.level().getEntity(packet.vehicle) ?: return packet
-            return vehicle.nametagExtension.updatePassengersPacket(packet)
+            return vehicle.nametagExtension.updatePassengersPacket(player, packet)
         }
     }
 }
