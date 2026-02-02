@@ -23,7 +23,7 @@ public interface ParentVirtualEntity: VirtualEntity, VirtualEntityAttachment {
      * interaction handlers or not.
      */
     public val canInteractWithChildren: Boolean
-        get() = false
+        get() = true
 
     override val anchor: AttachmentAnchor
         get() = ParentAttachmentAnchor(this)

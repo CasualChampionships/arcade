@@ -134,6 +134,18 @@ public interface VirtualEntity {
 
     public fun interface InteractionHandler {
         public fun interact(player: ServerPlayer, interaction: EntityInteraction)
+
+        public companion object {
+            public inline fun <reified T: EntityInteraction> only(
+                crossinline handler: (ServerPlayer, T) -> Unit
+            ): InteractionHandler {
+                return InteractionHandler { player, interaction ->
+                    if (interaction is T) {
+                        handler.invoke(player, interaction)
+                    }
+                }
+            }
+        }
     }
 
     public companion object {

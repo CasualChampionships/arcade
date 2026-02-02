@@ -11,9 +11,9 @@ import net.casual.arcade.visuals.elements.PlayerSpecificElement
 import net.minecraft.network.chat.Component
 
 public class DynamicVirtualTextDisplay(
-    private val text: PlayerSpecificElement<Component>,
     attachment: VirtualEntityAttachment,
-    observers: ObserverTracker
+    observers: ObserverTracker,
+    private val text: PlayerSpecificElement<Component>
 ): SimpleVirtualTextDisplay(attachment, observers) {
     override fun tick() {
         for (observer in this.observers) {
