@@ -11,7 +11,7 @@ plugins {
     java
 }
 
-val modVersion = "0.8.1-beta.21"
+val modVersion = "0.8.1-beta.22"
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
