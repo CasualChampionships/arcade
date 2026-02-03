@@ -22,6 +22,8 @@ public open class SimpleVirtualEntityAttachment(
     private val attached = ObjectLinkedOpenHashSet<VirtualEntity>()
     override val observers: ObserverTracker = SimpleObserverTracker()
 
+    override var interactable: Boolean = super.interactable
+
     override fun tick() {
         VirtualEntityTrackingUtils.updateTrackedVirtualEntitiesFor(this.observers, this.attached)
         this.updateAttached()

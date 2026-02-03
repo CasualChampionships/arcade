@@ -31,8 +31,6 @@ public class NametagVirtualEntity(
     private var ticks = 0
     private var sneaking = false
 
-    override val interactable: Boolean get() = true
-
     init {
         this.initializeTextDisplay(this.foreground)
         this.initializeTextDisplay(this.background)
