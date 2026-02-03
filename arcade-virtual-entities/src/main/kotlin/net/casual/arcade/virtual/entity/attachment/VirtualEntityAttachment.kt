@@ -8,7 +8,6 @@ import net.casual.arcade.virtual.entity.ParentVirtualEntity
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.tracker.ObserverTracker
-import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 /**
@@ -22,6 +21,13 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  * @see ParentVirtualEntity
  */
 public interface VirtualEntityAttachment {
+    /**
+     * Whether the attached should be searched for
+     * interaction handlers or not.
+     */
+    public val interactable: Boolean
+        get() = true
+
     /**
      * The anchor for this attachment.
      */

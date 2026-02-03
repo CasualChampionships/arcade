@@ -53,6 +53,10 @@ internal class PlayerAttachmentObserverExtension(player: ServerPlayer): PlayerEx
 
     private fun findInteractableVirtualEntity(id: Int): VirtualEntity? {
         for (attachment in this.observing) {
+            if (!attachment.interactable) {
+                continue
+            }
+
             for (entity in attachment.attached()) {
                 val result = this.findInteractableVirtualEntity(id, entity)
                 if (result != null) {
@@ -68,7 +72,7 @@ internal class PlayerAttachmentObserverExtension(player: ServerPlayer): PlayerEx
         if (id == entity.id) {
             return entity
         }
-        if (entity is ParentVirtualEntity && entity.canInteractWithChildren) {
+        if (entity is ParentVirtualEntity && entity.interactable) {
             for (child in entity.children()) {
                 val result = this.findInteractableVirtualEntity(id, child)
                 if (result != null) {

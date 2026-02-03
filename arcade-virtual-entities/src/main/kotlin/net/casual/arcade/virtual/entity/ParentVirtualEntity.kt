@@ -18,13 +18,6 @@ import net.minecraft.server.level.ServerPlayer
  * @see VirtualEntityAttachment
  */
 public interface ParentVirtualEntity: VirtualEntity, VirtualEntityAttachment {
-    /**
-     * Whether the children should be searched for
-     * interaction handlers or not.
-     */
-    public val canInteractWithChildren: Boolean
-        get() = true
-
     override val anchor: AttachmentAnchor
         get() = ParentAttachmentAnchor(this)
 

@@ -110,7 +110,7 @@ public interface VirtualEntity {
      * @return Whether the [observer] can observe.
      */
     public fun canObserve(observer: ServerPlayer): Boolean {
-        return this.location().position.closerThan(observer.position(), this.observableRange())
+        return this.location().position.closerThan(observer.position(), this.getObservableRange())
     }
 
     /**
@@ -118,7 +118,7 @@ public interface VirtualEntity {
      *
      * @return The observable range.
      */
-    public fun observableRange(): Double {
+    public fun getObservableRange(): Double {
         return DEFAULT_OBSERVABLE_RANGE
     }
 

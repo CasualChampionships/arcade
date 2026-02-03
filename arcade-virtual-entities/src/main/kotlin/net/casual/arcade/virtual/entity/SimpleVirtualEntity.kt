@@ -49,6 +49,9 @@ public open class SimpleVirtualEntity(
     override var position: VirtualPosition = VirtualPosition.DEFAULT
     override var rotation: VirtualRotation = VirtualRotation.DEFAULT
 
+    private var interaction: (ServerPlayer) -> VirtualEntity.InteractionHandler? = { null }
+    private var range = this.type.clientTrackingRange() * 16.0
+
     private var lastSyncedPos: Vec3? = null
     private var lastSyncedRot: Vec2? = null
     private var lastSyncedHeadRot: Float? = null
@@ -95,8 +98,20 @@ public open class SimpleVirtualEntity(
         consumer.invoke(ClientboundRemoveEntitiesPacket(this.id))
     }
 
-    override fun observableRange(): Double {
-        return this.type.clientTrackingRange() * 16.0
+    public fun setObservableRange(range: Double) {
+        this.range = range
+    }
+
+    override fun getObservableRange(): Double {
+        return this.range
+    }
+
+    public fun setInteractionHandlerProvider(provider: (ServerPlayer) -> VirtualEntity.InteractionHandler?) {
+        this.interaction = provider
+    }
+
+    override fun getInteractionHandler(player: ServerPlayer): VirtualEntity.InteractionHandler? {
+        return this.interaction.invoke(player)
     }
 
     protected open fun createSpawnPacket(): ClientboundAddEntityPacket {

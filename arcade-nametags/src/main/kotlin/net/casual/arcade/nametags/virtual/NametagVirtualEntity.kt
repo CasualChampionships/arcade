@@ -31,7 +31,7 @@ public class NametagVirtualEntity(
     private var ticks = 0
     private var sneaking = false
 
-    override val canInteractWithChildren: Boolean get() = true
+    override val interactable: Boolean get() = true
 
     init {
         this.initializeTextDisplay(this.foreground)

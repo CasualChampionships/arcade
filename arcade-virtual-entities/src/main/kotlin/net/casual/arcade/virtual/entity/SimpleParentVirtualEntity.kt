@@ -31,6 +31,7 @@ public open class SimpleParentVirtualEntity(
     protected val children: MutableSet<VirtualEntity> = ObjectLinkedOpenHashSet()
 
     override val anchor: AttachmentAnchor = super.anchor
+    override val interactable: Boolean = true
 
     override fun tick() {
         VirtualEntityTrackingUtils.updateTrackedVirtualEntitiesFor(this.observers, this.children)
