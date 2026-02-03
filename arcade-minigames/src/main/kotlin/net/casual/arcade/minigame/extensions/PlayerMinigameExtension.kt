@@ -15,8 +15,10 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.minigame.utils.MinigameUtils.minigame
+import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.PlayerUtils.server
+import net.casual.arcade.utils.TimeUtils.Ticks
 import net.minecraft.core.UUIDUtil
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtAccounter
@@ -101,11 +103,13 @@ internal class PlayerMinigameExtension(
                     player.minigame.save()
                 }
             }
-            GlobalEventHandler.Server.register<PlayerLeaveEvent>(priority = Int.MAX_VALUE) {
+            GlobalEventHandler.Server.register<PlayerLeaveEvent> {
                 val extension = it.player.minigame
                 extension.save()
-                // Prevent any memory leaks
-                extension.removeMinigame()
+                GlobalTickedScheduler.schedule(1.Ticks) {
+                    // Prevent any memory leaks
+                    extension.removeMinigame()
+                }
             }
         }
     }
