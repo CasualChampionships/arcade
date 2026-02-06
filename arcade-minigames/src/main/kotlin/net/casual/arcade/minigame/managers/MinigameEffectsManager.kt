@@ -262,7 +262,7 @@ public class MinigameEffectsManager(
     }
 
     private fun enableFlag(flags: Byte, flag: Int): Byte {
-        return (flags.toInt() or (1 shl flag)).toByte()
+        return (flags.toInt() or flag).toByte()
     }
 
     private fun modifySharedEntityFlags(
