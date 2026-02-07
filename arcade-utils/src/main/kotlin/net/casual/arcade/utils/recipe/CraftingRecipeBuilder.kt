@@ -59,18 +59,22 @@ public object CraftingRecipeBuilder {
             return this
         }
 
-        public fun ingredients(vararg ingredients: Ingredient): Shaped {
-            this.ingredients.addAll(ingredients.map { Optional.of(it) })
+        public fun ingredients(vararg ingredients: Ingredient?): Shaped {
+            this.ingredients.addAll(ingredients.map { Optional.ofNullable(it) })
             return this
         }
 
-        public fun ingredients(vararg items: Item): Shaped {
-            this.ingredients(*items.map { Ingredient.of(it) }.toTypedArray())
+        public fun ingredients(vararg items: Item?): Shaped {
+            this.ingredients(*items.map { item ->
+                if (item == null) null else Ingredient.of(item)
+            }.toTypedArray())
             return this
         }
 
-        public fun ingredients(vararg tags: TagKey<Item>): Shaped {
-            this.ingredients(*tags.map { Ingredient.of(this.lookup.getOrThrow(it)) }.toTypedArray())
+        public fun ingredients(vararg tags: TagKey<Item>?): Shaped {
+            this.ingredients(*tags.map { tag ->
+                if (tag == null) null else Ingredient.of(this.lookup.getOrThrow(tag))
+            }.toTypedArray())
             return this
         }
 
