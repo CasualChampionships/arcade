@@ -23,6 +23,7 @@ import java.util.*
 import kotlin.io.path.isReadable
 import kotlin.io.path.notExists
 import kotlin.io.path.reader
+import kotlin.io.path.writeText
 import kotlin.io.path.writer
 import kotlin.jvm.optionals.getOrNull
 
@@ -118,6 +119,18 @@ public object JsonUtils {
         path.writer().use { writer ->
             this.encodeWith(any, encoder, writer, lookup)
         }
+    }
+
+    public fun <T: Any> encodeWith(
+        any: T,
+        encoder: Encoder<T>,
+        path: Path,
+        lookup: HolderLookup.Provider? = null,
+        formatter: (String) -> String
+    ) {
+        val builder = StringBuilder()
+        this.encodeWith(any, encoder, builder, lookup)
+        path.writeText(formatter.invoke(builder.toString()))
     }
 
     @Deprecated("Use decodeRaw instead", ReplaceWith("this.decodeRaw(reader)"))
