@@ -242,11 +242,8 @@ public abstract class PlayerSpecificEntityElement: AbstractElement() {
         observer: ServerPlayer,
         sender: Consumer<Packet<ClientGamePacketListener>>
     ) {
-        val merged = PlayerSpecificEntityData.mergeEntityData(
-            this.data.getChangedBaseEntries(),
-            this.data.getChangedEntries(observer.uuid)
-        )
-        if (merged != null) {
+        val merged = this.data.getChangedEntries(observer.uuid, this.data.getChangedBaseEntries())
+        if (merged.isNotEmpty()) {
             sender.accept(ClientboundSetEntityDataPacket(this.id, merged))
         }
     }
@@ -276,10 +273,9 @@ public abstract class PlayerSpecificEntityElement: AbstractElement() {
         val holder = this.holder ?: return
         val base = this.data.getDirtyBaseEntries()
         for (connection in holder.watchingPlayers) {
-            val overridden = this.data.getDirtyEntries(connection.player.uuid)
-            val merged = PlayerSpecificEntityData.mergeEntityData(base, overridden)
-            if (merged != null) {
-                connection.send(ClientboundSetEntityDataPacket(this.id, merged))
+            val overridden = this.data.getDirtyEntries(connection.player.uuid, base)
+            if (overridden.isNotEmpty()) {
+                connection.send(ClientboundSetEntityDataPacket(this.id, overridden))
             }
         }
     }
