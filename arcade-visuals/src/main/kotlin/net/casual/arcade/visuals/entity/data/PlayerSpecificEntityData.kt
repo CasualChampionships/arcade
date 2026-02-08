@@ -117,7 +117,7 @@ public class PlayerSpecificEntityData {
     }
 
     public fun getChangedEntries(observer: UUID, base: List<SynchedEntityData.DataValue<*>>): List<SynchedEntityData.DataValue<*>> {
-        val entries = this.overrides[observer]?.values ?: return listOf()
+        val entries = this.overrides[observer]?.values ?: return base
         val changed = Int2ObjectOpenHashMap<SynchedEntityData.DataValue<*>>()
         for (value in base) {
             changed.put(value.id, value)
@@ -126,6 +126,8 @@ public class PlayerSpecificEntityData {
             if (!entry.unchanged()) {
                 val value = entry.serialize()
                 changed.put(value.id, value)
+            } else {
+                changed.remove(entry.accessor.id)
             }
         }
         return changed.values.toList()
@@ -178,7 +180,7 @@ public class PlayerSpecificEntityData {
     }
 
     public class Entry<T>(
-        private val accessor: EntityDataAccessor<T>,
+        public val accessor: EntityDataAccessor<T>,
         private var initialValue: T
     ) {
         public var value: T = this.initialValue
