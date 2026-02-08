@@ -4,37 +4,80 @@
  */
 package net.casual.arcade.visuals.entity.data
 
-import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
+import net.casual.arcade.visuals.entity.data.PlayerSpecificEntityData.Companion.mergeEntityData
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.world.entity.EntityType
 import java.util.*
+import kotlin.collections.iterator
 
-public class PlayerSpecificEntityData {
-    private val overrides = Object2ObjectOpenHashMap<UUID, Int2ObjectOpenHashMap<Entry<*>>>()
+/**
+ * This class works similar to [SynchedEntityData] but
+ * allows for player-specific overrides.
+ *
+ * The class contains a base set of entity data entries
+ * and a collection of overridden entity data entries
+ * specified on a per-player basis. If there is no
+ * override for an entry then the base entity data
+ * should be used instead, see [mergeEntityData].
+ */
+public class PlayerSpecificEntityData(type: EntityType<*>) {
+    private val overrides = Object2ObjectOpenHashMap<UUID, Int2ObjectOpenHashMap<EntityDataEntry<*>>>()
     private val dirty = ObjectOpenHashSet<UUID>()
 
-    private val base: Array<Entry<*>>
+    private val base = SimpleEntityData(type)
 
-    public constructor(type: EntityType<*>) {
-        @Suppress("UnstableApiUsage")
-        val examples = InternalEntityHelpers.getExampleTrackedDataOfEntityType(type)
-        this.base = Array(examples.size) { i ->
-            val example = examples[i]
-            Entry(example.accessor as EntityDataAccessor<in Any>, example.value)
-        }
-    }
-
-    public fun <T> get(observer: UUID, accessor: EntityDataAccessor<T>): T? {
+    public fun <T: Any> get(observer: UUID, accessor: EntityDataAccessor<T>): T? {
         return this.getEntry(observer, accessor)?.value
     }
 
-    public fun <T> getEntry(observer: UUID, accessor: EntityDataAccessor<T>): Entry<T>? {
+    public fun <T: Any> getEntry(observer: UUID, accessor: EntityDataAccessor<T>): EntityDataEntry<T>? {
         return this.getOverriddenEntry(observer, accessor) ?: this.getBaseEntry(accessor)
+    }
+
+    public fun <T: Any> set(observer: UUID, accessor: EntityDataAccessor<T>, value: T, force: Boolean = false): Boolean {
+        val entry = this.getOrCreateOverriddenEntry(observer, accessor) ?: return false
+        if (entry.update(value, force)) {
+            this.dirty.add(observer)
+            return true
+        }
+        return false
+    }
+
+    public fun <T: Any> setToBase(observer: UUID, accessor: EntityDataAccessor<T>): Boolean {
+        val base = this.getBaseEntry(accessor) ?: return false
+        if (this.isOverridden(observer, accessor)) {
+            this.set(observer, accessor, base.value, true)
+            return true
+        }
+        return false
+    }
+
+    public fun <T: Any> modifyEntry(observer: UUID, accessor: EntityDataAccessor<T>, force: Boolean, modifier: (T) -> T): Boolean {
+        val entry = this.getOrCreateOverriddenEntry(observer, accessor) ?: return false
+        if (entry.update(modifier.invoke(entry.value), force)) {
+            this.dirty.add(observer)
+            return true
+        }
+        return false
+    }
+
+    public fun <T: Any> modifyEntry(accessor: EntityDataAccessor<T>, force: Boolean = false, modifier: (T) -> T): Boolean {
+        if (this.base.modify(accessor, force, modifier)) {
+            for ((observer, overrides) in this.overrides) {
+                @Suppress("UNCHECKED_CAST")
+                val entry = overrides.get(accessor.id) as EntityDataEntry<T>? ?: continue
+                if (entry.update(modifier.invoke(entry.value), force)) {
+                    this.dirty.add(observer)
+                }
+            }
+            return true
+        }
+        return false
     }
 
     public fun isDirty(observer: UUID, accessor: EntityDataAccessor<*>): Boolean {
@@ -55,38 +98,6 @@ public class PlayerSpecificEntityData {
         return this.dirty
     }
 
-    public fun <T> set(observer: UUID, accessor: EntityDataAccessor<T>, value: T, force: Boolean = false) {
-        val entry = this.getOrCreateOverriddenEntry(observer, accessor) ?: return
-        if (force || value != entry.value) {
-            entry.value = value
-            entry.dirty = true
-            this.dirty.add(observer)
-        }
-    }
-
-    public fun <T> setToBase(observer: UUID, accessor: EntityDataAccessor<T>) {
-        val base = this.getBaseEntry(accessor) ?: return
-        if (this.isOverridden(observer, accessor)) {
-            this.set(observer, accessor, base.value, true)
-        }
-    }
-
-    public fun <T> modifyEntry(accessor: EntityDataAccessor<T>, force: Boolean = false, modifier: (T) -> T) {
-        val base = this.getBaseEntry(accessor) ?: return
-        base.value = modifier.invoke(base.value)
-        base.dirty = true
-        for ((observer, overrides) in this.overrides) {
-            @Suppress("UNCHECKED_CAST")
-            val entry = overrides.get(accessor.id) as Entry<T>? ?: continue
-            val updated = modifier.invoke(entry.value)
-            if (force || updated != entry.value) {
-                entry.value = updated
-                entry.dirty = true
-                this.dirty.add(observer)
-            }
-        }
-    }
-
     public fun getDirtyEntries(observer: UUID, base: List<SynchedEntityData.DataValue<*>>): List<SynchedEntityData.DataValue<*>> {
         val overrides = this.overrides[observer] ?: return base
         if (!this.dirty.remove(observer)) {
@@ -101,15 +112,14 @@ public class PlayerSpecificEntityData {
         val entries = overrides.int2ObjectEntrySet().fastIterator()
         for (pair in entries) {
             val entry = pair.value
-            if (!entry.dirty) {
+            if (!entry.clean()) {
                 dirty.remove(pair.intKey)
                 continue
             }
-            entry.dirty = false
             dirty.put(pair.intKey, entry.serialize())
 
-            val base = this.base.getOrNull(pair.intKey) ?: continue
-            if (base.value == entry.value) {
+            val base = this.base.getEntry(pair.intKey) ?: continue
+            if (base.isValueEqualTo(entry.value)) {
                 entries.remove()
             }
         }
@@ -127,83 +137,46 @@ public class PlayerSpecificEntityData {
                 val value = entry.serialize()
                 changed.put(value.id, value)
             } else {
-                changed.remove(entry.accessor.id)
+                changed.remove(entry.id)
             }
         }
         return changed.values.toList()
     }
 
-    @Suppress("UNCHECKED_CAST")
-    public fun <T> getBaseEntry(accessor: EntityDataAccessor<T>): Entry<T>? {
-        val entry = this.base.getOrElse(accessor.id) {
-            return null
-        }
-        return if (entry.isOf(accessor)) (entry as Entry<T>) else null
+    public fun <T: Any> getBase(accessor: EntityDataAccessor<T>): T? {
+        return this.base.get(accessor)
+    }
+
+    public fun <T: Any> setBase(accessor: EntityDataAccessor<T>, value: T) {
+        this.base.set(accessor, value)
+    }
+
+    public fun <T: Any> getBaseEntry(accessor: EntityDataAccessor<T>): EntityDataEntry<T>? {
+        return this.base.getEntry(accessor)
     }
 
     public fun isBaseDirty(accessor: EntityDataAccessor<*>): Boolean {
-        val entry = this.getBaseEntry(accessor)
-        return entry != null && entry.dirty
+        return this.base.isDirty(accessor)
     }
 
     public fun getDirtyBaseEntries(): List<SynchedEntityData.DataValue<*>> {
-        val dirty: MutableList<SynchedEntityData.DataValue<*>> = ArrayList()
-        for (entry in this.base) {
-            if (entry.dirty) {
-                entry.dirty = false
-                dirty.add(entry.serialize())
-            }
-        }
-        return dirty
+        return this.base.getDirtyEntries() ?: listOf()
     }
 
     public fun getChangedBaseEntries(): List<SynchedEntityData.DataValue<*>> {
-        val changed: MutableList<SynchedEntityData.DataValue<*>> = ArrayList()
-        for (entry in this.base) {
-            if (!entry.unchanged()) {
-                changed.add(entry.serialize())
-            }
-        }
-        return changed
+        return this.base.getChangedEntries() ?: listOf()
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T> getOverriddenEntry(observer: UUID, accessor: EntityDataAccessor<T>): Entry<T>? {
-        return (this.overrides[observer]?.get(accessor.id) as? Entry<T>)
+    private fun <T: Any> getOverriddenEntry(observer: UUID, accessor: EntityDataAccessor<T>): EntityDataEntry<T>? {
+        return (this.overrides[observer]?.get(accessor.id) as? EntityDataEntry<T>)
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T> getOrCreateOverriddenEntry(observer: UUID, accessor: EntityDataAccessor<T>): Entry<T>? {
+    private fun <T: Any> getOrCreateOverriddenEntry(observer: UUID, accessor: EntityDataAccessor<T>): EntityDataEntry<T>? {
         val base = this.getBaseEntry(accessor) ?: return null
         val overrides = this.overrides.getOrPut(observer, ::Int2ObjectOpenHashMap)
-        return overrides.getOrPut(accessor.id, base::copy) as Entry<T>
-    }
-
-    public class Entry<T>(
-        public val accessor: EntityDataAccessor<T>,
-        private var initialValue: T
-    ) {
-        public var value: T = this.initialValue
-        public var dirty: Boolean = false
-
-        public fun unchanged(): Boolean {
-            return this.initialValue == this.value
-        }
-
-        public fun isOf(accessor: EntityDataAccessor<*>): Boolean {
-            return this.accessor == accessor
-        }
-
-        public fun serialize(): SynchedEntityData.DataValue<T> {
-            return SynchedEntityData.DataValue.create(this.accessor, this.value)
-        }
-
-        public fun copy(): Entry<T> {
-            val copy = Entry(this.accessor, this.initialValue)
-            copy.value = this.value
-            copy.dirty = true
-            return copy
-        }
+        return overrides.getOrPut(accessor.id, base::copy) as EntityDataEntry<T>
     }
 
     public companion object {
