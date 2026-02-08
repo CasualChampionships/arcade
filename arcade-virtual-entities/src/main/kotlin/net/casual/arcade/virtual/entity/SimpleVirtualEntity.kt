@@ -125,11 +125,8 @@ public open class SimpleVirtualEntity(
     }
 
     protected open fun sendChangedEntityData(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
-        val merged = PlayerSpecificEntityData.mergeEntityData(
-            this.data.getChangedBaseEntries(),
-            this.data.getChangedEntries(observer.uuid)
-        )
-        if (merged != null) {
+        val merged = this.data.getChangedEntries(observer.uuid, this.data.getChangedBaseEntries())
+        if (merged.isNotEmpty()) {
             consumer.invoke(ClientboundSetEntityDataPacket(this.id, merged))
         }
     }
@@ -177,10 +174,9 @@ public open class SimpleVirtualEntity(
     protected open fun sendDirtyEntityData() {
         val base = this.data.getDirtyBaseEntries()
         this.observers.broadcast { player, consumer ->
-            val overridden = this.data.getDirtyEntries(player.uuid)
-            val merged = PlayerSpecificEntityData.mergeEntityData(base, overridden)
-            if (merged != null) {
-                consumer.invoke(ClientboundSetEntityDataPacket(this.id, merged))
+            val overridden = this.data.getDirtyEntries(player.uuid, base)
+            if (overridden.isNotEmpty()) {
+                consumer.invoke(ClientboundSetEntityDataPacket(this.id, overridden))
             }
         }
     }

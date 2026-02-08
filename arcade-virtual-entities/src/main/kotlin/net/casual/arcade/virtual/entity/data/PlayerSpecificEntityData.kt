@@ -97,45 +97,57 @@ public class PlayerSpecificEntityData(type: EntityType<*>) {
         return this.dirty
     }
 
-    public fun getDirtyEntries(observer: UUID): List<SynchedEntityData.DataValue<*>>? {
-        var dirty: MutableList<SynchedEntityData.DataValue<*>>? = null
-        if (this.dirty.remove(observer)) {
-            val entries = this.overrides[observer]?.int2ObjectEntrySet()?.fastIterator() ?: return null
-            for (pair in entries) {
-                val entry = pair.value
-                if (!entry.clean()) {
-                    continue
-                }
-                if (dirty == null) {
-                    dirty = ArrayList()
-                }
-                dirty.add(entry.serialize())
+    public fun getDirtyEntries(observer: UUID, base: List<SynchedEntityData.DataValue<*>>): List<SynchedEntityData.DataValue<*>> {
+        val overrides = this.overrides[observer] ?: return base
+        if (!this.dirty.remove(observer)) {
+            return base.filter { value -> !overrides.containsKey(value.id) }
+        }
 
-                val base = this.base.getEntry(pair.intKey) ?: continue
-                if (base.value == entry.value) {
-                    entries.remove()
-                }
+        val dirty = Int2ObjectOpenHashMap<SynchedEntityData.DataValue<*>>()
+        for (value in base) {
+            dirty.put(value.id, value)
+        }
+
+        val entries = overrides.int2ObjectEntrySet().fastIterator()
+        for (pair in entries) {
+            val entry = pair.value
+            if (!entry.clean()) {
+                dirty.remove(pair.intKey)
+                continue
+            }
+            dirty.put(pair.intKey, entry.serialize())
+
+            val base = this.base.getEntry(pair.intKey) ?: continue
+            if (base.isValueEqualTo(entry.value)) {
+                entries.remove()
             }
         }
-        return dirty
+        return dirty.values.toList()
     }
 
-    public fun getChangedEntries(observer: UUID): List<SynchedEntityData.DataValue<*>>? {
-        var changed: MutableList<SynchedEntityData.DataValue<*>>? = null
-        val entries = this.overrides[observer]?.values ?: return null
+    public fun getChangedEntries(observer: UUID, base: List<SynchedEntityData.DataValue<*>>): List<SynchedEntityData.DataValue<*>> {
+        val entries = this.overrides[observer]?.values ?: return base
+        val changed = Int2ObjectOpenHashMap<SynchedEntityData.DataValue<*>>()
+        for (value in base) {
+            changed.put(value.id, value)
+        }
         for (entry in entries) {
             if (!entry.unchanged()) {
-                if (changed == null) {
-                    changed = ArrayList()
-                }
-                changed.add(entry.serialize())
+                val value = entry.serialize()
+                changed.put(value.id, value)
+            } else {
+                changed.remove(entry.id)
             }
         }
-        return changed
+        return changed.values.toList()
     }
 
     public fun <T: Any> getBase(accessor: EntityDataAccessor<T>): T? {
         return this.base.get(accessor)
+    }
+
+    public fun <T: Any> setBase(accessor: EntityDataAccessor<T>, value: T) {
+        this.base.set(accessor, value)
     }
 
     public fun <T: Any> getBaseEntry(accessor: EntityDataAccessor<T>): EntityDataEntry<T>? {
@@ -146,12 +158,12 @@ public class PlayerSpecificEntityData(type: EntityType<*>) {
         return this.base.isDirty(accessor)
     }
 
-    public fun getDirtyBaseEntries(): List<SynchedEntityData.DataValue<*>>? {
-        return this.base.getDirtyEntries()
+    public fun getDirtyBaseEntries(): List<SynchedEntityData.DataValue<*>> {
+        return this.base.getDirtyEntries() ?: listOf()
     }
 
-    public fun getChangedBaseEntries(): List<SynchedEntityData.DataValue<*>>? {
-        return this.base.getChangedEntries()
+    public fun getChangedBaseEntries(): List<SynchedEntityData.DataValue<*>> {
+        return this.base.getChangedEntries() ?: listOf()
     }
 
     @Suppress("UNCHECKED_CAST")
