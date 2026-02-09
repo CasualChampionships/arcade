@@ -6,6 +6,43 @@ package net.casual.arcade.utils
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 
+public fun <E: Comparable<E>> MutableList<E>.mergeSorted(sorted: List<E>) {
+    if (sorted.isEmpty()) {
+        return
+    }
+    if (this.isEmpty()) {
+        this.addAll(sorted)
+        return
+    }
+
+    val result = ArrayList<E>(this.size + sorted.size)
+    var i = 0
+    var j = 0
+    while (i < this.size && j < sorted.size) {
+        val a = this[i]
+        val b = sorted[j]
+        if (a <= b) {
+            result.add(a)
+            i++
+        } else {
+            result.add(b)
+            j++
+        }
+    }
+
+    while (i < this.size) {
+        result.add(this[i++])
+    }
+    while (j < sorted.size) {
+        result.add(sorted[j++])
+    }
+
+    this.clear()
+    this.addAll(result)
+}
+
+
+@Deprecated("Use mergeSorted instead")
 public fun <E: Comparable<E>> MutableList<E>.addSorted(sorted: List<E>) {
     if (sorted.isEmpty()) {
         return

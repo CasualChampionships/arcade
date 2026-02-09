@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.events
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import it.unimi.dsi.fastutil.objects.ObjectSets
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap
@@ -12,10 +11,11 @@ import net.casual.arcade.events.common.Event
 import net.casual.arcade.events.common.MissingExecutorEvent
 import net.casual.arcade.events.threading.ThreadingStrategy
 import net.casual.arcade.utils.ServerUtils
-import net.casual.arcade.utils.addSorted
+import net.casual.arcade.utils.mergeSorted
 import net.minecraft.client.Minecraft
 import net.minecraft.util.thread.ReentrantBlockableEventLoop
 import org.apache.logging.log4j.LogManager
+import java.util.Collections
 import java.util.concurrent.Executor
 
 /**
@@ -33,9 +33,9 @@ public enum class GlobalEventHandler(
     Client({ Minecraft.getInstance() });
 
     private val stack = ThreadLocal.withInitial { Reference2IntOpenHashMap<Class<out Event>>() }
-    private val registries = ObjectSets.synchronize(ObjectOpenHashSet<ListenerProvider>())
+    private val registries = Collections.synchronizedSet(HashSet<ListenerProvider>())
 
-    private val injected = ObjectSets.synchronize(ObjectOpenHashSet<InjectedListenerProvider>())
+    private val injected = Collections.synchronizedSet(HashSet<InjectedListenerProvider>())
 
     private var recursion = ThreadLocal.withInitial { false }
 
@@ -76,21 +76,22 @@ public enum class GlobalEventHandler(
         }
 
         @Suppress("UNCHECKED_CAST")
-        val listeners = ObjectArrayList(this.getListenersFor(type)) as ObjectArrayList<EventListener<T>>
+        val base = this.getListenersFor(type) as List<EventListener<T>>
+        val listeners = if (base.isEmpty()) ArrayList() else ArrayList(base)
         try {
             this.stack.get().addTo(type, 1)
 
             synchronized(this.registries) {
                 for (handler in this.registries) {
                     @Suppress("UNCHECKED_CAST")
-                    listeners.addSorted(handler.getListenersFor(type) as List<EventListener<T>>)
+                    listeners.mergeSorted(handler.getListenersFor(type) as List<EventListener<T>>)
                 }
             }
             synchronized(this.injected) {
                 for (injected in this.injected) {
                     injected.injectListenerProviders(event) { handler ->
                         @Suppress("UNCHECKED_CAST")
-                        listeners.addSorted(handler.getListenersFor(type) as List<EventListener<T>>)
+                        listeners.mergeSorted(handler.getListenersFor(type) as List<EventListener<T>>)
                     }
                 }
             }
