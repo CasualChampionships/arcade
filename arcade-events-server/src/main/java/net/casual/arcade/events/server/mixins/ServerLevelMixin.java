@@ -22,8 +22,6 @@ import java.util.function.BooleanSupplier;
 
 @Mixin(ServerLevel.class)
 public class ServerLevelMixin {
-	@Shadow @Final private MinecraftServer server;
-
 	@Inject(
 		method = "tick",
 		at = @At("HEAD")
@@ -38,11 +36,5 @@ public class ServerLevelMixin {
 		at = @At("HEAD")
 	)
 	private void onBlockChanged(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo ci) {
-		LevelBlockChangedEvent event = new LevelBlockChangedEvent((ServerLevel) (Object) this, pos, oldState, newState);
-		if (this.server.isSameThread()) {
-			GlobalEventHandler.Server.broadcast(event);
-		} else {
-			this.server.execute(() -> GlobalEventHandler.Server.broadcast(event));
-		}
 	}
 }

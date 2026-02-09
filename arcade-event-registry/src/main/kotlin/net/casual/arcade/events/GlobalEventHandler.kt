@@ -66,7 +66,7 @@ public enum class GlobalEventHandler(
      */
     @JvmOverloads
     public fun <T: Event> broadcast(event: T, phases: Set<String> = BuiltInEventPhases.DEFAULT_PHASES) {
-        val type = event::class.java
+        val type = event.javaClass
 
         // If this returns null, then the server is stopping anyway
         val executor = this.getMainThreadExecutor(event, type) ?: return

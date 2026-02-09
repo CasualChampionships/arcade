@@ -19,6 +19,7 @@
     "EntityMixin",
     "InteractionHandlerMixin",
     "ItemStackMixin",
+    "LevelMixin",
     "LivingEntityMixin",
     "MinecraftServerMixin",
     "NaturalSpawnerMixin",
