@@ -22,7 +22,7 @@ import java.util.*
  * and a collection of overridden entity data entries
  * specified on a per-player basis. If there is no
  * override for an entry then the base entity data
- * should be used instead, see [mergeEntityData].
+ * should be used instead.
  */
 public class PlayerSpecificEntityData(type: EntityType<*>) {
     private val overrides = Object2ObjectOpenHashMap<UUID, Int2ObjectOpenHashMap<EntityDataEntry<*>>>()

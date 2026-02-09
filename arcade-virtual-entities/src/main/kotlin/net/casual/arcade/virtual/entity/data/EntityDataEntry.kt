@@ -45,6 +45,7 @@ public class EntityDataEntry<T: Any>(
 
     public fun isValueEqualTo(other: Any?): Boolean {
         val current = this.value
+        // ItemStack doesn't implement equals
         if (current is ItemStack && other is ItemStack) {
             return ItemStack.isSameItemSameComponents(current, other)
         }

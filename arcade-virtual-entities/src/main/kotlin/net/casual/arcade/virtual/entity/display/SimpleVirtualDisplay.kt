@@ -146,10 +146,20 @@ public abstract class SimpleVirtualDisplay(
     }
 
     public fun startInterpolationIfDirty() {
+        val base = TRANSFORMATION_ACCESSORS.filter(this.data::isBaseDirty)
         for (observer in this.observers) {
-            if (this.isTransformationDirtyFor(observer)) {
+            val uuid = observer.uuid
+            val dirty = base.any { accessor -> !this.data.isOverridden(uuid, accessor) }
+                || TRANSFORMATION_ACCESSORS.any { accessor -> this.data.isDirty(uuid, accessor) }
+            if (dirty) {
                 this.startInterpolationFor(observer)
             }
+        }
+    }
+
+    public fun startInterpolationIfBaseDirty() {
+        if (TRANSFORMATION_ACCESSORS.any(this.data::isBaseDirty)) {
+            this.startInterpolation()
         }
     }
 
@@ -227,5 +237,14 @@ public abstract class SimpleVirtualDisplay(
 
     public fun setGlowColorOverrideToBaseFor(observer: ServerPlayer) {
         this.setBaseDataEntryFor(observer, DisplayDataAccessors.GLOW_COLOR_OVERRIDE)
+    }
+
+    public companion object {
+        private val TRANSFORMATION_ACCESSORS = setOf(
+            DisplayDataAccessors.TRANSLATION,
+            DisplayDataAccessors.LEFT_ROTATION,
+            DisplayDataAccessors.SCALE,
+            DisplayDataAccessors.RIGHT_ROTATION
+        )
     }
 }
