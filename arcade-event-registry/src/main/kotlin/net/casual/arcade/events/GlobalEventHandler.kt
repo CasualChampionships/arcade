@@ -4,8 +4,6 @@
  */
 package net.casual.arcade.events
 
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
-import it.unimi.dsi.fastutil.objects.ObjectSets
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap
 import net.casual.arcade.events.common.Event
 import net.casual.arcade.events.common.MissingExecutorEvent
@@ -14,8 +12,8 @@ import net.casual.arcade.utils.ServerUtils
 import net.casual.arcade.utils.mergeSorted
 import net.minecraft.client.Minecraft
 import net.minecraft.util.thread.ReentrantBlockableEventLoop
-import org.apache.logging.log4j.LogManager
-import java.util.Collections
+import org.slf4j.LoggerFactory
+import java.util.*
 import java.util.concurrent.Executor
 
 /**
@@ -75,6 +73,9 @@ public enum class GlobalEventHandler(
             return
         }
 
+        // We could probably optimize this further by collecting all listeners
+        // *then* merging them all in one go, we should also probably be filtering
+        // by phase when merging listeners.
         @Suppress("UNCHECKED_CAST")
         val base = this.getListenersFor(type) as List<EventListener<T>>
         val listeners = if (base.isEmpty()) ArrayList() else ArrayList(base)
@@ -219,6 +220,6 @@ public enum class GlobalEventHandler(
     public companion object {
         private const val MAX_RECURSIONS = 10
 
-        private val logger = LogManager.getLogger("ArcadeEventHandler")
+        private val logger = LoggerFactory.getLogger("ArcadeEventHandler")
     }
 }
