@@ -37,6 +37,7 @@ import net.minecraft.server.network.ServerCommonPacketListenerImpl
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.io.FileNotFoundException
+import java.io.IOException
 import java.nio.file.FileVisitResult
 import java.nio.file.Path
 import java.util.*
@@ -193,6 +194,29 @@ public object ResourcePackUtils {
     public fun ResourcePackCreator.addAssetsFrom(assets: Path) {
         this.creationEvent.register { builder ->
             builder.copyFromPath(assets, "assets/")
+        }
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addToAssets(destination: String, path: Path, renamed: String? = null) {
+        this.creationEvent.register { builder ->
+            if (path.notExists()) {
+                throw IOException("No such file exists: $path")
+            }
+
+            val normalized = buildString {
+                append("assets")
+                val trimmed = destination.trim('/')
+                if (trimmed.isNotEmpty()) {
+                    append('/').append(trimmed)
+                }
+                append('/').append(renamed ?: path.name)
+            }
+            if (path.isDirectory()) {
+                builder.copyFromPath(path, "$normalized/")
+            } else {
+                builder.addData(normalized, path.readBytes())
+            }
         }
     }
 
