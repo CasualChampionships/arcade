@@ -30,11 +30,4 @@ public class ServerLevelMixin {
 		LevelTickEvent event = new LevelTickEvent((ServerLevel) (Object) this);
 		GlobalEventHandler.Server.broadcast(event);
 	}
-
-	@Inject(
-		method = "updatePOIOnBlockStateChange",
-		at = @At("HEAD")
-	)
-	private void onBlockChanged(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo ci) {
-	}
 }
