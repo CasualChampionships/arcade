@@ -18,6 +18,6 @@ public class ParentAttachmentAnchor(
     }
 
     override fun level(): ServerLevel? {
-        return this.parent.anchor.level()
+        return this.parent.attachment.anchor.level()
     }
 }
