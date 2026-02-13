@@ -91,7 +91,7 @@ public fun VirtualEntity.stopObservingAndSendPackets(
 }
 
 public fun VirtualEntityAttachment.createParentObserverTracker(): ParentObserverTracker {
-    return ParentObserverTracker(this.observers)
+    return this.observers as? ParentObserverTracker ?: ParentObserverTracker(this.observers)
 }
 
 public inline fun <A: VirtualEntityAttachment, T: VirtualEntity> A.attach(factory: (A) -> T): T {
