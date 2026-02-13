@@ -62,6 +62,10 @@ public class NametagHeightVirtualEntity(
         return this.handler
     }
 
+    override fun canObserve(observer: ServerPlayer): Boolean {
+        return true
+    }
+
     private companion object {
         val changed by lazy {
             val data = SimpleEntityData(EntityType.ARMOR_STAND)

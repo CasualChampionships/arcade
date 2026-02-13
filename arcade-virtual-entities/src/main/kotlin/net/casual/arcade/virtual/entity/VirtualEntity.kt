@@ -10,6 +10,7 @@ import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
 import net.casual.arcade.virtual.entity.mixins.EntityAccessor
 import net.casual.arcade.virtual.entity.tracker.ObserverTracker
+import net.casual.arcade.virtual.entity.tracker.ParentObserverTracker
 import net.casual.arcade.virtual.entity.utils.location
 import net.casual.arcade.virtual.entity.utils.startObservingAndSendPackets
 import net.casual.arcade.virtual.entity.utils.stopObservingAndSendPackets
@@ -110,6 +111,10 @@ public interface VirtualEntity {
      * @return Whether the [observer] can observe.
      */
     public fun canObserve(observer: ServerPlayer): Boolean {
+        if (this.observers is ParentObserverTracker) {
+            return this.observers.isObserving(observer)
+        }
+
         return this.location().position.closerThan(observer.position(), this.getObservableRange())
     }
 
