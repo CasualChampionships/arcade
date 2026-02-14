@@ -60,7 +60,7 @@ public interface ObserverTracker: Iterable<ServerPlayer> {
      * @param sender The sender lambda.
      */
     public fun broadcast(sender: (observer: ServerPlayer, consumer: (Packet<*>) -> Unit) -> Unit) {
-        for (connection in this.connections()) {
+        for (connection in this.connections().toList()) {
             sender.invoke(connection.player, connection::send)
         }
     }
