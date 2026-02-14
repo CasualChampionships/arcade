@@ -41,12 +41,18 @@ import net.casual.arcade.utils.chat.ChatFormatter
 import net.casual.arcade.utils.chat.PlayerChatFormatter
 import net.casual.arcade.utils.chat.PlayerFormattedChat
 import net.casual.arcade.utils.component.red
+import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
+import net.casual.arcade.utils.setOf
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.TeamArgument
+import net.minecraft.core.UUIDUtil
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * This class manages the chat of a minigame.
@@ -429,38 +435,18 @@ public class MinigameChatManager(
         return this.globalChatFormatter.format(player, message)
     }
 
-    internal fun serialize(): JsonObject {
-        val spies = JsonArray()
-        for (spy in this.spies) {
-            spies.add(spy.toString())
-        }
+    internal fun serialize(output: ValueOutput) {
+        output.store("spies", UUIDUtil.STRING_CODEC.setOf(), this.spies)
 
-        val modes = JsonArray()
-        for ((uuid, mode) in this.modes) {
-            val result = MinigameChatMode.OPTIONAL_CODEC.encodeStart(JsonOps.INSTANCE, Optional.ofNullable(mode))
-            result.ifSuccess {
-                val data = JsonObject()
-                data.addProperty("uuid", uuid.toString())
-                data.add("mode", it)
-                modes.add(data)
-            }
-        }
-
-        val json = JsonObject()
-        json.add("spies", spies)
-        json.add("selected_modes", modes)
-        return json
+        output.store("selected_modes", CHAT_MODE_MAP_CODEC, this.modes)
     }
 
-    internal fun deserialize(json: JsonObject) {
-        this.spies.addAll(json.arrayOrDefault("spies").uuids())
+    internal fun deserialize(input: ValueInput) {
+        this.spies.addAll(input.listOrEmpty("spies", UUIDUtil.STRING_CODEC))
 
-        val modes = json.arrayOrDefault("selected_modes").objects()
-        for (mode in modes) {
-            val result = MinigameChatMode.CODEC.parse(JsonOps.INSTANCE, mode.obj("mode"))
-            result.ifSuccess {
-                this.modes[mode.uuid("uuid")] = it
-            }
+        val modes = input.read("selected_modes", CHAT_MODE_MAP_CODEC).getOrNull()
+        if (modes != null) {
+            this.modes.putAll(modes)
         }
     }
 
@@ -521,6 +507,11 @@ public class MinigameChatManager(
     }
 
     public companion object {
+        private val CHAT_MODE_MAP_CODEC = ArcadeExtraCodecs.unboundedMergedMap(
+            UUIDUtil.STRING_CODEC.fieldOf("uuid"),
+            MinigameChatMode.CODEC.fieldOf("mode")
+        )
+
         public val MUTED: Identifier = IdentifierUtils.arcade("muted")
     }
 }

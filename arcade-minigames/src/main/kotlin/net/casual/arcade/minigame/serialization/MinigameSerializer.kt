@@ -31,7 +31,11 @@ import net.casual.arcade.utils.JsonUtils.uuidOrNull
 import net.casual.arcade.utils.JsonUtils.uuids
 import net.casual.arcade.utils.serialization.json.JsonValueInput
 import net.casual.arcade.utils.serialization.json.JsonValueOutput
+import net.casual.arcade.utils.setOf
+import net.minecraft.core.UUIDUtil
 import net.minecraft.resources.Identifier
+import net.minecraft.server.players.NameAndId
+import net.minecraft.util.ExtraCodecs
 import net.minecraft.util.Util
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
@@ -48,8 +52,8 @@ public class MinigameSerializer(
 ) {
     internal fun loadFrom(path: Path) {
         this.readAsJsonObjectFrom(path.resolve("tasks.json"), this::readTasksJson)
-        this.readAsJsonObjectFrom(path.resolve("players.json"), this::readPlayersJson)
-        this.readAsJsonObjectFrom(path.resolve("chat_manager.json"), this.minigame.chat::deserialize)
+        this.readAsObjectFrom(path.resolve("players.json"), this::readPlayersJson)
+        this.readAsObjectFrom(path.resolve("chat_manager.json"), this.minigame.chat::deserialize)
         this.readAsJsonArrayFrom(path.resolve("settings.json"), this.minigame.settings::deserialize)
         this.readAsListFrom(path.resolve("stats.json"), this.minigame.stats::deserialize)
         this.readAsJsonArrayFrom(path.resolve("tags.json"), this.minigame.tags::deserialize)
@@ -61,8 +65,8 @@ public class MinigameSerializer(
 
     internal fun saveTo(path: Path) {
         this.writeAsyncAsJsonElementInto(path.resolve("tasks.json"), this::writeTasksJson)
-        this.writeAsyncAsJsonElementInto(path.resolve("players.json"), this::writePlayerJson)
-        this.writeAsyncAsJsonElementInto(path.resolve("chat_manager.json"), this.minigame.chat::serialize)
+        this.writeAsyncAsObjectInto(path.resolve("players.json"), this::writePlayerJson)
+        this.writeAsyncAsObjectInto(path.resolve("chat_manager.json"), this.minigame.chat::serialize)
         this.writeAsyncAsJsonElementInto(path.resolve("settings.json"), this.minigame.settings::serialize)
         this.writeAsyncAsListInto(path.resolve("stats.json"), this.minigame.stats::serialize)
         this.writeAsyncAsJsonElementInto(path.resolve("tags.json"), this.minigame.tags::serialize)
@@ -135,16 +139,12 @@ public class MinigameSerializer(
         context.clear()
     }
 
-    private fun readPlayersJson(json: JsonObject) {
-        this.minigame.teams.deserialize(json.objOrDefault("teams"), this.minigame.server.scoreboard)
+    private fun readPlayersJson(input: ValueInput) {
+        this.minigame.teams.deserialize(input.childOrEmpty("teams"), this.minigame.server.scoreboard)
 
-        for (player in json.arrayOrDefault("players").objects()) {
-            val profile = GameProfile(player.uuidOrNull("uuid"), player.stringOrNull("name"))
-            this.minigame.players.offlineGameProfiles.add(profile)
-        }
-
-        this.minigame.players.spectatorUUIDs.addAll(json.arrayOrDefault("spectators").uuids())
-        this.minigame.players.adminUUIDs.addAll(json.arrayOrDefault("admins").uuids())
+        this.minigame.players.offlineGameProfiles.addAll(input.listOrEmpty("players", NameAndId.CODEC))
+        this.minigame.players.spectatorUUIDs.addAll(input.listOrEmpty("spectators", UUIDUtil.STRING_CODEC))
+        this.minigame.players.adminUUIDs.addAll(input.listOrEmpty("admins", UUIDUtil.STRING_CODEC))
     }
 
     private fun deserializeTask(identity: Int, context: MinigameTaskCreationContextImpl): Task? {
@@ -182,6 +182,16 @@ public class MinigameSerializer(
         }
     }
 
+    private inline fun writeAsyncAsObjectInto(path: Path, block: (ValueOutput) -> Unit) {
+        this.writeAsyncAsJsonElementInto(path) {
+            ArcadeUtils.createProblemReporter().use { reporter ->
+                val output = JsonValueOutput.create(reporter, this.minigame.server.registryAccess())
+                block.invoke(output)
+                output.buildResult()
+            }
+        }
+    }
+
     private inline fun writeAsyncAsListInto(path: Path, block: (ValueOutput.ValueOutputList) -> Unit) {
         this.writeAsyncAsJsonElementInto(path) {
             ArcadeUtils.createProblemReporter().use { reporter ->
@@ -213,30 +223,12 @@ public class MinigameSerializer(
         return json
     }
 
-    private fun writePlayerJson(): JsonObject {
-        val json = JsonObject()
-        val players = JsonArray()
-        for (player in this.minigame.players.allProfiles) {
-            val data = JsonObject()
-            data.addProperty("name", player.name)
-            data.addProperty("uuid", player.id?.toString())
-            players.add(data)
-        }
+    private fun writePlayerJson(output: ValueOutput) {
+        this.minigame.teams.serialize(output.child("teams"))
 
-        val spectators = JsonArray()
-        for (spectator in this.minigame.players.spectatorUUIDs) {
-            spectators.add(spectator.toString())
-        }
-
-        val admins = JsonArray()
-        for (admin in this.minigame.players.adminUUIDs) {
-            admins.add(admin.toString())
-        }
-        json.add("teams", this.minigame.teams.serialize())
-        json.add("players", players)
-        json.add("spectators", spectators)
-        json.add("admins", admins)
-        return json
+        output.store("players", NameAndId.CODEC.listOf(), this.minigame.players.allProfiles)
+        output.store("spectators", UUIDUtil.STRING_CODEC.setOf(), this.minigame.players.spectatorUUIDs)
+        output.store("admins", UUIDUtil.STRING_CODEC.setOf(), this.minigame.players.adminUUIDs)
     }
 
     private fun serializeTask(task: Task, context: MinigameTaskSerializationContext): Int? {

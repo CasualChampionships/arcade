@@ -12,7 +12,9 @@ import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.utils.SettingsGuiUtils.addSettings
 import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
+import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.storage.ValueOutput
 
 public open class DisplayableSettings(
     protected val defaults: DisplayableSettingsDefaults
@@ -98,11 +100,11 @@ public open class DisplayableSettings(
         return builder.parent(parent).build()
     }
 
-    public fun serialize(): JsonArray {
-        val settings = JsonArray()
+    public fun serialize(output: ValueOutput.ValueOutputList) {
+
         for (setting in this.all()) {
-            val data = JsonObject()
-            data.addProperty("name", setting.name)
+            val child = output.addChild()
+            child.putString("name", setting.name)
             data.add("value", setting.serializeValue())
             settings.add(data)
         }

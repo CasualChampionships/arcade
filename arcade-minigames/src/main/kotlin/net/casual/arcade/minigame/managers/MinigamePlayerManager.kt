@@ -30,6 +30,7 @@ import net.minecraft.nbt.NbtIo
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
+import net.minecraft.server.players.NameAndId
 import net.minecraft.util.ProblemReporter
 import net.minecraft.util.Util
 import net.minecraft.world.entity.Entity
@@ -57,7 +58,7 @@ public class MinigamePlayerManager(
 
     internal val adminUUIDs = ObjectLinkedOpenHashSet<UUID>()
     internal val spectatorUUIDs = ObjectLinkedOpenHashSet<UUID>()
-    internal val offlineGameProfiles = ObjectLinkedOpenHashSet<GameProfile>()
+    internal val offlineGameProfiles = ObjectLinkedOpenHashSet<NameAndId>()
 
     /**
      * This gets all the tracked players in this minigame.
@@ -102,8 +103,8 @@ public class MinigamePlayerManager(
      *
      * @return All the player's profiles.
      */
-    public val allProfiles: List<GameProfile>
-        get() = this.streamPlayers().map { it.gameProfile }.toList().concat(this.offlineProfiles)
+    public val allProfiles: List<NameAndId>
+        get() = this.streamPlayers().map { it.nameAndId() }.toList().concat(this.offlineProfiles)
 
     /**
      * This gets all profiles of the player's that
@@ -111,7 +112,7 @@ public class MinigamePlayerManager(
      *
      * @return All the offline player's profiles.
      */
-    public val offlineProfiles: List<GameProfile>
+    public val offlineProfiles: List<NameAndId>
         get() = this.offlineGameProfiles.toList()
 
 
@@ -178,7 +179,7 @@ public class MinigamePlayerManager(
         }
 
         val hasMinigame = player.getMinigame() === this.minigame
-        if (this.offlineGameProfiles.remove(player.gameProfile) || hasMinigame) {
+        if (this.offlineGameProfiles.remove(player.nameAndId()) || hasMinigame) {
             val newPlayer = this.loadMinigamePlayer(player)
             if (!hasMinigame) {
                 ArcadeUtils.logger.warn("Player's minigame UUID didn't work?!")
@@ -255,7 +256,7 @@ public class MinigamePlayerManager(
     public fun remove(player: ServerPlayer): Boolean {
         this.minigame.tryInitialize()
 
-        val wasOffline = this.offlineGameProfiles.remove(player.gameProfile)
+        val wasOffline = this.offlineGameProfiles.remove(player.nameAndId())
         if (wasOffline || this.connections.contains(player.connection)) {
             if (wasOffline) {
                 ArcadeUtils.logger.warn("Removed offline player?!")
@@ -405,7 +406,7 @@ public class MinigamePlayerManager(
         val (player) = event
 
         if (this.connections.remove(player.connection)) {
-            this.offlineGameProfiles.add(player.gameProfile)
+            this.offlineGameProfiles.add(player.nameAndId())
 
             this.minigame.data.updatePlayer(player)
             this.data.save(player)
