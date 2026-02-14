@@ -23,6 +23,7 @@ import net.casual.arcade.minigame.extensions.PlayerMovementRestrictionExtension
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
 import net.casual.arcade.minigame.gamemode.ExtendedGameMode
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
+import net.casual.arcade.minigame.serialization.MinigameCreationContext.CreationReason
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.task.impl.PhaseChangeTask
 import net.casual.arcade.minigame.utils.MinigameRegistries
@@ -83,7 +84,7 @@ public object Minigames: ModInitializer {
 
     public fun create(
         id: Identifier,
-        context: MinigameCreationContext,
+        server: MinecraftServer,
         data: Dynamic<*> = Dynamic(JsonOps.INSTANCE)
     ): Minigame {
         val codec = MinigameRegistries.MINIGAME_FACTORY.getOptional(id).getOrNull()
@@ -92,7 +93,7 @@ public object Minigames: ModInitializer {
             MinigameCreationException("Failed to create Minigame $id with default factory parameters")
         }
         try {
-            return factory.create(context)
+            return factory.create(MinigameCreationContext.initial(server))
         } catch (e: Exception) {
             throw MinigameCreationException("Failed to create Minigame $id", e)
         }
@@ -120,7 +121,7 @@ public object Minigames: ModInitializer {
             val factory = MinigameFactory.CODEC.parse(JsonOps.INSTANCE, data.obj("factory")).getOrThrow { message ->
                 MinigameCreationException("Failed to decode minigame factory: $message")
             }
-            val minigame = factory.create(MinigameCreationContext(server, data.uuid("uuid")))
+            val minigame = factory.create(MinigameCreationContext.reloaded(server, data.uuid("uuid")))
             minigame.serialization.loadFrom(path)
             return minigame
         } catch (e: Exception) {

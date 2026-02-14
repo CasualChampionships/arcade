@@ -837,7 +837,7 @@ internal object MinigameCommand: CommandTree {
                 Component.translatable("minigame.command.create.fail")
             )
         }
-        val minigame = result.get().create(MinigameCreationContext(context.source.server, UUID.randomUUID()))
+        val minigame = result.get().create(MinigameCreationContext.initial(context.source.server))
         minigame.tryInitialize()
         return context.source.success(
             Component.translatable("minigame.command.create.success", minigame.id.toString(), minigame.uuid.toString())
