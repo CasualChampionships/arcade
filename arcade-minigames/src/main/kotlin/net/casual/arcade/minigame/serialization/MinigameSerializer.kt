@@ -21,7 +21,7 @@ import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.booleanOrDefault
 import net.casual.arcade.utils.JsonUtils.intOrDefault
 import net.casual.arcade.utils.JsonUtils.string
-import net.casual.arcade.utils.serialization.EmptyValueInput
+import net.casual.arcade.utils.error.RichResult
 import net.casual.arcade.utils.serialization.json.JsonValueInput
 import net.casual.arcade.utils.serialization.json.JsonValueOutput
 import net.casual.arcade.utils.setOf
@@ -37,7 +37,6 @@ import java.nio.file.Path
 import kotlin.io.encoding.Base64
 import kotlin.io.path.isRegularFile
 import kotlin.jvm.optionals.getOrNull
-import kotlin.toString
 
 @Internal
 public class MinigameSerializer(
@@ -214,30 +213,35 @@ public class MinigameSerializer(
         fun deserialize(list: ValueInput.ValueInputList) {
             for (input in list) {
                 val id = input.getInt("uid").getOrNull() ?: continue
-                val task = if (input.contains("raw")) this.deserializeRaw(input) else this.deserializeSavable(input)
-                if (task == null) {
-                    val meta = input.getStringOr("meta", "Missing metadata")
-                    ArcadeUtils.logger.error("Failed to deserialize task $id, meta: $meta")
-                    continue
-                }
-                this.generated.put(id, task)
+                val result = if (input.contains("raw")) this.deserializeRaw(input) else this.deserializeSavable(input)
+                result.dispatch(
+                    success = { task -> this.generated.put(id, task) },
+                    failure = { message ->
+                        val meta = input.getStringOr("meta", "Missing metadata")
+                        ArcadeUtils.logger.error("Failed to deserialize task $id, meta: $meta, msg: $message")
+                        continue
+                    }
+                )
             }
         }
 
-        private fun deserializeRaw(input: ValueInput): Task? {
-            return try {
-                Base64.decode(input.getString("raw").get()).inputStream().use { bytes ->
+        private fun deserializeRaw(input: ValueInput): RichResult<Task> {
+            try {
+                val task = Base64.decode(input.getString("raw").get()).inputStream().use { bytes ->
                     ObjectInputStream(bytes).use { it.readObject() as Task }
                 }
-            } catch (_: ObjectStreamException) {
-                null
+                return RichResult.success(task)
+            } catch (e: ObjectStreamException) {
+                return RichResult.failure("Failed to stream object: ${e.message}")
             }
         }
 
-        private fun deserializeSavable(input: ValueInput): Task? {
-            val id = input.read("id", Identifier.CODEC).getOrNull() ?: return null
+        private fun deserializeSavable(input: ValueInput): RichResult<Task> {
+            val id = input.read("id", Identifier.CODEC).getOrNull()
+                ?: return RichResult.failure("No factory id")
             val custom = input.childOrEmpty("custom")
-            val factory = TaskRegistries.TASK_FACTORY.getOptional(id).getOrNull() ?: return null
+            val factory = TaskRegistries.TASK_FACTORY.getOptional(id).getOrNull()
+                ?: return RichResult.failure("No factory for id $id")
             return factory.create(custom, this)
         }
     }
@@ -264,32 +268,33 @@ public class MinigameSerializer(
                 val task = entry.key
                 val id = entry.intValue
                 val child = output.addChild()
-                val success = when (task) {
+                val result = when (task) {
                     is SavableTask -> this.serializeSavable(child, id, task)
                     is Serializable -> this.serializeRaw(child, id, task)
-                    else -> false
+                    else -> RichResult.failure("Task not serializable")
                 }
-                if (success) {
-                    child.putString("meta", "${task::class.java.simpleName}: $task")
-                } else {
-                    output.discardLast()
-                }
+                result.dispatch(
+                    success = { child.putString("meta", "${task.javaClass.simpleName}: $task") },
+                    failure = { message ->
+                        ArcadeUtils.logger.warn("Failed to serialize task ${task.javaClass.simpleName}: $message")
+                        output.discardLast()
+                    }
+                )
             }
         }
 
-        private fun serializeSavable(output: ValueOutput, uid: Int, task: SavableTask): Boolean {
+        private fun serializeSavable(output: ValueOutput, uid: Int, task: SavableTask): RichResult<Unit> {
             try {
                 output.store("id", Identifier.CODEC, task.id)
                 output.putInt("uid", uid)
                 task.serialize(output.child("custom"), this)
-                return true
+                return RichResult.success(Unit)
             } catch (e: Exception) {
-                ArcadeUtils.logger.error("Failed to serialize task ${task.id}", e)
+                return RichResult.failure("Exception while serializing ${task.id}: ${e.message}")
             }
-            return false
         }
 
-        private fun serializeRaw(output: ValueOutput, uid: Int, task: Serializable): Boolean {
+        private fun serializeRaw(output: ValueOutput, uid: Int, task: Serializable): RichResult<Unit> {
             try {
                 ByteArrayOutputStream().use { bytes ->
                     ObjectOutputStream(bytes).use { stream ->
@@ -298,11 +303,10 @@ public class MinigameSerializer(
                     output.putInt("uid", uid)
                     output.putString("raw", Base64.encode(bytes.toByteArray()))
                 }
-                return true
-            } catch (_: ObjectStreamException) {
-
+                return RichResult.success(Unit)
+            } catch (e: ObjectStreamException) {
+                return RichResult.failure("Failed to stream object: ${e.message}")
             }
-            return false
         }
     }
 }
