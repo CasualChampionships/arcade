@@ -685,7 +685,7 @@ public abstract class Minigame(
         this.property("phase") { this.phase.id }
         this.property("ticking") { this.ticking }
         this.property("paused") { this.paused }
-        this.property("settings") { this.settings.all().associate { it.name to it.serializeValue() } }
+        this.property("settings") { this.settings.all().associate { it.name to it.get().toString() } }
         this.property("advancements") { this.advancements.all().map { it.id.toString() } }
         this.property("recipes") { this.recipes.all().map { it.id.toString() } }
         this.property("commands") { this.commands.getAllRootCommands().map { it } }

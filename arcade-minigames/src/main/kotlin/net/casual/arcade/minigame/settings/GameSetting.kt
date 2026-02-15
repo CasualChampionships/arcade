@@ -15,7 +15,7 @@ public class GameSetting<T: Any>(
     public val name: String,
     private var value: T,
     private val options: Map<String, T>,
-    private val serializer: Codec<T>
+    private val codec: Codec<T>
 ) {
     private val listeners by lazy { ArrayList<SettingListener<T>>() }
     public var override: (ServerPlayer) -> T? = { null }
@@ -64,26 +64,8 @@ public class GameSetting<T: Any>(
         this.listeners.add(listener)
     }
 
-    public fun serializeValue(): JsonElement {
-        return this.serializer.encodeStart(JsonOps.INSTANCE, this.get()).orThrow
-    }
-
-    public fun deserializeAndSet(json: JsonElement): Boolean {
-        val result = this.serializer.parse(JsonOps.INSTANCE, json).result()
-        if (result.isPresent) {
-            this.set(result.get())
-            return true
-        }
-        return false
-    }
-
-    public fun deserializeAndSetQuietly(json: JsonElement): Boolean {
-        val result = this.serializer.parse(JsonOps.INSTANCE, json).result()
-        if (result.isPresent) {
-            this.setQuietly(result.get())
-            return true
-        }
-        return false
+    public fun codec(): Codec<T> {
+        return this.codec
     }
 
     public operator fun getValue(any: Any, property: KProperty<*>): T {
