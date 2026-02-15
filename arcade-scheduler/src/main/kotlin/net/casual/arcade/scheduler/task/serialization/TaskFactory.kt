@@ -9,6 +9,7 @@ import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.impl.CancellableTask
 import net.minecraft.core.Registry
 import net.minecraft.resources.Identifier
+import net.minecraft.world.level.storage.ValueInput
 
 /**
  * This interface is for creating tasks from serialized data.
@@ -30,7 +31,7 @@ public interface TaskFactory {
      * @param context The task creation context.
      * @return The generated task.
      */
-    public fun create(context: TaskCreationContext): Task
+    public fun create(input: ValueInput, context: TaskCreationContext): Task?
 
     public companion object {
         public fun bootstrap(registry: Registry<TaskFactory>) {

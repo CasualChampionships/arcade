@@ -4,10 +4,10 @@
  */
 package net.casual.arcade.scheduler.task
 
-import com.google.gson.JsonObject
 import net.casual.arcade.scheduler.task.serialization.TaskFactory
 import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
 import net.minecraft.resources.Identifier
+import net.minecraft.world.level.storage.ValueOutput
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 /**
@@ -58,8 +58,8 @@ public interface SavableTask: Task {
      * @return The serialized data.
      */
     @OverrideOnly
-    public fun serialize(context: TaskSerializationContext): JsonObject {
-        return JsonObject()
+    public fun serialize(output: ValueOutput, context: TaskSerializationContext) {
+
     }
 }
 

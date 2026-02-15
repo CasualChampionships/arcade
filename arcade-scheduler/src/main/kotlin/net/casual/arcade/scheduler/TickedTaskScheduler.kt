@@ -4,20 +4,19 @@
  */
 package net.casual.arcade.scheduler
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.impl.CancellableTask
 import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
 import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
-import net.casual.arcade.utils.JsonUtils.int
-import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.time.MinecraftTimeDuration
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import java.util.*
 import java.util.function.IntFunction
+import kotlin.jvm.optionals.getOrNull
 
 @Deprecated("Use TickedTaskScheduler instead")
 public typealias TickedScheduler = TickedTaskScheduler
@@ -93,26 +92,23 @@ public class TickedTaskScheduler: MinecraftTaskScheduler {
         this.tasks.computeIfAbsent(this.tickCount + delay.ticks, IntFunction { ArrayDeque() }).add(task)
     }
 
-    public fun serialize(context: TaskSerializationContext): JsonArray {
-        val tasks = JsonArray()
+    public fun serialize(output: ValueOutput.ValueOutputList, context: TaskSerializationContext) {
         for ((tick, queue) in this.tasks) {
             val delay = tick - this.tickCount
             for (task in queue) {
-                val identity = context.serializeTask(task) ?: continue
-                val data = JsonObject()
-                data.addProperty("uid", identity)
-                data.addProperty("delay", delay)
-                tasks.add(data)
+                val identity = context.storeTask(task)
+                val data = output.addChild()
+                data.putInt("uid", identity)
+                data.putInt("delay", delay)
             }
         }
-        return tasks
     }
 
-    public fun deserialize(tasks: JsonArray, context: TaskCreationContext) {
-        for (data in tasks.objects()) {
-            val ticks = data.int("delay")
-            val identity = data.int("uid")
-            val task = context.createTask(identity)
+    public fun deserialize(input: ValueInput.ValueInputList, context: TaskCreationContext) {
+        for (data in input) {
+            val ticks = data.getInt("delay").getOrNull() ?: continue
+            val identity = data.getInt("uid").getOrNull() ?: continue
+            val task = context.getTask(identity)
             if (task != null) {
                 this.schedule(ticks.Ticks, task)
             }

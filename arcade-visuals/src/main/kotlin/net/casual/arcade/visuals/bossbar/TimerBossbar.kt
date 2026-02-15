@@ -95,7 +95,7 @@ public abstract class TimerBossbar: CustomBossbar(), TickableVisualElement, Comp
 
         val taskArray = JsonArray()
         for (task in this.completable.tasks()) {
-            taskArray.add(context.serializeTask(task) ?: continue)
+            taskArray.add(context.storeTask(task) ?: continue)
         }
         data.add("tasks", taskArray)
 
@@ -109,7 +109,7 @@ public abstract class TimerBossbar: CustomBossbar(), TickableVisualElement, Comp
         this.completable.complete = data.boolean("complete")
 
         for (taskData in data.array("tasks").ints()) {
-            val task = context.createTask(taskData) ?: continue
+            val task = context.getTask(taskData) ?: continue
             this.completable.then(task)
         }
     }
