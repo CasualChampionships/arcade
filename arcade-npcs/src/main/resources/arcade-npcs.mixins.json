@@ -17,6 +17,7 @@
     "ServerEntityMixin",
     "ServerLoginPacketListenerImplAccessor",
     "bugfixes.TrackedEntityMixin",
+    "compat.fabric_api.ServerPlayNetworkingMixin",
     "configuration.PrepareSpawnTaskAccessor",
     "configuration.PrepareSpawnTaskReadyMixin",
     "pathfinding.PathfindingContextAccessor"
