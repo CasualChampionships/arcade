@@ -34,6 +34,8 @@ import net.casual.arcade.utils.PlayerUtils.revokeAdvancement
 import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.lang.reflect.ParameterizedType
 import java.nio.file.Path
@@ -198,6 +200,7 @@ public abstract class Minigame(
      *
      * @see MinigameDataTracker
      */
+    @Deprecated("For removal")
     public val data: MinigameDataTracker = MinigameDataTracker(this)
 
     /**
@@ -248,6 +251,12 @@ public abstract class Minigame(
      * Whether the minigame is closed.
      */
     public var closed: Boolean
+        private set
+
+    /**
+     * Whether the minigame has completed.
+     */
+    public var completed: Boolean = false
         private set
 
     /**
@@ -413,6 +422,8 @@ public abstract class Minigame(
 
         GlobalEventHandler.Server.broadcast(MinigameCompleteEvent(this))
 
+        this.completed = true
+
         this.close()
     }
 
@@ -493,18 +504,18 @@ public abstract class Minigame(
     /**
      * Loads custom data for this minigame.
      *
-     * @param data Any serialized [data] which was written in [save].
+     * @param input Any serialized [input] which was written in [save].
      */
-    protected open fun load(data: JsonObject) {
+    protected open fun load(input: ValueInput) {
 
     }
 
     /**
      * Saves custom data for this minigame.
      *
-     * @param data The [JsonObject] to write to.
+     * @param output The [ValueOutput] to write to.
      */
-    protected open fun save(data: JsonObject) {
+    protected open fun save(output: ValueOutput) {
 
     }
 
@@ -528,14 +539,12 @@ public abstract class Minigame(
         return this.properties[name]?.invoke() ?: JsonNull.INSTANCE
     }
 
-    internal fun internalSave(): JsonObject {
-        val data = JsonObject()
-        this.save(data)
-        return data
+    internal fun internalSave(output: ValueOutput) {
+        this.save(output)
     }
 
-    internal fun internalLoad(data: JsonObject) {
-        this.load(data)
+    internal fun internalLoad(input: ValueInput) {
+        this.load(input)
     }
 
     internal fun internalFactory(): MinigameFactory? {

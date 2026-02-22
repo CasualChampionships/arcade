@@ -18,9 +18,6 @@ import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
 import net.casual.arcade.scheduler.task.utils.TaskRegistries
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.JsonUtils
-import net.casual.arcade.utils.JsonUtils.booleanOrDefault
-import net.casual.arcade.utils.JsonUtils.intOrDefault
-import net.casual.arcade.utils.JsonUtils.string
 import net.casual.arcade.utils.error.RichResult
 import net.casual.arcade.utils.serialization.json.JsonValueInput
 import net.casual.arcade.utils.serialization.json.JsonValueOutput
@@ -49,10 +46,10 @@ public class MinigameSerializer(
         this.readAsListFrom(path.resolve("settings.json"), this.minigame.settings::deserialize)
         this.readAsListFrom(path.resolve("stats.json"), this.minigame.stats::deserialize)
         this.readAsListFrom(path.resolve("tags.json"), this.minigame.tags::deserialize)
-        this.readAsJsonArrayFrom(path.resolve("recipes.json"), this.minigame.recipes::deserialize)
-        this.readAsJsonObjectFrom(path.resolve("data_tracker.json"), this.minigame.data::deserialize)
-        this.readAsJsonObjectFrom(path.resolve("custom.json"), this.minigame::internalLoad)
-        this.readAsJsonObjectFrom(path.resolve("minigame.json"), this::readMinigameJson)
+        this.readAsListFrom(path.resolve("recipes.json"), this.minigame.recipes::deserialize)
+        this.readAsListFrom(path.resolve("advancements.json"), this.minigame.advancements::deserialize)
+        this.readAsObjectFrom(path.resolve("custom.json"), this.minigame::internalLoad)
+        this.readAsObjectFrom(path.resolve("minigame.json"), this::readMinigame)
     }
 
     internal fun saveTo(path: Path) {
@@ -62,11 +59,11 @@ public class MinigameSerializer(
         this.writeAsyncAsListInto(path.resolve("settings.json"), this.minigame.settings::serialize)
         this.writeAsyncAsListInto(path.resolve("stats.json"), this.minigame.stats::serialize)
         this.writeAsyncAsListInto(path.resolve("tags.json"), this.minigame.tags::serialize)
-        this.writeAsyncAsJsonElementInto(path.resolve("recipes.json"), this.minigame.recipes::serialize)
-        this.writeAsyncAsJsonElementInto(path.resolve("data_tracker.json"), this.minigame.data::serialize)
-        this.writeAsyncAsJsonElementInto(path.resolve("custom.json"), this.minigame::internalSave)
+        this.writeAsyncAsListInto(path.resolve("recipes.json"), this.minigame.recipes::serialize)
+        this.writeAsyncAsListInto(path.resolve("advancements.json"), this.minigame.advancements::serialize)
+        this.writeAsyncAsObjectInto(path.resolve("custom.json"), this.minigame::internalSave)
 
-        this.writeAsyncAsJsonElementInto(path.resolve("minigame.json"), this::writeMinigameJson)
+        this.writeAsyncAsObjectInto(path.resolve("minigame.json"), this::writeMinigame)
     }
 
     private inline fun readAsJsonObjectFrom(path: Path, block: (JsonObject) -> Unit) {
@@ -97,18 +94,18 @@ public class MinigameSerializer(
         }
     }
 
-    private fun readMinigameJson(json: JsonObject) {
-        val initialized = json.booleanOrDefault("initialized")
-        this.minigame.started = json.booleanOrDefault("started")
+    private fun readMinigame(input: ValueInput) {
+        val initialized = input.getBooleanOr("initialized", false)
+        this.minigame.started = input.getBooleanOr("started", false)
 
-        val phaseId = json.string("phase")
+        val phaseId = input.getString("phase").orElseThrow()
         this.minigame.phase = requireNotNull(this.minigame.getPhase(phaseId)) {
             "Minigame phase $phaseId is invalid, unable to deserialize minigame"
         }
 
-        this.minigame.uptime = json.intOrDefault("uptime")
-        this.minigame.paused = json.booleanOrDefault("paused")
-        this.minigame.tickrate.isFrozen = json.booleanOrDefault("frozen")
+        this.minigame.uptime = input.getIntOr("uptime", 0)
+        this.minigame.paused = input.getBooleanOr("paused", false)
+        this.minigame.tickrate.isFrozen = input.getBooleanOr("frozen", false)
 
         if (initialized) {
             this.minigame.tryInitialize()
@@ -167,15 +164,13 @@ public class MinigameSerializer(
         }
     }
 
-    private fun writeMinigameJson(): JsonObject {
-        val json = JsonObject()
-        json.addProperty("initialized", this.minigame.initialized)
-        json.addProperty("started", this.minigame.started)
-        json.addProperty("phase", this.minigame.phase.id)
-        json.addProperty("uptime", this.minigame.uptime)
-        json.addProperty("paused", this.minigame.paused)
-        json.addProperty("frozen", this.minigame.tickrate.isFrozen)
-        return json
+    private fun writeMinigame(output: ValueOutput) {
+        output.putBoolean("initialized", this.minigame.initialized)
+        output.putBoolean("started", this.minigame.started)
+        output.putString("phase", this.minigame.phase.id)
+        output.putInt("uptime", this.minigame.uptime)
+        output.putBoolean("paused", this.minigame.paused)
+        output.putBoolean("frozen", this.minigame.tickrate.isFrozen)
     }
 
     private fun writeTasksJson(output: ValueOutput) {

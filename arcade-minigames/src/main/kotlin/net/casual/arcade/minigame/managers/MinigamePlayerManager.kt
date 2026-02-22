@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.minigame.managers
 
-import com.mojang.authlib.GameProfile
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
@@ -261,7 +260,6 @@ public class MinigamePlayerManager(
             if (wasOffline) {
                 ArcadeUtils.logger.warn("Removed offline player?!")
             }
-            this.minigame.data.updatePlayer(player)
             this.spectatorUUIDs.remove(player.uuid)
             this.removeAdmin(player)
 
@@ -408,7 +406,6 @@ public class MinigamePlayerManager(
         if (this.connections.remove(player.connection)) {
             this.offlineGameProfiles.add(player.nameAndId())
 
-            this.minigame.data.updatePlayer(player)
             this.data.save(player)
         }
     }

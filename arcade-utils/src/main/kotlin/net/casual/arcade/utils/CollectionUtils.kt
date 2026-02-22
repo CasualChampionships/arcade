@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.utils
 
+import com.google.common.collect.Multimap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 
 public fun <E: Comparable<E>> MutableList<E>.mergeSorted(sorted: List<E>) {
@@ -107,4 +108,10 @@ public fun <K, V> Map<K, V>.deduplicateValues(): MutableMap<K, V> {
 public fun <K, V> Map<K, V>.deduplicateValuesTo(destination: MutableMap<K, V>): MutableMap<K, V> {
     val cache = Object2ObjectOpenHashMap<V, V>(this.size)
     return this.mapValuesTo(destination) { (_, value) -> cache.getOrPut(value) { value } }
+}
+
+public fun <K, V> Multimap<K, V>.putAll(other: Map<K, Collection<V>>) {
+    for ((k, c) in other) {
+        this.putAll(k, c)
+    }
 }

@@ -21,6 +21,7 @@ import net.casual.arcade.utils.JsonUtils.toJsonStringArray
 import net.casual.arcade.utils.JsonUtils.uuid
 import net.casual.arcade.utils.PlayerUtils.player
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
+import net.minecraft.core.UUIDUtil
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.protocol.game.ClientboundRecipeBookAddPacket
 import net.minecraft.network.protocol.game.ClientboundRecipeBookRemovePacket
@@ -31,8 +32,11 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.crafting.*
 import net.minecraft.world.item.crafting.display.RecipeDisplayEntry
 import net.minecraft.world.item.crafting.display.RecipeDisplayId
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import org.jetbrains.annotations.ApiStatus.Internal
 import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * This class manages the recipes of a minigame.
@@ -266,23 +270,19 @@ public class MinigameRecipeManager(
             .findFirst()
     }
 
-    internal fun serialize(): JsonArray {
-        val array = JsonArray()
+    internal fun serialize(list: ValueOutput.ValueOutputList) {
         for ((player, recipes) in this.players.asMap()) {
-            val json = JsonObject()
-            json.addProperty("uuid", player.toString())
-            json.add("recipes", recipes.toJsonStringArray { it.identifier().toString() })
-            array.add(json)
+            val child = list.addChild()
+            child.store("uuid", UUIDUtil.STRING_CODEC, player)
+            child.store("recipes", ResourceKey.codec(Registries.RECIPE).listOf(), recipes.toList())
         }
-        return array
     }
 
-    internal fun deserialize(array: JsonArray) {
-        for (player in array.objects()) {
-            val uuid = player.uuid("uuid")
-            this.players.putAll(uuid, player.array("recipes").strings().map {
-                ResourceKey.create(Registries.RECIPE, Identifier.parse(it))
-            })
+    internal fun deserialize(list: ValueInput.ValueInputList) {
+        for (child in list) {
+            val uuid = child.read("uuid", UUIDUtil.STRING_CODEC).getOrNull() ?: continue
+            val recipes = child.read("recipes", ResourceKey.codec(Registries.RECIPE).listOf()).getOrNull() ?: continue
+            this.players.putAll(uuid, recipes)
         }
     }
 
