@@ -5,8 +5,6 @@
 package net.casual.arcade.minigame.managers
 
 import com.google.common.collect.HashMultimap
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
 import net.casual.arcade.events.ListenerRegistry.Companion.register
@@ -14,18 +12,12 @@ import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
-import net.casual.arcade.utils.JsonUtils.array
-import net.casual.arcade.utils.JsonUtils.objects
-import net.casual.arcade.utils.JsonUtils.strings
-import net.casual.arcade.utils.JsonUtils.toJsonStringArray
-import net.casual.arcade.utils.JsonUtils.uuid
 import net.casual.arcade.utils.PlayerUtils.player
 import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.minecraft.core.UUIDUtil
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.protocol.game.ClientboundRecipeBookAddPacket
 import net.minecraft.network.protocol.game.ClientboundRecipeBookRemovePacket
-import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer

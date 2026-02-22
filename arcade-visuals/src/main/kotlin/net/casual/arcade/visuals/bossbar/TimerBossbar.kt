@@ -4,16 +4,11 @@
  */
 package net.casual.arcade.visuals.bossbar
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
+import com.mojang.serialization.Codec
 import net.casual.arcade.scheduler.task.Completable
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
 import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
-import net.casual.arcade.utils.JsonUtils.array
-import net.casual.arcade.utils.JsonUtils.boolean
-import net.casual.arcade.utils.JsonUtils.int
-import net.casual.arcade.utils.JsonUtils.ints
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.TimeUtils.formatHHMMSS
 import net.casual.arcade.utils.time.MinecraftTimeDuration
@@ -22,6 +17,8 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.BossEvent
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 
 public abstract class TimerBossbar: CustomBossbar(), TickableVisualElement, Completable {
     private val completable = Completable.Impl()
@@ -87,29 +84,24 @@ public abstract class TimerBossbar: CustomBossbar(), TickableVisualElement, Comp
         return this.getProgress()
     }
 
-    public fun writeData(context: TaskSerializationContext): JsonObject {
-        val data = JsonObject()
-        data.addProperty("tick", this.tick)
-        data.addProperty("ticks", this.ticks)
-        data.addProperty("complete", this.complete)
+    public fun writeData(output: ValueOutput, context: TaskSerializationContext) {
+        output.putInt("tick", this.tick)
+        output.putInt("ticks", this.ticks)
+        output.putBoolean("complete", this.complete)
 
-        val taskArray = JsonArray()
+        val tasks = output.list("tasks", Codec.INT)
         for (task in this.completable.tasks()) {
-            taskArray.add(context.storeTask(task) ?: continue)
+            tasks.add(context.storeTask(task))
         }
-        data.add("tasks", taskArray)
-
-        return data
     }
 
-    public fun readData(context: TaskCreationContext) {
-        val data = context.data
-        this.tick = data.int("tick")
-        this.ticks = data.int("ticks")
-        this.completable.complete = data.boolean("complete")
+    public fun readData(input: ValueInput, context: TaskCreationContext) {
+        this.tick = input.getIntOr("tick", this.tick)
+        this.ticks = input.getIntOr("ticks", this.tick)
+        this.completable.complete = input.getBooleanOr("complete", this.complete)
 
-        for (taskData in data.array("tasks").ints()) {
-            val task = context.getTask(taskData) ?: continue
+        for (taskRef in input.listOrEmpty("tasks", Codec.INT)) {
+            val task = context.getTask(taskRef) ?: continue
             this.completable.then(task)
         }
     }

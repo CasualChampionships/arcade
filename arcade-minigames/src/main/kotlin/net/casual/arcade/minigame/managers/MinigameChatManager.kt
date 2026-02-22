@@ -4,11 +4,8 @@
  */
 package net.casual.arcade.minigame.managers
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.context.CommandContext
-import com.mojang.serialization.JsonOps
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.commands.CommandTree
@@ -29,14 +26,9 @@ import net.casual.arcade.minigame.utils.MinigameUtils.isMinigameAdminOrHasPermis
 import net.casual.arcade.minigame.utils.MinigameUtils.isPlayerAnd
 import net.casual.arcade.minigame.utils.MinigameUtils.requiresAdminOrPermission
 import net.casual.arcade.scheduler.GlobalTickedScheduler
-import net.casual.arcade.utils.JsonUtils.arrayOrDefault
-import net.casual.arcade.utils.JsonUtils.obj
-import net.casual.arcade.utils.JsonUtils.objects
-import net.casual.arcade.utils.JsonUtils.uuid
-import net.casual.arcade.utils.JsonUtils.uuids
+import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.PlayerUtils.getChatUsername
 import net.casual.arcade.utils.PlayerUtils.player
-import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.chat.ChatFormatter
 import net.casual.arcade.utils.chat.PlayerChatFormatter
 import net.casual.arcade.utils.chat.PlayerFormattedChat
