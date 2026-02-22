@@ -77,9 +77,9 @@ public abstract class ChunkHolderMixin extends GenerationChunkHolder implements 
         }
 
         if (this.replay$recorders.add(recorder)) {
-            this.getFullChunkFuture().thenAccept(result -> {
+            this.getFullChunkFuture().thenAcceptAsync(result -> {
                 result.ifSuccess(recorder::onChunkLoaded);
-            });
+            }, recorder.getServer());
 
             recorder.addRecordable(this);
         }

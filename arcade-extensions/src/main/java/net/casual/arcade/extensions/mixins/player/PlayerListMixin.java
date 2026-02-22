@@ -52,16 +52,12 @@ public class PlayerListMixin {
         } else if (isMinigameRespawn.get()) {
             transferReason = EntityTransferReason.Minigame;
         }
-        List<Extension> transferred = new ArrayList<>();
-        for (Extension extension : ExtensionHolder.all((ExtensionHolder) player)) {
+        for (Extension extension : new ArrayList<>(ExtensionHolder.all((ExtensionHolder) player))) {
             if (extension instanceof TransferableEntityExtension transferable) {
-                transferred.add(transferable.transfer(respawned, transferReason, delayed));
+                ExtensionHolder.add((ExtensionHolder) respawned, transferable.transfer(respawned, transferReason, delayed));
             } else {
-                transferred.add(extension);
+                ExtensionHolder.add((ExtensionHolder) respawned, extension);
             }
-        }
-        for (Extension extension : transferred) {
-            ExtensionHolder.add((ExtensionHolder) respawned, extension);
         }
     }
 

@@ -104,7 +104,7 @@ internal class EntityAttachmentExtension(entity: Entity): EntityExtension(entity
             get() = this.getExtension()
 
         fun registerEvents() {
-            GlobalEventHandler.Server.register<EntityExtensionEvent> {
+            GlobalEventHandler.Server.register<EntityExtensionEvent>(priority = 3) {
                 it.addExtension(::EntityAttachmentExtension)
             }
             GlobalEventHandler.Server.register<EntityTickEvent> { (entity) ->
