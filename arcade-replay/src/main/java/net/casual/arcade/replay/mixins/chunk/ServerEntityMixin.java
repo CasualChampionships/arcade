@@ -9,7 +9,7 @@ import net.casual.arcade.replay.ducks.ChunkTrackedMapData;
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecordable;
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder;
 import net.casual.arcade.replay.recorder.chunk.map.ChunkRecorderMapTracker;
-import net.casual.arcade.utils.EntityUtilsKt;
+import net.casual.arcade.utils.entity.EntityUtilsKt;
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.world.entity.Entity;

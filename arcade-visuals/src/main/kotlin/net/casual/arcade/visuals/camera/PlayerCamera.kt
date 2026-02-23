@@ -10,7 +10,7 @@ import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.Location.Companion.withRotation
 import net.casual.arcade.utils.math.location.LocationWithLevel
-import net.casual.arcade.utils.teleportTo
+import net.casual.arcade.utils.entity.teleportTo
 import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.display.SimpleVirtualItemDisplay

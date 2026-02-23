@@ -14,7 +14,7 @@ import net.casual.arcade.extensions.event.EntityExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.entity.EntityTransferReason
-import net.casual.arcade.utils.getTrackingPlayers
+import net.casual.arcade.utils.entity.getTrackingPlayers
 import net.casual.arcade.utils.impl.DelayedActions
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment

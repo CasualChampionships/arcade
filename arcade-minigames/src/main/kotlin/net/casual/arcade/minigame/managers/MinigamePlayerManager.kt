@@ -22,7 +22,7 @@ import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
 import net.casual.arcade.utils.math.location.Location.Companion.location
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asTeleportTransition
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.locationWithLevel
-import net.casual.arcade.utils.teleportTo
+import net.casual.arcade.utils.entity.teleportTo
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtAccounter
 import net.minecraft.nbt.NbtIo

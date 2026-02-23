@@ -10,7 +10,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.math.location.providers.LocationProvider
-import net.casual.arcade.utils.teleportTo
+import net.casual.arcade.utils.entity.teleportTo
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Entity
