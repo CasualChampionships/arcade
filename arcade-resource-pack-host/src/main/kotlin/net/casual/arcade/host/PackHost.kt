@@ -168,7 +168,7 @@ public abstract class PackHost {
                 return
             }
 
-            exchange.responseHeaders.add("user-agent", SERVER)
+            exchange.responseHeaders.add("server", SERVER)
             exchange.sendResponseHeaders(200, pack.length())
             exchange.responseBody.use { response ->
                 pack.stream().use { stream ->

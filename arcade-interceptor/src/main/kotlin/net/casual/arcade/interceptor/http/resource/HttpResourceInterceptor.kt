@@ -39,10 +39,9 @@ public abstract class HttpResourceInterceptor(
             return
         }
 
-        val pathWithoutPrefix = decoded.removePrefix(this.prefix)
-
+        val path = decoded.removePrefix(this.prefix)
         val resource = try {
-            this.getResource(pathWithoutPrefix)
+            this.getResource(path)
         } catch (_: Exception) {
             ctx.sendHttpError(HttpResponseStatus.INTERNAL_SERVER_ERROR)
             return
@@ -58,6 +57,9 @@ public abstract class HttpResourceInterceptor(
 
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/octet-stream")
         response.headers().set(HttpHeaderNames.SERVER, this.server)
+        if (resource.name != null) {
+            response.headers().set(HttpHeaderNames.CONTENT_DISPOSITION, "attachment; filename=\"${resource.name}\"")
+        }
 
         if (keepAlive) {
             response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE)
@@ -83,5 +85,5 @@ public abstract class HttpResourceInterceptor(
 
     protected abstract fun getResource(path: String): HttpResource?
 
-    protected data class HttpResource(val stream: InputStream, val size: Long = 0)
+    protected data class HttpResource(val stream: InputStream, val name: String? = null, val size: Long = 0)
 }

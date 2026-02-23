@@ -13,6 +13,9 @@
   "license": "MIT",
   "icon": "assets/icon.png",
   "environment": "*",
+  "mixins": [
+    "arcade-interceptor.mixins.json"
+  ],
   "depends": {
     "minecraft": "${minecraft_dependency}",
     "fabricloader": ">=${fabric_loader_dependency}",

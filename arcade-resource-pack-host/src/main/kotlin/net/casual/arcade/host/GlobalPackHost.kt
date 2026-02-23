@@ -19,11 +19,11 @@ public object GlobalPackHost: PackHost() {
     }
 
     override fun start(): CompletableFuture<Boolean> {
-        throw IllegalStateException("Cannot manually start GlobalPackHost")
+        return CompletableFuture.completedFuture(true)
     }
 
     override fun stop() {
-        throw IllegalStateException("Cannot manually stop GlobalPackHost")
+
     }
 
     override fun createUrl(name: String): ResolvableURL {
@@ -37,7 +37,7 @@ public object GlobalPackHost: PackHost() {
             if (pack == null || !pack.readable()) {
                 return null
             }
-            return HttpResource(pack.stream(), pack.length())
+            return HttpResource(pack.stream(), "${pack.name}.zip", pack.length())
         }
     }
 }
