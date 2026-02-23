@@ -54,15 +54,6 @@ public object PlayerUtils {
     private val HEALTH_BOOST = IdentifierUtils.arcade("health_boost")
 
     @JvmStatic
-    @Deprecated("Replace With .server", ReplaceWith(
-        "this.server",
-        "net.casual.arcade.utils.PlayerUtils.levelServer",
-        "net.casual.arcade.utils.PlayerUtils.server"
-    ))
-    public val ServerPlayer.levelServer: MinecraftServer
-        get() = this.server
-
-    @JvmStatic
     public val ServerPlayer.server: MinecraftServer
         get() = this.level().server!!
 

@@ -9,7 +9,7 @@ import net.casual.arcade.events.common.Event
 import net.casual.arcade.events.common.MissingExecutorEvent
 import net.casual.arcade.events.threading.ThreadingStrategy
 import net.casual.arcade.utils.ServerUtils
-import net.casual.arcade.utils.mergeSorted
+import net.casual.arcade.utils.collection.mergeSorted
 import net.minecraft.client.Minecraft
 import net.minecraft.util.thread.ReentrantBlockableEventLoop
 import org.slf4j.LoggerFactory

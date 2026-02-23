@@ -39,13 +39,13 @@ public class StructuredAreaTemplate(
     }
 
     override fun codec(): MapCodec<out PlaceableAreaTemplate> {
-        return CODEC
+        return codec
     }
 
     public companion object: CodecProvider<StructuredAreaTemplate> {
-        override val ID: Identifier = IdentifierUtils.arcade("structured")
+        override val id: Identifier = IdentifierUtils.arcade("structured")
 
-        override val CODEC: MapCodec<StructuredAreaTemplate> = RecordCodecBuilder.mapCodec { instance ->
+        override val codec: MapCodec<StructuredAreaTemplate> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 ArcadeExtraCodecs.PATH.fieldOf("path").forGetter(StructuredAreaTemplate::path),
                 Vec3i.CODEC.optionalFieldOf("position", Vec3i.ZERO).forGetter(StructuredAreaTemplate::position)

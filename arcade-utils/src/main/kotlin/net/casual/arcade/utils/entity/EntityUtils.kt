@@ -5,7 +5,7 @@
 package net.casual.arcade.utils.entity
 
 import net.casual.arcade.util.mixins.ChunkMapAccessor
-import net.casual.arcade.utils.impl.WrappedTrackedEntity
+import net.casual.arcade.utils.entity.WrappedTrackedEntity
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.minecraft.core.BlockPos

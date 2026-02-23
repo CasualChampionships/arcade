@@ -18,7 +18,7 @@ import net.casual.arcade.minigame.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.PlayerUtils.player
 import net.casual.arcade.utils.PlayerUtils.server
-import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
+import net.casual.arcade.utils.collection.ConcatenatedList.Companion.concat
 import net.casual.arcade.utils.math.location.Location.Companion.location
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asTeleportTransition
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.locationWithLevel

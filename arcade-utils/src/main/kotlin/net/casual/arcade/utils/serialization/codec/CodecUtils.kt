@@ -2,14 +2,11 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.utils
+package net.casual.arcade.utils.serialization.codec
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.FieldEncoder
-import net.casual.arcade.utils.serialization.codec.EncodedOptionalFieldCodec
-import net.casual.arcade.utils.serialization.codec.FieldDecoderOfAny
-import net.casual.arcade.utils.serialization.codec.OptionalCodec
 import java.util.*
 import kotlin.collections.LinkedHashMap
 import kotlin.collections.LinkedHashSet

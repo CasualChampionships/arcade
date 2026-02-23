@@ -2,11 +2,11 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.utils
+package net.casual.arcade.utils.level
 
 import net.casual.arcade.util.ducks.SpoofedDimensionKeyHolder
 import net.casual.arcade.util.mixins.ChunkMapAccessor
-import net.casual.arcade.utils.impl.WrappedTrackedEntity
+import net.casual.arcade.utils.entity.WrappedTrackedEntity
 import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.Identifier
@@ -17,6 +17,7 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.chunk.LevelChunk
 import net.minecraft.world.level.chunk.status.ChunkStatus
+import kotlin.collections.iterator
 
 public fun ServerLevel.getTrackedEntities(): List<WrappedTrackedEntity> {
     val map = this.chunkSource.chunkMap as ChunkMapAccessor

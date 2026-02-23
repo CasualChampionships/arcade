@@ -39,7 +39,7 @@ public class BlendedLocationProvider(
     }
 
     override fun codec(): MapCodec<out LocationProvider> {
-        return CODEC
+        return codec
     }
 
     private fun blend(first: Location, second: Location): Location {
@@ -60,7 +60,7 @@ public class BlendedLocationProvider(
     }
 
     public companion object: CodecProvider<BlendedLocationProvider> {
-        override val ID: Identifier = IdentifierUtils.arcade("blended")
+        override val id: Identifier = IdentifierUtils.arcade("blended")
 
         private val SIMPLE_CODEC = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
@@ -83,6 +83,6 @@ public class BlendedLocationProvider(
             ).apply(instance, ::BlendedLocationProvider)
         }
 
-        override val CODEC: MapCodec<out BlendedLocationProvider> = ArcadeExtraCodecs.mapWithAlternative(VERBOSE_CODEC, SIMPLE_CODEC)
+        override val codec: MapCodec<out BlendedLocationProvider> = ArcadeExtraCodecs.mapWithAlternative(VERBOSE_CODEC, SIMPLE_CODEC)
     }
 }

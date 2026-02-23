@@ -1,23 +1,19 @@
-/*
- * Copyright (c) 2025 senseiwells
- * Licensed under the MIT License. See LICENSE file in the project root for details.
- */
-package net.casual.arcade.utils.impl
+package net.casual.arcade.utils.entity
 
 import net.casual.arcade.util.mixins.TrackedEntityAccessor
-import net.minecraft.server.level.ChunkMap.TrackedEntity
+import net.minecraft.server.level.ChunkMap
 import net.minecraft.server.level.ServerEntity
 import net.minecraft.server.network.ServerPlayerConnection
 import net.minecraft.world.entity.Entity
 
 /**
  * We wrap the tracked entity into a new class because
- * [TrackedEntity] by default is a package-private class.
+ * [net.minecraft.server.level.ChunkMap.TrackedEntity] by default is a package-private class.
  */
 @JvmInline
-public value class WrappedTrackedEntity(public val tracked: TrackedEntity) {
+public value class WrappedTrackedEntity(public val tracked: ChunkMap.TrackedEntity) {
     /**
-     * Gets the [Entity] being tracked.
+     * Gets the [net.minecraft.world.entity.Entity] being tracked.
      *
      * @return The tracked entity.
      */
@@ -26,7 +22,7 @@ public value class WrappedTrackedEntity(public val tracked: TrackedEntity) {
     }
 
     /**
-     * Gets the [ServerEntity] being tracked.
+     * Gets the [net.minecraft.server.level.ServerEntity] being tracked.
      *
      * @return The server entity.
      */

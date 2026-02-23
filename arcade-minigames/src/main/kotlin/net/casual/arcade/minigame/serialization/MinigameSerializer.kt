@@ -21,7 +21,7 @@ import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.error.RichResult
 import net.casual.arcade.utils.serialization.json.JsonValueInput
 import net.casual.arcade.utils.serialization.json.JsonValueOutput
-import net.casual.arcade.utils.setOf
+import net.casual.arcade.utils.serialization.codec.setOf
 import net.minecraft.core.UUIDUtil
 import net.minecraft.resources.Identifier
 import net.minecraft.server.players.NameAndId

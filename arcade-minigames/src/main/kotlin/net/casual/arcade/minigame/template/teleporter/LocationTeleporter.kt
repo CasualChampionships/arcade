@@ -35,13 +35,13 @@ public class LocationTeleporter(
     }
 
     override fun codec(): MapCodec<out EntityTeleporter> {
-        return CODEC
+        return codec
     }
 
     public companion object: CodecProvider<LocationTeleporter> {
-        override val ID: Identifier = IdentifierUtils.arcade("location")
+        override val id: Identifier = IdentifierUtils.arcade("location")
 
-        override val CODEC: MapCodec<out LocationTeleporter> = RecordCodecBuilder.mapCodec { instance ->
+        override val codec: MapCodec<out LocationTeleporter> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 LocationProvider.CODEC.fieldOf("location").forGetter(LocationTeleporter::location)
             ).apply(instance, ::LocationTeleporter)

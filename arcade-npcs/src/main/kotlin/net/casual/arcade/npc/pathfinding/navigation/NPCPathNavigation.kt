@@ -8,7 +8,7 @@ import me.senseiwells.debug.api.server.DebugToolsPackets
 import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.npc.pathfinding.NPCPathfinder
 import net.casual.arcade.npc.pathfinding.evaluator.NPCNodeEvaluator
-import net.casual.arcade.utils.isOf
+import net.casual.arcade.utils.level.isOf
 import net.casual.arcade.utils.math.path.calculateNextNodeIndex
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction

@@ -2,10 +2,11 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.utils
+package net.casual.arcade.utils.collection
 
 import com.google.common.collect.Multimap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
+import kotlin.collections.iterator
 
 public fun <E: Comparable<E>> MutableList<E>.mergeSorted(sorted: List<E>) {
     if (sorted.isEmpty()) {

@@ -9,7 +9,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import com.mojang.serialization.*
-import net.casual.arcade.utils.asMutable
+import net.casual.arcade.utils.collection.asMutable
 import net.casual.arcade.utils.serialization.EmptyValueInput
 import net.minecraft.core.HolderLookup
 import net.minecraft.core.RegistryAccess

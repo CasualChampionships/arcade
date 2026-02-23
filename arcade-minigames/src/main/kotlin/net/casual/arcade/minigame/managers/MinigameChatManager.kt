@@ -34,7 +34,7 @@ import net.casual.arcade.utils.chat.PlayerChatFormatter
 import net.casual.arcade.utils.chat.PlayerFormattedChat
 import net.casual.arcade.utils.component.red
 import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
-import net.casual.arcade.utils.setOf
+import net.casual.arcade.utils.serialization.codec.setOf
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.TeamArgument
 import net.minecraft.core.UUIDUtil

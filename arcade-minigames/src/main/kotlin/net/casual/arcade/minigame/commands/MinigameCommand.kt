@@ -31,7 +31,7 @@ import net.casual.arcade.utils.component.green
 import net.casual.arcade.utils.component.join
 import net.casual.arcade.utils.component.suggestCommand
 import net.casual.arcade.utils.coroutine.launch
-import net.casual.arcade.utils.impl.ConcatenatedList.Companion.concat
+import net.casual.arcade.utils.collection.ConcatenatedList.Companion.concat
 import net.casual.arcade.utils.time.MinecraftTimeUnit
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack

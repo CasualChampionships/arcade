@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.events.common
 
-import net.casual.arcade.utils.impl.Wrapper
+import org.apache.commons.lang3.mutable.MutableObject
 
 /**
  * This is an event that usually is fired before
@@ -75,7 +75,7 @@ public sealed class CancellableEvent: Event {
         /**
          * The result of the event.
          */
-        private var result: Wrapper<T>? = null
+        private var result: MutableObject<T>? = null
 
         /**
          * Cancels the event.
@@ -93,7 +93,7 @@ public sealed class CancellableEvent: Event {
          * @param result The result.
          */
         public fun cancel(result: T) {
-            this.result = Wrapper(result)
+            this.result = MutableObject(result)
             this.cancel()
         }
 

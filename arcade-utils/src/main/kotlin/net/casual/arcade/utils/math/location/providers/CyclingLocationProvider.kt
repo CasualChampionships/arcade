@@ -41,13 +41,13 @@ public class CyclingLocationProvider(
     }
 
     override fun codec(): MapCodec<out LocationProvider> {
-        return CODEC
+        return codec
     }
 
     public companion object: CodecProvider<CyclingLocationProvider> {
-        override val ID: Identifier = IdentifierUtils.arcade("cycling")
+        override val id: Identifier = IdentifierUtils.arcade("cycling")
 
-        override val CODEC: MapCodec<out CyclingLocationProvider> = RecordCodecBuilder.mapCodec { instance ->
+        override val codec: MapCodec<out CyclingLocationProvider> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 LocationProvider.CODEC.listOf(1, Int.MAX_VALUE).fieldOf("locations").forGetter(CyclingLocationProvider::locations)
             ).apply(instance, ::CyclingLocationProvider)
