@@ -10,8 +10,10 @@ import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.ExtensionMap;
 import net.casual.arcade.extensions.ducks.ArcadeTeamDataHolder;
 import net.casual.arcade.extensions.event.TeamExtensionEvent;
+import net.casual.arcade.util.mixins.teams.ServerScoreboardAccessor;
 import net.casual.arcade.utils.ArcadeUtils;
 import net.casual.arcade.utils.ServerUtils;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.scores.PlayerTeam;
@@ -33,12 +35,11 @@ public class PlayerTeamMixin implements ExtensionHolder {
 		at = @At("TAIL")
 	)
 	private void onCreateTeam(Scoreboard scoreboard, String string, CallbackInfo ci) {
-        if (!(scoreboard instanceof ServerScoreboard)) {
-            return;
+        if (scoreboard instanceof ServerScoreboard serverScoreboard) {
+			MinecraftServer server = ((ServerScoreboardAccessor) serverScoreboard).accessServer();
+			TeamExtensionEvent event = new TeamExtensionEvent((PlayerTeam) (Object) this, server);
+			GlobalEventHandler.Server.broadcast(event);
         }
-
-		TeamExtensionEvent event = new TeamExtensionEvent((PlayerTeam) (Object) this);
-		GlobalEventHandler.Server.broadcast(event);
 	}
 
 	@ModifyReturnValue(

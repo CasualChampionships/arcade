@@ -24,7 +24,7 @@ public class ScoreboardMixin {
         CallbackInfo ci,
         @Local PlayerTeam team
     ) {
-        Integer color = ((OverridableColor) (Object) packed).arcade$getColor();
-        ((OverridableColor) team).arcade$setColor(color);
+        Integer color = ((OverridableColor) (Object) packed).arcade_getColor();
+        ((OverridableColor) team).arcade_setColor(color);
     }
 }

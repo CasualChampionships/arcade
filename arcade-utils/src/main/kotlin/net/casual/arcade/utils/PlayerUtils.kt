@@ -7,7 +7,6 @@ package net.casual.arcade.utils
 import net.casual.arcade.util.ducks.ConnectionFaultHolder
 import net.casual.arcade.util.ducks.SilentRecipeSender
 import net.casual.arcade.util.mixins.PlayerAdvancementsAccessor
-import net.casual.arcade.utils.TeamUtils.asPlayerTeam
 import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.chat.PlayerFormattedChat
@@ -547,7 +546,7 @@ public object PlayerUtils {
     public fun ServerPlayer.broadcastUnsignedTeamMessage(message: PlayerChatMessage): Boolean {
         val team = this.team ?: return false
 
-        val teamDisplay = team.asPlayerTeam().displayName
+        val teamDisplay = team.displayName
         val inbound = ChatType.bind(ChatType.TEAM_MSG_COMMAND_INCOMING, this).withTargetName(teamDisplay)
         val outbound = ChatType.bind(ChatType.TEAM_MSG_COMMAND_OUTGOING, this).withTargetName(teamDisplay)
 

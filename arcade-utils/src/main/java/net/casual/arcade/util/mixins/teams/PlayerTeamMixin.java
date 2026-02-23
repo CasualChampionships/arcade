@@ -34,18 +34,18 @@ public class PlayerTeamMixin implements OverridableColor {
 		at = @At("RETURN")
 	)
 	private PlayerTeam.Packed onPackTeam(PlayerTeam.Packed original) {
-		((OverridableColor) (Object) original).arcade$setColor(this.arcade$color);
+		((OverridableColor) (Object) original).arcade_setColor(this.arcade$color);
 		return original;
 	}
 
 	@Override
-	public void arcade$setColor(@Nullable Integer color) {
+	public void arcade_setColor(@Nullable Integer color) {
 		this.arcade$color = color;
 	}
 
 	@Override
 	@Nullable
-	public Integer arcade$getColor() {
+	public Integer arcade_getColor() {
 		return this.arcade$color;
 	}
 }

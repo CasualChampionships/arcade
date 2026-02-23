@@ -28,7 +28,8 @@
     "profile.ResolvableProfileStaticInvoker",
     "teams.PlayerTeamMixin",
     "teams.PlayerTeamPackedMixin",
-    "teams.ScoreboardMixin"
+    "teams.ScoreboardMixin",
+    "teams.ServerScoreboardAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

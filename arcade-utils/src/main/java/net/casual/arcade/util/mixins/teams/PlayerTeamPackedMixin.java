@@ -21,13 +21,13 @@ public class PlayerTeamPackedMixin implements OverridableColor {
     @Unique private Integer arcade$color = null;
 
     @Override
-    public void arcade$setColor(@Nullable Integer color) {
+    public void arcade_setColor(@Nullable Integer color) {
         this.arcade$color = color;
     }
 
     @Override
     @Nullable
-    public Integer arcade$getColor() {
+    public Integer arcade_getColor() {
         return this.arcade$color;
     }
 
@@ -43,10 +43,10 @@ public class PlayerTeamPackedMixin implements OverridableColor {
         return ArcadeExtraCodecs.extend(
             original,
             Codec.INT.optionalFieldOf("RawHexColor").forGetter(packed -> {
-                return Optional.ofNullable(((OverridableColor) (Object) packed).arcade$getColor());
+                return Optional.ofNullable(((OverridableColor) (Object) packed).arcade_getColor());
             }),
             (packed, color) -> {
-                ((OverridableColor) (Object) packed).arcade$setColor(color.orElse(null));
+                ((OverridableColor) (Object) packed).arcade_setColor(color.orElse(null));
                 return packed;
             }
         );

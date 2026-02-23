@@ -9,6 +9,7 @@ import com.google.common.collect.LinkedHashMultimap
 import com.google.common.collect.Multimap
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.util.ducks.OverridableColor
+import net.casual.arcade.util.mixins.teams.ServerScoreboardAccessor
 import net.casual.arcade.utils.component.joinToComponent
 import net.casual.arcade.utils.ComponentUtils.prettyName
 import net.casual.arcade.utils.ItemUtils.named
@@ -27,18 +28,12 @@ import net.minecraft.world.scores.Scoreboard
 import net.minecraft.world.scores.Team
 
 public object TeamUtils {
-    @Suppress("JoinDeclarationAndAssignment")
-    public val TEAM_COLORS: Set<ChatFormatting>
-    public val TEAM_COLORS_NO_GREY: Set<ChatFormatting>
+    public val TEAM_COLORS: Set<ChatFormatting> = entries.slice(0..< 16).toSet()
+    public val TEAM_COLORS_NO_GREY: Set<ChatFormatting> = TEAM_COLORS - setOf(BLACK, GRAY, DARK_GRAY, WHITE)
 
     private val ANIMALS = HashMap<ChatFormatting, List<String>>()
 
     init {
-        TEAM_COLORS = entries.slice(0..< 16).toSet()
-        TEAM_COLORS_NO_GREY = TEAM_COLORS.toMutableSet().apply {
-            removeAll(setOf(BLACK, GRAY, DARK_GRAY, WHITE))
-        }
-
         this.addAnimals()
     }
 
@@ -108,13 +103,18 @@ public object TeamUtils {
     }
 
     @JvmStatic
+    public val PlayerTeam.server: MinecraftServer
+        get() = (this.scoreboard as? ServerScoreboardAccessor)?.accessServer()
+            ?: throw IllegalStateException("Tried to access team server when there was none!")
+
+    @JvmStatic
     public fun PlayerTeam.setHexColor(color: Int?) {
-        (this as OverridableColor).`arcade$setColor`(color)
+        (this as OverridableColor).arcade_setColor(color)
     }
 
     @JvmStatic
     public fun PlayerTeam.getHexColor(): Int? {
-        return (this as OverridableColor).`arcade$getColor`() ?: this.color.color
+        return (this as OverridableColor).arcade_getColor() ?: this.color.color
     }
 
     @JvmStatic
