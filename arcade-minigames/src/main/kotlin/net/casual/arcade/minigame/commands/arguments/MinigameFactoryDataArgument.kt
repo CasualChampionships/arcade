@@ -19,8 +19,8 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.commands.type.CustomArgumentTypeInfo
 import net.casual.arcade.commands.type.CustomStringArgumentInfo
-import net.casual.arcade.utils.ParserUtils
-import net.casual.arcade.utils.ParserUtils.getPos
+import net.casual.arcade.utils.JsonUtils
+import net.casual.arcade.utils.JsonUtils.getPos
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.core.RegistryAccess
 import net.minecraft.network.chat.Component
@@ -32,7 +32,7 @@ public class MinigameFactoryDataArgument(
     private val factoryCodecKey: String
 ): CustomArgumentType<JsonObject>() {
     override fun parse(reader: StringReader): JsonObject {
-        val json = ParserUtils.parseJson(RegistryAccess.EMPTY, reader, ExtraCodecs.JSON)
+        val json = JsonUtils.parseJson(RegistryAccess.EMPTY, reader, ExtraCodecs.JSON)
         if (json !is JsonObject) {
             throw INVALID_FACTORY_DATA.create()
         }
@@ -80,7 +80,7 @@ public class MinigameFactoryDataArgument(
                         val name = reader.nextName()
                         existing.add(name)
                         true
-                    } catch (e: MalformedJsonException) {
+                    } catch (_: MalformedJsonException) {
                         false
                     }
                     else -> {
