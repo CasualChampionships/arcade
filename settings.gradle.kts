@@ -10,6 +10,7 @@ include(
     ":arcade-events-server",
     ":arcade-extensions",
     ":arcade-guis",
+    ":arcade-interceptor",
     ":arcade-items",
     ":arcade-minigames",
     ":arcade-nametags",
