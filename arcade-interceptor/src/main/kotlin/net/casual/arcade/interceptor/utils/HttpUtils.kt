@@ -14,13 +14,20 @@ import io.netty.handler.codec.http.HttpResponseStatus
 import io.netty.handler.codec.http.HttpUtil
 import io.netty.handler.codec.http.HttpVersion
 
-public fun ChannelHandlerContext.sendHttpError(status: HttpResponseStatus) {
+public fun ChannelHandlerContext.sendHttpError(status: HttpResponseStatus, keepAlive: Boolean = false) {
     val content = Unpooled.copiedBuffer("Failure: $status\r\n", Charsets.UTF_8)
     val response = DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, content)
     response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8")
     HttpUtil.setContentLength(response, content.readableBytes().toLong())
 
-    response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE)
+    if (keepAlive) {
+        response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE)
+    } else {
+        response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE)
+    }
+
     val future = this.writeAndFlush(response)
-    future.addListener(ChannelFutureListener.CLOSE)
+    if (!keepAlive) {
+        future.addListener(ChannelFutureListener.CLOSE)
+    }
 }

@@ -27,15 +27,16 @@ public abstract class HttpResourceInterceptor(
     }
 
     override fun interceptHttp(ctx: ChannelHandlerContext, request: FullHttpRequest) {
+        val keepAlive = HttpUtil.isKeepAlive(request)
         if (request.method() != HttpMethod.GET) {
-            ctx.sendHttpError(HttpResponseStatus.METHOD_NOT_ALLOWED)
+            ctx.sendHttpError(HttpResponseStatus.METHOD_NOT_ALLOWED, keepAlive)
             return
         }
 
         val decoded = try {
             URLDecoder.decode(request.uri().substringBefore("?"), Charsets.UTF_8)
         } catch (_: Exception) {
-            ctx.sendHttpError(HttpResponseStatus.BAD_REQUEST)
+            ctx.sendHttpError(HttpResponseStatus.BAD_REQUEST, keepAlive)
             return
         }
 
@@ -43,16 +44,15 @@ public abstract class HttpResourceInterceptor(
         val resource = try {
             this.getResource(path)
         } catch (_: Exception) {
-            ctx.sendHttpError(HttpResponseStatus.INTERNAL_SERVER_ERROR)
+            ctx.sendHttpError(HttpResponseStatus.INTERNAL_SERVER_ERROR, keepAlive)
             return
         }
 
         if (resource == null) {
-            ctx.sendHttpError(HttpResponseStatus.NOT_FOUND)
+            ctx.sendHttpError(HttpResponseStatus.NOT_FOUND, keepAlive)
             return
         }
 
-        val keepAlive = HttpUtil.isKeepAlive(request)
         val response = DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
 
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/octet-stream")
