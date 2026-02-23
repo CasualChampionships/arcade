@@ -35,7 +35,7 @@ object ArcadeTest: ModInitializer {
             TestMinigame.codec()
         )
 
-        this.playerHeadTests()
+//        this.playerHeadTests()
 //        this.boundaryTests()
 
         ResourcePackTests.run()
@@ -44,7 +44,6 @@ object ArcadeTest: ModInitializer {
     private fun playerHeadTests() {
         val pixel by this.host(ArcadeResourcePacks.PIXEL_FONT_PACK)
         val space by this.host(ArcadeResourcePacks.SPACING_FONT_PACK)
-        println(pixel.url.resolve())
         GlobalEventHandler.Server.register<PlayerJoinEvent> { (player) ->
             player.sendResourcePack(pixel.toPackInfo())
             player.sendResourcePack(space.toPackInfo())
