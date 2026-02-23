@@ -11,7 +11,10 @@ import com.mojang.serialization.JsonOps
 import net.casual.arcade.commands.register
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
-import net.casual.arcade.events.server.*
+import net.casual.arcade.events.server.ServerRegisterCommandEvent
+import net.casual.arcade.events.server.ServerSaveEvent
+import net.casual.arcade.events.server.ServerStartEvent
+import net.casual.arcade.events.server.ServerStopEvent
 import net.casual.arcade.minigame.commands.ExtendedGameModeCommand
 import net.casual.arcade.minigame.commands.MinigameCommand
 import net.casual.arcade.minigame.commands.PauseCommand
@@ -19,8 +22,8 @@ import net.casual.arcade.minigame.commands.TeamCommandModifier
 import net.casual.arcade.minigame.compat.MinigamesReplayCompat
 import net.casual.arcade.minigame.exception.MinigameCreationException
 import net.casual.arcade.minigame.exception.MinigameSerializationException
-import net.casual.arcade.minigame.extensions.PlayerMovementRestrictionExtension
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
+import net.casual.arcade.minigame.extensions.PlayerMovementRestrictionExtension
 import net.casual.arcade.minigame.gamemode.ExtendedGameMode
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
@@ -30,10 +33,11 @@ import net.casual.arcade.minigame.utils.MinigameUtils
 import net.casual.arcade.scheduler.task.utils.TaskRegistries
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.JsonUtils
-import net.casual.arcade.utils.JsonUtils.obj
-import net.casual.arcade.utils.JsonUtils.uuid
+import net.casual.arcade.utils.serialization.json.JsonValueInput
+import net.casual.arcade.utils.serialization.json.JsonValueOutput
 import net.fabricmc.api.ModInitializer
 import net.minecraft.core.Registry
+import net.minecraft.core.UUIDUtil
 import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.Util
@@ -83,7 +87,7 @@ public object Minigames: ModInitializer {
 
     public fun create(
         id: Identifier,
-        context: MinigameCreationContext,
+        server: MinecraftServer,
         data: Dynamic<*> = Dynamic(JsonOps.INSTANCE)
     ): Minigame {
         val codec = MinigameRegistries.MINIGAME_FACTORY.getOptional(id).getOrNull()
@@ -92,7 +96,7 @@ public object Minigames: ModInitializer {
             MinigameCreationException("Failed to create Minigame $id with default factory parameters")
         }
         try {
-            return factory.create(context)
+            return factory.create(MinigameCreationContext.initial(server))
         } catch (e: Exception) {
             throw MinigameCreationException("Failed to create Minigame $id", e)
         }
@@ -112,33 +116,37 @@ public object Minigames: ModInitializer {
 
         val data = try {
             JsonUtils.decodeRaw<JsonObject>(factoryPath)
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             throw MinigameCreationException("Cannot create Minigame, failed to read $path")
         }
-
-        try {
-            val factory = MinigameFactory.CODEC.parse(JsonOps.INSTANCE, data.obj("factory")).getOrThrow { message ->
-                MinigameCreationException("Failed to decode minigame factory: $message")
+        ArcadeUtils.scopedProblemReporter { reporter ->
+            val input = JsonValueInput.create(reporter, server.registryAccess(), data)
+            try {
+                val factory = input.read("factory", MinigameFactory.CODEC).orElseThrow {
+                    MinigameCreationException("Failed to decode minigame factory")
+                }
+                val uuid = input.read("uuid", UUIDUtil.STRING_CODEC).orElseThrow()
+                val minigame = factory.create(MinigameCreationContext.reloaded(server, uuid))
+                minigame.serialization.loadFrom(path)
+                return minigame
+            } catch (exception: MinigameCreationException) {
+              throw exception
+            } catch (exception: Exception) {
+                throw MinigameCreationException("Failed to create Minigame for $path", exception)
             }
-            val minigame = factory.create(MinigameCreationContext(server, data.uuid("uuid")))
-            minigame.serialization.loadFrom(path)
-            return minigame
-        } catch (e: Exception) {
-            throw MinigameCreationException("Failed to create Minigame for $path", e)
         }
     }
 
     public fun write(path: Path, minigame: Minigame) {
-        val json = JsonObject()
         val factory = minigame.internalFactory()
             ?: throw MinigameSerializationException("Minigame ${minigame.id} is not serializable")
 
-        val encoded = MinigameFactory.CODEC.encodeStart(JsonOps.INSTANCE, factory).getOrThrow { message ->
-            MinigameSerializationException("Failed to serialize minigame factory for ${minigame.id}: $message")
+        val json = ArcadeUtils.scopedProblemReporter { reporter ->
+            val output = JsonValueOutput.create(reporter, minigame.server.registryAccess())
+            output.store("factory", MinigameFactory.CODEC, factory)
+            output.store("uuid", UUIDUtil.STRING_CODEC, minigame.uuid)
+            output.buildResult()
         }
-        json.add("factory", encoded)
-        json.addProperty("uuid", minigame.uuid.toString())
-
         try {
             path.createDirectories()
 

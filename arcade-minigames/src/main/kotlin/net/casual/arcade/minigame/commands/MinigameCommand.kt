@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.minigame.commands
 
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
@@ -17,6 +18,7 @@ import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.commands.arguments.*
 import net.casual.arcade.minigame.commands.arguments.MinigameSettingsOptionArgument.Companion.INVALID_SETTING_OPTION
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
+import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.utils.AdvancementModifier
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.minigame.utils.RecipeModifier
@@ -24,7 +26,6 @@ import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.utils.asCoroutineDispatcher
 import net.casual.arcade.utils.JsonUtils
-import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.chat.ChatFormatter
 import net.casual.arcade.utils.component.green
 import net.casual.arcade.utils.component.join
@@ -46,7 +47,7 @@ import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.permissions.PermissionLevel
-import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 internal object MinigameCommand: CommandTree {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
@@ -633,7 +634,13 @@ internal object MinigameCommand: CommandTree {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val setting = MinigameSettingArgument.getSetting(context, "setting", minigame)
         val value = MinigameSettingValueArgument.getSettingsValue(context, "value")
-        setting.deserializeAndSet(value)
+
+        fun <T: Any> parseAndSet(setting: GameSetting<T>, encoded: JsonElement) {
+            val result = setting.codec().parse(JsonOps.INSTANCE, encoded).result().getOrNull() ?: return
+            setting.set(result)
+        }
+
+        parseAndSet(setting, value)
         return context.source.success(
             Component.translatable("minigame.command.setting.set.value", setting.name, setting.get().toString())
         )
@@ -837,7 +844,7 @@ internal object MinigameCommand: CommandTree {
                 Component.translatable("minigame.command.create.fail")
             )
         }
-        val minigame = result.get().create(MinigameCreationContext(context.source.server, UUID.randomUUID()))
+        val minigame = result.get().create(MinigameCreationContext.initial(context.source.server))
         minigame.tryInitialize()
         return context.source.success(
             Component.translatable("minigame.command.create.success", minigame.id.toString(), minigame.uuid.toString())

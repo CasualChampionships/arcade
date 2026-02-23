@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.scheduler.task.serialization
 
-import com.google.gson.JsonObject
 import net.casual.arcade.scheduler.task.SavableTask
 import net.casual.arcade.scheduler.task.Task
 
@@ -13,21 +12,18 @@ import net.casual.arcade.scheduler.task.Task
  * when writing a task with [SavableTask].
  *
  * It also provides the ability to write subtasks using the
- * [serializeTask] method.
+ * [storeTask] method.
  *
  * @see TaskFactory
  * @see TaskCreationContext
  */
 public interface TaskSerializationContext {
     /**
-     * This method allows you to serialize a task as a
-     * [JsonObject] to allow subtasks.
+     * This method allows you to store a task and
+     * returns its respective stored id.
      *
-     * This method may return null if the task cannot
-     * be serialized.
-     *
-     * @param task The task to serialize.
-     * @return The serialized task; may be null.
+     * @param task The task to store.
+     * @return The store task id.
      */
-    public fun serializeTask(task: Task): Int?
+    public fun storeTask(task: Task): Int
 }

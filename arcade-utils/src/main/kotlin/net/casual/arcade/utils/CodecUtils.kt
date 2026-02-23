@@ -45,6 +45,10 @@ public fun <A> Codec<A>.setOf(): Codec<Set<A>> {
     return this.listOf().xmap(::LinkedHashSet, ::ArrayList)
 }
 
+public fun <A> Codec<A>.collectionOf(): Codec<Collection<A>> {
+    return this.listOf().xmap({ it }, ::ArrayList)
+}
+
 public fun <A, K> Codec<List<A>>.associateBy(key: (A) -> K): Codec<Map<K, A>> {
     return this.xmap({ it.associateByTo(LinkedHashMap(), key) }, { it.values.toList() })
 }

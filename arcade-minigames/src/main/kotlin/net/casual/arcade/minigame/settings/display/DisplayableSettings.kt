@@ -4,15 +4,15 @@
  */
 package net.casual.arcade.minigame.settings.display
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import eu.pb4.sgui.api.gui.GuiInterface
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.utils.SettingsGuiUtils.addSettings
-import net.casual.arcade.utils.JsonUtils.objects
 import net.casual.arcade.utils.JsonUtils.string
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
+import kotlin.jvm.optionals.getOrNull
 
 public open class DisplayableSettings(
     protected val defaults: DisplayableSettingsDefaults
@@ -98,29 +98,36 @@ public open class DisplayableSettings(
         return builder.parent(parent).build()
     }
 
-    public fun serialize(): JsonArray {
-        val settings = JsonArray()
+    public fun serialize(list: ValueOutput.ValueOutputList) {
         for (setting in this.all()) {
-            val data = JsonObject()
-            data.addProperty("name", setting.name)
-            data.add("value", setting.serializeValue())
-            settings.add(data)
+            val output = list.addChild()
+            output.putString("name", setting.name)
+            output.store("value", setting)
         }
-        return settings
     }
 
-    public fun deserialize(settings: JsonArray) {
-        for (data in settings.objects()) {
-            val name = data.string("name")
-            val value = data.get("value")
+    public fun deserialize(list: ValueInput.ValueInputList) {
+        for (input in list) {
+            val name = input.getString("name").getOrNull() ?: continue
             val setting = this.get(name)
-            if (setting == null || !setting.deserializeAndSetQuietly(value)) {
-                continue
+            if (setting != null) {
+                input.read("value", setting)
             }
         }
     }
 
     internal fun displays(): Collection<MenuGameSetting<*>> {
         return this.displays.values
+    }
+
+    private fun <T: Any> ValueOutput.store(key: String, setting: GameSetting<T>) {
+        this.store(key, setting.codec(), setting.get())
+    }
+
+    private fun <T: Any> ValueInput.read(key: String, setting: GameSetting<T>) {
+        val value = this.read(key, setting.codec()).getOrNull()
+        if (value != null) {
+            setting.setQuietly(value)
+        }
     }
 }

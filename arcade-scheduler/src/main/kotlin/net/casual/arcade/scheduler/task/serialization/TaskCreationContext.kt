@@ -4,61 +4,27 @@
  */
 package net.casual.arcade.scheduler.task.serialization
 
-import com.google.gson.JsonObject
 import net.casual.arcade.scheduler.task.Task
 
 /**
  * This interface provides the method that will be available
  * when creating a task using a [TaskFactory].
  *
- * It provides any custom data written by the task,
- * see [data].
- *
- * It also provides the ability to create subtasks using the
- * [createTask] method.
+ * It provides the ability to create subtasks using the
+ * [getTask] method.
  *
  * @see TaskFactory
  * @see TaskSerializationContext
  */
 public interface TaskCreationContext {
     /**
-     * This gets the custom data written
-     * by the task.
+     * This provides the ability to get a subtasks by passing
+     * the that tasks given stored id.
      *
-     * This may be an empty object.
+     * Usually subtasks are written using [TaskSerializationContext.storeTask].
+     *
+     * @param uid The unique id of the stored task.
+     * @return The task, null if it could not be got.
      */
-    public val data: JsonObject
-
-    /**
-     * This provides the ability to create subtasks by passing
-     * the data for another [Task].
-     *
-     * The data at a minimum most contain the field `id` containing
-     * the if of the task that it is trying to create.
-     *
-     * Usually subtasks are written using [TaskSerializationContext.serializeTask].
-     *
-     * @param uid The unique id to create another task.
-     * @return The created task, null if it could not be created.
-     */
-    public fun createTask(uid: Int): Task?
-
-    /**
-     * This creates a child context for recursive task creation.
-     *
-     * @param data The data for the subtask.
-     * @return The child [TaskCreationContext]
-     */
-    public fun createSubContext(data: JsonObject): TaskCreationContext {
-        return Child(this, data)
-    }
-
-    private class Child(
-        private val parent: TaskCreationContext,
-        override val data: JsonObject
-    ): TaskCreationContext {
-        override fun createTask(uid: Int): Task? {
-            return this.parent.createTask(uid)
-        }
-    }
+    public fun getTask(uid: Int): Task?
 }
