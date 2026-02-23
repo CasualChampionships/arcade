@@ -5,6 +5,7 @@
 package net.casual.arcade.utils
 
 import com.mojang.serialization.Codec
+import net.casual.arcade.utils.server.ServerSingleton
 import net.minecraft.nbt.NbtAccounter
 import net.minecraft.nbt.NbtIo
 import net.minecraft.server.MinecraftServer
@@ -14,7 +15,7 @@ import java.util.zip.ZipFile
 import kotlin.io.path.*
 
 public object StructureUtils {
-    public fun read(path: Path, server: MinecraftServer = ServerUtils.getServer()): StructureTemplate {
+    public fun read(path: Path, server: MinecraftServer = ServerSingleton.get()): StructureTemplate {
         val structureTag = NbtIo.readCompressed(path, NbtAccounter.unlimitedHeap())
         return server.structureManager.readStructure(structureTag)
     }
@@ -23,7 +24,7 @@ public object StructureUtils {
     public fun <A: Any> readWithData(
         path: Path,
         codec: Codec<A>,
-        server: MinecraftServer = ServerUtils.getServer()
+        server: MinecraftServer = ServerSingleton.get()
     ): Pair<StructureTemplate, A> {
         if (path.isDirectory()) {
             return this.readDirectoryWithData(path, codec, server)

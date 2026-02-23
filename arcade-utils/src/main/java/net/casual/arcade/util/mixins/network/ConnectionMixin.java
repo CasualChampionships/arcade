@@ -23,7 +23,7 @@ public class ConnectionMixin implements MutableConnectionAddressHolder {
 
     @Nullable
     @Override
-    public ObjectIntPair<String> arcade$getConnectionAddress() {
+    public ObjectIntPair<String> arcade_getConnectionAddress() {
         return this.arcade$address;
     }
 }

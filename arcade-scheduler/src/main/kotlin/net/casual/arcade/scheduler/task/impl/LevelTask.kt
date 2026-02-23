@@ -8,7 +8,7 @@ import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.capture.CaptureConsumerTask
 import net.casual.arcade.scheduler.task.capture.CaptureSerializer
 import net.casual.arcade.scheduler.task.capture.CaptureTask
-import net.casual.arcade.utils.ServerUtils
+import net.casual.arcade.utils.server.ServerSingleton
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
@@ -31,5 +31,5 @@ private object LevelSerializer: CaptureSerializer<ResourceKey<Level>, String> {
 
 @Suppress("FunctionName")
 public fun LevelTask(level: ServerLevel, task: CaptureConsumerTask<ServerLevel>): Task {
-    return CaptureTask(level.dimension(), { ServerUtils.getServerOrNull()?.getLevel(it) }, LevelSerializer, task)
+    return CaptureTask(level.dimension(), { ServerSingleton.getOrNull()?.getLevel(it) }, LevelSerializer, task)
 }

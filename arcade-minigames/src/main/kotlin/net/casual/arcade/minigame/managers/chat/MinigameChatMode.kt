@@ -10,9 +10,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.managers.MinigameChatManager
 import net.casual.arcade.minigame.utils.MinigameRegistries
-import net.casual.arcade.utils.PlayerUtils.server
 import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.chat.PlayerChatFormatter
+import net.casual.arcade.utils.player.server
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.minecraft.core.Registry

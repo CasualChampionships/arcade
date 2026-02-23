@@ -6,7 +6,7 @@ package net.casual.arcade.utils.network
 
 import net.casual.arcade.util.ducks.ConnectionAddressHolder
 import net.casual.arcade.util.mixins.network.ServerCommonPacketListenerAccessor
-import net.casual.arcade.utils.ServerUtils
+import net.casual.arcade.utils.server.ServerSingleton
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerCommonPacketListenerImpl
 
@@ -70,12 +70,12 @@ public sealed interface ResolvableURL {
         }
 
         override fun resolve(connection: ServerCommonPacketListenerImpl): String {
-            val ip = HostIP.get() ?: (connection as ConnectionAddressHolder).`arcade$getConnectionAddress`()?.key()
+            val ip = HostIP.get() ?: (connection as ConnectionAddressHolder).arcade_getConnectionAddress()?.key()
             val server = (connection as ServerCommonPacketListenerAccessor).server
             return this.resolve(ip ?: HostIP.LOCALHOST, server)
         }
 
-        private fun resolve(ip: String, server: MinecraftServer? = ServerUtils.getServerOrNull()): String {
+        private fun resolve(ip: String, server: MinecraftServer? = ServerSingleton.getOrNull()): String {
             val port = this.port ?: server?.port ?: 25565
             return "${this.protocol}://${ip}:${port}/${this.path}"
         }

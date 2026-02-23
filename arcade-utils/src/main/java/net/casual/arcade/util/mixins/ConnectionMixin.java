@@ -34,7 +34,7 @@ public class ConnectionMixin {
         CallbackInfo ci
     ) {
         if (this.packetListener instanceof ServerCommonPacketListenerImpl connection) {
-            ((ConnectionFaultHolder) connection).arcade$setTimedOut(true);
+            ((ConnectionFaultHolder) connection).arcade_setTimeOut(true);
         }
     }
 
@@ -52,7 +52,7 @@ public class ConnectionMixin {
         CallbackInfo ci
     ) {
         if (this.packetListener instanceof ServerCommonPacketListenerImpl connection) {
-            ((ConnectionFaultHolder) connection).arcade$setPacketError(throwable);
+            ((ConnectionFaultHolder) connection).arcade_setPacketError(throwable);
         }
     }
 }

@@ -7,11 +7,11 @@ package net.casual.arcade.util.ducks;
 import org.jetbrains.annotations.Nullable;
 
 public interface ConnectionFaultHolder {
-    void arcade$setTimedOut(boolean timedOut);
+    void arcade_setTimeOut(boolean timedOut);
 
-    boolean arcade$hasTimedOut();
+    boolean arcade_hasTimeOut();
 
-    void arcade$setPacketError(Throwable packetError);
+    void arcade_setPacketError(Throwable packetError);
 
-    @Nullable Throwable arcade$getPacketError();
+    @Nullable Throwable arcade_getPacketError();
 }

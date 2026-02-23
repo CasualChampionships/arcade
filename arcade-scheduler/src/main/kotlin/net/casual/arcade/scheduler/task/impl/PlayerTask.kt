@@ -9,11 +9,10 @@ import net.casual.arcade.scheduler.task.capture.CaptureConsumerTask
 import net.casual.arcade.scheduler.task.capture.CaptureSerializer
 import net.casual.arcade.scheduler.task.capture.CaptureTask
 import net.casual.arcade.utils.PlayerUtils.player
-import net.casual.arcade.utils.ServerUtils
+import net.casual.arcade.utils.server.ServerSingleton
 import net.minecraft.server.level.ServerPlayer
-import java.util.*
 
 @Suppress("FunctionName")
 public fun PlayerTask(player: ServerPlayer, task: CaptureConsumerTask<ServerPlayer>): Task {
-    return CaptureTask(player.uuid, { ServerUtils.getServerOrNull()?.player(it) }, CaptureSerializer.same(), task)
+    return CaptureTask(player.uuid, { ServerSingleton.getOrNull()?.player(it) }, CaptureSerializer.same(), task)
 }

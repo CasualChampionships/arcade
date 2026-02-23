@@ -4,13 +4,13 @@
  */
 package net.casual.arcade.utils.level
 
-import net.casual.arcade.utils.ServerUtils
+import net.casual.arcade.utils.server.ServerSingleton
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.level.gamerules.GameRule
 import net.minecraft.world.level.gamerules.GameRuleTypeVisitor
 import net.minecraft.world.level.gamerules.GameRules
 
-public fun GameRules.resetToDefault(server: MinecraftServer? = ServerUtils.getServerOrNull()) {
+public fun GameRules.resetToDefault(server: MinecraftServer? = ServerSingleton.getOrNull()) {
     this.visitGameRuleTypes(object: GameRuleTypeVisitor {
         override fun <T: Any> visit(rule: GameRule<T>) {
             set(rule, rule.defaultValue(), server)

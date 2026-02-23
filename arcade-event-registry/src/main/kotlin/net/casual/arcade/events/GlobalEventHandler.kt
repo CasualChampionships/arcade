@@ -8,7 +8,7 @@ import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap
 import net.casual.arcade.events.common.Event
 import net.casual.arcade.events.common.MissingExecutorEvent
 import net.casual.arcade.events.threading.ThreadingStrategy
-import net.casual.arcade.utils.ServerUtils
+import net.casual.arcade.utils.server.ServerSingleton
 import net.casual.arcade.utils.collection.mergeSorted
 import net.minecraft.client.Minecraft
 import net.minecraft.util.thread.ReentrantBlockableEventLoop
@@ -27,7 +27,7 @@ import java.util.concurrent.Executor
 public enum class GlobalEventHandler(
     private val executor: () -> ReentrantBlockableEventLoop<*>?
 ): ListenerRegistry by SimpleListenerRegistry() {
-    Server(ServerUtils::getServerOrNull),
+    Server(ServerSingleton::getOrNull),
     Client({ Minecraft.getInstance() });
 
     private val stack = ThreadLocal.withInitial { Reference2IntOpenHashMap<Class<out Event>>() }

@@ -14,6 +14,7 @@ import net.casual.arcade.utils.component.joinToComponent
 import net.casual.arcade.utils.ComponentUtils.prettyName
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.utils.PlayerUtils.player
+import net.casual.arcade.utils.server.ServerSingleton
 import net.minecraft.ChatFormatting
 import net.minecraft.ChatFormatting.*
 import net.minecraft.network.chat.Component
@@ -79,7 +80,7 @@ public object TeamUtils {
     }
 
     @JvmStatic
-    public fun Team.getOnlinePlayers(server: MinecraftServer = ServerUtils.getServer()): List<ServerPlayer> {
+    public fun Team.getOnlinePlayers(server: MinecraftServer = ServerSingleton.get()): List<ServerPlayer> {
         val team = ArrayList<ServerPlayer>()
         for (name in this.players) {
             val player = server.player(name)
@@ -91,7 +92,7 @@ public object TeamUtils {
     }
 
     @JvmStatic
-    public fun Team.getOnlineCount(server: MinecraftServer = ServerUtils.getServer()): Int {
+    public fun Team.getOnlineCount(server: MinecraftServer = ServerSingleton.get()): Int {
         var count = 0
         for (name in this.players) {
             val player = server.player(name)
