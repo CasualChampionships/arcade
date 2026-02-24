@@ -11,13 +11,13 @@ import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
-import net.casual.arcade.minigame.ready.MinigamePlayerReadyHandler
-import net.casual.arcade.minigame.ready.MinigameTeamReadyHandler
-import net.casual.arcade.minigame.ready.ReadyChecker
 import net.casual.arcade.visuals.bossbar.CustomBossbar
 import net.casual.arcade.visuals.core.VisualElement
 import net.casual.arcade.visuals.core.TickableVisualElement
 import net.casual.arcade.visuals.nametag.PlayerNametag
+import net.casual.arcade.visuals.ready.ReadyBroadcaster
+import net.casual.arcade.visuals.ready.chat.PlayerChatReadyBroadcaster
+import net.casual.arcade.visuals.ready.chat.TeamChatReadyBroadcaster
 import net.casual.arcade.visuals.sidebar.Sidebar
 import net.casual.arcade.visuals.tab.PlayerListDisplay
 import net.casual.arcade.visuals.transition.TitledCountdown
@@ -27,6 +27,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.scores.PlayerTeam
 import java.util.function.Consumer
 
 /**
@@ -49,10 +50,9 @@ public class MinigameVisualsManager(
     private var display: PlayerListDisplay? = null
 
     public var countdown: Transition = TitledCountdown.titled()
-    public var readier: ReadyChecker = ReadyChecker(
-        MinigamePlayerReadyHandler(this.minigame),
-        MinigameTeamReadyHandler(this.minigame)
-    )
+
+    public var playerReadyBroadcaster: ReadyBroadcaster<ServerPlayer> = PlayerChatReadyBroadcaster { this.minigame.chat.broadcast(it) }
+    public var teamReadyBroadcaster: ReadyBroadcaster<PlayerTeam> = TeamChatReadyBroadcaster { this.minigame.chat.broadcast(it) }
 
     init {
         this.minigame.events.register<MinigameAddPlayerEvent> { event ->
