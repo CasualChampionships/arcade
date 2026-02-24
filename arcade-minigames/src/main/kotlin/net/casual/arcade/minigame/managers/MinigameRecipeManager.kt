@@ -12,8 +12,8 @@ import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
-import net.casual.arcade.utils.PlayerUtils.player
-import net.casual.arcade.utils.collection.ConcatenatedList.Companion.concat
+import net.casual.arcade.utils.collection.concat
+import net.casual.arcade.utils.server.player
 import net.minecraft.core.UUIDUtil
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.protocol.game.ClientboundRecipeBookAddPacket

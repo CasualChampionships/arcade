@@ -5,7 +5,7 @@
 package net.casual.arcade.visuals.elements
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
-import net.casual.arcade.utils.PlayerUtils.server
+import net.casual.arcade.utils.player.server
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam

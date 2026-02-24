@@ -14,8 +14,8 @@ import net.casual.arcade.minigame.events.MinigameCloseEvent
 import net.casual.arcade.minigame.events.MinigameCompleteEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
 import net.casual.arcade.utils.AdvancementUtils.copyWithoutToast
-import net.casual.arcade.utils.PlayerUtils.grantAdvancementSilently
-import net.casual.arcade.utils.PlayerUtils.revokeAdvancement
+import net.casual.arcade.utils.player.grantAdvancementSilently
+import net.casual.arcade.utils.player.revokeAdvancement
 import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.advancements.AdvancementNode
 import net.minecraft.advancements.AdvancementTree

@@ -10,9 +10,9 @@ import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.EnumUtils
-import net.casual.arcade.utils.PlayerUtils.isChunkInViewDistance
 import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.math.location.Location
+import net.casual.arcade.utils.player.isChunkInViewDistance
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment

@@ -27,11 +27,11 @@ import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.utils.asCoroutineDispatcher
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.chat.ChatFormatter
+import net.casual.arcade.utils.collection.concat
 import net.casual.arcade.utils.component.green
 import net.casual.arcade.utils.component.join
 import net.casual.arcade.utils.component.suggestCommand
 import net.casual.arcade.utils.coroutine.launch
-import net.casual.arcade.utils.collection.ConcatenatedList.Companion.concat
 import net.casual.arcade.utils.time.MinecraftTimeUnit
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack

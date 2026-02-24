@@ -14,6 +14,7 @@ import net.casual.arcade.utils.compat.SguiCompatLayer
 import net.casual.arcade.utils.component.joinToComponent
 import net.casual.arcade.utils.impl.Sound
 import net.casual.arcade.utils.math.location.LocationWithLevel
+import net.casual.arcade.utils.scoreboard.add
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.core.BlockPos
@@ -51,7 +52,6 @@ import net.minecraft.world.level.storage.LevelData
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.scores.PlayerTeam
-import java.util.*
 import java.util.function.Predicate
 
 public val ServerPlayer.server: MinecraftServer
@@ -404,7 +404,7 @@ public fun ServerPlayer.getChatUsername(withTeam: Boolean = true): MutableCompon
 }
 
 public fun ServerPlayer.addToTeam(team: PlayerTeam) {
-    this.server.scoreboard.addPlayerToTeam(this.scoreboardName, team)
+    team.add(this)
 }
 
 public fun ServerPlayer.removeFromTeam() {

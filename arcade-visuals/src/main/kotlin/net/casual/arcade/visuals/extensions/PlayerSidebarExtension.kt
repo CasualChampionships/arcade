@@ -12,7 +12,7 @@ import net.casual.arcade.events.server.player.PlayerTickEvent
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
-import net.casual.arcade.utils.ScoreboardUtils
+import net.casual.arcade.utils.scoreboard.DummyScoreboard
 import net.casual.arcade.visuals.sidebar.Sidebar
 import net.casual.arcade.visuals.sidebar.SidebarComponent
 import net.minecraft.network.chat.Component
@@ -132,7 +132,7 @@ internal class PlayerSidebarExtension(
 
     companion object {
         private const val OBJECTIVE_NAME = "Z\$DummyObjective"
-        private val objective = ScoreboardUtils.dummyObjective(OBJECTIVE_NAME)
+        private val objective = DummyScoreboard.objective(OBJECTIVE_NAME)
         private val players = ArrayList<String>(16)
 
         internal val ServerPlayer.sidebarExtension

@@ -6,8 +6,8 @@ package net.casual.arcade.minigame.ready
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.scheduler.task.Completable
-import net.casual.arcade.utils.PlayerUtils.player
-import net.casual.arcade.utils.PlayerUtils.server
+import net.casual.arcade.utils.player.server
+import net.casual.arcade.utils.server.player
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer

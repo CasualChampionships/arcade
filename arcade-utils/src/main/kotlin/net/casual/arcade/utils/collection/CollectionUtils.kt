@@ -8,6 +8,14 @@ import com.google.common.collect.Multimap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import kotlin.collections.iterator
 
+public fun <E> List<E>.concat(other: List<E>): List<E> {
+    return ConcatenatedList.concat(this, other)
+}
+
+public fun <E> List<E>.concat(vararg other: E): List<E> {
+    return ConcatenatedList.concat(this, other.asList())
+}
+
 public fun <E: Comparable<E>> MutableList<E>.mergeSorted(sorted: List<E>) {
     if (sorted.isEmpty()) {
         return

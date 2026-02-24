@@ -106,11 +106,11 @@ public sealed class CancellableEvent: Event {
          */
         public fun result(): T {
             val result = this.result ?: throw IllegalStateException("Called result() when no result is present")
-            return result.value
+            return result.get()
         }
 
         public fun resultOrElse(otherwise: () -> T): T {
-            return this.result?.value ?: otherwise()
+            return this.result?.get() ?: otherwise()
         }
     }
 }

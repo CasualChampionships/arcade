@@ -9,7 +9,7 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigameAddTagEvent
 import net.casual.arcade.minigame.events.MinigameRemoveTagEvent
-import net.casual.arcade.utils.PlayerUtils.player
+import net.casual.arcade.utils.server.player
 import net.minecraft.core.UUIDUtil
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer

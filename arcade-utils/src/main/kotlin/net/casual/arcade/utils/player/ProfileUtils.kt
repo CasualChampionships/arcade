@@ -2,7 +2,7 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.utils
+package net.casual.arcade.utils.player
 
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.PropertyMap

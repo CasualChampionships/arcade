@@ -8,8 +8,8 @@ import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.capture.CaptureConsumerTask
 import net.casual.arcade.scheduler.task.capture.CaptureSerializer
 import net.casual.arcade.scheduler.task.capture.CaptureTask
-import net.casual.arcade.utils.PlayerUtils.player
 import net.casual.arcade.utils.server.ServerSingleton
+import net.casual.arcade.utils.server.player
 import net.minecraft.server.level.ServerPlayer
 
 @Suppress("FunctionName")

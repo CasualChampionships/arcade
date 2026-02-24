@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2024 senseiwells
+ * Copyright (c) 2026 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.utils
+package net.casual.arcade.utils.player
 
 public object HeadTextures {
     public const val STEVE: String = "ewogICJ0aW1lc3RhbXAiIDogMTY4NDcwMTg1ODQ5MCwKICAicHJvZmlsZUlkIiA6ICIzY2YzYjgzNzhkYjc0ZDZlYmIxMDFjMDYzZmQ1MjVjNyIsCiAgInByb2ZpbGVOYW1lIiA6ICJSeW9yaTE2IiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzYwNDdiYjhhMGFlNzY1ZDQzMmVjYjUyOWFlNTJhZmFkMmNkNjYwYzM4ZjQxY2EyODcwYjZiOTFmN2Q0NTJmNTciCiAgICB9CiAgfQp9"

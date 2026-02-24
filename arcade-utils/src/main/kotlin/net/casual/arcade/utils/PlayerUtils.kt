@@ -7,12 +7,12 @@ package net.casual.arcade.utils
 import net.casual.arcade.util.ducks.ConnectionFaultHolder
 import net.casual.arcade.util.ducks.SilentRecipeSender
 import net.casual.arcade.util.mixins.PlayerAdvancementsAccessor
-import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.chat.PlayerFormattedChat
 import net.casual.arcade.utils.compat.SguiCompatLayer
 import net.casual.arcade.utils.impl.Sound
 import net.casual.arcade.utils.math.location.LocationWithLevel
+import net.casual.arcade.utils.scoreboard.getOnlinePlayers
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.core.*

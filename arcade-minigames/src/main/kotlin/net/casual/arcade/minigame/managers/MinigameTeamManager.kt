@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.minigame.managers
 
-import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerTeamJoinEvent
@@ -14,10 +13,10 @@ import net.casual.arcade.minigame.events.MinigameRemoveAdminEvent
 import net.casual.arcade.minigame.events.MinigameSetPlayingEvent
 import net.casual.arcade.minigame.events.MinigameSetSpectatingEvent
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.PlayerUtils.addToTeam
-import net.casual.arcade.utils.PlayerUtils.removeFromTeam
-import net.casual.arcade.utils.TeamUtils
-import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
+import net.casual.arcade.utils.player.removeFromTeam
+import net.casual.arcade.utils.scoreboard.add
+import net.casual.arcade.utils.scoreboard.getOnlinePlayers
+import net.casual.arcade.utils.scoreboard.getTeams
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
@@ -130,7 +129,7 @@ public class MinigameTeamManager(
      * @return The collection of player teams.
      */
     public fun getOnlineTeams(): Collection<PlayerTeam> {
-        return TeamUtils.getTeamsFor(this.minigame.players)
+        return this.minigame.players.getTeams()
     }
 
     /**
@@ -141,7 +140,7 @@ public class MinigameTeamManager(
      * @return The collecting of playing players teams.
      */
     public fun getPlayingTeams(): Collection<PlayerTeam> {
-        val teams = TeamUtils.getTeamsFor(this.minigame.players.playing)
+        val teams = this.minigame.players.playing.getTeams()
         val admins = this.admins
         if (admins != null && teams.remove(admins)) {
             ArcadeUtils.logger.warn("MinigameTeamManager.getPlayingTeams included admins")
@@ -196,14 +195,14 @@ public class MinigameTeamManager(
     internal fun addToSpectatorTeam(player: ServerPlayer) {
         val spectators = this.spectators
         if (player.team == null && spectators != null) {
-            player.addToTeam(spectators)
+            spectators.add(player)
         }
     }
 
     internal fun addToAdminTeam(player: ServerPlayer) {
         val admins = this.admins
         if (admins != null && (player.team == null || player.team == this.spectators)) {
-            player.addToTeam(admins)
+            admins.add(player)
         }
     }
 

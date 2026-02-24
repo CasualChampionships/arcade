@@ -17,7 +17,7 @@ import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.minigame.utils.MinigameUtils.minigame
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.PlayerUtils.server
+import net.casual.arcade.utils.player.server
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.minecraft.core.UUIDUtil
 import net.minecraft.nbt.CompoundTag
