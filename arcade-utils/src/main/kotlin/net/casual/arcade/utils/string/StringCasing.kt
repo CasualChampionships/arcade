@@ -4,11 +4,6 @@
  */
 package net.casual.arcade.utils.string
 
-import net.casual.arcade.utils.capitalize
-import net.casual.arcade.utils.decapitalize
-import net.casual.arcade.utils.fromSmallCaps
-import net.casual.arcade.utils.toSmallCaps
-
 public interface StringCasingEncoder {
     public fun encode(strings: List<String>): String
 }

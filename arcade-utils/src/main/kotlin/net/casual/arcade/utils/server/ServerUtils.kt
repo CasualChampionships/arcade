@@ -9,8 +9,10 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.util.TimeUtil
 import net.minecraft.world.level.Level
 import java.util.UUID
+import kotlin.math.max
 
 public val MinecraftServer.players: List<ServerPlayer>
     get() = this.playerList.players
@@ -38,4 +40,14 @@ public fun MinecraftServer.setMessageOfTheDay(message: Component) {
 public fun MinecraftServer.getMessageOfTheDay(): Component {
     val custom = (this as CustomMOTD).arcade_getMOTD()
     return custom ?: Component.nullToEmpty(this.motd)
+}
+
+public fun MinecraftServer.calculateMSPT(): Float {
+    return this.averageTickTimeNanos.toFloat() / TimeUtil.NANOSECONDS_PER_MILLISECOND
+}
+
+public fun MinecraftServer.calculateTPS(): Float {
+    val manager = this.tickRateManager()
+    val mspt = this.calculateMSPT()
+    return 1000 / if (manager.isSprinting) mspt else max(mspt, manager.millisecondsPerTick())
 }
