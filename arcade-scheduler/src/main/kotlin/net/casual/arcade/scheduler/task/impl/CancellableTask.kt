@@ -88,8 +88,6 @@ public sealed class CancellableTask(
         }
     }
 
-    private class Default(wrapped: Task): CancellableTask(wrapped)
-
     @Internal
     public class Savable(wrapped: Task): CancellableTask(wrapped), SavableTask {
         override val id: Identifier = Companion.id
@@ -143,7 +141,7 @@ public sealed class CancellableTask(
          */
         @JvmStatic
         public fun of(task: Task): CancellableTask {
-            return if (task is SavableTask || task is Serializable) Savable(task) else Default(task)
+            return Savable(task)
         }
 
         /**

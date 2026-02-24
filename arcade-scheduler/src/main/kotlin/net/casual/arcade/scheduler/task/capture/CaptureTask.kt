@@ -4,13 +4,12 @@
  */
 package net.casual.arcade.scheduler.task.capture
 
-import net.casual.arcade.scheduler.task.Task
+import net.casual.arcade.scheduler.task.impl.SerializableTask
 import org.jetbrains.annotations.ApiStatus.Internal
 import java.io.IOException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serializable
-import java.util.*
 
 @Internal
 public class CaptureTask<C, K>(
@@ -18,7 +17,7 @@ public class CaptureTask<C, K>(
     private val mapper: CaptureMapper<C, K?>,
     private val serializer: CaptureSerializer<C, *>,
     private val task: CaptureConsumerTask<K>,
-): Task, Serializable {
+): SerializableTask {
     init {
         // TODO: We should probably allow capturing primitives
         //   and allow other serializable captures, everything else

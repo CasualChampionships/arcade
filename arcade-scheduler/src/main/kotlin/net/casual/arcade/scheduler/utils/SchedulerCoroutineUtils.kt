@@ -4,18 +4,20 @@
  */
 package net.casual.arcade.scheduler.utils
 
-import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Delay
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.*
 import net.casual.arcade.scheduler.MinecraftTaskScheduler
+import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.impl.CancellableTask
-import net.casual.arcade.utils.server.ServerSingleton
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.coroutine.MinecraftSchedulerDelay
+import net.casual.arcade.utils.server.ServerSingleton
 import net.casual.arcade.utils.time.MinecraftTimeDuration
+import org.jetbrains.annotations.ApiStatus.Internal
+import java.lang.Runnable
 import kotlin.coroutines.CoroutineContext
+
+@Internal
+public fun interface CoroutineTask: Task
 
 public fun MinecraftTaskScheduler.asCoroutineDispatcher(): CoroutineDispatcher {
     return MinecraftSchedulerDispatcher(this)
@@ -27,7 +29,7 @@ private class MinecraftSchedulerDispatcher(
 ): CoroutineDispatcher(), Delay, MinecraftSchedulerDelay {
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         if (!ServerSingleton.isOnServerThread()) {
-            scheduler.schedule(MinecraftTimeDuration.ZERO) { block.run() }
+            scheduler.schedule(MinecraftTimeDuration.ZERO, CoroutineTask { block.run() })
         } else {
             block.run()
         }
@@ -44,9 +46,9 @@ private class MinecraftSchedulerDispatcher(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun scheduleResumeAfterDelay(delay: MinecraftTimeDuration, continuation: CancellableContinuation<Unit>) {
-        val task = CancellableTask.of {
+        val task = CancellableTask.of(CoroutineTask {
             with(continuation) { resumeUndispatched(Unit) }
-        }
+        })
 
         this.scheduler.schedule(delay, task)
 

@@ -16,6 +16,7 @@ import net.casual.arcade.scheduler.task.SavableTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
 import net.casual.arcade.scheduler.task.utils.TaskRegistries
+import net.casual.arcade.scheduler.utils.CoroutineTask
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.error.RichResult
@@ -31,6 +32,7 @@ import net.minecraft.world.level.storage.ValueOutput
 import org.jetbrains.annotations.ApiStatus.Internal
 import java.io.*
 import java.nio.file.Path
+import java.util.ArrayDeque
 import kotlin.io.encoding.Base64
 import kotlin.io.path.isRegularFile
 import kotlin.jvm.optionals.getOrNull
@@ -243,6 +245,7 @@ public class MinigameSerializer(
 
     private class MinigameTaskSerializationContextImpl: TaskSerializationContext {
         private val ids = Reference2IntOpenHashMap<Task>()
+        private val pending = ArrayDeque<Task>()
         private val id = atomic(0)
 
         override fun storeTask(task: Task): Int {
@@ -251,19 +254,23 @@ public class MinigameSerializer(
             }
             val next = this.id.getAndIncrement()
             this.ids.put(task, next)
+            this.pending.add(task)
             return next
         }
 
         fun clear() {
             this.ids.clear()
+            this.pending.clear()
         }
 
         fun serialize(output: ValueOutput.ValueOutputList) {
-            for (entry in this.ids.reference2IntEntrySet()) {
-                val task = entry.key
-                val id = entry.intValue
+            var coroutine = false
+            while (this.pending.isNotEmpty()) {
+                val task = this.pending.removeFirst()
+                val id = this.ids.getInt(task)
                 val child = output.addChild()
                 val result = when (task) {
+                    is CoroutineTask -> { coroutine = true; continue }
                     is SavableTask -> this.serializeSavable(child, id, task)
                     is Serializable -> this.serializeRaw(child, id, task)
                     else -> RichResult.failure("Task not serializable")
@@ -275,6 +282,10 @@ public class MinigameSerializer(
                         output.discardLast()
                     }
                 )
+            }
+
+            if (coroutine) {
+                ArcadeUtils.logger.warn("Failed to serialize coroutine task(s)")
             }
         }
 
