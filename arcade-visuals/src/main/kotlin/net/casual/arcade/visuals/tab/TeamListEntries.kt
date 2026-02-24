@@ -7,10 +7,10 @@ package net.casual.arcade.visuals.tab
 import com.google.common.collect.Iterables
 import net.casual.arcade.resources.font.heads.PixelGridHeadComponents
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
-import net.casual.arcade.utils.StaticResolvableProfile
+import net.casual.arcade.utils.player.StaticResolvableProfile
 import net.casual.arcade.utils.component.color
 import net.casual.arcade.utils.component.italicize
-import net.casual.arcade.utils.TeamUtils.color
+import net.casual.arcade.utils.scoreboard.color
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer

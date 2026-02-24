@@ -23,7 +23,7 @@ import net.casual.arcade.replay.recorder.settings.RecorderSettings
 import net.casual.arcade.replay.recorder.settings.RecorderSettings.ChunkRecordingStrategy
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.ClientboundAddEntityPacket
-import net.casual.arcade.utils.impl.WrappedTrackedEntity
+import net.casual.arcade.utils.entity.WrappedTrackedEntity
 import net.casual.arcade.utils.toIdString
 import net.minecraft.core.UUIDUtil
 import net.minecraft.network.protocol.Packet

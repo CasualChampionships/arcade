@@ -5,8 +5,8 @@
 package net.casual.arcade.minigame.utils
 
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.utils.PlayerUtils.grantAdvancement
-import net.casual.arcade.utils.PlayerUtils.revokeAdvancement
+import net.casual.arcade.utils.player.grantAdvancement
+import net.casual.arcade.utils.player.revokeAdvancement
 import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer

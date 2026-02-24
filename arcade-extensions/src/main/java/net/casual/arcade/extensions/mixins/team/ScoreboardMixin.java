@@ -8,7 +8,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.ducks.ArcadeTeamDataHolder;
 import net.casual.arcade.utils.ArcadeUtils;
-import net.casual.arcade.utils.ServerUtils;
+import net.casual.arcade.utils.server.ServerSingleton;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.ValueInput;
@@ -35,7 +35,7 @@ public class ScoreboardMixin {
         ArcadeUtils.scopedProblemReporter(reporter -> {
             CompoundTag tag = Optional.ofNullable(((ArcadeTeamDataHolder) (Object) packed).arcade$getData())
                 .orElseGet(CompoundTag::new);
-            ValueInput input = TagValueInput.create(reporter, ServerUtils.getRegistryAccessOrEmpty(), tag);
+            ValueInput input = TagValueInput.create(reporter, ServerSingleton.getRegistryAccessOrEmpty(), tag);
             ExtensionHolder.deserialize((ExtensionHolder) team, input);
         });
     }

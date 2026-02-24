@@ -2,10 +2,10 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.utils
+package net.casual.arcade.utils.entity
 
 import net.casual.arcade.util.mixins.ChunkMapAccessor
-import net.casual.arcade.utils.impl.WrappedTrackedEntity
+import net.casual.arcade.utils.entity.WrappedTrackedEntity
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.minecraft.core.BlockPos
@@ -31,6 +31,7 @@ import net.minecraft.world.level.levelgen.structure.Structure
 import net.minecraft.world.phys.Vec3
 import java.util.*
 import java.util.function.Consumer
+import kotlin.collections.iterator
 import kotlin.jvm.optionals.getOrNull
 
 public fun MinecraftServer.findEntity(uuid: UUID): Entity? {

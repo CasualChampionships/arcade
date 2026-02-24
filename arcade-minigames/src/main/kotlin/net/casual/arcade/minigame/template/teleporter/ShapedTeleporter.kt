@@ -7,8 +7,7 @@ package net.casual.arcade.minigame.template.teleporter
 import com.google.common.collect.Multimap
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
-import net.casual.arcade.utils.teleportTo
-import net.casual.arcade.visuals.shapes.ShapePoints
+import net.casual.arcade.utils.entity.teleportTo
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.Vec3

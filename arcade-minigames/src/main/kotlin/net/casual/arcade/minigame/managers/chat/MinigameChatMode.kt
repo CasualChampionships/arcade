@@ -10,9 +10,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.managers.MinigameChatManager
 import net.casual.arcade.minigame.utils.MinigameRegistries
-import net.casual.arcade.utils.PlayerUtils.server
 import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.chat.PlayerChatFormatter
+import net.casual.arcade.utils.player.server
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.minecraft.core.Registry
@@ -64,8 +64,8 @@ public interface MinigameChatMode {
     }
 
     public data object Global: MinigameChatMode, CodecProvider<Global> {
-        override val ID: Identifier = IdentifierUtils.arcade("spectator")
-        override val CODEC: MapCodec<Global> = MapCodec.unit(Global)
+        override val id: Identifier = IdentifierUtils.arcade("spectator")
+        override val codec: MapCodec<Global> = MapCodec.unit(Global)
 
         override val name: Component = Component.translatable("minigame.chat.mode.global")
 
@@ -87,13 +87,13 @@ public interface MinigameChatMode {
         }
 
         override fun codec(): MapCodec<out MinigameChatMode> {
-            return CODEC
+            return codec
         }
     }
 
     public data object Spectator: MinigameChatMode, CodecProvider<Spectator> {
-        override val ID: Identifier = IdentifierUtils.arcade("spectator")
-        override val CODEC: MapCodec<Spectator> = MapCodec.unit(Spectator)
+        override val id: Identifier = IdentifierUtils.arcade("spectator")
+        override val codec: MapCodec<Spectator> = MapCodec.unit(Spectator)
 
         override val name: Component = Component.translatable("minigame.chat.mode.spectator")
 
@@ -115,13 +115,13 @@ public interface MinigameChatMode {
         }
 
         override fun codec(): MapCodec<out MinigameChatMode> {
-            return CODEC
+            return codec
         }
     }
 
     public data object Admin: MinigameChatMode, CodecProvider<Admin> {
-        override val ID: Identifier = IdentifierUtils.arcade("admin")
-        override val CODEC: MapCodec<Admin> = MapCodec.unit(Admin)
+        override val id: Identifier = IdentifierUtils.arcade("admin")
+        override val codec: MapCodec<Admin> = MapCodec.unit(Admin)
 
         override val name: Component = Component.translatable("minigame.chat.mode.admin")
 
@@ -143,13 +143,13 @@ public interface MinigameChatMode {
         }
 
         override fun codec(): MapCodec<out MinigameChatMode> {
-            return CODEC
+            return codec
         }
     }
 
     public data object OwnTeam: MinigameChatMode, CodecProvider<OwnTeam> {
-        override val ID: Identifier = IdentifierUtils.arcade("own_team")
-        override val CODEC: MapCodec<OwnTeam> = MapCodec.unit(OwnTeam)
+        override val id: Identifier = IdentifierUtils.arcade("own_team")
+        override val codec: MapCodec<OwnTeam> = MapCodec.unit(OwnTeam)
 
         override val name: Component = Component.translatable("minigame.chat.mode.team")
 
@@ -172,7 +172,7 @@ public interface MinigameChatMode {
         }
 
         override fun codec(): MapCodec<out MinigameChatMode> {
-            return CODEC
+            return codec
         }
     }
 
@@ -209,13 +209,13 @@ public interface MinigameChatMode {
         }
 
         override fun codec(): MapCodec<out MinigameChatMode> {
-            return CODEC
+            return codec
         }
 
         public companion object: CodecProvider<Team> {
-            override val ID: Identifier = IdentifierUtils.arcade("team")
+            override val id: Identifier = IdentifierUtils.arcade("team")
 
-            override val CODEC: MapCodec<Team> = RecordCodecBuilder.mapCodec { instance ->
+            override val codec: MapCodec<Team> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(
                     Codec.STRING.fieldOf("team_name").forGetter { it.teamName }
                 ).apply(instance, ::Team)

@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2024 senseiwells
+ * Copyright (c) 2026 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.utils.impl
+package net.casual.arcade.utils.collection
 
 public class ConcatenatedList<E> private constructor(
     private val lists: MutableList<List<E>>
@@ -35,16 +35,16 @@ public class ConcatenatedList<E> private constructor(
          * @return The concatenated view of the lists.
          */
         @JvmStatic
-        public fun <E> List<E>.concat(other: List<E>): List<E> {
-            if (this is ConcatenatedList) {
-                this.lists.add(other)
-                return this
+        public fun <E> concat(first: List<E>, other: List<E>): List<E> {
+            if (first is ConcatenatedList) {
+                first.lists.add(other)
+                return first
             }
             if (other is ConcatenatedList) {
-                other.lists.add(0, this)
+                other.lists.add(0, first)
                 return other
             }
-            return ConcatenatedList(mutableListOf(this, other))
+            return ConcatenatedList(mutableListOf(first, other))
         }
 
         /**
@@ -55,11 +55,11 @@ public class ConcatenatedList<E> private constructor(
          * @return The concatenated view of the lists.
          */
         @JvmStatic
-        public fun <E> List<E>.concat(vararg other: E): List<E> {
+        public fun <E> concat(first: List<E>, vararg other: E): List<E> {
             if (other.isEmpty()) {
-                return this
+                return first
             }
-            return this.concat(other.toList())
+            return this.concat(first, other.asList())
         }
     }
 }

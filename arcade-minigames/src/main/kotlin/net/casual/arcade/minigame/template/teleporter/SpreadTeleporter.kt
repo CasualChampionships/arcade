@@ -32,13 +32,13 @@ public class SpreadTeleporter(
     }
 
     override fun codec(): MapCodec<out EntityTeleporter> {
-        return CODEC
+        return codec
     }
 
     public companion object: CodecProvider<SpreadTeleporter> {
-        override val ID: Identifier = IdentifierUtils.arcade("spread")
+        override val id: Identifier = IdentifierUtils.arcade("spread")
 
-        override val CODEC: MapCodec<out SpreadTeleporter> = RecordCodecBuilder.mapCodec { instance ->
+        override val codec: MapCodec<out SpreadTeleporter> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 Vec3.CODEC.fieldOf("center").forGetter(SpreadTeleporter::center),
                 Codec.DOUBLE.fieldOf("radius").forGetter(SpreadTeleporter::radius)

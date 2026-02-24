@@ -13,7 +13,7 @@ import net.casual.arcade.replay.io.reader.replay_mod.ReplayModReader
 import net.casual.arcade.replay.io.writer.ReplayWriter
 import net.casual.arcade.replay.io.writer.flashback.FlashbackWriter
 import net.casual.arcade.replay.io.writer.replay_mod.ReplayModWriter
-import net.casual.arcade.utils.convertCasing
+import net.casual.arcade.utils.string.convertCasing
 import net.casual.arcade.utils.string.PascalCase
 import net.casual.arcade.utils.string.SnakeCase
 import net.minecraft.util.StringRepresentable

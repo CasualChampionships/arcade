@@ -9,7 +9,7 @@ import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.PropertyMap
 import net.casual.arcade.utils.ClientboundPlayerInfoUpdatePacket
 import net.casual.arcade.utils.EnumUtils
-import net.casual.arcade.utils.PlayerUtils.server
+import net.casual.arcade.utils.player.server
 import net.casual.arcade.visuals.core.TrackingVisualElement
 import net.casual.arcade.visuals.core.TickableVisualElement
 import net.casual.arcade.visuals.utils.elements.ComponentElements

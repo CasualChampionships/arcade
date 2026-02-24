@@ -7,12 +7,12 @@ package net.casual.arcade.utils
 import net.casual.arcade.util.ducks.ConnectionFaultHolder
 import net.casual.arcade.util.ducks.SilentRecipeSender
 import net.casual.arcade.util.mixins.PlayerAdvancementsAccessor
-import net.casual.arcade.utils.TeamUtils.getOnlinePlayers
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.chat.PlayerFormattedChat
 import net.casual.arcade.utils.compat.SguiCompatLayer
 import net.casual.arcade.utils.impl.Sound
 import net.casual.arcade.utils.math.location.LocationWithLevel
+import net.casual.arcade.utils.scoreboard.getOnlinePlayers
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.core.*
@@ -54,46 +54,45 @@ public object PlayerUtils {
     private val HEALTH_BOOST = IdentifierUtils.arcade("health_boost")
 
     @JvmStatic
-    @Deprecated("Replace With .server", ReplaceWith(
-        "this.server",
-        "net.casual.arcade.utils.PlayerUtils.levelServer",
-        "net.casual.arcade.utils.PlayerUtils.server"
-    ))
-    public val ServerPlayer.levelServer: MinecraftServer
-        get() = this.server
-
-    @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public val ServerPlayer.server: MinecraftServer
         get() = this.level().server!!
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public val ServerPlayer.isSurvival: Boolean
         get() = this.isGameMode(GameType.SURVIVAL)
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public val ServerPlayer.username: String
         get() = this.gameProfile.name
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.server.ServerUtils")
     public val MinecraftServer.players: List<ServerPlayer>
         get() = this.playerList.players
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.getGameMode(): GameType {
         return this.gameMode.gameModeForPlayer
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.hasPermission(level: PermissionLevel): Boolean {
         return this.hasPermission(HasCommandLevel(level))
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.hasPermission(permission: Permission): Boolean {
         return this.permissions().hasPermission(permission)
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun Iterable<ServerPlayer>.broadcast(packet: Packet<*>) {
         for (player in this) {
             player.connection.send(packet)
@@ -102,6 +101,7 @@ public object PlayerUtils {
 
     @JvmStatic
     @JvmOverloads
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun Iterable<ServerPlayer>.broadcast(
         message: Component,
         filter: Predicate<ServerPlayer> = Predicate { true }
@@ -115,6 +115,7 @@ public object PlayerUtils {
 
     @JvmStatic
     @JvmOverloads
+    @Deprecated("Filter ops then broadcast")
     public fun Iterable<ServerPlayer>.broadcastToOps(
         message: Component,
         permission: Permission = HasCommandLevel(PermissionLevel.GAMEMASTERS)
@@ -123,6 +124,7 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun Iterable<ServerPlayer>.toComponent(): MutableComponent {
         val component = Component.empty()
         for (player in this) {
@@ -136,6 +138,7 @@ public object PlayerUtils {
 
     @JvmStatic
     @JvmOverloads
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun Iterable<ServerPlayer>.ops(
         permission: Permission = HasCommandLevel(PermissionLevel.GAMEMASTERS)
     ): List<ServerPlayer> {
@@ -144,26 +147,31 @@ public object PlayerUtils {
 
     @JvmStatic
     @JvmOverloads
+    @Deprecated("Filter for gamemode yourself")
     public fun Iterable<ServerPlayer>.gamemode(type: GameType = GameType.SURVIVAL): List<ServerPlayer> {
         return this.filter { it.isGameMode(type) }
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.getKillCreditWith(source: DamageSource): Entity? {
         return this.killCredit ?: source.entity
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.server.ServerUtils")
     public fun MinecraftServer.player(name: String): ServerPlayer? {
         return this.playerList.getPlayerByName(name)
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.server.ServerUtils")
     public fun MinecraftServer.player(uuid: UUID): ServerPlayer? {
         return this.playerList.getPlayer(uuid)
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.setRespawnLocation(
         location: LocationWithLevel<*>,
         force: Boolean = true,
@@ -178,11 +186,13 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.resetHealth() {
         this.health = this.maxHealth
     }
 
     @JvmStatic
+    @Deprecated("Implement yourself")
     public fun ServerPlayer.boostHealth(multiply: Double) {
         val instance = this.attributes.getInstance(Attributes.MAX_HEALTH)
         if (instance != null) {
@@ -196,23 +206,27 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("Implement yourself")
     public fun ServerPlayer.unboostHealth() {
         this.attributes.getInstance(Attributes.MAX_HEALTH)?.removeModifier(HEALTH_BOOST)
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.resetExperience() {
         this.experienceLevel = 0
         this.experienceProgress = 0.0F
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.resetHunger() {
         this.foodData.foodLevel = 20
         this.foodData.setSaturation(20.0F)
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.clearPlayerInventory() {
         this.inventory.clearContent()
         this.inventoryMenu.craftSlots.clearContent()
@@ -220,16 +234,19 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.updateSelectedSlot() {
         this.updateInventorySlot(this.inventory.selectedSlot + 36)
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.updateOffhandSlot() {
         this.updateInventorySlot(InventoryMenu.SHIELD_SLOT)
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.updateInteractionSlot(hand: InteractionHand) {
         when (hand) {
             InteractionHand.MAIN_HAND -> this.updateSelectedSlot()
@@ -238,6 +255,7 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.updateInventorySlot(slot: Int) {
         if (!SguiCompatLayer.isInGuiWithOverriddenInventory(this)) {
             val menu = this.inventoryMenu
@@ -248,11 +266,13 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.getAttackCooldown(): MinecraftTimeDuration {
         return Mth.ceil(this.currentItemAttackStrengthDelay).Ticks
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.getApproximateViewBox(): AABB {
         val pos = SectionPos.of(this.position())
         val size = (2 * this.getViewDistance() + 1) * 16.0
@@ -260,32 +280,38 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.getViewDistance(): Int {
         return this.requestedViewDistance().coerceIn(2, this.server.playerList.viewDistance)
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.isInViewDistance(pos: Vec3): Boolean {
         return this.isInViewDistance(pos.x, pos.z)
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.isInViewDistance(x: Double, z: Double): Boolean {
         return this.isChunkInViewDistance(SectionPos.posToSectionCoord(x), SectionPos.posToSectionCoord(z))
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.isChunkInViewDistance(pos: ChunkPos, offset: Int = 0): Boolean {
         return this.isChunkInViewDistance(pos.x, pos.z, offset)
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.isChunkInViewDistance(chunkX: Int, chunkY: Int, offset: Int = 0): Boolean {
         val pos = this.chunkPosition()
         return ChunkTrackingView.isInViewDistance(pos.x, pos.z, this.getViewDistance() + offset, chunkX, chunkY)
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.dropItemStackIntoInventory(
         stack: ItemStack,
         remaining: (ItemStack) -> Unit
@@ -312,11 +338,13 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.isGameMode(mode: GameType): Boolean {
         return this.gameMode.gameModeForPlayer == mode
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.spoofTeam(team: PlayerTeam) {
         this.server.playerList.broadcastAll(
             ClientboundSetPlayerTeamPacket.createPlayerPacket(team, this.scoreboardName, ADD)
@@ -324,31 +352,37 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerCommonPacketListenerImpl.hasTimedOut(): Boolean {
-        return (this as ConnectionFaultHolder).`arcade$hasTimedOut`()
+        return (this as ConnectionFaultHolder).arcade_hasTimeOut()
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.hasTimedOut(): Boolean {
         return this.connection.hasTimedOut()
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerCommonPacketListenerImpl.getPacketError(): Throwable? {
-        return (this as ConnectionFaultHolder).`arcade$getPacketError`()
+        return (this as ConnectionFaultHolder).arcade_getPacketError()
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.getPacketError(): Throwable? {
         return this.connection.getPacketError()
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.hasAdvancement(advancement: AdvancementHolder): Boolean {
         return this.advancements.getOrStartProgress(advancement).isDone
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.grantAdvancement(advancement: AdvancementHolder) {
         val progress = this.advancements.getOrStartProgress(advancement)
         if (!progress.isDone) {
@@ -359,6 +393,7 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.grantAdvancementSilently(advancement: AdvancementHolder) {
         val progress = this.advancements.getOrStartProgress(advancement)
         val accessor = this.advancements as PlayerAdvancementsAccessor
@@ -372,6 +407,7 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.revokeAdvancement(advancement: AdvancementHolder) {
         val progress = this.advancements.getOrStartProgress(advancement)
         if (progress.hasProgress()) {
@@ -383,6 +419,7 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.revokeAllAdvancements() {
         for (advancement in this.server.advancements.allAdvancements) {
             this.revokeAdvancement(advancement)
@@ -390,6 +427,7 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.grantAllRecipesSilently() {
         for (recipe in this.server.recipeManager.recipes) {
             this.recipeBook.add(recipe.id)
@@ -398,16 +436,19 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.revokeAllRecipes() {
         this.resetRecipes(this.server.recipeManager.recipes)
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.markSilentRecipesDirty() {
         (this as SilentRecipeSender).`arcade$markSilentRecipesDirty`()
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.setTitleAnimation(
         fadeIn: MinecraftTimeDuration = 10.Ticks,
         stay: MinecraftTimeDuration = 70.Ticks,
@@ -417,17 +458,20 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.setTitleAnimation(fadeIn: Int, stay: Int, fadeOut: Int) {
         this.connection.send(ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut))
     }
 
     @JvmStatic
     @JvmOverloads
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.clearTitle(resetTimes: Boolean = true) {
         this.connection.send(ClientboundClearTitlesPacket(resetTimes))
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.sendTitle(title: Component, subtitle: Component? = null) {
         this.connection.send(ClientboundSetTitleTextPacket(title))
         if (subtitle != null) {
@@ -437,6 +481,7 @@ public object PlayerUtils {
 
     @JvmStatic
     @JvmOverloads
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.sendSubtitle(subtitle: Component, force: Boolean = false) {
         if (force) {
             this.sendTitle(Component.empty(), subtitle)
@@ -446,18 +491,21 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.sendActionBarMessage(component: Component) {
         this.connection.send(ClientboundSetActionBarTextPacket(component))
     }
 
     @JvmStatic
     @JvmOverloads
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.sendSound(sound: Sound, position: Vec3 = this.position()) {
         this.sendSound(sound.event, sound.source, position, sound.volume, sound.pitch, sound.static)
     }
 
     @JvmStatic
     @JvmOverloads
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.sendSound(
         sound: SoundEvent,
         source: SoundSource = SoundSource.MASTER,
@@ -471,6 +519,7 @@ public object PlayerUtils {
 
     @JvmStatic
     @JvmOverloads
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.sendSound(
         sound: Holder<SoundEvent>,
         source: SoundSource = SoundSource.MASTER,
@@ -489,18 +538,21 @@ public object PlayerUtils {
 
     @JvmStatic
     @JvmOverloads
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.stopSound(sound: SoundEvent, source: SoundSource? = null) {
         this.connection.send(ClientboundStopSoundPacket(sound.location, source))
     }
 
     @JvmStatic
     @JvmOverloads
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.stopAllSounds(source: SoundSource? = null) {
         this.connection.send(ClientboundStopSoundPacket(null, source))
     }
 
     @JvmStatic
     @JvmOverloads
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.broadcastMessageAsSystem(
         message: Component,
         filter: Predicate<ServerPlayer> = Predicate { true },
@@ -518,6 +570,7 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.getChatUsername(withTeam: Boolean = true): MutableComponent {
         val team = this.team
         if (!withTeam || team == null) {
@@ -528,21 +581,25 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("No replacement")
     public fun ServerPlayer.broadcastUnsignedMessage(message: Component) {
         this.broadcastUnsignedMessage(PlayerChatMessage.unsigned(this.uuid, message.string).withUnsignedContent(message))
     }
 
     @JvmStatic
+    @Deprecated("No replacement")
     public fun ServerPlayer.broadcastUnsignedMessage(message: PlayerChatMessage) {
         this.server.playerList.broadcastChatMessage(message, this, ChatType.bind(ChatType.CHAT, this))
     }
 
     @JvmStatic
+    @Deprecated("No replacement")
     public fun ServerPlayer.broadcastUnsignedTeamMessage(message: Component): Boolean {
         return this.broadcastUnsignedTeamMessage(PlayerChatMessage.unsigned(this.uuid, message.string).withUnsignedContent(message))
     }
 
     @JvmStatic
+    @Deprecated("No replacement")
     public fun ServerPlayer.broadcastUnsignedTeamMessage(message: PlayerChatMessage): Boolean {
         val team = this.team ?: return false
 
@@ -561,16 +618,19 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.addToTeam(team: PlayerTeam) {
         this.server.scoreboard.addPlayerToTeam(this.scoreboardName, team)
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.removeFromTeam() {
         this.server.scoreboard.removePlayerFromTeam(this.scoreboardName)
     }
 
     @JvmStatic
+    @Deprecated("No replacement")
     public fun ServerPlayer.distanceToBorders(): Vec3 {
         val border = this.level().worldBorder
         val distanceToEast = this.x - border.minX
@@ -583,6 +643,7 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("No replacement")
     public fun ServerPlayer.distanceToNearestBorder(): Vec3 {
         val distance = this.distanceToBorders()
         return when {
@@ -595,6 +656,7 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("No replacement")
     public fun ServerPlayer.directionVectorToBorders(): Vec3 {
         val border = this.level().worldBorder
         val distanceToEast = this.x - border.minX
@@ -607,6 +669,7 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("No replacement")
     public fun ServerPlayer.directionVectorToNearestBorder(): Vec3 {
         val distance = this.distanceToBorders()
         val direction = this.directionVectorToBorders()
@@ -620,11 +683,13 @@ public object PlayerUtils {
     }
 
     @JvmStatic
+    @Deprecated("No replacement")
     public fun ServerPlayer.directionToNearestBorder(): Direction8 {
         return MathUtils.getDirection8(this.directionVectorToNearestBorder())
     }
 
     @JvmStatic
+    @Deprecated("Use replacement in net.casual.arcade.utils.player.PlayerUtils")
     public fun ServerPlayer.sendParticles(
         options: ParticleOptions,
         position: Vec3,

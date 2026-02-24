@@ -6,11 +6,9 @@ package net.casual.arcade.replay.mixins.compat.vmp;
 
 import com.ishland.vmp.common.playerwatching.NearbyEntityTracking;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.casual.arcade.replay.mixins.rejoin.ChunkMapAccessor;
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecordable;
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorders;
-import net.casual.arcade.utils.EntityUtilsKt;
-import net.casual.arcade.utils.impl.WrappedTrackedEntity;
+import net.casual.arcade.utils.entity.EntityUtilsKt;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;

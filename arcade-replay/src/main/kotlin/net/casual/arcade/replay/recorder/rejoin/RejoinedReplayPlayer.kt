@@ -7,7 +7,7 @@ package net.casual.arcade.replay.recorder.rejoin
 import net.casual.arcade.replay.ducks.PackTracker
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.viewer.ReplayViewerUtils
-import net.casual.arcade.utils.PlayerUtils.server
+import net.casual.arcade.utils.player.server
 import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.game.*
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket.Action

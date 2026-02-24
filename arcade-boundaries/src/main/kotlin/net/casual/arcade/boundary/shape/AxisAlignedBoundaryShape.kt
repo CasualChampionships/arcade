@@ -142,7 +142,7 @@ public class AxisAlignedBoundaryShape private constructor(
     }
 
     override fun codec(): MapCodec<out BoundaryShape> {
-        return CODEC
+        return codec
     }
 
     private fun recalculateAABB(): AABB {
@@ -150,8 +150,8 @@ public class AxisAlignedBoundaryShape private constructor(
     }
 
     public companion object: CodecProvider<AxisAlignedBoundaryShape> {
-        override val ID: Identifier = ArcadeUtils.id("axis_aligned_border_shape")
-        override val CODEC: MapCodec<AxisAlignedBoundaryShape> = RecordCodecBuilder.mapCodec { instance ->
+        override val id: Identifier = ArcadeUtils.id("axis_aligned_border_shape")
+        override val codec: MapCodec<AxisAlignedBoundaryShape> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 State.CODEC.fieldOf("size_state").forGetter(AxisAlignedBoundaryShape::size),
                 State.CODEC.fieldOf("center_state").forGetter(AxisAlignedBoundaryShape::center)

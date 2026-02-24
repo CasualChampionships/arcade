@@ -8,7 +8,6 @@ import eu.pb4.sgui.api.gui.GuiInterface
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.utils.SettingsGuiUtils.addSettings
-import net.casual.arcade.utils.JsonUtils.string
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput

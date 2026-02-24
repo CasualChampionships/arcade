@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.commands.hidden
 
-import net.casual.arcade.utils.PlayerUtils.server
+import net.casual.arcade.utils.player.server
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 

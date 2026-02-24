@@ -7,7 +7,7 @@ package net.casual.arcade.replay.recorder.rejoin
 import io.netty.channel.ChannelFutureListener
 import net.casual.arcade.replay.mixins.rejoin.ServerConfigurationPacketListenerImplAccessor
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.PlayerUtils.server
+import net.casual.arcade.utils.player.server
 import net.minecraft.network.Connection
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.common.ServerboundPongPacket

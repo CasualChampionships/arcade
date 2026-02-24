@@ -35,7 +35,7 @@ public class AroundLocationProvider(
     }
 
     override fun codec(): MapCodec<out LocationProvider> {
-        return CODEC
+        return codec
     }
 
     private fun transform(location: Location): Location {
@@ -46,9 +46,9 @@ public class AroundLocationProvider(
     }
 
     public companion object: CodecProvider<AroundLocationProvider> {
-        override val ID: Identifier = IdentifierUtils.arcade("around")
+        override val id: Identifier = IdentifierUtils.arcade("around")
 
-        override val CODEC: MapCodec<out AroundLocationProvider> = RecordCodecBuilder.mapCodec { instance ->
+        override val codec: MapCodec<out AroundLocationProvider> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 Codec.DOUBLE.fieldOf("horizontal_radius").forGetter(AroundLocationProvider::horizontalRadius),
                 Codec.DOUBLE.fieldOf("vertical_radius").forGetter(AroundLocationProvider::verticalRadius),

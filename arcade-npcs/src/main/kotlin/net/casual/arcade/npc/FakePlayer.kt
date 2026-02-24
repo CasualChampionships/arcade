@@ -19,8 +19,8 @@ import net.casual.arcade.npc.network.FakeLoginPacketListenerImpl
 import net.casual.arcade.npc.pathfinding.navigation.NPCAmphibiousPathNavigation
 import net.casual.arcade.npc.pathfinding.navigation.NPCPathNavigation
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.DynamicResolvableProfile
-import net.casual.arcade.utils.PlayerUtils.server
+import net.casual.arcade.utils.player.DynamicResolvableProfile
+import net.casual.arcade.utils.player.server
 import net.minecraft.network.Connection
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket
 import net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket

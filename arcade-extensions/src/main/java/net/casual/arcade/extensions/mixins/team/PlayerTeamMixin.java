@@ -12,7 +12,7 @@ import net.casual.arcade.extensions.ducks.ArcadeTeamDataHolder;
 import net.casual.arcade.extensions.event.TeamExtensionEvent;
 import net.casual.arcade.util.mixins.teams.ServerScoreboardAccessor;
 import net.casual.arcade.utils.ArcadeUtils;
-import net.casual.arcade.utils.ServerUtils;
+import net.casual.arcade.utils.server.ServerSingleton;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
 import net.minecraft.world.level.storage.TagValueOutput;
@@ -48,7 +48,7 @@ public class PlayerTeamMixin implements ExtensionHolder {
 	)
 	private PlayerTeam.Packed onPack(PlayerTeam.Packed original) {
 		ArcadeUtils.scopedProblemReporter(reporter -> {
-			TagValueOutput output = TagValueOutput.createWithContext(reporter, ServerUtils.getRegistryAccessOrEmpty());
+			TagValueOutput output = TagValueOutput.createWithContext(reporter, ServerSingleton.getRegistryAccessOrEmpty());
 			ExtensionHolder.serialize(this, output);
 			((ArcadeTeamDataHolder) (Object) original).arcade$setData(output.buildResult());
 		});

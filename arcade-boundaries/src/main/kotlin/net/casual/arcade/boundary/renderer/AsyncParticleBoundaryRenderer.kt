@@ -52,13 +52,13 @@ public class AsyncParticleBoundaryRenderer(
         }
 
         override fun codec(): MapCodec<out BoundaryRenderer.Factory> {
-            return CODEC
+            return codec
         }
 
         public companion object: CodecProvider<Factory> {
-            override val ID: Identifier = ArcadeUtils.id("async_particle_border_renderer")
+            override val id: Identifier = ArcadeUtils.id("async_particle_border_renderer")
 
-            override val CODEC: MapCodec<out Factory> = RecordCodecBuilder.mapCodec { instance ->
+            override val codec: MapCodec<out Factory> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(
                     ParticleRenderOptions.CODEC.fieldOf("particles").forGetter(Factory::particles),
                     Codec.DOUBLE.fieldOf("range").forGetter(Factory::range),

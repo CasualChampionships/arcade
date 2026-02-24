@@ -10,8 +10,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.replay.io.ReplayFormat
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.util.io.FileSize
-import net.casual.arcade.utils.convertCasing
-import net.casual.arcade.utils.encodedOptionalFieldOf
+import net.casual.arcade.utils.string.convertCasing
+import net.casual.arcade.utils.serialization.codec.encodedOptionalFieldOf
 import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
 import net.casual.arcade.utils.string.PascalCase
 import net.casual.arcade.utils.string.SnakeCase

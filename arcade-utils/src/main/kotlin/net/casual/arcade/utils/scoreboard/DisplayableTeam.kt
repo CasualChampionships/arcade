@@ -2,11 +2,10 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.utils.team
+package net.casual.arcade.utils.scoreboard
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.casual.arcade.utils.TeamUtils.getHexColor
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.ComponentSerialization
 import net.minecraft.world.scores.PlayerTeam

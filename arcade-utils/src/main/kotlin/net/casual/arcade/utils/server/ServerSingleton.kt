@@ -1,18 +1,16 @@
 /*
- * Copyright (c) 2024 senseiwells
+ * Copyright (c) 2026 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.utils
+package net.casual.arcade.utils.server
 
-import net.casual.arcade.util.ducks.CustomMOTD
+import net.casual.arcade.utils.server.ServerSingleton.get
+import net.casual.arcade.utils.server.ServerSingleton.getOrNull
 import net.minecraft.core.RegistryAccess
-import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.level.ServerLevel
-import net.minecraft.world.level.Level
 import org.jetbrains.annotations.ApiStatus.Internal
 
-public object ServerUtils {
+public object ServerSingleton {
     private var instance: MinecraftServer? = null
 
     /**
@@ -24,11 +22,11 @@ public object ServerUtils {
      * reference to the [MinecraftServer].
      *
      * @return The [MinecraftServer] instance.
-     * @see getServerOrNull
+     * @see getOrNull
      */
     @JvmStatic
-    public fun getServer(): MinecraftServer {
-        return this.getServerOrNull()
+    public fun get(): MinecraftServer {
+        return this.getOrNull()
             ?: throw IllegalStateException("Called ServerUtils.getServer before server was created")
     }
 
@@ -40,40 +38,21 @@ public object ServerUtils {
      * reference to the [MinecraftServer].
      *
      * @return The [MinecraftServer] instance, or null.
-     * @see getServer
+     * @see get
      */
     @JvmStatic
-    public fun getServerOrNull(): MinecraftServer? {
+    public fun getOrNull(): MinecraftServer? {
         return this.instance
     }
 
     @JvmStatic
     public fun isOnServerThread(): Boolean {
-        return this.getServerOrNull()?.isSameThread ?: false
+        return this.getOrNull()?.isSameThread ?: false
     }
 
     @JvmStatic
     public fun getRegistryAccessOrEmpty(): RegistryAccess {
-        return this.getServerOrNull()?.registryAccess() ?: RegistryAccess.EMPTY
-    }
-
-    @JvmStatic
-    public fun MinecraftServer.nether(): ServerLevel {
-        return this.getLevel(Level.NETHER)!!
-    }
-
-    @JvmStatic
-    public fun MinecraftServer.end(): ServerLevel {
-        return this.getLevel(Level.END)!!
-    }
-
-    public fun MinecraftServer.setMessageOfTheDay(message: Component) {
-        (this as CustomMOTD).`arcade$setMOTD`(message)
-    }
-
-    public fun MinecraftServer.getMessageOfTheDay(): Component {
-        val custom = (this as CustomMOTD).`arcade$getMOTD`()
-        return custom ?: Component.nullToEmpty(this.motd)
+        return this.getOrNull()?.registryAccess() ?: RegistryAccess.EMPTY
     }
 
     @Internal

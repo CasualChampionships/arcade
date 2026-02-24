@@ -5,7 +5,7 @@
 package net.casual.arcade.dimensions.mixins.level;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.casual.arcade.utils.LevelUtilsKt;
+import net.casual.arcade.utils.level.LevelUtilsKt;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;

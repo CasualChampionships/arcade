@@ -10,9 +10,9 @@ import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.EnumUtils
-import net.casual.arcade.utils.PlayerUtils.isChunkInViewDistance
 import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.math.location.Location
+import net.casual.arcade.utils.player.isChunkInViewDistance
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
@@ -183,13 +183,13 @@ public class AxisAlignedDisplayBoundaryRenderer(
         }
 
         override fun codec(): MapCodec<out BoundaryRenderer.Factory> {
-            return CODEC
+            return codec
         }
 
         public companion object: CodecProvider<Factory> {
-            override val ID: Identifier = ArcadeUtils.id("axis_aligned_display_boundary_renderer")
+            override val id: Identifier = ArcadeUtils.id("axis_aligned_display_boundary_renderer")
 
-            override val CODEC: MapCodec<out Factory> = RecordCodecBuilder.mapCodec { instance ->
+            override val codec: MapCodec<out Factory> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(
                     AxisAlignedModelRenderOptions.CODEC.fieldOf("models").forGetter(Factory::models)
                 ).apply(instance, ::Factory)

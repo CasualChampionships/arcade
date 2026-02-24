@@ -8,10 +8,10 @@ import com.google.common.collect.Multimap
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.minigame.utils.MinigameRegistries
-import net.casual.arcade.utils.TeamUtils
 import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.providers.ExactLocationProvider
+import net.casual.arcade.utils.scoreboard.getMappedTeams
 import net.minecraft.core.Registry
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Entity
@@ -44,7 +44,7 @@ public interface EntityTeleporter {
         @JvmStatic
         public fun EntityTeleporter.teleport(level: ServerLevel, entities: List<Entity>, byTeams: Boolean) {
             if (byTeams) {
-                this.teleportTeams(level, TeamUtils.getMappedTeamsFor(entities))
+                this.teleportTeams(level, entities.getMappedTeams())
                 return
             }
             this.teleportEntities(level, entities)

@@ -8,15 +8,14 @@ import com.mojang.serialization.MapCodec
 import net.minecraft.core.Registry
 import net.minecraft.resources.Identifier
 
-@Suppress("PropertyName")
 public interface CodecProvider<T> {
-    public val ID: Identifier
+    public val id: Identifier
 
-    public val CODEC: MapCodec<out T>
+    public val codec: MapCodec<out T>
 
     public companion object {
         public fun <T> CodecProvider<out T>.register(registry: Registry<MapCodec<out T>>) {
-            Registry.register(registry, this.ID, this.CODEC)
+            Registry.register(registry, this.id, this.codec)
         }
     }
 }

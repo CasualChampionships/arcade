@@ -5,7 +5,7 @@
 package net.casual.arcade.events.server.player
 
 import net.casual.arcade.events.common.CancellableEvent
-import net.casual.arcade.utils.PlayerUtils.server
+import net.casual.arcade.utils.player.server
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 import java.util.*

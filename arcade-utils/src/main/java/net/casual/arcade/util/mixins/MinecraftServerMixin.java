@@ -8,7 +8,7 @@ import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.casual.arcade.util.ducks.CustomMOTD;
-import net.casual.arcade.utils.ServerUtils;
+import net.casual.arcade.utils.server.ServerSingleton;
 import net.casual.arcade.utils.coroutine.ServerCoroutineUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.status.ServerStatus;
@@ -16,7 +16,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.util.Util;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -41,7 +41,7 @@ public abstract class MinecraftServerMixin implements CustomMOTD {
 		at = @At("CTOR_HEAD")
 	)
 	private void onCreateServerInstance(CallbackInfo ci) {
-		ServerUtils.setServer((MinecraftServer) (Object) this);
+		ServerSingleton.setServer((MinecraftServer) (Object) this);
 	}
 
 	@ModifyExpressionValue(
@@ -76,19 +76,20 @@ public abstract class MinecraftServerMixin implements CustomMOTD {
         at = @At("RETURN")
     )
     private void onStopServer(CallbackInfo ci) {
-        ServerUtils.setServer(null);
+        ServerSingleton.setServer(null);
         ServerCoroutineUtils.INSTANCE.stopServer((MinecraftServer) (Object) this);
     }
 
 	@Override
-	public void arcade$setMOTD(Component message) {
+	public void arcade_setMOTD(Component message) {
 		this.arcade$motd = message;
 		this.status = this.buildServerStatus();
 		this.lastServerStatus = Util.getNanos();
 	}
 
 	@Override
-	public Component arcade$getMOTD() {
+	@Nullable
+	public Component arcade_getMOTD() {
 		return this.arcade$motd;
 	}
 }
