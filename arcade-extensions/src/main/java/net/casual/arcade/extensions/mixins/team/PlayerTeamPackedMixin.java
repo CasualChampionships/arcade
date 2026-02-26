@@ -5,6 +5,8 @@
 package net.casual.arcade.extensions.mixins.team;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.serialization.Codec;
 import net.casual.arcade.extensions.ducks.ArcadeTeamDataHolder;
 import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs;
@@ -15,6 +17,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Mixin(PlayerTeam.Packed.class)
@@ -40,6 +43,12 @@ public class PlayerTeamPackedMixin implements ArcadeTeamDataHolder {
                 return packed;
             }
         );
+    }
+
+    @WrapMethod(method = "equals")
+    private boolean extendEquals(Object object, Operation<Boolean> original) {
+        return original.call(object) && object instanceof ArcadeTeamDataHolder holder
+                && Objects.equals(this.arcade$data, holder.arcade$getData());
     }
 
     @Override

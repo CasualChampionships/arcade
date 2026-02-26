@@ -5,6 +5,8 @@
 package net.casual.arcade.util.mixins.teams;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.serialization.Codec;
 import net.casual.arcade.util.ducks.OverridableColor;
 import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs;
@@ -14,6 +16,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Mixin(PlayerTeam.Packed.class)
@@ -50,5 +53,11 @@ public class PlayerTeamPackedMixin implements OverridableColor {
                 return packed;
             }
         );
+    }
+
+    @WrapMethod(method = "equals")
+    private boolean extendEquals(Object object, Operation<Boolean> original) {
+        return original.call(object) && object instanceof OverridableColor color
+                && Objects.equals(this.arcade$color, color.arcade_getColor());
     }
 }
