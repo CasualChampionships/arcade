@@ -18,25 +18,29 @@ internal object ResourcePackCache {
 
     private val caching = ConcurrentHashMap<String, CompletableFuture<ByteArray>>()
 
-    fun get(url: String): CompletableFuture<ByteArray> {
-        val urlHash = this.sha1().hashString(url, StandardCharsets.UTF_8).toString()
-        val caching = this.caching[urlHash]
+    fun get(url: String, hash: String): CompletableFuture<ByteArray> {
+        val caching = this.caching[hash]
         if (caching != null) {
             return caching
         }
 
-        val cached = this.cached.resolve(urlHash)
-        if (cached.exists()) {
-            return CompletableFuture.completedFuture(cached.readBytes())
+        if (hash.isNotEmpty()) {
+            val cached = this.cached.resolve(hash)
+            if (cached.exists()) {
+                return CompletableFuture.completedFuture(cached.readBytes())
+            }
         }
 
         val future = CompletableFuture.supplyAsync {
             val bytes = URI(url).toURL().openStream().readAllBytes()
-            cached.createParentDirectories().writeBytes(bytes)
+            if (hash.isNotEmpty() && hash == this.hash(bytes)) {
+                val cached = this.cached.resolve(hash)
+                cached.createParentDirectories().writeBytes(bytes)
+            }
             bytes
         }
         future.whenComplete { _, throwable ->
-            this.caching.remove(urlHash)
+            this.caching.remove(hash)
             if (throwable != null) {
                 ArcadeUtils.logger.error("Failed to download resource pack at $url", throwable)
             }

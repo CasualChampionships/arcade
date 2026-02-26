@@ -7,9 +7,9 @@ import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.executes
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.utils.asCoroutineDispatcher
-import net.casual.arcade.utils.PlayerUtils.players
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.coroutine.launch
+import net.casual.arcade.utils.server.players
 import net.casual.arcade.visuals.transition.TitledCountdown
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
