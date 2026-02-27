@@ -4,15 +4,16 @@
  */
 package net.casual.arcade.replay.compat.voicechat
 
+import com.google.common.cache.Cache
+import com.google.common.cache.CacheBuilder
 import de.maxhenkel.voicechat.api.Position
+import de.maxhenkel.voicechat.api.VoicechatApi
 import de.maxhenkel.voicechat.api.audio.AudioConverter
+import de.maxhenkel.voicechat.api.opus.OpusDecoder
 import de.maxhenkel.voicechat.api.packets.EntitySoundPacket
 import de.maxhenkel.voicechat.api.packets.LocationalSoundPacket
 import de.maxhenkel.voicechat.api.packets.StaticSoundPacket
-import de.maxhenkel.voicechat.plugins.impl.packets.SoundPacketImpl
-import de.maxhenkel.voicechat.voice.common.SoundPacket
 import net.casual.arcade.replay.io.ReplayFormat
-import net.casual.arcade.utils.EnumUtils
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.common.ClientCommonPacketListener
@@ -20,70 +21,82 @@ import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 import net.minecraft.world.phys.Vec3
 import java.util.*
+import java.util.concurrent.TimeUnit
 
-public class VoicechatPacketCache {
-    // FIXME: Currently this cache is kinda useless because [SoundPacket]
-    //   instances aren't unique to voice data they are holding.
-    //   We should really move ReplayVoicechatPlugin#decodedOpusData here.
-    private val universe = EnumUtils.mapOf<ReplayFormat, WeakHashMap<SoundPacket<*>, Packet<ClientCommonPacketListener>>>()
+internal class VoicechatPacketCache {
+    private val channels: Cache<UUID, OpusDecoder> = this.createDecoderCache()
+    private val players: Cache<UUID, OpusDecoder> = this.createDecoderCache()
 
-    init {
-        for (format in ReplayFormat.entries) {
-            this.universe[format] = WeakHashMap()
-        }
-    }
+    private val decoded = WeakHashMap<ByteArray, ShortArray>()
 
-    public fun getOrCreate(
+    fun getOrCreate(
+        api: VoicechatApi,
         format: ReplayFormat,
-        converter: AudioConverter,
-        packet: LocationalSoundPacket,
-        decoded: ShortArray
+        packet: LocationalSoundPacket
     ): Packet<ClientCommonPacketListener> {
-        return this.universe[format]!!.getOrPut(packet.unwrap()) {
-            format.encoder().locational(converter, packet.sender, decoded, packet.position, packet.distance)
-        }
+        val decoded = this.decodeForChannel(api, packet.channelId, packet.opusEncodedData)
+        return format.encoder().locational(api.audioConverter, packet.sender, decoded, packet.position, packet.distance)
     }
 
-    public fun getOrCreate(
+    fun getOrCreate(
+        api: VoicechatApi,
         format: ReplayFormat,
-        converter: AudioConverter,
-        packet: EntitySoundPacket,
-        decoded: ShortArray
+        packet: EntitySoundPacket
     ): Packet<ClientCommonPacketListener> {
-        return this.universe[format]!!.getOrPut(packet.unwrap()) {
-            format.encoder().entity(converter, packet.sender, decoded, packet.isWhispering, packet.distance)
-        }
+        val decoded = this.decodeForChannel(api, packet.channelId, packet.opusEncodedData)
+        return format.encoder().entity(api.audioConverter, packet.sender, decoded, packet.isWhispering, packet.distance)
     }
 
-    public fun getOrCreate(
+    fun getOrCreate(
+        api: VoicechatApi,
         format: ReplayFormat,
-        converter: AudioConverter,
-        packet: StaticSoundPacket,
-        decoded: ShortArray
+        packet: StaticSoundPacket
     ): Packet<ClientCommonPacketListener> {
-        return this.universe[format]!!.getOrPut(packet.unwrap()) {
-            format.encoder().static(converter, packet.sender, decoded)
-        }
+        val decoded = this.decodeForChannel(api, packet.channelId, packet.opusEncodedData)
+        return format.encoder().static(api.audioConverter, packet.sender, decoded)
     }
 
-    public fun create(
+    fun create(
+        api: VoicechatApi,
         format: ReplayFormat,
-        converter: AudioConverter,
-        decoded: ShortArray,
+        encoded: ByteArray,
         sender: UUID,
         grouped: Boolean,
         whispering: Boolean,
         distance: Float
     ): Packet<ClientCommonPacketListener> {
+        val decoded = this.decodeForPlayer(api, sender, encoded)
         val encoder = format.encoder()
         if (grouped) {
-            return encoder.static(converter, sender, decoded)
+            return encoder.static(api.audioConverter, sender, decoded)
         }
-        return encoder.entity(converter, sender, decoded, whispering, distance)
+        return encoder.entity(api.audioConverter, sender, decoded, whispering, distance)
     }
 
-    private fun de.maxhenkel.voicechat.api.packets.SoundPacket.unwrap(): SoundPacket<*> {
-        return (this as SoundPacketImpl).packet
+    fun cleanUp() {
+        this.channels.cleanUp()
+        this.players.cleanUp()
+    }
+
+    private fun decodeForChannel(api: VoicechatApi, channel: UUID, data: ByteArray): ShortArray {
+        return this.decoded.getOrPut(data) {
+            val decoder = this.channels.get(channel, api::createDecoder)
+            decoder.decode(data)
+        }
+    }
+
+    private fun decodeForPlayer(api: VoicechatApi, player: UUID, data: ByteArray): ShortArray {
+        return this.decoded.getOrPut(data) {
+            val decoder = this.players.get(player, api::createDecoder)
+            decoder.decode(data)
+        }
+    }
+
+    private fun createDecoderCache(): Cache<UUID, OpusDecoder> {
+        return CacheBuilder.newBuilder()
+            .removalListener<UUID, OpusDecoder> { it.value?.close() }
+            .expireAfterAccess(30, TimeUnit.SECONDS)
+            .build()
     }
 
     private fun ReplayFormat.encoder(): Encoder {

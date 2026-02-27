@@ -4,14 +4,11 @@
  */
 package net.casual.arcade.replay.compat.voicechat
 
-import com.google.common.cache.Cache
-import com.google.common.cache.CacheBuilder
 import de.maxhenkel.voicechat.Voicechat
 import de.maxhenkel.voicechat.api.VoicechatApi
 import de.maxhenkel.voicechat.api.VoicechatConnection
 import de.maxhenkel.voicechat.api.VoicechatPlugin
 import de.maxhenkel.voicechat.api.events.*
-import de.maxhenkel.voicechat.api.opus.OpusDecoder
 import de.maxhenkel.voicechat.api.packets.SoundPacket
 import de.maxhenkel.voicechat.net.*
 import de.maxhenkel.voicechat.plugins.impl.VolumeCategoryImpl
@@ -31,21 +28,14 @@ import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.common.ClientCommonPacketListener
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.util.Util
 import org.jetbrains.annotations.ApiStatus.Internal
-import java.util.UUID
-import java.util.WeakHashMap
-import java.util.concurrent.TimeUnit
 
 @Internal
 public object ReplayVoicechatPlugin: VoicechatPlugin {
     private val cache = VoicechatPacketCache()
 
     private lateinit var api: VoicechatApi
-
-    private val channels: Cache<UUID, OpusDecoder> = this.createDecoderCache()
-    private val players: Cache<UUID, OpusDecoder> = this.createDecoderCache()
-
-    private val decodedOpusData = WeakHashMap<ByteArray, ShortArray>()
 
     override fun getPluginId(): String {
         return "${ArcadeUtils.MOD_ID}_replay_recorder"
@@ -76,11 +66,9 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
         }
 
         val packet = event.packet
-        val converter = event.voicechat.audioConverter
         this.recordForReceiver(event) { format, compress ->
             if (!compress) {
-                val decoded = this.decodeForChannel(packet.channelId, packet.opusEncodedData)
-                this.cache.getOrCreate(format, converter, packet, decoded)
+                this.cache.getOrCreate(event.voicechat, format, packet)
             } else {
                 EncodedVoicechatPackets.get(format, packet)
             }
@@ -93,11 +81,9 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
         }
 
         val packet = event.packet
-        val converter = event.voicechat.audioConverter
         this.recordForReceiver(event) { format, compress ->
             if (!compress) {
-                val decoded = this.decodeForChannel(packet.channelId, packet.opusEncodedData)
-                this.cache.getOrCreate(format, converter, packet, decoded)
+                this.cache.getOrCreate(event.voicechat, format, packet)
             } else {
                 EncodedVoicechatPackets.get(format, packet)
             }
@@ -110,11 +96,9 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
         }
 
         val packet = event.packet
-        val converter = event.voicechat.audioConverter
         this.recordForReceiver(event) { format, compress ->
             if (!compress) {
-                val decoded = this.decodeForChannel(packet.channelId, packet.opusEncodedData)
-                this.cache.getOrCreate(format, converter, packet, decoded)
+                this.cache.getOrCreate(event.voicechat, format, packet)
             } else {
                 EncodedVoicechatPackets.get(format, packet)
             }
@@ -124,7 +108,6 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
     private fun onMicrophonePacket(event: MicrophonePacketEvent) {
         val connection = event.senderConnection ?: return
         val player = connection.getServerPlayer() ?: return
-        val converter = event.voicechat.audioConverter
         val grouped = connection.isInGroup
         val whispering = event.packet.isWhispering
         val distance = event.voicechat.voiceChatDistance.toFloat()
@@ -135,8 +118,7 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
             val data = event.packet.opusEncodedData
             if (!compress) {
                 decodedMap.getOrPut(format) {
-                    val decoded = this.decodeForPlayer(player.uuid, data)
-                    this.cache.create(format, converter, decoded, player.uuid, grouped, whispering, distance)
+                    this.cache.create(event.voicechat, format, data, player.uuid, grouped, whispering, distance)
                 }
             } else {
                 encodedMap.getOrPut(format) {
@@ -195,27 +177,6 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
         }
     }
 
-    private fun decodeForChannel(channel: UUID, data: ByteArray): ShortArray {
-        return this.decodedOpusData.getOrPut(data) {
-            val decoder = this.channels.get(channel) { this.api.createDecoder() }
-            decoder.decode(data)
-        }
-    }
-
-    private fun decodeForPlayer(player: UUID, data: ByteArray): ShortArray {
-        return this.decodedOpusData.getOrPut(data) {
-            val decoder = this.players.get(player) { this.api.createDecoder() }
-            decoder.decode(data)
-        }
-    }
-
-    private fun createDecoderCache(): Cache<UUID, OpusDecoder> {
-        return CacheBuilder.newBuilder()
-            .removalListener<UUID, OpusDecoder> { it.value?.close() }
-            .expireAfterAccess(30, TimeUnit.SECONDS)
-            .build()
-    }
-
     private fun <T: SoundPacket> recordForReceiver(
         event: PacketEvent<T>,
         packet: (ReplayFormat, Boolean) -> Packet<ClientCommonPacketListener>
@@ -232,8 +193,7 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
 
     private fun onServerTick(event: ServerTickEvent) {
         if (event.server.tickCount % 30.Seconds.ticks == 0) {
-            this.channels.cleanUp()
-            this.players.cleanUp()
+            this.cache.cleanUp()
         }
     }
 
@@ -244,6 +204,17 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
         }
 
         this.recordAdditionalPackets(recorder)
+
+        // We have to send the client a secret for replay mod otherwise it won't play the packets
+        if (recorder.format == ReplayFormat.ReplayMod) {
+            val server = Voicechat.SERVER.server
+            val player = recorder.getPlayerOrThrow()
+            if (server != null && server.hasSecret(player.uuid)) {
+                val secret = server.getSecret(player.uuid)
+                val packet = SecretPacket(player, secret, server.port, Voicechat.SERVER_CONFIG)
+                recorder.record(packet.toClientboundPacket())
+            }
+        }
     }
 
     private fun onChunkRecorderSnapshot(event: ReplayChunkRecorderSnapshotEvent) {
@@ -253,6 +224,14 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
         }
 
         this.recordAdditionalPackets(recorder)
+        if (recorder.format == ReplayFormat.ReplayMod) {
+            val server = Voicechat.SERVER.server
+            if (server != null) {
+                val player = recorder.getDummyPlayer()
+                val packet = SecretPacket(player, server.generateNewSecret(Util.NIL_UUID), server.port, Voicechat.SERVER_CONFIG)
+                recorder.record(packet.toClientboundPacket())
+            }
+        }
     }
 
     private fun recordAdditionalPackets(recorder: ReplayRecorder) {
