@@ -19,7 +19,7 @@ public class ServerCommonPacketListenerImplMixin implements ConnectionAddressHol
 
     @Nullable
     @Override
-    public ObjectIntPair<String> arcade$getConnectionAddress() {
-        return ((ConnectionAddressHolder) this.connection).arcade$getConnectionAddress();
+    public ObjectIntPair<String> arcade_getConnectionAddress() {
+        return ((ConnectionAddressHolder) this.connection).arcade_getConnectionAddress();
     }
 }

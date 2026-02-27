@@ -31,13 +31,13 @@ public open class SimpleCustomLevelFactory(
     }
 
     override fun codec(): MapCodec<out CustomLevelFactory> {
-        return CODEC
+        return codec
     }
 
     public companion object: CodecProvider<SimpleCustomLevelFactory> {
-        override val ID: Identifier = IdentifierUtils.arcade("simple")
+        override val id: Identifier = IdentifierUtils.arcade("simple")
 
-        public override val CODEC: MapCodec<SimpleCustomLevelFactory> = RecordCodecBuilder.mapCodec { instance ->
+        public override val codec: MapCodec<SimpleCustomLevelFactory> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 propertiesCodec(), generationOptionsCodec(), persistenceCodec()
             ).apply(instance, ::SimpleCustomLevelFactory)

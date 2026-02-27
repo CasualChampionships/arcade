@@ -4,9 +4,8 @@
  */
 package net.casual.arcade.visuals.utils
 
-import eu.pb4.polymer.core.impl.interfaces.EntityAttachedPacket
-import eu.pb4.polymer.core.impl.interfaces.PossiblyInitialPacket
-import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData
+import net.casual.arcade.utils.compat.PolymerCompatLayer
+import net.casual.arcade.virtual.entity.utils.EntityDataAccessors
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.SynchedEntityData.DataValue
@@ -18,21 +17,21 @@ public inline fun ClientboundSetEntityDataPacket.modifySharedFlags(
     player: ServerPlayer,
     modifier: (observee: Entity, observer: ServerPlayer, flags: Byte) -> Byte
 ): ClientboundSetEntityDataPacket {
-    return this.modify(player, EntityTrackedData.FLAGS, modifier)
+    return this.modify(player, EntityDataAccessors.SHARED_FLAGS, modifier)
 }
 
 public inline fun ClientboundSetEntityDataPacket.modifyFrozenTicks(
     player: ServerPlayer,
     modifier: (observee: Entity, observer: ServerPlayer, ticks: Int) -> Int
 ): ClientboundSetEntityDataPacket {
-    return this.modify(player, EntityTrackedData.FROZEN_TICKS, modifier)
+    return this.modify(player, EntityDataAccessors.TICKS_FROZEN, modifier)
 }
 
 public inline fun ClientboundSetEntityDataPacket.modifyPose(
     player: ServerPlayer,
     modifier: (observee: Entity, observer: ServerPlayer, pose: Pose) -> Pose
 ): ClientboundSetEntityDataPacket {
-    return this.modify(player, EntityTrackedData.POSE, modifier)
+    return this.modify(player, EntityDataAccessors.POSE, modifier)
 }
 
 public inline fun <reified T: Any> ClientboundSetEntityDataPacket.modify(
@@ -55,8 +54,8 @@ public inline fun <reified T: Any> ClientboundSetEntityDataPacket.modify(
             data.add(item)
         }
     }
-    @Suppress("CAST_NEVER_SUCCEEDS")
-    val isInitial = (this as PossiblyInitialPacket).`polymer$getInitial`()
+
+    val isInitial = PolymerCompatLayer.isInitial(this)
     if (!changed) {
         if (!isInitial) {
             return this
@@ -69,11 +68,9 @@ public inline fun <reified T: Any> ClientboundSetEntityDataPacket.modify(
 
     val replacement = ClientboundSetEntityDataPacket(this.id, data)
     if (isInitial) {
-        @Suppress("CAST_NEVER_SUCCEEDS")
-        (replacement as PossiblyInitialPacket).`polymer$setInitial`()
+        PolymerCompatLayer.setInitial(replacement)
     }
-    // For polymer compatability
-    EntityAttachedPacket.set(replacement, observee)
+    PolymerCompatLayer.setEntityContext(replacement, observee)
     return replacement
 }
 
@@ -81,7 +78,7 @@ public inline fun ClientboundSetEntityDataPacket.modifyVirtualSharedFlags(
     player: ServerPlayer,
     modifier: (observee: Int, observer: ServerPlayer, flags: Byte) -> Byte
 ): ClientboundSetEntityDataPacket {
-    return this.modifyVirtual(player, EntityTrackedData.FLAGS, modifier)
+    return this.modifyVirtual(player, EntityDataAccessors.SHARED_FLAGS, modifier)
 }
 
 public inline fun <reified T: Any> ClientboundSetEntityDataPacket.modifyVirtual(

@@ -5,9 +5,10 @@
 package net.casual.arcade.util.ducks;
 
 import net.minecraft.network.chat.Component;
+import org.jspecify.annotations.Nullable;
 
 public interface CustomMOTD {
-	void arcade$setMOTD(Component message);
+	void arcade_setMOTD(Component message);
 
-	Component arcade$getMOTD();
+	@Nullable Component arcade_getMOTD();
 }

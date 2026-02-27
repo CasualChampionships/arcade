@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.events.server.mixins;
 
+import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.entity.EntityStartTrackingEvent;
 import net.casual.arcade.events.server.entity.EntityStopTrackingEvent;
@@ -22,19 +23,50 @@ public class EntityCallbacksMixin {
 
 	@Inject(
 		method = "onTrackingStart(Lnet/minecraft/world/entity/Entity;)V",
-		at = @At("HEAD")
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/level/ServerChunkCache;addEntity(Lnet/minecraft/world/entity/Entity;)V"
+		)
 	)
-	private void onTrackEntity(Entity entity, CallbackInfo ci) {
+	private void onTrackEntityPre(Entity entity, CallbackInfo ci) {
 		EntityStartTrackingEvent event = new EntityStartTrackingEvent(entity, this.field_26936);
-		GlobalEventHandler.Server.broadcast(event);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+	}
+
+	@Inject(
+		method = "onTrackingStart(Lnet/minecraft/world/entity/Entity;)V",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/level/ServerChunkCache;addEntity(Lnet/minecraft/world/entity/Entity;)V",
+			shift = At.Shift.AFTER
+		)
+	)
+	private void onTrackEntityPost(Entity entity, CallbackInfo ci) {
+		EntityStartTrackingEvent event = new EntityStartTrackingEvent(entity, this.field_26936);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
 	}
 
 	@Inject(
 		method = "onTrackingEnd(Lnet/minecraft/world/entity/Entity;)V",
-		at = @At("HEAD")
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/level/ServerChunkCache;removeEntity(Lnet/minecraft/world/entity/Entity;)V"
+		)
 	)
-	private void onStopTrackingEntity(Entity entity, CallbackInfo ci) {
+	private void onStopTrackingEntityPre(Entity entity, CallbackInfo ci) {
 		EntityStopTrackingEvent event = new EntityStopTrackingEvent(entity, this.field_26936);
-		GlobalEventHandler.Server.broadcast(event);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+	}
+
+	@Inject(
+		method = "onTrackingEnd(Lnet/minecraft/world/entity/Entity;)V",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/level/ServerChunkCache;removeEntity(Lnet/minecraft/world/entity/Entity;)V"
+		)
+	)
+	private void onStopTrackingEntityPost(Entity entity, CallbackInfo ci) {
+		EntityStopTrackingEvent event = new EntityStopTrackingEvent(entity, this.field_26936);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
 	}
 }

@@ -9,6 +9,8 @@ import net.casual.arcade.scheduler.task.SavableTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
 import net.casual.arcade.scheduler.task.serialization.TaskFactory
+import net.casual.arcade.utils.error.RichResult
+import net.minecraft.world.level.storage.ValueInput
 import org.jetbrains.annotations.ApiStatus.NonExtendable
 
 /**
@@ -26,13 +28,13 @@ import org.jetbrains.annotations.ApiStatus.NonExtendable
  */
 public interface MinigameTaskFactory<M: Minigame>: TaskFactory {
     @NonExtendable
-    override fun create(context: TaskCreationContext): Task {
+    override fun create(input: ValueInput, context: TaskCreationContext): RichResult<Task> {
         if (context !is MinigameTaskCreationContext<*>) {
             throw IllegalArgumentException("Cannot create minigame task without minigame")
         }
         @Suppress("UNCHECKED_CAST")
-        return this.create(context as MinigameTaskCreationContext<M>)
+        return this.create(input, context as MinigameTaskCreationContext<M>)
     }
 
-    public fun create(context: MinigameTaskCreationContext<M>): Task
+    public fun create(input: ValueInput, context: MinigameTaskCreationContext<M>): RichResult<Task>
 }

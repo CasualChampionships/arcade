@@ -10,6 +10,9 @@ import com.mojang.authlib.properties.Property
 import com.mojang.authlib.properties.PropertyMap
 import it.unimi.dsi.fastutil.objects.ReferenceSortedSets
 import net.casual.arcade.utils.component.unitalicize
+import net.casual.arcade.utils.player.DynamicResolvableProfile
+import net.casual.arcade.utils.player.HeadTextures
+import net.casual.arcade.utils.player.StaticResolvableProfile
 import net.minecraft.ChatFormatting
 import net.minecraft.core.Holder
 import net.minecraft.core.component.DataComponentType
@@ -234,9 +237,9 @@ public object ItemUtils {
     @JvmOverloads
     public fun createTexturedHead(texture: String, item: Item = Items.PLAYER_HEAD): ItemStack {
         val stack = ItemStack(item)
-        val properties = PropertyMap(HashMultimap.create())
+        val properties = HashMultimap.create<String, Property>()
         properties.put("textures", Property("textures", texture))
-        val profile = StaticResolvableProfile(properties = properties)
+        val profile = StaticResolvableProfile(properties = PropertyMap(properties))
         stack.set(DataComponents.PROFILE, profile)
         return stack
     }

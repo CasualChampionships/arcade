@@ -11,7 +11,7 @@ plugins {
     java
 }
 
-val modVersion = "0.8.0-beta.12"
+val modVersion = "0.8.1-beta.36"
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -35,7 +35,6 @@ allprojects {
         maven("https://api.modrinth.com/maven")
         maven("https://maven.nucleoid.xyz")
         maven("https://maven.maxhenkel.de/repository/public")
-        maven("https://maven.andante.dev/releases/")
         maven("https://maven4.bai.lol")
         mavenCentral()
     }
@@ -160,12 +159,14 @@ dependencies {
     include(libs.polymer.core)
     include(libs.polymer.blocks)
     include(libs.polymer.resource.pack)
-    include(libs.polymer.virtual.entity)
     include(libs.permissions)
 
     include(modImplementation(libs.server.translations.get())!!)
 
 //    "modTestmodRuntimeOnly"(libs.voicechat)
+    "testmodImplementation"(libs.reflections) {
+        exclude(group = "org.slf4j")
+    }
 
     val ignore = setOf(":arcade-datagen", ":arcade-events-client")
     for (subproject in project.subprojects) {

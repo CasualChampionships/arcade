@@ -91,6 +91,16 @@ public fun Component.wrap(): MutableComponent {
 }
 
 /**
+ * Tries to cast [this] component into a [MutableComponent].
+ * If [this] is not mutable it will wrap it instead.
+ *
+ * @return A mutable version of this component.
+ */
+public fun Component.mutable(): MutableComponent {
+    return this as? MutableComponent ?: this.wrap()
+}
+
+/**
  * Calculates the width of a component, in gui pixels.
  *
  * @return The width of the component.

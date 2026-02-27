@@ -25,12 +25,12 @@ public class RelativeLocationProvider(
     }
 
     override fun codec(): MapCodec<out LocationProvider> {
-        return CODEC
+        return codec
     }
 
     public companion object: CodecProvider<RelativeLocationProvider> {
-        override val ID: Identifier = IdentifierUtils.arcade("relative")
+        override val id: Identifier = IdentifierUtils.arcade("relative")
 
-        override val CODEC: MapCodec<out RelativeLocationProvider> = Location.MAP_CODEC.xmap(::RelativeLocationProvider, RelativeLocationProvider::offset)
+        override val codec: MapCodec<out RelativeLocationProvider> = Location.MAP_CODEC.xmap(::RelativeLocationProvider, RelativeLocationProvider::offset)
     }
 }

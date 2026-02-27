@@ -1,0 +1,16 @@
+{
+  "arcade.ready.yes": "[Yes]",
+  "arcade.ready.no": "[No]",
+
+  "arcade.ready.player.broadcast": "Are you ready? %s %s",
+  "arcade.ready.player.ready": "%s is ready!",
+  "arcade.ready.player.notReady": "%s is not ready!",
+  "arcade.ready.player.success": "All players are ready!",
+  "arcade.ready.player.fail": "Player ready check failed",
+
+  "arcade.ready.team.broadcast": "Is your team ready? %s %s",
+  "arcade.ready.team.ready": "%s is ready!",
+  "arcade.ready.team.notReady": "%s is not ready!",
+  "arcade.ready.team.success": "All teams are ready!",
+  "arcade.ready.team.fail": "Team ready check failed"
+}

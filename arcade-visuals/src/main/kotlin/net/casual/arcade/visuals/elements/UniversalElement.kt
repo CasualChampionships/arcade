@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.visuals.elements
 
-import net.casual.arcade.utils.PlayerUtils.server
+import net.casual.arcade.utils.player.server
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import org.jetbrains.annotations.ApiStatus.NonExtendable

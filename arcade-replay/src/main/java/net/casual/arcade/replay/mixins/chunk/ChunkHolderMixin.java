@@ -5,6 +5,7 @@
 package net.casual.arcade.replay.mixins.chunk;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import net.casual.arcade.replay.mixins.rejoin.ChunkMapAccessor;
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecordable;
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder;
 import net.minecraft.network.protocol.Packet;
@@ -74,13 +75,13 @@ public abstract class ChunkHolderMixin extends GenerationChunkHolder implements 
         )
     )
     private void onChunkLoad(ChunkMap chunkMap, Executor executor, CallbackInfo ci) {
-        this.getFullChunkFuture().thenAccept(result -> {
+        this.getFullChunkFuture().thenAcceptAsync(result -> {
             result.ifSuccess(chunk -> {
                 for (ReplayChunkRecorder recorder : this.getRecorders()) {
                     recorder.onChunkLoaded(chunk);
                 }
             });
-        });
+        }, ((ChunkMapAccessor) chunkMap).getLevel().getServer());
     }
 
     @Inject(
@@ -109,9 +110,9 @@ public abstract class ChunkHolderMixin extends GenerationChunkHolder implements 
     @Override
     public void addRecorder(@NotNull ReplayChunkRecorder recorder) {
         if (this.replay$recorders.add(recorder)) {
-            this.getFullChunkFuture().thenAccept(result -> {
+            this.getFullChunkFuture().thenAcceptAsync(result -> {
                 result.ifSuccess(recorder::onChunkLoaded);
-            });
+            }, recorder.getServer());
 
             recorder.addRecordable(this);
         }

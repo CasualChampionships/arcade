@@ -47,13 +47,13 @@ public class VanillaLikeCustomLevelFactory(
     }
 
     override fun codec(): MapCodec<out CustomLevelFactory> {
-        return CODEC
+        return codec
     }
 
     public companion object: CodecProvider<VanillaLikeCustomLevelFactory> {
-        override val ID: Identifier = IdentifierUtils.arcade("vanilla_like")
+        override val id: Identifier = IdentifierUtils.arcade("vanilla_like")
 
-        override val CODEC: MapCodec<out VanillaLikeCustomLevelFactory> = RecordCodecBuilder.mapCodec { instance ->
+        override val codec: MapCodec<out VanillaLikeCustomLevelFactory> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 propertiesCodec(), generationOptionsCodec(), persistenceCodec(),
                 VanillaDimension.CODEC.fieldOf("vanilla_dimension").forGetter(VanillaLikeCustomLevelFactory::vanillaDimension),

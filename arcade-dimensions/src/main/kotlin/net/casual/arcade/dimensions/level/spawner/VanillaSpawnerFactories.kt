@@ -23,13 +23,13 @@ import org.jetbrains.annotations.ApiStatus.Internal
 @Internal
 public sealed class SingletonSpawnerFactory(name: String): CustomSpawnerFactory,
     CodecProvider<SingletonSpawnerFactory> {
-    override val ID: Identifier = IdentifierUtils.arcade(name)
+    override val id: Identifier = IdentifierUtils.arcade(name)
 
     @Suppress("LeakingThis")
-    override val CODEC: MapCodec<SingletonSpawnerFactory> = MapCodec.unit(this)
+    override val codec: MapCodec<SingletonSpawnerFactory> = MapCodec.unit(this)
 
     override fun codec(): MapCodec<out CustomSpawnerFactory> {
-        return CODEC
+        return codec
     }
 }
 

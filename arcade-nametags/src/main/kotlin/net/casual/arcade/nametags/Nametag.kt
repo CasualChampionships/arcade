@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.nametags
 
-import net.casual.arcade.nametags.extensions.EntityNametagExtension
 import net.casual.arcade.nametags.virtual.NametagHeight
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.color.ColorARGB
@@ -17,8 +16,8 @@ import net.minecraft.world.entity.Entity
  * This interface represents a custom nametag.
  *
  * You can add any implementation of this class using
- * [EntityNametagExtension.addNametag], and remove it using
- * [EntityNametagExtension.removeNametag].
+ * [net.casual.arcade.nametags.extensions.EntityNametagExtension.add], and remove it using
+ * [net.casual.arcade.nametags.extensions.EntityNametagExtension.remove].
  */
 public interface Nametag {
     /**
@@ -81,5 +80,19 @@ public interface Nametag {
      */
     public fun isVisibleThroughWalls(observee: Entity): Boolean {
         return true
+    }
+
+    public companion object {
+        public fun simple(name: Component): Nametag {
+            return object: Nametag {
+                override fun getComponent(observee: Entity): Component {
+                    return name
+                }
+
+                override fun isObservable(observee: Entity, observer: ServerPlayer): Boolean {
+                    return true
+                }
+            }
+        }
     }
 }

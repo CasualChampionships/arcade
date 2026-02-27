@@ -30,23 +30,23 @@ public class ServerCommonPacketListenerImplMixin implements ConnectionFaultHolde
     }
 
     @Override
-    public void arcade$setTimedOut(boolean timedOut) {
+    public void arcade_setTimeOut(boolean timedOut) {
         this.arcade$hasTimedOut = timedOut;
     }
 
     @Override
-    public boolean arcade$hasTimedOut() {
+    public boolean arcade_hasTimeOut() {
         return this.arcade$hasTimedOut;
     }
 
     @Override
-    public void arcade$setPacketError(Throwable packetError) {
+    public void arcade_setPacketError(Throwable packetError) {
         this.arcade$packetError = packetError;
     }
 
     @Override
     @Nullable
-    public Throwable arcade$getPacketError() {
+    public Throwable arcade_getPacketError() {
         return this.arcade$packetError;
     }
 }

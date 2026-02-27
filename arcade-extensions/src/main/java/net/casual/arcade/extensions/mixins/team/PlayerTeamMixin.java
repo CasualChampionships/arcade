@@ -10,8 +10,10 @@ import net.casual.arcade.extensions.ExtensionHolder;
 import net.casual.arcade.extensions.ExtensionMap;
 import net.casual.arcade.extensions.ducks.ArcadeTeamDataHolder;
 import net.casual.arcade.extensions.event.TeamExtensionEvent;
+import net.casual.arcade.util.mixins.teams.ServerScoreboardAccessor;
 import net.casual.arcade.utils.ArcadeUtils;
-import net.casual.arcade.utils.ServerUtils;
+import net.casual.arcade.utils.server.ServerSingleton;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.scores.PlayerTeam;
@@ -33,12 +35,11 @@ public class PlayerTeamMixin implements ExtensionHolder {
 		at = @At("TAIL")
 	)
 	private void onCreateTeam(Scoreboard scoreboard, String string, CallbackInfo ci) {
-        if (!(scoreboard instanceof ServerScoreboard)) {
-            return;
+        if (scoreboard instanceof ServerScoreboard serverScoreboard) {
+			MinecraftServer server = ((ServerScoreboardAccessor) serverScoreboard).accessServer();
+			TeamExtensionEvent event = new TeamExtensionEvent((PlayerTeam) (Object) this, server);
+			GlobalEventHandler.Server.broadcast(event);
         }
-
-		TeamExtensionEvent event = new TeamExtensionEvent((PlayerTeam) (Object) this);
-		GlobalEventHandler.Server.broadcast(event);
 	}
 
 	@ModifyReturnValue(
@@ -47,7 +48,7 @@ public class PlayerTeamMixin implements ExtensionHolder {
 	)
 	private PlayerTeam.Packed onPack(PlayerTeam.Packed original) {
 		ArcadeUtils.scopedProblemReporter(reporter -> {
-			TagValueOutput output = TagValueOutput.createWithContext(reporter, ServerUtils.getRegistryAccessOrEmpty());
+			TagValueOutput output = TagValueOutput.createWithContext(reporter, ServerSingleton.getRegistryAccessOrEmpty());
 			ExtensionHolder.serialize(this, output);
 			((ArcadeTeamDataHolder) (Object) original).arcade$setData(output.buildResult());
 		});

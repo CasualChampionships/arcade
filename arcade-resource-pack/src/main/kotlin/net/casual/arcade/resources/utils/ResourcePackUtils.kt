@@ -23,7 +23,6 @@ import net.casual.arcade.resources.pack.PackInfo
 import net.casual.arcade.resources.pack.PackState
 import net.casual.arcade.resources.pack.PackStatus
 import net.casual.arcade.resources.sound.SoundResources
-import net.casual.arcade.resources.utils.ResourcePackUtils.addLangsFrom
 import net.casual.arcade.resources.utils.ShaderUtils.ColorReplacer
 import net.casual.arcade.utils.Identifier
 import net.casual.arcade.utils.JsonUtils
@@ -35,12 +34,16 @@ import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerCommonPacketListenerImpl
+import java.awt.image.BufferedImage
+import java.io.ByteArrayOutputStream
 import java.io.FileNotFoundException
+import java.io.IOException
 import java.nio.file.FileVisitResult
 import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import javax.imageio.ImageIO
 import kotlin.io.path.*
 import kotlin.reflect.KProperty
 
@@ -195,6 +198,29 @@ public object ResourcePackUtils {
     }
 
     @JvmStatic
+    public fun ResourcePackCreator.addToAssets(destination: String, path: Path, renamed: String? = null) {
+        this.creationEvent.register { builder ->
+            if (path.notExists()) {
+                throw IOException("No such file exists: $path")
+            }
+
+            val normalized = buildString {
+                append("assets")
+                val trimmed = destination.trim('/')
+                if (trimmed.isNotEmpty()) {
+                    append('/').append(trimmed)
+                }
+                append('/').append(renamed ?: path.name)
+            }
+            if (path.isDirectory()) {
+                builder.copyFromPath(path, "$normalized/")
+            } else {
+                builder.addData(normalized, path.readBytes())
+            }
+        }
+    }
+
+    @JvmStatic
     public fun ResourcePackCreator.addLangsFromData(modid: String) {
         val container = FabricLoader.getInstance().getModContainer(modid).orElseThrow(::IllegalArgumentException)
         this.addLangsFromData(modid, container)
@@ -232,10 +258,14 @@ public object ResourcePackUtils {
     @JvmStatic
     public fun ResourcePackCreator.addFont(font: FontResources) {
         this.creationEvent.register { builder ->
-            val fontDefinition = font.toJson().encodeToByteArray()
-            builder.addData("assets/${font.id.namespace}/font/${font.id.path}.json", fontDefinition)
+            val providers = font.getProvidersJson()
+            val encoded = JsonUtils.MIN_GSON.toJson(providers).encodeToByteArray()
+            builder.addData("assets/${font.id.namespace}/font/${font.id.path}.json", encoded)
             for ((lang, translations) in font.getLangJsons()) {
                 mergeJsons(builder, "assets/${font.id.namespace}/lang/${lang}.json", translations)
+            }
+            for ((id, bitmap) in font.getGeneratedBitmaps()) {
+                builder.addData("assets/${id.namespace}/textures/${id.path}.png", bitmap.encodeToByteArray())
             }
         }
     }
@@ -375,6 +405,13 @@ public object ResourcePackUtils {
 
     private fun getExtension(uuid: UUID): PlayerPackExtension {
         return universe.getOrPut(uuid) { PlayerPackExtension(uuid) }
+    }
+
+    private fun BufferedImage.encodeToByteArray(): ByteArray {
+        return ByteArrayOutputStream().use { stream ->
+            ImageIO.write(this, "png", stream)
+            stream.toByteArray()
+        }
     }
 
     public class PackInfoRef(

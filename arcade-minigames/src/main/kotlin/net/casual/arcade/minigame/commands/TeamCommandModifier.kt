@@ -9,7 +9,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.commands.*
-import net.casual.arcade.utils.TeamUtils
+import net.casual.arcade.utils.scoreboard.RandomizedTeams
 import net.casual.arcade.utils.component.joinToComponent
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
@@ -44,7 +44,7 @@ internal object TeamCommandModifier: CommandTree {
     ): Int {
         val players = EntityArgument.getPlayers(context, "players")
         val size = IntegerArgumentType.getInteger(context, "size")
-        val teams = TeamUtils.createRandomTeams(context.source.server, players, size, friendlyFire, ALWAYS)
+        val teams = RandomizedTeams.createRandomTeams(context.source.server.scoreboard, players, size, friendlyFire, ALWAYS)
             ?: return context.source.fail(Component.translatable("minigame.command.team.randomizer.fail"))
 
         val generated = teams.joinToComponent { it.formattedDisplayName }
@@ -54,7 +54,7 @@ internal object TeamCommandModifier: CommandTree {
     }
 
     private fun deleteRandomTeams(context: CommandContext<CommandSourceStack>): Int {
-        TeamUtils.deleteAllRandomTeams(context.source.server.scoreboard)
+        RandomizedTeams.deleteAllRandomTeams(context.source.server.scoreboard)
         return context.source.success(Component.translatable("minigame.command.team.randomizer.deleted"))
     }
 }

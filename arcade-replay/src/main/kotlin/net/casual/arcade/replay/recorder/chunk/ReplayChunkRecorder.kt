@@ -6,7 +6,6 @@ package net.casual.arcade.replay.recorder.chunk
 
 import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.utils.compat.PolymerCompatLayer
@@ -18,14 +17,13 @@ import net.casual.arcade.replay.mixins.chunk.WitherBossAccessor
 import net.casual.arcade.replay.mixins.rejoin.ChunkMapAccessor
 import net.casual.arcade.replay.recorder.ChunkSender
 import net.casual.arcade.replay.recorder.ReplayRecorder
-import net.casual.arcade.replay.recorder.chunk.map.ChunkRecorderMapTracker
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder
 import net.casual.arcade.replay.recorder.rejoin.RejoinedReplayPlayer
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
 import net.casual.arcade.replay.recorder.settings.RecorderSettings.ChunkRecordingStrategy
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.ClientboundAddEntityPacket
-import net.casual.arcade.utils.impl.WrappedTrackedEntity
+import net.casual.arcade.utils.entity.WrappedTrackedEntity
 import net.casual.arcade.utils.toIdString
 import net.minecraft.core.UUIDUtil
 import net.minecraft.network.protocol.Packet
@@ -33,6 +31,7 @@ import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheRadiusPacket
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket
+import net.minecraft.server.TickTask
 import net.minecraft.server.level.ClientInformation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
@@ -43,8 +42,6 @@ import net.minecraft.world.entity.boss.wither.WitherBoss
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.chunk.LevelChunk
 import net.minecraft.world.level.levelgen.Heightmap
-import net.minecraft.world.level.saveddata.maps.MapId
-import net.minecraft.world.level.saveddata.maps.MapItemSavedData
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.apache.commons.lang3.builder.ToStringBuilder
@@ -101,7 +98,7 @@ public class ReplayChunkRecorder internal constructor(
         get() = Vec2.ZERO
 
     override fun record(outgoing: Packet<*>) {
-        super.record(PolymerCompatLayer.replace(this.dummy.connection, outgoing))
+        super.record(PolymerCompatLayer.replacePacket(this.dummy.connection, outgoing))
     }
 
     /**
@@ -404,7 +401,11 @@ public class ReplayChunkRecorder internal constructor(
 
         this.loadedChunks.add(chunk.pos.toLong())
         if (this.settings.chunkRecordingStrategy == ChunkRecordingStrategy.ChunkLoaded) {
-            this.tryResumeAndBroadcast()
+            // We need to schedule this because otherwise we could run into a CME
+            // as this method is called while iterating chunks, and we may cause
+            // chunks to be loaded when taking a flashback snapshot
+            val task = TickTask(this.server.tickCount, this::tryResumeAndBroadcast)
+            this.server.schedule(task)
         }
 
         if (!this.sentChunks.contains(chunk.pos.toLong())) {

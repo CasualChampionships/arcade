@@ -7,7 +7,7 @@ package net.casual.arcade.npc.pathfinding.navigation
 import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.npc.pathfinding.NPCPathfinder
 import net.casual.arcade.npc.pathfinding.evaluator.NPCWalkNodeEvaluator
-import net.casual.arcade.utils.isOf
+import net.casual.arcade.utils.level.isOf
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.SectionPos

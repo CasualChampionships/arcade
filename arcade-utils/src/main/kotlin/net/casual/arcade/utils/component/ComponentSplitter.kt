@@ -35,7 +35,7 @@ public class ComponentSplitter(
             if (contentString.isNotEmpty()) {
                 lines.add(LineComponent(contentString, contentStyle))
             }
-            Optional.empty()
+            Optional.empty<Unit>()
         }, style)
 
         val flat = FlatComponents(lines)

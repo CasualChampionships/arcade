@@ -24,7 +24,7 @@ import net.casual.arcade.replay.util.io.ResourcePackCache
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.DateTimeUtils
 import net.casual.arcade.utils.JsonUtils
-import net.casual.arcade.utils.getSpoofedOrRealDimension
+import net.casual.arcade.utils.level.getSpoofedOrRealDimension
 import net.minecraft.network.ConnectionProtocol
 import net.minecraft.network.ProtocolInfo
 import net.minecraft.network.RegistryFriendlyByteBuf
@@ -39,7 +39,6 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.Level
-import org.apache.commons.io.file.PathUtils
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import kotlin.io.path.*
@@ -351,7 +350,7 @@ public class FlashbackWriter(
 
         val packId = this.resourcePackId.getAndIncrement()
         val expectedHash = packet.hash
-        ResourcePackCache.get(packet.url).thenAcceptAsync({ bytes ->
+        ResourcePackCache.get(packet.url, expectedHash).thenAcceptAsync({ bytes ->
             this.writeResourcePack(bytes, expectedHash, packId)
         }, this.executor)
         return ClientboundResourcePackPushPacket(

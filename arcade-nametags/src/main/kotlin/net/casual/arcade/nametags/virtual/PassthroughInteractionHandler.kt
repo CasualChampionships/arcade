@@ -1,21 +1,24 @@
 /*
- * Copyright (c) 2025 senseiwells
+ * Copyright (c) 2026 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
 package net.casual.arcade.nametags.virtual
 
-import eu.pb4.polymer.virtualentity.api.elements.VirtualElement.InteractionHandler
+import net.casual.arcade.virtual.entity.VirtualEntity
+import net.casual.arcade.virtual.entity.interaction.EntityInteraction
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.phys.Vec3
 
-public object PassthroughInteractionHandler: InteractionHandler {
-    override fun interact(player: ServerPlayer, hand: InteractionHand) {
-        val item = player.getItemInHand(hand)
-        player.gameMode.useItem(player, player.level(), item, hand)
+public object PassthroughInteractionHandler: VirtualEntity.InteractionHandler {
+    override fun interact(player: ServerPlayer, interaction: EntityInteraction) {
+        when (interaction) {
+            is EntityInteraction.Use -> this.use(player, interaction.hand)
+            is EntityInteraction.UseAt -> this.use(player, interaction.hand)
+            else -> { }
+        }
     }
 
-    override fun interactAt(player: ServerPlayer, hand: InteractionHand, pos: Vec3) {
-        this.interact(player, hand)
+    private fun use(player: ServerPlayer, hand: InteractionHand) {
+        player.gameMode.useItem(player, player.level(), player.getItemInHand(hand), hand)
     }
 }

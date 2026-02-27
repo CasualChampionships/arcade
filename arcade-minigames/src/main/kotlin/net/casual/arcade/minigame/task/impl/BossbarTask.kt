@@ -10,6 +10,7 @@ import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.bossbar.CustomBossbar
 import net.casual.arcade.visuals.bossbar.TimerBossbar
+import net.minecraft.world.level.storage.ValueInput
 
 public open class BossbarTask<T: CustomBossbar>(
     private val minigame: Minigame,
@@ -34,8 +35,8 @@ public open class BossbarTask<T: CustomBossbar>(
             return this
         }
 
-        public fun <T: TimerBossbar> BossbarTask<T>.readData(context: TaskCreationContext): BossbarTask<T> {
-            this.bar.readData(context)
+        public fun <T: TimerBossbar> BossbarTask<T>.readData(input: ValueInput, context: TaskCreationContext): BossbarTask<T> {
+            this.bar.readData(input, context)
             return this
         }
 

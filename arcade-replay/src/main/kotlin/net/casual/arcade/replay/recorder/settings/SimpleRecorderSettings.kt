@@ -9,7 +9,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.JsonOps
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.replay.recorder.settings.RecorderSettings.*
-import net.casual.arcade.utils.encodedOptionalFieldOf
+import net.casual.arcade.utils.serialization.codec.encodedOptionalFieldOf
 
 public data class SimpleRecorderSettings(
     override val debug: Boolean = false,

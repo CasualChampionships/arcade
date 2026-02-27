@@ -1,0 +1,65 @@
+/*
+ * Copyright (c) 2025 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
+package net.casual.arcade.utils.level
+
+import net.casual.arcade.util.ducks.SpoofedDimensionKeyHolder
+import net.casual.arcade.util.mixins.ChunkMapAccessor
+import net.casual.arcade.utils.entity.WrappedTrackedEntity
+import net.minecraft.core.BlockPos
+import net.minecraft.core.registries.Registries
+import net.minecraft.resources.Identifier
+import net.minecraft.resources.ResourceKey
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.ChunkPos
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.chunk.LevelChunk
+import net.minecraft.world.level.chunk.status.ChunkStatus
+import kotlin.collections.iterator
+
+public fun ServerLevel.getTrackedEntities(): List<WrappedTrackedEntity> {
+    val map = this.chunkSource.chunkMap as ChunkMapAccessor
+    return map.entityMap.values.map { WrappedTrackedEntity(it) }
+}
+
+public inline fun <reified T: BlockEntity> ServerLevel.getBlockEntitiesOfType(positions: Iterable<ChunkPos>): List<T> {
+    val list = ArrayList<T>()
+    this.forEachBlockEntityOfType<T>(positions) { _, entity -> list.add(entity) }
+    return list
+}
+
+public inline fun <reified T: BlockEntity> ServerLevel.forEachBlockEntityOfType(
+    positions: Iterable<ChunkPos>,
+    consumer: (BlockPos, T) -> Unit
+) {
+    for (position in positions) {
+        val chunk = this.getChunk(position.x, position.z, ChunkStatus.FULL, false)
+        if (chunk is LevelChunk) {
+            for ((pos, entity) in chunk.blockEntities) {
+                if (entity is T) {
+                    consumer.invoke(pos, entity)
+                }
+            }
+        }
+    }
+}
+
+public fun ServerLevel.setSpoofedDimension(id: Identifier) {
+    this.setSpoofedDimension(ResourceKey.create(Registries.DIMENSION, id))
+}
+
+public fun ServerLevel.setSpoofedDimension(key: ResourceKey<Level>?) {
+    if (this is SpoofedDimensionKeyHolder) {
+        this.`arcade$setSpoofedDimensionKey`(key)
+    }
+}
+
+public fun ServerLevel.getSpoofedDimension(): ResourceKey<Level>? {
+    return (this as? SpoofedDimensionKeyHolder)?.`arcade$getSpoofedDimensionKey`()
+}
+
+public fun ServerLevel.getSpoofedOrRealDimension(): ResourceKey<Level> {
+    return this.getSpoofedDimension() ?: this.dimension()
+}

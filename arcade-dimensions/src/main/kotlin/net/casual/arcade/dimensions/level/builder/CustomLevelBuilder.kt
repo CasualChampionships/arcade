@@ -15,7 +15,7 @@ import net.casual.arcade.dimensions.level.factory.CustomLevelFactoryConstructor
 import net.casual.arcade.dimensions.level.spawner.CustomSpawnerFactory
 import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
 import net.casual.arcade.utils.IdentifierUtils
-import net.casual.arcade.utils.setSpoofedDimension
+import net.casual.arcade.utils.level.setSpoofedDimension
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.Identifier

@@ -52,13 +52,13 @@ public class LocalLocationProvider(
     }
 
     override fun codec(): MapCodec<out LocationProvider> {
-        return CODEC
+        return codec
     }
 
     public companion object: CodecProvider<LocalLocationProvider> {
-        override val ID: Identifier = IdentifierUtils.arcade("local")
+        override val id: Identifier = IdentifierUtils.arcade("local")
 
-        override val CODEC: MapCodec<LocalLocationProvider> = RecordCodecBuilder.mapCodec { instance ->
+        override val codec: MapCodec<LocalLocationProvider> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 Vec3.CODEC.fieldOf("offsets").forGetter(LocalLocationProvider::offsets)
             ).apply(instance, ::LocalLocationProvider)

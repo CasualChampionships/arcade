@@ -11,7 +11,7 @@ import net.casual.arcade.extensions.*;
 import net.casual.arcade.extensions.event.EntityExtensionEvent;
 import net.casual.arcade.utils.ArcadeUtils;
 import net.casual.arcade.utils.entity.EntityTransferReason;
-import net.casual.arcade.utils.impl.DelayedInvokers;
+import net.casual.arcade.utils.impl.DelayedActions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -94,13 +94,13 @@ public abstract class EntityMixin implements ExtensionHolder {
     private void onRestoreEntity(
         Entity entity,
         CallbackInfo ci,
-        @Share("delayed") LocalRef<DelayedInvokers.Simple> delayedRef
+        @Share("delayed") LocalRef<DelayedActions.Simple> delayedRef
     ) {
         if (entity instanceof ServerPlayer || this.level.isClientSide()) {
             return;
         }
 
-        DelayedInvokers.Simple delayed = new DelayedInvokers.Simple();
+        DelayedActions.Simple delayed = new DelayedActions.Simple();
         delayedRef.set(delayed);
 
         for (Extension extension : ExtensionHolder.all((ExtensionHolder) entity)) {
@@ -108,6 +108,8 @@ public abstract class EntityMixin implements ExtensionHolder {
                 EntityTransferReason reason = EntityTransferReason.Other;
                 Extension transferred = transferable.transfer((Entity) (Object) this, reason, delayed);
                 this.arcade$extensions.add(transferred);
+            } else {
+                this.arcade$extensions.add(extension);
             }
         }
     }
@@ -119,11 +121,11 @@ public abstract class EntityMixin implements ExtensionHolder {
     private void onRestoreEntityPost(
         Entity entity,
         CallbackInfo ci,
-        @Share("delayed") LocalRef<DelayedInvokers.Simple> delayedRef
+        @Share("delayed") LocalRef<DelayedActions.Simple> delayedRef
     ) {
-        DelayedInvokers.Simple delayed = delayedRef.get();
+        DelayedActions.Simple delayed = delayedRef.get();
         if (delayed != null) {
-            delayed.invoke();
+            delayed.run();
         }
     }
 

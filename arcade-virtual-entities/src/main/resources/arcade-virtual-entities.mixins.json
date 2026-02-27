@@ -1,0 +1,25 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.casual.arcade.virtual.entity.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "mixinextras": {
+    "minVersion": "0.5.0"
+  },
+  "mixins": [
+    "BlockDisplayAccessor",
+    "DisplayAccessor",
+    "EntityAccessor",
+    "InteractionAccessor",
+    "ItemDisplayAccessor",
+    "LivingEntityAccessor",
+    "ServerboundInteractPacketAccessor",
+    "ServerEntityAccessor",
+    "ServerEntityMixin",
+    "ServerGamePacketListenerImplMixin",
+    "TextDisplayAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -58,13 +58,13 @@ public class SplitTeleporter(
     }
 
     override fun codec(): MapCodec<out EntityTeleporter> {
-        return CODEC
+        return codec
     }
 
     public companion object: CodecProvider<SplitTeleporter> {
-        override val ID: Identifier = IdentifierUtils.arcade("split")
+        override val id: Identifier = IdentifierUtils.arcade("split")
 
-        override val CODEC: MapCodec<out SplitTeleporter> = RecordCodecBuilder.mapCodec { instance ->
+        override val codec: MapCodec<out SplitTeleporter> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 Codec.INT.fieldOf("entity_threshold").forGetter(SplitTeleporter::entityThreshold),
                 Codec.INT.fieldOf("team_threshold").forGetter(SplitTeleporter::teamThreshold),

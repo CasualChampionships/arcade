@@ -8,7 +8,9 @@ import net.casual.arcade.resources.font.FontResources
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.component.ComponentBuilderContext
+import net.casual.arcade.utils.component.ComponentMutator
 import net.casual.arcade.utils.component.font
+import net.casual.arcade.utils.component.plus
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.FontDescription
 import net.minecraft.network.chat.MutableComponent
@@ -41,6 +43,17 @@ public fun MutableComponent.font(resources: FontResources): MutableComponent {
 @Suppress("UnusedReceiverParameter")
 public fun ComponentBuilderContext.spaced(advance: Float): Component {
     return SpacingFontResources.composed(advance)
+}
+
+public inline fun ComponentBuilderContext.offset(
+    advance: Float,
+    width: Float = 0.0F,
+    crossinline block: () -> Component
+): ComponentMutator {
+    val adjustment = 1.0F - width
+    return ComponentMutator { original ->
+        original + spaced(advance) + block.invoke() + spaced(-advance + adjustment)
+    }
 }
 
 internal object FontUtils {

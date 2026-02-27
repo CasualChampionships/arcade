@@ -6,6 +6,7 @@ package net.casual.arcade.extensions
 
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.Entity
 import net.minecraft.world.scores.PlayerTeam
 
 /**
@@ -13,12 +14,12 @@ import net.minecraft.world.scores.PlayerTeam
  * can be added to an [ExtensionHolder].
  *
  * By default, the only [ExtensionHolder]s are
- * [ServerPlayer], [ServerLevel], and [PlayerTeam].
+ * [ServerPlayer], [Entity], [ServerLevel], and [PlayerTeam].
  *
  * Extensions can be used to add custom data to
  * certain Minecraft classes, furthermore this
  * data can be serialized and deserialize with the
- * use of a [DataExtension].
+ * use of a [SerializableExtension].
  *
  * Here's an example of an extension for a [ServerLevel], which keeps
  * track of the last modified block position in the world.
@@ -28,15 +29,15 @@ import net.minecraft.world.scores.PlayerTeam
  *     var lastModifiedBlockPos: BlockPos? = null
  *
  *     companion object {
- *         val ServerLevel.myExtension
- *             get() = this.getExtension(MyLevelExtension::class.java)
+ *         val ServerLevel.myExtension: MyLevelExtension
+ *             get() = this.getExtension()
  *
  *         // This must be called in your ModInitializer
- *         fun registerEvents() {
- *             GlobalEventHandler.register<LevelExtensionEvent> { event ->
+ *         internal fun registerEvents() {
+ *             GlobalEventHandler.Server.register<LevelExtensionEvent> { event ->
  *                 event.addExtension(MyLevelExtension())
  *             }
- *             GlobalEventHandler.register<LevelBlockChangedEvent> { (level, pos, _, _) ->
+ *             GlobalEventHandler.Server.register<LevelBlockChangedEvent> { (level, pos, _, _) ->
  *                 level.myExtension.lastModifiedBlockPos = pos
  *             }
  *         }
@@ -46,7 +47,7 @@ import net.minecraft.world.scores.PlayerTeam
  *
  * For Player related extensions please use [PlayerExtension].
  *
- * @see DataExtension
+ * @see SerializableExtension
  * @see ExtensionHolder
  */
 public interface Extension

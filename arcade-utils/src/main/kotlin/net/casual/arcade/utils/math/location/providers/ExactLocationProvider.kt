@@ -18,13 +18,13 @@ public class ExactLocationProvider(
     }
 
     override fun codec(): MapCodec<out LocationProvider> {
-        return CODEC
+        return codec
     }
 
     public companion object: CodecProvider<ExactLocationProvider> {
-        override val ID: Identifier = IdentifierUtils.arcade("exact")
+        override val id: Identifier = IdentifierUtils.arcade("exact")
 
-        override val CODEC: MapCodec<out ExactLocationProvider> = Location.MAP_CODEC.xmap(
+        override val codec: MapCodec<out ExactLocationProvider> = Location.MAP_CODEC.xmap(
             { location -> ExactLocationProvider(location) },
             { provider -> provider.location }
         )

@@ -23,11 +23,18 @@ public interface ReadableArchive: AutoCloseable {
     public fun resolve(other: String): Path
 
     public companion object {
-        public fun from(path: Path): ReadableArchive {
-            if (path.extension == "zip" && path.isReadable()) {
+        public fun zip(path: Path): ReadableArchive {
+            if (path.isReadable()) {
                 val system = FileSystems.newFileSystem(path)
                 val root = system.getPath("/")
                 return ReadablePathArchive(path.nameWithoutExtension, root) { system.close() }
+            }
+            throw FileNotFoundException("No zip at $path")
+        }
+
+        public fun from(path: Path, zipped: Boolean = false): ReadableArchive {
+            if (zipped || path.extension == "zip") {
+                return this.zip(path)
             }
             if (path.isDirectory()) {
                 return ReadablePathArchive(path.nameWithoutExtension, path)

@@ -17,13 +17,13 @@ import net.casual.arcade.resources.ArcadeResourcePacks
 import net.casual.arcade.resources.font.pixel.PixelFontResources
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.PlayerUtils.server
+import net.casual.arcade.utils.player.server
 import net.casual.arcade.utils.component.color
 import net.casual.arcade.utils.component.wrap
 import net.casual.arcade.utils.coroutine.async
 import net.casual.arcade.utils.coroutine.getNow
-import net.casual.arcade.utils.resolveProfileOrNull
-import net.casual.arcade.utils.uuid
+import net.casual.arcade.utils.player.resolveProfileOrNull
+import net.casual.arcade.utils.player.uuid
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer

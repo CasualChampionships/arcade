@@ -21,12 +21,15 @@
     "network.ServerCommonPacketListenerAccessor",
     "network.ServerCommonPacketListenerImplMixin",
     "network.ServerHandshakePacketListenerImplMixin",
+    "profile.ProfileResolverCachedAccessor",
+    "profile.ResolvableProfileDynamicMixin",
     "profile.ResolvableProfileInvoker",
     "profile.ResolvableProfilePartialInvoker",
     "profile.ResolvableProfileStaticInvoker",
     "teams.PlayerTeamMixin",
     "teams.PlayerTeamPackedMixin",
-    "teams.ScoreboardMixin"
+    "teams.ScoreboardMixin",
+    "teams.ServerScoreboardAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -16,7 +16,7 @@ import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
 import net.casual.arcade.minigame.utils.MinigameMusicProvider
 import net.casual.arcade.resources.event.PlayerPacksSuccessEvent
-import net.casual.arcade.utils.PlayerUtils.sendSound
+import net.casual.arcade.utils.player.sendSound
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.impl.TimedSound
 import net.minecraft.core.Holder
@@ -26,10 +26,8 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
-import net.minecraft.world.attribute.EnvironmentAttributes
 import net.minecraft.world.level.Level
 import java.util.*
-import kotlin.jvm.optionals.getOrNull
 import kotlin.math.min
 
 public class MinigameMusicManager(

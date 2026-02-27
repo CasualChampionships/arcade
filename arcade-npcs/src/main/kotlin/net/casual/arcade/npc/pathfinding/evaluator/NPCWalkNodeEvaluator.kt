@@ -9,7 +9,7 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap
 import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.npc.pathfinding.NPCPathfindingContext
 import net.casual.arcade.utils.EnumUtils
-import net.casual.arcade.utils.isOf
+import net.casual.arcade.utils.level.isOf
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.tags.FluidTags

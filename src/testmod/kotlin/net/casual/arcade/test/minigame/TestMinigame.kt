@@ -12,13 +12,13 @@ import net.casual.arcade.resources.utils.spaced
 import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.component.*
 import net.casual.arcade.utils.recipe.CraftingRecipeBuilder
-import net.casual.arcade.visuals.utils.elements.ComponentElements
-import net.casual.arcade.visuals.utils.elements.SidebarElements
 import net.casual.arcade.visuals.elements.UniversalElement
 import net.casual.arcade.visuals.nametag.PlayerNametag
 import net.casual.arcade.visuals.sidebar.FixedSidebar
 import net.casual.arcade.visuals.tab.PlayerListDisplay
 import net.casual.arcade.visuals.tab.VanillaPlayerListEntries
+import net.casual.arcade.visuals.utils.elements.ComponentElements
+import net.casual.arcade.visuals.utils.elements.SidebarElements
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
@@ -72,7 +72,7 @@ open class TestMinigame(
         display.setDisplay(header, footer)
         this.visuals.setPlayerListDisplay(display)
 
-        this.visuals.addNametag(PlayerNametag.simple({ player -> player.displayName }))
+        this.visuals.addNametag(PlayerNametag.simple({ player -> player.displayName!! }))
         this.visuals.addNametag(PlayerNametag.simple({ Component.literal("CustomNametags!") }))
     }
 

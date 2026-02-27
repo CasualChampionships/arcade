@@ -4,24 +4,30 @@
  */
 package net.casual.arcade.minigame.managers
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
+import com.google.common.collect.HashMultimap
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
 import net.casual.arcade.events.server.player.PlayerLeaveEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
+import net.casual.arcade.minigame.events.MinigameCloseEvent
+import net.casual.arcade.minigame.events.MinigameCompleteEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
 import net.casual.arcade.utils.AdvancementUtils.copyWithoutToast
-import net.casual.arcade.utils.PlayerUtils.grantAdvancementSilently
-import net.casual.arcade.utils.PlayerUtils.revokeAdvancement
+import net.casual.arcade.utils.player.grantAdvancementSilently
+import net.casual.arcade.utils.player.revokeAdvancement
 import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.advancements.AdvancementNode
 import net.minecraft.advancements.AdvancementTree
 import net.minecraft.advancements.TreeNodePosition
+import net.minecraft.core.UUIDUtil
 import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * This class manages the advancements of a minigame.
@@ -36,7 +42,9 @@ public class MinigameAdvancementManager(
     private val minigame: Minigame
 ) {
     private val tree = AdvancementTree()
-    private val reloaded = Object2ObjectOpenHashMap<UUID, Set<Identifier>>()
+    private val reloaded = HashMultimap.create<UUID, Identifier>()
+
+    private val players = HashMultimap.create<UUID, Identifier>()
 
     init {
         this.minigame.events.register<MinigameAddPlayerEvent> { event ->
@@ -45,8 +53,17 @@ public class MinigameAdvancementManager(
         this.minigame.events.register<MinigameRemovePlayerEvent> { event ->
             this.unloadFor(event.player)
         }
+        this.minigame.events.register<MinigameCompleteEvent> {
+            this.syncForAll()
+        }
+        this.minigame.events.register<MinigameCloseEvent> {
+            if (!this.minigame.completed) {
+                this.syncForAll()
+            }
+        }
         this.minigame.events.register<PlayerLeaveEvent> { (player) ->
-            this.reloaded.remove(player.uuid)
+            this.syncFor(player)
+            this.reloaded.removeAll(player.uuid)
         }
         this.minigame.events.register<PlayerClientboundPacketEvent>(this::onPlayerClientboundPacket)
     }
@@ -95,20 +112,43 @@ public class MinigameAdvancementManager(
         return this.tree.nodes().map { it.holder() }
     }
 
+    public fun getFor(uuid: UUID): Collection<Identifier> {
+        return this.players.get(uuid)
+    }
+
     public fun reloadFor(player: ServerPlayer) {
-        val holders = this.minigame.data.getAdvancements(player.uuid)
-        if (holders.isNotEmpty()) {
-            this.reloaded[player.uuid] = holders.mapTo(HashSet()) { it.id }
-            for (holder in holders) {
+        val ids = this.players.get(player.uuid)
+        if (ids.isNotEmpty()) {
+            this.reloaded.putAll(player.uuid, ids)
+            for (id in ids) {
+                val holder = this.get(id) ?: continue
                 player.grantAdvancementSilently(holder)
             }
         }
     }
 
     private fun unloadFor(player: ServerPlayer) {
-        this.reloaded.remove(player.uuid)
+        this.syncFor(player)
+        this.reloaded.removeAll(player.uuid)
         for (advancement in this.tree.nodes()) {
             player.revokeAdvancement(advancement.holder())
+        }
+    }
+
+    private fun syncFor(player: ServerPlayer) {
+        val synced = this.players.get(player.uuid)
+        synced.clear()
+        for (advancement in this.tree.nodes()) {
+            val holder = advancement.holder()
+            if (player.advancements.getOrStartProgress(holder).isDone) {
+                synced.add(holder.id())
+            }
+        }
+    }
+
+    private fun syncForAll() {
+        for (player in this.minigame.players) {
+            this.syncFor(player)
         }
     }
 
@@ -118,8 +158,8 @@ public class MinigameAdvancementManager(
             return
         }
 
-        val reloaded = this.reloaded.remove(player.uuid) ?: return
-        if (packet.shouldReset()) {
+        val reloaded = this.reloaded.removeAll(player.uuid)
+        if (packet.shouldReset() || reloaded.isEmpty()) {
             return
         }
 
@@ -134,5 +174,21 @@ public class MinigameAdvancementManager(
         event.packet = ClientboundUpdateAdvancementsPacket(
             false, copy, packet.removed, packet.progress, packet.shouldShowAdvancements()
         )
+    }
+
+    internal fun serialize(list: ValueOutput.ValueOutputList) {
+        for ((player, advancements) in this.players.asMap()) {
+            val output = list.addChild()
+            output.store("uuid", UUIDUtil.STRING_CODEC, player)
+            output.store("advancements", Identifier.CODEC.listOf(), advancements.toList())
+        }
+    }
+
+    internal fun deserialize(list: ValueInput.ValueInputList) {
+        for (input in list) {
+            val uuid = input.read("uuid", UUIDUtil.STRING_CODEC).getOrNull() ?: continue
+            val advancements = input.read("advancements", Identifier.CODEC.listOf()).getOrNull() ?: continue
+            this.players.putAll(uuid, advancements)
+        }
     }
 }

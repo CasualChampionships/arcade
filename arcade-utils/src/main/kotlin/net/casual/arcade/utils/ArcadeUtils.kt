@@ -55,11 +55,11 @@ public object ArcadeUtils: ModInitializer {
     }
 
     @OptIn(ExperimentalContracts::class)
-    public inline fun scopedProblemReporter(consumer: (ScopedCollector) -> Unit) {
+    public inline fun <T> scopedProblemReporter(consumer: (ScopedCollector) -> T): T {
         contract {
             callsInPlace(consumer, InvocationKind.EXACTLY_ONCE)
         }
-        this.createProblemReporter().use(consumer)
+        return this.createProblemReporter().use(consumer)
     }
 
     override fun onInitialize() {

@@ -4,13 +4,13 @@
  */
 package net.casual.arcade.extensions
 
-import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap
 
 /**
  * This class keeps a map of all [Extension]s
  */
 public class ExtensionMap {
-    private val extensions = Reference2ObjectOpenHashMap<Class<out Extension>, Extension>()
+    private val extensions = Reference2ObjectLinkedOpenHashMap<Class<out Extension>, Extension>()
 
     public fun add(extension: Extension) {
         this.extensions[extension::class.java] = extension

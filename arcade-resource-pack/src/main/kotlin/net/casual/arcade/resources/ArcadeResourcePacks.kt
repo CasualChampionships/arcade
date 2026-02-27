@@ -108,6 +108,7 @@ public object ArcadeResourcePacks: ModInitializer {
         NamedResourcePackCreator.named("arcade_lang_pack") {
             addLangsFromData("arcade-commands")
             addLangsFromData("arcade-minigames")
+            addLangsFromData("arcade-visuals")
             packIcon = path("assets/icon.png").readBytes()
             packDescription = Component.literal("Translations for arcade")
         }

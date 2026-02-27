@@ -9,8 +9,8 @@ import it.unimi.dsi.fastutil.ints.IntSet
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.getTrackedEntities
-import net.casual.arcade.utils.impl.WrappedTrackedEntity
+import net.casual.arcade.utils.level.getTrackedEntities
+import net.casual.arcade.utils.entity.WrappedTrackedEntity
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
 import net.minecraft.server.level.ServerLevel

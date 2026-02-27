@@ -168,7 +168,7 @@ public abstract class PackHost {
                 return
             }
 
-            exchange.responseHeaders.add("user-agent", USER_AGENT)
+            exchange.responseHeaders.add("server", SERVER)
             exchange.sendResponseHeaders(200, pack.length())
             exchange.responseBody.use { response ->
                 pack.stream().use { stream ->
@@ -181,7 +181,7 @@ public abstract class PackHost {
     public companion object {
         private const val DEFAULT_PORT: Int = 24464
 
-        internal const val USER_AGENT = "kotlin/arcade-pack-download-host"
+        internal const val SERVER = "kotlin/arcade-pack-download-host"
 
         internal val logger = LogManager.getLogger("ResourcePackHost")
 

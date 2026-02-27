@@ -191,7 +191,7 @@ public class ReplayModWriter(
 
         val packId = this.resourcePackId.getAndIncrement()
         val expectedHash = packet.hash
-        ResourcePackCache.get(packet.url).thenAcceptAsync({ bytes ->
+        ResourcePackCache.get(packet.url, expectedHash).thenAcceptAsync({ bytes ->
             this.writeResourcePack(bytes, expectedHash, packId)
         }, this.executor)
         return ClientboundResourcePackPushPacket(

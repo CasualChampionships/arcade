@@ -48,9 +48,7 @@ public interface Transition {
         while (remaining > MinecraftTimeDuration.ZERO) {
             this.updateTransition(players.invoke(), current++, total, remaining)
             remaining -= interval
-            if (remaining > MinecraftTimeDuration.ZERO) {
-                delay(interval)
-            }
+            delay(interval)
         }
         this.afterTransition(players.invoke())
     }

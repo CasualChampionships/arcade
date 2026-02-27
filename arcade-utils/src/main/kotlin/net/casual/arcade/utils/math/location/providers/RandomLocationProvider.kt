@@ -23,13 +23,13 @@ public class RandomLocationProvider(
     }
 
     override fun codec(): MapCodec<out LocationProvider> {
-        return CODEC
+        return codec
     }
 
     public companion object: CodecProvider<RandomLocationProvider> {
-        override val ID: Identifier = IdentifierUtils.arcade("random")
+        override val id: Identifier = IdentifierUtils.arcade("random")
 
-        override val CODEC: MapCodec<out RandomLocationProvider> = RecordCodecBuilder.mapCodec { instance ->
+        override val codec: MapCodec<out RandomLocationProvider> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 LocationProvider.CODEC.listOf(1, Int.MAX_VALUE).fieldOf("locations").forGetter(RandomLocationProvider::locations)
             ).apply(instance, ::RandomLocationProvider)

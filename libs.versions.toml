@@ -4,10 +4,9 @@ fabric-loader       = "0.18.2"
 parchment           = "1.21.10:2025.10.12"
 fabric-api          = "0.139.4+1.21.11"
 fabric-kotlin       = "1.13.7+kotlin.2.2.21"
-polymer             = "0.15.0-beta.4+1.21.11-rc2"
-sgui                = "1.11.0-rc.1+1.21.9"
+polymer             = "0.15.1+1.21.11"
+sgui                = "1.12.0+1.21.11"
 server-translations = "2.5.2+1.21.9-pre3"
-inject              = "3.1.4"
 debug-tools-api     = "1.0.17"
 replay-studio       = "526f9aaf43"
 permissions         = "0.6.1"
@@ -18,6 +17,9 @@ voicechat     = "fabric-1.21.9-pre3-2.6.4"
 voicechat-api = "2.6.0"
 vmp           = "0.2.0+beta.7.223+1.21.11"
 c2me          = "0.3.6.0.0"
+
+# Testing
+reflections = "0.10.2"
 
 # Plugins
 fabric-loom = "1.14-SNAPSHOT"
@@ -40,16 +42,15 @@ debug-tools-api        = { module = "me.senseiwells:debug-tools-api"       , ver
 replay-studio          = { module = "com.github.ReplayMod:ReplayStudio"    , version.ref = "replay-studio" }
 permissions            = { module = "me.lucko:fabric-permissions-api"      , version.ref = "permissions" }
 
-inject-api             = { module = "net.mcbrawls.inject:api"             , version.ref = "inject" }
-inject-http            = { module = "net.mcbrawls.inject:http"            , version.ref = "inject" }
-inject-fabric          = { module = "net.mcbrawls.inject:fabric"          , version.ref = "inject" }
-
 # Compatability
 carpet        = { module = "com.github.gnembon:fabric-carpet"    , version.ref = "carpet" }
 voicechat     = { module = "maven.modrinth:simple-voice-chat"    , version.ref = "voicechat" }
 voicechat-api = { module = "de.maxhenkel.voicechat:voicechat-api", version.ref = "voicechat-api" }
 vmp           = { module = "maven.modrinth:vmp-fabric"           , version.ref = "vmp" }
 c2me          = { module = "maven.modrinth:c2me-fabric"          , version.ref = "c2me" }
+
+# Testing
+reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
 
 [plugins]
 fabric-loom = { id = "fabric-loom"          , version.ref = "fabric-loom" }

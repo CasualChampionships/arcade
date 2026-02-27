@@ -6,15 +6,20 @@ package net.casual.arcade.boundary.renderer
 
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import eu.pb4.polymer.virtualentity.api.ElementHolder
-import eu.pb4.polymer.virtualentity.api.attachment.ManualAttachment
-import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement
 import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.EnumUtils
-import net.casual.arcade.utils.PlayerUtils.isChunkInViewDistance
+import net.casual.arcade.utils.asClientGamePacket
+import net.casual.arcade.utils.math.location.Location
+import net.casual.arcade.utils.player.isChunkInViewDistance
 import net.casual.arcade.utils.serialization.codec.CodecProvider
+import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
+import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
+import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
+import net.casual.arcade.virtual.entity.display.SimpleVirtualItemDisplay
+import net.casual.arcade.virtual.entity.tracker.ObserverTracker
+import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
 import net.minecraft.core.Direction
 import net.minecraft.core.SectionPos
 import net.minecraft.network.protocol.Packet
@@ -25,6 +30,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.dimension.DimensionType
+import net.minecraft.world.phys.Vec2
 import java.util.*
 import java.util.function.Consumer
 
@@ -51,8 +57,8 @@ public class AxisAlignedDisplayBoundaryRenderer(
     // So we shift all the display elements above the world
     // height then translate them back down so the player can see them.
 
-    private val attachment: ManualAttachment
-    private val faces = EnumUtils.mapOf<Direction, ItemDisplayElement>()
+    private val attachment = SimpleVirtualEntityAttachment(BoundaryShapeAttachmentAnchor(this.shape))
+    private val faces = EnumUtils.mapOf<Direction, SimpleVirtualItemDisplay>()
 
 //    private val forceLoadingCenter = ObjectOpenHashSet<UUID>()
 
@@ -63,12 +69,8 @@ public class AxisAlignedDisplayBoundaryRenderer(
     private lateinit var cached: ClientboundChunksBiomesPacket
 
     init {
-        val holder = ElementHolder()
-        this.createElements(holder, this.faces)
+        this.createElements(this.faces)
 
-        this.attachment = ManualAttachment(holder, null) {
-            this.shape.center().add(0.0, Y_SHIFT.toDouble(), 0.0)
-        }
         this.updateFaces()
     }
 
@@ -99,11 +101,11 @@ public class AxisAlignedDisplayBoundaryRenderer(
             player.connection.send(packet)
         }
 
-        this.attachment.startWatching(player)
+        this.attachment.startObservingAttached(player)
     }
 
     override fun stopRendering(player: ServerPlayer) {
-        this.attachment.stopWatching(player)
+        this.attachment.stopObservingAttached(player)
 //        this.forceLoadingCenter.remove(player.uuid)
     }
 
@@ -111,8 +113,8 @@ public class AxisAlignedDisplayBoundaryRenderer(
         player: ServerPlayer,
         sender: Consumer<Packet<ClientGamePacketListener>>
     ) {
-        for (element in this.faces.values) {
-            element.startWatching(player, sender)
+        this.attachment.sendObservingAttachedSpawnPackets(player) { packet ->
+            sender.accept(packet.asClientGamePacket())
         }
     }
 
@@ -120,43 +122,43 @@ public class AxisAlignedDisplayBoundaryRenderer(
         return Factory(this.models)
     }
 
-    private fun createElements(holder: ElementHolder, map: EnumMap<Direction, ItemDisplayElement>) {
+    private fun createElements(map: EnumMap<Direction, SimpleVirtualItemDisplay>) {
         for (direction in Direction.entries) {
             val (stack, brightness) = this.models.get(this.shape, direction)
-            val element = ItemDisplayElement(stack)
-            element.brightness = brightness
-            element.isInvisible = true
-            element.viewRange = Y_SHIFT.toFloat()
-            element.teleportDuration = 1
-            element.interpolationDuration = 1
-            map[direction] = element
-            holder.addElement(element)
+            val entity = this.attachment.attachWithParentObservers(::BoundaryVirtualItemDisplay)
+            entity.setItemStack(stack)
+            entity.setBrightness(brightness)
+            entity.setInvisible(true)
+            entity.setViewRange(Y_SHIFT.toFloat())
+            entity.setTeleportationInterpolation(1)
+            entity.setTransformationInterpolation(1)
+            map[direction] = entity
         }
     }
 
     private fun updateFaces() {
-        for ((direction, element) in this.faces) {
+        for ((direction, entity) in this.faces) {
             val (model, brightness) = this.models.get(this.shape, direction)
             // ItemStack#equals isn't implemented, so just setting it always marks it dirty
-            if (!ItemStack.isSameItemSameComponents(model, element.item)) {
-                element.item = model
+            entity.modifyItemStack { current ->
+                if (ItemStack.isSameItemSameComponents(model, current)) current else model
             }
-            element.brightness = brightness
-            this.updateFace(direction, element)
+            entity.setBrightness(brightness)
+            this.updateFace(direction, entity)
         }
         this.attachment.tick()
     }
 
-    private fun updateFace(direction: Direction, element: ItemDisplayElement) {
+    private fun updateFace(direction: Direction, element: SimpleVirtualItemDisplay) {
         val size = this.shape.size().toVector3f()
         val scale = direction.step().absolute().sub(1.0F, 1.0F, 1.0F).negate()
-        element.scale = scale.mul(size)
+        element.setScale(scale.mul(size))
 
         val translation = size.mul(direction.unitVec3f).mul(0.5F)
             .sub(0.0F, Y_SHIFT.toFloat(), 0.0F)
 
         val zFightingShift = direction.opposite.step().mul(0.01F)
-        element.translation = translation.add(zFightingShift)
+        element.setTranslation(translation.add(zFightingShift))
         element.startInterpolationIfDirty()
     }
 
@@ -181,17 +183,34 @@ public class AxisAlignedDisplayBoundaryRenderer(
         }
 
         override fun codec(): MapCodec<out BoundaryRenderer.Factory> {
-            return CODEC
+            return codec
         }
 
         public companion object: CodecProvider<Factory> {
-            override val ID: Identifier = ArcadeUtils.id("axis_aligned_display_boundary_renderer")
+            override val id: Identifier = ArcadeUtils.id("axis_aligned_display_boundary_renderer")
 
-            override val CODEC: MapCodec<out Factory> = RecordCodecBuilder.mapCodec { instance ->
+            override val codec: MapCodec<out Factory> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(
                     AxisAlignedModelRenderOptions.CODEC.fieldOf("models").forGetter(Factory::models)
                 ).apply(instance, ::Factory)
             }
+        }
+    }
+
+    private class BoundaryVirtualItemDisplay(
+        attachment: VirtualEntityAttachment,
+        observers: ObserverTracker
+    ): SimpleVirtualItemDisplay(attachment, observers) {
+        override fun canObserve(observer: ServerPlayer): Boolean {
+            return true
+        }
+    }
+
+    private class BoundaryShapeAttachmentAnchor(
+        private val shape: BoundaryShape
+    ): AttachmentAnchor {
+        override fun location(): Location {
+            return Location(this.shape.center().add(0.0, Y_SHIFT.toDouble(), 0.0), Vec2.ZERO)
         }
     }
 

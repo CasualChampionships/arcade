@@ -106,7 +106,7 @@ public class ReplayModReader(
         if (packet is ClientboundResourcePackPushPacket && packet.url.startsWith("replay://")) {
             val request = packet.url.removePrefix("replay://").toIntOrNull()
                 ?: throw IllegalStateException("Malformed replay packet url")
-            val hash = this.replay.resourcePackIndex[request]
+            val hash = this.replay.resourcePackIndex?.get(request)
             if (hash == null) {
                 ArcadeUtils.logger.error("Unknown replay resource pack index, $request for replay ${this.path}")
                 return packet

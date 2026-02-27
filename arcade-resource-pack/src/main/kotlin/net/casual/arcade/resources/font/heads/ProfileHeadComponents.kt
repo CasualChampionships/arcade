@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.resources.font.heads
 
-import net.casual.arcade.utils.DynamicResolvableProfile
-import net.casual.arcade.utils.StaticResolvableProfile
+import net.casual.arcade.utils.player.DynamicResolvableProfile
+import net.casual.arcade.utils.player.StaticResolvableProfile
 import net.casual.arcade.utils.component.font
 import net.minecraft.core.ClientAsset
 import net.minecraft.network.chat.Component

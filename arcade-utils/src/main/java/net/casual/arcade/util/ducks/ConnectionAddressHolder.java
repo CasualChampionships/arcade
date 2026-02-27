@@ -8,5 +8,5 @@ import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 import org.jetbrains.annotations.Nullable;
 
 public interface ConnectionAddressHolder {
-    @Nullable ObjectIntPair<String> arcade$getConnectionAddress();
+    @Nullable ObjectIntPair<String> arcade_getConnectionAddress();
 }

@@ -32,13 +32,13 @@ public class WithOriginLocationProvider(
     }
 
     override fun codec(): MapCodec<out LocationProvider> {
-        return CODEC
+        return codec
     }
 
     public companion object: CodecProvider<WithOriginLocationProvider> {
-        override val ID: Identifier = IdentifierUtils.arcade("with_origin")
+        override val id: Identifier = IdentifierUtils.arcade("with_origin")
 
-        override val CODEC: MapCodec<out WithOriginLocationProvider> = RecordCodecBuilder.mapCodec { instance ->
+        override val codec: MapCodec<out WithOriginLocationProvider> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 LocationProvider.CODEC.fieldOf("origin").forGetter(WithOriginLocationProvider::origin),
                 LocationProvider.CODEC.fieldOf("location").forGetter(WithOriginLocationProvider::location)

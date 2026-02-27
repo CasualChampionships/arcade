@@ -7,37 +7,32 @@ package net.casual.arcade.minigame.serialization
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import com.mojang.authlib.GameProfile
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap
+import kotlinx.atomicfu.atomic
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.task.MinigameTaskCreationContext
 import net.casual.arcade.scheduler.task.SavableTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
 import net.casual.arcade.scheduler.task.utils.TaskRegistries
+import net.casual.arcade.scheduler.utils.CoroutineTask
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.JsonUtils
-import net.casual.arcade.utils.JsonUtils.arrayOrDefault
-import net.casual.arcade.utils.JsonUtils.booleanOrDefault
-import net.casual.arcade.utils.JsonUtils.int
-import net.casual.arcade.utils.JsonUtils.intOrDefault
-import net.casual.arcade.utils.JsonUtils.objOrDefault
-import net.casual.arcade.utils.JsonUtils.objects
-import net.casual.arcade.utils.JsonUtils.string
-import net.casual.arcade.utils.JsonUtils.stringOrNull
-import net.casual.arcade.utils.JsonUtils.toJsonArray
-import net.casual.arcade.utils.JsonUtils.uuidOrNull
-import net.casual.arcade.utils.JsonUtils.uuids
+import net.casual.arcade.utils.error.RichResult
 import net.casual.arcade.utils.serialization.json.JsonValueInput
 import net.casual.arcade.utils.serialization.json.JsonValueOutput
+import net.casual.arcade.utils.serialization.codec.setOf
+import net.minecraft.core.UUIDUtil
 import net.minecraft.resources.Identifier
+import net.minecraft.server.players.NameAndId
 import net.minecraft.util.Util
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 import org.jetbrains.annotations.ApiStatus.Internal
 import java.io.*
 import java.nio.file.Path
+import java.util.ArrayDeque
 import kotlin.io.encoding.Base64
 import kotlin.io.path.isRegularFile
 import kotlin.jvm.optionals.getOrNull
@@ -47,30 +42,30 @@ public class MinigameSerializer(
     private val minigame: Minigame
 ) {
     internal fun loadFrom(path: Path) {
-        this.readAsJsonObjectFrom(path.resolve("tasks.json"), this::readTasksJson)
-        this.readAsJsonObjectFrom(path.resolve("players.json"), this::readPlayersJson)
-        this.readAsJsonObjectFrom(path.resolve("chat_manager.json"), this.minigame.chat::deserialize)
-        this.readAsJsonArrayFrom(path.resolve("settings.json"), this.minigame.settings::deserialize)
+        this.readAsObjectFrom(path.resolve("tasks.json"), this::readTasksJson)
+        this.readAsObjectFrom(path.resolve("players.json"), this::readPlayersJson)
+        this.readAsObjectFrom(path.resolve("chat_manager.json"), this.minigame.chat::deserialize)
+        this.readAsListFrom(path.resolve("settings.json"), this.minigame.settings::deserialize)
         this.readAsListFrom(path.resolve("stats.json"), this.minigame.stats::deserialize)
-        this.readAsJsonArrayFrom(path.resolve("tags.json"), this.minigame.tags::deserialize)
-        this.readAsJsonArrayFrom(path.resolve("recipes.json"), this.minigame.recipes::deserialize)
-        this.readAsJsonObjectFrom(path.resolve("data_tracker.json"), this.minigame.data::deserialize)
-        this.readAsJsonObjectFrom(path.resolve("custom.json"), this.minigame::internalLoad)
-        this.readAsJsonObjectFrom(path.resolve("minigame.json"), this::readMinigameJson)
+        this.readAsListFrom(path.resolve("tags.json"), this.minigame.tags::deserialize)
+        this.readAsListFrom(path.resolve("recipes.json"), this.minigame.recipes::deserialize)
+        this.readAsListFrom(path.resolve("advancements.json"), this.minigame.advancements::deserialize)
+        this.readAsObjectFrom(path.resolve("custom.json"), this.minigame::internalLoad)
+        this.readAsObjectFrom(path.resolve("minigame.json"), this::readMinigame)
     }
 
     internal fun saveTo(path: Path) {
-        this.writeAsyncAsJsonElementInto(path.resolve("tasks.json"), this::writeTasksJson)
-        this.writeAsyncAsJsonElementInto(path.resolve("players.json"), this::writePlayerJson)
-        this.writeAsyncAsJsonElementInto(path.resolve("chat_manager.json"), this.minigame.chat::serialize)
-        this.writeAsyncAsJsonElementInto(path.resolve("settings.json"), this.minigame.settings::serialize)
+        this.writeAsyncAsObjectInto(path.resolve("tasks.json"), this::writeTasksJson)
+        this.writeAsyncAsObjectInto(path.resolve("players.json"), this::writePlayerJson)
+        this.writeAsyncAsObjectInto(path.resolve("chat_manager.json"), this.minigame.chat::serialize)
+        this.writeAsyncAsListInto(path.resolve("settings.json"), this.minigame.settings::serialize)
         this.writeAsyncAsListInto(path.resolve("stats.json"), this.minigame.stats::serialize)
-        this.writeAsyncAsJsonElementInto(path.resolve("tags.json"), this.minigame.tags::serialize)
-        this.writeAsyncAsJsonElementInto(path.resolve("recipes.json"), this.minigame.recipes::serialize)
-        this.writeAsyncAsJsonElementInto(path.resolve("data_tracker.json"), this.minigame.data::serialize)
-        this.writeAsyncAsJsonElementInto(path.resolve("custom.json"), this.minigame::internalSave)
+        this.writeAsyncAsListInto(path.resolve("tags.json"), this.minigame.tags::serialize)
+        this.writeAsyncAsListInto(path.resolve("recipes.json"), this.minigame.recipes::serialize)
+        this.writeAsyncAsListInto(path.resolve("advancements.json"), this.minigame.advancements::serialize)
+        this.writeAsyncAsObjectInto(path.resolve("custom.json"), this.minigame::internalSave)
 
-        this.writeAsyncAsJsonElementInto(path.resolve("minigame.json"), this::writeMinigameJson)
+        this.writeAsyncAsObjectInto(path.resolve("minigame.json"), this::writeMinigame)
     }
 
     private inline fun readAsJsonObjectFrom(path: Path, block: (JsonObject) -> Unit) {
@@ -101,18 +96,18 @@ public class MinigameSerializer(
         }
     }
 
-    private fun readMinigameJson(json: JsonObject) {
-        val initialized = json.booleanOrDefault("initialized")
-        this.minigame.started = json.booleanOrDefault("started")
+    private fun readMinigame(input: ValueInput) {
+        val initialized = input.getBooleanOr("initialized", false)
+        this.minigame.started = input.getBooleanOr("started", false)
 
-        val phaseId = json.string("phase")
+        val phaseId = input.getString("phase").orElseThrow()
         this.minigame.phase = requireNotNull(this.minigame.getPhase(phaseId)) {
             "Minigame phase $phaseId is invalid, unable to deserialize minigame"
         }
 
-        this.minigame.uptime = json.intOrDefault("uptime")
-        this.minigame.paused = json.booleanOrDefault("paused")
-        this.minigame.tickrate.isFrozen = json.booleanOrDefault("frozen")
+        this.minigame.uptime = input.getIntOr("uptime", 0)
+        this.minigame.paused = input.getBooleanOr("paused", false)
+        this.minigame.tickrate.isFrozen = input.getBooleanOr("frozen", false)
 
         if (initialized) {
             this.minigame.tryInitialize()
@@ -124,51 +119,20 @@ public class MinigameSerializer(
         }
     }
 
-    private fun readTasksJson(json: JsonObject) {
-        val definitions = Int2ObjectOpenHashMap<JsonObject>()
-        for (definition in json.arrayOrDefault("task_definitions").objects()) {
-            definitions.put(definition.int("uid"), definition)
-        }
-        val context = MinigameTaskCreationContextImpl(JsonObject(), definitions, Int2ObjectOpenHashMap())
-        this.minigame.scheduler.minigame.deserialize(json.arrayOrDefault("scheduled_tasks"), context)
-        this.minigame.scheduler.phased.deserialize(json.arrayOrDefault("scheduled_phase_tasks"), context)
+    private fun readTasksJson(input: ValueInput) {
+        val context = MinigameTaskCreationContextImpl(this.minigame)
+        context.deserialize(input.childrenListOrEmpty("task_definitions"))
+        this.minigame.scheduler.minigame.deserialize(input.childrenListOrEmpty("scheduled_tasks"), context)
+        this.minigame.scheduler.phased.deserialize(input.childrenListOrEmpty("scheduled_phase_tasks"), context)
         context.clear()
     }
 
-    private fun readPlayersJson(json: JsonObject) {
-        this.minigame.teams.deserialize(json.objOrDefault("teams"), this.minigame.server.scoreboard)
+    private fun readPlayersJson(input: ValueInput) {
+        this.minigame.teams.deserialize(input.childOrEmpty("teams"), this.minigame.server.scoreboard)
 
-        for (player in json.arrayOrDefault("players").objects()) {
-            val profile = GameProfile(player.uuidOrNull("uuid"), player.stringOrNull("name"))
-            this.minigame.players.offlineGameProfiles.add(profile)
-        }
-
-        this.minigame.players.spectatorUUIDs.addAll(json.arrayOrDefault("spectators").uuids())
-        this.minigame.players.adminUUIDs.addAll(json.arrayOrDefault("admins").uuids())
-    }
-
-    private fun deserializeTask(identity: Int, context: MinigameTaskCreationContextImpl): Task? {
-        if (context.generated.containsKey(identity)) {
-            return context.generated.get(identity)
-        }
-
-        val definition = context.definitions.get(identity) ?: return null
-        val task = if (definition.has("raw")) {
-            try {
-                Base64.decode(definition.string("raw")).inputStream().use { bytes ->
-                    ObjectInputStream(bytes).use { it.readObject() as Task }
-                }
-            } catch (_: ObjectStreamException) {
-                null
-            }
-        } else {
-            val id = definition.stringOrNull("id") ?: return null
-            val custom = definition.objOrDefault("custom")
-            val factory = TaskRegistries.TASK_FACTORY.getOptional(Identifier.parse(id)).getOrNull() ?: return null
-            factory.create(context.createSubContext(custom))
-        }
-        context.generated.put(identity, task)
-        return task
+        this.minigame.players.offlineGameProfiles.addAll(input.listOrEmpty("players", NameAndId.CODEC))
+        this.minigame.players.spectatorUUIDs.addAll(input.listOrEmpty("spectators", UUIDUtil.STRING_CODEC))
+        this.minigame.players.adminUUIDs.addAll(input.listOrEmpty("admins", UUIDUtil.STRING_CODEC))
     }
 
     private inline fun writeAsyncAsJsonElementInto(path: Path, block: () -> JsonElement) {
@@ -178,6 +142,16 @@ public class MinigameSerializer(
                 JsonUtils.encodeRaw(json, path)
             } catch (e: IOException) {
                 ArcadeUtils.logger.error("Failed to write minigame data to $path", e)
+            }
+        }
+    }
+
+    private inline fun writeAsyncAsObjectInto(path: Path, block: (ValueOutput) -> Unit) {
+        this.writeAsyncAsJsonElementInto(path) {
+            ArcadeUtils.createProblemReporter().use { reporter ->
+                val output = JsonValueOutput.create(reporter, this.minigame.server.registryAccess())
+                block.invoke(output)
+                output.buildResult()
             }
         }
     }
@@ -192,122 +166,153 @@ public class MinigameSerializer(
         }
     }
 
-    private fun writeMinigameJson(): JsonObject {
-        val json = JsonObject()
-        json.addProperty("initialized", this.minigame.initialized)
-        json.addProperty("started", this.minigame.started)
-        json.addProperty("phase", this.minigame.phase.id)
-        json.addProperty("uptime", this.minigame.uptime)
-        json.addProperty("paused", this.minigame.paused)
-        json.addProperty("frozen", this.minigame.tickrate.isFrozen)
-        return json
+    private fun writeMinigame(output: ValueOutput) {
+        output.putBoolean("initialized", this.minigame.initialized)
+        output.putBoolean("started", this.minigame.started)
+        output.putString("phase", this.minigame.phase.id)
+        output.putInt("uptime", this.minigame.uptime)
+        output.putBoolean("paused", this.minigame.paused)
+        output.putBoolean("frozen", this.minigame.tickrate.isFrozen)
     }
 
-    private fun writeTasksJson(): JsonObject {
-        val json = JsonObject()
-        val context = MinigameTaskSerializationContext(Int2ObjectOpenHashMap())
-        json.add("scheduled_tasks", this.minigame.scheduler.minigame.serialize(context))
-        json.add("scheduled_phase_tasks", this.minigame.scheduler.phased.serialize(context))
-        json.add("task_definitions", context.definitions.values.toJsonArray())
+    private fun writeTasksJson(output: ValueOutput) {
+        val context = MinigameTaskSerializationContextImpl()
+        this.minigame.scheduler.minigame.serialize(output.childrenList("scheduled_tasks"), context)
+        this.minigame.scheduler.phased.serialize(output.childrenList("scheduled_phase_tasks"), context)
+        context.serialize(output.childrenList("task_definitions"))
         context.clear()
-        return json
     }
 
-    private fun writePlayerJson(): JsonObject {
-        val json = JsonObject()
-        val players = JsonArray()
-        for (player in this.minigame.players.allProfiles) {
-            val data = JsonObject()
-            data.addProperty("name", player.name)
-            data.addProperty("uuid", player.id?.toString())
-            players.add(data)
-        }
+    private fun writePlayerJson(output: ValueOutput) {
+        this.minigame.teams.serialize(output.child("teams"))
 
-        val spectators = JsonArray()
-        for (spectator in this.minigame.players.spectatorUUIDs) {
-            spectators.add(spectator.toString())
-        }
-
-        val admins = JsonArray()
-        for (admin in this.minigame.players.adminUUIDs) {
-            admins.add(admin.toString())
-        }
-        json.add("teams", this.minigame.teams.serialize())
-        json.add("players", players)
-        json.add("spectators", spectators)
-        json.add("admins", admins)
-        return json
+        output.store("players", NameAndId.CODEC.listOf(), this.minigame.players.allProfiles)
+        output.store("spectators", UUIDUtil.STRING_CODEC.setOf(), this.minigame.players.spectatorUUIDs)
+        output.store("admins", UUIDUtil.STRING_CODEC.setOf(), this.minigame.players.adminUUIDs)
     }
 
-    private fun serializeTask(task: Task, context: MinigameTaskSerializationContext): Int? {
-        val identity = System.identityHashCode(task)
-        if (context.definitions.containsKey(identity)) {
-            return identity
+    private class MinigameTaskCreationContextImpl(
+        override val minigame: Minigame
+    ): MinigameTaskCreationContext<Minigame> {
+        private val generated = Int2ObjectOpenHashMap<Task>()
+
+        override fun getTask(uid: Int): Task? {
+            if (this.generated.containsKey(uid)) {
+                return this.generated.get(uid)
+            }
+            return null
         }
 
-        if (task is SavableTask) {
-            try {
-                val definition = JsonObject()
-                definition.addProperty("id", task.id.toString())
-                definition.addProperty("uid", identity)
-                definition.add("custom", task.serialize(context))
-                context.definitions.put(identity, definition)
-                return identity
-            } catch (e: Exception) {
-                ArcadeUtils.logger.error("Failed to serialize task ${task.id}", e)
+        fun clear() {
+            this.generated.clear()
+        }
+
+        fun deserialize(list: ValueInput.ValueInputList) {
+            for (input in list) {
+                val id = input.getInt("uid").getOrNull() ?: continue
+                val result = if (input.contains("raw")) this.deserializeRaw(input) else this.deserializeSavable(input)
+                result.dispatch(
+                    success = { task -> this.generated.put(id, task) },
+                    failure = { message ->
+                        val meta = input.getStringOr("meta", "Missing metadata")
+                        ArcadeUtils.logger.error("Failed to deserialize task $id, meta: $meta, msg: $message")
+                        continue
+                    }
+                )
             }
         }
 
-        if (task is Serializable) {
+        private fun deserializeRaw(input: ValueInput): RichResult<Task> {
+            try {
+                val task = Base64.decode(input.getString("raw").get()).inputStream().use { bytes ->
+                    ObjectInputStream(bytes).use { it.readObject() as Task }
+                }
+                return RichResult.success(task)
+            } catch (e: ObjectStreamException) {
+                return RichResult.failure("Failed to stream object: ${e.message}")
+            }
+        }
+
+        private fun deserializeSavable(input: ValueInput): RichResult<Task> {
+            val id = input.read("id", Identifier.CODEC).getOrNull()
+                ?: return RichResult.failure("No factory id")
+            val custom = input.childOrEmpty("custom")
+            val factory = TaskRegistries.TASK_FACTORY.getOptional(id).getOrNull()
+                ?: return RichResult.failure("No factory for id $id")
+            return factory.create(custom, this)
+        }
+    }
+
+    private class MinigameTaskSerializationContextImpl: TaskSerializationContext {
+        private val ids = Reference2IntOpenHashMap<Task>()
+        private val pending = ArrayDeque<Task>()
+        private val id = atomic(0)
+
+        override fun storeTask(task: Task): Int {
+            if (this.ids.containsKey(task)) {
+                return this.ids.getInt(task)
+            }
+            val next = this.id.getAndIncrement()
+            this.ids.put(task, next)
+            this.pending.add(task)
+            return next
+        }
+
+        fun clear() {
+            this.ids.clear()
+            this.pending.clear()
+        }
+
+        fun serialize(output: ValueOutput.ValueOutputList) {
+            var coroutine = false
+            while (this.pending.isNotEmpty()) {
+                val task = this.pending.removeFirst()
+                val id = this.ids.getInt(task)
+                val child = output.addChild()
+                val result = when (task) {
+                    is CoroutineTask -> { coroutine = true; continue }
+                    is SavableTask -> this.serializeSavable(child, id, task)
+                    is Serializable -> this.serializeRaw(child, id, task)
+                    else -> RichResult.failure("Task not serializable")
+                }
+                result.dispatch(
+                    success = { child.putString("meta", "${task.javaClass.simpleName}: $task") },
+                    failure = { message ->
+                        ArcadeUtils.logger.warn("Failed to serialize task ${task.javaClass.simpleName}: $message")
+                        output.discardLast()
+                    }
+                )
+            }
+
+            if (coroutine) {
+                ArcadeUtils.logger.warn("Failed to serialize coroutine task(s)")
+            }
+        }
+
+        private fun serializeSavable(output: ValueOutput, uid: Int, task: SavableTask): RichResult<Unit> {
+            try {
+                output.store("id", Identifier.CODEC, task.id)
+                output.putInt("uid", uid)
+                task.serialize(output.child("custom"), this)
+                return RichResult.success(Unit)
+            } catch (e: Exception) {
+                return RichResult.failure("Exception while serializing ${task.id}: ${e.message}")
+            }
+        }
+
+        private fun serializeRaw(output: ValueOutput, uid: Int, task: Serializable): RichResult<Unit> {
             try {
                 ByteArrayOutputStream().use { bytes ->
                     ObjectOutputStream(bytes).use { stream ->
                         stream.writeObject(task)
                     }
-                    val definition = JsonObject()
-                    definition.addProperty("uid", identity)
-                    definition.addProperty("raw", Base64.encode(bytes.toByteArray()))
-                    context.definitions.put(identity, definition)
-                    return identity
+                    output.putInt("uid", uid)
+                    output.putString("raw", Base64.encode(bytes.toByteArray()))
                 }
-            } catch (_: ObjectStreamException) {
-
+                return RichResult.success(Unit)
+            } catch (e: ObjectStreamException) {
+                return RichResult.failure("Failed to stream object: ${e.message}")
             }
-        }
-        return null
-    }
-
-    private inner class MinigameTaskCreationContextImpl(
-        override val data: JsonObject,
-        val definitions: Int2ObjectMap<JsonObject>,
-        val generated: Int2ObjectMap<Task?>,
-    ): MinigameTaskCreationContext<Minigame> {
-        override val minigame: Minigame
-            get() = this@MinigameSerializer.minigame
-
-        override fun createTask(uid: Int): Task? {
-            val task = deserializeTask(uid, this)
-            if (task == null) {
-                ArcadeUtils.logger.warn("Saved task $uid for minigame ${this.minigame.id} could not be reloaded!")
-            }
-            return task
-        }
-
-        fun clear() {
-            this.definitions.clear()
-            this.generated.clear()
-        }
-    }
-
-    private inner class MinigameTaskSerializationContext(
-        val definitions: Int2ObjectMap<JsonObject>
-    ): TaskSerializationContext {
-        override fun serializeTask(task: Task): Int? {
-            return serializeTask(task, this)
-        }
-
-        fun clear() {
-            this.definitions.clear()
         }
     }
 }

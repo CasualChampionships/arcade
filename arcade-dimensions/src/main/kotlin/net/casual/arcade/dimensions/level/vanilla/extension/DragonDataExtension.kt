@@ -6,7 +6,7 @@ package net.casual.arcade.dimensions.level.vanilla.extension
 
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
-import net.casual.arcade.extensions.DataExtension
+import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.utils.ArcadeUtils
 import net.minecraft.resources.Identifier
@@ -19,14 +19,14 @@ import kotlin.jvm.optionals.getOrNull
 
 internal class DragonDataExtension(
     private val level: ServerLevel
-): DataExtension {
+): SerializableExtension {
     private var data: EndDragonFight.Data? = null
 
     fun getDataOrDefault(): EndDragonFight.Data {
         return this.data ?: EndDragonFight.Data.DEFAULT
     }
 
-    override fun getId(): Identifier {
+    override fun id(): Identifier {
         return ArcadeUtils.id("dragon_data")
     }
 

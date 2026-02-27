@@ -28,6 +28,7 @@ import net.casual.arcade.minigame.annotation.MinigameEventListener
 import net.casual.arcade.minigame.events.MinigameEvent
 import net.casual.arcade.minigame.extensions.LevelMinigameExtension
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
+import net.casual.arcade.minigame.managers.MinigamePlayerManager
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.settings.MinigameSettings
@@ -44,12 +45,15 @@ import net.casual.arcade.utils.coroutine.async
 import net.casual.arcade.utils.coroutine.launch
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.countdown.Countdown
+import net.casual.arcade.visuals.ready.ReadyChecker
+import net.casual.arcade.visuals.ready.ReadyTracker
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.permissions.PermissionLevel
+import net.minecraft.world.scores.PlayerTeam
 import org.jetbrains.annotations.ApiStatus.Internal
 import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
@@ -154,6 +158,22 @@ public object MinigameUtils {
                 block.invoke(this)
             }
         }
+    }
+
+    public fun Minigame.trackReadyPlayers(): ReadyTracker<ServerPlayer> {
+        return ReadyChecker.track(this.visuals.playerReadyBroadcaster, this.players.playing)
+    }
+
+    public fun Minigame.trackReadyTeams(): ReadyTracker<PlayerTeam> {
+        return ReadyChecker.track(this.visuals.teamReadyBroadcaster, this.teams.getPlayingTeams())
+    }
+
+    public suspend fun Minigame.checkReadyPlayers() {
+        this.trackReadyPlayers().awaitSuccess()
+    }
+
+    public suspend fun Minigame.checkReadyTeams() {
+        this.trackReadyTeams().awaitSuccess()
     }
 
     /**

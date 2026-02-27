@@ -4,17 +4,16 @@
  */
 package net.casual.arcade.events
 
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
-import it.unimi.dsi.fastutil.objects.ObjectSets
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap
 import net.casual.arcade.events.common.Event
 import net.casual.arcade.events.common.MissingExecutorEvent
 import net.casual.arcade.events.threading.ThreadingStrategy
-import net.casual.arcade.utils.ServerUtils
-import net.casual.arcade.utils.addSorted
+import net.casual.arcade.utils.server.ServerSingleton
+import net.casual.arcade.utils.collection.mergeSorted
 import net.minecraft.client.Minecraft
 import net.minecraft.util.thread.ReentrantBlockableEventLoop
-import org.apache.logging.log4j.LogManager
+import org.slf4j.LoggerFactory
+import java.util.*
 import java.util.concurrent.Executor
 
 /**
@@ -28,13 +27,13 @@ import java.util.concurrent.Executor
 public enum class GlobalEventHandler(
     private val executor: () -> ReentrantBlockableEventLoop<*>?
 ): ListenerRegistry by SimpleListenerRegistry() {
-    Server(ServerUtils::getServerOrNull),
+    Server(ServerSingleton::getOrNull),
     Client({ Minecraft.getInstance() });
 
     private val stack = ThreadLocal.withInitial { Reference2IntOpenHashMap<Class<out Event>>() }
-    private val registries = ObjectSets.synchronize(ObjectOpenHashSet<ListenerProvider>())
+    private val registries = Collections.synchronizedSet(HashSet<ListenerProvider>())
 
-    private val injected = ObjectSets.synchronize(ObjectOpenHashSet<InjectedListenerProvider>())
+    private val injected = Collections.synchronizedSet(HashSet<InjectedListenerProvider>())
 
     private var recursion = ThreadLocal.withInitial { false }
 
@@ -65,7 +64,7 @@ public enum class GlobalEventHandler(
      */
     @JvmOverloads
     public fun <T: Event> broadcast(event: T, phases: Set<String> = BuiltInEventPhases.DEFAULT_PHASES) {
-        val type = event::class.java
+        val type = event.javaClass
 
         // If this returns null, then the server is stopping anyway
         val executor = this.getMainThreadExecutor(event, type) ?: return
@@ -74,22 +73,26 @@ public enum class GlobalEventHandler(
             return
         }
 
+        // We could probably optimize this further by collecting all listeners
+        // *then* merging them all in one go, we should also probably be filtering
+        // by phase when merging listeners.
         @Suppress("UNCHECKED_CAST")
-        val listeners = ArrayList(this.getListenersFor(type)) as MutableList<EventListener<T>>
+        val base = this.getListenersFor(type) as List<EventListener<T>>
+        val listeners = if (base.isEmpty()) ArrayList() else ArrayList(base)
         try {
             this.stack.get().addTo(type, 1)
 
             synchronized(this.registries) {
                 for (handler in this.registries) {
                     @Suppress("UNCHECKED_CAST")
-                    listeners.addSorted(handler.getListenersFor(type) as List<EventListener<T>>)
+                    listeners.mergeSorted(handler.getListenersFor(type) as List<EventListener<T>>)
                 }
             }
             synchronized(this.injected) {
                 for (injected in this.injected) {
                     injected.injectListenerProviders(event) { handler ->
                         @Suppress("UNCHECKED_CAST")
-                        listeners.addSorted(handler.getListenersFor(type) as List<EventListener<T>>)
+                        listeners.mergeSorted(handler.getListenersFor(type) as List<EventListener<T>>)
                     }
                 }
             }
@@ -217,6 +220,6 @@ public enum class GlobalEventHandler(
     public companion object {
         private const val MAX_RECURSIONS = 10
 
-        private val logger = LogManager.getLogger("ArcadeEventHandler")
+        private val logger = LoggerFactory.getLogger("ArcadeEventHandler")
     }
 }

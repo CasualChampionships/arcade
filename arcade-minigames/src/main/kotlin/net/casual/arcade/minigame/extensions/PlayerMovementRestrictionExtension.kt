@@ -4,24 +4,26 @@
  */
 package net.casual.arcade.minigame.extensions
 
-import eu.pb4.polymer.virtualentity.api.ElementHolder
-import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils
-import eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment
-import eu.pb4.polymer.virtualentity.api.elements.SimpleEntityElement
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerAttributeUpdatedEvent
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
 import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
 import net.casual.arcade.events.server.player.PlayerTickEvent
-import net.casual.arcade.extensions.DataExtension
+import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.ClientboundSetPassengersPacket
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.locationWithLevel
-import net.casual.arcade.utils.teleportTo
+import net.casual.arcade.utils.entity.teleportTo
+import net.casual.arcade.virtual.entity.SimpleVirtualEntity
+import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
+import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor
+import net.casual.arcade.virtual.entity.display.SimpleVirtualTextDisplay
+import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
 import net.minecraft.core.Direction
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket
@@ -36,15 +38,15 @@ import net.minecraft.world.level.storage.ValueOutput
 import net.minecraft.world.phys.Vec3
 import org.jetbrains.annotations.VisibleForTesting
 
-public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExtension(player), DataExtension {
-    private var attachment: EntityAttachment? = null
+public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExtension(player), SerializableExtension {
+    private var attachment: SimpleVirtualEntityAttachment? = null
     private var position: Vec3 = Vec3.ZERO
     private var persist: Boolean = false
 
     public val hasRestrictedMovement: Boolean
         get() = this.attachment != null
 
-    override fun getId(): Identifier {
+    override fun id(): Identifier {
         return ArcadeUtils.id("movement_restriction")
     }
 
@@ -72,15 +74,16 @@ public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExt
             return
         }
 
+        // TODO: We can rework this to have a MoveableHitbox entity
         val dimensions = this.player.getDimensions(this.player.pose)
-        val holder = ElementHolder()
+        val attachment = SimpleVirtualEntityAttachment(EntityAttachmentAnchor(this.player))
         val packets = ArrayList<Packet<*>>(12)
         for (direction in Direction.entries) {
-            val vehicle = SimpleEntityElement(EntityType.TEXT_DISPLAY)
-            val element = SimpleEntityElement(EntityType.SHULKER)
-            vehicle.isInvisible = true
-            if (!debug) {
-                element.isInvisible = true
+            val vehicle = attachment.attachWithParentObservers(::SimpleVirtualTextDisplay)
+            val element = attachment.attachWithParentObservers(SimpleVirtualEntity.typed(EntityType.SHULKER))
+            vehicle.setInvisible(true)
+            if (!DEBUG) {
+                element.setInvisible(true)
             }
 
             val horizontalSize = dimensions.width
@@ -92,14 +95,11 @@ public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExt
                     (unit.y - 1) * (unit.y + 1) * verticalSize / 2
             val offsetZ = unit.z * (horizontalSize / 2 + SMALLEST_SCALE / 2)
 
-            vehicle.offset = Vec3(offsetX, offsetY, offsetZ)
-            holder.addElement(vehicle)
-            holder.addElement(element)
-            packets.add(ClientboundUpdateAttributesPacket(element.entityId, listOf(SMALLEST_SCALE_ATTRIBUTE)))
-            packets.add(VirtualEntityUtils.createRidePacket(vehicle.entityId, intArrayOf(element.entityId)))
+            vehicle.position += Vec3(offsetX, offsetY, offsetZ)
+            packets.add(ClientboundUpdateAttributesPacket(element.id, listOf(SMALLEST_SCALE_ATTRIBUTE)))
+            packets.add(ClientboundSetPassengersPacket(vehicle.id, intArrayOf(element.id)))
         }
-        val attachment = EntityAttachment(holder, player, false)
-        attachment.startWatching(this.player)
+        attachment.startObservingAttached(this.player)
         for (packet in packets) {
             this.player.connection.send(packet)
         }
@@ -110,7 +110,7 @@ public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExt
 
     private fun unrestrictMovement() {
         val attachment = this.attachment ?: return
-        attachment.destroy()
+        attachment.stopObservingAttached(this.player)
         this.attachment = null
         val attribute = this.player.attributes.getInstance(Attributes.JUMP_STRENGTH) ?: return
         this.player.connection.send(ClientboundUpdateAttributesPacket(this.player.id, listOf(attribute)))
@@ -130,7 +130,7 @@ public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExt
         private val SMALLEST_JUMP_ATTRIBUTE = AttributeInstance(Attributes.JUMP_STRENGTH) {}
 
         @VisibleForTesting
-        public var debug: Boolean = false
+        public var DEBUG: Boolean = false
 
         init {
             SMALLEST_SCALE_ATTRIBUTE.baseValue = SMALLEST_SCALE

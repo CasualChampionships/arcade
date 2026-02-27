@@ -5,21 +5,18 @@
 package net.casual.arcade.minigame.managers
 
 import com.google.common.collect.HashMultimap
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigameAddTagEvent
 import net.casual.arcade.minigame.events.MinigameRemoveTagEvent
-import net.casual.arcade.utils.JsonUtils.array
-import net.casual.arcade.utils.JsonUtils.objects
-import net.casual.arcade.utils.JsonUtils.set
-import net.casual.arcade.utils.JsonUtils.strings
-import net.casual.arcade.utils.JsonUtils.uuid
-import net.casual.arcade.utils.PlayerUtils.player
+import net.casual.arcade.utils.server.player
+import net.minecraft.core.UUIDUtil
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import java.util.*
+import kotlin.jvm.optionals.getOrNull
 
 public class MinigameTagManager(
     private val minigame: Minigame
@@ -90,28 +87,23 @@ public class MinigameTagManager(
         return this.getUUIDsFor(tag).mapNotNull { this.minigame.server.player(it) }
     }
 
-    internal fun serialize(): JsonArray {
-        val array = JsonArray()
-        for ((uuid, tags) in this.players.asMap()) {
-            val json = JsonObject()
-            json["uuid"] = uuid.toString()
-            val tagArray = JsonArray()
-            for (tag in tags) {
-                tagArray.add(tag.toString())
+    internal fun serialize(list: ValueOutput.ValueOutputList) {
+        for (entry in this.players.asMap()) {
+            val output = list.addChild()
+            output.store("uuid", UUIDUtil.STRING_CODEC, entry.key)
+            val tags = output.list("tags", Identifier.CODEC)
+            for (tag in entry.value) {
+                tags.add(tag)
             }
-            json["tags"] = tagArray
-            array.add(json)
         }
-        return array
     }
 
-    internal fun deserialize(array: JsonArray) {
-        for (json in array.objects()) {
-            val uuid = json.uuid("uuid")
-            val tags = json.array("tags").strings()
-            val parsed = tags.map(Identifier::parse)
-            this.players.putAll(uuid, parsed)
-            for (tag in parsed) {
+    internal fun deserialize(list: ValueInput.ValueInputList) {
+        for (input in list) {
+            val uuid = input.read("uuid", UUIDUtil.STRING_CODEC).getOrNull() ?: continue
+            val tags = input.listOrEmpty("tags", Identifier.CODEC)
+            this.players.putAll(uuid, tags)
+            for (tag in tags) {
                 this.tags.put(tag, uuid)
             }
         }

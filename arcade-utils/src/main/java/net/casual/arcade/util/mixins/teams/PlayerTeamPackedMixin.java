@@ -5,6 +5,8 @@
 package net.casual.arcade.util.mixins.teams;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.serialization.Codec;
 import net.casual.arcade.util.ducks.OverridableColor;
 import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs;
@@ -14,6 +16,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Mixin(PlayerTeam.Packed.class)
@@ -21,13 +24,13 @@ public class PlayerTeamPackedMixin implements OverridableColor {
     @Unique private Integer arcade$color = null;
 
     @Override
-    public void arcade$setColor(@Nullable Integer color) {
+    public void arcade_setColor(@Nullable Integer color) {
         this.arcade$color = color;
     }
 
     @Override
     @Nullable
-    public Integer arcade$getColor() {
+    public Integer arcade_getColor() {
         return this.arcade$color;
     }
 
@@ -43,12 +46,18 @@ public class PlayerTeamPackedMixin implements OverridableColor {
         return ArcadeExtraCodecs.extend(
             original,
             Codec.INT.optionalFieldOf("RawHexColor").forGetter(packed -> {
-                return Optional.ofNullable(((OverridableColor) (Object) packed).arcade$getColor());
+                return Optional.ofNullable(((OverridableColor) (Object) packed).arcade_getColor());
             }),
             (packed, color) -> {
-                ((OverridableColor) (Object) packed).arcade$setColor(color.orElse(null));
+                ((OverridableColor) (Object) packed).arcade_setColor(color.orElse(null));
                 return packed;
             }
         );
+    }
+
+    @WrapMethod(method = "equals")
+    private boolean extendEquals(Object object, Operation<Boolean> original) {
+        return original.call(object) && object instanceof OverridableColor color
+                && Objects.equals(this.arcade$color, color.arcade_getColor());
     }
 }

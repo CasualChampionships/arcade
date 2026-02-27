@@ -12,7 +12,7 @@ import net.casual.arcade.replay.io.ReplayFormat
 import net.casual.arcade.replay.recorder.ChunkSender
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.recorder.rejoin.RejoinedReplayPlayer
-import net.casual.arcade.utils.impl.WrappedTrackedEntity
+import net.casual.arcade.utils.entity.WrappedTrackedEntity
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
 import net.casual.arcade.replay.util.ReplayPacketUtils
 import net.casual.arcade.utils.ClientboundAddEntityPacket
@@ -193,7 +193,7 @@ public class ReplayPlayerRecorder internal constructor(
      * @param packet The packet to be recorded.
      */
     override fun sendChunkPacket(packet: Packet<*>) {
-        this.record(PolymerCompatLayer.replace(this.getPlayerOrThrow().connection, packet))
+        this.record(PolymerCompatLayer.replacePacket(this.getPlayerOrThrow().connection, packet))
     }
 
     /**

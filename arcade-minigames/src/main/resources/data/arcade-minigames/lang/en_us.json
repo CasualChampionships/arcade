@@ -14,19 +14,6 @@
 
   "minigame.chat.muted": "Currently chat is muted",
 
-  "minigame.ready.yes": "[Yes]",
-  "minigame.ready.no": "[No]",
-
-  "minigame.ready.player.broadcast": "Are you ready? %s %s",
-  "minigame.ready.player.ready": "%s is ready!",
-  "minigame.ready.player.notReady": "%s is not ready!",
-  "minigame.ready.player.all": "All players are ready!",
-
-  "minigame.ready.team.broadcast": "Is your team ready? %s %s",
-  "minigame.ready.team.ready": "%s is ready!",
-  "minigame.ready.team.notReady": "%s is not ready!",
-  "minigame.ready.team.all": "All teams are ready!",
-
   "minigame.lobby.ready.clickToStart": "Click to start!",
   "minigame.lobby.ready.finishedWaiting": "Lobby waiting period has finished.",
   "minigame.lobby.ready.clickToReadyTeams": "[Click to ready teams]",

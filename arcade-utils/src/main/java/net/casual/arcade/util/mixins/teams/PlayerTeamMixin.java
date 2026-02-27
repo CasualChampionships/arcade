@@ -6,7 +6,7 @@ package net.casual.arcade.util.mixins.teams;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.casual.arcade.util.ducks.OverridableColor;
-import net.casual.arcade.utils.TeamUtils;
+import net.casual.arcade.utils.scoreboard.TeamUtilsKt;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.scores.PlayerTeam;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +26,7 @@ public class PlayerTeamMixin implements OverridableColor {
 		at = @At("RETURN")
 	)
 	private MutableComponent modifyTeamColor(MutableComponent original) {
-		return TeamUtils.color(original, (PlayerTeam) (Object) this);
+		return TeamUtilsKt.color(original, (PlayerTeam) (Object) this);
 	}
 
 	@ModifyReturnValue(
@@ -34,18 +34,18 @@ public class PlayerTeamMixin implements OverridableColor {
 		at = @At("RETURN")
 	)
 	private PlayerTeam.Packed onPackTeam(PlayerTeam.Packed original) {
-		((OverridableColor) (Object) original).arcade$setColor(this.arcade$color);
+		((OverridableColor) (Object) original).arcade_setColor(this.arcade$color);
 		return original;
 	}
 
 	@Override
-	public void arcade$setColor(@Nullable Integer color) {
+	public void arcade_setColor(@Nullable Integer color) {
 		this.arcade$color = color;
 	}
 
 	@Override
 	@Nullable
-	public Integer arcade$getColor() {
+	public Integer arcade_getColor() {
 		return this.arcade$color;
 	}
 }

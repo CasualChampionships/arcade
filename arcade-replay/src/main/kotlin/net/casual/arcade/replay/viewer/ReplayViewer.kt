@@ -25,8 +25,9 @@ import net.casual.arcade.replay.viewer.ReplayViewerUtils.startViewingReplay
 import net.casual.arcade.replay.viewer.ReplayViewerUtils.stopViewingReplay
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.DateTimeUtils.formatHHMMSS
-import net.casual.arcade.utils.PlayerUtils.server
+import net.casual.arcade.utils.player.server
 import net.casual.arcade.utils.component.*
+import net.minecraft.client.Minecraft
 import net.minecraft.core.UUIDUtil
 import net.minecraft.network.ConnectionProtocol
 import net.minecraft.network.ProtocolInfo
@@ -283,7 +284,7 @@ public class ReplayViewer internal constructor(
                     delay((time - lastTime) / this.speedMultiplier.toDouble())
                 }
 
-                while (this.paused || this.server.isPaused) {
+                while (this.shouldPauseStreaming()) {
                     delay(50)
                 }
 
@@ -344,6 +345,10 @@ public class ReplayViewer internal constructor(
         }
     }
 
+    private fun shouldPauseStreaming(): Boolean {
+        return this.paused || (this.server.isSingleplayer && Minecraft.getInstance().isPaused)
+    }
+
     private fun sendTickingState() {
         this.send(this.getTickingStatePacket())
     }
@@ -374,6 +379,7 @@ public class ReplayViewer internal constructor(
         RejoinedReplayPlayer.place(player, this.connection, afterLogin = {
             this.synchronizeClientLevel()
         })
+        playerList.sendPlayerPermissionLevel(player)
 
         (player as EntityInvoker).removeRemovalReason()
         level.addNewPlayer(player)

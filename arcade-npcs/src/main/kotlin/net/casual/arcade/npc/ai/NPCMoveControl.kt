@@ -8,7 +8,7 @@ import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.utils.MathUtils.component1
 import net.casual.arcade.utils.MathUtils.component2
 import net.casual.arcade.utils.MathUtils.component3
-import net.casual.arcade.utils.isOf
+import net.casual.arcade.utils.level.isOf
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.tags.BlockTags

@@ -10,6 +10,7 @@ include(
     ":arcade-events-server",
     ":arcade-extensions",
     ":arcade-guis",
+    ":arcade-interceptor",
     ":arcade-items",
     ":arcade-minigames",
     ":arcade-nametags",
@@ -19,6 +20,7 @@ include(
     ":arcade-resource-pack-host",
     ":arcade-scheduler",
     ":arcade-utils",
+    ":arcade-virtual-entities",
     ":arcade-visuals",
 )
 

@@ -6,17 +6,15 @@ package net.casual.arcade.npc.pathfinding.evaluator
 
 import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.npc.pathfinding.NPCPathfindingContext
-import net.casual.arcade.utils.isOf
+import net.casual.arcade.utils.level.isOf
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.tags.BlockTags
 import net.minecraft.util.Mth
 import net.minecraft.world.level.PathNavigationRegion
-import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.pathfinder.Node
 import net.minecraft.world.level.pathfinder.PathType
 import net.minecraft.world.level.pathfinder.Target
-import net.minecraft.world.phys.shapes.CollisionContext
 import kotlin.math.max
 
 public open class NPCAmphibiousNodeEvaluator: NPCWalkNodeEvaluator() {

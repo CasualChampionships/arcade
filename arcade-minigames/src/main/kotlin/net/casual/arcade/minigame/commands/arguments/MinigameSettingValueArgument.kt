@@ -10,7 +10,7 @@ import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import net.casual.arcade.commands.type.CustomArgumentType
-import net.casual.arcade.utils.ParserUtils
+import net.casual.arcade.utils.JsonUtils
 import net.minecraft.core.RegistryAccess
 import net.minecraft.network.chat.Component
 import net.minecraft.util.ExtraCodecs
@@ -18,8 +18,8 @@ import net.minecraft.util.ExtraCodecs
 public class MinigameSettingValueArgument: CustomArgumentType<JsonElement>() {
     override fun parse(reader: StringReader): JsonElement {
         try {
-            return ParserUtils.parseJson(RegistryAccess.EMPTY, reader, ExtraCodecs.JSON)
-        } catch (e: JsonParseException) {
+            return JsonUtils.parseJson(RegistryAccess.EMPTY, reader, ExtraCodecs.JSON)
+        } catch (_: JsonParseException) {
             throw INVALID_SETTING_VALUE.create()
         }
     }
