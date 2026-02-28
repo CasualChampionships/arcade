@@ -11,7 +11,7 @@ plugins {
     java
 }
 
-val modVersion = "0.8.1-beta.37"
+val modVersion = "0.8.1-beta.38"
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -163,7 +163,7 @@ dependencies {
 
     include(modImplementation(libs.server.translations.get())!!)
 
-    "modTestmodRuntimeOnly"(libs.voicechat)
+//    "modTestmodRuntimeOnly"(libs.voicechat)
     "testmodImplementation"(libs.reflections) {
         exclude(group = "org.slf4j")
     }

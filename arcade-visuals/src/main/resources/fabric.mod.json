@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "arcade-gui",
+  "id": "arcade-visuals",
   "version": "${version}",
   "name": "Arcade Gui",
   "description": "",
@@ -27,8 +27,7 @@
   "depends": {
     "minecraft": "${minecraft_dependency}",
     "fabricloader": ">=${fabric_loader_dependency}",
-    "fabric-language-kotlin": ">=${fabric_kotlin_dependency}",
-    "sgui": ">=${sgui_dependency}"
+    "fabric-language-kotlin": ">=${fabric_kotlin_dependency}"
   },
   "custom": {
     "modmenu": {
