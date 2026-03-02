@@ -116,7 +116,7 @@ public open class SimpleVirtualEntity(
 
     protected open fun createSpawnPacket(): ClientboundAddEntityPacket {
         val location = this.location()
-        val (x, y, z) = this.getLastSyncedPosition(location.position)
+        val (x, y, z) = if (this.isPassenger) location.position else this.getLastSyncedPosition(location.position)
         val (xRot, yRot) = this.getLastSyncedRotation(location.rotation)
         val headRot = this.getLastSyncedHeadRotation(yRot)
         return ClientboundAddEntityPacket(
