@@ -17,7 +17,8 @@ import net.casual.arcade.replay.ArcadeReplay
 import net.casual.arcade.replay.events.ReplayRecorderDurationLimitEvent
 import net.casual.arcade.replay.events.ReplayRecorderStartEvent
 import net.casual.arcade.replay.events.ReplayRecorderStopEvent
-import net.casual.arcade.replay.events.player.ReplayRecorderFileSizeLimitEvent
+import net.casual.arcade.replay.events.ReplayRecorderFileSizeLimitEvent
+import net.casual.arcade.replay.events.ReplayRecorderSystemStorageLowEvent
 import net.casual.arcade.replay.io.ReplayFormat
 import net.casual.arcade.replay.io.writer.ReplayWriter
 import net.casual.arcade.replay.util.DebugPacketData
@@ -56,6 +57,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Consumer
 import kotlin.collections.ArrayList
+import kotlin.io.path.fileStore
 import kotlin.io.path.pathString
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -94,6 +96,7 @@ public abstract class ReplayRecorder(
 
     private var currentRecordingLength = Duration.ZERO
 
+    private var lastSystemStorageCheckTimestamp: Instant? = null
     private var lastFileSizeCheckTimestamp: Instant? = null
 
     private var initialization = AtomicReference(InitializedState.Uninitialized)
@@ -632,33 +635,71 @@ public abstract class ReplayRecorder(
     }
 
     private fun checkRecordingStatus() {
-        val maxDuration = this.settings.limits.maxDuration
-        if (maxDuration.isPositive()) {
-            if (this.getRecordingLength() > maxDuration) {
-                this.stop(true)
-                GlobalEventHandler.Server.broadcast(ReplayRecorderDurationLimitEvent(this))
-                if (this.settings.limits.restartAfterMaxDuration) {
-                    this.restart()
-                }
-                return
-            }
+        if (this.checkMaxDuration()) {
+            return
+        }
+        if (this.checkMaxFileSize()) {
+            return
         }
 
+        this.checkSystemStorage()
+    }
+
+    private fun checkMaxDuration(): Boolean {
+        val maxDuration = this.settings.limits.maxDuration
+        if (!maxDuration.isPositive()) {
+            return false
+        }
+
+        if (this.getRecordingLength() > maxDuration) {
+            this.stop(true)
+            GlobalEventHandler.Server.broadcast(ReplayRecorderDurationLimitEvent(this))
+            if (this.settings.limits.restartAfterMaxDuration) {
+                this.restart()
+            }
+            return true
+        }
+        return false
+    }
+
+    private fun checkMaxFileSize(): Boolean {
         val now = Clock.System.now()
         val lastFileSizeCheckTimestamp = this.lastFileSizeCheckTimestamp
-        if (lastFileSizeCheckTimestamp == null || lastFileSizeCheckTimestamp < now - 1.minutes) {
-            this.lastFileSizeCheckTimestamp = now
-            val maxFileSize = this.settings.limits.maxRawSize
-            if (maxFileSize.bytes > 0) {
-                if (this.getRawRecordingSize() > maxFileSize.bytes) {
-                    this.stop(true)
-                    GlobalEventHandler.Server.broadcast(ReplayRecorderFileSizeLimitEvent(this))
-                    if (this.settings.limits.restartAfterMaxRawSize) {
-                        this.restart()
-                    }
-                    return
-                }
+        if (lastFileSizeCheckTimestamp != null && lastFileSizeCheckTimestamp >= now - 1.minutes) {
+            return false
+        }
+
+        this.lastFileSizeCheckTimestamp = now
+        val maxFileSize = this.settings.limits.maxRawSize
+        if (maxFileSize.bytes <= 0) {
+            return false
+        }
+
+        if (this.getRawRecordingSize() > maxFileSize.bytes) {
+            this.stop(true)
+            GlobalEventHandler.Server.broadcast(ReplayRecorderFileSizeLimitEvent(this))
+            if (this.settings.limits.restartAfterMaxRawSize) {
+                this.restart()
             }
+            return true
+        }
+        return false
+    }
+
+    private fun checkSystemStorage() {
+        val now = Clock.System.now()
+        val lastSystemStorageCheckTimestamp = this.lastSystemStorageCheckTimestamp
+        if (lastSystemStorageCheckTimestamp != null && lastSystemStorageCheckTimestamp >= now - 2.minutes) {
+            return
+        }
+
+        this.lastSystemStorageCheckTimestamp = now
+
+        val store = this.path.fileStore()
+
+        if (store.usableSpace <= this.settings.limits.systemStorageLowLimit.bytes) {
+            this.stop(true)
+            GlobalEventHandler.Server.broadcast(ReplayRecorderSystemStorageLowEvent(this))
         }
     }
 

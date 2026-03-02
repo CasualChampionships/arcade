@@ -27,5 +27,17 @@ public class FileSize(public val bytes: Long) {
             val bytes = FileUtils.parseSize(string) ?: return DataResult.error { "$string is not a valid file size" }
             return DataResult.success(FileSize(bytes))
         }
+
+        public fun kb(kb: Long): FileSize {
+            return FileSize(kb * 1024)
+        }
+
+        public fun mb(mb: Long): FileSize {
+            return this.kb(mb * 1024)
+        }
+
+        public fun gb(gb: Long): FileSize {
+            return this.mb(gb * 1024)
+        }
     }
 }

@@ -212,7 +212,12 @@ public interface RecorderSettings {
          * Whether to automatically boot up a new recorder
          * if the replay ended due to hitting the max duration limit.
          */
-        public val restartAfterMaxDuration: Boolean = false
+        public val restartAfterMaxDuration: Boolean = false,
+        /**
+         * The limit at which to stop a recording due to limited
+         * system storage.
+         */
+        public val systemStorageLowLimit: FileSize = FileSize.gb(1)
     ) {
         public companion object {
             public val DEFAULT: FileLimits = FileLimits()
@@ -222,7 +227,8 @@ public interface RecorderSettings {
                     FileSize.CODEC.fieldOf("max_raw_recording_file_size").forGetter(FileLimits::maxRawSize),
                     Codec.BOOL.fieldOf("restart_after_max_raw_recording_file_size").forGetter(FileLimits::restartAfterMaxRawSize),
                     ArcadeExtraCodecs.DURATION.fieldOf("max_recording_duration").forGetter(FileLimits::maxDuration),
-                    Codec.BOOL.fieldOf("restart_after_max_recording_duration").forGetter(FileLimits::restartAfterMaxDuration)
+                    Codec.BOOL.fieldOf("restart_after_max_recording_duration").forGetter(FileLimits::restartAfterMaxDuration),
+                    FileSize.CODEC.optionalFieldOf("system_storage_low_limit", FileSize.gb(1)).forGetter(FileLimits::systemStorageLowLimit)
                 ).apply(instance, ::FileLimits)
             }
         }
