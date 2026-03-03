@@ -14,7 +14,21 @@ import java.util.*
 public interface TexturedHeadComponents {
     public fun getDefault(): Component
 
+    public fun getHeadOrDefaultFor(resolvable: ResolvableProfile): Component
+
     public suspend fun getHeadFor(resolvable: ResolvableProfile): Component
+}
+
+public fun TexturedHeadComponents.getHeadOrDefaultFor(player: ServerPlayer): Component {
+    return this.getHeadOrDefaultFor(StaticResolvableProfile(player.gameProfile))
+}
+
+public fun TexturedHeadComponents.getHeadOrDefaultFor(username: String): Component {
+    return this.getHeadOrDefaultFor(DynamicResolvableProfile(username))
+}
+
+public fun TexturedHeadComponents.getHeadOrDefaultFor(uuid: UUID): Component {
+    return this.getHeadOrDefaultFor(DynamicResolvableProfile(uuid))
 }
 
 public suspend fun TexturedHeadComponents.getHeadFor(player: ServerPlayer): Component {

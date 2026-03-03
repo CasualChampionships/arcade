@@ -24,6 +24,10 @@ public object ProfileHeadComponents: TexturedHeadComponents {
         return DEFAULT
     }
 
+    override fun getHeadOrDefaultFor(resolvable: ResolvableProfile): Component {
+        return this.getHeadNowFor(resolvable)
+    }
+
     override suspend fun getHeadFor(resolvable: ResolvableProfile): Component {
         return Component.literal(SQUARE).font(FontDescription.PlayerSprite(resolvable, true))
     }

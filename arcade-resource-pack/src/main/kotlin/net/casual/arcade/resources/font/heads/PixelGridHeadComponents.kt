@@ -5,24 +5,20 @@
 package net.casual.arcade.resources.font.heads
 
 import com.google.common.cache.CacheBuilder
-import com.google.common.collect.MapMaker
 import com.mojang.authlib.minecraft.MinecraftSessionService
-import it.unimi.dsi.fastutil.ints.Int2ObjectFunction
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.withContext
 import net.casual.arcade.resources.ArcadeResourcePacks
 import net.casual.arcade.resources.font.pixel.PixelFontResources
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.player.server
 import net.casual.arcade.utils.component.color
 import net.casual.arcade.utils.component.wrap
 import net.casual.arcade.utils.coroutine.async
 import net.casual.arcade.utils.coroutine.getNow
+import net.casual.arcade.utils.coroutine.getNowOrNull
 import net.casual.arcade.utils.player.resolveProfileOrNull
+import net.casual.arcade.utils.player.server
 import net.casual.arcade.utils.player.uuid
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
@@ -45,13 +41,15 @@ public class PixelGridHeadComponents private constructor(
     private val resolver: ProfileResolver,
     private val session: MinecraftSessionService
 ): TexturedHeadComponents {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     private val uuidCache = CacheBuilder.newBuilder()
         .expireAfterAccess(1, TimeUnit.MINUTES)
-        .build<UUID, Result>()
+        .build<UUID, Deferred<Result>>()
 
     private val nameCache = CacheBuilder.newBuilder()
         .expireAfterAccess(1, TimeUnit.MINUTES)
-        .build<String, Result>()
+        .build<String, Deferred<Result>>()
 
     private val steve by lazy(this::createSteveHead)
 
@@ -59,46 +57,116 @@ public class PixelGridHeadComponents private constructor(
         return this.steve
     }
 
+    override fun getHeadOrDefaultFor(resolvable: ResolvableProfile): Component {
+        val username = resolvable.name().getOrNull()
+        val uuid = resolvable.uuid().getOrNull()
+        if (username != null) {
+            val result = this.nameCache.getIfPresent(username)
+            if (result != null) {
+                return result.getNowOrNull()?.getOrNull() ?: return this.getDefault()
+            }
+        }
+
+        if (uuid != null) {
+            val result = this.uuidCache.getIfPresent(uuid)
+            if (result != null) {
+                return result.getNowOrNull()?.getOrNull() ?: return this.getDefault()
+            }
+        }
+
+        @Suppress("DeferredResultUnused")
+        this.initializeHeadCache(resolvable, username, uuid)
+        return getDefault()
+    }
+
     override suspend fun getHeadFor(resolvable: ResolvableProfile): Component {
         return this.getHeadFor(resolvable, false)
     }
 
+    @Suppress("DeferredResultUnused")
     public suspend fun getHeadFor(resolvable: ResolvableProfile, force: Boolean = false): Component {
         val username = resolvable.name().getOrNull()
         val uuid = resolvable.uuid().getOrNull()
-        if (username != null) {
-            when (val existing = this.nameCache.getIfPresent(username)) {
-                is Success -> if (!force) return existing.component.await()
-                is Invalid -> return this.getDefault()
-            }
-        }
-        if (uuid != null) {
-            when (val existing = this.uuidCache.getIfPresent(uuid)) {
-                is Success -> if (!force) return existing.component.await()
-                is Invalid -> return this.getDefault()
-            }
-        }
 
-        val resolved = resolvable.resolveProfileOrNull(this.resolver).await()
-        if (resolved == null) {
-            if (username != null) {
-                this.nameCache.put(username, Invalid)
-            }
-            if (uuid != null) {
-                this.uuidCache.put(uuid, Invalid)
-            }
+        if (username == null && uuid == null) {
             return this.getDefault()
         }
 
-        val url = this.session.getTextures(resolved).skin?.url
-            ?: return this.getDefault()
-        val deferred = withContext(Dispatchers.IO) {
-            async { generateHead(url) }
+        if (force) {
+            if (username != null) {
+                this.nameCache.invalidate(username)
+            }
+            if (uuid != null) {
+                this.uuidCache.invalidate(uuid)
+            }
+        } else {
+            var existing: Deferred<Result>? = null
+            if (username != null) {
+                existing = this.nameCache.getIfPresent(username)
+            }
+            if (existing == null && uuid != null) {
+                existing = this.uuidCache.getIfPresent(uuid)
+            }
+
+            if (existing != null) {
+                return when (val result = existing.await()) {
+                    is Success -> result.component
+                    is Invalid -> this.getDefault()
+                }
+            }
         }
-        val success = Success(deferred)
-        this.nameCache.put(resolved.name, success)
-        this.uuidCache.put(resolved.id, success)
-        return deferred.await()
+
+        val deferred = this.initializeHeadCache(resolvable, username, uuid)
+        if (uuid != null) {
+            this.uuidCache.asMap().putIfAbsent(uuid, deferred)
+        }
+        if (username != null) {
+            this.nameCache.asMap().putIfAbsent(username, deferred)
+        }
+
+        return when (val result = deferred.await()) {
+            is Success -> result.component
+            is Invalid -> this.getDefault()
+        }
+    }
+
+    private fun initializeHeadCache(resolvable: ResolvableProfile, username: String?, uuid: UUID?): Deferred<Result> {
+        return if (uuid != null) {
+            this.uuidCache.get(uuid) { loadHead(resolvable) }
+        } else if (username != null) {
+            this.nameCache.get(username) { loadHead(resolvable) }
+        } else {
+            CompletableDeferred(Invalid)
+        }
+    }
+
+    @Suppress("DeferredResultUnused")
+    private fun loadHead(resolvable: ResolvableProfile): CompletableDeferred<Result> {
+        val task = CompletableDeferred<Result>()
+        this.scope.launch {
+            try {
+                val resolved = resolvable.resolveProfileOrNull(resolver).await()
+                if (resolved == null) {
+                    task.complete(Invalid)
+                    return@launch
+                }
+
+                uuidCache.asMap().putIfAbsent(resolved.id, task)
+                nameCache.asMap().putIfAbsent(resolved.name, task)
+
+                val url = session.getTextures(resolved).skin?.url
+                if (url == null) {
+                    task.complete(Invalid)
+                    return@launch
+                }
+
+                val component = generateHead(url)
+                task.complete(Success(component))
+            } catch (_: Exception) {
+                task.complete(Invalid)
+            }
+        }
+        return task
     }
 
     private fun createSteveHead(): Component {
@@ -110,7 +178,7 @@ public class PixelGridHeadComponents private constructor(
                 { x, y -> Color(image.getRGB(x, y), true) },
                 { _, _ -> transparent }
             )
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             return Component.empty()
         }
     }
@@ -150,6 +218,10 @@ public class PixelGridHeadComponents private constructor(
         return component
     }
 
+    private fun shutdown() {
+        this.scope.cancel()
+    }
+
     private fun Color.overlayWith(overlay: Color): Color {
         val alphaRatio = overlay.alpha.toFloat() / 255
         val invAlphaRatio = 1 - alphaRatio
@@ -162,14 +234,27 @@ public class PixelGridHeadComponents private constructor(
         return Color(r, g, b, a)
     }
 
-    private interface Result
+    private sealed interface Result {
+        fun getOrNull(): Component?
+    }
 
-    private data object Invalid: Result
+    private data object Invalid: Result {
+        override fun getOrNull(): Component? {
+            return null
+        }
+    }
 
-    private data class Success(val component: Deferred<Component>): Result
+    private data class Success(val component: Component): Result {
+        override fun getOrNull(): Component {
+            return this.component
+        }
+    }
 
     public companion object {
-        private val components = MapMaker().weakValues().makeMap<Int, PixelGridHeadComponents>()
+        private val components = CacheBuilder.newBuilder()
+            .expireAfterAccess(1, TimeUnit.MINUTES)
+            .removalListener<Int, PixelGridHeadComponents> { notification -> notification.value?.shutdown() }
+            .build<Int, PixelGridHeadComponents>()
 
         public fun get(shift: Int = 0, services: Services): PixelGridHeadComponents {
             return this.get(shift, services.profileResolver, services.sessionService)
@@ -180,17 +265,16 @@ public class PixelGridHeadComponents private constructor(
             resolver: ProfileResolver,
             session: MinecraftSessionService
         ): PixelGridHeadComponents {
-            return this.components.computeIfAbsent(shift, Int2ObjectFunction { s ->
-                PixelGridHeadComponents(s, resolver, session)
-            })
+            return this.components.get(shift) {
+                PixelGridHeadComponents(shift, resolver, session)
+            }
         }
 
         public fun getHeadOrDefaultFor(player: ServerPlayer, shift: Int = 0): Component {
             val server = player.server
             val services = server.services()
             val components = this.get(shift, services.profileResolver, services.sessionService)
-            val deferred = server.async { components.getHeadFor(player) }
-            return deferred.getNow(components.getDefault())
+            return components.getHeadOrDefaultFor(player)
         }
 
         public fun getHeadOrDefaultFor(
@@ -200,8 +284,7 @@ public class PixelGridHeadComponents private constructor(
         ): Component {
             val services = server.services()
             val components = this.get(shift, services.profileResolver, services.sessionService)
-            val deferred = server.async { components.getHeadFor(resolvable) }
-            return deferred.getNow(components.getDefault())
+            return components.getHeadOrDefaultFor(resolvable)
         }
     }
 }
