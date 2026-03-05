@@ -19,6 +19,7 @@ import net.casual.arcade.virtual.entity.utils.attach
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
 import net.casual.arcade.virtual.entity.utils.createVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.utils.removeVirtualEntityAttachment
+import net.casual.arcade.visuals.entity.mannequin.MimickingVirtualMannequin
 import net.casual.arcade.visuals.shapes.impl.RegularPolygonShape
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
@@ -34,6 +35,9 @@ object VirtualEntityTestCommand: CommandTree {
             }
             literal("parent-ve") {
                 executes(::testParentEntity)
+            }
+            literal("mannequin") {
+                executes(::testMimickingMannequin)
             }
         }
     }
@@ -76,5 +80,13 @@ object VirtualEntityTestCommand: CommandTree {
             }
             level.removeVirtualEntityAttachment(attachment)
         }
+    }
+
+    private fun testMimickingMannequin(context: CommandContext<CommandSourceStack>) {
+        val level = context.source.level
+        val position = context.source.position
+        val attachment = level.createVirtualEntityAttachment(::SimpleVirtualEntityAttachment)
+        val mannequin = attachment.attach(::MimickingVirtualMannequin)
+        mannequin.position = VirtualPosition.Absolute(position)
     }
 }

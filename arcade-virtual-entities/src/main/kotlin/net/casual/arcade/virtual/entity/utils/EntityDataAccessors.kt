@@ -9,8 +9,10 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.network.chat.Component
 import net.minecraft.network.syncher.EntityDataAccessor
+import net.minecraft.world.entity.HumanoidArm
 import net.minecraft.world.entity.Pose
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.component.ResolvableProfile
 import net.minecraft.world.level.block.state.BlockState
 import org.joml.Quaternionfc
 import org.joml.Vector3fc
@@ -92,6 +94,35 @@ public object EntityDataAccessors {
         @get:JvmName("getSleepingPos")
         public val SLEEPING_POS: EntityDataAccessor<Optional<BlockPos>>
             get() = LivingEntityAccessor.accessSleepingPosAccessor()
+    }
+
+    public object Avatar {
+        @JvmStatic
+        @get:JvmName("getMainHand")
+        public val MAIN_HAND: EntityDataAccessor<HumanoidArm>
+            get() = AvatarAccessor.accessPlayerMainHandAccessor()
+
+        @JvmStatic
+        @get:JvmName("getModelCustomization")
+        public val MODEL_CUSTOMIZATION: EntityDataAccessor<Byte>
+            get() = AvatarAccessor.accessPlayerModelCustomizationAccessor()
+    }
+
+    public object Mannequin {
+        @JvmStatic
+        @get:JvmName("getProfile")
+        public val PROFILE: EntityDataAccessor<ResolvableProfile>
+            get() = MannequinAccessor.accessProfileAccessor()
+
+        @JvmStatic
+        @get:JvmName("getImmovable")
+        public val IMMOVABLE: EntityDataAccessor<Boolean>
+            get() = MannequinAccessor.accessImmovableAccessor()
+
+        @JvmStatic
+        @get:JvmName("getDescription")
+        public val DESCRIPTION: EntityDataAccessor<Optional<Component>>
+            get() = MannequinAccessor.accessDescriptionAccessor()
     }
 
     public object Interaction {

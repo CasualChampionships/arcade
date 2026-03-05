@@ -7,12 +7,14 @@
     "minVersion": "0.5.0"
   },
   "mixins": [
+    "AvatarAccessor",
     "BlockDisplayAccessor",
     "DisplayAccessor",
     "EntityAccessor",
     "InteractionAccessor",
     "ItemDisplayAccessor",
     "LivingEntityAccessor",
+    "MannequinAccessor",
     "ServerboundInteractPacketAccessor",
     "ServerEntityAccessor",
     "ServerEntityMixin",
