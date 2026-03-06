@@ -28,6 +28,7 @@
     "bugfixes.LeashableMixin",
     "bugfixes.LeashDataInvoker",
     "gamemode.EntityMixin",
+    "gamemode.InsideBlockEffectTypeMixin",
     "gamemode.InteractionHandlerMixin",
     "gamemode.PlayerListMixin",
     "gamemode.PlayerMixin",
