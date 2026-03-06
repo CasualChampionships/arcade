@@ -16,7 +16,7 @@ internal object CustomInventoryEvents {
     fun registerEvents() {
         GlobalEventHandler.Server.register<PlayerClientSwingHandEvent>(priority = Int.MIN_VALUE, listener = ::onPlayerClientSwingHand)
         GlobalEventHandler.Server.register<PlayerTryAttackEvent>(priority = Int.MIN_VALUE, listener = ::onPlayerTryAttack)
-        GlobalEventHandler.Server.register<PlayerItemUseEvent>(priority = Int.MIN_VALUE, listener = ::onPlayerItemUse)
+        GlobalEventHandler.Server.register<PlayerItemUseEvent>(priority = Int.MIN_VALUE, phase = PlayerItemUseEvent.PHASE_PRE, listener = ::onPlayerItemUse)
         GlobalEventHandler.Server.register<PlayerEntityInteractionEvent>(priority = Int.MIN_VALUE, listener = ::onPlayerEntityInteraction)
         GlobalEventHandler.Server.register<PlayerBlockInteractionEvent>(priority = Int.MIN_VALUE, listener = ::onPlayerBlockInteraction)
         GlobalEventHandler.Server.register<PlayerBlockStartMiningEvent>(priority = Int.MIN_VALUE, listener = ::onPlayerBlockStartMining)

@@ -8,11 +8,8 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.server.player.PlayerBlockInteractionEvent;
-import net.casual.arcade.events.server.player.PlayerBlockMinedEvent;
-import net.casual.arcade.events.server.player.PlayerBlockStartMiningEvent;
-import net.casual.arcade.events.server.player.PlayerGameModeChangeEvent;
-import net.casual.arcade.utils.PlayerUtils;
+import net.casual.arcade.events.server.player.*;
+import net.casual.arcade.utils.player.PlayerUtilsKt;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
@@ -36,6 +33,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.Set;
 
 @Mixin(ServerPlayerGameMode.class)
 public class ServerPlayerGameModeMixin {
@@ -62,6 +61,25 @@ public class ServerPlayerGameModeMixin {
 	}
 
 	@Inject(
+		method = "useItem",
+		at = @At("HEAD"),
+		cancellable = true
+	)
+	private void broadcastItemUseEvent(
+		ServerPlayer player,
+		Level level,
+		ItemStack stack,
+		InteractionHand hand,
+		CallbackInfoReturnable<InteractionResult> cir
+	) {
+		PlayerItemUseEvent event = new PlayerItemUseEvent(player, stack, hand);
+		GlobalEventHandler.Server.broadcast(event, Set.of(PlayerItemUseEvent.PHASE_PRE));
+		if (event.isCancelled()) {
+			cir.setReturnValue(event.result());
+		}
+	}
+
+	@Inject(
 		method = "useItemOn",
 		at = @At(
 			value = "INVOKE",
@@ -83,7 +101,7 @@ public class ServerPlayerGameModeMixin {
 		PlayerBlockInteractionEvent event = new PlayerBlockInteractionEvent(player, stack, hand, hitResult);
 		GlobalEventHandler.Server.broadcast(event);
 		if (event.isCancelled()) {
-            PlayerUtils.updateInteractionSlot(player, hand);
+            PlayerUtilsKt.updateInteractionSlot(player, hand);
 			cir.setReturnValue(event.result());
 		}
 		eventRef.set(event);

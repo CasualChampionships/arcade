@@ -15,7 +15,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.player.*;
-import net.casual.arcade.utils.PlayerUtils;
+import net.casual.arcade.utils.player.PlayerUtilsKt;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.LastSeenMessages;
@@ -39,6 +39,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
@@ -157,7 +158,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
         PlayerDropItemEvent event = new PlayerDropItemEvent(instance, all);
         GlobalEventHandler.Server.broadcast(event);
         if (event.isCancelled()) {
-            PlayerUtils.updateSelectedSlot(this.player);
+			PlayerUtilsKt.updateSelectedSlot(this.player);
             return false;
         }
         return true;
@@ -168,20 +169,17 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
     @Expression("this.player.isSpectator() == 0")
     @ModifyExpressionValue(
         method = "handlePlayerAction",
-        at = @At(value = "MIXINEXTRAS:EXPRESSION", ordinal = 0)
+        at = @At(value = "MIXINEXTRAS:EXPRESSION", ordinal = 1)
     )
     private boolean onSwapHands(boolean original) {
-        if (!original) {
-            return false;
-        }
         PlayerSwapOffhandEvent event = new PlayerSwapOffhandEvent(this.player);
         GlobalEventHandler.Server.broadcast(event);
         if (event.isCancelled()) {
-            PlayerUtils.updateSelectedSlot(this.player);
-            PlayerUtils.updateOffhandSlot(this.player);
+            PlayerUtilsKt.updateSelectedSlot(this.player);
+			PlayerUtilsKt.updateOffhandSlot(this.player);
             return false;
         }
-        return true;
+        return original;
     }
 
     @Inject(
