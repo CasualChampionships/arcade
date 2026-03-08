@@ -6,6 +6,7 @@ package net.casual.arcade.replay.io.writer.flashback
 
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
+import io.netty.handler.codec.EncoderException
 import kotlinx.atomicfu.atomic
 import net.casual.arcade.replay.io.FlashbackIO
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
@@ -85,6 +86,7 @@ public class FlashbackChunkedWriter(
             throw IllegalStateException("Tried writing action within another action!")
         }
         this.action = action
+        val start = this.buffer.writerIndex()
         try {
             // I'm writing the ordinal here, but this should be the id
             // in which the action was registered in #writeHeader.
@@ -94,6 +96,10 @@ public class FlashbackChunkedWriter(
             return this.writeSizeOf(this.buffer) {
                 block.invoke(this.buffer)
             }
+        } catch (exception: Exception) {
+            // Reset buffer back to the start - just ignore the action entirely
+            this.buffer.writerIndex(start)
+            throw exception
         } finally {
             this.action = null
         }

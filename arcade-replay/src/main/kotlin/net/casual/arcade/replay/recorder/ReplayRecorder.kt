@@ -378,6 +378,16 @@ public abstract class ReplayRecorder(
     }
 
     /**
+     * Whether the recorder has been fully initialized
+     * and ready to receive packets.
+     *
+     * @return Whether the recorder is initialized.
+     */
+    public fun isInitialized(): Boolean {
+        return this.initialization.get() == InitializedState.Initialized
+    }
+
+    /**
      * Whether this recorder should compress recorded voicechat data.
      *
      * @return Whether to compress voicechat data.
@@ -525,6 +535,7 @@ public abstract class ReplayRecorder(
      * @param block The function to call while ignoring packets.
      */
     public fun ignore(block: () -> Unit) {
+        // TODO: Update this with scoped values
         val previous = this.ignore
         try {
             this.ignore = true
@@ -550,7 +561,7 @@ public abstract class ReplayRecorder(
 
     @Internal
     public open fun tick() {
-        if (this.initialization.get() == InitializedState.Initialized) {
+        if (this.isInitialized()) {
             this.writer.tick()
 
             this.checkRecordingStatus()

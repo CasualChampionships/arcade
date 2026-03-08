@@ -5,6 +5,7 @@
 package net.casual.arcade.replay.io.writer
 
 import io.netty.buffer.ByteBuf
+import io.netty.handler.codec.EncoderException
 import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.replay.events.ReplayRecorderCloseEvent
@@ -14,6 +15,7 @@ import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.recorder.packet.RecordablePayload
 import net.casual.arcade.replay.util.ReplayMarker
 import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.getDebugName
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.ProtocolInfo
 import net.minecraft.network.codec.StreamCodec
@@ -23,6 +25,7 @@ import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
 import net.minecraft.network.protocol.common.CommonPacketTypes
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.ChunkPos
+import org.slf4j.Logger
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
@@ -159,6 +162,21 @@ public interface ReplayWriter {
                 throw exception
             }
             return size
+        }
+
+        internal fun handleLoggingEncoderException(
+            logger: Logger,
+            packet: Packet<*>,
+            protocol: ProtocolInfo<*>,
+            offThread: Boolean,
+            exception: EncoderException
+        ) {
+            val name = packet.getDebugName()
+            if (!offThread) {
+                logger.error("Failed to encode packet $name, skipping", exception)
+            } else {
+                logger.error("Failed to encode packet $name during ${protocol.id()} likely due to being off-thread, skipping", exception)
+            }
         }
     }
 }

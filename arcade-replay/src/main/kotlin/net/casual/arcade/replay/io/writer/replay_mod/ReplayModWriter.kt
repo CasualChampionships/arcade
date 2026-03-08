@@ -139,14 +139,7 @@ public class ReplayModWriter(
         val saved = try {
             this.encodePacket(packet, protocol)
         } catch (e: EncoderException) {
-            val name = packet.getDebugName()
-            if (!offThread) {
-                LOGGER.error("Failed to encode packet $name, skipping", e)
-                return null
-            }
-            LOGGER.error(
-                "Failed to encode packet $name during ${protocol.id()} likely due to being off-thread, skipping", e
-            )
+            ReplayWriter.handleLoggingEncoderException(LOGGER, packet, protocol, offThread, e)
             return null
         }
         val bytes = saved.buf.readableBytes()

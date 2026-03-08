@@ -185,6 +185,27 @@ public object ReplayPlayerRecorders {
         }
     }
 
+    /**
+     * This only records a given packet if the recorder has
+     * been fully initialized.
+     *
+     * This is needed in cases where the player can be sent
+     * packets off-thread during the recorder initialization
+     * process, if a packet from the from phase gets sent
+     * then that will break the entire replay.
+     *
+     * @param uuid The uuid of the player being recorded.
+     * @param packet The packet to record.
+     */
+    @JvmStatic
+    public fun recordIfInitialized(uuid: UUID, packet: Packet<*>) {
+        for (recorder in this.get(uuid)) {
+            if (recorder.isInitialized()) {
+                recorder.record(packet)
+            }
+        }
+    }
+
     @JvmStatic
     public fun stop(uuid: UUID) {
         for (recorder in this.get(uuid).toList()) {

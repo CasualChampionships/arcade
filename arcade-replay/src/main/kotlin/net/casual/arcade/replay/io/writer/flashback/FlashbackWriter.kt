@@ -6,6 +6,7 @@ package net.casual.arcade.replay.io.writer.flashback
 
 import com.google.common.collect.HashMultimap
 import com.google.gson.JsonObject
+import io.netty.handler.codec.EncoderException
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
@@ -15,6 +16,7 @@ import net.casual.arcade.replay.compat.voicechat.VoicechatPayload
 import net.casual.arcade.replay.io.FlashbackIO
 import net.casual.arcade.replay.io.writer.ReplayWriter
 import net.casual.arcade.replay.io.writer.ReplayWriter.Companion.close
+import net.casual.arcade.replay.io.writer.replay_mod.ReplayModWriter
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.util.FileUtils
 import net.casual.arcade.replay.util.ReplayMarker
@@ -28,6 +30,7 @@ import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.getDebugName
 import net.casual.arcade.utils.level.getSpoofedOrRealDimension
 import net.minecraft.network.ConnectionProtocol
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.ProtocolInfo
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.network.codec.ByteBufCodecs
@@ -147,9 +150,7 @@ public class FlashbackWriter(
         }
 
         return this.writeActionAsync(action) { buf ->
-            val start = buf.writerIndex()
-            ReplayWriter.encodePacket(replacement, protocol, buf)
-            buf.writerIndex() - start
+            this.writePacketSync(buf, replacement, protocol, offThread)
         }
     }
 
@@ -220,6 +221,22 @@ public class FlashbackWriter(
         }, this.executor)
         this.executor.shutdown()
         return future
+    }
+
+    private fun writePacketSync(
+        buf: FriendlyByteBuf,
+        packet: Packet<*>,
+        protocol: ProtocolInfo<*>,
+        offThread: Boolean
+    ): Int {
+        try {
+            val start = buf.writerIndex()
+            ReplayWriter.encodePacket(packet, protocol, buf)
+            return buf.writerIndex() - start
+        } catch (e: EncoderException) {
+            ReplayWriter.handleLoggingEncoderException(LOGGER, packet, protocol, offThread, e)
+            throw e
+        }
     }
 
     private fun startNewReplayChunk() {
