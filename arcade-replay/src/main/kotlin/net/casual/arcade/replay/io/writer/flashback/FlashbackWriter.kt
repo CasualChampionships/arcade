@@ -22,8 +22,10 @@ import net.casual.arcade.replay.util.flashback.FlashbackAction
 import net.casual.arcade.replay.util.flashback.FlashbackMarker.Location
 import net.casual.arcade.replay.util.io.ResourcePackCache
 import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.ArcadeUtils.MOD_ID
 import net.casual.arcade.utils.DateTimeUtils
 import net.casual.arcade.utils.JsonUtils
+import net.casual.arcade.utils.getDebugName
 import net.casual.arcade.utils.level.getSpoofedOrRealDimension
 import net.minecraft.network.ConnectionProtocol
 import net.minecraft.network.ProtocolInfo
@@ -39,6 +41,7 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.Level
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import kotlin.io.path.*
@@ -277,7 +280,7 @@ public class FlashbackWriter(
         return CompletableFuture.supplyAsync({
             this.writer.writeAction(action, block)
         }, this.executor).exceptionally { e ->
-            ArcadeUtils.logger.error("Something went wrong writing action $action", e)
+            LOGGER.error("Something went wrong writing action $action", e)
             null
         }
     }
@@ -289,7 +292,7 @@ public class FlashbackWriter(
             val path = this.path.resolve(ReplayWriter.ENTRY_ARCADE_REPLAY_META)
             JsonUtils.encodeRaw(meta, path)
         } catch (exception: Exception) {
-            ArcadeUtils.logger.error("Failed to write ServerReplay meta!", exception)
+            LOGGER.error("Failed to write arcade-replay meta!", exception)
         }
     }
 
@@ -379,11 +382,13 @@ public class FlashbackWriter(
             index[packId] = realHash
             JsonUtils.encodeRaw(index, indexPath)
         } catch (e: IOException) {
-            ArcadeUtils.logger.warn("Failed to write resource pack", e)
+            LOGGER.warn("Failed to write resource pack", e)
         }
     }
 
     public companion object {
+        private val LOGGER = LoggerFactory.getLogger("flashback-writer")
+
         private val IGNORED_PACKETS = setOf(
             ClientboundStartConfigurationPacket::class.java,
             ClientboundFinishConfigurationPacket::class.java,

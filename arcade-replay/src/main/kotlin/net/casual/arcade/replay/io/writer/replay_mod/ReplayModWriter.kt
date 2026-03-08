@@ -17,7 +17,6 @@ import kotlinx.atomicfu.atomic
 import net.casual.arcade.replay.io.ReplayModIO
 import net.casual.arcade.replay.io.writer.ReplayWriter
 import net.casual.arcade.replay.io.writer.ReplayWriter.Companion.close
-import net.casual.arcade.replay.io.writer.ReplayWriter.Companion.encodePacket
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.util.FileUtils
 import net.casual.arcade.replay.util.ReplayMarker
@@ -32,6 +31,7 @@ import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
 import net.minecraft.world.entity.EntityType
+import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
@@ -141,10 +141,10 @@ public class ReplayModWriter(
         } catch (e: EncoderException) {
             val name = packet.getDebugName()
             if (!offThread) {
-                ArcadeUtils.logger.error("Failed to encode packet $name, skipping", e)
+                LOGGER.error("Failed to encode packet $name, skipping", e)
                 return null
             }
-            ArcadeUtils.logger.error(
+            LOGGER.error(
                 "Failed to encode packet $name during ${protocol.id()} likely due to being off-thread, skipping", e
             )
             return null
@@ -154,7 +154,7 @@ public class ReplayModWriter(
         try {
             this.output.write(timestamp.inWholeMilliseconds, saved)
         } catch (e: IOException) {
-            ArcadeUtils.logger.error("Failed to write packet", e)
+            LOGGER.error("Failed to write packet", e)
         }
         return bytes
     }
@@ -165,7 +165,7 @@ public class ReplayModWriter(
 
         val friendly = FriendlyByteBuf(Unpooled.buffer())
         try {
-            encodePacket(packet, protocol, friendly)
+            ReplayWriter.encodePacket(packet, protocol, friendly)
             val id = friendly.readVarInt()
             return ReplayPacket(registry, id, ReplayUnpooled.wrappedBuffer(friendly.toByteArray()))
         } finally {
@@ -213,7 +213,7 @@ public class ReplayModWriter(
             index[id] = realHash
             this.replay.writeResourcePackIndex(index)
         } catch (e: IOException) {
-            ArcadeUtils.logger.warn("Failed to write resource pack", e)
+            LOGGER.warn("Failed to write resource pack", e)
         }
     }
 
@@ -244,6 +244,8 @@ public class ReplayModWriter(
     }
 
     public companion object {
+        private val LOGGER = LoggerFactory.getLogger("replay-mod-writer")
+
         public fun dated(recordings: Path): (ReplayRecorder) -> ReplayModWriter {
             val date = DateTimeUtils.getFormattedDate()
             return { ReplayModWriter(it, FileUtils.findNextAvailable(recordings.resolve(date))) }
