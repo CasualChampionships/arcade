@@ -119,7 +119,8 @@ public open class CustomLevel(
     override fun tickTime() {
         // super.tickTime() ticks the global scheduler
         if (this.options.tickTime && this.gameRules.get(GameRules.ADVANCE_TIME)) {
-            TODO("++this.dayTime")
+            // TODO(26.1)
+            //  ++this.dayTime
         }
     }
 

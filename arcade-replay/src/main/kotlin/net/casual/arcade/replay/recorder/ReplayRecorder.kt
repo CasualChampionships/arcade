@@ -535,7 +535,7 @@ public abstract class ReplayRecorder(
      * @param block The function to call while ignoring packets.
      */
     public fun ignore(block: () -> Unit) {
-        // TODO: Update this with scoped values
+        // TODO(26.1): Update this with scoped values
         val previous = this.ignore
         try {
             this.ignore = true

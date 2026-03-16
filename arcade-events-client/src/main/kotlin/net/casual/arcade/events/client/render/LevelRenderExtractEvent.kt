@@ -10,9 +10,8 @@ import net.minecraft.client.DeltaTracker
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.renderer.LevelRenderer
 import net.minecraft.client.renderer.culling.Frustum
-import net.minecraft.client.renderer.state.LevelRenderState
+import net.minecraft.client.renderer.state.level.LevelRenderState
 
-// TODO: Make LevelRenderState extensible
 public class LevelRenderExtractEvent(
     public val renderer: LevelRenderer,
     public val level: ClientLevel,

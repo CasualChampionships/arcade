@@ -11,7 +11,7 @@ moduleDependencies(project, listOf("utils", "event-registry", "events-server", "
 
 dependencies {
     compileOnly(libs.carpet)
-    // TODO: Add back compat support when these mods update
+    // TODO(26.1): Add back compat support when these mods update
     //  compileOnly(libs.vmp)
     compileOnly(explosion.fabric(libs.c2me))
     compileOnly(libs.voicechat)

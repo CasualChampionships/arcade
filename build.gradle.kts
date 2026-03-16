@@ -50,7 +50,7 @@ allprojects {
 
     java {
         withSourcesJar()
-        // TODO: Update this when Kotlin supports 25
+        // TODO(26.1): Update this when Kotlin supports 25
         sourceCompatibility = JavaVersion.VERSION_24
         targetCompatibility = JavaVersion.VERSION_24
     }
