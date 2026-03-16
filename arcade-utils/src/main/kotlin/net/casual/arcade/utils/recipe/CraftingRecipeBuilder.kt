@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.ItemStackTemplate
 import net.minecraft.world.item.crafting.*
 import java.util.*
 
@@ -33,11 +34,12 @@ public object CraftingRecipeBuilder {
 
         private val ingredients = ArrayList<Optional<Ingredient>>()
         public var key: ResourceKey<Recipe<*>>? = null
+        public var notify: Boolean = true
         public var category: CraftingBookCategory = CraftingBookCategory.MISC
         public var group: String = ""
         public var width: Int = 0
         public var height: Int = 0
-        public var result: ItemStack = ItemStack.EMPTY
+        public var result: ItemStackTemplate? = null
 
         public fun key(id: Identifier): Shaped {
             this.key = ResourceKey.create(Registries.RECIPE, id)
@@ -46,6 +48,11 @@ public object CraftingRecipeBuilder {
 
         public fun key(key: ResourceKey<Recipe<*>>): Shaped {
             this.key = key
+            return this
+        }
+
+        public fun notify(notify: Boolean): Shaped {
+            this.notify = notify
             return this
         }
 
@@ -78,7 +85,7 @@ public object CraftingRecipeBuilder {
             return this
         }
 
-        public fun result(stack: ItemStack): Shaped {
+        public fun result(stack: ItemStackTemplate): Shaped {
             this.result = stack
             return this
         }
@@ -86,15 +93,15 @@ public object CraftingRecipeBuilder {
         public fun build(): RecipeHolder<ShapedRecipe> {
             val id = requireNotNull(this.key)
             val recipe = ShapedRecipe(
-                this.group,
-                this.category,
+                Recipe.CommonInfo(this.notify),
+                CraftingRecipe.CraftingBookInfo(this.category, this.group),
                 ShapedRecipePattern(
                     this.width,
                     this.height,
                     this.ingredients,
                     Optional.empty()
                 ),
-                this.result
+                requireNotNull(this.result) { "No recipe result set!" }
             )
             return RecipeHolder(id, recipe)
         }
@@ -109,9 +116,10 @@ public object CraftingRecipeBuilder {
 
         private val ingredients = ArrayList<Ingredient>()
         public var key: ResourceKey<Recipe<*>>? = null
+        public var notify: Boolean = true
         public var category: CraftingBookCategory = CraftingBookCategory.MISC
         public var group: String = ""
-        public var result: ItemStack = ItemStack.EMPTY
+        public var result: ItemStackTemplate? = null
 
         public fun key(id: Identifier): Shapeless {
             this.key = ResourceKey.create(Registries.RECIPE, id)
@@ -120,6 +128,11 @@ public object CraftingRecipeBuilder {
 
         public fun key(key: ResourceKey<Recipe<*>>): Shapeless {
             this.key = key
+            return this
+        }
+
+        public fun notify(notify: Boolean): Shapeless {
+            this.notify = notify
             return this
         }
 
@@ -148,7 +161,7 @@ public object CraftingRecipeBuilder {
             return this
         }
 
-        public fun result(stack: ItemStack): Shapeless {
+        public fun result(stack: ItemStackTemplate): Shapeless {
             this.result = stack
             return this
         }
@@ -156,9 +169,9 @@ public object CraftingRecipeBuilder {
         public fun build(): RecipeHolder<ShapelessRecipe> {
             val id = requireNotNull(this.key)
             val recipe = ShapelessRecipe(
-                this.group,
-                this.category,
-                this.result,
+                Recipe.CommonInfo(this.notify),
+                CraftingRecipe.CraftingBookInfo(this.category, this.group),
+                requireNotNull(this.result) { "No recipe result set!" },
                 this.ingredients,
             )
             return RecipeHolder(id, recipe)

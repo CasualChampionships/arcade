@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.npc.pathfinding.navigation
 
-import me.senseiwells.debug.api.server.DebugToolsPackets
 import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.npc.pathfinding.NPCPathfinder
 import net.casual.arcade.npc.pathfinding.evaluator.NPCNodeEvaluator
@@ -227,9 +226,9 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
                     }
                 }
             }
-            DebugToolsPackets.getInstance().sendPathfindingPacket(
-                this.level, this.player, this.path, this.maxDistanceToWaypoint.toFloat()
-            )
+//            DebugToolsPackets.getInstance().sendPathfindingPacket(
+//                this.level, this.player, this.path, this.maxDistanceToWaypoint.toFloat()
+//            )
 
             if (!this.isDone()) {
                 val path = this.path!!
@@ -259,8 +258,8 @@ public abstract class NPCPathNavigation(public val player: FakePlayer) {
     }
 
     public fun canCutCorner(pathType: PathType): Boolean {
-        return pathType != PathType.DANGER_FIRE &&
-            pathType != PathType.DANGER_OTHER &&
+        return pathType != PathType.FIRE_IN_NEIGHBOR &&
+            pathType != PathType.DAMAGING_IN_NEIGHBOR &&
             pathType != PathType.WALKABLE_DOOR
     }
 

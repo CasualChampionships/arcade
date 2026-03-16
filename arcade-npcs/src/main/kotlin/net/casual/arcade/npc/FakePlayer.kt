@@ -7,7 +7,6 @@ package net.casual.arcade.npc
 import com.mojang.authlib.GameProfile
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
-import me.senseiwells.debug.api.server.DebugToolsPackets
 import net.casual.arcade.npc.ai.NPCLookControl
 import net.casual.arcade.npc.ai.NPCMoveControl
 import net.casual.arcade.npc.configuration.FakePlayerConfigurationTasks
@@ -188,7 +187,7 @@ public open class FakePlayer(
     }
 
     protected open fun sendDebugPackets() {
-        DebugToolsPackets.getInstance().sendBrainDumpPacket(this.level(), this)
+//        DebugToolsPackets.getInstance().sendBrainDumpPacket(this.level(), this)
     }
 
     private fun isMovingSlowly(): Boolean {

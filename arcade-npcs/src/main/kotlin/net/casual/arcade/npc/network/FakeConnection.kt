@@ -6,7 +6,7 @@ package net.casual.arcade.npc.network
 
 import io.netty.channel.embedded.EmbeddedChannel
 import net.casual.arcade.npc.mixins.ConnectionAccessor
-import net.fabricmc.fabric.impl.networking.NetworkHandlerExtensions
+import net.fabricmc.fabric.impl.networking.PacketListenerExtensions
 import net.minecraft.network.Connection
 import net.minecraft.network.PacketListener
 import net.minecraft.network.ProtocolInfo
@@ -21,7 +21,9 @@ public class FakeConnection: Connection(PacketFlow.SERVERBOUND) {
     override fun <T: PacketListener> setupInboundProtocol(protocolInfo: ProtocolInfo<T>, listener: T) {
         // Prevent memory leaks with fabric api
         val old = this.packetListener
-        if (old is NetworkHandlerExtensions) {
+
+        @Suppress("UnstableApiUsage")
+        if (old is PacketListenerExtensions) {
             old.addon.endSession()
         }
 

@@ -44,6 +44,7 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.Level
+import net.minecraft.world.phys.Vec3
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
@@ -170,7 +171,7 @@ public class FlashbackWriter(
             buf.writeFloat(rotation.x)
             buf.writeFloat(rotation.y)
             buf.writeFloat(headRot)
-            buf.writeVec3(velocity)
+            Vec3.STREAM_CODEC.encode(buf, velocity)
             ByteBufCodecs.GAME_PROFILE.encode(buf, profile)
             buf.writeVarInt(gamemode)
         }
@@ -183,7 +184,7 @@ public class FlashbackWriter(
     override fun writeCachedChunk(pos: ChunkPos): Boolean {
         val dimension = this.recorder.level.dimension()
         val chunks = this.recent[dimension] ?: return false
-        val posAsLong = pos.toLong()
+        val posAsLong = pos.pack()
         if (!chunks.containsKey(posAsLong)) {
             return false
         }
@@ -277,7 +278,7 @@ public class FlashbackWriter(
                 this.chunks.put(identity, index)
             }
             val map = this.recent.getOrPut(dimension, ::Long2IntOpenHashMap)
-            map.put(ChunkPos.asLong(packet.x, packet.z), index)
+            map.put(ChunkPos.pack(packet.x, packet.z), index)
             buf.writeVarInt(index)
             size + buf.writerIndex()
         }

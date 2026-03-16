@@ -1,8 +1,8 @@
 loom {
-    accessWidenerPath.set(file("src/main/resources/arcade-utils.accesswidener"))
+    accessWidenerPath.set(file("src/main/resources/arcade-utils.classtweaker"))
 }
 
 dependencies {
-    modCompileOnly(libs.sgui)
-    modCompileOnly(libs.polymer.core)
+    compileOnly(libs.sgui)
+    compileOnly(libs.polymer.core)
 }

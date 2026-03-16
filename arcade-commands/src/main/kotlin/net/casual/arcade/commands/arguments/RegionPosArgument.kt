@@ -51,7 +51,7 @@ public class RegionPosArgument: CustomArgumentType<RegionPosArgument.WorldRegion
             return Suggestions.empty()
         }
 
-        val pos = ChunkPos(BlockPos.containing(source.position))
+        val pos = ChunkPos.containing(BlockPos.containing(source.position))
         val coords = listOf(
             TextCoordinates("${pos.regionX}", "", "${pos.regionZ}")
         )
@@ -78,7 +78,7 @@ public class RegionPosArgument: CustomArgumentType<RegionPosArgument.WorldRegion
         @JvmStatic
         public fun getRegion(context: CommandContext<CommandSourceStack>, name: String): Vector2i {
             val coordinates = context.getArgument(name, WorldRegionCoordinates::class.java)
-            val origin = ChunkPos(BlockPos.containing(context.source.position))
+            val origin = ChunkPos.containing(BlockPos.containing(context.source.position))
             val x = coordinates.x.get(origin.regionX.toDouble()).toInt()
             val z = coordinates.z.get(origin.regionZ.toDouble()).toInt()
             return Vector2i(x, z)

@@ -5,5 +5,5 @@ moduleDependencies(project, listOf(
 ))
 
 dependencies {
-    include(modApi(libs.sgui.get())!!)
+    include(api(libs.sgui.get())!!)
 }

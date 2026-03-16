@@ -5,12 +5,14 @@
 package net.casual.arcade.events
 
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap
+import kotlinx.atomicfu.atomic
 import net.casual.arcade.events.common.Event
 import net.casual.arcade.events.common.MissingExecutorEvent
 import net.casual.arcade.events.threading.ThreadingStrategy
 import net.casual.arcade.utils.server.ServerSingleton
 import net.casual.arcade.utils.collection.mergeSorted
 import net.minecraft.client.Minecraft
+import net.minecraft.server.MinecraftServer
 import net.minecraft.util.thread.ReentrantBlockableEventLoop
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -37,7 +39,7 @@ public enum class GlobalEventHandler(
 
     private var recursion = ThreadLocal.withInitial { false }
 
-    private var stopping = false
+    private var stopping = atomic(false)
 
     /**
      * This broadcasts an event for all listeners.
@@ -202,11 +204,8 @@ public enum class GlobalEventHandler(
         if (executor.isSameThread) {
             return Executor(Runnable::run)
         }
-        if (this.stopping) {
-            return null
-        }
-        if (!executor.scheduleExecutables()) {
-            this.stopping = true
+        val wasStopping = this.stopping.getAndSet(executor is MinecraftServer && executor.isStopped)
+        if (!wasStopping && this.stopping.value) {
             logger.warn(
                 "Event broadcasted (type: {}) while {} is stopping, ignoring events...",
                 type.simpleName,

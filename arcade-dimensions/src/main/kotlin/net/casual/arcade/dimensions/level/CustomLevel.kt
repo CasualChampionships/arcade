@@ -79,8 +79,7 @@ public open class CustomLevel(
     options.debug,
     BiomeManager.obfuscateSeed(options.seed),
     ArrayList(),
-    options.tickTime,
-    null
+    options.tickTime
 ) {
     private val derivedLevelData: DerivedLevelData
         get() = this.levelData as DerivedLevelData
@@ -88,7 +87,7 @@ public open class CustomLevel(
     init {
         // In case of server crash, we should still delete temporary levels
         if (!this.persistence.shouldSave()) {
-            LevelPersistenceTracker.markAsTemporary(this.server, this.dimension())
+            LevelPersistenceTracker.markAsTemporary(this.server!!, this.dimension())
         }
     }
 
@@ -120,7 +119,7 @@ public open class CustomLevel(
     override fun tickTime() {
         // super.tickTime() ticks the global scheduler
         if (this.options.tickTime && this.gameRules.get(GameRules.ADVANCE_TIME)) {
-            ++this.dayTime
+            TODO("++this.dayTime")
         }
     }
 
@@ -158,7 +157,7 @@ public open class CustomLevel(
             val ops = RegistryOps.create(NbtOps.INSTANCE, this.registryAccess())
             compound.put("factory", CustomLevelFactory.CODEC.encodeStart(ops, this.factory).orThrow)
             NbtUtils.addCurrentDataVersion(compound)
-            val path = getDimensionDataPath(this.server, this.dimension())
+            val path = getDimensionDataPath(this.server!!, this.dimension())
             path.createParentDirectories()
             NbtIo.write(compound, path)
         } catch (e: IllegalStateException) {

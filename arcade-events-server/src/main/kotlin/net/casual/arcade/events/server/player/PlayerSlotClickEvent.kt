@@ -8,15 +8,18 @@ import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.common.CancellableEvent
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.inventory.AbstractContainerMenu
-import net.minecraft.world.inventory.ClickType as ClickAction
+import net.minecraft.world.inventory.ContainerInput
 
 public data class PlayerSlotClickEvent(
     override val player: ServerPlayer,
     val menu: AbstractContainerMenu,
     val index: Int,
     val button: Int,
-    val action: ClickAction
+    val input: ContainerInput
 ): CancellableEvent.Default(), PlayerEvent {
+    @Deprecated("Use this.input instead", ReplaceWith("this.input"))
+    val action: ContainerInput by this::input
+
     public companion object {
         public const val PHASE_PRE: String = BuiltInEventPhases.PRE
 

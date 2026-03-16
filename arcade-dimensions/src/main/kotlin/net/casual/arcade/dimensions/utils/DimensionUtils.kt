@@ -14,7 +14,7 @@ import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
 import net.casual.arcade.utils.entity.teleportTo
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
@@ -31,7 +31,7 @@ import kotlin.io.path.isDirectory
  * Adds a [CustomLevel] to the server.
  *
  * This registers the level to the server and
- * will fire the [ServerWorldEvents.LOAD] fabric event.
+ * will fire the [ServerLevelEvents.LOAD] fabric event.
  *
  * Once added, the level will be fully functional and be
  * ticked and can accept players.
@@ -59,7 +59,7 @@ public fun MinecraftServer.addCustomLevel(level: CustomLevel): CustomLevel {
     levels[dimension] = level
 
     level.onLoad()
-    ServerWorldEvents.LOAD.invoker().onWorldLoad(this, level)
+    ServerLevelEvents.LOAD.invoker().onLevelLoad(this, level)
 
     if (level.persistence == LevelPersistence.Persistent) {
         LevelPersistenceTracker.markAsPersistent(dimension)
@@ -71,7 +71,7 @@ public fun MinecraftServer.addCustomLevel(level: CustomLevel): CustomLevel {
  * Adds a [CustomLevel] to the server.
  *
  * This registers the level to the server and
- * will fire the [ServerWorldEvents.LOAD] fabric event.
+ * will fire the [ServerLevelEvents.LOAD] fabric event.
  *
  * Once added, the level will be fully functional and be
  * ticked and can accept players.
@@ -90,7 +90,7 @@ public fun MinecraftServer.addCustomLevel(builder: CustomLevelBuilder): CustomLe
  * Adds a [CustomLevel] to the server.
  *
  * This registers the level to the server and
- * will fire the [ServerWorldEvents.LOAD] fabric event.
+ * will fire the [ServerLevelEvents.LOAD] fabric event.
  *
  * Once added, the level will be fully functional and be
  * ticked and can accept players.
@@ -222,7 +222,7 @@ public fun MinecraftServer.hasCustomLevel(level: CustomLevel): Boolean {
  * Removes a [CustomLevel] from the server.
  *
  * This will remove the level from the server and
- * will fire the [ServerWorldEvents.UNLOAD] fabric event.
+ * will fire the [ServerLevelEvents.UNLOAD] fabric event.
  *
  * If the [CustomLevel.persistence] is [LevelPersistence.Temporary]
  * then the level will be deleted instead, equivalent of calling
@@ -292,7 +292,7 @@ private fun MinecraftServer.unloadCustomLevel(level: CustomLevel, save: Boolean)
         }
 
         level.close()
-        ServerWorldEvents.UNLOAD.invoker().onWorldUnload(this, level)
+        ServerLevelEvents.UNLOAD.invoker().onLevelUnload(this, level)
         return true
     }
     return false
@@ -304,7 +304,7 @@ private fun ServerLevel.removePlayers() {
         return
     }
 
-    val overworld = this.server.overworld()
+    val overworld = this.server!!.overworld()
     for (player in players.toList()) {
         val position = player.adjustSpawnLocation(overworld, overworld.respawnData.pos()).bottomCenter
         player.teleportTo(overworld.asLocation(position))

@@ -20,6 +20,7 @@ import net.minecraft.network.chat.TextColor
 import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.ItemStackTemplate
 import java.net.URI
 import java.util.*
 
@@ -352,7 +353,7 @@ public fun MutableComponent.hover(entity: Entity): MutableComponent {
  * @param stack The item stack to show on hover.
  * @return [this]
  */
-public fun MutableComponent.hover(stack: ItemStack): MutableComponent {
+public fun MutableComponent.hover(stack: ItemStackTemplate): MutableComponent {
     return this.hover(HoverEvent.ShowItem(stack))
 }
 

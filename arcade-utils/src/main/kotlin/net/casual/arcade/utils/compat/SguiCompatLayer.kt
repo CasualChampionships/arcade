@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.utils.compat
 
-import eu.pb4.sgui.api.GuiHelpers
+import eu.pb4.sgui.api.SguiUtils
 import eu.pb4.sgui.api.SlotHolder
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.server.level.ServerPlayer
@@ -16,14 +16,14 @@ public object SguiCompatLayer {
         if (!this.loaded) {
             return false
         }
-        return GuiHelpers.getCurrentGui(player) != null
+        return SguiUtils.getCurrentGui(player) != null
     }
 
     public fun isInGuiWithOverriddenInventory(player: ServerPlayer): Boolean {
         if (!this.loaded) {
             return false
         }
-        val gui = GuiHelpers.getCurrentGui(player) as? SlotHolder ?: return false
+        val gui = SguiUtils.getCurrentGui(player) as? SlotHolder ?: return false
         return gui.isIncludingPlayer
     }
 }

@@ -5,7 +5,7 @@
 package net.casual.arcade.npc.ai.behavior
 
 import net.casual.arcade.npc.FakePlayer
-import net.casual.arcade.utils.PlayerUtils.getAttackCooldown
+import net.casual.arcade.utils.player.getAttackCooldown
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.LivingEntity

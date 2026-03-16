@@ -5,8 +5,8 @@
 package net.casual.arcade.utils.chat
 
 import net.casual.arcade.utils.ComponentUtils.literal
-import net.casual.arcade.utils.PlayerUtils.getChatUsername
 import net.casual.arcade.utils.component.*
+import net.casual.arcade.utils.player.getChatUsername
 import net.casual.arcade.utils.scoreboard.DisplayableTeam
 import net.casual.arcade.utils.scoreboard.DisplayableTeam.Companion.displayable
 import net.minecraft.ChatFormatting.DARK_GRAY

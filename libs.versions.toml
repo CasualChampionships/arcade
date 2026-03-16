@@ -1,28 +1,28 @@
 [versions]
-minecraft           = "1.21.11"
-fabric-loader       = "0.18.2"
+minecraft           = "26.1-pre-2"
+fabric-loader       = "0.18.4"
 parchment           = "1.21.10:2025.10.12"
-fabric-api          = "0.139.4+1.21.11"
+fabric-api          = "0.143.14+26.1"
 fabric-kotlin       = "1.13.7+kotlin.2.2.21"
-polymer             = "0.15.1+1.21.11"
-sgui                = "1.12.0+1.21.11"
+polymer             = "0.16.0-alpha.1+26.1-pre-2"
+sgui                = "2.0.0-alpha.1+26.1"
 server-translations = "2.5.2+1.21.9-pre3"
 debug-tools-api     = "1.0.17"
 replay-studio       = "526f9aaf43"
 permissions         = "0.6.1"
 
 # Compatability
-carpet        = "1.4.185"
-voicechat     = "fabric-1.21.11-2.6.12"
+carpet        = "26.1-beta-9"
+voicechat     = "fabric-2.6.12+26.1-pre-2"
 voicechat-api = "2.6.0"
 vmp           = "0.2.0+beta.7.223+1.21.11"
-c2me          = "0.3.6.0.0"
+c2me          = "0.3.7+alpha.0.51+26.1-pre-2"
 
 # Testing
 reflections = "0.10.2"
 
 # Plugins
-fabric-loom = "1.14-SNAPSHOT"
+fabric-loom = "1.15-SNAPSHOT"
 spotless    = "8.1.0"
 shadow      = "9.3.0"
 explosion   = "0.3.1"
@@ -53,7 +53,7 @@ c2me          = { module = "maven.modrinth:c2me-fabric"          , version.ref =
 reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
 
 [plugins]
-fabric-loom = { id = "fabric-loom"          , version.ref = "fabric-loom" }
-spotless    = { id = "com.diffplug.spotless", version.ref = "spotless" }
-shadow      = { id = "com.gradleup.shadow"  , version.ref = "shadow" }
-explosion   = { id = "lol.bai.explosion"    , version.ref = "explosion"}
+fabric-loom = { id = "net.fabricmc.fabric-loom", version.ref = "fabric-loom" }
+spotless    = { id = "com.diffplug.spotless"   , version.ref = "spotless" }
+shadow      = { id = "com.gradleup.shadow"     , version.ref = "shadow" }
+explosion   = { id = "lol.bai.explosion"       , version.ref = "explosion"}

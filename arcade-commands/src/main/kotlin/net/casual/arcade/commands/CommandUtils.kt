@@ -156,14 +156,16 @@ public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSo
 public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
     permission: String
 ): T {
-    return this.requires { Permissions.check(it, permission) }
+    TODO()
+//    return this.requires { Permissions.check(it, permission) }
 }
 
 public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
     permission: String,
     fallback: PermissionLevel
 ): T {
-    return this.requires { Permissions.check(it, permission, fallback) }
+    TODO()
+//    return this.requires { Permissions.check(it, permission, fallback) }
 }
 
 public fun <S, T> RequiredArgumentBuilder<S, T>.suggests(

@@ -4,11 +4,18 @@
  */
 package net.casual.arcade.utils
 
+import com.mojang.datafixers.DataFixer
 import com.mojang.serialization.Codec
 import net.casual.arcade.utils.server.ServerSingleton
+import net.minecraft.core.HolderGetter
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtAccounter
 import net.minecraft.nbt.NbtIo
+import net.minecraft.nbt.NbtUtils
 import net.minecraft.server.MinecraftServer
+import net.minecraft.util.datafix.DataFixTypes
+import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate
 import java.nio.file.Path
 import java.util.zip.ZipFile
@@ -17,7 +24,18 @@ import kotlin.io.path.*
 public object StructureUtils {
     public fun read(path: Path, server: MinecraftServer = ServerSingleton.get()): StructureTemplate {
         val structureTag = NbtIo.readCompressed(path, NbtAccounter.unlimitedHeap())
-        return server.structureManager.readStructure(structureTag)
+        return this.read(structureTag, fixer = server.fixerUpper)
+    }
+
+    public fun read(tag: CompoundTag, getter: HolderGetter<Block> = BuiltInRegistries.BLOCK, fixer: DataFixer? = null): StructureTemplate {
+        val template = StructureTemplate()
+        var fixed = tag
+        if (fixer != null) {
+            val version = NbtUtils.getDataVersion(tag, 500)
+            fixed = DataFixTypes.STRUCTURE.updateToCurrentVersion(fixer, tag, version)
+        }
+        template.load(getter, fixed)
+        return template
     }
 
     @Deprecated("You should be using minigame modules instead")
@@ -75,7 +93,7 @@ public object StructureUtils {
             val data = zip.getInputStream(dataEntry).reader().use { reader ->
                 JsonUtils.decodeWith(codec, reader)
             }.orThrow
-            return server.structureManager.readStructure(structureTag) to data
+            return this.read(structureTag, fixer = server.fixerUpper) to data
         }
     }
 }

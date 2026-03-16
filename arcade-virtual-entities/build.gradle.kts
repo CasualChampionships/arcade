@@ -5,5 +5,5 @@ moduleDependencies(project, listOf(
 ))
 
 dependencies {
-    modImplementation(libs.polymer.core)
+    implementation(libs.polymer.core)
 }

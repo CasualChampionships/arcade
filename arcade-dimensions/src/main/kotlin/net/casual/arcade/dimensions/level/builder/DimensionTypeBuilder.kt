@@ -10,6 +10,7 @@ import net.minecraft.tags.TagKey
 import net.minecraft.util.valueproviders.IntProvider
 import net.minecraft.util.valueproviders.UniformInt
 import net.minecraft.world.attribute.EnvironmentAttributeMap
+import net.minecraft.world.level.CardinalLighting
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.dimension.DimensionType
 import net.minecraft.world.level.dimension.DimensionType.*
@@ -33,7 +34,7 @@ public class DimensionTypeBuilder {
     public var monsterSpawnBlockLightLimit: Int = 0
 
     public var skybox: Skybox = Skybox.OVERWORLD
-    public var cardinalLightType: CardinalLightType = CardinalLightType.DEFAULT
+    public var cardinalLightType: CardinalLighting.Type = CardinalLighting.Type.DEFAULT
     public var environmentAttributes: EnvironmentAttributeMap = EnvironmentAttributeMap.EMPTY
     public var timelines: HolderSet<Timeline> = HolderSet.empty()
 
@@ -97,7 +98,7 @@ public class DimensionTypeBuilder {
         return this
     }
 
-    public fun cardinalLightType(cardinalLightType: CardinalLightType): DimensionTypeBuilder {
+    public fun cardinalLightType(cardinalLightType: CardinalLighting.Type): DimensionTypeBuilder {
         this.cardinalLightType = cardinalLightType
         return this
     }

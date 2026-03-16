@@ -10,17 +10,18 @@ val moduleDependencies: (Project, List<String>) -> Unit by project
 moduleDependencies(project, listOf("utils", "event-registry", "events-server", "resource-pack-host", "commands"))
 
 dependencies {
-    modCompileOnly(libs.carpet)
-    modCompileOnly(libs.vmp)
-    modCompileOnly(explosion.fabric(libs.c2me))
-    modCompileOnly(libs.voicechat)
+    compileOnly(libs.carpet)
+    // TODO: Add back compat support when these mods update
+    //  compileOnly(libs.vmp)
+    compileOnly(explosion.fabric(libs.c2me))
+    compileOnly(libs.voicechat)
     compileOnly(libs.voicechat.api)
 
     shade(api(libs.replay.studio.get())!!)
 }
 
 loom {
-    accessWidenerPath.set(file("src/main/resources/arcade-replay.accesswidener"))
+    accessWidenerPath.set(file("src/main/resources/arcade-replay.classtweaker"))
 }
 
 configurations.named("shadowRuntimeElements") {
@@ -28,10 +29,6 @@ configurations.named("shadowRuntimeElements") {
 }
 
 tasks {
-    remapJar {
-        inputFile.set(shadowJar.get().archiveFile)
-    }
-
     shadowJar {
         destinationDirectory.set(File("./build/devlibs"))
         isZip64 = true

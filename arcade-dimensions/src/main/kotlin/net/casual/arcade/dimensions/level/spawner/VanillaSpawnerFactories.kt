@@ -59,6 +59,6 @@ public object VillageSiegeFactory: SingletonSpawnerFactory("village_siege") {
 
 public object WanderingTraderSpawnerFactory: SingletonSpawnerFactory("wandering_trader_spawner") {
     override fun create(level: ServerLevel): CustomSpawner {
-        return WanderingTraderSpawner(level.levelData as ServerLevelData)
+        return WanderingTraderSpawner(level.dataStorage)
     }
 }

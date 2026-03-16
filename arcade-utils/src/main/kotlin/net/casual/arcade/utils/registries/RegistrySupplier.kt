@@ -22,7 +22,7 @@ public abstract class RegistrySupplier {
     }
 
     protected fun <T: Any> create(key: ResourceKey<Registry<T>>, bootstrap: (Registry<T>) -> Unit): Registry<T> {
-        return this.register(FabricRegistryBuilder.createSimple(key), bootstrap)
+        return this.register(FabricRegistryBuilder.create(key), bootstrap)
     }
 
     protected fun <T: Any> createDefaulted(key: ResourceKey<Registry<T>>, default: Identifier, bootstrap: (Registry<T>) -> Unit): Registry<T> {

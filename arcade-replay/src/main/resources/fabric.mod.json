@@ -27,7 +27,7 @@
       }
     ]
   },
-  "accessWidener": "arcade-replay.accesswidener",
+  "accessWidener": "arcade-replay.classtweaker",
   "mixins": [
     "arcade-replay.mixins.json"
   ],

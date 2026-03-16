@@ -13,7 +13,7 @@ import net.casual.arcade.dimensions.utils.*
 import net.casual.arcade.dimensions.utils.impl.VoidChunkGenerator
 import net.casual.arcade.utils.ArcadeUtils
 import net.fabricmc.api.ModInitializer
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceKey
@@ -44,7 +44,7 @@ public object ArcadeDimensions: ModInitializer {
      * Adds a [CustomLevel] to the server.
      *
      * This registers the level to the server and
-     * will fire the [ServerWorldEvents.LOAD] fabric event.
+     * will fire the [ServerLevelEvents.LOAD] fabric event.
      *
      * Once added, the level will be fully functional and be
      * ticked and can accept players.
@@ -67,7 +67,7 @@ public object ArcadeDimensions: ModInitializer {
      * Adds a [CustomLevel] to the server.
      *
      * This registers the level to the server and
-     * will fire the [ServerWorldEvents.LOAD] fabric event.
+     * will fire the [ServerLevelEvents.LOAD] fabric event.
      *
      * Once added, the level will be fully functional and be
      * ticked and can accept players.
@@ -88,7 +88,7 @@ public object ArcadeDimensions: ModInitializer {
      * Adds a [CustomLevel] to the server.
      *
      * This registers the level to the server and
-     * will fire the [ServerWorldEvents.LOAD] fabric event.
+     * will fire the [ServerLevelEvents.LOAD] fabric event.
      *
      * Once added, the level will be fully functional and be
      * ticked and can accept players.
@@ -215,7 +215,7 @@ public object ArcadeDimensions: ModInitializer {
      * Removes a [CustomLevel] from the server.
      *
      * This will remove the level from the server and
-     * will fire the [ServerWorldEvents.UNLOAD] fabric event.
+     * will fire the [ServerLevelEvents.UNLOAD] fabric event.
      *
      * If the [CustomLevel.persistence] is [LevelPersistence.Temporary]
      * then the level will be deleted instead, equivalent of calling

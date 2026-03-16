@@ -31,7 +31,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -39,7 +39,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
@@ -127,14 +126,14 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		method = "handleContainerClick",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;clicked(IILnet/minecraft/world/inventory/ClickType;Lnet/minecraft/world/entity/player/Player;)V"
+			target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;clicked(IILnet/minecraft/world/inventory/ContainerInput;Lnet/minecraft/world/entity/player/Player;)V"
 		)
 	)
 	private void onSlotClicked(
 		AbstractContainerMenu instance,
 		int slotId,
 		int button,
-		ClickType action,
+		ContainerInput action,
 		Player player,
 		Operation<Void> original
 	) {
@@ -190,7 +189,11 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
         ),
         cancellable = true
     )
-    private void onPickBlock(ServerboundPickItemFromBlockPacket packet, CallbackInfo ci, @Local BlockState state) {
+    private void onPickBlock(
+		ServerboundPickItemFromBlockPacket packet,
+		CallbackInfo ci,
+		@Local(name = "blockState") BlockState state
+	) {
         PlayerPickBlockEvent event = new PlayerPickBlockEvent(this.player, packet.pos(), state);
         GlobalEventHandler.Server.broadcast(event);
         if (event.isCancelled()) {
@@ -206,7 +209,11 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
         ),
         cancellable = true
     )
-    private void onPickEntity(ServerboundPickItemFromEntityPacket packet, CallbackInfo ci, @Local Entity entity) {
+    private void onPickEntity(
+		ServerboundPickItemFromEntityPacket packet,
+		CallbackInfo ci,
+		@Local(name = "entity") Entity entity
+	) {
         PlayerPickEntityEvent event = new PlayerPickEntityEvent(this.player, entity);
         GlobalEventHandler.Server.broadcast(event);
         if (event.isCancelled()) {

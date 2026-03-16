@@ -16,7 +16,7 @@ val modVersion = "0.8.1-beta.47"
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
-    apply(plugin = "fabric-loom")
+    apply(plugin = "net.fabricmc.fabric-loom")
     apply(plugin = "maven-publish")
     apply(plugin = "com.diffplug.spotless")
 
@@ -27,7 +27,7 @@ allprojects {
 
     repositories {
         mavenLocal()
-        maven("https://maven.supersanta.me/snapshots")
+//        maven("https://maven.supersanta.me/snapshots")
         maven("https://masa.dy.fi/maven")
         maven("https://maven.parchmentmc.org/")
         maven("https://repo.viaversion.com")
@@ -41,24 +41,33 @@ allprojects {
 
     dependencies {
         minecraft(libs.minecraft)
-        @Suppress("UnstableApiUsage")
-        mappings(loom.layered {
-            officialMojangMappings()
-            parchment("org.parchmentmc.data:parchment-${libs.versions.parchment.get()}@zip")
-        })
 
-        modImplementation(libs.fabric.loader)
-        modImplementation(libs.fabric.kotlin)
-        modImplementation(libs.fabric.api)
-        modImplementation(libs.permissions)
-    }
-
-    kotlin {
-        explicitApi()
+        implementation(libs.fabric.loader)
+        implementation(libs.fabric.kotlin)
+        implementation(libs.fabric.api)
+        implementation(libs.permissions)
     }
 
     java {
         withSourcesJar()
+        // TODO: Update this when Kotlin supports 25
+        sourceCompatibility = JavaVersion.VERSION_24
+        targetCompatibility = JavaVersion.VERSION_24
+    }
+
+    kotlin {
+        explicitApi()
+        jvmToolchain(24)
+    }
+
+    // This is disgusting, but it works for now...
+    configurations.matching {
+        it.isCanBeResolved && !it.name.contains("decompiler", ignoreCase = true)
+            && !it.name.contains("minecraftNamed", ignoreCase = true)
+    }.all {
+        attributes {
+            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 25)
+        }
     }
 
     tasks {
@@ -152,7 +161,6 @@ loom {
             vmArgs("-Dmixin.debug.export=true")
         }
     }
-    createRemapConfigurations(testmod)
 }
 
 dependencies {
@@ -161,7 +169,7 @@ dependencies {
     include(libs.polymer.resource.pack)
     include(libs.permissions)
 
-    include(modImplementation(libs.server.translations.get())!!)
+    include(implementation(libs.server.translations.get())!!)
 
 //    "modTestmodRuntimeOnly"(libs.voicechat)
     "testmodImplementation"(libs.reflections) {
@@ -171,7 +179,7 @@ dependencies {
     val ignore = setOf(":arcade-datagen", ":arcade-events-client")
     for (subproject in project.subprojects) {
         if (subproject.path !in ignore) {
-            api(project(path = subproject.path, configuration = "namedElements"))
+            api(project(subproject.path))
             include(subproject)
         }
     }
@@ -180,7 +188,7 @@ dependencies {
 val moduleDependencies: Project.(List<String>) -> Unit by extra { { names ->
     dependencies {
         for (name in names) {
-            api(project(path = ":arcade-$name", configuration = "namedElements"))
+            api(project(":arcade-$name"))
         }
     }
 } }
@@ -193,11 +201,10 @@ private fun Project.updateDocumentedDependencies(path: String, transitive: Boole
 
     val builder = StringBuilder()
     builder.append("\ndependencies {\n")
-    builder.append("""    include(modImplementation("${this.group}:${this.name}:${this.version}")!!)""")
+    builder.append("""    include(implementation("${this.group}:${this.name}:${this.version}")!!)""")
 
     if (transitive) {
         val dependencies = configurations.api.get().dependencies.toMutableSet()
-        dependencies.addAll(configurations.modApi.get().dependencies)
         dependencies.removeAll(configurations.include.get().dependencies)
         val shade = configurations.findByName("shade")
         if (shade != null) {

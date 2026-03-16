@@ -49,7 +49,7 @@ public class ChunkPosArgument: CustomArgumentType<ChunkPosArgument.WorldChunksCo
         if (source !is CommandSourceStack) {
             return Suggestions.empty()
         }
-        val pos = ChunkPos(BlockPos.containing(source.position))
+        val pos = ChunkPos.containing(BlockPos.containing(source.position))
         val coords = listOf(
             TextCoordinates("${pos.x}", "", "${pos.z}")
         )
@@ -76,7 +76,7 @@ public class ChunkPosArgument: CustomArgumentType<ChunkPosArgument.WorldChunksCo
         @JvmStatic
         public fun getPosition(context: CommandContext<CommandSourceStack>, name: String): ChunkPos {
             val coordinates = context.getArgument(name, WorldChunksCoordinates::class.java)
-            val origin = ChunkPos(BlockPos.containing(context.source.position))
+            val origin = ChunkPos.containing(BlockPos.containing(context.source.position))
             val x = coordinates.x.get(origin.x.toDouble()).toInt()
             val z = coordinates.z.get(origin.z.toDouble()).toInt()
             return ChunkPos(x, z)

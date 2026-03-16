@@ -10,6 +10,8 @@ import net.minecraft.core.ClientAsset
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.ItemStackTemplate
+import net.minecraft.world.item.Items
 import net.minecraft.world.level.ItemLike
 import java.util.*
 
@@ -34,9 +36,9 @@ public class AdvancementBuilder {
     public var id: Identifier? = null
 
     /**
-     * This is the display [ItemStack].
+     * This is the display [ItemStackTemplate].
      */
-    public var display: ItemStack = ItemStack.EMPTY
+    public var display: ItemStackTemplate = ItemStackTemplate(Items.DIRT)
 
     /**
      * The title of the advancement.
@@ -106,7 +108,7 @@ public class AdvancementBuilder {
      * @param display The advancement display stack.
      * @return This [AdvancementBuilder] instance.
      */
-    public fun display(display: ItemStack): AdvancementBuilder {
+    public fun display(display: ItemStackTemplate): AdvancementBuilder {
         this.display = display
         return this
     }
@@ -118,7 +120,7 @@ public class AdvancementBuilder {
      * @return This [AdvancementBuilder] instance.
      */
     public fun display(display: ItemLike): AdvancementBuilder {
-        this.display = display.asItem().defaultInstance
+        this.display = ItemStackTemplate(display.asItem())
         return this
     }
 

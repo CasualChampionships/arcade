@@ -9,7 +9,7 @@ import net.casual.arcade.npc.mixins.ServerLoginPacketListenerImplAccessor
 import net.casual.arcade.utils.asCompletableFuture
 import net.fabricmc.fabric.api.networking.v1.LoginPacketSender
 import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents
-import net.fabricmc.fabric.impl.networking.NetworkHandlerExtensions
+import net.fabricmc.fabric.impl.networking.PacketListenerExtensions
 import net.minecraft.network.Connection
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerLoginPacketListenerImpl
@@ -29,7 +29,8 @@ public class FakeLoginPacketListenerImpl(
     @Suppress("CAST_NEVER_SUCCEEDS")
     public fun handleQueries(): CompletableFuture<*> {
         val futures = ArrayList<CompletableFuture<*>>()
-        val addon = (this as NetworkHandlerExtensions).addon as LoginPacketSender
+        @Suppress("UnstableApiUsage")
+        val addon = (this as PacketListenerExtensions).addon as LoginPacketSender
         ServerLoginConnectionEvents.QUERY_START.invoker().onLoginStart(this, this.server, addon) {
             futures.add(it.asCompletableFuture())
         }
