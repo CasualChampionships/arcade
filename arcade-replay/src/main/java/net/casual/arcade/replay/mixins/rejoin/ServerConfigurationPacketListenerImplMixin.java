@@ -5,7 +5,6 @@
 package net.casual.arcade.replay.mixins.rejoin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.sugar.Local;
 import net.casual.arcade.replay.ducks.PackTracker;
 import net.casual.arcade.replay.recorder.rejoin.RejoinConfigurationPacketListener;
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket;

@@ -6,14 +6,10 @@ package net.casual.arcade.virtual.entity.attachment
 
 import net.casual.arcade.virtual.entity.extensions.PlayerAttachmentObserverExtension.Companion.attachmentObserver
 import net.casual.arcade.virtual.entity.utils.VirtualEntityPacketCollector
-import net.casual.arcade.virtual.entity.utils.sendSpawnPackets
-import net.casual.arcade.virtual.entity.utils.startObservingAndSendPackets
 import net.casual.arcade.virtual.entity.utils.stopObservingAndSendPackets
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
-import org.jetbrains.annotations.ApiStatus.Experimental
-import org.jetbrains.annotations.ApiStatus.NonExtendable
-import org.jetbrains.annotations.ApiStatus.OverrideOnly
+import org.jetbrains.annotations.ApiStatus.*
 
 /**
  * This interface is the root of all [VirtualEntityAttachment]s.

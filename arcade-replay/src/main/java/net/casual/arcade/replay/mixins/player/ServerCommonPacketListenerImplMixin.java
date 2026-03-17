@@ -7,7 +7,6 @@ package net.casual.arcade.replay.mixins.player;
 import com.mojang.authlib.GameProfile;
 import io.netty.channel.ChannelFutureListener;
 import net.casual.arcade.replay.ducks.ReplayViewable;
-import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder;
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorders;
 import net.casual.arcade.replay.viewer.ReplayViewer;
 import net.minecraft.network.DisconnectionDetails;

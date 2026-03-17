@@ -4,13 +4,12 @@
  */
 package net.casual.arcade.minigame.utils
 
-import eu.pb4.sgui.api.elements.GuiElement
 import eu.pb4.sgui.api.elements.SimpleGuiElement
 import eu.pb4.sgui.api.gui.GuiLike
 import eu.pb4.sgui.api.gui.SimpleGui
+import net.casual.arcade.guis.sgui.SelectionGuiBuilder
 import net.casual.arcade.minigame.settings.display.DisplayableSettings
 import net.casual.arcade.minigame.settings.display.MenuGameSetting
-import net.casual.arcade.guis.sgui.SelectionGuiBuilder
 
 public object SettingsGuiUtils {
     public fun SelectionGuiBuilder.addSettings(

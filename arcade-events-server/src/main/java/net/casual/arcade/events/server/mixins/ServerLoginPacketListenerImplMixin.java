@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ServerLoginPacketListenerImplMixin {
 	@Shadow @Nullable private GameProfile authenticatedProfile;
 
-	@Shadow @Final MinecraftServer server;
+	@Shadow @Final private MinecraftServer server;
 
 	@Inject(
 		method = "handleLoginAcknowledgement",

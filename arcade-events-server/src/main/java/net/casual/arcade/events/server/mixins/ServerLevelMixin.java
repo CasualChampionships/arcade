@@ -5,15 +5,9 @@
 package net.casual.arcade.events.server.mixins;
 
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.server.level.LevelBlockChangedEvent;
 import net.casual.arcade.events.server.level.LevelTickEvent;
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.state.BlockState;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;

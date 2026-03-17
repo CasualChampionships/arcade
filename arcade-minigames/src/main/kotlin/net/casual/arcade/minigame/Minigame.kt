@@ -29,11 +29,12 @@ import net.casual.arcade.minigame.utils.MinigameResources.Companion.sendTo
 import net.casual.arcade.minigame.utils.MinigameResources.MultiMinigameResources
 import net.casual.arcade.minigame.utils.MinigameUtils
 import net.casual.arcade.utils.JsonUtils
-import net.casual.arcade.utils.PlayerUtils.getKillCreditWith
-import net.casual.arcade.utils.PlayerUtils.revokeAdvancement
+import net.casual.arcade.utils.player.getKillCreditWith
+import net.casual.arcade.utils.player.revokeAdvancement
 import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.InteractionResult
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
@@ -604,6 +605,8 @@ public abstract class Minigame(
         this.events.register<PlayerJoinEvent> { this.onPlayerJoin(it) }
         this.events.register<PlayerDeathEvent> { this.onPlayerDeath(it) }
         this.events.register<PlayerDamageEvent>(1_000, BuiltInEventPhases.POST) { this.onPlayerDamage(it) }
+        this.events.register<PlayerAttackEvent> { this.onPlayerAttack(it) }
+        this.events.register<PlayerEntityInteractionEvent> { this.onPlayerEntityInteraction(it) }
         this.events.register<PlayerHealEvent>(1_000, BuiltInEventPhases.POST) { this.onPlayerHeal(it) }
         this.events.register<MinigameAddPlayerEvent>(Int.MAX_VALUE) { this.onPlayerAdd(it) }
         this.events.register<MinigameRemovePlayerEvent>(2000) { this.onPlayerRemove(it) }
@@ -665,6 +668,18 @@ public abstract class Minigame(
 
         for (advancement in this.advancements.all()) {
             event.player.revokeAdvancement(advancement)
+        }
+    }
+
+    private fun onPlayerAttack(event: PlayerAttackEvent) {
+        if (!this.settings.canAttackEntities.get(event.player)) {
+            event.cancel()
+        }
+    }
+
+    private fun onPlayerEntityInteraction(event: PlayerEntityInteractionEvent) {
+        if (!this.settings.canInteractEntities.get(event.player)) {
+            event.cancel(InteractionResult.FAIL)
         }
     }
 

@@ -17,7 +17,6 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus
 import net.minecraft.world.entity.projectile.ProjectileUtil
 import net.minecraft.world.item.BowItem
 import net.minecraft.world.item.Items
-import net.minecraft.world.item.ProjectileWeaponItem
 
 public class FakePlayerBowAttack<T: FakePlayer>(
     minDuration: MinecraftTimeDuration,

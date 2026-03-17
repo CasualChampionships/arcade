@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(targets = "net.minecraft.server.level.ServerLevel$EntityCallbacks")
 public class EntityCallbacksMixin {
-	@Shadow @Final ServerLevel field_26936;
+	@Shadow @Final ServerLevel this$0;
 
 	@Inject(
 		method = "onTrackingStart(Lnet/minecraft/world/entity/Entity;)V",
@@ -29,7 +29,7 @@ public class EntityCallbacksMixin {
 		)
 	)
 	private void onTrackEntityPre(Entity entity, CallbackInfo ci) {
-		EntityStartTrackingEvent event = new EntityStartTrackingEvent(entity, this.field_26936);
+		EntityStartTrackingEvent event = new EntityStartTrackingEvent(entity, this.this$0);
 		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
 	}
 
@@ -42,7 +42,7 @@ public class EntityCallbacksMixin {
 		)
 	)
 	private void onTrackEntityPost(Entity entity, CallbackInfo ci) {
-		EntityStartTrackingEvent event = new EntityStartTrackingEvent(entity, this.field_26936);
+		EntityStartTrackingEvent event = new EntityStartTrackingEvent(entity, this.this$0);
 		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
 	}
 
@@ -54,7 +54,7 @@ public class EntityCallbacksMixin {
 		)
 	)
 	private void onStopTrackingEntityPre(Entity entity, CallbackInfo ci) {
-		EntityStopTrackingEvent event = new EntityStopTrackingEvent(entity, this.field_26936);
+		EntityStopTrackingEvent event = new EntityStopTrackingEvent(entity, this.this$0);
 		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
 	}
 
@@ -66,7 +66,7 @@ public class EntityCallbacksMixin {
 		)
 	)
 	private void onStopTrackingEntityPost(Entity entity, CallbackInfo ci) {
-		EntityStopTrackingEvent event = new EntityStopTrackingEvent(entity, this.field_26936);
+		EntityStopTrackingEvent event = new EntityStopTrackingEvent(entity, this.this$0);
 		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
 	}
 }

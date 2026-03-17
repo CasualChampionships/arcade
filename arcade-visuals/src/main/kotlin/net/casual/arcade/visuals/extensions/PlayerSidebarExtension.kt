@@ -131,7 +131,7 @@ internal class PlayerSidebarExtension(
     }
 
     companion object {
-        private const val OBJECTIVE_NAME = "Z\$DummyObjective"
+        private const val OBJECTIVE_NAME = $$"Z$DummyObjective"
         private val objective = DummyScoreboard.objective(OBJECTIVE_NAME)
         private val players = ArrayList<String>(16)
 
@@ -187,7 +187,7 @@ internal class PlayerSidebarExtension(
         internal fun registerEvents() {
             GlobalEventHandler.Server.register<ServerStartEvent> {
                 for (i in 0..15) {
-                    players.add("\$D${i.toString(16)}")
+                    players.add($$"$D$${i.toString(16)}")
                 }
             }
             GlobalEventHandler.Server.register<PlayerExtensionEvent> { event ->

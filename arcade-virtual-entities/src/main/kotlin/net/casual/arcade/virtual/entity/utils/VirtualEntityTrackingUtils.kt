@@ -7,7 +7,6 @@ package net.casual.arcade.virtual.entity.utils
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.tracker.ObserverTracker
-import net.minecraft.server.network.ServerGamePacketListenerImpl
 
 public object VirtualEntityTrackingUtils {
     public fun VirtualEntityAttachment.attachAndUpdateTracking(

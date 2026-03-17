@@ -5,7 +5,6 @@
 package net.casual.arcade.virtual.entity.utils
 
 import net.casual.arcade.utils.math.location.Location
-import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment

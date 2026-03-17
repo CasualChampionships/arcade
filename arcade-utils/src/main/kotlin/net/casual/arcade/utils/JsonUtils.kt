@@ -9,27 +9,15 @@ import com.google.gson.internal.Streams
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
 import com.mojang.brigadier.StringReader
-import com.mojang.serialization.Codec
-import com.mojang.serialization.DataResult
-import com.mojang.serialization.Decoder
-import com.mojang.serialization.Encoder
-import com.mojang.serialization.JsonOps
+import com.mojang.serialization.*
 import net.casual.arcade.utils.serialization.createSerializationContext
 import net.minecraft.core.HolderLookup
-import net.minecraft.nbt.*
-import net.minecraft.util.Util
 import java.io.IOException
-import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.Reader
 import java.lang.reflect.Field
 import java.nio.file.Path
-import java.util.*
-import kotlin.io.path.isReadable
-import kotlin.io.path.notExists
-import kotlin.io.path.reader
-import kotlin.io.path.writeText
-import kotlin.io.path.writer
+import kotlin.io.path.*
 import kotlin.jvm.optionals.getOrNull
 
 public object JsonUtils {

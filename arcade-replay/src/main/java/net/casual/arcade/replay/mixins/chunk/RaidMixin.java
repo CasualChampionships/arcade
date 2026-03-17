@@ -48,7 +48,7 @@ public class RaidMixin {
         method = "playSound",
         at = @At("TAIL")
     )
-    private void onPlayerSound(ServerLevel level, BlockPos pos, CallbackInfo ci, @Local(ordinal = 0) long seed) {
+    private void onPlayerSound(ServerLevel level, BlockPos pos, CallbackInfo ci, @Local(name = "seed") long seed) {
         Collection<ReplayChunkRecorder> recorders = ((ReplayChunkRecordable) this.raidEvent).getRecorders();
         if (!recorders.isEmpty()) {
             ClientboundSoundPacket packet = new ClientboundSoundPacket(

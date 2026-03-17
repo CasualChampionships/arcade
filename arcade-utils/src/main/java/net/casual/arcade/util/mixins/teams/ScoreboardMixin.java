@@ -22,7 +22,7 @@ public class ScoreboardMixin {
     private void onLoadPlayerTeam(
         PlayerTeam.Packed packed,
         CallbackInfo ci,
-        @Local PlayerTeam team
+        @Local(name = "team") PlayerTeam team
     ) {
         Integer color = ((OverridableColor) (Object) packed).arcade_getColor();
         ((OverridableColor) team).arcade_setColor(color);

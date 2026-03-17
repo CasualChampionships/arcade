@@ -5,7 +5,6 @@
 package net.casual.arcade.replay.mixins.compat.carpet;
 
 import carpet.patches.NetHandlerPlayServerFake;
-import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder;
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorders;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;

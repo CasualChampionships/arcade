@@ -5,7 +5,7 @@
 package net.casual.arcade.minigame.mixins.gamemode;
 
 import net.casual.arcade.minigame.gamemode.ExtendedGameMode;
-import net.casual.arcade.utils.PlayerUtils;
+import net.casual.arcade.utils.player.PlayerUtilsKt;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -35,7 +35,7 @@ public class ServerGamePacketListenerImplMixin {
 		if (getExtendedGameMode(this.player) == ExtendedGameMode.AdventureSpectator) {
 			switch (packet.getAction()) {
 				case DROP_ITEM, DROP_ALL_ITEMS -> {
-					PlayerUtils.updateSelectedSlot(this.player);
+					PlayerUtilsKt.updateSelectedSlot(this.player);
 				}
 			}
 		}
@@ -49,6 +49,21 @@ public class ServerGamePacketListenerImplMixin {
 	private void onGetMaxFlyingTicks(Entity entity, CallbackInfoReturnable<Integer> cir) {
 		if (entity.isSpectator()) {
 			cir.setReturnValue(Integer.MAX_VALUE);
+		}
+	}
+
+	@Inject(
+		method = "handleAttack",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;disconnect(Lnet/minecraft/network/chat/Component;)V"
+		),
+		cancellable = true
+	)
+	private void onAttackInvalid(CallbackInfo ci) {
+		if (getExtendedGameMode(this.player) == ExtendedGameMode.AdventureSpectator) {
+			// Vanilla client is silly and will sometimes do this
+			ci.cancel();
 		}
 	}
 }

@@ -8,7 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.Nullable;
 
 public interface ArcadeTeamDataHolder {
-    @Nullable CompoundTag arcade$getData();
+    @Nullable CompoundTag arcade_getData();
 
-    void arcade$setData(@Nullable CompoundTag tag);
+    void arcade_setData(@Nullable CompoundTag tag);
 }

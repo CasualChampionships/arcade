@@ -13,7 +13,6 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.SerializersModuleBuilder
 import kotlinx.serialization.modules.SerializersModuleCollector
-import kotlinx.serialization.modules.contextual
 import net.minecraft.core.HolderLookup
 import kotlin.reflect.KClass
 

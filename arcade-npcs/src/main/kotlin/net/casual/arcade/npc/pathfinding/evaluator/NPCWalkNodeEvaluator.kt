@@ -56,7 +56,7 @@ public open class NPCWalkNodeEvaluator: NPCNodeEvaluator() {
                 pos.set(player.x, player.y + 1.0, player.z)
                 while (pos.y > context.level.minY) {
                     y = pos.y
-                    pos.setY(pos.y - 1)
+                    pos.y -= 1
                     val blockState2 = context.getBlockState(pos)
                     if (!blockState2.isAir && !blockState2.isPathfindable(PathComputationType.LAND)) {
                         break

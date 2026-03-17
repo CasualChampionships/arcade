@@ -58,7 +58,7 @@ public object RegistryEventHandler: EventListener<RegistryLoadedFromResourcesEve
 
     @Suppress("UNCHECKED_CAST")
     private fun <T: Any> invokeListeners(event: RegistryLoadedFromResourcesEvent<T>) {
-        val listeners = listeners.get(event.registry.key())
+        val listeners = listeners.get(event.registryKey())
             .map { it as EventListener<RegistryLoadedFromResourcesEvent<T>> }
             .sorted()
         for (listener in listeners) {

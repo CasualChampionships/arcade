@@ -9,22 +9,16 @@ import net.casual.arcade.replay.ducks.ReplayViewable;
 import net.casual.arcade.replay.viewer.ReplayViewer;
 import net.casual.arcade.replay.viewer.ReplayViewerPackets;
 import net.minecraft.network.Connection;
-import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.LastSeenMessagesValidator;
 import net.minecraft.network.chat.RemoteChatSession;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Coerce;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPacketListenerImpl implements ReplayViewable {
@@ -72,7 +66,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
     }
 
     @Override
-    public void send(Packet<?> packet, @Nullable ChannelFutureListener sendListener) {
+    public void send(@NonNull Packet<?> packet, @Nullable ChannelFutureListener sendListener) {
         if (this.replay$viewer == null || ReplayViewerPackets.clientboundBypass(packet)) {
             super.send(packet, sendListener);
         }

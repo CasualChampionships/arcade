@@ -6,7 +6,6 @@ package net.casual.arcade.nametags.virtual
 
 import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.virtual.entity.SimpleParentVirtualEntity
-import net.casual.arcade.virtual.entity.SimpleVirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.display.SimpleVirtualTextDisplay
 import net.casual.arcade.virtual.entity.location.VirtualRotation

@@ -9,7 +9,6 @@ import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.math.location.providers.LocationProvider
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
-import org.jetbrains.annotations.ApiStatus.Internal
 
 public object ArcadeUtilsRegistryKeys: RegistryKeySupplier(ArcadeUtils.MOD_ID) {
     public val LOCATION_PROVIDER: ResourceKey<Registry<MapCodec<out LocationProvider>>> = create("location_provider")

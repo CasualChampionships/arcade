@@ -23,7 +23,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Mixin(PlayerList.class)
 public class PlayerListMixin {
@@ -39,7 +38,7 @@ public class PlayerListMixin {
         boolean keepInventory,
         Entity.RemovalReason reason,
         CallbackInfoReturnable<ServerPlayer> cir,
-        @Local(ordinal = 1) ServerPlayer respawned,
+        @Local(name = "player") ServerPlayer respawned,
         @Share(namespace = ArcadeUtils.MOD_ID, value = "isMinigameRespawn") LocalBooleanRef isMinigameRespawn,
         @Share("delayed") LocalRef<DelayedActions.Simple> delayedRef
     ) {

@@ -47,7 +47,7 @@ public abstract class ServerBossEventMixin extends BossEvent implements ReplayCh
     private void onBroadcast(
         Function<BossEvent, ClientboundBossEventPacket> packetGetter,
         CallbackInfo ci,
-        @Local ClientboundBossEventPacket packet
+        @Local(name = "packet") ClientboundBossEventPacket packet
     ) {
         for (ReplayChunkRecorder recorder : this.replay$recorders) {
             recorder.record(packet);

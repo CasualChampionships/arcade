@@ -6,8 +6,6 @@ package net.casual.arcade.virtual.entity.mixins;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.world.entity.Avatar;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.decoration.Mannequin;
 import net.minecraft.world.item.component.ResolvableProfile;
 import org.spongepowered.asm.mixin.Mixin;

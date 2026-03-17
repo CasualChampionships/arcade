@@ -13,6 +13,7 @@ import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.scores.PlayerTeam;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,33 +33,33 @@ public class PlayerTeamPackedMixin implements ArcadeTeamDataHolder {
             remap = false
         )
     )
-    private static Codec<PlayerTeam.Packed> extend(Codec<PlayerTeam.Packed> original) {
+    private static Codec<PlayerTeam.Packed> extendCodecForArcade(Codec<PlayerTeam.Packed> original) {
         return ArcadeExtraCodecs.extend(
             original,
             CompoundTag.CODEC.optionalFieldOf("arcade").forGetter(packet -> {
-                return Optional.ofNullable(((ArcadeTeamDataHolder) (Object) packet).arcade$getData());
+                return Optional.<@NonNull CompoundTag>ofNullable(((ArcadeTeamDataHolder) (Object) packet).arcade_getData());
             }),
             (packed, tag) -> {
-                ((ArcadeTeamDataHolder) (Object) packed).arcade$setData(tag.orElse(null));
+                ((ArcadeTeamDataHolder) (Object) packed).arcade_setData(tag.orElse(null));
                 return packed;
             }
         );
     }
 
     @WrapMethod(method = "equals")
-    private boolean extendEquals(Object object, Operation<Boolean> original) {
+    private boolean checkArcadeDataIsEqual(Object object, Operation<Boolean> original) {
         return original.call(object) && object instanceof ArcadeTeamDataHolder holder
-                && Objects.equals(this.arcade$data, holder.arcade$getData());
+            && Objects.equals(this.arcade$data, holder.arcade_getData());
     }
 
     @Override
     @Nullable
-    public CompoundTag arcade$getData() {
+    public CompoundTag arcade_getData() {
         return this.arcade$data;
     }
 
     @Override
-    public void arcade$setData(@Nullable CompoundTag tag) {
+    public void arcade_setData(@Nullable CompoundTag tag) {
         this.arcade$data = tag;
     }
 }

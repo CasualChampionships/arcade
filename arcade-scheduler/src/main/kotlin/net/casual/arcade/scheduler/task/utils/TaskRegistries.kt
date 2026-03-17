@@ -10,7 +10,6 @@ import net.casual.arcade.utils.registries.RegistryKeySupplier
 import net.casual.arcade.utils.registries.RegistrySupplier
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
-import org.jetbrains.annotations.ApiStatus.Internal
 
 public object TaskRegistryKeys: RegistryKeySupplier(ArcadeUtils.MOD_ID) {
     public val TASK_FACTORY: ResourceKey<Registry<TaskFactory>> = create("task_factory")

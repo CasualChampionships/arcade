@@ -7,8 +7,6 @@ package net.casual.arcade.replay.viewer
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.common.ClientboundKeepAlivePacket
 import net.minecraft.network.protocol.common.ServerboundKeepAlivePacket
-import net.minecraft.network.protocol.game.ServerboundChatCommandPacket
-import net.minecraft.network.protocol.game.ServerboundChatCommandSignedPacket
 
 public object ReplayViewerPackets {
     private val ALLOWED_SERVERBOUND: Set<Class<out Packet<*>>> = setOf(

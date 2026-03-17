@@ -16,7 +16,7 @@ import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.ducks.ModifyActuallyHurt;
 import net.casual.arcade.events.server.entity.EntityDamageEvent;
 import net.casual.arcade.events.server.player.*;
-import net.casual.arcade.utils.PlayerUtils;
+import net.casual.arcade.utils.player.PlayerUtilsKt;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,6 +27,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -96,13 +97,14 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 	private void onInteractOn(
 		Entity entity,
 		InteractionHand hand,
+		Vec3 location,
 		CallbackInfoReturnable<InteractionResult> cir
 	) {
 		if ((Object) this instanceof ServerPlayer player) {
-			PlayerEntityInteractionEvent event = new PlayerEntityInteractionEvent(player, entity, hand);
+			PlayerEntityInteractionEvent event = new PlayerEntityInteractionEvent(player, entity, hand, location);
 			GlobalEventHandler.Server.broadcast(event);
 			if (event.isCancelled()) {
-                PlayerUtils.updateInteractionSlot(player, hand);
+                PlayerUtilsKt.updateInteractionSlot(player, hand);
 				cir.setReturnValue(event.result());
 			}
 		}

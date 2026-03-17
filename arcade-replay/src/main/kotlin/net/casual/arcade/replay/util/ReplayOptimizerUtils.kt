@@ -13,7 +13,6 @@ import net.minecraft.network.protocol.game.*
 import net.minecraft.network.protocol.login.ClientboundLoginCompressionPacket
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.clock.ClockNetworkState
-import net.minecraft.world.clock.ClockState
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.item.PrimedTnt
 import net.minecraft.world.entity.projectile.Projectile

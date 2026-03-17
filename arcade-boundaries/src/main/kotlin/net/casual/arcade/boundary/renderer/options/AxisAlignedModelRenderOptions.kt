@@ -14,6 +14,7 @@ import net.minecraft.core.Direction
 import net.minecraft.core.Registry
 import net.minecraft.util.Brightness
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.ItemStackTemplate
 import net.minecraft.world.item.Items
 
 /**
@@ -38,14 +39,14 @@ public interface AxisAlignedModelRenderOptions {
      * @param brightness The brightness of the boundary models.
      */
     public class Constant(
-        public val stationary: ItemStack,
-        public val shrinking: ItemStack,
-        public val growing: ItemStack,
+        public val stationary: ItemStackTemplate,
+        public val shrinking: ItemStackTemplate,
+        public val growing: ItemStackTemplate,
         public val brightness: Brightness
     ): AxisAlignedModelRenderOptions {
         override fun get(shape: BoundaryShape, face: Direction): Data {
             val model = shape.getStatus().choose(this.stationary, this.shrinking, this.growing)
-            return Data(model, this.brightness)
+            return Data(model.create(), this.brightness)
         }
     }
 
@@ -59,9 +60,9 @@ public interface AxisAlignedModelRenderOptions {
         public val DEFAULT: AxisAlignedModelRenderOptions = this.register(
             "default",
             Constant(
-                ItemStack(Items.LIGHT_BLUE_STAINED_GLASS),
-                ItemStack(Items.RED_STAINED_GLASS),
-                ItemStack(Items.LIME_STAINED_GLASS),
+                ItemStackTemplate(Items.LIGHT_BLUE_STAINED_GLASS),
+                ItemStackTemplate(Items.RED_STAINED_GLASS),
+                ItemStackTemplate(Items.LIME_STAINED_GLASS),
                 Brightness.FULL_BRIGHT
             )
         )

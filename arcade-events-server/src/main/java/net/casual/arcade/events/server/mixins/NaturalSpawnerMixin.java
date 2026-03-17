@@ -50,7 +50,12 @@ public class NaturalSpawnerMixin {
 			target = "Lnet/minecraft/world/level/NaturalSpawner;isValidPositionForMob(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/Mob;D)Z"
 		)
 	)
-	private static boolean canMobSpawn(boolean original, @Local(argsOnly = true) ServerLevel level, @Local Mob mob, @Local SpawnGroupData data) {
+	private static boolean canMobSpawn(
+		boolean original,
+		@Local(argsOnly = true) ServerLevel level,
+		@Local(name = "mob") Mob mob,
+		@Local(name = "groupData") SpawnGroupData data
+	) {
 		if (!original) {
 			return false;
 		}

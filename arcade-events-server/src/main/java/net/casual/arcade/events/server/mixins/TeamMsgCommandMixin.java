@@ -8,8 +8,8 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.player.PlayerTeamChatEvent;
-import net.casual.arcade.utils.PlayerUtils;
 import net.casual.arcade.utils.chat.PlayerFormattedChat;
+import net.casual.arcade.utils.player.PlayerUtilsKt;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.OutgoingChatMessage;
@@ -42,7 +42,7 @@ public class TeamMsgCommandMixin {
 		List<ServerPlayer> teammates,
 		PlayerChatMessage chatMessage,
 		CallbackInfo ci,
-		@Local LocalRef<OutgoingChatMessage> outgoing,
+		@Local(name = "tracked") LocalRef<OutgoingChatMessage> outgoing,
 		@Local(argsOnly = true) LocalRef<List<ServerPlayer>> teammatesRef
 	) {
 		if (!(sender instanceof ServerPlayer player)) {
@@ -67,7 +67,7 @@ public class TeamMsgCommandMixin {
 			Component message = Component.empty().append(chat.getPrefix())
 				.append(chat.getUsername())
 				.append(chat.getMessage());
-			PlayerUtils.broadcast(event.getReceiving(), message);
+			PlayerUtilsKt.broadcast(event.getReceiving(), message);
 			ci.cancel();
 			return;
 		}

@@ -19,11 +19,11 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public class BrewingStandBlockEntityMixin {
 	@ModifyVariable(
 		method = "serverTick",
-		ordinal = 0,
 		at = @At(
 			value = "LOAD",
 			ordinal = 2
-		)
+		),
+		name = "brewable"
 	)
 	private static boolean onBrew(
 		boolean value,

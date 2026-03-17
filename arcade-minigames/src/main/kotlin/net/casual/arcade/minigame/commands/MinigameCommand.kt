@@ -25,7 +25,6 @@ import net.casual.arcade.minigame.utils.MinigameUtils.trackReadyPlayers
 import net.casual.arcade.minigame.utils.MinigameUtils.trackReadyTeams
 import net.casual.arcade.minigame.utils.RecipeModifier
 import net.casual.arcade.scheduler.GlobalTickedScheduler
-import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.utils.asCoroutineDispatcher
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.chat.ChatFormatter
@@ -35,15 +34,10 @@ import net.casual.arcade.utils.component.join
 import net.casual.arcade.utils.component.suggestCommand
 import net.casual.arcade.utils.coroutine.launch
 import net.casual.arcade.utils.time.MinecraftTimeUnit
-import net.casual.arcade.visuals.ready.ReadyChecker
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
-import net.minecraft.commands.arguments.ComponentArgument
-import net.minecraft.commands.arguments.EntityArgument
-import net.minecraft.commands.arguments.IdentifierArgument
-import net.minecraft.commands.arguments.TeamArgument
-import net.minecraft.commands.arguments.TimeArgument
+import net.minecraft.commands.arguments.*
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier

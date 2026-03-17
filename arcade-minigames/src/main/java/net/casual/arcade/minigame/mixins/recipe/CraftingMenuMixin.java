@@ -29,8 +29,8 @@ public class CraftingMenuMixin {
 	@SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "unchecked"})
 	private static <T extends Recipe<?>> Optional<RecipeHolder<T>> onGetRecipe(
 		Optional<RecipeHolder<T>> original,
-		@Local ServerPlayer player,
-		@Local CraftingInput input,
+		@Local(name = "serverPlayer") ServerPlayer player,
+		@Local(name = "input") CraftingInput input,
 		@Local(argsOnly = true) ServerLevel level
 	) {
 		if (original.isPresent()) {

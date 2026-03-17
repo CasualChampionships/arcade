@@ -12,7 +12,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.tree.LiteralCommandNode
-import me.lucko.fabric.api.permissions.v0.Permissions
 import net.casual.arcade.commands.hidden.HiddenCommand
 import net.casual.arcade.commands.hidden.HiddenCommandManager
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
@@ -158,7 +157,7 @@ public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSo
 ): T {
     // TODO(26.1)
     //  return this.requires { Permissions.check(it, permission) }
-    return null!!
+    return this.requires { true }
 }
 
 public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
@@ -167,7 +166,7 @@ public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSo
 ): T {
     // TODO(26.1)
     //  return this.requires { Permissions.check(it, permission, fallback) }
-    return null!!
+    return this.requires { true }
 }
 
 public fun <S, T> RequiredArgumentBuilder<S, T>.suggests(

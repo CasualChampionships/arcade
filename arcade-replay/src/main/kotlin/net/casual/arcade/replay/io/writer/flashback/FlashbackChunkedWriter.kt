@@ -6,7 +6,6 @@ package net.casual.arcade.replay.io.writer.flashback
 
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
-import io.netty.handler.codec.EncoderException
 import kotlinx.atomicfu.atomic
 import net.casual.arcade.replay.io.FlashbackIO
 import net.casual.arcade.replay.recorder.settings.RecorderSettings

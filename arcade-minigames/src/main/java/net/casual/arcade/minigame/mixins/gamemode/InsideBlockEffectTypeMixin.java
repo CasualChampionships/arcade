@@ -18,7 +18,7 @@ import static net.casual.arcade.minigame.gamemode.ExtendedGameMode.getExtendedGa
 @Mixin(InsideBlockEffectType.class)
 public class InsideBlockEffectTypeMixin {
     @Inject(
-        method = "method_67647",
+        method = "lambda$static$0",
         at = @At("TAIL")
     )
     private static void updateAdventureSpectatorFrozenTicks(Entity entity, CallbackInfo ci) {

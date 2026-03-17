@@ -6,10 +6,8 @@ package net.casual.arcade.host.pack.provider
 
 import net.casual.arcade.host.pack.PathPack
 import net.casual.arcade.host.pack.ReadablePack
-import java.io.InputStream
 import java.nio.file.Path
 import kotlin.io.path.extension
-import kotlin.io.path.inputStream
 import kotlin.io.path.isRegularFile
 
 /**

@@ -25,7 +25,7 @@ public class PlayerAdvancementMixin {
 	@Shadow private ServerPlayer player;
 
 	@WrapWithCondition(
-		method = "method_53639",
+		method = "lambda$applyFrom$0",
 		at = @At(
 			value = "INVOKE",
 			target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V",

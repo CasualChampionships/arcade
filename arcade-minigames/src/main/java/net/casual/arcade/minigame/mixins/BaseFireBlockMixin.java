@@ -8,7 +8,6 @@ import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.minigame.utils.MinigameUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;

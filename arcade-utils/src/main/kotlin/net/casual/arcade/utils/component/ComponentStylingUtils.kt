@@ -19,10 +19,8 @@ import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.TextColor
 import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
-import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.ItemStackTemplate
 import java.net.URI
-import java.util.*
 
 /**
  * Sets the color of the component to the given [color].

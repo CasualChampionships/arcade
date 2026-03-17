@@ -30,10 +30,10 @@ public class ScoreboardMixin {
     private void onLoadPlayerTeam(
         PlayerTeam.Packed packed,
         CallbackInfo ci,
-        @Local PlayerTeam team
+        @Local(name = "team") PlayerTeam team
     ) {
         ArcadeUtils.scopedProblemReporter(reporter -> {
-            CompoundTag tag = Optional.ofNullable(((ArcadeTeamDataHolder) (Object) packed).arcade$getData())
+            CompoundTag tag = Optional.ofNullable(((ArcadeTeamDataHolder) (Object) packed).arcade_getData())
                 .orElseGet(CompoundTag::new);
             ValueInput input = TagValueInput.create(reporter, ServerSingleton.getRegistryAccessOrEmpty(), tag);
             ExtensionHolder.deserialize((ExtensionHolder) team, input);

@@ -8,10 +8,12 @@ import com.google.common.hash.HashFunction
 import com.google.common.hash.Hashing
 import net.casual.arcade.utils.ArcadeUtils
 import java.net.URI
-import java.nio.charset.StandardCharsets
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.io.path.*
+import kotlin.io.path.createParentDirectories
+import kotlin.io.path.exists
+import kotlin.io.path.readBytes
+import kotlin.io.path.writeBytes
 
 internal object ResourcePackCache {
     private val cached = ArcadeUtils.path.resolve("replays").resolve("packs")

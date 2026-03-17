@@ -17,7 +17,6 @@
     "ConnectionMixin",
     "EntityCallbacksMixin",
     "EntityMixin",
-    "InteractionHandlerMixin",
     "ItemStackMixin",
     "LevelMixin",
     "LivingEntityMixin",
@@ -28,7 +27,7 @@
     "PlayerListMixin",
     "PlayerMixin",
     "RandomizableContainerMixin",
-    "RegistryDataLoaderMixin",
+    "registry.RegistryDataLoaderMixin",
     "ScoreboardMixin",
     "ServerboundTeleportToEntityPacketAccessor",
     "ServerCommonPacketListenerImplMixin",
@@ -38,7 +37,9 @@
     "ServerPlayerGameModeMixin",
     "ServerPlayerMixin",
     "TeamMsgCommandMixin",
-    "TntBlockMixin"
+    "TntBlockMixin",
+    "registry.RegistryLoadTaskAccessor",
+    "registry.ResourceManagerRegistryLoadTaskMixin"
   ],
   "injectors": {
     "defaultRequire": 1

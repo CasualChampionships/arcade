@@ -51,7 +51,7 @@ public class ServerGamePacketListenerImplMixin {
 			target = "Lnet/minecraft/stats/ServerRecipeBook;contains(Lnet/minecraft/resources/ResourceKey;)Z"
 		)
 	)
-	private boolean doesPlayerHaveRecipe(boolean original, @Local RecipeHolder<?> holder) {
+	private boolean doesPlayerHaveRecipe(boolean original, @Local(name = "recipe") RecipeHolder<?> holder) {
 		if (original) {
 			return true;
 		}

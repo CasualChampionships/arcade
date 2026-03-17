@@ -5,7 +5,6 @@
 package net.casual.arcade.utils.coroutine
 
 import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.Delay
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 
 /**

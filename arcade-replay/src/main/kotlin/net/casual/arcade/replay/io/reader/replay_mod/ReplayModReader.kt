@@ -5,7 +5,6 @@
 package net.casual.arcade.replay.io.reader.replay_mod
 
 import com.google.common.collect.HashMultimap
-import com.google.common.collect.ImmutableMultimap
 import com.google.common.collect.Multimap
 import com.replaymod.replaystudio.PacketData
 import com.replaymod.replaystudio.lib.viaversion.api.protocol.packet.State
@@ -13,10 +12,10 @@ import com.replaymod.replaystudio.lib.viaversion.api.protocol.version.ProtocolVe
 import com.replaymod.replaystudio.protocol.PacketTypeRegistry
 import com.replaymod.replaystudio.replay.ZipReplayFile
 import com.replaymod.replaystudio.studio.ReplayStudio
-import net.casual.arcade.replay.io.reader.ReplayReader
-import net.casual.arcade.replay.util.ReplayMarker
 import net.casual.arcade.replay.io.ReplayModIO
 import net.casual.arcade.replay.io.reader.ReplayPacketData
+import net.casual.arcade.replay.io.reader.ReplayReader
+import net.casual.arcade.replay.util.ReplayMarker
 import net.casual.arcade.replay.viewer.ReplayViewer
 import net.casual.arcade.replay.viewer.ReplayViewerUtils.toClientboundConfigurationPacket
 import net.casual.arcade.replay.viewer.ReplayViewerUtils.toClientboundPlayPacket

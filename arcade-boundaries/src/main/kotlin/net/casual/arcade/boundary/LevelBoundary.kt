@@ -6,7 +6,6 @@ package net.casual.arcade.boundary
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.casual.arcade.boundary.extension.LevelBoundaryExtension
 import net.casual.arcade.boundary.renderer.BoundaryRenderer
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.boundary.shape.BoundaryShape.Containment
@@ -23,7 +22,7 @@ import net.minecraft.util.Mth
 import net.minecraft.world.level.border.WorldBorder
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
-import java.util.EnumSet
+import java.util.*
 import java.util.function.Consumer
 import kotlin.math.max
 

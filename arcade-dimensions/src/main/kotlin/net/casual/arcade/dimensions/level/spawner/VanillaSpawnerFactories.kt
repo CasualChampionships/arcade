@@ -15,7 +15,6 @@ import net.minecraft.world.entity.npc.wanderingtrader.WanderingTraderSpawner
 import net.minecraft.world.level.CustomSpawner
 import net.minecraft.world.level.levelgen.PatrolSpawner
 import net.minecraft.world.level.levelgen.PhantomSpawner
-import net.minecraft.world.level.storage.ServerLevelData
 import org.jetbrains.annotations.ApiStatus.Internal
 
 // IntelliJ hates the file and has a fit anytime I try to open it

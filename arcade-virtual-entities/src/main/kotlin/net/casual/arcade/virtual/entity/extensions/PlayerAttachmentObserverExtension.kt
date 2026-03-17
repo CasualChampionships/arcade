@@ -14,8 +14,6 @@ import net.casual.arcade.virtual.entity.ParentVirtualEntity
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.interaction.EntityInteraction
-import net.minecraft.network.protocol.game.ServerboundAttackPacket
-import net.minecraft.network.protocol.game.ServerboundInteractPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.phys.Vec3

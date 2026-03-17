@@ -24,9 +24,7 @@ import java.util.function.BooleanSupplier;
 
 @Mixin(ChunkMap.class)
 public class ChunkMapMixin {
-    @Shadow
-    @Final
-    ServerLevel level;
+    @Shadow @Final private ServerLevel level;
 
     @Inject(
         method = "updateChunkScheduling",
@@ -60,7 +58,7 @@ public class ChunkMapMixin {
     private void onUnloadChunk(
         BooleanSupplier hasMoreTime,
         CallbackInfo ci,
-        @Local ChunkHolder holder
+        @Local(name = "chunkHolder") ChunkHolder holder
     ) {
         ((ReplayChunkRecordable) holder).removeAllRecorders();
     }

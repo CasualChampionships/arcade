@@ -7,7 +7,7 @@ package net.casual.arcade.minigame.mixins.gamemode;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.casual.arcade.minigame.gamemode.ExtendedGameMode;
-import net.casual.arcade.utils.PlayerUtils;
+import net.casual.arcade.utils.player.PlayerUtilsKt;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.world.level.GameType;
@@ -64,7 +64,7 @@ public class ServerPlayerGameModeMixin {
 	)
 	private GameType onGetSpectator(GameType original, ServerPlayer player) {
 		if (getExtendedGameMode(player) == ExtendedGameMode.AdventureSpectator) {
-			PlayerUtils.updateSelectedSlot(player);
+			PlayerUtilsKt.updateSelectedSlot(player);
 			return GameType.SPECTATOR;
 		}
 		return original;

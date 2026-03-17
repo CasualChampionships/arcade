@@ -5,7 +5,6 @@
 package net.casual.arcade.replay.mixins.player;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder;
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder;
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorders;
 import net.minecraft.network.protocol.Packet;
@@ -21,16 +20,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Collection;
-
 @Mixin(ChunkMap.TrackedEntity.class)
 public class TrackedEntityMixin {
-    @Shadow
-    @Final
-    Entity entity;
-    @Shadow
-    @Final
-    ServerEntity serverEntity;
+    @Shadow @Final private Entity entity;
+    @Shadow @Final private ServerEntity serverEntity;
 
     @Inject(
         method = "<init>",

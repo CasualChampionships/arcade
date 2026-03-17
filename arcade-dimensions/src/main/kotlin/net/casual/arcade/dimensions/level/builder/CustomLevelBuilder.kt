@@ -29,7 +29,6 @@ import net.minecraft.world.level.gamerules.GameRules
 import net.minecraft.world.level.levelgen.WorldOptions
 import net.minecraft.world.level.saveddata.WeatherData
 import net.minecraft.world.level.storage.LevelData.RespawnData
-import org.apache.commons.lang3.mutable.MutableLong
 import org.jetbrains.annotations.ApiStatus.Experimental
 import java.util.*
 

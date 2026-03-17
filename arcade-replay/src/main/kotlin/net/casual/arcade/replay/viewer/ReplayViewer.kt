@@ -498,7 +498,7 @@ public class ReplayViewer internal constructor(
                 // later positions will teleport the viewer which we don't want
                 val teleported = this.teleported
                 this.teleported = true
-                return !teleported || time < this.target
+                !teleported || time < this.target
             }
             else -> true
         }

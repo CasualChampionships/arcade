@@ -52,8 +52,8 @@ public abstract class CommandsMixin {
 	private void onSendCommands(
 		ServerPlayer player,
 		CallbackInfo ci,
-		@Local Map<CommandNode<CommandSourceStack>, CommandNode<CommandSourceStack>> map,
-		@Local RootCommandNode<CommandSourceStack> root
+		@Local(name = "playerCommands") Map<CommandNode<CommandSourceStack>, CommandNode<CommandSourceStack>> map,
+		@Local(name = "root") RootCommandNode<CommandSourceStack> root
 	) {
 		PlayerSendCommandsEvent event = new PlayerSendCommandsEvent(player);
 		GlobalEventHandler.Server.broadcast(event);

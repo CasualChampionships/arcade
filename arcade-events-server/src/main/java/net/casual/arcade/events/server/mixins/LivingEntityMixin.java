@@ -57,7 +57,7 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 		float multiplier,
 		DamageSource source,
 		CallbackInfoReturnable<Boolean> cir,
-		@Local LocalIntRef damage
+		@Local(name = "dmg") LocalIntRef damage
 	) {
 		if ((Object) this instanceof ServerPlayer player) {
 			PlayerLandEvent event = new PlayerLandEvent(player, damage.get(), distance, multiplier, source);

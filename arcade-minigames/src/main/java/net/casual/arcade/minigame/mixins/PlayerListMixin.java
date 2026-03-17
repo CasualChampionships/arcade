@@ -67,10 +67,10 @@ public class PlayerListMixin {
         method = "respawn",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/level/ServerPlayer;getTags()Ljava/util/Set;"
+            target = "Lnet/minecraft/server/level/ServerPlayer;entityTags()Ljava/util/Set;"
         )
     )
-    private Set<String> onGetTags(
+    private Set<String> replaceTagsIfMinigameRespawn(
         Set<String> original,
         @Share(namespace = ArcadeUtils.MOD_ID, value = "isMinigameRespawn") LocalBooleanRef isMinigameRespawn
     ) {

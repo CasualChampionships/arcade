@@ -15,6 +15,7 @@ import net.casual.arcade.events.server.player.PlayerTeamJoinEvent;
 import net.casual.arcade.events.server.player.PlayerTeamLeaveEvent;
 import net.casual.arcade.utils.PlayerUtils;
 import net.casual.arcade.utils.entity.EntityUtilsKt;
+import net.casual.arcade.utils.server.ServerUtilsKt;
 import net.casual.arcade.utils.string.StringUtilsKt;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
@@ -48,7 +49,7 @@ public class ScoreboardMixin {
 		@Share("events") LocalRef<List<Event>> events
 	) {
 		events.set(new ArrayList<>(2));
-		ServerPlayer player = PlayerUtils.player(this.server, username);
+		ServerPlayer player = ServerUtilsKt.player(this.server, username);
 		Entity entity = player;
 		if (player != null) {
 			PlayerTeamJoinEvent event = new PlayerTeamJoinEvent(player, team);
@@ -88,7 +89,7 @@ public class ScoreboardMixin {
 		@Share("events") LocalRef<List<Event>> events
 	) {
 		events.set(new ArrayList<>(2));
-		ServerPlayer player = PlayerUtils.player(this.server, username);
+		ServerPlayer player = ServerUtilsKt.player(this.server, username);
 		Entity entity = player;
 		if (player != null) {
 			PlayerTeamLeaveEvent event = new PlayerTeamLeaveEvent(player, team);

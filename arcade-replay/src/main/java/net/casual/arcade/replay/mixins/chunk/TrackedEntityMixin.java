@@ -36,12 +36,8 @@ public class TrackedEntityMixin implements ReplayChunkRecordable {
     @Unique
     private final Set<ReplayChunkRecorder> replay$chunks = new HashSet<>();
 
-    @Shadow
-    @Final
-    Entity entity;
-    @Shadow
-    @Final
-    ServerEntity serverEntity;
+    @Shadow @Final private Entity entity;
+    @Shadow @Final private ServerEntity serverEntity;
 
     @Inject(
         method = {"sendToTrackingPlayers", "sendToTrackingPlayersFiltered"},

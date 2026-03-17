@@ -7,7 +7,6 @@ package net.casual.arcade.replay.viewer
 import net.casual.arcade.host.GlobalPackHost
 import net.casual.arcade.host.pack.ReadablePack
 import net.casual.arcade.host.pack.provider.PackProvider
-import net.casual.arcade.utils.network.ResolvableURL
 
 public class ReplayViewerPackProvider(
     private val viewer: ReplayViewer

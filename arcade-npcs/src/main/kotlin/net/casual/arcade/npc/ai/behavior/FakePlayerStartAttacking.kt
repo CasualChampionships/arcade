@@ -5,7 +5,6 @@
 package net.casual.arcade.npc.ai.behavior
 
 import net.casual.arcade.npc.FakePlayer
-import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.behavior.BehaviorControl
 import net.minecraft.world.entity.ai.behavior.StartAttacking.StartAttackingCondition
 import net.minecraft.world.entity.ai.behavior.StartAttacking.TargetFinder

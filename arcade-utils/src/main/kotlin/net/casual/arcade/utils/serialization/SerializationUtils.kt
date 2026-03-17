@@ -7,10 +7,7 @@ package net.casual.arcade.utils.serialization
 import com.mojang.serialization.Codec
 import com.mojang.serialization.DynamicOps
 import net.minecraft.core.HolderLookup
-import net.minecraft.resources.Identifier
-import net.minecraft.world.level.storage.ValueInput
-import java.util.Optional
-import java.util.UUID
+import java.util.*
 
 public typealias TypedValueOutputStorer<T> = (Codec<T>, T) -> Unit
 

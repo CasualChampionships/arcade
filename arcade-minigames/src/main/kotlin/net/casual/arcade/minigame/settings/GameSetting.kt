@@ -4,9 +4,7 @@
  */
 package net.casual.arcade.minigame.settings
 
-import com.google.gson.JsonElement
 import com.mojang.serialization.Codec
-import com.mojang.serialization.JsonOps
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
 import kotlin.reflect.KProperty

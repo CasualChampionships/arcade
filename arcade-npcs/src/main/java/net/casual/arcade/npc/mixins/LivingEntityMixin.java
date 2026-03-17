@@ -55,7 +55,7 @@ public class LivingEntityMixin {
         double strength,
         double x,
         double z,
-        @Local(ordinal = 0) boolean blocked
+        @Local(name = "blocked") boolean blocked
     ) {
         return !(instance instanceof FakePlayer) || !blocked;
     }

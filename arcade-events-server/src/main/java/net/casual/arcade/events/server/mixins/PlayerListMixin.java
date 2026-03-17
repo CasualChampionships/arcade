@@ -10,7 +10,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.player.PlayerChatEvent;
@@ -18,8 +17,8 @@ import net.casual.arcade.events.server.player.PlayerJoinEvent;
 import net.casual.arcade.events.server.player.PlayerJoinEvent.JoinMessageModification;
 import net.casual.arcade.events.server.player.PlayerRequestLoginEvent;
 import net.casual.arcade.events.server.player.PlayerSystemMessageEvent;
-import net.casual.arcade.utils.PlayerUtils;
 import net.casual.arcade.utils.chat.PlayerFormattedChat;
+import net.casual.arcade.utils.player.PlayerUtilsKt;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -172,7 +171,7 @@ public class PlayerListMixin {
 			} else {
 				decorated = replacement;
 			}
-			PlayerUtils.broadcastMessageAsSystem(sender, decorated, filter, username, prefix);
+			PlayerUtilsKt.broadcastMessageAsSystem(sender, decorated, filter, username, prefix);
 			ci.cancel();
 		}
 	}

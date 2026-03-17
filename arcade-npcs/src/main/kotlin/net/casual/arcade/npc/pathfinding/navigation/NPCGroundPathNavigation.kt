@@ -50,7 +50,7 @@ public open class NPCGroundPathNavigation(player: FakePlayer): NPCPathNavigation
             if (mutablePos.y > this.level.minY) {
                 return super.createPath(mutablePos.above(), accuracy)
             }
-            mutablePos.setY(newPos.y + 1)
+            mutablePos.y = newPos.y + 1
             while (mutablePos.y <= this.level.maxY && levelChunk.getBlockState(mutablePos).isAir) {
                 mutablePos.move(Direction.UP)
             }

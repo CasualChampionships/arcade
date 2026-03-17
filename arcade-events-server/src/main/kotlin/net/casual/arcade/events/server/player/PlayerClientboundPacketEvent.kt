@@ -9,7 +9,6 @@ import net.casual.arcade.events.common.CancellableEvent
 import net.casual.arcade.events.threading.AsyncEvent
 import net.casual.arcade.utils.modify
 import net.minecraft.network.protocol.Packet
-import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundBundlePacket
 import net.minecraft.server.level.ServerPlayer
 

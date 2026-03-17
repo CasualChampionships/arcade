@@ -7,7 +7,6 @@ package net.casual.arcade.guis.mixins;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.casual.arcade.guis.ducks.ModifiableInventory;
 import net.casual.arcade.guis.inventory.CustomInventory;
-import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
@@ -26,7 +25,7 @@ public class PlayerMixin implements ModifiableInventory {
     @Unique private Inventory arcade$vanillaInventory;
 
     @Shadow @Final @Mutable public InventoryMenu inventoryMenu;
-    @Shadow @Final @Mutable Inventory inventory;
+    @Shadow @Final @Mutable private Inventory inventory;
 
     @Shadow public AbstractContainerMenu containerMenu;
 

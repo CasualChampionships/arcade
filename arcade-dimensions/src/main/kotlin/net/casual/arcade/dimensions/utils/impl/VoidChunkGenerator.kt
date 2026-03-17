@@ -7,7 +7,10 @@ package net.casual.arcade.dimensions.utils.impl
 import com.mojang.datafixers.util.Pair
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.minecraft.core.*
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Holder
+import net.minecraft.core.HolderLookup
+import net.minecraft.core.HolderSet
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
@@ -15,7 +18,10 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.WorldGenRegion
 import net.minecraft.util.random.WeightedList
 import net.minecraft.world.entity.MobCategory
-import net.minecraft.world.level.*
+import net.minecraft.world.level.LevelHeightAccessor
+import net.minecraft.world.level.NoiseColumn
+import net.minecraft.world.level.StructureManager
+import net.minecraft.world.level.WorldGenLevel
 import net.minecraft.world.level.biome.*
 import net.minecraft.world.level.chunk.ChunkAccess
 import net.minecraft.world.level.chunk.ChunkGenerator
@@ -25,7 +31,6 @@ import net.minecraft.world.level.levelgen.RandomState
 import net.minecraft.world.level.levelgen.blending.Blender
 import net.minecraft.world.level.levelgen.structure.Structure
 import net.minecraft.world.level.levelgen.structure.StructureSet
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager
 import java.util.concurrent.CompletableFuture
 import java.util.stream.Stream
 

@@ -110,7 +110,7 @@ public class ServerPlayerGameModeMixin {
 	@ModifyVariable(
 		method = "useItemOn",
 		at = @At(value = "STORE"),
-		ordinal = 1
+		name = "suppressUsingBlock"
 	)
 	private boolean shouldPreventUsingOnBlock(
 		boolean value,
@@ -133,8 +133,8 @@ public class ServerPlayerGameModeMixin {
 	private void onDestroyBlock(
 		BlockPos pos,
 		CallbackInfoReturnable<Boolean> cir,
-		@Local BlockState state,
-		@Local BlockEntity entity
+		@Local(name = "state") BlockState state,
+		@Local(name = "blockEntity") BlockEntity entity
 	) {
 		PlayerBlockMinedEvent event = new PlayerBlockMinedEvent(this.player, pos, state, entity);
 		GlobalEventHandler.Server.broadcast(event);

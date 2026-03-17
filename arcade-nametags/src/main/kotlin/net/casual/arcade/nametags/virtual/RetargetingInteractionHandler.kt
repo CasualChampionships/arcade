@@ -7,7 +7,6 @@ package net.casual.arcade.nametags.virtual
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.interaction.EntityInteraction
 import net.minecraft.network.protocol.game.ServerboundAttackPacket
-import net.minecraft.network.protocol.game.ServerboundInteractPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 

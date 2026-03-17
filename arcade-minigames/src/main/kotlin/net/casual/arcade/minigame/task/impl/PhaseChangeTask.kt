@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.minigame.task.impl
 
-import com.mojang.serialization.DataResult
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.task.MinigameTaskCreationContext

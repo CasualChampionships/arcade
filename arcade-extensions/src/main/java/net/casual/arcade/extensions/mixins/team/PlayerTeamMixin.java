@@ -50,7 +50,7 @@ public class PlayerTeamMixin implements ExtensionHolder {
 		ArcadeUtils.scopedProblemReporter(reporter -> {
 			TagValueOutput output = TagValueOutput.createWithContext(reporter, ServerSingleton.getRegistryAccessOrEmpty());
 			ExtensionHolder.serialize(this, output);
-			((ArcadeTeamDataHolder) (Object) original).arcade$setData(output.buildResult());
+			((ArcadeTeamDataHolder) (Object) original).arcade_setData(output.buildResult());
 		});
 		return original;
 	}

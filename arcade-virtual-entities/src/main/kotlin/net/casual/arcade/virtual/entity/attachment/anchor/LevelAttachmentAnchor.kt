@@ -5,7 +5,6 @@
 package net.casual.arcade.virtual.entity.attachment.anchor
 
 import net.casual.arcade.utils.math.location.Location
-import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.minecraft.server.level.ServerLevel
 
 public class LevelAttachmentAnchor(

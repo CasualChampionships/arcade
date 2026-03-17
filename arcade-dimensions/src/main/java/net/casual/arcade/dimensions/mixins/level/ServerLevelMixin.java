@@ -54,7 +54,7 @@ public abstract class ServerLevelMixin extends Level implements SpoofedDimension
 		method = "<init>",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/level/storage/WorldData;worldGenOptions()Lnet/minecraft/world/level/levelgen/WorldOptions;"
+			target = "Lnet/minecraft/world/level/levelgen/WorldGenSettings;options()Lnet/minecraft/world/level/levelgen/WorldOptions;"
 		)
 	)
 	private WorldOptions modifyWorldOptions(WorldOptions original, MinecraftServer server) {
