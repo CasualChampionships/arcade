@@ -5,7 +5,8 @@
 package net.casual.arcade.minigame.utils
 
 import eu.pb4.sgui.api.elements.GuiElement
-import eu.pb4.sgui.api.gui.GuiInterface
+import eu.pb4.sgui.api.elements.SimpleGuiElement
+import eu.pb4.sgui.api.gui.GuiLike
 import eu.pb4.sgui.api.gui.SimpleGui
 import net.casual.arcade.minigame.settings.display.DisplayableSettings
 import net.casual.arcade.minigame.settings.display.MenuGameSetting
@@ -14,7 +15,7 @@ import net.casual.arcade.guis.sgui.SelectionGuiBuilder
 public object SettingsGuiUtils {
     public fun SelectionGuiBuilder.addSettings(
         displays: DisplayableSettings,
-        generator: (GuiInterface, MenuGameSetting<*>) -> SelectionGuiBuilder = { gui, _ -> SelectionGuiBuilder(gui) }
+        generator: (GuiLike, MenuGameSetting<*>) -> SelectionGuiBuilder = { gui, _ -> SelectionGuiBuilder(gui) }
     ): SelectionGuiBuilder {
         val settings = displays.displays().toList()
         this.elements(settings.indices, { settings[it].display }) { _, _, _, gui, index ->
@@ -33,10 +34,10 @@ public object SettingsGuiUtils {
     }
 
     private fun createSettingsGui(
-        root: GuiInterface,
+        root: GuiLike,
         settings: List<MenuGameSetting<*>>,
         index: Int,
-        generator: (GuiInterface, MenuGameSetting<*>) -> SelectionGuiBuilder
+        generator: (GuiLike, MenuGameSetting<*>) -> SelectionGuiBuilder
     ): SimpleGui {
         val setting = settings[index]
         val builder = generator.invoke(root, setting)
@@ -44,13 +45,13 @@ public object SettingsGuiUtils {
 
         val previous = settings.getOrNull(index - 1)
         if (previous != null) {
-            builder.menuElement(SelectionGuiBuilder.MenuSlot.FIRST, GuiElement(previous.display) { _, _, _, _ ->
+            builder.menuElement(SelectionGuiBuilder.MenuSlot.FIRST, SimpleGuiElement(previous.display) { _, _, _, _ ->
                 this.createSettingsGui(root, settings, index - 1, generator).open()
             })
         }
         val next = settings.getOrNull(index + 1)
         if (next != null) {
-            builder.menuElement(SelectionGuiBuilder.MenuSlot.SIXTH, GuiElement(next.display) { _, _, _, _ ->
+            builder.menuElement(SelectionGuiBuilder.MenuSlot.SIXTH, SimpleGuiElement(next.display) { _, _, _, _ ->
                 this.createSettingsGui(root, settings, index + 1, generator).open()
             })
         }

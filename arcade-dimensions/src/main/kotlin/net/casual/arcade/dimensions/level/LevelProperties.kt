@@ -9,6 +9,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
 import net.minecraft.world.Difficulty
 import net.minecraft.world.level.gamerules.GameRules
+import net.minecraft.world.level.saveddata.WeatherData
 import net.minecraft.world.level.storage.LevelData
 import org.apache.commons.lang3.mutable.MutableLong
 import java.util.*
@@ -19,7 +20,6 @@ import java.util.*
  * If a property is set to [Optional.empty] then it will inherit
  * the properties from the primary level (usually the overworld).
  *
- * @param dayTime The time of day in ticks.
  * @param weather The weather properties.
  * @param difficulty The difficulty properties.
  * @param gameRules The game rules.
@@ -27,38 +27,19 @@ import java.util.*
  * @param simulationDistance The simulation distance in chunks.
  */
 public class LevelProperties(
-    public var dayTime: Optional<MutableLong> = Optional.empty(),
-    public var weather: Optional<WeatherProperties> = Optional.empty(),
+    public var weather: Optional<WeatherData> = Optional.empty(),
     public var difficulty: Optional<DifficultyProperties> = Optional.empty(),
     public var gameRules: Optional<GameRules> = Optional.empty(),
     public var viewDistance: Optional<Int> = Optional.empty(),
     public var simulationDistance: Optional<Int> = Optional.empty(),
     public var respawnData: Optional<LevelData.RespawnData> = Optional.empty()
 ) {
-    public class WeatherProperties(
-        public var clearWeatherTime: Int = 0,
-        public var raining: Boolean = false,
-        public var rainTime: Int = 0,
-        public var thundering: Boolean = false,
-        public var thunderTime: Int = 0,
-    )
-
     public class DifficultyProperties(
         public var value: Difficulty = Difficulty.NORMAL,
         public var locked: Boolean = false,
     )
 
     public companion object {
-        private val WEATHER_CODEC = RecordCodecBuilder.create { instance ->
-            instance.group(
-                Codec.INT.fieldOf("clear_weather_time").forGetter(WeatherProperties::clearWeatherTime),
-                Codec.BOOL.fieldOf("raining").forGetter(WeatherProperties::raining),
-                Codec.INT.fieldOf("rain_time").forGetter(WeatherProperties::rainTime),
-                Codec.BOOL.fieldOf("thundering").forGetter(WeatherProperties::thundering),
-                Codec.INT.fieldOf("thunder_time").forGetter(WeatherProperties::thunderTime),
-            ).apply(instance, ::WeatherProperties)
-        }
-
         private val DIFFICULTY_CODEC = RecordCodecBuilder.create { instance ->
             instance.group(
                 Difficulty.CODEC.fieldOf("value").forGetter(DifficultyProperties::value),
@@ -69,8 +50,7 @@ public class LevelProperties(
         @JvmField
         public val CODEC: Codec<LevelProperties> = RecordCodecBuilder.create { instance ->
             instance.group(
-                ArcadeExtraCodecs.MUTABLE_LONG.optionalFieldOf("day_time").forGetter(LevelProperties::dayTime),
-                WEATHER_CODEC.optionalFieldOf("weather").forGetter(LevelProperties::weather),
+                WeatherData.CODEC.optionalFieldOf("weather").forGetter(LevelProperties::weather),
                 DIFFICULTY_CODEC.optionalFieldOf("difficulty").forGetter(LevelProperties::difficulty),
                 ArcadeExtraCodecs.GAMERULES.optionalFieldOf("game_rules").forGetter(LevelProperties::gameRules),
                 Codec.INT.optionalFieldOf("view_distance").forGetter(LevelProperties::viewDistance),

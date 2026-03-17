@@ -135,7 +135,7 @@ public class ReplayChunkRecorder internal constructor(
 
         val chunks = this.level.chunkSource.chunkMap as ChunkMapAccessor
         for (pos in this.chunks) {
-            val holder = chunks.getTickingChunk(pos.toLong())
+            val holder = chunks.getTickingChunk(pos.pack())
             if (holder != null) {
                 (holder as ReplayChunkRecordable).addRecorder(this)
             }
@@ -239,7 +239,7 @@ public class ReplayChunkRecorder internal constructor(
             return
         }
 
-        val copy = this.sentChunks.longStream().mapToObj { ChunkPos(it) }
+        val copy = this.sentChunks.longStream().mapToObj { ChunkPos.unpack(it) }
             .collect(Collectors.toCollection(::ArrayList))
         ChunkPos.rangeClosed(this.chunks.center, radius + 1).filter {
             this.chunks.contains(this.level.dimension(), it)
@@ -287,7 +287,7 @@ public class ReplayChunkRecorder internal constructor(
     }
 
     override fun onChunkSent(chunk: LevelChunk) {
-        this.sentChunks.add(chunk.pos.toLong())
+        this.sentChunks.add(chunk.pos.pack())
     }
 
     /**
@@ -399,7 +399,7 @@ public class ReplayChunkRecorder internal constructor(
             return
         }
 
-        this.loadedChunks.add(chunk.pos.toLong())
+        this.loadedChunks.add(chunk.pos.pack())
         if (this.settings.chunkRecordingStrategy == ChunkRecordingStrategy.ChunkLoaded) {
             // We need to schedule this because otherwise we could run into a CME
             // as this method is called while iterating chunks, and we may cause
@@ -408,7 +408,7 @@ public class ReplayChunkRecorder internal constructor(
             this.server.schedule(task)
         }
 
-        if (!this.sentChunks.contains(chunk.pos.toLong())) {
+        if (!this.sentChunks.contains(chunk.pos.pack())) {
             this.sendChunk(chunk, ChunkSender.SeenEntities.mutable())
         }
     }
@@ -427,7 +427,7 @@ public class ReplayChunkRecorder internal constructor(
             this.record(packet)
         }
 
-        this.loadedChunks.remove(pos.toLong())
+        this.loadedChunks.remove(pos.pack())
 
         if (this.loadedChunks.isEmpty()) {
             if (this.settings.chunkRecordingStrategy == ChunkRecordingStrategy.ChunkLoaded) {

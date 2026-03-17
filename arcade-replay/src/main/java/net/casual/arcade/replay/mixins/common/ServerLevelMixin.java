@@ -30,7 +30,6 @@ import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,7 +37,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.List;
 import java.util.Optional;
 
 @Mixin(ServerLevel.class)
@@ -70,7 +68,7 @@ public abstract class ServerLevelMixin extends Level {
 			ReplayPlayerRecorders.record(player, new ClientboundBlockDestructionPacket(breakerId, pos, progress));
         }
 
-        ChunkPos chunkPos = new ChunkPos(pos);
+        ChunkPos chunkPos = ChunkPos.containing(pos);
         for (ReplayChunkRecorder recorder : ReplayChunkRecorders.containing(this.dimension(), chunkPos)) {
             recorder.record(new ClientboundBlockDestructionPacket(breakerId, pos, progress));
         }
@@ -95,11 +93,11 @@ public abstract class ServerLevelMixin extends Level {
         WeightedList<ExplosionParticleInfo> infos,
         Holder<SoundEvent> sound,
         CallbackInfo ci,
-        @Local Vec3 pos,
-        @Local(ordinal = 2) ParticleOptions particles,
-        @Local int blocks
+        @Local(name = "center") Vec3 pos,
+        @Local(name = "explosionParticle") ParticleOptions particles,
+        @Local(name = "blockCount") int blocks
     ) {
-        ChunkPos chunkPos = new ChunkPos(BlockPos.containing(posX, posY, posZ));
+        ChunkPos chunkPos = ChunkPos.containing(BlockPos.containing(posX, posY, posZ));
         for (ReplayChunkRecorder recorder : ReplayChunkRecorders.containing(this.dimension(), chunkPos)) {
             recorder.record(new ClientboundExplodePacket(pos, radius, blocks, Optional.empty(), particles, sound, infos));
         }
@@ -122,9 +120,9 @@ public abstract class ServerLevelMixin extends Level {
         double zOffset,
         double speed,
         CallbackInfoReturnable<Integer> cir,
-        @Local ClientboundLevelParticlesPacket packet
+        @Local(name = "packet") ClientboundLevelParticlesPacket packet
     ) {
-        ChunkPos chunkPos = new ChunkPos(BlockPos.containing(posX, posY, posZ));
+        ChunkPos chunkPos = ChunkPos.containing(BlockPos.containing(posX, posY, posZ));
         for (ReplayChunkRecorder recorder : ReplayChunkRecorders.containing(this.dimension(), chunkPos)) {
             recorder.record(packet);
         }

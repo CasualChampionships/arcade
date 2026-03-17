@@ -92,6 +92,6 @@ public open class PlayerInventoryViewGui(
     private fun copySlotAndRedirect(index: Int, slot: Slot) {
         // We want to copy the slot to maintain the original slot's index
         val copy = Slot(slot.container, slot.containerSlot, slot.x, slot.y)
-        this.setSlotRedirect(index, copy)
+        this.setSlot(index, copy)
     }
 }

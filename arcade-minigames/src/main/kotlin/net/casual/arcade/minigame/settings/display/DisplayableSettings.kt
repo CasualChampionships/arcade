@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.minigame.settings.display
 
-import eu.pb4.sgui.api.gui.GuiInterface
+import eu.pb4.sgui.api.gui.GuiLike
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.utils.SettingsGuiUtils.addSettings
@@ -78,7 +78,7 @@ public open class DisplayableSettings(
      * @param player The player being displayed to gui.
      * @return The gui interface.
      */
-    public fun gui(player: ServerPlayer): GuiInterface {
+    public fun gui(player: ServerPlayer): GuiLike {
         val builder = this.defaults.createSettingsGuiBuilder(player)
         builder.addSettings(this, this.defaults::createOptionsGuiBuilder)
         return builder.build()
@@ -91,7 +91,7 @@ public open class DisplayableSettings(
      * @param parent The parent ui.
      * @return The gui interface.
      */
-    public fun gui(parent: GuiInterface): GuiInterface {
+    public fun gui(parent: GuiLike): GuiLike {
         val builder = this.defaults.createSettingsGuiBuilder(parent.player)
         builder.addSettings(this, this.defaults::createOptionsGuiBuilder)
         return builder.parent(parent).build()

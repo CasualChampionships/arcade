@@ -38,7 +38,7 @@ import java.util.function.Consumer
  * @see TrackingVisualElement
  */
 public abstract class CustomBossbar: TrackingVisualElement(), BossbarSupplier {
-    internal val uuid: UUID = Mth.createInsecureUUID()
+    internal val uuid: UUID = UUID.randomUUID()
 
     final override fun onAddPlayer(player: ServerPlayer) {
         player.bossbarsExtension.add(this)

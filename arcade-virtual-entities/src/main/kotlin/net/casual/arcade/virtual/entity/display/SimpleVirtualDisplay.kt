@@ -92,17 +92,17 @@ public abstract class SimpleVirtualDisplay(
     }
 
     public fun setTransformation(transformation: Transformation) {
-        this.modifyDataEntry(DisplayDataAccessors.TRANSLATION) { transformation.translation }
-        this.modifyDataEntry(DisplayDataAccessors.LEFT_ROTATION) { transformation.leftRotation }
-        this.modifyDataEntry(DisplayDataAccessors.SCALE) { transformation.scale }
-        this.modifyDataEntry(DisplayDataAccessors.RIGHT_ROTATION) { transformation.rightRotation }
+        this.modifyDataEntry(DisplayDataAccessors.TRANSLATION) { transformation.translation() }
+        this.modifyDataEntry(DisplayDataAccessors.LEFT_ROTATION) { transformation.leftRotation() }
+        this.modifyDataEntry(DisplayDataAccessors.SCALE) { transformation.scale() }
+        this.modifyDataEntry(DisplayDataAccessors.RIGHT_ROTATION) { transformation.rightRotation() }
     }
 
     public fun setTransformationFor(observer: ServerPlayer, transformation: Transformation) {
-        this.setDataEntryFor(observer, DisplayDataAccessors.TRANSLATION, transformation.translation)
-        this.setDataEntryFor(observer, DisplayDataAccessors.LEFT_ROTATION, transformation.leftRotation)
-        this.setDataEntryFor(observer, DisplayDataAccessors.SCALE, transformation.scale)
-        this.setDataEntryFor(observer, DisplayDataAccessors.RIGHT_ROTATION, transformation.rightRotation)
+        this.setDataEntryFor(observer, DisplayDataAccessors.TRANSLATION, transformation.translation())
+        this.setDataEntryFor(observer, DisplayDataAccessors.LEFT_ROTATION, transformation.leftRotation())
+        this.setDataEntryFor(observer, DisplayDataAccessors.SCALE, transformation.scale())
+        this.setDataEntryFor(observer, DisplayDataAccessors.RIGHT_ROTATION, transformation.rightRotation())
     }
 
     public fun isTransformationDirtyFor(observer: ServerPlayer): Boolean {

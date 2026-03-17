@@ -10,7 +10,6 @@ import net.casual.arcade.dimensions.level.LevelGenerationOptions
 import net.casual.arcade.dimensions.level.LevelPersistence
 import net.casual.arcade.dimensions.level.LevelProperties
 import net.casual.arcade.dimensions.level.LevelProperties.DifficultyProperties
-import net.casual.arcade.dimensions.level.LevelProperties.WeatherProperties
 import net.casual.arcade.dimensions.level.factory.CustomLevelFactoryConstructor
 import net.casual.arcade.dimensions.level.spawner.CustomSpawnerFactory
 import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
@@ -28,6 +27,7 @@ import net.minecraft.world.level.dimension.DimensionType
 import net.minecraft.world.level.dimension.LevelStem
 import net.minecraft.world.level.gamerules.GameRules
 import net.minecraft.world.level.levelgen.WorldOptions
+import net.minecraft.world.level.saveddata.WeatherData
 import net.minecraft.world.level.storage.LevelData.RespawnData
 import org.apache.commons.lang3.mutable.MutableLong
 import org.jetbrains.annotations.ApiStatus.Experimental
@@ -113,13 +113,6 @@ public class CustomLevelBuilder {
      * @see LevelPersistence
      */
     public var persistence: LevelPersistence = LevelPersistence.Temporary
-
-    /**
-     * Sets the initial time of day.
-     */
-    public var timeOfDay: Long
-        set(value) { this.timeOfDay(value) }
-        get() = throw UnsupportedOperationException()
 
     /**
      * Sets the dimension key.
@@ -223,21 +216,9 @@ public class CustomLevelBuilder {
      * @return This builder.
      */
     public fun defaultLevelProperties(): CustomLevelBuilder {
-        return this.timeOfDay(0)
-            .weather(WeatherProperties())
+        return this.weather(WeatherData())
             .difficulty(DifficultyProperties())
             .gameRules(GameRules(FeatureFlagSet.of()))
-    }
-
-    /**
-     * Sets the initial time of day.
-     *
-     * @param time The time of day (ticks).
-     * @return This builder.
-     */
-    public fun timeOfDay(time: Long): CustomLevelBuilder {
-        this.properties.dayTime = Optional.of(MutableLong(time))
-        return this
     }
 
     /**
@@ -246,7 +227,7 @@ public class CustomLevelBuilder {
      * @param weather The weather properties.
      * @return This builder.
      */
-    public fun weather(weather: WeatherProperties): CustomLevelBuilder {
+    public fun weather(weather: WeatherData): CustomLevelBuilder {
         this.properties.weather = Optional.of(weather)
         return this
     }
@@ -257,8 +238,8 @@ public class CustomLevelBuilder {
      * @param modifier The method to modify the weather properties.
      * @return This builder.
      */
-    public fun weather(modifier: WeatherProperties.() -> Unit): CustomLevelBuilder {
-        val weather = this.properties.weather.orElseGet(::WeatherProperties)
+    public fun weather(modifier: WeatherData.() -> Unit): CustomLevelBuilder {
+        val weather = this.properties.weather.orElseGet(::WeatherData)
         this.properties.weather = Optional.of(weather)
         weather.modifier()
         return this

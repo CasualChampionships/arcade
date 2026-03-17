@@ -6,7 +6,7 @@ package net.casual.arcade.guis.core
 
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.AbstractContainerMenu.SLOT_CLICKED_OUTSIDE
-import net.minecraft.world.inventory.ClickType
+import net.minecraft.world.inventory.ContainerInput
 
 private const val NONE: Int = 0
 private const val LEFT: Int = 1 shl 0
@@ -62,21 +62,21 @@ public enum class SlotClickAction(
     }
 
     public companion object {
-        public fun from(type: ClickType, button: Int, slot: Int): SlotClickAction {
+        public fun from(type: ContainerInput, button: Int, slot: Int): SlotClickAction {
             return when (type) {
-                ClickType.PICKUP -> if (button == 0) MouseLeft else MouseRight
-                ClickType.QUICK_MOVE -> if (button == 0) MouseLeft else MouseRight
-                ClickType.SWAP -> when (button) {
+                ContainerInput.PICKUP -> if (button == 0) MouseLeft else MouseRight
+                ContainerInput.QUICK_MOVE -> if (button == 0) MouseLeft else MouseRight
+                ContainerInput.SWAP -> when (button) {
                     in 0..<9 -> entries[SwapSlot1.ordinal + button]
                     Inventory.SLOT_OFFHAND -> SwapOffhand
                     else -> Unknown
                 }
-                ClickType.CLONE -> MouseMiddle
-                ClickType.THROW -> when {
+                ContainerInput.CLONE -> MouseMiddle
+                ContainerInput.THROW -> when {
                     slot == SLOT_CLICKED_OUTSIDE -> if (button == 0) MouseLeftDrop else MouseRightDrop
                     else -> if (button == 0) Drop else DropAll
                 }
-                ClickType.QUICK_CRAFT -> when (button) {
+                ContainerInput.QUICK_CRAFT -> when (button) {
                     0 -> MouseLeftDragStart
                     1 -> MouseLeftDragAdd
                     2 -> MouseLeftDragEnd
@@ -88,7 +88,7 @@ public enum class SlotClickAction(
                     10 -> MouseMiddleDragEnd
                     else -> Unknown
                 }
-                ClickType.PICKUP_ALL -> MouseDoubleClick
+                ContainerInput.PICKUP_ALL -> MouseDoubleClick
             }
         }
     }

@@ -50,24 +50,10 @@ allprojects {
 
     java {
         withSourcesJar()
-        // TODO(26.1): Update this when Kotlin supports 25
-        sourceCompatibility = JavaVersion.VERSION_24
-        targetCompatibility = JavaVersion.VERSION_24
     }
 
     kotlin {
         explicitApi()
-        jvmToolchain(24)
-    }
-
-    // This is disgusting, but it works for now...
-    configurations.matching {
-        it.isCanBeResolved && !it.name.contains("decompiler", ignoreCase = true)
-            && !it.name.contains("minecraftNamed", ignoreCase = true)
-    }.all {
-        attributes {
-            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 25)
-        }
     }
 
     tasks {

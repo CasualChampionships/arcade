@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.minigame.settings.display
 
-import eu.pb4.sgui.api.gui.GuiInterface
+import eu.pb4.sgui.api.gui.GuiLike
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.guis.sgui.SelectionGuiBuilder
 import net.casual.arcade.guis.sgui.SelectionGuiComponents
@@ -19,7 +19,7 @@ public open class DisplayableSettingsDefaults {
         return SelectionGuiBuilder(player, DefaultMinigameSettingsComponent)
     }
 
-    public open fun createOptionsGuiBuilder(parent: GuiInterface, setting: MenuGameSetting<*>): SelectionGuiBuilder {
+    public open fun createOptionsGuiBuilder(parent: GuiLike, setting: MenuGameSetting<*>): SelectionGuiBuilder {
         return SelectionGuiBuilder(parent, DefaultSettingsComponents(setting))
             .style(SelectionGuiStyle.centered(setting.optionCount))
     }

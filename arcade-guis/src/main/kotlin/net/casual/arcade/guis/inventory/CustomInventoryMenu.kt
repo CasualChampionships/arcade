@@ -7,7 +7,7 @@ package net.casual.arcade.guis.inventory
 import net.casual.arcade.guis.core.SlotClickAction
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.inventory.ClickType
+import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.inventory.InventoryMenu
 
 public open class CustomInventoryMenu(
@@ -19,9 +19,9 @@ public open class CustomInventoryMenu(
         return super.owner() as ServerPlayer
     }
 
-    override fun clicked(slot: Int, button: Int, type: ClickType, player: Player) {
-        if (!this.click(slot, SlotClickAction.from(type, button, slot))) {
-            super.clicked(slot, button, type, player)
+    override fun clicked(slot: Int, button: Int, input: ContainerInput, player: Player) {
+        if (!this.click(slot, SlotClickAction.from(input, button, slot))) {
+            super.clicked(slot, button, input, player)
         }
     }
 

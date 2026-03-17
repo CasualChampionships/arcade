@@ -303,17 +303,6 @@ public open class MinigameSettings(
         defaults.options(this)
     })
 
-    public var daylightCycle: Int by this.register(int32 {
-        name = "daylight_cycle"
-        display = Items.CLOCK.named(Component.translatable("minigame.settings.daylightCycle.name"))
-            .styledLore(Component.translatable("minigame.settings.daylightCycle.desc.1"))
-        value = 1
-        option("none", ItemUtils.light(0).named(Component.translatable("minigame.settings.daylightCycle.option.none")), 0)
-        option("normal", ItemUtils.light(1).named(Component.translatable("minigame.settings.daylightCycle.option.normal")), 1)
-        option("double", ItemUtils.light(2).named(Component.translatable("minigame.settings.daylightCycle.option.double")), 2)
-        option("triple", ItemUtils.light(3).named(Component.translatable("minigame.settings.daylightCycle.option.triple")), 3)
-    })
-
     protected fun <T: Any> isAdminOverride(value: T): (ServerPlayer) -> T? {
         return { if (this.minigame.players.isAdmin(it)) value else null }
     }

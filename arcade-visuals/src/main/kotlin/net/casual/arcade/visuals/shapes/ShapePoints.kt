@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.visuals.shapes
 
-import net.casual.arcade.utils.PlayerUtils.sendParticles
+import net.casual.arcade.utils.player.sendParticles
 import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.server.level.ServerLevel

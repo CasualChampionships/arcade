@@ -24,7 +24,6 @@
     "vanilla.EndPortalBlockMixin",
     "vanilla.FallingBlockEntityMixin",
     "vanilla.NetherPortalBlockMixin",
-    "vanilla.ServerLevelMixin",
     "vanilla.ServerPlayerMixin",
     "vanilla.TheEndGatewayBlockEntityMixin",
     "vanilla.ThrownEnderpearlMixin"

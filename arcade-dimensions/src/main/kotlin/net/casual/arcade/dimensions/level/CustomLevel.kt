@@ -29,6 +29,7 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.TicketStorage
 import net.minecraft.world.level.biome.BiomeManager
 import net.minecraft.world.level.gamerules.GameRules
+import net.minecraft.world.level.saveddata.WeatherData
 import net.minecraft.world.level.storage.LevelData
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.io.IOException
@@ -119,8 +120,10 @@ public open class CustomLevel(
     override fun tickTime() {
         // super.tickTime() ticks the global scheduler
         if (this.options.tickTime && this.gameRules.get(GameRules.ADVANCE_TIME)) {
-            // TODO(26.1)
-            //  ++this.dayTime
+            // TODO(26.1): Not entirely sure how to handle this nicely
+            //   since the new clocks system is effectively global.
+            //   Do we want to just have each level have their own
+            //   (registered?) clock and is each level responsible for ticking?
         }
     }
 
@@ -145,6 +148,10 @@ public open class CustomLevel(
 
     override fun getRespawnData(): LevelData.RespawnData {
         return this.properties.respawnData.orElseGet { super.getRespawnData() }
+    }
+
+    override fun getWeatherData(): WeatherData {
+        return this.properties.weather.orElseGet { super.weatherData }
     }
 
     override fun save(progress: ProgressListener?, flush: Boolean, skip: Boolean) {

@@ -17,7 +17,7 @@ public class SimpleEntityData {
     private val entries: Array<EntityDataEntry<*>>
 
     public constructor(type: EntityType<*>) {
-        val examples = PolymerEntityUtils.getDefaultTrackedData(type)
+        val examples = PolymerEntityUtils.getDefaultSynchedEntityData(type)
         this.entries = Array(examples.size) { i ->
             val example = examples[i]
             EntityDataEntry(example.accessor as EntityDataAccessor<in Any>, example.value)

@@ -6,17 +6,17 @@ package net.casual.arcade.guis.sgui
 
 import eu.pb4.sgui.api.ClickType
 import eu.pb4.sgui.api.elements.GuiElement
-import eu.pb4.sgui.api.elements.GuiElementInterface
-import eu.pb4.sgui.api.gui.GuiInterface
+import eu.pb4.sgui.api.elements.SimpleGuiElement
+import eu.pb4.sgui.api.gui.GuiLike
 import eu.pb4.sgui.api.gui.SimpleGui
 import eu.pb4.sgui.api.gui.SimpleGuiBuilder
-import eu.pb4.sgui.api.gui.SlotGuiInterface
+import eu.pb4.sgui.api.gui.SlotBasedGui
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
 import java.util.*
 import kotlin.math.min
-import net.minecraft.world.inventory.ClickType as ActionType
 
 /**
  * This class allows you to build your own gui's with selectable elements.
@@ -29,13 +29,13 @@ public class SelectionGuiBuilder(
     components: SelectionGuiComponents = SelectionGuiComponents.DEFAULT
 ) {
     private val components = SelectionGuiComponents.Builder(components)
-    private val elements = ArrayList<GuiElementInterface>()
-    private val menuElements = EnumMap<MenuSlot, GuiElementInterface>(MenuSlot::class.java)
+    private val elements = ArrayList<GuiElement>()
+    private val menuElements = EnumMap<MenuSlot, GuiElement>(MenuSlot::class.java)
 
     /**
      * The parent [GuiInterface], may be null.
      */
-    private var parent: GuiInterface? = null
+    private var parent: GuiLike? = null
 
     /**
      * The style of the selection gui.
@@ -50,7 +50,7 @@ public class SelectionGuiBuilder(
      * @param components The default components used for the selection gui.
      */
     public constructor(
-        parent: GuiInterface,
+        parent: GuiLike,
         components: SelectionGuiComponents = SelectionGuiComponents.DEFAULT
     ): this(parent.player, components) {
         this.parent = parent
@@ -63,7 +63,7 @@ public class SelectionGuiBuilder(
      * @param parent The parent gui.
      * @return The current [SelectionGuiBuilder].
      */
-    public fun parent(parent: GuiInterface): SelectionGuiBuilder {
+    public fun parent(parent: GuiLike): SelectionGuiBuilder {
         if (this.player != parent.player) {
             throw IllegalArgumentException("Parent GUI must belong to the same player!")
         }
@@ -100,7 +100,7 @@ public class SelectionGuiBuilder(
      * @param element The selection.
      * @return The current [SelectionGuiBuilder].
      */
-    public fun element(element: GuiElementInterface): SelectionGuiBuilder {
+    public fun element(element: GuiElement): SelectionGuiBuilder {
         this.elements.add(element)
         return this
     }
@@ -117,10 +117,10 @@ public class SelectionGuiBuilder(
     public fun <T> elements(
         elements: Iterable<T>,
         elementToIconMapper: (T) -> ItemStack,
-        callback: (slot: Int, click: ClickType, action: ActionType, gui: SlotGuiInterface, T) -> Unit
+        callback: (slot: Int, click: ClickType, action: ContainerInput, gui: SlotBasedGui, T) -> Unit
     ): SelectionGuiBuilder {
         for (element in elements) {
-            this.element(GuiElement(elementToIconMapper.invoke(element)) { slot, click, action, gui ->
+            this.element(SimpleGuiElement(elementToIconMapper.invoke(element)) { slot, click, action, gui ->
                 callback.invoke(slot, click, action, gui, element)
             })
         }
@@ -137,7 +137,7 @@ public class SelectionGuiBuilder(
      */
     public fun menuElement(
         slot: MenuSlot,
-        selection: GuiElementInterface
+        selection: GuiElement
     ): SelectionGuiBuilder {
         this.menuElements[slot] = selection
         return this
@@ -169,12 +169,12 @@ public class SelectionGuiBuilder(
             builder.setSlot(slot, element)
         }
 
-        builder.setSlot(45, GuiElement(this.components.getPrevious(page != 0)) { _, _, _, _ ->
+        builder.setSlot(45, SimpleGuiElement(this.components.getPrevious(page != 0)) { _, _, _, _ ->
             if (page > 0) {
                 this.build(page - 1).open()
             }
         })
-        builder.setSlot(49, GuiElement(this.components.getBack(this.parent != null)) { _, _, _, gui ->
+        builder.setSlot(49, SimpleGuiElement(this.components.getBack(this.parent != null)) { _, _, _, gui ->
             val parent = this.parent
             if (parent != null) {
                 parent.open()
@@ -182,7 +182,7 @@ public class SelectionGuiBuilder(
                 gui.close()
             }
         })
-        builder.setSlot(53, GuiElement(this.components.getNext(hasNextPage)) { _, _, _, _ ->
+        builder.setSlot(53, SimpleGuiElement(this.components.getNext(hasNextPage)) { _, _, _, _ ->
             if (hasNextPage) {
                 this.build(page + 1).open()
             }
@@ -190,7 +190,7 @@ public class SelectionGuiBuilder(
 
         for (slot in MenuSlot.entries) {
             val element = this.menuElements.getOrElse(slot) {
-                GuiElement(this.components.getFiller(), GuiElementInterface.EMPTY_CALLBACK)
+                SimpleGuiElement(this.components.getFiller(), GuiElement.EMPTY_CALLBACK)
             }
             builder.setSlot(45 + slot.offset, element)
         }

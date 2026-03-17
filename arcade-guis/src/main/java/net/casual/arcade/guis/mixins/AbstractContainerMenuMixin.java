@@ -11,7 +11,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.NonInteractiveResultSlot;
 import net.minecraft.world.inventory.Slot;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,9 +40,9 @@ public class AbstractContainerMenuMixin {
         at = @At("HEAD"),
         cancellable = true
     )
-    private void onDoClick(int slotId, int button, ClickType clickType, Player player, CallbackInfo ci) {
+    private void onDoClick(int slotId, int button, ContainerInput input, Player player, CallbackInfo ci) {
         Inventory inventory = player.getInventory();
-        if (inventory instanceof VirtualInventory && clickType == ClickType.SWAP) {
+        if (inventory instanceof VirtualInventory && input == ContainerInput.SWAP) {
             ci.cancel();
         }
     }

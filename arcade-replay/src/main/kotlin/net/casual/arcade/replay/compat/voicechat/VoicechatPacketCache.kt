@@ -203,7 +203,7 @@ internal class VoicechatPacketCache {
             distance: Float
         ): Packet<ClientCommonPacketListener> {
             return this.create(LOCATIONAL_SOUND, sender, decoded) {
-                writeVec3(Vec3(position.x, position.y, position.z))
+                Vec3.STREAM_CODEC.encode(this, Vec3(position.x, position.y, position.z))
                 writeFloat(distance)
             }
         }

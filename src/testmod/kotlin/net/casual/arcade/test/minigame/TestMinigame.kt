@@ -23,6 +23,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.ItemStackTemplate
 import net.minecraft.world.item.Items
 import java.util.*
 
@@ -48,7 +49,7 @@ open class TestMinigame(
         this.recipes.add(CraftingRecipeBuilder.shapeless(this.server.registryAccess()) {
             key(IdentifierUtils.arcade("example"))
             ingredients(Items.ITEM_FRAME, Items.BLACK_DYE)
-            result(ItemStack(Items.NETHERITE_BLOCK))
+            result(ItemStackTemplate(Items.NETHERITE_BLOCK))
         })
 
         val sidebar = FixedSidebar(ComponentElements.of(Component.literal("Example!")))

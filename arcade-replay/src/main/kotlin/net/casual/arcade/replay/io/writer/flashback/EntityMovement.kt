@@ -17,7 +17,7 @@ public data class EntityMovement(
 ) {
     public fun write(buf: FriendlyByteBuf) {
         buf.writeVarInt(this.id)
-        buf.writeVec3(this.position)
+        Vec3.STREAM_CODEC.encode(buf, this.position)
         buf.writeFloat(this.rotation.y)
         buf.writeFloat(this.rotation.x)
         buf.writeFloat(this.headRot)
@@ -31,7 +31,7 @@ public data class EntityMovement(
 
         public fun read(buffer: FriendlyByteBuf): EntityMovement {
             val id = buffer.readVarInt()
-            val position = buffer.readVec3()
+            val position = Vec3.STREAM_CODEC.decode(buffer)
             val yaw = buffer.readFloat()
             val pitch = buffer.readFloat()
             val headYaw = buffer.readFloat()

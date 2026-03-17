@@ -195,7 +195,7 @@ public class FlashbackReader(
         val xRot = buffer.readFloat()
         val yRot = buffer.readFloat()
         val headRot = buffer.readFloat()
-        val velocity = buffer.readVec3()
+        val velocity = Vec3.STREAM_CODEC.decode(buffer)
         @Suppress("UNUSED_VARIABLE")
         val profile = ByteBufCodecs.GAME_PROFILE.decode(buffer)
         @Suppress("UNUSED_VARIABLE")
@@ -238,7 +238,7 @@ public class FlashbackReader(
     }
 
     private fun updateChunkCacheCenter(x: Double, y: Double, z: Double, consumer: (ReplayPacketData) -> Unit) {
-        val pos = ChunkPos(BlockPos.containing(x, y, z))
+        val pos = ChunkPos.containing(BlockPos.containing(x, y, z))
         if (pos != this.chunk) {
             this.chunk = pos
             val cache = ClientboundSetChunkCacheCenterPacket(this.chunk.x, this.chunk.z)

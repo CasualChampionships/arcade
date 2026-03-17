@@ -12,9 +12,12 @@ import net.minecraft.network.protocol.cookie.ClientboundCookieRequestPacket
 import net.minecraft.network.protocol.game.*
 import net.minecraft.network.protocol.login.ClientboundLoginCompressionPacket
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.clock.ClockNetworkState
+import net.minecraft.world.clock.ClockState
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.item.PrimedTnt
 import net.minecraft.world.entity.projectile.Projectile
+import kotlin.jvm.optionals.getOrNull
 
 public object ReplayOptimizerUtils {
     // Set of packets that are ignored by replay mod
@@ -123,9 +126,17 @@ public object ReplayOptimizerUtils {
         }
 
         val time = recorder.settings.fixedDaylightCycle
-        if (time >= 0 && packet is ClientboundSetTimePacket && packet.dayTime != time) {
-            recorder.record(ClientboundSetTimePacket(packet.gameTime, time, false))
-            return true
+        if (time >= 0 && packet is ClientboundSetTimePacket) {
+            val clock = recorder.level.dimensionType().defaultClock.getOrNull()
+            if (clock != null) {
+                val state = packet.clockUpdates[clock]
+                if (state != null && (state.totalTicks != time || state.partialTick != 0.0F || state.rate != 0.0F)) {
+                    val copy = packet.clockUpdates.toMutableMap()
+                    copy[clock] = ClockNetworkState(time, 0.0F, 0.0F)
+                    recorder.record(ClientboundSetTimePacket(packet.gameTime, copy))
+                    return true
+                }
+            }
         }
 
         val type = packet::class.java

@@ -86,7 +86,7 @@ public class ReplayViewer internal constructor(
     private val players = Collections.synchronizedList(ArrayList<UUID>())
     private val objectives = Collections.synchronizedCollection(ArrayList<String>())
 
-    private val bossbar = ServerBossEvent(Component.empty(), BossBarColor.BLUE, BossBarOverlay.PROGRESS)
+    private val bossbar = ServerBossEvent(UUID.randomUUID(), Component.empty(), BossBarColor.BLUE, BossBarOverlay.PROGRESS)
 
     private val previousPacks = ArrayList<ClientboundResourcePackPushPacket>()
 
@@ -441,7 +441,7 @@ public class ReplayViewer internal constructor(
         }
         synchronized(this.chunks) {
             for (chunk in this.chunks.iterator()) {
-                this.connection.send(ClientboundForgetLevelChunkPacket(ChunkPos(chunk)))
+                this.connection.send(ClientboundForgetLevelChunkPacket(ChunkPos.unpack(chunk)))
             }
         }
         synchronized(this.objectives) {
@@ -507,8 +507,8 @@ public class ReplayViewer internal constructor(
     private fun onSendPacket(packet: Packet<*>) {
         // We keep track of some state to revert later
         when (packet) {
-            is ClientboundLevelChunkWithLightPacket -> this.chunks.add(ChunkPos.asLong(packet.x, packet.z))
-            is ClientboundForgetLevelChunkPacket -> this.chunks.remove(packet.pos.toLong())
+            is ClientboundLevelChunkWithLightPacket -> this.chunks.add(ChunkPos.pack(packet.x, packet.z))
+            is ClientboundForgetLevelChunkPacket -> this.chunks.remove(packet.pos.pack())
             is ClientboundAddEntityPacket -> this.entities.add(packet.id)
             is ClientboundRemoveEntitiesPacket -> this.entities.removeAll(packet.entityIds)
             is ClientboundSetObjectivePacket -> {

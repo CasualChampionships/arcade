@@ -5,8 +5,8 @@
 package net.casual.arcade.minigame.settings.display
 
 import com.mojang.serialization.Codec
-import eu.pb4.sgui.api.elements.GuiElementInterface
-import eu.pb4.sgui.api.gui.GuiInterface
+import eu.pb4.sgui.api.elements.GuiElement
+import eu.pb4.sgui.api.gui.GuiLike
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.settings.SettingListener
 import net.casual.arcade.utils.ItemUtils.disableGlint
@@ -72,7 +72,7 @@ public class MenuGameSettingBuilder<T: Any>(
 
         val options = LinkedHashMap<String, T>()
 
-        val selectables = ArrayList<GuiElementInterface>()
+        val selectables = ArrayList<GuiElement>()
         for ((id, data) in this.options) {
             options[id] = data.value
         }
@@ -92,21 +92,21 @@ public class MenuGameSettingBuilder<T: Any>(
     private class SettingGuiElement<T: Any>(
         private val setting: GameSetting<T>,
         private val data: OptionData<T>
-    ): GuiElementInterface {
+    ): GuiElement {
         private var previous: ItemStack = this.data.default
 
         override fun getItemStack(): ItemStack {
             return this.previous
         }
 
-        override fun getItemStackForDisplay(gui: GuiInterface): ItemStack {
+        override fun getItemStackForDisplay(gui: GuiLike): ItemStack {
             val next = this.data.updater(this.setting, this.previous, gui.player)
             this.previous = next
             return next
         }
 
-        override fun getGuiCallback(): GuiElementInterface.ClickCallback {
-            return GuiElementInterface.ClickCallback { _, _, _, _ ->
+        override fun getGuiCallback(): GuiElement.ClickCallback {
+            return GuiElement.ClickCallback { _, _, _, _ ->
                 this.setting.set(this.data.value)
             }
         }

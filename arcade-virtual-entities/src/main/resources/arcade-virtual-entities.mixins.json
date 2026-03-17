@@ -15,7 +15,6 @@
     "ItemDisplayAccessor",
     "LivingEntityAccessor",
     "MannequinAccessor",
-    "ServerboundInteractPacketAccessor",
     "ServerEntityAccessor",
     "ServerEntityMixin",
     "ServerGamePacketListenerImplMixin",

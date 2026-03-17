@@ -10,28 +10,19 @@ import net.casual.arcade.utils.MathUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.dimension.end.EndDragonFight;
+import net.minecraft.world.level.dimension.end.EnderDragonFight;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(EndDragonFight.class)
+@Mixin(EnderDragonFight.class)
 public class EndDragonFightMixin {
-    @Shadow
-    @Final
-    private BlockPos origin;
-
-    @Shadow
-    @Final
-    private ServerBossEvent dragonEvent;
-
-    @Shadow
-    @Final
-    private ServerLevel level;
+    @Shadow private BlockPos origin;
+    @Shadow private ServerBossEvent dragonEvent;
+    @Shadow private ServerLevel level;
 
     @Inject(
         method = "updatePlayers",

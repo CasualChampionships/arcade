@@ -13,7 +13,6 @@ public object PassthroughInteractionHandler: VirtualEntity.InteractionHandler {
     override fun interact(player: ServerPlayer, interaction: EntityInteraction) {
         when (interaction) {
             is EntityInteraction.Use -> this.use(player, interaction.hand)
-            is EntityInteraction.UseAt -> this.use(player, interaction.hand)
             else -> { }
         }
     }

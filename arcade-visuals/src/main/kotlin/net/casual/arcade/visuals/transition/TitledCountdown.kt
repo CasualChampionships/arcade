@@ -8,12 +8,11 @@ import net.casual.arcade.utils.component.bold
 import net.casual.arcade.utils.component.lime
 import net.casual.arcade.utils.component.red
 import net.casual.arcade.utils.component.yellow
-import net.casual.arcade.utils.PlayerUtils.clearTitle
-import net.casual.arcade.utils.PlayerUtils.sendSound
-import net.casual.arcade.utils.PlayerUtils.sendTitle
-import net.casual.arcade.utils.PlayerUtils.setTitleAnimation
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.impl.Sound
+import net.casual.arcade.utils.player.sendSound
+import net.casual.arcade.utils.player.sendTitle
+import net.casual.arcade.utils.player.setTitleAnimation
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer

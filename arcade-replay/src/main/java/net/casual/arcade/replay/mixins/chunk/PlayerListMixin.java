@@ -69,7 +69,7 @@ public class PlayerListMixin {
             ReplayPlayerRecorders.record(player, packet);
         }
 
-        ChunkPos pos = new ChunkPos(BlockPos.containing(x, y, z));
+        ChunkPos pos = ChunkPos.containing(BlockPos.containing(x, y, z));
         for (ReplayChunkRecorder recorder : ReplayChunkRecorders.containing(dimension, pos)) {
             recorder.record(packet);
         }

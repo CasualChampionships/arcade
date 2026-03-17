@@ -4,17 +4,20 @@
  */
 package net.casual.arcade.dimensions.level.builder
 
+import net.minecraft.core.Holder
 import net.minecraft.core.HolderSet
 import net.minecraft.tags.BlockTags
 import net.minecraft.tags.TagKey
 import net.minecraft.util.valueproviders.IntProvider
 import net.minecraft.util.valueproviders.UniformInt
 import net.minecraft.world.attribute.EnvironmentAttributeMap
+import net.minecraft.world.clock.WorldClock
 import net.minecraft.world.level.CardinalLighting
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.dimension.DimensionType
 import net.minecraft.world.level.dimension.DimensionType.*
 import net.minecraft.world.timeline.Timeline
+import java.util.Optional
 
 /**
  * Builder class for [DimensionType].
@@ -23,6 +26,7 @@ public class DimensionTypeBuilder {
     public var hasFixedTime: Boolean = false
     public var hasSkyLight: Boolean = true
     public var hasCeiling: Boolean = false
+    public var hasEnderDragonFight: Boolean = false
     public var coordinateScale: Double = 1.0
     public var minY: Int = -64
     public var height: Int = 384
@@ -35,8 +39,9 @@ public class DimensionTypeBuilder {
 
     public var skybox: Skybox = Skybox.OVERWORLD
     public var cardinalLightType: CardinalLighting.Type = CardinalLighting.Type.DEFAULT
-    public var environmentAttributes: EnvironmentAttributeMap = EnvironmentAttributeMap.EMPTY
+    public var attributes: EnvironmentAttributeMap = EnvironmentAttributeMap.EMPTY
     public var timelines: HolderSet<Timeline> = HolderSet.empty()
+    public var defaultClock: Holder<WorldClock>? = null
 
     public fun hasFixedTime(hasFixedTime: Boolean): DimensionTypeBuilder {
         this.hasFixedTime = hasFixedTime
@@ -50,6 +55,11 @@ public class DimensionTypeBuilder {
 
     public fun hasCeiling(hasCeiling: Boolean): DimensionTypeBuilder {
         this.hasCeiling = hasCeiling
+        return this
+    }
+
+    public fun hasEnderDragonFight(hasEnderDragonFight: Boolean): DimensionTypeBuilder {
+        this.hasEnderDragonFight = hasEnderDragonFight
         return this
     }
 
@@ -103,20 +113,25 @@ public class DimensionTypeBuilder {
         return this
     }
 
-    public fun environmentAttributes(attributes: EnvironmentAttributeMap): DimensionTypeBuilder {
-        this.environmentAttributes = attributes
+    public fun attributes(attributes: EnvironmentAttributeMap): DimensionTypeBuilder {
+        this.attributes = attributes
         return this
     }
 
-    public fun environmentAttributes(block: EnvironmentAttributeMap.Builder.() -> Unit): DimensionTypeBuilder {
+    public fun attributes(block: EnvironmentAttributeMap.Builder.() -> Unit): DimensionTypeBuilder {
         val builder = EnvironmentAttributeMap.builder()
-        builder.putAll(this.environmentAttributes)
+        builder.putAll(this.attributes)
         builder.block()
-        return this.environmentAttributes(builder.build())
+        return this.attributes(builder.build())
     }
 
     public fun timelines(timelines: HolderSet<Timeline>): DimensionTypeBuilder {
         this.timelines = timelines
+        return this
+    }
+
+    public fun defaultClock(clock: Holder<WorldClock>): DimensionTypeBuilder {
+        this.defaultClock = clock
         return this
     }
 
@@ -125,6 +140,7 @@ public class DimensionTypeBuilder {
             this.hasFixedTime,
             this.hasSkyLight,
             this.hasCeiling,
+            this.hasEnderDragonFight,
             this.coordinateScale,
             this.minY,
             this.height,
@@ -137,8 +153,9 @@ public class DimensionTypeBuilder {
             ),
             this.skybox,
             this.cardinalLightType,
-            this.environmentAttributes,
-            this.timelines
+            this.attributes,
+            this.timelines,
+            Optional.ofNullable(this.defaultClock)
         )
     }
 

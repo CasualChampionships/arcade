@@ -5,22 +5,22 @@
 package net.casual.arcade.guis.sgui
 
 import eu.pb4.sgui.api.ClickType
-import eu.pb4.sgui.api.gui.SlotGuiInterface
+import eu.pb4.sgui.api.gui.SlotBasedGui
 import net.casual.arcade.events.server.player.PlayerSlotClickEvent
 import net.minecraft.world.item.ItemStack
 
 public val PlayerSlotClickEvent.type: ClickType
-    get() = ClickType.toClickType(this.action, this.button, this.index)
+    get() = ClickType.toClickType(this.input, this.button, this.index)
 
-public fun SlotGuiInterface.setSlot(index: Int, stack: ItemStack, callback: () -> Unit) {
+public fun SlotBasedGui.setSlot(index: Int, stack: ItemStack, callback: () -> Unit) {
     this.setSlot(index, stack) { _, _, _, _ -> callback.invoke() }
 }
 
-public fun SlotGuiInterface.setSlot(index: Int, stack: ItemStack, callback: (ClickType) -> Unit) {
+public fun SlotBasedGui.setSlot(index: Int, stack: ItemStack, callback: (ClickType) -> Unit) {
     this.setSlot(index, stack) { _, type, _, _ -> callback.invoke(type) }
 }
 
-public fun SlotGuiInterface.setSlotGrid(
+public fun SlotBasedGui.setSlotGrid(
     origin: Int,
     width: Int,
     height: Int,
@@ -30,7 +30,7 @@ public fun SlotGuiInterface.setSlotGrid(
     this.setSlotGrid(origin, width, height, { _, _ -> stack }, callback)
 }
 
-public fun SlotGuiInterface.setSlotGrid(
+public fun SlotBasedGui.setSlotGrid(
     origin: Int,
     width: Int,
     height: Int,
@@ -45,7 +45,7 @@ public fun SlotGuiInterface.setSlotGrid(
     }
 }
 
-public fun SlotGuiInterface.clearSlotGrid(origin: Int, width: Int, height: Int) {
+public fun SlotBasedGui.clearSlotGrid(origin: Int, width: Int, height: Int) {
     for (i in 0..< width) {
         for (j in 0..< height) {
             this.clearSlot(origin + j * 9 + i)

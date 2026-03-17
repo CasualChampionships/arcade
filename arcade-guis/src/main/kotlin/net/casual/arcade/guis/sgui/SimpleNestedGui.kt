@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.guis.sgui
 
-import eu.pb4.sgui.api.gui.GuiInterface
+import eu.pb4.sgui.api.gui.GuiLike
 import eu.pb4.sgui.api.gui.SimpleGui
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.inventory.MenuType
@@ -14,10 +14,10 @@ public open class SimpleNestedGui(
     player: ServerPlayer,
     manipulatePlayerSlots: Boolean
 ): SimpleGui(type, player, manipulatePlayerSlots) {
-    public var parent: GuiInterface? = null
+    public var parent: GuiLike? = null
         private set
 
-    public fun setParent(parent: GuiInterface?): SimpleNestedGui {
+    public fun setParent(parent: GuiLike?): SimpleNestedGui {
         if (parent == null) {
             this.parent = null
         } else if (parent.player == this.player) {

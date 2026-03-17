@@ -14,7 +14,7 @@ import net.casual.arcade.virtual.entity.ParentVirtualEntity
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.interaction.EntityInteraction
-import net.casual.arcade.virtual.entity.mixins.ServerboundInteractPacketAccessor
+import net.minecraft.network.protocol.game.ServerboundAttackPacket
 import net.minecraft.network.protocol.game.ServerboundInteractPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
@@ -31,24 +31,33 @@ internal class PlayerAttachmentObserverExtension(player: ServerPlayer): PlayerEx
         this.observing.remove(attachment)
     }
 
-    fun tryInteractWithVirtualEntity(packet: ServerboundInteractPacket): Boolean {
-        val id = (packet as ServerboundInteractPacketAccessor).accessEntityId()
-        val entity = this.findInteractableVirtualEntity(id) ?: return false
-        val handler = entity.getInteractionHandler(this.player) ?: return false
-        packet.dispatch(object: ServerboundInteractPacket.Handler {
-            override fun onInteraction(hand: InteractionHand) {
-                handler.interact(player, EntityInteraction.Use(hand))
-            }
-
-            override fun onInteraction(hand: InteractionHand, position: Vec3) {
-                handler.interact(player, EntityInteraction.UseAt(hand, position))
-            }
-
-            override fun onAttack() {
-                handler.interact(player, EntityInteraction.Attack)
-            }
-        })
+    fun tryInteractWithVirtualEntity(target: Int, hand: InteractionHand, pos: Vec3): Boolean {
+        val handler = this.findInteractionHandler(target) ?: return false
+        handler.interact(this.player, EntityInteraction.Use(hand, pos))
         return true
+    }
+
+    fun tryAttackVirtualEntity(target: Int): Boolean {
+        val handler = this.findInteractionHandler(target) ?: return false
+        handler.interact(this.player, EntityInteraction.Attack)
+        return true
+    }
+
+    fun trySpectateVirtualEntity(target: Int): Boolean {
+        val handler = this.findInteractionHandler(target) ?: return false
+        handler.interact(this.player, EntityInteraction.Spectate)
+        return true
+    }
+
+    fun tryPickVirtualEntity(target: Int, data: Boolean): Boolean {
+        val handler = this.findInteractionHandler(target) ?: return false
+        handler.interact(this.player, EntityInteraction.Pick(data))
+        return true
+    }
+
+    private fun findInteractionHandler(id: Int): VirtualEntity.InteractionHandler? {
+        val entity = this.findInteractableVirtualEntity(id) ?: return null
+        return entity.getInteractionHandler(this.player)
     }
 
     private fun findInteractableVirtualEntity(id: Int): VirtualEntity? {
