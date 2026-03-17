@@ -27,7 +27,7 @@ allprojects {
 
     repositories {
         mavenLocal()
-//        maven("https://maven.supersanta.me/snapshots")
+        maven("https://maven.supersanta.me/snapshots")
         maven("https://masa.dy.fi/maven")
         maven("https://maven.parchmentmc.org/")
         maven("https://repo.viaversion.com")
