@@ -15,8 +15,10 @@ repositories {
 }
 
 dependencies {
-    include(modImplementation("net.casualchampionships:arcade-resource-pack-host:0.8.0-beta.11+1.21.11")!!)
+    include(implementation("net.casualchampionships:arcade-resource-pack-host:0.9.0-beta.1+26.1-pre-2")!!)
 
-    include(modImplementation("net.casualchampionships:arcade-utils:0.8.0-beta.11+1.21.11")!!)
+    include(modImplementation("net.casualchampionships:arcade-interceptor:0.9.0-beta.1+26.1-pre-2")!!)
+    include(modImplementation("net.casualchampionships:arcade-utils:0.9.0-beta.1+26.1-pre-2")!!)
+    include(modImplementation("org.jetbrains.kotlin:kotlin-stdlib:2.3.10")!!)
 }
 ```

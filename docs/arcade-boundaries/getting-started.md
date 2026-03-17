@@ -18,13 +18,14 @@ repositories {
 }
 
 dependencies {
-    include(modImplementation("net.casualchampionships:arcade-boundaries:0.8.0-beta.11+1.21.11")!!)
+    include(implementation("net.casualchampionships:arcade-boundaries:0.9.0-beta.1+26.1-pre-2")!!)
 
-    include(modImplementation("net.casualchampionships:arcade-event-registry:0.8.0-beta.11+1.21.11")!!)
-    include(modImplementation("net.casualchampionships:arcade-events-server:0.8.0-beta.11+1.21.11")!!)
-    include(modImplementation("net.casualchampionships:arcade-extensions:0.8.0-beta.11+1.21.11")!!)
-    include(modImplementation("net.casualchampionships:arcade-utils:0.8.0-beta.11+1.21.11")!!)
-    include(modImplementation("net.casualchampionships:arcade-visuals:0.8.0-beta.11+1.21.11")!!)
+    include(modImplementation("net.casualchampionships:arcade-event-registry:0.9.0-beta.1+26.1-pre-2")!!)
+    include(modImplementation("net.casualchampionships:arcade-events-server:0.9.0-beta.1+26.1-pre-2")!!)
+    include(modImplementation("net.casualchampionships:arcade-extensions:0.9.0-beta.1+26.1-pre-2")!!)
+    include(modImplementation("net.casualchampionships:arcade-utils:0.9.0-beta.1+26.1-pre-2")!!)
+    include(modImplementation("net.casualchampionships:arcade-visuals:0.9.0-beta.1+26.1-pre-2")!!)
+    include(modImplementation("org.jetbrains.kotlin:kotlin-stdlib:2.3.10")!!)
 }
 ```
 

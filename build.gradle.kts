@@ -157,7 +157,7 @@ dependencies {
 
     include(implementation(libs.server.translations.get())!!)
 
-//    "modTestmodRuntimeOnly"(libs.voicechat)
+//    "testmodRuntimeOnly"(libs.voicechat)
     "testmodImplementation"(libs.reflections) {
         exclude(group = "org.slf4j")
     }
