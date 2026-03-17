@@ -140,7 +140,7 @@ public abstract class ServerPlayerMixin {
 		)
 	)
 	private boolean onRestoreFrom(AttributeMap instance, AttributeMap map) {
-        return MinigamePlayerManager.LOCAL_TRANSITION.get() == null;
+        return !MinigamePlayerManager.LOCAL_TRANSITION.isBound();
     }
 
     @Definition(id = "get", method = "Lnet/minecraft/world/level/gamerules/GameRules;get(Lnet/minecraft/world/level/gamerules/GameRule;)Ljava/lang/Object;")
@@ -151,7 +151,7 @@ public abstract class ServerPlayerMixin {
         at = @At("MIXINEXTRAS:EXPRESSION")
     )
     private Object onIsKeepInventoryEnabled(Object original) {
-		return MinigamePlayerManager.LOCAL_TRANSITION.get() == null && ((Boolean) original);
+		return !MinigamePlayerManager.LOCAL_TRANSITION.isBound() && ((Boolean) original);
 	}
 
     @Unique

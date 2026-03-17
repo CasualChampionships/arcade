@@ -24,6 +24,6 @@ public abstract class EntityExtension(
     public companion object {
         @Internal
         @JvmField
-        public val SHOULD_ATTACH_EXTENSION: ThreadLocal<Boolean> = ThreadLocal.withInitial { true }
+        public val SHOULD_ATTACH_EXTENSION: ScopedValue<Unit> = ScopedValue.newInstance()
     }
 }

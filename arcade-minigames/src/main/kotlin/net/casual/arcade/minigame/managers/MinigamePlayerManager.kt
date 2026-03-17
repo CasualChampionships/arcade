@@ -460,11 +460,8 @@ public class MinigamePlayerManager(
 
     private fun createNewPlayer(existing: ServerPlayer): ServerPlayer {
         val playerList = this.minigame.server.playerList
-        val copy = try {
-            LOCAL_TRANSITION.set(existing.locationWithLevel.asTeleportTransition())
+        val copy = ScopedValue.where(LOCAL_TRANSITION, existing.locationWithLevel.asTeleportTransition()).call<_, Throwable> {
             playerList.respawn(existing, false, Entity.RemovalReason.CHANGED_DIMENSION)
-        } finally {
-            LOCAL_TRANSITION.remove()
         }
         copy.connection.player = copy
         return copy
@@ -486,7 +483,7 @@ public class MinigamePlayerManager(
                 val current = this.path.resolve(player.stringUUID + ".dat")
                 val old = this.path.resolve(player.stringUUID + ".dat_old")
                 Util.safeReplaceFile(current, temp, old)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 ArcadeUtils.logger.warn("Failed to save player data for ${player.scoreboardName}")
             }
         }
@@ -504,7 +501,7 @@ public class MinigamePlayerManager(
             if (path.isRegularFile()) {
                 try {
                     return NbtIo.readCompressed(path, NbtAccounter.unlimitedHeap())
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     ArcadeUtils.logger.warn("Failed to load player data for ${player.scoreboardName}")
                 }
             }
@@ -515,6 +512,6 @@ public class MinigamePlayerManager(
     public companion object {
         @Internal
         @JvmField
-        public val LOCAL_TRANSITION: ThreadLocal<TeleportTransition> = ThreadLocal<TeleportTransition>()
+        public val LOCAL_TRANSITION: ScopedValue<TeleportTransition> = ScopedValue.newInstance()
     }
 }

@@ -7,6 +7,7 @@ package net.casual.arcade.extensions.mixins.compat;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import eu.pb4.polymer.common.impl.entity.InternalEntityHelpers;
+import kotlin.Unit;
 import net.casual.arcade.extensions.EntityExtension;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -31,12 +32,8 @@ public class InternalEntityHelpersMixin {
         EntitySpawnReason spawnReason,
         Operation<T> original
     ) {
-        boolean attach = EntityExtension.SHOULD_ATTACH_EXTENSION.get();
-        try {
-            EntityExtension.SHOULD_ATTACH_EXTENSION.set(false);
+        return ScopedValue.where(EntityExtension.SHOULD_ATTACH_EXTENSION, Unit.INSTANCE).call(() -> {
             return original.call(instance, level, spawnReason);
-        } finally {
-            EntityExtension.SHOULD_ATTACH_EXTENSION.set(attach);
-        }
+        });
     }
 }

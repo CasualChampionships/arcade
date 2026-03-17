@@ -37,7 +37,7 @@ public enum class GlobalEventHandler(
 
     private val injected = Collections.synchronizedSet(HashSet<InjectedListenerProvider>())
 
-    private var recursion = ThreadLocal.withInitial { false }
+    private val recursion = ScopedValue.newInstance<Unit>()
 
     private var stopping = atomic(false)
 
@@ -71,7 +71,7 @@ public enum class GlobalEventHandler(
         // If this returns null, then the server is stopping anyway
         val executor = this.getMainThreadExecutor(event, type) ?: return
 
-        if (!this.recursion.get() && this.checkRecursive(type)) {
+        if (!this.recursion.isBound && this.checkRecursive(type)) {
             return
         }
 
@@ -167,13 +167,7 @@ public enum class GlobalEventHandler(
      * @param block The function to execute while recursion is allowed.
      */
     public fun recursive(block: () -> Unit) {
-        val previous = this.recursion.get()
-        try {
-            this.recursion.set(true)
-            block()
-        } finally {
-            this.recursion.set(previous)
-        }
+        ScopedValue.where(this.recursion, Unit).run(block)
     }
 
     private fun checkRecursive(type: Class<out Event>): Boolean {

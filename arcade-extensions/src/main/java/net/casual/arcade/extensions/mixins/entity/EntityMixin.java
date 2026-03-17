@@ -50,7 +50,7 @@ public abstract class EntityMixin implements ExtensionHolder {
         }
 
         Entity entity = (Entity) (Object) this;
-        if (entity instanceof Player || !EntityExtension.SHOULD_ATTACH_EXTENSION.get()) {
+        if (entity instanceof Player || !EntityExtension.SHOULD_ATTACH_EXTENSION.isBound()) {
             return;
         }
         this.arcade$extensions = new ExtensionMap();

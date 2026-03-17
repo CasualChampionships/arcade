@@ -41,7 +41,7 @@ public class PlayerListMixin {
         // If this is changed, it must also be updated in extensions#PlayerListMixin
         @Share(namespace = ArcadeUtils.MOD_ID, value = "isMinigameRespawn") LocalBooleanRef isMinigameRespawn
     ) {
-        if (MinigamePlayerManager.LOCAL_TRANSITION.get() != null) {
+        if (MinigamePlayerManager.LOCAL_TRANSITION.isBound()) {
             isMinigameRespawn.set(true);
             return MinigamePlayerManager.LOCAL_TRANSITION.get();
         }

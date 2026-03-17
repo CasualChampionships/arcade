@@ -100,7 +100,7 @@ public abstract class ReplayRecorder(
     private var lastFileSizeCheckTimestamp: Instant? = null
 
     private var initialization = AtomicReference(InitializedState.Uninitialized)
-    private var ignore = false
+    private var ignore = ScopedValue.newInstance<Unit>()
 
     internal var started = false
         private set
@@ -174,7 +174,7 @@ public abstract class ReplayRecorder(
         if (!this.started) {
             throw IllegalStateException("Cannot record packets if recorder not started")
         }
-        if (this.ignore || this.stopped) {
+        if (this.ignore.isBound || this.stopped) {
             return
         }
         val safe = this.server.isSameThread
@@ -535,14 +535,7 @@ public abstract class ReplayRecorder(
      * @param block The function to call while ignoring packets.
      */
     public fun ignore(block: () -> Unit) {
-        // TODO(26.1): Update this with scoped values
-        val previous = this.ignore
-        try {
-            this.ignore = true
-            block()
-        } finally {
-            this.ignore = previous
-        }
+        ScopedValue.where(this.ignore, Unit).run(block)
     }
 
     /**

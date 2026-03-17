@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -17,6 +18,7 @@ import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.player.*;
 import net.casual.arcade.utils.player.PlayerUtilsKt;
 import net.minecraft.network.Connection;
+import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.LastSeenMessages;
 import net.minecraft.network.protocol.game.*;
@@ -48,7 +50,7 @@ import java.util.function.Consumer;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPacketListenerImpl {
-	@Unique private static final ThreadLocal<PlayerLeaveEvent> PLAYER_LEAVE_CONTEXT = new ThreadLocal<>();
+	@Unique private static final ScopedValue<PlayerLeaveEvent> PLAYER_LEAVE_CONTEXT = ScopedValue.newInstance();
 
 	@Shadow public ServerPlayer player;
 
@@ -56,14 +58,12 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		super(server, connection, cookie);
 	}
 
-	@Inject(
-		method = "onDisconnect",
-		at = @At("HEAD")
-	)
-	private void onDisconnectPre(CallbackInfo ci) {
+	@WrapMethod(method = "onDisconnect")
+	private void broadcastDisconnectEvents(DisconnectionDetails details, Operation<Void> original) {
 		PlayerLeaveEvent event = new PlayerLeaveEvent(this.player);
-		PLAYER_LEAVE_CONTEXT.set(event);
 		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+		ScopedValue.where(PLAYER_LEAVE_CONTEXT, event).run(() -> original.call(details));
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
 	}
 
 	@WrapWithCondition(
@@ -74,22 +74,8 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		)
 	)
 	private boolean onBroadcastLeaveMessage(PlayerList instance, Component message, boolean bypassHiddenChat) {
-		PlayerLeaveEvent event = PLAYER_LEAVE_CONTEXT.get();
-        return event == null || event.getLeaveMessageModification() != PlayerLeaveEvent.LeaveMessageModification.Hide;
+        return PLAYER_LEAVE_CONTEXT.isBound() && PLAYER_LEAVE_CONTEXT.get().getLeaveMessageModification() != PlayerLeaveEvent.LeaveMessageModification.Hide;
     }
-
-	@Inject(
-		method = "onDisconnect",
-		at = @At("RETURN")
-	)
-	private void onDisconnectPost(CallbackInfo ci) {
-		PlayerLeaveEvent event = PLAYER_LEAVE_CONTEXT.get();
-		if (event == null) {
-			event = new PlayerLeaveEvent(this.player);
-		}
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
-        PLAYER_LEAVE_CONTEXT.remove();
-	}
 
 	@Inject(
 		method = "handleClientCommand",
