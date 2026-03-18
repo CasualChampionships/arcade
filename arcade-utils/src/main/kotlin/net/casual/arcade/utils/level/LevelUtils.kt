@@ -18,7 +18,6 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.chunk.LevelChunk
 import net.minecraft.world.level.chunk.status.ChunkStatus
-import kotlin.collections.iterator
 
 public fun ServerLevel.server(): MinecraftServer {
     @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")

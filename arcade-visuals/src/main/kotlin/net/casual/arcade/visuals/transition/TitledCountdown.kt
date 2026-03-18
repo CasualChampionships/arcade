@@ -4,11 +4,11 @@
  */
 package net.casual.arcade.visuals.transition
 
+import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.component.bold
 import net.casual.arcade.utils.component.lime
 import net.casual.arcade.utils.component.red
 import net.casual.arcade.utils.component.yellow
-import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.impl.Sound
 import net.casual.arcade.utils.player.sendSound
 import net.casual.arcade.utils.player.sendTitle

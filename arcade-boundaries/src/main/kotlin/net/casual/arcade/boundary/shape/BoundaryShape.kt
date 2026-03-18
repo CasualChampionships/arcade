@@ -18,7 +18,7 @@ import net.minecraft.core.Direction.Axis
 import net.minecraft.core.Registry
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
-import java.util.EnumSet
+import java.util.*
 import java.util.function.Function
 
 /**

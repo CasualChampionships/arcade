@@ -27,11 +27,11 @@ import net.casual.arcade.minigame.utils.MinigameUtils.isPlayerAnd
 import net.casual.arcade.minigame.utils.MinigameUtils.requiresAdminOrPermission
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.IdentifierUtils
-import net.casual.arcade.utils.player.getChatUsername
 import net.casual.arcade.utils.chat.ChatFormatter
 import net.casual.arcade.utils.chat.PlayerChatFormatter
 import net.casual.arcade.utils.chat.PlayerFormattedChat
 import net.casual.arcade.utils.component.red
+import net.casual.arcade.utils.player.getChatUsername
 import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
 import net.casual.arcade.utils.serialization.codec.setOf
 import net.casual.arcade.utils.server.player

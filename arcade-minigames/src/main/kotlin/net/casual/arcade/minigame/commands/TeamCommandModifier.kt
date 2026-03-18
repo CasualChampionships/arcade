@@ -9,8 +9,8 @@ import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.commands.*
-import net.casual.arcade.utils.scoreboard.RandomizedTeams
 import net.casual.arcade.utils.component.joinToComponent
+import net.casual.arcade.utils.scoreboard.RandomizedTeams
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument

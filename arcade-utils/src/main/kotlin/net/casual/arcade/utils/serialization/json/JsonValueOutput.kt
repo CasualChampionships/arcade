@@ -7,16 +7,10 @@ package net.casual.arcade.utils.serialization.json
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import com.mojang.serialization.Codec
-import com.mojang.serialization.DataResult
-import com.mojang.serialization.DynamicOps
-import com.mojang.serialization.JsonOps
-import com.mojang.serialization.MapCodec
+import com.mojang.serialization.*
 import net.minecraft.core.HolderLookup
 import net.minecraft.util.ProblemReporter
-import net.minecraft.world.level.storage.TagValueOutput.EncodeToFieldFailedProblem
-import net.minecraft.world.level.storage.TagValueOutput.EncodeToListFailedProblem
-import net.minecraft.world.level.storage.TagValueOutput.EncodeToMapFailedProblem
+import net.minecraft.world.level.storage.TagValueOutput.*
 import net.minecraft.world.level.storage.ValueOutput
 
 public class JsonValueOutput private constructor(

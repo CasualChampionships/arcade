@@ -5,7 +5,6 @@
 package net.casual.arcade.utils.string
 
 import java.util.*
-import kotlin.text.iterator
 
 private val SMALL_CAPS_ALPHABET = "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘqʀꜱᴛᴜᴠᴡxyᴢ".toCharArray()
 

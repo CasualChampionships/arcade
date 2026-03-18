@@ -4,11 +4,7 @@
  */
 package net.casual.arcade.visuals.utils
 
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.sin
-import kotlin.math.sqrt
+import kotlin.math.*
 
 public object EasingUtils {
     public fun linear(x: Float): Float {

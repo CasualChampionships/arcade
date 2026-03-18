@@ -4,7 +4,10 @@
  */
 package net.casual.arcade.boundary.utils
 
-import net.minecraft.network.protocol.game.*
+import net.minecraft.network.protocol.game.ClientboundSetBorderCenterPacket
+import net.minecraft.network.protocol.game.ClientboundSetBorderLerpSizePacket
+import net.minecraft.network.protocol.game.ClientboundSetBorderSizePacket
+import net.minecraft.network.protocol.game.ClientboundSetBorderWarningDistancePacket
 import net.minecraft.world.level.border.WorldBorder
 
 private val WORLD_BORDER = WorldBorder()

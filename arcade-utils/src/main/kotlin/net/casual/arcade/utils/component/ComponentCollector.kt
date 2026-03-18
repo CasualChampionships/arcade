@@ -5,7 +5,6 @@
 package net.casual.arcade.utils.component
 
 import net.minecraft.network.chat.FormattedText
-import java.util.ArrayList
 
 // Taken from `net.minecraft.client.ComponentCollector`
 internal class ComponentCollector {

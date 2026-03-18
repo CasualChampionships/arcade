@@ -6,6 +6,8 @@ package net.casual.arcade.boundary.renderer.options
 
 import com.mojang.serialization.Codec
 import net.casual.arcade.boundary.renderer.AxisAlignedDisplayBoundaryRenderer
+import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions.Companion.CUBE_SHADER
+import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions.Companion.CUBOID_SHADER
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.boundary.utils.BoundaryRegistries
 import net.casual.arcade.resources.ArcadeResourcePacks

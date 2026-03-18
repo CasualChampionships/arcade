@@ -5,6 +5,7 @@
 package net.casual.arcade.minigame.phase
 
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.phase.Phase.Companion.end
 import org.jetbrains.annotations.ApiStatus.NonExtendable
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 

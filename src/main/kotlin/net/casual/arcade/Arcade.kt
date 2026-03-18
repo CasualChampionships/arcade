@@ -4,6 +4,7 @@
  */
 package net.casual.arcade
 
+import net.casual.arcade.Arcade.MOD_ID
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.IdentifierUtils
 import net.fabricmc.api.ModInitializer

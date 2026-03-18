@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.scheduler.task
 
+import net.casual.arcade.scheduler.task.Completable.Companion.thenOrNow
 import java.util.*
 
 /**

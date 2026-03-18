@@ -13,8 +13,6 @@ import net.casual.arcade.resources.creator.NamedResourcePackCreator
 import net.casual.arcade.resources.utils.ResourcePackUtils.addPack
 import net.casual.arcade.resources.utils.ResourcePackUtils.sendResourcePack
 import net.casual.arcade.resources.utils.ResourcePackUtils.toPackInfo
-import net.casual.arcade.test.commands.*
-import net.casual.arcade.test.extensions.TestEntityExtension
 import net.casual.arcade.test.minigame.TestMinigame
 import net.casual.arcade.test.resource_pack.ResourcePackTests
 import net.casual.arcade.utils.ArcadeUtils

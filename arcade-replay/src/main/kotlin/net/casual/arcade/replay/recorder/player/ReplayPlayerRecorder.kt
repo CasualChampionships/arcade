@@ -6,24 +6,20 @@ package net.casual.arcade.replay.recorder.player
 
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.replay.events.player.ReplayPlayerRecorderSnapshotEvent
 import net.casual.arcade.replay.io.ReplayFormat
 import net.casual.arcade.replay.recorder.ChunkSender
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.recorder.rejoin.RejoinedReplayPlayer
-import net.casual.arcade.utils.entity.WrappedTrackedEntity
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
 import net.casual.arcade.replay.util.ReplayPacketUtils
 import net.casual.arcade.utils.ClientboundAddEntityPacket
+import net.casual.arcade.utils.compat.PolymerCompatLayer
+import net.casual.arcade.utils.entity.WrappedTrackedEntity
 import net.minecraft.core.NonNullList
 import net.minecraft.core.component.DataComponents
 import net.minecraft.network.protocol.Packet
-import net.minecraft.network.protocol.game.ClientGamePacketListener
-import net.minecraft.network.protocol.game.ClientboundBundlePacket
-import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
-import net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket
-import net.minecraft.network.protocol.game.ClientboundSetPlayerInventoryPacket
+import net.minecraft.network.protocol.game.*
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ChunkTrackingView
 import net.minecraft.server.level.ServerEntity

@@ -25,8 +25,8 @@ import net.casual.arcade.replay.viewer.ReplayViewerUtils.startViewingReplay
 import net.casual.arcade.replay.viewer.ReplayViewerUtils.stopViewingReplay
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.DateTimeUtils.formatHHMMSS
-import net.casual.arcade.utils.player.server
 import net.casual.arcade.utils.component.*
+import net.casual.arcade.utils.player.server
 import net.minecraft.client.Minecraft
 import net.minecraft.core.UUIDUtil
 import net.minecraft.network.ConnectionProtocol

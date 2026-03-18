@@ -5,10 +5,10 @@
 package net.casual.arcade.dimensions.mixins.level;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.casual.arcade.util.ducks.SpoofedDimensionKeyHolder;
 import net.casual.arcade.dimensions.level.CustomLevel;
 import net.casual.arcade.dimensions.level.LevelGenerationOptions;
 import net.casual.arcade.dimensions.utils.impl.DerivedLevelData;
+import net.casual.arcade.util.ducks.SpoofedDimensionKeyHolder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.protocol.Packet;

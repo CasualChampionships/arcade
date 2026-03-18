@@ -6,9 +6,9 @@ package net.casual.arcade.utils.math.location.providers
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
-import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.registries.ArcadeUtilsRegistries
+import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.minecraft.core.Registry
 import java.util.function.Function
 

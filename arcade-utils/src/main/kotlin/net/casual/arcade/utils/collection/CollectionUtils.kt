@@ -6,7 +6,6 @@ package net.casual.arcade.utils.collection
 
 import com.google.common.collect.Multimap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
-import kotlin.collections.iterator
 
 public fun <E> List<E>.concat(other: List<E>): List<E> {
     return ConcatenatedList.concat(this, other)

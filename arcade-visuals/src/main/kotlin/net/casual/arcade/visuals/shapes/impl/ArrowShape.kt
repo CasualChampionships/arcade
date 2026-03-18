@@ -5,8 +5,8 @@
 package net.casual.arcade.visuals.shapes.impl
 
 import net.casual.arcade.visuals.shapes.ShapePoints
-import net.casual.arcade.visuals.shapes.segment.ShapeSegment
 import net.casual.arcade.visuals.shapes.segment.SegmentedShapeIterator
+import net.casual.arcade.visuals.shapes.segment.ShapeSegment
 import net.minecraft.world.phys.Vec3
 import kotlin.math.atan2
 import kotlin.math.cos

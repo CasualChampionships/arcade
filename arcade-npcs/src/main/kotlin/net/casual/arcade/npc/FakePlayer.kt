@@ -29,20 +29,21 @@ import net.minecraft.server.level.ClientInformation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.CommonListenerCookie
-import net.minecraft.util.debug.*
+import net.minecraft.util.debug.DebugBrainDump
+import net.minecraft.util.debug.DebugPathInfo
+import net.minecraft.util.debug.DebugSubscriptions
+import net.minecraft.util.debug.DebugValueSource
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier
 import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes
-import net.minecraft.world.entity.ai.goal.WrappedGoal
 import net.minecraft.world.item.ProjectileWeaponItem
 import net.minecraft.world.level.pathfinder.PathType
 import net.minecraft.world.phys.AABB
 import java.util.*
 import java.util.concurrent.CompletableFuture
-import java.util.function.Consumer
 
 @Suppress("LeakingThis")
 public open class FakePlayer(

@@ -20,9 +20,9 @@ import net.casual.arcade.scheduler.utils.CoroutineTask
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.error.RichResult
+import net.casual.arcade.utils.serialization.codec.setOf
 import net.casual.arcade.utils.serialization.json.JsonValueInput
 import net.casual.arcade.utils.serialization.json.JsonValueOutput
-import net.casual.arcade.utils.serialization.codec.setOf
 import net.minecraft.core.UUIDUtil
 import net.minecraft.resources.Identifier
 import net.minecraft.server.players.NameAndId
@@ -32,7 +32,7 @@ import net.minecraft.world.level.storage.ValueOutput
 import org.jetbrains.annotations.ApiStatus.Internal
 import java.io.*
 import java.nio.file.Path
-import java.util.ArrayDeque
+import java.util.*
 import kotlin.io.encoding.Base64
 import kotlin.io.path.isRegularFile
 import kotlin.jvm.optionals.getOrNull

@@ -27,7 +27,6 @@
     "PlayerListMixin",
     "PlayerMixin",
     "RandomizableContainerMixin",
-    "registry.RegistryDataLoaderMixin",
     "ScoreboardMixin",
     "ServerboundTeleportToEntityPacketAccessor",
     "ServerCommonPacketListenerImplMixin",
@@ -38,6 +37,7 @@
     "ServerPlayerMixin",
     "TeamMsgCommandMixin",
     "TntBlockMixin",
+    "registry.RegistryDataLoaderMixin",
     "registry.RegistryLoadTaskAccessor",
     "registry.ResourceManagerRegistryLoadTaskMixin"
   ],

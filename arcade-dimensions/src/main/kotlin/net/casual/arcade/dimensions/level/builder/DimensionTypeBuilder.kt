@@ -15,9 +15,10 @@ import net.minecraft.world.clock.WorldClock
 import net.minecraft.world.level.CardinalLighting
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.dimension.DimensionType
-import net.minecraft.world.level.dimension.DimensionType.*
+import net.minecraft.world.level.dimension.DimensionType.MonsterSettings
+import net.minecraft.world.level.dimension.DimensionType.Skybox
 import net.minecraft.world.timeline.Timeline
-import java.util.Optional
+import java.util.*
 
 /**
  * Builder class for [DimensionType].

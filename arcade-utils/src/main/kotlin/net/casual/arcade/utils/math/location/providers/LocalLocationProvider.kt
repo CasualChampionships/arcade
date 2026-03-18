@@ -6,12 +6,12 @@ package net.casual.arcade.utils.math.location.providers
 
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.MathUtils.component1
 import net.casual.arcade.utils.MathUtils.component2
 import net.casual.arcade.utils.MathUtils.component3
-import net.casual.arcade.utils.IdentifierUtils
-import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.math.location.Location
+import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.resources.Identifier
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3

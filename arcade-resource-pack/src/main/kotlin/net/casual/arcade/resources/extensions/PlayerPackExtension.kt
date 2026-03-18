@@ -7,13 +7,13 @@ package net.casual.arcade.resources.extensions
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.extensions.Extension
-import net.casual.arcade.utils.network.ResolvableURL
 import net.casual.arcade.resources.event.ClientPacksSuccessEvent
 import net.casual.arcade.resources.event.PlayerPacksSuccessEvent
 import net.casual.arcade.resources.pack.PackInfo
 import net.casual.arcade.resources.pack.PackState
 import net.casual.arcade.resources.pack.PackStatus
 import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.network.ResolvableURL
 import net.casual.arcade.utils.server.player
 import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket

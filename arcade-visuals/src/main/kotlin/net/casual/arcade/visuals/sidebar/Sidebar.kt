@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.visuals.sidebar
 
-import net.casual.arcade.visuals.core.TrackingVisualElement
 import net.casual.arcade.visuals.core.TickableVisualElement
+import net.casual.arcade.visuals.core.TrackingVisualElement
 import net.casual.arcade.visuals.elements.PlayerSpecificElement
 import net.casual.arcade.visuals.extensions.PlayerSidebarExtension.Companion.sidebarExtension
 import net.minecraft.network.chat.Component

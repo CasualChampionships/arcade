@@ -6,6 +6,7 @@ package net.casual.arcade.minigame.utils
 
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.utils.MinigameResources.Companion.sendTo
 import net.casual.arcade.resources.pack.PackInfo
 import net.casual.arcade.resources.utils.ResourcePackUtils.removeResourcePack
 import net.casual.arcade.resources.utils.ResourcePackUtils.sendResourcePack

@@ -12,7 +12,7 @@ import net.minecraft.core.Registry
 import net.minecraft.resources.RegistryOps.RegistryInfoLookup
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceManagerRegistryLoadTask
-import java.util.Optional
+import java.util.*
 
 public data class RegistryLoadedFromResourcesEvent<T: Any>(
     val task: ResourceManagerRegistryLoadTask<T>,

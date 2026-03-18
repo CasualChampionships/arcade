@@ -9,8 +9,8 @@ import kotlinx.atomicfu.atomic
 import net.casual.arcade.events.common.Event
 import net.casual.arcade.events.common.MissingExecutorEvent
 import net.casual.arcade.events.threading.ThreadingStrategy
-import net.casual.arcade.utils.server.ServerSingleton
 import net.casual.arcade.utils.collection.mergeSorted
+import net.casual.arcade.utils.server.ServerSingleton
 import net.minecraft.client.Minecraft
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.thread.ReentrantBlockableEventLoop

@@ -12,8 +12,8 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
 import net.casual.arcade.visuals.bossbar.CustomBossbar
-import net.casual.arcade.visuals.core.VisualElement
 import net.casual.arcade.visuals.core.TickableVisualElement
+import net.casual.arcade.visuals.core.VisualElement
 import net.casual.arcade.visuals.nametag.PlayerNametag
 import net.casual.arcade.visuals.ready.ReadyBroadcaster
 import net.casual.arcade.visuals.ready.chat.PlayerChatReadyBroadcaster

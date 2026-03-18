@@ -12,9 +12,9 @@ import net.casual.arcade.dimensions.level.spawner.extension.LevelCustomMobSpawni
 import net.casual.arcade.dimensions.mixins.level.MinecraftServerAccessor
 import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
 import net.casual.arcade.utils.entity.teleportTo
 import net.casual.arcade.utils.level.server
+import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component

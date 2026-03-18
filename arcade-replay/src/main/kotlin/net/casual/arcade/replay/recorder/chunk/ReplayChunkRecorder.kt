@@ -8,10 +8,9 @@ import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.utils.compat.PolymerCompatLayer
-import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderUnloadedPauseEvent
-import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderSnapshotEvent
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderLoadedResumeEvent
+import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderSnapshotEvent
+import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderUnloadedPauseEvent
 import net.casual.arcade.replay.io.ReplayFormat
 import net.casual.arcade.replay.mixins.chunk.WitherBossAccessor
 import net.casual.arcade.replay.mixins.rejoin.ChunkMapAccessor
@@ -23,6 +22,7 @@ import net.casual.arcade.replay.recorder.settings.RecorderSettings
 import net.casual.arcade.replay.recorder.settings.RecorderSettings.ChunkRecordingStrategy
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.ClientboundAddEntityPacket
+import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.utils.entity.WrappedTrackedEntity
 import net.casual.arcade.utils.level.server
 import net.casual.arcade.utils.toIdString

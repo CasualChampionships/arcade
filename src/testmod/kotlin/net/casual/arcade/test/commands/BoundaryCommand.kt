@@ -14,7 +14,6 @@ import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.TimeArgument
 import net.minecraft.commands.arguments.coordinates.Vec3Argument
-import net.minecraft.server.permissions.PermissionLevel
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 

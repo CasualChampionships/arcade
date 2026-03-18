@@ -23,7 +23,6 @@ import net.casual.arcade.visuals.utils.elements.SidebarElements
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
-import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.ItemStackTemplate
 import net.minecraft.world.item.Items
 import java.util.*

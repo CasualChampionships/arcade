@@ -14,7 +14,7 @@ import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.attachAndUpdateTracking
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.detachAndUpdateTracking
-import java.util.UUID
+import java.util.*
 
 /**
  * Simple implementation of [ParentVirtualEntity].

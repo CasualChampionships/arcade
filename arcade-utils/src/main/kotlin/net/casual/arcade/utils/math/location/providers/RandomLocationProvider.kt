@@ -7,8 +7,8 @@ package net.casual.arcade.utils.math.location.providers
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.utils.IdentifierUtils
-import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.math.location.Location
+import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.resources.Identifier
 
 public class RandomLocationProvider(

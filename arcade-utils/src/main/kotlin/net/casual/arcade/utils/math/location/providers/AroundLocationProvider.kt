@@ -8,8 +8,8 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.utils.IdentifierUtils
-import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.math.location.Location
+import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.resources.Identifier
 import kotlin.random.Random
 

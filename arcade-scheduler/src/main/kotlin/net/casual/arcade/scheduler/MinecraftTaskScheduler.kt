@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.scheduler
 
+import net.casual.arcade.scheduler.MinecraftTaskScheduler.Companion.schedule
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.time.MinecraftTimeDuration

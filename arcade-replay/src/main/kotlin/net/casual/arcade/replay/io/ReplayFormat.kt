@@ -5,17 +5,17 @@
 package net.casual.arcade.replay.io
 
 import com.mojang.serialization.Codec
-import net.casual.arcade.replay.recorder.ReplayRecorder
-import net.casual.arcade.replay.viewer.ReplayViewer
 import net.casual.arcade.replay.io.reader.ReplayReader
 import net.casual.arcade.replay.io.reader.flashback.FlashbackReader
 import net.casual.arcade.replay.io.reader.replay_mod.ReplayModReader
 import net.casual.arcade.replay.io.writer.ReplayWriter
 import net.casual.arcade.replay.io.writer.flashback.FlashbackWriter
 import net.casual.arcade.replay.io.writer.replay_mod.ReplayModWriter
-import net.casual.arcade.utils.string.convertCasing
+import net.casual.arcade.replay.recorder.ReplayRecorder
+import net.casual.arcade.replay.viewer.ReplayViewer
 import net.casual.arcade.utils.string.PascalCase
 import net.casual.arcade.utils.string.SnakeCase
+import net.casual.arcade.utils.string.convertCasing
 import net.minecraft.util.StringRepresentable
 import java.nio.file.Path
 

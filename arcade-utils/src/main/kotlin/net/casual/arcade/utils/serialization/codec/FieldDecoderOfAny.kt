@@ -4,11 +4,7 @@
  */
 package net.casual.arcade.utils.serialization.codec
 
-import com.mojang.serialization.DataResult
-import com.mojang.serialization.Decoder
-import com.mojang.serialization.DynamicOps
-import com.mojang.serialization.MapDecoder
-import com.mojang.serialization.MapLike
+import com.mojang.serialization.*
 import java.util.stream.Stream
 
 public class FieldDecoderOfAny<A>(

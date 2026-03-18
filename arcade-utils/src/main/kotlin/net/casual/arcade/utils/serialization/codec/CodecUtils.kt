@@ -8,8 +8,6 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.FieldEncoder
 import java.util.*
-import kotlin.collections.LinkedHashMap
-import kotlin.collections.LinkedHashSet
 
 public fun <A: Any> Codec<A>.lenientOptionalOf(): Codec<Optional<A>> {
     return this.optionalOf(true)

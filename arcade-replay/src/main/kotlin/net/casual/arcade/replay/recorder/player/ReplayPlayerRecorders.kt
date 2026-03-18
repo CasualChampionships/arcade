@@ -11,6 +11,7 @@ import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerStopEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.replay.io.ReplayFormat
+import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorders.create
 import net.casual.arcade.replay.recorder.rejoin.RejoinedReplayPlayer
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
 import net.casual.arcade.replay.recorder.settings.SimpleRecorderSettings

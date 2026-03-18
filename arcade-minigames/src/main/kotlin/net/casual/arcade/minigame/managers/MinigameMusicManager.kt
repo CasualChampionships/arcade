@@ -16,9 +16,9 @@ import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
 import net.casual.arcade.minigame.utils.MinigameMusicProvider
 import net.casual.arcade.resources.event.PlayerPacksSuccessEvent
-import net.casual.arcade.utils.player.sendSound
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.impl.TimedSound
+import net.casual.arcade.utils.player.sendSound
 import net.minecraft.core.Holder
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket
 import net.minecraft.server.level.ServerLevel

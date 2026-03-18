@@ -10,15 +10,15 @@ import net.casual.arcade.events.server.player.PlayerAttributeUpdatedEvent
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
 import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
 import net.casual.arcade.events.server.player.PlayerTickEvent
-import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.PlayerExtension
+import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.ClientboundSetPassengersPacket
-import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.locationWithLevel
 import net.casual.arcade.utils.entity.teleportTo
+import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.locationWithLevel
 import net.casual.arcade.virtual.entity.SimpleVirtualEntity
 import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor

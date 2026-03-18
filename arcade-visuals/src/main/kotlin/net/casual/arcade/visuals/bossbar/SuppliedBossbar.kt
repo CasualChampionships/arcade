@@ -5,7 +5,8 @@
 package net.casual.arcade.visuals.bossbar
 
 import net.casual.arcade.visuals.core.TickableVisualElement
-import net.casual.arcade.visuals.elements.*
+import net.casual.arcade.visuals.elements.PlayerSpecificElement
+import net.casual.arcade.visuals.elements.UniversalElement
 import net.casual.arcade.visuals.extensions.PlayerBossbarsExtension.Companion.bossbarsExtension
 import net.casual.arcade.visuals.utils.elements.BooleanElements
 import net.casual.arcade.visuals.utils.elements.BossbarColorElements

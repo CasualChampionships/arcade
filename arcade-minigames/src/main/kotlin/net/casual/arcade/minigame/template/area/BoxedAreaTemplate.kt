@@ -10,8 +10,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.minigame.area.BoxedArea
 import net.casual.arcade.minigame.area.PlaceableArea
 import net.casual.arcade.utils.IdentifierUtils
-import net.casual.arcade.utils.serialization.codec.encodedOptionalFieldOf
 import net.casual.arcade.utils.serialization.codec.CodecProvider
+import net.casual.arcade.utils.serialization.codec.encodedOptionalFieldOf
 import net.minecraft.core.Vec3i
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.Identifier

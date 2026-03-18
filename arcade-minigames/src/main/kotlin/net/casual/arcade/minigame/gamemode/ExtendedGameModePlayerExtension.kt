@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.minigame.gamemode
 
-import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.PlayerExtension
+import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.ArcadeUtils
 import net.minecraft.resources.Identifier

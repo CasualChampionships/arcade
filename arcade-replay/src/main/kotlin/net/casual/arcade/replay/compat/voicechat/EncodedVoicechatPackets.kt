@@ -14,7 +14,7 @@ import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.common.ClientCommonPacketListener
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
 import net.minecraft.world.phys.Vec3
-import java.util.UUID
+import java.util.*
 
 public object EncodedVoicechatPackets {
     public fun get(

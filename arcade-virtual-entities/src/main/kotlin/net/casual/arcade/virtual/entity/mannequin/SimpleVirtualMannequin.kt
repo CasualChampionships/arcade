@@ -14,7 +14,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.HumanoidArm
 import net.minecraft.world.item.component.ResolvableProfile
-import java.util.Optional
+import java.util.*
 
 public open class SimpleVirtualMannequin(
     attachment: VirtualEntityAttachment,

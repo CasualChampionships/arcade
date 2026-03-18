@@ -5,10 +5,10 @@
 package net.casual.arcade.minigame.settings.display
 
 import eu.pb4.sgui.api.gui.GuiLike
-import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.guis.sgui.SelectionGuiBuilder
 import net.casual.arcade.guis.sgui.SelectionGuiComponents
 import net.casual.arcade.guis.sgui.SelectionGuiStyle
+import net.casual.arcade.utils.ItemUtils.named
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack

@@ -10,12 +10,12 @@ import com.mojang.authlib.properties.PropertyMap
 import net.casual.arcade.utils.ClientboundPlayerInfoUpdatePacket
 import net.casual.arcade.utils.EnumUtils
 import net.casual.arcade.utils.player.server
-import net.casual.arcade.visuals.core.TrackingVisualElement
 import net.casual.arcade.visuals.core.TickableVisualElement
-import net.casual.arcade.visuals.utils.elements.ComponentElements
+import net.casual.arcade.visuals.core.TrackingVisualElement
 import net.casual.arcade.visuals.elements.PlayerSpecificElement
 import net.casual.arcade.visuals.extensions.PlayerTabDisplayExtension.Companion.tabDisplayExtension
 import net.casual.arcade.visuals.tab.PlayerListEntries.Entry
+import net.casual.arcade.visuals.utils.elements.ComponentElements
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener

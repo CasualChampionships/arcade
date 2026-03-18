@@ -8,7 +8,6 @@ import eu.pb4.polymer.core.api.entity.PolymerEntityUtils
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.world.entity.EntityType
-import java.util.ArrayList
 
 /**
  * This class works exactly like [SynchedEntityData].

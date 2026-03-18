@@ -6,6 +6,8 @@ package net.casual.arcade.events.server
 
 import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.server.ServerStartEvent.Companion.PHASE_POST
+import net.casual.arcade.events.server.ServerStartEvent.Companion.PHASE_PRE
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.minecraft.server.MinecraftServer
 

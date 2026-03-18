@@ -6,6 +6,8 @@ package net.casual.arcade.events.server.player
 
 import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.common.CancellableEvent
+import net.casual.arcade.events.server.player.PlayerJoinEvent.Companion.PHASE_INITIALIZED
+import net.casual.arcade.events.server.player.PlayerJoinEvent.Companion.PHASE_POST
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerGamePacketListenerImpl
