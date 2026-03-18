@@ -173,9 +173,8 @@ public open class FakePlayer(
     }
 
     override fun tickDeath() {
-        this.connection.handleClientCommand(
-            ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN)
-        )
+        super.tickDeath()
+        this.tryRespawnAfterDeath()
     }
 
     override fun isClientAuthoritative(): Boolean {
@@ -185,6 +184,12 @@ public open class FakePlayer(
     override fun showEndCredits() {
         this.wonGame = true
         super.showEndCredits()
+    }
+
+    protected open fun tryRespawnAfterDeath() {
+        this.connection.handleClientCommand(
+            ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN)
+        )
     }
 
     protected open fun sendDebugPackets() {
