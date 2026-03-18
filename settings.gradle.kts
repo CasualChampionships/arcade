@@ -4,6 +4,7 @@ include(
     ":arcade-boundaries",
     ":arcade-commands",
     ":arcade-datagen",
+    ":arcade-debug",
     ":arcade-dimensions",
     ":arcade-event-registry",
     ":arcade-events-client",

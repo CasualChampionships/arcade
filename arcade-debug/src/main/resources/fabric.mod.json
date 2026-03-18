@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "arcade-debug",
+  "version": "${version}",
+  "name": "Arcade Debug",
+  "description": "",
+  "authors": [
+    "Sensei"
+  ],
+  "contact": {
+
+  },
+  "license": "MIT",
+  "icon": "assets/icon.png",
+  "environment": "*",
+  "mixins": [
+    "arcade-debug.mixins.json"
+  ],
+  "depends": {
+    "minecraft": "${minecraft_dependency}",
+    "fabricloader": ">=${fabric_loader_dependency}",
+    "fabric-language-kotlin": ">=${fabric_kotlin_dependency}"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": ["library"],
+      "parent": {
+        "id": "arcade",
+        "name": "Arcade",
+        "icon": "assets/icon.png",
+        "badges": ["library"]
+      }
+    }
+  }
+}

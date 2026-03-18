@@ -29,17 +29,20 @@ import net.minecraft.server.level.ClientInformation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.CommonListenerCookie
+import net.minecraft.util.debug.*
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier
 import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes
+import net.minecraft.world.entity.ai.goal.WrappedGoal
 import net.minecraft.world.item.ProjectileWeaponItem
 import net.minecraft.world.level.pathfinder.PathType
 import net.minecraft.world.phys.AABB
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.function.Consumer
 
 @Suppress("LeakingThis")
 public open class FakePlayer(
@@ -163,8 +166,6 @@ public open class FakePlayer(
                 this.isSprinting = false
             }
         }
-
-        this.sendDebugPackets()
     }
 
     public open fun customServerAiStep(level: ServerLevel) {
@@ -186,8 +187,19 @@ public open class FakePlayer(
         super.showEndCredits()
     }
 
-    protected open fun sendDebugPackets() {
-//        DebugToolsPackets.getInstance().sendBrainDumpPacket(this.level(), this)
+    override fun registerDebugValues(level: ServerLevel, registration: DebugValueSource.Registration) {
+        registration.register(DebugSubscriptions.ENTITY_PATHS) {
+            val path = this.navigation.path
+            when {
+                path == null || path.debugData() == null -> null
+                else -> DebugPathInfo(path.copy(), this.navigation.maxDistanceToWaypoint.toFloat())
+            }
+        }
+        if (!this.brain.isBrainDead) {
+            registration.register(DebugSubscriptions.BRAINS) {
+                DebugBrainDump.takeBrainDump(level, this)
+            }
+        }
     }
 
     private fun isMovingSlowly(): Boolean {
