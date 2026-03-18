@@ -312,7 +312,11 @@ public class MinigameRecipeManager(
     }
 
     private fun getDisplaysForPlayer(player: ServerPlayer): List<RecipeDisplayEntry> {
-        val recipes = this.players[player.uuid] ?: return listOf()
+        val recipes = this.players[player.uuid]
+        if (recipes.isEmpty()) {
+            return listOf()
+        }
+
         val unlocked = ArrayList<RecipeDisplayEntry>()
         for (recipe in recipes) {
             val entries = this.recipeToEntries[recipe] ?: continue

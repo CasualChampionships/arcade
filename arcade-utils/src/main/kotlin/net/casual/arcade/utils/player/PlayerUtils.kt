@@ -13,6 +13,7 @@ import net.casual.arcade.utils.chat.PlayerFormattedChat
 import net.casual.arcade.utils.compat.SguiCompatLayer
 import net.casual.arcade.utils.component.joinToComponent
 import net.casual.arcade.utils.impl.Sound
+import net.casual.arcade.utils.level.server
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.scoreboard.add
 import net.casual.arcade.utils.time.MinecraftTimeDuration
@@ -55,13 +56,18 @@ import net.minecraft.world.scores.PlayerTeam
 import java.util.function.Predicate
 
 public val ServerPlayer.server: MinecraftServer
-    get() = this.level().server!!
+    get() = this.level().server()
 
 public val ServerPlayer.isSurvival: Boolean
     get() = this.isGameMode(GameType.SURVIVAL)
 
 public val ServerPlayer.username: String
     get() = this.gameProfile.name
+
+public fun ServerPlayer.displayName(): Component {
+    @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
+    return this.displayName!!
+}
 
 public fun ServerPlayer.getGameMode(): GameType {
     return this.gameMode.gameModeForPlayer
@@ -94,7 +100,7 @@ public fun Iterable<ServerPlayer>.ops(
 }
 
 public fun Iterable<ServerPlayer>.toComponent(): MutableComponent {
-    return this.joinToComponent { player -> player.displayName!! }
+    return this.joinToComponent { player -> player.displayName() }
 }
 
 public fun ServerPlayer.getKillCreditWith(source: DamageSource): Entity? {

@@ -11,6 +11,7 @@ import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.EnumUtils
 import net.casual.arcade.utils.asClientGamePacket
+import net.casual.arcade.utils.level.server
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.player.isChunkInViewDistance
 import net.casual.arcade.utils.serialization.codec.CodecProvider
@@ -75,7 +76,7 @@ public class AxisAlignedDisplayBoundaryRenderer(
     }
 
     override fun render(level: ServerLevel, players: Collection<ServerPlayer>) {
-        val shouldUpdateCenter = level.server!!.tickCount % 2 == 0
+        val shouldUpdateCenter = level.server().tickCount % 2 == 0
         if (shouldUpdateCenter) {
             val center = this.shape.center()
             val chunkX = SectionPos.blockToSectionCoord(center.x())

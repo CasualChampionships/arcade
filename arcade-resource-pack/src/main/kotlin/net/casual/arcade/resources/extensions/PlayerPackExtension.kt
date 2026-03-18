@@ -14,7 +14,7 @@ import net.casual.arcade.resources.pack.PackInfo
 import net.casual.arcade.resources.pack.PackState
 import net.casual.arcade.resources.pack.PackStatus
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.PlayerUtils.player
+import net.casual.arcade.utils.server.player
 import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import net.minecraft.server.MinecraftServer

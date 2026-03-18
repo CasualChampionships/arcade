@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.visuals.predicate
 
-import net.casual.arcade.utils.PlayerUtils.isGameMode
+import net.casual.arcade.utils.player.isGameMode
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType

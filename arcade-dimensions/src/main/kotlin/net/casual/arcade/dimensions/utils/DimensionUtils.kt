@@ -14,6 +14,7 @@ import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
 import net.casual.arcade.utils.entity.teleportTo
+import net.casual.arcade.utils.level.server
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
@@ -304,7 +305,7 @@ private fun ServerLevel.removePlayers() {
         return
     }
 
-    val overworld = this.server!!.overworld()
+    val overworld = this.server().overworld()
     for (player in players.toList()) {
         val position = player.adjustSpawnLocation(overworld, overworld.respawnData.pos()).bottomCenter
         player.teleportTo(overworld.asLocation(position))

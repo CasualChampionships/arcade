@@ -14,6 +14,7 @@ import net.casual.arcade.dimensions.utils.LevelPersistenceTracker
 import net.casual.arcade.dimensions.utils.getDimensionPath
 import net.casual.arcade.dimensions.utils.impl.DerivedLevelData
 import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.level.server
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtIo
 import net.minecraft.nbt.NbtOps
@@ -88,7 +89,7 @@ public open class CustomLevel(
     init {
         // In case of server crash, we should still delete temporary levels
         if (!this.persistence.shouldSave()) {
-            LevelPersistenceTracker.markAsTemporary(this.server!!, this.dimension())
+            LevelPersistenceTracker.markAsTemporary(this.server(), this.dimension())
         }
     }
 
@@ -165,7 +166,7 @@ public open class CustomLevel(
             val ops = RegistryOps.create(NbtOps.INSTANCE, this.registryAccess())
             compound.put("factory", CustomLevelFactory.CODEC.encodeStart(ops, this.factory).orThrow)
             NbtUtils.addCurrentDataVersion(compound)
-            val path = getDimensionDataPath(this.server!!, this.dimension())
+            val path = getDimensionDataPath(this.server(), this.dimension())
             path.createParentDirectories()
             NbtIo.write(compound, path)
         } catch (e: IllegalStateException) {

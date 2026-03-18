@@ -11,6 +11,7 @@ import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.level.getTrackedEntities
 import net.casual.arcade.utils.entity.WrappedTrackedEntity
+import net.casual.arcade.utils.level.server
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
 import net.minecraft.server.level.ServerLevel
@@ -82,7 +83,7 @@ public interface ChunkSender {
      * @return The view distance of the server.
      */
     public fun getViewDistance(): Int {
-        return this.level.server!!.playerList.viewDistance
+        return this.level.server().playerList.viewDistance
     }
 
     /**
@@ -163,7 +164,7 @@ public interface ChunkSender {
         val leashed = ArrayList<Mob>()
         val ridden = ArrayList<Entity>()
 
-        val viewDistance = this.level.server!!.playerList.viewDistance
+        val viewDistance = this.level.server().playerList.viewDistance
         for (tracked in this.level.getTrackedEntities()) {
             val entity = tracked.getEntity()
             tracked.getServerEntity()
@@ -202,7 +203,7 @@ public interface ChunkSender {
      */
     @Internal
     public fun sendChunkEntities(seen: SeenEntities) {
-        val viewDistance = this.level.server!!.playerList.viewDistance
+        val viewDistance = this.level.server().playerList.viewDistance
         for (tracked in this.level.getTrackedEntities()) {
             val entity = tracked.getEntity()
             val range = min(tracked.getRange(), viewDistance * 16).toDouble()

@@ -50,7 +50,7 @@ public object ReplayViewerUtils {
     private inline fun <T> useByteBuf(buf: com.github.steveice10.netty.buffer.ByteBuf, block: (ByteBuf) -> T): T {
         // When we compile we map steveice10.netty -> io.netty
         // We just need this check for dev environment
-        @Suppress("USELESS_IS_CHECK")
+        @Suppress("USELESS_IS_CHECK", "IMPOSSIBLE_IS_CHECK_WARNING")
         if (buf is ByteBuf) {
             return block(buf)
         }

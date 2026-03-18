@@ -13,7 +13,6 @@ import net.casual.arcade.events.server.entity.EntityTeamJoinEvent;
 import net.casual.arcade.events.server.entity.EntityTeamLeaveEvent;
 import net.casual.arcade.events.server.player.PlayerTeamJoinEvent;
 import net.casual.arcade.events.server.player.PlayerTeamLeaveEvent;
-import net.casual.arcade.utils.PlayerUtils;
 import net.casual.arcade.utils.entity.EntityUtilsKt;
 import net.casual.arcade.utils.server.ServerUtilsKt;
 import net.casual.arcade.utils.string.StringUtilsKt;

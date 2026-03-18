@@ -17,7 +17,6 @@ import net.casual.arcade.events.server.player.*
 import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.managers.*
 import net.casual.arcade.minigame.phase.Phase
-import net.casual.arcade.minigame.serialization.MinigameDataTracker
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.serialization.MinigameSerializer
 import net.casual.arcade.minigame.settings.MinigameSettings
@@ -120,9 +119,6 @@ public abstract class Minigame(
      */
     public val visuals: MinigameVisualsManager = MinigameVisualsManager(this)
 
-    @Deprecated("Use visuals instead", ReplaceWith("this.visuals"))
-    public val ui: MinigameVisualsManager by this::visuals
-
     /**
      * The resource pack manager for packs the minigame requires players to download.
      *
@@ -195,14 +191,6 @@ public abstract class Minigame(
      */
     public val chat: MinigameChatManager = MinigameChatManager(this)
 
-    /**
-     * This tracks minigame data which can be serialized
-     * and then displayed to players later.
-     *
-     * @see MinigameDataTracker
-     */
-    @Deprecated("For removal")
-    public val data: MinigameDataTracker = MinigameDataTracker(this)
 
     /**
      * This handles all the settings for a minigame.
@@ -302,8 +290,6 @@ public abstract class Minigame(
         this.started = true
 
         this.tryInitialize()
-
-        this.data.start()
 
         GlobalEventHandler.Server.broadcast(MinigameStartEvent(this))
 
@@ -419,8 +405,6 @@ public abstract class Minigame(
      * @see close
      */
     public fun complete() {
-        this.data.end()
-
         GlobalEventHandler.Server.broadcast(MinigameCompleteEvent(this))
 
         this.completed = true
@@ -446,8 +430,6 @@ public abstract class Minigame(
             return
         }
         this.closing = true
-
-        this.data.end()
 
         this.scheduler.minigame.cancelAll()
         this.scheduler.phased.cancelAll()

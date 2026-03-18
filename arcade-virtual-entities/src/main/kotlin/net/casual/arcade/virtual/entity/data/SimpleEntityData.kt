@@ -20,6 +20,7 @@ public class SimpleEntityData {
         val examples = PolymerEntityUtils.getDefaultSynchedEntityData(type)
         this.entries = Array(examples.size) { i ->
             val example = examples[i]
+            @Suppress("UNCHECKED_CAST")
             EntityDataEntry(example.accessor as EntityDataAccessor<in Any>, example.value)
         }
     }

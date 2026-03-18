@@ -30,19 +30,14 @@ import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.settings.MinigameSettings
-import net.casual.arcade.scheduler.MinecraftTaskScheduler
-import net.casual.arcade.scheduler.task.Completable
 import net.casual.arcade.scheduler.utils.asCoroutineDispatcher
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.PlayerUtils.hasPermission
-import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.component.gold
 import net.casual.arcade.utils.component.lime
 import net.casual.arcade.utils.component.red
 import net.casual.arcade.utils.coroutine.async
 import net.casual.arcade.utils.coroutine.launch
-import net.casual.arcade.utils.time.MinecraftTimeDuration
-import net.casual.arcade.visuals.countdown.Countdown
+import net.casual.arcade.utils.player.hasPermission
 import net.casual.arcade.visuals.ready.ReadyChecker
 import net.casual.arcade.visuals.ready.ReadyTracker
 import net.minecraft.commands.CommandSourceStack
@@ -172,26 +167,6 @@ public object MinigameUtils {
 
     public suspend fun Minigame.checkReadyTeams() {
         this.trackReadyTeams().awaitSuccess()
-    }
-
-    /**
-     * This counts down for the specified duration, and sends
-     * the countdown to all players for a given minigame.
-     *
-     * @param minigame The minigame to send the countdown to.
-     * @param players The players function, the players to send the countdown to.
-     * @return A [Completable] that will complete when the countdown is finished.
-     */
-    @JvmStatic
-    @Deprecated("Use Transition.transition")
-    public fun Countdown.countdown(
-        minigame: Minigame,
-        duration: MinecraftTimeDuration = 10.Seconds,
-        interval: MinecraftTimeDuration = 1.Seconds,
-        scheduler: MinecraftTaskScheduler = minigame.scheduler.asPhasedScheduler(),
-        players: () -> Collection<ServerPlayer> = minigame.players::all
-    ): Completable {
-        return this.countdown(duration, interval, scheduler, players)
     }
 
     public fun <T: ArgumentBuilder<CommandSourceStack, T>> T.requiresAdminOrPermission(

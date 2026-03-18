@@ -24,6 +24,7 @@ import net.casual.arcade.replay.recorder.settings.RecorderSettings.ChunkRecordin
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.ClientboundAddEntityPacket
 import net.casual.arcade.utils.entity.WrappedTrackedEntity
+import net.casual.arcade.utils.level.server
 import net.casual.arcade.utils.toIdString
 import net.minecraft.core.UUIDUtil
 import net.minecraft.network.protocol.Packet
@@ -65,7 +66,7 @@ public class ReplayChunkRecorder internal constructor(
     settings: RecorderSettings,
     format: ReplayFormat,
     path: Path,
-): ReplayRecorder(chunks.level.server!!, PROFILE, settings, format, path), ChunkSender {
+): ReplayRecorder(chunks.level.server(), PROFILE, settings, format, path), ChunkSender {
     private val dummy by lazy {
         val player = ServerPlayer(this.server, this.chunks.level, PROFILE, ClientInformation.createDefault())
         ReplayChunkGamePacketListener(this, player)

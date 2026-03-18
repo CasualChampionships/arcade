@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.Level
@@ -18,6 +19,11 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.chunk.LevelChunk
 import net.minecraft.world.level.chunk.status.ChunkStatus
 import kotlin.collections.iterator
+
+public fun ServerLevel.server(): MinecraftServer {
+    @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
+    return this.server!!
+}
 
 public fun ServerLevel.getTrackedEntities(): List<WrappedTrackedEntity> {
     val map = this.chunkSource.chunkMap as ChunkMapAccessor

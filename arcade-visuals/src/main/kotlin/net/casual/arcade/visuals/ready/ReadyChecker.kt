@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.visuals.ready
 
+import net.casual.arcade.utils.player.displayName
 import net.minecraft.network.chat.CommonComponents
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
@@ -30,7 +31,7 @@ public object ReadyChecker {
         broadcaster: ReadyBroadcaster<ServerPlayer>,
         participants: Collection<ServerPlayer>
     ): ReadyTracker<ServerPlayer> {
-        return this.track(broadcaster, participants) { player -> player.displayName!! }
+        return this.track(broadcaster, participants) { player -> player.displayName() }
     }
 
     @JvmName("trackTeams")

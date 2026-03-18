@@ -11,6 +11,7 @@ import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.resources.utils.spaced
 import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.component.*
+import net.casual.arcade.utils.player.displayName
 import net.casual.arcade.utils.recipe.CraftingRecipeBuilder
 import net.casual.arcade.visuals.elements.UniversalElement
 import net.casual.arcade.visuals.nametag.PlayerNametag
@@ -73,7 +74,7 @@ open class TestMinigame(
         display.setDisplay(header, footer)
         this.visuals.setPlayerListDisplay(display)
 
-        this.visuals.addNametag(PlayerNametag.simple({ player -> player.displayName!! }))
+        this.visuals.addNametag(PlayerNametag.simple({ player -> player.displayName() }))
         this.visuals.addNametag(PlayerNametag.simple({ Component.literal("CustomNametags!") }))
     }
 

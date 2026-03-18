@@ -7,7 +7,6 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.*
 import net.casual.arcade.npc.FakePlayer
-import net.casual.arcade.utils.PlayerUtils.player
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
