@@ -7,7 +7,6 @@ fabric-kotlin       = "1.13.9+kotlin.2.3.10"
 polymer             = "0.16.0-alpha.1+26.1-pre-2"
 sgui                = "2.0.0-alpha.1+26.1"
 server-translations = "3.0.0+26.1-pre-3"
-debug-tools-api     = "1.0.17"
 replay-studio       = "526f9aaf43"
 permissions         = "0.6.1"
 
@@ -35,10 +34,8 @@ fabric-kotlin          = { module = "net.fabricmc:fabric-language-kotlin"  , ver
 polymer-core           = { module = "eu.pb4:polymer-core"                  , version.ref = "polymer" }
 polymer-blocks         = { module = "eu.pb4:polymer-blocks"                , version.ref = "polymer" }
 polymer-resource-pack  = { module = "eu.pb4:polymer-resource-pack"         , version.ref = "polymer" }
-polymer-virtual-entity = { module = "eu.pb4:polymer-virtual-entity"        , version.ref = "polymer" }
 sgui                   = { module = "eu.pb4:sgui"                          , version.ref = "sgui" }
 server-translations    = { module = "xyz.nucleoid:server-translations-api" , version.ref = "server-translations" }
-debug-tools-api        = { module = "me.senseiwells:debug-tools-api"       , version.ref = "debug-tools-api" }
 replay-studio          = { module = "com.github.ReplayMod:ReplayStudio"    , version.ref = "replay-studio" }
 permissions            = { module = "me.lucko:fabric-permissions-api"      , version.ref = "permissions" }
 
