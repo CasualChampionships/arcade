@@ -196,6 +196,7 @@ private fun Project.updateDocumentedDependencies(path: String, transitive: Boole
         if (shade != null) {
             dependencies.removeAll(shade.dependencies)
         }
+        dependencies.removeAll { it.group?.startsWith("org.jetbrains.kotlin") == true }
         if (dependencies.isNotEmpty()) {
             dependencies.sortedBy { "${it.group}:${it.name}" }.joinTo(builder, "\n", "\n\n") {
                 """    include(modImplementation("${it.group}:${it.name}:${it.version}")!!)"""

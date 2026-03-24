@@ -4,41 +4,39 @@
  */
 package net.casual.arcade.replay.mixins.compat.vmp;
 
-//import com.ishland.vmp.common.playerwatching.NearbyEntityTracking;
-//import com.llamalad7.mixinextras.sugar.Local;
-//import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecordable;
-//import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorders;
-//import net.casual.arcade.utils.entity.EntityUtilsKt;
-//import net.minecraft.server.level.ChunkMap;
-//import net.minecraft.server.level.ServerLevel;
-//import net.minecraft.server.level.ServerPlayer;
+import com.ishland.vmp.common.playerwatching.NearbyEntityTracking;
+import com.llamalad7.mixinextras.sugar.Local;
+import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecordable;
+import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorders;
+import net.casual.arcade.utils.entity.EntityUtilsKt;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
-//import org.spongepowered.asm.mixin.injection.At;
-//import org.spongepowered.asm.mixin.injection.Inject;
-//import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-// TODO(26.1):
-@Mixin(targets = "com.ishland.vmp.common.playerwatching.NearbyEntityTracking")
-//@Mixin(value = NearbyEntityTracking.class, remap = false)
+@Mixin(value = NearbyEntityTracking.class, remap = false)
 public class NearbyEntityTrackingMixin {
-//    @Inject(
-//        method = "tick0",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lcom/ishland/vmp/common/playerwatching/ServerPlayerEntityExtension;vmpTracking$updatePosition()V"
-//        )
-//    )
-//    private void onPlayerTrackingTick(
-//        CallbackInfo ci,
-//        @Local(name = "player") ServerPlayer player,
-//        @Local(name = "isPlayerPositionUpdated") boolean positionUpdated
-//    ) {
-//        if (positionUpdated) {
-//            ServerLevel level = player.level();
-//            ChunkMap.TrackedEntity wrapped = EntityUtilsKt.getTrackedEntity(player);
-//            if (wrapped != null) {
-//                ReplayChunkRecorders.updateRecordable((ReplayChunkRecordable) wrapped, level.dimension(), player.chunkPosition());
-//            }
-//        }
-//    }
+    @Inject(
+        method = "tick0",
+        at = @At(
+            value = "INVOKE",
+            target = "Lcom/ishland/vmp/common/playerwatching/ServerPlayerEntityExtension;vmpTracking$updatePosition()V"
+        )
+    )
+    private void onPlayerTrackingTick(
+        CallbackInfo ci,
+        @Local(name = "player") ServerPlayer player,
+        @Local(name = "isPlayerPositionUpdated") boolean positionUpdated
+    ) {
+        if (positionUpdated) {
+            ServerLevel level = player.level();
+            ChunkMap.TrackedEntity wrapped = EntityUtilsKt.getTrackedEntity(player);
+            if (wrapped != null) {
+                ReplayChunkRecorders.updateRecordable((ReplayChunkRecordable) wrapped, level.dimension(), player.chunkPosition());
+            }
+        }
+    }
 }
