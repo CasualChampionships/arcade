@@ -6,9 +6,11 @@ package net.casual.arcade.events.server.registry
 
 import net.casual.arcade.events.common.MissingExecutorEvent
 import net.casual.arcade.events.server.mixins.registry.RegistryLoadTaskAccessor
+import net.casual.arcade.utils.toKey
 import net.minecraft.core.HolderGetter
 import net.minecraft.core.RegistrationInfo
 import net.minecraft.core.Registry
+import net.minecraft.resources.Identifier
 import net.minecraft.resources.RegistryOps.RegistryInfoLookup
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceManagerRegistryLoadTask
@@ -41,5 +43,9 @@ public data class RegistryLoadedFromResourcesEvent<T: Any>(
             val registry = this.task.arcade_accessRegistry()
             registry.register(key, value, info)
         }
+    }
+
+    public fun register(key: Identifier, value: T, info: RegistrationInfo = RegistrationInfo.BUILT_IN) {
+        this.register(key.toKey(this.registryKey()), value, info)
     }
 }

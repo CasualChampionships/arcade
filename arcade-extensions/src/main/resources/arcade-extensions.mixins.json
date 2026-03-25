@@ -8,6 +8,7 @@
   },
   "mixins": [
     "compat.InternalEntityHelpersMixin",
+    "datafix.DimensionStorageFileFixMixin",
     "entity.EntityMixin",
     "level.ServerLevelMixin",
     "player.PlayerListMixin",
