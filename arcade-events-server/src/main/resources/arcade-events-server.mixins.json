@@ -20,7 +20,6 @@
     "ItemStackMixin",
     "LevelMixin",
     "LivingEntityMixin",
-    "MinecraftServerMixin",
     "NaturalSpawnerMixin",
     "PistonHeadBlockMixin",
     "PlayerAdvancementsMixin",
@@ -39,7 +38,12 @@
     "TntBlockMixin",
     "registry.RegistryDataLoaderMixin",
     "registry.RegistryLoadTaskAccessor",
-    "registry.ResourceManagerRegistryLoadTaskMixin"
+    "registry.ResourceManagerRegistryLoadTaskMixin",
+    "server.DedicatedServerMixin",
+    "server.IntegratedServerMixin",
+    "server.MinecraftServerMixin",
+    "server.MinecraftServerStateServiceImplMixin",
+    "server.SaveAllCommandMixin"
   ],
   "injectors": {
     "defaultRequire": 1

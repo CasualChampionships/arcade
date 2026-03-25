@@ -2,7 +2,7 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.events.server.mixins;
+package net.casual.arcade.events.server.mixins.server;
 
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
@@ -81,7 +81,7 @@ public class MinecraftServerMixin {
 		)
 	)
 	private void onSave(CallbackInfo ci) {
-		ServerSaveEvent event = new ServerSaveEvent((MinecraftServer) (Object) this, true);
+		ServerSaveEvent event = new ServerSaveEvent((MinecraftServer) (Object) this, ServerSaveEvent.Reason.Shutdown);
 		GlobalEventHandler.Server.broadcast(event);
 	}
 
@@ -108,7 +108,7 @@ public class MinecraftServerMixin {
 		at = @At("TAIL")
 	)
 	private void onSaveEverything(boolean suppressLog, boolean flush, boolean forced, CallbackInfoReturnable<Boolean> cir) {
-		ServerSaveEvent event = new ServerSaveEvent((MinecraftServer) (Object) this, false);
+		ServerSaveEvent event = ServerSaveEvent.createWithContextualReason((MinecraftServer) (Object) this);
 		GlobalEventHandler.Server.broadcast(event);
 	}
 }
