@@ -17,11 +17,11 @@ repositories {
 }
 
 dependencies {
-    include(implementation("net.casualchampionships:arcade-commands:0.9.0-beta.3+26.1")!!)
+    include(implementation("net.casualchampionships:arcade-commands:0.9.0-beta.8+26.1")!!)
 
-    include(modImplementation("net.casualchampionships:arcade-event-registry:0.9.0-beta.3+26.1")!!)
-    include(modImplementation("net.casualchampionships:arcade-events-server:0.9.0-beta.3+26.1")!!)
-    include(modImplementation("net.casualchampionships:arcade-utils:0.9.0-beta.3+26.1")!!)
+    include(implementation("net.casualchampionships:arcade-event-registry:0.9.0-beta.8+26.1")!!)
+    include(implementation("net.casualchampionships:arcade-events-server:0.9.0-beta.8+26.1")!!)
+    include(implementation("net.casualchampionships:arcade-utils:0.9.0-beta.8+26.1")!!)
 }
 ```
 
