@@ -11,6 +11,7 @@ import net.casual.arcade.dimensions.level.factory.SimpleCustomLevelFactory
 import net.casual.arcade.dimensions.mixins.level.MinecraftServerAccessor
 import net.casual.arcade.dimensions.mixins.level.ServerLevelAccessor
 import net.casual.arcade.dimensions.utils.LevelPersistenceTracker
+import net.casual.arcade.dimensions.utils.getDimensionDataPath
 import net.casual.arcade.dimensions.utils.getDimensionPath
 import net.casual.arcade.dimensions.utils.impl.DerivedLevelData
 import net.casual.arcade.utils.ArcadeUtils
@@ -237,7 +238,7 @@ public open class CustomLevel(
         }
 
         private fun getDimensionDataPath(server: MinecraftServer, dimension: ResourceKey<Level>): Path {
-            return server.getDimensionPath(dimension).resolve("arcade-dimension-data.nbt")
+            return server.getDimensionDataPath(dimension, "arcade").resolve("custom_dimension_data.dat")
         }
     }
 }

@@ -10,11 +10,14 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.datafixers.schemas.Schema;
 import net.casual.arcade.utils.collection.CollectionUtilsKt;
 import net.minecraft.util.filefix.FileFix;
+import net.minecraft.util.filefix.access.FileRelation;
 import net.minecraft.util.filefix.fixes.DimensionStorageFileFix;
 import net.minecraft.util.filefix.operations.FileFixOperations;
 import net.minecraft.util.filefix.operations.Move;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
@@ -22,6 +25,19 @@ import java.util.List;
 public abstract class DimensionStorageFileFixMixin extends FileFix {
     public DimensionStorageFileFixMixin(Schema schema) {
         super(schema);
+    }
+
+    @Inject(
+        method = "makeFixer",
+        at = @At("TAIL")
+    )
+    private void injectArcadeExtensionFixer(CallbackInfo ci) {
+        this.addFileFixOperation(
+            FileFixOperations.applyInFolders(
+                FileRelation.DIMENSIONS,
+                List.of(FileFixOperations.move("arcade-extension-data.nbt", "data/arcade/extension_data.dat"))
+            )
+        );
     }
 
     @Definition(id = "of", method = "Ljava/util/List;of(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/List;")

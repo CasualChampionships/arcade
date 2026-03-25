@@ -281,6 +281,10 @@ public fun MinecraftServer.getDimensionPath(dimension: ResourceKey<Level>): Path
     return (this as MinecraftServerAccessor).storage.getDimensionPath(dimension)
 }
 
+public fun MinecraftServer.getDimensionDataPath(dimension: ResourceKey<Level>, namespace: String): Path {
+    return this.getDimensionPath(dimension).resolve("data").resolve(namespace)
+}
+
 private fun MinecraftServer.unloadCustomLevel(level: CustomLevel, save: Boolean): Boolean {
     if ((this as MinecraftServerAccessor).levels.remove(level.dimension(), level)) {
         LevelPersistenceTracker.unmarkAsPersistent(level.dimension())
