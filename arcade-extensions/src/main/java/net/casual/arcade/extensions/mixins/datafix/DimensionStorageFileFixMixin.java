@@ -32,7 +32,9 @@ public abstract class DimensionStorageFileFixMixin extends FileFix {
         at = @At("MIXINEXTRAS:EXPRESSION")
     )
     private List<Move> injectArcadeExtensionFixer(List<Move> original) {
-        return CollectionUtilsKt.concat(original, List.of(FileFixOperations.moveSimple("arcade-extension-data.nbt")));
+        return CollectionUtilsKt.concat(
+            original, List.of(FileFixOperations.move("arcade-extension-data.nbt", "data/arcade/extension_data.dat"))
+        );
     }
 }
 

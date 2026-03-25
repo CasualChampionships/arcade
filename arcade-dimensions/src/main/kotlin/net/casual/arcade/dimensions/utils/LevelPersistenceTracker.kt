@@ -146,10 +146,10 @@ public object LevelPersistenceTracker {
     }
 
     private fun getPersistenceDataPath(server: MinecraftServer): Path {
-        return server.getWorldPath(LevelResource.ROOT).resolve("arcade").resolve("persistent-levels.nbt")
+        return server.getWorldPath(LevelResource.DATA).resolve("arcade").resolve("persistent_levels.dat")
     }
 
     private fun getTemporaryDataPath(server: MinecraftServer): Path {
-        return server.getWorldPath(LevelResource.ROOT).resolve("arcade").resolve("temporary-levels.nbt")
+        return server.getWorldPath(LevelResource.DATA).resolve("arcade").resolve("temporary_levels.dat")
     }
 }

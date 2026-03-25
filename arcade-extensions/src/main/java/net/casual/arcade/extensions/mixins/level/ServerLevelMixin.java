@@ -58,7 +58,10 @@ public abstract class ServerLevelMixin extends Level implements ExtensionHolder 
 		CallbackInfo ci,
 		@Local(argsOnly = true) LevelStorageSource.LevelStorageAccess access
 	) {
-		this.arcade$savePath = access.getDimensionPath(this.dimension()).resolve("arcade-extension-data.nbt");
+		this.arcade$savePath = access.getDimensionPath(this.dimension())
+			.resolve("data")
+			.resolve("arcade")
+			.resolve("extension_data.dat");
 
 		LevelExtensionEvent event = new LevelExtensionEvent((ServerLevel) (Object) this);
 		GlobalEventHandler.Server.broadcast(event);

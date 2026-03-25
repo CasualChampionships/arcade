@@ -8,6 +8,7 @@
   },
   "mixins": [
     "command.RequiredArgumentBuilderMixin",
+    "datafix.DimensionStorageFileFixMixin",
     "level.CommonPlayerSpawnInfoMixin",
     "level.MinecraftServerAccessor",
     "level.MinecraftServerMixin",
