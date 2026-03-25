@@ -32,7 +32,7 @@ public class InternalEntityHelpersMixin {
         EntitySpawnReason spawnReason,
         Operation<T> original
     ) {
-        return ScopedValue.where(EntityExtension.SHOULD_ATTACH_EXTENSION, Unit.INSTANCE).call(() -> {
+        return ScopedValue.where(EntityExtension.DONT_ATTACH_EXTENSION, Unit.INSTANCE).call(() -> {
             return original.call(instance, level, spawnReason);
         });
     }

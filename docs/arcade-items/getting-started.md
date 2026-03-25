@@ -15,8 +15,6 @@ repositories {
 }
 
 dependencies {
-    include(implementation("net.casualchampionships:arcade-items:0.9.0-beta.1+26.1-pre-2")!!)
-
-    include(modImplementation("org.jetbrains.kotlin:kotlin-stdlib:2.3.10")!!)
+    include(implementation("net.casualchampionships:arcade-items:0.9.0-beta.3+26.1")!!)
 }
 ```

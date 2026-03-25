@@ -8,7 +8,7 @@ polymer             = "0.16.0-pre.2+26.1-rc-2"
 sgui                = "2.0.0-alpha.1+26.1"
 server-translations = "3.0.0+26.1-pre-3"
 replay-studio       = "526f9aaf43"
-permissions         = "0.7.0-SNAPSHOT"
+permissions         = "0.7.0"
 
 # Compatability
 carpet        = "26.1-beta-9"
