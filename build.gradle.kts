@@ -144,6 +144,7 @@ loom {
             server()
             source(testmod)
             vmArgs("-Dmixin.debug.export=true")
+            runDir = "run/${libs.versions.minecraft.get()}"
         }
     }
 }
