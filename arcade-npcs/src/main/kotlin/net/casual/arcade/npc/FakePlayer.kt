@@ -29,10 +29,6 @@ import net.minecraft.server.level.ClientInformation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.CommonListenerCookie
-import net.minecraft.util.debug.DebugBrainDump
-import net.minecraft.util.debug.DebugPathInfo
-import net.minecraft.util.debug.DebugSubscriptions
-import net.minecraft.util.debug.DebugValueSource
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.LivingEntity
@@ -174,9 +170,8 @@ public open class FakePlayer(
     }
 
     override fun tickDeath() {
-        this.connection.handleClientCommand(
-            ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN)
-        )
+        super.tickDeath()
+        this.tryRespawnAfterDeath()
     }
 
     override fun isClientAuthoritative(): Boolean {
@@ -186,6 +181,12 @@ public open class FakePlayer(
     override fun showEndCredits() {
         this.wonGame = true
         super.showEndCredits()
+    }
+
+    protected open fun tryRespawnAfterDeath() {
+        this.connection.handleClientCommand(
+            ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.PERFORM_RESPAWN)
+        )
     }
 
     override fun registerDebugValues(level: ServerLevel, registration: DebugValueSource.Registration) {
