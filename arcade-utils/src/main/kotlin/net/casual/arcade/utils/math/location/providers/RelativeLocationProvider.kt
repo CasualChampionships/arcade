@@ -5,7 +5,7 @@
 package net.casual.arcade.utils.math.location.providers
 
 import com.mojang.serialization.MapCodec
-import net.casual.arcade.utils.IdentifierUtils
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.resources.Identifier
@@ -29,7 +29,7 @@ public class RelativeLocationProvider(
     }
 
     public companion object: CodecProvider<RelativeLocationProvider> {
-        override val id: Identifier = IdentifierUtils.arcade("relative")
+        override val id: Identifier = arcade("relative")
 
         override val codec: MapCodec<out RelativeLocationProvider> = Location.MAP_CODEC.xmap(::RelativeLocationProvider, RelativeLocationProvider::offset)
     }

@@ -6,7 +6,7 @@ package net.casual.arcade.minigame.data.module
 
 import net.casual.arcade.dimensions.utils.getDimensionPath
 import net.casual.arcade.minigame.data.MinigameDataModule
-import net.casual.arcade.utils.IdentifierUtils
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.file.ReadableArchive
 import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
@@ -34,7 +34,7 @@ public class MinigameWorldData(
     public companion object: MinigameDataModule.Provider {
         private const val WORLD_DIRECTORY = "world"
 
-        override val id: Identifier = IdentifierUtils.arcade("world")
+        override val id: Identifier = arcade("world")
 
         override fun get(archive: ReadableArchive, server: MinecraftServer): MinigameWorldData {
             if (archive.resolve(WORLD_DIRECTORY).notExists()) {

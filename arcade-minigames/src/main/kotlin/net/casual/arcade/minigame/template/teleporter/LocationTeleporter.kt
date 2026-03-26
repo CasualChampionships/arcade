@@ -7,7 +7,7 @@ package net.casual.arcade.minigame.template.teleporter
 import com.google.common.collect.Multimap
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.casual.arcade.utils.IdentifierUtils
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.entity.teleportTo
 import net.casual.arcade.utils.math.location.providers.LocationProvider
 import net.casual.arcade.utils.serialization.codec.CodecProvider
@@ -39,7 +39,7 @@ public class LocationTeleporter(
     }
 
     public companion object: CodecProvider<LocationTeleporter> {
-        override val id: Identifier = IdentifierUtils.arcade("location")
+        override val id: Identifier = arcade("location")
 
         override val codec: MapCodec<out LocationTeleporter> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(

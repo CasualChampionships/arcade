@@ -7,7 +7,7 @@ package net.casual.arcade.resources.font.spacing
 import com.google.common.cache.CacheBuilder
 import net.casual.arcade.resources.font.FontPUA
 import net.casual.arcade.resources.font.IndexedFontResources
-import net.casual.arcade.utils.IdentifierUtils
+import net.casual.arcade.utils.arcade
 import net.minecraft.network.chat.Component
 import java.util.*
 import kotlin.math.abs
@@ -16,7 +16,7 @@ import kotlin.math.sign
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.toJavaDuration
 
-public object SpacingFontResources: IndexedFontResources(IdentifierUtils.arcade("spacing"), FontPUA.Plane15) {
+public object SpacingFontResources: IndexedFontResources(arcade("spacing"), FontPUA.Plane15) {
     private const val SIZE = 4096
     private val INT_SIZE_RANGE = -SIZE..SIZE
 

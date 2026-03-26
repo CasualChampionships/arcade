@@ -7,7 +7,7 @@ package net.casual.arcade.utils.math.location.providers
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.casual.arcade.utils.IdentifierUtils
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
 import net.casual.arcade.utils.serialization.codec.CodecProvider
@@ -60,7 +60,7 @@ public class BlendedLocationProvider(
     }
 
     public companion object: CodecProvider<BlendedLocationProvider> {
-        override val id: Identifier = IdentifierUtils.arcade("blended")
+        override val id: Identifier = arcade("blended")
 
         private val SIMPLE_CODEC = RecordCodecBuilder.mapCodec { instance ->
             instance.group(

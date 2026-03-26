@@ -5,12 +5,14 @@
 package net.casual.arcade.utils
 
 import net.minecraft.resources.Identifier
-import org.jetbrains.annotations.ApiStatus.Internal
 import java.util.*
 
-@Internal
 public fun arcade(path: String): Identifier {
-    return ArcadeUtils.id(path)
+    return Identifier.fromNamespaceAndPath(ArcadeUtils.MOD_ID, path)
+}
+
+public fun minecraft(path: String): Identifier {
+    return Identifier.withDefaultNamespace(path)
 }
 
 public fun Identifier(namespace: String, path: String): Identifier {
@@ -18,8 +20,9 @@ public fun Identifier(namespace: String, path: String): Identifier {
 }
 
 public object IdentifierUtils {
+    @Deprecated("use arcade() instead", ReplaceWith("arcade(path)", "net.casual.arcade.utils.arcade"))
     public fun arcade(path: String): Identifier {
-        return ArcadeUtils.id(path)
+        return net.casual.arcade.utils.arcade(path)
     }
 
     public fun random(namespace: String = ArcadeUtils.MOD_ID): Identifier {

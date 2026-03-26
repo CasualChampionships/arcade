@@ -9,9 +9,9 @@ import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.boundary.renderer.AxisAlignedDisplayBoundaryRenderer
 import net.casual.arcade.boundary.shape.BoundaryShape.Status
-import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.MathUtils.getSizeVec
 import net.casual.arcade.utils.TimeUtils.Ticks
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.visuals.shapes.ShapePoints
@@ -149,7 +149,7 @@ public class AxisAlignedBoundaryShape private constructor(
     }
 
     public companion object: CodecProvider<AxisAlignedBoundaryShape> {
-        override val id: Identifier = ArcadeUtils.id("axis_aligned_border_shape")
+        override val id: Identifier = arcade("axis_aligned_border_shape")
         override val codec: MapCodec<AxisAlignedBoundaryShape> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 State.CODEC.fieldOf("size_state").forGetter(AxisAlignedBoundaryShape::size),

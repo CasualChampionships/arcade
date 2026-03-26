@@ -6,13 +6,13 @@ package net.casual.arcade.resources.font.pixel
 
 import net.casual.arcade.resources.font.IndexedFontResources
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
-import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.component.color
 import net.casual.arcade.utils.component.wrap
 import net.minecraft.network.chat.Component
 import java.awt.image.BufferedImage
 
-public object PixelFontResources: IndexedFontResources(ArcadeUtils.id("pixel")) {
+public object PixelFontResources: IndexedFontResources(arcade("pixel")) {
     init {
         val texture = at("pixel.png")
         for (i in -256..256) {

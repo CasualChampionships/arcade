@@ -11,7 +11,7 @@ import net.casual.arcade.minigame.task.MinigameTaskFactory
 import net.casual.arcade.scheduler.task.SavableTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
-import net.casual.arcade.utils.IdentifierUtils
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.error.RichResult
 import net.minecraft.resources.Identifier
 import net.minecraft.world.level.storage.ValueInput
@@ -34,7 +34,7 @@ public class PhaseChangeTask(
     }
 
     public companion object: MinigameTaskFactory<Minigame> {
-        override val id: Identifier = IdentifierUtils.arcade("phase_change")
+        override val id: Identifier = arcade("phase_change")
 
         override fun create(input: ValueInput, context: MinigameTaskCreationContext<Minigame>): RichResult<Task> {
             val phaseId = input.getString("phase").getOrNull() ?: return RichResult.failure("No input phase")

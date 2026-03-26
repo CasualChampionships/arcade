@@ -8,7 +8,7 @@ import com.mojang.serialization.Codec
 import net.casual.arcade.dimensions.ducks.CustomMobSpawningPredicate
 import net.casual.arcade.dimensions.mixins.level.spawning.NaturalSpawnerAccessor
 import net.casual.arcade.dimensions.utils.DimensionRegistries
-import net.casual.arcade.utils.IdentifierUtils
+import net.casual.arcade.utils.arcade
 import net.minecraft.core.Registry
 import net.minecraft.world.entity.MobCategory
 import net.minecraft.world.level.ChunkPos
@@ -52,7 +52,7 @@ public interface CustomMobSpawningRules {
         }
 
         internal fun bootstrap(registry: Registry<CustomMobSpawningRules>) {
-            Registry.register(registry, IdentifierUtils.arcade("vanilla"), DEFAULT)
+            Registry.register(registry, arcade("vanilla"), DEFAULT)
         }
     }
 }

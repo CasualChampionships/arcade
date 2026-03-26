@@ -7,7 +7,7 @@ package net.casual.arcade.minigame.template.teleporter
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.casual.arcade.utils.IdentifierUtils
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.visuals.shapes.ShapePoints.Companion.points
@@ -36,7 +36,7 @@ public class SpreadTeleporter(
     }
 
     public companion object: CodecProvider<SpreadTeleporter> {
-        override val id: Identifier = IdentifierUtils.arcade("spread")
+        override val id: Identifier = arcade("spread")
 
         override val codec: MapCodec<out SpreadTeleporter> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(

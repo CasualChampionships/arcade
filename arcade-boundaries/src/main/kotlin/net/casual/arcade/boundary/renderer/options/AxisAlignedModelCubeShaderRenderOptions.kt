@@ -5,7 +5,7 @@
 package net.casual.arcade.boundary.renderer.options
 
 import net.casual.arcade.boundary.shape.BoundaryShape
-import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.arcade
 import net.minecraft.core.Direction
 import net.minecraft.core.component.DataComponents
 import net.minecraft.util.Brightness
@@ -14,9 +14,9 @@ import net.minecraft.world.item.Items
 import net.minecraft.world.item.component.DyedItemColor
 
 public class AxisAlignedModelCubeShaderRenderOptions: AxisAlignedModelRenderOptions {
-    private val stationary = ArcadeUtils.id("boundary/cube_stationary")
-    private val shrinking = ArcadeUtils.id("boundary/cube_shrinking")
-    private val growing = ArcadeUtils.id("boundary/cube_growing")
+    private val stationary = arcade("boundary/cube_stationary")
+    private val shrinking = arcade("boundary/cube_shrinking")
+    private val growing = arcade("boundary/cube_growing")
 
     override fun get(shape: BoundaryShape, face: Direction): AxisAlignedModelRenderOptions.Data {
         val stack = ItemStack(Items.POPPED_CHORUS_FRUIT)

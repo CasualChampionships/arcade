@@ -15,8 +15,8 @@ import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.scheduler.GlobalTickedScheduler
-import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.ClientboundSetPassengersPacket
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.entity.teleportTo
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.locationWithLevel
 import net.casual.arcade.virtual.entity.SimpleVirtualEntity
@@ -47,7 +47,7 @@ public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExt
         get() = this.attachment != null
 
     override fun id(): Identifier {
-        return ArcadeUtils.id("movement_restriction")
+        return arcade("movement_restriction")
     }
 
     override fun serialize(output: ValueOutput) {

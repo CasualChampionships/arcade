@@ -9,7 +9,7 @@ import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.boundary.renderer.options.ParticleRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
-import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
@@ -56,7 +56,7 @@ public class AsyncParticleBoundaryRenderer(
         }
 
         public companion object: CodecProvider<Factory> {
-            override val id: Identifier = ArcadeUtils.id("async_particle_border_renderer")
+            override val id: Identifier = arcade("async_particle_border_renderer")
 
             override val codec: MapCodec<out Factory> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(

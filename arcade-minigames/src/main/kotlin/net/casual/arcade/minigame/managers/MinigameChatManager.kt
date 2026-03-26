@@ -26,7 +26,7 @@ import net.casual.arcade.minigame.utils.MinigameUtils.isMinigameAdminOrHasPermis
 import net.casual.arcade.minigame.utils.MinigameUtils.isPlayerAnd
 import net.casual.arcade.minigame.utils.MinigameUtils.requiresAdminOrPermission
 import net.casual.arcade.scheduler.GlobalTickedScheduler
-import net.casual.arcade.utils.IdentifierUtils
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.chat.ChatFormatter
 import net.casual.arcade.utils.chat.PlayerChatFormatter
 import net.casual.arcade.utils.chat.PlayerFormattedChat
@@ -504,6 +504,6 @@ public class MinigameChatManager(
             MinigameChatMode.CODEC.fieldOf("mode")
         )
 
-        public val MUTED: Identifier = IdentifierUtils.arcade("muted")
+        public val MUTED: Identifier = arcade("muted")
     }
 }

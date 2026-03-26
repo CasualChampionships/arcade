@@ -9,7 +9,7 @@ import com.google.common.collect.Multimap
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.casual.arcade.utils.IdentifierUtils
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
@@ -62,7 +62,7 @@ public class SplitTeleporter(
     }
 
     public companion object: CodecProvider<SplitTeleporter> {
-        override val id: Identifier = IdentifierUtils.arcade("split")
+        override val id: Identifier = arcade("split")
 
         override val codec: MapCodec<out SplitTeleporter> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(

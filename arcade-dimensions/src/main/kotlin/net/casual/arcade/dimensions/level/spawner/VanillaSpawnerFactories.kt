@@ -5,7 +5,7 @@
 package net.casual.arcade.dimensions.level.spawner
 
 import com.mojang.serialization.MapCodec
-import net.casual.arcade.utils.IdentifierUtils
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
@@ -22,7 +22,7 @@ import org.jetbrains.annotations.ApiStatus.Internal
 @Internal
 public sealed class SingletonSpawnerFactory(name: String): CustomSpawnerFactory,
     CodecProvider<SingletonSpawnerFactory> {
-    override val id: Identifier = IdentifierUtils.arcade(name)
+    override val id: Identifier = arcade(name)
 
     @Suppress("LeakingThis")
     override val codec: MapCodec<SingletonSpawnerFactory> = MapCodec.unit(this)

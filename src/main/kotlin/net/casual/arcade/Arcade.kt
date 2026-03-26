@@ -6,7 +6,7 @@ package net.casual.arcade
 
 import net.casual.arcade.Arcade.MOD_ID
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.IdentifierUtils
+import net.casual.arcade.utils.arcade
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.loader.api.ModContainer
 import net.minecraft.resources.Identifier
@@ -39,7 +39,7 @@ public object Arcade: ModInitializer {
      */
     @JvmStatic
     public fun id(path: String): Identifier {
-        return IdentifierUtils.arcade(path)
+        return arcade(path)
     }
 
     override fun onInitialize() {

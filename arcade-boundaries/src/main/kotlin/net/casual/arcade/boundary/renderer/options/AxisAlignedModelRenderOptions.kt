@@ -11,7 +11,7 @@ import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.boundary.utils.BoundaryRegistries
 import net.casual.arcade.resources.ArcadeResourcePacks
-import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.arcade
 import net.minecraft.core.Direction
 import net.minecraft.core.Registry
 import net.minecraft.util.Brightness
@@ -106,7 +106,7 @@ public interface AxisAlignedModelRenderOptions {
         }
 
         private fun register(path: String, options: AxisAlignedModelRenderOptions): AxisAlignedModelRenderOptions {
-            return Registry.register(BoundaryRegistries.MODEL_BOUNDARY_RENDER_OPTIONS, ArcadeUtils.id(path), options)
+            return Registry.register(BoundaryRegistries.MODEL_BOUNDARY_RENDER_OPTIONS, arcade(path), options)
         }
     }
 }

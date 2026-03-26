@@ -13,7 +13,7 @@ import net.casual.arcade.dimensions.level.LevelProperties
 import net.casual.arcade.dimensions.level.factory.CustomLevelFactory
 import net.casual.arcade.dimensions.level.factory.CustomLevelFactoryConstructor
 import net.casual.arcade.dimensions.level.factory.SimpleCustomLevelFactory
-import net.casual.arcade.utils.IdentifierUtils
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
@@ -51,7 +51,7 @@ public class VanillaLikeCustomLevelFactory(
     }
 
     public companion object: CodecProvider<VanillaLikeCustomLevelFactory> {
-        override val id: Identifier = IdentifierUtils.arcade("vanilla_like")
+        override val id: Identifier = arcade("vanilla_like")
 
         override val codec: MapCodec<out VanillaLikeCustomLevelFactory> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(

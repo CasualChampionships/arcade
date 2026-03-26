@@ -11,7 +11,7 @@ import net.casual.arcade.scheduler.task.impl.CancellableTask.Companion.of
 import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
 import net.casual.arcade.scheduler.task.serialization.TaskFactory
 import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
-import net.casual.arcade.utils.IdentifierUtils
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.error.RichResult
 import net.minecraft.resources.Identifier
 import net.minecraft.world.level.storage.ValueInput
@@ -103,7 +103,7 @@ public sealed class CancellableTask(
 
         @Internal
         public companion object: TaskFactory {
-            override val id: Identifier = IdentifierUtils.arcade("internal_savable_cancellable")
+            override val id: Identifier = arcade("internal_savable_cancellable")
 
             override fun create(input: ValueInput, context: TaskCreationContext): RichResult<Task> {
                 val wrappedRef = input.getInt("wrapped").getOrNull()

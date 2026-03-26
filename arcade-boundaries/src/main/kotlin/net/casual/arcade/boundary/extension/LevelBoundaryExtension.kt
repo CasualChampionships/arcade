@@ -13,7 +13,7 @@ import net.casual.arcade.events.server.level.LevelTickEvent
 import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
-import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.arcade
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
@@ -48,7 +48,7 @@ public class LevelBoundaryExtension(
     }
 
     override fun id(): Identifier {
-        return ArcadeUtils.id("boundary")
+        return arcade("boundary")
     }
 
     override fun serialize(output: ValueOutput) {

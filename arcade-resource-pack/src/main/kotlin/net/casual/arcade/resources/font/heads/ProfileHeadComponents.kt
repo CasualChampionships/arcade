@@ -5,12 +5,12 @@
 package net.casual.arcade.resources.font.heads
 
 import net.casual.arcade.utils.component.font
+import net.casual.arcade.utils.minecraft
 import net.casual.arcade.utils.player.DynamicResolvableProfile
 import net.casual.arcade.utils.player.StaticResolvableProfile
 import net.minecraft.core.ClientAsset
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.FontDescription
-import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.PlayerSkin
 import net.minecraft.world.item.component.ResolvableProfile
@@ -55,7 +55,7 @@ public object ProfileHeadComponents: TexturedHeadComponents {
     }
 
     private fun createSteveSkinPatch(): PlayerSkin.Patch {
-        val steve = Identifier.withDefaultNamespace("entity/player/wide/steve")
+        val steve = minecraft("entity/player/wide/steve")
         return PlayerSkin.Patch(
             Optional.of(ClientAsset.ResourceTexture(steve)),
             Optional.empty(),

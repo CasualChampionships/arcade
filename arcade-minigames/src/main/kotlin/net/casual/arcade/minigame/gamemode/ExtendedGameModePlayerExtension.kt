@@ -7,7 +7,7 @@ package net.casual.arcade.minigame.gamemode
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.scheduler.GlobalTickedScheduler
-import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.arcade
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.GameType
@@ -50,7 +50,7 @@ internal class ExtendedGameModePlayerExtension(
     }
 
     override fun id(): Identifier {
-        return ArcadeUtils.id("extended_game_mode")
+        return arcade("extended_game_mode")
     }
 
     override fun serialize(output: ValueOutput) {

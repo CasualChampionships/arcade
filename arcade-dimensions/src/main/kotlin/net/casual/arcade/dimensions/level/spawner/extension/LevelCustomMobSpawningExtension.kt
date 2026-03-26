@@ -9,7 +9,7 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
-import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.arcade
 import net.minecraft.resources.Identifier
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
@@ -21,7 +21,7 @@ public class LevelCustomMobSpawningExtension: SerializableExtension {
     public var rules: CustomMobSpawningRules? = null
 
     override fun id(): Identifier {
-        return ArcadeUtils.id("custom_mob_spawning")
+        return arcade("custom_mob_spawning")
     }
 
     override fun serialize(output: ValueOutput) {

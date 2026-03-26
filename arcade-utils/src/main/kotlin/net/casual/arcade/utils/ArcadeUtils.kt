@@ -40,6 +40,7 @@ public object ArcadeUtils: ModInitializer {
     }
 
     @JvmStatic
+    @Deprecated("use arcade() instead", ReplaceWith("arcade(path)", "net.casual.arcade.utils.arcade"))
     public fun id(path: String): Identifier {
         return Identifier.fromNamespaceAndPath(MOD_ID, path)
     }

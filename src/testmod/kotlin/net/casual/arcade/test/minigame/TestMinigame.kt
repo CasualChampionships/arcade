@@ -9,7 +9,7 @@ import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.resources.utils.spaced
-import net.casual.arcade.utils.IdentifierUtils
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.component.*
 import net.casual.arcade.utils.player.displayName
 import net.casual.arcade.utils.recipe.CraftingRecipeBuilder
@@ -47,7 +47,7 @@ open class TestMinigame(
         this.players.keepPlayerData = false
 
         this.recipes.add(CraftingRecipeBuilder.shapeless(this.server.registryAccess()) {
-            key(IdentifierUtils.arcade("example"))
+            key(arcade("example"))
             ingredients(Items.ITEM_FRAME, Items.BLACK_DYE)
             result(ItemStackTemplate(Items.NETHERITE_BLOCK))
         })
@@ -83,7 +83,7 @@ open class TestMinigame(
 
     companion object: MinigameFactory {
         private val CODEC = MapCodec.unit(this)
-        val ID = IdentifierUtils.arcade("test_minigame")
+        val ID = arcade("test_minigame")
 
         override fun create(context: MinigameCreationContext): Minigame {
             return TestMinigame(context.server, context.uuid)

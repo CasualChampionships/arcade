@@ -8,8 +8,8 @@ import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
-import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.EnumUtils
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.level.server
 import net.casual.arcade.utils.math.location.Location
@@ -188,7 +188,7 @@ public class AxisAlignedDisplayBoundaryRenderer(
         }
 
         public companion object: CodecProvider<Factory> {
-            override val id: Identifier = ArcadeUtils.id("axis_aligned_display_boundary_renderer")
+            override val id: Identifier = arcade("axis_aligned_display_boundary_renderer")
 
             override val codec: MapCodec<out Factory> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(

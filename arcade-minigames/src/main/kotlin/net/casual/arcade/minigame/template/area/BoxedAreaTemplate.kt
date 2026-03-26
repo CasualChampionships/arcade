@@ -9,7 +9,7 @@ import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.minigame.area.BoxedArea
 import net.casual.arcade.minigame.area.PlaceableArea
-import net.casual.arcade.utils.IdentifierUtils
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.serialization.codec.encodedOptionalFieldOf
 import net.minecraft.core.Vec3i
@@ -34,7 +34,7 @@ public class BoxedAreaTemplate(
     }
 
     public companion object: CodecProvider<BoxedAreaTemplate> {
-        override val id: Identifier = IdentifierUtils.arcade("boxed")
+        override val id: Identifier = arcade("boxed")
 
         override val codec: MapCodec<BoxedAreaTemplate> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(

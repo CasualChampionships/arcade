@@ -7,7 +7,7 @@ package net.casual.arcade.utils.math.location.providers
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.casual.arcade.utils.IdentifierUtils
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.resources.Identifier
@@ -46,7 +46,7 @@ public class AroundLocationProvider(
     }
 
     public companion object: CodecProvider<AroundLocationProvider> {
-        override val id: Identifier = IdentifierUtils.arcade("around")
+        override val id: Identifier = arcade("around")
 
         override val codec: MapCodec<out AroundLocationProvider> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(

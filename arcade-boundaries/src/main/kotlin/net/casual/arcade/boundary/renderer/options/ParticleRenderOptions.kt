@@ -8,7 +8,7 @@ import com.mojang.serialization.Codec
 import net.casual.arcade.boundary.renderer.ParticleBoundaryRenderer
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.boundary.utils.BoundaryRegistries
-import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.arcade
 import net.minecraft.core.Registry
 import net.minecraft.core.particles.DustParticleOptions
 import net.minecraft.core.particles.ParticleOptions
@@ -65,7 +65,7 @@ public interface ParticleRenderOptions {
 
         @Suppress("SameParameterValue")
         private fun register(path: String, options: ParticleRenderOptions): ParticleRenderOptions {
-            return Registry.register(BoundaryRegistries.PARTICLE_RENDER_OPTIONS, ArcadeUtils.id(path), options)
+            return Registry.register(BoundaryRegistries.PARTICLE_RENDER_OPTIONS, arcade(path), options)
         }
     }
 }

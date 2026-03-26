@@ -5,7 +5,7 @@
 package net.casual.arcade.minigame.stats
 
 import net.casual.arcade.minigame.utils.MinigameRegistries
-import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.arcade
 import net.minecraft.core.Holder
 import net.minecraft.core.Registry
 
@@ -27,6 +27,6 @@ public object ArcadeStats {
     }
 
     private fun <T: Any> register(path: String, type: StatType<T>): Holder.Reference<StatType<T>> {
-        return Registry.registerForHolder(MinigameRegistries.STAT_TYPES, ArcadeUtils.id(path), type)
+        return Registry.registerForHolder(MinigameRegistries.STAT_TYPES, arcade(path), type)
     }
 }
