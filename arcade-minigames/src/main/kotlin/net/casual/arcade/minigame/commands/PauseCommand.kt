@@ -16,7 +16,7 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 import net.minecraft.server.permissions.PermissionLevel
 
-internal object PauseCommand: CommandTree {
+internal object PauseCommand: CommandTree<CommandSourceStack> {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("pause") {
             requiresPermission(PermissionLevel.ADMINS)

@@ -46,7 +46,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.permissions.PermissionLevel
 import kotlin.jvm.optionals.getOrNull
 
-internal object MinigameCommand: CommandTree {
+internal object MinigameCommand: CommandTree<CommandSourceStack> {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("minigame") {
             requiresPermission("arcade.command.minigame", PermissionLevel.GAMEMASTERS)

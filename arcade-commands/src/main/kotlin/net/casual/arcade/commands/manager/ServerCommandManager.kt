@@ -17,9 +17,11 @@ import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.server.MinecraftServer
 
-public open class CommandManager(
+public typealias CommandManager = ServerCommandManager
+
+public open class ServerCommandManager(
     protected val server: MinecraftServer
-): CommandRegistry {
+): CommandRegistry<CommandSourceStack> {
     protected val dispatcher: CommandDispatcher<CommandSourceStack> = CommandDispatcher()
 
     override fun register(literal: LiteralArgumentBuilder<CommandSourceStack>) {
@@ -27,7 +29,7 @@ public open class CommandManager(
         this.resendCommands()
     }
 
-    override fun register(tree: CommandTree) {
+    override fun register(tree: CommandTree<CommandSourceStack>) {
         val context = CommandBuildContext.simple(this.server.registryAccess(), this.server.worldData.enabledFeatures())
         tree.register(this.dispatcher, context)
         this.resendCommands()

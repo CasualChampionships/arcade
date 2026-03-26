@@ -20,7 +20,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.permissions.PermissionLevel
 
-internal object ExtendedGameModeCommand: CommandTree {
+internal object ExtendedGameModeCommand: CommandTree<CommandSourceStack> {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("extended-gamemode") {
             requiresPermission(PermissionLevel.GAMEMASTERS)

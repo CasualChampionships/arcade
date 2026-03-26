@@ -10,12 +10,12 @@ import com.mojang.brigadier.tree.LiteralCommandNode
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 
-public interface CommandTree {
-    public fun register(dispatcher: CommandDispatcher<CommandSourceStack>, buildContext: CommandBuildContext) {
+public interface CommandTree<S> {
+    public fun register(dispatcher: CommandDispatcher<S>, buildContext: CommandBuildContext) {
         dispatcher.register(this.create(buildContext))
     }
 
-    public fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack>
+    public fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<S>
 
     public companion object {
         public inline fun <S> buildLiteral(

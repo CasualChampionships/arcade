@@ -79,7 +79,7 @@ public class MinigameCommandManager(
      *
      * @see CommandTree
      */
-    public fun register(tree: CommandTree) {
+    public fun register(tree: CommandTree<CommandSourceStack>) {
         val before = this.getAllRootCommands().toSet()
 
         val server = this.minigame.server

@@ -33,7 +33,7 @@ import kotlin.io.path.name
 
 public open class BasicReplayCommand(
     protected val path: Path
-): CommandTree {
+): CommandTree<CommandSourceStack> {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("replay") {
             literal("start") {

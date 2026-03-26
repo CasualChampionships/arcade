@@ -1,0 +1,34 @@
+package net.casual.arcade.util.mixins.client;
+
+import net.casual.arcade.utils.coroutine.ClientCoroutineUtils;
+import net.casual.arcade.utils.coroutine.ServerCoroutineUtils;
+import net.minecraft.client.Minecraft;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.profiling.Profiler;
+import net.minecraft.util.profiling.ProfilerFiller;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+@Mixin(Minecraft.class)
+public class MinecraftMixin {
+    @Inject(
+        method = "tick",
+        at = @At("TAIL")
+    )
+    private void tickClientCoroutines(CallbackInfo ci) {
+        ProfilerFiller filler = Profiler.get();
+        filler.push("coroutine_tick_delayed_tasks");
+        ClientCoroutineUtils.INSTANCE.tickClient((Minecraft) (Object) this);
+        filler.pop();
+    }
+
+    @Inject(
+        method = "destroy",
+        at = @At("HEAD")
+    )
+    private void shutdownClientCoroutines(CallbackInfo ci) {
+        ClientCoroutineUtils.INSTANCE.stopClient((Minecraft) (Object) this);
+    }
+}

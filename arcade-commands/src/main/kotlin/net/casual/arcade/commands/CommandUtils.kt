@@ -190,7 +190,7 @@ public fun <T> CommandContext<*>.hasArgument(argument: String, type: Class<T>): 
     try {
         this.getArgument(argument, type)
         return true
-    } catch (e: IllegalArgumentException) {
+    } catch (_: IllegalArgumentException) {
         return false
     }
 }
@@ -202,7 +202,7 @@ public inline fun <T, S> CommandContext<S>.getArgumentOrElse(
 ): T {
     return try {
         getter.invoke(this, argument)
-    } catch (e: IllegalArgumentException) {
+    } catch (_: IllegalArgumentException) {
         otherwise.invoke()
     }
 }
@@ -214,7 +214,7 @@ public inline fun <T: Any, S> CommandContext<S>.getArgumentOrNull(
     return this.getArgumentOrElse(argument, getter) { null }
 }
 
-public fun ServerRegisterCommandEvent.register(vararg commands: CommandTree) {
+public fun ServerRegisterCommandEvent.register(vararg commands: CommandTree<CommandSourceStack>) {
     for (command in commands) {
         command.register(this.dispatcher, this.context)
     }

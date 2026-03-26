@@ -14,21 +14,21 @@ import net.casual.arcade.events.server.ServerStartEvent
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 
-public object GlobalCommandManager: CommandRegistry {
-    private val delayed = ArrayList<CommandTree>()
-    private val managers = HashMap<CommandManager, ListenerRegistry>()
+public object GlobalCommandManager: CommandRegistry<CommandSourceStack> {
+    private val delayed = ArrayList<CommandTree<CommandSourceStack>>()
+    private val managers = HashMap<ServerCommandManager, ListenerRegistry>()
 
-    private lateinit var global: CommandManager
+    private lateinit var global: ServerCommandManager
 
     override fun register(literal: LiteralArgumentBuilder<CommandSourceStack>) {
-        this.register(object: CommandTree {
+        this.register(object: CommandTree<CommandSourceStack> {
             override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
                 return literal
             }
         })
     }
 
-    override fun register(tree: CommandTree) {
+    override fun register(tree: CommandTree<CommandSourceStack>) {
         if (this::global.isInitialized) {
             this.global.register(tree)
         } else {
@@ -36,7 +36,7 @@ public object GlobalCommandManager: CommandRegistry {
         }
     }
 
-    public fun addManager(manager: CommandManager) {
+    public fun addManager(manager: ServerCommandManager) {
         if (!this.managers.containsKey(manager)) {
             val registry = SimpleListenerRegistry()
             GlobalEventHandler.Server.addProvider(registry)
@@ -45,7 +45,7 @@ public object GlobalCommandManager: CommandRegistry {
         }
     }
 
-    public fun removeManager(manager: CommandManager) {
+    public fun removeManager(manager: ServerCommandManager) {
         val registry = this.managers.remove(manager)
         if (registry != null) {
             GlobalEventHandler.Server.removeProvider(registry)
@@ -55,7 +55,7 @@ public object GlobalCommandManager: CommandRegistry {
 
     internal fun registerEvents() {
         GlobalEventHandler.Server.register<ServerStartEvent> {
-            this.global = CommandManager(it.server)
+            this.global = ServerCommandManager(it.server)
             this.addManager(this.global)
             for (tree in this.delayed) {
                 this.global.register(tree)

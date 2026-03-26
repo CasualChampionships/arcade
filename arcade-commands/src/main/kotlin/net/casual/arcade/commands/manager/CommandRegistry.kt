@@ -8,8 +8,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.casual.arcade.commands.CommandTree
 import net.minecraft.commands.CommandSourceStack
 
-public interface CommandRegistry {
-    public fun register(literal: LiteralArgumentBuilder<CommandSourceStack>)
+public interface CommandRegistry<S> {
+    public fun register(literal: LiteralArgumentBuilder<S>)
 
-    public fun register(tree: CommandTree)
+    public fun register(tree: CommandTree<S>)
 }
