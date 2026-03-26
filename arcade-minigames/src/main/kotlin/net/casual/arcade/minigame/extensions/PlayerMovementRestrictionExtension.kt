@@ -57,6 +57,7 @@ public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExt
         }
     }
 
+    @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     override fun deserialize(input: ValueInput) {
         this.position = input.read("position", Vec3.CODEC).orElse(Vec3.ZERO)
         this.persist = input.getBooleanOr("persist", false)
