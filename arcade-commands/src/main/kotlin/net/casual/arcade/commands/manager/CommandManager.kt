@@ -18,7 +18,7 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.server.MinecraftServer
 
 public open class CommandManager(
-    private val server: MinecraftServer
+    protected val server: MinecraftServer
 ): CommandRegistry {
     protected val dispatcher: CommandDispatcher<CommandSourceStack> = CommandDispatcher()
 
@@ -44,7 +44,7 @@ public open class CommandManager(
         this.resendCommands()
     }
 
-    private fun resendCommands() {
+    protected fun resendCommands() {
         for (player in this.server.playerList.players) {
             this.server.commands.sendCommands(player)
         }
