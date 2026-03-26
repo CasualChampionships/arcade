@@ -9,7 +9,6 @@ import eu.pb4.sgui.api.elements.GuiElement
 import eu.pb4.sgui.api.elements.SimpleGuiElement
 import eu.pb4.sgui.api.gui.GuiLike
 import eu.pb4.sgui.api.gui.SimpleGui
-import eu.pb4.sgui.api.gui.SimpleGuiBuilder
 import eu.pb4.sgui.api.gui.SlotBasedGui
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.inventory.ContainerInput
@@ -150,10 +149,10 @@ public class SelectionGuiBuilder(
      * @return The built [SimpleGui].
      */
     public fun build(page: Int = 0): SimpleGui {
-        val builder = SimpleGuiBuilder(MenuType.GENERIC_9x6, false)
-        builder.title = this.components.title
+        val gui = SimpleGui(MenuType.GENERIC_9x6, this.player, false)
+        gui.title = this.components.title
         val slots = this.style.getSlots()
-        val count = min(builder.size, slots.size)
+        val count = min(gui.size, slots.size)
 
         val paged = this.elements.stream()
             .skip((count * page).toLong())
@@ -162,19 +161,19 @@ public class SelectionGuiBuilder(
 
         val hasNextPage = this.elements.size > count * (page + 1)
         for ((i, slot) in slots.withIndex()) {
-            if (i >= paged.size || slot !in 0..< builder.size) {
+            if (i >= paged.size || slot !in 0..< gui.size) {
                 break
             }
             val element = paged[i]
-            builder.setSlot(slot, element)
+            gui.setSlot(slot, element)
         }
 
-        builder.setSlot(45, SimpleGuiElement(this.components.getPrevious(page != 0)) { _, _, _, _ ->
+        gui.setSlot(45, SimpleGuiElement(this.components.getPrevious(page != 0)) { _, _, _, _ ->
             if (page > 0) {
                 this.build(page - 1).open()
             }
         })
-        builder.setSlot(49, SimpleGuiElement(this.components.getBack(this.parent != null)) { _, _, _, gui ->
+        gui.setSlot(49, SimpleGuiElement(this.components.getBack(this.parent != null)) { _, _, _, gui ->
             val parent = this.parent
             if (parent != null) {
                 parent.open()
@@ -182,7 +181,7 @@ public class SelectionGuiBuilder(
                 gui.close()
             }
         })
-        builder.setSlot(53, SimpleGuiElement(this.components.getNext(hasNextPage)) { _, _, _, _ ->
+        gui.setSlot(53, SimpleGuiElement(this.components.getNext(hasNextPage)) { _, _, _, _ ->
             if (hasNextPage) {
                 this.build(page + 1).open()
             }
@@ -192,12 +191,12 @@ public class SelectionGuiBuilder(
             val element = this.menuElements.getOrElse(slot) {
                 SimpleGuiElement(this.components.getFiller(), GuiElement.EMPTY_CALLBACK)
             }
-            builder.setSlot(45 + slot.offset, element)
+            gui.setSlot(45 + slot.offset, element)
         }
         for ((slot, element) in this.menuElements) {
-             builder.setSlot(45 + slot.offset, element)
+             gui.setSlot(45 + slot.offset, element)
         }
-        return builder.build(this.player)
+        return gui
     }
 
     public enum class MenuSlot(public val offset: Int) {

@@ -17,10 +17,10 @@ import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.server.MinecraftServer
 
-public class CommandManager(
+public open class CommandManager(
     private val server: MinecraftServer
 ): CommandRegistry {
-    private val dispatcher = CommandDispatcher<CommandSourceStack>()
+    protected val dispatcher: CommandDispatcher<CommandSourceStack> = CommandDispatcher()
 
     override fun register(literal: LiteralArgumentBuilder<CommandSourceStack>) {
         this.dispatcher.register(literal)
