@@ -75,7 +75,7 @@ public abstract class HttpResourceInterceptor(
 
         ctx.write(response)
 
-        val streamFuture = ctx.writeAndFlush(ChunkedStream(resource.stream))
+        val streamFuture = ctx.writeAndFlush(HttpChunkedInput(ChunkedStream(resource.stream)))
         streamFuture.addListener { resource.stream.close() }
 
         if (!keepAlive) {
