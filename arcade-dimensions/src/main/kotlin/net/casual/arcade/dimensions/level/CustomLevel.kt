@@ -39,6 +39,7 @@ import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.Executor
 import kotlin.io.path.createParentDirectories
+import kotlin.jvm.optionals.getOrElse
 import kotlin.jvm.optionals.getOrNull
 
 /**
@@ -154,6 +155,10 @@ public open class CustomLevel(
 
     override fun getWeatherData(): WeatherData {
         return this.properties.weather.orElseGet { super.weatherData }
+    }
+
+    override fun getGameRules(): GameRules {
+        return this.derivedLevelData.properties.gameRules.getOrElse { super.gameRules }
     }
 
     override fun save(progress: ProgressListener?, flush: Boolean, skip: Boolean) {
