@@ -11,7 +11,7 @@ plugins {
     java
 }
 
-val modVersion = "0.9.0-beta.17"
+val modVersion = "0.9.0-beta.18"
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -62,7 +62,7 @@ allprojects {
             filesMatching("fabric.mod.json") {
                 expand(mutableMapOf(
                     "version" to modVersion,
-                    "minecraft_dependency" to libs.versions.minecraft.get(),
+                    "minecraft_dependency" to "~${libs.versions.minecraft.get()}",
                     "fabric_loader_dependency" to libs.versions.fabric.loader.get(),
                     "fabric_api_dependency" to libs.versions.fabric.api.get(),
                     "fabric_kotlin_dependency" to libs.versions.fabric.kotlin.get(),
