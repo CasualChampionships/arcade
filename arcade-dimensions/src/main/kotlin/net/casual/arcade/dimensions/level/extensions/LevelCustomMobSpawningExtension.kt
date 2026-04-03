@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2024 senseiwells
+ * Copyright (c) 2026 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.dimensions.level.spawner.extension
+package net.casual.arcade.dimensions.level.extensions
 
 import net.casual.arcade.dimensions.level.spawner.CustomMobSpawningRules
 import net.casual.arcade.events.GlobalEventHandler
@@ -13,10 +13,10 @@ import net.casual.arcade.utils.arcade
 import net.minecraft.resources.Identifier
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
-import org.jetbrains.annotations.ApiStatus.Internal
+import org.jetbrains.annotations.ApiStatus
 import kotlin.jvm.optionals.getOrNull
 
-@Internal
+@ApiStatus.Internal
 public class LevelCustomMobSpawningExtension: SerializableExtension {
     public var rules: CustomMobSpawningRules? = null
 

@@ -21,6 +21,7 @@
       }
     ]
   },
+  "accessWidener": "arcade-dimensions.classtweaker",
   "mixins": [
     "arcade-dimensions.mixins.json"
   ],

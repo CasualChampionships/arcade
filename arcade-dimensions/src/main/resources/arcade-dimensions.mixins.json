@@ -7,6 +7,12 @@
     "minVersion": "0.5.0"
   },
   "mixins": [
+    "clock.LevelMixin",
+    "clock.MinecraftServerMixin",
+    "clock.PlayerListMixin",
+    "clock.ServerClockManagerMixin",
+    "clock.ServerLevelMixin",
+    "clock.TimeCommandMixin",
     "command.RequiredArgumentBuilderMixin",
     "datafix.DimensionStorageFileFixMixin",
     "level.CommonPlayerSpawnInfoMixin",

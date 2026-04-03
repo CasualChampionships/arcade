@@ -20,6 +20,7 @@ import net.minecraft.core.registries.Registries
 import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
+import net.minecraft.world.clock.ClockState
 import net.minecraft.world.flag.FeatureFlagSet
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.chunk.ChunkGenerator
@@ -90,11 +91,14 @@ public class CustomLevelBuilder {
     public var flat: Boolean = false
 
     /**
-     * Whether the world should tick time.
+     * The initial clock state for the dimension.
+     * This lets you override the global clock state.
      *
-     * This refers to the day-light cycle time.
+     * If left null then the dimension will use the
+     * global clock state for the specified clock in the
+     * dimension type.
      */
-    public var tickTime: Boolean = false
+    public var clockState: ClockState? = null
 
     /**
      * Whether the world should naturally generate structures.
@@ -476,18 +480,35 @@ public class CustomLevelBuilder {
     }
 
     /**
-     * Sets whether the world should tick time.
+     * Sets the initial clock state for the dimension.
+     * This lets you override the global clock state.
      *
-     * This refers to the day-light cycle time.
-     *
-     * @param tickTime Whether the world should tick time.
+     * @param clockState The initial clock state.
      * @return This builder.
      */
-    public fun tickTime(tickTime: Boolean): CustomLevelBuilder {
-        this.tickTime = tickTime
+    public fun clockState(clockState: ClockState): CustomLevelBuilder {
+        this.clockState = clockState
         return this
     }
 
+    /**
+     * Sets the initial clock state for the dimension.
+     * This lets you override the global clock state.
+     *
+     * @param totalTicks Total day time that has passed.
+     * @param partialTick The partial tick of the day time between 0 and 1.
+     * @param rate The tick rate.
+     * @param paused Whether the clock is paused.
+     * @return This builder.
+     */
+    public fun clockState(
+        totalTicks: Long = 0,
+        partialTick: Float = 0.0F,
+        rate: Float = 1.0F,
+        paused: Boolean = false
+    ): CustomLevelBuilder {
+        return this.clockState(ClockState(totalTicks, partialTick, rate, paused))
+    }
 
     /**
      * Sets whether the world should naturally generate structures.
@@ -594,7 +615,6 @@ public class CustomLevelBuilder {
      */
     public fun vanillaDefaults(dimension: VanillaDimension): CustomLevelBuilder {
         return this.levelStem(dimension.getStemKey())
-            .tickTime(dimension.doesTimeTick())
             .addCustomSpawners(dimension.getCustomSpawners())
             .generateStructures(true)
     }
@@ -650,7 +670,7 @@ public class CustomLevelBuilder {
         }
 
         val options = LevelGenerationOptions(
-            stem, this.seed, this.flat, this.tickTime, this.generateStructures, this.debug, this.spawners
+            stem, this.seed, this.flat, Optional.ofNullable(this.clockState), this.generateStructures, this.debug, this.spawners
         )
         val level = this.constructor.construct(this.properties, options, this.persistence).create(server, key)
         level.setSpoofedDimension(this.spoofedKey)

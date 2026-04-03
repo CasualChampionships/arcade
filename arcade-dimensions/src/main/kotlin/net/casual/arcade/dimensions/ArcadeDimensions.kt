@@ -7,7 +7,8 @@ package net.casual.arcade.dimensions
 import net.casual.arcade.dimensions.level.CustomLevel
 import net.casual.arcade.dimensions.level.LevelPersistence
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
-import net.casual.arcade.dimensions.level.spawner.extension.LevelCustomMobSpawningExtension
+import net.casual.arcade.dimensions.level.extensions.LevelClockExtension
+import net.casual.arcade.dimensions.level.extensions.LevelCustomMobSpawningExtension
 import net.casual.arcade.dimensions.utils.*
 import net.casual.arcade.dimensions.utils.impl.VoidChunkGenerator
 import net.casual.arcade.utils.arcade
@@ -36,6 +37,7 @@ public object ArcadeDimensions: ModInitializer {
 
         LevelPersistenceTracker.registerEvents()
         LevelCustomMobSpawningExtension.registerEvents()
+        LevelClockExtension.registerEvents()
     }
 
     /**

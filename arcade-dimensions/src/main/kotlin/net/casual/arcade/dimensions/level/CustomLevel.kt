@@ -6,21 +6,19 @@ package net.casual.arcade.dimensions.level
 
 import net.casual.arcade.dimensions.ArcadeDimensions
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
+import net.casual.arcade.dimensions.level.extensions.LevelClockExtension.Companion.clockExtension
 import net.casual.arcade.dimensions.level.factory.CustomLevelFactory
 import net.casual.arcade.dimensions.level.factory.SimpleCustomLevelFactory
 import net.casual.arcade.dimensions.mixins.level.MinecraftServerAccessor
 import net.casual.arcade.dimensions.mixins.level.ServerLevelAccessor
 import net.casual.arcade.dimensions.utils.LevelPersistenceTracker
 import net.casual.arcade.dimensions.utils.getDimensionDataPath
-import net.casual.arcade.dimensions.utils.getDimensionPath
 import net.casual.arcade.dimensions.utils.impl.DerivedLevelData
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.level.server
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtIo
-import net.minecraft.nbt.NbtOps
 import net.minecraft.nbt.NbtUtils
-import net.minecraft.resources.RegistryOps
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
@@ -33,6 +31,8 @@ import net.minecraft.world.level.biome.BiomeManager
 import net.minecraft.world.level.gamerules.GameRules
 import net.minecraft.world.level.saveddata.WeatherData
 import net.minecraft.world.level.storage.LevelData
+import net.minecraft.world.level.storage.TagValueInput
+import net.minecraft.world.level.storage.TagValueOutput
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.io.IOException
 import java.nio.file.Path
@@ -83,7 +83,7 @@ public open class CustomLevel(
     options.debug,
     BiomeManager.obfuscateSeed(options.seed),
     ArrayList(),
-    options.tickTime
+    false
 ) {
     private val derivedLevelData: DerivedLevelData
         get() = this.levelData as DerivedLevelData
@@ -106,6 +106,11 @@ public open class CustomLevel(
         this.setSpawnSettings(
             this.levelData.difficulty != Difficulty.PEACEFUL && this.gameRules.get(GameRules.SPAWN_MONSTERS)
         )
+
+        val initialClock = this.options.clock.getOrNull()
+        if (initialClock != null && !this.clockExtension.initialized()) {
+            this.clockExtension.set(initialClock)
+        }
     }
 
     /**
@@ -118,16 +123,6 @@ public open class CustomLevel(
     @OverrideOnly
     public open fun onUnload() {
 
-    }
-
-    override fun tickTime() {
-        // super.tickTime() ticks the global scheduler
-        if (this.options.tickTime && this.gameRules.get(GameRules.ADVANCE_TIME)) {
-            // TODO(26.1): Not entirely sure how to handle this nicely
-            //   since the new clocks system is effectively global.
-            //   Do we want to just have each level have their own
-            //   (registered?) clock and is each level responsible for ticking?
-        }
     }
 
     // We cannot reference `this.options`, as these methods
@@ -168,13 +163,14 @@ public open class CustomLevel(
         super.save(progress, flush, skip)
 
         try {
-            val compound = CompoundTag()
-            val ops = RegistryOps.create(NbtOps.INSTANCE, this.registryAccess())
-            compound.put("factory", CustomLevelFactory.CODEC.encodeStart(ops, this.factory).orThrow)
-            NbtUtils.addCurrentDataVersion(compound)
-            val path = getDimensionDataPath(this.server(), this.dimension())
-            path.createParentDirectories()
-            NbtIo.write(compound, path)
+            ArcadeUtils.scopedProblemReporter { reporter ->
+                val output = TagValueOutput.createWithContext(reporter, this.registryAccess())
+                output.store("factory", CustomLevelFactory.CODEC, this.factory)
+                NbtUtils.addCurrentDataVersion(output)
+                val path = getDimensionDataPath(this.server(), this.dimension())
+                path.createParentDirectories()
+                NbtIo.write(output.buildResult(), path)
+            }
         } catch (e: IllegalStateException) {
             ArcadeUtils.logger.error("Failed to encode custom level data", e)
         } catch (e: IOException) {
@@ -213,9 +209,11 @@ public open class CustomLevel(
             val path = this.getDimensionDataPath(server, dimension)
             try {
                 val compound = this.readDimensionData(server, path) ?: return null
-                val ops = RegistryOps.create(NbtOps.INSTANCE, server.registryAccess())
-                val factory = CustomLevelFactory.CODEC.parse(ops, compound.get("factory")).orThrow
-                return factory.create(server, dimension)
+                ArcadeUtils.scopedProblemReporter { reporter ->
+                    val input = TagValueInput.create(reporter, server.registryAccess(), compound)
+                    val factory = input.read("factory", CustomLevelFactory.CODEC).orElseThrow()
+                    return factory.create(server, dimension)
+                }
             } catch (e: Exception) {
                 ArcadeUtils.logger.error("Failed to load custom level data", e)
                 return null

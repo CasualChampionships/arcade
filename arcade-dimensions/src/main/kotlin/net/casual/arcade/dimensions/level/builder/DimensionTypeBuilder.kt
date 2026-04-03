@@ -5,6 +5,7 @@
 package net.casual.arcade.dimensions.level.builder
 
 import net.minecraft.core.Holder
+import net.minecraft.core.HolderGetter
 import net.minecraft.core.HolderSet
 import net.minecraft.tags.BlockTags
 import net.minecraft.tags.TagKey
@@ -12,6 +13,7 @@ import net.minecraft.util.valueproviders.IntProvider
 import net.minecraft.util.valueproviders.UniformInt
 import net.minecraft.world.attribute.EnvironmentAttributeMap
 import net.minecraft.world.clock.WorldClock
+import net.minecraft.world.clock.WorldClocks
 import net.minecraft.world.level.CardinalLighting
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.dimension.DimensionType
@@ -133,6 +135,11 @@ public class DimensionTypeBuilder {
 
     public fun defaultClock(clock: Holder<WorldClock>): DimensionTypeBuilder {
         this.defaultClock = clock
+        return this
+    }
+
+    public fun overworldClock(access: HolderGetter.Provider): DimensionTypeBuilder {
+        this.defaultClock = access.getOrThrow(WorldClocks.OVERWORLD)
         return this
     }
 

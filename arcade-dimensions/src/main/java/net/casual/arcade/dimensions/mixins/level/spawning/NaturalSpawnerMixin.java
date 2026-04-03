@@ -6,8 +6,8 @@ package net.casual.arcade.dimensions.mixins.level.spawning;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.casual.arcade.dimensions.level.extensions.LevelCustomMobSpawningExtension;
 import net.casual.arcade.dimensions.level.spawner.CustomMobSpawningRules;
-import net.casual.arcade.dimensions.level.spawner.extension.LevelCustomMobSpawningExtension;
 import net.casual.arcade.extensions.utils.ExtensionUtilsKt;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.MobCategory;

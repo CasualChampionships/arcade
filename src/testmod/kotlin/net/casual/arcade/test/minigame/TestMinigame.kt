@@ -1,8 +1,11 @@
 package net.casual.arcade.test.minigame
 
 import com.mojang.serialization.MapCodec
+import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
+import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.Listener
+import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameInitializeEvent
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
@@ -11,11 +14,14 @@ import net.casual.arcade.resources.font.spacing.SpacingFontResources
 import net.casual.arcade.resources.utils.spaced
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.component.*
+import net.casual.arcade.utils.entity.teleportTo
+import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.player.displayName
 import net.casual.arcade.utils.recipe.CraftingRecipeBuilder
 import net.casual.arcade.visuals.elements.UniversalElement
 import net.casual.arcade.visuals.nametag.PlayerNametag
 import net.casual.arcade.visuals.sidebar.FixedSidebar
+import net.casual.arcade.visuals.sidebar.SidebarComponent
 import net.casual.arcade.visuals.tab.PlayerListDisplay
 import net.casual.arcade.visuals.tab.VanillaPlayerListEntries
 import net.casual.arcade.visuals.utils.elements.ComponentElements
@@ -23,8 +29,10 @@ import net.casual.arcade.visuals.utils.elements.SidebarElements
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.item.ItemStackTemplate
 import net.minecraft.world.item.Items
+import net.minecraft.world.level.levelgen.Heightmap
 import java.util.*
 
 enum class TestPhase(override val id: String): Phase<TestMinigame> {
@@ -34,7 +42,8 @@ enum class TestPhase(override val id: String): Phase<TestMinigame> {
 
 open class TestMinigame(
     server: MinecraftServer,
-    uuid: UUID
+    uuid: UUID,
+    private val level: ServerLevel
 ): Minigame(server, uuid) {
     override val id: Identifier get() = ID
 
@@ -45,6 +54,8 @@ open class TestMinigame(
     @Listener
     private fun onInitialize(event: MinigameInitializeEvent) {
         this.players.keepPlayerData = false
+
+        this.levels.add(this.level)
 
         this.recipes.add(CraftingRecipeBuilder.shapeless(this.server.registryAccess()) {
             key(arcade("example"))
@@ -57,6 +68,12 @@ open class TestMinigame(
         sidebar.addRow(SidebarElements.withNoScore(Component {
             literal("Hello World", 0x2739B8, 0x8D379E, 0xF13484, 0xFF605D)
         }))
+        sidebar.addRow { player ->
+            SidebarComponent.withCustomScore(
+                Component.literal("${player.level().overworldClockTime}"),
+                Component.literal("${player.level().defaultClockTime}")
+            )
+        }
         this.visuals.setSidebar(sidebar)
 
         val display = PlayerListDisplay(VanillaPlayerListEntries())
@@ -77,6 +94,13 @@ open class TestMinigame(
         this.visuals.addNametag(PlayerNametag.simple({ Component.literal("CustomNametags!") }))
     }
 
+    @Listener
+    private fun onMinigameAddPlayer(event: MinigameAddPlayerEvent) {
+        this.level.getChunk(0, 0)
+        val y = this.level.getHeight(Heightmap.Types.MOTION_BLOCKING, 0, 0).toDouble()
+        event.player.teleportTo(Location(0.0, y, 0.0, 0.0F, 0.0F).with(this.level))
+    }
+
     override fun factory(): MinigameFactory {
         return TestMinigame
     }
@@ -86,7 +110,12 @@ open class TestMinigame(
         val ID = arcade("test_minigame")
 
         override fun create(context: MinigameCreationContext): Minigame {
-            return TestMinigame(context.server, context.uuid)
+            val level = CustomLevelBuilder.build(context.server) {
+                randomDimensionKey()
+                vanillaDefaults(VanillaDimension.Overworld)
+                clockState(rate = 5.0F)
+            }
+            return TestMinigame(context.server, context.uuid, level)
         }
 
         override fun codec(): MapCodec<out MinigameFactory> {

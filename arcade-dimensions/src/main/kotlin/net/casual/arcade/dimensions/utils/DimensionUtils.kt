@@ -7,8 +7,8 @@ package net.casual.arcade.dimensions.utils
 import net.casual.arcade.dimensions.level.CustomLevel
 import net.casual.arcade.dimensions.level.LevelPersistence
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
+import net.casual.arcade.dimensions.level.extensions.LevelCustomMobSpawningExtension
 import net.casual.arcade.dimensions.level.spawner.CustomMobSpawningRules
-import net.casual.arcade.dimensions.level.spawner.extension.LevelCustomMobSpawningExtension
 import net.casual.arcade.dimensions.mixins.level.MinecraftServerAccessor
 import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.utils.ArcadeUtils
