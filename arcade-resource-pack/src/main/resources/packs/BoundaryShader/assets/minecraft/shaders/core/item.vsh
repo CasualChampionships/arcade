@@ -4,11 +4,12 @@
 #moj_import <minecraft:fog.glsl>
 #moj_import <minecraft:dynamictransforms.glsl>
 #moj_import <minecraft:projection.glsl>
+#moj_import <minecraft:sample_lightmap.glsl>
 
 in vec3 Position;
 in vec4 Color;
 in vec2 UV0;
-in vec2 UV1;
+in ivec2 UV1;
 in ivec2 UV2;
 in vec3 Normal;
 
@@ -21,8 +22,6 @@ out float sphericalVertexDistance;
 out float cylindricalVertexDistance;
 out vec4 vertexColor;
 out vec2 texCoord0;
-out vec2 texCoord1;
-out vec2 texCoord2;
 
 // == Boundary Start ==
 out float isBoundary;
@@ -33,6 +32,7 @@ out vec2 uv;
 out vec2 scale;
 out vec3 position;
 // == Boundary End ==
+
 
 // == Boundary Start ==
 const vec2 quadCorners[4] = vec2[4](
@@ -98,8 +98,6 @@ void main() {
         sphericalVertexDistance = fog_spherical_distance(Position);
         cylindricalVertexDistance = fog_cylindrical_distance(Position);
         texCoord0 = UV0;
-        texCoord1 = UV1;
-        texCoord2 = UV2;
 
         int cornerIndex = gl_VertexID % 4;
         uv = uvCorners[cornerIndex];
@@ -135,8 +133,8 @@ void main() {
 
     sphericalVertexDistance = fog_spherical_distance(Position);
     cylindricalVertexDistance = fog_cylindrical_distance(Position);
-    vertexColor = minecraft_mix_light(Light0_Direction, Light1_Direction, Normal, Color) * texelFetch(Sampler2, UV2 / 16, 0);
+
+    vertexColor = minecraft_mix_light(Light0_Direction, Light1_Direction, Normal, Color) * sample_lightmap(Sampler2, UV2);
+
     texCoord0 = UV0;
-    texCoord1 = UV1;
-    texCoord2 = UV2;
 }
