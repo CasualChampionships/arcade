@@ -7,11 +7,11 @@ import net.minecraft.commands.CommandSourceStack
 import org.reflections.Reflections
 import org.reflections.scanners.Scanners
 
-object ArcadeTestCommand: CommandTree {
+object ArcadeTestCommand: CommandTree<CommandSourceStack> {
     fun registerEvents() {
         for (subcommand in this.findSubcommandTrees()) {
             try {
-                val method = subcommand::class.java.getMethod("registerEvents")
+                val method = subcommand.javaClass.getMethod("registerEvents")
                 method.invoke(subcommand)
             } catch (_: NoSuchMethodException) {
 
@@ -27,10 +27,11 @@ object ArcadeTestCommand: CommandTree {
         }
     }
 
-    private fun findSubcommandTrees(): List<CommandTree> {
+    @Suppress("UNCHECKED_CAST")
+    private fun findSubcommandTrees(): List<CommandTree<CommandSourceStack>> {
         val reflections = Reflections("net.casual.arcade.test.commands", Scanners.SubTypes)
         val subcommands = reflections.getSubTypesOf(CommandTree::class.java)
-            .mapNotNull { clazz -> clazz.kotlin.objectInstance }
+            .mapNotNull { clazz -> clazz.kotlin.objectInstance as? CommandTree<CommandSourceStack> }
         return subcommands
     }
 }

@@ -15,7 +15,7 @@ import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 
 @Suppress("unused")
-object TransitionTestCommand: CommandTree {
+object TransitionTestCommand: CommandTree<CommandSourceStack> {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("transition") {
             executes(::run)

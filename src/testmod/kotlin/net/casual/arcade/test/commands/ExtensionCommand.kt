@@ -13,7 +13,7 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument
 
 @Suppress("unused")
-object ExtensionCommand: CommandTree {
+object ExtensionCommand: CommandTree<CommandSourceStack> {
     fun registerEvents() {
         TestEntityExtension.registerEvents()
     }

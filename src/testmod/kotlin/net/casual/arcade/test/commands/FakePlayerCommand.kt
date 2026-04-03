@@ -15,7 +15,7 @@ import net.minecraft.commands.arguments.coordinates.Vec3Argument
 import java.util.concurrent.CompletableFuture
 
 @Suppress("unused")
-object FakePlayerCommand: CommandTree {
+object FakePlayerCommand: CommandTree<CommandSourceStack> {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("fake-player") {
             argument("username", StringArgumentType.word()) {

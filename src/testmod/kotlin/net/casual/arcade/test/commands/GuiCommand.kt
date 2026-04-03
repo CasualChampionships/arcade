@@ -12,7 +12,7 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument
 
 @Suppress("unused")
-object GuiCommand: CommandTree {
+object GuiCommand: CommandTree<CommandSourceStack> {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("gui") {
             literal("view-inventory") {

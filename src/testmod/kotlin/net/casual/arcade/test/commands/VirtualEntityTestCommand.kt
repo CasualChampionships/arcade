@@ -27,7 +27,7 @@ import net.minecraft.world.entity.EntityType
 import net.minecraft.world.phys.Vec3
 
 @Suppress("unused")
-object VirtualEntityTestCommand: CommandTree {
+object VirtualEntityTestCommand: CommandTree<CommandSourceStack> {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("virtual-entity") {
             literal("level-attachment") {

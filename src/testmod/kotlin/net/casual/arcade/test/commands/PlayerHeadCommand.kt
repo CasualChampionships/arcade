@@ -15,7 +15,7 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 
 @Suppress("unused")
-object PlayerHeadCommand: CommandTree {
+object PlayerHeadCommand: CommandTree<CommandSourceStack> {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("player-head") {
             literal("display") {

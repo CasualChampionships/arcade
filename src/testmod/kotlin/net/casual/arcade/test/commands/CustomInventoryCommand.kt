@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 
 @Suppress("unused")
-object CustomInventoryCommand: CommandTree {
+object CustomInventoryCommand: CommandTree<CommandSourceStack> {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("custom-inventory") {
             literal("hotbar") {

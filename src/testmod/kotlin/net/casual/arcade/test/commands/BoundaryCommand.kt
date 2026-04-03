@@ -18,7 +18,7 @@ import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 
 @Suppress("unused")
-object BoundaryCommand: CommandTree {
+object BoundaryCommand: CommandTree<CommandSourceStack> {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("boundary") {
             literal("create") {

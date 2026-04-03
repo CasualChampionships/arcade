@@ -19,7 +19,7 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.TimeArgument
 
 @Suppress("unused")
-object PlayerCameraTestCommand: CommandTree {
+object PlayerCameraTestCommand: CommandTree<CommandSourceStack> {
     private lateinit var camera: PlayerCamera
 
     private var path = CameraPath.Builder()

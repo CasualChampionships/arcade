@@ -11,7 +11,7 @@ import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 
 @Suppress("unused")
-object RestrictMovementCommand: CommandTree {
+object RestrictMovementCommand: CommandTree<CommandSourceStack> {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("restrict-movement") {
             literal("restrict") {

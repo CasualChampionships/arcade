@@ -13,7 +13,7 @@ import net.minecraft.commands.arguments.ComponentArgument
 import net.minecraft.commands.arguments.EntityArgument
 
 @Suppress("unused")
-object NametagCommand: CommandTree {
+object NametagCommand: CommandTree<CommandSourceStack> {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("nametag") {
             argument("targets", EntityArgument.entities()) {

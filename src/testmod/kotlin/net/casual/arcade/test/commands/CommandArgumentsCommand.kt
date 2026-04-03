@@ -8,7 +8,7 @@ import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 
 @Suppress("unused")
-object CommandArgumentsCommand: CommandTree {
+object CommandArgumentsCommand: CommandTree<CommandSourceStack> {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("command-arguments") {
             literal("chunk-pos") {
