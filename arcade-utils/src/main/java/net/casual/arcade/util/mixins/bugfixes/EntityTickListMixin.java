@@ -27,7 +27,7 @@ public class EntityTickListMixin {
             ordinal = 1
         )
     )
-    private void onFinishIteration(Consumer<Entity> entity, CallbackInfo ci) {
+    private void onFinishIteration(Consumer<Entity> output, CallbackInfo ci) {
         // I removed this 'fix' because I think it causes a compatibility issue
         // with async, pending testing
 
