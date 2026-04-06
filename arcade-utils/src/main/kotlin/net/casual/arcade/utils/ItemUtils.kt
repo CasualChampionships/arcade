@@ -23,6 +23,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.ItemStackTemplate
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.alchemy.Potion
 import net.minecraft.world.item.alchemy.PotionContents
@@ -82,6 +83,16 @@ public object ItemUtils {
     public fun ItemStack.modelled(model: Identifier): ItemStack {
         this.set(DataComponents.ITEM_MODEL, model)
         return this
+    }
+
+    @JvmStatic
+    public fun Item.template(): ItemStackTemplate {
+        return ItemStackTemplate(this)
+    }
+
+    @JvmStatic
+    public fun ItemStack.template(): ItemStackTemplate {
+        return ItemStackTemplate.fromNonEmptyStack(this)
     }
 
     @JvmStatic
