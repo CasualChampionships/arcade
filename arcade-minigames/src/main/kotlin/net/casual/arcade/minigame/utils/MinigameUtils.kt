@@ -68,6 +68,11 @@ public object MinigameUtils {
         return this.minigame.getMinigame()
     }
 
+    @JvmName("getTypedMinigame")
+    public inline fun <reified T: Minigame> ServerPlayer.getMinigame(): T? {
+        return this.getMinigame() as? T
+    }
+
     @JvmStatic
     public fun ServerLevel.getMinigames(): Set<Minigame> {
         return this.minigame.getMinigames()
