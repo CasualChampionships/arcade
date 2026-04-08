@@ -291,7 +291,9 @@ public abstract class ReplayRecorder(
      * @param position The marked position.
      * @param rotation The marked rotation.
      * @param timestamp The timestamp of the marker (milliseconds).
+     * @param color The color of the marker.
      */
+    @JvmOverloads
     public fun addMarker(
         name: String? = null,
         position: Vec3 = this.position,
@@ -300,6 +302,16 @@ public abstract class ReplayRecorder(
         color: Int = 0xFF0000
     ) {
         this.addMarker(ReplayMarker(name, position, rotation, timestamp, color))
+    }
+
+    /**
+     * Adds a marker to the replay file which can be viewed in ReplayMod.
+     *
+     * @param name The name of the marker, null for unnamed.
+     * @param color The color of the marker.
+     */
+    public fun addMarker(name: String, color: Int) {
+        this.addMarker(name, color)
     }
 
     /**
