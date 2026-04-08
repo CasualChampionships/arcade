@@ -80,6 +80,8 @@ public class ReplayChunkRecorder internal constructor(
 
     private val recordables = HashSet<ReplayChunkRecordable>()
 
+    private var dummySpawnPos : Vec3? = null
+
     /**
      * The level that the chunk recording is currently in.
      */
@@ -97,6 +99,10 @@ public class ReplayChunkRecorder internal constructor(
      */
     override val rotation: Vec2
         get() = Vec2.ZERO
+
+    public fun setDummySpawnPos(pos: Vec3) {
+        dummySpawnPos = pos;
+    }
 
     override fun record(outgoing: Packet<*>) {
         super.record(PolymerCompatLayer.replacePacket(this.dummy.connection, outgoing))
@@ -122,10 +128,14 @@ public class ReplayChunkRecorder internal constructor(
         // Load the chunk
         this.level.getChunk(center.x, center.z)
 
-        val x = center.middleBlockX
-        val z = center.middleBlockZ
-        val y = this.level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z)
-        this.dummy.setPosRaw(x.toDouble(), y + 10.0, z.toDouble())
+        if(dummySpawnPos != null){
+            this.dummy.setPosRaw(dummySpawnPos!!.x, dummySpawnPos!!.y, dummySpawnPos!!.z)
+        } else {
+            val x = center.middleBlockX
+            val z = center.middleBlockZ
+            val y = this.level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z)
+            this.dummy.setPosRaw(x.toDouble(), y + 10.0, z.toDouble())
+        }
         this.dummy.setServerLevel(this.level)
         this.dummy.isInvisible = true
 
