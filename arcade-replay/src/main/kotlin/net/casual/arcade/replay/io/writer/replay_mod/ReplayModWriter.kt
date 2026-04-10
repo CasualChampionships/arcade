@@ -161,7 +161,7 @@ public class ReplayModWriter(
 
         val friendly = FriendlyByteBuf(Unpooled.buffer())
         try {
-            ReplayWriter.encodePacket(packet, protocol, friendly)
+            ReplayWriter.encodePacket(packet, protocol, friendly, this.recorder.getPacketContextProvider())
             val id = friendly.readVarInt()
             return ReplayPacket(registry, id, ReplayUnpooled.wrappedBuffer(friendly.toByteArray()))
         } finally {

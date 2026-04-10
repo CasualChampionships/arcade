@@ -16,8 +16,10 @@ import net.casual.arcade.replay.util.ReplayPacketUtils
 import net.casual.arcade.utils.ClientboundAddEntityPacket
 import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.utils.entity.WrappedTrackedEntity
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext
 import net.minecraft.core.NonNullList
 import net.minecraft.core.component.DataComponents
+import net.minecraft.network.Connection
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
 import net.minecraft.server.MinecraftServer
@@ -48,6 +50,7 @@ public class ReplayPlayerRecorder internal constructor(
     settings: RecorderSettings,
     format: ReplayFormat,
     path: Path,
+    private val connection: Connection
 ): ReplayRecorder(server, profile, settings, format, path), ChunkSender {
     private val player: ServerPlayer?
         get() = this.server.playerList.getPlayer(this.recordingPlayerUUID)
@@ -125,7 +128,9 @@ public class ReplayPlayerRecorder internal constructor(
         if (this.player == null) {
             return false
         }
-        val recorder = ReplayPlayerRecorders.create(this.server, this.profile, this.path, this.format, this.settings)
+        val recorder = ReplayPlayerRecorders.create(
+            this.server, this.profile, this.connection, this.path, this.format, this.settings
+        )
         return recorder.start(StartingMode.Restart)
     }
 
@@ -162,6 +167,10 @@ public class ReplayPlayerRecorder internal constructor(
         this.sendMapData(player)
         this.sendChunksAndEntities { pos -> this.writer.writeCachedChunk(pos) }
         GlobalEventHandler.Server.broadcast(ReplayPlayerRecorderSnapshotEvent(this, false))
+    }
+
+    override fun getPacketContextProvider(): Connection {
+        return this.connection
     }
 
     /**

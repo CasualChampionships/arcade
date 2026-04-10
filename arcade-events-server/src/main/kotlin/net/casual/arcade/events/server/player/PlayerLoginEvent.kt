@@ -6,6 +6,7 @@ package net.casual.arcade.events.server.player
 
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.events.threading.AsyncEvent
+import net.minecraft.network.Connection
 import net.minecraft.server.MinecraftServer
 
 /**
@@ -23,5 +24,9 @@ public data class PlayerLoginEvent(
     /**
      * The profile of the player that is logging in.
      */
-    val profile: GameProfile
+    val profile: GameProfile,
+    /**
+     * The connection of the player.
+     */
+    val connection: Connection
 ): AsyncEvent

@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.util.mixins.network;
 
+import net.minecraft.network.Connection;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,4 +14,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface ServerCommonPacketListenerAccessor {
     @Accessor
     MinecraftServer getServer();
+
+    @Accessor
+    Connection getConnection();
 }

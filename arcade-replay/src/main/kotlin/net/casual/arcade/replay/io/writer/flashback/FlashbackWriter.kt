@@ -228,7 +228,7 @@ public class FlashbackWriter(
     ): Int {
         try {
             val start = buf.writerIndex()
-            ReplayWriter.encodePacket(packet, protocol, buf)
+            ReplayWriter.encodePacket(packet, protocol, buf, this.recorder.getPacketContextProvider())
             return buf.writerIndex() - start
         } catch (e: EncoderException) {
             ReplayWriter.handleLoggingEncoderException(LOGGER, packet, protocol, offThread, e)
@@ -268,7 +268,7 @@ public class FlashbackWriter(
                 val fileIndex = FlashbackIO.getChunkCacheFileIndex(index)
                 this.writer.writeLevelChunk(fileIndex) { chunkBuf ->
                     val start = chunkBuf.writerIndex()
-                    ReplayWriter.encodePacket(packet, protocol, chunkBuf)
+                    ReplayWriter.encodePacket(packet, protocol, chunkBuf, this.recorder.getPacketContextProvider())
                     size += (chunkBuf.writerIndex() - start)
                 }
                 this.chunks.put(identity, index)

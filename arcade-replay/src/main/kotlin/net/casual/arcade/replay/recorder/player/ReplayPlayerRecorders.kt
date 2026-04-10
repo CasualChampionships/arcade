@@ -15,8 +15,10 @@ import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorders.create
 import net.casual.arcade.replay.recorder.rejoin.RejoinedReplayPlayer
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
 import net.casual.arcade.replay.recorder.settings.SimpleRecorderSettings
+import net.casual.arcade.util.mixins.network.ServerCommonPacketListenerAccessor
 import net.casual.arcade.utils.EnumUtils
 import net.casual.arcade.utils.player.server
+import net.minecraft.network.Connection
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
@@ -52,7 +54,8 @@ public object ReplayPlayerRecorders {
         if (player is RejoinedReplayPlayer) {
             throw IllegalArgumentException("Cannot create a ReplayPlayerRecorder for a rejoining player")
         }
-        return this.create(player.server, player.gameProfile, directory, format, settings)
+        val connection = (player.connection as ServerCommonPacketListenerAccessor).connection
+        return this.create(player.server, player.gameProfile, connection, directory, format, settings)
     }
 
     /**
@@ -70,6 +73,7 @@ public object ReplayPlayerRecorders {
     public fun create(
         server: MinecraftServer,
         profile: GameProfile,
+        connection: Connection,
         directory: Path,
         format: ReplayFormat = ReplayFormat.ReplayMod,
         settings: RecorderSettings = SimpleRecorderSettings.DEFAULT,
@@ -78,7 +82,7 @@ public object ReplayPlayerRecorders {
             throw IllegalArgumentException("ReplayPlayerRecorder for player '${profile.name}' already exists")
         }
 
-        val recorder = ReplayPlayerRecorder(server, profile, settings, format, directory)
+        val recorder = ReplayPlayerRecorder(server, profile, settings, format, directory, connection)
         this.addRecorder(recorder)
         return recorder
     }
