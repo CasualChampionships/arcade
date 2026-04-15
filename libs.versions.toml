@@ -7,7 +7,7 @@ fabric-kotlin       = "1.13.9+kotlin.2.3.10"
 polymer             = "0.16.0+26.1.1"
 sgui                = "2.0.0+26.1"
 server-translations = "3.0.1+26.1"
-replay-studio       = "526f9aaf43"
+replay-studio       = "ca00f8101b"
 permissions         = "0.7.0"
 
 # Compatability
