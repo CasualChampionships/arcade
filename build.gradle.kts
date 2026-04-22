@@ -11,7 +11,7 @@ plugins {
     java
 }
 
-val modVersion = "0.9.0-beta.25"
+val modVersion = "0.9.0-beta.28"
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -62,7 +62,7 @@ allprojects {
             filesMatching("fabric.mod.json") {
                 expand(mutableMapOf(
                     "version" to modVersion,
-                    "minecraft_dependency" to "~${libs.versions.minecraft.get()}",
+                    "minecraft_dependency" to replaceVersion(libs.versions.minecraft.get(), "x"),
                     "fabric_loader_dependency" to libs.versions.fabric.loader.get(),
                     "fabric_api_dependency" to libs.versions.fabric.api.get(),
                     "fabric_kotlin_dependency" to libs.versions.fabric.kotlin.get(),
@@ -178,6 +178,10 @@ val moduleDependencies: Project.(List<String>) -> Unit by extra { { names ->
         }
     }
 } }
+
+fun replaceVersion(version: String, patch: String): String {
+    return version.replace(Regex("""^(\d+\.\d+)(\.\d+)?$"""), "$1.$patch")
+}
 
 private fun Project.updateDocumentedDependencies(path: String, transitive: Boolean = true) {
     val file = file(path)

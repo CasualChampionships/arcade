@@ -24,7 +24,7 @@ public object FileUtils {
     private const val MB = 1048576L
     private const val GB = 1073741824L
     private const val TB = 1099511627776L
-    private val VALUE_PATTERN = Pattern.compile("([0-9]+([.,][0-9]+)?)\\s*(|K|M|G|T)B?", 2)
+    private val VALUE_PATTERN = Pattern.compile("([0-9]+([.,][0-9]+)?)\\s*(K|M|G|T|)i?B?", Pattern.CASE_INSENSITIVE)
 
     public fun parseSize(string: String): Long? {
         val matcher = VALUE_PATTERN.matcher(string)

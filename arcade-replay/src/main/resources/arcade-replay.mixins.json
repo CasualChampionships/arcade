@@ -24,7 +24,6 @@
     "compat.c2me.TheChunkSystemMixin",
     "compat.carpet.ChunkMapMixin",
     "compat.carpet.EntityPlayerMPFakeMixin",
-    "compat.carpet.NetHandlerPlayServerFakeMixin",
     "compat.vmp.NearbyEntityTrackingMixin",
     "flashback.BlockEntityInfoAccessor",
     "flashback.ClientboundLevelChunkPacketDataAccessor",

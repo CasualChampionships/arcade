@@ -11,7 +11,7 @@ replay-studio       = "ca00f8101b"
 permissions         = "0.7.0"
 
 # Compatability
-carpet        = "26.1-beta-9"
+carpet        = "26.1"
 voicechat     = "fabric-2.6.12+26.1"
 voicechat-api = "2.6.0"
 vmp           = "0.2.0+beta.7.230+26.1"
