@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.culling.Frustum
 import net.minecraft.client.renderer.state.level.CameraRenderState
 import net.minecraft.client.renderer.state.level.LevelRenderState
 
-public class LevelRenderExtractEvent(
+public data class LevelRenderExtractEvent(
     public val renderer: LevelRenderer,
     public val level: ClientLevel,
     public val state: LevelRenderState,

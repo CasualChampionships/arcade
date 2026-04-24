@@ -17,6 +17,7 @@ import net.casual.arcade.replay.mixins.rejoin.ChunkMapAccessor
 import net.casual.arcade.replay.recorder.ChunkSender
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder
+import net.casual.arcade.replay.recorder.rejoin.RejoinConnection
 import net.casual.arcade.replay.recorder.rejoin.RejoinedReplayPlayer
 import net.casual.arcade.replay.recorder.settings.RecorderSettings
 import net.casual.arcade.replay.recorder.settings.RecorderSettings.ChunkRecordingStrategy
@@ -26,7 +27,9 @@ import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.utils.entity.WrappedTrackedEntity
 import net.casual.arcade.utils.level.server
 import net.casual.arcade.utils.toIdString
+import net.fabricmc.fabric.impl.networking.context.PacketContextImpl
 import net.minecraft.core.UUIDUtil
+import net.minecraft.network.Connection
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheRadiusPacket
@@ -69,9 +72,11 @@ public class ReplayChunkRecorder internal constructor(
 ): ReplayRecorder(chunks.level.server(), PROFILE, settings, format, path), ChunkSender {
     private val dummy by lazy {
         val player = ServerPlayer(this.server, this.chunks.level, PROFILE, ClientInformation.createDefault())
-        ReplayChunkGamePacketListener(this, player)
+        ReplayChunkGamePacketListener(this, player, this.connection)
         player
     }
+
+    private val connection = this.createConnection()
 
     private val trackedPlayers = ReferenceOpenHashSet<ServerPlayer>()
 
@@ -328,6 +333,10 @@ public class ReplayChunkRecorder internal constructor(
         GlobalEventHandler.Server.broadcast(ReplayChunkRecorderSnapshotEvent(this, true))
     }
 
+    override fun getPacketContextProvider(): Connection {
+        return this.connection
+    }
+
     /**
      * This gets the dummy chunk recording player.
      *
@@ -468,6 +477,15 @@ public class ReplayChunkRecorder internal constructor(
             spawnPackets.add(ClientboundUpdateMobEffectPacket(this.dummy.id, INVISIBILITY, false))
         }
         this.spawnPlayer(this.dummy, spawnPackets)
+    }
+
+    @Suppress("UnstableApiUsage")
+    private fun createConnection(): Connection {
+        val connection = RejoinConnection()
+        connection.packetContext.set(PacketContextImpl.GAME_PROFILE, PROFILE)
+        connection.packetContext.set(PacketContextImpl.SERVER_INSTANCE, this.server)
+        connection.packetContext.set(PacketContextImpl.REGISTRY_ACCESS, this.server.registryAccess())
+        return connection
     }
 
     private companion object {

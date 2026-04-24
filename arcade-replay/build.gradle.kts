@@ -23,13 +23,10 @@ loom {
     accessWidenerPath.set(file("src/main/resources/arcade-replay.classtweaker"))
 }
 
-configurations.named("shadowRuntimeElements") {
-    artifacts.clear()
-}
-
 tasks {
     shadowJar {
-        destinationDirectory.set(File("./build/devlibs"))
+        archiveClassifier = ""
+
         isZip64 = true
 
         from("LICENSE")
@@ -46,7 +43,18 @@ tasks {
         exclude("com/google/**")
 
         configurations = listOf(shade)
+    }
 
-        archiveClassifier = "shaded"
+    jar {
+        archiveClassifier = "slim"
+    }
+}
+
+listOf("apiElements", "runtimeElements").forEach { configName ->
+    configurations.named(configName) {
+        outgoing {
+            artifacts.clear()
+            artifact(tasks.shadowJar)
+        }
     }
 }

@@ -7,6 +7,7 @@ package net.casual.arcade.events.server.mixins;
 import com.mojang.authlib.GameProfile;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.player.PlayerLoginEvent;
+import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.login.ServerboundLoginAcknowledgedPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
@@ -24,6 +25,8 @@ public class ServerLoginPacketListenerImplMixin {
 
 	@Shadow @Final private MinecraftServer server;
 
+	@Shadow @Final private Connection connection;
+
 	@Inject(
 		method = "handleLoginAcknowledgement",
 		at = @At(
@@ -35,7 +38,7 @@ public class ServerLoginPacketListenerImplMixin {
 	)
 	private void onPlayerLogin(ServerboundLoginAcknowledgedPacket packet, CallbackInfo ci) {
 		if (this.authenticatedProfile != null) {
-			PlayerLoginEvent event = new PlayerLoginEvent(this.server, this.authenticatedProfile);
+			PlayerLoginEvent event = new PlayerLoginEvent(this.server, this.authenticatedProfile, this.connection);
 			GlobalEventHandler.Server.broadcast(event);
 		}
 	}

@@ -12,6 +12,8 @@ import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.entity.WrappedTrackedEntity
 import net.casual.arcade.utils.level.getTrackedEntities
 import net.casual.arcade.utils.level.server
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext
+import net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
 import net.minecraft.server.level.ServerLevel
@@ -152,14 +154,16 @@ public interface ChunkSender {
         chunk: LevelChunk,
         seen: SeenEntities,
     ) {
-        // We don't need to use the chunkSender
-        // We are only writing the packets to disk...
-        this.sendChunkPacket(ClientboundLevelChunkWithLightPacket(
-            chunk,
-            chunk.level.lightEngine,
-            null,
-            null
-        ))
+        PacketContext.runWithContext(this.getPacketContextProvider()) {
+            // We don't need to use the chunkSender
+            // We are only writing the packets to disk...
+            this.sendChunkPacket(ClientboundLevelChunkWithLightPacket(
+                chunk,
+                chunk.level.lightEngine,
+                null,
+                null
+            ))
+        }
 
         val leashed = ArrayList<Mob>()
         val ridden = ArrayList<Entity>()
@@ -212,6 +216,9 @@ public interface ChunkSender {
             }
         }
     }
+
+    @Internal
+    public fun getPacketContextProvider(): PacketContextProvider
 
     public interface SeenEntities {
         public fun has(id: Int): Boolean

@@ -21,7 +21,10 @@ import net.casual.arcade.replay.util.*
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.DateTimeUtils.formatHHMMSS
 import net.casual.arcade.utils.getDebugName
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext
+import net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider
 import net.minecraft.core.component.DataComponents
+import net.minecraft.network.Connection
 import net.minecraft.network.ConnectionProtocol
 import net.minecraft.network.ProtocolInfo
 import net.minecraft.network.RegistryFriendlyByteBuf
@@ -291,7 +294,9 @@ public abstract class ReplayRecorder(
      * @param position The marked position.
      * @param rotation The marked rotation.
      * @param timestamp The timestamp of the marker (milliseconds).
+     * @param color The color of the marker.
      */
+    @JvmOverloads
     public fun addMarker(
         name: String? = null,
         position: Vec3 = this.position,
@@ -300,6 +305,16 @@ public abstract class ReplayRecorder(
         color: Int = 0xFF0000
     ) {
         this.addMarker(ReplayMarker(name, position, rotation, timestamp, color))
+    }
+
+    /**
+     * Adds a marker to the replay file which can be viewed in ReplayMod.
+     *
+     * @param name The name of the marker, null for unnamed.
+     * @param color The color of the marker.
+     */
+    public fun addMarker(name: String, color: Int) {
+        this.addMarker(name, color)
     }
 
     /**
@@ -542,6 +557,9 @@ public abstract class ReplayRecorder(
 
     @Internal
     public abstract fun takeSnapshot()
+
+    @Internal
+    public abstract fun getPacketContextProvider(): PacketContextProvider
 
     @Internal
     public open fun tick() {

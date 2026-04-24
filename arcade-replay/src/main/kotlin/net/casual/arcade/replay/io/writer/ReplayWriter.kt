@@ -16,6 +16,8 @@ import net.casual.arcade.replay.recorder.packet.RecordablePayload
 import net.casual.arcade.replay.util.ReplayMarker
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.getDebugName
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext
+import net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.ProtocolInfo
 import net.minecraft.network.codec.StreamCodec
@@ -114,7 +116,12 @@ public interface ReplayWriter {
             }
         }
 
-        public fun encodePacket(packet: Packet<*>, protocol: ProtocolInfo<*>, buf: FriendlyByteBuf) {
+        public fun encodePacket(
+            packet: Packet<*>,
+            protocol: ProtocolInfo<*>,
+            buf: FriendlyByteBuf,
+            provider: PacketContextProvider
+        ) {
             @Suppress("UNCHECKED_CAST")
             val codec = (protocol.codec() as StreamCodec<ByteBuf, Packet<*>>)
 
@@ -127,12 +134,16 @@ public interface ReplayWriter {
                     val id = codec.typeToIdMap.getInt(CommonPacketTypes.CLIENTBOUND_CUSTOM_PAYLOAD)
                     buf.writeVarInt(id)
                     buf.writeIdentifier(payload.type().id)
-                    payload.record(buf)
+                    PacketContext.runWithContext(provider) {
+                        payload.record(buf)
+                    }
                     return
                 }
             }
 
-            codec.encode(buf, packet)
+            PacketContext.runWithContext(provider) {
+                codec.encode(buf, packet)
+            }
         }
 
         internal fun ReplayWriter.close(
