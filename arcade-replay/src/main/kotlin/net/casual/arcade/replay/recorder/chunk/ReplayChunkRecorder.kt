@@ -23,6 +23,9 @@ import net.casual.arcade.replay.recorder.settings.RecorderSettings
 import net.casual.arcade.replay.recorder.settings.RecorderSettings.ChunkRecordingStrategy
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.ClientboundAddEntityPacket
+import net.casual.arcade.utils.MathUtils.component1
+import net.casual.arcade.utils.MathUtils.component2
+import net.casual.arcade.utils.MathUtils.component3
 import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.utils.entity.WrappedTrackedEntity
 import net.casual.arcade.utils.level.server
@@ -66,6 +69,7 @@ import java.util.stream.Collectors
 public class ReplayChunkRecorder internal constructor(
     public val chunks: ChunkArea,
     public val recorderName: String,
+    private val initialPosition: Vec3?,
     settings: RecorderSettings,
     format: ReplayFormat,
     path: Path,
@@ -85,8 +89,6 @@ public class ReplayChunkRecorder internal constructor(
 
     private val recordables = HashSet<ReplayChunkRecordable>()
 
-    private var dummySpawnPos : Vec3? = null
-
     /**
      * The level that the chunk recording is currently in.
      */
@@ -104,10 +106,6 @@ public class ReplayChunkRecorder internal constructor(
      */
     override val rotation: Vec2
         get() = Vec2.ZERO
-
-    public fun setDummySpawnPos(pos: Vec3) {
-        dummySpawnPos = pos;
-    }
 
     override fun record(outgoing: Packet<*>) {
         super.record(PolymerCompatLayer.replacePacket(this.dummy.connection, outgoing))
@@ -129,18 +127,20 @@ public class ReplayChunkRecorder internal constructor(
      * This method should just simulate
      */
     override fun initialize(): Boolean {
-        val center = this.getCenterChunk()
-        // Load the chunk
-        this.level.getChunk(center.x, center.z)
+        if (this.initialPosition == null) {
+            val center = this.getCenterChunk()
+            // Load the chunk
+            this.level.getChunk(center.x, center.z)
 
-        if(dummySpawnPos != null){
-            this.dummy.setPosRaw(dummySpawnPos!!.x, dummySpawnPos!!.y, dummySpawnPos!!.z)
-        } else {
             val x = center.middleBlockX
             val z = center.middleBlockZ
             val y = this.level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z)
             this.dummy.setPosRaw(x.toDouble(), y + 10.0, z.toDouble())
+        } else {
+            val (x, y, z) = this.initialPosition
+            this.dummy.setPos(x, y, z)
         }
+
         this.dummy.setServerLevel(this.level)
         this.dummy.isInvisible = true
 
@@ -167,7 +167,9 @@ public class ReplayChunkRecorder internal constructor(
      * @return Whether it successfully restarted.
      */
     override fun restart(): Boolean {
-        val recorder = ReplayChunkRecorders.create(this.chunks, this.path, this.format, this.settings, this.recorderName)
+        val recorder = ReplayChunkRecorders.create(
+            this.chunks, this.path, this.format, this.settings, this.initialPosition, this.recorderName
+        )
         return recorder.start(StartingMode.Restart)
     }
 
