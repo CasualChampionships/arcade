@@ -19,6 +19,10 @@ public enum class FlashbackAction(public val id: Identifier) {
 
     constructor(path: String): this(FlashbackUtils.id(path))
 
+    public fun isOptional(): Boolean {
+        return this.id.path.endsWith("optional")
+    }
+
     public companion object {
         private val idToAction = FlashbackAction.entries.associateBy { it.id }
 

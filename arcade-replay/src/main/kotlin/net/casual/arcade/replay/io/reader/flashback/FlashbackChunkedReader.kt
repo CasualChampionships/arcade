@@ -112,7 +112,7 @@ public class FlashbackChunkedReader(
         val slice = this.buffer.readSlice(size)
         consumer.invoke(action, RegistryFriendlyByteBuf(slice, this.access))
 
-        if (slice.readerIndex() < slice.writerIndex()) {
+        if (slice.readerIndex() < slice.writerIndex() && !action.isOptional()) {
             throw IllegalStateException("Action ${action.id} wasn't processed correctly")
         }
     }
