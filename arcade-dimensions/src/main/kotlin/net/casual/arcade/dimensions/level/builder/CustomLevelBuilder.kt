@@ -668,6 +668,9 @@ public class CustomLevelBuilder {
             val generator = this.generator ?: throw IllegalArgumentException("Chunk generator must be specified")
             stem = Holder.direct(LevelStem(dimensionType, generator))
         }
+        if (stem.value().type.value().defaultClock.isEmpty && this.clockState != null) {
+            throw IllegalArgumentException("Cannot construct custom dimension with custom clock state without default clock")
+        }
 
         val options = LevelGenerationOptions(
             stem, this.seed, this.flat, Optional.ofNullable(this.clockState), this.generateStructures, this.debug, this.spawners
