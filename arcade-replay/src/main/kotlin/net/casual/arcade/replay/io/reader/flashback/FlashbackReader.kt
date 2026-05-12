@@ -186,6 +186,7 @@ public class FlashbackReader(
         }
     }
 
+    @Suppress("UnusedVariable", "Unused")
     private fun processCreatePlayer(buffer: RegistryFriendlyByteBuf, consumer: (ReplayPacketData) -> Unit) {
         val uuid = buffer.readUUID()
         val x = buffer.readDouble()
@@ -195,9 +196,7 @@ public class FlashbackReader(
         val yRot = buffer.readFloat()
         val headRot = buffer.readFloat()
         val velocity = Vec3.STREAM_CODEC.decode(buffer)
-        @Suppress("UNUSED_VARIABLE")
         val profile = ByteBufCodecs.GAME_PROFILE.decode(buffer)
-        @Suppress("UNUSED_VARIABLE")
         val gamemode = buffer.readVarInt()
         val packet = ClientboundAddEntityPacket(
             this.player, uuid, x, y, z, xRot, yRot, EntityType.PLAYER, 0, velocity, headRot.toDouble()
@@ -211,10 +210,10 @@ public class FlashbackReader(
         this.updateChunkCacheCenter(x, y, z, consumer)
     }
 
+    @Suppress("UnusedVariable", "Unused")
     private fun processMoveEntities(buffer: RegistryFriendlyByteBuf, consumer: (ReplayPacketData) -> Unit) {
         val dimensions = buffer.readVarInt()
         for (i in 0..<dimensions) {
-            @Suppress("UNUSED_VARIABLE")
             val dimension = buffer.readResourceKey(Registries.DIMENSION)
             val deltas = buffer.readVarInt()
             for (j in 0..<deltas) {
