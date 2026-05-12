@@ -489,6 +489,8 @@ public class ReplayViewer internal constructor(
 
     private fun shouldSendPacket(packet: Packet<*>, time: Duration): Boolean {
         return when (packet) {
+            // We don't want the viewing player to be able to die
+            is ClientboundSetHealthPacket -> false
             is ClientboundGameEventPacket -> packet.event != CHANGE_GAME_MODE
             is ClientboundPlayerPositionPacket -> {
                 if (!packet.relatives.containsAll(setOf(Relative.X, Relative.Y, Relative.Z))) {
