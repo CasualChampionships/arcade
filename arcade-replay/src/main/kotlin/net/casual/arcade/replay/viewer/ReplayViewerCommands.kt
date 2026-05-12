@@ -133,10 +133,11 @@ public object ReplayViewerCommands {
 
     private fun pauseViewingReplay(context: CommandContext<CommandSourceStack>, paused: Boolean): Int {
         val viewer = context.source.getReplayViewer()
+        val verb = if (paused) "paused" else "unpaused"
         if (viewer.setPaused(paused)) {
-            return context.source.success("Successfully paused replay")
+            return context.source.success("Successfully $verb replay")
         }
-        return context.source.fail("Replay was already paused")
+        return context.source.fail("Replay was already $verb")
     }
 
     private fun restartViewingReplay(context: CommandContext<CommandSourceStack>): Int {
