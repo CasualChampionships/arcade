@@ -11,13 +11,19 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.DataResult
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import net.casual.arcade.util.ducks.GameRulesData
+import net.casual.arcade.util.mixins.codec.FeatureFlagRegistryAccessor
+import net.casual.arcade.util.mixins.codec.FeatureFlagSetAccessor
+import net.casual.arcade.util.mixins.codec.FeatureFlagSetInvoker
 import net.casual.arcade.utils.TimeUtils
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceKey
 import net.minecraft.util.ExtraCodecs
 import net.minecraft.util.Util
 import net.minecraft.world.flag.FeatureFlagSet
+import net.minecraft.world.flag.FeatureFlags
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.gamerules.GameRuleMap
 import net.minecraft.world.level.gamerules.GameRules
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec2
@@ -53,7 +59,21 @@ public object ArcadeExtraCodecs {
         { json -> if (json !is JsonObject) DataResult.error { "Input wasn't JsonObject" } else DataResult.success(json) },
         { json -> json }
     )
-    public val GAMERULES: Codec<GameRules> = GameRules.codec(FeatureFlagSet.of())
+    private val GAMERULES_WITH_FLAGS = RecordCodecBuilder.create { instance ->
+        instance.group(
+            GameRuleMap.CODEC.fieldOf("rules").forGetter { rules -> (rules as GameRulesData).arcade_getGameRuleMap() },
+            Codec.LONG.fieldOf("flags").forGetter { rules ->
+                val flags = (rules as GameRulesData).arcade_getFeatureFlagSet()
+                @Suppress("CAST_NEVER_SUCCEEDS")
+                (flags as FeatureFlagSetAccessor).arcade_getMask()
+            }
+        ).apply(instance) { rules: GameRuleMap, flags: Long ->
+            val universe = (FeatureFlags.REGISTRY as FeatureFlagRegistryAccessor).arcade_getUniverse()
+            GameRules(FeatureFlagSetInvoker.arcade_init(universe, flags), rules)
+        }
+    }
+    private val GAMERULES_WITHOUT_FLAGS = GameRules.codec(FeatureFlagSet.of())
+    public val GAMERULES: Codec<GameRules> = Codec.withAlternative(GAMERULES_WITH_FLAGS, GAMERULES_WITHOUT_FLAGS)
     public val DIMENSION: Codec<ResourceKey<Level>> = ResourceKey.codec(Registries.DIMENSION)
     public val DURATION: Codec<Duration> = Codec.STRING.comapFlatMap(TimeUtils::parseToDuration, Duration::toString)
 
