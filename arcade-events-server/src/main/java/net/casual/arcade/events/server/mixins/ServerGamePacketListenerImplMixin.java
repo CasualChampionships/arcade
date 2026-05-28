@@ -73,7 +73,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 			target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"
 		)
 	)
-	private boolean onBroadcastLeaveMessage(PlayerList instance, Component message, boolean bypassHiddenChat) {
+	private boolean onBroadcastLeaveMessage(PlayerList instance, Component message, boolean overlay) {
         return PLAYER_LEAVE_CONTEXT.isBound() && PLAYER_LEAVE_CONTEXT.get().getLeaveMessageModification() != PlayerLeaveEvent.LeaveMessageModification.Hide;
     }
 
@@ -102,10 +102,10 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 	private void onBroadcastLeaveMessage(
 		PlayerList instance,
 		Component message,
-		boolean bypassHiddenChat,
+		boolean overlay,
 		Operation<Void> original
 	) {
-		PlayerSystemMessageEvent.broadcast(this.player, instance, message, bypassHiddenChat, original);
+		PlayerSystemMessageEvent.broadcast(this.player, instance, message, overlay, original);
 	}
 
 	@WrapOperation(
@@ -117,18 +117,18 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 	)
 	private void onSlotClicked(
 		AbstractContainerMenu instance,
-		int slotId,
-		int button,
-		ContainerInput action,
+		int slotIndex,
+		int buttonNum,
+		ContainerInput containerInput,
 		Player player,
 		Operation<Void> original
 	) {
-		PlayerSlotClickEvent event = new PlayerSlotClickEvent(this.player, instance, slotId, button, action);
+		PlayerSlotClickEvent event = new PlayerSlotClickEvent(this.player, instance, slotIndex, buttonNum, containerInput);
 		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
 		if (event.isCancelled()) {
 			return;
 		}
-		original.call(instance, slotId, button, action, player);
+		original.call(instance, slotIndex, buttonNum, containerInput, player);
 		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
 	}
 
@@ -178,9 +178,9 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
     private void onPickBlock(
 		ServerboundPickItemFromBlockPacket packet,
 		CallbackInfo ci,
-		@Local(name = "blockState") BlockState state
+		@Local(name = "blockState") BlockState blockState
 	) {
-        PlayerPickBlockEvent event = new PlayerPickBlockEvent(this.player, packet.pos(), state);
+        PlayerPickBlockEvent event = new PlayerPickBlockEvent(this.player, packet.pos(), blockState);
         GlobalEventHandler.Server.broadcast(event);
         if (event.isCancelled()) {
             ci.cancel();
@@ -292,7 +292,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		cancellable = true
 	)
 	private void onSpectatorTeleport(ServerboundTeleportToEntityPacket packet, CallbackInfo ci) {
-		UUID target = ((ServerboundTeleportToEntityPacketAccessor) packet).getUUID();
+		UUID target = ((ServerboundTeleportToEntityPacketAccessor) packet).arcade_getUUID();
 		PlayerSpectatorTeleportEvent event = new PlayerSpectatorTeleportEvent(this.player, target);
 		GlobalEventHandler.Server.broadcast(event);
 		if (event.isCancelled()) {

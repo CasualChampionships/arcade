@@ -43,7 +43,7 @@ public class SelectionGuiBuilder(
 
     /**
      * This constructs this gui builder with a parent. The owner
-     * of the parent will be used as the owner of this gui.]
+     * of the parent will be used as the owner of this gui.
      *
      * @param parent The parent of this gui.
      * @param components The default components used for the selection gui.
@@ -56,7 +56,7 @@ public class SelectionGuiBuilder(
     }
 
     /**
-     * This sets the parent gui, it must have belong to the same
+     * This sets the parent gui, it must have belonged to the same
      * player as this gui.
      *
      * @param parent The parent gui.

@@ -37,7 +37,7 @@ public abstract class ServerPlayerMixin {
 		at = @At("HEAD"),
 		cancellable = true
 	)
-	private void onCheckFallDamage(double y, boolean onGround, BlockState state, BlockPos pos, CallbackInfo ci) {
+	private void onCheckFallDamage(double ya, boolean onGround, BlockState onState, BlockPos pos, CallbackInfo ci) {
 		// Prevent fall damage particles if in AdventureSpectator
 		if (getExtendedGameMode((ServerPlayer) (Object) this) == ExtendedGameMode.AdventureSpectator) {
 			ci.cancel();

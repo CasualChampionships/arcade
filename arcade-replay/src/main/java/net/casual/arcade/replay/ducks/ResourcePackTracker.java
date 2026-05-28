@@ -10,8 +10,8 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.Collection;
 
 @ApiStatus.Internal
-public interface PackTracker {
-    void replay$addPacks(Collection<ClientboundResourcePackPushPacket> packs);
+public interface ResourcePackTracker {
+    void arcade_addPacks(Collection<ClientboundResourcePackPushPacket> packs);
 
-    Collection<ClientboundResourcePackPushPacket> replay$getPacks();
+    Collection<ClientboundResourcePackPushPacket> arcade_getPacks();
 }

@@ -56,7 +56,7 @@ public abstract class ServerCommonPacketListenerImplMixin {
         ReplayPlayerRecorders.stop(this.playerProfile().id());
 
         if (this instanceof ReplayViewable viewable) {
-            ReplayViewer viewer = viewable.arcade$getViewingReplay();
+            ReplayViewer viewer = viewable.arcade_getViewingReplay();
             if (viewer != null) {
                 viewer.close();
             }

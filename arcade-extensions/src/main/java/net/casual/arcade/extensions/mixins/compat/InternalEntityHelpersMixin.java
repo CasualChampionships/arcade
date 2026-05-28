@@ -29,11 +29,11 @@ public class InternalEntityHelpersMixin {
     private static <T extends Entity> T onTryCreateEntity(
         EntityType<T> instance,
         Level level,
-        EntitySpawnReason spawnReason,
+        EntitySpawnReason reason,
         Operation<T> original
     ) {
         return ScopedValue.where(EntityExtension.DONT_ATTACH_EXTENSION, Unit.INSTANCE).call(() -> {
-            return original.call(instance, level, spawnReason);
+            return original.call(instance, level, reason);
         });
     }
 }

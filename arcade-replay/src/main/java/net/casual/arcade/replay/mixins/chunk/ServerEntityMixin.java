@@ -35,11 +35,11 @@ public class ServerEntityMixin {
             target = "Lnet/minecraft/server/level/ServerLevel;players()Ljava/util/List;"
         )
     )
-    private void sendMapDataChanges(CallbackInfo ci, @Local MapId id,  @Local MapItemSavedData data) {
+    private void sendMapDataChanges(CallbackInfo ci, @Local(name = "id") MapId id,  @Local(name = "data") MapItemSavedData data) {
         ReplayChunkRecordable recordable = (ReplayChunkRecordable) EntityUtilsKt.getTrackedEntity(this.entity);
         if (recordable != null) {
             for (ReplayChunkRecorder recorder : recordable.getRecorders()) {
-                ChunkRecorderMapTracker tracker = ((ChunkTrackedMapData) data).arcade$getTrackerForRecorder(recorder);
+                ChunkRecorderMapTracker tracker = ((ChunkTrackedMapData) data).arcade_getTrackerForRecorder(recorder);
                 ClientboundMapItemDataPacket packet = tracker.createNextUpdatePacket(id);
                 if (packet != null) {
                     recorder.record(packet);

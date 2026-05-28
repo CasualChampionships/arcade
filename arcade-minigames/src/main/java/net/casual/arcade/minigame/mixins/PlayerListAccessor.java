@@ -11,6 +11,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(PlayerList.class)
 public interface PlayerListAccessor {
-    @Accessor
-    PlayerDataStorage getPlayerIo();
+    @Accessor("playerIo")
+    PlayerDataStorage arcade_getPlayerIo();
 }

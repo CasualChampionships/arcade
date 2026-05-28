@@ -5,9 +5,7 @@
 package net.casual.arcade.util.mixins.client;
 
 import net.casual.arcade.utils.coroutine.ClientCoroutineUtils;
-import net.casual.arcade.utils.coroutine.ServerCoroutineUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.spongepowered.asm.mixin.Mixin;

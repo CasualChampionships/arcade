@@ -67,7 +67,7 @@ public abstract class ServerPlayerMixin {
 		at = @At("HEAD"),
 		cancellable = true
 	)
-	private void onDropItem(boolean bl, CallbackInfo ci) {
+	private void onDropItem(boolean all, CallbackInfo ci) {
 		ServerPlayer player = (ServerPlayer) (Object) this;
 		Minigame minigame = MinigameUtils.getMinigame(player);
 		if (minigame != null && !minigame.getSettings().canDropItems.get(player)) {
@@ -81,12 +81,12 @@ public abstract class ServerPlayerMixin {
         cancellable = true
     )
     private void onFindRespawnPositionAndUseSpawnBlock(
-        boolean useCharge,
-        TeleportTransition.PostTeleportTransition post,
+        boolean consumeSpawnBlock,
+        TeleportTransition.PostTeleportTransition postTeleportTransition,
         CallbackInfoReturnable<TeleportTransition> cir
     ) {
         ServerPlayer player = (ServerPlayer) (Object) this;
-        TeleportTransition transition = this.getMinigameSpawn(player, false, post, true);
+        TeleportTransition transition = this.getMinigameSpawn(player, false, postTeleportTransition, true);
         if (transition != null) {
             cir.setReturnValue(transition);
         }
@@ -101,15 +101,15 @@ public abstract class ServerPlayerMixin {
     )
     private TeleportTransition onFindMissingRespawnPosition(
         ServerPlayer player,
-        TeleportTransition.PostTeleportTransition post,
+        TeleportTransition.PostTeleportTransition postTeleportTransition,
         Operation<TeleportTransition> original
     ) {
-        TeleportTransition transition = this.getMinigameSpawn(player, true, post, false);
+        TeleportTransition transition = this.getMinigameSpawn(player, true, postTeleportTransition, false);
         if (transition != null) {
             return transition;
         }
 
-        return original.call(player, post);
+        return original.call(player, postTeleportTransition);
     }
 
     @WrapOperation(
@@ -121,15 +121,15 @@ public abstract class ServerPlayerMixin {
     )
     private TeleportTransition onFindDefaultRespawnPosition(
         ServerPlayer player,
-        TeleportTransition.PostTeleportTransition post,
+        TeleportTransition.PostTeleportTransition postTeleportTransition,
         Operation<TeleportTransition> original
     ) {
-        TeleportTransition transition = this.getMinigameSpawn(player, false, post, false);
+        TeleportTransition transition = this.getMinigameSpawn(player, false, postTeleportTransition, false);
         if (transition != null) {
             return transition;
         }
 
-        return original.call(player, post);
+        return original.call(player, postTeleportTransition);
     }
 
 	@WrapWithCondition(
@@ -139,7 +139,7 @@ public abstract class ServerPlayerMixin {
 			target = "Lnet/minecraft/world/entity/ai/attributes/AttributeMap;assignBaseValues(Lnet/minecraft/world/entity/ai/attributes/AttributeMap;)V"
 		)
 	)
-	private boolean onRestoreFrom(AttributeMap instance, AttributeMap map) {
+	private boolean onRestoreFrom(AttributeMap instance, AttributeMap other) {
         return !MinigamePlayerManager.LOCAL_TRANSITION.isBound();
     }
 

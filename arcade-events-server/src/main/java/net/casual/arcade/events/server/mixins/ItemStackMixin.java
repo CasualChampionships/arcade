@@ -30,9 +30,9 @@ public class ItemStackMixin {
 		at = @At("HEAD"),
 		cancellable = true
 	)
-	private void onUse(Level level, Player player, InteractionHand usedHand, CallbackInfoReturnable<InteractionResult> cir) {
+	private void onUse(Level level, Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
 		if (player instanceof ServerPlayer serverPlayer) {
-			PlayerItemUseEvent event = new PlayerItemUseEvent(serverPlayer, (ItemStack) (Object) this, usedHand);
+			PlayerItemUseEvent event = new PlayerItemUseEvent(serverPlayer, (ItemStack) (Object) this, hand);
 			GlobalEventHandler.Server.broadcast(event);
 			if (event.isCancelled()) {
 				cir.setReturnValue(event.result());
@@ -79,27 +79,27 @@ public class ItemStackMixin {
 	)
 	private boolean onReleaseUsing(
 		Item instance,
-		ItemStack stack,
+		ItemStack itemStack,
 		Level level,
-		LivingEntity livingEntity,
-		int timeCharged,
+		LivingEntity entity,
+		int remainingTime,
 		Operation<Boolean> original
 	) {
-		if (livingEntity instanceof ServerPlayer player) {
-			PlayerItemReleaseEvent event = new PlayerItemReleaseEvent(player, stack, timeCharged);
+		if (entity instanceof ServerPlayer player) {
+			PlayerItemReleaseEvent event = new PlayerItemReleaseEvent(player, itemStack, remainingTime);
 			GlobalEventHandler.Server.broadcast(event);
 			if (event.isCancelled()) {
 				return false;
 			}
 		}
-		return original.call(instance, stack, level, livingEntity, timeCharged);
+		return original.call(instance, itemStack, level, entity, remainingTime);
 	}
 
 	@Inject(
 		method = "onCraftedBy",
 		at = @At("HEAD")
 	)
-	private void onCraft(Player player, int amount, CallbackInfo ci) {
+	private void onCraft(Player player, int craftCount, CallbackInfo ci) {
 		if (player instanceof ServerPlayer serverPlayer) {
 			PlayerCraftEvent event = new PlayerCraftEvent(serverPlayer, (ItemStack) (Object) this);
 			GlobalEventHandler.Server.broadcast(event);

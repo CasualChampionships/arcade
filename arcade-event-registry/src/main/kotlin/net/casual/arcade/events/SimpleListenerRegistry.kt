@@ -20,7 +20,7 @@ import net.casual.arcade.events.common.Event
  * [GlobalEventHandler.addProvider] and [GlobalEventHandler.removeProvider].
  *
  * You can then [register] events to the created [SimpleListenerRegistry]
- * as normal and they will be invoked when the [GlobalEventHandler]
+ * as normal, and they will be invoked when the [GlobalEventHandler]
  * broadcasts the given event.
  *
  * @see GlobalEventHandler

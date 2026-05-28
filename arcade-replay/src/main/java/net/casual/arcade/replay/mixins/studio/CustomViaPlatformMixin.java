@@ -19,7 +19,7 @@ public class CustomViaPlatformMixin {
     )
     private Logger onGetLogger(Logger original) {
         // We don't care, shut up, please :)
-        original.setFilter(log -> false);
+        original.setFilter(_ -> false);
         return original;
     }
 }

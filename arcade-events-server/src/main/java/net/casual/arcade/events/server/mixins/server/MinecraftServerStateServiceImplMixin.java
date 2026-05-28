@@ -7,7 +7,6 @@ package net.casual.arcade.events.server.mixins.server;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.casual.arcade.events.server.ServerSaveEvent;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.jsonrpc.internalapi.MinecraftServerStateServiceImpl;
 import org.spongepowered.asm.mixin.Mixin;

@@ -12,5 +12,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(ServerScoreboard.class)
 public interface ServerScoreboardAccessor {
     @Accessor("server")
-    MinecraftServer accessServer();
+    MinecraftServer arcade_getServer();
 }

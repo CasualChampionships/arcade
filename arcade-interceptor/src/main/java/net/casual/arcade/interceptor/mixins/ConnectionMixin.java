@@ -22,12 +22,12 @@ public class ConnectionMixin {
     )
     private static void addHttpHandlers(
         ChannelPipeline pipeline,
-        PacketFlow side,
-        boolean memory,
+        PacketFlow inboundDirection,
+        boolean local,
         BandwidthDebugMonitor monitor,
         CallbackInfo ci
     ) {
-        if (side == PacketFlow.SERVERBOUND) {
+        if (inboundDirection == PacketFlow.SERVERBOUND) {
             ArcadeInterceptors.getHandlers().forEach(pipeline::addFirst);
         }
     }

@@ -127,7 +127,7 @@ public fun Entity.getServerEntity(): ServerEntity? {
 
 public fun Entity.getTrackedEntity(): WrappedTrackedEntity? {
     val map = (this.level() as ServerLevel).chunkSource.chunkMap as ChunkMapAccessor
-    val tracked = map.entityMap.get(this.id) ?: return null
+    val tracked = map.arcade_getEntityMap().get(this.id) ?: return null
     return WrappedTrackedEntity(tracked)
 }
 

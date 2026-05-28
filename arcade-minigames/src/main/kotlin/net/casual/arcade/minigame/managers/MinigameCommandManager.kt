@@ -99,9 +99,9 @@ public class MinigameCommandManager(
      * @param name The name of the command to unregister.
      */
     public fun unregister(name: String) {
-        if ((this.dispatcher as DeletableCommand).`arcade$delete`(name)) {
+        if ((this.dispatcher as DeletableCommand).arcade_deleteCommand(name)) {
             val command = this.getGlobalMinigameCommand()?.getChild(this.minigame.uuid.toString()) ?: return
-            (command as DeletableCommand).`arcade$delete`(name)
+            (command as DeletableCommand).arcade_deleteCommand(name)
             this.resendGlobalCommands()
         }
     }
@@ -118,8 +118,8 @@ public class MinigameCommandManager(
         val dispatcher = this.dispatcher as DeletableCommand
         val global = this.getGlobalMinigameCommand()?.getChild(this.minigame.uuid.toString()) as? DeletableCommand
         for (name in roots) {
-            dispatcher.`arcade$delete`(name)
-            global?.`arcade$delete`(name)
+            dispatcher.arcade_deleteCommand(name)
+            global?.arcade_deleteCommand(name)
         }
 
         this.resendGlobalCommands()

@@ -32,7 +32,7 @@ public class ServerConfigurationPacketListenerImplMixin {
         )
     )
     private void beforePlacePlayer(
-        ServerboundFinishConfigurationPacket serverboundFinishConfigurationPacket,
+        ServerboundFinishConfigurationPacket packet,
         CallbackInfo ci
     ) {
         Collection<ReplayPlayerRecorder> recorder = ReplayPlayerRecorders.get(this.gameProfile.id());

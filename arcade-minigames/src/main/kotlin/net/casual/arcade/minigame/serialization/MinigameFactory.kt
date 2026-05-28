@@ -22,7 +22,6 @@ public interface MinigameFactory {
                 .dispatch(MinigameFactory::codec, Function.identity())
         }
 
-        @Suppress("UNUSED_PARAMETER")
         internal fun bootstrap(registry: Registry<MapCodec<out MinigameFactory>>) {
 
         }

@@ -29,16 +29,14 @@ public class NaturalSpawnerMixin {
 		)
 	)
 	private static boolean canMobCategorySpawn(
-		MobCategory category,
+		MobCategory mobCategory,
 		ServerLevel level,
 		LevelChunk chunk,
-		NaturalSpawner.SpawnPredicate filter,
-		NaturalSpawner.AfterSpawnCallback callback,
-		ServerLevel foo,
-		LevelChunk bar,
-		NaturalSpawner.SpawnState state
+		NaturalSpawner.SpawnPredicate extraTest,
+		NaturalSpawner.AfterSpawnCallback spawnCallback,
+		@Local(name = "state", argsOnly = true) NaturalSpawner.SpawnState state
 	) {
-		MobCategorySpawnEvent event = new MobCategorySpawnEvent(level, category, chunk.getPos(), state);
+		MobCategorySpawnEvent event = new MobCategorySpawnEvent(level, mobCategory, chunk.getPos(), state);
 		GlobalEventHandler.Server.broadcast(event);
 		return !event.isCancelled();
 	}
@@ -52,14 +50,14 @@ public class NaturalSpawnerMixin {
 	)
 	private static boolean canMobSpawn(
 		boolean original,
-		@Local(argsOnly = true) ServerLevel level,
+		@Local(name = "level", argsOnly = true) ServerLevel level,
 		@Local(name = "mob") Mob mob,
-		@Local(name = "groupData") SpawnGroupData data
+		@Local(name = "groupData") SpawnGroupData groupData
 	) {
 		if (!original) {
 			return false;
 		}
-		MobSpawnEvent event = new MobSpawnEvent(level, mob, data);
+		MobSpawnEvent event = new MobSpawnEvent(level, mob, groupData);
 		GlobalEventHandler.Server.broadcast(event);
 		return !event.isCancelled();
 	}

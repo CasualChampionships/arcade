@@ -5,5 +5,5 @@
 package net.casual.arcade.util.ducks;
 
 public interface MutableConnectionAddressHolder extends ConnectionAddressHolder {
-    void arcade$setConnectionAddress(String ip, int port);
+    void arcade_setConnectionAddress(String ip, int port);
 }

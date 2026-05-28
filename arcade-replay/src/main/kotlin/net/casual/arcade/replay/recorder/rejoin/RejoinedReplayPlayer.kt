@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.replay.recorder.rejoin
 
-import net.casual.arcade.replay.ducks.PackTracker
+import net.casual.arcade.replay.ducks.ResourcePackTracker
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.viewer.ReplayViewerUtils
 import net.casual.arcade.utils.player.server
@@ -34,9 +34,8 @@ public class RejoinedReplayPlayer private constructor(
 
         val connection = this.original.connection
         // Our connection may be null if we're using a fake player
-        if (connection is PackTracker) {
-
-            for (packet in connection.`replay$getPacks`()) {
+        if (connection is ResourcePackTracker) {
+            for (packet in connection.arcade_getPacks()) {
                 this.recorder.record(packet)
             }
         }

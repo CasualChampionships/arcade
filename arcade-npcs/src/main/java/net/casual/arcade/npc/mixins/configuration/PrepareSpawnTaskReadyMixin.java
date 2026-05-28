@@ -20,11 +20,11 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(PrepareSpawnTask.Ready.class)
 public class PrepareSpawnTaskReadyMixin implements ReplaceablePlayerConstructor {
-    @Unique private FakePlayerConstructor<?> constructor = null;
+    @Unique private FakePlayerConstructor<?> arcade_constructor = null;
 
     @Override
-    public void arcade$set(FakePlayerConstructor<?> constructor) {
-        this.constructor = constructor;
+    public void arcade_set(FakePlayerConstructor<?> constructor) {
+        this.arcade_constructor = constructor;
     }
 
     @WrapOperation(
@@ -41,9 +41,9 @@ public class PrepareSpawnTaskReadyMixin implements ReplaceablePlayerConstructor 
         ClientInformation clientInformation,
         Operation<ServerPlayer> original
     ) {
-        if (this.constructor == null) {
+        if (this.arcade_constructor == null) {
             return original.call(server, level, gameProfile, clientInformation);
         }
-        return this.constructor.construct(server, level, gameProfile, clientInformation);
+        return this.arcade_constructor.construct(server, level, gameProfile, clientInformation);
     }
 }

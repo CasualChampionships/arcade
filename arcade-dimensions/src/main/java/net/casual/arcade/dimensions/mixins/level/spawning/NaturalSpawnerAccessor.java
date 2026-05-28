@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(NaturalSpawner.class)
 public interface NaturalSpawnerAccessor {
 	@Accessor("MAGIC_NUMBER")
-	static int getMagicNumber() {
+	static int arcade_getMagicNumber() {
 		throw new AssertionError();
 	}
 }

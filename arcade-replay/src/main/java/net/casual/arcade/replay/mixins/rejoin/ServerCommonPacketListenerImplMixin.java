@@ -5,7 +5,7 @@
 package net.casual.arcade.replay.mixins.rejoin;
 
 import io.netty.channel.ChannelFutureListener;
-import net.casual.arcade.replay.ducks.PackTracker;
+import net.casual.arcade.replay.ducks.ResourcePackTracker;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket;
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket;
@@ -23,11 +23,11 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Mixin(ServerCommonPacketListenerImpl.class)
-public class ServerCommonPacketListenerImplMixin implements PackTracker {
+public class ServerCommonPacketListenerImplMixin implements ResourcePackTracker {
     // We need to keep track of what packs a player has...
     // We don't really care if the player accepts / declines them, we'll record them anyway.
     @Unique
-    private final Map<UUID, ClientboundResourcePackPushPacket> replay$packs = new ConcurrentHashMap<>();
+    private final Map<UUID, ClientboundResourcePackPushPacket> arcade_packs = new ConcurrentHashMap<>();
 
     @Inject(
         method = "send(Lnet/minecraft/network/protocol/Packet;Lio/netty/channel/ChannelFutureListener;)V",
@@ -35,31 +35,31 @@ public class ServerCommonPacketListenerImplMixin implements PackTracker {
     )
     private void onSendPacket(
         Packet<?> packet,
-        ChannelFutureListener sendListener,
+        ChannelFutureListener listener,
         CallbackInfo ci
     ) {
         if (packet instanceof ClientboundResourcePackPushPacket resources) {
-            this.replay$packs.put(resources.id(), resources);
+            this.arcade_packs.put(resources.id(), resources);
             return;
         }
         if (packet instanceof ClientboundResourcePackPopPacket(Optional<UUID> id)) {
             if (id.isPresent()) {
-                this.replay$packs.remove(id.get());
+                this.arcade_packs.remove(id.get());
             } else {
-                this.replay$packs.clear();
+                this.arcade_packs.clear();
             }
         }
     }
 
     @Override
-    public void replay$addPacks(Collection<ClientboundResourcePackPushPacket> packs) {
+    public void arcade_addPacks(Collection<ClientboundResourcePackPushPacket> packs) {
         for (ClientboundResourcePackPushPacket packet : packs) {
-            this.replay$packs.put(packet.id(), packet);
+            this.arcade_packs.put(packet.id(), packet);
         }
     }
 
     @Override
-    public Collection<ClientboundResourcePackPushPacket> replay$getPacks() {
-        return this.replay$packs.values();
+    public Collection<ClientboundResourcePackPushPacket> arcade_getPacks() {
+        return this.arcade_packs.values();
     }
 }

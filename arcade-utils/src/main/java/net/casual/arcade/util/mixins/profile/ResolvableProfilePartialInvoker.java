@@ -16,7 +16,7 @@ import java.util.UUID;
 public interface ResolvableProfilePartialInvoker {
     @Invoker("<init>")
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    static ResolvableProfile.Partial create(
+    static ResolvableProfile.Partial arcade_init(
         Optional<String> username,
         Optional<UUID> uuid,
         PropertyMap properties

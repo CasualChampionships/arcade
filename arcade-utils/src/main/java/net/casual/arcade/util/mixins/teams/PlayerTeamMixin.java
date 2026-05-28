@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(PlayerTeam.class)
 public class PlayerTeamMixin implements OverridableColor {
-	@Unique @Nullable private Integer arcade$color = null;
+	@Unique @Nullable private Integer arcade_color = null;
 
 	@ModifyReturnValue(
 		method = {
@@ -34,18 +34,18 @@ public class PlayerTeamMixin implements OverridableColor {
 		at = @At("RETURN")
 	)
 	private PlayerTeam.Packed onPackTeam(PlayerTeam.Packed original) {
-		((OverridableColor) (Object) original).arcade_setColor(this.arcade$color);
+		((OverridableColor) (Object) original).arcade_setColor(this.arcade_color);
 		return original;
 	}
 
 	@Override
 	public void arcade_setColor(@Nullable Integer color) {
-		this.arcade$color = color;
+		this.arcade_color = color;
 	}
 
 	@Override
 	@Nullable
 	public Integer arcade_getColor() {
-		return this.arcade$color;
+		return this.arcade_color;
 	}
 }

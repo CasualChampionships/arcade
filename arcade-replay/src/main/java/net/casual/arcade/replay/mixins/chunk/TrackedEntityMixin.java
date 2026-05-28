@@ -43,7 +43,7 @@ public class TrackedEntityMixin implements ReplayChunkRecordable {
         method = {"sendToTrackingPlayers", "sendToTrackingPlayersFiltered"},
         at = @At("HEAD")
     )
-    private void onBroadcast(CallbackInfo ci, @Local(argsOnly = true) Packet<? super ClientGamePacketListener> packet) {
+    private void onBroadcast(CallbackInfo ci, @Local(name = "packet", argsOnly = true) Packet<? super ClientGamePacketListener> packet) {
         for (ReplayChunkRecorder recorder : this.replay$chunks) {
             recorder.record(packet);
         }
@@ -53,7 +53,7 @@ public class TrackedEntityMixin implements ReplayChunkRecordable {
         method = "updatePlayers",
         at = @At("HEAD")
     )
-    private void onUpdate(List<ServerPlayer> playersList, CallbackInfo ci) {
+    private void onUpdate(List<ServerPlayer> players, CallbackInfo ci) {
         ChunkPos pos = this.entity.chunkPosition();
         ResourceKey<Level> level = this.entity.level().dimension();
         ReplayChunkRecorders.updateRecordable(this, level, pos);

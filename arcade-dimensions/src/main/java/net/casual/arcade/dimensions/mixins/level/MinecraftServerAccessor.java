@@ -18,11 +18,11 @@ import java.util.concurrent.Executor;
 @Mixin(MinecraftServer.class)
 public interface MinecraftServerAccessor {
 	@Accessor("levels")
-	Map<ResourceKey<Level>, ServerLevel> getLevels();
+	Map<ResourceKey<Level>, ServerLevel> arcade_getLevels();
 
 	@Accessor("storageSource")
-	LevelStorageSource.LevelStorageAccess getStorage();
+	LevelStorageSource.LevelStorageAccess arcade_getStorageSource();
 
 	@Accessor("executor")
-	Executor getExecutor();
+	Executor arcade_getExecutor();
 }

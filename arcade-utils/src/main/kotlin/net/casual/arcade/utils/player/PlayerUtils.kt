@@ -266,8 +266,8 @@ public fun ServerPlayer.grantAdvancementSilently(advancement: AdvancementHolder)
         for (string in progress.remainingCriteria) {
             progress.grantProgress(string)
         }
-        accessor.progressChanged.add(advancement)
-        accessor.updateVisibility(advancement)
+        accessor.arcade_getProgressChanged().add(advancement)
+        accessor.arcade_updateVisibility(advancement)
     }
 }
 
@@ -278,7 +278,7 @@ public fun ServerPlayer.revokeAdvancement(advancement: AdvancementHolder) {
             this.advancements.revoke(advancement, string)
         }
     }
-    (this.advancements as PlayerAdvancementsAccessor).progress.remove(advancement)
+    (this.advancements as PlayerAdvancementsAccessor).arcade_getProgress().remove(advancement)
 }
 
 public fun ServerPlayer.revokeAllAdvancements() {
@@ -299,7 +299,7 @@ public fun ServerPlayer.revokeAllRecipes() {
 }
 
 public fun ServerPlayer.markSilentRecipesDirty() {
-    (this as SilentRecipeSender).`arcade$markSilentRecipesDirty`()
+    (this as SilentRecipeSender).arcade_markSilentRecipesDirty()
 }
 
 public fun ServerPlayer.setTitleAnimation(

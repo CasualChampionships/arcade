@@ -15,9 +15,9 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(ChunkMap.class)
 public interface ChunkMapAccessor {
     @Accessor("level")
-    ServerLevel getLevel();
+    ServerLevel arcade_getLevel();
 
     @Nullable
     @Invoker("getUpdatingChunkIfPresent")
-    ChunkHolder getTickingChunk(long pos);
+    ChunkHolder arcade_getTickingChunk(long pos);
 }

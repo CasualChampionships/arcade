@@ -15,7 +15,7 @@ import java.util.UUID;
 @Mixin(Leashable.LeashData.class)
 public interface LeashDataInvoker {
 	@Invoker("<init>")
-	static Leashable.LeashData construct(Either<UUID, BlockPos> either) {
+	static Leashable.LeashData arcade_init(Either<UUID, BlockPos> either) {
 		throw new AssertionError();
 	}
 }

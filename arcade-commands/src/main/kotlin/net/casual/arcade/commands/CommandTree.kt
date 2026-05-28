@@ -8,7 +8,6 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.tree.LiteralCommandNode
 import net.minecraft.commands.CommandBuildContext
-import net.minecraft.commands.CommandSourceStack
 
 public interface CommandTree<S> {
     public fun register(dispatcher: CommandDispatcher<S>, buildContext: CommandBuildContext) {

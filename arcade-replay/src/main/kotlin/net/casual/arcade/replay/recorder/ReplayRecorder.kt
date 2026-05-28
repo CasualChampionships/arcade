@@ -21,10 +21,8 @@ import net.casual.arcade.replay.util.*
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.DateTimeUtils.formatHHMMSS
 import net.casual.arcade.utils.getDebugName
-import net.fabricmc.fabric.api.networking.v1.context.PacketContext
 import net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider
 import net.minecraft.core.component.DataComponents
-import net.minecraft.network.Connection
 import net.minecraft.network.ConnectionProtocol
 import net.minecraft.network.ProtocolInfo
 import net.minecraft.network.RegistryFriendlyByteBuf

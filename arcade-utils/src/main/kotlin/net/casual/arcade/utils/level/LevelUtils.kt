@@ -26,7 +26,7 @@ public fun ServerLevel.server(): MinecraftServer {
 
 public fun ServerLevel.getTrackedEntities(): List<WrappedTrackedEntity> {
     val map = this.chunkSource.chunkMap as ChunkMapAccessor
-    return map.entityMap.values.map { WrappedTrackedEntity(it) }
+    return map.arcade_getEntityMap().values.map { WrappedTrackedEntity(it) }
 }
 
 public inline fun <reified T: BlockEntity> ServerLevel.getBlockEntitiesOfType(positions: Iterable<ChunkPos>): List<T> {
@@ -57,12 +57,12 @@ public fun ServerLevel.setSpoofedDimension(id: Identifier) {
 
 public fun ServerLevel.setSpoofedDimension(key: ResourceKey<Level>?) {
     if (this is SpoofedDimensionKeyHolder) {
-        this.`arcade$setSpoofedDimensionKey`(key)
+        this.arcade_setSpoofedDimensionKey(key)
     }
 }
 
 public fun ServerLevel.getSpoofedDimension(): ResourceKey<Level>? {
-    return (this as? SpoofedDimensionKeyHolder)?.`arcade$getSpoofedDimensionKey`()
+    return (this as? SpoofedDimensionKeyHolder)?.arcade_getSpoofedDimensionKey()
 }
 
 public fun ServerLevel.getSpoofedOrRealDimension(): ResourceKey<Level> {

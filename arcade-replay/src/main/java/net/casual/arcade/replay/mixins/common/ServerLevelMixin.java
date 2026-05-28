@@ -62,15 +62,15 @@ public abstract class ServerLevelMixin extends Level {
         method = "destroyBlockProgress",
         at = @At("TAIL")
     )
-    private void onDestroyBlockProgress(int breakerId, BlockPos pos, int progress, CallbackInfo ci) {
-        Entity breaker = this.getEntity(breakerId);
+    private void onDestroyBlockProgress(int id, BlockPos blockPos, int progress, CallbackInfo ci) {
+        Entity breaker = this.getEntity(id);
         if (breaker instanceof ServerPlayer player) {
-			ReplayPlayerRecorders.record(player, new ClientboundBlockDestructionPacket(breakerId, pos, progress));
+			ReplayPlayerRecorders.record(player, new ClientboundBlockDestructionPacket(id, blockPos, progress));
         }
 
-        ChunkPos chunkPos = ChunkPos.containing(pos);
+        ChunkPos chunkPos = ChunkPos.containing(blockPos);
         for (ReplayChunkRecorder recorder : ReplayChunkRecorders.containing(this.dimension(), chunkPos)) {
-            recorder.record(new ClientboundBlockDestructionPacket(breakerId, pos, progress));
+            recorder.record(new ClientboundBlockDestructionPacket(id, blockPos, progress));
         }
     }
 
@@ -79,27 +79,27 @@ public abstract class ServerLevelMixin extends Level {
         at = @At("TAIL")
     )
     private void onExplode(
-        @Nullable Entity entity,
-        @Nullable DamageSource source,
-        @Nullable ExplosionDamageCalculator calculator,
-        double posX,
-        double posY,
-        double posZ,
-        float radius,
-        boolean causeFire,
-        ExplosionInteraction interaction,
-        ParticleOptions smallParticles,
-        ParticleOptions largeParticles,
-        WeightedList<ExplosionParticleInfo> infos,
-        Holder<SoundEvent> sound,
+        @Nullable Entity source,
+        @Nullable DamageSource damageSource,
+        @Nullable ExplosionDamageCalculator damageCalculator,
+        double x,
+        double y,
+        double z,
+        float r,
+        boolean fire,
+        ExplosionInteraction interactionType,
+        ParticleOptions smallExplosionParticles,
+        ParticleOptions largeExplosionParticles,
+        WeightedList<ExplosionParticleInfo> blockParticles,
+        Holder<SoundEvent> explosionSound,
         CallbackInfo ci,
-        @Local(name = "center") Vec3 pos,
-        @Local(name = "explosionParticle") ParticleOptions particles,
-        @Local(name = "blockCount") int blocks
+        @Local(name = "center") Vec3 center,
+        @Local(name = "explosionParticle") ParticleOptions explosionParticle,
+        @Local(name = "blockCount") int blockCount
     ) {
-        ChunkPos chunkPos = ChunkPos.containing(BlockPos.containing(posX, posY, posZ));
+        ChunkPos chunkPos = ChunkPos.containing(BlockPos.containing(x, y, z));
         for (ReplayChunkRecorder recorder : ReplayChunkRecorders.containing(this.dimension(), chunkPos)) {
-            recorder.record(new ClientboundExplodePacket(pos, radius, blocks, Optional.empty(), particles, sound, infos));
+            recorder.record(new ClientboundExplodePacket(center, r, blockCount, Optional.empty(), explosionParticle, explosionSound, blockParticles));
         }
     }
 
@@ -108,21 +108,21 @@ public abstract class ServerLevelMixin extends Level {
         at = @At("TAIL")
     )
     private <T extends ParticleOptions> void onSendParticles(
-        T type,
+        T particle,
         boolean overrideLimiter,
         boolean alwaysShow,
-        double posX,
-        double posY,
-        double posZ,
-        int particleCount,
-        double xOffset,
-        double yOffset,
-        double zOffset,
+        double x,
+        double y,
+        double z,
+        int count,
+        double xDist,
+        double yDist,
+        double zDist,
         double speed,
         CallbackInfoReturnable<Integer> cir,
         @Local(name = "packet") ClientboundLevelParticlesPacket packet
     ) {
-        ChunkPos chunkPos = ChunkPos.containing(BlockPos.containing(posX, posY, posZ));
+        ChunkPos chunkPos = ChunkPos.containing(BlockPos.containing(x, y, z));
         for (ReplayChunkRecorder recorder : ReplayChunkRecorders.containing(this.dimension(), chunkPos)) {
             recorder.record(packet);
         }

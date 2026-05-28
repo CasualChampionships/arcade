@@ -40,12 +40,12 @@ public fun StaticResolvableProfile(
     properties: PropertyMap = PropertyMap.EMPTY,
     skin: PlayerSkin.Patch = PlayerSkin.Patch.EMPTY
 ): ResolvableProfile {
-    val partial = ResolvableProfilePartialInvoker.create(
+    val partial = ResolvableProfilePartialInvoker.arcade_init(
         Optional.ofNullable(username),
         Optional.ofNullable(uuid),
         properties
     )
-    return ResolvableProfileStaticInvoker.create(Either.right(partial), skin)
+    return ResolvableProfileStaticInvoker.arcade_init(Either.right(partial), skin)
 }
 
 public fun ResolvableProfile.resolveProfileOrNull(resolver: ProfileResolver): CompletableFuture<GameProfile> {
@@ -57,6 +57,6 @@ public fun ResolvableProfile.resolveProfileOrNull(resolver: ProfileResolver): Co
 }
 
 public fun ResolvableProfile.uuid(): Optional<UUID> {
-    val either = (this as ResolvableProfileInvoker).invokeUnpack()
+    val either = (this as ResolvableProfileInvoker).arcade_unpack()
     return either.map({ Optional.of(it.id) }, { it.id })
 }

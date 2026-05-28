@@ -12,9 +12,9 @@ public fun ServerPlayer.setCustomInventory(inventory: CustomInventory, keepSelec
     if (keepSelected) {
         inventory.selectedSlot = this.inventory.selectedSlot
     }
-    (this as ModifiableInventory).`arcade$setCustomInventory`(inventory)
+    (this as ModifiableInventory).arcade_setCustomInventory(inventory)
 }
 
 public fun ServerPlayer.removeCustomInventory() {
-    (this as ModifiableInventory).`arcade$removeCustomInventory`()
+    (this as ModifiableInventory).arcade_removeCustomInventory()
 }

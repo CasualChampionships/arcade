@@ -9,10 +9,10 @@ import net.minecraft.nbt.CompoundTag
 
 /**
  * Analogous to [CompoundTag.merge], it recursively
- * merges two json objects together.
+ * merges two JSON objects together.
  *
- * @param other The json object to merge with.
- * @return The merged json object, same instance as [this].
+ * @param other The JSON object to merge with.
+ * @return The merged JSON object, same instance as [this].
  */
 public fun JsonObject.merge(other: JsonObject): JsonObject {
     for ((key, value) in other.asMap()) {

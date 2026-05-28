@@ -47,7 +47,7 @@ import kotlin.io.path.isDirectory
  * @return The added level.
  */
 public fun MinecraftServer.addCustomLevel(level: CustomLevel): CustomLevel {
-    val levels = (this as MinecraftServerAccessor).levels
+    val levels = (this as MinecraftServerAccessor).arcade_getLevels()
     val dimension = level.dimension()
     if (levels.containsKey(dimension)) {
         if (levels[dimension] !== level) {
@@ -278,7 +278,7 @@ public fun ServerLevel.setCustomMobSpawningRules(rules: CustomMobSpawningRules?)
 }
 
 public fun MinecraftServer.getDimensionPath(dimension: ResourceKey<Level>): Path {
-    return (this as MinecraftServerAccessor).storage.getDimensionPath(dimension)
+    return (this as MinecraftServerAccessor).arcade_getStorageSource().getDimensionPath(dimension)
 }
 
 public fun MinecraftServer.getDimensionDataPath(dimension: ResourceKey<Level>, namespace: String): Path {
@@ -286,7 +286,7 @@ public fun MinecraftServer.getDimensionDataPath(dimension: ResourceKey<Level>, n
 }
 
 private fun MinecraftServer.unloadCustomLevel(level: CustomLevel, save: Boolean): Boolean {
-    if ((this as MinecraftServerAccessor).levels.remove(level.dimension(), level)) {
+    if ((this as MinecraftServerAccessor).arcade_getLevels().remove(level.dimension(), level)) {
         LevelPersistenceTracker.unmarkAsPersistent(level.dimension())
 
         level.onUnload()

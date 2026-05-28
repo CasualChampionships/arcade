@@ -35,7 +35,7 @@ public class PlayerListMixin {
     )
     private TeleportTransition onFindRespawnLocation(
         ServerPlayer instance,
-        boolean bl,
+        boolean consumeSpawnBlock,
         TeleportTransition.PostTeleportTransition postTeleportTransition,
         Operation<TeleportTransition> original,
         // If this is changed, it must also be updated in extensions#PlayerListMixin
@@ -45,7 +45,7 @@ public class PlayerListMixin {
             isMinigameRespawn.set(true);
             return MinigamePlayerManager.LOCAL_TRANSITION.get();
         }
-        return original.call(instance, bl, postTeleportTransition);
+        return original.call(instance, consumeSpawnBlock, postTeleportTransition);
     }
 
     @WrapWithCondition(

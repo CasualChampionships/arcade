@@ -42,20 +42,20 @@ public class ScoreboardMixin {
 		at = @At("HEAD")
 	)
 	private void onPlayerJoinTeam(
-		String username,
+		String player,
 		PlayerTeam team,
 		CallbackInfoReturnable<Boolean> cir,
 		@Share("events") LocalRef<List<Event>> events
 	) {
 		events.set(new ArrayList<>(2));
-		ServerPlayer player = ServerUtilsKt.player(this.server, username);
-		Entity entity = player;
-		if (player != null) {
-			PlayerTeamJoinEvent event = new PlayerTeamJoinEvent(player, team);
+		ServerPlayer playerInstance = ServerUtilsKt.player(this.server, player);
+		Entity entity = playerInstance;
+		if (playerInstance != null) {
+			PlayerTeamJoinEvent event = new PlayerTeamJoinEvent(playerInstance, team);
 			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
 			events.get().add(event);
-		} else if (StringUtilsKt.isUUID(username)) {
-			entity = EntityUtilsKt.findEntity(this.server, UUID.fromString(username));
+		} else if (StringUtilsKt.isUUID(player)) {
+			entity = EntityUtilsKt.findEntity(this.server, UUID.fromString(player));
 		}
 		if (entity != null) {
 			EntityTeamJoinEvent event = new EntityTeamJoinEvent(entity, team);
@@ -82,20 +82,20 @@ public class ScoreboardMixin {
 		at = @At("HEAD")
 	)
 	private void onPlayerLeaveTeam(
-		String username,
+		String player,
 		PlayerTeam team,
 		CallbackInfo ci,
 		@Share("events") LocalRef<List<Event>> events
 	) {
 		events.set(new ArrayList<>(2));
-		ServerPlayer player = ServerUtilsKt.player(this.server, username);
-		Entity entity = player;
-		if (player != null) {
-			PlayerTeamLeaveEvent event = new PlayerTeamLeaveEvent(player, team);
+		ServerPlayer playerInstance = ServerUtilsKt.player(this.server, player);
+		Entity entity = playerInstance;
+		if (playerInstance != null) {
+			PlayerTeamLeaveEvent event = new PlayerTeamLeaveEvent(playerInstance, team);
 			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
 			events.get().add(event);
-		} else if (StringUtilsKt.isUUID(username)) {
-			entity = EntityUtilsKt.findEntity(this.server, UUID.fromString(username));
+		} else if (StringUtilsKt.isUUID(player)) {
+			entity = EntityUtilsKt.findEntity(this.server, UUID.fromString(player));
 		}
 		if (entity != null) {
 			EntityTeamLeaveEvent event = new EntityTeamLeaveEvent(entity, team);

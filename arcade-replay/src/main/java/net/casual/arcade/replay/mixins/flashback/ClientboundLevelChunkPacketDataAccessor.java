@@ -12,9 +12,9 @@ import java.util.List;
 
 @Mixin(ClientboundLevelChunkPacketData.class)
 public interface ClientboundLevelChunkPacketDataAccessor {
-    @Accessor
-    byte[] getBuffer();
+    @Accessor("buffer")
+    byte[] arcade_getBuffer();
 
-    @Accessor
-    List<ClientboundLevelChunkPacketData.BlockEntityInfo> getBlockEntitiesData();
+    @Accessor("blockEntitiesData")
+    List<ClientboundLevelChunkPacketData.BlockEntityInfo> arcade_getBlockEntitiesData();
 }

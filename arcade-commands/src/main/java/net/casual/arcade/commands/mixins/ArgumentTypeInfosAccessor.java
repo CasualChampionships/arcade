@@ -14,7 +14,7 @@ import java.util.Map;
 @Mixin(ArgumentTypeInfos.class)
 public interface ArgumentTypeInfosAccessor {
 	@Accessor("BY_CLASS")
-	static Map<Class<?>, ArgumentTypeInfo<?, ?>> getClassMap() {
+	static Map<Class<?>, ArgumentTypeInfo<?, ?>> arcade_getByClass() {
 		throw new AssertionError();
 	}
 }

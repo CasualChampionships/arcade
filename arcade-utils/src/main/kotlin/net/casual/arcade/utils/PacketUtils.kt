@@ -42,7 +42,7 @@ public fun ClientboundPlayerInfoUpdatePacket(
 ): ClientboundPlayerInfoUpdatePacket {
     val packet = ClientboundPlayerInfoUpdatePacket(actions, listOf())
     @Suppress("KotlinConstantConditions")
-    (packet as ClientboundPlayerInfoUpdatePacketAccessor).setEntries(entries)
+    (packet as ClientboundPlayerInfoUpdatePacketAccessor).arcade_setEntries(entries)
     return packet
 }
 

@@ -24,7 +24,7 @@ public class PlayerListMixin {
     )
     private ClientboundSetTimePacket appendLevelClockTime(
         ClientboundSetTimePacket original,
-        @Local(name = "level") ServerLevel level
+        @Local(name = "level", argsOnly = true) ServerLevel level
     ) {
         return LevelClockExtension.modifyClientboundSetTimePacket(original, level);
     }

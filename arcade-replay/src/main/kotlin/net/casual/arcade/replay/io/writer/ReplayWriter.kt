@@ -131,7 +131,7 @@ public interface ReplayWriter {
                     @Suppress("UNCHECKED_CAST")
                     codec as IdDispatchCodecAccessor<PacketType<*>>
 
-                    val id = codec.typeToIdMap.getInt(CommonPacketTypes.CLIENTBOUND_CUSTOM_PAYLOAD)
+                    val id = codec.arcade_getTypeToIdMap().getInt(CommonPacketTypes.CLIENTBOUND_CUSTOM_PAYLOAD)
                     buf.writeVarInt(id)
                     buf.writeIdentifier(payload.type().id)
                     PacketContext.runWithContext(provider) {

@@ -40,10 +40,10 @@ public class NPCPathfindingContext(
     private fun createPathfindingContext(): PathfindingContext {
         val context = UnsafeAccess.UNSAFE.allocateInstance(PathfindingContext::class.java) as PathfindingContext
         context as PathfindingContextAccessor
-        context.setCache(this.cache)
-        context.setLevel(this.level)
-        context.setMutablePos(this.pos)
-        context.setMobPosition(this.position)
+        context.arcade_setCache(this.cache)
+        context.arcade_setLevel(this.level)
+        context.arcade_setMutablePos(this.pos)
+        context.arcade_setMobPosition(this.position)
         return context
     }
 }

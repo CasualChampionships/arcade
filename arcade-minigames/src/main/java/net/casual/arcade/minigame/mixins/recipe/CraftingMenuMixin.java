@@ -29,14 +29,14 @@ public class CraftingMenuMixin {
 	@SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "unchecked"})
 	private static <T extends Recipe<?>> Optional<RecipeHolder<T>> onGetRecipe(
 		Optional<RecipeHolder<T>> original,
-		@Local(name = "serverPlayer") ServerPlayer player,
+		@Local(name = "serverPlayer") ServerPlayer serverPlayer,
 		@Local(name = "input") CraftingInput input,
-		@Local(argsOnly = true) ServerLevel level
+		@Local(name = "level", argsOnly = true) ServerLevel level
 	) {
 		if (original.isPresent()) {
 			return original;
 		}
-		Minigame minigame = MinigameUtils.getMinigame(player);
+		Minigame minigame = MinigameUtils.getMinigame(serverPlayer);
 		if (minigame == null) {
 			return original;
 		}

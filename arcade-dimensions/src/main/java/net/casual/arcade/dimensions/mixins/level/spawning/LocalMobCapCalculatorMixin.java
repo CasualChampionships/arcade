@@ -24,10 +24,10 @@ public abstract class LocalMobCapCalculatorMixin implements CustomMobSpawningPre
 	@Shadow protected abstract List<ServerPlayer> getPlayersNear(ChunkPos pos);
 
 	@Override
-	public boolean arcade$canSpawn(MobCategory category, ChunkPos pos, CustomMobSpawningRules rules) {
+	public boolean arcade_canSpawn(MobCategory category, ChunkPos pos, CustomMobSpawningRules rules) {
 		for (ServerPlayer serverPlayer : this.getPlayersNear(pos)) {
 			Object mobCounts = this.playerMobCounts.get(serverPlayer);
-			if (mobCounts == null || ((CustomMobSpawningPredicate) mobCounts).arcade$canSpawn(category, pos, rules)) {
+			if (mobCounts == null || ((CustomMobSpawningPredicate) mobCounts).arcade_canSpawn(category, pos, rules)) {
 				return true;
 			}
 		}

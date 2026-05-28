@@ -41,9 +41,9 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 		at = @At("HEAD"),
 		cancellable = true
 	)
-	private void onAttack(Entity target, CallbackInfo ci) {
+	private void onAttack(Entity entity, CallbackInfo ci) {
 		if ((Object) this instanceof ServerPlayer player) {
-			PlayerTryAttackEvent event = new PlayerTryAttackEvent(player, target);
+			PlayerTryAttackEvent event = new PlayerTryAttackEvent(player, entity);
 			GlobalEventHandler.Server.broadcast(event);
 			if (event.isCancelled()) {
 				ci.cancel();
@@ -58,16 +58,16 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 			target = "Lnet/minecraft/world/entity/LivingEntity;hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z"
 		)
 	)
-	private boolean onSweepAttack(LivingEntity entity, ServerLevel level, DamageSource source, float amount, Operation<Boolean> original) {
+	private boolean onSweepAttack(LivingEntity entity, ServerLevel level, DamageSource source, float damage, Operation<Boolean> original) {
 		if ((Object) this instanceof ServerPlayer player) {
-			PlayerAttackEvent event = new PlayerAttackEvent(player, entity, amount);
+			PlayerAttackEvent event = new PlayerAttackEvent(player, entity, damage);
 			GlobalEventHandler.Server.broadcast(event);
 			if (event.isCancelled()) {
 				return false;
 			}
-			amount = event.getDamage();
+			damage = event.getDamage();
 		}
-		return original.call(entity, level, source, amount);
+		return original.call(entity, level, source, damage);
 	}
 
 	@WrapOperation(
@@ -77,16 +77,16 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 			target = "Lnet/minecraft/world/entity/Entity;hurtOrSimulate(Lnet/minecraft/world/damagesource/DamageSource;F)Z"
 		)
 	)
-	private boolean onAttack(Entity entity, DamageSource source, float amount, Operation<Boolean> original) {
+	private boolean onAttack(Entity entity, DamageSource source, float damage, Operation<Boolean> original) {
 		if ((Object) this instanceof ServerPlayer player) {
-			PlayerAttackEvent event = new PlayerAttackEvent(player, entity, amount);
+			PlayerAttackEvent event = new PlayerAttackEvent(player, entity, damage);
 			GlobalEventHandler.Server.broadcast(event);
 			if (event.isCancelled()) {
 				return false;
 			}
-			amount = event.getDamage();
+			damage = event.getDamage();
 		}
-		return original.call(entity, source, amount);
+		return original.call(entity, source, damage);
 	}
 
 	@Inject(
@@ -122,14 +122,14 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 		DamageSource source,
 		float damageAmount,
 		CallbackInfo ci,
-		@Local(argsOnly = true) LocalFloatRef damage
+		@Local(name = "dmg", argsOnly = true) LocalFloatRef damage
 	) {
 		if ((Object) this instanceof ServerPlayer player) {
             // This overrides the LivingEntity method so we need to copy the logic here
             EntityDamageEvent entityEvent = new EntityDamageEvent(player, source, damage.get());
             GlobalEventHandler.Server.broadcast(entityEvent, BuiltInEventPhases.PRE_PHASES);
             if (entityEvent.isCancelled()) {
-                this.arcade$setNotActuallyHurt();
+                this.arcade_setNotActuallyHurt();
                 ci.cancel();
                 return;
             }
@@ -137,7 +137,7 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 			PlayerDamageEvent playerEvent = new PlayerDamageEvent(player, source, entityEvent.getAmount());
 			GlobalEventHandler.Server.broadcast(playerEvent, BuiltInEventPhases.PRE_PHASES);
 			if (playerEvent.isCancelled()) {
-				this.arcade$setNotActuallyHurt();
+				this.arcade_setNotActuallyHurt();
 				ci.cancel();
                 return;
 			}
@@ -156,14 +156,14 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 	private void onDamagePost(
 		ServerLevel level,
 		DamageSource source,
-		float damageAmount,
+		float dmg,
 		CallbackInfo ci
 	) {
 		if ((Object) this instanceof ServerPlayer player) {
-            EntityDamageEvent entityEvent = new EntityDamageEvent(player, source, damageAmount);
+            EntityDamageEvent entityEvent = new EntityDamageEvent(player, source, dmg);
             GlobalEventHandler.Server.broadcast(entityEvent, BuiltInEventPhases.POST_PHASES);
 
-			PlayerDamageEvent playerEvent = new PlayerDamageEvent(player, source, damageAmount);
+			PlayerDamageEvent playerEvent = new PlayerDamageEvent(player, source, dmg);
 			GlobalEventHandler.Server.broadcast(playerEvent, BuiltInEventPhases.POST_PHASES);
 		}
 	}
@@ -173,11 +173,11 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 		at = @At("TAIL")
 	)
 	private void onStartSleeping(
-		BlockPos bedPos,
+		BlockPos pos,
 		CallbackInfoReturnable<Either<Player.BedSleepingProblem, Unit>> cir
 	) {
 		if ((Object) this instanceof ServerPlayer player) {
-			PlayerSleepEvent event = new PlayerSleepEvent(player, bedPos);
+			PlayerSleepEvent event = new PlayerSleepEvent(player, pos);
 			GlobalEventHandler.Server.broadcast(event);
 		}
 	}

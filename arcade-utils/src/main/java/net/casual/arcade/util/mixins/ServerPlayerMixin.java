@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ServerPlayerMixin implements SilentRecipeSender {
 	@Shadow @Final private ServerRecipeBook recipeBook;
 	@Unique
-	private boolean arcade$silentRecipesDirty = false;
+	private boolean arcade_silentRecipesDirty = false;
 
 	@Inject(
 		method = "tick",
@@ -27,14 +27,14 @@ public class ServerPlayerMixin implements SilentRecipeSender {
 	)
 
 	private void onTick(CallbackInfo ci) {
-		if (this.arcade$silentRecipesDirty) {
-			this.arcade$silentRecipesDirty = false;
+		if (this.arcade_silentRecipesDirty) {
+			this.arcade_silentRecipesDirty = false;
 			this.recipeBook.sendInitialRecipeBook((ServerPlayer) (Object) this);
 		}
 	}
 
 	@Override
-	public void arcade$markSilentRecipesDirty() {
-		this.arcade$silentRecipesDirty = true;
+	public void arcade_markSilentRecipesDirty() {
+		this.arcade_silentRecipesDirty = true;
 	}
 }

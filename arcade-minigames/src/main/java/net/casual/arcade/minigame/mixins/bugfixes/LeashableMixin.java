@@ -35,7 +35,7 @@ public interface LeashableMixin {
 			Optional<BlockPos> optional = input.read("LeashRelative", BlockPos.CODEC);
 			if (optional.isPresent()) {
 				BlockPos position = entity.blockPosition().offset(optional.get());
-				return Optional.of(LeashDataInvoker.construct(Either.right(position)));
+				return Optional.of(LeashDataInvoker.arcade_init(Either.right(position)));
 			}
 		}
 		return original;

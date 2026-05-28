@@ -40,11 +40,12 @@ public abstract class ServerCommonPacketListenerImplMixin {
 	@ModifyVariable(
 		method = "send(Lnet/minecraft/network/protocol/Packet;Lio/netty/channel/ChannelFutureListener;)V",
 		at = @At("HEAD"),
-		argsOnly = true
+		argsOnly = true,
+		name = "packet"
 	)
-	private Packet<?> onSendPacket(Packet<?> value, @Cancellable CallbackInfo ci) {
+	private Packet<?> onSendPacket(Packet<?> packet, @Cancellable CallbackInfo ci) {
 		ServerCommonPacketListenerImpl self = (ServerCommonPacketListenerImpl) (Object) this;
-		ClientboundPacketEvent event = new ClientboundPacketEvent(this.server, this.playerProfile(), value);
+		ClientboundPacketEvent event = new ClientboundPacketEvent(this.server, this.playerProfile(), packet);
 		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
 		if (event.isCancelled()) {
 			ci.cancel();

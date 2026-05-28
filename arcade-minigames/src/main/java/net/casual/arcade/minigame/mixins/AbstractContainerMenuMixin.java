@@ -25,13 +25,13 @@ public class AbstractContainerMenuMixin {
 			target = "Lnet/minecraft/world/entity/player/Player;drop(Lnet/minecraft/world/item/ItemStack;Z)Lnet/minecraft/world/entity/item/ItemEntity;"
 		)
 	)
-	private ItemEntity canDropItem(Player instance, ItemStack itemStack, boolean includeThrowerName, Operation<ItemEntity> original) {
+	private ItemEntity canDropItem(Player instance, ItemStack itemStack, boolean thrownFromHand, Operation<ItemEntity> original) {
 		if (instance instanceof ServerPlayer player) {
 			Minigame minigame = MinigameUtils.getMinigame(player);
 			if (minigame != null && !minigame.getSettings().canDropItems.get(player)) {
                 return null;
             }
 		}
-		return original.call(instance, itemStack, includeThrowerName);
+		return original.call(instance, itemStack, thrownFromHand);
 	}
 }

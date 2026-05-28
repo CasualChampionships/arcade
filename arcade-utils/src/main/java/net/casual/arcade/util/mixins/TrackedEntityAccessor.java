@@ -16,15 +16,15 @@ import java.util.Set;
 
 @Mixin(ChunkMap.TrackedEntity.class)
 public interface TrackedEntityAccessor {
-    @Accessor
-    Entity getEntity();
+    @Accessor("entity")
+    Entity arcade_getEntity();
 
-    @Accessor
-    Set<ServerPlayerConnection> getSeenBy();
+    @Accessor("seenBy")
+    Set<ServerPlayerConnection> arcade_getSeenBy();
 
-    @Accessor
-    ServerEntity getServerEntity();
+    @Accessor("serverEntity")
+    ServerEntity arcade_getServerEntity();
 
     @Invoker("getEffectiveRange")
-    int getRange();
+    int arcade_getRange();
 }

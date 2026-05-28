@@ -24,7 +24,7 @@ public class RejoinConfigurationPacketListener(
 ): ServerConfigurationPacketListenerImpl(replay.server, connection, cookies) {
     @Suppress("CAST_NEVER_SUCCEEDS")
     private val tasks: Queue<ConfigurationTask>
-        get() = (this as ServerConfigurationPacketListenerImplAccessor).tasks()
+        get() = (this as ServerConfigurationPacketListenerImplAccessor).arcade_getTasks()
 
     private var handledPong = false
 
@@ -44,7 +44,7 @@ public class RejoinConfigurationPacketListener(
         // We do not have to wait for the client to respond
         for (task in this.tasks) {
             @Suppress("CAST_NEVER_SUCCEEDS")
-            (this as ServerConfigurationPacketListenerImplAccessor).setCurrentTask(task)
+            (this as ServerConfigurationPacketListenerImplAccessor).arcade_setCurrentTask(task)
             task.start(this::send)
             if (task is SynchronizeRegistriesTask) {
                 task.handleResponse(listOf(), this::send)

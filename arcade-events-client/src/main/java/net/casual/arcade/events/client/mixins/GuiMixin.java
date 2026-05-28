@@ -29,11 +29,11 @@ public class GuiMixin {
         method = "extractRenderState",
         at = @At("HEAD")
     )
-    private void onPreRender(GuiGraphicsExtractor graphics, DeltaTracker deltas, CallbackInfo ci) {
+    private void onPreRender(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (this.minecraft.screen instanceof LevelLoadingScreen) {
             return;
         }
-        GuiRenderEvent event = new GuiRenderEvent(graphics, deltas);
+        GuiRenderEvent event = new GuiRenderEvent(graphics, deltaTracker);
         GlobalEventHandler.Client.broadcast(event, BuiltInEventPhases.PRE_PHASES);
     }
 
@@ -41,11 +41,11 @@ public class GuiMixin {
         method = "extractRenderState",
         at = @At("TAIL")
     )
-    private void onPostRender(GuiGraphicsExtractor graphics, DeltaTracker deltas, CallbackInfo ci) {
+    private void onPostRender(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (this.minecraft.screen instanceof LevelLoadingScreen) {
             return;
         }
-        GuiRenderEvent event = new GuiRenderEvent(graphics, deltas);
+        GuiRenderEvent event = new GuiRenderEvent(graphics, deltaTracker);
         GlobalEventHandler.Client.broadcast(event, BuiltInEventPhases.POST_PHASES);
     }
 }

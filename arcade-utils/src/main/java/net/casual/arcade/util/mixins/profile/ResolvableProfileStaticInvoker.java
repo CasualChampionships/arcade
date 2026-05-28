@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(ResolvableProfile.Static.class)
 public interface ResolvableProfileStaticInvoker {
     @Invoker("<init>")
-    static ResolvableProfile.Static create(Either<GameProfile, ResolvableProfile.Partial> either, PlayerSkin.Patch skin) {
+    static ResolvableProfile.Static arcade_init(Either<GameProfile, ResolvableProfile.Partial> either, PlayerSkin.Patch skin) {
         throw new AssertionError();
     }
 }

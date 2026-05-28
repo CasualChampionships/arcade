@@ -12,8 +12,8 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(RegistryLoadTask.class)
 public interface RegistryLoadTaskAccessor<T> {
     @Accessor("registryWriteLock")
-    Object arcade_accessRegistryWriteLock();
+    Object arcade_getRegistryWriteLock();
 
     @Accessor("registry")
-    WritableRegistry<T> arcade_accessRegistry();
+    WritableRegistry<T> arcade_getRegistry();
 }

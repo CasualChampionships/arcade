@@ -15,6 +15,6 @@ import java.util.Map;
 
 @Mixin(AttributeSupplier.class)
 public interface AttributeSupplierAccessor {
-    @Accessor
-    Map<Holder<Attribute>, AttributeInstance> getInstances();
+    @Accessor("instances")
+    Map<Holder<Attribute>, AttributeInstance> arcade_getInstances();
 }

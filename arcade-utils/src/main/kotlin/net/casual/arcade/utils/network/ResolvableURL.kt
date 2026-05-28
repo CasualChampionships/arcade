@@ -11,7 +11,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerCommonPacketListenerImpl
 
 /**
- * This represents an url that may not be resolved yet.
+ * This represents a url that may not be resolved yet.
  *
  * The reason we may have unresolved urls is that things
  * could be hosted locally, and we don't know what the server's
@@ -71,7 +71,7 @@ public sealed interface ResolvableURL {
 
         override fun resolve(connection: ServerCommonPacketListenerImpl): String {
             val ip = HostIP.get() ?: (connection as ConnectionAddressHolder).arcade_getConnectionAddress()?.key()
-            val server = (connection as ServerCommonPacketListenerAccessor).server
+            val server = (connection as ServerCommonPacketListenerAccessor).arcade_getServer()
             return this.resolve(ip ?: HostIP.LOCALHOST, server)
         }
 

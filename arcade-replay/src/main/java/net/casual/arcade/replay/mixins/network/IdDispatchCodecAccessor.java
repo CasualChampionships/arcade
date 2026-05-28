@@ -12,5 +12,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(IdDispatchCodec.class)
 public interface IdDispatchCodecAccessor<T> {
     @Accessor("toId")
-    Object2IntMap<T> getTypeToIdMap();
+    Object2IntMap<T> arcade_getTypeToIdMap();
 }

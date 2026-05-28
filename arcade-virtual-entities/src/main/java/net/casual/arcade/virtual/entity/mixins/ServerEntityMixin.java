@@ -43,11 +43,11 @@ public class ServerEntityMixin {
     )
     private void sendEntityAttachmentPackets(
         ServerPlayer player,
-        Consumer<Packet<ClientGamePacketListener>> consumer,
+        Consumer<Packet<ClientGamePacketListener>> broadcast,
         CallbackInfo ci
     ) {
         EntityAttachmentExtension extension = EntityAttachmentExtension.getAttachmentExtension(this.entity);
-        extension.sendObservingSpawnPackets(player, consumer);
+        extension.sendObservingSpawnPackets(player, broadcast);
     }
 
     @Inject(

@@ -25,9 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = TheChunkSystem.class, remap = false)
 public abstract class TheChunkSystemMixin extends StatusAdvancingScheduler<ChunkPos, ChunkState, ChunkLoadingContext, NewChunkHolderVanillaInterface> {
-    @Shadow
-    @Final
-    private ChunkMap tacs;
+    @Shadow @Final private ChunkMap tacs;
 
     @Shadow
     protected abstract ItemStatus<ChunkPos, ChunkState, ChunkLoadingContext> getUnloadedStatus();
@@ -41,7 +39,7 @@ public abstract class TheChunkSystemMixin extends StatusAdvancingScheduler<Chunk
         ItemStatus<ChunkPos, ChunkState, ChunkLoadingContext> statusReached,
         CallbackInfo ci
     ) {
-        ServerLevel level = ((ChunkMapAccessor) this.tacs).getLevel();
+        ServerLevel level = ((ChunkMapAccessor) this.tacs).arcade_getLevel();
         level.getServer().execute(() -> {
             for (ReplayChunkRecorder recorder : ReplayChunkRecorders.containing(level.dimension(), holder.getKey())) {
                 ((ReplayChunkRecordable) holder.getUserData().get()).addRecorder(recorder);
@@ -59,7 +57,7 @@ public abstract class TheChunkSystemMixin extends StatusAdvancingScheduler<Chunk
         CallbackInfo ci
     ) {
         if (((NewChunkStatus) statusReached).toChunkLevelType() == FullChunkStatus.INACCESSIBLE) {
-            ServerLevel level = ((ChunkMapAccessor) this.tacs).getLevel();
+            ServerLevel level = ((ChunkMapAccessor) this.tacs).arcade_getLevel();
             level.getServer().execute(() -> {
                 ((ReplayChunkRecordable) holder.getUserData().get()).removeAllRecorders();
             });

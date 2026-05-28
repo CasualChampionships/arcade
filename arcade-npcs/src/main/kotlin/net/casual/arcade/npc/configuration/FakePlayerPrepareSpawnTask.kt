@@ -26,8 +26,8 @@ internal class FakePlayerPrepareSpawnTask(
         get() = this as PrepareSpawnTaskAccessor
 
     fun spawnPlayer(): FakePlayer {
-        val players = this.access.server.playerList
-        if (players.getPlayer(this.access.nameAndId.id) != null) {
+        val players = this.access.arcade_getServer().playerList
+        if (players.getPlayer(this.access.arcade_getNameAndId().id) != null) {
             throw IllegalStateException("Duplicate login")
         }
         return super.spawnPlayer(this.connection, this.cookies) as FakePlayer
@@ -36,9 +36,9 @@ internal class FakePlayerPrepareSpawnTask(
     override fun tick(): Boolean {
         val finished = super.tick()
         if (finished) {
-            assert(this.access.state is Ready)
-            val ready = this.access.state as ReplaceablePlayerConstructor
-            ready.`arcade$set`(this.constructor)
+            assert(this.access.arcade_getState() is Ready)
+            val ready = this.access.arcade_getState() as ReplaceablePlayerConstructor
+            ready.arcade_set(this.constructor)
         }
         return finished
     }

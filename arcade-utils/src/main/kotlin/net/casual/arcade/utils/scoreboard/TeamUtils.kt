@@ -17,7 +17,7 @@ import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Scoreboard
 
 public val PlayerTeam.server: MinecraftServer
-    get() = (this.scoreboard as? ServerScoreboardAccessor)?.accessServer()
+    get() = (this.scoreboard as? ServerScoreboardAccessor)?.arcade_getServer()
         ?: throw IllegalStateException("Tried to access team server when there was none!")
 
 public fun PlayerTeam.add(entity: Entity) {

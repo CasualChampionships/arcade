@@ -25,18 +25,18 @@ public class BlockItemMixin {
 			target = "Lnet/minecraft/world/item/BlockItem;placeBlock(Lnet/minecraft/world/item/context/BlockPlaceContext;Lnet/minecraft/world/level/block/state/BlockState;)Z"
 		)
 	)
-	private boolean onPlaceBlock(BlockItem instance, BlockPlaceContext context, BlockState state, Operation<Boolean> operation) {
+	private boolean onPlaceBlock(BlockItem instance, BlockPlaceContext context, BlockState placementState, Operation<Boolean> operation) {
 		if (context.getPlayer() instanceof ServerPlayer player) {
-			PlayerBlockPlacedEvent event = new PlayerBlockPlacedEvent(player, instance, state, context);
+			PlayerBlockPlacedEvent event = new PlayerBlockPlacedEvent(player, instance, placementState, context);
 			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
 
-			if (!event.isCancelled() && operation.call(instance, context, state)) {
-				event = new PlayerBlockPlacedEvent(player, instance, state, context);
+			if (!event.isCancelled() && operation.call(instance, context, placementState)) {
+				event = new PlayerBlockPlacedEvent(player, instance, placementState, context);
 				GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
 				return true;
 			}
 			return false;
 		}
-		return operation.call(instance, context, state);
+		return operation.call(instance, context, placementState);
 	}
 }

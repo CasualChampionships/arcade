@@ -51,11 +51,11 @@ public class ServerGamePacketListenerImplMixin {
 			target = "Lnet/minecraft/stats/ServerRecipeBook;contains(Lnet/minecraft/resources/ResourceKey;)Z"
 		)
 	)
-	private boolean doesPlayerHaveRecipe(boolean original, @Local(name = "recipe") RecipeHolder<?> holder) {
+	private boolean doesPlayerHaveRecipe(boolean original, @Local(name = "recipe") RecipeHolder<?> recipe) {
 		if (original) {
 			return true;
 		}
 		Minigame minigame = MinigameUtils.getMinigame(this.player);
-		return minigame != null && minigame.getRecipes().has(this.player, holder.id());
+		return minigame != null && minigame.getRecipes().has(this.player, recipe.id());
 	}
 }

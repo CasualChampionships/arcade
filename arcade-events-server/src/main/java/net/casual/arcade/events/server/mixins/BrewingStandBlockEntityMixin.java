@@ -26,19 +26,19 @@ public class BrewingStandBlockEntityMixin {
 		name = "brewable"
 	)
 	private static boolean onBrew(
-		boolean value,
+		boolean brewable,
 		Level level,
 		BlockPos pos,
-		BlockState state,
+		BlockState selfState,
 		BrewingStandBlockEntity entity
 	) {
-		if (!value) {
+		if (!brewable) {
 			return false;
 		}
-		if (((BrewingStandBlockEntityAccessor) entity).fuel() <= 0) {
+		if (((BrewingStandBlockEntityAccessor) entity).arcade_getFuel() <= 0) {
 			return false;
 		}
-		BrewingStandBrewEvent event = new BrewingStandBrewEvent((ServerLevel) level, pos, state, entity);
+		BrewingStandBrewEvent event = new BrewingStandBrewEvent((ServerLevel) level, pos, selfState, entity);
 		GlobalEventHandler.Server.broadcast(event);
 		return !event.isCancelled();
 	}

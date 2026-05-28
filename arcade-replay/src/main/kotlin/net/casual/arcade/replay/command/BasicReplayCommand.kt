@@ -221,7 +221,7 @@ public open class BasicReplayCommand(
     }
 
     private fun suggestViewableReplays(
-        @Suppress("UNUSED_PARAMETER") context: CommandContext<CommandSourceStack>,
+        @Suppress("UnusedParameter") context: CommandContext<CommandSourceStack>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
         val suggestions = this.path.streamDirectoryEntriesOrEmpty()

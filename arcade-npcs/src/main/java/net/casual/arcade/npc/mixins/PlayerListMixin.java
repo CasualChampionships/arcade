@@ -51,14 +51,14 @@ public class PlayerListMixin {
     private ServerPlayer onConstructServerPlayer(
         MinecraftServer server,
         ServerLevel level,
-        GameProfile profile,
+        GameProfile gameProfile,
         ClientInformation clientInformation,
         Operation<ServerPlayer> original,
-        ServerPlayer previous
+        ServerPlayer serverPlayer
     ) {
-        if (previous instanceof FakePlayer fake) {
-            return fake.createRespawned(server, level, profile, clientInformation);
+        if (serverPlayer instanceof FakePlayer fake) {
+            return fake.createRespawned(server, level, gameProfile, clientInformation);
         }
-        return original.call(server, level, profile, clientInformation);
+        return original.call(server, level, gameProfile, clientInformation);
     }
 }

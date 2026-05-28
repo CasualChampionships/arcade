@@ -8,5 +8,5 @@ import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder;
 import net.casual.arcade.replay.recorder.chunk.map.ChunkRecorderMapTracker;
 
 public interface ChunkTrackedMapData {
-    ChunkRecorderMapTracker arcade$getTrackerForRecorder(ReplayChunkRecorder recorder);
+    ChunkRecorderMapTracker arcade_getTrackerForRecorder(ReplayChunkRecorder recorder);
 }

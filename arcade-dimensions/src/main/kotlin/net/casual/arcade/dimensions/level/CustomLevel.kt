@@ -72,11 +72,11 @@ public open class CustomLevel(
     public val options: LevelGenerationOptions,
     public val persistence: LevelPersistence = LevelPersistence.Temporary,
     private val factory: CustomLevelFactory = SimpleCustomLevelFactory(properties, options, persistence),
-    dispatcher: Executor = (server as MinecraftServerAccessor).executor,
+    dispatcher: Executor = (server as MinecraftServerAccessor).arcade_getExecutor(),
 ): ServerLevel(
     server,
     dispatcher,
-    (server as MinecraftServerAccessor).storage,
+    (server as MinecraftServerAccessor).arcade_getStorageSource(),
     DerivedLevelData(properties, options, server.worldData, server.worldData.overworldData()),
     key,
     options.stem.value(),
@@ -179,7 +179,7 @@ public open class CustomLevel(
     }
 
     protected open fun loadCustomSpawners() {
-        val spawners = (this as ServerLevelAccessor).customSpawners
+        val spawners = (this as ServerLevelAccessor).arcade_getCustomSpawners()
         for (factory in this.options.customSpawners) {
             spawners.add(factory.create(this))
         }

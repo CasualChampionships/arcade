@@ -21,8 +21,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Player.class)
 public class PlayerMixin implements ModifiableInventory {
-    @Unique private InventoryMenu arcade$vanillaInventoryMenu;
-    @Unique private Inventory arcade$vanillaInventory;
+    @Unique private InventoryMenu arcade_vanillaInventoryMenu;
+    @Unique private Inventory arcade_vanillaInventory;
 
     @Shadow @Final @Mutable public InventoryMenu inventoryMenu;
     @Shadow @Final @Mutable private Inventory inventory;
@@ -34,8 +34,8 @@ public class PlayerMixin implements ModifiableInventory {
         at = @At("TAIL")
     )
     private void onInit(CallbackInfo ci) {
-        this.arcade$vanillaInventory = this.inventory;
-        this.arcade$vanillaInventoryMenu = this.inventoryMenu;
+        this.arcade_vanillaInventory = this.inventory;
+        this.arcade_vanillaInventoryMenu = this.inventoryMenu;
     }
 
     @ModifyExpressionValue(
@@ -47,11 +47,11 @@ public class PlayerMixin implements ModifiableInventory {
         )
     )
     private Inventory getInventory(Inventory original) {
-        return this.arcade$vanillaInventory;
+        return this.arcade_vanillaInventory;
     }
 
     @Override
-    public void arcade$setCustomInventory(CustomInventory inventory) {
+    public void arcade_setCustomInventory(CustomInventory inventory) {
         if ((Object) this instanceof ServerPlayer player) {
             InventoryMenu previous = this.inventoryMenu;
             this.inventory = inventory;
@@ -65,10 +65,10 @@ public class PlayerMixin implements ModifiableInventory {
     }
 
     @Override
-    public void arcade$removeCustomInventory() {
+    public void arcade_removeCustomInventory() {
         InventoryMenu previous = this.inventoryMenu;
-        this.inventory = this.arcade$vanillaInventory;
-        this.inventoryMenu = this.arcade$vanillaInventoryMenu;
+        this.inventory = this.arcade_vanillaInventory;
+        this.inventoryMenu = this.arcade_vanillaInventoryMenu;
         if (this.containerMenu == previous) {
             this.containerMenu = this.inventoryMenu;
         }

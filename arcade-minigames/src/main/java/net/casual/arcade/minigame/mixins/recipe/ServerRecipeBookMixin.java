@@ -35,7 +35,7 @@ public class ServerRecipeBookMixin {
 		Collection<RecipeHolder<?>> recipes,
 		ServerPlayer player,
 		CallbackInfoReturnable<Integer> cir,
-		@Local(argsOnly = true) LocalRef<Collection<RecipeHolder<?>>> recipesRef
+		@Local(name = "recipes", argsOnly = true) LocalRef<Collection<RecipeHolder<?>>> recipesRef
 	) {
 		this.extractMinigameRecipes(recipes, player, recipesRef, (manager, intersection) -> {
 			manager.grantAll(player, intersection, false);
@@ -50,7 +50,7 @@ public class ServerRecipeBookMixin {
 		Collection<RecipeHolder<?>> recipes,
 		ServerPlayer player,
 		CallbackInfoReturnable<Integer> cir,
-		@Local(argsOnly = true) LocalRef<Collection<RecipeHolder<?>>> recipesRef
+		@Local(name = "recipes", argsOnly = true) LocalRef<Collection<RecipeHolder<?>>> recipesRef
 	) {
 		this.extractMinigameRecipes(recipes, player, recipesRef, (manager, intersection) -> {
 			manager.revokeAll(player, intersection);

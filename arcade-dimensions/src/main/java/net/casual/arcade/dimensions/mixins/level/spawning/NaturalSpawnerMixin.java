@@ -28,19 +28,19 @@ public class NaturalSpawnerMixin {
 	)
 	private static boolean canCategorySpawn(
 		NaturalSpawner.SpawnState instance,
-		MobCategory category,
-		ChunkPos pos,
+		MobCategory mobCategory,
+		ChunkPos chunkPos,
 		Operation<Boolean> original,
 		ServerLevel level
 	) {
 		LevelCustomMobSpawningExtension extension = ExtensionUtilsKt.getExtension(level, LevelCustomMobSpawningExtension.class);
 		CustomMobSpawningRules rules = extension.getRules();
 		if (rules == null) {
-			return original.call(instance, category, pos);
+			return original.call(instance, mobCategory, chunkPos);
 		}
-		int currentCategoryCount = instance.getMobCategoryCounts().getInt(category);
+		int currentCategoryCount = instance.getMobCategoryCounts().getInt(mobCategory);
 		int spawnableChunks =  instance.getSpawnableChunkCount();
-		LocalMobCapCalculator calculator = ((SpawnStateAccessor) instance).getLocalMobCapCalculator();
-		return rules.canCategorySpawn(category, pos, currentCategoryCount, spawnableChunks, calculator);
+		LocalMobCapCalculator calculator = ((SpawnStateAccessor) instance).arcade_getLocalMobCapCalculator();
+		return rules.canCategorySpawn(mobCategory, chunkPos, currentCategoryCount, spawnableChunks, calculator);
 	}
 }

@@ -15,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerCommonPacketListenerImpl.class)
 public class ServerCommonPacketListenerImplMixin implements ConnectionFaultHolder {
-    @Unique private boolean arcade$hasTimedOut = false;
-    @Unique private Throwable arcade$packetError = null;
+    @Unique private boolean arcade_hasTimedOut = false;
+    @Unique private Throwable arcade_packetError = null;
 
     @Inject(
         method = {"handleKeepAlive", "keepConnectionAlive"},
@@ -26,27 +26,27 @@ public class ServerCommonPacketListenerImplMixin implements ConnectionFaultHolde
         )
     )
     private void onConnectionTimedOut(CallbackInfo ci) {
-        this.arcade$hasTimedOut = true;
+        this.arcade_hasTimedOut = true;
     }
 
     @Override
     public void arcade_setTimeOut(boolean timedOut) {
-        this.arcade$hasTimedOut = timedOut;
+        this.arcade_hasTimedOut = timedOut;
     }
 
     @Override
     public boolean arcade_hasTimeOut() {
-        return this.arcade$hasTimedOut;
+        return this.arcade_hasTimedOut;
     }
 
     @Override
     public void arcade_setPacketError(Throwable packetError) {
-        this.arcade$packetError = packetError;
+        this.arcade_packetError = packetError;
     }
 
     @Override
     @Nullable
     public Throwable arcade_getPacketError() {
-        return this.arcade$packetError;
+        return this.arcade_packetError;
     }
 }

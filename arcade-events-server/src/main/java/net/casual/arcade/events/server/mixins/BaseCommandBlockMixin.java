@@ -22,11 +22,11 @@ public class BaseCommandBlockMixin {
             target = "Lnet/minecraft/commands/Commands;performPrefixedCommand(Lnet/minecraft/commands/CommandSourceStack;Ljava/lang/String;)V"
         )
     )
-    private boolean onPerformCommand(Commands instance, CommandSourceStack source, String command) {
+    private boolean onPerformCommand(Commands instance, CommandSourceStack sender, String command) {
         CommandBlockExecuteEvent event = new CommandBlockExecuteEvent(
-            source.getLevel(),
+            sender.getLevel(),
             (BaseCommandBlock) (Object) this,
-            source,
+            sender,
             command
         );
         GlobalEventHandler.Server.broadcast(event);

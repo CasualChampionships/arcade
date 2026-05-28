@@ -29,8 +29,8 @@ public class ConnectionMixin {
         )
     )
     private void onTimeoutDisconnect(
-        ChannelHandlerContext channelHandlerContext,
-        Throwable throwable,
+        ChannelHandlerContext ctx,
+        Throwable cause,
         CallbackInfo ci
     ) {
         if (this.packetListener instanceof ServerCommonPacketListenerImpl connection) {
@@ -47,12 +47,12 @@ public class ConnectionMixin {
         )
     )
     private void onDisconnect(
-        ChannelHandlerContext channelHandlerContext,
-        Throwable throwable,
+        ChannelHandlerContext ctx,
+        Throwable cause,
         CallbackInfo ci
     ) {
         if (this.packetListener instanceof ServerCommonPacketListenerImpl connection) {
-            ((ConnectionFaultHolder) connection).arcade_setPacketError(throwable);
+            ((ConnectionFaultHolder) connection).arcade_setPacketError(cause);
         }
     }
 }

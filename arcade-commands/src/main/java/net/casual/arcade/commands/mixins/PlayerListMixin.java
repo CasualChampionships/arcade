@@ -34,13 +34,13 @@ public abstract class PlayerListMixin {
 		at = @At("RETURN")
 	)
 	private void afterAddRespawnPlayer(
-		ServerPlayer player,
-		boolean bl,
+		ServerPlayer serverPlayer,
+		boolean keepAllPlayerData,
 		Entity.RemovalReason removalReason,
 		CallbackInfoReturnable<ServerPlayer> cir
 	) {
 		// We delay the sending of player permissions until
 		// after the player has been added to the world
-		this.sendPlayerPermissionLevel(player);
+		this.sendPlayerPermissionLevel(serverPlayer);
 	}
 }

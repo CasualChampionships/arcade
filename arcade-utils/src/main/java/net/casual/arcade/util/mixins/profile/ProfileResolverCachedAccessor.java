@@ -16,8 +16,8 @@ import java.util.UUID;
 @Mixin(ProfileResolver.Cached.class)
 public interface ProfileResolverCachedAccessor {
     @Accessor("profileCacheByName")
-    LoadingCache<String, Optional<GameProfile>> accessProfileCacheByName();
+    LoadingCache<String, Optional<GameProfile>> arcade_getProfileCacheByName();
 
     @Accessor("profileCacheById")
-    LoadingCache<UUID, Optional<GameProfile>> accessProfileCacheById();
+    LoadingCache<UUID, Optional<GameProfile>> arcade_getProfileCacheById();
 }

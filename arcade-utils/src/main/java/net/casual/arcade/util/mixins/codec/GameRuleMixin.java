@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRules.class)
 public class GameRuleMixin implements GameRulesData {
-    @Unique private FeatureFlagSet enabledFeatures;
+    @Unique private FeatureFlagSet arcade_enabledFeatures;
 
     @Shadow @Final private GameRuleMap rules;
 
@@ -32,14 +32,14 @@ public class GameRuleMixin implements GameRulesData {
     )
     private void saveFeatureFlagSet(
         CallbackInfo ci,
-        @Local(argsOnly = true, name = "enabledFeatures") FeatureFlagSet enabledFeatures
+        @Local(name = "enabledFeatures", argsOnly = true) FeatureFlagSet enabledFeatures
     ) {
-        this.enabledFeatures = enabledFeatures;
+        this.arcade_enabledFeatures = enabledFeatures;
     }
 
     @Override
     public FeatureFlagSet arcade_getFeatureFlagSet() {
-        return this.enabledFeatures;
+        return this.arcade_enabledFeatures;
     }
 
     @Override
