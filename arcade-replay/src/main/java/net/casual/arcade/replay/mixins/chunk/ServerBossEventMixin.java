@@ -28,10 +28,9 @@ import java.util.function.Function;
 @Mixin(ServerBossEvent.class)
 @SuppressWarnings("AddedMixinMembersNamePattern")
 public abstract class ServerBossEventMixin extends BossEvent implements ReplayChunkRecordable {
-    @Shadow
-    private boolean visible;
-    @Unique
-    private final Set<ReplayChunkRecorder> replay$recorders = new HashSet<>();
+    @Unique private final Set<ReplayChunkRecorder> arcade_recorders = new HashSet<>();
+
+    @Shadow private boolean visible;
 
     public ServerBossEventMixin(UUID id, Component name, BossBarColor color, BossBarOverlay overlay) {
         super(id, name, color, overlay);
@@ -45,11 +44,11 @@ public abstract class ServerBossEventMixin extends BossEvent implements ReplayCh
         )
     )
     private void onBroadcast(
-        Function<BossEvent, ClientboundBossEventPacket> packetGetter,
+        Function<BossEvent, ClientboundBossEventPacket> factory,
         CallbackInfo ci,
         @Local(name = "packet") ClientboundBossEventPacket packet
     ) {
-        for (ReplayChunkRecorder recorder : this.replay$recorders) {
+        for (ReplayChunkRecorder recorder : this.arcade_recorders) {
             recorder.record(packet);
         }
     }
@@ -73,7 +72,7 @@ public abstract class ServerBossEventMixin extends BossEvent implements ReplayCh
         ClientboundBossEventPacket packet = visible ?
             ClientboundBossEventPacket.createAddPacket(this) :
             ClientboundBossEventPacket.createRemovePacket(this.getId());
-        for (ReplayChunkRecorder recorder : this.replay$recorders) {
+        for (ReplayChunkRecorder recorder : this.arcade_recorders) {
             recorder.record(packet);
         }
     }
@@ -81,12 +80,12 @@ public abstract class ServerBossEventMixin extends BossEvent implements ReplayCh
     @NotNull
     @Override
     public Collection<ReplayChunkRecorder> getRecorders() {
-        return this.replay$recorders;
+        return this.arcade_recorders;
     }
 
     @Override
     public void addRecorder(@NotNull ReplayChunkRecorder recorder) {
-        if (this.replay$recorders.add(recorder) && this.visible) {
+        if (this.arcade_recorders.add(recorder) && this.visible) {
             recorder.record(ClientboundBossEventPacket.createAddPacket(this));
             recorder.addRecordable(this);
         }
@@ -101,7 +100,7 @@ public abstract class ServerBossEventMixin extends BossEvent implements ReplayCh
 
     @Override
     public void removeRecorder(@NotNull ReplayChunkRecorder recorder) {
-        if (this.replay$recorders.remove(recorder) && this.visible) {
+        if (this.arcade_recorders.remove(recorder) && this.visible) {
             recorder.record(ClientboundBossEventPacket.createRemovePacket(this.getId()));
             recorder.removeRecordable(this);
         }
@@ -111,13 +110,13 @@ public abstract class ServerBossEventMixin extends BossEvent implements ReplayCh
     public void removeAllRecorders() {
         if (this.visible) {
             ClientboundBossEventPacket packet = ClientboundBossEventPacket.createRemovePacket(this.getId());
-            for (ReplayChunkRecorder recorder : this.replay$recorders) {
+            for (ReplayChunkRecorder recorder : this.arcade_recorders) {
                 recorder.record(packet);
             }
         }
-        for (ReplayChunkRecorder recorder : this.replay$recorders) {
+        for (ReplayChunkRecorder recorder : this.arcade_recorders) {
             recorder.removeRecordable(this);
         }
-        this.replay$recorders.clear();
+        this.arcade_recorders.clear();
     }
 }

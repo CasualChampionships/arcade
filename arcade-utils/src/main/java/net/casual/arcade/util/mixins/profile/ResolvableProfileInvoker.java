@@ -13,5 +13,5 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(ResolvableProfile.class)
 public interface ResolvableProfileInvoker {
     @Invoker("unpack")
-    Either<GameProfile, ResolvableProfile.Partial> invokeUnpack();
+    Either<GameProfile, ResolvableProfile.Partial> arcade_unpack();
 }

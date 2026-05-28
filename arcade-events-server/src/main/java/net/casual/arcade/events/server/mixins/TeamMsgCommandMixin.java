@@ -43,7 +43,7 @@ public class TeamMsgCommandMixin {
 		PlayerChatMessage chatMessage,
 		CallbackInfo ci,
 		@Local(name = "tracked") LocalRef<OutgoingChatMessage> outgoing,
-		@Local(argsOnly = true) LocalRef<List<ServerPlayer>> teammatesRef
+		@Local(name = "receivers", argsOnly = true) LocalRef<List<ServerPlayer>> teammatesRef
 	) {
 		if (!(sender instanceof ServerPlayer player)) {
 			return;

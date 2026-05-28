@@ -32,7 +32,7 @@ public abstract class MinecraftServerMixin {
         method = "tickServer",
         at = @At("HEAD")
     )
-    private void onPauseServer(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
+    private void onPauseServer(BooleanSupplier haveTime, CallbackInfo ci) {
         int pauseWhenEmptyTicks = this.pauseWhenEmptySeconds() * 20;
         if (pauseWhenEmptyTicks <= 0) {
             return;

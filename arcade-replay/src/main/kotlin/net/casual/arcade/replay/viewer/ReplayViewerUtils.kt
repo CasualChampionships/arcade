@@ -66,19 +66,19 @@ public object ReplayViewerUtils {
     }
 
     public fun ServerGamePacketListenerImpl.sendReplayPacket(packet: Packet<*>) {
-        (this as ReplayViewable).`arcade$sendReplayViewerPacket`(packet)
+        (this as ReplayViewable).arcade_sendReplayViewerPacket(packet)
     }
 
     public fun ServerGamePacketListenerImpl.startViewingReplay(viewer: ReplayViewer) {
-        (this as ReplayViewable).`arcade$startViewingReplay`(viewer)
+        (this as ReplayViewable).arcade_startViewingReplay(viewer)
     }
 
     public fun ServerGamePacketListenerImpl.stopViewingReplay() {
-        (this as ReplayViewable).`arcade$stopViewingReplay`()
+        (this as ReplayViewable).arcade_stopViewingReplay()
     }
 
     public fun ServerGamePacketListenerImpl.getViewingReplay(): ReplayViewer? {
-        return (this as ReplayViewable).`arcade$getViewingReplay`()
+        return (this as ReplayViewable).arcade_getViewingReplay()
     }
 
     public fun createClientboundPlayerInfoUpdatePacket(
@@ -87,7 +87,7 @@ public object ReplayViewerUtils {
     ): ClientboundPlayerInfoUpdatePacket {
         val packet = ClientboundPlayerInfoUpdatePacket(actions, listOf())
         @Suppress("KotlinConstantConditions")
-        (packet as ClientboundPlayerInfoUpdatePacketAccessor).setEntries(entries)
+        (packet as ClientboundPlayerInfoUpdatePacketAccessor).arcade_setEntries(entries)
         return packet
     }
 }

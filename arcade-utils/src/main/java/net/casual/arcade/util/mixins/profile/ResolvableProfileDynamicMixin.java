@@ -29,14 +29,14 @@ public abstract class ResolvableProfileDynamicMixin {
         cancellable = true
     )
     private void tryQuicklyResolveProfile(
-        ProfileResolver resolver,
+        ProfileResolver profileResolver,
         CallbackInfoReturnable<CompletableFuture<GameProfile>> cir
     ) {
-        if (resolver instanceof ProfileResolver.Cached cached) {
+        if (profileResolver instanceof ProfileResolver.Cached cached) {
             ProfileResolverCachedAccessor accessor = (ProfileResolverCachedAccessor) cached;
             Optional<GameProfile> profile = this.nameOrId.map(
-                name -> accessor.accessProfileCacheByName().getIfPresent(name),
-                uuid -> accessor.accessProfileCacheById().getIfPresent(uuid)
+                name -> accessor.arcade_getProfileCacheByName().getIfPresent(name),
+                uuid -> accessor.arcade_getProfileCacheById().getIfPresent(uuid)
             );
             // If profile is null it is not present in the cache
             // otherwise it tried to load and was found to not exist

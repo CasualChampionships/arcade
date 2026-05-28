@@ -20,7 +20,7 @@ public class ServerLevelMixin {
 		method = "tick",
 		at = @At("HEAD")
 	)
-	private void onTick(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
+	private void onTick(BooleanSupplier haveTime, CallbackInfo ci) {
 		LevelTickEvent event = new LevelTickEvent((ServerLevel) (Object) this);
 		GlobalEventHandler.Server.broadcast(event);
 	}

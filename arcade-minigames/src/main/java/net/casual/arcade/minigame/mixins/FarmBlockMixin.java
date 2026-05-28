@@ -25,8 +25,8 @@ public class FarmBlockMixin {
 			target = "Lnet/minecraft/world/level/block/FarmlandBlock;turnToDirt(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V"
 		)
 	)
-	private boolean checkMinigameInteractionSetting(Entity entity, BlockState state, Level level, BlockPos pos) {
-		if (entity instanceof ServerPlayer player) {
+	private boolean checkMinigameInteractionSetting(Entity sourceEntity, BlockState state, Level level, BlockPos pos) {
+		if (sourceEntity instanceof ServerPlayer player) {
 			Minigame minigame = MinigameUtils.getMinigame(player);
 			return minigame == null || minigame.getSettings().canInteractBlocks.get(player);
 		}

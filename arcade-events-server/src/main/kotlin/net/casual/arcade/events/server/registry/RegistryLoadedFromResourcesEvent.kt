@@ -32,15 +32,15 @@ public data class RegistryLoadedFromResourcesEvent<T: Any>(
 
     @Suppress("UNCHECKED_CAST")
     public fun registryKey(): ResourceKey<out Registry<T>> {
-        return (this.task as RegistryLoadTaskAccessor<T>).arcade_accessRegistry().key()
+        return (this.task as RegistryLoadTaskAccessor<T>).arcade_getRegistry().key()
     }
 
     @Suppress("UNCHECKED_CAST")
     public fun register(key: ResourceKey<T>, value: T, info: RegistrationInfo = RegistrationInfo.BUILT_IN) {
         this.task.createRegistryInfo()
         this.task as RegistryLoadTaskAccessor<T>
-        synchronized(this.task.arcade_accessRegistryWriteLock()) {
-            val registry = this.task.arcade_accessRegistry()
+        synchronized(this.task.arcade_getRegistryWriteLock()) {
+            val registry = this.task.arcade_getRegistry()
             registry.register(key, value, info)
         }
     }

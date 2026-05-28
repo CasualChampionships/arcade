@@ -74,14 +74,14 @@ public abstract class ChunkHolderMixin extends GenerationChunkHolder implements 
             ordinal = 0
         )
     )
-    private void onChunkLoad(ChunkMap chunkMap, Executor executor, CallbackInfo ci) {
+    private void onChunkLoad(ChunkMap scheduler, Executor mainThreadExecutor, CallbackInfo ci) {
         this.getFullChunkFuture().thenAcceptAsync(result -> {
             result.ifSuccess(chunk -> {
                 for (ReplayChunkRecorder recorder : this.getRecorders()) {
                     recorder.onChunkLoaded(chunk);
                 }
             });
-        }, ((ChunkMapAccessor) chunkMap).getLevel().getServer());
+        }, ((ChunkMapAccessor) scheduler).arcade_getLevel().getServer());
     }
 
     @Inject(
@@ -92,7 +92,7 @@ public abstract class ChunkHolderMixin extends GenerationChunkHolder implements 
             ordinal = 0
         )
     )
-    private void onChunkUnload(ChunkMap chunkMap, Executor executor, CallbackInfo ci) {
+    private void onChunkUnload(ChunkMap scheduler, Executor mainThreadExecutor, CallbackInfo ci) {
         LevelChunk chunk = this.getFullChunk();
         if (chunk != null) {
             for (ReplayChunkRecorder recorder : this.getRecorders()) {

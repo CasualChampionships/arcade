@@ -75,9 +75,9 @@ public class PlayerAdvancementsMixin {
 	private void onBroadcastAnnouncement(
 		PlayerList instance,
 		Component message,
-		boolean bypassHiddenChat,
+		boolean overlay,
 		Operation<Void> original
 	) {
-		PlayerSystemMessageEvent.broadcast(this.player, instance, message, bypassHiddenChat, original);
+		PlayerSystemMessageEvent.broadcast(this.player, instance, message, overlay, original);
 	}
 }

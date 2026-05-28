@@ -41,7 +41,7 @@ public class PistonHeadBlockMixin {
         Level instance,
         BlockPos pos,
         boolean drop,
-        @Local(argsOnly = true) Player player
+        @Local(name = "player", argsOnly = true) Player player
     ) {
         return instance.destroyBlock(pos, !player.preventsBlockDrops(), player);
     }

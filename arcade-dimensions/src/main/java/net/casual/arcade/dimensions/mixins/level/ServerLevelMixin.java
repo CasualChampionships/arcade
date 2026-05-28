@@ -33,7 +33,7 @@ import java.util.Optional;
 
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin extends Level implements SpoofedDimensionKeyHolder {
-	@Unique private ResourceKey<Level> arcade$spoofedKey = null;
+	@Unique private ResourceKey<Level> arcade_spoofedKey = null;
 
 	@Shadow @Final private ServerLevelData serverLevelData;
 
@@ -104,14 +104,14 @@ public abstract class ServerLevelMixin extends Level implements SpoofedDimension
 	}
 
 	@Override
-	public void arcade$setSpoofedDimensionKey(ResourceKey<Level> key) {
-		this.arcade$spoofedKey = key;
+	public void arcade_setSpoofedDimensionKey(ResourceKey<Level> key) {
+		this.arcade_spoofedKey = key;
 	}
 
 	@Nullable
 	@Override
-	public ResourceKey<Level> arcade$getSpoofedDimensionKey() {
-		return this.arcade$spoofedKey;
+	public ResourceKey<Level> arcade_getSpoofedDimensionKey() {
+		return this.arcade_spoofedKey;
 	}
 
     @Unique

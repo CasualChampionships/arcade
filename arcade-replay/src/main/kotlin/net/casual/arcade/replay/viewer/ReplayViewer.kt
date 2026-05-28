@@ -14,7 +14,7 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerServerboundPacketEvent
 import net.casual.arcade.host.GlobalPackHost
-import net.casual.arcade.replay.ducks.PackTracker
+import net.casual.arcade.replay.ducks.ResourcePackTracker
 import net.casual.arcade.replay.io.reader.ReplayReader
 import net.casual.arcade.replay.mixins.viewer.EntityInvoker
 import net.casual.arcade.replay.recorder.rejoin.RejoinedReplayPlayer
@@ -381,7 +381,7 @@ public class ReplayViewer internal constructor(
         })
         playerList.sendPlayerPermissionLevel(player)
 
-        (player as EntityInvoker).removeRemovalReason()
+        (player as EntityInvoker).arcade_removeRemovalReason()
         level.addNewPlayer(player)
 
         for (pack in this.previousPacks) {
@@ -428,7 +428,7 @@ public class ReplayViewer internal constructor(
             }
         }
 
-        this.previousPacks.addAll((this.connection as PackTracker).`replay$getPacks`())
+        this.previousPacks.addAll((this.connection as ResourcePackTracker).arcade_getPacks())
         this.send(ClientboundResourcePackPopPacket(Optional.empty()))
     }
 

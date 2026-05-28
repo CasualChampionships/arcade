@@ -59,7 +59,7 @@ public class MinecraftServerMixin {
 			target = "Lnet/minecraft/server/MinecraftServer;tickChildren(Ljava/util/function/BooleanSupplier;)V"
 		)
 	)
-	private void preTick(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
+	private void preTick(BooleanSupplier haveTime, CallbackInfo ci) {
 		ServerTickEvent event = new ServerTickEvent((MinecraftServer) (Object) this);
 		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
 	}
@@ -68,7 +68,7 @@ public class MinecraftServerMixin {
 		method = "tickServer",
 		at = @At("TAIL")
 	)
-	private void postTick(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
+	private void postTick(BooleanSupplier haveTime, CallbackInfo ci) {
 		ServerTickEvent event = new ServerTickEvent((MinecraftServer) (Object) this);
 		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
 	}
@@ -107,7 +107,7 @@ public class MinecraftServerMixin {
 		method = "saveEverything",
 		at = @At("TAIL")
 	)
-	private void onSaveEverything(boolean suppressLog, boolean flush, boolean forced, CallbackInfoReturnable<Boolean> cir) {
+	private void onSaveEverything(boolean silent, boolean flush, boolean force, CallbackInfoReturnable<Boolean> cir) {
 		ServerSaveEvent event = ServerSaveEvent.createWithContextualReason((MinecraftServer) (Object) this);
 		GlobalEventHandler.Server.broadcast(event);
 	}

@@ -28,6 +28,6 @@ public abstract class CustomArgumentType<T>: ArgumentType<T> {
     }
 
     private companion object {
-        private val CLASS_MAP = ArgumentTypeInfosAccessor.getClassMap()
+        private val CLASS_MAP = ArgumentTypeInfosAccessor.arcade_getByClass()
     }
 }

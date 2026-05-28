@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public class ServerGamePacketListenerImplMixin implements ExtensionHolder {
-	@Unique private final ExtensionMap arcade$extensionMap = new ExtensionMap();
+	@Unique private final ExtensionMap arcade_extensionMap = new ExtensionMap();
 
 	@Inject(
 		method = "<init>",
@@ -39,7 +39,7 @@ public class ServerGamePacketListenerImplMixin implements ExtensionHolder {
 		CallbackInfo ci
 	) {
 		for (Extension extension : ((ExtensionHolder) player).getExtensionMap().all()) {
-			this.arcade$extensionMap.add(extension);
+			this.arcade_extensionMap.add(extension);
 		}
 	}
 
@@ -57,13 +57,13 @@ public class ServerGamePacketListenerImplMixin implements ExtensionHolder {
 		GlobalEventHandler.Server.broadcast(new EntityExtensionEvent(player));
 		GlobalEventHandler.Server.broadcast(new PlayerExtensionEvent(player));
 
-		((ExtensionDataHolder) player).arcade$deserializeExtensionData();
+		((ExtensionDataHolder) player).arcade_deserializeExtensionData();
 	}
 
 	@NotNull
 	@Override
 	@SuppressWarnings("AddedMixinMembersNamePattern")
 	public ExtensionMap getExtensionMap() {
-		return this.arcade$extensionMap;
+		return this.arcade_extensionMap;
 	}
 }

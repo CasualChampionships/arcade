@@ -24,7 +24,7 @@ public abstract class CommandNodeMixin<S> implements DeletableCommand {
 	@Shadow @Final private Map<String, ArgumentCommandNode<S, ?>> arguments;
 
 	@Override
-	public boolean arcade$delete(@NotNull String name) {
+	public boolean arcade_deleteCommand(@NotNull String name) {
 		this.literals.remove(name);
 		this.arguments.remove(name);
 		return this.children.remove(name) != null;

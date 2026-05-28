@@ -40,9 +40,9 @@ public class AbstractContainerMenuMixin {
         at = @At("HEAD"),
         cancellable = true
     )
-    private void onDoClick(int slotId, int button, ContainerInput input, Player player, CallbackInfo ci) {
+    private void onDoClick(int slotIndex, int buttonNum, ContainerInput containerInput, Player player, CallbackInfo ci) {
         Inventory inventory = player.getInventory();
-        if (inventory instanceof VirtualInventory && input == ContainerInput.SWAP) {
+        if (inventory instanceof VirtualInventory && containerInput == ContainerInput.SWAP) {
             ci.cancel();
         }
     }

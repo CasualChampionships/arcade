@@ -13,5 +13,5 @@ import java.util.UUID;
 @Mixin(ServerboundTeleportToEntityPacket.class)
 public interface ServerboundTeleportToEntityPacketAccessor {
 	@Accessor("uuid")
-	UUID getUUID();
+	UUID arcade_getUUID();
 }

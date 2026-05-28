@@ -5,7 +5,7 @@
 package net.casual.arcade.replay.mixins.rejoin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.casual.arcade.replay.ducks.PackTracker;
+import net.casual.arcade.replay.ducks.ResourcePackTracker;
 import net.casual.arcade.replay.recorder.rejoin.RejoinConfigurationPacketListener;
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -28,8 +28,8 @@ public class ServerConfigurationPacketListenerImplMixin {
     )
     private ServerPlayer afterPlayerSpawned(ServerPlayer player) {
         // Merge the packs into the GamePacketListener
-        Collection<ClientboundResourcePackPushPacket> packs = ((PackTracker) this).replay$getPacks();
-        ((PackTracker) player.connection).replay$addPacks(packs);
+        Collection<ClientboundResourcePackPushPacket> packs = ((ResourcePackTracker) this).arcade_getPacks();
+        ((ResourcePackTracker) player.connection).arcade_addPacks(packs);
         return player;
     }
 

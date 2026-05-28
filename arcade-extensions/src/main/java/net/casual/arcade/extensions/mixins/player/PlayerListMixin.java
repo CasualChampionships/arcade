@@ -34,11 +34,11 @@ public class PlayerListMixin {
         )
     )
     private void onRestoreFrom(
-        ServerPlayer player,
-        boolean keepInventory,
-        Entity.RemovalReason reason,
+        ServerPlayer serverPlayer,
+        boolean keepAllPlayerData,
+        Entity.RemovalReason removalReason,
         CallbackInfoReturnable<ServerPlayer> cir,
-        @Local(name = "player") ServerPlayer respawned,
+        @Local(name = "player") ServerPlayer player,
         @Share(namespace = ArcadeUtils.MOD_ID, value = "isMinigameRespawn") LocalBooleanRef isMinigameRespawn,
         @Share("delayed") LocalRef<DelayedActions.Simple> delayedRef
     ) {
@@ -46,16 +46,16 @@ public class PlayerListMixin {
         delayedRef.set(delayed);
 
         EntityTransferReason transferReason = EntityTransferReason.Other;
-        if (reason == Entity.RemovalReason.KILLED) {
+        if (removalReason == Entity.RemovalReason.KILLED) {
             transferReason = EntityTransferReason.Respawned;
         } else if (isMinigameRespawn.get()) {
             transferReason = EntityTransferReason.Minigame;
         }
-        for (Extension extension : new ArrayList<>(ExtensionHolder.all((ExtensionHolder) player))) {
+        for (Extension extension : new ArrayList<>(ExtensionHolder.all((ExtensionHolder) serverPlayer))) {
             if (extension instanceof TransferableEntityExtension transferable) {
-                ExtensionHolder.add((ExtensionHolder) respawned, transferable.transfer(respawned, transferReason, delayed));
+                ExtensionHolder.add((ExtensionHolder) player, transferable.transfer(player, transferReason, delayed));
             } else {
-                ExtensionHolder.add((ExtensionHolder) respawned, extension);
+                ExtensionHolder.add((ExtensionHolder) player, extension);
             }
         }
     }
@@ -65,9 +65,9 @@ public class PlayerListMixin {
         at = @At("RETURN")
     )
     private void onRestoreFrom(
-        ServerPlayer player,
-        boolean keepInventory,
-        Entity.RemovalReason reason,
+        ServerPlayer serverPlayer,
+        boolean keepAllPlayerData,
+        Entity.RemovalReason removalReason,
         CallbackInfoReturnable<ServerPlayer> cir,
         @Share("delayed") LocalRef<DelayedActions.Simple> delayedRef
     ) {

@@ -16,7 +16,6 @@ import net.casual.arcade.replay.util.ReplayPacketUtils
 import net.casual.arcade.utils.ClientboundAddEntityPacket
 import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.utils.entity.WrappedTrackedEntity
-import net.fabricmc.fabric.api.networking.v1.context.PacketContext
 import net.minecraft.core.NonNullList
 import net.minecraft.core.component.DataComponents
 import net.minecraft.network.Connection

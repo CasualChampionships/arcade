@@ -54,7 +54,7 @@ public object ReplayPlayerRecorders {
         if (player is RejoinedReplayPlayer) {
             throw IllegalArgumentException("Cannot create a ReplayPlayerRecorder for a rejoining player")
         }
-        val connection = (player.connection as ServerCommonPacketListenerAccessor).connection
+        val connection = (player.connection as ServerCommonPacketListenerAccessor).arcade_getConnection()
         return this.create(player.server, player.gameProfile, connection, directory, format, settings)
     }
 

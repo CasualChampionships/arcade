@@ -8,5 +8,5 @@ import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 public interface ModifyActuallyHurt {
-	void arcade$setNotActuallyHurt();
+	void arcade_setNotActuallyHurt();
 }

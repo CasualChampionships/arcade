@@ -15,18 +15,18 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(PathfindingContext.class)
 public interface PathfindingContextAccessor {
     @Mutable
-    @Accessor
-    void setLevel(CollisionGetter level);
+    @Accessor("level")
+    void arcade_setLevel(CollisionGetter level);
 
     @Mutable
-    @Accessor
-    void setCache(PathTypeCache cache);
+    @Accessor("cache")
+    void arcade_setCache(PathTypeCache cache);
 
     @Mutable
-    @Accessor
-    void setMobPosition(BlockPos mobPosition);
+    @Accessor("mobPosition")
+    void arcade_setMobPosition(BlockPos mobPosition);
 
     @Mutable
-    @Accessor
-    void setMutablePos(BlockPos.MutableBlockPos pos);
+    @Accessor("mutablePos")
+    void arcade_setMutablePos(BlockPos.MutableBlockPos pos);
 }

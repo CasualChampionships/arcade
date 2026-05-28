@@ -30,21 +30,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin implements ExtensionHolder {
-    @Shadow private Level level;
+    @Unique private ExtensionMap arcade_extensionsMap;
 
-    @Unique private ExtensionMap arcade$extensions;
+    @Shadow private Level level;
 
     @Inject(
         method = "<init>",
         at = @At("TAIL")
     )
     private void onCreateEntity(
-        EntityType<?> entityType,
+        EntityType<?> type,
         Level level,
         CallbackInfo ci
     ) {
         // We have to use an instanceof check because polymer extends
-        // Level for their FakeWorld but isClientSide is marked false
+        // Level for their FakeLevel but isClientSide is marked false
         if (!(level instanceof ServerLevel)) {
             return;
         }
@@ -53,7 +53,7 @@ public abstract class EntityMixin implements ExtensionHolder {
         if (entity instanceof Player || EntityExtension.DONT_ATTACH_EXTENSION.isBound()) {
             return;
         }
-        this.arcade$extensions = new ExtensionMap();
+        this.arcade_extensionsMap = new ExtensionMap();
         EntityExtensionEvent event = new EntityExtensionEvent(entity);
         GlobalEventHandler.Server.broadcast(event);
     }
@@ -92,24 +92,24 @@ public abstract class EntityMixin implements ExtensionHolder {
         at = @At("HEAD")
     )
     private void onRestoreEntity(
-        Entity entity,
+        Entity oldEntity,
         CallbackInfo ci,
         @Share("delayed") LocalRef<DelayedActions.Simple> delayedRef
     ) {
-        if (entity instanceof ServerPlayer || this.level.isClientSide()) {
+        if (oldEntity instanceof ServerPlayer || this.level.isClientSide()) {
             return;
         }
 
         DelayedActions.Simple delayed = new DelayedActions.Simple();
         delayedRef.set(delayed);
 
-        for (Extension extension : ExtensionHolder.all((ExtensionHolder) entity)) {
+        for (Extension extension : ExtensionHolder.all((ExtensionHolder) oldEntity)) {
             if (extension instanceof TransferableEntityExtension transferable) {
                 EntityTransferReason reason = EntityTransferReason.Other;
                 Extension transferred = transferable.transfer((Entity) (Object) this, reason, delayed);
-                this.arcade$extensions.add(transferred);
+                this.arcade_extensionsMap.add(transferred);
             } else {
-                this.arcade$extensions.add(extension);
+                this.arcade_extensionsMap.add(extension);
             }
         }
     }
@@ -119,7 +119,7 @@ public abstract class EntityMixin implements ExtensionHolder {
         at = @At("RETURN")
     )
     private void onRestoreEntityPost(
-        Entity entity,
+        Entity oldEntity,
         CallbackInfo ci,
         @Share("delayed") LocalRef<DelayedActions.Simple> delayedRef
     ) {
@@ -133,6 +133,6 @@ public abstract class EntityMixin implements ExtensionHolder {
     @Override
     @SuppressWarnings("AddedMixinMembersNamePattern")
     public ExtensionMap getExtensionMap() {
-        return this.arcade$extensions;
+        return this.arcade_extensionsMap;
     }
 }

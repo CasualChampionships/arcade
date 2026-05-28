@@ -15,5 +15,5 @@ import java.util.List;
 public interface ClientboundPlayerInfoUpdatePacketAccessor {
     @Mutable
     @Accessor("entries")
-    void setEntries(List<ClientboundPlayerInfoUpdatePacket.Entry> entries);
+    void arcade_setEntries(List<ClientboundPlayerInfoUpdatePacket.Entry> entries);
 }

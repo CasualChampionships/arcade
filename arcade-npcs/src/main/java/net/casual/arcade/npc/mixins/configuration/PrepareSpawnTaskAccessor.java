@@ -12,12 +12,12 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(PrepareSpawnTask.class)
 public interface PrepareSpawnTaskAccessor {
-    @Accessor
-    PrepareSpawnTask.State getState();
+    @Accessor("state")
+    PrepareSpawnTask.State arcade_getState();
 
-    @Accessor
-    MinecraftServer getServer();
+    @Accessor("server")
+    MinecraftServer arcade_getServer();
 
-    @Accessor
-    NameAndId getNameAndId();
+    @Accessor("nameAndId")
+    NameAndId arcade_getNameAndId();
 }

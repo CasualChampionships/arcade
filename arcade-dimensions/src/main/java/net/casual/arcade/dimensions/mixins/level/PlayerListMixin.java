@@ -71,7 +71,7 @@ public abstract class PlayerListMixin {
             target = "Lnet/minecraft/server/level/ServerChunkCache;setViewDistance(I)V"
         )
     )
-    private boolean onSetChunkCacheViewDistance(ServerChunkCache instance, int viewDistance) {
+    private boolean onSetChunkCacheViewDistance(ServerChunkCache instance, int newDistance) {
         return !(instance.getLevel() instanceof CustomLevel custom) || custom.getProperties().getViewDistance().isEmpty();
     }
 

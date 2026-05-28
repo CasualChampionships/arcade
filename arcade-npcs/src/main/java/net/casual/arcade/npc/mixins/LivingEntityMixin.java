@@ -39,7 +39,7 @@ public class LivingEntityMixin {
             target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDD)V"
         )
     )
-    private boolean onKnockbackTarget(LivingEntity instance, double strength, double x, double z) {
+    private boolean onKnockbackTarget(LivingEntity instance, double power, double xd, double zd) {
         return !(instance instanceof FakePlayer);
     }
 
@@ -52,9 +52,9 @@ public class LivingEntityMixin {
     )
     private boolean onHurtKnockback(
         LivingEntity instance,
-        double strength,
-        double x,
-        double z,
+        double power,
+        double xd,
+        double zd,
         @Local(name = "blocked") boolean blocked
     ) {
         return !(instance instanceof FakePlayer) || !blocked;

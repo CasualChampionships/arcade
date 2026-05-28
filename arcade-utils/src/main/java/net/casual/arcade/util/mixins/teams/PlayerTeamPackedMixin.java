@@ -21,17 +21,17 @@ import java.util.Optional;
 
 @Mixin(PlayerTeam.Packed.class)
 public class PlayerTeamPackedMixin implements OverridableColor {
-    @Unique private Integer arcade$color = null;
+    @Unique private Integer arcade_color = null;
 
     @Override
     public void arcade_setColor(@Nullable Integer color) {
-        this.arcade$color = color;
+        this.arcade_color = color;
     }
 
     @Override
     @Nullable
     public Integer arcade_getColor() {
-        return this.arcade$color;
+        return this.arcade_color;
     }
 
     @ModifyExpressionValue(
@@ -56,8 +56,8 @@ public class PlayerTeamPackedMixin implements OverridableColor {
     }
 
     @WrapMethod(method = "equals")
-    private boolean extendEquals(Object object, Operation<Boolean> original) {
-        return original.call(object) && object instanceof OverridableColor color
-                && Objects.equals(this.arcade$color, color.arcade_getColor());
+    private boolean extendEquals(Object o, Operation<Boolean> original) {
+        return original.call(o) && o instanceof OverridableColor color
+                && Objects.equals(this.arcade_color, color.arcade_getColor());
     }
 }

@@ -9,7 +9,7 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 public interface SpoofedDimensionKeyHolder {
-    void arcade$setSpoofedDimensionKey(@Nullable ResourceKey<Level> key);
+    void arcade_setSpoofedDimensionKey(@Nullable ResourceKey<Level> key);
 
-    @Nullable ResourceKey<Level> arcade$getSpoofedDimensionKey();
+    @Nullable ResourceKey<Level> arcade_getSpoofedDimensionKey();
 }

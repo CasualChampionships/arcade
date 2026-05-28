@@ -35,15 +35,15 @@ public class ChunkMapMixin {
         )
     )
     private void onLoadChunk(
-        long chunkPos,
-        int newLevel,
-        ChunkHolder holder,
+        long node,
+        int level,
+        ChunkHolder chunk,
         int oldLevel,
         CallbackInfoReturnable<ChunkHolder> cir
     ) {
-        ChunkPos pos = holder.getPos();
+        ChunkPos pos = chunk.getPos();
         for (ReplayChunkRecorder recorder : ReplayChunkRecorders.containing(this.level.dimension(), pos)) {
-            ((ReplayChunkRecordable) holder).addRecorder(recorder);
+            ((ReplayChunkRecordable) chunk).addRecorder(recorder);
         }
     }
 
@@ -56,10 +56,10 @@ public class ChunkMapMixin {
         )
     )
     private void onUnloadChunk(
-        BooleanSupplier hasMoreTime,
+        BooleanSupplier haveTime,
         CallbackInfo ci,
-        @Local(name = "chunkHolder") ChunkHolder holder
+        @Local(name = "chunkHolder") ChunkHolder chunkHolder
     ) {
-        ((ReplayChunkRecordable) holder).removeAllRecorders();
+        ((ReplayChunkRecordable) chunkHolder).removeAllRecorders();
     }
 }

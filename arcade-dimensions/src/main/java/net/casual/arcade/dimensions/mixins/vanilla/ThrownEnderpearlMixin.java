@@ -22,7 +22,7 @@ public class ThrownEnderpearlMixin {
 			target = "Lnet/minecraft/world/level/Level;dimension()Lnet/minecraft/resources/ResourceKey;"
 		)
 	)
-	private ResourceKey<@NotNull Level> getLikeDimension(ResourceKey<@NotNull Level> original, Level level) {
-		return VanillaLikeLevel.getLikeDimension(level);
+	private ResourceKey<@NotNull Level> getLikeDimension(ResourceKey<@NotNull Level> original, Level from) {
+		return VanillaLikeLevel.getLikeDimension(from);
 	}
 }

@@ -107,7 +107,7 @@ public open class FakePlayer(
         target: LivingEntity,
         modifier: Double = 0.0
     ): Boolean {
-        return this.getAttackBoundingBox(modifier).intersects((target as LivingEntityAccessor).invokeGetHitbox())
+        return this.getAttackBoundingBox(modifier).intersects((target as LivingEntityAccessor).arcade_getHitbox())
     }
 
     public open fun getAttackBoundingBox(modifier: Double = 0.0): AABB {

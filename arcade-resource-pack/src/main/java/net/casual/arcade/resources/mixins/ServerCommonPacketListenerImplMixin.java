@@ -20,9 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerCommonPacketListenerImpl.class)
 public abstract class ServerCommonPacketListenerImplMixin {
-	@Shadow
-	@Final
-	protected MinecraftServer server;
+	@Shadow @Final protected MinecraftServer server;
 
 	@Shadow protected abstract GameProfile playerProfile();
 

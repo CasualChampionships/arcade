@@ -56,8 +56,8 @@ public class LevelRendererMixin {
         )
     )
     private void onExtractState(
-        GraphicsResourceAllocator allocator,
-        DeltaTracker deltas,
+        GraphicsResourceAllocator resourceAllocator,
+        DeltaTracker deltaTracker,
         boolean renderOutline,
         CameraRenderState cameraState,
         Matrix4fc modelViewMatrix,
@@ -67,11 +67,11 @@ public class LevelRendererMixin {
         ChunkSectionsToRender chunkSectionsToRender,
         CallbackInfo ci,
         @Local(name = "profiler") ProfilerFiller profiler,
-        @Local(name = "cullFrustum") Frustum frustum
+        @Local(name = "cullFrustum") Frustum cullFrustum
     ) {
         profiler.popPush("arcadeEvent");
         LevelRenderExtractEvent event = new LevelRenderExtractEvent(
-            (LevelRenderer) (Object) this, Objects.requireNonNull(this.level), this.levelRenderState, cameraState, deltas, frustum
+            (LevelRenderer) (Object) this, Objects.requireNonNull(this.level), this.levelRenderState, cameraState, deltaTracker, cullFrustum
         );
         GlobalEventHandler.Client.broadcast(event);
     }
@@ -85,12 +85,12 @@ public class LevelRendererMixin {
     )
     private void onEntities(
         CallbackInfo ci,
-        @Local(argsOnly = true) LevelRenderState state,
-        @Local(name = "bufferSource") MultiBufferSource.BufferSource buffers,
-        @Local(name = "poseStack") PoseStack stack,
+        @Local(name = "levelRenderState", argsOnly = true) LevelRenderState levelRenderState,
+        @Local(name = "bufferSource") MultiBufferSource.BufferSource bufferSource,
+        @Local(name = "poseStack") PoseStack poseStack,
         @Share("event") LocalRef<LevelRenderEvent> eventRef
     ) {
-        LevelRenderEvent event = new LevelRenderEvent((LevelRenderer) (Object) this, state, buffers, stack);
+        LevelRenderEvent event = new LevelRenderEvent((LevelRenderer) (Object) this, levelRenderState, bufferSource, poseStack);
         GlobalEventHandler.Client.broadcast(event, Set.of(LevelRenderEvent.ENTITIES, BuiltInEventPhases.DEFAULT));
         eventRef.set(event);
     }

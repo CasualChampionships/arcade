@@ -151,7 +151,7 @@ public class ReplayChunkRecorder internal constructor(
 
         val chunks = this.level.chunkSource.chunkMap as ChunkMapAccessor
         for (pos in this.chunks) {
-            val holder = chunks.getTickingChunk(pos.pack())
+            val holder = chunks.arcade_getTickingChunk(pos.pack())
             if (holder != null) {
                 (holder as ReplayChunkRecordable).addRecorder(this)
             }
@@ -377,7 +377,7 @@ public class ReplayChunkRecorder internal constructor(
     @Internal
     public fun onEntityTracked(entity: Entity) {
         if (entity is WitherBoss) {
-            val recordable = ((entity as WitherBossAccessor).bossEvent as ReplayChunkRecordable)
+            val recordable = ((entity as WitherBossAccessor).arcade_getBossEvent() as ReplayChunkRecordable)
             recordable.addRecorder(this)
         } else if (entity is ServerPlayer) {
             this.trackedPlayers.add(entity)
@@ -397,7 +397,7 @@ public class ReplayChunkRecorder internal constructor(
     @Internal
     public fun onEntityUntracked(entity: Entity) {
         if (entity is WitherBoss) {
-            val recordable = ((entity as WitherBossAccessor).bossEvent as ReplayChunkRecordable)
+            val recordable = ((entity as WitherBossAccessor).arcade_getBossEvent() as ReplayChunkRecordable)
             recordable.removeRecorder(this)
         } else if (entity is ServerPlayer) {
             this.trackedPlayers.remove(entity)

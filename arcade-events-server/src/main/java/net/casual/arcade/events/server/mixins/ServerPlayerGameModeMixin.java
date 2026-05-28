@@ -68,11 +68,11 @@ public class ServerPlayerGameModeMixin {
 	private void broadcastItemUseEvent(
 		ServerPlayer player,
 		Level level,
-		ItemStack stack,
+		ItemStack itemStack,
 		InteractionHand hand,
 		CallbackInfoReturnable<InteractionResult> cir
 	) {
-		PlayerItemUseEvent event = new PlayerItemUseEvent(player, stack, hand);
+		PlayerItemUseEvent event = new PlayerItemUseEvent(player, itemStack, hand);
 		GlobalEventHandler.Server.broadcast(event, Set.of(PlayerItemUseEvent.PHASE_PRE));
 		if (event.isCancelled()) {
 			cir.setReturnValue(event.result());
@@ -92,13 +92,13 @@ public class ServerPlayerGameModeMixin {
 	private void onInteractBlock(
 		ServerPlayer player,
 		Level level,
-		ItemStack stack,
+		ItemStack itemStack,
 		InteractionHand hand,
 		BlockHitResult hitResult,
 		CallbackInfoReturnable<InteractionResult> cir,
 		@Share("blockInteractionEvent") LocalRef<PlayerBlockInteractionEvent> eventRef
 	) {
-		PlayerBlockInteractionEvent event = new PlayerBlockInteractionEvent(player, stack, hand, hitResult);
+		PlayerBlockInteractionEvent event = new PlayerBlockInteractionEvent(player, itemStack, hand, hitResult);
 		GlobalEventHandler.Server.broadcast(event);
 		if (event.isCancelled()) {
             PlayerUtilsKt.updateInteractionSlot(player, hand);
@@ -113,11 +113,11 @@ public class ServerPlayerGameModeMixin {
 		name = "suppressUsingBlock"
 	)
 	private boolean shouldPreventUsingOnBlock(
-		boolean value,
+		boolean suppressUsingBlock,
 		@Share("blockInteractionEvent") LocalRef<PlayerBlockInteractionEvent> eventRef
 	) {
 		PlayerBlockInteractionEvent event = eventRef.get();
-		return event.getPreventUsingOnBlock() || value;
+		return event.getPreventUsingOnBlock() || suppressUsingBlock;
 	}
 
 	@Inject(
@@ -134,9 +134,9 @@ public class ServerPlayerGameModeMixin {
 		BlockPos pos,
 		CallbackInfoReturnable<Boolean> cir,
 		@Local(name = "state") BlockState state,
-		@Local(name = "blockEntity") BlockEntity entity
+		@Local(name = "blockEntity") BlockEntity blockEntity
 	) {
-		PlayerBlockMinedEvent event = new PlayerBlockMinedEvent(this.player, pos, state, entity);
+		PlayerBlockMinedEvent event = new PlayerBlockMinedEvent(this.player, pos, state, blockEntity);
 		GlobalEventHandler.Server.broadcast(event);
 		if (event.isCancelled()) {
 			cir.setReturnValue(false);
@@ -151,13 +151,13 @@ public class ServerPlayerGameModeMixin {
 	private void onBlockStartMining(
         BlockPos pos,
         ServerboundPlayerActionPacket.Action action,
-        Direction face,
-        int maxBuildHeight,
+        Direction direction,
+        int maxY,
         int sequence,
         CallbackInfo ci
 	) {
         if (action == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
-            PlayerBlockStartMiningEvent event = new PlayerBlockStartMiningEvent(this.player, pos, face);
+            PlayerBlockStartMiningEvent event = new PlayerBlockStartMiningEvent(this.player, pos, direction);
             GlobalEventHandler.Server.broadcast(event);
             if (event.isCancelled()) {
                 this.player.connection.send(new ClientboundBlockUpdatePacket(pos, this.level.getBlockState(pos)));

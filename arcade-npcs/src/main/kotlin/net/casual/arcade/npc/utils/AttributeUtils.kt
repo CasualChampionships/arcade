@@ -10,7 +10,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier
 public object AttributeUtils {
     public fun AttributeSupplier.toBuilder(): AttributeSupplier.Builder {
         val builder = AttributeSupplier.builder()
-        val instances = (this as AttributeSupplierAccessor).instances
+        val instances = (this as AttributeSupplierAccessor).arcade_getInstances()
         for ((attribute, instance) in instances) {
             builder.add(attribute, instance.baseValue)
         }

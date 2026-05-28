@@ -34,7 +34,7 @@ public interface CustomMobSpawningRules {
     }
 
     public companion object {
-        public val MAGIC_NUMBER: Int = NaturalSpawnerAccessor.getMagicNumber()
+        public val MAGIC_NUMBER: Int = NaturalSpawnerAccessor.arcade_getMagicNumber()
 
         public val CODEC: Codec<CustomMobSpawningRules> = Codec.lazyInitialized {
             DimensionRegistries.CUSTOM_MOB_SPAWNING_RULES.byNameCodec()
@@ -48,7 +48,7 @@ public interface CustomMobSpawningRules {
             pos: ChunkPos,
             rules: CustomMobSpawningRules
         ): Boolean {
-            return (this as CustomMobSpawningPredicate).`arcade$canSpawn`(category, pos, rules)
+            return (this as CustomMobSpawningPredicate).arcade_canSpawn(category, pos, rules)
         }
 
         internal fun bootstrap(registry: Registry<CustomMobSpawningRules>) {

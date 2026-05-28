@@ -28,13 +28,12 @@ import java.util.function.BooleanSupplier;
 
 @Mixin(value = MinecraftServer.class, priority = 1100)
 public abstract class MinecraftServerMixin implements CustomMOTD {
+	@Unique private Component arcade_motd = null;
+
 	@Shadow @Nullable private ServerStatus status;
 	@Shadow private long lastServerStatus;
 
 	@Shadow protected abstract ServerStatus buildServerStatus();
-
-	@Unique
-	private Component arcade$motd = null;
 
 	@Inject(
 		method = "<init>",
@@ -52,8 +51,8 @@ public abstract class MinecraftServerMixin implements CustomMOTD {
 		)
 	)
 	private Component getMOTD(Component original) {
-		if (this.arcade$motd != null) {
-			return this.arcade$motd;
+		if (this.arcade_motd != null) {
+			return this.arcade_motd;
 		}
 		return original;
 	}
@@ -64,7 +63,7 @@ public abstract class MinecraftServerMixin implements CustomMOTD {
 		method = "tickServer",
 		at = @At("MIXINEXTRAS:EXPRESSION")
 	)
-	private void onServerTick(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
+	private void onServerTick(BooleanSupplier haveTime, CallbackInfo ci) {
 		ProfilerFiller filler = Profiler.get();
 		filler.push("coroutine_tick_delayed_tasks");
 		ServerCoroutineUtils.INSTANCE.tickServer((MinecraftServer) (Object) this);
@@ -82,7 +81,7 @@ public abstract class MinecraftServerMixin implements CustomMOTD {
 
 	@Override
 	public void arcade_setMOTD(Component message) {
-		this.arcade$motd = message;
+		this.arcade_motd = message;
 		this.status = this.buildServerStatus();
 		this.lastServerStatus = Util.getNanos();
 	}
@@ -90,6 +89,6 @@ public abstract class MinecraftServerMixin implements CustomMOTD {
 	@Override
 	@Nullable
 	public Component arcade_getMOTD() {
-		return this.arcade$motd;
+		return this.arcade_motd;
 	}
 }

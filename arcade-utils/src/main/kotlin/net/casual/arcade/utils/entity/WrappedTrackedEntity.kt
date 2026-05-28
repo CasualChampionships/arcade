@@ -22,7 +22,7 @@ public value class WrappedTrackedEntity(public val tracked: ChunkMap.TrackedEnti
      * @return The tracked entity.
      */
     public fun getEntity(): Entity {
-        return (this.tracked as TrackedEntityAccessor).entity
+        return (this.tracked as TrackedEntityAccessor).arcade_getEntity()
     }
 
     /**
@@ -31,7 +31,7 @@ public value class WrappedTrackedEntity(public val tracked: ChunkMap.TrackedEnti
      * @return The server entity.
      */
     public fun getServerEntity(): ServerEntity {
-        return (this.tracked as TrackedEntityAccessor).serverEntity
+        return (this.tracked as TrackedEntityAccessor).arcade_getServerEntity()
     }
 
     /**
@@ -40,7 +40,7 @@ public value class WrappedTrackedEntity(public val tracked: ChunkMap.TrackedEnti
      * @return The player connections.
      */
     public fun getObservers(): Set<ServerPlayerConnection> {
-        return (this.tracked as TrackedEntityAccessor).seenBy
+        return (this.tracked as TrackedEntityAccessor).arcade_getSeenBy()
     }
 
     /**
@@ -49,6 +49,6 @@ public value class WrappedTrackedEntity(public val tracked: ChunkMap.TrackedEnti
      * @return The tracking range.
      */
     public fun getRange(): Int {
-        return (this.tracked as TrackedEntityAccessor).range
+        return (this.tracked as TrackedEntityAccessor).arcade_getRange()
     }
 }

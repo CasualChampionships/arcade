@@ -11,5 +11,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(BrewingStandBlockEntity.class)
 public interface BrewingStandBlockEntityAccessor {
 	@Accessor("fuel")
-	int fuel();
+	int arcade_getFuel();
 }

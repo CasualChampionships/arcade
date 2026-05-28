@@ -22,52 +22,46 @@ import org.spongepowered.asm.mixin.*;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPacketListenerImpl implements ReplayViewable {
-    @Mutable
-    @Shadow
-    @Final
-    private LastSeenMessagesValidator lastSeenMessages;
-    @Shadow
-    @Nullable
-    private RemoteChatSession chatSession;
+    @Unique private ReplayViewer arcade_viewer = null;
 
-    @Shadow
-    private int nextChatIndex;
-    @Unique
-    private ReplayViewer replay$viewer = null;
+    @Mutable @Shadow @Final private LastSeenMessagesValidator lastSeenMessages;
+    @Shadow @Nullable private RemoteChatSession chatSession;
+
+    @Shadow private int nextChatIndex;
 
     public ServerGamePacketListenerImplMixin(MinecraftServer minecraftServer, Connection connection, CommonListenerCookie commonListenerCookie) {
         super(minecraftServer, connection, commonListenerCookie);
     }
 
     @Override
-    public void arcade$startViewingReplay(ReplayViewer viewer) {
-        this.replay$viewer = viewer;
+    public void arcade_startViewingReplay(ReplayViewer viewer) {
+        this.arcade_viewer = viewer;
     }
 
     @Override
-    public void arcade$stopViewingReplay() {
-        if (this.replay$viewer != null) {
+    public void arcade_stopViewingReplay() {
+        if (this.arcade_viewer != null) {
             this.nextChatIndex = 0;
             this.lastSeenMessages = new LastSeenMessagesValidator(20);
-            this.replay$viewer = null;
+            this.arcade_viewer = null;
             // Reset chat session
             this.chatSession = null;
         }
     }
 
     @Override
-    public void arcade$sendReplayViewerPacket(Packet<?> packet) {
+    public void arcade_sendReplayViewerPacket(Packet<?> packet) {
         super.send(packet, null);
     }
 
     @Override
-    public ReplayViewer arcade$getViewingReplay() {
-        return this.replay$viewer;
+    public ReplayViewer arcade_getViewingReplay() {
+        return this.arcade_viewer;
     }
 
     @Override
     public void send(@NonNull Packet<?> packet, @Nullable ChannelFutureListener sendListener) {
-        if (this.replay$viewer == null || ReplayViewerPackets.clientboundBypass(packet)) {
+        if (this.arcade_viewer == null || ReplayViewerPackets.clientboundBypass(packet)) {
             super.send(packet, sendListener);
         }
     }

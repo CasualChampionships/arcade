@@ -51,11 +51,11 @@ public class DebugBrainDumpMixin {
     )
     private static void getShortDescriptionOverrides(
         ServerLevel level,
-        @Nullable Object object,
+        @Nullable Object obj,
         CallbackInfoReturnable<String> cir
     ) {
-        if (object != null) {
-            String override = BehaviorDescriptionOverrides.get(object);
+        if (obj != null) {
+            String override = BehaviorDescriptionOverrides.get(obj);
             if (override != null) {
                 cir.setReturnValue(override);
             }

@@ -54,7 +54,7 @@ public class PlayerListMixin {
 	)
 	private void onPlayerJoinInitialized(
 		CallbackInfo ci,
-		@Local(argsOnly = true) ServerPlayer player,
+		@Local(name = "player", argsOnly = true) ServerPlayer player,
 		@Share("event") LocalRef<PlayerJoinEvent> eventRef
 	) {
 		PlayerJoinEvent event = new PlayerJoinEvent(player);
@@ -99,9 +99,9 @@ public class PlayerListMixin {
 	private void onBroadcastJoinGame(
 		PlayerList instance,
 		Component message,
-		boolean bypassHiddenChat,
+		boolean overlay,
 		Operation<Void> original,
-		@Local(argsOnly = true) ServerPlayer player,
+		@Local(name = "player", argsOnly = true) ServerPlayer player,
 		@Share("event") LocalRef<PlayerJoinEvent> eventRef,
 		@Share("delayed") LocalRef<Runnable> delayedRef
 	) {
@@ -110,9 +110,9 @@ public class PlayerListMixin {
 			return;
 		}
 		if (event.getJoinMessageModification() == JoinMessageModification.Delay) {
-			delayedRef.set(() -> PlayerSystemMessageEvent.broadcast(player, instance, message, bypassHiddenChat, original));
+			delayedRef.set(() -> PlayerSystemMessageEvent.broadcast(player, instance, message, overlay, original));
 		} else {
-			PlayerSystemMessageEvent.broadcast(player, instance, message, bypassHiddenChat, original);
+			PlayerSystemMessageEvent.broadcast(player, instance, message, overlay, original);
 		}
 	}
 
@@ -122,10 +122,10 @@ public class PlayerListMixin {
 	)
 	private Component onPlayerCanLogin(
 		Component original,
-		SocketAddress socketAddress,
+		SocketAddress address,
         NameAndId nameAndId
 	) {
-		PlayerRequestLoginEvent event = new PlayerRequestLoginEvent(this.server, nameAndId, socketAddress);
+		PlayerRequestLoginEvent event = new PlayerRequestLoginEvent(this.server, nameAndId, address);
 		if (original != null) {
 			event.deny(original);
 		}
@@ -140,16 +140,16 @@ public class PlayerListMixin {
 	)
 	private void onBroadcastChatMessage(
 		PlayerChatMessage message,
-		Predicate<ServerPlayer> shouldFilterMessageTo,
-		@Nullable ServerPlayer sender,
-		ChatType.Bound bound,
+		Predicate<ServerPlayer> isFiltered,
+		@Nullable ServerPlayer senderPlayer,
+		ChatType.Bound chatType,
 		CallbackInfo ci
 	) {
-		if (sender == null) {
+		if (senderPlayer == null) {
 			return;
 		}
 
-		PlayerChatEvent event = new PlayerChatEvent(sender, message);
+		PlayerChatEvent event = new PlayerChatEvent(senderPlayer, message);
 		GlobalEventHandler.Server.broadcast(event);
 		if (event.isCancelled()) {
 			ci.cancel();
@@ -166,12 +166,12 @@ public class PlayerListMixin {
 			Component decorated;
 			if (username == null) {
 				// Format the username using the vanilla decorator
-				decorated = bound.chatType().value().chat().decorate(replacement, bound);
+				decorated = chatType.chatType().value().chat().decorate(replacement, chatType);
 				username = CommonComponents.EMPTY;
 			} else {
 				decorated = replacement;
 			}
-			PlayerUtilsKt.broadcastMessageAsSystem(sender, decorated, filter, username, prefix);
+			PlayerUtilsKt.broadcastMessageAsSystem(senderPlayer, decorated, filter, username, prefix);
 			ci.cancel();
 		}
 	}
@@ -185,15 +185,15 @@ public class PlayerListMixin {
 	)
 	private void onSendSystemMessage(
 		ServerPlayer instance,
-		Component component,
-		boolean bypassHiddenChat,
+		Component message,
+		boolean overlay,
 		Operation<Void> original
 	) {
-		PlayerSystemMessageEvent event = new PlayerSystemMessageEvent(instance, component, bypassHiddenChat);
+		PlayerSystemMessageEvent event = new PlayerSystemMessageEvent(instance, message, overlay);
 		GlobalEventHandler.Server.broadcast(event);
-		component = event.getMessage();
+		message = event.getMessage();
 		if (!event.isCancelled()) {
-			original.call(instance, component, bypassHiddenChat);
+			original.call(instance, message, overlay);
 		}
 	}
 }

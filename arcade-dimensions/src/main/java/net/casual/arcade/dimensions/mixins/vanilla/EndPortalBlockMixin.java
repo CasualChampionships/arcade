@@ -24,7 +24,7 @@ public class EndPortalBlockMixin {
             opcode = Opcodes.GETSTATIC
         )
 	)
-	private ResourceKey<Level> replaceVanillaKey(ResourceKey<Level> original, ServerLevel level) {
-		return VanillaLikeLevel.getReplacementDestinationFor(level, original);
+	private ResourceKey<Level> replaceVanillaKey(ResourceKey<Level> original, ServerLevel currentLevel) {
+		return VanillaLikeLevel.getReplacementDestinationFor(currentLevel, original);
 	}
 }

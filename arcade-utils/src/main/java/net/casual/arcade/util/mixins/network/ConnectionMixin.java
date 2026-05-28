@@ -14,16 +14,16 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(Connection.class)
 public class ConnectionMixin implements MutableConnectionAddressHolder {
-    @Unique private ObjectIntPair<String> arcade$address = null;
+    @Unique private ObjectIntPair<String> arcade_address = null;
 
     @Override
-    public void arcade$setConnectionAddress(String ip, int port) {
-        this.arcade$address = new ObjectIntImmutablePair<>(ip, port);
+    public void arcade_setConnectionAddress(String ip, int port) {
+        this.arcade_address = new ObjectIntImmutablePair<>(ip, port);
     }
 
     @Nullable
     @Override
     public ObjectIntPair<String> arcade_getConnectionAddress() {
-        return this.arcade$address;
+        return this.arcade_address;
     }
 }

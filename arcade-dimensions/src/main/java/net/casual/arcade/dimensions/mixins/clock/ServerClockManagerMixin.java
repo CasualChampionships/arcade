@@ -38,7 +38,7 @@ public class ServerClockManagerMixin {
         PlayerList instance,
         Packet<?> packet,
         Operation<Void> original,
-        @Local(name = "clock") Holder<WorldClock> clock
+        @Local(name = "clock", argsOnly = true) Holder<WorldClock> clock
     ) {
         if (!LevelClockExtension.shouldManuallySyncTime(this.server)) {
             original.call(instance, packet);

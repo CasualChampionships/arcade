@@ -14,5 +14,5 @@ import java.util.List;
 @Mixin(ServerLevel.class)
 public interface ServerLevelAccessor {
 	@Accessor("customSpawners")
-	List<CustomSpawner> getCustomSpawners();
+	List<CustomSpawner> arcade_getCustomSpawners();
 }

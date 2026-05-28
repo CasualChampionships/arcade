@@ -34,9 +34,9 @@ public class PlayerTeamMixin implements ExtensionHolder {
 		method = "<init>",
 		at = @At("TAIL")
 	)
-	private void onCreateTeam(Scoreboard scoreboard, String string, CallbackInfo ci) {
+	private void onCreateTeam(Scoreboard scoreboard, String name, CallbackInfo ci) {
         if (scoreboard instanceof ServerScoreboard serverScoreboard) {
-			MinecraftServer server = ((ServerScoreboardAccessor) serverScoreboard).accessServer();
+			MinecraftServer server = ((ServerScoreboardAccessor) serverScoreboard).arcade_getServer();
 			TeamExtensionEvent event = new TeamExtensionEvent((PlayerTeam) (Object) this, server);
 			GlobalEventHandler.Server.broadcast(event);
         }

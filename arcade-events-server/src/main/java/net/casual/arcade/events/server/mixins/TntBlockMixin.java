@@ -24,8 +24,8 @@ public class TntBlockMixin {
 		at = @At("HEAD"),
 		cancellable = true
 	)
-	private static void onPrime(Level level, BlockPos pos, LivingEntity entity, CallbackInfoReturnable<Boolean> cir) {
-		if (entity instanceof ServerPlayer player) {
+	private static void onPrime(Level level, BlockPos pos, LivingEntity source, CallbackInfoReturnable<Boolean> cir) {
+		if (source instanceof ServerPlayer player) {
 			PlayerTNTPrimedEvent event = new PlayerTNTPrimedEvent(player, (ServerLevel) level, pos);
 			GlobalEventHandler.Server.broadcast(event);
 			if (event.isCancelled()) {

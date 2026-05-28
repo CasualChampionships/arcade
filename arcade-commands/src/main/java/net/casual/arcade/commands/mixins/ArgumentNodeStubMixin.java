@@ -22,15 +22,15 @@ public class ArgumentNodeStubMixin {
 		cancellable = true
 	)
 	private static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>> void onGetSuggestionProvider(
-		FriendlyByteBuf buffer,
-		ArgumentTypeInfo<A, T> argumentInfo,
-		T argumentInfoTemplate,
+		FriendlyByteBuf output,
+		ArgumentTypeInfo<A, T> info,
+		T argumentType,
 		CallbackInfo ci
 	) {
-		if (argumentInfo instanceof CustomArgumentTypeInfo<?> customInfo) {
-			ArgumentTypeInfo<?, ?> typeInfo = ArgumentTypeInfosAccessor.getClassMap().get(customInfo.getFacadeType());
-			buffer.writeVarInt(BuiltInRegistries.COMMAND_ARGUMENT_TYPE.getId(typeInfo));
-			argumentInfo.serializeToNetwork(argumentInfoTemplate, buffer);
+		if (info instanceof CustomArgumentTypeInfo<?> customInfo) {
+			ArgumentTypeInfo<?, ?> typeInfo = ArgumentTypeInfosAccessor.arcade_getByClass().get(customInfo.getFacadeType());
+			output.writeVarInt(BuiltInRegistries.COMMAND_ARGUMENT_TYPE.getId(typeInfo));
+			info.serializeToNetwork(argumentType, output);
 			ci.cancel();
 		}
 	}

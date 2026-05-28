@@ -34,8 +34,8 @@ import java.util.Optional;
 
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin extends Level implements ExtensionHolder {
-	@Unique private final ExtensionMap arcade$extensionMap = new ExtensionMap();
-	@Unique private Path arcade$savePath;
+	@Unique private final ExtensionMap arcade_extensionMap = new ExtensionMap();
+	@Unique private Path arcade_savePath;
 
 	protected ServerLevelMixin(
 		WritableLevelData levelData,
@@ -56,9 +56,9 @@ public abstract class ServerLevelMixin extends Level implements ExtensionHolder 
 	)
 	private void onCreateLevel(
 		CallbackInfo ci,
-		@Local(argsOnly = true) LevelStorageSource.LevelStorageAccess access
+		@Local(name = "levelStorage", argsOnly = true) LevelStorageSource.LevelStorageAccess levelStorage
 	) {
-		this.arcade$savePath = access.getDimensionPath(this.dimension())
+		this.arcade_savePath = levelStorage.getDimensionPath(this.dimension())
 			.resolve("data")
 			.resolve("arcade")
 			.resolve("extension_data.dat");
@@ -67,7 +67,7 @@ public abstract class ServerLevelMixin extends Level implements ExtensionHolder 
 		GlobalEventHandler.Server.broadcast(event);
 
 		try (ProblemReporter.ScopedCollector collector = ArcadeUtils.createProblemReporter()) {
-			CompoundTag tag = Optional.ofNullable(NbtIo.read(this.arcade$savePath)).orElseGet(CompoundTag::new);
+			CompoundTag tag = Optional.ofNullable(NbtIo.read(this.arcade_savePath)).orElseGet(CompoundTag::new);
 			ValueInput input = TagValueInput.create(collector, this.registryAccess(), tag);
 			ExtensionHolder.deserialize(this, input);
 		} catch (IOException e) {
@@ -83,8 +83,8 @@ public abstract class ServerLevelMixin extends Level implements ExtensionHolder 
 		try (ProblemReporter.ScopedCollector collector = ArcadeUtils.createProblemReporter()) {
 			TagValueOutput output =  TagValueOutput.createWithContext(collector, this.registryAccess());
 			ExtensionHolder.serialize(this, output);
-			Files.createDirectories(this.arcade$savePath.getParent());
-			NbtIo.write(output.buildResult(), this.arcade$savePath);
+			Files.createDirectories(this.arcade_savePath.getParent());
+			NbtIo.write(output.buildResult(), this.arcade_savePath);
 		} catch (IOException e) {
 			ArcadeUtils.logger.error("Failed to save arcade extension data", e);
 		}
@@ -94,6 +94,6 @@ public abstract class ServerLevelMixin extends Level implements ExtensionHolder 
 	@Override
 	@SuppressWarnings("AddedMixinMembersNamePattern")
 	public ExtensionMap getExtensionMap() {
-		return this.arcade$extensionMap;
+		return this.arcade_extensionMap;
 	}
 }

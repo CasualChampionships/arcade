@@ -31,8 +31,7 @@ import java.util.concurrent.CompletableFuture;
 @Mixin(ChunkHolder.class)
 @SuppressWarnings("AddedMixinMembersNamePattern")
 public abstract class ChunkHolderMixin extends GenerationChunkHolder implements ReplayChunkRecordable {
-    @Unique
-    private final Set<ReplayChunkRecorder> replay$recorders = new HashSet<>();
+    @Unique private final Set<ReplayChunkRecorder> arcade_recorders = new HashSet<>();
 
     public ChunkHolderMixin(ChunkPos pos) {
         super(pos);
@@ -46,7 +45,7 @@ public abstract class ChunkHolderMixin extends GenerationChunkHolder implements 
         at = @At("HEAD")
     )
     private void onBroadcast(List<ServerPlayer> players, Packet<?> packet, CallbackInfo ci) {
-        for (ReplayChunkRecorder recorder : this.replay$recorders) {
+        for (ReplayChunkRecorder recorder : this.arcade_recorders) {
             recorder.record(packet);
         }
     }
@@ -60,13 +59,13 @@ public abstract class ChunkHolderMixin extends GenerationChunkHolder implements 
         )
     )
     private boolean shouldSkipBroadcasting(boolean noPlayers) {
-        return noPlayers && this.replay$recorders.isEmpty();
+        return noPlayers && this.arcade_recorders.isEmpty();
     }
 
 	@NotNull
     @Override
     public Collection<ReplayChunkRecorder> getRecorders() {
-        return this.replay$recorders;
+        return this.arcade_recorders;
     }
 
     @Override
@@ -76,7 +75,7 @@ public abstract class ChunkHolderMixin extends GenerationChunkHolder implements 
             return;
         }
 
-        if (this.replay$recorders.add(recorder)) {
+        if (this.arcade_recorders.add(recorder)) {
             this.getFullChunkFuture().thenAcceptAsync(result -> {
                 result.ifSuccess(recorder::onChunkLoaded);
             }, recorder.getServer());
@@ -92,7 +91,7 @@ public abstract class ChunkHolderMixin extends GenerationChunkHolder implements 
 
     @Override
     public void removeRecorder(@NotNull ReplayChunkRecorder recorder) {
-        if (this.replay$recorders.remove(recorder)) {
+        if (this.arcade_recorders.remove(recorder)) {
             ChunkResult<LevelChunk> chunk = this.getFullChunkFuture().getNow(ChunkHolder.UNLOADED_LEVEL_CHUNK);
             recorder.onChunkUnloaded(this.pos, chunk.orElse(null));
             recorder.removeRecordable(this);
@@ -102,10 +101,10 @@ public abstract class ChunkHolderMixin extends GenerationChunkHolder implements 
     @Override
     public void removeAllRecorders() {
         LevelChunk chunk = this.getFullChunkFuture().getNow(ChunkHolder.UNLOADED_LEVEL_CHUNK).orElse(null);
-        for (ReplayChunkRecorder recorder : this.replay$recorders) {
+        for (ReplayChunkRecorder recorder : this.arcade_recorders) {
             recorder.onChunkUnloaded(this.pos, chunk);
             recorder.removeRecordable(this);
         }
-        this.replay$recorders.clear();
+        this.arcade_recorders.clear();
     }
 }

@@ -37,10 +37,10 @@ public class BlockMixin {
         Level level,
         BlockPos pos,
         @Nullable BlockEntity blockEntity,
-        @Nullable Entity entity,
+        @Nullable Entity breaker,
         ItemStack tool
     ) {
-        if (entity instanceof ServerPlayer player) {
+        if (breaker instanceof ServerPlayer player) {
             PlayerBlockDropLootEvent event = new PlayerBlockDropLootEvent(
                 player, (ServerLevel) level, state, pos, tool, original
             );

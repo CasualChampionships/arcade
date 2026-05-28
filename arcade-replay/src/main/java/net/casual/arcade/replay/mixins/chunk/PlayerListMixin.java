@@ -60,7 +60,7 @@ public class PlayerListMixin {
         double x,
         double y,
         double z,
-        double radius,
+        double range,
         ResourceKey<Level> dimension,
         Packet<?> packet,
         CallbackInfo ci
@@ -80,12 +80,12 @@ public class PlayerListMixin {
         at = @At("HEAD")
     )
     private void onBroadcastSystemMessage(
-        Component serverMessage,
-        Function<ServerPlayer, Component> playerMessageFactory,
-        boolean bypassHiddenChat,
+        Component message,
+        Function<ServerPlayer, Component> playerMessages,
+        boolean overlay,
         CallbackInfo ci
     ) {
-        ReplayChunkRecorders.record(new ClientboundSystemChatPacket(serverMessage, bypassHiddenChat));
+        ReplayChunkRecorders.record(new ClientboundSystemChatPacket(message, overlay));
     }
 
     @Inject(
@@ -94,15 +94,15 @@ public class PlayerListMixin {
     )
     private void onBroadcastChatMessage(
         PlayerChatMessage message,
-        Predicate<ServerPlayer> shouldFilterMessageTo,
-        @Nullable ServerPlayer sender,
-        ChatType.Bound boundChatType,
+        Predicate<ServerPlayer> isFiltered,
+        @Nullable ServerPlayer senderPlayer,
+        ChatType.Bound chatType,
         CallbackInfo ci
     ) {
         if (message.isSystem()) {
             ReplayChunkRecorders.record(new ClientboundDisguisedChatPacket(
                 message.decoratedContent(),
-                boundChatType
+                chatType
             ));
             return;
         }
@@ -110,6 +110,6 @@ public class PlayerListMixin {
         if (content == null) {
             content = Component.literal(message.signedBody().content());
         }
-        ReplayChunkRecorders.record(new ClientboundSystemChatPacket(boundChatType.decorate(content), false));
+        ReplayChunkRecorders.record(new ClientboundSystemChatPacket(chatType.decorate(content), false));
     }
 }

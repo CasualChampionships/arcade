@@ -11,6 +11,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(LivingEntity.class)
 public interface LivingEntityAccessor {
-    @Invoker
-    AABB invokeGetHitbox();
+    @Invoker("getHitbox")
+    AABB arcade_getHitbox();
 }

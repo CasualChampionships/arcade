@@ -8,5 +8,5 @@ import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
 public interface ExtensionDataHolder {
-	void arcade$deserializeExtensionData();
+	void arcade_deserializeExtensionData();
 }

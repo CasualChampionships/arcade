@@ -19,14 +19,14 @@ import java.util.WeakHashMap;
 
 @Mixin(MapItemSavedData.class)
 public class MapItemSavedDataMixin implements ChunkTrackedMapData {
-    @Unique private final Map<ReplayChunkRecorder, ChunkRecorderMapTracker> arcade$recorderMapTrackers = new WeakHashMap<>();
+    @Unique private final Map<ReplayChunkRecorder, ChunkRecorderMapTracker> arcade_recorderMapTrackers = new WeakHashMap<>();
 
     @Inject(
         method = "setColorsDirty",
         at = @At("TAIL")
     )
     private void onSetColorsDirty(int x, int y, CallbackInfo ci) {
-        for (ChunkRecorderMapTracker tracker : this.arcade$recorderMapTrackers.values()) {
+        for (ChunkRecorderMapTracker tracker : this.arcade_recorderMapTrackers.values()) {
             tracker.markColorsDirty(x, y);
         }
     }
@@ -36,14 +36,14 @@ public class MapItemSavedDataMixin implements ChunkTrackedMapData {
         at = @At("TAIL")
     )
     private void onSetDecorationsDirty(CallbackInfo ci) {
-        for (ChunkRecorderMapTracker tracker : this.arcade$recorderMapTrackers.values()) {
+        for (ChunkRecorderMapTracker tracker : this.arcade_recorderMapTrackers.values()) {
             tracker.markDecorationsDirty();
         }
     }
 
     @Override
-    public ChunkRecorderMapTracker arcade$getTrackerForRecorder(ReplayChunkRecorder recorder) {
-        return this.arcade$recorderMapTrackers.computeIfAbsent(recorder, r -> {
+    public ChunkRecorderMapTracker arcade_getTrackerForRecorder(ReplayChunkRecorder recorder) {
+        return this.arcade_recorderMapTrackers.computeIfAbsent(recorder, _ -> {
             return new ChunkRecorderMapTracker((MapItemSavedData) (Object) this);
         });
     }

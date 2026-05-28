@@ -29,9 +29,9 @@ public class NearbyEntityTrackingMixin {
     private void onPlayerTrackingTick(
         CallbackInfo ci,
         @Local(name = "player") ServerPlayer player,
-        @Local(name = "isPlayerPositionUpdated") boolean positionUpdated
+        @Local(name = "isPlayerPositionUpdated") boolean isPlayerPositionUpdated
     ) {
-        if (positionUpdated) {
+        if (isPlayerPositionUpdated) {
             ServerLevel level = player.level();
             ChunkMap.TrackedEntity wrapped = EntityUtilsKt.getTrackedEntity(player);
             if (wrapped != null) {

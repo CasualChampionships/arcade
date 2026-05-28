@@ -37,20 +37,20 @@ public class ChunkPacketIdentity private constructor(
             hashes[0] = packet.x
             hashes[1] = packet.z
             val chunkData = packet.chunkData as ClientboundLevelChunkPacketDataAccessor
-            hashes[2] = chunkData.buffer.contentHashCode()
+            hashes[2] = chunkData.arcade_getBuffer().contentHashCode()
             hashes[3] = packet.chunkData.heightmaps.hashCode()
-            val blockEntityHashes = IntArray(chunkData.blockEntitiesData.size)
-            val sortedBlockEntityData = chunkData.blockEntitiesData.sortedBy { data ->
+            val blockEntityHashes = IntArray(chunkData.arcade_getBlockEntitiesData().size)
+            val sortedBlockEntityData = chunkData.arcade_getBlockEntitiesData().sortedBy { data ->
                 data as BlockEntityInfoAccessor
-                (data.y shl 8) or (data.packedXZ)
+                (data.arcade_getY() shl 8) or (data.arcade_getPackedXZ())
             }
             for ((i, data) in sortedBlockEntityData.withIndex()) {
                 data as BlockEntityInfoAccessor
                 val intermediary = intArrayOf(
-                    data.packedXZ,
-                    data.y,
-                    BuiltInRegistries.BLOCK_ENTITY_TYPE.getId(data.type),
-                    data.tag?.hashCode() ?: 0
+                    data.arcade_getPackedXZ(),
+                    data.arcade_getY(),
+                    BuiltInRegistries.BLOCK_ENTITY_TYPE.getId(data.arcade_getType()),
+                    data.arcade_getTag()?.hashCode() ?: 0
                 )
                 blockEntityHashes[i] = intermediary.contentHashCode()
             }

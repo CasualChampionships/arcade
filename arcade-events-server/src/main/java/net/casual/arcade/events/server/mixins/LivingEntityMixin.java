@@ -43,7 +43,7 @@ import java.util.function.Consumer;
 
 @Mixin(LivingEntity.class)
 public class LivingEntityMixin implements ModifyActuallyHurt {
-	@Unique private boolean arcade$wasActuallyHurt = false;
+	@Unique private boolean arcade_wasActuallyHurt = false;
 
 	@Definition(id = "calculateFallDamage", method = "Lnet/minecraft/world/entity/LivingEntity;calculateFallDamage(DF)I")
     @Expression("? = ?.calculateFallDamage(?, ?)")
@@ -97,13 +97,13 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
         DamageSource source,
         float damageAmount,
         CallbackInfo ci,
-        @Local(argsOnly = true) LocalFloatRef damage
+        @Local(name = "dmg", argsOnly = true) LocalFloatRef damage
     ) {
         // This is also copied into PlayerMixin.java
         EntityDamageEvent entityEvent = new EntityDamageEvent((LivingEntity) (Object) this, source, damage.get());
         GlobalEventHandler.Server.broadcast(entityEvent, BuiltInEventPhases.PRE_PHASES);
         if (entityEvent.isCancelled()) {
-            this.arcade$setNotActuallyHurt();
+            this.arcade_setNotActuallyHurt();
             ci.cancel();
         }
         damage.set(entityEvent.getAmount());
@@ -120,10 +120,10 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
     private void onDamagePost(
         ServerLevel level,
         DamageSource source,
-        float damageAmount,
+        float dmg,
         CallbackInfo ci
     ) {
-        EntityDamageEvent entityEvent = new EntityDamageEvent((LivingEntity) (Object) this, source, damageAmount);
+        EntityDamageEvent entityEvent = new EntityDamageEvent((LivingEntity) (Object) this, source, dmg);
         GlobalEventHandler.Server.broadcast(entityEvent, BuiltInEventPhases.POST_PHASES);
     }
 
@@ -137,14 +137,14 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 	private void onHurt(
 		LivingEntity instance,
 		ServerLevel level,
-		DamageSource damageSource,
-		float damageAmount,
+		DamageSource source,
+		float dmg,
 		Operation<Void> original,
 		@Cancellable CallbackInfoReturnable<Boolean> cir
 	) {
-		this.arcade$wasActuallyHurt = true;
-		original.call(instance, level, damageSource, damageAmount);
-		if (!this.arcade$wasActuallyHurt) {
+		this.arcade_wasActuallyHurt = true;
+		original.call(instance, level, source, dmg);
+		if (!this.arcade_wasActuallyHurt) {
 			cir.setReturnValue(false);
 		}
 	}
@@ -160,10 +160,10 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 		LivingEntity instance,
 		float health,
 		Operation<Void> original,
-		float healAmount
+		float heal
 	) {
 		if (instance instanceof ServerPlayer player) {
-			PlayerHealEvent event = new PlayerHealEvent(player, healAmount);
+			PlayerHealEvent event = new PlayerHealEvent(player, heal);
 			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
 			if (event.isCancelled()) {
 				return;
@@ -208,9 +208,9 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 			shift = At.Shift.AFTER
 		)
 	)
-	private void onEntityPoppedTotem(DamageSource source, CallbackInfoReturnable<Boolean> cir) {
+	private void onEntityPoppedTotem(DamageSource killingDamage, CallbackInfoReturnable<Boolean> cir) {
 		if ((Object) this instanceof ServerPlayer player) {
-			PlayerTotemEvent event = new PlayerTotemEvent(player, source);
+			PlayerTotemEvent event = new PlayerTotemEvent(player, killingDamage);
 			GlobalEventHandler.Server.broadcast(event);
 		}
 	}
@@ -236,7 +236,7 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 	private void onDropFromLootTable(
 		LootTable instance,
 		LootParams params,
-		long seed,
+		long optionalLootTableSeed,
 		Consumer<ItemStack> output,
 		Operation<Void> original
 	) {
@@ -247,7 +247,7 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 		EntityBeforeLootEvent beforeLootEvent = new EntityBeforeLootEvent(entity, params, 1);
 		GlobalEventHandler.Server.broadcast(beforeLootEvent);
 		for (int i = beforeLootEvent.getLootMultiplier(); i > 0; i--) {
-			original.call(instance, params, seed, adder);
+			original.call(instance, params, optionalLootTableSeed, adder);
 		}
 
 		EntityDropLootEvent dropEvent = new EntityDropLootEvent(entity, params, loot);
@@ -257,7 +257,7 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 	}
 
 	@Override
-	public void arcade$setNotActuallyHurt() {
-		this.arcade$wasActuallyHurt = false;
+	public void arcade_setNotActuallyHurt() {
+		this.arcade_wasActuallyHurt = false;
 	}
 }

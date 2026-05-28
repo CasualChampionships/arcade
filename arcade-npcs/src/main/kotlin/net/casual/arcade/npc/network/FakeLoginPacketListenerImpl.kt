@@ -23,7 +23,7 @@ public class FakeLoginPacketListenerImpl(
 ): ServerLoginPacketListenerImpl(server, connection, false) {
     init {
         @Suppress("CAST_NEVER_SUCCEEDS")
-        (this as ServerLoginPacketListenerImplAccessor).setProfile(this.profile)
+        (this as ServerLoginPacketListenerImplAccessor).arcade_setProfile(this.profile)
     }
 
     @Suppress("CAST_NEVER_SUCCEEDS")

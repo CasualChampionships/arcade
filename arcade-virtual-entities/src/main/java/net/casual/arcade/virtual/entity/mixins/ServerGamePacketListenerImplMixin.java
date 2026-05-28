@@ -39,9 +39,9 @@ public class ServerGamePacketListenerImplMixin {
     private void tryInteractWithVirtualEntity(
         ServerboundInteractPacket packet,
         CallbackInfo ci,
-        @Local(name = "target") @Nullable Entity entity
+        @Local(name = "target") @Nullable Entity target
     ) {
-        if (entity == null) {
+        if (target == null) {
             PlayerAttachmentObserverExtension extension = PlayerAttachmentObserverExtension.getAttachmentObserver(this.player);
             if (extension.tryInteractWithVirtualEntity(packet.entityId(), packet.hand(), packet.location())) {
                 ci.cancel();
@@ -61,9 +61,9 @@ public class ServerGamePacketListenerImplMixin {
     private void tryAttackVirtualEntity(
         ServerboundAttackPacket packet,
         CallbackInfo ci,
-        @Local(name = "target") @Nullable Entity entity
+        @Local(name = "target") @Nullable Entity target
     ) {
-        if (entity == null) {
+        if (target == null) {
             PlayerAttachmentObserverExtension extension = PlayerAttachmentObserverExtension.getAttachmentObserver(this.player);
             if (extension.tryAttackVirtualEntity(packet.entityId())) {
                 ci.cancel();
@@ -81,7 +81,7 @@ public class ServerGamePacketListenerImplMixin {
     private Entity trySpectateVirtualEntity(
         @Nullable Entity entity,
         @Cancellable CallbackInfo ci,
-        @Local(argsOnly = true) ServerboundSpectateEntityPacket packet
+        @Local(name = "packet", argsOnly = true) ServerboundSpectateEntityPacket packet
     ) {
         if (entity == null) {
             PlayerAttachmentObserverExtension extension = PlayerAttachmentObserverExtension.getAttachmentObserver(this.player);
@@ -102,7 +102,7 @@ public class ServerGamePacketListenerImplMixin {
     private Entity tryPickVirtualEntity(
         @Nullable Entity entity,
         @Cancellable CallbackInfo ci,
-        @Local(argsOnly = true) ServerboundPickItemFromEntityPacket packet
+        @Local(name = "packet", argsOnly = true) ServerboundPickItemFromEntityPacket packet
     ) {
         if (entity == null) {
             PlayerAttachmentObserverExtension extension = PlayerAttachmentObserverExtension.getAttachmentObserver(this.player);

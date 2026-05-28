@@ -17,11 +17,11 @@ import java.util.Set;
 @Mixin(PlayerAdvancements.class)
 public interface PlayerAdvancementsAccessor {
 	@Accessor("progress")
-	Map<AdvancementHolder, AdvancementProgress> getProgress();
+	Map<AdvancementHolder, AdvancementProgress> arcade_getProgress();
 
 	@Accessor("progressChanged")
-	Set<AdvancementHolder> getProgressChanged();
+	Set<AdvancementHolder> arcade_getProgressChanged();
 
 	@Invoker("markForVisibilityUpdate")
-	void updateVisibility(AdvancementHolder advancement);
+	void arcade_updateVisibility(AdvancementHolder advancement);
 }

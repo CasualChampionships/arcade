@@ -18,7 +18,7 @@ public class MobCountsMixin implements CustomMobSpawningPredicate {
 	@Shadow @Final private Object2IntMap<MobCategory> counts;
 
 	@Override
-	public boolean arcade$canSpawn(MobCategory category, ChunkPos pos, CustomMobSpawningRules rules) {
+	public boolean arcade_canSpawn(MobCategory category, ChunkPos pos, CustomMobSpawningRules rules) {
 		return this.counts.getOrDefault(category, 0) < rules.getChunkMobCapFor(category);
 	}
 }

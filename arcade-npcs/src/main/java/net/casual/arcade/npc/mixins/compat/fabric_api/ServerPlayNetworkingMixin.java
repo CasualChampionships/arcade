@@ -20,7 +20,7 @@ public class ServerPlayNetworkingMixin {
         },
         at = @At("RETURN")
     )
-    private static boolean returnTrueForFakePlayers(boolean original, ServerGamePacketListenerImpl connection) {
-        return original || connection.player instanceof FakePlayer;
+    private static boolean returnTrueForFakePlayers(boolean original, ServerGamePacketListenerImpl listener) {
+        return original || listener.player instanceof FakePlayer;
     }
 }

@@ -23,7 +23,7 @@ import java.util.Optional;
 
 @Mixin(PlayerTeam.Packed.class)
 public class PlayerTeamPackedMixin implements ArcadeTeamDataHolder {
-    @Unique @Nullable private CompoundTag arcade$data = null;
+    @Unique @Nullable private CompoundTag arcade_data = null;
 
     @ModifyExpressionValue(
         method = "<clinit>",
@@ -47,19 +47,19 @@ public class PlayerTeamPackedMixin implements ArcadeTeamDataHolder {
     }
 
     @WrapMethod(method = "equals")
-    private boolean checkArcadeDataIsEqual(Object object, Operation<Boolean> original) {
-        return original.call(object) && object instanceof ArcadeTeamDataHolder holder
-            && Objects.equals(this.arcade$data, holder.arcade_getData());
+    private boolean checkArcadeDataIsEqual(Object o, Operation<Boolean> original) {
+        return original.call(o) && o instanceof ArcadeTeamDataHolder holder
+            && Objects.equals(this.arcade_data, holder.arcade_getData());
     }
 
     @Override
     @Nullable
     public CompoundTag arcade_getData() {
-        return this.arcade$data;
+        return this.arcade_data;
     }
 
     @Override
     public void arcade_setData(@Nullable CompoundTag tag) {
-        this.arcade$data = tag;
+        this.arcade_data = tag;
     }
 }

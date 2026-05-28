@@ -26,11 +26,11 @@ import java.util.Optional;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin implements ExtensionHolder, ExtensionDataHolder {
-	@Unique private ExtensionMap arcade$extensions;
+	@Unique private ExtensionMap arcade_extensionsMap;
+	@Unique private CompoundTag arcade_extensionsData;
 
 	@Shadow public ServerGamePacketListenerImpl connection;
 
-	@Unique private CompoundTag arcade$data;
 
 	@Shadow public abstract ServerLevel level();
 
@@ -40,21 +40,21 @@ public abstract class ServerPlayerMixin implements ExtensionHolder, ExtensionDat
 	)
 	private void onLoadPlayer(ValueInput input, CallbackInfo ci) {
 		if (this.connection == null) {
-            this.arcade$data = input.read(ArcadeUtils.MOD_ID, CompoundTag.CODEC).orElse(null);
+            this.arcade_extensionsData = input.read(ArcadeUtils.MOD_ID, CompoundTag.CODEC).orElse(null);
 			return;
 		}
 		ExtensionHolder.deserialize(this, input.childOrEmpty(ArcadeUtils.MOD_ID));
 	}
 
 	@Override
-	public void arcade$deserializeExtensionData() {
-		CompoundTag data = Optional.ofNullable(this.arcade$data).orElseGet(CompoundTag::new);
+	public void arcade_deserializeExtensionData() {
+		CompoundTag data = Optional.ofNullable(this.arcade_extensionsData).orElseGet(CompoundTag::new);
 		ArcadeUtils.scopedProblemReporter(reporter -> {
 			ValueInput input = TagValueInput.create(reporter, this.level().registryAccess(), data);
 			ExtensionHolder.deserialize(this, input);
 		});
-		this.arcade$data = null;
-		this.arcade$extensions = null;
+		this.arcade_extensionsData = null;
+		this.arcade_extensionsMap = null;
 	}
 
 	@NotNull
@@ -67,9 +67,9 @@ public abstract class ServerPlayerMixin implements ExtensionHolder, ExtensionDat
 		// In the case that the connection is not initialized, yet
 		// we add them to this temporary map which will transfer
 		// them whenever the connection is initialized
-		if (this.arcade$extensions == null) {
-			this.arcade$extensions = new ExtensionMap();
+		if (this.arcade_extensionsMap == null) {
+			this.arcade_extensionsMap = new ExtensionMap();
 		}
-		return this.arcade$extensions;
+		return this.arcade_extensionsMap;
 	}
 }

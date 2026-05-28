@@ -89,11 +89,11 @@ public abstract class ServerPlayerMixin extends Player {
 		at = @At("HEAD"),
 		cancellable = true
 	)
-	private void onSetCamera(Entity entityToSpectate, CallbackInfo ci) {
+	private void onSetCamera(Entity newCamera, CallbackInfo ci) {
 		Entity current = this.getCamera();
-		entityToSpectate = entityToSpectate == null ? this : entityToSpectate;
-		if (entityToSpectate != current) {
-			PlayerSetCameraEvent event = new PlayerSetCameraEvent((ServerPlayer) (Object) this, entityToSpectate);
+		newCamera = newCamera == null ? this : newCamera;
+		if (newCamera != current) {
+			PlayerSetCameraEvent event = new PlayerSetCameraEvent((ServerPlayer) (Object) this, newCamera);
 			GlobalEventHandler.Server.broadcast(event);
 			if (event.isCancelled()) {
 				ci.cancel();
@@ -108,8 +108,8 @@ public abstract class ServerPlayerMixin extends Player {
 			target = "Lnet/minecraft/world/entity/player/Player;checkFallDamage(DZLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V"
 		)
 	)
-	private void onFall(double y, boolean onGround, BlockState state, BlockPos pos, CallbackInfo ci) {
-		PlayerFallEvent event = new PlayerFallEvent((ServerPlayer) (Object) this, y, onGround);
+	private void onFall(double ya, boolean onGround, BlockState onState, BlockPos pos, CallbackInfo ci) {
+		PlayerFallEvent event = new PlayerFallEvent((ServerPlayer) (Object) this, ya, onGround);
 		GlobalEventHandler.Server.broadcast(event);
 	}
 
@@ -146,8 +146,8 @@ public abstract class ServerPlayerMixin extends Player {
 		method = "canHarmPlayer",
 		at = @At("RETURN")
 	)
-	private boolean onCanHarmPlayer(boolean original, Player other) {
-		if (other instanceof ServerPlayer player) {
+	private boolean onCanHarmPlayer(boolean original, Player target) {
+		if (target instanceof ServerPlayer player) {
 			PlayerTryHarmEvent event = new PlayerTryHarmEvent((ServerPlayer) (Object) this, player, original);
 			GlobalEventHandler.Server.broadcast(event);
 			return event.getCanHarmOtherBoolean();
@@ -165,13 +165,11 @@ public abstract class ServerPlayerMixin extends Player {
 	private void onSendDeathMessage(
 		PlayerList instance,
 		Component message,
-		boolean bypassHiddenChat,
+		boolean overlay,
 		Operation<Void> original
 	) {
-		PlayerSystemMessageEvent.broadcast((ServerPlayer) (Object) this, instance, message, bypassHiddenChat, original);
+		PlayerSystemMessageEvent.broadcast((ServerPlayer) (Object) this, instance, message, overlay, original);
 	}
-
-
 
 	@Inject(
 		method = "jumpFromGround",

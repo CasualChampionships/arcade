@@ -11,11 +11,11 @@ import org.jetbrains.annotations.Nullable;
 
 @ApiStatus.Internal
 public interface ReplayViewable {
-    void arcade$startViewingReplay(ReplayViewer viewer);
+    void arcade_startViewingReplay(ReplayViewer viewer);
 
-    void arcade$stopViewingReplay();
+    void arcade_stopViewingReplay();
 
-    @Nullable ReplayViewer arcade$getViewingReplay();
+    @Nullable ReplayViewer arcade_getViewingReplay();
 
-    void arcade$sendReplayViewerPacket(Packet<?> packet);
+    void arcade_sendReplayViewerPacket(Packet<?> packet);
 }

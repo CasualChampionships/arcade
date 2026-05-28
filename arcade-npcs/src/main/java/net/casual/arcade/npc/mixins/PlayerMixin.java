@@ -22,7 +22,7 @@ public class PlayerMixin {
             opcode = Opcodes.GETFIELD
         )
     )
-    private boolean onResetDeltaMovement(boolean original, Entity target) {
-        return target.hurtMarked && !(target instanceof FakePlayer);
+    private boolean onResetDeltaMovement(boolean original, Entity entity) {
+        return entity.hurtMarked && !(entity instanceof FakePlayer);
     }
 }

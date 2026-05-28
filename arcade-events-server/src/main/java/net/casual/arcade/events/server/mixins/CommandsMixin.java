@@ -29,7 +29,7 @@ public abstract class CommandsMixin {
 	@Shadow @Final private CommandDispatcher<CommandSourceStack> dispatcher;
 
     @Shadow
-    private static <S> void fillUsableCommands(CommandNode<S> node, CommandNode<S> root, S source, Map<CommandNode<S>, CommandNode<S>> map) {
+    private static <S> void fillUsableCommands(CommandNode<S> source, CommandNode<S> target, S commandFilter, Map<CommandNode<S>, CommandNode<S>> converted) {
 		throw new AssertionError();
 	}
 
@@ -37,7 +37,7 @@ public abstract class CommandsMixin {
 		method = "<init>",
 		at = @At("TAIL")
 	)
-	private void onRegisterCommands(Commands.CommandSelection selection, CommandBuildContext context, CallbackInfo ci) {
+	private void onRegisterCommands(Commands.CommandSelection commandSelection, CommandBuildContext context, CallbackInfo ci) {
 		ServerRegisterCommandEvent event = new ServerRegisterCommandEvent(this.dispatcher, context);
 		GlobalEventHandler.Server.broadcast(event);
 	}
@@ -52,14 +52,14 @@ public abstract class CommandsMixin {
 	private void onSendCommands(
 		ServerPlayer player,
 		CallbackInfo ci,
-		@Local(name = "playerCommands") Map<CommandNode<CommandSourceStack>, CommandNode<CommandSourceStack>> map,
+		@Local(name = "playerCommands") Map<CommandNode<CommandSourceStack>, CommandNode<CommandSourceStack>> playerCommands,
 		@Local(name = "root") RootCommandNode<CommandSourceStack> root
 	) {
 		PlayerSendCommandsEvent event = new PlayerSendCommandsEvent(player);
 		GlobalEventHandler.Server.broadcast(event);
 		for (RootCommandNode<CommandSourceStack> node : event.getCustomCommandNodes()) {
-			map.put(node, root);
-			fillUsableCommands(node, root, player.createCommandSourceStack(), map);
+			playerCommands.put(node, root);
+			fillUsableCommands(node, root, player.createCommandSourceStack(), playerCommands);
 		}
 	}
 }

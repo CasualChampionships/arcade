@@ -40,8 +40,8 @@ public class ServerPlayerGameModeMixin {
 	private void onBreakingBlock(
 		BlockPos pos,
 		ServerboundPlayerActionPacket.Action action,
-		Direction face,
-		int maxBuildHeight,
+		Direction direction,
+		int maxY,
 		int sequence,
 		CallbackInfo ci
 	) {
@@ -60,7 +60,7 @@ public class ServerPlayerGameModeMixin {
 	private void canInteractItem(
 		ServerPlayer player,
 		Level level,
-		ItemStack stack,
+		ItemStack itemStack,
 		InteractionHand hand,
 		CallbackInfoReturnable<InteractionResult> cir
 	) {
@@ -78,7 +78,7 @@ public class ServerPlayerGameModeMixin {
 	private void canInteractBlock(
 		ServerPlayer player,
 		Level level,
-		ItemStack stack,
+		ItemStack itemStack,
 		InteractionHand hand,
 		BlockHitResult hitResult,
 		CallbackInfoReturnable<InteractionResult> cir

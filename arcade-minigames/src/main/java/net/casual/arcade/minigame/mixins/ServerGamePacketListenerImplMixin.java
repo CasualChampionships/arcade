@@ -36,7 +36,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 	@Shadow public ServerPlayer player;
 	@Shadow @Nullable private Entity lastVehicle;
 
-	@Shadow public abstract void ackBlockChangesUpTo(int sequence);
+	@Shadow public abstract void ackBlockChangesUpTo(int packetSequenceNr);
 
 	public ServerGamePacketListenerImplMixin(MinecraftServer server, Connection connection, CommonListenerCookie cookie) {
 		super(server, connection, cookie);

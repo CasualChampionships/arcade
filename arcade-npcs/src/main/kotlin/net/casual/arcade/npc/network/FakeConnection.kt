@@ -15,7 +15,7 @@ import net.minecraft.network.protocol.PacketFlow
 @Suppress("CAST_NEVER_SUCCEEDS")
 public class FakeConnection: Connection(PacketFlow.SERVERBOUND) {
     init {
-        (this as ConnectionAccessor).setChannel(EmbeddedChannel())
+        (this as ConnectionAccessor).arcade_setChannel(EmbeddedChannel())
     }
 
     override fun <T: PacketListener> setupInboundProtocol(protocolInfo: ProtocolInfo<T>, listener: T) {
@@ -27,6 +27,6 @@ public class FakeConnection: Connection(PacketFlow.SERVERBOUND) {
             old.addon.endSession()
         }
 
-        (this as ConnectionAccessor).setPacketListener(listener)
+        (this as ConnectionAccessor).arcade_setPacketListener(listener)
     }
 }

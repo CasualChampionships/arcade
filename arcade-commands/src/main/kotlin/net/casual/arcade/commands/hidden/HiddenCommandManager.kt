@@ -30,8 +30,7 @@ public object HiddenCommandManager {
         return ClickEvent.Custom(id, Optional.empty())
     }
 
-    @Suppress("UNUSED_PARAMETER")
-    private fun onServerTick(event: ServerTickEvent) {
+    private fun onServerTick(@Suppress("UnusedParameter") event: ServerTickEvent) {
         val commands = this.deletion.remove(this.ticks++) ?: return
         for (command in commands) {
             this.commands.remove(command)

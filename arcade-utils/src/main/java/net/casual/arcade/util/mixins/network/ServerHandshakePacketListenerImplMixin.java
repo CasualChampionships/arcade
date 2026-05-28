@@ -26,7 +26,7 @@ public class ServerHandshakePacketListenerImplMixin {
             target = "Lnet/minecraft/network/Connection;setupInboundProtocol(Lnet/minecraft/network/ProtocolInfo;Lnet/minecraft/network/PacketListener;)V"
         )
     )
-    private void onLogin(ClientIntentionPacket packet, boolean transferred, CallbackInfo ci) {
-        ((MutableConnectionAddressHolder) this.connection).arcade$setConnectionAddress(packet.hostName(), packet.port());
+    private void onLogin(ClientIntentionPacket packet, boolean transfer, CallbackInfo ci) {
+        ((MutableConnectionAddressHolder) this.connection).arcade_setConnectionAddress(packet.hostName(), packet.port());
     }
 }

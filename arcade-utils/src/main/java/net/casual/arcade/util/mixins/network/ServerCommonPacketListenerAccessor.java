@@ -12,9 +12,9 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ServerCommonPacketListenerImpl.class)
 public interface ServerCommonPacketListenerAccessor {
-    @Accessor
-    MinecraftServer getServer();
+    @Accessor("server")
+    MinecraftServer arcade_getServer();
 
-    @Accessor
-    Connection getConnection();
+    @Accessor("connection")
+    Connection arcade_getConnection();
 }

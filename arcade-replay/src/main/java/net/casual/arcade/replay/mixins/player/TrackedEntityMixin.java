@@ -29,6 +29,7 @@ public class TrackedEntityMixin {
         method = "<init>",
         at = @At("TAIL")
     )
+    @SuppressWarnings("NameDoesntMatchTargetClass")
     private void onCreated(
         ChunkMap chunkMap,
         Entity entity,
@@ -48,7 +49,7 @@ public class TrackedEntityMixin {
         method = {"sendToTrackingPlayers", "sendToTrackingPlayersFiltered"},
         at = @At("HEAD")
     )
-    private void onBroadcast(CallbackInfo ci, @Local(argsOnly = true) Packet<? super ClientGamePacketListener> packet) {
+    private void onBroadcast(CallbackInfo ci, @Local(name = "packet", argsOnly = true) Packet<? super ClientGamePacketListener> packet) {
         if (this.entity instanceof ServerPlayer player) {
             ReplayPlayerRecorders.record(player, packet);
         }

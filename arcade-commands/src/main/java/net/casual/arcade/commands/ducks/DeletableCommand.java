@@ -5,5 +5,5 @@
 package net.casual.arcade.commands.ducks;
 
 public interface DeletableCommand {
-	boolean arcade$delete(String name);
+	boolean arcade_deleteCommand(String name);
 }

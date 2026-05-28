@@ -421,7 +421,7 @@ public class MinigamePlayerManager(
             return existing
         }
         val playerList = this.minigame.server.playerList
-        (playerList as PlayerListAccessor).playerIo.save(existing)
+        (playerList as PlayerListAccessor).arcade_getPlayerIo().save(existing)
 
         val copy = this.createNewPlayer(existing)
         val input = this.data.load(copy)
@@ -437,7 +437,7 @@ public class MinigamePlayerManager(
 
         val playerList = this.minigame.server.playerList
         val copy = this.createNewPlayer(existing)
-        val data = (playerList as PlayerListAccessor).playerIo.load(copy.nameAndId())
+        val data = (playerList as PlayerListAccessor).arcade_getPlayerIo().load(copy.nameAndId())
             .map { TagValueInput.create(ProblemReporter.DISCARDING, copy.registryAccess(), it) }
         data.ifPresent(copy::load)
         this.updatePlayerLocation(copy, data.getOrNull())

@@ -7,6 +7,6 @@ package net.casual.arcade.guis.ducks;
 import net.casual.arcade.guis.inventory.CustomInventory;
 
 public interface ModifiableInventory {
-    void arcade$setCustomInventory(CustomInventory inventory);
-    void arcade$removeCustomInventory();
+    void arcade_setCustomInventory(CustomInventory inventory);
+    void arcade_removeCustomInventory();
 }

@@ -24,7 +24,7 @@ public class TheEndGatewayBlockEntityMixin {
             opcode = Opcodes.GETSTATIC
 		)
 	)
-	private ResourceKey<Level> replaceEndKey(ResourceKey<Level> original, ServerLevel level) {
-		return VanillaLikeLevel.getEndDimensionFor(level, original);
+	private ResourceKey<Level> replaceEndKey(ResourceKey<Level> original, ServerLevel currentLevel) {
+		return VanillaLikeLevel.getEndDimensionFor(currentLevel, original);
 	}
 }

@@ -7,5 +7,5 @@ package net.casual.arcade.npc.ducks;
 import net.casual.arcade.npc.configuration.FakePlayerConstructor;
 
 public interface ReplaceablePlayerConstructor {
-    void arcade$set(FakePlayerConstructor<?> constructor);
+    void arcade_set(FakePlayerConstructor<?> constructor);
 }
