@@ -177,19 +177,20 @@ public class NametagVirtualEntityAttachment(
             consumer.invoke(this.entity.nametagExtension.createUpdatePassengersPacket(observer))
         }
 
-        var previous = this.root.id
-        for (entity in this.nametags.values.reversed()) {
-            if (!stack.contains(entity)) {
-                continue
-            }
+        val entities = this.nametags.values.filter(stack::contains).reversed()
+        if (entities.size >= 2) {
+            // If we're the second last nametag then we need to ensure
+            // that the previous vehicle is spawned in (see below)
+            entities[entities.lastIndex - 1].getVehicle().sendSpawnPackets(observer, consumer)
+        }
 
-            val packet = createSetPassengersPacket(previous, entity.getPassengerIds())
-            consumer.invoke(packet)
-
-            previous = entity.getVehicleId()
+        var previous = this.root
+        for (entity in entities) {
+            consumer.invoke(createSetPassengersPacket(previous.id, entity.getPassengerIds()))
+            previous = entity.getVehicle()
         }
 
         // We remove the topmost height entity, we don't need it (nothing is mounted on it)
-        consumer.invoke(ClientboundRemoveEntitiesPacket(previous))
+        consumer.invoke(ClientboundRemoveEntitiesPacket(previous.id))
     }
 }

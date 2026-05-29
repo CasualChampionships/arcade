@@ -8,6 +8,7 @@ import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.virtual.entity.SimpleParentVirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.display.SimpleVirtualTextDisplay
+import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
 import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
@@ -15,6 +16,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Display
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.Vec2
+import net.minecraft.world.phys.Vec3
 import org.joml.Vector3f
 
 public class NametagVirtualEntity(
@@ -50,8 +52,8 @@ public class NametagVirtualEntity(
         }
     }
 
-    public fun getVehicleId(): Int {
-        return this.height.id
+    public fun getVehicle(): NametagHeightVirtualEntity {
+        return this.height
     }
 
     public fun getPassengerIds(): IntArray {
@@ -97,6 +99,8 @@ public class NametagVirtualEntity(
 
     private fun initializeTextDisplay(entity: SimpleVirtualTextDisplay) {
         entity.isPassenger = true
+        // We shift the text super far down in the world so the text isn't visibly lerping
+        entity.position = VirtualPosition.Relative(Vec3(0.0, -1000.0, 0.0))
         entity.rotation = VirtualRotation.Absolute(Vec2.ZERO)
         entity.setBillboardConstraints(Display.BillboardConstraints.CENTER)
         entity.setTranslation(Vector3f(0.0F, -0.2F, 0.0F))
