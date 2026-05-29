@@ -33,29 +33,6 @@ object ArcadeTest: ModInitializer {
             TestMinigame.codec()
         )
 
-//        this.playerHeadTests()
-//        this.boundaryTests()
-
         ResourcePackTests.run()
-    }
-
-    private fun playerHeadTests() {
-        val pixel by this.host(ArcadeResourcePacks.PIXEL_FONT_PACK)
-        val space by this.host(ArcadeResourcePacks.SPACING_FONT_PACK)
-        GlobalEventHandler.Server.register<PlayerJoinEvent> { (player) ->
-            player.sendResourcePack(pixel.toPackInfo())
-            player.sendResourcePack(space.toPackInfo())
-        }
-    }
-
-    private fun boundaryTests() {
-        val boundary by this.host(ArcadeResourcePacks.BOUNDARY_SHADER_PACK)
-        GlobalEventHandler.Server.register<PlayerJoinEvent> { (player) ->
-            player.sendResourcePack(boundary.toPackInfo())
-        }
-    }
-
-    private fun host(pack: NamedResourcePackCreator): PackHost.HostedPackRef {
-        return GlobalPackHost.addPack(ArcadeUtils.path.resolve("testing-packs"), pack)
     }
 }

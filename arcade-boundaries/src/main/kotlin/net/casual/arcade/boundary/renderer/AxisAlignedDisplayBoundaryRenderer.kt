@@ -6,6 +6,7 @@ package net.casual.arcade.boundary.renderer
 
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import net.casual.arcade.boundary.extension.PlayerEntityTickingChunkTrackerExtension.Companion.entityTickingChunkTrackerExtension
 import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.utils.EnumUtils
@@ -30,6 +31,7 @@ import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.dimension.DimensionType
 import net.minecraft.world.phys.Vec2
 import java.util.*
@@ -61,8 +63,6 @@ public class AxisAlignedDisplayBoundaryRenderer(
     private val attachment = SimpleVirtualEntityAttachment(BoundaryShapeAttachmentAnchor(this.shape))
     private val faces = EnumUtils.mapOf<Direction, SimpleVirtualItemDisplay>()
 
-//    private val forceLoadingCenter = ObjectOpenHashSet<UUID>()
-
     // We use another hack, we need the display entity on the client
     // to be ticking so that the client can see the border updating.
     // ClientboundChunksBiomesPacket force-loads the chunk which
@@ -83,7 +83,7 @@ public class AxisAlignedDisplayBoundaryRenderer(
             val chunkZ = SectionPos.blockToSectionCoord(center.z())
             val packet = this.getOrCreateChunkPacket(level, chunkX, chunkZ)
             for (player in players) {
-                if (!player.isChunkInViewDistance(chunkX, chunkZ)) {
+                if (!player.entityTickingChunkTrackerExtension.isLoaded(chunkX, chunkZ)) {
                     player.connection.send(packet)
                 }
             }
@@ -96,8 +96,7 @@ public class AxisAlignedDisplayBoundaryRenderer(
         val center = this.shape.center()
         val chunkX = SectionPos.blockToSectionCoord(center.x())
         val chunkZ = SectionPos.blockToSectionCoord(center.z())
-        if (!player.isChunkInViewDistance(chunkX, chunkZ)) {
-//            this.forceLoadingCenter.add(player.uuid)
+        if (!player.entityTickingChunkTrackerExtension.isLoaded(chunkX, chunkZ)) {
             val packet = this.getOrCreateChunkPacket(player.level(), chunkX, chunkZ)
             player.connection.send(packet)
         }
@@ -107,7 +106,6 @@ public class AxisAlignedDisplayBoundaryRenderer(
 
     override fun stopRendering(player: ServerPlayer) {
         this.attachment.stopObservingAttached(player)
-//        this.forceLoadingCenter.remove(player.uuid)
     }
 
     override fun restartRendering(
@@ -140,10 +138,7 @@ public class AxisAlignedDisplayBoundaryRenderer(
     private fun updateFaces() {
         for ((direction, entity) in this.faces) {
             val (model, brightness) = this.models.get(this.shape, direction)
-            // ItemStack#equals isn't implemented, so just setting it always marks it dirty
-            entity.modifyItemStack { current ->
-                if (ItemStack.isSameItemSameComponents(model, current)) current else model
-            }
+            entity.setItemStack(model)
             entity.setBrightness(brightness)
             this.updateFace(direction, entity)
         }

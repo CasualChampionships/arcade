@@ -5,6 +5,7 @@
 package net.casual.arcade.boundary
 
 import net.casual.arcade.boundary.extension.LevelBoundaryExtension
+import net.casual.arcade.boundary.extension.PlayerEntityTickingChunkTrackerExtension
 import net.casual.arcade.boundary.utils.BoundaryRegistries
 import net.fabricmc.api.ModInitializer
 
@@ -12,5 +13,6 @@ public object ArcadeLevelBoundaries: ModInitializer {
     override fun onInitialize() {
         BoundaryRegistries.load()
         LevelBoundaryExtension.registerEvents()
+        PlayerEntityTickingChunkTrackerExtension.registerEvents()
     }
 }
