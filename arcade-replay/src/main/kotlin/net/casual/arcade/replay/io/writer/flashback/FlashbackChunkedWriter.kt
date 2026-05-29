@@ -135,7 +135,7 @@ public class FlashbackChunkedWriter(
 
             val path = this.directory.resolve(FlashbackIO.CHUNK_CACHES).resolve("$fileIndex")
             path.createParentDirectories()
-            path.writeBytes(copy, StandardOpenOption.CREATE, StandardOpenOption.APPEND, StandardOpenOption.SYNC)
+            path.writeBytes(copy, StandardOpenOption.CREATE, StandardOpenOption.APPEND)
             this.written += copy.size.toLong()
         } finally {
             buffer.release()
