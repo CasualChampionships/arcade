@@ -14,7 +14,6 @@ import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.level.server
 import net.casual.arcade.utils.math.location.Location
-import net.casual.arcade.utils.player.isChunkInViewDistance
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
@@ -30,8 +29,6 @@ import net.minecraft.network.protocol.game.ClientboundChunksBiomesPacket
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.dimension.DimensionType
 import net.minecraft.world.phys.Vec2
 import java.util.*
