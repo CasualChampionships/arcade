@@ -15,15 +15,12 @@ import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.scheduler.GlobalTickedScheduler
-import net.casual.arcade.utils.ClientboundSetPassengersPacket
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.entity.teleportTo
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.locationWithLevel
-import net.casual.arcade.virtual.entity.SimpleVirtualEntity
 import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor
-import net.casual.arcade.virtual.entity.display.SimpleVirtualTextDisplay
-import net.casual.arcade.virtual.entity.hitbox.CubeHitboxVirtualEntity
+import net.casual.arcade.virtual.entity.collision.CollisionCubeVirtualEntity
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
 import net.minecraft.core.Direction
 import net.minecraft.network.protocol.Packet
@@ -31,7 +28,6 @@ import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket.AttributeSnapshot
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.ai.attributes.AttributeInstance
 import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.level.storage.ValueInput
@@ -80,7 +76,7 @@ public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExt
         val attachment = SimpleVirtualEntityAttachment(EntityAttachmentAnchor(this.player))
         val packets = ArrayList<Packet<*>>(12)
         for (direction in Direction.entries) {
-            val hitbox = attachment.attachWithParentObservers(::CubeHitboxVirtualEntity)
+            val hitbox = attachment.attachWithParentObservers(::CollisionCubeVirtualEntity)
             hitbox.setScale(SMALLEST_SCALE)
 
             val horizontalSize = dimensions.width
