@@ -23,6 +23,7 @@ import net.casual.arcade.virtual.entity.SimpleVirtualEntity
 import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor
 import net.casual.arcade.virtual.entity.display.SimpleVirtualTextDisplay
+import net.casual.arcade.virtual.entity.hitbox.CubeHitboxVirtualEntity
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
 import net.minecraft.core.Direction
 import net.minecraft.network.protocol.Packet
@@ -75,17 +76,12 @@ public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExt
             return
         }
 
-        // TODO: We can rework this to have a MoveableHitbox entity
         val dimensions = this.player.getDimensions(this.player.pose)
         val attachment = SimpleVirtualEntityAttachment(EntityAttachmentAnchor(this.player))
         val packets = ArrayList<Packet<*>>(12)
         for (direction in Direction.entries) {
-            val vehicle = attachment.attachWithParentObservers(::SimpleVirtualTextDisplay)
-            val element = attachment.attachWithParentObservers(SimpleVirtualEntity.typed(EntityType.SHULKER))
-            vehicle.setInvisible(true)
-            if (!DEBUG) {
-                element.setInvisible(true)
-            }
+            val hitbox = attachment.attachWithParentObservers(::CubeHitboxVirtualEntity)
+            hitbox.setScale(SMALLEST_SCALE)
 
             val horizontalSize = dimensions.width
             val verticalSize = dimensions.height
@@ -96,9 +92,7 @@ public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExt
                     (unit.y - 1) * (unit.y + 1) * verticalSize / 2
             val offsetZ = unit.z * (horizontalSize / 2 + SMALLEST_SCALE / 2)
 
-            vehicle.position += Vec3(offsetX, offsetY, offsetZ)
-            packets.add(ClientboundUpdateAttributesPacket(element.id, listOf(SMALLEST_SCALE_ATTRIBUTE)))
-            packets.add(ClientboundSetPassengersPacket(vehicle.id, intArrayOf(element.id)))
+            hitbox.position += Vec3(offsetX, offsetY, offsetZ)
         }
         attachment.startObservingAttached(this.player)
         for (packet in packets) {
@@ -127,14 +121,12 @@ public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExt
 
     public companion object {
         private const val SMALLEST_SCALE = 0.0625
-        private val SMALLEST_SCALE_ATTRIBUTE = AttributeInstance(Attributes.SCALE) {}
         private val SMALLEST_JUMP_ATTRIBUTE = AttributeInstance(Attributes.JUMP_STRENGTH) {}
 
         @VisibleForTesting
         public var DEBUG: Boolean = false
 
         init {
-            SMALLEST_SCALE_ATTRIBUTE.baseValue = SMALLEST_SCALE
             SMALLEST_JUMP_ATTRIBUTE.baseValue = 0.0
         }
 
