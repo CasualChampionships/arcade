@@ -37,10 +37,10 @@
     "teams.ScoreboardMixin",
     "teams.ServerScoreboardAccessor"
   ],
-  "injectors": {
-    "defaultRequire": 1
-  },
   "client": [
     "client.MinecraftMixin"
-  ]
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

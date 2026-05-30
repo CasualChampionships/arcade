@@ -7,8 +7,8 @@ package net.casual.arcade.npc.pathfinding.navigation
 import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.npc.pathfinding.NPCPathfinder
 import net.casual.arcade.npc.pathfinding.evaluator.NPCNodeEvaluator
-import net.casual.arcade.utils.level.isOf
 import net.casual.arcade.utils.math.path.calculateNextNodeIndex
+import net.casual.arcade.utils.registries.isOf
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.Vec3i

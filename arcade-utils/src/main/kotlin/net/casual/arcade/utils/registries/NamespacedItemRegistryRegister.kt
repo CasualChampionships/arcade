@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.utils.registries
 
-import net.casual.arcade.utils.toKey
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries

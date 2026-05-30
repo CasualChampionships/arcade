@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ServerGamePacketListenerImplMixin {
     @Shadow public ServerPlayer player;
 
+    // TODO: Remove in 26.2
     @Inject(
         method = "handleAttack",
         at = @At(

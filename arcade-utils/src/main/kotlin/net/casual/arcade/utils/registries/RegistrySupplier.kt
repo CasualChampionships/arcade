@@ -35,7 +35,7 @@ public abstract class RegistrySupplier {
         return registry
     }
 
-    @Deprecated("Use fabric's registry build instead")
+    @Deprecated("Use fabric's registry builder instead")
     protected fun <T: Any> registerRegistry(registry: Registry<T>, bootstrap: (Registry<T>) -> Unit): Registry<T> {
         @Suppress("UNCHECKED_CAST")
         Registry.register(

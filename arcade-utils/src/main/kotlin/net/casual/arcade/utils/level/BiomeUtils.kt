@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.utils.level
 
-import net.casual.arcade.utils.isOf
+import net.casual.arcade.utils.registries.isOf
 import net.minecraft.core.Holder
 import net.minecraft.tags.BiomeTags
 import net.minecraft.world.level.biome.Biome

@@ -11,7 +11,7 @@ import net.casual.arcade.events.server.level.LevelTickEvent
 import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.utils.arcade
-import net.casual.arcade.utils.isOf
+import net.casual.arcade.utils.registries.isOf
 import net.casual.arcade.utils.player.broadcast
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.Registries

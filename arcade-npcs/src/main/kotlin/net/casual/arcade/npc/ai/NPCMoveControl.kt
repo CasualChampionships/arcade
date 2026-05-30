@@ -4,14 +4,13 @@
  */
 package net.casual.arcade.npc.ai
 
+import net.casual.arcade.utils.registries.isOf
 import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.utils.MathUtils.component1
 import net.casual.arcade.utils.MathUtils.component2
 import net.casual.arcade.utils.MathUtils.component3
-import net.casual.arcade.utils.level.isOf
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
-import net.minecraft.tags.BlockTags
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.entity.ai.control.Control
@@ -110,8 +109,8 @@ public open class NPCMoveControl(
                 if ((dy > this.player.maxUpStep() && dx * dx + dz * dz < max(1.0f, this.player.bbWidth).toDouble())
                     || (!voxelShape.isEmpty &&
                         this.player.y < voxelShape.max(Direction.Axis.Y) + blockPos.y &&
-                        !blockState.isOf(BlockTags.DOORS) &&
-                        !blockState.isOf(BlockTags.FENCES))
+                        !blockState.isOf(blockState.block) &&
+                        !blockState.isOf(blockState.block))
                 ) {
                     this.jump()
                     this.operation = Operation.JUMPING

@@ -29,7 +29,7 @@ import net.casual.arcade.utils.MathUtils.component3
 import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.utils.entity.WrappedTrackedEntity
 import net.casual.arcade.utils.level.server
-import net.casual.arcade.utils.toIdString
+import net.casual.arcade.utils.registries.toIdString
 import net.fabricmc.fabric.impl.networking.context.PacketContextImpl
 import net.minecraft.core.UUIDUtil
 import net.minecraft.network.Connection

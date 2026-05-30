@@ -5,7 +5,7 @@
 package net.casual.arcade.dimensions.level.clock
 
 import net.casual.arcade.dimensions.level.extensions.LevelClockExtension
-import net.casual.arcade.utils.isOf
+import net.casual.arcade.utils.registries.isOf
 import net.minecraft.core.Holder
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket
 import net.minecraft.resources.ResourceKey

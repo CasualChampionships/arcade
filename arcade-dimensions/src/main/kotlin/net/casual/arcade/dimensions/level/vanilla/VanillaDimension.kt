@@ -6,7 +6,7 @@ package net.casual.arcade.dimensions.level.vanilla
 
 import com.mojang.serialization.Codec
 import net.casual.arcade.dimensions.level.spawner.*
-import net.casual.arcade.utils.toIdString
+import net.casual.arcade.utils.registries.toIdString
 import net.minecraft.resources.ResourceKey
 import net.minecraft.util.StringRepresentable
 import net.minecraft.world.level.Level

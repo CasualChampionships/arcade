@@ -2,11 +2,13 @@
  * Copyright (c) 2024 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.utils
+package net.casual.arcade.utils.registries
 
 import net.minecraft.core.Holder
+import net.minecraft.core.HolderSet
 import net.minecraft.core.Registry
 import net.minecraft.core.RegistryAccess
+import net.minecraft.core.TypedInstance
 import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
 import net.minecraft.tags.TagKey
@@ -32,6 +34,26 @@ public fun <T: Any> Holder<T>.isOf(location: Identifier): Boolean {
 }
 
 public fun <T: Any> Holder<T>.isOf(key: ResourceKey<T>): Boolean {
+    return this.`is`(key)
+}
+
+public fun <T: Any> TypedInstance<T>.isOf(value: T): Boolean {
+    return this.`is`(value)
+}
+
+public fun <T: Any> TypedInstance<T>.isOf(tag: TagKey<T>): Boolean {
+    return this.`is`(tag)
+}
+
+public fun <T: Any> TypedInstance<T>.isOf(holder: Holder<T>): Boolean {
+    return this.`is`(holder)
+}
+
+public fun <T: Any> TypedInstance<T>.isOf(holders: HolderSet<T>): Boolean {
+    return this.`is`(holders)
+}
+
+public fun <T: Any> TypedInstance<T>.isOf(key: ResourceKey<T>): Boolean {
     return this.`is`(key)
 }
 

@@ -11,7 +11,7 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.commands.type.CustomArgumentTypeInfo
-import net.casual.arcade.utils.toIdString
+import net.casual.arcade.utils.registries.toIdString
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.IdentifierArgument
 import net.minecraft.core.Holder

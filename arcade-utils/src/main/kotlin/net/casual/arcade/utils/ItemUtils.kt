@@ -13,8 +13,10 @@ import net.casual.arcade.utils.component.unitalicize
 import net.casual.arcade.utils.player.DynamicResolvableProfile
 import net.casual.arcade.utils.player.HeadTextures
 import net.casual.arcade.utils.player.StaticResolvableProfile
+import net.casual.arcade.utils.registries.isOf
 import net.minecraft.ChatFormatting
 import net.minecraft.core.Holder
+import net.minecraft.core.TypedInstance
 import net.minecraft.core.component.DataComponentType
 import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.Component
@@ -96,18 +98,30 @@ public object ItemUtils {
     }
 
     @JvmStatic
+    @Deprecated(
+        "Use TypedInstance function instead",
+        ReplaceWith("this.isOf(item)", "import net.casual.arcade.utils.registries.isOf")
+    )
     public fun ItemStack.isOf(item: Item): Boolean {
-        return this.`is`(item)
+        return (this as TypedInstance<Item>).isOf(item)
     }
 
     @JvmStatic
+    @Deprecated(
+        "Use TypedInstance function instead",
+        ReplaceWith("this.isOf(tag)", "import net.casual.arcade.utils.registries.isOf")
+    )
     public fun ItemStack.isOf(tag: TagKey<Item>): Boolean {
-        return this.`is`(tag)
+        return (this as TypedInstance<Item>).isOf(tag)
     }
 
     @JvmStatic
+    @Deprecated(
+        "Use TypedInstance function instead",
+        ReplaceWith("this.isOf(holder)", "import net.casual.arcade.utils.registries.isOf")
+    )
     public fun ItemStack.isOf(holder: Holder<Item>): Boolean {
-        return this.`is`(holder)
+        return (this as TypedInstance<Item>).isOf(holder)
     }
 
     @JvmStatic

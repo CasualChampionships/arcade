@@ -6,7 +6,7 @@ package net.casual.arcade.npc.pathfinding.evaluator
 
 import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.npc.pathfinding.NPCPathfindingContext
-import net.casual.arcade.utils.level.isOf
+import net.casual.arcade.utils.registries.isOf
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.tags.BlockTags

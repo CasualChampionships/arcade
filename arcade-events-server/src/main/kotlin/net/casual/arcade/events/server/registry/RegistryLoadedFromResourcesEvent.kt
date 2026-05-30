@@ -6,7 +6,7 @@ package net.casual.arcade.events.server.registry
 
 import net.casual.arcade.events.common.MissingExecutorEvent
 import net.casual.arcade.events.server.mixins.registry.RegistryLoadTaskAccessor
-import net.casual.arcade.utils.toKey
+import net.casual.arcade.utils.registries.toKey
 import net.minecraft.core.HolderGetter
 import net.minecraft.core.RegistrationInfo
 import net.minecraft.core.Registry
