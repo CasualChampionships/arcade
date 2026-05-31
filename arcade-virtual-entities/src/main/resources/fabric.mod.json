@@ -27,7 +27,8 @@
   "depends": {
     "minecraft": "${minecraft_dependency}",
     "fabricloader": ">=${fabric_loader_dependency}",
-    "fabric-language-kotlin": ">=${fabric_kotlin_dependency}"
+    "fabric-language-kotlin": ">=${fabric_kotlin_dependency}",
+    "polymer-core": ">=${polymer_dependency}"
   },
   "custom": {
     "modmenu": {
