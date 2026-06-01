@@ -23,6 +23,10 @@ public fun AbstractContainerMenu.invalidateRemoteSlots() {
     }
 }
 
+public fun Gui.ensureMatchingPlayer(other: Gui?) {
+    require(other == null || this.player == other.player) { "Mismatching gui players!" }
+}
+
 private object NotAHashedStack: HashedStack {
     override fun matches(stack: ItemStack, hasher: HashedPatchMap.HashGenerator): Boolean {
         return false

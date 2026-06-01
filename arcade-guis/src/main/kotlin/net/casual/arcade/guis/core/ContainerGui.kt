@@ -9,9 +9,12 @@ import net.casual.arcade.guis.menu.ContainerGuiMenu
 import net.casual.arcade.guis.utils.ContainerType
 import net.casual.arcade.guis.utils.SlotClickAction
 import net.casual.arcade.guis.utils.SlotClickHandler
+import net.casual.arcade.guis.utils.ensureMatchingPlayer
 import net.minecraft.network.chat.CommonComponents
 import net.minecraft.network.chat.Component
+import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
@@ -27,6 +30,9 @@ public open class ContainerGui(
     protected val handlers: Array<SlotClickHandler?> = arrayOfNulls(this.slots)
 
     private var title: Component = CommonComponents.EMPTY
+    private var dirty: Boolean = false
+
+    private var parent: Gui? = null
 
     public var canSpectatorsClick: Boolean = true
 
@@ -72,17 +78,21 @@ public open class ContainerGui(
         }
     }
 
-    override fun open(): Boolean {
-        if (this.player.hasDisconnected() || this.isOpen()) {
-            return false
-        }
-
-        val id = this.player.openMenu(ContainerGuiMenu.Provider(this))
-        return id.isPresent
+    override fun createMenuProvider(): MenuProvider {
+        return ContainerGuiMenu.Provider(this)
     }
 
     override fun getMenuType(): MenuType<*> {
         return this.type.menu
+    }
+
+    override fun setParent(parent: Gui?) {
+        this.ensureMatchingPlayer(parent)
+        this.parent = parent
+    }
+
+    override fun getParent(): Gui? {
+        return this.parent
     }
 
     public fun isInventoryOverridden(): Boolean {
@@ -103,10 +113,21 @@ public open class ContainerGui(
 
     public fun setTitle(title: Component) {
         this.title = title
+        this.markDirty()
+    }
 
+    public fun markDirty() {
         if (this.isOpen()) {
-            // TODO: Update the screen
+            this.dirty = true
         }
+    }
+
+    internal fun checkDirty(): Boolean {
+        if (this.dirty) {
+            this.dirty = false
+            return true
+        }
+        return false
     }
 
     protected fun checkSlotInBounds(slot: Int) {

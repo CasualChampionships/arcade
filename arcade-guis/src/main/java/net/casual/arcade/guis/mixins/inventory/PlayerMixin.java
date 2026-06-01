@@ -2,7 +2,7 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.guis.mixins;
+package net.casual.arcade.guis.mixins.inventory;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.casual.arcade.guis.ducks.ModifiableInventory;

@@ -22,8 +22,10 @@ internal object GuiMenuEvents {
     }
 
     private fun onPlayerTick(event: PlayerTickEvent) {
-        val gui = event.player.getOpenGui() ?: return
-        gui.tick()
+        val menu = event.player.containerMenu
+        if (menu is GuiMenu<*>) {
+            menu.tick()
+        }
     }
 
     private fun onPlayerSlotClick(event: PlayerSlotClickEvent) {

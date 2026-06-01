@@ -7,8 +7,12 @@
     "minVersion": "0.5.0"
   },
   "mixins": [
-    "AbstractContainerMenuMixin",
-    "PlayerMixin"
+    "core.AbstractContainerMenuAccessor",
+    "core.PlayerMixin",
+    "core.ServerGamePacketListenerImplMixin",
+    "core.ServerPlayerMixin",
+    "inventory.AbstractContainerMenuMixin",
+    "inventory.PlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
