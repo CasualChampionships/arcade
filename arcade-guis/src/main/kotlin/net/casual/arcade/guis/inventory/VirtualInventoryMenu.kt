@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.guis.inventory
 
-import net.casual.arcade.guis.core.SlotClickAction
+import net.casual.arcade.guis.utils.SlotClickAction
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack

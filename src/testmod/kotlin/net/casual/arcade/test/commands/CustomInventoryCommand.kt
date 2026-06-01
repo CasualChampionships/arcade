@@ -5,7 +5,7 @@ import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.executes
 import net.casual.arcade.commands.literal
-import net.casual.arcade.guis.core.SlotInteractAction
+import net.casual.arcade.guis.utils.SlotInteractAction
 import net.casual.arcade.guis.inventory.VirtualInventory
 import net.casual.arcade.guis.utils.setCustomInventory
 import net.minecraft.commands.CommandBuildContext
