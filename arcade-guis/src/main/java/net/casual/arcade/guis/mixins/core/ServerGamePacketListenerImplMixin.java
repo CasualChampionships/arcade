@@ -8,7 +8,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.casual.arcade.guis.core.Gui;
-import net.casual.arcade.guis.menu.ContainerGuiMenu;
+import net.casual.arcade.guis.menu.container.ContainerGuiMenu;
 import net.casual.arcade.guis.menu.GuiMenu;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -28,7 +28,7 @@ public class ServerGamePacketListenerImplMixin {
         )
     )
     private boolean overrideSpectatorClickCheck(boolean original) {
-        if (this.player.containerMenu instanceof ContainerGuiMenu menu) {
+        if (this.player.containerMenu instanceof ContainerGuiMenu<?> menu) {
             if (menu.getGui().getCanSpectatorsClick()) {
                 // If spectators *can* click we treat them as not spectators
                 return false;

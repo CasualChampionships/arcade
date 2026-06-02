@@ -5,6 +5,7 @@
 package net.casual.arcade.guis.menu
 
 import net.casual.arcade.guis.core.Gui
+import net.casual.arcade.guis.menu.container.ContainerGuiSlot
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
@@ -25,7 +26,7 @@ public abstract class GuiMenu<G: Gui>(
     }
 
     override fun canTakeItemForPickAll(carried: ItemStack, target: Slot): Boolean {
-        return target !is GuiSlot && super.canTakeItemForPickAll(carried, target)
+        return target !is ContainerGuiSlot && super.canTakeItemForPickAll(carried, target)
     }
 
     override fun removed(player: Player) {

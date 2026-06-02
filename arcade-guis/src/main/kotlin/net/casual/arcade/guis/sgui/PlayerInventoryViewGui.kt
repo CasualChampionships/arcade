@@ -11,6 +11,7 @@ import net.minecraft.world.inventory.InventoryMenu
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.inventory.Slot
 
+@Deprecated("Use net.casual.arcade.guis.presets.PlayerInventoryViewGui")
 public open class PlayerInventoryViewGui(
     protected val observee: ServerPlayer,
     observer: ServerPlayer

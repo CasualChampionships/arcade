@@ -6,7 +6,7 @@ import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.executes
 import net.casual.arcade.commands.literal
-import net.casual.arcade.guis.sgui.PlayerInventoryViewGui
+import net.casual.arcade.guis.presets.PlayerInventoryViewGui
 import net.casual.arcade.test.guis.TestingGui
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
@@ -30,8 +30,7 @@ object GuiCommand: CommandTree<CommandSourceStack> {
     private fun viewInventory(context: CommandContext<CommandSourceStack>) {
         val player = context.source.playerOrException
         val target = EntityArgument.getPlayer(context, "target")
-        val gui = PlayerInventoryViewGui(player, target)
-        gui.open()
+        PlayerInventoryViewGui(player, target).open()
     }
 
     private fun openTestingGui(context: CommandContext<CommandSourceStack>) {

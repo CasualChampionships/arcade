@@ -4,18 +4,18 @@
  */
 package net.casual.arcade.guis.presets
 
-import net.casual.arcade.guis.sgui.SimpleNestedGui
+import net.casual.arcade.guis.core.container.BindableContainerGui
+import net.casual.arcade.guis.utils.ContainerType
 import net.casual.arcade.utils.ItemUtils
 import net.casual.arcade.utils.ItemUtils.named
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.inventory.InventoryMenu
-import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.inventory.Slot
 
 public open class PlayerInventoryViewGui(
-    protected val observee: ServerPlayer,
-    observer: ServerPlayer
-): SimpleNestedGui(MenuType.GENERIC_9x6, observer, false) {
+    observer: ServerPlayer,
+    protected val observee: ServerPlayer
+): BindableContainerGui(observer, ContainerType.Generic9x6, false) {
     override fun onOpen() {
         super.onOpen()
 
@@ -23,7 +23,9 @@ public open class PlayerInventoryViewGui(
         this.loadInventory()
     }
 
-    override fun onTick() {
+    override fun tick() {
+        super.tick()
+
         if (this.observee.isRemoved) {
             this.close()
             return
@@ -59,7 +61,7 @@ public open class PlayerInventoryViewGui(
     }
 
     protected open fun loadBackground() {
-        this.title = this.observee.displayName
+        this.setTitle(this.observee.displayName)
 
         this.setSlot(3, ItemUtils.createPlayerHead(this.observee).named(this.observee.displayName))
     }
@@ -92,7 +94,6 @@ public open class PlayerInventoryViewGui(
 
     private fun copySlotAndRedirect(index: Int, slot: Slot) {
         // We want to copy the slot to maintain the original slot's index
-        val copy = Slot(slot.container, slot.containerSlot, slot.x, slot.y)
-        this.setSlot(index, copy)
+        this.setSlot(index, slot.container, slot.containerSlot)
     }
 }

@@ -2,15 +2,15 @@
  * Copyright (c) 2026 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.guis.menu
+package net.casual.arcade.guis.menu.container
 
-import net.casual.arcade.guis.core.ContainerGui
+import net.casual.arcade.guis.core.container.ContainerGui
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.ItemStack
 import java.util.*
 
-public class GuiSlot(
+public class ContainerGuiSlot(
     private val gui: ContainerGui,
     slot: Int
 ): Slot(GuiContainer, slot, 0, 0) {

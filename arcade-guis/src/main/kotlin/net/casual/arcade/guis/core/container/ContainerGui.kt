@@ -2,10 +2,10 @@
  * Copyright (c) 2026 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.guis.core
+package net.casual.arcade.guis.core.container
 
-import net.casual.arcade.guis.core.item.GuiItem
-import net.casual.arcade.guis.menu.ContainerGuiMenu
+import net.casual.arcade.guis.core.Gui
+import net.casual.arcade.guis.menu.container.ContainerGuiMenu
 import net.casual.arcade.guis.utils.ContainerType
 import net.casual.arcade.guis.utils.SlotClickAction
 import net.casual.arcade.guis.utils.SlotClickHandler
@@ -23,7 +23,7 @@ public open class ContainerGui(
     public val type: ContainerType,
     private val overrideInventory: Boolean,
 ): Gui {
-    private val slots: Int = this.getContainerSize() + if (this.overrideInventory) Inventory.INVENTORY_SIZE else 0
+    protected val slots: Int = this.getContainerSize() + if (this.overrideInventory) Inventory.INVENTORY_SIZE else 0
 
     protected val items: Array<GuiItem?> = arrayOfNulls(this.slots)
     protected val handlers: Array<SlotClickHandler?> = arrayOfNulls(this.slots)
@@ -35,7 +35,7 @@ public open class ContainerGui(
 
     public var canSpectatorsClick: Boolean = true
 
-    public fun setSlot(slot: Int, item: GuiItem, handler: SlotClickHandler? = null) {
+    public open fun setSlot(slot: Int, item: GuiItem, handler: SlotClickHandler? = null) {
         this.checkSlotInBounds(slot)
 
         this.items[slot] = item
@@ -46,7 +46,7 @@ public open class ContainerGui(
         this.setSlot(slot, GuiItem(item), handler)
     }
 
-    public fun setSlotItem(slot: Int, item: GuiItem) {
+    public open fun setSlotItem(slot: Int, item: GuiItem) {
         this.checkSlotInBounds(slot)
 
         this.items[slot] = item
@@ -56,11 +56,15 @@ public open class ContainerGui(
         this.setSlotItem(slot, GuiItem(item))
     }
 
-    public fun clearSlot(slot: Int) {
+    public open fun clearSlot(slot: Int) {
         this.checkSlotInBounds(slot)
 
         this.items[slot] = null
         this.handlers[slot] = null
+    }
+
+    public open fun shouldIgnoreClick(slot: Int, action: SlotClickAction): Boolean {
+        return false
     }
 
     public open fun click(slot: Int, action: SlotClickAction) {

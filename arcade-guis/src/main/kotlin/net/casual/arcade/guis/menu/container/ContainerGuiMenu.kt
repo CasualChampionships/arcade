@@ -2,9 +2,10 @@
  * Copyright (c) 2026 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.guis.menu
+package net.casual.arcade.guis.menu.container
 
-import net.casual.arcade.guis.core.ContainerGui
+import net.casual.arcade.guis.core.container.ContainerGui
+import net.casual.arcade.guis.menu.GuiMenu
 import net.casual.arcade.guis.mixins.core.AbstractContainerMenuAccessor
 import net.casual.arcade.guis.utils.invalidateRemoteSlots
 import net.casual.arcade.utils.player.updateOffhandSlot
@@ -20,11 +21,11 @@ import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.inventory.InventoryMenu
 import net.minecraft.world.item.ItemStack
 
-public open class ContainerGuiMenu(
-    gui: ContainerGui,
+public open class ContainerGuiMenu<G: ContainerGui>(
+    gui: G,
     containerId: Int,
     inventory: Inventory
-): GuiMenu<ContainerGui>(gui, containerId) {
+): GuiMenu<G>(gui, containerId) {
     init {
         this.initialize(inventory)
     }
@@ -32,20 +33,26 @@ public open class ContainerGuiMenu(
     override fun tick() {
         super.tick()
 
+        this.updateSlots()
+
         if (this.gui.checkDirty()) {
             this.resendGui()
         }
     }
 
+    protected open fun updateSlots() {
+
+    }
+
     protected open fun initialize(inventory: Inventory) {
         val size = this.gui.getContainerSize()
         for (i in 0..<size) {
-            this.addSlot(GuiSlot(this.gui, i))
+            this.addSlot(ContainerGuiSlot(this.gui, i))
         }
 
         if (this.gui.isInventoryOverridden()) {
             for (i in 0..<Inventory.INVENTORY_SIZE) {
-                this.addSlot(GuiSlot(this.gui, size + i))
+                this.addSlot(ContainerGuiSlot(this.gui, size + i))
             }
         } else {
             this.addStandardInventorySlots(inventory, 0, 0)

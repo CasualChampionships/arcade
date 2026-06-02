@@ -9,8 +9,8 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerSlotClickEvent
 import net.casual.arcade.events.server.player.PlayerTickEvent
+import net.casual.arcade.guis.menu.container.ContainerGuiMenu
 import net.casual.arcade.guis.utils.SlotClickAction
-import net.casual.arcade.guis.utils.getOpenGui
 import net.casual.arcade.guis.utils.invalidateRemoteSlots
 
 internal object GuiMenuEvents {
@@ -30,12 +30,15 @@ internal object GuiMenuEvents {
 
     private fun onPlayerSlotClick(event: PlayerSlotClickEvent) {
         val (player, menu, index, button, input, _, stateId, changed, carried) = event
-        if (menu is ContainerGuiMenu) {
+        if (menu is ContainerGuiMenu<*>) {
             val gui = menu.gui
             if (player.isSpectator && !gui.canSpectatorsClick) {
                 return
             }
             val action = SlotClickAction.from(input, button, index)
+            if (gui.shouldIgnoreClick(index, action)) {
+                return
+            }
 
             menu.suppressRemoteUpdates()
             gui.click(index, action)
