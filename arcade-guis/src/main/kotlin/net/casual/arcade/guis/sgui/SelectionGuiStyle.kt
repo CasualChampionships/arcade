@@ -12,6 +12,7 @@ import net.minecraft.util.Mth
  *
  * @see SelectionGuiBuilder
  */
+@Deprecated("No replacement")
 public interface SelectionGuiStyle {
     public fun getSlots(): Collection<Int>
 

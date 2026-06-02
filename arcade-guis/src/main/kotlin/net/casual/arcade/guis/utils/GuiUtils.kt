@@ -5,6 +5,8 @@
 package net.casual.arcade.guis.utils
 
 import net.casual.arcade.guis.core.Gui
+import net.casual.arcade.guis.core.container.ContainerGui
+import net.casual.arcade.guis.core.container.GuiItem
 import net.casual.arcade.guis.menu.GuiMenu
 import net.minecraft.network.HashedPatchMap
 import net.minecraft.network.HashedStack
@@ -25,6 +27,39 @@ public fun AbstractContainerMenu.invalidateRemoteSlots() {
 
 public fun Gui.ensureMatchingPlayer(other: Gui?) {
     require(other == null || this.player == other.player) { "Mismatching gui players!" }
+}
+
+public fun ContainerGui.setSlotGrid(
+    origin: Int,
+    width: Int,
+    height: Int,
+    item: GuiItem,
+    handler: SlotClickHandler? = null
+) {
+    this.setSlotGrid(origin, width, height, { _, _ -> item }, handler)
+}
+
+public inline fun ContainerGui.setSlotGrid(
+    origin: Int,
+    width: Int,
+    height: Int,
+    item: (x: Int, y: Int) -> GuiItem,
+    handler: SlotClickHandler? = null
+) {
+    for (i in 0..< width) {
+        for (j in 0..< height) {
+            val index = origin + j * 9 + i
+            this.setSlot(index, item.invoke(i, j), handler)
+        }
+    }
+}
+
+public fun ContainerGui.clearSlotGrid(origin: Int, width: Int, height: Int) {
+    for (i in 0..< width) {
+        for (j in 0..< height) {
+            this.clearSlot(origin + j * 9 + i)
+        }
+    }
 }
 
 private object NotAHashedStack: HashedStack {
