@@ -14,7 +14,8 @@ import net.minecraft.world.item.Items
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class TestingGui(player: ServerPlayer): ContainerGui(player, ContainerType.Dropper, false) {
+class TestingGui(player: ServerPlayer, overrideInventory: Boolean = false): ContainerGui(player, ContainerType.Dropper, overrideInventory) {
+    private var overrideChildInventory = false
     private var valid = true
 
     init {
@@ -36,13 +37,15 @@ class TestingGui(player: ServerPlayer): ContainerGui(player, ContainerType.Dropp
         this.setSlot(0, FlipFloppingItem)
         this.setSlot(1, Items.RED_WOOL.named("Close")) { this.close() }
         this.setSlot(2, Items.BLUE_WOOL.named("Open Child")) {
-            val child = TestingGui(this.player)
+            val child = TestingGui(this.player, this.overrideChildInventory)
             child.setParent(this)
             child.open()
         }
         this.setSlot(3, Items.GREEN_WOOL.named("Open Parent Or Close")) { this.openParentOrClose() }
         this.setSlot(4, Items.PURPLE_WOOL.named("Mark Invalid")) { this.valid = false }
         this.setSlot(5, Items.YELLOW_WOOL.named("Next Title")) { this.setTitleToNext() }
+        this.setSlot(6, Items.LIGHT_GRAY_WOOL.named("Disable Spectator Clicking")) { this.canSpectatorsClick = false }
+        this.setSlot(7, Items.PINK_WOOL.named("Override Child Inventory")) { this.overrideChildInventory = true }
     }
 
     override fun onClose(reason: Gui.CloseReason) {
@@ -62,7 +65,7 @@ class TestingGui(player: ServerPlayer): ContainerGui(player, ContainerType.Dropp
 
         override fun display(): ItemStack {
             if ((this.ticks / 20) % 2 == 0) {
-                return ItemStack(Items.DIRT)
+//                return ItemStack(Items.DIRT)
             }
             return ItemStack(Items.GRASS_BLOCK)
         }

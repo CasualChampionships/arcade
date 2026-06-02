@@ -60,6 +60,11 @@ public interface Gui {
     }
 
     @OverrideOnly
+    public fun shouldResetMousePosition(): Boolean {
+        return false
+    }
+
+    @OverrideOnly
     public fun createMenuProvider(): MenuProvider
 
     public fun getMenuType(): MenuType<*>

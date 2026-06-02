@@ -4,17 +4,22 @@
  */
 package net.casual.arcade.guis.menu
 
+import eu.pb4.sgui.api.SguiUtils
 import net.casual.arcade.guis.core.ContainerGui
 import net.casual.arcade.guis.mixins.core.AbstractContainerMenuAccessor
 import net.casual.arcade.guis.utils.invalidateRemoteSlots
+import net.casual.arcade.utils.player.updateInventorySlot
+import net.casual.arcade.utils.player.updateOffhandSlot
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundBundlePacket
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket
-import net.minecraft.world.MenuProvider
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.world.inventory.InventoryMenu
 import net.minecraft.world.item.ItemStack
 
 public open class ContainerGuiMenu(
@@ -57,6 +62,16 @@ public open class ContainerGuiMenu(
         super.removed(player)
         if (this.gui.isInventoryOverridden()) {
             player.inventoryMenu.invalidateRemoteSlots()
+            (player as ServerPlayer).updateOffhandSlot()
+        }
+    }
+
+    override fun sendAllDataToRemote() {
+        super.sendAllDataToRemote()
+        if (this.gui.isInventoryOverridden()) {
+            val player = this.gui.player
+            val state = player.inventoryMenu.incrementStateId()
+            player.connection.send(ClientboundContainerSetSlotPacket(0, state, InventoryMenu.SHIELD_SLOT, ItemStack.EMPTY))
         }
     }
 
