@@ -12,10 +12,8 @@ import java.util.*
 
 public class GuiSlot(
     private val gui: ContainerGui,
-    slot: Int,
-    x: Int,
-    y: Int
-): Slot(GuiContainer, slot, x, y) {
+    slot: Int
+): Slot(GuiContainer, slot, 0, 0) {
     override fun getItem(): ItemStack {
         return this.gui.getSlotItem(this.containerSlot).display()
     }

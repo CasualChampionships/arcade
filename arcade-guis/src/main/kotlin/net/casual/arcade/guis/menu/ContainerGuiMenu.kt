@@ -4,11 +4,9 @@
  */
 package net.casual.arcade.guis.menu
 
-import eu.pb4.sgui.api.SguiUtils
 import net.casual.arcade.guis.core.ContainerGui
 import net.casual.arcade.guis.mixins.core.AbstractContainerMenuAccessor
 import net.casual.arcade.guis.utils.invalidateRemoteSlots
-import net.casual.arcade.utils.player.updateInventorySlot
 import net.casual.arcade.utils.player.updateOffhandSlot
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundBundlePacket
@@ -42,12 +40,12 @@ public open class ContainerGuiMenu(
     protected open fun initialize(inventory: Inventory) {
         val size = this.gui.getContainerSize()
         for (i in 0..<size) {
-            this.addSlot(GuiSlot(this.gui, i, 0, 0))
+            this.addSlot(GuiSlot(this.gui, i))
         }
 
         if (this.gui.isInventoryOverridden()) {
             for (i in 0..<Inventory.INVENTORY_SIZE) {
-                this.addSlot(GuiSlot(this.gui, size + i, 0, 0))
+                this.addSlot(GuiSlot(this.gui, size + i))
             }
         } else {
             this.addStandardInventorySlots(inventory, 0, 0)
