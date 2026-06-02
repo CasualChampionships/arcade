@@ -6,17 +6,11 @@ import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.executes
 import net.casual.arcade.commands.literal
-import net.casual.arcade.guis.core.ContainerGui
-import net.casual.arcade.guis.core.display.GuiItem
 import net.casual.arcade.guis.sgui.PlayerInventoryViewGui
-import net.casual.arcade.guis.utils.ContainerType
 import net.casual.arcade.test.guis.TestingGui
-import net.casual.arcade.utils.ItemUtils.named
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument
-import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.Items
 
 @Suppress("unused")
 object GuiCommand: CommandTree<CommandSourceStack> {

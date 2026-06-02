@@ -2,7 +2,7 @@ package net.casual.arcade.test.guis
 
 import net.casual.arcade.guis.core.ContainerGui
 import net.casual.arcade.guis.core.Gui
-import net.casual.arcade.guis.core.display.GuiItem
+import net.casual.arcade.guis.core.item.GuiItem
 import net.casual.arcade.guis.utils.ContainerType
 import net.casual.arcade.guis.utils.SlotClickAction
 import net.casual.arcade.utils.ItemUtils.named

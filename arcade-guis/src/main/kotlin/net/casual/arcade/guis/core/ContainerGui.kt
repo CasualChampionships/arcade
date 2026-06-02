@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.guis.core
 
-import net.casual.arcade.guis.core.display.GuiItem
+import net.casual.arcade.guis.core.item.GuiItem
 import net.casual.arcade.guis.menu.ContainerGuiMenu
 import net.casual.arcade.guis.utils.ContainerType
 import net.casual.arcade.guis.utils.SlotClickAction
@@ -12,7 +12,6 @@ import net.casual.arcade.guis.utils.SlotClickHandler
 import net.casual.arcade.guis.utils.ensureMatchingPlayer
 import net.minecraft.network.chat.CommonComponents
 import net.minecraft.network.chat.Component
-import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.Inventory
