@@ -4,14 +4,22 @@ import net.casual.arcade.guis.core.book.BookGui
 import net.casual.arcade.guis.utils.BookClickAction
 import net.casual.arcade.guis.utils.addBookPage
 import net.casual.arcade.guis.utils.setBookAuthor
+import net.casual.arcade.guis.utils.setBookPage
 import net.casual.arcade.guis.utils.setBookTitle
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.component.bold
 import net.casual.arcade.utils.component.click
 import net.casual.arcade.utils.component.crimson
+import net.casual.arcade.utils.component.custom
 import net.casual.arcade.utils.component.gold
+import net.casual.arcade.utils.component.gray
+import net.casual.arcade.utils.component.green
 import net.casual.arcade.utils.component.red
+import net.casual.arcade.utils.component.silver
+import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -34,7 +42,9 @@ class TestBookGui(player: ServerPlayer): BookGui(player) {
             .addBookPage(
                 Component.literal("[Click to jump to page 5]").gold().click(ClickEvent.ChangePage(5))
             )
-            .addBookPage()
+            .addBookPage(
+                Component.literal("[Click this custom button!]").green().custom(BOOK_TRIGGER)
+            )
             .addBookPage()
             .addBookPage(
                 Component.literal("Surprise!")
@@ -50,6 +60,14 @@ class TestBookGui(player: ServerPlayer): BookGui(player) {
         super.click(action)
     }
 
+    override fun click(id: Identifier, payload: Tag?): Boolean {
+        if (id == BOOK_TRIGGER) {
+            this.book.setBookPage(2, Component.literal("*Poof*").silver())
+            return true
+        }
+        return super.click(id, payload)
+    }
+
     private fun getAngryAtYouForTryingToTakeTheBook() {
         val anger = this.anger++
         val message = ANGRY_MESSAGES.getOrNull(anger)
@@ -63,6 +81,8 @@ class TestBookGui(player: ServerPlayer): BookGui(player) {
     }
 
     private companion object {
+        val BOOK_TRIGGER = arcade("book_trigger")
+
         val ANGRY_MESSAGES = arrayOf(
             Component.literal("Please don't do that!"),
             Component.literal("Hey, I asked nicely, don't do it.").crimson(),

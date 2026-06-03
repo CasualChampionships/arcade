@@ -10,12 +10,14 @@ import net.casual.arcade.utils.Identifier
 import net.casual.arcade.utils.color.ColorARGB
 import net.casual.arcade.utils.color.ColorOklab
 import net.minecraft.ChatFormatting
+import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.*
 import net.minecraft.network.chat.HoverEvent.EntityTooltipInfo
 import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStackTemplate
 import java.net.URI
+import java.util.Optional
 
 /**
  * Sets the color of the component to the given [color].
@@ -254,6 +256,17 @@ public fun MutableComponent.strikethrough(): MutableComponent {
  */
 public fun MutableComponent.click(event: ClickEvent): MutableComponent {
     return this.withStyle { style -> style.withClickEvent(event) }
+}
+
+/**
+ * Adds a custom click event to the component.
+ *
+ * @param id The id of the click trigger.
+ * @param payload The payload for the trigger.
+ * @return [this]
+ */
+public fun MutableComponent.custom(id: Identifier, payload: Tag? = null): MutableComponent {
+    return this.click(ClickEvent.Custom(id, Optional.ofNullable(payload)))
 }
 
 /**

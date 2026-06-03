@@ -8,6 +8,8 @@ import net.casual.arcade.guis.core.Gui
 import net.casual.arcade.guis.menu.book.BookGuiMenu
 import net.casual.arcade.guis.utils.BookClickAction
 import net.casual.arcade.guis.utils.ensureMatchingPlayer
+import net.minecraft.nbt.Tag
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.inventory.MenuType
@@ -31,6 +33,10 @@ public open class BookGui(
             BookClickAction.PreviousPage -> this.setPage(this.page - 1)
             is BookClickAction.SetPage -> this.setPage(action.page)
         }
+    }
+
+    public open fun click(id: Identifier, payload: Tag?): Boolean {
+        return false
     }
 
     public open fun setPage(page: Int) {

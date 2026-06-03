@@ -7,6 +7,7 @@ package net.casual.arcade.guis.menu
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.server.player.PlayerCustomClickActionEvent
 import net.casual.arcade.events.server.player.PlayerMenuButtonClickEvent
 import net.casual.arcade.events.server.player.PlayerSlotClickEvent
 import net.casual.arcade.events.server.player.PlayerTickEvent
@@ -24,6 +25,9 @@ internal object GuiMenuEvents {
         )
         GlobalEventHandler.Server.register<PlayerMenuButtonClickEvent>(
             phase = PlayerSlotClickEvent.PHASE_PRE_VALIDATE, listener = ::onPlayerMenuButtonClick
+        )
+        GlobalEventHandler.Server.register<PlayerCustomClickActionEvent>(
+            priority = 20_000, listener = ::onPlayerCustomClickAction
         )
     }
 
@@ -76,6 +80,19 @@ internal object GuiMenuEvents {
             menu.broadcastChanges()
 
             event.cancel()
+        }
+    }
+
+    private fun onPlayerCustomClickAction(event: PlayerCustomClickActionEvent) {
+        if (!event.consumed()) {
+            val (player, id, payload) = event
+            val menu = player.containerMenu
+            if (menu is BookGuiMenu) {
+                val gui = menu.gui
+                if (gui.click(id, payload)) {
+                    event.consume()
+                }
+            }
         }
     }
 }
