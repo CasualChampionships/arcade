@@ -1,21 +1,9 @@
 package net.casual.arcade.test.guis
 
 import net.casual.arcade.guis.core.book.BookGui
-import net.casual.arcade.guis.utils.BookClickAction
-import net.casual.arcade.guis.utils.addBookPage
-import net.casual.arcade.guis.utils.setBookAuthor
-import net.casual.arcade.guis.utils.setBookPage
-import net.casual.arcade.guis.utils.setBookTitle
+import net.casual.arcade.guis.utils.*
 import net.casual.arcade.utils.arcade
-import net.casual.arcade.utils.component.bold
-import net.casual.arcade.utils.component.click
-import net.casual.arcade.utils.component.crimson
-import net.casual.arcade.utils.component.custom
-import net.casual.arcade.utils.component.gold
-import net.casual.arcade.utils.component.gray
-import net.casual.arcade.utils.component.green
-import net.casual.arcade.utils.component.red
-import net.casual.arcade.utils.component.silver
+import net.casual.arcade.utils.component.*
 import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
