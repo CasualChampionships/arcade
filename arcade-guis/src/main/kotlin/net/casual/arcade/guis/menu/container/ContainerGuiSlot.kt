@@ -5,56 +5,15 @@
 package net.casual.arcade.guis.menu.container
 
 import net.casual.arcade.guis.core.container.ContainerGui
+import net.casual.arcade.guis.menu.slot.EmptyContainer
+import net.casual.arcade.guis.menu.slot.GuiSlot
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.ItemStack
 import java.util.*
 
-public class ContainerGuiSlot(
-    private val gui: ContainerGui,
-    slot: Int
-): Slot(GuiContainer, slot, 0, 0) {
+public class ContainerGuiSlot(gui: ContainerGui, slot: Int): GuiSlot<ContainerGui>(gui, slot) {
     override fun getItem(): ItemStack {
         return this.gui.getSlotItem(this.containerSlot).display()
-    }
-
-    override fun allowModification(player: Player): Boolean {
-        return false
-    }
-
-    override fun safeInsert(inputStack: ItemStack, inputAmount: Int): ItemStack {
-        return inputStack
-    }
-
-    override fun safeInsert(stack: ItemStack): ItemStack {
-        return stack
-    }
-
-    override fun tryRemove(amount: Int, maxAmount: Int, player: Player): Optional<ItemStack> {
-        return Optional.empty()
-    }
-
-    override fun mayPickup(player: Player): Boolean {
-        return false
-    }
-
-    override fun remove(amount: Int): ItemStack {
-        return ItemStack.EMPTY
-    }
-
-    override fun setChanged() {
-
-    }
-
-    override fun setByPlayer(itemStack: ItemStack, previous: ItemStack) {
-
-    }
-
-    override fun setByPlayer(itemStack: ItemStack) {
-
-    }
-
-    override fun mayPlace(itemStack: ItemStack): Boolean {
-        return false
     }
 }

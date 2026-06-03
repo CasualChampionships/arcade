@@ -14,10 +14,6 @@ import net.minecraft.world.inventory.MenuType
 import org.jetbrains.annotations.ApiStatus.NonExtendable
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
-// What guis do we actually want to support?
-//  - Chests
-//  - Books
-// We can figure the rest out later
 public interface Gui {
     public val player: ServerPlayer
 

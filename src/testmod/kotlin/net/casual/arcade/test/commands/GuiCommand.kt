@@ -7,7 +7,8 @@ import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.executes
 import net.casual.arcade.commands.literal
 import net.casual.arcade.guis.presets.PlayerInventoryViewGui
-import net.casual.arcade.test.guis.TestingGui
+import net.casual.arcade.test.guis.TestBookGui
+import net.casual.arcade.test.guis.TestContainerGui
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument
@@ -21,8 +22,11 @@ object GuiCommand: CommandTree<CommandSourceStack> {
                     executes(::viewInventory)
                 }
             }
-            literal("test") {
-                executes(::openTestingGui)
+            literal("test-container") {
+                executes(::openTestContainerGui)
+            }
+            literal("test-book") {
+                executes(::openTestBookGui)
             }
         }
     }
@@ -33,8 +37,13 @@ object GuiCommand: CommandTree<CommandSourceStack> {
         PlayerInventoryViewGui(player, target).open()
     }
 
-    private fun openTestingGui(context: CommandContext<CommandSourceStack>) {
+    private fun openTestContainerGui(context: CommandContext<CommandSourceStack>) {
         val player = context.source.playerOrException
-        TestingGui(player).open()
+        TestContainerGui(player).open()
+    }
+
+    private fun openTestBookGui(context: CommandContext<CommandSourceStack>) {
+        val player = context.source.playerOrException
+        TestBookGui(player).open()
     }
 }

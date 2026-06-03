@@ -14,7 +14,7 @@ import net.minecraft.world.item.Items
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class TestingGui(player: ServerPlayer, overrideInventory: Boolean = false): ContainerGui(player, ContainerType.Dropper, overrideInventory) {
+class TestContainerGui(player: ServerPlayer, overrideInventory: Boolean = false): ContainerGui(player, ContainerType.Dropper, overrideInventory) {
     private var overrideChildInventory = false
     private var valid = true
 
@@ -37,7 +37,7 @@ class TestingGui(player: ServerPlayer, overrideInventory: Boolean = false): Cont
         this.setSlot(0, FlipFloppingItem)
         this.setSlot(1, Items.RED_WOOL.named("Close")) { this.close() }
         this.setSlot(2, Items.BLUE_WOOL.named("Open Child")) {
-            val child = TestingGui(this.player, this.overrideChildInventory)
+            val child = TestContainerGui(this.player, this.overrideChildInventory)
             child.setParent(this)
             child.open()
         }

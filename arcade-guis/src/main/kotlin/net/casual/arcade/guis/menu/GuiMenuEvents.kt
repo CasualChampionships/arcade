@@ -7,9 +7,12 @@ package net.casual.arcade.guis.menu
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.server.player.PlayerMenuButtonClickEvent
 import net.casual.arcade.events.server.player.PlayerSlotClickEvent
 import net.casual.arcade.events.server.player.PlayerTickEvent
+import net.casual.arcade.guis.menu.book.BookGuiMenu
 import net.casual.arcade.guis.menu.container.ContainerGuiMenu
+import net.casual.arcade.guis.utils.BookClickAction
 import net.casual.arcade.guis.utils.SlotClickAction
 import net.casual.arcade.guis.utils.invalidateRemoteSlots
 
@@ -18,6 +21,9 @@ internal object GuiMenuEvents {
         GlobalEventHandler.Server.register<PlayerTickEvent>(::onPlayerTick)
         GlobalEventHandler.Server.register<PlayerSlotClickEvent>(
             phase = PlayerSlotClickEvent.PHASE_PRE_VALIDATE, listener = ::onPlayerSlotClick
+        )
+        GlobalEventHandler.Server.register<PlayerMenuButtonClickEvent>(
+            phase = PlayerSlotClickEvent.PHASE_PRE_VALIDATE, listener = ::onPlayerMenuButtonClick
         )
     }
 
@@ -29,8 +35,8 @@ internal object GuiMenuEvents {
     }
 
     private fun onPlayerSlotClick(event: PlayerSlotClickEvent) {
-        val (player, menu, index, button, input, _, stateId, changed, carried) = event
-        if (menu is ContainerGuiMenu<*>) {
+        val (player, menu, index, button, input, containerId, stateId, changed, carried) = event
+        if (menu is ContainerGuiMenu<*> && menu.containerId == containerId) {
             val gui = menu.gui
             if (player.isSpectator && !gui.canSpectatorsClick) {
                 return
@@ -52,6 +58,22 @@ internal object GuiMenuEvents {
             if (stateId != menu.stateId) {
                 menu.invalidateRemoteSlots()
             }
+
+            event.cancel()
+        }
+    }
+
+    private fun onPlayerMenuButtonClick(event: PlayerMenuButtonClickEvent) {
+        val (player, menu, containerId, buttonId) = event
+        if (menu is BookGuiMenu && menu.containerId == containerId) {
+            val gui = menu.gui
+            if (player.isSpectator && !gui.canSpectatorsClick) {
+                return
+            }
+
+            val action = BookClickAction.from(buttonId) ?: return
+            gui.click(action)
+            menu.broadcastChanges()
 
             event.cancel()
         }

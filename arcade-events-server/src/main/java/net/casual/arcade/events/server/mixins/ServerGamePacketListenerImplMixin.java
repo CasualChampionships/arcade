@@ -168,6 +168,66 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
 	}
 
+	@Inject(
+		method = "handleContainerButtonClick",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/level/ServerPlayer;resetLastActionTime()V",
+			shift = At.Shift.AFTER
+		),
+		cancellable = true
+	)
+	private void broadcastMenuButtonClickedPreValidation(
+		ServerboundContainerButtonClickPacket packet,
+		CallbackInfo ci,
+		@Share("menuButtonClickEvent") LocalRef<PlayerMenuButtonClickEvent> menuButtonClickEvent
+	) {
+		PlayerMenuButtonClickEvent event = new PlayerMenuButtonClickEvent(this.player, this.player.containerMenu, packet.containerId(), packet.buttonId());
+		GlobalEventHandler.Server.broadcast(event, Set.of(PlayerMenuButtonClickEvent.PHASE_PRE_VALIDATE));
+		if (event.isCancelled()) {
+			ci.cancel();
+		}
+
+		menuButtonClickEvent.set(event);
+	}
+
+	@Inject(
+		method = "handleContainerButtonClick",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;clickMenuButton(Lnet/minecraft/world/entity/player/Player;I)Z"
+		),
+		cancellable = true
+	)
+	private void broadcastSlotClickedPreClick(
+		ServerboundContainerButtonClickPacket packet,
+		CallbackInfo ci,
+		@Share("menuButtonClickEvent") LocalRef<PlayerMenuButtonClickEvent> menuButtonClickEvent
+	) {
+		PlayerMenuButtonClickEvent event = menuButtonClickEvent.get();
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+		if (event.isCancelled()) {
+			ci.cancel();
+		}
+	}
+
+	@Inject(
+		method = "handleContainerButtonClick",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;clickMenuButton(Lnet/minecraft/world/entity/player/Player;I)Z",
+			shift = At.Shift.AFTER
+		)
+	)
+	private void broadcastSlotClickedPostClick(
+		ServerboundContainerButtonClickPacket packet,
+		CallbackInfo ci,
+		@Share("menuButtonClickEvent") LocalRef<PlayerMenuButtonClickEvent> menuButtonClickEvent
+	) {
+		PlayerMenuButtonClickEvent event = menuButtonClickEvent.get();
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+	}
+
     @WrapWithCondition(
         method = "handlePlayerAction",
         at = @At(

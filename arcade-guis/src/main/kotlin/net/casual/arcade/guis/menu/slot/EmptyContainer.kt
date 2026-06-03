@@ -2,13 +2,13 @@
  * Copyright (c) 2026 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.guis.menu.container
+package net.casual.arcade.guis.menu.slot
 
 import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 
-internal object GuiContainer: Container {
+internal object EmptyContainer: Container {
     override fun getContainerSize(): Int {
         return 0
     }
