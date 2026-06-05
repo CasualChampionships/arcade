@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.guis.dialog.input
 
+import net.casual.arcade.guis.utils.dialog.DialogWidth
 import net.minecraft.network.chat.CommonComponents
 import net.minecraft.network.chat.Component
 import net.minecraft.server.dialog.body.PlainMessage
@@ -12,7 +13,7 @@ import net.minecraft.server.dialog.input.NumberRangeInput.RangeInfo
 import java.util.Optional
 
 public class NumberRangeInputBuilder: InputBuilder() {
-    public var width: Int = PlainMessage.DEFAULT_WIDTH
+    public var width: DialogWidth = DialogWidth.MESSAGE_DEFAULT
     public var label: Component = CommonComponents.EMPTY
     public var labelFormat: String = "%s %s"
     public var rangeInfo: RangeInfo = RangeInfo(0.0F, 1.0F, Optional.empty(), Optional.empty())

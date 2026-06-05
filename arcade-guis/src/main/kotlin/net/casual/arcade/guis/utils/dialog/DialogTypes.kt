@@ -5,6 +5,7 @@
 package net.casual.arcade.guis.utils.dialog
 
 import net.minecraft.server.dialog.CommonButtonData
+import net.minecraft.server.dialog.body.PlainMessage
 
 @JvmInline
 public value class DialogWidth(public val value: Int) {
@@ -14,6 +15,7 @@ public value class DialogWidth(public val value: Int) {
 
     public companion object {
         public val BUTTON_DEFAULT: DialogWidth = DialogWidth(CommonButtonData.DEFAULT_WIDTH)
+        public val MESSAGE_DEFAULT: DialogWidth = DialogWidth(PlainMessage.DEFAULT_WIDTH)
     }
 }
 
