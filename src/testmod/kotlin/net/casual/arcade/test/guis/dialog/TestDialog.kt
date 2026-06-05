@@ -1,19 +1,20 @@
 package net.casual.arcade.test.guis.dialog
 
-import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
-import net.casual.arcade.events.server.player.PlayerCustomClickActionEvent
-import net.casual.arcade.guis.utils.dialog.ConfirmationDialog
-import net.casual.arcade.guis.utils.dialog.CustomAll
-import net.casual.arcade.guis.utils.dialog.DialogListDialog
-import net.casual.arcade.guis.utils.dialog.StaticAction
+import com.mojang.serialization.Codec
+import com.mojang.serialization.codecs.RecordCodecBuilder
+import net.casual.arcade.guis.utils.dialog.*
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.player.username
 import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerPlayer
 
 object TestDialog {
-    private val CONFIRMATION_ID = arcade("dialog_confirmation_test")
+    private val REGISTRY = DialogCustomActionRegistry()
+
+    private val CONFIRMATION_ID = REGISTRY.register(
+        arcade("dialog_confirmation_test"), TestData.CODEC, ::onSubmitTestDataSuccess
+    )
 
     fun create(): DialogListDialog {
         return DialogListDialog {
@@ -43,14 +44,20 @@ object TestDialog {
     }
 
     internal fun registerEvents() {
-        GlobalEventHandler.Server.register<PlayerCustomClickActionEvent>(::onPlayerCustomClickAction)
+        DialogCustomActionRegistry.register(REGISTRY)
     }
 
-    private fun onPlayerCustomClickAction(event: PlayerCustomClickActionEvent) {
-        if (!event.consumed()) {
-            val (player, id, payload) = event
-            if (id == CONFIRMATION_ID) {
-                ArcadeUtils.logger.info("${player.username} submitted: $payload")
+    private fun onSubmitTestDataSuccess(player: ServerPlayer, data: TestData) {
+        ArcadeUtils.logger.info("${player.username} submitted valid test data: $data")
+    }
+
+    private data class TestData(val toggle: Boolean, val range: Float) {
+        companion object {
+            val CODEC: Codec<TestData> = RecordCodecBuilder.create { instance ->
+                instance.group(
+                    Codec.BOOL.fieldOf("toggle").forGetter(TestData::toggle),
+                    Codec.FLOAT.fieldOf("range").forGetter(TestData::range)
+                ).apply(instance, ::TestData)
             }
         }
     }

@@ -19,7 +19,7 @@ public class NumberRangeInputBuilder: InputBuilder() {
     public var rangeInfo: RangeInfo = RangeInfo(0.0F, 1.0F, Optional.empty(), Optional.empty())
 
     public fun width(width: Int): NumberRangeInputBuilder {
-        this.width = width
+        this.width = DialogWidth(width)
         return this
     }
 
@@ -43,6 +43,6 @@ public class NumberRangeInputBuilder: InputBuilder() {
     }
 
     override fun build(): NumberRangeInput {
-        return NumberRangeInput(this.width, this.label, this.labelFormat, this.rangeInfo)
+        return NumberRangeInput(this.width.value, this.label, this.labelFormat, this.rangeInfo)
     }
 }
