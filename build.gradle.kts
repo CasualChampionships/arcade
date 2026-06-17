@@ -11,7 +11,7 @@ plugins {
     java
 }
 
-val modVersion = "0.9.0-beta.37"
+val modVersion = "0.10.0-beta.1"
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -141,9 +141,9 @@ loom {
     runs {
         create("testmodServer") {
             server()
-            source(testmod)
-            vmArgs("-Dmixin.debug.export=true")
-            runDir = "run/${libs.versions.minecraft.get()}"
+            sourceSet.set(testmod.name)
+            jvmArguments.add("-Dmixin.debug.export=true")
+            runDirectory.set(file("run/${libs.versions.minecraft.get()}"))
         }
     }
 }

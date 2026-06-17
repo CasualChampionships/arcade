@@ -15,9 +15,9 @@ repositories {
 }
 
 dependencies {
-    include(implementation("net.casualchampionships:arcade-resource-pack-host:0.9.0-beta.8+26.1")!!)
+    include(implementation("net.casualchampionships:arcade-resource-pack-host:0.10.0-beta.1+26.2")!!)
 
-    include(implementation("net.casualchampionships:arcade-interceptor:0.9.0-beta.8+26.1")!!)
-    include(implementation("net.casualchampionships:arcade-utils:0.9.0-beta.8+26.1")!!)
+    include(implementation("net.casualchampionships:arcade-interceptor:0.10.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-utils:0.10.0-beta.1+26.2")!!)
 }
 ```
