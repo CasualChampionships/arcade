@@ -33,7 +33,7 @@ import net.minecraft.network.ProtocolInfo
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.file.Path
@@ -66,7 +66,7 @@ public class ReplayModWriter(
         offThread: Boolean
     ): CompletableFuture<Int?> {
         if (packet is ClientboundAddEntityPacket) {
-            if (packet.type == EntityType.PLAYER) {
+            if (packet.type == EntityTypes.PLAYER) {
                 val uuids = this.meta.players.toMutableSet()
                 uuids.add(packet.uuid.toString())
                 this.meta.players = uuids.toTypedArray()

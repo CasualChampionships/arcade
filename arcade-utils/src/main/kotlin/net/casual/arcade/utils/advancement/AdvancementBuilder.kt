@@ -5,7 +5,9 @@
 package net.casual.arcade.utils.advancement
 
 import net.minecraft.advancements.*
-import net.minecraft.advancements.criterion.ImpossibleTrigger
+import net.minecraft.advancements.triggers.CriteriaTriggers
+import net.minecraft.advancements.triggers.Criterion
+import net.minecraft.advancements.triggers.ImpossibleTrigger
 import net.minecraft.core.ClientAsset
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier

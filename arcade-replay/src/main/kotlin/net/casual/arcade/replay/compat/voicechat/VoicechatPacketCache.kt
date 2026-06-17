@@ -21,7 +21,8 @@ import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 import net.minecraft.world.phys.Vec3
 import java.util.*
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 internal class VoicechatPacketCache {
     private val channels: Cache<UUID, OpusDecoder> = this.createDecoderCache()
@@ -95,7 +96,7 @@ internal class VoicechatPacketCache {
     private fun createDecoderCache(): Cache<UUID, OpusDecoder> {
         return CacheBuilder.newBuilder()
             .removalListener<UUID, OpusDecoder> { it.value?.close() }
-            .expireAfterAccess(30, TimeUnit.SECONDS)
+            .expireAfterAccess(30.seconds.toJavaDuration())
             .build()
     }
 

@@ -15,6 +15,8 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Scoreboard
+import net.minecraft.world.scores.TeamColor
+import kotlin.jvm.optionals.getOrNull
 
 public val PlayerTeam.server: MinecraftServer
     get() = (this.scoreboard as? ServerScoreboardAccessor)?.arcade_getServer()
@@ -61,7 +63,7 @@ public fun PlayerTeam.setHexColor(color: Int?) {
 }
 
 public fun PlayerTeam.getHexColor(): Int? {
-    return (this as OverridableColor).arcade_getColor() ?: this.color.color
+    return (this as OverridableColor).arcade_getColor() ?: this.color.map(TeamColor::rgb)?.getOrNull()
 }
 
 public fun MutableComponent.color(team: PlayerTeam?): MutableComponent {
@@ -73,4 +75,25 @@ public fun MutableComponent.color(team: PlayerTeam?): MutableComponent {
         this.withColor(color)
     }
     return this
+}
+
+public fun TeamColor.getPrettyName(): String {
+    return when (this) {
+        TeamColor.BLACK -> "Black"
+        TeamColor.DARK_BLUE -> "Navy"
+        TeamColor.DARK_GREEN -> "Green"
+        TeamColor.DARK_AQUA -> "Teal"
+        TeamColor.DARK_RED -> "Red"
+        TeamColor.DARK_PURPLE -> "Purple"
+        TeamColor.GOLD -> "Orange"
+        TeamColor.GRAY -> "Silver"
+        TeamColor.DARK_GRAY -> "Gray"
+        TeamColor.BLUE -> "Blue"
+        TeamColor.GREEN -> "Lime"
+        TeamColor.AQUA -> "Aqua"
+        TeamColor.RED -> "Crimson"
+        TeamColor.LIGHT_PURPLE -> "Pink"
+        TeamColor.YELLOW -> "Yellow"
+        TeamColor.WHITE -> "White"
+    }
 }

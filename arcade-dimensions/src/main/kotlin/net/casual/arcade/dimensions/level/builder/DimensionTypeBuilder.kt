@@ -7,8 +7,8 @@ package net.casual.arcade.dimensions.level.builder
 import net.minecraft.core.Holder
 import net.minecraft.core.HolderGetter
 import net.minecraft.core.HolderSet
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.tags.BlockTags
-import net.minecraft.tags.TagKey
 import net.minecraft.util.valueproviders.IntProvider
 import net.minecraft.util.valueproviders.UniformInt
 import net.minecraft.world.attribute.EnvironmentAttributeMap
@@ -34,7 +34,7 @@ public class DimensionTypeBuilder {
     public var minY: Int = -64
     public var height: Int = 384
     public var logicalHeight: Int = 384
-    public var infiniburn: TagKey<Block> = BlockTags.INFINIBURN_OVERWORLD
+    public var infiniburn: HolderSet<Block> = BuiltInRegistries.BLOCK.getOrThrow(BlockTags.INFINIBURN_OVERWORLD)
     public var ambientLight: Float = 0.0F
 
     public var monsterSpawnLightLevel: IntProvider = UniformInt.of(0, 7)
@@ -86,7 +86,7 @@ public class DimensionTypeBuilder {
         return this
     }
 
-    public fun infiniburn(infiniburn: TagKey<Block>): DimensionTypeBuilder {
+    public fun infiniburn(infiniburn: HolderSet<Block>): DimensionTypeBuilder {
         this.infiniburn = infiniburn
         return this
     }

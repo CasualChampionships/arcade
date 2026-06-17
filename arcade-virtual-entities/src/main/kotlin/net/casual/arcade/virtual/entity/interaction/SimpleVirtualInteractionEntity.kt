@@ -10,12 +10,12 @@ import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.tracker.ObserverTracker
 import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.utils.EntityDataAccessors
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 
 public class SimpleVirtualInteractionEntity(
     attachment: VirtualEntityAttachment,
     observers: ObserverTracker = SimpleObserverTracker()
-): SimpleVirtualEntity(EntityType.INTERACTION, attachment, observers) {
+): SimpleVirtualEntity(EntityTypes.INTERACTION, attachment, observers) {
     public fun setWidth(width: Float) {
         this.setDataEntry(EntityDataAccessors.Interaction.WIDTH, width)
     }

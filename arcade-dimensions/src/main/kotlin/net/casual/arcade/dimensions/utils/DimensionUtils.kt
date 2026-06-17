@@ -23,6 +23,7 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
+import net.minecraft.world.phys.Vec3
 import org.apache.commons.io.file.PathUtils
 import java.io.IOException
 import java.nio.file.Path
@@ -311,8 +312,8 @@ private fun ServerLevel.removePlayers() {
 
     val overworld = this.server().overworld()
     for (player in players.toList()) {
-        val position = player.adjustSpawnLocation(overworld, overworld.respawnData.pos()).bottomCenter
-        player.teleportTo(overworld.asLocation(position))
+        val position = player.adjustSpawnLocation(overworld, overworld.respawnData.pos())
+        player.teleportTo(overworld.asLocation(Vec3.atBottomCenterOf(position)))
     }
 
     if (players.isNotEmpty()) {

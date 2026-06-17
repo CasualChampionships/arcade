@@ -14,7 +14,7 @@ import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.ai.attributes.AttributeInstance
 import net.minecraft.world.entity.ai.attributes.Attributes
 
@@ -23,7 +23,7 @@ public class CollisionCubeVirtualEntity(
     tracker: ObserverTracker
 ): SimpleParentVirtualEntity(attachment, tracker) {
     private val vehicle = this.attachWithParentObservers(::SimpleVirtualTextDisplay)
-    private val shulker = this.attachWithParentObservers(SimpleVirtualEntity.typed(EntityType.SHULKER))
+    private val shulker = this.attachWithParentObservers(SimpleVirtualEntity.typed(EntityTypes.SHULKER))
 
     private var scale: Double = 1.0
 

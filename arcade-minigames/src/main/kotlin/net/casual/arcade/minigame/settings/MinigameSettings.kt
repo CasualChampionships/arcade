@@ -205,7 +205,7 @@ public open class MinigameSettings(
 
     public var useVanillaChat: Boolean by this.register(bool {
         name = "use_vanilla_chat"
-        display = Items.WHITE_CONCRETE.named(Component.translatable("minigame.settings.useVanillaChat.name"))
+        display = Items.CONCRETE.white.named(Component.translatable("minigame.settings.useVanillaChat.name"))
             .styledLore(Component.translatable("minigame.settings.useVanillaChat.desc.1"), Component.translatable("minigame.settings.useVanillaChat.desc.2"))
         value = false
         defaults.options(this)
@@ -253,7 +253,7 @@ public open class MinigameSettings(
 
     public var formatGlobalSystemChat: Boolean by this.register(bool {
         name = "format_global_system_chat"
-        display = Items.YELLOW_DYE.named(Component.translatable("minigame.settings.formatGlobalSystemChat.name"))
+        display = Items.DYE.yellow.named(Component.translatable("minigame.settings.formatGlobalSystemChat.name"))
             .styledLore(Component.translatable("minigame.settings.formatGlobalSystemChat.desc.1"))
         value = true
         defaults.options(this)

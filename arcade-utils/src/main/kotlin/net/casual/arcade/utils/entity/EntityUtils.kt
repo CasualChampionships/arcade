@@ -21,10 +21,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.util.Mth
 import net.minecraft.util.random.WeightedList
-import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.EntitySpawnReason
-import net.minecraft.world.entity.EntityType
-import net.minecraft.world.entity.Relative
+import net.minecraft.world.entity.*
 import net.minecraft.world.entity.ai.attributes.AttributeInstance
 import net.minecraft.world.level.levelgen.structure.Structure
 import net.minecraft.world.phys.Vec3
@@ -149,12 +146,12 @@ public fun <T: Entity> EntityType<T>.spawn(
     location: LocationWithLevel<ServerLevel>,
     reason: EntitySpawnReason = EntitySpawnReason.EVENT
 ): T? {
-    val consumer = Consumer<T> { entity ->
+    val processor = PostSpawnProcessor<T> { entity ->
         entity.snapTo(location.position, location.yRot, location.xRot)
         entity.yHeadRot = location.yRot
         entity.setYBodyRot(location.yRot)
     }
-    return this.spawn(location.level, consumer, BlockPos.containing(location.position), reason, false, false)
+    return this.spawn(location.level, processor, BlockPos.containing(location.position), reason, false, false)
 }
 
 public fun AttributeInstance.resetBaseValue() {

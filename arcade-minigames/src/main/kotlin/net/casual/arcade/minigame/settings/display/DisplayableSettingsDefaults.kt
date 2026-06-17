@@ -26,8 +26,8 @@ public open class DisplayableSettingsDefaults {
 
     public open fun options(
         builder: MenuGameSettingBuilder<Boolean>,
-        enabled: ItemStack = Items.GREEN_STAINED_GLASS_PANE.named("On"),
-        disabled: ItemStack = Items.RED_STAINED_GLASS_PANE.named("Off")
+        enabled: ItemStack = Items.STAINED_GLASS_PANE.green.named("On"),
+        disabled: ItemStack = Items.STAINED_GLASS_PANE.red.named("Off")
     ) {
         builder.option("enabled", enabled, true)
         builder.option("disabled", disabled, false)
@@ -50,7 +50,7 @@ public open class DisplayableSettingsDefaults {
         private var calls = 0
 
         override fun invoke(enum: E): ItemStack {
-            val item = if (this.calls++ % 2 == 0) Items.WHITE_STAINED_GLASS_PANE else Items.RED_STAINED_GLASS_PANE
+            val item = if (this.calls++ % 2 == 0) Items.STAINED_GLASS_PANE.white else Items.STAINED_GLASS_PANE.red
             return item.named(enum.name)
         }
     }

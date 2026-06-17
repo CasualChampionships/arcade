@@ -62,9 +62,9 @@ public interface AxisAlignedModelRenderOptions {
         public val DEFAULT: AxisAlignedModelRenderOptions = this.register(
             "default",
             Constant(
-                ItemStackTemplate(Items.LIGHT_BLUE_STAINED_GLASS),
-                ItemStackTemplate(Items.RED_STAINED_GLASS),
-                ItemStackTemplate(Items.LIME_STAINED_GLASS),
+                ItemStackTemplate(Items.STAINED_GLASS.lightBlue),
+                ItemStackTemplate(Items.STAINED_GLASS.red),
+                ItemStackTemplate(Items.STAINED_GLASS.lime),
                 Brightness.FULL_BRIGHT
             )
         )

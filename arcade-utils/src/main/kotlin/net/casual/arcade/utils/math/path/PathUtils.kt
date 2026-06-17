@@ -24,10 +24,11 @@ public fun Path.calculateNextNodeIndex(
     }
 
     var closestTargetIndex = 0
-    var closestDistance = position.distanceTo(this.getNodePos(closestTargetIndex).bottomCenter)
+
+    var closestDistance = position.distanceTo(Vec3.atBottomCenterOf(this.getNodePos(closestTargetIndex)))
     for (i in 0 until size - 1) {
-        val start = this.getNodePos(i).bottomCenter
-        val end = this.getNodePos(i + 1).bottomCenter
+        val start = Vec3.atBottomCenterOf(this.getNodePos(i))
+        val end = Vec3.atBottomCenterOf(this.getNodePos(i + 1))
         val isAtStart = start.horizontallyCloserThan(position, horizontalTolerance)
             && start.verticallyCloserThan(position, verticalTolerance)
         if (isAtStart) {

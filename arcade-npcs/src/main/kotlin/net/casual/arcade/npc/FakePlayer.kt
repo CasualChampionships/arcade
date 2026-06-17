@@ -34,7 +34,7 @@ import net.minecraft.util.debug.DebugPathInfo
 import net.minecraft.util.debug.DebugSubscriptions
 import net.minecraft.util.debug.DebugValueSource
 import net.minecraft.world.effect.MobEffects
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier
 import net.minecraft.world.entity.ai.attributes.Attributes
@@ -80,7 +80,7 @@ public open class FakePlayer(
     }
 
     public open fun createAttributeSupplier(): AttributeSupplier {
-        return DefaultAttributes.getSupplier(EntityType.PLAYER)
+        return DefaultAttributes.getSupplier(EntityTypes.PLAYER)
     }
 
     public open fun createNavigation(): NPCPathNavigation {
@@ -227,7 +227,7 @@ public open class FakePlayer(
         return this.isFallFlying
             || this.hasEffect(MobEffects.BLINDNESS)
             || this.isMovingSlowly()
-            || this.isPassenger && this.vehicle?.type != EntityType.CAMEL
+            || this.isPassenger && this.vehicle?.type != EntityTypes.CAMEL
             || this.isUsingItem && !this.isPassenger && !this.isUnderWater
     }
 

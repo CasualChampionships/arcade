@@ -11,7 +11,7 @@ import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.utils.EntityDataAccessors
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.HumanoidArm
 import net.minecraft.world.item.component.ResolvableProfile
 import java.util.*
@@ -19,7 +19,7 @@ import java.util.*
 public open class SimpleVirtualMannequin(
     attachment: VirtualEntityAttachment,
     observers: ObserverTracker = SimpleObserverTracker()
-): SimpleVirtualEntity(EntityType.MANNEQUIN, attachment, observers) {
+): SimpleVirtualEntity(EntityTypes.MANNEQUIN, attachment, observers) {
     public fun setMainHand(hand: HumanoidArm) {
         this.setDataEntry(EntityDataAccessors.Avatar.MAIN_HAND, hand)
     }

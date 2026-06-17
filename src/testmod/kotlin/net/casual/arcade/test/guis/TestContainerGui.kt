@@ -1,7 +1,7 @@
 package net.casual.arcade.test.guis
 
-import net.casual.arcade.guis.core.container.ContainerGui
 import net.casual.arcade.guis.core.Gui
+import net.casual.arcade.guis.core.container.ContainerGui
 import net.casual.arcade.guis.core.container.GuiItem
 import net.casual.arcade.guis.utils.ContainerType
 import net.casual.arcade.guis.utils.SlotClickAction
@@ -35,17 +35,17 @@ class TestContainerGui(player: ServerPlayer, overrideInventory: Boolean = false)
         logger.info("${this.player.username} opened the gui")
 
         this.setSlot(0, FlipFloppingItem)
-        this.setSlot(1, Items.RED_WOOL.named("Close")) { this.close() }
-        this.setSlot(2, Items.BLUE_WOOL.named("Open Child")) {
+        this.setSlot(1, Items.WOOL.red.named("Close")) { this.close() }
+        this.setSlot(2, Items.WOOL.blue.named("Open Child")) {
             val child = TestContainerGui(this.player, this.overrideChildInventory)
             child.setParent(this)
             child.open()
         }
-        this.setSlot(3, Items.GREEN_WOOL.named("Open Parent Or Close")) { this.openParentOrClose() }
-        this.setSlot(4, Items.PURPLE_WOOL.named("Mark Invalid")) { this.valid = false }
-        this.setSlot(5, Items.YELLOW_WOOL.named("Next Title")) { this.setTitleToNext() }
-        this.setSlot(6, Items.LIGHT_GRAY_WOOL.named("Disable Spectator Clicking")) { this.canSpectatorsClick = false }
-        this.setSlot(7, Items.PINK_WOOL.named("Override Child Inventory")) { this.overrideChildInventory = true }
+        this.setSlot(3, Items.WOOL.green.named("Open Parent Or Close")) { this.openParentOrClose() }
+        this.setSlot(4, Items.WOOL.purple.named("Mark Invalid")) { this.valid = false }
+        this.setSlot(5, Items.WOOL.yellow.named("Next Title")) { this.setTitleToNext() }
+        this.setSlot(6, Items.WOOL.lightGray.named("Disable Spectator Clicking")) { this.canSpectatorsClick = false }
+        this.setSlot(7, Items.WOOL.pink.named("Override Child Inventory")) { this.overrideChildInventory = true }
     }
 
     override fun onClose(reason: Gui.CloseReason) {

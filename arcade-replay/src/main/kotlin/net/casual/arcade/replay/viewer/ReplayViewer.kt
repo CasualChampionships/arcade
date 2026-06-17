@@ -557,6 +557,7 @@ public class ReplayViewer internal constructor(
                 packet.showDeathScreen,
                 packet.doLimitedCrafting,
                 packet.commonPlayerSpawnInfo,
+                packet.onlineMode,
                 packet.enforcesSecureChat
             )
         }

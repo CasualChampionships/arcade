@@ -23,7 +23,7 @@ import net.casual.arcade.visuals.entity.mannequin.MimickingVirtualMannequin
 import net.casual.arcade.visuals.shapes.impl.RegularPolygonShape
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.phys.Vec3
 
 @Suppress("unused")
@@ -48,7 +48,7 @@ object VirtualEntityTestCommand: CommandTree<CommandSourceStack> {
         val shape = RegularPolygonShape(position, 5.0, 10)
         val attachment = level.createVirtualEntityAttachment(::SimpleVirtualEntityAttachment)
         for (point in shape) {
-            val zombie = attachment.attach { a -> SimpleVirtualEntity(EntityType.ZOMBIE, a) }
+            val zombie = attachment.attach { a -> SimpleVirtualEntity(EntityTypes.ZOMBIE, a) }
             zombie.position = VirtualPosition.Absolute(point)
             zombie.rotation = VirtualRotation.Absolute(point.rotationAnglesTowards(position))
         }
@@ -67,7 +67,7 @@ object VirtualEntityTestCommand: CommandTree<CommandSourceStack> {
         val shape = RegularPolygonShape(Vec3.ZERO, 3.0, 10)
         for (point in shape) {
             root.attachWithParentObservers { a, o ->
-                val slime = SimpleVirtualEntity(EntityType.SLIME, a, o)
+                val slime = SimpleVirtualEntity(EntityTypes.SLIME, a, o)
                 slime.position = VirtualPosition.Relative(point)
                 slime.rotation = VirtualRotation.Absolute(point.rotationAnglesTowards(Vec3.ZERO))
                 slime

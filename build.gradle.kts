@@ -45,7 +45,6 @@ allprojects {
         implementation(libs.fabric.loader)
         implementation(libs.fabric.kotlin)
         implementation(libs.fabric.api)
-        implementation(libs.permissions)
     }
 
     java {
@@ -153,7 +152,6 @@ dependencies {
     include(libs.polymer.core)
     include(libs.polymer.blocks)
     include(libs.polymer.resource.pack)
-    include(libs.permissions)
 
     include(implementation(libs.server.translations.get())!!)
 

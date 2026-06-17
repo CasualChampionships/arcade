@@ -8,7 +8,7 @@ import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.tracker.ObserverTracker
 import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.item.ItemStack
 import net.casual.arcade.virtual.entity.utils.EntityDataAccessors.Display.Item as ItemDisplayDataAccessors
@@ -16,7 +16,7 @@ import net.casual.arcade.virtual.entity.utils.EntityDataAccessors.Display.Item a
 public open class SimpleVirtualItemDisplay(
     attachment: VirtualEntityAttachment,
     observers: ObserverTracker = SimpleObserverTracker()
-): SimpleVirtualDisplay(EntityType.ITEM_DISPLAY, attachment, observers) {
+): SimpleVirtualDisplay(EntityTypes.ITEM_DISPLAY, attachment, observers) {
     public fun setItemStack(stack: ItemStack) {
         this.setDataEntry(ItemDisplayDataAccessors.ITEM_STACK, stack)
     }

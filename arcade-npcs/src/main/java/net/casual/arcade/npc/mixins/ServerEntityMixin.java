@@ -8,7 +8,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.casual.arcade.npc.FakePlayer;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
@@ -33,7 +33,7 @@ public class ServerEntityMixin {
     )
     private Collection<AttributeInstance> onGetSyncAttributes(Collection<AttributeInstance> original) {
         if (this.entity instanceof FakePlayer) {
-            AttributeSupplier supplier = DefaultAttributes.getSupplier(EntityType.PLAYER);
+            AttributeSupplier supplier = DefaultAttributes.getSupplier(EntityTypes.PLAYER);
             original.removeIf(instance -> !supplier.hasAttribute(instance.getAttribute()));
         }
         return original;
@@ -48,7 +48,7 @@ public class ServerEntityMixin {
     )
     private Set<AttributeInstance> onGetSyncAttributes(Set<AttributeInstance> original) {
         if (this.entity instanceof FakePlayer) {
-            AttributeSupplier supplier = DefaultAttributes.getSupplier(EntityType.PLAYER);
+            AttributeSupplier supplier = DefaultAttributes.getSupplier(EntityTypes.PLAYER);
             original.removeIf(instance -> !supplier.hasAttribute(instance.getAttribute()));
         }
         return original;

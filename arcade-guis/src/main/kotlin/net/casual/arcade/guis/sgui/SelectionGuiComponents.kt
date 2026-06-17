@@ -29,7 +29,7 @@ public interface SelectionGuiComponents {
      * @return The default previous [ItemStack]
      */
     public fun getPrevious(hasPrevious: Boolean): ItemStack {
-        val item = if (hasPrevious) Items.RED_STAINED_GLASS else Items.GRAY_STAINED_GLASS
+        val item = if (hasPrevious) Items.STAINED_GLASS.red else Items.STAINED_GLASS.gray
         return ItemStack(item).named("Previous")
     }
 
@@ -39,7 +39,7 @@ public interface SelectionGuiComponents {
      * @return The default back [ItemStack]
      */
     public fun getBack(hasParent: Boolean): ItemStack {
-        return ItemStack(Items.RED_STAINED_GLASS).named(if (hasParent) "Back" else "Exit")
+        return ItemStack(Items.STAINED_GLASS.red).named(if (hasParent) "Back" else "Exit")
     }
 
     /**
@@ -48,7 +48,7 @@ public interface SelectionGuiComponents {
      * @return The default next [ItemStack]
      */
     public fun getNext(hasNext: Boolean): ItemStack {
-        val item = if (hasNext) Items.GREEN_STAINED_GLASS else Items.GRAY_STAINED_GLASS
+        val item = if (hasNext) Items.STAINED_GLASS.green else Items.STAINED_GLASS.gray
         return ItemStack(item).named("Next")
     }
 
@@ -58,7 +58,7 @@ public interface SelectionGuiComponents {
      * @return The default filler [ItemStack]
      */
     public fun getFiller(): ItemStack {
-        return ItemStack(Items.GRAY_STAINED_GLASS).named("")
+        return ItemStack(Items.STAINED_GLASS.gray).named("")
     }
 
     public companion object {

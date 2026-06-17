@@ -59,7 +59,7 @@ open class TestMinigame(
 
         this.recipes.add(CraftingRecipeBuilder.shapeless(this.server.registryAccess()) {
             key(arcade("example"))
-            ingredients(Items.ITEM_FRAME, Items.BLACK_DYE)
+            ingredients(Items.ITEM_FRAME, Items.DYE.black)
             result(ItemStackTemplate(Items.NETHERITE_BLOCK))
         })
 

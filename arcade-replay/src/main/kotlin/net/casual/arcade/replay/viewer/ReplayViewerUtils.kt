@@ -51,8 +51,9 @@ public object ReplayViewerUtils {
         // When we compile we map steveice10.netty -> io.netty
         // We just need this check for dev environment
         @Suppress("USELESS_IS_CHECK", "IMPOSSIBLE_IS_CHECK_WARNING")
-        if (buf is ByteBuf) {
-            return block(buf)
+        if ((buf as Any) is ByteBuf) {
+            @Suppress("CAST_NEVER_SUCCEEDS")
+            return block(buf as ByteBuf)
         }
 
         val array = ByteArray(buf.readableBytes())

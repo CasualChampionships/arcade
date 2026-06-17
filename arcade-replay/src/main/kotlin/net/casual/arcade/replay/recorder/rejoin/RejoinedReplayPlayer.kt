@@ -84,6 +84,7 @@ public class RejoinedReplayPlayer private constructor(
                 !rules.get(GameRules.IMMEDIATE_RESPAWN),
                 rules.get(GameRules.LIMITED_CRAFTING),
                 player.createCommonSpawnInfo(level),
+                server.usesAuthentication(),
                 false
             ))
             afterLogin.invoke()

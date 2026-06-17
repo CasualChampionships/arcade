@@ -23,7 +23,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.network.codec.ByteBufCodecs
 import net.minecraft.network.protocol.configuration.ConfigurationProtocols
 import net.minecraft.network.protocol.game.*
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.PositionMoveRotation
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.phys.Vec2
@@ -31,13 +31,14 @@ import net.minecraft.world.phys.Vec3
 import java.io.InputStream
 import java.nio.file.FileSystems
 import java.nio.file.Path
-import java.util.concurrent.TimeUnit
 import kotlin.io.path.inputStream
 import kotlin.io.path.notExists
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.max
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.toJavaDuration
 
 public class FlashbackReader(
     private val viewer: ReplayViewer,
@@ -47,7 +48,7 @@ public class FlashbackReader(
     private val chunked = FlashbackChunkedReader(this.system, this.viewer.server.registryAccess())
 
     private val cache = CacheBuilder.newBuilder()
-        .expireAfterAccess(10, TimeUnit.MINUTES)
+        .expireAfterAccess(10.minutes.toJavaDuration())
         .build<Int, ClientboundLevelChunkWithLightPacket>()
 
     private var initial: Boolean = true
@@ -199,7 +200,7 @@ public class FlashbackReader(
         val profile = ByteBufCodecs.GAME_PROFILE.decode(buffer)
         val gamemode = buffer.readVarInt()
         val packet = ClientboundAddEntityPacket(
-            this.player, uuid, x, y, z, xRot, yRot, EntityType.PLAYER, 0, velocity, headRot.toDouble()
+            this.player, uuid, x, y, z, xRot, yRot, EntityTypes.PLAYER, 0, velocity, headRot.toDouble()
         )
         consumer.invoke(ReplayPacketData(ConnectionProtocol.PLAY, packet, this.tickAsDuration))
         // We teleport the player for chunk recordings

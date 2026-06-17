@@ -11,7 +11,7 @@ import net.casual.arcade.virtual.entity.extensions.PlayerAttachmentObserverExten
 import net.minecraft.network.protocol.game.ServerboundAttackPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundPickItemFromEntityPacket;
-import net.minecraft.network.protocol.game.ServerboundSpectateEntityPacket;
+import net.minecraft.network.protocol.game.ServerboundSpectatorActionPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
@@ -72,7 +72,7 @@ public class ServerGamePacketListenerImplMixin {
     }
 
     @ModifyExpressionValue(
-        method = "handleSpectateEntity",
+        method = "handleSpectatorAction",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/server/level/ServerLevel;getEntityOrPart(I)Lnet/minecraft/world/entity/Entity;"
@@ -81,11 +81,12 @@ public class ServerGamePacketListenerImplMixin {
     private Entity trySpectateVirtualEntity(
         @Nullable Entity entity,
         @Cancellable CallbackInfo ci,
-        @Local(name = "packet", argsOnly = true) ServerboundSpectateEntityPacket packet
+        @Local(name = "packet", argsOnly = true) ServerboundSpectatorActionPacket packet
     ) {
         if (entity == null) {
             PlayerAttachmentObserverExtension extension = PlayerAttachmentObserverExtension.getAttachmentObserver(this.player);
-            if (extension.trySpectateVirtualEntity(packet.entityId())) {
+            // noinspection OptionalGetWithoutIsPresent
+            if (extension.trySpectateVirtualEntity(packet.spectateEntityId().getAsInt())) {
                 ci.cancel();
             }
         }

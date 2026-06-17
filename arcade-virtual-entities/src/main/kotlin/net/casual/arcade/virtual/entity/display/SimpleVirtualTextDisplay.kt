@@ -11,7 +11,7 @@ import net.casual.arcade.virtual.entity.utils.EntityDataSharedFlags
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Display
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import kotlin.experimental.or
 import net.casual.arcade.virtual.entity.utils.EntityDataAccessors.Display.Text as TextDisplayDataAccessors
 import net.casual.arcade.virtual.entity.utils.EntityDataSharedFlags.Display.Text as TextDisplayDataSharedFlags
@@ -19,7 +19,7 @@ import net.casual.arcade.virtual.entity.utils.EntityDataSharedFlags.Display.Text
 public open class SimpleVirtualTextDisplay(
     attachment: VirtualEntityAttachment,
     observers: ObserverTracker = SimpleObserverTracker()
-): SimpleVirtualDisplay(EntityType.TEXT_DISPLAY, attachment, observers) {
+): SimpleVirtualDisplay(EntityTypes.TEXT_DISPLAY, attachment, observers) {
     public fun setText(component: Component) {
         this.setDataEntry(TextDisplayDataAccessors.TEXT, component)
     }

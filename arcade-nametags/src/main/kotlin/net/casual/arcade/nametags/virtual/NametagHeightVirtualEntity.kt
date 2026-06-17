@@ -22,7 +22,7 @@ import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.phys.Vec3
 import java.util.*
 
@@ -45,7 +45,7 @@ public class NametagHeightVirtualEntity(
         val location = this.location()
         val (x, y, z) = location.position
         consumer.invoke(ClientboundAddEntityPacket(
-            this.id, this.uuid, x, y, z, 0.0F, 0.0F, EntityType.ARMOR_STAND, 0, Vec3.ZERO, 0.0
+            this.id, this.uuid, x, y, z, 0.0F, 0.0F, EntityTypes.ARMOR_STAND, 0, Vec3.ZERO, 0.0
         ))
         consumer.invoke(ClientboundSetEntityDataPacket(this.id, changed))
         val attribute = this.height.attribute
@@ -68,7 +68,7 @@ public class NametagHeightVirtualEntity(
 
     private companion object {
         val changed by lazy {
-            val data = SimpleEntityData(EntityType.ARMOR_STAND)
+            val data = SimpleEntityData(EntityTypes.ARMOR_STAND)
             data.set(EntityDataAccessors.SILENT, true)
             data.set(EntityDataAccessors.NO_GRAVITY, true)
             data.set(EntityDataAccessors.SHARED_FLAGS, EntityDataSharedFlags.INVISIBLE.toByte())

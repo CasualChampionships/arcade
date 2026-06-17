@@ -9,6 +9,7 @@ import net.casual.arcade.utils.component.font
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
+import net.minecraft.network.chat.TextColor
 import net.minecraft.network.chat.contents.TranslatableContents
 import kotlin.reflect.KProperty
 
@@ -20,8 +21,8 @@ public object ComponentUtils {
 
     init {
         for (formatting in ChatFormatting.entries) {
-            val color = formatting.color ?: continue
-            this.formattingByColor[color] = formatting
+            val color = TextColor.fromLegacyFormat(formatting) ?: continue
+            this.formattingByColor[color.value] = formatting
         }
     }
 

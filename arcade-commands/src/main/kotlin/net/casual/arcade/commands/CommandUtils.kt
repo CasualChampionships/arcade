@@ -12,7 +12,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.tree.LiteralCommandNode
-import me.lucko.fabric.api.permissions.v0.Permissions
 import net.casual.arcade.commands.hidden.HiddenCommand
 import net.casual.arcade.commands.hidden.HiddenCommandManager
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
@@ -21,11 +20,14 @@ import net.casual.arcade.utils.component.click
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
+import net.casual.arcade.utils.minecraft
 import net.casual.arcade.utils.time.MinecraftTimeDuration
+import net.fabricmc.fabric.api.permission.v1.PermissionPredicates
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.permissions.Permission
 import net.minecraft.server.permissions.Permission.HasCommandLevel
@@ -153,17 +155,34 @@ public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSo
     return this.requires { it.hasPermission(permission) }
 }
 
+@Deprecated("Permission should be passed as a namespaced string instead")
 public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
     permission: String
 ): T {
-    return this.requires { Permissions.check(it, permission) }
+    return this.requiresPermission(minecraft(permission))
 }
 
+@Suppress("UnstableApiUsage")
+public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
+    permission: Identifier
+): T {
+    return this.requires(PermissionPredicates.require(permission))
+}
+
+@Deprecated("Permission should be passed as a namespaced string instead")
 public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
     permission: String,
     fallback: PermissionLevel
 ): T {
-    return this.requires { Permissions.check(it, permission, fallback) }
+    return this.requiresPermission(minecraft(permission), fallback)
+}
+
+@Suppress("UnstableApiUsage")
+public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
+    permission: Identifier,
+    fallback: PermissionLevel
+): T {
+    return this.requires(PermissionPredicates.require(permission, fallback))
 }
 
 public fun <S, T> RequiredArgumentBuilder<S, T>.suggests(

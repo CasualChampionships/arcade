@@ -10,6 +10,8 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.scores.PlayerTeam
 import net.minecraft.world.scores.Scoreboard
 import net.minecraft.world.scores.Team
+import net.minecraft.world.scores.TeamColor
+import java.util.*
 
 public object RandomizedTeams {
     private val animals = this.loadTeamAnimals()
@@ -35,7 +37,7 @@ public object RandomizedTeams {
                     return null
                 }
             }
-            colors.remove(TeamColor.from(team.color))
+            team.color.ifPresent(colors::remove)
             team.isAllowFriendlyFire = friendlyFire
             team.collisionRule = collision
             for (entity in teammates) {
@@ -51,11 +53,11 @@ public object RandomizedTeams {
         val colors = allowable.shuffled()
         for (color in colors) {
             for (animal in this.animals[color].shuffled()) {
-                val teamName = "${color.name}$animal"
+                val teamName = "${color.getPrettyName()}$animal"
                 val team = scoreboard.getOrCreateTeam(teamName)
                 if (team.players.isEmpty()) {
-                    team.color = color.formatting
-                    team.displayName = Component.literal("${color.name} $animal").withStyle(color.formatting)
+                    team.color = Optional.of(color)
+                    team.displayName = Component.literal("${color.getPrettyName()} $animal").withColor(color.textColor())
                     team.setPlayerPrefix(team.formattedDisplayName.append(" "))
                     return team
                 }
@@ -68,7 +70,7 @@ public object RandomizedTeams {
     public fun deleteAllRandomTeams(scoreboard: Scoreboard) {
         for (color in TeamColor.entries) {
             for (animal in this.animals[color]) {
-                val teamName = "${color.name}$animal"
+                val teamName = "${color.getPrettyName()}$animal"
                 val team = scoreboard.getPlayerTeam(teamName) ?: continue
                 scoreboard.removePlayerTeam(team)
             }
@@ -77,22 +79,22 @@ public object RandomizedTeams {
 
     private fun loadTeamAnimals(): HashMultimap<TeamColor, String> {
         val map = HashMultimap.create<TeamColor, String>()
-        map.putAll(TeamColor.Black, listOf("Bats", "Bears", "Buffaloes"))
-        map.putAll(TeamColor.Navy, listOf("Narwhals"))
-        map.putAll(TeamColor.Green, listOf("Gorillas", "Geese", "Geckos"))
-        map.putAll(TeamColor.Teal, listOf("Turkeys", "Turtles", "Tigers"))
-        map.putAll(TeamColor.Red, listOf("Rhinos", "Rabbits", "Robins"))
-        map.putAll(TeamColor.Purple, listOf("Pandas", "Penguins"))
-        map.putAll(TeamColor.Orange, listOf("Ocelots", "Owls"))
-        map.putAll(TeamColor.Silver, listOf("Spiders", "Sharks"))
-        map.putAll(TeamColor.Gray, listOf("Goats"))
-        map.putAll(TeamColor.Blue, listOf("Beavers", "Butterflies", "Beetles"))
-        map.putAll(TeamColor.Lime, listOf("Lizards", "Leopards"))
-        map.putAll(TeamColor.Aqua, listOf("Armadillos", "Axolotls"))
-        map.putAll(TeamColor.Crimson, listOf("Crocodiles", "Cats"))
-        map.putAll(TeamColor.Pink, listOf("Parrots", "Peacocks"))
-        map.putAll(TeamColor.Yellow, listOf("Yaks"))
-        map.putAll(TeamColor.White, listOf("Whales", "Wolves"))
+        map.putAll(TeamColor.BLACK, listOf("Bats", "Bears", "Buffaloes"))
+        map.putAll(TeamColor.DARK_BLUE, listOf("Narwhals"))
+        map.putAll(TeamColor.DARK_GREEN, listOf("Gorillas", "Geese", "Geckos"))
+        map.putAll(TeamColor.DARK_AQUA, listOf("Turkeys", "Turtles", "Tigers"))
+        map.putAll(TeamColor.DARK_RED, listOf("Rhinos", "Rabbits", "Robins"))
+        map.putAll(TeamColor.DARK_PURPLE, listOf("Pandas", "Penguins"))
+        map.putAll(TeamColor.GOLD, listOf("Ocelots", "Owls"))
+        map.putAll(TeamColor.GRAY, listOf("Spiders", "Sharks"))
+        map.putAll(TeamColor.DARK_GRAY, listOf("Goats"))
+        map.putAll(TeamColor.BLUE, listOf("Beavers", "Butterflies", "Beetles"))
+        map.putAll(TeamColor.GREEN, listOf("Lizards", "Leopards"))
+        map.putAll(TeamColor.AQUA, listOf("Armadillos", "Axolotls"))
+        map.putAll(TeamColor.RED, listOf("Crocodiles", "Cats"))
+        map.putAll(TeamColor.LIGHT_PURPLE, listOf("Parrots", "Peacocks"))
+        map.putAll(TeamColor.YELLOW, listOf("Yaks"))
+        map.putAll(TeamColor.WHITE, listOf("Whales", "Wolves"))
         return map
     }
 }

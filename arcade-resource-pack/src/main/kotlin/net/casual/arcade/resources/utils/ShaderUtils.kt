@@ -6,8 +6,8 @@ package net.casual.arcade.resources.utils
 
 import it.unimi.dsi.fastutil.ints.Int2IntMap
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap
-import net.minecraft.ChatFormatting
 import net.minecraft.util.ARGB
+import net.minecraft.world.scores.TeamColor
 
 public object ShaderUtils {
     private const val NL_INDENT = "\n            "
@@ -89,15 +89,12 @@ public object ShaderUtils {
         private val map = Int2IntOpenHashMap()
         private var rainbow: Int? = null
 
-        public fun set(formatting: ChatFormatting, replacement: Int) {
-            val original = formatting.color ?:
-                throw IllegalArgumentException("Invalid color provided: $formatting")
-            this.map[original] = replacement
+        public fun set(color: TeamColor, replacement: Int) {
+            this.map[color.rgb()] = replacement
         }
 
-        public fun rainbow(formatting: ChatFormatting) {
-            this.rainbow = formatting.color ?:
-                throw IllegalArgumentException("Invalid color provided: $formatting")
+        public fun rainbow(formatting: TeamColor) {
+            this.rainbow = formatting.rgb()
         }
 
         internal fun getMap(): Int2IntMap {

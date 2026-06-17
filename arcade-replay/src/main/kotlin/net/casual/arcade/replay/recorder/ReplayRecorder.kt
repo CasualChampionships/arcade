@@ -37,7 +37,7 @@ import net.minecraft.network.protocol.login.LoginProtocols
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.decoration.ItemFrame
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
@@ -522,7 +522,7 @@ public abstract class ReplayRecorder(
      */
     protected fun sendItemFrameMapData(filter: (ItemFrame) -> Boolean = { true }) {
         val level = this.level
-        val frames = level.getEntities(EntityType.ITEM_FRAME, ItemFrame::hasFramedMap)
+        val frames = level.getEntities(EntityTypes.ITEM_FRAME, ItemFrame::hasFramedMap)
         for (frame in frames) {
             if (filter.invoke(frame)) {
                 val id = frame.item.get(DataComponents.MAP_ID) ?: continue
@@ -596,7 +596,7 @@ public abstract class ReplayRecorder(
 
         this.protocol = LoginProtocols.CLIENTBOUND
         // We will not have recorded this, so we need to do it manually.
-        this.record(ClientboundLoginFinishedPacket(this.profile))
+        this.record(ClientboundLoginFinishedPacket(this.profile, this.server.connection.sessionId))
 
         this.protocol = ConfigurationProtocols.CLIENTBOUND
     }

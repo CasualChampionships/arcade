@@ -14,6 +14,9 @@ import net.casual.arcade.utils.player.DynamicResolvableProfile
 import net.casual.arcade.utils.player.HeadTextures
 import net.casual.arcade.utils.player.StaticResolvableProfile
 import net.casual.arcade.utils.registries.isOf
+import net.casual.arcade.utils.string.ScreamingSnakeCase
+import net.casual.arcade.utils.string.TitleCase
+import net.casual.arcade.utils.string.convertCasing
 import net.minecraft.ChatFormatting
 import net.minecraft.core.Holder
 import net.minecraft.core.TypedInstance
@@ -323,7 +326,10 @@ public object ItemUtils {
             else -> HeadTextures.WHITE
         }
         val stack = createTexturedHead(texture, item)
-        stack.set(DataComponents.CUSTOM_NAME, Component.literal(formatting.getName()))
+        stack.set(
+            DataComponents.CUSTOM_NAME,
+            Component.literal(formatting.name.convertCasing(ScreamingSnakeCase, TitleCase))
+        )
         return stack
     }
 }
