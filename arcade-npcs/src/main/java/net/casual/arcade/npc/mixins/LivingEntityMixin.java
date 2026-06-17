@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.casual.arcade.npc.FakePlayer;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,18 +37,18 @@ public class LivingEntityMixin {
         method = "blockedByItem",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDD)V"
+            target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDDLnet/minecraft/world/damagesource/DamageSource;F)V"
         )
     )
-    private boolean onKnockbackTarget(LivingEntity instance, double power, double xd, double zd) {
+    private boolean onKnockbackTarget(LivingEntity instance, double power, double xd, double zd, DamageSource source, float damage) {
         return !(instance instanceof FakePlayer);
     }
 
     @WrapWithCondition(
-        method = "hurtServer",
+        method = "dealDefaultKnockback",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDD)V"
+            target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDDLnet/minecraft/world/damagesource/DamageSource;F)V"
         )
     )
     private boolean onHurtKnockback(
@@ -55,7 +56,9 @@ public class LivingEntityMixin {
         double power,
         double xd,
         double zd,
-        @Local(name = "blocked") boolean blocked
+        DamageSource source,
+        float damage,
+        @Local(name = "blocked", argsOnly = true) boolean blocked
     ) {
         return !(instance instanceof FakePlayer) || !blocked;
     }

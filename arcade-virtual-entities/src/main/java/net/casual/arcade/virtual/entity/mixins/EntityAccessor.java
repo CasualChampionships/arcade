@@ -16,11 +16,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Mixin(Entity.class)
 public interface EntityAccessor {
-    @Accessor("ENTITY_COUNTER")
-    static AtomicInteger accessEntityCounter() {
-        throw new AssertionError();
-    }
-
     @Accessor("DATA_SHARED_FLAGS_ID")
     static EntityDataAccessor<Byte> accessSharedFlagsAccessor() {
         throw new AssertionError();

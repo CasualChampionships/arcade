@@ -5,18 +5,18 @@
 package net.casual.arcade.events.client.render
 
 import net.casual.arcade.events.common.Event
+import net.minecraft.client.Camera
 import net.minecraft.client.DeltaTracker
 import net.minecraft.client.multiplayer.ClientLevel
-import net.minecraft.client.renderer.LevelRenderer
 import net.minecraft.client.renderer.culling.Frustum
-import net.minecraft.client.renderer.state.level.CameraRenderState
+import net.minecraft.client.renderer.extract.LevelExtractor
 import net.minecraft.client.renderer.state.level.LevelRenderState
 
 public data class LevelRenderExtractEvent(
-    public val renderer: LevelRenderer,
-    public val level: ClientLevel,
-    public val state: LevelRenderState,
-    public val camera: CameraRenderState,
-    public val deltas: DeltaTracker,
-    public val frustum: Frustum
+    val extractor: LevelExtractor,
+    val level: ClientLevel,
+    val state: LevelRenderState,
+    val camera: Camera,
+    val deltas: DeltaTracker,
+    val frustum: Frustum
 ): Event

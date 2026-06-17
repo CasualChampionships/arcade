@@ -4,6 +4,9 @@
  */
 package net.casual.arcade.events.client.mixins;
 
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.client.render.GuiRenderEvent;
@@ -25,14 +28,26 @@ public class GuiMixin {
     @Final
     private Minecraft minecraft;
 
+    @Definition(id = "graphics", local = @Local(type = GuiGraphicsExtractor.class, name = "graphics"))
+    @Expression("graphics = ?")
     @Inject(
         method = "extractRenderState",
-        at = @At("HEAD")
+        at = @At(
+            value = "MIXINEXTRAS:EXPRESSION",
+            shift = At.Shift.AFTER
+        )
     )
-    private void onPreRender(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-        if (this.minecraft.screen instanceof LevelLoadingScreen) {
+    private void onPreRender(
+        DeltaTracker deltaTracker,
+        boolean shouldRenderLevel,
+        boolean resourcesLoaded,
+        CallbackInfo ci,
+        @Local(name = "graphics") GuiGraphicsExtractor graphics
+    ) {
+        if (this.minecraft.gui.screen() instanceof LevelLoadingScreen) {
             return;
         }
+
         GuiRenderEvent event = new GuiRenderEvent(graphics, deltaTracker);
         GlobalEventHandler.Client.broadcast(event, BuiltInEventPhases.PRE_PHASES);
     }
@@ -41,10 +56,17 @@ public class GuiMixin {
         method = "extractRenderState",
         at = @At("TAIL")
     )
-    private void onPostRender(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-        if (this.minecraft.screen instanceof LevelLoadingScreen) {
+    private void onPostRender(
+        DeltaTracker deltaTracker,
+        boolean shouldRenderLevel,
+        boolean resourcesLoaded,
+        CallbackInfo ci,
+        @Local(name = "graphics") GuiGraphicsExtractor graphics
+    ) {
+        if (this.minecraft.gui.screen() instanceof LevelLoadingScreen) {
             return;
         }
+
         GuiRenderEvent event = new GuiRenderEvent(graphics, deltaTracker);
         GlobalEventHandler.Client.broadcast(event, BuiltInEventPhases.POST_PHASES);
     }

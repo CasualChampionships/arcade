@@ -18,6 +18,7 @@
     "ServerEntityAccessor",
     "ServerEntityMixin",
     "ServerGamePacketListenerImplMixin",
+    "ServerLevelAccessor",
     "TextDisplayAccessor"
   ],
   "injectors": {

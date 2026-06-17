@@ -27,7 +27,7 @@ public class MinecraftMixin {
     }
 
     @Inject(
-        method = "destroy",
+        method = "close",
         at = @At("HEAD")
     )
     private void shutdownClientCoroutines(CallbackInfo ci) {

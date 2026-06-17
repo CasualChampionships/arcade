@@ -9,6 +9,7 @@ import net.casual.arcade.virtual.entity.interaction.EntityInteraction
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
 import net.casual.arcade.virtual.entity.mixins.EntityAccessor
+import net.casual.arcade.virtual.entity.mixins.ServerLevelAccessor
 import net.casual.arcade.virtual.entity.tracker.ObserverTracker
 import net.casual.arcade.virtual.entity.tracker.ParentObserverTracker
 import net.casual.arcade.virtual.entity.utils.location
@@ -158,7 +159,7 @@ public interface VirtualEntity {
 
         @JvmStatic
         public fun getNextEntityId(): Int {
-            return EntityAccessor.accessEntityCounter().incrementAndGet()
+            return ServerLevelAccessor.accessEntityCounter().incrementAndGet()
         }
     }
 }
