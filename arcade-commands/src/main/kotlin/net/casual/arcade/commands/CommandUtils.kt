@@ -185,6 +185,14 @@ public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSo
     return this.requires(PermissionPredicates.require(permission, fallback))
 }
 
+@Suppress("UnstableApiUsage")
+public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
+    permission: Identifier,
+    fallback: Boolean
+): T {
+    return this.requires(PermissionPredicates.require(permission, fallback))
+}
+
 public fun <S, T> RequiredArgumentBuilder<S, T>.suggests(
     suggestions: Iterable<String>
 ): RequiredArgumentBuilder<S, T> {

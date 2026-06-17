@@ -27,6 +27,7 @@ import net.casual.arcade.minigame.utils.RecipeModifier
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.utils.asCoroutineDispatcher
 import net.casual.arcade.utils.JsonUtils
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.chat.ChatFormatter
 import net.casual.arcade.utils.collection.concat
 import net.casual.arcade.utils.component.green
@@ -49,7 +50,7 @@ import kotlin.jvm.optionals.getOrNull
 internal object MinigameCommand: CommandTree<CommandSourceStack> {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("minigame") {
-            requiresPermission("arcade.command.minigame", PermissionLevel.GAMEMASTERS)
+            requiresPermission(arcade("commands.minigame"), PermissionLevel.GAMEMASTERS)
 
             literal("list") {
                 executes(::listMinigames)
