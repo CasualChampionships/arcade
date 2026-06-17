@@ -15,6 +15,7 @@ import net.minecraft.world.item.Items
  *
  * @see SelectionGuiBuilder
  */
+@Deprecated("No replacement")
 public interface SelectionGuiComponents {
     /**
      * Gets the default title.

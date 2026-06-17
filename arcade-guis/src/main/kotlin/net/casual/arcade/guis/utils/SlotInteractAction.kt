@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2025 senseiwells
+ * Copyright (c) 2026 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.guis.core
+package net.casual.arcade.guis.utils
 
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction

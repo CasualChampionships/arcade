@@ -4,8 +4,6 @@
  */
 package net.casual.arcade.guis.utils
 
-import net.casual.arcade.guis.core.SlotInteractAction
-
 public fun SlotInteractAction.isUse(): Boolean {
     return this == SlotInteractAction.Use
         || this is SlotInteractAction.UseOnBlock

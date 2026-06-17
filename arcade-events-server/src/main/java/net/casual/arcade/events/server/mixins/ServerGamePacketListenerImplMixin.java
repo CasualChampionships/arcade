@@ -12,6 +12,8 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.brigadier.suggestion.Suggestions;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
@@ -31,9 +33,6 @@ import net.minecraft.server.players.PlayerList;
 import net.minecraft.util.Util;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -44,6 +43,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -108,27 +108,123 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		PlayerSystemMessageEvent.broadcast(this.player, instance, message, overlay, original);
 	}
 
-	@WrapOperation(
+	@Inject(
+		method = "handleContainerClick",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/level/ServerPlayer;resetLastActionTime()V",
+			shift = At.Shift.AFTER
+		),
+		cancellable = true
+	)
+	private void broadcastSlotClickedPreValidation(
+		ServerboundContainerClickPacket packet,
+		CallbackInfo ci,
+		@Share("slotClickEvent") LocalRef<PlayerSlotClickEvent> slotClickEvent
+	) {
+		PlayerSlotClickEvent event = PlayerSlotClickEvent.from(this.player, this.player.containerMenu, packet);
+		GlobalEventHandler.Server.broadcast(event, Set.of(PlayerSlotClickEvent.PHASE_PRE_VALIDATE));
+		if (event.isCancelled()) {
+			ci.cancel();
+		}
+
+		slotClickEvent.set(event);
+	}
+
+	@Inject(
 		method = "handleContainerClick",
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;clicked(IILnet/minecraft/world/inventory/ContainerInput;Lnet/minecraft/world/entity/player/Player;)V"
-		)
+		),
+		cancellable = true
 	)
-	private void onSlotClicked(
-		AbstractContainerMenu instance,
-		int slotIndex,
-		int buttonNum,
-		ContainerInput containerInput,
-		Player player,
-		Operation<Void> original
+	private void broadcastSlotClickedPreClick(
+		ServerboundContainerClickPacket packet,
+		CallbackInfo ci,
+		@Share("slotClickEvent") LocalRef<PlayerSlotClickEvent> slotClickEvent
 	) {
-		PlayerSlotClickEvent event = new PlayerSlotClickEvent(this.player, instance, slotIndex, buttonNum, containerInput);
+		PlayerSlotClickEvent event = slotClickEvent.get();
 		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
 		if (event.isCancelled()) {
-			return;
+			ci.cancel();
 		}
-		original.call(instance, slotIndex, buttonNum, containerInput, player);
+	}
+
+	@Inject(
+		method = "handleContainerClick",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;clicked(IILnet/minecraft/world/inventory/ContainerInput;Lnet/minecraft/world/entity/player/Player;)V",
+			shift = At.Shift.AFTER
+		)
+	)
+	private void broadcastSlotClickedPostClick(
+		ServerboundContainerClickPacket packet,
+		CallbackInfo ci,
+		@Share("slotClickEvent") LocalRef<PlayerSlotClickEvent> slotClickEvent
+	) {
+		PlayerSlotClickEvent event = slotClickEvent.get();
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+	}
+
+	@Inject(
+		method = "handleContainerButtonClick",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/level/ServerPlayer;resetLastActionTime()V",
+			shift = At.Shift.AFTER
+		),
+		cancellable = true
+	)
+	private void broadcastMenuButtonClickedPreValidation(
+		ServerboundContainerButtonClickPacket packet,
+		CallbackInfo ci,
+		@Share("menuButtonClickEvent") LocalRef<PlayerMenuButtonClickEvent> menuButtonClickEvent
+	) {
+		PlayerMenuButtonClickEvent event = new PlayerMenuButtonClickEvent(this.player, this.player.containerMenu, packet.containerId(), packet.buttonId());
+		GlobalEventHandler.Server.broadcast(event, Set.of(PlayerMenuButtonClickEvent.PHASE_PRE_VALIDATE));
+		if (event.isCancelled()) {
+			ci.cancel();
+		}
+
+		menuButtonClickEvent.set(event);
+	}
+
+	@Inject(
+		method = "handleContainerButtonClick",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;clickMenuButton(Lnet/minecraft/world/entity/player/Player;I)Z"
+		),
+		cancellable = true
+	)
+	private void broadcastSlotClickedPreClick(
+		ServerboundContainerButtonClickPacket packet,
+		CallbackInfo ci,
+		@Share("menuButtonClickEvent") LocalRef<PlayerMenuButtonClickEvent> menuButtonClickEvent
+	) {
+		PlayerMenuButtonClickEvent event = menuButtonClickEvent.get();
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+		if (event.isCancelled()) {
+			ci.cancel();
+		}
+	}
+
+	@Inject(
+		method = "handleContainerButtonClick",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;clickMenuButton(Lnet/minecraft/world/entity/player/Player;I)Z",
+			shift = At.Shift.AFTER
+		)
+	)
+	private void broadcastSlotClickedPostClick(
+		ServerboundContainerButtonClickPacket packet,
+		CallbackInfo ci,
+		@Share("menuButtonClickEvent") LocalRef<PlayerMenuButtonClickEvent> menuButtonClickEvent
+	) {
+		PlayerMenuButtonClickEvent event = menuButtonClickEvent.get();
 		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
 	}
 

@@ -2,7 +2,7 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.guis.core
+package net.casual.arcade.guis.utils
 
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.AbstractContainerMenu.SLOT_CLICKED_OUTSIDE
@@ -15,27 +15,28 @@ private const val MIDDLE: Int = 1 shl 2
 private const val DROP: Int = 1 shl 3
 private const val SWAP: Int = 1 shl 4
 private const val DRAG: Int = 1 shl 5
+private const val MOUSE: Int = 1 shl 6
 
 public enum class SlotClickAction(
     private val flags: Int
 ) {
-    MouseLeft(LEFT),
-    MouseRight(RIGHT),
-    MouseMiddle(MIDDLE),
-    MouseDoubleClick(NONE),
-    MouseLeftShift(LEFT),
-    MouseRightShift(RIGHT),
-    MouseLeftDragStart(LEFT or DRAG),
-    MouseRightDragStart(RIGHT or DRAG),
-    MouseMiddleDragStart(MIDDLE or DRAG),
-    MouseLeftDragAdd(LEFT or DRAG),
-    MouseRightDragAdd(RIGHT or DRAG),
-    MouseMiddleDragAdd(MIDDLE or DRAG),
-    MouseLeftDragEnd(LEFT or DRAG),
-    MouseRightDragEnd(RIGHT or DRAG),
-    MouseMiddleDragEnd(MIDDLE or DRAG),
-    MouseLeftDrop(LEFT),
-    MouseRightDrop(RIGHT),
+    MouseLeft(MOUSE or LEFT),
+    MouseRight(MOUSE or RIGHT),
+    MouseMiddle(MOUSE or MIDDLE),
+    MouseDoubleClick(MOUSE or NONE),
+    MouseLeftShift(MOUSE or LEFT),
+    MouseRightShift(MOUSE or RIGHT),
+    MouseLeftDragStart(MOUSE or LEFT or DRAG),
+    MouseRightDragStart(MOUSE or RIGHT or DRAG),
+    MouseMiddleDragStart(MOUSE or MIDDLE or DRAG),
+    MouseLeftDragAdd(MOUSE or LEFT or DRAG),
+    MouseRightDragAdd(MOUSE or RIGHT or DRAG),
+    MouseMiddleDragAdd(MOUSE or MIDDLE or DRAG),
+    MouseLeftDragEnd(MOUSE or LEFT or DRAG),
+    MouseRightDragEnd(MOUSE or RIGHT or DRAG),
+    MouseMiddleDragEnd(MOUSE or MIDDLE or DRAG),
+    MouseLeftDrop(MOUSE or LEFT),
+    MouseRightDrop(MOUSE or RIGHT),
     Drop(DROP),
     DropAll(DROP),
     SwapSlot1(SWAP),
@@ -56,6 +57,7 @@ public enum class SlotClickAction(
     public val isDrop: Boolean get() = this.has(DROP)
     public val isSwap: Boolean get() = this.has(SWAP)
     public val isDrag: Boolean get() = this.has(DRAG)
+    public val isMouse: Boolean get() = this.has(MOUSE)
 
     private fun has(flag: Int): Boolean {
         return (this.flags and flag) == flag

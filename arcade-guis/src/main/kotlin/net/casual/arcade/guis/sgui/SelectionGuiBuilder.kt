@@ -23,6 +23,7 @@ import kotlin.math.min
  * @param player The player that will be opening this gui.
  * @param components The default components used for the selection gui.
  */
+@Deprecated("No replacement")
 public class SelectionGuiBuilder(
     private val player: ServerPlayer,
     components: SelectionGuiComponents = SelectionGuiComponents.DEFAULT

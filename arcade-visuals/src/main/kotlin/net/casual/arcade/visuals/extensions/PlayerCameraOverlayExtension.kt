@@ -88,7 +88,7 @@ internal class PlayerCameraOverlayExtension(player: ServerPlayer): PlayerExtensi
             GlobalEventHandler.Server.register<PlayerExtensionEvent> {
                 it.addExtension(::PlayerCameraOverlayExtension)
             }
-            GlobalEventHandler.Server.register<PlayerSlotClickEvent>(phase = PlayerSlotClickEvent.PHASE_POST, listener = ::onPlayerSlotClick)
+            GlobalEventHandler.Server.register<PlayerSlotClickEvent>(phase = PlayerSlotClickEvent.PHASE_POST_CLICK, listener = ::onPlayerSlotClick)
             GlobalEventHandler.Server.register<PlayerClientboundPacketEvent>(::onPlayerClientboundPacket)
         }
 
