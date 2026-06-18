@@ -10,8 +10,10 @@ import eu.pb4.polymer.core.impl.interfaces.PossiblyInitialPacket
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
+import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.server.network.ServerCommonPacketListenerImpl
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntityType
 
 public object PolymerCompatLayer {
     public val loaded: Boolean = FabricLoader.getInstance().isModLoaded("polymer-core")
@@ -55,5 +57,12 @@ public object PolymerCompatLayer {
         if (this.loaded && packet is PossiblyInitialPacket) {
             packet.`polymer$setInitial`()
         }
+    }
+
+    public fun getDefaultSynchedEntityDataOrNull(type: EntityType<*>): Array<SynchedEntityData.DataItem<*>>? {
+        if (this.loaded) {
+            return PolymerEntityUtils.getDefaultSynchedEntityData(type)
+        }
+        return null
     }
 }

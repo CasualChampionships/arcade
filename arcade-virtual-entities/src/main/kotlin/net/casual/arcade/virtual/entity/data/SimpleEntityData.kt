@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.virtual.entity.data
 
-import eu.pb4.polymer.core.api.entity.PolymerEntityUtils
+import net.casual.arcade.virtual.entity.utils.DefaultSynchedEntityData
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.world.entity.EntityType
@@ -16,7 +16,7 @@ public class SimpleEntityData {
     private val entries: Array<EntityDataEntry<*>>
 
     public constructor(type: EntityType<*>) {
-        val examples = PolymerEntityUtils.getDefaultSynchedEntityData(type)
+        val examples = DefaultSynchedEntityData.get(type)
         this.entries = Array(examples.size) { i ->
             val example = examples[i]
             @Suppress("UNCHECKED_CAST")

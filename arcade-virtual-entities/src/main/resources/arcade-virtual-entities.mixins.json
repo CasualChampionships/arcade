@@ -19,7 +19,9 @@
     "ServerEntityMixin",
     "ServerGamePacketListenerImplMixin",
     "ServerLevelAccessor",
-    "TextDisplayAccessor"
+    "TextDisplayAccessor",
+    "hack.EntityInvoker",
+    "hack.SynchedEntityDataAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
