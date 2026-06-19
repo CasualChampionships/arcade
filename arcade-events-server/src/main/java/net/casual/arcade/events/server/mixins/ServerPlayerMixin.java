@@ -150,7 +150,7 @@ public abstract class ServerPlayerMixin extends Player {
 		if (target instanceof ServerPlayer player) {
 			PlayerTryHarmEvent event = new PlayerTryHarmEvent((ServerPlayer) (Object) this, player, original);
 			GlobalEventHandler.Server.broadcast(event);
-			return event.getCanHarmOtherBoolean();
+			return event.getCanHarmOtherPlayer();
 		}
 		return original;
 	}

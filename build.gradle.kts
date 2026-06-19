@@ -150,7 +150,6 @@ loom {
 
 dependencies {
     include(libs.polymer.core)
-    include(libs.polymer.blocks)
     include(libs.polymer.resource.pack)
 
     include(implementation(libs.server.translations.get())!!)

@@ -9,11 +9,11 @@ server-translations = "3.1.0+26.2"
 replay-studio       = "ca00f8101b"
 
 # Compatability
-carpet        = "26.1"
-voicechat     = "fabric-2.6.12+26.1"
-voicechat-api = "2.6.0"
-vmp           = "0.2.0+beta.7.230+26.1"
-c2me          = "0.3.7+alpha.0.59+26.1"
+carpet        = "26.2"
+voicechat     = "fabric-2.6.18+26.2"
+voicechat-api = "2.6.13"
+vmp           = "0.2.0+beta.7.235+26.2-rc-2"
+c2me          = "0.4.1-alpha.0.3+26.2"
 
 # Testing
 reflections = "0.10.2"
@@ -30,7 +30,6 @@ fabric-loader          = { module = "net.fabricmc:fabric-loader"           , ver
 fabric-api             = { module = "net.fabricmc.fabric-api:fabric-api"   , version.ref = "fabric-api" }
 fabric-kotlin          = { module = "net.fabricmc:fabric-language-kotlin"  , version.ref = "fabric-kotlin" }
 polymer-core           = { module = "eu.pb4:polymer-core"                  , version.ref = "polymer" }
-polymer-blocks         = { module = "eu.pb4:polymer-blocks"                , version.ref = "polymer" }
 polymer-resource-pack  = { module = "eu.pb4:polymer-resource-pack"         , version.ref = "polymer" }
 sgui                   = { module = "eu.pb4:sgui"                          , version.ref = "sgui" }
 server-translations    = { module = "xyz.nucleoid:server-translations-api" , version.ref = "server-translations" }
