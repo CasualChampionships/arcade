@@ -30,6 +30,8 @@ import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.chat.ChatFormatter
 import net.casual.arcade.utils.collection.concat
+import net.casual.arcade.utils.component.event.ClickEventCallback
+import net.casual.arcade.utils.component.function
 import net.casual.arcade.utils.component.green
 import net.casual.arcade.utils.component.join
 import net.casual.arcade.utils.component.suggestCommand
@@ -780,10 +782,11 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
         context.source.success(Component.translatable("minigame.command.unpause.ready.success"))
 
         return context.source.success {
-            val here = Component.translatable("minigame.command.unpause.here").green().function { context ->
+            val here = Component.translatable("minigame.command.unpause.here").green().function { player ->
                 val awaiting = tracker.getAwaiting().join()
                 val message = Component.translatable("minigame.command.unpause.ready.awaiting", awaiting)
-                minigame.chat.broadcastTo(message, context.player)
+                minigame.chat.broadcastTo(message, player)
+                ClickEventCallback.Result.Success
             }
             if (teams) {
                 Component.translatable("minigame.command.unpause.ready.teams", here)
@@ -816,13 +819,13 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
         }
         context.source.success(Component.translatable("minigame.command.unpause.countdown.success"))
         return context.source.success {
-            val here = Component.translatable("minigame.command.unpause.here").green().singleUseFunction { context ->
+            val here = Component.translatable("minigame.command.unpause.here").green().function { player ->
                 if (scheduler.cancelAll()) {
                     minigame.chat.broadcastTo(
-                        Component.translatable("minigame.command.unpause.countdown.cancel.success"),
-                        context.player
+                        Component.translatable("minigame.command.unpause.countdown.cancel.success"), player
                     )
                 }
+                ClickEventCallback.Result.Consume
             }
             Component.translatable("minigame.command.unpause.countdown.cancel", here)
         }

@@ -16,7 +16,7 @@ import net.minecraft.network.chat.ClickEvent
 import net.minecraft.resources.Identifier
 import java.util.*
 
-// TODO: This probably shouldn't be in this module anymore?
+@Deprecated("Use CustomClickEventRegistry instead")
 public object HiddenCommandManager {
     private val commands = Object2ObjectOpenHashMap<Identifier, HiddenCommand>()
 

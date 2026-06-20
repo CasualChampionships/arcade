@@ -4,7 +4,8 @@
  */
 package net.casual.arcade.visuals.ready.chat
 
-import net.casual.arcade.commands.function
+import net.casual.arcade.utils.component.event.ClickEventCallback
+import net.casual.arcade.utils.component.function
 import net.casual.arcade.utils.component.lime
 import net.casual.arcade.utils.component.red
 import net.casual.arcade.utils.player.broadcast
@@ -23,15 +24,17 @@ public abstract class ChatReadyBroadcaster<P>(
     protected val multicast: (Component) -> Unit
 ): ReadyBroadcaster<P> {
     override fun broadcastReadyCheck(participant: P, state: ReadyParticipantState) {
-        val yes = this.getYesComponent().function { context ->
+        val yes = this.getYesComponent().function { player ->
             state.markReady {
-                this.broadcastParticipantReady(this.getContextualParticipant(context.player, participant))
+                this.broadcastParticipantReady(this.getContextualParticipant(player, participant))
             }
+            ClickEventCallback.Result.Success
         }
-        val no = this.getNoComponent().function { context ->
+        val no = this.getNoComponent().function { player ->
             state.markNotReady {
-                this.broadcastParticipantNotReady(this.getContextualParticipant(context.player, participant))
+                this.broadcastParticipantNotReady(this.getContextualParticipant(player, participant))
             }
+            ClickEventCallback.Result.Success
         }
         this.unicast.invoke(participant, this.getBroadcastComponent(yes, no))
     }

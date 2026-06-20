@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.casual.arcade.util.ducks.CustomMOTD;
+import net.casual.arcade.utils.component.event.CustomClickEventRegistry;
 import net.casual.arcade.utils.coroutine.ServerCoroutineUtils;
 import net.casual.arcade.utils.server.ServerSingleton;
 import net.minecraft.network.chat.Component;
@@ -68,6 +69,8 @@ public abstract class MinecraftServerMixin implements CustomMOTD {
 		filler.push("coroutine_tick_delayed_tasks");
 		ServerCoroutineUtils.INSTANCE.tickServer((MinecraftServer) (Object) this);
 		filler.pop();
+
+		CustomClickEventRegistry.onServerTick();
 	}
 
     @Inject(

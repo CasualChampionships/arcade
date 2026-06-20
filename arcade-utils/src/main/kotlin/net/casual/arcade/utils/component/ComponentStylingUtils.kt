@@ -7,8 +7,13 @@ package net.casual.arcade.utils.component
 import it.unimi.dsi.fastutil.ints.IntList
 import net.casual.arcade.utils.ColorUtils
 import net.casual.arcade.utils.Identifier
+import net.casual.arcade.utils.IdentifierUtils
+import net.casual.arcade.utils.TimeUtils.Minutes
 import net.casual.arcade.utils.color.ColorARGB
 import net.casual.arcade.utils.color.ColorOklab
+import net.casual.arcade.utils.component.event.ClickEventCallback
+import net.casual.arcade.utils.component.event.CustomClickEventRegistry
+import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.ChatFormatting
 import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.*
@@ -267,6 +272,22 @@ public fun MutableComponent.click(event: ClickEvent): MutableComponent {
  */
 public fun MutableComponent.custom(id: Identifier, payload: Tag? = null): MutableComponent {
     return this.click(ClickEvent.Custom(id, Optional.ofNullable(payload)))
+}
+
+/**
+ * Adds a custom click event with a specified callback.
+ *
+ * @param timeout The lifetime that the click event will be clickable.
+ * @param callback The callback to invoke when clicked.
+ * @return [this]
+ */
+public fun MutableComponent.function(
+    timeout: MinecraftTimeDuration = 10.Minutes,
+    callback: ClickEventCallback.Payloadless
+): MutableComponent {
+    val identifier = IdentifierUtils.random()
+    CustomClickEventRegistry.registerTemporary(identifier, timeout, callback)
+    return this.custom(identifier)
 }
 
 /**

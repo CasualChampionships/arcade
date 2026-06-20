@@ -40,6 +40,7 @@ public val CommandSourceStack.location: Location
 public val CommandSourceStack.locationWithLevel: LocationWithLevel<ServerLevel>
     get() = this.level.asLocation(this.position, this.rotation)
 
+@Deprecated("Use MutableComponent.function declared in ComponentStylingUtils.kt")
 public fun MutableComponent.singleUseFunction(command: HiddenCommand): MutableComponent {
     return this.function { context ->
         command.run(context)
@@ -47,6 +48,7 @@ public fun MutableComponent.singleUseFunction(command: HiddenCommand): MutableCo
     }
 }
 
+@Deprecated("Use MutableComponent.function declared in ComponentStylingUtils.kt")
 public fun MutableComponent.function(timeout: MinecraftTimeDuration = 10.Minutes, command: HiddenCommand): MutableComponent {
     return this.click(HiddenCommandManager.register(timeout, command))
 }
