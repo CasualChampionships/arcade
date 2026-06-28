@@ -27,8 +27,8 @@ private val scopes = Reference2ObjectOpenHashMap<Any, CoroutineScope>()
 private val delays = Reference2ObjectOpenHashMap<Any, Int2ObjectOpenHashMap<Queue<CompletableDeferred<Unit>>>>()
 private val ticks = Reference2IntOpenHashMap<Any>()
 
-public fun MinecraftServer.launch(block: suspend CoroutineScope.() -> Unit) {
-    this.getCoroutineScope().launch(block = block)
+public fun MinecraftServer.launch(block: suspend CoroutineScope.() -> Unit): Job {
+    return this.getCoroutineScope().launch(block = block)
 }
 
 public fun <T> MinecraftServer.async(block: suspend CoroutineScope.() -> T): Deferred<T> {
@@ -50,8 +50,8 @@ public fun MinecraftServer.getCoroutineScope(): CoroutineScope {
     })
 }
 
-public fun Minecraft.launch(block: suspend CoroutineScope.() -> Unit) {
-    this.getCoroutineScope().launch(block = block)
+public fun Minecraft.launch(block: suspend CoroutineScope.() -> Unit): Job {
+    return this.getCoroutineScope().launch(block = block)
 }
 
 public fun <T> Minecraft.async(block: suspend CoroutineScope.() -> T): Deferred<T> {

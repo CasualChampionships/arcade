@@ -172,8 +172,23 @@ public class JsonValueOutput private constructor(
 
     public companion object {
         @JvmStatic
-        public fun create(reporter: ProblemReporter, lookup: HolderLookup.Provider): JsonValueOutput {
-            return JsonValueOutput(reporter, lookup.createSerializationContext(JsonOps.INSTANCE), JsonObject())
+        @JvmOverloads
+        public fun create(
+            reporter: ProblemReporter,
+            lookup: HolderLookup.Provider,
+            initial: JsonObject = JsonObject()
+        ): JsonValueOutput {
+            return create(reporter, lookup.createSerializationContext(JsonOps.INSTANCE), initial)
+        }
+
+        @JvmStatic
+        @JvmOverloads
+        public fun create(
+            reporter: ProblemReporter,
+            ops: DynamicOps<JsonElement>,
+            initial: JsonObject = JsonObject()
+        ): JsonValueOutput {
+            return JsonValueOutput(reporter, ops, JsonObject())
         }
 
         @JvmStatic

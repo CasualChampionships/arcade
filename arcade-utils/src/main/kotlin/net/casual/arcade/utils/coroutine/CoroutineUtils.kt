@@ -6,13 +6,14 @@ package net.casual.arcade.utils.coroutine
 
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import net.casual.arcade.utils.coroutine.getNowOrNull
 
-public fun <T: Any> Deferred<T>.getNow(default: T): T {
+public fun <T> Deferred<T>.getNow(default: T & Any): T & Any {
     return this.getNowOrNull() ?: default
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-public fun <T: Any> Deferred<T>.getNowOrNull(): T? {
+public fun <T> Deferred<T>.getNowOrNull(): T? {
     return when {
         this.isCompleted -> this.getCompleted()
         else -> null
