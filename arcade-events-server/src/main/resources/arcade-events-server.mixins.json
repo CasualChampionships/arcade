@@ -40,10 +40,12 @@
     "registry.ResourceManagerRegistryLoadTaskMixin",
     "registry.WorldLoaderMixin",
     "server.DedicatedServerMixin",
-    "server.IntegratedServerMixin",
     "server.MinecraftServerMixin",
     "server.MinecraftServerStateServiceImplMixin",
     "server.SaveAllCommandMixin"
+  ],
+  "client": [
+    "server.IntegratedServerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
