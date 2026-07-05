@@ -14,10 +14,11 @@ import java.util.*
 internal class LevelMinigameExtension(
     val level: ServerLevel
 ): Extension {
-    private var minigames = ReferenceLinkedOpenHashSet<Minigame>()
+    private val minigames = ReferenceLinkedOpenHashSet<Minigame>()
+    private val unmodifiable = Collections.unmodifiableSet(this.minigames)
 
     internal fun getMinigames(): Set<Minigame> {
-        return Collections.unmodifiableSet(this.minigames)
+        return this.unmodifiable
     }
 
     internal fun getMinigames(pos: BlockPos): Set<Minigame> {
