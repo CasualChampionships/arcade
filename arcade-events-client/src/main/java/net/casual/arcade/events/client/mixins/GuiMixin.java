@@ -7,7 +7,8 @@ package net.casual.arcade.events.client.mixins;
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.casual.arcade.events.BuiltInEventPhases;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.client.render.GuiRenderEvent;
 import net.minecraft.client.DeltaTracker;
@@ -49,7 +50,7 @@ public class GuiMixin {
         }
 
         GuiRenderEvent event = new GuiRenderEvent(graphics, deltaTracker);
-        GlobalEventHandler.Client.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+        GlobalEventHandler.Client.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
     }
 
     @Inject(
@@ -68,6 +69,6 @@ public class GuiMixin {
         }
 
         GuiRenderEvent event = new GuiRenderEvent(graphics, deltaTracker);
-        GlobalEventHandler.Client.broadcast(event, BuiltInEventPhases.POST_PHASES);
+        GlobalEventHandler.Client.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
     }
 }

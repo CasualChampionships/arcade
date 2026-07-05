@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.events.server
 
-import net.casual.arcade.events.BuiltInEventPhases
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.common.Event
 import net.minecraft.server.MinecraftServer
 
@@ -12,8 +12,8 @@ public data class ServerStopEvent(
     val server: MinecraftServer
 ): Event {
     public companion object {
-        public const val PHASE_PRE: String = BuiltInEventPhases.PRE
+        public const val PHASE_PRE: Int = BuiltInEventPhases.PRE
 
-        public const val PHASE_POST: String = BuiltInEventPhases.POST
+        public const val PHASE_POST: Int = BuiltInEventPhases.POST
     }
 }

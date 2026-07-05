@@ -8,7 +8,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.authlib.GameProfile;
-import net.casual.arcade.events.BuiltInEventPhases;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.entity.EntityDeathEvent;
 import net.casual.arcade.events.server.player.*;
@@ -45,7 +45,7 @@ public abstract class ServerPlayerMixin extends Player {
 	)
 	private void onTickPre(CallbackInfo ci) {
 		PlayerTickEvent event = new PlayerTickEvent((ServerPlayer) (Object) this);
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 	}
 
 	@Inject(
@@ -54,7 +54,7 @@ public abstract class ServerPlayerMixin extends Player {
 	)
 	private void onTickPost(CallbackInfo ci) {
 		PlayerTickEvent event = new PlayerTickEvent((ServerPlayer) (Object) this);
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
 	}
 
 	@Inject(
@@ -122,10 +122,10 @@ public abstract class ServerPlayerMixin extends Player {
 
 		// This doesn't call super.die, so we must manually call this event here
 		EntityDeathEvent entityDeathEvent = new EntityDeathEvent(player, source);
-		GlobalEventHandler.Server.broadcast(entityDeathEvent, BuiltInEventPhases.PRE_PHASES);
+		GlobalEventHandler.Server.broadcast(entityDeathEvent, BuiltInEventPhases.PRE_PHASES_RAW);
 
 		PlayerDeathEvent playerDeathEvent = new PlayerDeathEvent(player, source);
-		GlobalEventHandler.Server.broadcast(playerDeathEvent, BuiltInEventPhases.PRE_PHASES);
+		GlobalEventHandler.Server.broadcast(playerDeathEvent, BuiltInEventPhases.PRE_PHASES_RAW);
 	}
 
 	@Inject(
@@ -136,10 +136,10 @@ public abstract class ServerPlayerMixin extends Player {
 		ServerPlayer player = (ServerPlayer) (Object) this;
 
 		EntityDeathEvent entityDeathEvent = new EntityDeathEvent(player, source);
-		GlobalEventHandler.Server.broadcast(entityDeathEvent, BuiltInEventPhases.POST_PHASES);
+		GlobalEventHandler.Server.broadcast(entityDeathEvent, BuiltInEventPhases.POST_PHASES_RAW);
 
 		PlayerDeathEvent playerDeathEvent = new PlayerDeathEvent(player, source);
-		GlobalEventHandler.Server.broadcast(playerDeathEvent, BuiltInEventPhases.POST_PHASES);
+		GlobalEventHandler.Server.broadcast(playerDeathEvent, BuiltInEventPhases.POST_PHASES_RAW);
 	}
 
 	@ModifyReturnValue(
@@ -178,7 +178,7 @@ public abstract class ServerPlayerMixin extends Player {
 	)
 	private void onJump(CallbackInfo ci) {
 		PlayerJumpEvent event = new PlayerJumpEvent((ServerPlayer) (Object) this);
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 		if (event.isCancelled()) {
 			ci.cancel();
 		}
@@ -190,7 +190,7 @@ public abstract class ServerPlayerMixin extends Player {
 	)
 	private void onJumpPost(CallbackInfo ci) {
 		PlayerJumpEvent event = new PlayerJumpEvent((ServerPlayer) (Object) this);
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
 	}
 
 	@Override

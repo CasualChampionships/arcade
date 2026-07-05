@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.scheduler
 
-import net.casual.arcade.events.BuiltInEventPhases.POST
+import net.casual.arcade.events.phase.BuiltInEventPhases.POST
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerTickEvent

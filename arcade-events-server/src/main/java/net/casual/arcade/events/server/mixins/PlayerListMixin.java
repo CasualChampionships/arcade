@@ -10,8 +10,9 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import net.casual.arcade.events.BuiltInEventPhases;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
+import net.casual.arcade.events.phase.EventPhases;
 import net.casual.arcade.events.server.player.PlayerChatEvent;
 import net.casual.arcade.events.server.player.PlayerJoinEvent;
 import net.casual.arcade.events.server.player.PlayerJoinEvent.JoinMessageModification;
@@ -58,7 +59,7 @@ public class PlayerListMixin {
 		@Share("event") LocalRef<PlayerJoinEvent> eventRef
 	) {
 		PlayerJoinEvent event = new PlayerJoinEvent(player);
-		GlobalEventHandler.Server.broadcast(event, Set.of(PlayerJoinEvent.PHASE_INITIALIZED));
+		GlobalEventHandler.Server.broadcast(event, EventPhases.of(PlayerJoinEvent.PHASE_INITIALIZED));
 		if (event.isCancelled()) {
 			player.connection.disconnect(event.result());
 			ci.cancel();
@@ -77,7 +78,7 @@ public class PlayerListMixin {
 		@Share("delayed") LocalRef<Runnable> delayedRef
 	) {
 		PlayerJoinEvent event = eventRef.get();
-		GlobalEventHandler.Server.broadcast(event, Set.of(BuiltInEventPhases.DEFAULT, PlayerJoinEvent.PHASE_POST));
+		GlobalEventHandler.Server.broadcast(event, EventPhases.of(BuiltInEventPhases.DEFAULT, PlayerJoinEvent.PHASE_POST));
 		if (event.isCancelled()) {
 			event.getPlayer().connection.disconnect(event.result());
 			ci.cancel();

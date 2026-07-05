@@ -5,6 +5,7 @@
 package net.casual.arcade.events
 
 import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.threading.ThreadingStrategy
 import net.casual.arcade.events.threading.ThreadingTarget
 import org.jetbrains.annotations.ApiStatus.NonExtendable
@@ -33,7 +34,7 @@ public fun interface EventListener<T: Event>: Comparable<EventListener<T>> {
      * when the listener is invoked, see the event implementation
      * you are listening to for more information.
      */
-    public val phase: String
+    public val phase: Int
         get() = BuiltInEventPhases.DEFAULT
 
     /**
@@ -51,7 +52,7 @@ public fun interface EventListener<T: Event>: Comparable<EventListener<T>> {
 
     private class Impl<T: Event>(
         override val priority: Int,
-        override val phase: String,
+        override val phase: Int,
         override val strategy: ThreadingStrategy,
         private val listener: Consumer<T>
     ): EventListener<T> {
@@ -72,7 +73,7 @@ public fun interface EventListener<T: Event>: Comparable<EventListener<T>> {
          */
         public fun <T: Event> of(
             priority: Int = 1_000,
-            phase: String = BuiltInEventPhases.DEFAULT,
+            phase: Int = BuiltInEventPhases.DEFAULT,
             strategy: ThreadingStrategy = ThreadingTarget.Default,
             listener: Consumer<T>
         ): EventListener<T> {

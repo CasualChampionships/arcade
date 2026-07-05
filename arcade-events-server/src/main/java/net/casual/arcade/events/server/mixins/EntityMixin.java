@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.events.server.mixins;
 
-import net.casual.arcade.events.BuiltInEventPhases;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.entity.EntityTickEvent;
 import net.minecraft.world.entity.Entity;
@@ -26,7 +26,7 @@ public class EntityMixin {
     private void onTickPre(CallbackInfo ci) {
         if (!this.level.isClientSide()) {
             EntityTickEvent event = new EntityTickEvent((Entity) (Object) this);
-            GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+            GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
         }
     }
 
@@ -37,7 +37,7 @@ public class EntityMixin {
     private void onTickPost(CallbackInfo ci) {
         if (!this.level.isClientSide()) {
             EntityTickEvent event = new EntityTickEvent((Entity) (Object) this);
-            GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+            GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
         }
     }
 }

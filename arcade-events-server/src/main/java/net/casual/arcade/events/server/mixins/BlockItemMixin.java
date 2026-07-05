@@ -6,7 +6,7 @@ package net.casual.arcade.events.server.mixins;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.casual.arcade.events.BuiltInEventPhases;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.player.PlayerBlockPlacedEvent;
 import net.minecraft.server.level.ServerPlayer;
@@ -28,11 +28,11 @@ public class BlockItemMixin {
 	private boolean onPlaceBlock(BlockItem instance, BlockPlaceContext context, BlockState placementState, Operation<Boolean> operation) {
 		if (context.getPlayer() instanceof ServerPlayer player) {
 			PlayerBlockPlacedEvent event = new PlayerBlockPlacedEvent(player, instance, placementState, context);
-			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 
 			if (!event.isCancelled() && operation.call(instance, context, placementState)) {
 				event = new PlayerBlockPlacedEvent(player, instance, placementState, context);
-				GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+				GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
 				return true;
 			}
 			return false;

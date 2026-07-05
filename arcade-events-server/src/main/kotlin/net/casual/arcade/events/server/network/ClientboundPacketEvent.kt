@@ -5,7 +5,7 @@
 package net.casual.arcade.events.server.network
 
 import com.mojang.authlib.GameProfile
-import net.casual.arcade.events.BuiltInEventPhases
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.common.CancellableEvent
 import net.casual.arcade.events.threading.AsyncEvent
 import net.minecraft.network.protocol.Packet
@@ -23,12 +23,12 @@ public data class ClientboundPacketEvent(
          *
          * This is the default phase for this event.
          */
-        public const val PHASE_PRE: String = BuiltInEventPhases.PRE
+        public const val PHASE_PRE: Int = BuiltInEventPhases.PRE
 
         /**
          * This phase in invoked **after** the packet has been sent to the client.
          * The [packet] can no longer be modified.
          */
-        public const val PHASE_POST: String = BuiltInEventPhases.POST
+        public const val PHASE_POST: Int = BuiltInEventPhases.POST
     }
 }

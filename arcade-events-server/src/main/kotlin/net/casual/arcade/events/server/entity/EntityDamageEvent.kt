@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.events.server.entity
 
-import net.casual.arcade.events.BuiltInEventPhases
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.common.CancellableEvent
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.LivingEntity
@@ -15,8 +15,8 @@ public data class EntityDamageEvent(
     var amount: Float,
 ): CancellableEvent.Default(), EntityEvent {
     public companion object {
-        public const val PHASE_PRE: String = BuiltInEventPhases.PRE
+        public const val PHASE_PRE: Int = BuiltInEventPhases.PRE
 
-        public const val PHASE_POST: String = BuiltInEventPhases.POST
+        public const val PHASE_POST: Int = BuiltInEventPhases.POST
     }
 }

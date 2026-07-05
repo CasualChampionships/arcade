@@ -8,7 +8,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.casual.arcade.events.BuiltInEventPhases;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.client.render.LevelRenderEvent;
 import net.minecraft.client.renderer.LevelRenderer;

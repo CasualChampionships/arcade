@@ -8,7 +8,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
-import net.casual.arcade.events.BuiltInEventPhases
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerStopEvent

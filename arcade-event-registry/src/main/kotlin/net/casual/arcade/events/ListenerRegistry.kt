@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.events
 
-import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
+import net.casual.arcade.events.phase.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.common.Event
 import net.casual.arcade.events.threading.ThreadingStrategy
 import net.casual.arcade.events.threading.ThreadingTarget
@@ -40,7 +40,7 @@ public interface ListenerRegistry: ListenerProvider {
     public fun <T: Event> register(
         type: Class<T>,
         priority: Int = 1_000,
-        phase: String = DEFAULT,
+        phase: Int = DEFAULT,
         strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
     ) {
@@ -83,7 +83,7 @@ public interface ListenerRegistry: ListenerProvider {
          */
         public inline fun <reified T: Event> ListenerRegistry.register(
             priority: Int = 1_000,
-            phase: String = DEFAULT,
+            phase: Int = DEFAULT,
             strategy: ThreadingStrategy = ThreadingTarget.Default,
             listener: Consumer<T>
         ) {

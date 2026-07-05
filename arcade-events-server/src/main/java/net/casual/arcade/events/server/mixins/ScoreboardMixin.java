@@ -6,7 +6,7 @@ package net.casual.arcade.events.server.mixins;
 
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import net.casual.arcade.events.BuiltInEventPhases;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.common.Event;
 import net.casual.arcade.events.server.entity.EntityTeamJoinEvent;
@@ -52,14 +52,14 @@ public class ScoreboardMixin {
 		Entity entity = playerInstance;
 		if (playerInstance != null) {
 			PlayerTeamJoinEvent event = new PlayerTeamJoinEvent(playerInstance, team);
-			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 			events.get().add(event);
 		} else if (StringUtilsKt.isUUID(player)) {
 			entity = EntityUtilsKt.findEntity(this.server, UUID.fromString(player));
 		}
 		if (entity != null) {
 			EntityTeamJoinEvent event = new EntityTeamJoinEvent(entity, team);
-			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 			events.get().add(event);
 		}
 	}
@@ -73,7 +73,7 @@ public class ScoreboardMixin {
 		@Share("events") LocalRef<List<Event>> events
 	) {
 		for (Event event : events.get()) {
-			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
 		}
 	}
 
@@ -92,14 +92,14 @@ public class ScoreboardMixin {
 		Entity entity = playerInstance;
 		if (playerInstance != null) {
 			PlayerTeamLeaveEvent event = new PlayerTeamLeaveEvent(playerInstance, team);
-			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 			events.get().add(event);
 		} else if (StringUtilsKt.isUUID(player)) {
 			entity = EntityUtilsKt.findEntity(this.server, UUID.fromString(player));
 		}
 		if (entity != null) {
 			EntityTeamLeaveEvent event = new EntityTeamLeaveEvent(entity, team);
-			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 			events.get().add(event);
 		}
 	}
@@ -110,7 +110,7 @@ public class ScoreboardMixin {
 	)
 	private void onPlayerLeaveTeamPost(CallbackInfo ci, @Share("events") LocalRef<List<Event>> events) {
 		for (Event event : events.get()) {
-			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
 		}
 	}
 }

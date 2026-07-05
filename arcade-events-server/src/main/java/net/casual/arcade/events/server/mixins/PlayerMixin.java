@@ -11,7 +11,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import com.mojang.datafixers.util.Either;
-import net.casual.arcade.events.BuiltInEventPhases;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.ducks.ModifyActuallyHurt;
 import net.casual.arcade.events.server.entity.EntityDamageEvent;
@@ -127,7 +127,7 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 		if ((Object) this instanceof ServerPlayer player) {
             // This overrides the LivingEntity method so we need to copy the logic here
             EntityDamageEvent entityEvent = new EntityDamageEvent(player, source, damage.get());
-            GlobalEventHandler.Server.broadcast(entityEvent, BuiltInEventPhases.PRE_PHASES);
+            GlobalEventHandler.Server.broadcast(entityEvent, BuiltInEventPhases.PRE_PHASES_RAW);
             if (entityEvent.isCancelled()) {
                 this.arcade_setNotActuallyHurt();
                 ci.cancel();
@@ -135,7 +135,7 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
             }
 
 			PlayerDamageEvent playerEvent = new PlayerDamageEvent(player, source, entityEvent.getAmount());
-			GlobalEventHandler.Server.broadcast(playerEvent, BuiltInEventPhases.PRE_PHASES);
+			GlobalEventHandler.Server.broadcast(playerEvent, BuiltInEventPhases.PRE_PHASES_RAW);
 			if (playerEvent.isCancelled()) {
 				this.arcade_setNotActuallyHurt();
 				ci.cancel();
@@ -161,10 +161,10 @@ public abstract class PlayerMixin implements ModifyActuallyHurt {
 	) {
 		if ((Object) this instanceof ServerPlayer player) {
             EntityDamageEvent entityEvent = new EntityDamageEvent(player, source, dmg);
-            GlobalEventHandler.Server.broadcast(entityEvent, BuiltInEventPhases.POST_PHASES);
+            GlobalEventHandler.Server.broadcast(entityEvent, BuiltInEventPhases.POST_PHASES_RAW);
 
 			PlayerDamageEvent playerEvent = new PlayerDamageEvent(player, source, dmg);
-			GlobalEventHandler.Server.broadcast(playerEvent, BuiltInEventPhases.POST_PHASES);
+			GlobalEventHandler.Server.broadcast(playerEvent, BuiltInEventPhases.POST_PHASES_RAW);
 		}
 	}
 

@@ -4,11 +4,14 @@
  */
 package net.casual.arcade.events
 
+import it.unimi.dsi.fastutil.ints.IntSet
 import it.unimi.dsi.fastutil.objects.Reference2IntMap
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap
 import kotlinx.atomicfu.atomic
 import net.casual.arcade.events.common.Event
 import net.casual.arcade.events.common.MissingExecutorEvent
+import net.casual.arcade.events.phase.BuiltInEventPhases
+import net.casual.arcade.events.phase.EventPhases
 import net.casual.arcade.events.threading.ThreadingStrategy
 import net.casual.arcade.utils.collection.mergeSorted
 import net.casual.arcade.utils.server.ServerSingleton
@@ -67,7 +70,8 @@ public enum class GlobalEventHandler(
      * @param phases The phases of the event that should be invoked.
      */
     @JvmOverloads
-    public fun <T: Event> broadcast(event: T, phases: Set<String> = BuiltInEventPhases.DEFAULT_PHASES) {
+    @JvmName("broadcast")
+    public fun <T: Event> broadcast(event: T, phases: EventPhases = BuiltInEventPhases.DEFAULT_PHASES) {
         val type = event.javaClass
 
         @Suppress("UNCHECKED_CAST")

@@ -7,6 +7,7 @@ package net.casual.arcade.minigame.managers
 import net.casual.arcade.events.*
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.server.level.LevelEvent
 import net.casual.arcade.events.server.level.LocatedLevelEvent
 import net.casual.arcade.events.server.player.PlayerEvent
@@ -94,7 +95,7 @@ public class MinigameEventHandler(
      */
     public inline fun <reified T: Event> register(
         priority: Int,
-        phase: String = BuiltInEventPhases.DEFAULT,
+        phase: Int = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
@@ -141,7 +142,7 @@ public class MinigameEventHandler(
     public fun <T: Event> register(
         type: Class<T>,
         priority: Int = 1_000,
-        phase: String = BuiltInEventPhases.DEFAULT,
+        phase: Int = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
@@ -197,7 +198,7 @@ public class MinigameEventHandler(
      */
     public inline fun <reified T: Event> registerInPhases(
         priority: Int,
-        phase: String = BuiltInEventPhases.DEFAULT,
+        phase: Int = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         strategy: ThreadingStrategy = ThreadingTarget.Default,
         vararg phases: Phase<*>,
@@ -254,7 +255,7 @@ public class MinigameEventHandler(
     public inline fun <reified T: Event> registerBetweenPhases(
         after: Phase<*>,
         before: Phase<*>,
-        phase: String = BuiltInEventPhases.DEFAULT,
+        phase: Int = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
@@ -276,7 +277,7 @@ public class MinigameEventHandler(
         priority: Int,
         after: Phase<*>,
         before: Phase<*>,
-        phase: String = BuiltInEventPhases.DEFAULT,
+        phase: Int = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>

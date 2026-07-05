@@ -15,8 +15,9 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.brigadier.suggestion.Suggestions;
-import net.casual.arcade.events.BuiltInEventPhases;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
+import net.casual.arcade.events.phase.EventPhases;
 import net.casual.arcade.events.server.player.*;
 import net.casual.arcade.utils.player.PlayerUtilsKt;
 import net.minecraft.network.Connection;
@@ -43,7 +44,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -61,9 +61,9 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 	@WrapMethod(method = "onDisconnect")
 	private void broadcastDisconnectEvents(DisconnectionDetails details, Operation<Void> original) {
 		PlayerLeaveEvent event = new PlayerLeaveEvent(this.player);
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 		ScopedValue.where(PLAYER_LEAVE_CONTEXT, event).run(() -> original.call(details));
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
 	}
 
 	@WrapWithCondition(
@@ -123,7 +123,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		@Share("slotClickEvent") LocalRef<PlayerSlotClickEvent> slotClickEvent
 	) {
 		PlayerSlotClickEvent event = PlayerSlotClickEvent.from(this.player, this.player.containerMenu, packet);
-		GlobalEventHandler.Server.broadcast(event, Set.of(PlayerSlotClickEvent.PHASE_PRE_VALIDATE));
+		GlobalEventHandler.Server.broadcast(event, EventPhases.of(PlayerSlotClickEvent.PHASE_PRE_VALIDATE));
 		if (event.isCancelled()) {
 			ci.cancel();
 		}
@@ -145,7 +145,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		@Share("slotClickEvent") LocalRef<PlayerSlotClickEvent> slotClickEvent
 	) {
 		PlayerSlotClickEvent event = slotClickEvent.get();
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 		if (event.isCancelled()) {
 			ci.cancel();
 		}
@@ -165,7 +165,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		@Share("slotClickEvent") LocalRef<PlayerSlotClickEvent> slotClickEvent
 	) {
 		PlayerSlotClickEvent event = slotClickEvent.get();
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
 	}
 
 	@Inject(
@@ -183,7 +183,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		@Share("menuButtonClickEvent") LocalRef<PlayerMenuButtonClickEvent> menuButtonClickEvent
 	) {
 		PlayerMenuButtonClickEvent event = new PlayerMenuButtonClickEvent(this.player, this.player.containerMenu, packet.containerId(), packet.buttonId());
-		GlobalEventHandler.Server.broadcast(event, Set.of(PlayerMenuButtonClickEvent.PHASE_PRE_VALIDATE));
+		GlobalEventHandler.Server.broadcast(event, EventPhases.of(PlayerMenuButtonClickEvent.PHASE_PRE_VALIDATE));
 		if (event.isCancelled()) {
 			ci.cancel();
 		}
@@ -205,7 +205,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		@Share("menuButtonClickEvent") LocalRef<PlayerMenuButtonClickEvent> menuButtonClickEvent
 	) {
 		PlayerMenuButtonClickEvent event = menuButtonClickEvent.get();
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 		if (event.isCancelled()) {
 			ci.cancel();
 		}
@@ -225,7 +225,7 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		@Share("menuButtonClickEvent") LocalRef<PlayerMenuButtonClickEvent> menuButtonClickEvent
 	) {
 		PlayerMenuButtonClickEvent event = menuButtonClickEvent.get();
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
 	}
 
     @WrapWithCondition(
