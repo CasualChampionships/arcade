@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.events
 
+import it.unimi.dsi.fastutil.objects.Reference2IntMap
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap
 import kotlinx.atomicfu.atomic
 import net.casual.arcade.events.common.Event
@@ -16,6 +17,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.util.thread.ReentrantBlockableEventLoop
 import org.slf4j.LoggerFactory
 import java.util.*
+import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executor
 
 /**
@@ -33,9 +35,9 @@ public enum class GlobalEventHandler(
     Client({ Minecraft.getInstance() });
 
     private val stack = ThreadLocal.withInitial { Reference2IntOpenHashMap<Class<out Event>>() }
-    private val registries = Collections.synchronizedSet(HashSet<ListenerProvider>())
+    private val registries = CopyOnWriteArraySet<ListenerProvider>()
 
-    private val injected = Collections.synchronizedSet(HashSet<InjectedListenerProvider>())
+    private val injected = CopyOnWriteArraySet<InjectedListenerProvider>()
 
     private val recursion = ScopedValue.newInstance<Unit>()
 
@@ -68,34 +70,37 @@ public enum class GlobalEventHandler(
     public fun <T: Event> broadcast(event: T, phases: Set<String> = BuiltInEventPhases.DEFAULT_PHASES) {
         val type = event.javaClass
 
-        // If this returns null, then the server is stopping anyway
-        val executor = this.getMainThreadExecutor(event, type) ?: return
+        @Suppress("UNCHECKED_CAST")
+        val base = this.getListenersFor(type) as List<EventListener<T>>
+        if (base.isEmpty() && this.registries.isEmpty() && this.injected.isEmpty()) {
+            return
+        }
 
-        if (!this.recursion.isBound && this.checkRecursive(type)) {
+        val executor = this.getMainThreadExecutor(event, type)
+        if (executor == ThreadExecutor.Invalid) {
+            return
+        }
+
+        val stack = this.stack.get()
+        if (!this.recursion.isBound && this.checkRecursive(stack, type)) {
             return
         }
 
         // We could probably optimize this further by collecting all listeners
         // *then* merging them all in one go, we should also probably be filtering
         // by phase when merging listeners.
-        @Suppress("UNCHECKED_CAST")
-        val base = this.getListenersFor(type) as List<EventListener<T>>
         val listeners = if (base.isEmpty()) ArrayList() else ArrayList(base)
         try {
-            this.stack.get().addTo(type, 1)
+            stack.addTo(type, 1)
 
-            synchronized(this.registries) {
-                for (handler in this.registries) {
+            for (handler in this.registries) {
+                @Suppress("UNCHECKED_CAST")
+                listeners.mergeSorted(handler.getListenersFor(type) as List<EventListener<T>>)
+            }
+            for (injected in this.injected) {
+                injected.injectListenerProviders(event) { handler ->
                     @Suppress("UNCHECKED_CAST")
                     listeners.mergeSorted(handler.getListenersFor(type) as List<EventListener<T>>)
-                }
-            }
-            synchronized(this.injected) {
-                for (injected in this.injected) {
-                    injected.injectListenerProviders(event) { handler ->
-                        @Suppress("UNCHECKED_CAST")
-                        listeners.mergeSorted(handler.getListenersFor(type) as List<EventListener<T>>)
-                    }
                 }
             }
 
@@ -109,7 +114,7 @@ public enum class GlobalEventHandler(
                 }
             }
         } finally {
-            this.stack.get().addTo(type, -1)
+            stack.addTo(type, -1)
         }
     }
 
@@ -170,8 +175,8 @@ public enum class GlobalEventHandler(
         ScopedValue.where(this.recursion, Unit).run(block)
     }
 
-    private fun checkRecursive(type: Class<out Event>): Boolean {
-        val count = this.stack.get().getInt(type)
+    private fun checkRecursive(stack: Reference2IntMap<Class<out Event>>, type: Class<out Event>): Boolean {
+        val count = stack.getInt(type)
         if (count >= MAX_RECURSIONS) {
             logger.warn(
                 "Detected recursive event (type: {}), suppressing...\nStacktrace: \n{}",
@@ -183,7 +188,7 @@ public enum class GlobalEventHandler(
         return false
     }
 
-    private fun getMainThreadExecutor(event: Event, type: Class<out Event>): Executor? {
+    private fun getMainThreadExecutor(event: Event, type: Class<out Event>): ThreadExecutor {
         val executor = this.executor.invoke()
         if (executor == null) {
             if (event !is MissingExecutorEvent) {
@@ -193,21 +198,38 @@ public enum class GlobalEventHandler(
                     this.name.lowercase()
                 )
             }
-            return Executor(Runnable::run)
+            return ThreadExecutor.Current
         }
         if (executor.isSameThread) {
-            return Executor(Runnable::run)
+            return ThreadExecutor.Current
         }
-        val wasStopping = this.stopping.getAndSet(executor is MinecraftServer && executor.isStopped)
-        if (!wasStopping && this.stopping.value) {
-            logger.warn(
-                "Event broadcasted (type: {}) while {} is stopping, ignoring events...",
-                type.simpleName,
-                this.name.lowercase()
-            )
-            return null
+
+        val isStopped = executor is MinecraftServer && executor.isStopped
+        if (isStopped != this.stopping.value) {
+            val wasStopping = this.stopping.getAndSet(isStopped)
+            if (!wasStopping && isStopped) {
+                logger.warn(
+                    "Event broadcasted (type: {}) while {} is stopping, ignoring events...",
+                    type.simpleName,
+                    this.name.lowercase()
+                )
+            }
         }
-        return executor
+        return if (isStopped) ThreadExecutor.Invalid else ThreadExecutor.Custom(executor)
+    }
+
+    private sealed class ThreadExecutor {
+        object Invalid: ThreadExecutor()
+        object Current: ThreadExecutor()
+        class Custom(val executor: Executor): ThreadExecutor()
+
+        inline fun execute(crossinline block: () -> Unit) {
+            when (this) {
+                Current -> block.invoke()
+                is Custom -> this.executor.execute { block.invoke() }
+                Invalid -> throw IllegalStateException()
+            }
+        }
     }
 
     public companion object {
