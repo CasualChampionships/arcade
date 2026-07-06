@@ -27,5 +27,4 @@ import net.casual.arcade.events.threading.AsyncEvent
  * @see ServerSideEvent
  * @see GlobalEventHandler
  */
-public sealed interface Event {
-}
+public sealed interface Event
