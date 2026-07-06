@@ -12,4 +12,4 @@ public data class PlayerItemReleaseEvent(
     override val player: ServerPlayer,
     val stack: ItemStack,
     val ticks: Int
-): CancellableEvent.Default(), PlayerEvent
+): CancellableEvent.Simple(), PlayerEvent

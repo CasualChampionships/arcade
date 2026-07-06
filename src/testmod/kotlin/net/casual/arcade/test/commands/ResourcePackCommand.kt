@@ -7,8 +7,8 @@ import com.mojang.brigadier.context.CommandContext
 import kotlinx.coroutines.future.await
 import net.casual.arcade.commands.*
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerJoinEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.host.GlobalPackHost
 import net.casual.arcade.host.PackHost
 import net.casual.arcade.resources.ArcadeResourcePacks

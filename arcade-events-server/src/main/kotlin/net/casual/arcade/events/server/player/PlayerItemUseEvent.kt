@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.events.server.player
 
-import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.common.CancellableEvent
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
@@ -15,7 +15,7 @@ public data class PlayerItemUseEvent(
     override val player: ServerPlayer,
     val stack: ItemStack,
     val hand: InteractionHand
-): CancellableEvent.Typed<InteractionResult>(), PlayerEvent {
+): CancellableEvent.WithResult<InteractionResult>(), PlayerEvent {
     public companion object {
         /**
          * This phase will trigger the listener early, i.e. before the game

@@ -8,15 +8,16 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.ListenerRegistry
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.SimpleListenerRegistry
+import net.casual.arcade.events.common.ServerSideEvent
 import net.casual.arcade.events.server.ServerStartEvent
+import net.casual.arcade.events.utils.register
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 
 public object GlobalCommandManager: CommandRegistry<CommandSourceStack> {
     private val delayed = ArrayList<CommandTree<CommandSourceStack>>()
-    private val managers = HashMap<ServerCommandManager, ListenerRegistry>()
+    private val managers = HashMap<ServerCommandManager, ListenerRegistry<ServerSideEvent>>()
 
     private lateinit var global: ServerCommandManager
 
@@ -38,7 +39,7 @@ public object GlobalCommandManager: CommandRegistry<CommandSourceStack> {
 
     public fun addManager(manager: ServerCommandManager) {
         if (!this.managers.containsKey(manager)) {
-            val registry = SimpleListenerRegistry()
+            val registry = SimpleListenerRegistry<ServerSideEvent>()
             GlobalEventHandler.Server.addProvider(registry)
             this.managers[manager] = registry
             manager.initialize(registry)

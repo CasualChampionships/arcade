@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.minigame.managers
 
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigamePauseEvent
 import net.casual.arcade.minigame.events.MinigameUnpauseEvent

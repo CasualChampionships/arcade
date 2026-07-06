@@ -17,4 +17,4 @@ public data class MinigameAddNewPlayerEvent(
     val player: ServerPlayer,
     var spectating: Boolean?,
     var admin: Boolean?
-): CancellableEvent.Default(), MinigameEvent
+): CancellableEvent.Simple(), MinigameEvent

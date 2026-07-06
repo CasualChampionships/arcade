@@ -7,9 +7,9 @@ package net.casual.arcade.minigame.managers
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.events.server.player.PlayerLeaveEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.mixins.PlayerListAccessor

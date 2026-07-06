@@ -5,8 +5,8 @@
 package net.casual.arcade.events.server.player
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
-import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.common.CancellableEvent
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.minecraft.network.HashedStack
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket
 import net.minecraft.server.level.ServerPlayer
@@ -23,7 +23,7 @@ public data class PlayerSlotClickEvent(
     public val stateId: Int,
     public val changedSlots: Int2ObjectMap<HashedStack>,
     public val carriedItem: HashedStack
-): CancellableEvent.Default(), PlayerEvent {
+): CancellableEvent.Simple(), PlayerEvent {
     @Deprecated("Use this.input instead", ReplaceWith("this.input"))
     public val action: ContainerInput by this::input
 

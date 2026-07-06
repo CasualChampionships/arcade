@@ -7,9 +7,9 @@ package net.casual.arcade.commands.hidden
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.events.server.player.PlayerCustomClickActionEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.network.chat.ClickEvent

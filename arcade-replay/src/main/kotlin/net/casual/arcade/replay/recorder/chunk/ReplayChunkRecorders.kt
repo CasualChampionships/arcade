@@ -6,9 +6,9 @@ package net.casual.arcade.replay.recorder.chunk
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerStopEvent
 import net.casual.arcade.events.server.ServerTickEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.replay.io.ReplayFormat
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.recorder.settings.RecorderSettings

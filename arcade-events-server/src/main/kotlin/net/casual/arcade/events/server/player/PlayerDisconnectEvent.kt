@@ -5,7 +5,7 @@
 package net.casual.arcade.events.server.player
 
 import com.mojang.authlib.GameProfile
-import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.common.ServerSideEvent
 import net.minecraft.server.MinecraftServer
 
 /**
@@ -18,4 +18,4 @@ import net.minecraft.server.MinecraftServer
 public data class PlayerDisconnectEvent(
     val server: MinecraftServer,
     val profile: GameProfile
-): Event
+): ServerSideEvent

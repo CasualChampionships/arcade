@@ -4,15 +4,15 @@
  */
 package net.casual.arcade.replay.events
 
+import net.casual.arcade.events.common.ServerSideEvent
 import net.casual.arcade.events.phase.BuiltInEventPhases
-import net.casual.arcade.events.common.Event
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import java.nio.file.Path
 
 public data class ReplayRecorderSaveEvent(
     val recorder: ReplayRecorder,
     val output: Path
-): Event {
+): ServerSideEvent {
     public companion object {
         public const val PHASE_PRE: Int = BuiltInEventPhases.PRE
 

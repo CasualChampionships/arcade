@@ -15,7 +15,7 @@ public data class PlayerSystemMessageEvent(
     override val player: ServerPlayer,
     var message: Component,
     val isActionBar: Boolean
-): CancellableEvent.Default(), PlayerEvent {
+): CancellableEvent.Simple(), PlayerEvent {
     val causer: ServerPlayer? = Companion.causer
 
     public companion object {

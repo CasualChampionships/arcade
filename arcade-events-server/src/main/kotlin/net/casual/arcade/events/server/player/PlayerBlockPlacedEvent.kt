@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.events.server.player
 
-import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.common.CancellableEvent
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.context.BlockPlaceContext
@@ -16,7 +16,7 @@ public data class PlayerBlockPlacedEvent(
     val item: BlockItem,
     val state: BlockState,
     val context: BlockPlaceContext
-): CancellableEvent.Default(), PlayerEvent {
+): CancellableEvent.Simple(), PlayerEvent {
     public companion object {
         public const val PHASE_PRE: Int = BuiltInEventPhases.PRE
 

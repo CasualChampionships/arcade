@@ -13,11 +13,11 @@ import kotlinx.coroutines.withContext
 import net.casual.arcade.commands.hasPermission
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
-import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.common.ServerSideEvent
 import net.casual.arcade.events.server.level.LevelEvent
 import net.casual.arcade.events.server.level.LocatedLevelEvent
 import net.casual.arcade.events.server.player.PlayerEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.event.ExtensionEvent
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
@@ -329,18 +329,18 @@ public object MinigameUtils {
         declarer: Any,
         method: Method,
         event: Listener
-    ): Pair<Class<Event>, EventListener<Event>> {
+    ): Pair<Class<ServerSideEvent>, EventListener<ServerSideEvent>> {
         if (method.parameterCount != 1) {
             throw IllegalArgumentException("Minigame Listener ($method) has unexpected parameter count, should be 1")
         }
 
         val type = method.parameterTypes[0]
-        if (!Event::class.java.isAssignableFrom(type)) {
-            val message = "Minigame Listener ($method) only accepts parameter type $type but should accept Event"
+        if (!ServerSideEvent::class.java.isAssignableFrom(type)) {
+            val message = "Minigame Listener ($method) only accepts parameter type $type but should accept ServerSideEvent"
             throw IllegalArgumentException(message)
         }
         @Suppress("UNCHECKED_CAST")
-        type as Class<Event>
+        type as Class<ServerSideEvent>
 
         val priority = event.priority
 

@@ -18,4 +18,4 @@ public data class PlayerTNTPrimedEvent(
      */
     override val level: ServerLevel,
     override val pos: BlockPos
-): CancellableEvent.Default(), PlayerEvent, LocatedLevelEvent
+): CancellableEvent.Simple(), PlayerEvent, LocatedLevelEvent

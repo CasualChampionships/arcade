@@ -4,9 +4,9 @@
  */
 package net.casual.arcade.replay.events
 
-import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.common.ServerSideEvent
 import net.casual.arcade.replay.recorder.ReplayRecorder
 
 public data class ReplayRecorderCloseEvent(
     public val recorder: ReplayRecorder
-): Event
+): ServerSideEvent

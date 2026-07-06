@@ -13,4 +13,4 @@ public data class MobSpawnEvent(
     override val level: ServerLevel,
     override val entity: Mob,
     val data: SpawnGroupData?
-): CancellableEvent.Default(), EntityEvent
+): CancellableEvent.Simple(), EntityEvent

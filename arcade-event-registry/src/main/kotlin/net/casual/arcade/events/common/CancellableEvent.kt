@@ -4,8 +4,6 @@
  */
 package net.casual.arcade.events.common
 
-import org.apache.commons.lang3.mutable.MutableObject
-
 /**
  * This is an event that usually is fired before
  * any side effects occur and provides the ability
@@ -23,7 +21,7 @@ import org.apache.commons.lang3.mutable.MutableObject
  *
  * @see Event
  */
-public sealed class CancellableEvent: Event {
+public sealed class CancellableEvent {
     /**
      * Whether the event is cancelled.
      */
@@ -53,7 +51,7 @@ public sealed class CancellableEvent: Event {
      * Abstract class of [CancellableEvent] that
      * make the [cancel] method accessible.
      */
-    public abstract class Default: CancellableEvent() {
+    public abstract class Simple: CancellableEvent() {
         /**
          * Cancels the event.
          */
@@ -71,11 +69,11 @@ public sealed class CancellableEvent: Event {
      * @param T The type of the result. It may be nullable.
      * @see CancellableEvent
      */
-    public abstract class Typed<T>: CancellableEvent() {
+    public abstract class WithResult<T>: CancellableEvent() {
         /**
          * The result of the event.
          */
-        private var result: MutableObject<T>? = null
+        private var result: Result<T> = Result.none()
 
         /**
          * Cancels the event.
@@ -93,7 +91,7 @@ public sealed class CancellableEvent: Event {
          * @param result The result.
          */
         public fun cancel(result: T) {
-            this.result = MutableObject(result)
+            this.result = Result.Some(result)
             this.cancel()
         }
 
@@ -105,12 +103,31 @@ public sealed class CancellableEvent: Event {
          * @return The result.
          */
         public fun result(): T {
-            val result = this.result ?: throw IllegalStateException("Called result() when no result is present")
-            return result.get()
+            val result = this.result
+            if (result !is Result.Some) {
+                throw IllegalStateException("Called result() when no result is present")
+            }
+            return result.value
         }
 
         public fun resultOrElse(otherwise: () -> T): T {
-            return this.result?.get() ?: otherwise()
+            val result = this.result
+            if (result !is Result.Some) {
+                return otherwise.invoke()
+            }
+            return result.value
+        }
+
+        private sealed class Result<T> {
+            object None: Result<Nothing>()
+            class Some<T>(val value: T): Result<T>()
+
+            companion object {
+                fun <T> none(): Result<T> {
+                    @Suppress("UNCHECKED_CAST")
+                    return None as Result<T>
+                }
+            }
         }
     }
 }

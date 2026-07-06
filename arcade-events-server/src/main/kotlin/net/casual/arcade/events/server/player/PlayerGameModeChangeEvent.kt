@@ -12,4 +12,4 @@ public data class PlayerGameModeChangeEvent(
     override val player: ServerPlayer,
     val previous: GameType,
     val current: GameType
-): CancellableEvent.Default(), PlayerEvent
+): CancellableEvent.Simple(), PlayerEvent

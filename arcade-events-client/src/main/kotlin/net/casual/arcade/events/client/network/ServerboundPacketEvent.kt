@@ -4,8 +4,9 @@
  */
 package net.casual.arcade.events.client.network
 
-import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.common.CancellableEvent
+import net.casual.arcade.events.common.ClientSideEvent
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.threading.AsyncEvent
 import net.minecraft.client.Minecraft
 import net.minecraft.network.protocol.Packet
@@ -13,7 +14,7 @@ import net.minecraft.network.protocol.Packet
 public data class ServerboundPacketEvent(
     val minecraft: Minecraft,
     var packet: Packet<*>
-): CancellableEvent.Default(), AsyncEvent {
+): CancellableEvent.Simple(), ClientSideEvent, AsyncEvent {
     public companion object {
         /**
          * The phase is invoked before the packet has been sent to the server.
@@ -21,12 +22,12 @@ public data class ServerboundPacketEvent(
          *
          * This is the default phase for this event.
          */
-        public const val PHASE_PRE: String = BuiltInEventPhases.PRE
+        public const val PHASE_PRE: Int = BuiltInEventPhases.PRE
 
         /**
          * This phase in invoked **after** the packet has been sent to the server.
          * The [packet] can no longer be modified.
          */
-        public const val PHASE_POST: String = BuiltInEventPhases.POST
+        public const val PHASE_POST: Int = BuiltInEventPhases.POST
     }
 }

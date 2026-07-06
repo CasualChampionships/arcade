@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.events.server
 
+import net.casual.arcade.events.common.ServerSideEvent
 import net.casual.arcade.events.phase.BuiltInEventPhases
-import net.casual.arcade.events.common.Event
 import net.casual.arcade.events.server.ServerTickEvent.Companion.PHASE_PRE
 import net.minecraft.server.MinecraftServer
 
@@ -21,7 +21,7 @@ public data class ServerTickEvent(
      * The [MinecraftServer] instance that was ticked.
      */
     val server: MinecraftServer
-): Event {
+): ServerSideEvent {
     public companion object {
         /**
          * Runs before the server has run the tick.

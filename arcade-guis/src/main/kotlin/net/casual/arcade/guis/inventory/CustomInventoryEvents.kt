@@ -5,8 +5,8 @@
 package net.casual.arcade.guis.inventory
 
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.*
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.guis.utils.SlotInteractAction
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult

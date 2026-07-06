@@ -5,10 +5,10 @@
 package net.casual.arcade.nametags.extensions
 
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent.Companion.replacePacket
 import net.casual.arcade.events.server.player.PlayerPoseEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.EntityExtension
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.event.EntityExtensionEvent

@@ -4,14 +4,14 @@
  */
 package net.casual.arcade.events.server
 
-import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.common.ServerSideEvent
 import net.minecraft.server.MinecraftServer
 import org.jetbrains.annotations.ApiStatus.Internal
 
 public data class ServerSaveEvent(
     val server: MinecraftServer,
     val reason: Reason
-): Event {
+): ServerSideEvent {
     @Deprecated("Manually check reason instead")
     val stopping: Boolean
         get() = this.reason == Reason.Shutdown

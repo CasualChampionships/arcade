@@ -14,4 +14,4 @@ public data class PlayerLandEvent(
     val distance: Double,
     val multiplier: Float,
     val source: DamageSource
-): CancellableEvent.Default(), PlayerEvent
+): CancellableEvent.Simple(), PlayerEvent

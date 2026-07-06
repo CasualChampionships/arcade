@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.events.client.render
 
+import net.casual.arcade.events.common.ClientSideEvent
 import net.casual.arcade.events.common.Event
 import net.minecraft.client.Camera
 import net.minecraft.client.DeltaTracker
@@ -19,4 +20,4 @@ public data class LevelRenderExtractEvent(
     val camera: Camera,
     val deltas: DeltaTracker,
     val frustum: Frustum
-): Event
+): ClientSideEvent

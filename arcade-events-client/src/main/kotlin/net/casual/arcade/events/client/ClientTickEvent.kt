@@ -4,13 +4,14 @@
  */
 package net.casual.arcade.events.client
 
+import net.casual.arcade.events.common.ClientSideEvent
 import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.common.Event
 import net.minecraft.client.Minecraft
 
 public data class ClientTickEvent(
     val minecraft: Minecraft
-): Event {
+): ClientSideEvent {
     public companion object {
         /**
          * Runs before the client has run the tick.

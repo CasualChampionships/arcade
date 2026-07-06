@@ -13,7 +13,7 @@ import java.util.*
 public data class PlayerSpectatorTeleportEvent(
     override val player: ServerPlayer,
     val targetUUID: UUID
-): CancellableEvent.Default(), PlayerEvent {
+): CancellableEvent.Simple(), PlayerEvent {
     public fun getTarget(): Entity? {
         for (level in this.player.server.allLevels) {
             val entity = level.getEntity(this.targetUUID)

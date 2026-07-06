@@ -8,9 +8,9 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Cancellable;
-import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.client.network.ServerboundPacketEvent;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
 import net.minecraft.network.Connection;
@@ -39,7 +39,7 @@ public abstract class ClientCommonPacketListenerImplMixin {
     )
     private Packet<?> broadcastSendPacketPre(Packet<?> packet, @Cancellable CallbackInfo ci) {
         ServerboundPacketEvent event = new ServerboundPacketEvent(this.minecraft, packet);
-        GlobalEventHandler.Client.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+        GlobalEventHandler.Client.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
         if (event.isCancelled()) {
             ci.cancel();
         }
@@ -55,7 +55,7 @@ public abstract class ClientCommonPacketListenerImplMixin {
     )
     private void broadcastSendPacketPost(Connection instance, Packet<?> packet, Operation<Void> original) {
         ServerboundPacketEvent event = new ServerboundPacketEvent(this.minecraft, packet);
-        GlobalEventHandler.Client.broadcast(event, BuiltInEventPhases.POST_PHASES);
+        GlobalEventHandler.Client.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
     }
 
     @WrapWithCondition(

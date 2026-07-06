@@ -11,11 +11,11 @@ import com.mojang.brigadier.tree.LiteralCommandNode
 import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.ducks.DeletableCommand
 import net.casual.arcade.commands.literal
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.block.CommandBlockExecuteEvent
 import net.casual.arcade.events.server.player.PlayerCommandEvent
 import net.casual.arcade.events.server.player.PlayerCommandSuggestionsEvent
 import net.casual.arcade.events.server.player.PlayerSendCommandsEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.*
 import net.minecraft.commands.CommandBuildContext

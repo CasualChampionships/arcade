@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.events.client.render
 
+import net.casual.arcade.events.common.ClientSideEvent
 import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.common.Event
 import net.minecraft.client.DeltaTracker
@@ -12,7 +13,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor
 public data class GuiRenderEvent(
     val graphics: GuiGraphicsExtractor,
     val deltas: DeltaTracker
-): Event {
+): ClientSideEvent {
     public companion object {
         public const val PHASE_PRE: Int = BuiltInEventPhases.PRE
 

@@ -4,6 +4,4 @@
  */
 package net.casual.arcade.events.threading
 
-import net.casual.arcade.events.common.Event
-
-public interface AsyncEvent: Event
+public interface AsyncEvent

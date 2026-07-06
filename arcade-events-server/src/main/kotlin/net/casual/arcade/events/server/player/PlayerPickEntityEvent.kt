@@ -11,4 +11,4 @@ import net.minecraft.world.entity.Entity
 public data class PlayerPickEntityEvent(
     override val player: ServerPlayer,
     val entity: Entity
-): CancellableEvent.Default(), PlayerEvent
+): CancellableEvent.Simple(), PlayerEvent

@@ -26,7 +26,9 @@ import net.casual.arcade.events.common.Event
  * @see GlobalEventHandler
  * @see ListenerProvider
  */
-public class SimpleListenerRegistry: ListenerRegistry {
+public class SimpleListenerRegistry<E: Event>(
+    private val type: Class<E>
+): ListenerRegistry<E> {
     private val events = Reference2ObjectOpenHashMap<Class<out Event>, ArrayList<EventListener<*>>>()
 
     /**
@@ -47,11 +49,15 @@ public class SimpleListenerRegistry: ListenerRegistry {
      * This callback will **only** fire when instances of the given type
      * are fired.
      *
-     * @param T The type of event.
+     * @param E The type of event.
      * @param type The class of the event that you want to listen to.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    override fun <T: Event> register(type: Class<T>, listener: EventListener<T>) {
+    override fun <T: E> register(type: Class<T>, listener: EventListener<T>) {
+        require(this.type.isAssignableFrom(type)) {
+            "Tried registering invalid event '${type.simpleName}' to registry which requires '${this.type.simpleName}'"
+        }
+
         @Suppress("UNCHECKED_CAST")
         val listeners = this.events.getOrPut(type) { ArrayList() } as MutableList<EventListener<T>>
         listeners.add(this.findIndexForPriority(listeners, listener), listener)
@@ -64,7 +70,7 @@ public class SimpleListenerRegistry: ListenerRegistry {
         this.events.clear()
     }
 
-    private fun <T: Event> findIndexForPriority(listeners: List<EventListener<T>>, listener: EventListener<T>): Int {
+    private fun <T: E> findIndexForPriority(listeners: List<EventListener<T>>, listener: EventListener<T>): Int {
         var left = 0
         var right = listeners.size - 1
         while (left <= right) {
@@ -78,5 +84,11 @@ public class SimpleListenerRegistry: ListenerRegistry {
             }
         }
         return left
+    }
+
+    public companion object {
+        public inline operator fun <reified E: Event> invoke(): SimpleListenerRegistry<E> {
+            return SimpleListenerRegistry(E::class.java)
+        }
     }
 }

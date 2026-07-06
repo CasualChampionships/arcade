@@ -11,4 +11,4 @@ import net.minecraft.world.InteractionHand
 public data class PlayerClientSwingHandEvent(
     override val player: ServerPlayer,
     val hand: InteractionHand
-): CancellableEvent.Default(), PlayerEvent
+): CancellableEvent.Simple(), PlayerEvent

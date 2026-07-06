@@ -11,8 +11,8 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.longs.LongSets
 import kotlinx.coroutines.*
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerServerboundPacketEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.host.GlobalPackHost
 import net.casual.arcade.replay.ducks.ResourcePackTracker
 import net.casual.arcade.replay.io.reader.ReplayReader

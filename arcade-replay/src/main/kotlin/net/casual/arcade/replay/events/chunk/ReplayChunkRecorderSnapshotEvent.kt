@@ -4,10 +4,10 @@
  */
 package net.casual.arcade.replay.events.chunk
 
-import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.common.ServerSideEvent
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder
 
 public data class ReplayChunkRecorderSnapshotEvent(
     val recorder: ReplayChunkRecorder,
     val initial: Boolean
-): Event
+): ServerSideEvent

@@ -5,11 +5,11 @@
 package net.casual.arcade.minigame.extensions
 
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerAttributeUpdatedEvent
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
 import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
 import net.casual.arcade.events.server.player.PlayerTickEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent

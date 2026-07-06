@@ -16,7 +16,7 @@ public data class PlayerBlockInteractionEvent(
     val stack: ItemStack,
     val hand: InteractionHand,
     val result: BlockHitResult
-): CancellableEvent.Typed<InteractionResult>(), PlayerEvent {
+): CancellableEvent.WithResult<InteractionResult>(), PlayerEvent {
     var preventUsingOnBlock: Boolean = false
         private set
 

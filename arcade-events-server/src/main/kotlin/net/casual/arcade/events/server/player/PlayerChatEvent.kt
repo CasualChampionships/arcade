@@ -13,7 +13,7 @@ import java.util.function.Predicate
 public data class PlayerChatEvent(
     override val player: ServerPlayer,
     val message: PlayerChatMessage
-): CancellableEvent.Default(), PlayerEvent {
+): CancellableEvent.Simple(), PlayerEvent {
     private val filters = ArrayList<Predicate<ServerPlayer>>()
     private var formatted: PlayerFormattedChat = PlayerFormattedChat(message = this.message.decoratedContent())
     private var mutated: Boolean = false

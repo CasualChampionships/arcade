@@ -16,7 +16,7 @@ public data class PlayerBlockStartMiningEvent(
     override val player: ServerPlayer,
     override val pos: BlockPos,
     val face: Direction
-): CancellableEvent.Default(), PlayerEvent, LocatedLevelEvent {
+): CancellableEvent.Simple(), PlayerEvent, LocatedLevelEvent {
     override val level: ServerLevel
         get() = this.player.level()
 

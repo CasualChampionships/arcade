@@ -14,7 +14,7 @@ public data class PlayerTeamChatEvent(
     override val player: ServerPlayer,
     val message: PlayerChatMessage,
     val teammates: List<ServerPlayer>
-): CancellableEvent.Default(), PlayerEvent {
+): CancellableEvent.Simple(), PlayerEvent {
     private var formatted: PlayerFormattedChat = PlayerFormattedChat(message = this.message.decoratedContent())
     private var mutated: Boolean = false
 

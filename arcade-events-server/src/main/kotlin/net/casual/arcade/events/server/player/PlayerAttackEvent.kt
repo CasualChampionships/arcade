@@ -12,4 +12,4 @@ public data class PlayerAttackEvent(
     override val player: ServerPlayer,
     val target: Entity,
     var damage: Float
-): CancellableEvent.Default(), PlayerEvent
+): CancellableEvent.Simple(), PlayerEvent

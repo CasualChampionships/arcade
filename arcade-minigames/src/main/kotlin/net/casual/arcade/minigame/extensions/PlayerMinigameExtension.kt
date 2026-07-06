@@ -5,10 +5,10 @@
 package net.casual.arcade.minigame.extensions
 
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.events.server.player.PlayerJoinEvent
 import net.casual.arcade.events.server.player.PlayerLeaveEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
 import net.casual.arcade.minigame.Minigame

@@ -6,8 +6,8 @@ package net.casual.arcade.minigame.managers
 
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent

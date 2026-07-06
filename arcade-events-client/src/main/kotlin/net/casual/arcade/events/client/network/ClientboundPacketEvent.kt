@@ -5,6 +5,7 @@
 package net.casual.arcade.events.client.network
 
 import net.casual.arcade.events.common.CancellableEvent
+import net.casual.arcade.events.common.ClientSideEvent
 import net.casual.arcade.events.threading.AsyncEvent
 import net.minecraft.client.Minecraft
 import net.minecraft.network.protocol.Packet
@@ -12,4 +13,4 @@ import net.minecraft.network.protocol.Packet
 public data class ClientboundPacketEvent(
     val minecraft: Minecraft,
     val packet: Packet<*>
-): CancellableEvent.Default(), AsyncEvent
+): CancellableEvent.Simple(), ClientSideEvent, AsyncEvent

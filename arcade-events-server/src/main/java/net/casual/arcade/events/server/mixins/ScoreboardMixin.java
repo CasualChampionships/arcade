@@ -6,9 +6,10 @@ package net.casual.arcade.events.server.mixins;
 
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.common.Event;
+import net.casual.arcade.events.common.ServerSideEvent;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.server.entity.EntityTeamJoinEvent;
 import net.casual.arcade.events.server.entity.EntityTeamLeaveEvent;
 import net.casual.arcade.events.server.player.PlayerTeamJoinEvent;
@@ -45,7 +46,7 @@ public class ScoreboardMixin {
 		String player,
 		PlayerTeam team,
 		CallbackInfoReturnable<Boolean> cir,
-		@Share("events") LocalRef<List<Event>> events
+		@Share("events") LocalRef<List<ServerSideEvent>> events
 	) {
 		events.set(new ArrayList<>(2));
 		ServerPlayer playerInstance = ServerUtilsKt.player(this.server, player);
@@ -70,9 +71,9 @@ public class ScoreboardMixin {
 	)
 	private void onPlayerJoinTeamPost(
 		CallbackInfoReturnable<Boolean> cir,
-		@Share("events") LocalRef<List<Event>> events
+		@Share("events") LocalRef<List<ServerSideEvent>> events
 	) {
-		for (Event event : events.get()) {
+		for (ServerSideEvent event : events.get()) {
 			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
 		}
 	}
@@ -108,8 +109,8 @@ public class ScoreboardMixin {
 		method = "removePlayerFromTeam",
 		at = @At("TAIL")
 	)
-	private void onPlayerLeaveTeamPost(CallbackInfo ci, @Share("events") LocalRef<List<Event>> events) {
-		for (Event event : events.get()) {
+	private void onPlayerLeaveTeamPost(CallbackInfo ci, @Share("events") LocalRef<List<ServerSideEvent>> events) {
+		for (ServerSideEvent event : events.get()) {
 			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
 		}
 	}

@@ -11,4 +11,4 @@ import net.minecraft.world.item.ItemStack
 public data class PlayerItemFinishEvent(
     override val player: ServerPlayer,
     val stack: ItemStack
-): CancellableEvent.Typed<ItemStack>(), PlayerEvent
+): CancellableEvent.WithResult<ItemStack>(), PlayerEvent

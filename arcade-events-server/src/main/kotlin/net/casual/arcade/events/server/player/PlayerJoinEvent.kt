@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.events.server.player
 
-import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.common.CancellableEvent
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.server.player.PlayerJoinEvent.Companion.PHASE_INITIALIZED
 import net.casual.arcade.events.server.player.PlayerJoinEvent.Companion.PHASE_POST
 import net.minecraft.network.chat.Component
@@ -14,7 +14,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl
 
 public data class PlayerJoinEvent(
     override val player: ServerPlayer
-): CancellableEvent.Typed<Component>(), PlayerEvent {
+): CancellableEvent.WithResult<Component>(), PlayerEvent {
     /**
      * Lets you modify the join message.
      *
