@@ -1,0 +1,12 @@
+/*
+ * Copyright (c) 2026 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
+package net.casual.arcade.events.client.player
+
+import net.casual.arcade.events.common.Event
+import net.minecraft.client.player.LocalPlayer
+
+public data class PlayerJoinEvent(
+    val player: LocalPlayer
+): Event

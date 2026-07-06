@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 senseiwells
+ * Copyright (c) 2026 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
 package net.casual.arcade.events.client
@@ -7,6 +7,6 @@ package net.casual.arcade.events.client
 import net.casual.arcade.events.common.Event
 import net.minecraft.client.Minecraft
 
-public data class ClientStoppingEvent(
+public data class ClientDisconnectEvent(
     val minecraft: Minecraft
 ): Event
