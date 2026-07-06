@@ -9,7 +9,7 @@ import net.casual.arcade.events.common.Event
 import net.minecraft.client.Minecraft
 
 public data class ClientTickEvent(
-    val client: Minecraft
+    val minecraft: Minecraft
 ): Event {
     public companion object {
         /**
