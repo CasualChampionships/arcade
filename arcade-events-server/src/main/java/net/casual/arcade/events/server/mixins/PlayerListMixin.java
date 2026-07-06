@@ -12,11 +12,8 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.casual.arcade.events.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.events.server.player.PlayerChatEvent;
-import net.casual.arcade.events.server.player.PlayerJoinEvent;
+import net.casual.arcade.events.server.player.*;
 import net.casual.arcade.events.server.player.PlayerJoinEvent.JoinMessageModification;
-import net.casual.arcade.events.server.player.PlayerRequestLoginEvent;
-import net.casual.arcade.events.server.player.PlayerSystemMessageEvent;
 import net.casual.arcade.utils.chat.PlayerFormattedChat;
 import net.casual.arcade.utils.player.PlayerUtilsKt;
 import net.minecraft.network.chat.ChatType;
@@ -25,6 +22,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.server.players.NameAndId;
 import net.minecraft.server.players.PlayerList;
 import org.jetbrains.annotations.Nullable;
@@ -195,5 +193,18 @@ public class PlayerListMixin {
 		if (!event.isCancelled()) {
 			original.call(instance, message, overlay);
 		}
+	}
+
+	@Inject(
+		method = "sendPlayerPermissionLevel(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/server/permissions/LevelBasedPermissionSet;)V",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V",
+			shift = At.Shift.AFTER
+		)
+	)
+	private void broadcastSendPlayerPermissionLevel(ServerPlayer player, LevelBasedPermissionSet permissions, CallbackInfo ci) {
+		PlayerSendPermissionLevelEvent event = new PlayerSendPermissionLevelEvent(player, permissions);
+		GlobalEventHandler.Server.broadcast(event);
 	}
 }
