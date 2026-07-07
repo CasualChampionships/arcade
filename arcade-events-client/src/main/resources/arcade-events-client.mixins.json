@@ -13,12 +13,10 @@
     "LevelExtractorMixin",
     "LevelRendererMixin",
     "MinecraftMixin",
-    "MultiPlayerGameModeMixin"
+    "MultiPlayerGameModeMixin",
+    "ConnectionMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  },
-  "mixins": [
-    "ConnectionMixin"
-  ]
+  }
 }
