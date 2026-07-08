@@ -6,11 +6,11 @@ package net.casual.arcade.guis.menu
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerCustomClickActionEvent
 import net.casual.arcade.events.server.player.PlayerMenuButtonClickEvent
 import net.casual.arcade.events.server.player.PlayerSlotClickEvent
 import net.casual.arcade.events.server.player.PlayerTickEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.guis.menu.book.BookGuiMenu
 import net.casual.arcade.guis.menu.container.ContainerGuiMenu
 import net.casual.arcade.guis.utils.BookClickAction

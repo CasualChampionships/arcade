@@ -5,7 +5,7 @@
 package net.casual.arcade.minigame.compat
 
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigames
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderSnapshotEvent

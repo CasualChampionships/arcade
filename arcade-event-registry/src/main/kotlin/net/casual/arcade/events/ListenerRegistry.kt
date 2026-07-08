@@ -4,10 +4,13 @@
  */
 package net.casual.arcade.events
 
-import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
+import net.casual.arcade.events.common.ClientSideEvent
 import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.common.ServerSideEvent
+import net.casual.arcade.events.phase.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.threading.ThreadingStrategy
 import net.casual.arcade.events.threading.ThreadingTarget
+import net.casual.arcade.events.utils.register
 import java.util.function.Consumer
 
 /**
@@ -15,7 +18,7 @@ import java.util.function.Consumer
  *
  * @see SimpleListenerRegistry
  */
-public interface ListenerRegistry: ListenerProvider {
+public interface ListenerRegistry<E: Event>: ListenerProvider {
     /**
      * Registers an event listener with a given priority.
      *
@@ -37,10 +40,10 @@ public interface ListenerRegistry: ListenerProvider {
      * @param phase The phase of the event, [DEFAULT] by default.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public fun <T: Event> register(
+    public fun <T: E> register(
         type: Class<T>,
         priority: Int = 1_000,
-        phase: String = DEFAULT,
+        phase: Int = DEFAULT,
         strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
     ) {
@@ -58,50 +61,41 @@ public interface ListenerRegistry: ListenerProvider {
      * @param type The class of the event that you want to listen to.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public fun <T: Event> register(type: Class<T>, listener: EventListener<T>)
+    public fun <T: E> register(type: Class<T>, listener: EventListener<T>)
 
     public companion object {
-        /**
-         * Registers an event listener with a given priority.
-         *
-         * This allows you to register a callback to a specific event type.
-         * This callback will **only** fire when instances of the given type
-         * are fired.
-         *
-         * The priority that you register the event with determines
-         * in what order the listener will be invoked. Lower values
-         * of [priority] will result in being invoked earlier.
-         *
-         * The phase depends on the event, and can be used to determine
-         * when the listener is invoked, see the event implementation
-         * you are listening to for more information.
-         *
-         * @param T The type of event.
-         * @param priority The priority of your event listener.
-         * @param phase The phase of the event, [DEFAULT] by default.
-         * @param listener The callback which will be invoked when the event is fired.
-         */
-        public inline fun <reified T: Event> ListenerRegistry.register(
+        @Deprecated("Use RegistryUtils instead", ReplaceWith("this.register(priority, phase, strategy, listener)", "net.casual.arcade.events.utils.register", "net.casual.arcade.events.ListenerRegistry.Companion.register"))
+        @JvmName("registerServer")
+        public inline fun <reified T: ServerSideEvent> ListenerRegistry<ServerSideEvent>.register(
             priority: Int = 1_000,
-            phase: String = DEFAULT,
+            phase: Int = DEFAULT,
             strategy: ThreadingStrategy = ThreadingTarget.Default,
             listener: Consumer<T>
         ) {
-            this.register(T::class.java, priority, phase, strategy, listener)
+            this.register<T, ServerSideEvent>(priority, phase, strategy, listener)
         }
 
-        /**
-         * Registers an event listener.
-         *
-         * This allows you to register a callback to a specific event type.
-         * This callback will **only** fire when instances of the given type
-         * are fired.
-         *
-         * @param T The type of event.
-         * @param listener The callback which will be invoked when the event is fired.
-         */
-        public inline fun <reified T: Event> ListenerRegistry.register(listener: Consumer<T>) {
-            this.register(T::class.java, 1_000, DEFAULT, ThreadingTarget.Default, listener)
+        @Deprecated("Use RegistryUtils instead", ReplaceWith("this.register(priority, phase, strategy, listener)", "net.casual.arcade.events.utils.register", "net.casual.arcade.events.ListenerRegistry.Companion.register"))
+        @JvmName("registerClient")
+        public inline fun <reified T: ClientSideEvent> ListenerRegistry<ClientSideEvent>.register(
+            priority: Int = 1_000,
+            phase: Int = DEFAULT,
+            strategy: ThreadingStrategy = ThreadingTarget.Default,
+            listener: Consumer<T>
+        ) {
+            this.register<T, ClientSideEvent>(priority, phase, strategy, listener)
+        }
+
+        @Deprecated("Use RegistryUtils instead", ReplaceWith("this.register(listener)", "net.casual.arcade.events.utils.register", "net.casual.arcade.events.ListenerRegistry.Companion.register"))
+        @JvmName("registerServer")
+        public inline fun <reified T: ServerSideEvent> ListenerRegistry<ServerSideEvent>.register(listener: Consumer<T>) {
+            this.register<T, ServerSideEvent>(listener)
+        }
+
+        @Deprecated("Use RegistryUtils instead", ReplaceWith("this.register(listener)", "net.casual.arcade.events.utils.register", "net.casual.arcade.events.ListenerRegistry.Companion.register"))
+        @JvmName("registerClient")
+        public inline fun <reified T: ClientSideEvent> ListenerRegistry<ClientSideEvent>.register(listener: Consumer<T>) {
+            this.register<T, ClientSideEvent>(listener)
         }
     }
 }

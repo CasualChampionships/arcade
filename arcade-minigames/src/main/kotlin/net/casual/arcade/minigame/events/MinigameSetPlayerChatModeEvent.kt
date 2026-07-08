@@ -14,4 +14,4 @@ public data class MinigameSetPlayerChatModeEvent(
     val player: ServerPlayer,
     val mode: MinigameChatMode,
     val feedback: Boolean
-): CancellableEvent.Default(), MinigameEvent
+): CancellableEvent.Simple(), MinigameEvent

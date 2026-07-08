@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.minigame.annotation
 
-import net.casual.arcade.events.BuiltInEventPhases
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.common.Event
 import net.casual.arcade.events.threading.ThreadingTarget
 import net.casual.arcade.minigame.phase.Phase
@@ -37,7 +37,7 @@ public annotation class Listener(
      * This is the phase of the event that this handler
      * will be invoked in.
      */
-    val phase: String = BuiltInEventPhases.DEFAULT,
+    val phase: Int = BuiltInEventPhases.DEFAULT,
 
     /**
      * This specified during when this listener will be invoked.

@@ -10,11 +10,11 @@ import com.mojang.serialization.Dynamic
 import com.mojang.serialization.JsonOps
 import net.casual.arcade.commands.register
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.events.server.ServerStartEvent
 import net.casual.arcade.events.server.ServerStopEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.minigame.commands.ExtendedGameModeCommand
 import net.casual.arcade.minigame.commands.MinigameCommand
 import net.casual.arcade.minigame.commands.PauseCommand

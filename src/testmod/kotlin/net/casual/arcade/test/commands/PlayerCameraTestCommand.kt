@@ -8,8 +8,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.commands.*
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerTickEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.visuals.camera.CameraPath
 import net.casual.arcade.visuals.camera.CameraPathInterpolator

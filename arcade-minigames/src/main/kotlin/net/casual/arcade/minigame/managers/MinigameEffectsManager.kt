@@ -6,12 +6,12 @@ package net.casual.arcade.minigame.managers
 
 import com.google.common.collect.HashMultimap
 import com.google.common.collect.Multimap
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent.Companion.replacePacketRecursively
 import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
 import net.casual.arcade.events.server.player.PlayerRespawnEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent

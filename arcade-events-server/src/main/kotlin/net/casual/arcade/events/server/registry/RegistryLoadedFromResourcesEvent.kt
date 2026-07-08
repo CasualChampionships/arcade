@@ -5,6 +5,7 @@
 package net.casual.arcade.events.server.registry
 
 import net.casual.arcade.events.common.MissingExecutorEvent
+import net.casual.arcade.events.common.ServerSideEvent
 import net.casual.arcade.events.server.mixins.registry.RegistryLoadTaskAccessor
 import net.casual.arcade.utils.registries.toKey
 import net.minecraft.core.HolderGetter
@@ -19,7 +20,7 @@ import java.util.*
 public data class RegistryLoadedFromResourcesEvent<T: Any>(
     val task: ResourceManagerRegistryLoadTask<T>,
     val context: RegistryInfoLookup
-): MissingExecutorEvent {
+): ServerSideEvent, MissingExecutorEvent {
     public fun <T: Any> lookup(registry: ResourceKey<Registry<T>>): Optional<HolderGetter<T>> {
         return this.context.lookup(registry).map { it.getter }
     }

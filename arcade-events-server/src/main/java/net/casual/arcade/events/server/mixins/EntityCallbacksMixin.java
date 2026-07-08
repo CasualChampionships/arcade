@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.events.server.mixins;
 
-import net.casual.arcade.events.BuiltInEventPhases;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.entity.EntityStartTrackingEvent;
 import net.casual.arcade.events.server.entity.EntityStopTrackingEvent;
@@ -30,7 +30,7 @@ public class EntityCallbacksMixin {
 	)
 	private void onTrackEntityPre(Entity entity, CallbackInfo ci) {
 		EntityStartTrackingEvent event = new EntityStartTrackingEvent(entity, this.this$0);
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 	}
 
 	@Inject(
@@ -43,7 +43,7 @@ public class EntityCallbacksMixin {
 	)
 	private void onTrackEntityPost(Entity entity, CallbackInfo ci) {
 		EntityStartTrackingEvent event = new EntityStartTrackingEvent(entity, this.this$0);
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
 	}
 
 	@Inject(
@@ -55,7 +55,7 @@ public class EntityCallbacksMixin {
 	)
 	private void onStopTrackingEntityPre(Entity entity, CallbackInfo ci) {
 		EntityStopTrackingEvent event = new EntityStopTrackingEvent(entity, this.this$0);
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 	}
 
 	@Inject(
@@ -67,6 +67,6 @@ public class EntityCallbacksMixin {
 	)
 	private void onStopTrackingEntityPost(Entity entity, CallbackInfo ci) {
 		EntityStopTrackingEvent event = new EntityStopTrackingEvent(entity, this.this$0);
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
 	}
 }

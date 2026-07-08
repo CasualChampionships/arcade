@@ -4,10 +4,10 @@
  */
 package net.casual.arcade.replay.events.player
 
-import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.common.ServerSideEvent
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder
 
 public data class ReplayPlayerRecorderSnapshotEvent(
     public val recorder: ReplayPlayerRecorder,
     public val initial: Boolean
-): Event
+): ServerSideEvent

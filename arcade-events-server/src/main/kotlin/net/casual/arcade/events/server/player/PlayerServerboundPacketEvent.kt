@@ -12,4 +12,4 @@ import net.minecraft.server.level.ServerPlayer
 public data class PlayerServerboundPacketEvent(
     override val player: ServerPlayer,
     val packet: Packet<*>
-): CancellableEvent.Default(), PlayerEvent, AsyncEvent
+): CancellableEvent.Simple(), PlayerEvent, AsyncEvent

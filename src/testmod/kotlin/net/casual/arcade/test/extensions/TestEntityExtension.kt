@@ -1,8 +1,8 @@
 package net.casual.arcade.test.extensions
 
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.entity.EntityTickEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.EntityExtension
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.event.EntityExtensionEvent

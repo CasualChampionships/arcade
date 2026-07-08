@@ -4,10 +4,10 @@
  */
 package net.casual.arcade.scheduler
 
-import net.casual.arcade.events.BuiltInEventPhases.POST
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.phase.BuiltInEventPhases.POST
 import net.casual.arcade.events.server.ServerTickEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.time.MinecraftTimeDuration

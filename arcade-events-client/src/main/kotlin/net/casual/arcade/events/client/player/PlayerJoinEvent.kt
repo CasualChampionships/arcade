@@ -4,9 +4,10 @@
  */
 package net.casual.arcade.events.client.player
 
+import net.casual.arcade.events.common.ClientSideEvent
 import net.casual.arcade.events.common.Event
 import net.minecraft.client.player.LocalPlayer
 
 public data class PlayerJoinEvent(
     val player: LocalPlayer
-): Event
+): ClientSideEvent

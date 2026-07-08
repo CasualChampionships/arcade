@@ -7,10 +7,10 @@ package net.casual.arcade.dimensions.utils
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.events.server.ServerStartEvent
 import net.casual.arcade.events.server.ServerTickEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
 import net.minecraft.nbt.CompoundTag

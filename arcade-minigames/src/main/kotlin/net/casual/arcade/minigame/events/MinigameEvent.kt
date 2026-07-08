@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.minigame.events
 
-import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.common.ServerSideEvent
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.managers.MinigameEventHandler
 
@@ -17,7 +17,7 @@ import net.casual.arcade.minigame.managers.MinigameEventHandler
  *
  * @see MinigameEventHandler.register
  */
-public interface MinigameEvent: Event {
+public interface MinigameEvent: ServerSideEvent {
     /**
      * The [Minigame] that is tied to the event.
      */

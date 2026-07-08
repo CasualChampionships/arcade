@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.casual.arcade.events.GlobalEventHandler;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.server.player.*;
 import net.casual.arcade.utils.player.PlayerUtilsKt;
 import net.minecraft.core.BlockPos;
@@ -73,7 +74,7 @@ public class ServerPlayerGameModeMixin {
 		CallbackInfoReturnable<InteractionResult> cir
 	) {
 		PlayerItemUseEvent event = new PlayerItemUseEvent(player, itemStack, hand);
-		GlobalEventHandler.Server.broadcast(event, Set.of(PlayerItemUseEvent.PHASE_PRE));
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 		if (event.isCancelled()) {
 			cir.setReturnValue(event.result());
 		}

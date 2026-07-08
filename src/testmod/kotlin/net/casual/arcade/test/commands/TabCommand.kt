@@ -6,9 +6,9 @@ import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.executes
 import net.casual.arcade.commands.literal
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.events.server.player.PlayerJoinEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.utils.component.Component
 import net.casual.arcade.utils.component.plus
 import net.casual.arcade.visuals.tab.PlayerListDisplay

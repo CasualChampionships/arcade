@@ -6,8 +6,8 @@ package net.casual.arcade.virtual.entity.extensions
 
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.entity.EntityTickEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.EntityExtension
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.event.EntityExtensionEvent

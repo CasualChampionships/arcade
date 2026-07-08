@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.events.client.mixins;
 
-import net.casual.arcade.events.BuiltInEventPhases;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.client.ClientDisconnectEvent;
 import net.casual.arcade.events.client.ClientStoppingEvent;
@@ -24,7 +24,7 @@ public class MinecraftMixin {
     )
     private void onPreTick(CallbackInfo ci) {
         ClientTickEvent event = new ClientTickEvent((Minecraft) (Object) this);
-        GlobalEventHandler.Client.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+        GlobalEventHandler.Client.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
     }
 
     @Inject(
@@ -33,7 +33,7 @@ public class MinecraftMixin {
     )
     private void onPostTick(CallbackInfo ci) {
         ClientTickEvent event = new ClientTickEvent((Minecraft) (Object) this);
-        GlobalEventHandler.Client.broadcast(event, BuiltInEventPhases.POST_PHASES);
+        GlobalEventHandler.Client.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
     }
 
     @Inject(

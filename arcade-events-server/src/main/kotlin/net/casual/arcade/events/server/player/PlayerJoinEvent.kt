@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.events.server.player
 
-import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.common.CancellableEvent
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.server.player.PlayerJoinEvent.Companion.PHASE_INITIALIZED
 import net.casual.arcade.events.server.player.PlayerJoinEvent.Companion.PHASE_POST
 import net.minecraft.network.chat.Component
@@ -14,7 +14,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl
 
 public data class PlayerJoinEvent(
     override val player: ServerPlayer
-): CancellableEvent.Typed<Component>(), PlayerEvent {
+): CancellableEvent.WithResult<Component>(), PlayerEvent {
     /**
      * Lets you modify the join message.
      *
@@ -47,13 +47,13 @@ public data class PlayerJoinEvent(
          * This phase is called after the player's [ServerGamePacketListenerImpl]
          * has been initialized. They haven't been added to the player list yet.
          */
-        public const val PHASE_INITIALIZED: String = "initialized"
+        public const val PHASE_INITIALIZED: Int = 3
 
         /**
          * This phase is called after the player has been added to the player list.
          *
          * This is the default phase for this event.
          */
-        public const val PHASE_POST: String = BuiltInEventPhases.POST
+        public const val PHASE_POST: Int = BuiltInEventPhases.POST
     }
 }

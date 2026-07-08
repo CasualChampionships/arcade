@@ -16,4 +16,4 @@ public data class PlayerEntityInteractionEvent(
     val target: Entity,
     val hand: InteractionHand,
     val pos: Vec3
-): CancellableEvent.Typed<InteractionResult>(), PlayerEvent
+): CancellableEvent.WithResult<InteractionResult>(), PlayerEvent

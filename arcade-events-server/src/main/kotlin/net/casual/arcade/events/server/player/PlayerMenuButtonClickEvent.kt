@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.events.server.player
 
-import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.common.CancellableEvent
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.inventory.AbstractContainerMenu
 
@@ -14,12 +14,12 @@ public data class PlayerMenuButtonClickEvent(
     val menu: AbstractContainerMenu,
     val containerId: Int,
     val buttonId: Int
-): CancellableEvent.Default(), PlayerEvent {
+): CancellableEvent.Simple(), PlayerEvent {
     public companion object {
-        public const val PHASE_PRE_VALIDATE: String = "pre_validate"
+        public const val PHASE_PRE_CLICK: Int = BuiltInEventPhases.PRE
 
-        public const val PHASE_PRE_CLICK: String = BuiltInEventPhases.PRE
+        public const val PHASE_POST_CLICK: Int = BuiltInEventPhases.POST
 
-        public const val PHASE_POST_CLICK: String = BuiltInEventPhases.POST
+        public const val PHASE_PRE_VALIDATE: Int = 3
     }
 }

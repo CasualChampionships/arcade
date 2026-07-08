@@ -14,7 +14,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.casual.arcade.events.BuiltInEventPhases;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.ducks.ModifyActuallyHurt;
 import net.casual.arcade.events.server.entity.EntityBeforeLootEvent;
@@ -101,7 +101,7 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
     ) {
         // This is also copied into PlayerMixin.java
         EntityDamageEvent entityEvent = new EntityDamageEvent((LivingEntity) (Object) this, source, damage.get());
-        GlobalEventHandler.Server.broadcast(entityEvent, BuiltInEventPhases.PRE_PHASES);
+        GlobalEventHandler.Server.broadcast(entityEvent, BuiltInEventPhases.PRE_PHASES_RAW);
         if (entityEvent.isCancelled()) {
             this.arcade_setNotActuallyHurt();
             ci.cancel();
@@ -124,7 +124,7 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
         CallbackInfo ci
     ) {
         EntityDamageEvent entityEvent = new EntityDamageEvent((LivingEntity) (Object) this, source, dmg);
-        GlobalEventHandler.Server.broadcast(entityEvent, BuiltInEventPhases.POST_PHASES);
+        GlobalEventHandler.Server.broadcast(entityEvent, BuiltInEventPhases.POST_PHASES_RAW);
     }
 
 	@WrapOperation(
@@ -164,12 +164,12 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 	) {
 		if (instance instanceof ServerPlayer player) {
 			PlayerHealEvent event = new PlayerHealEvent(player, heal);
-			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 			if (event.isCancelled()) {
 				return;
 			}
 			original.call(instance, health);
-			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
 			return;
 		}
 
@@ -184,7 +184,7 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 		LivingEntity entity = (LivingEntity) (Object) this;
 		if (!entity.level().isClientSide()) {
 			EntityDeathEvent event = new EntityDeathEvent(entity, source);
-			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 		}
 	}
 
@@ -196,7 +196,7 @@ public class LivingEntityMixin implements ModifyActuallyHurt {
 		LivingEntity entity = (LivingEntity) (Object) this;
 		if (!entity.level().isClientSide()) {
 			EntityDeathEvent event = new EntityDeathEvent(entity, source);
-			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+			GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
 		}
 	}
 

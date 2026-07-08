@@ -6,8 +6,8 @@ package net.casual.arcade.npc.configuration
 
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerTickEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.npc.network.FakeConnection
 import net.minecraft.server.MinecraftServer

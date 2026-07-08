@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.events.server.mixins.server;
 
-import net.casual.arcade.events.BuiltInEventPhases;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.*;
 import net.minecraft.server.MinecraftServer;
@@ -36,7 +36,7 @@ public class MinecraftServerMixin {
 	)
 	private void onServerLoadedPre(CallbackInfo ci) {
 		ServerStartEvent event = new ServerStartEvent((MinecraftServer) (Object) this);
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.ALT_PRE_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.ALT_PRE_PHASES_RAW);
 	}
 
 	@Inject(
@@ -49,7 +49,7 @@ public class MinecraftServerMixin {
 	)
 	private void onServerLoadedPost(CallbackInfo ci) {
 		ServerStartEvent event = new ServerStartEvent((MinecraftServer) (Object) this);
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.ALT_POST_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.ALT_POST_PHASES_RAW);
 	}
 
 	@Inject(
@@ -61,7 +61,7 @@ public class MinecraftServerMixin {
 	)
 	private void preTick(BooleanSupplier haveTime, CallbackInfo ci) {
 		ServerTickEvent event = new ServerTickEvent((MinecraftServer) (Object) this);
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 	}
 
 	@Inject(
@@ -70,7 +70,7 @@ public class MinecraftServerMixin {
 	)
 	private void postTick(BooleanSupplier haveTime, CallbackInfo ci) {
 		ServerTickEvent event = new ServerTickEvent((MinecraftServer) (Object) this);
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
 	}
 
 	@Inject(
@@ -91,7 +91,7 @@ public class MinecraftServerMixin {
 	)
 	private void onShutdown(CallbackInfo ci) {
 		ServerStopEvent event = new ServerStopEvent((MinecraftServer) (Object) this);
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 	}
 
 	@Inject(
@@ -100,7 +100,7 @@ public class MinecraftServerMixin {
 	)
 	private void onServerStopped(CallbackInfo ci) {
 		ServerStopEvent event = new ServerStopEvent((MinecraftServer) (Object) this);
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
 	}
 
 	@Inject(

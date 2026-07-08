@@ -5,6 +5,7 @@
 package net.casual.arcade.events.server
 
 import net.casual.arcade.events.common.MissingExecutorEvent
+import net.casual.arcade.events.common.ServerSideEvent
 import net.minecraft.server.MinecraftServer
 
 /**
@@ -22,4 +23,4 @@ public data class ServerCreatedEvent(
      * The [MinecraftServer] that was instantiated.
      */
     val server: MinecraftServer
-): MissingExecutorEvent
+): ServerSideEvent, MissingExecutorEvent

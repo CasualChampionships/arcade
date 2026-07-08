@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.events.server.entity
 
-import net.casual.arcade.events.BuiltInEventPhases
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.scores.PlayerTeam
 
@@ -13,8 +13,8 @@ public data class EntityTeamJoinEvent(
     public val team: PlayerTeam
 ): EntityEvent {
     public companion object {
-        public const val PHASE_PRE: String = BuiltInEventPhases.PRE
+        public const val PHASE_PRE: Int = BuiltInEventPhases.PRE
 
-        public const val PHASE_POST: String = BuiltInEventPhases.POST
+        public const val PHASE_POST: Int = BuiltInEventPhases.POST
     }
 }

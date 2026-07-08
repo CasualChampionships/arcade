@@ -9,7 +9,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Cancellable;
 import com.mojang.authlib.GameProfile;
 import io.netty.channel.ChannelFutureListener;
-import net.casual.arcade.events.BuiltInEventPhases;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.network.ClientboundPacketEvent;
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent;
@@ -46,7 +46,7 @@ public abstract class ServerCommonPacketListenerImplMixin {
 	private Packet<?> onSendPacket(Packet<?> packet, @Cancellable CallbackInfo ci) {
 		ServerCommonPacketListenerImpl self = (ServerCommonPacketListenerImpl) (Object) this;
 		ClientboundPacketEvent event = new ClientboundPacketEvent(this.server, this.playerProfile(), packet);
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 		if (event.isCancelled()) {
 			ci.cancel();
 			return event.getPacket();
@@ -54,7 +54,7 @@ public abstract class ServerCommonPacketListenerImplMixin {
 
 		if (self instanceof ServerGamePacketListenerImpl connection) {
 			PlayerClientboundPacketEvent playerEvent = new PlayerClientboundPacketEvent(connection.player, event.getPacket());
-			GlobalEventHandler.Server.broadcast(playerEvent, BuiltInEventPhases.PRE_PHASES);
+			GlobalEventHandler.Server.broadcast(playerEvent, BuiltInEventPhases.PRE_PHASES_RAW);
 			if (playerEvent.isCancelled()) {
 				ci.cancel();
 			}
@@ -79,11 +79,11 @@ public abstract class ServerCommonPacketListenerImplMixin {
 	) {
 		original.call(instance, packet, listener, flush);
 		ClientboundPacketEvent event = new ClientboundPacketEvent(this.server, this.playerProfile(), packet);
-		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES);
+		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
 
 		if ((Object) this instanceof ServerGamePacketListenerImpl connection) {
 			PlayerClientboundPacketEvent playerEvent = new PlayerClientboundPacketEvent(connection.player, event.getPacket());
-			GlobalEventHandler.Server.broadcast(playerEvent, BuiltInEventPhases.POST_PHASES);
+			GlobalEventHandler.Server.broadcast(playerEvent, BuiltInEventPhases.POST_PHASES_RAW);
 		}
 	}
 

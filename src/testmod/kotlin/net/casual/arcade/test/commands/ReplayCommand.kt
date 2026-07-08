@@ -9,8 +9,8 @@ import net.casual.arcade.commands.executes
 import net.casual.arcade.commands.literal
 import net.casual.arcade.commands.success
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerLoginEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.replay.command.BasicReplayCommand
 import net.casual.arcade.replay.io.ReplayFormat
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder

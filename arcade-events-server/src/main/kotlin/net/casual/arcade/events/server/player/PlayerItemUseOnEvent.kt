@@ -17,7 +17,7 @@ public data class PlayerItemUseOnEvent(
     override val player: ServerPlayer,
     val stack: ItemStack,
     val context: UseOnContext
-): CancellableEvent.Typed<InteractionResult>(), PlayerEvent, LocatedLevelEvent {
+): CancellableEvent.WithResult<InteractionResult>(), PlayerEvent, LocatedLevelEvent {
     override val pos: BlockPos
         get() = this.context.clickedPos
     override val level: ServerLevel

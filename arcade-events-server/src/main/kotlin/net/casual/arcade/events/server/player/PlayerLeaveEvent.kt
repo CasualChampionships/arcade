@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.events.server.player
 
-import net.casual.arcade.events.BuiltInEventPhases
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.minecraft.server.level.ServerPlayer
 
 public data class PlayerLeaveEvent(
@@ -22,11 +22,11 @@ public data class PlayerLeaveEvent(
          *
          * This is the default phase.
          */
-        public const val PHASE_PRE: String = BuiltInEventPhases.PRE
+        public const val PHASE_PRE: Int = BuiltInEventPhases.PRE
 
         /**
          * This phase is called after the player has been removed from the server and world.
          */
-        public const val PHASE_POST: String = BuiltInEventPhases.POST
+        public const val PHASE_POST: Int = BuiltInEventPhases.POST
     }
 }

@@ -4,9 +4,13 @@
  */
 package net.casual.arcade.minigame.managers
 
-import net.casual.arcade.events.*
 import net.casual.arcade.events.EventListener
+import net.casual.arcade.events.ListenerProvider
+import net.casual.arcade.events.ListenerRegistry
+import net.casual.arcade.events.SimpleListenerRegistry
 import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.common.ServerSideEvent
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.server.level.LevelEvent
 import net.casual.arcade.events.server.level.LocatedLevelEvent
 import net.casual.arcade.events.server.player.PlayerEvent
@@ -59,9 +63,9 @@ import java.util.function.Consumer
  */
 public class MinigameEventHandler(
     private val minigame: Minigame
-): ListenerRegistry {
-    private val global = SimpleListenerRegistry()
-    private val injected = SimpleListenerRegistry()
+): ListenerRegistry<ServerSideEvent> {
+    private val global = SimpleListenerRegistry<ServerSideEvent>()
+    private val injected = SimpleListenerRegistry<ServerSideEvent>()
 
     /**
      * This method gets all the [EventListener]s for a given
@@ -92,9 +96,9 @@ public class MinigameEventHandler(
      * @param priority The priority of your event listener.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public inline fun <reified T: Event> register(
+    public inline fun <reified T: ServerSideEvent> register(
         priority: Int,
-        phase: String = BuiltInEventPhases.DEFAULT,
+        phase: Int = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
@@ -116,7 +120,7 @@ public class MinigameEventHandler(
      * @param type The class of the event that you want to listen to.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    override fun <T: Event> register(type: Class<T>, listener: EventListener<T>) {
+    override fun <T: ServerSideEvent> register(type: Class<T>, listener: EventListener<T>) {
         this.registerFiltered(type, listener)
     }
 
@@ -138,10 +142,10 @@ public class MinigameEventHandler(
      * @param priority The priority of your event listener.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public fun <T: Event> register(
+    public fun <T: ServerSideEvent> register(
         type: Class<T>,
         priority: Int = 1_000,
-        phase: String = BuiltInEventPhases.DEFAULT,
+        phase: Int = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
@@ -163,7 +167,7 @@ public class MinigameEventHandler(
      * @param type The class of the event that you want to listen to.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public fun <T: Event> register(type: Class<T>, flags: Int = DEFAULT, listener: EventListener<T>) {
+    public fun <T: ServerSideEvent> register(type: Class<T>, flags: Int = DEFAULT, listener: EventListener<T>) {
         this.registerFiltered(type, listener, flags = flags)
     }
 
@@ -179,7 +183,7 @@ public class MinigameEventHandler(
      * @param phases The phases that you want this listener to trigger in.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public inline fun <reified T: Event> registerInPhases(vararg phases: Phase<*>, listener: Consumer<T>) {
+    public inline fun <reified T: ServerSideEvent> registerInPhases(vararg phases: Phase<*>, listener: Consumer<T>) {
         this.registerInPhases(1_000, phases = phases, listener = listener)
     }
 
@@ -195,9 +199,9 @@ public class MinigameEventHandler(
      * @param phases The phases that you want this listener to trigger in.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public inline fun <reified T: Event> registerInPhases(
+    public inline fun <reified T: ServerSideEvent> registerInPhases(
         priority: Int,
-        phase: String = BuiltInEventPhases.DEFAULT,
+        phase: Int = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         strategy: ThreadingStrategy = ThreadingTarget.Default,
         vararg phases: Phase<*>,
@@ -221,7 +225,7 @@ public class MinigameEventHandler(
      * @param phases The phases that you want this listener to trigger in.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public fun <T: Event> registerInPhases(
+    public fun <T: ServerSideEvent> registerInPhases(
         type: Class<T>,
         flags: Int = DEFAULT,
         vararg phases: Phase<*>,
@@ -251,10 +255,10 @@ public class MinigameEventHandler(
      * @param before The end phase of the range, exclusive.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public inline fun <reified T: Event> registerBetweenPhases(
+    public inline fun <reified T: ServerSideEvent> registerBetweenPhases(
         after: Phase<*>,
         before: Phase<*>,
-        phase: String = BuiltInEventPhases.DEFAULT,
+        phase: Int = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
@@ -272,11 +276,11 @@ public class MinigameEventHandler(
      * @param before The end phase of the range, exclusive.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public inline fun <reified T: Event> registerBetweenPhases(
+    public inline fun <reified T: ServerSideEvent> registerBetweenPhases(
         priority: Int,
         after: Phase<*>,
         before: Phase<*>,
-        phase: String = BuiltInEventPhases.DEFAULT,
+        phase: Int = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
@@ -296,7 +300,7 @@ public class MinigameEventHandler(
      * @param before The end phase of the range, exclusive.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public fun <T: Event> registerBetweenPhases(
+    public fun <T: ServerSideEvent> registerBetweenPhases(
         type: Class<T>,
         after: Phase<*>,
         before: Phase<*>,
@@ -319,7 +323,7 @@ public class MinigameEventHandler(
         this.injected.clear()
     }
 
-    private fun <T: Event> registerFiltered(
+    private fun <T: ServerSideEvent> registerFiltered(
         type: Class<T>,
         listener: EventListener<T>,
         predicates: MutableList<(T) -> Boolean> = LinkedList(),

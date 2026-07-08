@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.events
 
-import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
+import net.casual.arcade.events.phase.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.common.Event
 import net.casual.arcade.events.threading.ThreadingStrategy
 import net.casual.arcade.events.threading.ThreadingTarget
@@ -49,7 +49,7 @@ public class SingleListenerProvider<T: Event>(
          */
         public inline fun <reified T: Event> of(
             priority: Int = 1_000,
-            phase: String = DEFAULT,
+            phase: Int = DEFAULT,
             strategy: ThreadingStrategy = ThreadingTarget.Default,
             listener: Consumer<T>
         ): SingleListenerProvider<T> {

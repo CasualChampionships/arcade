@@ -10,4 +10,4 @@ import net.minecraft.server.level.ServerPlayer
 public data class PlayerCommandEvent(
     override val player: ServerPlayer,
     val command: String
-): CancellableEvent.Default(), PlayerEvent
+): CancellableEvent.Simple(), PlayerEvent

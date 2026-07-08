@@ -7,8 +7,12 @@ package net.casual.arcade.events
 import it.unimi.dsi.fastutil.objects.Reference2IntMap
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap
 import kotlinx.atomicfu.atomic
+import net.casual.arcade.events.common.ClientSideEvent
 import net.casual.arcade.events.common.Event
 import net.casual.arcade.events.common.MissingExecutorEvent
+import net.casual.arcade.events.common.ServerSideEvent
+import net.casual.arcade.events.phase.BuiltInEventPhases
+import net.casual.arcade.events.phase.EventPhases
 import net.casual.arcade.events.threading.ThreadingStrategy
 import net.casual.arcade.utils.collection.mergeSorted
 import net.casual.arcade.utils.server.ServerSingleton
@@ -16,7 +20,6 @@ import net.minecraft.client.Minecraft
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.thread.ReentrantBlockableEventLoop
 import org.slf4j.LoggerFactory
-import java.util.*
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executor
 
@@ -28,16 +31,14 @@ import java.util.concurrent.Executor
  * @see addProvider
  * @see Event
  */
-public enum class GlobalEventHandler(
-    private val executor: () -> ReentrantBlockableEventLoop<*>?
-): ListenerRegistry by SimpleListenerRegistry() {
-    Server(ServerSingleton::getOrNull),
-    Client({ Minecraft.getInstance() });
-
+public sealed class GlobalEventHandler<E: Event>(
+    private val name: String,
+    private val type: Class<E>
+): ListenerRegistry<E> by SimpleListenerRegistry(type) {
     private val stack = ThreadLocal.withInitial { Reference2IntOpenHashMap<Class<out Event>>() }
     private val registries = CopyOnWriteArraySet<ListenerProvider>()
 
-    private val injected = CopyOnWriteArraySet<InjectedListenerProvider>()
+    private val injected = CopyOnWriteArraySet<InjectedListenerProvider<E>>()
 
     private val recursion = ScopedValue.newInstance<Unit>()
 
@@ -62,16 +63,17 @@ public enum class GlobalEventHandler(
      * be invoked, the reasoning for this is because we
      * cannot guarantee priority preservation.
      *
-     * @param T The type of event.
+     * @param E The type of event.
      * @param event The event that is being fired.
      * @param phases The phases of the event that should be invoked.
      */
     @JvmOverloads
-    public fun <T: Event> broadcast(event: T, phases: Set<String> = BuiltInEventPhases.DEFAULT_PHASES) {
+    @JvmName("broadcast")
+    public fun broadcast(event: E, phases: EventPhases = BuiltInEventPhases.DEFAULT_PHASES) {
         val type = event.javaClass
 
         @Suppress("UNCHECKED_CAST")
-        val base = this.getListenersFor(type) as List<EventListener<T>>
+        val base = this.getListenersFor(type) as List<EventListener<E>>
         if (base.isEmpty() && this.registries.isEmpty() && this.injected.isEmpty()) {
             return
         }
@@ -95,12 +97,12 @@ public enum class GlobalEventHandler(
 
             for (handler in this.registries) {
                 @Suppress("UNCHECKED_CAST")
-                listeners.mergeSorted(handler.getListenersFor(type) as List<EventListener<T>>)
+                listeners.mergeSorted(handler.getListenersFor(type) as List<EventListener<E>>)
             }
             for (injected in this.injected) {
                 injected.injectListenerProviders(event) { handler ->
                     @Suppress("UNCHECKED_CAST")
-                    listeners.mergeSorted(handler.getListenersFor(type) as List<EventListener<T>>)
+                    listeners.mergeSorted(handler.getListenersFor(type) as List<EventListener<E>>)
                 }
             }
 
@@ -151,7 +153,7 @@ public enum class GlobalEventHandler(
      * @param injected The [InjectedListenerProvider] to add.
      * @see InjectedListenerProvider
      */
-    public fun addInjectedProvider(injected: InjectedListenerProvider) {
+    public fun addInjectedProvider(injected: InjectedListenerProvider<E>) {
         this.injected.add(injected)
     }
 
@@ -160,7 +162,7 @@ public enum class GlobalEventHandler(
      *
      * @param injected The [InjectedListenerProvider] to remove.
      */
-    public fun removeInjectedProvider(injected: InjectedListenerProvider) {
+    public fun removeInjectedProvider(injected: InjectedListenerProvider<E>) {
         this.injected.remove(injected)
     }
 
@@ -174,6 +176,8 @@ public enum class GlobalEventHandler(
     public fun recursive(block: () -> Unit) {
         ScopedValue.where(this.recursion, Unit).run(block)
     }
+
+    protected abstract fun getExecutor(): ReentrantBlockableEventLoop<*>?
 
     private fun checkRecursive(stack: Reference2IntMap<Class<out Event>>, type: Class<out Event>): Boolean {
         val count = stack.getInt(type)
@@ -189,7 +193,7 @@ public enum class GlobalEventHandler(
     }
 
     private fun getMainThreadExecutor(event: Event, type: Class<out Event>): ThreadExecutor {
-        val executor = this.executor.invoke()
+        val executor = this.getExecutor()
         if (executor == null) {
             if (event !is MissingExecutorEvent) {
                 logger.warn(
@@ -232,9 +236,33 @@ public enum class GlobalEventHandler(
         }
     }
 
+    private object ServerHandler: GlobalEventHandler<ServerSideEvent>("Server", ServerSideEvent::class.java) {
+        override fun getExecutor(): ReentrantBlockableEventLoop<*>? {
+            return ServerSingleton.getOrNull()
+        }
+    }
+
+    private object ClientHandler: GlobalEventHandler<ClientSideEvent>("Client", ClientSideEvent::class.java) {
+        override fun getExecutor(): ReentrantBlockableEventLoop<*> {
+            return Minecraft.getInstance()
+        }
+    }
+
     public companion object {
         private const val MAX_RECURSIONS = 10
 
         private val logger = LoggerFactory.getLogger("ArcadeEventHandler")
+
+        /**
+         * The global broadcaster from the logical server-side.
+         */
+        @JvmField
+        public val Server: GlobalEventHandler<ServerSideEvent> = ServerHandler
+
+        /**
+         * The global broadcaster from the logical client-side.
+         */
+        @JvmField
+        public val Client: GlobalEventHandler<ClientSideEvent> = ClientHandler
     }
 }

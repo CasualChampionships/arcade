@@ -9,4 +9,4 @@ import net.minecraft.server.level.ServerPlayer
 
 public data class PlayerVoidDamageEvent(
     override val player: ServerPlayer
-): CancellableEvent.Default(), PlayerEvent
+): CancellableEvent.Simple(), PlayerEvent

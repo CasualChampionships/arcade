@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.replay.events
 
-import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.common.ServerSideEvent
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import java.util.concurrent.CompletableFuture
 
@@ -15,4 +15,4 @@ public data class ReplayRecorderStopEvent(
      * closed, this future is running off-thread.
      */
     val closeFuture: CompletableFuture<Long>
-): Event
+): ServerSideEvent

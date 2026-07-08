@@ -8,11 +8,12 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.events.ListenerRegistry
-import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.common.ServerSideEvent
 import net.casual.arcade.events.server.block.CommandBlockExecuteEvent
 import net.casual.arcade.events.server.player.PlayerCommandEvent
 import net.casual.arcade.events.server.player.PlayerCommandSuggestionsEvent
 import net.casual.arcade.events.server.player.PlayerSendCommandsEvent
+import net.casual.arcade.events.utils.register
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.server.MinecraftServer
@@ -35,7 +36,7 @@ public open class ServerCommandManager(
         this.resendCommands()
     }
 
-    internal fun initialize(registry: ListenerRegistry) {
+    internal fun initialize(registry: ListenerRegistry<ServerSideEvent>) {
         registry.register<PlayerSendCommandsEvent>(this::onPlayerSendCommands)
         registry.register<PlayerCommandEvent>(this::onPlayerCommand)
         registry.register<CommandBlockExecuteEvent>(this::onCommandBlockExecute)

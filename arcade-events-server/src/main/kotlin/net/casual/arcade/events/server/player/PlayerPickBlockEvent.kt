@@ -13,4 +13,4 @@ public data class PlayerPickBlockEvent(
     override val player: ServerPlayer,
     val pos: BlockPos,
     val state: BlockState
-): CancellableEvent.Default(), PlayerEvent
+): CancellableEvent.Simple(), PlayerEvent

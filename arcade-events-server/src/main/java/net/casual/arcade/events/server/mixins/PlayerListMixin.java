@@ -10,10 +10,10 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import net.casual.arcade.events.BuiltInEventPhases;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.player.*;
-import net.casual.arcade.events.server.player.PlayerJoinEvent.JoinMessageModification;
+import net.casual.arcade.events.phase.EventPhases;
 import net.casual.arcade.utils.chat.PlayerFormattedChat;
 import net.casual.arcade.utils.player.PlayerUtilsKt;
 import net.minecraft.network.chat.ChatType;
@@ -34,7 +34,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.net.SocketAddress;
-import java.util.Set;
 import java.util.function.Predicate;
 
 @Mixin(PlayerList.class)
@@ -56,7 +55,7 @@ public class PlayerListMixin {
 		@Share("event") LocalRef<PlayerJoinEvent> eventRef
 	) {
 		PlayerJoinEvent event = new PlayerJoinEvent(player);
-		GlobalEventHandler.Server.broadcast(event, Set.of(PlayerJoinEvent.PHASE_INITIALIZED));
+		GlobalEventHandler.Server.broadcast(event, EventPhases.of(PlayerJoinEvent.PHASE_INITIALIZED));
 		if (event.isCancelled()) {
 			player.connection.disconnect(event.result());
 			ci.cancel();
@@ -75,7 +74,7 @@ public class PlayerListMixin {
 		@Share("delayed") LocalRef<Runnable> delayedRef
 	) {
 		PlayerJoinEvent event = eventRef.get();
-		GlobalEventHandler.Server.broadcast(event, Set.of(BuiltInEventPhases.DEFAULT, PlayerJoinEvent.PHASE_POST));
+		GlobalEventHandler.Server.broadcast(event, EventPhases.of(BuiltInEventPhases.DEFAULT, PlayerJoinEvent.PHASE_POST));
 		if (event.isCancelled()) {
 			event.getPlayer().connection.disconnect(event.result());
 			ci.cancel();
@@ -104,10 +103,10 @@ public class PlayerListMixin {
 		@Share("delayed") LocalRef<Runnable> delayedRef
 	) {
 		PlayerJoinEvent event = eventRef.get();
-		if (event.getJoinMessageModification() == JoinMessageModification.Hide) {
+		if (event.getJoinMessageModification() == PlayerJoinEvent.JoinMessageModification.Hide) {
 			return;
 		}
-		if (event.getJoinMessageModification() == JoinMessageModification.Delay) {
+		if (event.getJoinMessageModification() == PlayerJoinEvent.JoinMessageModification.Delay) {
 			delayedRef.set(() -> PlayerSystemMessageEvent.broadcast(player, instance, message, overlay, original));
 		} else {
 			PlayerSystemMessageEvent.broadcast(player, instance, message, overlay, original);

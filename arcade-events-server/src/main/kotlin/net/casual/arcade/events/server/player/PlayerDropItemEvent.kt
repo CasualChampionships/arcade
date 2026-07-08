@@ -17,4 +17,4 @@ import net.minecraft.server.level.ServerPlayer
 public data class PlayerDropItemEvent(
     override val player: ServerPlayer,
     val all: Boolean
-): CancellableEvent.Default(), PlayerEvent
+): CancellableEvent.Simple(), PlayerEvent

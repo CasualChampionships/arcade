@@ -6,9 +6,9 @@ package net.casual.arcade.boundary.extension
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent.Companion.PHASE_POST
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension

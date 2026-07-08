@@ -11,12 +11,12 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.literal
-import net.casual.arcade.events.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.phase.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.server.player.PlayerChatEvent
 import net.casual.arcade.events.server.player.PlayerSystemMessageEvent
 import net.casual.arcade.events.server.player.PlayerTeamChatEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.ListenerFlags
 import net.casual.arcade.minigame.events.*

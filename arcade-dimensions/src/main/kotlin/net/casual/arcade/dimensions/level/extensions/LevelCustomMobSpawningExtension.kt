@@ -6,7 +6,7 @@ package net.casual.arcade.dimensions.level.extensions
 
 import net.casual.arcade.dimensions.level.spawner.CustomMobSpawningRules
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.utils.arcade

@@ -6,8 +6,8 @@ package net.casual.arcade.guis.utils.dialog
 
 import com.mojang.serialization.Decoder
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.player.PlayerCustomClickActionEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.player.username
 import net.minecraft.core.RegistryAccess

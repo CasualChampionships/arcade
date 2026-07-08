@@ -6,13 +6,13 @@ package net.casual.arcade.dimensions.level.extensions
 
 import net.casual.arcade.dimensions.level.clock.LevelClockInstance
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.level.LevelTickEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.utils.arcade
-import net.casual.arcade.utils.registries.isOf
 import net.casual.arcade.utils.player.broadcast
+import net.casual.arcade.utils.registries.isOf
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket

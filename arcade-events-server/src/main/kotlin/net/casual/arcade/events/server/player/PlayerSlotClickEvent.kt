@@ -5,8 +5,8 @@
 package net.casual.arcade.events.server.player
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
-import net.casual.arcade.events.BuiltInEventPhases
 import net.casual.arcade.events.common.CancellableEvent
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.minecraft.network.HashedStack
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket
 import net.minecraft.server.level.ServerPlayer
@@ -23,16 +23,16 @@ public data class PlayerSlotClickEvent(
     public val stateId: Int,
     public val changedSlots: Int2ObjectMap<HashedStack>,
     public val carriedItem: HashedStack
-): CancellableEvent.Default(), PlayerEvent {
+): CancellableEvent.Simple(), PlayerEvent {
     @Deprecated("Use this.input instead", ReplaceWith("this.input"))
     public val action: ContainerInput by this::input
 
     public companion object {
-        public const val PHASE_PRE_VALIDATE: String = "pre_validate"
+        public const val PHASE_PRE_CLICK: Int = BuiltInEventPhases.PRE
 
-        public const val PHASE_PRE_CLICK: String = BuiltInEventPhases.PRE
+        public const val PHASE_POST_CLICK: Int = BuiltInEventPhases.POST
 
-        public const val PHASE_POST_CLICK: String = BuiltInEventPhases.POST
+        public const val PHASE_PRE_VALIDATE: Int = 3
 
         @JvmStatic
         public fun from(player: ServerPlayer, menu: AbstractContainerMenu, packet: ServerboundContainerClickPacket): PlayerSlotClickEvent {

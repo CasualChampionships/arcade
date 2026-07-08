@@ -8,9 +8,10 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.casual.arcade.events.BuiltInEventPhases;
+import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.client.render.LevelRenderEvent;
+import net.casual.arcade.events.phase.EventPhases;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.state.level.LevelRenderState;
@@ -38,7 +39,7 @@ public class LevelRendererMixin {
         @Share("event") LocalRef<LevelRenderEvent> eventRef
     ) {
         LevelRenderEvent event = new LevelRenderEvent((LevelRenderer) (Object) this, levelRenderState, submitNodeCollector, poseStack);
-        GlobalEventHandler.Client.broadcast(event, Set.of(LevelRenderEvent.ENTITIES, BuiltInEventPhases.DEFAULT));
+        GlobalEventHandler.Client.broadcast(event, EventPhases.of(LevelRenderEvent.ENTITIES, BuiltInEventPhases.DEFAULT));
         eventRef.set(event);
     }
 
@@ -50,7 +51,7 @@ public class LevelRendererMixin {
         )
     )
     private void onBlockEntities(CallbackInfo ci, @Share("event") LocalRef<LevelRenderEvent> eventRef) {
-        GlobalEventHandler.Client.broadcast(eventRef.get(), Set.of(LevelRenderEvent.BLOCK_ENTITIES));
+        GlobalEventHandler.Client.broadcast(eventRef.get(), EventPhases.of(LevelRenderEvent.BLOCK_ENTITIES));
     }
 
     @Inject(
@@ -61,6 +62,6 @@ public class LevelRendererMixin {
         )
     )
     private void onDebug(CallbackInfo ci, @Share("event") LocalRef<LevelRenderEvent> eventRef) {
-        GlobalEventHandler.Client.broadcast(eventRef.get(), Set.of(LevelRenderEvent.DEBUG));
+        GlobalEventHandler.Client.broadcast(eventRef.get(), EventPhases.of(LevelRenderEvent.DEBUG));
     }
 }

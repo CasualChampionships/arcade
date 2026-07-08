@@ -5,7 +5,7 @@
 package net.casual.arcade.visuals.extensions
 
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension

@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.events.server
 
-import net.casual.arcade.events.BuiltInEventPhases
-import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.common.ServerSideEvent
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.server.ServerStartEvent.Companion.PHASE_POST
 import net.casual.arcade.events.server.ServerStartEvent.Companion.PHASE_PRE
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
@@ -23,7 +23,7 @@ public data class ServerStartEvent(
      * The [MinecraftServer] instance that is loaded.
      */
     val server: MinecraftServer
-): Event {
+): ServerSideEvent {
     public companion object {
         /**
          * Synonymous with [ServerLifecycleEvents.SERVER_STARTING].
@@ -32,7 +32,7 @@ public data class ServerStartEvent(
          *
          * This is *not* the default phase for this event.
          */
-        public const val PHASE_PRE: String = BuiltInEventPhases.PRE
+        public const val PHASE_PRE: Int = BuiltInEventPhases.PRE
 
         /**
          * Synonymous with [ServerLifecycleEvents.SERVER_STARTED]
@@ -41,6 +41,6 @@ public data class ServerStartEvent(
          *
          * This is the default phase for this event.
          */
-        public const val PHASE_POST: String = BuiltInEventPhases.POST
+        public const val PHASE_POST: Int = BuiltInEventPhases.POST
     }
 }

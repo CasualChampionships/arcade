@@ -16,4 +16,4 @@ public data class BrewingStandBrewEvent(
     val pos: BlockPos,
     val state: BlockState,
     val entity: BrewingStandBlockEntity,
-): CancellableEvent.Default(), LevelEvent
+): CancellableEvent.Simple(), LevelEvent

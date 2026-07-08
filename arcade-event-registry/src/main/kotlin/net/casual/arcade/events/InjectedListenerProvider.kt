@@ -13,7 +13,7 @@ import java.util.function.Consumer
  *
  * @see GlobalEventHandler.addInjectedProvider
  */
-public fun interface InjectedListenerProvider {
+public fun interface InjectedListenerProvider<T: Event> {
     /**
      * This method is called whenever the given [event] is fired.
      *
@@ -23,5 +23,5 @@ public fun interface InjectedListenerProvider {
      * @param event The event being fire.
      * @param consumer The consumer to add any additional [ListenerProvider]s.
      */
-    public fun injectListenerProviders(event: Event, consumer: Consumer<ListenerProvider>)
+    public fun injectListenerProviders(event: T, consumer: Consumer<ListenerProvider>)
 }

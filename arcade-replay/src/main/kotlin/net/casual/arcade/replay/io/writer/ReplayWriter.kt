@@ -6,7 +6,7 @@ package net.casual.arcade.replay.io.writer
 
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.EncoderException
-import net.casual.arcade.events.BuiltInEventPhases
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.replay.events.ReplayRecorderCloseEvent
 import net.casual.arcade.replay.events.ReplayRecorderSaveEvent

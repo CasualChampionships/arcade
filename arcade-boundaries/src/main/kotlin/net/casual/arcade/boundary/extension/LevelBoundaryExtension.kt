@@ -6,10 +6,10 @@ package net.casual.arcade.boundary.extension
 
 import net.casual.arcade.boundary.LevelBoundary
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.entity.EntityStartTrackingEvent
 import net.casual.arcade.events.server.entity.EntityStopTrackingEvent
 import net.casual.arcade.events.server.level.LevelTickEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension

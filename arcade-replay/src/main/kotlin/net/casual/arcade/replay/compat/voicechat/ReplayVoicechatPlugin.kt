@@ -13,8 +13,8 @@ import de.maxhenkel.voicechat.api.packets.SoundPacket
 import de.maxhenkel.voicechat.net.*
 import de.maxhenkel.voicechat.plugins.impl.VolumeCategoryImpl
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.ListenerRegistry.Companion.register
 import net.casual.arcade.events.server.ServerTickEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderSnapshotEvent
 import net.casual.arcade.replay.events.player.ReplayPlayerRecorderSnapshotEvent
 import net.casual.arcade.replay.io.ReplayFormat
