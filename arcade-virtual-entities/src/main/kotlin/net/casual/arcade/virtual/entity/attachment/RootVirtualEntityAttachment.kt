@@ -93,4 +93,14 @@ public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
             this.startObservingAttached(observer)
         }
     }
+
+    /**
+     * This resends all packets for all virtual entities
+     * attached to this attachment.
+     *
+     * @param observer The player to resend to.
+     * @param consumer The packet consumer.
+     */
+    @Experimental
+    public fun resendTo(observer: ServerPlayer, consumer: (Packet<*>) -> Unit)
 }

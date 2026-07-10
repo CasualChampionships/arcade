@@ -55,9 +55,4 @@ public interface ParentVirtualEntity: VirtualEntity, VirtualEntityAttachment {
             }
         }
     }
-
-    @NonExtendable
-    override fun resendTo(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
-        this.sendSpawnPackets(observer, consumer)
-    }
 }
