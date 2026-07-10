@@ -52,14 +52,16 @@ const vec2 uvCorners[4] = vec2[4](
     vec2(1.0, 0.0)
 );
 
-vec2 getVertexCornerUV(sampler2D tex, vec2 uv, int vertexID) {
-    vec2 texSize = vec2(textureSize(tex, 0));
-    vec2 texelSize = 1.0 / texSize;
+vec4 getVertexCornerColor(sampler2D tex, vec2 uv, int vertexID) {
+    ivec2 texSize = textureSize(tex, 0);
+    ivec2 texel = ivec2(floor(uv * vec2(texSize)));
 
-    vec2 texelUV = floor(uv * texSize) / texSize;
     int cornerIndex = ((vertexID % 4) & 1) == 0 ? (vertexID + 2) % 4 : vertexID % 4;
-    texelUV += (quadCorners[cornerIndex] - vec2(1)) * texelSize;
-    return texelUV;
+    ivec2 offset = ivec2(quadCorners[cornerIndex]) - ivec2(1);
+    texel += offset;
+
+    texel = clamp(texel, ivec2(0), texSize - 1);
+    return texelFetch(tex, texel, 0);
 }
 
 float decode16BitFloat(int bits) {
@@ -92,9 +94,9 @@ void main() {
     gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
 
     // == Boundary Start ==
-    vec2 cornerUV = getVertexCornerUV(Sampler0, UV0, gl_VertexID);
-    vec4 color = texture(Sampler0, cornerUV);
-    if (color.r == 66.0 / 255.0 && color.g == 70.0 / 255.0 && color.b == 50.0 / 255.0) {
+    vec4 color = getVertexCornerColor(Sampler0, UV0, gl_VertexID);
+    vec3 key = vec3(66.0, 70.0, 50.0) / 255.0;
+    if (all(lessThan(abs(color.rgb - key), vec3(0.5 / 255.0)))) {
         isBoundary = 1.0;
 
         bool isCube = color.a < 0.9;
