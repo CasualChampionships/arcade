@@ -21,11 +21,10 @@ uniform sampler2D Sampler0;
 out vec2 texCoord0;
 out vec4 vertexColor;
 
-const vec2 corners[4] = vec2[4](vec2(1.0, 0.0),vec2(0.0, 0.0),vec2(0.0 ,1.0),vec2(1.0, 1.0));
-
-vec4 getVertexColor(sampler2D Sampler, int vertexID, vec2 coords){
-    vec2 size = 1.0 / textureSize(Sampler, 0);
-    return textureLod(Sampler, coords - (corners[vertexID % 4] - 0.5) * size, -9999);
+vec4 getVertexColor(sampler2D Sampler) {
+    ivec2 size = textureSize(Sampler, 0);
+    int maxLevel = int(floor(log2(float(max(size.x, size.y)))));
+    return texelFetch(Sampler, ivec2(0), maxLevel);
 }
 
 void main() {
@@ -34,9 +33,10 @@ void main() {
     texCoord0 = UV0;
     vertexColor = Color;
 
-    vec4 color = getVertexColor(Sampler0, gl_VertexID, texCoord0);
-    if (color.r == 37.0 / 255.0 && color.g == 40.0 / 255.0 && color.b == 30.0 / 255.0) {
-        gl_Position = vec4(2, 2, 2, 1);
+    vec4 color = getVertexColor(Sampler0);
+    vec3 key = vec3(37.0, 40.0, 30.0) / 255.0;
+    if (all(lessThan(abs(color.rgb - key), vec3(0.5 / 255.0)))) {
+        gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
     }
 }
 
