@@ -9,6 +9,7 @@ import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.attachment.anchor.ParentAttachmentAnchor
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
+import org.jetbrains.annotations.ApiStatus.NonExtendable
 
 /**
  * This interface represents a [VirtualEntity] which can
@@ -53,5 +54,10 @@ public interface ParentVirtualEntity: VirtualEntity, VirtualEntityAttachment {
                 child.sendDespawnPackets(observer, consumer)
             }
         }
+    }
+
+    @NonExtendable
+    override fun resendTo(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
+        this.sendSpawnPackets(observer, consumer)
     }
 }

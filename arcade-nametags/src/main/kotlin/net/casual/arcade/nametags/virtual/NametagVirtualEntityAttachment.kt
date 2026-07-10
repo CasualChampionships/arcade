@@ -98,7 +98,6 @@ public class NametagVirtualEntityAttachment(
 
         super.tick()
     }
-
     override fun attach(entity: VirtualEntity): Boolean {
         return false
     }
@@ -134,6 +133,16 @@ public class NametagVirtualEntityAttachment(
 
     override fun shouldDelayObserving(): Boolean {
         return true
+    }
+
+    override fun resendTo(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
+        val connection = observer.connection
+        val tracked = this.tracked.get(connection)
+        for (entity in tracked) {
+            entity.sendSpawnPackets(observer, consumer)
+        }
+
+        this.resendNametagStackFor(observer, consumer, tracked, true)
     }
 
     private fun updateObserver(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {

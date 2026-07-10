@@ -12,6 +12,8 @@ import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.attachAndUpdateTracking
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.detachAndUpdateTracking
+import net.minecraft.network.protocol.Packet
+import net.minecraft.server.level.ServerPlayer
 
 /**
  * Simple implementation of [VirtualEntityAttachment].
@@ -40,6 +42,14 @@ public open class SimpleVirtualEntityAttachment(
 
     final override fun attached(): Collection<VirtualEntity> {
         return this.attached
+    }
+
+    override fun resendTo(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
+        for (entity in this.attached()) {
+            if (entity.observers.isObserving(observer)) {
+                entity.sendSpawnPackets(observer, consumer)
+            }
+        }
     }
 
     /**

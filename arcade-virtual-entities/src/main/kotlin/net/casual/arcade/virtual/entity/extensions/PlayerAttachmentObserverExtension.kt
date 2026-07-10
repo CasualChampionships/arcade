@@ -13,6 +13,7 @@ import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.virtual.entity.ParentVirtualEntity
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
+import net.casual.arcade.virtual.entity.compat.ArcadeReplayCompatLayer
 import net.casual.arcade.virtual.entity.interaction.EntityInteraction
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
@@ -27,6 +28,10 @@ internal class PlayerAttachmentObserverExtension(player: ServerPlayer): PlayerEx
 
     fun stopObserving(attachment: VirtualEntityAttachment) {
         this.observing.remove(attachment)
+    }
+
+    fun attachments(): Set<VirtualEntityAttachment> {
+        return this.observing
     }
 
     fun tryInteractWithVirtualEntity(target: Int, hand: InteractionHand, pos: Vec3): Boolean {
@@ -98,6 +103,10 @@ internal class PlayerAttachmentObserverExtension(player: ServerPlayer): PlayerEx
         fun registerEvents() {
             GlobalEventHandler.Server.register<PlayerExtensionEvent> {
                 it.addExtension(::PlayerAttachmentObserverExtension)
+            }
+
+            if (ArcadeReplayCompatLayer.loaded) {
+                ArcadeReplayCompatLayer.registerReplaySnapshotAttachmentRecording()
             }
         }
     }

@@ -8,6 +8,9 @@ import net.casual.arcade.virtual.entity.ParentVirtualEntity
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.tracker.ObserverTracker
+import net.minecraft.network.protocol.Packet
+import net.minecraft.server.level.ServerPlayer
+import org.jetbrains.annotations.ApiStatus.Experimental
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 /**
@@ -71,4 +74,14 @@ public interface VirtualEntityAttachment {
             entity.tick()
         }
     }
+
+    /**
+     * This resends all packets for all virtual entities
+     * attached to this attachment.
+     *
+     * @param observer The player to resend to.
+     * @param consumer The packet consumer.
+     */
+    @Experimental
+    public fun resendTo(observer: ServerPlayer, consumer: (Packet<*>) -> Unit)
 }
