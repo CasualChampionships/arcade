@@ -42,7 +42,7 @@ public class ServerGamePacketListenerImplMixin {
         @Local(name = "target") @Nullable Entity target
     ) {
         if (target == null) {
-            PlayerAttachmentObserverExtension extension = PlayerAttachmentObserverExtension.getAttachmentObserver(this.player);
+            PlayerAttachmentObserverExtension extension = PlayerAttachmentObserverExtension.getAttachmentObserverExtension(this.player);
             if (extension.tryInteractWithVirtualEntity(packet.entityId(), packet.hand(), packet.location())) {
                 ci.cancel();
             }
@@ -64,7 +64,7 @@ public class ServerGamePacketListenerImplMixin {
         @Local(name = "target") @Nullable Entity target
     ) {
         if (target == null) {
-            PlayerAttachmentObserverExtension extension = PlayerAttachmentObserverExtension.getAttachmentObserver(this.player);
+            PlayerAttachmentObserverExtension extension = PlayerAttachmentObserverExtension.getAttachmentObserverExtension(this.player);
             if (extension.tryAttackVirtualEntity(packet.entityId())) {
                 ci.cancel();
             }
@@ -84,7 +84,7 @@ public class ServerGamePacketListenerImplMixin {
         @Local(name = "packet", argsOnly = true) ServerboundSpectatorActionPacket packet
     ) {
         if (entity == null) {
-            PlayerAttachmentObserverExtension extension = PlayerAttachmentObserverExtension.getAttachmentObserver(this.player);
+            PlayerAttachmentObserverExtension extension = PlayerAttachmentObserverExtension.getAttachmentObserverExtension(this.player);
             // noinspection OptionalGetWithoutIsPresent
             if (extension.trySpectateVirtualEntity(packet.spectateEntityId().getAsInt())) {
                 ci.cancel();
@@ -106,7 +106,7 @@ public class ServerGamePacketListenerImplMixin {
         @Local(name = "packet", argsOnly = true) ServerboundPickItemFromEntityPacket packet
     ) {
         if (entity == null) {
-            PlayerAttachmentObserverExtension extension = PlayerAttachmentObserverExtension.getAttachmentObserver(this.player);
+            PlayerAttachmentObserverExtension extension = PlayerAttachmentObserverExtension.getAttachmentObserverExtension(this.player);
             if (extension.tryPickVirtualEntity(packet.id(), packet.includeData())) {
                 ci.cancel();
             }

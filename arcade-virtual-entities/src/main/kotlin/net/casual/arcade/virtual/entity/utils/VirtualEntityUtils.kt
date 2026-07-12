@@ -12,11 +12,11 @@ import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor
 import net.casual.arcade.virtual.entity.attachment.anchor.LevelAttachmentAnchor
 import net.casual.arcade.virtual.entity.extensions.EntityAttachmentExtension.Companion.attachmentExtension
 import net.casual.arcade.virtual.entity.extensions.LevelAttachmentExtension.Companion.attachmentExtension
-import net.casual.arcade.virtual.entity.tracker.ObserverTracker
-import net.casual.arcade.virtual.entity.tracker.ParentObserverTracker
-import net.minecraft.network.protocol.Packet
+import net.casual.arcade.virtual.entity.observer.Observer
+import net.casual.arcade.virtual.entity.observer.PacketSender
+import net.casual.arcade.virtual.entity.observer.tracker.ObserverTracker
+import net.casual.arcade.virtual.entity.observer.tracker.ParentObserverTracker
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 
 public fun <T: RootVirtualEntityAttachment> ServerLevel.createVirtualEntityAttachment(factory: (LevelAttachmentAnchor) -> T): T {
@@ -52,39 +52,39 @@ public fun VirtualEntity.canAttachTo(attachment: VirtualEntityAttachment): Boole
     return this.attachment === attachment
 }
 
-public fun VirtualEntity.sendSpawnPackets(
-    observer: ServerPlayer,
-    consumer: (Packet<*>) -> Unit = observer.connection::send
+public fun VirtualEntity.sendBundledSpawnPackets(
+    observer: Observer,
+    sender: PacketSender = observer
 ) {
     val collector = VirtualEntityPacketCollector()
     this.sendSpawnPackets(observer, collector::add)
-    collector.bundle().send(consumer)
+    collector.bundle().send(sender)
 }
 
-public fun VirtualEntity.sendDespawnPackets(
-    observer: ServerPlayer,
-    consumer: (Packet<*>) -> Unit = observer.connection::send
+public fun VirtualEntity.sendBundledDespawnPackets(
+    observer: Observer,
+    sender: PacketSender = observer
 ) {
     val collector = VirtualEntityPacketCollector()
     this.sendDespawnPackets(observer, collector::add)
-    collector.optimize().bundle().send(consumer)
+    collector.optimize().bundle().send(sender)
 }
 
 public fun VirtualEntity.startObservingAndSendPackets(
-    observer: ServerPlayer,
-    consumer: (Packet<*>) -> Unit = observer.connection::send
+    observer: Observer,
+    sender: PacketSender = observer
 ) {
     if (this.canObserve(observer) && this.observers.startObserving(observer)) {
-        this.sendSpawnPackets(observer, consumer)
+        this.sendBundledSpawnPackets(observer, sender)
     }
 }
 
 public fun VirtualEntity.stopObservingAndSendPackets(
-    observer: ServerPlayer,
-    consumer: (Packet<*>) -> Unit = observer.connection::send
+    observer: Observer,
+    sender: PacketSender = observer
 ) {
     if (this.observers.isObserving(observer)) {
-        this.sendDespawnPackets(observer, consumer)
+        this.sendBundledDespawnPackets(observer, sender)
         this.observers.stopObserving(observer)
     }
 }

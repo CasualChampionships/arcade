@@ -7,13 +7,14 @@ package net.casual.arcade.virtual.entity.attachment
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
-import net.casual.arcade.virtual.entity.tracker.ObserverTracker
-import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
+import net.casual.arcade.virtual.entity.observer.Observer
+import net.casual.arcade.virtual.entity.observer.PacketSender
+import net.casual.arcade.virtual.entity.observer.tracker.ObserverTracker
+import net.casual.arcade.virtual.entity.observer.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.attachAndUpdateTracking
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.detachAndUpdateTracking
-import net.minecraft.network.protocol.Packet
-import net.minecraft.server.level.ServerPlayer
+import net.casual.arcade.virtual.entity.utils.sendBundledSpawnPackets
 
 /**
  * Simple implementation of [VirtualEntityAttachment].
@@ -44,10 +45,10 @@ public open class SimpleVirtualEntityAttachment(
         return this.attached
     }
 
-    override fun resendTo(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
+    override fun resendTo(observer: Observer, sender: PacketSender) {
         for (entity in this.attached()) {
             if (entity.observers.isObserving(observer)) {
-                entity.sendSpawnPackets(observer, consumer)
+                entity.sendBundledSpawnPackets(observer, sender)
             }
         }
     }

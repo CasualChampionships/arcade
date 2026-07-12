@@ -10,9 +10,10 @@ import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.display.SimpleVirtualTextDisplay
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
-import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
+import net.casual.arcade.virtual.entity.observer.Observer
+import net.casual.arcade.virtual.entity.observer.tracker.SimpleObserverTracker
+import net.casual.arcade.virtual.entity.utils.asPlayerOrNull
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Display
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.Vec2
@@ -91,8 +92,9 @@ public class NametagVirtualEntity(
         this.background.setSeeThrough(!this.sneaking && this.nametag.isVisibleThroughWalls(this.entity))
     }
 
-    override fun canObserve(observer: ServerPlayer): Boolean {
-        return this.entity.broadcastToPlayer(observer)
+    override fun canObserve(observer: Observer): Boolean {
+        val player = observer.asPlayerOrNull()
+        return (player == null || this.entity.broadcastToPlayer(player))
             && this.nametag.isObservable(this.entity, observer)
             && this.nametag.isWithinRange(this.entity, observer)
     }

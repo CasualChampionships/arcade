@@ -4,11 +4,12 @@
  */
 package net.casual.arcade.virtual.entity.attachment
 
-import net.casual.arcade.virtual.entity.extensions.PlayerAttachmentObserverExtension.Companion.attachmentObserver
+import net.casual.arcade.virtual.entity.observer.Observer
+import net.casual.arcade.virtual.entity.observer.PacketSender
 import net.casual.arcade.virtual.entity.utils.VirtualEntityPacketCollector
+import net.casual.arcade.virtual.entity.utils.sendBundledSpawnPackets
 import net.casual.arcade.virtual.entity.utils.stopObservingAndSendPackets
 import net.minecraft.network.protocol.Packet
-import net.minecraft.server.level.ServerPlayer
 import org.jetbrains.annotations.ApiStatus.*
 
 /**
@@ -20,15 +21,15 @@ import org.jetbrains.annotations.ApiStatus.*
 public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
     @NonExtendable
     public fun startObservingAttached(
-        observer: ServerPlayer,
+        observer: Observer,
         quietly: Boolean = false,
-        consumer: (Packet<*>) -> Unit = observer.connection::send
+        sender: PacketSender = observer
     ) {
         if (!this.observers.startObserving(observer)) {
             return
         }
 
-        observer.attachmentObserver.startObserving(this)
+        observer.startObserving(this)
 
         if (this.shouldDelayObserving()) {
             return
@@ -45,35 +46,42 @@ public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
 
         val collector = VirtualEntityPacketCollector()
         this.sendObservingAttachedSpawnPackets(observer, collector::add)
-        collector.optimize().bundle().send(consumer)
+        collector.optimize().bundle().send(sender)
     }
 
     @NonExtendable
-    public fun stopObservingAttached(observer: ServerPlayer) {
+    public fun stopObservingAttached(observer: Observer) {
         if (!this.observers.isObserving(observer)) {
             return
         }
 
-        observer.attachmentObserver.stopObserving(this)
+        observer.stopObserving(this)
 
         val collector = VirtualEntityPacketCollector()
         for (entity in this.attached()) {
             entity.stopObservingAndSendPackets(observer, collector::add)
         }
-        collector.optimize().bundle().send(observer.connection::send)
+        collector.optimize().bundle().send(observer)
 
         this.observers.stopObserving(observer)
     }
 
     @NonExtendable
-    public fun sendObservingAttachedSpawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
+    public fun clearObservingAttached() {
+        for (observer in this.observers.toList()) {
+            this.stopObservingAttached(observer)
+        }
+    }
+
+    @NonExtendable
+    public fun sendObservingAttachedSpawnPackets(observer: Observer, consumer: (Packet<*>) -> Unit) {
         if (this.shouldDelayObserving()) {
             return
         }
 
         for (entity in this.attached()) {
             if (entity.observers.isObserving(observer)) {
-                entity.sendSpawnPackets(observer, consumer)
+                entity.sendBundledSpawnPackets(observer, consumer)
             }
         }
     }
@@ -84,7 +92,7 @@ public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
     }
 
     @Experimental
-    public fun updateObservingAttached(updated: Set<ServerPlayer>) {
+    public fun updateObservingAttached(updated: Set<Observer>) {
         val previous = this.observers.toSet()
         for (observer in (previous - updated)) {
             this.stopObservingAttached(observer)
@@ -99,8 +107,8 @@ public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
      * attached to this attachment.
      *
      * @param observer The player to resend to.
-     * @param consumer The packet consumer.
+     * @param sender The packet sender.
      */
     @Experimental
-    public fun resendTo(observer: ServerPlayer, consumer: (Packet<*>) -> Unit)
+    public fun resendTo(observer: Observer, sender: PacketSender = observer)
 }

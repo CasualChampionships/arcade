@@ -13,15 +13,16 @@ import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.virtual.entity.ParentVirtualEntity
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
-import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.compat.ArcadeReplayCompatLayer
 import net.casual.arcade.virtual.entity.interaction.EntityInteraction
+import net.casual.arcade.virtual.entity.observer.PlayerObserver
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.phys.Vec3
 
 internal class PlayerAttachmentObserverExtension(player: ServerPlayer): PlayerExtension(player) {
     private val observing = ObjectOpenHashSet<RootVirtualEntityAttachment>()
+    val observer = PlayerObserver(player.connection)
 
     fun startObserving(attachment: RootVirtualEntityAttachment) {
         this.observing.add(attachment)
@@ -98,7 +99,7 @@ internal class PlayerAttachmentObserverExtension(player: ServerPlayer): PlayerEx
 
     companion object {
         @JvmStatic
-        val ServerPlayer.attachmentObserver: PlayerAttachmentObserverExtension
+        val ServerPlayer.attachmentObserverExtension: PlayerAttachmentObserverExtension
             get() = this.getExtension()
 
         fun registerEvents() {

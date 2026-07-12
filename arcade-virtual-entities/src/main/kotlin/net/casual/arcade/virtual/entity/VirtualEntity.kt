@@ -8,14 +8,14 @@ import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.interaction.EntityInteraction
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
-import net.casual.arcade.virtual.entity.mixins.EntityAccessor
 import net.casual.arcade.virtual.entity.mixins.ServerLevelAccessor
-import net.casual.arcade.virtual.entity.tracker.ObserverTracker
-import net.casual.arcade.virtual.entity.tracker.ParentObserverTracker
+import net.casual.arcade.virtual.entity.observer.Observer
+import net.casual.arcade.virtual.entity.observer.PacketSender
+import net.casual.arcade.virtual.entity.observer.tracker.ObserverTracker
+import net.casual.arcade.virtual.entity.observer.tracker.ParentObserverTracker
 import net.casual.arcade.virtual.entity.utils.location
 import net.casual.arcade.virtual.entity.utils.startObservingAndSendPackets
 import net.casual.arcade.virtual.entity.utils.stopObservingAndSendPackets
-import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
 
@@ -79,15 +79,14 @@ public interface VirtualEntity {
      * This function sends this virtual entity's spawn packets
      * to the specified [observer].
      *
-     * This function should be *stateless*, and shouldn't be called
-     * inside your [startObserving] implementation.
+     * This function should be *stateless*.
      * Callers should call [stopObservingAndSendPackets].
      *
      * @param observer The player to send spawn packets to.
-     * @param consumer The packet consumer.
+     * @param sender The packet sender.
      * @see startObservingAndSendPackets
      */
-    public fun sendSpawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit)
+    public fun sendSpawnPackets(observer: Observer, sender: PacketSender)
 
     /**
      * This function sends this virtual entity's despawn packets
@@ -95,15 +94,14 @@ public interface VirtualEntity {
      *
      * Typically, this is just [net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket].
      *
-     * This function should be *stateless*, and shouldn't be called
-     * inside your [stopObserving] implementation.
+     * This function should be *stateless*.
      * Callers should call [stopObservingAndSendPackets].
      *
      * @param observer The player to send despawn packets to.
-     * @param consumer The packet consumer.
+     * @param sender The packet sender.
      * @see stopObservingAndSendPackets
      */
-    public fun sendDespawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit)
+    public fun sendDespawnPackets(observer: Observer, sender: PacketSender)
 
     /**
      * Checks whether an [observer] can observe this virtual entity.
@@ -111,7 +109,7 @@ public interface VirtualEntity {
      * @param observer The player trying to observe.
      * @return Whether the [observer] can observe.
      */
-    public fun canObserve(observer: ServerPlayer): Boolean {
+    public fun canObserve(observer: Observer): Boolean {
         if (this.observers is ParentObserverTracker) {
             return this.observers.isObserving(observer)
         }

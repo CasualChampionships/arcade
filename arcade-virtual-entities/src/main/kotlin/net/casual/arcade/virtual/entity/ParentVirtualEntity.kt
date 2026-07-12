@@ -7,9 +7,8 @@ package net.casual.arcade.virtual.entity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.attachment.anchor.ParentAttachmentAnchor
-import net.minecraft.network.protocol.Packet
-import net.minecraft.server.level.ServerPlayer
-import org.jetbrains.annotations.ApiStatus.NonExtendable
+import net.casual.arcade.virtual.entity.observer.Observer
+import net.casual.arcade.virtual.entity.observer.PacketSender
 
 /**
  * This interface represents a [VirtualEntity] which can
@@ -40,18 +39,18 @@ public interface ParentVirtualEntity: VirtualEntity, VirtualEntityAttachment {
         }
     }
 
-    override fun sendSpawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
+    override fun sendSpawnPackets(observer: Observer, sender: PacketSender) {
         for (child in this.children()) {
             if (child.observers.isObserving(observer)) {
-                child.sendSpawnPackets(observer, consumer)
+                child.sendSpawnPackets(observer, sender)
             }
         }
     }
 
-    override fun sendDespawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
+    override fun sendDespawnPackets(observer: Observer, sender: PacketSender) {
         for (child in this.children()) {
             if (child.observers.isObserving(observer)) {
-                child.sendDespawnPackets(observer, consumer)
+                child.sendDespawnPackets(observer, sender)
             }
         }
     }

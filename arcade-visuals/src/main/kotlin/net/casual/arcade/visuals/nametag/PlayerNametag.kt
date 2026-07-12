@@ -6,6 +6,8 @@ package net.casual.arcade.visuals.nametag
 
 import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.nametagExtension
+import net.casual.arcade.virtual.entity.observer.Observer
+import net.casual.arcade.virtual.entity.utils.asPlayerOrNull
 import net.casual.arcade.visuals.core.TrackingVisualElement
 import net.casual.arcade.visuals.elements.PlayerSpecificElement
 import net.casual.arcade.visuals.predicate.PlayerObserverPredicate
@@ -62,8 +64,9 @@ public class PlayerNametag(
                     return component.get(observee)
                 }
 
-                override fun isObservable(observee: Entity, observer: ServerPlayer): Boolean {
-                    return predicate.observable(observee, observer)
+                override fun isObservable(observee: Entity, observer: Observer): Boolean {
+                    val player = observer.asPlayerOrNull() ?: return false
+                    return predicate.observable(observee, player)
                 }
             }
             return PlayerNametag(nametag)

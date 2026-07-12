@@ -19,7 +19,9 @@ import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.display.SimpleVirtualItemDisplay
-import net.casual.arcade.virtual.entity.tracker.ObserverTracker
+import net.casual.arcade.virtual.entity.observer.Observer
+import net.casual.arcade.virtual.entity.observer.tracker.ObserverTracker
+import net.casual.arcade.virtual.entity.utils.asObserver
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
 import net.minecraft.core.Direction
 import net.minecraft.core.SectionPos
@@ -98,18 +100,18 @@ public class AxisAlignedDisplayBoundaryRenderer(
             player.connection.send(packet)
         }
 
-        this.attachment.startObservingAttached(player)
+        this.attachment.startObservingAttached(player.asObserver())
     }
 
     override fun stopRendering(player: ServerPlayer) {
-        this.attachment.stopObservingAttached(player)
+        this.attachment.stopObservingAttached(player.asObserver())
     }
 
     override fun restartRendering(
         player: ServerPlayer,
         sender: Consumer<Packet<ClientGamePacketListener>>
     ) {
-        this.attachment.sendObservingAttachedSpawnPackets(player) { packet ->
+        this.attachment.sendObservingAttachedSpawnPackets(player.asObserver()) { packet ->
             sender.accept(packet.asClientGamePacket())
         }
     }
@@ -194,7 +196,7 @@ public class AxisAlignedDisplayBoundaryRenderer(
         attachment: VirtualEntityAttachment,
         observers: ObserverTracker
     ): SimpleVirtualItemDisplay(attachment, observers) {
-        override fun canObserve(observer: ServerPlayer): Boolean {
+        override fun canObserve(observer: Observer): Boolean {
             return true
         }
     }

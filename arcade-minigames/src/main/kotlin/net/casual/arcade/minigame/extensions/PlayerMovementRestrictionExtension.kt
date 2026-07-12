@@ -21,6 +21,7 @@ import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.locatio
 import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor
 import net.casual.arcade.virtual.entity.collision.CollisionCubeVirtualEntity
+import net.casual.arcade.virtual.entity.utils.asObserver
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
 import net.minecraft.core.Direction
 import net.minecraft.network.protocol.Packet
@@ -54,7 +55,7 @@ public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExt
         }
     }
 
-    @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+    @Suppress("TYPE_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     override fun deserialize(input: ValueInput) {
         this.position = input.read("position", Vec3.CODEC).orElse(Vec3.ZERO)
         this.persist = input.getBooleanOr("persist", false)
@@ -90,7 +91,7 @@ public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExt
 
             hitbox.position += Vec3(offsetX, offsetY, offsetZ)
         }
-        attachment.startObservingAttached(this.player)
+        attachment.startObservingAttached(this.player.asObserver())
         for (packet in packets) {
             this.player.connection.send(packet)
         }
@@ -101,7 +102,7 @@ public class PlayerMovementRestrictionExtension(player: ServerPlayer): PlayerExt
 
     private fun unrestrictMovement() {
         val attachment = this.attachment ?: return
-        attachment.stopObservingAttached(this.player)
+        attachment.stopObservingAttached(this.player.asObserver())
         this.attachment = null
         val attribute = this.player.attributes.getInstance(Attributes.JUMP_STRENGTH) ?: return
         this.player.connection.send(ClientboundUpdateAttributesPacket(this.player.id, listOf(attribute)))

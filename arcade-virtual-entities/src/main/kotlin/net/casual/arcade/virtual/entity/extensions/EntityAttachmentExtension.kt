@@ -19,9 +19,10 @@ import net.casual.arcade.utils.impl.DelayedActions
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor
+import net.casual.arcade.virtual.entity.observer.Observer
+import net.casual.arcade.virtual.entity.utils.asObserver
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 import java.util.function.Consumer
 
@@ -42,16 +43,14 @@ internal class EntityAttachmentExtension(entity: Entity): EntityExtension(entity
         require(attachment.anchor === this.anchor) { "Created VirtualEntityAttachment with incorrect anchor!" }
         this.attachments.value.add(attachment)
         for (player in this.entity.getTrackingPlayers()) {
-            attachment.startObservingAttached(player)
+            attachment.startObservingAttached(player.asObserver())
         }
         return attachment
     }
 
     fun remove(attachment: RootVirtualEntityAttachment): Boolean {
         if (this.attachments.isInitialized() && this.attachments.value.remove(attachment)) {
-            for (player in this.entity.getTrackingPlayers()) {
-                attachment.stopObservingAttached(player)
-            }
+            attachment.clearObservingAttached()
             return true
         }
         return false
@@ -64,7 +63,7 @@ internal class EntityAttachmentExtension(entity: Entity): EntityExtension(entity
         return listOf()
     }
 
-    fun startObserving(observer: ServerPlayer) {
+    fun startObserving(observer: Observer) {
         if (this.attachments.isInitialized()) {
             for (attachment in this.attachments.value) {
                 attachment.startObservingAttached(observer, true)
@@ -72,7 +71,7 @@ internal class EntityAttachmentExtension(entity: Entity): EntityExtension(entity
         }
     }
 
-    fun sendObservingSpawnPackets(observer: ServerPlayer, consumer: Consumer<Packet<ClientGamePacketListener>>) {
+    fun sendObservingSpawnPackets(observer: Observer, consumer: Consumer<Packet<ClientGamePacketListener>>) {
         if (this.attachments.isInitialized()) {
             for (attachment in this.attachments.value) {
                 attachment.sendObservingAttachedSpawnPackets(observer) { packet ->
@@ -82,7 +81,7 @@ internal class EntityAttachmentExtension(entity: Entity): EntityExtension(entity
         }
     }
 
-    fun stopObserving(observer: ServerPlayer) {
+    fun stopObserving(observer: Observer) {
         if (this.attachments.isInitialized()) {
             for (attachment in this.attachments.value) {
                 attachment.stopObservingAttached(observer)

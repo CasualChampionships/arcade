@@ -14,7 +14,9 @@ import net.casual.arcade.utils.player.getGameMode
 import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.display.SimpleVirtualItemDisplay
+import net.casual.arcade.virtual.entity.utils.asObserver
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
+import net.casual.arcade.virtual.entity.utils.sendBundledSpawnPackets
 import net.casual.arcade.visuals.core.TickableVisualElement
 import net.casual.arcade.visuals.core.TrackingVisualElement
 import net.casual.arcade.visuals.extensions.PlayerCameraExtension.Companion.cameraExtension
@@ -102,7 +104,7 @@ public class PlayerCamera(
         player.teleportTo(this.location().with(this.level))
         this.sendGamemodePacket(player, GameType.SPECTATOR, player.connection::send)
 
-        this.attachment.startObservingAttached(player)
+        this.attachment.startObservingAttached(player.asObserver())
         player.connection.send(createSetCameraPacket(this.camera.id))
     }
 
@@ -110,12 +112,12 @@ public class PlayerCamera(
         player.cameraExtension.remove()
         this.sendGamemodePacket(player, player.getGameMode(), player.connection::send)
         player.connection.send(ClientboundSetCameraPacket(player))
-        this.attachment.stopObservingAttached(player)
+        this.attachment.stopObservingAttached(player.asObserver())
     }
 
     override fun resendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
         this.sendGamemodePacket(player, GameType.SPECTATOR, sender)
-        this.camera.sendSpawnPackets(player) { sender.accept(it.asClientGamePacket()) }
+        this.camera.sendBundledSpawnPackets(player.asObserver()) { sender.accept(it.asClientGamePacket()) }
         sender.accept(createSetCameraPacket(this.camera.id))
     }
 

@@ -16,6 +16,8 @@ import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.LevelAttachmentAnchor
+import net.casual.arcade.virtual.entity.observer.Observer
+import net.casual.arcade.virtual.entity.utils.asObserver
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 
@@ -34,16 +36,14 @@ internal class LevelAttachmentExtension(level: ServerLevel): Extension {
         require(attachment.anchor === this.anchor) { "Created VirtualEntityAttachment with incorrect anchor!" }
         this.attachments.add(attachment)
         for (player in this.anchor.level.players()) {
-            attachment.startObservingAttached(player)
+            attachment.startObservingAttached(player.asObserver())
         }
         return attachment
     }
 
     fun remove(attachment: RootVirtualEntityAttachment): Boolean {
         if (this.attachments.remove(attachment)) {
-            for (player in this.anchor.level.players()) {
-                attachment.stopObservingAttached(player)
-            }
+            attachment.clearObservingAttached()
             return true
         }
         return false
@@ -53,13 +53,13 @@ internal class LevelAttachmentExtension(level: ServerLevel): Extension {
         return this.attachments.flatMap { it.attached() }
     }
 
-    fun startObserving(observer: ServerPlayer) {
+    fun startObserving(observer: Observer) {
         for (attachment in this.attachments) {
             attachment.startObservingAttached(observer)
         }
     }
 
-    fun stopObserving(observer: ServerPlayer) {
+    fun stopObserving(observer: Observer) {
         for (attachment in this.attachments) {
             attachment.stopObservingAttached(observer)
         }
@@ -79,12 +79,12 @@ internal class LevelAttachmentExtension(level: ServerLevel): Extension {
             }
             GlobalEventHandler.Server.register<EntityStartTrackingEvent>(phase = EntityStartTrackingEvent.PHASE_POST) { (entity, level) ->
                 if (entity is ServerPlayer) {
-                    level.attachmentExtension.startObserving(entity)
+                    level.attachmentExtension.startObserving(entity.asObserver())
                 }
             }
             GlobalEventHandler.Server.register<EntityStopTrackingEvent>(phase = EntityStartTrackingEvent.PHASE_PRE) { (entity, level) ->
                 if (entity is ServerPlayer) {
-                    level.attachmentExtension.stopObserving(entity)
+                    level.attachmentExtension.stopObserving(entity.asObserver())
                 }
             }
         }

@@ -11,14 +11,12 @@ import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.data.PlayerSpecificEntityData
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
-import net.casual.arcade.virtual.entity.tracker.ObserverTracker
-import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
-import net.casual.arcade.virtual.entity.utils.EntityDataAccessors
-import net.casual.arcade.virtual.entity.utils.EntityDataSharedFlags
-import net.casual.arcade.virtual.entity.utils.VirtualEntityPacketUtils
-import net.casual.arcade.virtual.entity.utils.location
+import net.casual.arcade.virtual.entity.observer.Observer
+import net.casual.arcade.virtual.entity.observer.PacketSender
+import net.casual.arcade.virtual.entity.observer.tracker.ObserverTracker
+import net.casual.arcade.virtual.entity.observer.tracker.SimpleObserverTracker
+import net.casual.arcade.virtual.entity.utils.*
 import net.minecraft.network.chat.Component
-import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
@@ -89,13 +87,13 @@ public open class SimpleVirtualEntity(
         this.sendDirtyLocation()
     }
 
-    override fun sendSpawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
-        consumer.invoke(this.createSpawnPacket())
-        this.sendChangedEntityData(observer, consumer)
+    override fun sendSpawnPackets(observer: Observer, sender: PacketSender) {
+        sender.send(this.createSpawnPacket())
+        this.sendChangedEntityData(observer, sender)
     }
 
-    override fun sendDespawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
-        consumer.invoke(ClientboundRemoveEntitiesPacket(this.id))
+    override fun sendDespawnPackets(observer: Observer, sender: PacketSender) {
+        sender.send(ClientboundRemoveEntitiesPacket(this.id))
     }
 
     public fun setObservableRange(range: Double) {
@@ -124,10 +122,15 @@ public open class SimpleVirtualEntity(
         )
     }
 
-    protected open fun sendChangedEntityData(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
-        val merged = this.data.getChangedEntries(observer.uuid, this.data.getChangedBaseEntries())
+    protected open fun sendChangedEntityData(observer: Observer, sender: PacketSender) {
+        val player = observer.asPlayerOrNull()
+        val merged = if (player != null) {
+            this.data.getChangedEntries(player.uuid, this.data.getChangedBaseEntries())
+        } else {
+            this.data.getChangedBaseEntries()
+        }
         if (merged.isNotEmpty()) {
-            consumer.invoke(ClientboundSetEntityDataPacket(this.id, merged))
+            sender.send(ClientboundSetEntityDataPacket(this.id, merged))
         }
     }
 
@@ -173,10 +176,11 @@ public open class SimpleVirtualEntity(
 
     protected open fun sendDirtyEntityData() {
         val base = this.data.getDirtyBaseEntries()
-        this.observers.broadcast { player, consumer ->
-            val overridden = this.data.getDirtyEntries(player.uuid, base)
+        this.observers.broadcast { observer ->
+            val player = observer.asPlayerOrNull()
+            val overridden = if (player != null) this.data.getDirtyEntries(player.uuid, base) else base
             if (overridden.isNotEmpty()) {
-                consumer.invoke(ClientboundSetEntityDataPacket(this.id, overridden))
+                observer.send(ClientboundSetEntityDataPacket(this.id, overridden))
             }
         }
     }

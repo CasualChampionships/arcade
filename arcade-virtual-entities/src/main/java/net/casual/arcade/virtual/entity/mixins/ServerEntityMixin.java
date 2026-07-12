@@ -5,6 +5,7 @@
 package net.casual.arcade.virtual.entity.mixins;
 
 import net.casual.arcade.virtual.entity.extensions.EntityAttachmentExtension;
+import net.casual.arcade.virtual.entity.utils.ObserverUtilsKt;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.server.level.ServerEntity;
@@ -34,7 +35,7 @@ public class ServerEntityMixin {
     )
     private void startObservingEntityAttachments(ServerPlayer player, CallbackInfo ci) {
         EntityAttachmentExtension extension = EntityAttachmentExtension.getAttachmentExtension(this.entity);
-        extension.startObserving(player);
+        extension.startObserving(ObserverUtilsKt.asObserver(player));
     }
 
     @Inject(
@@ -47,7 +48,7 @@ public class ServerEntityMixin {
         CallbackInfo ci
     ) {
         EntityAttachmentExtension extension = EntityAttachmentExtension.getAttachmentExtension(this.entity);
-        extension.sendObservingSpawnPackets(player, broadcast);
+        extension.sendObservingSpawnPackets(ObserverUtilsKt.asObserver(player), broadcast);
     }
 
     @Inject(
@@ -56,6 +57,6 @@ public class ServerEntityMixin {
     )
     private void removeObservingEntityAttachments(ServerPlayer player, CallbackInfo ci) {
         EntityAttachmentExtension extension = EntityAttachmentExtension.getAttachmentExtension(this.entity);
-        extension.stopObserving(player);
+        extension.stopObserving(ObserverUtilsKt.asObserver(player));
     }
 }
