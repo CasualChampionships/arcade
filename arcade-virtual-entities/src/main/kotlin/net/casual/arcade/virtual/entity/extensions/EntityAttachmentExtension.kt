@@ -14,42 +14,40 @@ import net.casual.arcade.extensions.event.EntityExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.entity.EntityTransferReason
-import net.casual.arcade.utils.entity.getTrackingPlayers
 import net.casual.arcade.utils.impl.DelayedActions
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor
 import net.casual.arcade.virtual.entity.observer.Observer
-import net.casual.arcade.virtual.entity.utils.asObserver
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.world.entity.Entity
 import java.util.function.Consumer
 
 internal class EntityAttachmentExtension(entity: Entity): EntityExtension(entity) {
-    private val attachments = lazy { ObjectLinkedOpenHashSet<RootVirtualEntityAttachment>() }
-    private val anchor by lazy { EntityAttachmentAnchor(this.entity) }
+    private val attachments = ArrayList<RootVirtualEntityAttachment>(4)
+    private val observers = ObjectLinkedOpenHashSet<Observer>()
+    private val anchor = EntityAttachmentAnchor(this.entity)
 
     fun tick() {
-        if (this.attachments.isInitialized()) {
-            for (attachment in this.attachments.value) {
-                attachment.tick()
-            }
+        for (attachment in this.attachments) {
+            attachment.tick()
         }
     }
 
     fun <T: RootVirtualEntityAttachment> add(factory: (EntityAttachmentAnchor) -> T): T {
         val attachment = factory.invoke(this.anchor)
         require(attachment.anchor === this.anchor) { "Created VirtualEntityAttachment with incorrect anchor!" }
-        this.attachments.value.add(attachment)
-        for (player in this.entity.getTrackingPlayers()) {
-            attachment.startObservingAttached(player.asObserver())
+        require(!this.attachments.contains(attachment)) { "Created VirtualEntityAttachment was already attached!" }
+        this.attachments.add(attachment)
+        for (observer in this.observers) {
+            attachment.startObservingAttached(observer)
         }
         return attachment
     }
 
     fun remove(attachment: RootVirtualEntityAttachment): Boolean {
-        if (this.attachments.isInitialized() && this.attachments.value.remove(attachment)) {
+        if (this.attachments.remove(attachment)) {
             attachment.clearObservingAttached()
             return true
         }
@@ -57,33 +55,31 @@ internal class EntityAttachmentExtension(entity: Entity): EntityExtension(entity
     }
 
     fun getAttachedVirtualEntities(): List<VirtualEntity> {
-        if (this.attachments.isInitialized()) {
-            return this.attachments.value.flatMap { it.attached() }
+        if (this.attachments.isEmpty()) {
+            return listOf()
         }
-        return listOf()
+        return this.attachments.flatMap { it.attached() }
     }
 
     fun startObserving(observer: Observer) {
-        if (this.attachments.isInitialized()) {
-            for (attachment in this.attachments.value) {
+        if (this.observers.add(observer)) {
+            for (attachment in this.attachments) {
                 attachment.startObservingAttached(observer, true)
             }
         }
     }
 
     fun sendObservingSpawnPackets(observer: Observer, consumer: Consumer<Packet<ClientGamePacketListener>>) {
-        if (this.attachments.isInitialized()) {
-            for (attachment in this.attachments.value) {
-                attachment.sendObservingAttachedSpawnPackets(observer) { packet ->
-                    consumer.accept(packet.asClientGamePacket())
-                }
+        for (attachment in this.attachments) {
+            attachment.sendObservingAttachedSpawnPackets(observer) { packet ->
+                consumer.accept(packet.asClientGamePacket())
             }
         }
     }
 
     fun stopObserving(observer: Observer) {
-        if (this.attachments.isInitialized()) {
-            for (attachment in this.attachments.value) {
+        if (this.observers.remove(observer)) {
+            for (attachment in this.attachments) {
                 attachment.stopObservingAttached(observer)
             }
         }

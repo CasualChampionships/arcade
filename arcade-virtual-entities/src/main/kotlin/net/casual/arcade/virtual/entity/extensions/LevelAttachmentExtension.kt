@@ -23,6 +23,7 @@ import net.minecraft.server.level.ServerPlayer
 
 internal class LevelAttachmentExtension(level: ServerLevel): Extension {
     private val attachments = ObjectLinkedOpenHashSet<RootVirtualEntityAttachment>()
+    private val observers = ObjectLinkedOpenHashSet<Observer>()
     private val anchor = LevelAttachmentAnchor(level)
 
     fun tick() {
@@ -35,8 +36,8 @@ internal class LevelAttachmentExtension(level: ServerLevel): Extension {
         val attachment = factory.invoke(this.anchor)
         require(attachment.anchor === this.anchor) { "Created VirtualEntityAttachment with incorrect anchor!" }
         this.attachments.add(attachment)
-        for (player in this.anchor.level.players()) {
-            attachment.startObservingAttached(player.asObserver())
+        for (observer in this.observers) {
+            attachment.startObservingAttached(observer)
         }
         return attachment
     }
@@ -54,14 +55,18 @@ internal class LevelAttachmentExtension(level: ServerLevel): Extension {
     }
 
     fun startObserving(observer: Observer) {
-        for (attachment in this.attachments) {
-            attachment.startObservingAttached(observer)
+        if (this.observers.add(observer)) {
+            for (attachment in this.attachments) {
+                attachment.startObservingAttached(observer)
+            }
         }
     }
 
     fun stopObserving(observer: Observer) {
-        for (attachment in this.attachments) {
-            attachment.stopObservingAttached(observer)
+        if (this.observers.remove(observer)) {
+            for (attachment in this.attachments) {
+                attachment.stopObservingAttached(observer)
+            }
         }
     }
 
