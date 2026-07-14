@@ -5,6 +5,7 @@
 package net.casual.arcade.replay.mixins.chunk;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import net.casual.arcade.replay.compat.arcade.ArcadeVirtualEntitiesCompatLayer;
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecordable;
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder;
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorders;
@@ -82,6 +83,8 @@ public class TrackedEntityMixin implements ReplayChunkRecordable {
             recorder.record(new ClientboundBundlePacket(list));
 
             recorder.onEntityTracked(this.entity);
+
+            ArcadeVirtualEntitiesCompatLayer.startObservingEntityAttachments(recorder, this.entity);
         }
     }
 
@@ -90,6 +93,8 @@ public class TrackedEntityMixin implements ReplayChunkRecordable {
         List<Packet<? super ClientGamePacketListener>> list = new ArrayList<>();
         this.serverEntity.sendPairingData(recorder.getDummyPlayer(), list::add);
         recorder.record(new ClientboundBundlePacket(list));
+
+        ArcadeVirtualEntitiesCompatLayer.resendObservingEntityAttachments(recorder, this.entity);
     }
 
     @Override
@@ -101,6 +106,8 @@ public class TrackedEntityMixin implements ReplayChunkRecordable {
                 this.entity.getId()
             ));
             recorder.removeRecordable(this);
+
+            ArcadeVirtualEntitiesCompatLayer.stopObservingEntityAttachments(recorder, this.entity);
         }
     }
 

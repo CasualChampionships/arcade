@@ -8,6 +8,7 @@ import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.replay.compat.arcade.ArcadeVirtualEntitiesCompatLayer
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderLoadedResumeEvent
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderSnapshotEvent
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderUnloadedPauseEvent
@@ -147,6 +148,9 @@ public class ReplayChunkRecorder internal constructor(
         RejoinedReplayPlayer.rejoin(this.dummy, this)
         this.spawnPlayer()
         this.sendChunksAndEntities()
+
+        ArcadeVirtualEntitiesCompatLayer.startObservingLevelAttachments(this)
+
         GlobalEventHandler.Server.broadcast(ReplayChunkRecorderSnapshotEvent(this, true))
 
         val chunks = this.level.chunkSource.chunkMap as ChunkMapAccessor
@@ -196,6 +200,8 @@ public class ReplayChunkRecorder internal constructor(
         if (this.recordables.isNotEmpty()) {
             ArcadeUtils.logger.warn("Failed to unlink all chunk recordables")
         }
+
+        ArcadeVirtualEntitiesCompatLayer.stopObservingLevelAttachments(this)
 
         ReplayChunkRecorders.close(this.server, this, future)
     }
@@ -332,6 +338,9 @@ public class ReplayChunkRecorder internal constructor(
         for (recordable in this.recordables) {
             recordable.resendPackets(this)
         }
+
+        ArcadeVirtualEntitiesCompatLayer.resendObservingLevelAttachments(this)
+
         GlobalEventHandler.Server.broadcast(ReplayChunkRecorderSnapshotEvent(this, true))
     }
 

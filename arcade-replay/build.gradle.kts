@@ -10,6 +10,8 @@ val moduleDependencies: (Project, List<String>) -> Unit by project
 moduleDependencies(project, listOf("utils", "event-registry", "events-server", "resource-pack-host", "commands"))
 
 dependencies {
+    compileOnly(project(":arcade-virtual-entities"))
+
     compileOnly(libs.carpet)
     compileOnly(libs.vmp)
     compileOnly(explosion.fabric(libs.c2me))

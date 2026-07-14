@@ -12,12 +12,19 @@ import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor
 import net.casual.arcade.virtual.entity.attachment.anchor.LevelAttachmentAnchor
 import net.casual.arcade.virtual.entity.extensions.EntityAttachmentExtension.Companion.attachmentExtension
 import net.casual.arcade.virtual.entity.extensions.LevelAttachmentExtension.Companion.attachmentExtension
+import net.casual.arcade.virtual.entity.extensions.PlayerAttachmentObserverExtension.Companion.attachmentObserverExtension
 import net.casual.arcade.virtual.entity.observer.Observer
 import net.casual.arcade.virtual.entity.observer.PacketSender
 import net.casual.arcade.virtual.entity.observer.tracker.ObserverTracker
 import net.casual.arcade.virtual.entity.observer.tracker.ParentObserverTracker
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
+import org.jetbrains.annotations.ApiStatus.Internal
+
+public fun ServerPlayer.getObservingAttachments(): Set<RootVirtualEntityAttachment> {
+    return this.attachmentObserverExtension.attachments()
+}
 
 public fun <T: RootVirtualEntityAttachment> ServerLevel.createVirtualEntityAttachment(factory: (LevelAttachmentAnchor) -> T): T {
     return this.attachmentExtension.add(factory)
@@ -25,6 +32,20 @@ public fun <T: RootVirtualEntityAttachment> ServerLevel.createVirtualEntityAttac
 
 public fun ServerLevel.removeVirtualEntityAttachment(attachment: RootVirtualEntityAttachment): Boolean {
     return this.attachmentExtension.remove(attachment)
+}
+
+public fun ServerLevel.getVirtualEntityAttachments(): Collection<RootVirtualEntityAttachment> {
+    return this.attachmentExtension.getAttachments()
+}
+
+@Internal
+public fun Observer.startObservingVirtualEntitiesIn(level: ServerLevel) {
+    level.attachmentExtension.startObserving(this)
+}
+
+@Internal
+public fun Observer.stopObservingVirtualEntitiesIn(level: ServerLevel) {
+    level.attachmentExtension.stopObserving(this)
 }
 
 public fun ServerLevel.getVirtualEntities(): Collection<VirtualEntity> {
@@ -37,6 +58,20 @@ public fun <T: RootVirtualEntityAttachment> Entity.createVirtualEntityAttachment
 
 public fun Entity.removeVirtualEntityAttachment(attachment: RootVirtualEntityAttachment): Boolean {
     return this.attachmentExtension.remove(attachment)
+}
+
+public fun Entity.getVirtualEntityAttachments(): Collection<RootVirtualEntityAttachment> {
+    return this.attachmentExtension.getAttachments()
+}
+
+@Internal
+public fun Observer.startObservingVirtualEntitiesFor(entity: Entity) {
+    entity.attachmentExtension.startObserving(this)
+}
+
+@Internal
+public fun Observer.stopObservingVirtualEntitiesFor(entity: Entity) {
+    entity.attachmentExtension.stopObserving(this)
 }
 
 public fun Entity.getVirtualEntities(): Collection<VirtualEntity> {

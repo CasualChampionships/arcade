@@ -101,7 +101,6 @@ public interface ChunkSender {
     /**
      * This sends all chunk and entity packets.
      */
-    @NonExtendable
     public fun sendChunksAndEntities(unloaded: (ChunkPos) -> Boolean = { false }) {
         val seen = SeenEntities.mutable()
         this.sendChunkViewDistance()
@@ -165,13 +164,18 @@ public interface ChunkSender {
             ))
         }
 
+        this.onChunkSent(chunk)
+
+        if (seen == SeenEntities.all()) {
+            return
+        }
+
         val leashed = ArrayList<Mob>()
         val ridden = ArrayList<Entity>()
 
         val viewDistance = this.level.server().playerList.viewDistance
         for (tracked in this.level.getTrackedEntities()) {
             val entity = tracked.getEntity()
-            tracked.getServerEntity()
             if (entity.chunkPosition() == chunk.pos) {
                 if (!seen.has(entity.id)) {
                     val range = min(tracked.getRange(), viewDistance * 16).toDouble()
@@ -196,17 +200,20 @@ public interface ChunkSender {
         for (entity in ridden) {
             this.sendChunkPacket(ClientboundSetPassengersPacket(entity))
         }
-
-        this.onChunkSent(chunk)
     }
 
     /**
      * This sends all the entities.
      *
-     * @param seen The [IntSet] of entity ids that have already been seen.
+     * @param seen The [SeenEntities] of entity ids that have already been seen.
      */
     @Internal
     public fun sendChunkEntities(seen: SeenEntities) {
+        // TODO: Why is this done twice??
+        if (seen == SeenEntities.all()) {
+            return
+        }
+
         val viewDistance = this.level.server().playerList.viewDistance
         for (tracked in this.level.getTrackedEntities()) {
             val entity = tracked.getEntity()

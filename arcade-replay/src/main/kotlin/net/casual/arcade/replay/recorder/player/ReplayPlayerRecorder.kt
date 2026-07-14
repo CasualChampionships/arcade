@@ -6,6 +6,7 @@ package net.casual.arcade.replay.recorder.player
 
 import com.mojang.authlib.GameProfile
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.replay.compat.arcade.ArcadeVirtualEntitiesCompatLayer
 import net.casual.arcade.replay.events.player.ReplayPlayerRecorderSnapshotEvent
 import net.casual.arcade.replay.io.ReplayFormat
 import net.casual.arcade.replay.recorder.ChunkSender
@@ -225,6 +226,15 @@ public class ReplayPlayerRecorder internal constructor(
         val list = ArrayList<Packet<ClientGamePacketListener>>()
         tracked.getServerEntity().sendPairingData(this.getPlayerOrThrow(), list::add)
         this.sendChunkPacket(ClientboundBundlePacket(list))
+    }
+
+    /**
+     * This sends all chunk and entity packets.
+     */
+    override fun sendChunksAndEntities(unloaded: (ChunkPos) -> Boolean) {
+        super.sendChunksAndEntities(unloaded)
+
+        ArcadeVirtualEntitiesCompatLayer.resendObservingAttachments(this)
     }
 
     /**

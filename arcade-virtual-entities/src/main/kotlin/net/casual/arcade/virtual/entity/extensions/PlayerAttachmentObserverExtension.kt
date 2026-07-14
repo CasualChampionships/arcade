@@ -13,7 +13,6 @@ import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.virtual.entity.ParentVirtualEntity
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
-import net.casual.arcade.virtual.entity.compat.ArcadeReplayCompatLayer
 import net.casual.arcade.virtual.entity.interaction.EntityInteraction
 import net.casual.arcade.virtual.entity.observer.PlayerObserver
 import net.minecraft.server.level.ServerPlayer
@@ -105,10 +104,6 @@ internal class PlayerAttachmentObserverExtension(player: ServerPlayer): PlayerEx
         fun registerEvents() {
             GlobalEventHandler.Server.register<PlayerExtensionEvent> {
                 it.addExtension(::PlayerAttachmentObserverExtension)
-            }
-
-            if (ArcadeReplayCompatLayer.loaded) {
-                ArcadeReplayCompatLayer.registerReplaySnapshotAttachmentRecording()
             }
         }
     }

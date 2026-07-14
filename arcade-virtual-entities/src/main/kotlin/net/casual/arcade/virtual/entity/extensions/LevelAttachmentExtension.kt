@@ -50,7 +50,14 @@ internal class LevelAttachmentExtension(level: ServerLevel): Extension {
         return false
     }
 
+    fun getAttachments(): Collection<RootVirtualEntityAttachment> {
+        return this.attachments
+    }
+
     fun getAttachedVirtualEntities(): List<VirtualEntity> {
+        if (this.attachments.isEmpty()) {
+            return listOf()
+        }
         return this.attachments.flatMap { it.attached() }
     }
 

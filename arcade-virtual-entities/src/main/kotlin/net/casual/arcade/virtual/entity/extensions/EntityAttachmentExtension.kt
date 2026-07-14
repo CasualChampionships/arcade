@@ -29,7 +29,7 @@ internal class EntityAttachmentExtension(entity: Entity): EntityExtension(entity
     private val observers = ObjectLinkedOpenHashSet<Observer>()
     private val anchor = EntityAttachmentAnchor(this.entity)
 
-    fun tick() {
+    private fun tick() {
         for (attachment in this.attachments) {
             attachment.tick()
         }
@@ -52,6 +52,10 @@ internal class EntityAttachmentExtension(entity: Entity): EntityExtension(entity
             return true
         }
         return false
+    }
+
+    fun getAttachments(): Collection<RootVirtualEntityAttachment> {
+        return this.attachments
     }
 
     fun getAttachedVirtualEntities(): List<VirtualEntity> {

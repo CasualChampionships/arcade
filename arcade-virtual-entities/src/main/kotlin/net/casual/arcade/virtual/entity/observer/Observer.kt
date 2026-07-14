@@ -19,8 +19,12 @@ public interface Observer: PacketSender {
     public override operator fun equals(other: Any?): Boolean
 
     @OverrideOnly
-    public fun startObserving(attachment: RootVirtualEntityAttachment)
+    public fun startObserving(attachment: RootVirtualEntityAttachment) {
+
+    }
 
     @OverrideOnly
-    public fun stopObserving(attachment: RootVirtualEntityAttachment)
+    public fun stopObserving(attachment: RootVirtualEntityAttachment) {
+
+    }
 }
