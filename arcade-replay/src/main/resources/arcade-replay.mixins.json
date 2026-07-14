@@ -27,6 +27,7 @@
     "compat.vmp.NearbyEntityTrackingMixin",
     "flashback.BlockEntityInfoAccessor",
     "flashback.ClientboundLevelChunkPacketDataAccessor",
+    "flashback.ClientboundMoveEntityPacketAccessor",
     "network.IdDispatchCodecAccessor",
     "player.ServerCommonPacketListenerImplMixin",
     "player.ServerConfigurationPacketListenerImplMixin",

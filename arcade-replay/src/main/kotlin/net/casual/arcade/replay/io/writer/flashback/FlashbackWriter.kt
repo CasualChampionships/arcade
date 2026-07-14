@@ -4,9 +4,10 @@
  */
 package net.casual.arcade.replay.io.writer.flashback
 
-import com.google.common.collect.HashMultimap
 import com.google.gson.JsonObject
 import io.netty.handler.codec.EncoderException
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.ints.IntArraySet
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
@@ -16,6 +17,7 @@ import net.casual.arcade.replay.compat.voicechat.VoicechatPayload
 import net.casual.arcade.replay.io.FlashbackIO
 import net.casual.arcade.replay.io.writer.ReplayWriter
 import net.casual.arcade.replay.io.writer.ReplayWriter.Companion.close
+import net.casual.arcade.replay.mixins.flashback.ClientboundMoveEntityPacketAccessor
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.util.FileUtils
 import net.casual.arcade.replay.util.ReplayMarker
@@ -40,6 +42,7 @@ import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.Level
+import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -55,7 +58,8 @@ public class FlashbackWriter(
 
     private val writer = FlashbackChunkedWriter(this.path, this.recorder.server.registryAccess(), this.recorder.settings)
 
-    private val movement = HashMultimap.create<ResourceKey<Level>, EntityMovement>()
+    private val positions = Object2ObjectOpenHashMap<ResourceKey<Level>, Int2ObjectOpenHashMap<ExactEntityPosition>>()
+    private val dirty = Object2ObjectOpenHashMap<ResourceKey<Level>, IntArraySet>()
     private val chunks = Object2IntOpenHashMap<ChunkPacketIdentity>()
     private val recent = Object2ObjectOpenHashMap<ResourceKey<Level>, Long2IntOpenHashMap>()
 
@@ -137,7 +141,10 @@ public class FlashbackWriter(
 
         val replacement = when (packet) {
             is ClientboundLevelChunkWithLightPacket -> return this.writeCachedChunk(packet, protocol)
-            is ClientboundMoveEntityPacket -> return this.writeMovement(packet)
+            is ClientboundAddEntityPacket -> this.initializePosition(packet)
+            is ClientboundRemoveEntitiesPacket -> this.removePositions(packet)
+            is ClientboundEntityPositionSyncPacket -> return this.updatePosition(packet)
+            is ClientboundMoveEntityPacket -> return this.updatePosition(packet)
             is ClientboundResourcePackPushPacket -> this.downloadAndWriteResourcePack(packet)
             is ClientboundCustomPayloadPacket -> when (val payload = packet.payload) {
                 is VoicechatPayload -> return this.writeVoicechat(payload)
@@ -312,35 +319,85 @@ public class FlashbackWriter(
 
     private fun writeEntityMovement() {
         this.executor.execute {
-            if (this.movement.keySet().isNotEmpty()) {
+            val dirty = this.dirty.entries.filter { (_, ids) -> ids.isNotEmpty() }
+            if (dirty.isNotEmpty()) {
                 this.writer.writeAction(FlashbackAction.MoveEntities) { buf ->
-                    buf.writeVarInt(this.movement.keySet().size)
-                    for ((dimension, deltas) in this.movement.asMap()) {
+                    buf.writeVarInt(dirty.size)
+                    for ((dimension, ids) in dirty) {
+                        val positions = this.positions[dimension] ?: continue
                         buf.writeResourceKey(dimension)
-                        buf.writeVarInt(deltas.size)
-                        for (movement in deltas) {
-                            movement.write(buf)
+                        buf.writeVarInt(ids.size)
+                        val iter = ids.iterator()
+                        while (iter.hasNext()) {
+                            val id = iter.nextInt()
+                            buf.writeVarInt(id)
+                            positions[id]!!.write(buf)
                         }
                     }
-                    this.movement.clear()
+                    this.dirty.clear()
                 }
             }
         }
     }
 
-    private fun writeMovement(packet: ClientboundMoveEntityPacket): CompletableFuture<Int?> {
-        val level = this.recorder.level
-        val entity = packet.getEntity(level) ?: return CompletableFuture.completedFuture(null)
-        val id = entity.id
-        val position = entity.position()
-        val rotation = entity.rotationVector
-        val headRot = entity.yHeadRot
-        val onGround = entity.onGround()
+    private fun initializePosition(packet: ClientboundAddEntityPacket): ClientboundAddEntityPacket {
         this.executor.execute {
-            val movement = EntityMovement(id, position, rotation, headRot, onGround)
-            this.movement.put(level.getSpoofedOrRealDimension(), movement)
+            val position = ExactEntityPosition(
+                Vec3(packet.x, packet.y, packet.z),
+                Vec2(packet.xRot, packet.yRot),
+                packet.yHeadRot,
+                false
+            )
+            this.getPositions().put(packet.id, position)
         }
-        return CompletableFuture.completedFuture(EntityMovement.size())
+        return packet
+    }
+
+    private fun removePositions(packet: ClientboundRemoveEntitiesPacket): ClientboundRemoveEntitiesPacket {
+        this.executor.execute {
+            val ids = packet.entityIds
+            this.dirty[this.currentClientDimension()]?.removeAll(ids)
+            this.getPositions().keys.removeAll(ids)
+        }
+        return packet
+    }
+
+    private fun updatePosition(packet: ClientboundEntityPositionSyncPacket): CompletableFuture<Int?> {
+        this.executor.execute {
+            val id = packet.id
+            val position = ExactEntityPosition(
+                packet.values.position(),
+                Vec2(packet.values.xRot, packet.values.yRot),
+                packet.values.yRot,
+                false
+            )
+            this.getPositions().put(id, position)
+            this.getDirtyPositions().add(id)
+        }
+        return CompletableFuture.completedFuture(ExactEntityPosition.size())
+    }
+
+    private fun updatePosition(packet: ClientboundMoveEntityPacket): CompletableFuture<Int?> {
+        this.executor.execute {
+            val id = (packet as ClientboundMoveEntityPacketAccessor).arcade_getEntityId()
+            val positions = this.getPositions()
+            val position = positions.get(id) ?: return@execute
+            positions.put(id, position.update(packet))
+            this.getDirtyPositions().add(id)
+        }
+        return CompletableFuture.completedFuture(ExactEntityPosition.size())
+    }
+
+    private fun getPositions(): Int2ObjectOpenHashMap<ExactEntityPosition> {
+        return this.positions.getOrPut(this.currentClientDimension(), ::Int2ObjectOpenHashMap)
+    }
+
+    private fun getDirtyPositions(): IntArraySet {
+        return this.dirty.getOrPut(this.currentClientDimension(), ::IntArraySet)
+    }
+
+    private fun currentClientDimension(): ResourceKey<Level> {
+        return this.recorder.level.getSpoofedOrRealDimension()
     }
 
     private fun writeVoicechat(payload: VoicechatPayload): CompletableFuture<Int?> {
