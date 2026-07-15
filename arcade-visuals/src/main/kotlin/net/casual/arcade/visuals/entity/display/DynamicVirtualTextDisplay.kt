@@ -4,10 +4,10 @@
  */
 package net.casual.arcade.visuals.entity.display
 
+import net.casual.arcade.networking.observer.tracker.ObserverTracker
+import net.casual.arcade.networking.utils.asPlayerOrNull
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.display.SimpleVirtualTextDisplay
-import net.casual.arcade.virtual.entity.observer.tracker.ObserverTracker
-import net.casual.arcade.virtual.entity.utils.asPlayerOrNull
 import net.casual.arcade.visuals.elements.PlayerSpecificElement
 import net.minecraft.network.chat.Component
 

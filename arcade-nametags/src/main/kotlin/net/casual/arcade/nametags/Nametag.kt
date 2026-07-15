@@ -5,10 +5,10 @@
 package net.casual.arcade.nametags
 
 import net.casual.arcade.nametags.virtual.NametagHeight
+import net.casual.arcade.networking.observer.Observer
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.color.ColorARGB
 import net.casual.arcade.utils.time.MinecraftTimeDuration
-import net.casual.arcade.virtual.entity.observer.Observer
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.Entity
 

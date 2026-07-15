@@ -54,13 +54,16 @@ public data class Location(
 
         public val CODEC: Codec<Location> = MAP_CODEC.codec()
 
+        @Deprecated("Use function in LocationUtils instead")
         public val Entity.location: Location
             get() = Location(this.position(), this.rotationVector)
 
+        @Deprecated("Use function in LocationUtils instead")
         public fun Vec3.withRotation(rotation: Vec2): Location {
             return Location(this, rotation)
         }
 
+        @Deprecated("Use function in LocationUtils instead")
         public fun Vec2.withPosition(position: Vec3): Location {
             return Location(position, this)
         }

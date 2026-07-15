@@ -69,12 +69,15 @@ public data class LocationWithLevel<L: Level>(
     }
 
     public companion object {
+        @Deprecated("Use function in LocationUtils instead")
         public val Entity.locationWithLevel: LocationWithLevel<Level>
             get() = LocationWithLevel(this.location, this.level())
 
+        @Deprecated("Use function in LocationUtils instead")
         public val ServerPlayer.locationWithLevel: LocationWithLevel<ServerLevel>
             get() = LocationWithLevel(this.location, this.level())
 
+        @Deprecated("Use function in LocationUtils instead")
         public fun <L: Level> L.asLocation(
             position: Vec3 = Vec3.ZERO,
             rotation: Vec2 = Vec2.ZERO
@@ -83,6 +86,7 @@ public data class LocationWithLevel<L: Level>(
         }
 
         @JvmStatic
+        @Deprecated("Use function in LocationUtils instead")
         public fun LocationWithLevel<ServerLevel>.asTeleportTransition(
             velocity: Vec3 = Vec3.ZERO,
             missingRespawnBlock: Boolean = false,

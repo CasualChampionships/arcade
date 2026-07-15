@@ -16,14 +16,14 @@ import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.virtual.NametagVirtualEntity
 import net.casual.arcade.nametags.virtual.NametagVirtualEntityAttachment
+import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.networking.utils.asObserver
 import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.utils.entity.EntityTransferReason
 import net.casual.arcade.utils.impl.DelayedActions
 import net.casual.arcade.utils.modify
 import net.casual.arcade.virtual.entity.VirtualEntity
-import net.casual.arcade.virtual.entity.observer.Observer
-import net.casual.arcade.virtual.entity.utils.asObserver
 import net.casual.arcade.virtual.entity.utils.createVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.utils.removeVirtualEntityAttachment
 import net.minecraft.network.protocol.Packet

@@ -4,15 +4,16 @@
  */
 package net.casual.arcade.virtual.entity
 
+import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.networking.observer.tracker.ObserverTracker
+import net.casual.arcade.networking.observer.tracker.ParentObserverTracker
+import net.casual.arcade.networking.packet.PacketSender
+import net.casual.arcade.utils.math.location.closerThan
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.interaction.EntityInteraction
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
 import net.casual.arcade.virtual.entity.mixins.ServerLevelAccessor
-import net.casual.arcade.virtual.entity.observer.Observer
-import net.casual.arcade.virtual.entity.observer.PacketSender
-import net.casual.arcade.virtual.entity.observer.tracker.ObserverTracker
-import net.casual.arcade.virtual.entity.observer.tracker.ParentObserverTracker
 import net.casual.arcade.virtual.entity.utils.location
 import net.casual.arcade.virtual.entity.utils.startObservingAndSendPackets
 import net.casual.arcade.virtual.entity.utils.stopObservingAndSendPackets
@@ -114,7 +115,7 @@ public interface VirtualEntity {
             return this.observers.isObserving(observer)
         }
 
-        return this.location().position.closerThan(observer.position(), this.getObservableRange())
+        return observer.location.closerThan(this.location(), this.getObservableRange())
     }
 
     /**

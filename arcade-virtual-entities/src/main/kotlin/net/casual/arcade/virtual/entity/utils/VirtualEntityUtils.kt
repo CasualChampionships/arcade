@@ -4,6 +4,10 @@
  */
 package net.casual.arcade.virtual.entity.utils
 
+import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.networking.observer.tracker.ObserverTracker
+import net.casual.arcade.networking.observer.tracker.ParentObserverTracker
+import net.casual.arcade.networking.packet.PacketSender
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
@@ -13,10 +17,6 @@ import net.casual.arcade.virtual.entity.attachment.anchor.LevelAttachmentAnchor
 import net.casual.arcade.virtual.entity.extensions.EntityAttachmentExtension.Companion.attachmentExtension
 import net.casual.arcade.virtual.entity.extensions.LevelAttachmentExtension.Companion.attachmentExtension
 import net.casual.arcade.virtual.entity.extensions.PlayerAttachmentObserverExtension.Companion.attachmentObserverExtension
-import net.casual.arcade.virtual.entity.observer.Observer
-import net.casual.arcade.virtual.entity.observer.PacketSender
-import net.casual.arcade.virtual.entity.observer.tracker.ObserverTracker
-import net.casual.arcade.virtual.entity.observer.tracker.ParentObserverTracker
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
@@ -124,7 +124,7 @@ public fun VirtualEntity.stopObservingAndSendPackets(
     }
 }
 
-public fun VirtualEntityAttachment.createParentObserverTracker(): ParentObserverTracker {
+public fun VirtualEntityAttachment.asParentObserverTracker(): ParentObserverTracker {
     return this.observers as? ParentObserverTracker ?: ParentObserverTracker(this.observers)
 }
 
@@ -137,7 +137,7 @@ public inline fun <A: VirtualEntityAttachment, T: VirtualEntity> A.attach(factor
 public inline fun <A: VirtualEntityAttachment, T: VirtualEntity> A.attachWithParentObservers(
     factory: (A, ObserverTracker) -> T
 ): T {
-    val entity = factory.invoke(this, this.createParentObserverTracker())
+    val entity = factory.invoke(this, this.asParentObserverTracker())
     this.attach(entity)
     return entity
 }

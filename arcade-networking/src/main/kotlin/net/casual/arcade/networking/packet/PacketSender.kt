@@ -2,7 +2,7 @@
  * Copyright (c) 2026 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.virtual.entity.observer
+package net.casual.arcade.networking.packet
 
 import net.minecraft.network.protocol.Packet
 

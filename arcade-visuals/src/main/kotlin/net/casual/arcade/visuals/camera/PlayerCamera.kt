@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.visuals.camera
 
+import net.casual.arcade.networking.utils.asObserver
 import net.casual.arcade.utils.ClientboundPlayerInfoUpdatePacket
 import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.entity.teleportTo
@@ -14,7 +15,6 @@ import net.casual.arcade.utils.player.getGameMode
 import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.display.SimpleVirtualItemDisplay
-import net.casual.arcade.virtual.entity.utils.asObserver
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
 import net.casual.arcade.virtual.entity.utils.sendBundledSpawnPackets
 import net.casual.arcade.visuals.core.TickableVisualElement

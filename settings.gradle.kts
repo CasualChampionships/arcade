@@ -15,6 +15,7 @@ include(
     ":arcade-items",
     ":arcade-minigames",
     ":arcade-nametags",
+    ":arcade-networking",
     ":arcade-npcs",
     ":arcade-replay",
     ":arcade-resource-pack",

@@ -5,14 +5,14 @@
 package net.casual.arcade.nametags.virtual
 
 import net.casual.arcade.nametags.Nametag
+import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.networking.observer.tracker.SimpleObserverTracker
+import net.casual.arcade.networking.utils.asPlayerOrNull
 import net.casual.arcade.virtual.entity.SimpleParentVirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.display.SimpleVirtualTextDisplay
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
-import net.casual.arcade.virtual.entity.observer.Observer
-import net.casual.arcade.virtual.entity.observer.tracker.SimpleObserverTracker
-import net.casual.arcade.virtual.entity.utils.asPlayerOrNull
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
 import net.minecraft.world.entity.Display
 import net.minecraft.world.entity.Entity

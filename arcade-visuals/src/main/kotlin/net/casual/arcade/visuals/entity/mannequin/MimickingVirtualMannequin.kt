@@ -4,14 +4,14 @@
  */
 package net.casual.arcade.visuals.entity.mannequin
 
+import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.networking.observer.tracker.ObserverTracker
+import net.casual.arcade.networking.observer.tracker.SimpleObserverTracker
+import net.casual.arcade.networking.packet.PacketSender
+import net.casual.arcade.networking.utils.asPlayerOrNull
 import net.casual.arcade.utils.player.StaticResolvableProfile
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.mannequin.SimpleVirtualMannequin
-import net.casual.arcade.virtual.entity.observer.Observer
-import net.casual.arcade.virtual.entity.observer.PacketSender
-import net.casual.arcade.virtual.entity.observer.tracker.ObserverTracker
-import net.casual.arcade.virtual.entity.observer.tracker.SimpleObserverTracker
-import net.casual.arcade.virtual.entity.utils.asPlayerOrNull
 
 public class MimickingVirtualMannequin(
     attachment: VirtualEntityAttachment,

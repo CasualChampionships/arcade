@@ -4,14 +4,14 @@
  */
 package net.casual.arcade.virtual.entity.collision
 
+import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.networking.observer.tracker.ObserverTracker
+import net.casual.arcade.networking.packet.PacketSender
 import net.casual.arcade.utils.ClientboundSetPassengersPacket
 import net.casual.arcade.virtual.entity.SimpleParentVirtualEntity
 import net.casual.arcade.virtual.entity.SimpleVirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.display.SimpleVirtualTextDisplay
-import net.casual.arcade.virtual.entity.observer.Observer
-import net.casual.arcade.virtual.entity.observer.PacketSender
-import net.casual.arcade.virtual.entity.observer.tracker.ObserverTracker
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket
 import net.minecraft.world.entity.EntityTypes

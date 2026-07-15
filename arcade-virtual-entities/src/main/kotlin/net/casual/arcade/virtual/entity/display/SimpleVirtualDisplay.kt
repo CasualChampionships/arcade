@@ -5,10 +5,10 @@
 package net.casual.arcade.virtual.entity.display
 
 import com.mojang.math.Transformation
+import net.casual.arcade.networking.observer.tracker.ObserverTracker
+import net.casual.arcade.networking.utils.asPlayerOrNull
 import net.casual.arcade.virtual.entity.SimpleVirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
-import net.casual.arcade.virtual.entity.observer.tracker.ObserverTracker
-import net.casual.arcade.virtual.entity.utils.asPlayerOrNull
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Brightness
 import net.minecraft.world.entity.Display

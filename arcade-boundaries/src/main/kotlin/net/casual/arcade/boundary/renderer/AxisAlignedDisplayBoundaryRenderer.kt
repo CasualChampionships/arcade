@@ -9,6 +9,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.boundary.extension.PlayerEntityTickingChunkTrackerExtension.Companion.entityTickingChunkTrackerExtension
 import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
+import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.networking.observer.tracker.ObserverTracker
+import net.casual.arcade.networking.utils.asObserver
 import net.casual.arcade.utils.EnumUtils
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.asClientGamePacket
@@ -19,9 +22,6 @@ import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.display.SimpleVirtualItemDisplay
-import net.casual.arcade.virtual.entity.observer.Observer
-import net.casual.arcade.virtual.entity.observer.tracker.ObserverTracker
-import net.casual.arcade.virtual.entity.utils.asObserver
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
 import net.minecraft.core.Direction
 import net.minecraft.core.SectionPos
@@ -33,7 +33,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.dimension.DimensionType
 import net.minecraft.world.phys.Vec2
-import java.util.*
+import java.util.EnumMap
 import java.util.function.Consumer
 
 /**

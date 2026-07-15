@@ -1,13 +1,18 @@
 package net.casual.arcade.replay.compat.arcade
 
+import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.networking.utils.asObserver
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder
+import net.casual.arcade.utils.math.location.LocationWithLevel
+import net.casual.arcade.utils.math.location.with
 import net.casual.arcade.utils.server.player
-import net.casual.arcade.virtual.entity.observer.Observer
 import net.casual.arcade.virtual.entity.utils.*
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.network.protocol.Packet
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 
 internal object ArcadeVirtualEntitiesCompatLayer {
@@ -73,9 +78,8 @@ internal object ArcadeVirtualEntitiesCompatLayer {
     private class ChunkRecorderObserver(
         private val recorder: ReplayChunkRecorder
     ): Observer {
-        override fun position(): Vec3 {
-            return this.recorder.position
-        }
+        override val location: LocationWithLevel<ServerLevel>
+            get() = this.recorder.position.with(Vec2.ZERO).with(this.recorder.level)
 
         override fun send(packet: Packet<*>) {
             this.recorder.record(packet)

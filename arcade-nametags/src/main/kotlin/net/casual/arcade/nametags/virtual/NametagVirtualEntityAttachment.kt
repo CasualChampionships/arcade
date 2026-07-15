@@ -10,12 +10,12 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceLinkedOpenHashMap
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.nametagExtension
+import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.networking.observer.tracker.ObserverTracker
+import net.casual.arcade.networking.packet.PacketSender
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor
-import net.casual.arcade.virtual.entity.observer.Observer
-import net.casual.arcade.virtual.entity.observer.PacketSender
-import net.casual.arcade.virtual.entity.observer.tracker.ObserverTracker
 import net.casual.arcade.virtual.entity.utils.*
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
 import net.minecraft.world.entity.Entity
@@ -31,7 +31,7 @@ public class NametagVirtualEntityAttachment(
     override val observers: ObserverTracker get() = this
 
     private val root = NametagHeightVirtualEntity(
-        this, this.createParentObserverTracker(), NametagHeight.INITIAL, RetargetingInteractionHandler(this.entity)
+        this, this.asParentObserverTracker(), NametagHeight.INITIAL, RetargetingInteractionHandler(this.entity)
     )
 
     private val entity: Entity

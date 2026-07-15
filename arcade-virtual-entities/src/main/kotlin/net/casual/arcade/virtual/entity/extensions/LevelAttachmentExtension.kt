@@ -13,11 +13,11 @@ import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
+import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.networking.utils.asObserver
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.LevelAttachmentAnchor
-import net.casual.arcade.virtual.entity.observer.Observer
-import net.casual.arcade.virtual.entity.utils.asObserver
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 

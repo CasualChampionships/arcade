@@ -4,6 +4,11 @@
  */
 package net.casual.arcade.virtual.entity
 
+import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.networking.observer.tracker.ObserverTracker
+import net.casual.arcade.networking.observer.tracker.SimpleObserverTracker
+import net.casual.arcade.networking.packet.PacketSender
+import net.casual.arcade.networking.utils.asPlayerOrNull
 import net.casual.arcade.utils.MathUtils.component1
 import net.casual.arcade.utils.MathUtils.component2
 import net.casual.arcade.utils.MathUtils.component3
@@ -11,10 +16,6 @@ import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.data.PlayerSpecificEntityData
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
-import net.casual.arcade.virtual.entity.observer.Observer
-import net.casual.arcade.virtual.entity.observer.PacketSender
-import net.casual.arcade.virtual.entity.observer.tracker.ObserverTracker
-import net.casual.arcade.virtual.entity.observer.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.utils.*
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
@@ -26,7 +27,8 @@ import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.Pose
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
-import java.util.*
+import java.util.Optional
+import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
 
 /**
@@ -319,13 +321,11 @@ public open class SimpleVirtualEntity(
     }
 
     public fun setCustomName(name: Component?) {
-        val optional = Optional.ofNullable(name)
-        this.setDataEntry(EntityDataAccessors.CUSTOM_NAME, optional)
+        this.setDataEntry(EntityDataAccessors.CUSTOM_NAME, Optional.ofNullable(name))
     }
 
     public fun setCustomNameFor(observer: ServerPlayer, name: Component?) {
-        val optional = Optional.ofNullable(name)
-        this.setDataEntryFor(observer, EntityDataAccessors.CUSTOM_NAME, optional)
+        this.setDataEntryFor(observer, EntityDataAccessors.CUSTOM_NAME, Optional.ofNullable(name))
     }
 
     public fun setCustomNameToBaseFor(observer: ServerPlayer) {
