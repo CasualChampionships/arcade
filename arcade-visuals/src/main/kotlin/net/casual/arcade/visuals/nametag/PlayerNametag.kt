@@ -56,17 +56,17 @@ public class PlayerNametag(
     public companion object {
         public fun simple(
             component: PlayerSpecificElement<Component>,
-            predicate: PlayerObserverPredicate = PlayerObserverPredicate { _, _ -> true }
+            predicate: (ServerPlayer, Observer) -> Boolean = { _, _ -> true }
         ): PlayerNametag {
             val nametag = object: Nametag {
                 override fun getComponent(observee: Entity): Component {
-                    require(observee is ServerPlayer) { "Player nametag cannot be applied to entities" }
+                    require(observee is ServerPlayer) { "Player nametag cannot be applied to non-player entity" }
                     return component.get(observee)
                 }
 
                 override fun isObservable(observee: Entity, observer: Observer): Boolean {
-                    val player = observer.asPlayerOrNull() ?: return false
-                    return predicate.observable(observee, player)
+                    require(observee is ServerPlayer) { "Player nametag cannot be applied to non-player entity" }
+                    return predicate.invoke(observee, observer)
                 }
             }
             return PlayerNametag(nametag)
