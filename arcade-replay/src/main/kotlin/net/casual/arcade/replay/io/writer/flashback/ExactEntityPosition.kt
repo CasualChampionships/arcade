@@ -24,6 +24,7 @@ public data class ExactEntityPosition(
         }
         if (packet.hasRotation()) {
             rotation = Vec2(packet.xRot, packet.yRot)
+            headRot = packet.yRot
         }
         return ExactEntityPosition(position, rotation, headRot, packet.isOnGround)
     }
