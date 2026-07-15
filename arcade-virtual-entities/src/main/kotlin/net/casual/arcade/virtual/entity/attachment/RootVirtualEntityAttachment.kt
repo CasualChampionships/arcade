@@ -11,7 +11,6 @@ import net.casual.arcade.virtual.entity.extensions.PlayerAttachmentObserverExten
 import net.casual.arcade.virtual.entity.utils.VirtualEntityPacketCollector
 import net.casual.arcade.virtual.entity.utils.sendBundledSpawnPackets
 import net.casual.arcade.virtual.entity.utils.stopObservingAndSendPackets
-import net.minecraft.network.protocol.Packet
 import org.jetbrains.annotations.ApiStatus.*
 
 /**
@@ -80,14 +79,14 @@ public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
     }
 
     @NonExtendable
-    public fun sendObservingAttachedSpawnPackets(observer: Observer, consumer: (Packet<*>) -> Unit) {
+    public fun sendObservingAttachedSpawnPackets(observer: Observer, sender: PacketSender) {
         if (this.shouldDelayObserving()) {
             return
         }
 
         for (entity in this.attached()) {
             if (entity.observers.isObserving(observer)) {
-                entity.sendBundledSpawnPackets(observer, consumer)
+                entity.sendBundledSpawnPackets(observer, sender)
             }
         }
     }

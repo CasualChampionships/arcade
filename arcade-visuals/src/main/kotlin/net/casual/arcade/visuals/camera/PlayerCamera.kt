@@ -9,8 +9,8 @@ import net.casual.arcade.utils.ClientboundPlayerInfoUpdatePacket
 import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.entity.teleportTo
 import net.casual.arcade.utils.math.location.Location
-import net.casual.arcade.utils.math.location.Location.Companion.withRotation
 import net.casual.arcade.utils.math.location.LocationWithLevel
+import net.casual.arcade.utils.math.location.with
 import net.casual.arcade.utils.player.getGameMode
 import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
@@ -55,11 +55,11 @@ public class PlayerCamera(
     }
 
     public fun setPosition(position: Vec3) {
-        this.location = position.withRotation(this.location.rotation)
+        this.location = position.with(this.location.rotation)
     }
 
     public fun setRotation(rotation: Vec2) {
-        this.location = this.location.position.withRotation(rotation)
+        this.location = this.location.position.with(rotation)
     }
 
     public fun setLocation(location: Location) {

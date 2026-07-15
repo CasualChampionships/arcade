@@ -7,17 +7,16 @@ package net.casual.arcade.boundary.renderer
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.boundary.renderer.options.ParticleRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
+import net.casual.arcade.networking.observer.Observer
 import net.casual.arcade.utils.ClientboundLevelParticlesPacket
 import net.casual.arcade.utils.arcade
+import net.casual.arcade.utils.math.location.closerThan
 import net.casual.arcade.utils.serialization.codec.CodecProvider
-import net.minecraft.network.protocol.Packet
-import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.server.level.ServerPlayer
-import java.util.function.Consumer
 
 /**
  * Implementation of [BoundaryRenderer] that renders the boundary
@@ -30,13 +29,16 @@ import java.util.function.Consumer
  * @see AsyncParticleBoundaryRenderer
  */
 public open class ParticleBoundaryRenderer(
+    protected val level: ServerLevel,
     protected val shape: BoundaryShape,
     protected val particles: ParticleRenderOptions = ParticleRenderOptions.DEFAULT,
     protected val range: Double = 40.0,
     protected val particlesPerBlock: Double = 0.25
 ): BoundaryRenderer {
-    override fun render(level: ServerLevel, players: Collection<ServerPlayer>) {
-        if (players.isEmpty()) {
+    protected val observers: MutableSet<Observer> = this.createObserverSet()
+
+    override fun render() {
+        if (this.observers.isEmpty()) {
             return
         }
         val particle = this.particles.get(this.shape)
@@ -44,28 +46,28 @@ public open class ParticleBoundaryRenderer(
             val packet = ClientboundLevelParticlesPacket(
                 particle, point, alwaysRender = true, overrideLimiter = true
             )
-            for (player in players) {
-                if (player.position().closerThan(point, this.range)) {
-                    player.connection.send(packet)
+            for (observer in this.observers) {
+                if (observer.location.closerThan(point, this.range)) {
+                    observer.send(packet)
                 }
             }
         }
     }
 
-    override fun startRendering(player: ServerPlayer) {
-
-    }
-
-    override fun stopRendering(player: ServerPlayer) {
-
-    }
-
-    override fun restartRendering(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
-
-    }
-
     override fun factory(): BoundaryRenderer.Factory {
         return Factory(this.particles, this.range, this.particlesPerBlock)
+    }
+
+    override fun addObserver(observer: Observer) {
+        this.observers.add(observer)
+    }
+
+    override fun removeObserver(observer: Observer) {
+        this.observers.remove(observer)
+    }
+
+    protected open fun createObserverSet(): MutableSet<Observer> {
+        return ObjectOpenHashSet()
     }
 
     public class Factory(
@@ -73,8 +75,8 @@ public open class ParticleBoundaryRenderer(
         private val range: Double,
         private val pointsPerBlock: Double
     ): BoundaryRenderer.Factory {
-        override fun create(shape: BoundaryShape): BoundaryRenderer {
-            return ParticleBoundaryRenderer(shape, this.particles, this.range, this.pointsPerBlock)
+        override fun create(level: ServerLevel, shape: BoundaryShape): BoundaryRenderer {
+            return ParticleBoundaryRenderer(level, shape, this.particles, this.range, this.pointsPerBlock)
         }
 
         override fun codec(): MapCodec<out BoundaryRenderer.Factory> {

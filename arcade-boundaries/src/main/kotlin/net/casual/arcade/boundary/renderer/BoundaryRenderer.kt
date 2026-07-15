@@ -8,51 +8,23 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.boundary.utils.BoundaryRegistries
+import net.casual.arcade.networking.observer.Observer
 import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.minecraft.core.Registry
-import net.minecraft.network.protocol.Packet
-import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.server.level.ServerPlayer
-import java.util.function.Consumer
+import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.util.function.Function
 
 /**
- * This provides an interface for rendering [BoundaryShape]s to players.
+ * This provides an interface for rendering [BoundaryShape]s for a [ServerLevel].
  *
  * @see BoundaryShape
  */
 public interface BoundaryRenderer {
     /**
      * Updates the renderer, this is called every tick.
-     *
-     * @param level The level of the boundary.
-     * @param players The players to render to.
      */
-    public fun render(level: ServerLevel, players: Collection<ServerPlayer>)
-
-    /**
-     * Called when a player starts observing the boundary.
-     *
-     * @param player The player to initialize rendering for.
-     */
-    public fun startRendering(player: ServerPlayer)
-
-    /**
-     * Called when a player stops observing the boundary.
-     */
-    public fun stopRendering(player: ServerPlayer)
-
-    /**
-     * Called to re-send any initializing rendering state.
-     *
-     * This should essentially send any packets sent during [startRendering]
-     * but should not modify any state of the renderer for the given [player].
-     *
-     * @param player The player to restart rendering for.
-     * @param sender The packet sender.
-     */
-    public fun restartRendering(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>)
+    public fun render()
 
     /**
      * Creates a [Factory] for this renderer implementation.
@@ -60,6 +32,32 @@ public interface BoundaryRenderer {
      * @return The renderer factory.
      */
     public fun factory(): Factory
+
+    /**
+     * Adds an [Observer] to observe the renderer.
+     *
+     * @param observer The [Observer].
+     */
+    @OverrideOnly
+    public fun addObserver(observer: Observer)
+
+    /**
+     * Removes a [Observer] from observing the renderer.
+     *
+     * @param observer The [Observer].
+     * @see addObserver
+     */
+    @OverrideOnly
+    public fun removeObserver(observer: Observer)
+
+    /**
+     * Called when the boundary is removed.
+     * This should stop rendering for all observers.
+     */
+    @OverrideOnly
+    public fun stop() {
+
+    }
 
     /**
      * A factory interface which creates [BoundaryRenderer]s.
@@ -73,7 +71,10 @@ public interface BoundaryRenderer {
          * @param shape The shape to render.
          * @return The renderer.
          */
-        public fun create(shape: BoundaryShape): BoundaryRenderer
+        public fun create(
+            level: ServerLevel,
+            shape: BoundaryShape
+        ): BoundaryRenderer
 
         /**
          * The codec for this factory.

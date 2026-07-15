@@ -31,6 +31,7 @@ import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.utils.entity.WrappedTrackedEntity
 import net.casual.arcade.utils.level.server
 import net.casual.arcade.utils.registries.toIdString
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext
 import net.fabricmc.fabric.impl.networking.context.PacketContextImpl
 import net.minecraft.core.UUIDUtil
 import net.minecraft.network.Connection
@@ -452,10 +453,12 @@ public class ReplayChunkRecorder internal constructor(
         }
 
         if (chunk != null && this.writer.cacheChunksOnUnload) {
-            val packet = ClientboundLevelChunkWithLightPacket(
-                chunk, this.level.lightEngine, null, null
-            )
-            this.record(packet)
+            PacketContext.runWithContext(this.getPacketContextProvider()) {
+                val packet = ClientboundLevelChunkWithLightPacket(
+                    chunk, this.level.lightEngine, null, null
+                )
+                this.record(packet)
+            }
         }
 
         this.loadedChunks.remove(pos.pack())

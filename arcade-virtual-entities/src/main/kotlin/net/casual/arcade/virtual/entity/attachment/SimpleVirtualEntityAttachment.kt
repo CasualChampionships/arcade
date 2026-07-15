@@ -20,10 +20,10 @@ import net.casual.arcade.virtual.entity.utils.sendBundledSpawnPackets
  * Simple implementation of [VirtualEntityAttachment].
  */
 public open class SimpleVirtualEntityAttachment(
-    override val anchor: AttachmentAnchor
+    override val anchor: AttachmentAnchor,
+    override val observers: ObserverTracker = SimpleObserverTracker()
 ): RootVirtualEntityAttachment {
     private val attached = ObjectLinkedOpenHashSet<VirtualEntity>()
-    override val observers: ObserverTracker = SimpleObserverTracker()
 
     override var interactable: Boolean = super.interactable
 

@@ -50,11 +50,19 @@ public fun LocationWithLevel<ServerLevel>.asTeleportTransition(
     )
 }
 
+public fun Location.closerThan(other: Vec3, distance: Double): Boolean {
+    return this.position.closerThan(other, distance)
+}
+
 public fun Location.closerThan(other: Location, distance: Double): Boolean {
     return this.position.closerThan(other.position, distance)
 }
 
 public fun LocationWithLevel<*>.closerThan(other: Location, distance: Double): Boolean {
+    return this.location.closerThan(other, distance)
+}
+
+public fun LocationWithLevel<*>.closerThan(other: Vec3, distance: Double): Boolean {
     return this.location.closerThan(other, distance)
 }
 

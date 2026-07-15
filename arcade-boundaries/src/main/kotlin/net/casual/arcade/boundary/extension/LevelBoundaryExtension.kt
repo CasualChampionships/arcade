@@ -5,6 +5,7 @@
 package net.casual.arcade.boundary.extension
 
 import net.casual.arcade.boundary.LevelBoundary
+import net.casual.arcade.boundary.utils.levelBoundary
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.entity.EntityStartTrackingEvent
 import net.casual.arcade.events.server.entity.EntityStopTrackingEvent
@@ -13,6 +14,7 @@ import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
+import net.casual.arcade.networking.utils.asObserver
 import net.casual.arcade.utils.arcade
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
@@ -21,30 +23,34 @@ import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 import kotlin.jvm.optionals.getOrNull
 
-public class LevelBoundaryExtension(
+internal class LevelBoundaryExtension(
     private val level: ServerLevel
 ): SerializableExtension {
     private var boundary: LevelBoundary? = null
 
-    private fun setBoundary(boundary: LevelBoundary) {
+    fun setBoundary(boundary: LevelBoundary) {
         this.removeBoundary()
         this.boundary = boundary
         for (player in this.level.players()) {
-            boundary.addPlayer(player)
+            boundary.addObserver(player.asObserver())
         }
     }
 
-    private fun removeBoundary() {
-        this.boundary?.clearPlayers()
+    fun removeBoundary() {
+        this.boundary?.remove()
         this.boundary = null
     }
 
+    fun getBoundary(): LevelBoundary? {
+        return this.boundary
+    }
+
     private fun startTrackingPlayer(player: ServerPlayer) {
-        this.boundary?.addPlayer(player)
+        this.boundary?.addObserver(player.asObserver())
     }
 
     private fun stopTrackingPlayer(player: ServerPlayer) {
-        this.boundary?.removePlayer(player)
+        this.boundary?.removeObserver(player.asObserver())
     }
 
     override fun id(): Identifier {
@@ -62,28 +68,20 @@ public class LevelBoundaryExtension(
             this.boundary = null
             return
         }
-        this.boundary = LevelBoundary(settings)
+        this.boundary = LevelBoundary(this.level, settings)
     }
 
-    public companion object {
-        /**
-         * Gets and sets a [LevelBoundary] for a given [ServerLevel].
-         * This may be `null` if no boundary has been set.
-         */
-        public var ServerLevel.levelBoundary: LevelBoundary?
-            get() = this.getExtension<LevelBoundaryExtension>().boundary
-            set(value) {
-                val extension = this.getExtension<LevelBoundaryExtension>()
-                if (value == null) extension.removeBoundary() else extension.setBoundary(value)
-            }
+    companion object {
+        val ServerLevel.levelBoundaryExtension: LevelBoundaryExtension
+            get() = this.getExtension()
 
-        internal fun registerEvents() {
+        fun registerEvents() {
             GlobalEventHandler.Server.register<LevelExtensionEvent> {
                 it.addExtension(::LevelBoundaryExtension)
             }
             GlobalEventHandler.Server.register<LevelTickEvent> {
                 if (it.level.tickRateManager().runsNormally()) {
-                    it.level.levelBoundary?.tick(it.level)
+                    it.level.levelBoundary?.tick()
                 }
             }
             GlobalEventHandler.Server.register<EntityStartTrackingEvent> { (entity, level) ->
