@@ -79,6 +79,7 @@ public class TrackedEntityMixin implements ReplayChunkRecordable {
         if (this.replay$chunks.add(recorder)) {
             recorder.addRecordable(this);
             List<Packet<? super ClientGamePacketListener>> list = new ArrayList<>();
+            //noinspection deprecation
             this.serverEntity.sendPairingData(recorder.getDummyPlayer(), list::add);
             recorder.record(new ClientboundBundlePacket(list));
 
@@ -91,6 +92,7 @@ public class TrackedEntityMixin implements ReplayChunkRecordable {
     @Override
     public void resendPackets(@NotNull ReplayChunkRecorder recorder) {
         List<Packet<? super ClientGamePacketListener>> list = new ArrayList<>();
+        //noinspection deprecation
         this.serverEntity.sendPairingData(recorder.getDummyPlayer(), list::add);
         recorder.record(new ClientboundBundlePacket(list));
 

@@ -368,6 +368,7 @@ public class ReplayChunkRecorder internal constructor(
      *
      * @return The dummy chunk recording player.
      */
+    @Deprecated("You should avoid using the dummy player if possible")
     public fun getDummyPlayer(): ServerPlayer {
         return this.dummy
     }
