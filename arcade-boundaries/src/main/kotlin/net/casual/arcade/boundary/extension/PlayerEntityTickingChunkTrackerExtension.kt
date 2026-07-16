@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
 import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent.Companion.PHASE_POST
+import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
 import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
@@ -39,6 +40,7 @@ public class PlayerEntityTickingChunkTrackerExtension(player: ServerPlayer): Pla
     }
 
     private fun onClientboundPacket(packet: Packet<*>) {
+        // This can run off-thread, but none of these specific packets should be sent off thread in theory
         when (packet) {
             is ClientboundLevelChunkWithLightPacket -> this.load(packet.x, packet.z)
             is ClientboundForgetLevelChunkPacket -> this.unload(packet.pos.x, packet.pos.z)
@@ -53,6 +55,9 @@ public class PlayerEntityTickingChunkTrackerExtension(player: ServerPlayer): Pla
         internal fun registerEvents() {
             GlobalEventHandler.Server.register<PlayerExtensionEvent> {
                 it.addExtension(::PlayerEntityTickingChunkTrackerExtension)
+            }
+            GlobalEventHandler.Server.register<PlayerDimensionChangeEvent> { (player) ->
+                player.entityTickingChunkTrackerExtension.loaded.clear()
             }
             GlobalEventHandler.Server.register<PlayerClientboundPacketEvent>(phase = PHASE_POST) { (player, packet) ->
                 player.entityTickingChunkTrackerExtension.onClientboundPacket(packet)

@@ -36,6 +36,7 @@ internal object ResourcePackCache {
         val future = CompletableFuture.supplyAsync {
             val bytes = URI(url).toURL().openStream().readAllBytes()
             if (hash.isNotEmpty() && hash == this.hash(bytes)) {
+                this.caching[hash] = CompletableFuture.completedFuture(bytes)
                 val cached = this.cached.resolve(hash)
                 cached.createParentDirectories().writeBytes(bytes)
             }
