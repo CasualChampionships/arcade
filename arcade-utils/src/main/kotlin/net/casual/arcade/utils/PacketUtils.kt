@@ -15,7 +15,6 @@ import net.minecraft.network.protocol.game.*
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket.Action
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket.Entry
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.Vec3
 import java.util.*
@@ -87,13 +86,13 @@ public fun Packet<*>.asClientGamePacket(): Packet<ClientGamePacketListener> {
     return this as Packet<ClientGamePacketListener>
 }
 
-public inline fun ClientboundBundlePacket.modify(
-    player: ServerPlayer,
-    modifier: (ServerPlayer, Packet<*>) -> Packet<*>?
+public inline fun <T> ClientboundBundlePacket.modify(
+    context: T,
+    modifier: (T, Packet<*>) -> Packet<*>?
 ): ClientboundBundlePacket {
     val updated = ArrayList<Packet<*>>()
     for (sub in this.subPackets()) {
-        val new = modifier.invoke(player, sub) ?: continue
+        val new = modifier.invoke(context, sub) ?: continue
         if (new is ClientboundBundlePacket) {
             updated.addAll(new.subPackets())
         } else {

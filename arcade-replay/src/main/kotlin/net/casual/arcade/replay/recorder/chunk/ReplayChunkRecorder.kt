@@ -8,6 +8,8 @@ import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.networking.events.ObserverClientboundPacketEvent
+import net.casual.arcade.networking.observer.Observer
 import net.casual.arcade.replay.compat.arcade.ArcadeVirtualEntitiesCompatLayer
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderLoadedResumeEvent
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderSnapshotEvent
@@ -30,6 +32,8 @@ import net.casual.arcade.utils.MathUtils.component3
 import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.utils.entity.WrappedTrackedEntity
 import net.casual.arcade.utils.level.server
+import net.casual.arcade.utils.math.location.LocationWithLevel
+import net.casual.arcade.utils.math.location.with
 import net.casual.arcade.utils.registries.toIdString
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext
 import net.fabricmc.fabric.impl.networking.context.PacketContextImpl
@@ -92,6 +96,11 @@ public class ReplayChunkRecorder internal constructor(
     private val recordables = HashSet<ReplayChunkRecordable>()
 
     /**
+     * The recorder's observer instance.
+     */
+    public val observer: Observer = ChunkRecorderObserver(this)
+
+    /**
      * The level that the chunk recording is currently in.
      */
     override val level: ServerLevel
@@ -110,7 +119,9 @@ public class ReplayChunkRecorder internal constructor(
         get() = Vec2.ZERO
 
     override fun record(outgoing: Packet<*>) {
-        super.record(PolymerCompatLayer.replacePacket(this.dummy.connection, outgoing))
+        val event = ObserverClientboundPacketEvent(this.observer, outgoing)
+        GlobalEventHandler.Server.broadcast(event)
+        super.record(PolymerCompatLayer.replacePacket(this.dummy.connection, event.packet))
     }
 
     /**
@@ -500,6 +511,25 @@ public class ReplayChunkRecorder internal constructor(
         connection.packetContext.set(PacketContextImpl.SERVER_INSTANCE, this.server)
         connection.packetContext.set(PacketContextImpl.REGISTRY_ACCESS, this.server.registryAccess())
         return connection
+    }
+
+    private class ChunkRecorderObserver(
+        private val recorder: ReplayChunkRecorder
+    ): Observer {
+        override val location: LocationWithLevel<ServerLevel>
+            get() = this.recorder.position.with(Vec2.ZERO).with(this.recorder.level)
+
+        override fun send(packet: Packet<*>) {
+            this.recorder.record(packet)
+        }
+
+        override fun hashCode(): Int {
+            return this.recorder.hashCode()
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return this === other || (other is ChunkRecorderObserver && this.recorder == other.recorder)
+        }
     }
 
     private companion object {
