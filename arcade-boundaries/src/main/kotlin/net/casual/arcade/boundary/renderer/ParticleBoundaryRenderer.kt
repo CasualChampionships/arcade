@@ -36,7 +36,7 @@ public open class ParticleBoundaryRenderer(
     protected val particlesPerBlock: Double = 0.25
 ): BoundaryRenderer {
     override fun render() {
-        val observers = this.level.getObservers()
+        val observers = this.level.getObservers().observers()
         if (observers.isNotEmpty()) {
             this.render(observers)
         }

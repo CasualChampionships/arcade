@@ -6,6 +6,7 @@ package net.casual.arcade.virtual.entity.attachment
 
 import net.casual.arcade.observer.Observer
 import net.casual.arcade.observer.PlayerObserver
+import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.virtual.entity.extensions.PlayerObservingAttachmentsExtension.Companion.observingAttachmentsExtension
 import net.casual.arcade.virtual.entity.utils.VirtualEntityPacketCollector
@@ -26,7 +27,9 @@ public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
         quietly: Boolean = false,
         sender: PacketSender = observer
     ) {
-        if (!this.observers.startObserving(observer)) {
+        this.observers.startObserving(observer)
+        if (!this.observers.isObserving(observer)) {
+            ArcadeUtils.logger.warn("Observer $observer failed to start observing $this")
             return
         }
 

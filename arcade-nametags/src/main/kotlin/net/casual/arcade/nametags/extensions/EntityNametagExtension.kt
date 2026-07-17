@@ -134,7 +134,7 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
 
     private fun broadcastUpdatedMount() {
         if (this.attachment.isInitialized()) {
-            this.attachment.value.broadcast { observer ->
+            this.attachment.value.observers.broadcast { observer ->
                 observer.send(this.createUpdatePassengersPacket(observer))
             }
         }

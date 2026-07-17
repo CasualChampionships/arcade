@@ -14,6 +14,7 @@ import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.observer.Observer
 import net.casual.arcade.observer.events.ObserverStartObservingEntityEvent
 import net.casual.arcade.observer.events.ObserverStopObservingEntityEvent
+import net.casual.arcade.observer.tracker.ObserverTracker
 import net.casual.arcade.observer.utils.getObservers
 import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.entity.EntityTransferReason
@@ -31,7 +32,7 @@ internal class EntityAttachmentExtension(
     override val attachments = ArrayList<RootVirtualEntityAttachment>(4)
     override val anchor = EntityAttachmentAnchor(this.entity)
 
-    override fun getObservers(): Collection<Observer> {
+    override fun getObservers(): ObserverTracker {
         return this.entity.getObservers()
     }
 

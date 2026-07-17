@@ -13,28 +13,31 @@ import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.observer.Observer
 import net.casual.arcade.observer.events.ObserverStartObservingEntityEvent
 import net.casual.arcade.observer.events.ObserverStopObservingEntityEvent
+import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.tracker.SimpleObserverTracker
 import net.casual.arcade.utils.entity.EntityTransferReason
 import net.casual.arcade.utils.impl.DelayedActions
 import net.minecraft.world.entity.Entity
 
 internal class EntityObserversExtension(entity: Entity): EntityExtension(entity) {
-    private val observers = LinkedHashSet<Observer>()
+    private val observers = SimpleObserverTracker()
 
     fun startObserving(observer: Observer) {
-        if (this.observers.add(observer)) {
+        if (this.observers.startObserving(observer)) {
             val event = ObserverStartObservingEntityEvent(observer, this.entity)
             GlobalEventHandler.Server.broadcast(event)
         }
     }
 
     fun stopObserving(observer: Observer) {
-        if (this.observers.remove(observer)) {
+        if (this.observers.isObserving(observer)) {
+            this.observers.stopObserving(observer)
             val event = ObserverStopObservingEntityEvent(observer, this.entity)
             GlobalEventHandler.Server.broadcast(event)
         }
     }
 
-    fun getObservers(): LinkedHashSet<Observer> {
+    fun getObservers(): ObserverTracker {
         return this.observers
     }
 

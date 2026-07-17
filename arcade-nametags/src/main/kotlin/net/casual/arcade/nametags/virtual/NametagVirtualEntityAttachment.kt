@@ -11,6 +11,7 @@ import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.nametagExtension
 import net.casual.arcade.observer.Observer
 import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.tracker.SimpleObserverTracker
 import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
@@ -22,12 +23,10 @@ import net.casual.arcade.utils.ClientboundSetPassengersPacket as createSetPassen
 
 public class NametagVirtualEntityAttachment(
     override val anchor: EntityAttachmentAnchor,
-): RootVirtualEntityAttachment, ObserverTracker {
+    override val observers: ObserverTracker = SimpleObserverTracker()
+): RootVirtualEntityAttachment {
     private val nametags = Reference2ReferenceLinkedOpenHashMap<Nametag, NametagVirtualEntity>()
     private val tracked = LinkedHashMultimap.create<Observer, NametagVirtualEntity>()
-    private val tracking = LinkedHashSet<Observer>()
-
-    override val observers: ObserverTracker get() = this
 
     private val root = NametagHeightVirtualEntity(
         this, this.asParentObserverTracker(), NametagHeight.INITIAL, RetargetingInteractionHandler(this.entity)
@@ -106,21 +105,8 @@ public class NametagVirtualEntityAttachment(
         return Iterables.concat(this.nametags.values, listOf(this.root))
     }
 
-    override fun observers(): Collection<Observer> {
-        return this.tracking
-    }
-
-    override fun startObserving(observer: Observer): Boolean {
-        return this.tracking.add(observer)
-    }
-
-    override fun stopObserving(observer: Observer) {
-        this.tracking.remove(observer)
+    override fun sendRootDespawnPackets(observer: Observer, sender: PacketSender) {
         this.tracked.removeAll(observer)
-    }
-
-    override fun isObserving(observer: Observer): Boolean {
-        return this.tracking.contains(observer)
     }
 
     public fun isObservingEmpty(observer: Observer): Boolean {

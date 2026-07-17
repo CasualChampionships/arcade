@@ -26,7 +26,9 @@ public fun ServerPlayer.getObservingAttachments(): Set<RootVirtualEntityAttachme
     return this.observingAttachmentsExtension.observing()
 }
 
-public fun <T: RootVirtualEntityAttachment> ServerLevel.createVirtualEntityAttachment(factory: (LevelAttachmentAnchor) -> T): T {
+public fun <T: RootVirtualEntityAttachment> ServerLevel.createVirtualEntityAttachment(
+    factory: (LevelAttachmentAnchor, ObserverTracker) -> T
+): T {
     return this.attachmentExtension.add(factory)
 }
 
@@ -42,7 +44,9 @@ public fun ServerLevel.getVirtualEntities(): Collection<VirtualEntity> {
     return this.attachmentExtension.getAttachedVirtualEntities()
 }
 
-public fun <T: RootVirtualEntityAttachment> Entity.createVirtualEntityAttachment(factory: (EntityAttachmentAnchor) -> T): T {
+public fun <T: RootVirtualEntityAttachment> Entity.createVirtualEntityAttachment(
+    factory: (EntityAttachmentAnchor, ObserverTracker) -> T
+): T {
     return this.attachmentExtension.add(factory)
 }
 

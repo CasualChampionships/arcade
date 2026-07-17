@@ -13,6 +13,7 @@ import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.observer.Observer
 import net.casual.arcade.observer.events.ObserverStartObservingLevelEvent
 import net.casual.arcade.observer.events.ObserverStopObservingLevelEvent
+import net.casual.arcade.observer.tracker.ObserverTracker
 import net.casual.arcade.observer.utils.getObservers
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.LevelAttachmentAnchor
@@ -22,7 +23,7 @@ internal class LevelAttachmentExtension(level: ServerLevel): AttachmentExtension
     override val attachments = ObjectLinkedOpenHashSet<RootVirtualEntityAttachment>()
     override val anchor = LevelAttachmentAnchor(level)
 
-    override fun getObservers(): Collection<Observer> {
+    override fun getObservers(): ObserverTracker {
         return this.anchor.level.getObservers()
     }
 

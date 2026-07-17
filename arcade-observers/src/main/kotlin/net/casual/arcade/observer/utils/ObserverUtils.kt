@@ -9,6 +9,7 @@ import net.casual.arcade.observer.PlayerObserver
 import net.casual.arcade.observer.extensions.EntityObserversExtension.Companion.observersExtension
 import net.casual.arcade.observer.extensions.LevelObserversExtension.Companion.observersExtension
 import net.casual.arcade.observer.extensions.PlayerObserverExtension.Companion.observerExtension
+import net.casual.arcade.observer.tracker.ObserverTracker
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
@@ -22,11 +23,11 @@ public fun ServerPlayer.asObserver(): PlayerObserver {
     return this.observerExtension.observer
 }
 
-public fun Entity.getObservers(): Collection<Observer> {
+public fun Entity.getObservers(): ObserverTracker {
     return this.observersExtension.getObservers()
 }
 
-public fun ServerLevel.getObservers(): Collection<Observer> {
+public fun ServerLevel.getObservers(): ObserverTracker {
     return this.observersExtension.getObservers()
 }
 

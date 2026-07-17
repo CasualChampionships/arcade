@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.observer.extensions
 
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.entity.EntityStartTrackingEvent
 import net.casual.arcade.events.server.entity.EntityStopTrackingEvent
@@ -15,28 +14,32 @@ import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.observer.Observer
 import net.casual.arcade.observer.events.ObserverStartObservingLevelEvent
 import net.casual.arcade.observer.events.ObserverStopObservingLevelEvent
+import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.tracker.ParentObserverTracker
+import net.casual.arcade.observer.tracker.SimpleObserverTracker
 import net.casual.arcade.observer.utils.asObserver
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 
 internal class LevelObserversExtension(private val level: ServerLevel): Extension {
-    private val observers = LinkedHashSet<Observer>()
+    private val observers = SimpleObserverTracker()
 
     fun startObserving(observer: Observer) {
-        if (this.observers.add(observer)) {
+        if (this.observers.startObserving(observer)) {
             val event = ObserverStartObservingLevelEvent(observer, this.level)
             GlobalEventHandler.Server.broadcast(event)
         }
     }
 
     fun stopObserving(observer: Observer) {
-        if (this.observers.remove(observer)) {
+        if (this.observers.isObserving(observer)) {
+            this.observers.stopObserving(observer)
             val event = ObserverStopObservingLevelEvent(observer, this.level)
             GlobalEventHandler.Server.broadcast(event)
         }
     }
 
-    fun getObservers(): LinkedHashSet<Observer> {
+    fun getObservers(): ObserverTracker {
         return this.observers
     }
 

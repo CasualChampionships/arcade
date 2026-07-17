@@ -4,11 +4,10 @@
  */
 package net.casual.arcade.observer.tracker
 
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import net.casual.arcade.observer.Observer
 
 public class SimpleObserverTracker: ObserverTracker {
-    private val tracking = ObjectLinkedOpenHashSet<Observer>()
+    private val tracking = LinkedHashSet<Observer>()
 
     override fun startObserving(observer: Observer): Boolean {
         return this.tracking.add(observer)

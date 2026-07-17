@@ -58,7 +58,9 @@ public class AxisAlignedDisplayBoundaryRenderer(
     // So we shift all the display elements above the world
     // height then translate them back down so the player can see them.
 
-    private val attachment = this.level.createVirtualEntityAttachment { anchor -> Attachment(anchor, this) }
+    private val attachment = this.level.createVirtualEntityAttachment { anchor, observers ->
+        Attachment(anchor, observers, this)
+    }
     private val faces = EnumUtils.mapOf<Direction, SimpleVirtualItemDisplay>()
 
     // We use another hack, we need the display entity on the client
@@ -182,8 +184,9 @@ public class AxisAlignedDisplayBoundaryRenderer(
 
     private class Attachment(
         anchor: AttachmentAnchor,
+        observers: ObserverTracker,
         private val renderer: AxisAlignedDisplayBoundaryRenderer
-    ): SimpleVirtualEntityAttachment(anchor) {
+    ): SimpleVirtualEntityAttachment(anchor, observers) {
         override fun sendRootSpawnPackets(observer: Observer, sender: PacketSender) {
             val center = this.renderer.shape.center()
             val chunkX = SectionPos.blockToSectionCoord(center.x())

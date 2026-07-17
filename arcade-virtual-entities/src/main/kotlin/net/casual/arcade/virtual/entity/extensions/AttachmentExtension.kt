@@ -5,7 +5,8 @@
 package net.casual.arcade.virtual.entity.extensions
 
 import net.casual.arcade.extensions.Extension
-import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.tracker.ParentObserverTracker
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
@@ -15,7 +16,7 @@ internal interface AttachmentExtension<A: AttachmentAnchor>: Extension {
     val attachments: MutableCollection<RootVirtualEntityAttachment>
     val anchor: A
 
-    fun getObservers(): Collection<Observer>
+    fun getObservers(): ObserverTracker
 
     @NonExtendable
     fun tick() {
@@ -25,14 +26,11 @@ internal interface AttachmentExtension<A: AttachmentAnchor>: Extension {
     }
 
     @NonExtendable
-    fun <T: RootVirtualEntityAttachment> add(factory: (A) -> T): T {
-        val attachment = factory.invoke(this.anchor)
+    fun <T: RootVirtualEntityAttachment> add(factory: (A, ObserverTracker) -> T): T {
+        val attachment = factory.invoke(this.anchor, ParentObserverTracker(this.getObservers()))
         require(attachment.anchor === this.anchor) { "Created VirtualEntityAttachment with incorrect anchor!" }
         require(!this.attachments.contains(attachment)) { "Created VirtualEntityAttachment was already attached!" }
         this.attachments.add(attachment)
-        for (observer in this.getObservers()) {
-            attachment.startObservingAttached(observer)
-        }
         return attachment
     }
 
