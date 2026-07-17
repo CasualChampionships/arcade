@@ -78,10 +78,7 @@ public class TrackedEntityMixin implements ReplayChunkRecordable {
     public void addRecorder(@NotNull ReplayChunkRecorder recorder) {
         if (this.replay$chunks.add(recorder)) {
             recorder.addRecordable(this);
-            List<Packet<? super ClientGamePacketListener>> list = new ArrayList<>();
-            //noinspection deprecation
-            this.serverEntity.sendPairingData(recorder.getDummyPlayer(), list::add);
-            recorder.record(new ClientboundBundlePacket(list));
+            this.recordCreationPackets(recorder);
 
             recorder.onEntityTracked(this.entity);
 
@@ -91,10 +88,7 @@ public class TrackedEntityMixin implements ReplayChunkRecordable {
 
     @Override
     public void resendPackets(@NotNull ReplayChunkRecorder recorder) {
-        List<Packet<? super ClientGamePacketListener>> list = new ArrayList<>();
-        //noinspection deprecation
-        this.serverEntity.sendPairingData(recorder.getDummyPlayer(), list::add);
-        recorder.record(new ClientboundBundlePacket(list));
+        this.recordCreationPackets(recorder);
 
         ArcadeVirtualEntitiesCompatLayer.resendObservingEntityAttachments(recorder, this.entity);
     }
@@ -102,26 +96,34 @@ public class TrackedEntityMixin implements ReplayChunkRecordable {
     @Override
     public void removeRecorder(@NotNull ReplayChunkRecorder recorder) {
         if (this.replay$chunks.remove(recorder)) {
-            recorder.onEntityUntracked(this.entity);
-
-            recorder.record(new ClientboundRemoveEntitiesPacket(
-                this.entity.getId()
-            ));
-            recorder.removeRecordable(this);
-
-            ArcadeVirtualEntitiesCompatLayer.stopObservingEntityAttachments(recorder, this.entity);
+            this.removeRecorders(Collections.singleton(recorder));
         }
     }
 
     @Override
     public void removeAllRecorders() {
-        ClientboundRemoveEntitiesPacket packet = new ClientboundRemoveEntitiesPacket(this.entity.getId());
-        for (ReplayChunkRecorder recorder : this.replay$chunks) {
+        this.removeRecorders(this.replay$chunks);
+        this.replay$chunks.clear();
+    }
+
+    @Unique
+    private void recordCreationPackets(ReplayChunkRecorder recorder) {
+        List<Packet<? super ClientGamePacketListener>> list = new ArrayList<>();
+        //noinspection deprecation
+        this.serverEntity.sendPairingData(recorder.getDummyPlayer(), list::add);
+        recorder.record(new ClientboundBundlePacket(list));
+    }
+
+    @Unique
+    private void removeRecorders(Iterable<ReplayChunkRecorder> recorders) {
+        ClientboundRemoveEntitiesPacket removePacket = new ClientboundRemoveEntitiesPacket(this.entity.getId());
+        for (ReplayChunkRecorder recorder : recorders) {
             recorder.onEntityUntracked(this.entity);
 
-            recorder.record(packet);
+            recorder.record(removePacket);
             recorder.removeRecordable(this);
+
+            ArcadeVirtualEntitiesCompatLayer.stopObservingEntityAttachments(recorder, this.entity);
         }
-        this.replay$chunks.clear();
     }
 }
