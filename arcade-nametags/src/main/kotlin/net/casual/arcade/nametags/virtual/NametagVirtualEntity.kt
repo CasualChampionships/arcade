@@ -5,9 +5,9 @@
 package net.casual.arcade.nametags.virtual
 
 import net.casual.arcade.nametags.Nametag
-import net.casual.arcade.networking.observer.Observer
-import net.casual.arcade.networking.observer.tracker.SimpleObserverTracker
-import net.casual.arcade.networking.utils.asPlayerOrNull
+import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.tracker.SimpleObserverTracker
+import net.casual.arcade.observer.utils.asPlayerOrNull
 import net.casual.arcade.virtual.entity.SimpleParentVirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.display.SimpleVirtualTextDisplay

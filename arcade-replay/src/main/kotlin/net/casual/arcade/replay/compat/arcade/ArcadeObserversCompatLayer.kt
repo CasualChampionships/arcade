@@ -5,9 +5,9 @@
 package net.casual.arcade.replay.compat.arcade
 
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.networking.ArcadeObservers
-import net.casual.arcade.networking.events.ObserverClientboundPacketEvent
-import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.observer.ArcadeObservers
+import net.casual.arcade.observer.events.ObserverClientboundPacketEvent
+import net.casual.arcade.observer.Observer
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.math.location.with

@@ -9,7 +9,7 @@ import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.boundary.renderer.options.ParticleRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
-import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.observer.Observer
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.resources.Identifier

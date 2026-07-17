@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.virtual.entity.interaction
 
-import net.casual.arcade.networking.observer.tracker.ObserverTracker
-import net.casual.arcade.networking.observer.tracker.SimpleObserverTracker
+import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.SimpleVirtualEntity
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment

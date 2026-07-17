@@ -14,9 +14,9 @@ import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.virtual.NametagVirtualEntity
 import net.casual.arcade.nametags.virtual.NametagVirtualEntityAttachment
-import net.casual.arcade.networking.events.ObserverClientboundPacketEvent
-import net.casual.arcade.networking.events.ObserverClientboundPacketEvent.Companion.replacePacketRecursively
-import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.observer.events.ObserverClientboundPacketEvent
+import net.casual.arcade.observer.events.ObserverClientboundPacketEvent.Companion.replacePacketRecursively
+import net.casual.arcade.observer.Observer
 import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.utils.entity.EntityTransferReason
 import net.casual.arcade.utils.impl.DelayedActions

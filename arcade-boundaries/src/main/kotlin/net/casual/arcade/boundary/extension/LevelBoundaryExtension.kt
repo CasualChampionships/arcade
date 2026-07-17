@@ -14,7 +14,7 @@ import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
-import net.casual.arcade.networking.utils.asObserver
+import net.casual.arcade.observer.utils.asObserver
 import net.casual.arcade.utils.arcade
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel

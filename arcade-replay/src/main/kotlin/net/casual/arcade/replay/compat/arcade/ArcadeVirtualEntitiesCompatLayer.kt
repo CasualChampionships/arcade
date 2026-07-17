@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.replay.compat.arcade
 
-import net.casual.arcade.networking.utils.asObserver
+import net.casual.arcade.observer.utils.asObserver
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder
 import net.casual.arcade.utils.server.player

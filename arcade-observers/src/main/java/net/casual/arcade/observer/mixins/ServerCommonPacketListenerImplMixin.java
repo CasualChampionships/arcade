@@ -2,11 +2,11 @@
  * Copyright (c) 2026 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.networking.mixins;
+package net.casual.arcade.observer.mixins;
 
 import net.casual.arcade.events.GlobalEventHandler;
-import net.casual.arcade.networking.events.ObserverClientboundPacketEvent;
-import net.casual.arcade.networking.utils.ObserverUtilsKt;
+import net.casual.arcade.observer.events.ObserverClientboundPacketEvent;
+import net.casual.arcade.observer.utils.ObserverUtilsKt;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;

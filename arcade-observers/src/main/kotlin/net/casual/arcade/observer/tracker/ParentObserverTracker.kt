@@ -2,9 +2,9 @@
  * Copyright (c) 2026 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.networking.observer.tracker
+package net.casual.arcade.observer.tracker
 
-import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.observer.Observer
 
 public class ParentObserverTracker(
     private val parent: ObserverTracker

@@ -8,7 +8,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.boundary.utils.BoundaryRegistries
-import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.observer.Observer
 import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.minecraft.core.Registry
 import net.minecraft.server.level.ServerLevel

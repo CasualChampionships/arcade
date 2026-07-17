@@ -8,7 +8,7 @@ import net.casual.arcade.commands.executes
 import net.casual.arcade.commands.literal
 import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.nametagExtension
-import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.observer.Observer
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.ComponentArgument

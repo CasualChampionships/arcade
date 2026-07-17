@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.virtual.entity.attachment
 
-import net.casual.arcade.networking.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.tracker.ObserverTracker
 import net.casual.arcade.virtual.entity.ParentVirtualEntity
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor

@@ -4,11 +4,11 @@
  */
 package net.casual.arcade.visuals.entity.mannequin
 
-import net.casual.arcade.networking.observer.Observer
-import net.casual.arcade.networking.observer.tracker.ObserverTracker
-import net.casual.arcade.networking.observer.tracker.SimpleObserverTracker
-import net.casual.arcade.networking.packet.PacketSender
-import net.casual.arcade.networking.utils.asPlayerOrNull
+import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.tracker.SimpleObserverTracker
+import net.casual.arcade.observer.packet.PacketSender
+import net.casual.arcade.observer.utils.asPlayerOrNull
 import net.casual.arcade.utils.player.StaticResolvableProfile
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.mannequin.SimpleVirtualMannequin

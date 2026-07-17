@@ -4,10 +4,10 @@
  */
 package net.casual.arcade.virtual.entity
 
-import net.casual.arcade.networking.observer.Observer
-import net.casual.arcade.networking.observer.tracker.ObserverTracker
-import net.casual.arcade.networking.observer.tracker.ParentObserverTracker
-import net.casual.arcade.networking.packet.PacketSender
+import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.tracker.ParentObserverTracker
+import net.casual.arcade.observer.packet.PacketSender
 import net.casual.arcade.utils.math.location.closerThan
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.interaction.EntityInteraction

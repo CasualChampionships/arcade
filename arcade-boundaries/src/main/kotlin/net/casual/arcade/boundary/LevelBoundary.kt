@@ -10,7 +10,7 @@ import net.casual.arcade.boundary.renderer.BoundaryRenderer
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.boundary.shape.BoundaryShape.Containment
 import net.casual.arcade.boundary.utils.ClientboundSetBorderWarningDistancePacket
-import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.observer.Observer
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction.Axis

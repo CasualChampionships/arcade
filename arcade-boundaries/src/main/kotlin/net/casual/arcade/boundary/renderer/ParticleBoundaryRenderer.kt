@@ -10,7 +10,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.boundary.renderer.options.ParticleRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
-import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.observer.Observer
 import net.casual.arcade.utils.ClientboundLevelParticlesPacket
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.math.location.closerThan

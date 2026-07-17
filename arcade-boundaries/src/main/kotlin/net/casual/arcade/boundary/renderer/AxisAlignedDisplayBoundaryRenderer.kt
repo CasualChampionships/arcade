@@ -9,10 +9,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.boundary.extension.PlayerEntityTickingChunkTrackerExtension.Companion.entityTickingChunkTrackerExtension
 import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
-import net.casual.arcade.networking.observer.Observer
-import net.casual.arcade.networking.observer.tracker.ObserverTracker
-import net.casual.arcade.networking.observer.tracker.SimpleObserverTracker
-import net.casual.arcade.networking.utils.asPlayerOrNull
+import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.tracker.SimpleObserverTracker
+import net.casual.arcade.observer.utils.asPlayerOrNull
 import net.casual.arcade.utils.EnumUtils
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.level.server

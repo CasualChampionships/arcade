@@ -5,10 +5,10 @@
 package net.casual.arcade.virtual.entity.attachment
 
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
-import net.casual.arcade.networking.observer.Observer
-import net.casual.arcade.networking.observer.tracker.ObserverTracker
-import net.casual.arcade.networking.observer.tracker.SimpleObserverTracker
-import net.casual.arcade.networking.packet.PacketSender
+import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.tracker.SimpleObserverTracker
+import net.casual.arcade.observer.packet.PacketSender
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils

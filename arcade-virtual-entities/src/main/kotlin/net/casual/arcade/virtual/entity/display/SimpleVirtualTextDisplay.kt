@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.virtual.entity.display
 
-import net.casual.arcade.networking.observer.tracker.ObserverTracker
-import net.casual.arcade.networking.observer.tracker.SimpleObserverTracker
+import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.utils.EntityDataSharedFlags
 import net.minecraft.network.chat.Component

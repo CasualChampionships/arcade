@@ -4,9 +4,9 @@
  */
 package net.casual.arcade.nametags.virtual
 
-import net.casual.arcade.networking.observer.Observer
-import net.casual.arcade.networking.observer.tracker.ObserverTracker
-import net.casual.arcade.networking.packet.PacketSender
+import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.packet.PacketSender
 import net.casual.arcade.utils.MathUtils.component1
 import net.casual.arcade.utils.MathUtils.component2
 import net.casual.arcade.utils.MathUtils.component3

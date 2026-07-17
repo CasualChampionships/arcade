@@ -2,11 +2,11 @@
  * Copyright (c) 2026 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.networking.events
+package net.casual.arcade.observer.events
 
 import net.casual.arcade.events.common.ServerSideEvent
 import net.casual.arcade.events.threading.AsyncEvent
-import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.observer.Observer
 import net.casual.arcade.utils.modify
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundBundlePacket

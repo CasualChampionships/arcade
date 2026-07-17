@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.virtual.entity.mixins;
 
-import net.casual.arcade.networking.utils.ObserverUtilsKt;
+import net.casual.arcade.observer.utils.ObserverUtilsKt;
 import net.casual.arcade.virtual.entity.extensions.EntityAttachmentExtension;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;

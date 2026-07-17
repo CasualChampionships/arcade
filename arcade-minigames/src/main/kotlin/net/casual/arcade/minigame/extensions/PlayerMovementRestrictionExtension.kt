@@ -14,7 +14,7 @@ import net.casual.arcade.extensions.PlayerExtension
 import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.event.PlayerExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
-import net.casual.arcade.networking.utils.asObserver
+import net.casual.arcade.observer.utils.asObserver
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.entity.teleportTo

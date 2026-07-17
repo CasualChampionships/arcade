@@ -13,8 +13,8 @@ import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
-import net.casual.arcade.networking.observer.Observer
-import net.casual.arcade.networking.utils.asObserver
+import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.utils.asObserver
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.LevelAttachmentAnchor

@@ -6,7 +6,7 @@ package net.casual.arcade.visuals.nametag
 
 import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.nametagExtension
-import net.casual.arcade.networking.observer.Observer
+import net.casual.arcade.observer.Observer
 import net.casual.arcade.visuals.core.TrackingVisualElement
 import net.casual.arcade.visuals.elements.PlayerSpecificElement
 import net.minecraft.network.chat.Component
