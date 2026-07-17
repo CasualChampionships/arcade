@@ -153,7 +153,7 @@ public class ReplayChunkRecorder internal constructor(
         this.spawnPlayer()
         this.sendChunksAndEntities()
 
-        ArcadeVirtualEntitiesCompatLayer.startObservingLevelAttachments(this)
+        ArcadeObserversCompatLayer.startObservingLevel(this)
 
         GlobalEventHandler.Server.broadcast(ReplayChunkRecorderSnapshotEvent(this, true))
 
@@ -205,7 +205,7 @@ public class ReplayChunkRecorder internal constructor(
             ArcadeUtils.logger.warn("Failed to unlink all chunk recordables")
         }
 
-        ArcadeVirtualEntitiesCompatLayer.stopObservingLevelAttachments(this)
+        ArcadeObserversCompatLayer.stopObservingLevel(this)
 
         ReplayChunkRecorders.close(this.server, this, future)
     }

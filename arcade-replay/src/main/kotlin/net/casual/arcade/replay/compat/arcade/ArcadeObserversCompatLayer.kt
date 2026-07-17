@@ -8,12 +8,15 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.observer.ArcadeObservers
 import net.casual.arcade.observer.events.ObserverClientboundPacketEvent
 import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.utils.startObserving
+import net.casual.arcade.observer.utils.stopObserving
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.math.location.with
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.Vec2
 
 internal object ArcadeObserversCompatLayer {
@@ -33,6 +36,38 @@ internal object ArcadeObserversCompatLayer {
             "Cannot create observer for recorder as ${ArcadeObservers.MOD_ID} is not loaded"
         }
         return ChunkRecorderObserver(recorder)
+    }
+
+    @JvmStatic
+    fun startObservingLevel(recorder: ReplayChunkRecorder) {
+        if (this.loaded) {
+            val observer = this.observerFor(recorder)
+            observer.startObserving(recorder.level)
+        }
+    }
+
+    @JvmStatic
+    fun stopObservingLevel(recorder: ReplayChunkRecorder) {
+        if (this.loaded) {
+            val observer = this.observerFor(recorder)
+            observer.stopObserving(recorder.level)
+        }
+    }
+
+    @JvmStatic
+    fun startObservingEntity(recorder: ReplayChunkRecorder, entity: Entity) {
+        if (this.loaded) {
+            val observer = this.observerFor(recorder)
+            observer.startObserving(entity)
+        }
+    }
+
+    @JvmStatic
+    fun stopObservingEntity(recorder: ReplayChunkRecorder, entity: Entity) {
+        if (this.loaded) {
+            val observer = this.observerFor(recorder)
+            observer.stopObserving(entity)
+        }
     }
 
     private class ChunkRecorderObserver(

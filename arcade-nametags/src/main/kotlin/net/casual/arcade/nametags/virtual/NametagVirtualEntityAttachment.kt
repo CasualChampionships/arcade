@@ -7,7 +7,6 @@ package net.casual.arcade.nametags.virtual
 import com.google.common.collect.Iterables
 import com.google.common.collect.LinkedHashMultimap
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceLinkedOpenHashMap
-import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.nametagExtension
 import net.casual.arcade.observer.Observer
@@ -26,7 +25,7 @@ public class NametagVirtualEntityAttachment(
 ): RootVirtualEntityAttachment, ObserverTracker {
     private val nametags = Reference2ReferenceLinkedOpenHashMap<Nametag, NametagVirtualEntity>()
     private val tracked = LinkedHashMultimap.create<Observer, NametagVirtualEntity>()
-    private val tracking = ReferenceLinkedOpenHashSet<Observer>()
+    private val tracking = LinkedHashSet<Observer>()
 
     override val observers: ObserverTracker get() = this
 

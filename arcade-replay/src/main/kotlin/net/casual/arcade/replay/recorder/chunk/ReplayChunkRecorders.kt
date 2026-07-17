@@ -219,7 +219,7 @@ public object ReplayChunkRecorders {
         }, server)
     }
 
-    private fun updateRecordable(
+    private inline fun updateRecordable(
         recordable: ReplayChunkRecordable,
         predicate: (ChunkArea) -> Boolean
     ) {

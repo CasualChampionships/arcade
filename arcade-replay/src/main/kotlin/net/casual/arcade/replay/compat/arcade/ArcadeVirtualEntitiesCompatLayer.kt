@@ -5,12 +5,12 @@
 package net.casual.arcade.replay.compat.arcade
 
 import net.casual.arcade.observer.utils.asObserver
-import net.casual.arcade.observer.utils.startObserving
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder
 import net.casual.arcade.utils.server.player
 import net.casual.arcade.virtual.entity.ArcadeVirtualEntities
-import net.casual.arcade.virtual.entity.utils.*
+import net.casual.arcade.virtual.entity.utils.getObservingAttachments
+import net.casual.arcade.virtual.entity.utils.getVirtualEntityAttachments
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.world.entity.Entity
 
@@ -27,44 +27,12 @@ internal object ArcadeVirtualEntitiesCompatLayer {
     }
 
     @JvmStatic
-    fun startObservingLevelAttachments(recorder: ReplayChunkRecorder) {
-        if (this.loaded) {
-            val observer = ArcadeObserversCompatLayer.observerFor(recorder)
-            observer.startObserving(recorder.level)
-        }
-    }
-
-    @JvmStatic
-    fun stopObservingLevelAttachments(recorder: ReplayChunkRecorder) {
-        if (this.loaded) {
-            val observer = ArcadeObserversCompatLayer.observerFor(recorder)
-            observer.startObserving(recorder.level)
-        }
-    }
-
-    @JvmStatic
     fun resendObservingLevelAttachments(recorder: ReplayChunkRecorder) {
         if (this.loaded) {
             val observer = ArcadeObserversCompatLayer.observerFor(recorder)
             for (attachment in recorder.level.getVirtualEntityAttachments()) {
                 attachment.resendTo(observer)
             }
-        }
-    }
-
-    @JvmStatic
-    fun startObservingEntityAttachments(recorder: ReplayChunkRecorder, entity: Entity) {
-        if (this.loaded) {
-            val observer = ArcadeObserversCompatLayer.observerFor(recorder)
-            observer.startObserving(entity)
-        }
-    }
-
-    @JvmStatic
-    fun stopObservingEntityAttachments(recorder: ReplayChunkRecorder, entity: Entity) {
-        if (this.loaded) {
-            val observer = ArcadeObserversCompatLayer.observerFor(recorder)
-            observer.startObserving(entity)
         }
     }
 
