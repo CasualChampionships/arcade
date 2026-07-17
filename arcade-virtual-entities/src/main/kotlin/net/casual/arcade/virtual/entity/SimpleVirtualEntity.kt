@@ -20,12 +20,14 @@ import net.casual.arcade.virtual.entity.utils.location
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
+import net.minecraft.network.protocol.game.ClientboundEntityPositionSyncPacket
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.Pose
+import net.minecraft.world.entity.PositionMoveRotation
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import java.util.*
@@ -84,6 +86,14 @@ public open class SimpleVirtualEntity(
      */
     public var isPassenger: Boolean = false
 
+    /**
+     * Whether to sync the virtual entity's exact location.
+     *
+     * This results in more data being sent to the client but avoids
+     * rounding errors.
+     */
+    public var syncExactLocation: Boolean = false
+
     override fun tick() {
         this.sendDirtyEntityData()
         this.sendDirtyLocation()
@@ -133,10 +143,10 @@ public open class SimpleVirtualEntity(
 
     protected open fun sendDirtyLocation() {
         val current = this.location()
-        val currentRot = current.rotation
-        val previousRot = this.getLastSyncedRotation(currentRot)
 
         if (this.isPassenger) {
+            val currentRot = current.rotation
+            val previousRot = this.getLastSyncedRotation(currentRot)
             val packet = VirtualEntityPacketUtils.createRotationPacket(this.id, previousRot, currentRot)
             if (packet != null) {
                 this.observers.broadcast(packet)
@@ -146,8 +156,19 @@ public open class SimpleVirtualEntity(
             return
         }
 
+        if (this.syncExactLocation) {
+            val values = PositionMoveRotation(current.position, Vec3.ZERO, current.yRot, current.xRot)
+            this.observers.broadcast(ClientboundEntityPositionSyncPacket(this.id, values, false))
+            this.lastSyncedPos = current.position
+            this.lastSyncedRot = current.rotation
+            this.sendDirtyHeadRotation(current.yRot)
+            return
+        }
+
         val currentPos = current.position
         val previousPos = this.getLastSyncedPosition(currentPos)
+        val currentRot = current.rotation
+        val previousRot = this.getLastSyncedRotation(currentRot)
         val packet = VirtualEntityPacketUtils.createMovePacket(
             this.id, previousPos, currentPos, previousRot, currentRot
         )
