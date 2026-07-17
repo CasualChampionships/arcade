@@ -6,10 +6,10 @@ package net.casual.arcade.nametags.virtual
 
 import net.casual.arcade.observer.Observer
 import net.casual.arcade.observer.tracker.ObserverTracker
-import net.casual.arcade.observer.packet.PacketSender
 import net.casual.arcade.utils.MathUtils.component1
 import net.casual.arcade.utils.MathUtils.component2
 import net.casual.arcade.utils.MathUtils.component3
+import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.data.SimpleEntityData
@@ -25,7 +25,7 @@ import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.phys.Vec3
-import java.util.UUID
+import java.util.*
 
 public class NametagHeightVirtualEntity(
     override val attachment: VirtualEntityAttachment,

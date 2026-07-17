@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.observer
 
-import net.casual.arcade.observer.packet.PacketSender
 import net.casual.arcade.utils.math.location.LocationWithLevel
+import net.casual.arcade.utils.network.PacketSender
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.level.ServerLevel
 

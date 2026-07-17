@@ -5,7 +5,7 @@
 package net.casual.arcade.virtual.entity
 
 import net.casual.arcade.observer.Observer
-import net.casual.arcade.observer.packet.PacketSender
+import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.attachment.anchor.ParentAttachmentAnchor

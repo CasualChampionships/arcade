@@ -6,8 +6,8 @@ package net.casual.arcade.virtual.entity.collision
 
 import net.casual.arcade.observer.Observer
 import net.casual.arcade.observer.tracker.ObserverTracker
-import net.casual.arcade.observer.packet.PacketSender
 import net.casual.arcade.utils.ClientboundSetPassengersPacket
+import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.virtual.entity.SimpleParentVirtualEntity
 import net.casual.arcade.virtual.entity.SimpleVirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment

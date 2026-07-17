@@ -7,11 +7,11 @@ package net.casual.arcade.virtual.entity
 import net.casual.arcade.observer.Observer
 import net.casual.arcade.observer.tracker.ObserverTracker
 import net.casual.arcade.observer.tracker.SimpleObserverTracker
-import net.casual.arcade.observer.packet.PacketSender
 import net.casual.arcade.observer.utils.asPlayerOrNull
 import net.casual.arcade.utils.MathUtils.component1
 import net.casual.arcade.utils.MathUtils.component2
 import net.casual.arcade.utils.MathUtils.component3
+import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.data.PlayerSpecificEntityData
 import net.casual.arcade.virtual.entity.location.VirtualPosition
@@ -27,8 +27,7 @@ import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.Pose
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
-import java.util.Optional
-import java.util.UUID
+import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
 /**

@@ -7,8 +7,8 @@ package net.casual.arcade.virtual.entity.utils
 import net.casual.arcade.observer.Observer
 import net.casual.arcade.observer.tracker.ObserverTracker
 import net.casual.arcade.observer.tracker.ParentObserverTracker
-import net.casual.arcade.observer.packet.PacketSender
 import net.casual.arcade.utils.math.location.Location
+import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment

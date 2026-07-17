@@ -6,7 +6,7 @@ package net.casual.arcade.virtual.entity.attachment
 
 import net.casual.arcade.observer.Observer
 import net.casual.arcade.observer.PlayerObserver
-import net.casual.arcade.observer.packet.PacketSender
+import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.virtual.entity.extensions.PlayerAttachmentObserverExtension.Companion.attachmentObserverExtension
 import net.casual.arcade.virtual.entity.utils.VirtualEntityPacketCollector
 import net.casual.arcade.virtual.entity.utils.sendBundledSpawnPackets
