@@ -7,7 +7,7 @@ package net.casual.arcade.virtual.entity.attachment
 import net.casual.arcade.observer.Observer
 import net.casual.arcade.observer.PlayerObserver
 import net.casual.arcade.utils.network.PacketSender
-import net.casual.arcade.virtual.entity.extensions.PlayerAttachmentObserverExtension.Companion.attachmentObserverExtension
+import net.casual.arcade.virtual.entity.extensions.PlayerObservingAttachmentsExtension.Companion.observingAttachmentsExtension
 import net.casual.arcade.virtual.entity.utils.VirtualEntityPacketCollector
 import net.casual.arcade.virtual.entity.utils.sendBundledSpawnPackets
 import net.casual.arcade.virtual.entity.utils.stopObservingAndSendPackets
@@ -31,7 +31,7 @@ public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
         }
 
         if (observer is PlayerObserver) {
-            observer.player.attachmentObserverExtension.startObserving(this)
+            observer.player.observingAttachmentsExtension.startObserving(this)
         }
 
         if (this.shouldDelayObserving()) {
@@ -59,7 +59,7 @@ public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
         }
 
         if (observer is PlayerObserver) {
-            observer.player.attachmentObserverExtension.stopObserving(this)
+            observer.player.observingAttachmentsExtension.stopObserving(this)
         }
 
         val collector = VirtualEntityPacketCollector()

@@ -27,18 +27,6 @@ public class ServerEntityMixin {
     private Entity entity;
 
     @Inject(
-        method = "addPairing",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/server/level/ServerEntity;sendPairingData(Lnet/minecraft/server/level/ServerPlayer;Ljava/util/function/Consumer;)V"
-        )
-    )
-    private void startObservingEntityAttachments(ServerPlayer player, CallbackInfo ci) {
-        EntityAttachmentExtension extension = EntityAttachmentExtension.getAttachmentExtension(this.entity);
-        extension.startObserving(ObserverUtilsKt.asObserver(player));
-    }
-
-    @Inject(
         method = "sendPairingData",
         at = @At("TAIL")
     )
@@ -49,14 +37,5 @@ public class ServerEntityMixin {
     ) {
         EntityAttachmentExtension extension = EntityAttachmentExtension.getAttachmentExtension(this.entity);
         extension.sendObservingSpawnPackets(ObserverUtilsKt.asObserver(player), broadcast);
-    }
-
-    @Inject(
-        method = "removePairing",
-        at = @At("HEAD")
-    )
-    private void removeObservingEntityAttachments(ServerPlayer player, CallbackInfo ci) {
-        EntityAttachmentExtension extension = EntityAttachmentExtension.getAttachmentExtension(this.entity);
-        extension.stopObserving(ObserverUtilsKt.asObserver(player));
     }
 }

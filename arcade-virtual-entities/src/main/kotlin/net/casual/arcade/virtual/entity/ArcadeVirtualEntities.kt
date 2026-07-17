@@ -6,7 +6,7 @@ package net.casual.arcade.virtual.entity
 
 import net.casual.arcade.virtual.entity.extensions.EntityAttachmentExtension
 import net.casual.arcade.virtual.entity.extensions.LevelAttachmentExtension
-import net.casual.arcade.virtual.entity.extensions.PlayerAttachmentObserverExtension
+import net.casual.arcade.virtual.entity.extensions.PlayerObservingAttachmentsExtension
 import net.fabricmc.api.ModInitializer
 
 public object ArcadeVirtualEntities: ModInitializer {
@@ -15,6 +15,6 @@ public object ArcadeVirtualEntities: ModInitializer {
     override fun onInitialize() {
         EntityAttachmentExtension.registerEvents()
         LevelAttachmentExtension.registerEvents()
-        PlayerAttachmentObserverExtension.registerEvents()
+        PlayerObservingAttachmentsExtension.registerEvents()
     }
 }

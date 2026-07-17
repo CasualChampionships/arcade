@@ -5,6 +5,7 @@
 package net.casual.arcade.replay.compat.arcade
 
 import net.casual.arcade.observer.utils.asObserver
+import net.casual.arcade.observer.utils.startObserving
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder
 import net.casual.arcade.utils.server.player
@@ -29,7 +30,7 @@ internal object ArcadeVirtualEntitiesCompatLayer {
     fun startObservingLevelAttachments(recorder: ReplayChunkRecorder) {
         if (this.loaded) {
             val observer = ArcadeObserversCompatLayer.observerFor(recorder)
-            observer.startObservingVirtualEntitiesIn(recorder.level)
+            observer.startObserving(recorder.level)
         }
     }
 
@@ -37,7 +38,7 @@ internal object ArcadeVirtualEntitiesCompatLayer {
     fun stopObservingLevelAttachments(recorder: ReplayChunkRecorder) {
         if (this.loaded) {
             val observer = ArcadeObserversCompatLayer.observerFor(recorder)
-            observer.stopObservingVirtualEntitiesIn(recorder.level)
+            observer.startObserving(recorder.level)
         }
     }
 
@@ -55,7 +56,7 @@ internal object ArcadeVirtualEntitiesCompatLayer {
     fun startObservingEntityAttachments(recorder: ReplayChunkRecorder, entity: Entity) {
         if (this.loaded) {
             val observer = ArcadeObserversCompatLayer.observerFor(recorder)
-            observer.startObservingVirtualEntitiesFor(entity)
+            observer.startObserving(entity)
         }
     }
 
@@ -63,7 +64,7 @@ internal object ArcadeVirtualEntitiesCompatLayer {
     fun stopObservingEntityAttachments(recorder: ReplayChunkRecorder, entity: Entity) {
         if (this.loaded) {
             val observer = ArcadeObserversCompatLayer.observerFor(recorder)
-            observer.stopObservingVirtualEntitiesFor(entity)
+            observer.startObserving(entity)
         }
     }
 

@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.virtual.entity.extensions
 
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.entity.EntityTickEvent
 import net.casual.arcade.events.utils.register
@@ -13,10 +12,12 @@ import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.event.EntityExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.events.ObserverStartObservingEntityEvent
+import net.casual.arcade.observer.events.ObserverStopObservingEntityEvent
+import net.casual.arcade.observer.utils.getObservers
 import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.entity.EntityTransferReason
 import net.casual.arcade.utils.impl.DelayedActions
-import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor
 import net.minecraft.network.protocol.Packet
@@ -24,53 +25,14 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.world.entity.Entity
 import java.util.function.Consumer
 
-internal class EntityAttachmentExtension(entity: Entity): EntityExtension(entity) {
-    private val attachments = ArrayList<RootVirtualEntityAttachment>(4)
-    private val observers = ObjectLinkedOpenHashSet<Observer>()
-    private val anchor = EntityAttachmentAnchor(this.entity)
+internal class EntityAttachmentExtension(
+    entity: Entity
+): EntityExtension(entity), AttachmentExtension<EntityAttachmentAnchor> {
+    override val attachments = ArrayList<RootVirtualEntityAttachment>(4)
+    override val anchor = EntityAttachmentAnchor(this.entity)
 
-    private fun tick() {
-        for (attachment in this.attachments) {
-            attachment.tick()
-        }
-    }
-
-    fun <T: RootVirtualEntityAttachment> add(factory: (EntityAttachmentAnchor) -> T): T {
-        val attachment = factory.invoke(this.anchor)
-        require(attachment.anchor === this.anchor) { "Created VirtualEntityAttachment with incorrect anchor!" }
-        require(!this.attachments.contains(attachment)) { "Created VirtualEntityAttachment was already attached!" }
-        this.attachments.add(attachment)
-        for (observer in this.observers) {
-            attachment.startObservingAttached(observer)
-        }
-        return attachment
-    }
-
-    fun remove(attachment: RootVirtualEntityAttachment): Boolean {
-        if (this.attachments.remove(attachment)) {
-            attachment.clearObservingAttached()
-            return true
-        }
-        return false
-    }
-
-    fun getAttachments(): Collection<RootVirtualEntityAttachment> {
-        return this.attachments
-    }
-
-    fun getAttachedVirtualEntities(): List<VirtualEntity> {
-        if (this.attachments.isEmpty()) {
-            return listOf()
-        }
-        return this.attachments.flatMap { it.attached() }
-    }
-
-    fun startObserving(observer: Observer) {
-        if (this.observers.add(observer)) {
-            for (attachment in this.attachments) {
-                attachment.startObservingAttached(observer, true)
-            }
-        }
+    override fun getObservers(): Collection<Observer> {
+        return this.entity.getObservers()
     }
 
     fun sendObservingSpawnPackets(observer: Observer, consumer: Consumer<Packet<ClientGamePacketListener>>) {
@@ -81,11 +43,15 @@ internal class EntityAttachmentExtension(entity: Entity): EntityExtension(entity
         }
     }
 
-    fun stopObserving(observer: Observer) {
-        if (this.observers.remove(observer)) {
-            for (attachment in this.attachments) {
-                attachment.stopObservingAttached(observer)
-            }
+    private fun startObserving(observer: Observer) {
+        for (attachment in this.attachments) {
+            attachment.startObservingAttached(observer, true)
+        }
+    }
+
+    private fun stopObserving(observer: Observer) {
+        for (attachment in this.attachments) {
+            attachment.stopObservingAttached(observer)
         }
     }
 
@@ -108,6 +74,12 @@ internal class EntityAttachmentExtension(entity: Entity): EntityExtension(entity
             }
             GlobalEventHandler.Server.register<EntityTickEvent> { (entity) ->
                 entity.attachmentExtension.tick()
+            }
+            GlobalEventHandler.Server.register<ObserverStartObservingEntityEvent> { (observer, entity) ->
+                entity.attachmentExtension.startObserving(observer)
+            }
+            GlobalEventHandler.Server.register<ObserverStopObservingEntityEvent> { (observer, entity) ->
+                entity.attachmentExtension.stopObserving(observer)
             }
         }
     }

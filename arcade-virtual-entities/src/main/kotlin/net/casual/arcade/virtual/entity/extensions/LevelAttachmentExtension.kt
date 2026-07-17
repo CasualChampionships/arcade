@@ -15,65 +15,30 @@ import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.observer.Observer
 import net.casual.arcade.observer.utils.asObserver
+import net.casual.arcade.observer.utils.getObservers
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.LevelAttachmentAnchor
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 
-internal class LevelAttachmentExtension(level: ServerLevel): Extension {
-    private val attachments = ObjectLinkedOpenHashSet<RootVirtualEntityAttachment>()
-    private val observers = ObjectLinkedOpenHashSet<Observer>()
-    private val anchor = LevelAttachmentAnchor(level)
+internal class LevelAttachmentExtension(level: ServerLevel): AttachmentExtension<LevelAttachmentAnchor> {
+    override val attachments = ObjectLinkedOpenHashSet<RootVirtualEntityAttachment>()
+    override val anchor = LevelAttachmentAnchor(level)
 
-    fun tick() {
-        for (attachment in this.attachments) {
-            attachment.tick()
-        }
+    override fun getObservers(): Collection<Observer> {
+        return this.anchor.level.getObservers()
     }
 
-    fun <T: RootVirtualEntityAttachment> add(factory: (LevelAttachmentAnchor) -> T): T {
-        val attachment = factory.invoke(this.anchor)
-        require(attachment.anchor === this.anchor) { "Created VirtualEntityAttachment with incorrect anchor!" }
-        this.attachments.add(attachment)
-        for (observer in this.observers) {
+    private fun startObserving(observer: Observer) {
+        for (attachment in this.attachments) {
             attachment.startObservingAttached(observer)
         }
-        return attachment
     }
 
-    fun remove(attachment: RootVirtualEntityAttachment): Boolean {
-        if (this.attachments.remove(attachment)) {
-            attachment.clearObservingAttached()
-            return true
-        }
-        return false
-    }
-
-    fun getAttachments(): Collection<RootVirtualEntityAttachment> {
-        return this.attachments
-    }
-
-    fun getAttachedVirtualEntities(): List<VirtualEntity> {
-        if (this.attachments.isEmpty()) {
-            return listOf()
-        }
-        return this.attachments.flatMap { it.attached() }
-    }
-
-    fun startObserving(observer: Observer) {
-        if (this.observers.add(observer)) {
-            for (attachment in this.attachments) {
-                attachment.startObservingAttached(observer)
-            }
-        }
-    }
-
-    fun stopObserving(observer: Observer) {
-        if (this.observers.remove(observer)) {
-            for (attachment in this.attachments) {
-                attachment.stopObservingAttached(observer)
-            }
+    private fun stopObserving(observer: Observer) {
+        for (attachment in this.attachments) {
+            attachment.stopObservingAttached(observer)
         }
     }
 

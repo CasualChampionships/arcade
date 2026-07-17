@@ -16,14 +16,14 @@ import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor
 import net.casual.arcade.virtual.entity.attachment.anchor.LevelAttachmentAnchor
 import net.casual.arcade.virtual.entity.extensions.EntityAttachmentExtension.Companion.attachmentExtension
 import net.casual.arcade.virtual.entity.extensions.LevelAttachmentExtension.Companion.attachmentExtension
-import net.casual.arcade.virtual.entity.extensions.PlayerAttachmentObserverExtension.Companion.attachmentObserverExtension
+import net.casual.arcade.virtual.entity.extensions.PlayerObservingAttachmentsExtension.Companion.observingAttachmentsExtension
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 import org.jetbrains.annotations.ApiStatus.Internal
 
 public fun ServerPlayer.getObservingAttachments(): Set<RootVirtualEntityAttachment> {
-    return this.attachmentObserverExtension.attachments()
+    return this.observingAttachmentsExtension.observing()
 }
 
 public fun <T: RootVirtualEntityAttachment> ServerLevel.createVirtualEntityAttachment(factory: (LevelAttachmentAnchor) -> T): T {
@@ -35,17 +35,7 @@ public fun ServerLevel.removeVirtualEntityAttachment(attachment: RootVirtualEnti
 }
 
 public fun ServerLevel.getVirtualEntityAttachments(): Collection<RootVirtualEntityAttachment> {
-    return this.attachmentExtension.getAttachments()
-}
-
-@Internal
-public fun Observer.startObservingVirtualEntitiesIn(level: ServerLevel) {
-    level.attachmentExtension.startObserving(this)
-}
-
-@Internal
-public fun Observer.stopObservingVirtualEntitiesIn(level: ServerLevel) {
-    level.attachmentExtension.stopObserving(this)
+    return this.attachmentExtension.attachments
 }
 
 public fun ServerLevel.getVirtualEntities(): Collection<VirtualEntity> {
@@ -61,17 +51,7 @@ public fun Entity.removeVirtualEntityAttachment(attachment: RootVirtualEntityAtt
 }
 
 public fun Entity.getVirtualEntityAttachments(): Collection<RootVirtualEntityAttachment> {
-    return this.attachmentExtension.getAttachments()
-}
-
-@Internal
-public fun Observer.startObservingVirtualEntitiesFor(entity: Entity) {
-    entity.attachmentExtension.startObserving(this)
-}
-
-@Internal
-public fun Observer.stopObservingVirtualEntitiesFor(entity: Entity) {
-    entity.attachmentExtension.stopObserving(this)
+    return this.attachmentExtension.attachments
 }
 
 public fun Entity.getVirtualEntities(): Collection<VirtualEntity> {
