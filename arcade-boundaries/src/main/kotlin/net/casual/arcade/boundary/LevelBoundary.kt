@@ -10,7 +10,6 @@ import net.casual.arcade.boundary.renderer.BoundaryRenderer
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.boundary.shape.BoundaryShape.Containment
 import net.casual.arcade.boundary.utils.ClientboundSetBorderWarningDistancePacket
-import net.casual.arcade.observer.Observer
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction.Axis
@@ -230,23 +229,8 @@ public class LevelBoundary(
         }
     }
 
-    /**
-     * Adds an [Observer] to observe the boundary renderer.
-     *
-     * @param observer The custom [Observer].
-     */
-    public fun addObserver(observer: Observer) {
-        this.renderer.addObserver(observer)
-    }
-
-    /**
-     * Removes an [Observer] from observing the boundary renderer.
-     *
-     * @param observer The custom [Observer].
-     */
-    public fun removeObserver(observer: Observer) {
-        this.renderer.removeObserver(observer)
-        observer.send(INSIDE_BORDER_PACKET)
+    internal fun stopTracking(player: ServerPlayer) {
+        player.connection.send(INSIDE_BORDER_PACKET)
     }
 
     internal fun remove() {

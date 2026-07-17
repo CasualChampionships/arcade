@@ -63,6 +63,7 @@ public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
         }
 
         val collector = VirtualEntityPacketCollector()
+        this.sendRootDespawnPackets(observer, collector::add)
         for (entity in this.attached()) {
             entity.stopObservingAndSendPackets(observer, collector::add)
         }
@@ -84,11 +85,23 @@ public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
             return
         }
 
+        this.sendRootSpawnPackets(observer, sender)
+
         for (entity in this.attached()) {
             if (entity.observers.isObserving(observer)) {
                 entity.sendBundledSpawnPackets(observer, sender)
             }
         }
+    }
+
+    @OverrideOnly
+    public fun sendRootSpawnPackets(observer: Observer, sender: PacketSender) {
+
+    }
+
+    @OverrideOnly
+    public fun sendRootDespawnPackets(observer: Observer, sender: PacketSender) {
+
     }
 
     @OverrideOnly

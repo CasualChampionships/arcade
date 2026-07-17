@@ -11,14 +11,15 @@ import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.observer.Observer
 import net.casual.arcade.observer.tracker.ObserverTracker
-import net.casual.arcade.observer.tracker.SimpleObserverTracker
 import net.casual.arcade.observer.utils.asPlayerOrNull
 import net.casual.arcade.utils.EnumUtils
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.level.server
+import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
+import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.display.SimpleVirtualItemDisplay
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
@@ -57,11 +58,7 @@ public class AxisAlignedDisplayBoundaryRenderer(
     // So we shift all the display elements above the world
     // height then translate them back down so the player can see them.
 
-    private val observers: ObserverTracker = RendererObserverTracker(this)
-
-    private val attachment = this.level.createVirtualEntityAttachment { anchor ->
-        SimpleVirtualEntityAttachment(anchor, this.observers)
-    }
+    private val attachment = this.level.createVirtualEntityAttachment { anchor -> Attachment(anchor, this) }
     private val faces = EnumUtils.mapOf<Direction, SimpleVirtualItemDisplay>()
 
     // We use another hack, we need the display entity on the client
@@ -83,7 +80,7 @@ public class AxisAlignedDisplayBoundaryRenderer(
             val chunkX = SectionPos.blockToSectionCoord(center.x())
             val chunkZ = SectionPos.blockToSectionCoord(center.z())
             val packet = this.getOrCreateChunkPacket(level, chunkX, chunkZ)
-            for (observer in this.observers) {
+            for (observer in this.attachment.observers) {
                 val player = observer.asPlayerOrNull()
                 if (player == null || !player.entityTickingChunkTrackerExtension.isLoaded(chunkX, chunkZ)) {
                     observer.send(packet)
@@ -94,27 +91,8 @@ public class AxisAlignedDisplayBoundaryRenderer(
         this.updateFaces()
     }
 
-    override fun addObserver(observer: Observer) {
-        this.attachment.startObservingAttached(observer)
-    }
-
-    override fun removeObserver(observer: Observer) {
-        this.attachment.stopObservingAttached(observer)
-    }
-
     override fun stop() {
         this.level.removeVirtualEntityAttachment(this.attachment)
-    }
-
-    private fun onStartObserving(observer: Observer) {
-        val center = this.shape.center()
-        val chunkX = SectionPos.blockToSectionCoord(center.x())
-        val chunkZ = SectionPos.blockToSectionCoord(center.z())
-        val player = observer.asPlayerOrNull()
-        if (player == null || !player.entityTickingChunkTrackerExtension.isLoaded(chunkX, chunkZ)) {
-            val packet = this.getOrCreateChunkPacket(observer.location.level, chunkX, chunkZ)
-            observer.send(packet)
-        }
     }
 
     override fun factory(): BoundaryRenderer.Factory {
@@ -202,29 +180,19 @@ public class AxisAlignedDisplayBoundaryRenderer(
         }
     }
 
-    private class RendererObserverTracker(
+    private class Attachment(
+        anchor: AttachmentAnchor,
         private val renderer: AxisAlignedDisplayBoundaryRenderer
-    ): ObserverTracker {
-        private val observers = SimpleObserverTracker()
-
-        override fun startObserving(observer: Observer): Boolean {
-            if (this.observers.startObserving(observer)) {
-                this.renderer.onStartObserving(observer)
-                return true
+    ): SimpleVirtualEntityAttachment(anchor) {
+        override fun sendRootSpawnPackets(observer: Observer, sender: PacketSender) {
+            val center = this.renderer.shape.center()
+            val chunkX = SectionPos.blockToSectionCoord(center.x())
+            val chunkZ = SectionPos.blockToSectionCoord(center.z())
+            val player = observer.asPlayerOrNull()
+            if (player == null || !player.entityTickingChunkTrackerExtension.isLoaded(chunkX, chunkZ)) {
+                val packet = this.renderer.getOrCreateChunkPacket(observer.location.level, chunkX, chunkZ)
+                sender.send(packet)
             }
-            return false
-        }
-
-        override fun stopObserving(observer: Observer) {
-            this.observers.stopObserving(observer)
-        }
-
-        override fun isObserving(observer: Observer): Boolean {
-            return this.observers.isObserving(observer)
-        }
-
-        override fun observers(): Collection<Observer> {
-            return this.observers.observers()
         }
     }
 

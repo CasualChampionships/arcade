@@ -9,13 +9,12 @@ import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.boundary.renderer.options.ParticleRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
-import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.utils.getObservers
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.Util
-import java.util.concurrent.CopyOnWriteArraySet
 
 /**
  * Extension of [ParticleBoundaryRenderer] that updates asynchronously
@@ -35,17 +34,14 @@ public class AsyncParticleBoundaryRenderer(
     particlesPerBlock: Double = 0.25
 ): ParticleBoundaryRenderer(level, shape, particles, range, particlesPerBlock) {
     override fun render() {
-        if (this.observers.isNotEmpty()) {
-            Util.ioPool().execute { super.render() }
+        val observers = this.level.getObservers().toList()
+        if (observers.isNotEmpty()) {
+            Util.ioPool().execute { this.render(observers) }
         }
     }
 
     override fun factory(): BoundaryRenderer.Factory {
         return Factory(this.particles, this.range, this.particlesPerBlock)
-    }
-
-    override fun createObserverSet(): MutableSet<Observer> {
-        return CopyOnWriteArraySet()
     }
 
     public open class Factory(

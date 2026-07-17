@@ -7,14 +7,12 @@ package net.casual.arcade.boundary.extension
 import net.casual.arcade.boundary.LevelBoundary
 import net.casual.arcade.boundary.utils.levelBoundary
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.server.entity.EntityStartTrackingEvent
 import net.casual.arcade.events.server.entity.EntityStopTrackingEvent
 import net.casual.arcade.events.server.level.LevelTickEvent
 import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.SerializableExtension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
-import net.casual.arcade.observer.utils.asObserver
 import net.casual.arcade.utils.arcade
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
@@ -31,9 +29,6 @@ internal class LevelBoundaryExtension(
     fun setBoundary(boundary: LevelBoundary) {
         this.removeBoundary()
         this.boundary = boundary
-        for (player in this.level.players()) {
-            boundary.addObserver(player.asObserver())
-        }
     }
 
     fun removeBoundary() {
@@ -45,12 +40,8 @@ internal class LevelBoundaryExtension(
         return this.boundary
     }
 
-    private fun startTrackingPlayer(player: ServerPlayer) {
-        this.boundary?.addObserver(player.asObserver())
-    }
-
     private fun stopTrackingPlayer(player: ServerPlayer) {
-        this.boundary?.removeObserver(player.asObserver())
+        this.boundary?.stopTracking(player)
     }
 
     override fun id(): Identifier {
@@ -84,14 +75,9 @@ internal class LevelBoundaryExtension(
                     it.level.levelBoundary?.tick()
                 }
             }
-            GlobalEventHandler.Server.register<EntityStartTrackingEvent> { (entity, level) ->
-                if (entity is ServerPlayer) {
-                    level.getExtension<LevelBoundaryExtension>().startTrackingPlayer(entity)
-                }
-            }
             GlobalEventHandler.Server.register<EntityStopTrackingEvent> { (entity, level) ->
                 if (entity is ServerPlayer) {
-                    level.getExtension<LevelBoundaryExtension>().stopTrackingPlayer(entity)
+                    level.levelBoundaryExtension.stopTrackingPlayer(entity)
                 }
             }
         }
