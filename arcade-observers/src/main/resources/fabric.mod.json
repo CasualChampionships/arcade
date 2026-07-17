@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "arcade-networking",
+  "id": "arcade-observers",
   "version": "${version}",
-  "name": "Arcade Networking",
+  "name": "Arcade Observers",
   "description": "",
   "authors": [
     "Sensei"
@@ -17,12 +17,12 @@
     "main": [
       {
         "adapter": "kotlin",
-        "value": "net.casual.arcade.networking.ArcadeNetworking"
+        "value": "net.casual.arcade.networking.ArcadeObservers"
       }
     ]
   },
   "mixins": [
-    "arcade-networking.mixins.json"
+    "arcade-observers.mixins.json"
   ],
   "depends": {
     "minecraft": "${minecraft_dependency}",

@@ -10,6 +10,8 @@ import net.casual.arcade.virtual.entity.extensions.PlayerAttachmentObserverExten
 import net.fabricmc.api.ModInitializer
 
 public object ArcadeVirtualEntities: ModInitializer {
+    public const val MOD_ID: String = "arcade-virtual-entities"
+
     override fun onInitialize() {
         EntityAttachmentExtension.registerEvents()
         LevelAttachmentExtension.registerEvents()

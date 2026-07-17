@@ -15,6 +15,7 @@ import net.casual.arcade.utils.ClientboundLevelParticlesPacket
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.math.location.closerThan
 import net.casual.arcade.utils.serialization.codec.CodecProvider
+import net.casual.arcade.virtual.entity.utils.getVirtualEntityAttachments
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 
@@ -41,6 +42,8 @@ public open class ParticleBoundaryRenderer(
         if (this.observers.isEmpty()) {
             return
         }
+
+        this.level.getVirtualEntityAttachments()
         val particle = this.particles.get(this.shape)
         for (point in this.shape.getPoints().iterator(this.particlesPerBlock)) {
             val packet = ClientboundLevelParticlesPacket(

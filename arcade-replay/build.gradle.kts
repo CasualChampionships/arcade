@@ -7,7 +7,7 @@ val shade: Configuration by configurations.creating
 
 val moduleDependencies: (Project, List<String>) -> Unit by project
 
-moduleDependencies(project, listOf("utils", "event-registry", "events-server", "resource-pack-host", "commands", "networking"))
+moduleDependencies(project, listOf("utils", "event-registry", "events-server", "resource-pack-host", "commands"))
 
 dependencies {
     compileOnly(project(":arcade-virtual-entities"))
