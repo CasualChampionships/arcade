@@ -1,4 +1,68 @@
 import { defineConfig } from 'vitepress'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const docsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+
+const pageOrders: Record<string, string[]> = {
+  'arcade-minigames': [
+    'getting-started', 'basic-usage', 'advancements', 'chat', 'commands',
+    'effects', 'events', 'players', 'recipes', 'resource_packs', 'scheduling',
+    'serialization', 'settings', 'stats', 'teams', 'visuals', 'worlds'
+  ]
+}
+
+function titleCase(value: string): string {
+  return value.split(/[-_]/).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+}
+
+function moduleTitle(folder: string): string {
+  const dir = path.join(docsDir, folder)
+  const pages = fs.readdirSync(dir).filter((file) => file.endsWith('.md'))
+  const preferred = pages.includes('getting-started.md') ? 'getting-started.md' : pages.sort()[0]
+  if (preferred) {
+    const heading = fs.readFileSync(path.join(dir, preferred), 'utf-8').match(/^#\s+(.+?)\s*$/m)
+    if (heading) return heading[1]
+  }
+  return titleCase(folder.replace(/^arcade-/, ''))
+}
+
+function pages(folder: string): string[] {
+  const order = pageOrders[folder] ?? []
+  const rank = (page: string) => {
+    const index = order.indexOf(page)
+    if (index !== -1) return index
+    if (page === 'getting-started') return -1
+    return order.length + 1
+  }
+  return fs.readdirSync(path.join(docsDir, folder))
+    .filter((file) => file.endsWith('.md'))
+    .map((file) => file.replace(/\.md$/, ''))
+    .sort((a, b) => rank(a) - rank(b) || a.localeCompare(b))
+}
+
+// Each module is a sidebar group whose title links to its getting-started page. The
+// getting-started page is not repeated as a child; the remaining pages become items.
+function sidebarGroup(folder: string) {
+  const all = pages(folder)
+  const landing = all.includes('getting-started') ? 'getting-started' : all[0]
+  const items = all
+    .filter((page) => page !== landing)
+    .map((page) => ({ text: titleCase(page), link: `/${folder}/${page}` }))
+  return {
+    text: moduleTitle(folder),
+    link: landing ? `/${folder}/${landing}` : undefined,
+    collapsed: items.length > 0 ? true : undefined,
+    items
+  }
+}
+
+const modules = fs.readdirSync(docsDir)
+  .filter((file) => file.startsWith('arcade-') && fs.statSync(path.join(docsDir, file)).isDirectory())
+  .sort()
+
+const sidebar = modules.map(sidebarGroup)
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -14,164 +78,10 @@ export default defineConfig({
 
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'About', link: '/about' },
-      { text: 'Getting Started', link: '/arcade-minigames/getting-started' }
+      { text: 'About', link: '/about' }
     ],
 
-    sidebar: [
-      {
-        text: 'Boundaries',
-        collapsed: true,
-        items: [
-          { text: 'Getting Started', link: '/arcade-boundaries/getting-started' },
-          { text: 'Usage', link: '/arcade-boundaries/usage' }
-        ]
-      },
-      {
-        text: 'Commands',
-        collapsed: true,
-        items: [
-          { text: 'Getting Started', link: '/arcade-commands/getting-started' },
-          { text: 'Usage', link: '/arcade-commands/usage' }
-        ]
-      },
-      {
-        text: 'Datagen',
-        collapsed: true,
-        items: [
-          { text: 'Getting Started', link: '/arcade-datagen/getting-started' }
-        ]
-      },
-      {
-        text: 'Dimensions',
-        collapsed: true,
-        items: [
-          { text: 'Getting Started', link: '/arcade-dimensions/getting-started' },
-          { text: 'Basic Usage', link: '/arcade-dimensions/basic-usage' },
-          { text: 'Advanced Usage', link: '/arcade-dimensions/advanced-usage' }
-        ]
-      },
-      {
-        text: 'Events',
-        collapsed: true,
-        items: [
-          { text: 'Getting Started', link: '/arcade-events-server/getting-started' },
-          { text: 'Basic Usage', link: '/arcade-events-server/basic-usage' },
-          { text: 'Advanced Usage', link: '/arcade-events-server/advanced-usage' }
-        ]
-      },
-      {
-        text: 'Extensions',
-        collapsed: true,
-        items: [
-          { text: 'Getting Started', link: '/arcade-extensions/getting-started' },
-          { text: 'Usage', link: '/arcade-extensions/usage' }
-        ]
-      },
-      {
-        text: 'Guis',
-        collapsed: true,
-        items: [
-          { text: 'Getting Started', link: '/arcade-guis/getting-started' }
-        ]
-      },
-      {
-        text: 'Items',
-        collapsed: true,
-        items: [
-          { text: 'Getting Started', link: '/arcade-items/getting-started' }
-        ]
-      },
-      {
-        text: 'Minigames',
-        collapsed: true,
-        items: [
-          { text: 'Getting Started', link: '/arcade-minigames/getting-started' },
-          { text: 'Basic Usage', link: '/arcade-minigames/basic-usage' },
-          { text: 'Advancements', link: '/arcade-minigames/advancements' },
-          { text: 'Chat', link: '/arcade-minigames/chat' },
-          { text: 'Commands', link: '/arcade-minigames/commands' },
-          { text: 'Effects', link: '/arcade-minigames/effects' },
-          { text: 'Events', link: '/arcade-minigames/events' },
-          { text: 'Players', link: '/arcade-minigames/players' },
-          { text: 'Recipes', link: '/arcade-minigames/recipes' },
-          { text: 'Resource Packs', link: '/arcade-minigames/resource_packs' },
-          { text: 'Scheduling', link: '/arcade-minigames/scheduling' },
-          { text: 'Serialization', link: '/arcade-minigames/serialization' },
-          { text: 'Settings', link: '/arcade-minigames/settings' },
-          { text: 'Stats', link: '/arcade-minigames/stats' },
-          { text: 'Teams', link: '/arcade-minigames/teams' },
-          { text: 'Visuals', link: '/arcade-minigames/visuals' },
-          { text: 'Worlds', link: '/arcade-minigames/worlds' }
-        ]
-      },
-      {
-        text: 'Nametags',
-        collapsed: true,
-        items: [
-          { text: 'Getting Started', link: '/arcade-nametags/getting-started' }
-        ]
-      },
-      {
-        text: 'NPCs',
-        collapsed: true,
-        items: [
-          { text: 'Getting Started', link: '/arcade-npcs/getting-started' }
-        ]
-      },
-      {
-        text: 'Replay',
-        collapsed: true,
-        items: [
-          { text: 'Getting Started', link: '/arcade-replay/getting-started' }
-        ]
-      },
-      {
-        text: 'Resource Packs',
-        collapsed: true,
-        items: [
-          { text: 'Getting Started', link: '/arcade-resource-pack/getting-started' }
-        ]
-      },
-      {
-        text: 'Resource Pack Hosting',
-        collapsed: true,
-        items: [
-          { text: 'Getting Started', link: '/arcade-resource-pack-host/getting-started' }
-        ]
-      },
-      {
-        text: 'Scheduling',
-        collapsed: true,
-        items: [
-          { text: 'Getting Started', link: '/arcade-scheduler/getting-started' },
-          { text: 'Usage', link: '/arcade-scheduler/usage' }
-        ]
-      },
-      {
-        text: 'Utilities',
-        collapsed: true,
-        items: [
-          { text: 'Getting Started', link: '/arcade-utils/getting-started' }
-        ]
-      },
-      {
-        text: 'Virtual Entities',
-        collapsed: true,
-        items: [
-          { text: 'Getting Started', link: '/arcade-virtual-entities/getting-started' },
-          { text: 'Usage', link: '/arcade-virtual-entities/usage' }
-        ]
-      },
-      {
-        text: 'Visuals',
-        collapsed: true,
-        items: [
-          { text: 'Getting Started', link: '/arcade-visuals/getting-started' },
-          { text: 'Usage', link: '/arcade-visuals/usage' }
-        ]
-      }
-    ],
+    sidebar,
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/CasualChampionships/arcade' }

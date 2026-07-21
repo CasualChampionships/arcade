@@ -1,4 +1,4 @@
-# Events
+# Server Events
 
 Arcade implements a simple and modular events system for commonly used events.
 

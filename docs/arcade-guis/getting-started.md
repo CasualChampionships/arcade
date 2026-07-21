@@ -1,4 +1,4 @@
-# Guis
+# GUIs
 
 
 ## Adding to Dependencies
