@@ -12,7 +12,7 @@ GlobalEventHandler.Server.register<PlayerTickEvent> { event ->
 }
 ```
 
-Just like broadcasting, listeners are split by side: `ServerSideEvent`s are 
+Listeners are split by side: `ServerSideEvent`s are 
 registered on `GlobalEventHandler.Server` (as above) and `ClientSideEvent`s on 
 `GlobalEventHandler.Client`. All the examples here are server-side, but the exact 
 same ideas apply to the client.
