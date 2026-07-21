@@ -19,10 +19,10 @@ repositories {
 }
 
 dependencies {
-    include(implementation("net.casualchampionships:arcade-events-server:0.10.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-events-server:0.11.0-beta.3+26.2")!!)
 
-    include(implementation("net.casualchampionships:arcade-event-registry:0.10.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-utils:0.10.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-event-registry:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-utils:0.11.0-beta.3+26.2")!!)
 }
 ```
 

@@ -1,134 +1,5 @@
 plugins {
-    val jvmVersion = libs.versions.fabric.kotlin.get()
-        .split("+kotlin.")[1]
-        .split("+")[0]
-
-    kotlin("jvm").version(jvmVersion)
-    kotlin("plugin.serialization").version(jvmVersion)
-    alias(libs.plugins.fabric.loom)
-    alias(libs.plugins.spotless)
-    `maven-publish`
-    java
-}
-
-val modVersion = "0.11.0-beta.3"
-
-allprojects {
-    apply(plugin = "org.jetbrains.kotlin.jvm")
-    apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
-    apply(plugin = "net.fabricmc.fabric-loom")
-    apply(plugin = "maven-publish")
-    apply(plugin = "com.diffplug.spotless")
-
-    val libs = rootProject.libs
-
-    group = "net.casualchampionships"
-    version = "${modVersion}+${libs.versions.minecraft.get()}"
-
-    repositories {
-        mavenLocal()
-        maven("https://maven.supersanta.me/snapshots")
-        maven("https://masa.dy.fi/maven")
-        maven("https://maven.parchmentmc.org/")
-        maven("https://repo.viaversion.com")
-        maven("https://jitpack.io")
-        maven("https://api.modrinth.com/maven")
-        maven("https://maven.nucleoid.xyz")
-        maven("https://maven.maxhenkel.de/repository/public")
-        maven("https://maven4.bai.lol")
-        mavenCentral()
-    }
-
-    dependencies {
-        minecraft(libs.minecraft)
-
-        implementation(libs.fabric.loader)
-        implementation(libs.fabric.kotlin)
-        implementation(libs.fabric.api)
-    }
-
-    java {
-        withSourcesJar()
-    }
-
-    kotlin {
-        explicitApi()
-    }
-
-    tasks {
-        processResources {
-            inputs.property("version", modVersion)
-            filesMatching("fabric.mod.json") {
-                expand(mutableMapOf(
-                    "version" to modVersion,
-                    "minecraft_dependency" to replaceVersion(libs.versions.minecraft.get(), "x"),
-                    "fabric_loader_dependency" to libs.versions.fabric.loader.get(),
-                    "fabric_api_dependency" to libs.versions.fabric.api.get(),
-                    "fabric_kotlin_dependency" to libs.versions.fabric.kotlin.get(),
-                    "polymer_dependency" to libs.versions.polymer.get(),
-                    "sgui_dependency" to libs.versions.sgui.get(),
-                ))
-            }
-        }
-
-        jar {
-            from(rootProject.file("LICENSE")) {
-                rename { "arcade-LICENSE" }
-            }
-        }
-    }
-
-    loom {
-        decompilerOptions.named("vineflower") {
-            options.put("mark-corresponding-synthetics", "1")
-        }
-    }
-
-    publishing {
-        publications {
-            create<MavenPublication>("mavenJava") {
-                from(components["java"])
-            }
-        }
-
-        repositories {
-            val mavenUrl = System.getenv("MAVEN_URL")
-            if (mavenUrl != null) {
-                maven {
-                    url = uri(mavenUrl)
-                    val mavenUsername = System.getenv("MAVEN_USERNAME")
-                    val mavenPassword = System.getenv("MAVEN_PASSWORD")
-                    if (mavenUsername != null && mavenPassword != null) {
-                        credentials {
-                            username = mavenUsername
-                            password = mavenPassword
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    spotless {
-        java {
-            licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
-            targetExclude("src/testmod/**")
-        }
-        kotlin {
-            licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
-            targetExclude("src/testmod/**")
-        }
-    }
-}
-
-subprojects {
-    afterEvaluate {
-//         updateDocumentedDependencies("../docs/${name}/getting-started.md")
-    }
-}
-
-afterEvaluate {
-    updateDocumentedDependencies("./README.md", false)
+    id("arcade.common-conventions")
 }
 
 val testmod: SourceSet by sourceSets.creating {
@@ -168,45 +39,63 @@ dependencies {
     }
 }
 
-val moduleDependencies: Project.(List<String>) -> Unit by extra { { names ->
-    dependencies {
-        for (name in names) {
-            api(project(":arcade-$name"))
+data class ModVersion(val major: Int, val minor: Int, val patch: Int, val pre: String?) {
+    override fun toString(): String {
+        val core = "$major.$minor.$patch"
+        return if (pre != null) "$core-$pre" else core
+    }
+
+    companion object {
+        private val PATTERN = Regex("""^(\d+)\.(\d+)\.(\d+)(?:-(.+))?$""")
+
+        fun parse(raw: String): ModVersion {
+            val match = PATTERN.matchEntire(raw.trim())
+                ?: error("Cannot parse mod_version '$raw' (expected MAJOR.MINOR.PATCH[-pre])")
+            val (major, minor, patch) = match.destructured
+            val pre = match.groupValues[4].ifEmpty { null }
+            return ModVersion(major.toInt(), minor.toInt(), patch.toInt(), pre)
         }
     }
-} }
-
-fun replaceVersion(version: String, patch: String): String {
-    return version.replace(Regex("""^(\d+\.\d+)(\.\d+)?$"""), "$1.$patch")
 }
 
-private fun Project.updateDocumentedDependencies(path: String, transitive: Boolean = true) {
-    val file = file(path)
-    if (!file.exists()) {
-        return
-    }
+val modVersionProperties = rootProject.file("gradle.properties")
 
-    val builder = StringBuilder()
-    builder.append("\ndependencies {\n")
-    builder.append("""    include(implementation("${this.group}:${this.name}:${this.version}")!!)""")
-
-    if (transitive) {
-        val dependencies = configurations.api.get().dependencies.toMutableSet()
-        dependencies.removeAll(configurations.include.get().dependencies)
-        val shade = configurations.findByName("shade")
-        if (shade != null) {
-            dependencies.removeAll(shade.dependencies)
-        }
-        dependencies.removeAll { it.group?.startsWith("org.jetbrains.kotlin") == true }
-        if (dependencies.isNotEmpty()) {
-            dependencies.sortedBy { "${it.group}:${it.name}" }.joinTo(builder, "\n", "\n\n") {
-                """    include(implementation("${it.group}:${it.name}:${it.version}")!!)"""
-            }
+fun registerBumpTask(name: String, summary: String, bump: (ModVersion) -> ModVersion) {
+    tasks.register(name) {
+        group = "versioning"
+        description = summary
+        doLast {
+            val text = modVersionProperties.readText()
+            val current = ModVersion.parse(
+                Regex("""(?m)^mod_version=(.*)$""").find(text)?.groupValues?.get(1)
+                    ?: error("mod_version not found in gradle.properties")
+            )
+            val next = bump(current)
+            modVersionProperties.writeText(
+                text.replaceFirst(Regex("""(?m)^mod_version=.*$"""), "mod_version=$next")
+            )
+            logger.lifecycle("mod_version: $current -> $next")
         }
     }
+}
 
-    builder.append("\n}")
-    builder.toString()
-    val regex = Regex("""(\ndependencies \{[\s\S]+\})""")
-    file.writeText(file.readText().replaceFirst(regex, builder.toString()))
+registerBumpTask("bumpMajor", "Bumps to the next major version") {
+    ModVersion(it.major + 1, 0, 0, null)
+}
+
+registerBumpTask("bumpMinor", "Bumps to the next minor version") {
+    ModVersion(it.major, it.minor + 1, 0, null)
+}
+
+registerBumpTask("bumpPatch", "Bumps to the next patch version") {
+    ModVersion(it.major, it.minor, it.patch + 1, null)
+}
+
+registerBumpTask("bumpBeta", "Bumps to the next beta version") { version ->
+    val beta = Regex("""beta\.(\d+)""").matchEntire(version.pre ?: "")
+    if (beta != null) {
+        version.copy(pre = "beta.${beta.groupValues[1].toInt() + 1}")
+    } else {
+        version.copy(pre = "beta.1")
+    }
 }

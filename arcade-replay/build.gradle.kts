@@ -1,16 +1,19 @@
 plugins {
+    id("arcade.common-conventions")
     alias(libs.plugins.shadow)
     alias(libs.plugins.explosion)
 }
 
 val shade: Configuration by configurations.creating
 
-val moduleDependencies: (Project, List<String>) -> Unit by project
-
-moduleDependencies(project, listOf("utils", "event-registry", "events-server", "resource-pack-host", "commands"))
-
 dependencies {
-    compileOnly(project(":arcade-virtual-entities"))
+    api(projects.arcadeUtils)
+    api(projects.arcadeEventRegistry)
+    api(projects.arcadeEventsServer)
+    api(projects.arcadeResourcePackHost)
+    api(projects.arcadeCommands)
+
+    compileOnly(projects.arcadeVirtualEntities)
 
     compileOnly(libs.carpet)
     compileOnly(libs.vmp)

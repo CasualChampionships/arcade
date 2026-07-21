@@ -1,3 +1,7 @@
-val moduleDependencies: (Project, List<String>) -> Unit by project
+plugins {
+    id("arcade.common-conventions")
+}
 
-moduleDependencies(project, listOf("utils"))
+dependencies {
+    api(projects.arcadeUtils)
+}

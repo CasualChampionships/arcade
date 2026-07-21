@@ -1,3 +1,30 @@
+pluginManagement {
+    includeBuild("build-logic")
+
+    repositories {
+        maven("https://maven.fabricmc.net/") {
+            name = "Fabric"
+        }
+        maven("https://maven4.bai.lol")
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0"
+}
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("libs") {
+            from(files("libs.versions.toml"))
+        }
+    }
+}
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 rootProject.name = "arcade"
 
 include(
@@ -25,22 +52,3 @@ include(
     ":arcade-virtual-entities",
     ":arcade-visuals",
 )
-
-dependencyResolutionManagement {
-    versionCatalogs {
-        create("libs") {
-            from(files("libs.versions.toml"))
-        }
-    }
-}
-
-pluginManagement {
-    repositories {
-        maven("https://maven.fabricmc.net/") {
-            name = "Fabric"
-        }
-        maven("https://maven4.bai.lol")
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
