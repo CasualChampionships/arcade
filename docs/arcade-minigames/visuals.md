@@ -1,7 +1,5 @@
 # Visuals
 
-> Return to [table of contents](getting-started.md)
-
 Arcade provides a wide array of visual components, read the [Visuals Section](../arcade-visuals/getting-started.md) 
 to see more information about those. 
 This section is dedicated to how those gui components can be integrated within 
@@ -54,8 +52,8 @@ minigame.visuals.removePlayerListDisplay()
 ```
 
 There are also two additional things that the visual manager controls, that is the 
-`Countdown` and `ReadyChecker`, these are used in minigames by default when 
-unpausing to check that all players are ready, and then a countdown begins. You
+`Countdown` and the ready broadcasters, these are used in minigames by default when 
+unpausing to count down and to check that all players are ready. You
 may also want to use these for other applications. These will have default 
 implementations, but you can overwrite them.
 
@@ -71,12 +69,29 @@ minigame.launch {
     // Executes *after* our transition is complete!
     println("Minigame Countdown Finished!")
 }
+```
 
-minigame.visuals.readier = // ...
-    
-// We can then use this to check if players are ready
-minigame.visuals.readier.arePlayersReady(minigame.players.playing).then {
+Readiness is handled by the `playerReadyBroadcaster` and `teamReadyBroadcaster`,
+which determine how players are prompted to ready up (by default they use chat).
+You can overwrite these, and then check readiness using the suspending
+`checkReadyPlayers` and `checkReadyTeams` extensions, or track it yourself with
+`trackReadyPlayers` and `trackReadyTeams`:
+```kotlin
+val minigame: Minigame = // ...
+
+// Optionally customize how players are asked to ready up
+minigame.visuals.playerReadyBroadcaster = // ...
+
+minigame.launch {
+    // Suspends until all playing players are ready
+    minigame.checkReadyPlayers()
     println("Playing players are ready!")
+}
+
+// Or track readiness manually
+val tracker = minigame.trackReadyPlayers()
+if (tracker.isReady()) {
+    println("Everyone is ready!")
 }
 ```
 
@@ -174,5 +189,3 @@ scheduled it as phased cancellable that means we can wrap this task in a
 cancellable task which in the case the phase abruptly changes will notify the 
 task, calling `runIfCancelled` tells the task to run if it's been notified of 
 the cancellation and so the bossbar will be removed.
-
-> See the next section on [Resource Packs](resource_packs.md)

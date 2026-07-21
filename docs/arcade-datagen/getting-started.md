@@ -14,7 +14,7 @@ have a separate project dedicated to data generation as this api contains client
 
 ```kts
 repositories {
-    maven("https://maven.supersanta.me/snapshots")
+    maven("https://maven.casualchampionships.net/snapshots")
 }
 
 dependencies {

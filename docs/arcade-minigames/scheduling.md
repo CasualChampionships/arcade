@@ -1,16 +1,14 @@
 # Scheduling
 
-> Return to [table of contents](getting-started.md)
-
 Scheduling is key to implementing a minigame, there are lots of things that you
 will want to do in the future, and the scheduling API allows you to do this. If
 you have not already taken a look at the [Scheduling](../arcade-scheduler/getting-started.md) 
 Documentation, this part of the documentation will look specifically at 
 scheduling with minigames.
 
-Let's first take a look at the `MinigameScheduler` which can be accessed 
+Let's first take a look at the `MinigameTaskScheduler` which can be accessed 
 through the `scheduler` field on a `Minigame` instance. This class, like a 
-regular `TickedScheduler` allows you to schedule events in the future, however 
+regular `TickedTaskScheduler` allows you to schedule events in the future, however 
 adds more functionality to give you control over whether tasks are scheduled 
 and serialized.
 
@@ -83,7 +81,7 @@ This is, for example, useful for UI elements that only appear in specific phases
 ```kotlin
 enum class ExamplePhases(
     override val id: String
-): MinigamePhase<ExampleMinigame> {
+): Phase<ExampleMinigame> {
     // ...
     Active("active") {
         override fun start(minigame: ExampleMinigame) {
@@ -119,5 +117,3 @@ Coroutines launched from `launch` and `async` run on the minigame's default
 scheduler, and will be cancelled when the minigame is closed. Coroutines 
 launched from the phased variations will run on the minigame's phased
 scheduler, and will additionally be cancelled when the minigame changes phase.
-
-> See the next section on [Commands](commands.md)

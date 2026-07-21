@@ -1,8 +1,4 @@
-# Usage
-
-> Return to [table of contents](getting-started.md)
-
-## Creating a Boundary
+# Creating a Boundary
 
 Boundaries are formed from two components, a shape and a renderer which
 are represented by `BoundaryShape` and `BoundaryRenderer` respectively.
@@ -22,6 +18,11 @@ As for `BoundaryRenderer` there are two main provided options being
 `ParticleBoundaryRenderer` (or `AsyncParticleBoundaryRenderer`)
 and `AxisAlignedDisplayBoundaryRenderer`. 
 
+Renderers are supplied to a boundary as a `BoundaryRenderer.Factory`
+rather than directly, this lets the boundary construct the renderer
+for its own level and shape. Each renderer provides a matching
+`Factory` for this purpose.
+
 We'll start with the particle renderer, which renders the boundary 
 using particles, we can specify custom particle options which can
 change the particles that the boundary uses for rendering, by default
@@ -31,12 +32,10 @@ particles will be visible to players and the number of particles
 per block to render.
 
 ```kotlin
-val shape: BoundaryShape = // ...
-val renderer = ParticleBoundaryRenderer(
-    shape = shape,
+val renderer = ParticleBoundaryRenderer.Factory(
     particles = ParticleRenderOptions.DEFAULT,
     range = 40.0,
-    particlesPerBlock = 1.0
+    pointsPerBlock = 1.0
 )
 ```
 Our renderer would look like this in game:
@@ -47,9 +46,7 @@ uses display entities to render the boundary. The constructor takes in
 `AxisAlignedModelRenderOptions` which dynamically specifies what the model
 for each of the faces should be.
 ```kotlin
-val shape: BoundaryShape = // ...
-val renderer = AxisAlignedDisplayBoundaryRenderer(
-    shape = shape, 
+val renderer = AxisAlignedDisplayBoundaryRenderer.Factory(
     models = AxisAlignedModelRenderOptions.DEFAULT
 )
 ```
@@ -67,49 +64,23 @@ work for boundaries where the x, y, and z sizes are equal but works
 for the entire 32-bit floating point range.
 
 ```kotlin
-val shape: BoundaryShape = // ...
-val renderer = AxisAlignedDisplayBoundaryRenderer(shape, AxisAlignedModelRenderOptions.CUBOID_SHADER)
+val renderer = AxisAlignedDisplayBoundaryRenderer.Factory(AxisAlignedModelRenderOptions.CUBOID_SHADER)
 ```
 
 This is what the shader version looks like in game:
 ![Boundary Shader](images/boundary_shader.png)
 
-Putting this together we can actually create an instance of `LevelBoundary`:
+Putting this together we can actually create an instance of `LevelBoundary`,
+which takes the level it belongs to, the shape, and the renderer factory:
 ```kotlin
+val level: ServerLevel = // ...
 val box: AABB = // ...
 val shape = AxisAlignedBoundaryShape(box)
-val renderer = AxisAlignedDisplayBoundaryRenderer(shape, AxisAlignedModelRenderOptions.CUBOID_SHADER)
-val boundary = LevelBoundary(shape, renderer)
+val renderer = AxisAlignedDisplayBoundaryRenderer.Factory(AxisAlignedModelRenderOptions.CUBOID_SHADER)
+val boundary = LevelBoundary(level, shape, renderer)
 ```
 
 And then we can assign it to a given world:
 ```kotlin
-val level: ServerLevel = // ...
 level.levelBoundary = boundary
-```
-
-## Boundary Behavior
-
-Boundaries are intended to behave very similar to world borders, but
-they do differ slightly. Boundaries also support the y-axis and so boundaries
-have an x-size, y-size, and z-size instead of just one size which is applied
-to the x and z axis. Boundaries also allow lerping the center of the boundary
-over a period of time.
-
-```kotlin
-val boundary: LevelBoundary = // ...
-// If duration is not specified it defaults to 0 (instant)
-boundary.resize(size = Vec3(100.0, 256.0, 80.0), duration = 5.Minutes)
-
-// Default to 0 duration
-boundary.recenter(Vec3(0.0, 64.0, 0.0), duration = 3.Minutes)
-```
-
-Boundaries also support damaging players outside of them exactly like the 
-vanilla world border:
-```kotlin
-val boundary: LevelBoundary = // ...
-boundary.damagePerBlock = 0.4
-boundary.damageSafeZone = 10.0
-boundary.warningBlocks = 10
 ```

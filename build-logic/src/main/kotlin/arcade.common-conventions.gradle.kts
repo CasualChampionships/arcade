@@ -21,7 +21,7 @@ version = "${modVersion}+${libs.versions.minecraft.get()}"
 
 repositories {
     mavenLocal()
-    maven("https://maven.supersanta.me/snapshots")
+    maven("https://maven.casualchampionships.net/snapshots")
     maven("https://masa.dy.fi/maven")
     maven("https://maven.parchmentmc.org/")
     maven("https://repo.viaversion.com")

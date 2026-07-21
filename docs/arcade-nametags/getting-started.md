@@ -1,4 +1,4 @@
-# NPCs
+# Nametags
 
 
 
@@ -9,7 +9,7 @@ include all of these.
 
 ```kts
 repositories {
-    maven("https://maven.supersanta.me/snapshots")
+    maven("https://maven.casualchampionships.net/snapshots")
 }
 
 dependencies {

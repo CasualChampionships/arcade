@@ -18,7 +18,7 @@ include all of these.
 
 ```kts
 repositories {
-    maven("https://maven.supersanta.me/snapshots")
+    maven("https://maven.casualchampionships.net/snapshots")
 }
 
 dependencies {
@@ -31,5 +31,3 @@ dependencies {
     include(implementation("net.casualchampionships:arcade-utils:0.11.0-beta.3+26.2")!!)
 }
 ```
-
-> ### [Usage](./usage.md)

@@ -1,6 +1,5 @@
 # Worlds
 
-> Return to [table of contents](getting-started.md)
  
 Managing worlds is likely something you want to do with your minigames.
 Typically, you'll have a dedicated world *per* minigame. However, it is also possible to have multiple worlds per minigame.
@@ -101,5 +100,3 @@ val minigame: Minigame = // ...
 
 minigame.levels.spawn = MySpawnLocation()
 ```
-
-> See the next section on [Settings](settings.md)

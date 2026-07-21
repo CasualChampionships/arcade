@@ -1,7 +1,5 @@
 # Settings
 
-> Return to [table of contents](getting-started.md)
-
 Minigame settings are super easy to configure and allow for quite a lot of control over the behaviour of your minigame.
 
 In addition to the built-in default settings, you are able to implement your 
@@ -64,7 +62,7 @@ To create custom settings for your minigame, you first must extend the
 `MinigameSettings` class.
 
 ```kotlin
-class ExampleSettings(minigame: Minigame<*>): MinigameSettings(minigame) {
+class ExampleSettings(minigame: Minigame): MinigameSettings(minigame) {
 
 }
 ```
@@ -213,7 +211,7 @@ for discrete setting types, for example `GameSetting<Boolean>` can only have
 two options, one for `true`, and one for `false`. Instead of adding options for
 these manually, we can just use the defaults:
 ```kotlin
-class ExampleSettings(minigame: Minigame<*>): MinigameSettings(minigame) {
+class ExampleSettings(minigame: Minigame): MinigameSettings(minigame) {
     val myCustomSetting by this.register(MenuGameSettingBuilder.bool {
         // ...
         defaults.options(this)
@@ -237,7 +235,7 @@ class CustomSettingsDefaults: DisplayableSettingsDefaults() {
 ```
 And you can choose any item for your display item, this can also be any custom items with custom models or textures.
 
-Then we can pass this into our `MinigamesSettings` constructor call:
+Then we can pass this into our `MinigameSettings` constructor call:
 ```kotlin
 class ExampleSettings(
     minigame: Minigame
@@ -266,7 +264,7 @@ class CustomSettingsDefaults: DisplayableSettingsDefaults() {
         return super.createSettingsGuiBuilder(player)
     }
 
-    override fun createOptionsGuiBuilder(parent: GuiInterface, setting: MenuGameSetting<*>): SelectionGuiBuilder {
+    override fun createOptionsGuiBuilder(parent: GuiLike, setting: MenuGameSetting<*>): SelectionGuiBuilder {
         return super.createOptionsGuiBuilder(parent, setting)
     }
 }
@@ -277,6 +275,4 @@ gui listing all the minigame settings, and the `createOptionsGuiBuilder`
 returns the builder responsible for creating the gui listing all the options 
 for a given minigame setting.
 
-The specifics on how to customize these are discussed in the [GUI Section](visuals.md).
-
-> See the next section on [Teams](teams.md)
+The specifics on how to customize these are discussed in the [Selection Screens Section](../arcade-guis/selection-screens.md).

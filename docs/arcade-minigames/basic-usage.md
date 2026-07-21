@@ -1,7 +1,5 @@
 # Basic Usage
 
-> Return to [table of contents](getting-started.md)
-
 ## Creating a Minigame
 
 Firstly we will take a look at the `Minigame` class. This is the heart
@@ -338,6 +336,3 @@ The first thing to note is that you must be an operator with a permission level 
 - `/minigame unpause <minigame-id>` This unpauses the minigame.
 - `/minigame unpause <minigame-id> countdown <time?> <unit?>` This starts a countdown that will unpause the minigame. You can optionally specify a time with a unit, if not specified it will default to 10 seconds.
 - `/minigame unpause <minigame-id> ready <players|teams>` This broadcasts a ready check for either all players or teams. Once all are ready, admins will be prompted to run the unpause countdown command.
-
-
-> See the next section on [Players](players.md)

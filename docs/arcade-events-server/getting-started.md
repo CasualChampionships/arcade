@@ -1,4 +1,4 @@
-# Events
+# Server Events
 
 Arcade implements a simple and modular events system for commonly used events.
 
@@ -15,7 +15,7 @@ include both of these.
 
 ```kts
 repositories {
-    maven("https://maven.supersanta.me/snapshots")
+    maven("https://maven.casualchampionships.net/snapshots")
 }
 
 dependencies {
@@ -25,6 +25,3 @@ dependencies {
     include(implementation("net.casualchampionships:arcade-utils:0.11.0-beta.3+26.2")!!)
 }
 ```
-
-> ### [Basic Usage](./basic-usage.md)
-> ### [Advanced Usage](./advanced-usage.md)

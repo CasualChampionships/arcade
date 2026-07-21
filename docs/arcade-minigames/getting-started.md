@@ -11,11 +11,11 @@ lifting done for you!
 ## Adding to Dependencies
 
 If you are implementing minigames, you probably want to bundle the entirety of the arcade,
-read the [README](../../README.md) for more information.
+read the [README](https://github.com/CasualChampionships/arcade#readme) for more information.
 
 ```kts
 repositories {
-    maven("https://maven.supersanta.me/snapshots")
+    maven("https://maven.casualchampionships.net/snapshots")
 }
 
 dependencies {
@@ -34,24 +34,3 @@ dependencies {
     include(implementation("net.casualchampionships:arcade-visuals:0.11.0-beta.3+26.2")!!)
 }
 ```
-
-> ### [Basic Usage](basic-usage.md)
-> ### [Players](players.md)
-> ### [Worlds](worlds.md)
-> ### [Settings](settings.md)
-> ### [Teams](teams.md)
-> ### [Events](events.md)
-> ### [Scheduling](scheduling.md)
-> ### [Commands](commands.md)
-> ### [GUI](visuals.md)
-> ### [Resource Packs](resource_packs.md)
- 
-### 🚧 Under Construction 
-
-> ### [Chat](chat.md)
-> ### [Advancements](advancements.md)
-> ### [Recipes](recipes.md)
-> ### [Effects](effects.md)
-> ### [Stats](stats.md)
-
-> ### [Serialization](serialization.md)

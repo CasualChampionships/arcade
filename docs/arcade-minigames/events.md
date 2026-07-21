@@ -1,7 +1,5 @@
 # Events
 
-> Return to [table of contents](getting-started.md)
-
 Events are fundamental for implementing minigame logic. The goal of the event 
 system is to provide hooks that are commonly used in minigames, to reduce the 
 number of mixins you need to add yourself.
@@ -78,7 +76,7 @@ minigame.events.register<PlayerTickEvent>(flags = ListenerFlags.IS_PLAYING) {
 }
 
 // Now we will only accept events from players who are spectating
-minigame.events.register<PlayerTickEvent>(flags = ListenerFlags.IS_SPECTATING) {
+minigame.events.register<PlayerTickEvent>(flags = ListenerFlags.IS_SPECTATOR) {
     // ...
 }
 ```
@@ -179,5 +177,3 @@ private fun onMinigameAddPlayer(event: MinigameAddPlayerEvent) {
     // ...
 }
 ```
-
-> See the next section on [Scheduling](scheduling.md)

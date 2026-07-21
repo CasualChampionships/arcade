@@ -1,7 +1,5 @@
 # Teams
 
-> Return to [table of contents](getting-started.md)
-
 This section covers how Arcade handles teams, even if your minigame isn't 
 team-based, it's likely you still want to use teams to differentiate between 
 admins and spectators too.
@@ -109,5 +107,3 @@ val team: PlayerTeam = // ...
 
 val ignored: Boolean = minigame.teams.isTeamIgnored(team)
 ```
-
-> See the next section on [Events](events.md)
