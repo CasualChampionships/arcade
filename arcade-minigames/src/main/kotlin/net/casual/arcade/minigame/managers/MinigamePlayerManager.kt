@@ -18,9 +18,9 @@ import net.casual.arcade.minigame.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.collection.concat
 import net.casual.arcade.utils.entity.teleportTo
-import net.casual.arcade.utils.math.location.Location.Companion.location
-import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asTeleportTransition
-import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.locationWithLevel
+import net.casual.arcade.utils.math.location.asTeleportTransition
+import net.casual.arcade.utils.math.location.location
+import net.casual.arcade.utils.math.location.locationWithLevel
 import net.casual.arcade.utils.player.server
 import net.casual.arcade.utils.server.player
 import net.minecraft.nbt.CompoundTag

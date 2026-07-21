@@ -5,11 +5,11 @@
 package net.casual.arcade.nametags
 
 import net.casual.arcade.nametags.virtual.NametagHeight
+import net.casual.arcade.observer.Observer
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.color.ColorARGB
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.network.chat.Component
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 
 /**
@@ -56,19 +56,19 @@ public interface Nametag {
      * should be visible to the [observer].
      *
      * @param observee The entity whose nametag is being observed.
-     * @param observer The player observing the nametag.
+     * @param observer The [Observer] observing the nametag.
      * @return Whether the nametag should be visible.
      */
-    public fun isObservable(observee: Entity, observer: ServerPlayer): Boolean
+    public fun isObservable(observee: Entity, observer: Observer): Boolean
 
     /**
      * This method determines whether the [observee] is within range of the [observer]
      *
      * @param observee The entity whose nametag is being observed.
-     * @param observer The player observing the nametag.
+     * @param observer The [Observer] observing the nametag.
      * @return Whether the entity is in range.
      */
-    public fun isWithinRange(observee: Entity, observer: ServerPlayer): Boolean {
+    public fun isWithinRange(observee: Entity, observer: Observer): Boolean {
         return true
     }
 
@@ -89,7 +89,7 @@ public interface Nametag {
                     return name
                 }
 
-                override fun isObservable(observee: Entity, observer: ServerPlayer): Boolean {
+                override fun isObservable(observee: Entity, observer: Observer): Boolean {
                     return true
                 }
             }

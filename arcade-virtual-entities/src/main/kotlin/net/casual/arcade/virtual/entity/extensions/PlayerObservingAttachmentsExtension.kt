@@ -13,14 +13,12 @@ import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.virtual.entity.ParentVirtualEntity
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
-import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
-import net.casual.arcade.virtual.entity.compat.ArcadeReplayCompatLayer
 import net.casual.arcade.virtual.entity.interaction.EntityInteraction
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.phys.Vec3
 
-internal class PlayerAttachmentObserverExtension(player: ServerPlayer): PlayerExtension(player) {
+internal class PlayerObservingAttachmentsExtension(player: ServerPlayer): PlayerExtension(player) {
     private val observing = ObjectOpenHashSet<RootVirtualEntityAttachment>()
 
     fun startObserving(attachment: RootVirtualEntityAttachment) {
@@ -31,7 +29,7 @@ internal class PlayerAttachmentObserverExtension(player: ServerPlayer): PlayerEx
         this.observing.remove(attachment)
     }
 
-    fun attachments(): Set<RootVirtualEntityAttachment> {
+    fun observing(): Set<RootVirtualEntityAttachment> {
         return this.observing
     }
 
@@ -98,16 +96,12 @@ internal class PlayerAttachmentObserverExtension(player: ServerPlayer): PlayerEx
 
     companion object {
         @JvmStatic
-        val ServerPlayer.attachmentObserver: PlayerAttachmentObserverExtension
+        val ServerPlayer.observingAttachmentsExtension: PlayerObservingAttachmentsExtension
             get() = this.getExtension()
 
         fun registerEvents() {
             GlobalEventHandler.Server.register<PlayerExtensionEvent> {
-                it.addExtension(::PlayerAttachmentObserverExtension)
-            }
-
-            if (ArcadeReplayCompatLayer.loaded) {
-                ArcadeReplayCompatLayer.registerReplaySnapshotAttachmentRecording()
+                it.addExtension(::PlayerObservingAttachmentsExtension)
             }
         }
     }

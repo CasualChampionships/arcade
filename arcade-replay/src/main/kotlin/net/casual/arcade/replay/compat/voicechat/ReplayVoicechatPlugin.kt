@@ -227,6 +227,7 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
         if (recorder.format == ReplayFormat.ReplayMod) {
             val server = Voicechat.SERVER.server
             if (server != null) {
+                @Suppress("Deprecation")
                 val player = recorder.getDummyPlayer()
                 val packet = SecretPacket(player, server.generateNewSecret(Util.NIL_UUID), server.port, Voicechat.SERVER_CONFIG)
                 recorder.record(packet.toClientboundPacket())

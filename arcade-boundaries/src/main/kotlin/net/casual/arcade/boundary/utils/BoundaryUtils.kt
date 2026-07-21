@@ -4,10 +4,13 @@
  */
 package net.casual.arcade.boundary.utils
 
+import net.casual.arcade.boundary.LevelBoundary
+import net.casual.arcade.boundary.extension.LevelBoundaryExtension.Companion.levelBoundaryExtension
 import net.minecraft.network.protocol.game.ClientboundSetBorderCenterPacket
 import net.minecraft.network.protocol.game.ClientboundSetBorderLerpSizePacket
 import net.minecraft.network.protocol.game.ClientboundSetBorderSizePacket
 import net.minecraft.network.protocol.game.ClientboundSetBorderWarningDistancePacket
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.border.WorldBorder
 
 private val WORLD_BORDER = WorldBorder()
@@ -33,3 +36,14 @@ public fun ClientboundSetBorderCenterPacket(centerX: Double, centerZ: Double): C
     WORLD_BORDER.setCenter(centerX, centerZ)
     return ClientboundSetBorderCenterPacket(WORLD_BORDER)
 }
+
+/**
+ * Gets and sets a [LevelBoundary] for a given [ServerLevel].
+ * This may be `null` if no boundary has been set.
+ */
+public var ServerLevel.levelBoundary: LevelBoundary?
+    get() = this.levelBoundaryExtension.getBoundary()
+    set(value) {
+        val extension = this.levelBoundaryExtension
+        if (value == null) extension.removeBoundary() else extension.setBoundary(value)
+    }

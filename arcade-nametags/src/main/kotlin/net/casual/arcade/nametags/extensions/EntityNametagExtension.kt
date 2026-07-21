@@ -5,8 +5,6 @@
 package net.casual.arcade.nametags.extensions
 
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
-import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent.Companion.replacePacket
 import net.casual.arcade.events.server.player.PlayerPoseEvent
 import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.EntityExtension
@@ -16,19 +14,17 @@ import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.virtual.NametagVirtualEntity
 import net.casual.arcade.nametags.virtual.NametagVirtualEntityAttachment
-import net.casual.arcade.utils.asClientGamePacket
+import net.casual.arcade.observer.events.ObserverClientboundPacketEvent
+import net.casual.arcade.observer.events.ObserverClientboundPacketEvent.Companion.replacePacketRecursively
+import net.casual.arcade.observer.Observer
 import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.utils.entity.EntityTransferReason
 import net.casual.arcade.utils.impl.DelayedActions
-import net.casual.arcade.utils.modify
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.utils.createVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.utils.removeVirtualEntityAttachment
 import net.minecraft.network.protocol.Packet
-import net.minecraft.network.protocol.game.ClientGamePacketListener
-import net.minecraft.network.protocol.game.ClientboundBundlePacket
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.Pose
 import org.jetbrains.annotations.ApiStatus.Experimental
@@ -111,7 +107,7 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
         }
     }
 
-    internal fun createUpdatePassengersPacket(observer: ServerPlayer): ClientboundSetPassengersPacket {
+    internal fun createUpdatePassengersPacket(observer: Observer): ClientboundSetPassengersPacket {
         val mount = this.mount
         return when {
             mount == null || !mount.observers.isObserving(observer) -> ClientboundSetPassengersPacket(this.entity)
@@ -120,7 +116,7 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
     }
 
     internal fun updatePassengersPacket(
-        observer: ServerPlayer,
+        observer: Observer,
         packet: ClientboundSetPassengersPacket
     ): ClientboundSetPassengersPacket {
         if (!this.attachment.isInitialized() || this.mount != null) {
@@ -131,15 +127,15 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
         return PolymerCompatLayer.updatePacket(packet, updated)
     }
 
-    private fun getRootPassengers(observer: ServerPlayer): IntArray {
+    private fun getRootPassengers(observer: Observer): IntArray {
         val empty = this.getAttachment().isObservingEmpty(observer)
         return if (empty) intArrayOf() else intArrayOf(this.getAttachment().getRootId())
     }
 
     private fun broadcastUpdatedMount() {
         if (this.attachment.isInitialized()) {
-            this.attachment.value.broadcast { observer, consumer ->
-                consumer.invoke(this.createUpdatePassengersPacket(observer))
+            this.attachment.value.observers.broadcast { observer ->
+                observer.send(this.createUpdatePassengersPacket(observer))
             }
         }
     }
@@ -180,8 +176,8 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
             GlobalEventHandler.Server.register<EntityExtensionEvent> { event ->
                 event.addExtension(::EntityNametagExtension)
             }
-            GlobalEventHandler.Server.register<PlayerClientboundPacketEvent> { event ->
-                event.replacePacket(::updatePacket)
+            GlobalEventHandler.Server.register<ObserverClientboundPacketEvent> { event ->
+                event.replacePacketRecursively { observer, packet -> this.updatePacket(observer, packet) }
             }
             GlobalEventHandler.Server.register<PlayerPoseEvent> { (player, previous, updated) ->
                 if (previous != updated) {
@@ -194,16 +190,12 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
             }
         }
 
-        private fun updatePacket(player: ServerPlayer, packet: Packet<*>): Packet<ClientGamePacketListener> {
-            if (packet is ClientboundBundlePacket) {
-                return packet.modify(player, this::updatePacket)
+        private fun updatePacket(observer: Observer, packet: Packet<*>): Packet<*> {
+            if (packet is ClientboundSetPassengersPacket) {
+                val vehicle = observer.location.level.getEntity(packet.vehicle) ?: return packet
+                return vehicle.nametagExtension.updatePassengersPacket(observer, packet)
             }
-            if (packet !is ClientboundSetPassengersPacket) {
-                return packet.asClientGamePacket()
-            }
-
-            val vehicle = player.level().getEntity(packet.vehicle) ?: return packet
-            return vehicle.nametagExtension.updatePassengersPacket(player, packet)
+            return packet
         }
     }
 }

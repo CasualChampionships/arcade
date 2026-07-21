@@ -4,7 +4,11 @@
  */
 package net.casual.arcade.virtual.entity.utils
 
+import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.tracker.ParentObserverTracker
 import net.casual.arcade.utils.math.location.Location
+import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
@@ -12,14 +16,19 @@ import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor
 import net.casual.arcade.virtual.entity.attachment.anchor.LevelAttachmentAnchor
 import net.casual.arcade.virtual.entity.extensions.EntityAttachmentExtension.Companion.attachmentExtension
 import net.casual.arcade.virtual.entity.extensions.LevelAttachmentExtension.Companion.attachmentExtension
-import net.casual.arcade.virtual.entity.tracker.ObserverTracker
-import net.casual.arcade.virtual.entity.tracker.ParentObserverTracker
-import net.minecraft.network.protocol.Packet
+import net.casual.arcade.virtual.entity.extensions.PlayerObservingAttachmentsExtension.Companion.observingAttachmentsExtension
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
+import org.jetbrains.annotations.ApiStatus.Internal
 
-public fun <T: RootVirtualEntityAttachment> ServerLevel.createVirtualEntityAttachment(factory: (LevelAttachmentAnchor) -> T): T {
+public fun ServerPlayer.getObservingAttachments(): Set<RootVirtualEntityAttachment> {
+    return this.observingAttachmentsExtension.observing()
+}
+
+public fun <T: RootVirtualEntityAttachment> ServerLevel.createVirtualEntityAttachment(
+    factory: (LevelAttachmentAnchor, ObserverTracker) -> T
+): T {
     return this.attachmentExtension.add(factory)
 }
 
@@ -27,16 +36,26 @@ public fun ServerLevel.removeVirtualEntityAttachment(attachment: RootVirtualEnti
     return this.attachmentExtension.remove(attachment)
 }
 
+public fun ServerLevel.getVirtualEntityAttachments(): Collection<RootVirtualEntityAttachment> {
+    return this.attachmentExtension.attachments
+}
+
 public fun ServerLevel.getVirtualEntities(): Collection<VirtualEntity> {
     return this.attachmentExtension.getAttachedVirtualEntities()
 }
 
-public fun <T: RootVirtualEntityAttachment> Entity.createVirtualEntityAttachment(factory: (EntityAttachmentAnchor) -> T): T {
+public fun <T: RootVirtualEntityAttachment> Entity.createVirtualEntityAttachment(
+    factory: (EntityAttachmentAnchor, ObserverTracker) -> T
+): T {
     return this.attachmentExtension.add(factory)
 }
 
 public fun Entity.removeVirtualEntityAttachment(attachment: RootVirtualEntityAttachment): Boolean {
     return this.attachmentExtension.remove(attachment)
+}
+
+public fun Entity.getVirtualEntityAttachments(): Collection<RootVirtualEntityAttachment> {
+    return this.attachmentExtension.attachments
 }
 
 public fun Entity.getVirtualEntities(): Collection<VirtualEntity> {
@@ -52,44 +71,44 @@ public fun VirtualEntity.canAttachTo(attachment: VirtualEntityAttachment): Boole
     return this.attachment === attachment
 }
 
-public fun VirtualEntity.sendSpawnPackets(
-    observer: ServerPlayer,
-    consumer: (Packet<*>) -> Unit = observer.connection::send
+public fun VirtualEntity.sendBundledSpawnPackets(
+    observer: Observer,
+    sender: PacketSender = observer
 ) {
     val collector = VirtualEntityPacketCollector()
     this.sendSpawnPackets(observer, collector::add)
-    collector.bundle().send(consumer)
+    collector.bundle().send(sender)
 }
 
-public fun VirtualEntity.sendDespawnPackets(
-    observer: ServerPlayer,
-    consumer: (Packet<*>) -> Unit = observer.connection::send
+public fun VirtualEntity.sendBundledDespawnPackets(
+    observer: Observer,
+    sender: PacketSender = observer
 ) {
     val collector = VirtualEntityPacketCollector()
     this.sendDespawnPackets(observer, collector::add)
-    collector.optimize().bundle().send(consumer)
+    collector.optimize().bundle().send(sender)
 }
 
 public fun VirtualEntity.startObservingAndSendPackets(
-    observer: ServerPlayer,
-    consumer: (Packet<*>) -> Unit = observer.connection::send
+    observer: Observer,
+    sender: PacketSender = observer
 ) {
     if (this.canObserve(observer) && this.observers.startObserving(observer)) {
-        this.sendSpawnPackets(observer, consumer)
+        this.sendBundledSpawnPackets(observer, sender)
     }
 }
 
 public fun VirtualEntity.stopObservingAndSendPackets(
-    observer: ServerPlayer,
-    consumer: (Packet<*>) -> Unit = observer.connection::send
+    observer: Observer,
+    sender: PacketSender = observer
 ) {
     if (this.observers.isObserving(observer)) {
-        this.sendDespawnPackets(observer, consumer)
+        this.sendBundledDespawnPackets(observer, sender)
         this.observers.stopObserving(observer)
     }
 }
 
-public fun VirtualEntityAttachment.createParentObserverTracker(): ParentObserverTracker {
+public fun VirtualEntityAttachment.asParentObserverTracker(): ParentObserverTracker {
     return this.observers as? ParentObserverTracker ?: ParentObserverTracker(this.observers)
 }
 
@@ -102,7 +121,7 @@ public inline fun <A: VirtualEntityAttachment, T: VirtualEntity> A.attach(factor
 public inline fun <A: VirtualEntityAttachment, T: VirtualEntity> A.attachWithParentObservers(
     factory: (A, ObserverTracker) -> T
 ): T {
-    val entity = factory.invoke(this, this.createParentObserverTracker())
+    val entity = factory.invoke(this, this.asParentObserverTracker())
     this.attach(entity)
     return entity
 }

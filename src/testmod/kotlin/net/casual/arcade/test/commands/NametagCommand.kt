@@ -8,12 +8,12 @@ import net.casual.arcade.commands.executes
 import net.casual.arcade.commands.literal
 import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.nametagExtension
+import net.casual.arcade.observer.Observer
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.ComponentArgument
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.network.chat.Component
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 
 @Suppress("unused")
@@ -54,7 +54,7 @@ object NametagCommand: CommandTree<CommandSourceStack> {
                     return text
                 }
 
-                override fun isObservable(observee: Entity, observer: ServerPlayer): Boolean {
+                override fun isObservable(observee: Entity, observer: Observer): Boolean {
                     return (observee.level().gameTime / 20) % 2 == 0L
                 }
             })

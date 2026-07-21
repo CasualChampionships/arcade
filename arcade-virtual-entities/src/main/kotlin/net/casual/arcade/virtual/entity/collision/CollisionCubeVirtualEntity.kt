@@ -4,16 +4,16 @@
  */
 package net.casual.arcade.virtual.entity.collision
 
+import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.tracker.ObserverTracker
 import net.casual.arcade.utils.ClientboundSetPassengersPacket
+import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.virtual.entity.SimpleParentVirtualEntity
 import net.casual.arcade.virtual.entity.SimpleVirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.display.SimpleVirtualTextDisplay
-import net.casual.arcade.virtual.entity.tracker.ObserverTracker
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
-import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.ai.attributes.AttributeInstance
 import net.minecraft.world.entity.ai.attributes.Attributes
@@ -38,11 +38,11 @@ public class CollisionCubeVirtualEntity(
         this.observers.broadcast(ClientboundUpdateAttributesPacket(this.shulker.id, listOf(this.getScaleAttribute())))
     }
 
-    override fun sendSpawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
-        super.sendSpawnPackets(observer, consumer)
+    override fun sendSpawnPackets(observer: Observer, sender: PacketSender) {
+        super.sendSpawnPackets(observer, sender)
 
-        consumer.invoke(ClientboundUpdateAttributesPacket(this.shulker.id, listOf(this.getScaleAttribute())))
-        consumer.invoke(ClientboundSetPassengersPacket(this.vehicle.id, intArrayOf(this.shulker.id)))
+        sender.send(ClientboundUpdateAttributesPacket(this.shulker.id, listOf(this.getScaleAttribute())))
+        sender.send(ClientboundSetPassengersPacket(this.vehicle.id, intArrayOf(this.shulker.id)))
     }
 
     private fun getScaleAttribute(): AttributeInstance {

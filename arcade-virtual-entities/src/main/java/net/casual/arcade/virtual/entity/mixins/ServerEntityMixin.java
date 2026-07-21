@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.virtual.entity.mixins;
 
+import net.casual.arcade.observer.utils.ObserverUtilsKt;
 import net.casual.arcade.virtual.entity.extensions.EntityAttachmentExtension;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -26,18 +27,6 @@ public class ServerEntityMixin {
     private Entity entity;
 
     @Inject(
-        method = "addPairing",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/server/level/ServerEntity;sendPairingData(Lnet/minecraft/server/level/ServerPlayer;Ljava/util/function/Consumer;)V"
-        )
-    )
-    private void startObservingEntityAttachments(ServerPlayer player, CallbackInfo ci) {
-        EntityAttachmentExtension extension = EntityAttachmentExtension.getAttachmentExtension(this.entity);
-        extension.startObserving(player);
-    }
-
-    @Inject(
         method = "sendPairingData",
         at = @At("TAIL")
     )
@@ -47,15 +36,6 @@ public class ServerEntityMixin {
         CallbackInfo ci
     ) {
         EntityAttachmentExtension extension = EntityAttachmentExtension.getAttachmentExtension(this.entity);
-        extension.sendObservingSpawnPackets(player, broadcast);
-    }
-
-    @Inject(
-        method = "removePairing",
-        at = @At("HEAD")
-    )
-    private void removeObservingEntityAttachments(ServerPlayer player, CallbackInfo ci) {
-        EntityAttachmentExtension extension = EntityAttachmentExtension.getAttachmentExtension(this.entity);
-        extension.stopObserving(player);
+        extension.sendObservingSpawnPackets(ObserverUtilsKt.asObserver(player), broadcast);
     }
 }

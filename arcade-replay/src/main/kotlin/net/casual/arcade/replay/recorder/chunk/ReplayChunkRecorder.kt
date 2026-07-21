@@ -8,6 +8,8 @@ import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.replay.compat.arcade.ArcadeObserversCompatLayer
+import net.casual.arcade.replay.compat.arcade.ArcadeVirtualEntitiesCompatLayer
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderLoadedResumeEvent
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderSnapshotEvent
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderUnloadedPauseEvent
@@ -30,6 +32,7 @@ import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.utils.entity.WrappedTrackedEntity
 import net.casual.arcade.utils.level.server
 import net.casual.arcade.utils.registries.toIdString
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext
 import net.fabricmc.fabric.impl.networking.context.PacketContextImpl
 import net.minecraft.core.UUIDUtil
 import net.minecraft.network.Connection
@@ -108,7 +111,9 @@ public class ReplayChunkRecorder internal constructor(
         get() = Vec2.ZERO
 
     override fun record(outgoing: Packet<*>) {
-        super.record(PolymerCompatLayer.replacePacket(this.dummy.connection, outgoing))
+        var modified = ArcadeObserversCompatLayer.modifyPacketForObserver(this, outgoing)
+        modified = PolymerCompatLayer.replacePacket(this.dummy.connection, modified)
+        super.record(modified)
     }
 
     /**
@@ -147,6 +152,9 @@ public class ReplayChunkRecorder internal constructor(
         RejoinedReplayPlayer.rejoin(this.dummy, this)
         this.spawnPlayer()
         this.sendChunksAndEntities()
+
+        ArcadeObserversCompatLayer.startObservingLevel(this)
+
         GlobalEventHandler.Server.broadcast(ReplayChunkRecorderSnapshotEvent(this, true))
 
         val chunks = this.level.chunkSource.chunkMap as ChunkMapAccessor
@@ -196,6 +204,8 @@ public class ReplayChunkRecorder internal constructor(
         if (this.recordables.isNotEmpty()) {
             ArcadeUtils.logger.warn("Failed to unlink all chunk recordables")
         }
+
+        ArcadeObserversCompatLayer.stopObservingLevel(this)
 
         ReplayChunkRecorders.close(this.server, this, future)
     }
@@ -332,6 +342,9 @@ public class ReplayChunkRecorder internal constructor(
         for (recordable in this.recordables) {
             recordable.resendPackets(this)
         }
+
+        ArcadeVirtualEntitiesCompatLayer.resendObservingLevelAttachments(this)
+
         GlobalEventHandler.Server.broadcast(ReplayChunkRecorderSnapshotEvent(this, true))
     }
 
@@ -347,6 +360,7 @@ public class ReplayChunkRecorder internal constructor(
      *
      * @return The dummy chunk recording player.
      */
+    @Deprecated("You should avoid using the dummy player if possible")
     public fun getDummyPlayer(): ServerPlayer {
         return this.dummy
     }
@@ -443,10 +457,12 @@ public class ReplayChunkRecorder internal constructor(
         }
 
         if (chunk != null && this.writer.cacheChunksOnUnload) {
-            val packet = ClientboundLevelChunkWithLightPacket(
-                chunk, this.level.lightEngine, null, null
-            )
-            this.record(packet)
+            PacketContext.runWithContext(this.getPacketContextProvider()) {
+                val packet = ClientboundLevelChunkWithLightPacket(
+                    chunk, this.level.lightEngine, null, null
+                )
+                this.record(packet)
+            }
         }
 
         this.loadedChunks.remove(pos.pack())

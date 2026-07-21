@@ -6,9 +6,9 @@ package net.casual.arcade.visuals.nametag
 
 import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.nametagExtension
+import net.casual.arcade.observer.Observer
 import net.casual.arcade.visuals.core.TrackingVisualElement
 import net.casual.arcade.visuals.elements.PlayerSpecificElement
-import net.casual.arcade.visuals.predicate.PlayerObserverPredicate
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
@@ -54,16 +54,17 @@ public class PlayerNametag(
     public companion object {
         public fun simple(
             component: PlayerSpecificElement<Component>,
-            predicate: PlayerObserverPredicate = PlayerObserverPredicate { _, _ -> true }
+            predicate: (ServerPlayer, Observer) -> Boolean = { _, _ -> true }
         ): PlayerNametag {
             val nametag = object: Nametag {
                 override fun getComponent(observee: Entity): Component {
-                    require(observee is ServerPlayer) { "Player nametag cannot be applied to entities" }
+                    require(observee is ServerPlayer) { "Player nametag cannot be applied to non-player entity" }
                     return component.get(observee)
                 }
 
-                override fun isObservable(observee: Entity, observer: ServerPlayer): Boolean {
-                    return predicate.observable(observee, observer)
+                override fun isObservable(observee: Entity, observer: Observer): Boolean {
+                    require(observee is ServerPlayer) { "Player nametag cannot be applied to non-player entity" }
+                    return predicate.invoke(observee, observer)
                 }
             }
             return PlayerNametag(nametag)

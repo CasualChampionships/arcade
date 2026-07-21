@@ -1,9 +1,5 @@
 val moduleDependencies: (Project, List<String>) -> Unit by project
 
 moduleDependencies(project, listOf(
-    "utils", "event-registry", "events-server", "extensions"
+    "utils", "event-registry", "events-server", "extensions", "observers"
 ))
-
-dependencies {
-    compileOnly(project(":arcade-replay"))
-}

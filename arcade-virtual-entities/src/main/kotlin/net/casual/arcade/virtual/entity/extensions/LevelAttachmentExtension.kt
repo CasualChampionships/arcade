@@ -6,60 +6,34 @@ package net.casual.arcade.virtual.entity.extensions
 
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.server.entity.EntityStartTrackingEvent
-import net.casual.arcade.events.server.entity.EntityStopTrackingEvent
 import net.casual.arcade.events.server.level.LevelTickEvent
 import net.casual.arcade.events.utils.register
-import net.casual.arcade.extensions.Extension
 import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
-import net.casual.arcade.virtual.entity.VirtualEntity
+import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.events.ObserverStartObservingLevelEvent
+import net.casual.arcade.observer.events.ObserverStopObservingLevelEvent
+import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.utils.getObservers
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.LevelAttachmentAnchor
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.server.level.ServerPlayer
 
-internal class LevelAttachmentExtension(level: ServerLevel): Extension {
-    private val attachments = ObjectLinkedOpenHashSet<RootVirtualEntityAttachment>()
-    private val anchor = LevelAttachmentAnchor(level)
+internal class LevelAttachmentExtension(level: ServerLevel): AttachmentExtension<LevelAttachmentAnchor> {
+    override val attachments = ObjectLinkedOpenHashSet<RootVirtualEntityAttachment>()
+    override val anchor = LevelAttachmentAnchor(level)
 
-    fun tick() {
-        for (attachment in this.attachments) {
-            attachment.tick()
-        }
+    override fun getObservers(): ObserverTracker {
+        return this.anchor.level.getObservers()
     }
 
-    fun <T: RootVirtualEntityAttachment> add(factory: (LevelAttachmentAnchor) -> T): T {
-        val attachment = factory.invoke(this.anchor)
-        require(attachment.anchor === this.anchor) { "Created VirtualEntityAttachment with incorrect anchor!" }
-        this.attachments.add(attachment)
-        for (player in this.anchor.level.players()) {
-            attachment.startObservingAttached(player)
-        }
-        return attachment
-    }
-
-    fun remove(attachment: RootVirtualEntityAttachment): Boolean {
-        if (this.attachments.remove(attachment)) {
-            for (player in this.anchor.level.players()) {
-                attachment.stopObservingAttached(player)
-            }
-            return true
-        }
-        return false
-    }
-
-    fun getAttachedVirtualEntities(): List<VirtualEntity> {
-        return this.attachments.flatMap { it.attached() }
-    }
-
-    fun startObserving(observer: ServerPlayer) {
+    private fun startObserving(observer: Observer) {
         for (attachment in this.attachments) {
             attachment.startObservingAttached(observer)
         }
     }
 
-    fun stopObserving(observer: ServerPlayer) {
+    private fun stopObserving(observer: Observer) {
         for (attachment in this.attachments) {
             attachment.stopObservingAttached(observer)
         }
@@ -77,15 +51,11 @@ internal class LevelAttachmentExtension(level: ServerLevel): Extension {
             GlobalEventHandler.Server.register<LevelTickEvent> { (level) ->
                 level.attachmentExtension.tick()
             }
-            GlobalEventHandler.Server.register<EntityStartTrackingEvent>(phase = EntityStartTrackingEvent.PHASE_POST) { (entity, level) ->
-                if (entity is ServerPlayer) {
-                    level.attachmentExtension.startObserving(entity)
-                }
+            GlobalEventHandler.Server.register<ObserverStartObservingLevelEvent> { (observer, level) ->
+                level.attachmentExtension.startObserving(observer)
             }
-            GlobalEventHandler.Server.register<EntityStopTrackingEvent>(phase = EntityStartTrackingEvent.PHASE_PRE) { (entity, level) ->
-                if (entity is ServerPlayer) {
-                    level.attachmentExtension.stopObserving(entity)
-                }
+            GlobalEventHandler.Server.register<ObserverStopObservingLevelEvent> { (observer, level) ->
+                level.attachmentExtension.stopObserving(observer)
             }
         }
     }

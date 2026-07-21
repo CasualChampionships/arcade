@@ -5,9 +5,10 @@
 package net.casual.arcade.virtual.entity.display
 
 import com.mojang.math.Transformation
+import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.utils.asPlayerOrNull
 import net.casual.arcade.virtual.entity.SimpleVirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
-import net.casual.arcade.virtual.entity.tracker.ObserverTracker
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Brightness
 import net.minecraft.world.entity.Display
@@ -148,11 +149,12 @@ public abstract class SimpleVirtualDisplay(
     public fun startInterpolationIfDirty() {
         val base = TRANSFORMATION_ACCESSORS.filter(this.data::isBaseDirty)
         for (observer in this.observers) {
-            val uuid = observer.uuid
+            val player = observer.asPlayerOrNull() ?: continue
+            val uuid = player.uuid
             val dirty = base.any { accessor -> !this.data.isOverridden(uuid, accessor) }
                 || TRANSFORMATION_ACCESSORS.any { accessor -> this.data.isDirty(uuid, accessor) }
             if (dirty) {
-                this.startInterpolationFor(observer)
+                this.startInterpolationFor(player)
             }
         }
     }

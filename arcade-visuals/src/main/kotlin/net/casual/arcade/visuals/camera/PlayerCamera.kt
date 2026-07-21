@@ -4,17 +4,19 @@
  */
 package net.casual.arcade.visuals.camera
 
+import net.casual.arcade.observer.utils.asObserver
 import net.casual.arcade.utils.ClientboundPlayerInfoUpdatePacket
 import net.casual.arcade.utils.asClientGamePacket
 import net.casual.arcade.utils.entity.teleportTo
 import net.casual.arcade.utils.math.location.Location
-import net.casual.arcade.utils.math.location.Location.Companion.withRotation
 import net.casual.arcade.utils.math.location.LocationWithLevel
+import net.casual.arcade.utils.math.location.with
 import net.casual.arcade.utils.player.getGameMode
 import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.display.SimpleVirtualItemDisplay
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
+import net.casual.arcade.virtual.entity.utils.sendBundledSpawnPackets
 import net.casual.arcade.visuals.core.TickableVisualElement
 import net.casual.arcade.visuals.core.TrackingVisualElement
 import net.casual.arcade.visuals.extensions.PlayerCameraExtension.Companion.cameraExtension
@@ -55,11 +57,11 @@ public class PlayerCamera(
     }
 
     public fun setPosition(position: Vec3) {
-        this.location = position.withRotation(this.location.rotation)
+        this.location = position.with(this.location.rotation)
     }
 
     public fun setRotation(rotation: Vec2) {
-        this.location = this.location.position.withRotation(rotation)
+        this.location = this.location.position.with(rotation)
     }
 
     public fun setLocation(location: Location) {
@@ -104,7 +106,7 @@ public class PlayerCamera(
         player.teleportTo(this.location().with(this.level))
         this.sendGamemodePacket(player, GameType.SPECTATOR, player.connection::send)
 
-        this.attachment.startObservingAttached(player)
+        this.attachment.startObservingAttached(player.asObserver())
         player.connection.send(createSetCameraPacket(this.camera.id))
     }
 
@@ -112,12 +114,12 @@ public class PlayerCamera(
         player.cameraExtension.remove()
         this.sendGamemodePacket(player, player.getGameMode(), player.connection::send)
         player.connection.send(ClientboundSetCameraPacket(player))
-        this.attachment.stopObservingAttached(player)
+        this.attachment.stopObservingAttached(player.asObserver())
     }
 
     override fun resendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
         this.sendGamemodePacket(player, GameType.SPECTATOR, sender)
-        this.camera.sendSpawnPackets(player) { sender.accept(it.asClientGamePacket()) }
+        this.camera.sendBundledSpawnPackets(player.asObserver()) { sender.accept(it.asClientGamePacket()) }
         sender.accept(createSetCameraPacket(this.camera.id))
     }
 

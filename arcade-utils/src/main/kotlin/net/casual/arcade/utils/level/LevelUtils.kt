@@ -20,8 +20,7 @@ import net.minecraft.world.level.chunk.LevelChunk
 import net.minecraft.world.level.chunk.status.ChunkStatus
 
 public fun ServerLevel.server(): MinecraftServer {
-    @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
-    return this.server!!
+    return this.server
 }
 
 public fun ServerLevel.getTrackedEntities(): List<WrappedTrackedEntity> {

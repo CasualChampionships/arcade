@@ -63,7 +63,6 @@ public sealed class GlobalEventHandler<E: Event>(
      * be invoked, the reasoning for this is because we
      * cannot guarantee priority preservation.
      *
-     * @param E The type of event.
      * @param event The event that is being fired.
      * @param phases The phases of the event that should be invoked.
      */

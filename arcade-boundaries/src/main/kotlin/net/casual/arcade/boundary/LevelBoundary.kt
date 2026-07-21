@@ -11,11 +11,8 @@ import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.boundary.shape.BoundaryShape.Containment
 import net.casual.arcade.boundary.utils.ClientboundSetBorderWarningDistancePacket
 import net.casual.arcade.utils.time.MinecraftTimeDuration
-import net.casual.arcade.visuals.core.TrackingVisualElement
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction.Axis
-import net.minecraft.network.protocol.Packet
-import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Mth
@@ -23,7 +20,6 @@ import net.minecraft.world.level.border.WorldBorder
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import java.util.*
-import java.util.function.Consumer
 import kotlin.math.max
 
 /**
@@ -34,20 +30,25 @@ import kotlin.math.max
  *
  * @param shape The shape of the boundary.
  * @param renderer The renderer to render this boundary.
- * @see LevelBoundaryExtension.levelBoundary
  * @see BoundaryShape
  * @see BoundaryRenderer
  */
 public class LevelBoundary(
     /**
+     * The level that the boundary is attached to.
+     */
+    public val level: ServerLevel,
+    /**
      * The shape of the boundary.
      */
     public val shape: BoundaryShape,
     /**
-     * The boundary renderer.
+     * The boundary renderer creator.
      */
-    public val renderer: BoundaryRenderer,
-): TrackingVisualElement() {
+    renderer: BoundaryRenderer.Factory
+) {
+    public val renderer: BoundaryRenderer = renderer.create(this.level, this.shape)
+
     /**
      * Determines how much damage to deal to the player
      * while they're outside the boundary.
@@ -71,7 +72,7 @@ public class LevelBoundary(
      *
      * @param settings The boundary settings.
      */
-    public constructor(settings: Settings): this(settings.shape, settings.renderer()) {
+    public constructor(level: ServerLevel, settings: Settings): this(level, settings.shape, settings.renderer) {
         this.damagePerBlock = settings.damagePerBlock
         this.damageSafeZone = settings.damageSafeZone
         this.warningBlocks = settings.warningBlocks
@@ -218,30 +219,22 @@ public class LevelBoundary(
      * Updates the boundary shape and renderer.
      * This is also responsible for dealing damage
      * to players outside the boundary.
-     *
-     * @param level The level this boundary is for.
      */
-    public fun tick(level: ServerLevel) {
+    public fun tick() {
         this.shape.tick()
 
-        val players = this.getPlayers()
-        this.renderer.render(level, players)
-        for (player in players) {
+        this.renderer.render()
+        for (player in this.level.players()) {
             this.tickPlayer(player)
         }
     }
 
-    override fun onAddPlayer(player: ServerPlayer) {
-        this.renderer.startRendering(player)
-    }
-
-    override fun onRemovePlayer(player: ServerPlayer) {
-        this.renderer.stopRendering(player)
+    internal fun stopTracking(player: ServerPlayer) {
         player.connection.send(INSIDE_BORDER_PACKET)
     }
 
-    override fun resendTo(player: ServerPlayer, sender: Consumer<Packet<ClientGamePacketListener>>) {
-        this.renderer.restartRendering(player, sender)
+    internal fun remove() {
+        this.renderer.stop()
     }
 
     private fun tickPlayer(player: ServerPlayer) {
@@ -282,20 +275,16 @@ public class LevelBoundary(
 
     public data class Settings(
         val shape: BoundaryShape,
-        val rendererFactory: BoundaryRenderer.Factory,
+        val renderer: BoundaryRenderer.Factory,
         val damagePerBlock: Double,
         val damageSafeZone: Double,
         val warningBlocks: Int
     ) {
-        public fun renderer(): BoundaryRenderer {
-            return this.rendererFactory.create(this.shape)
-        }
-
         public companion object {
             public val CODEC: Codec<Settings> = RecordCodecBuilder.create { instance ->
                 instance.group(
                     BoundaryShape.CODEC.fieldOf("shape").forGetter(Settings::shape),
-                    BoundaryRenderer.Factory.CODEC.fieldOf("renderer").forGetter(Settings::rendererFactory),
+                    BoundaryRenderer.Factory.CODEC.fieldOf("renderer").forGetter(Settings::renderer),
                     Codec.DOUBLE.fieldOf("damage_per_block").forGetter(Settings::damagePerBlock),
                     Codec.DOUBLE.fieldOf("damage_safe_zone").forGetter(Settings::damageSafeZone),
                     Codec.INT.fieldOf("warning_blocks").forGetter(Settings::warningBlocks)

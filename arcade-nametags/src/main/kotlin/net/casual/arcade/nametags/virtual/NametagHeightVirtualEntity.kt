@@ -4,19 +4,20 @@
  */
 package net.casual.arcade.nametags.virtual
 
+import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.tracker.ObserverTracker
 import net.casual.arcade.utils.MathUtils.component1
 import net.casual.arcade.utils.MathUtils.component2
 import net.casual.arcade.utils.MathUtils.component3
+import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.data.SimpleEntityData
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
-import net.casual.arcade.virtual.entity.tracker.ObserverTracker
 import net.casual.arcade.virtual.entity.utils.EntityDataAccessors
 import net.casual.arcade.virtual.entity.utils.EntityDataSharedFlags
 import net.casual.arcade.virtual.entity.utils.location
-import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket
@@ -41,28 +42,28 @@ public class NametagHeightVirtualEntity(
 
     }
 
-    override fun sendSpawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
+    override fun sendSpawnPackets(observer: Observer, sender: PacketSender) {
         val location = this.location()
         val (x, y, z) = location.position
-        consumer.invoke(ClientboundAddEntityPacket(
+        sender.send(ClientboundAddEntityPacket(
             this.id, this.uuid, x, y, z, 0.0F, 0.0F, EntityTypes.ARMOR_STAND, 0, Vec3.ZERO, 0.0
         ))
-        consumer.invoke(ClientboundSetEntityDataPacket(this.id, changed))
+        sender.send(ClientboundSetEntityDataPacket(this.id, changed))
         val attribute = this.height.attribute
         if (attribute != null) {
-            consumer.invoke(ClientboundUpdateAttributesPacket(this.id, listOf(attribute)))
+            sender.send(ClientboundUpdateAttributesPacket(this.id, listOf(attribute)))
         }
     }
 
-    override fun sendDespawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
-        consumer.invoke(ClientboundRemoveEntitiesPacket(this.id))
+    override fun sendDespawnPackets(observer: Observer, sender: PacketSender) {
+        sender.send(ClientboundRemoveEntitiesPacket(this.id))
     }
 
     override fun getInteractionHandler(player: ServerPlayer): VirtualEntity.InteractionHandler {
         return this.handler
     }
 
-    override fun canObserve(observer: ServerPlayer): Boolean {
+    override fun canObserve(observer: Observer): Boolean {
         return true
     }
 

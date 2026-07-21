@@ -4,10 +4,10 @@ import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.boundary.LevelBoundary
-import net.casual.arcade.boundary.extension.LevelBoundaryExtension.Companion.levelBoundary
 import net.casual.arcade.boundary.renderer.AxisAlignedDisplayBoundaryRenderer
 import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
 import net.casual.arcade.boundary.shape.AxisAlignedBoundaryShape
+import net.casual.arcade.boundary.utils.levelBoundary
 import net.casual.arcade.commands.*
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.minecraft.commands.CommandBuildContext
@@ -55,8 +55,8 @@ object BoundaryCommand: CommandTree<CommandSourceStack> {
         val shape = AxisAlignedBoundaryShape(box)
         shape.recenter(Vec3(0.0, 65.0, 0.0))
 
-        val renderer = AxisAlignedDisplayBoundaryRenderer(shape, AxisAlignedModelRenderOptions.CUBOID_SHADER)
-        val boundary = LevelBoundary(shape, renderer)
+        val factory = AxisAlignedDisplayBoundaryRenderer.Factory(AxisAlignedModelRenderOptions.CUBOID_SHADER)
+        val boundary = LevelBoundary(level, shape, factory)
         level.levelBoundary = boundary
         return context.source.success("Successfully set world boundary")
     }

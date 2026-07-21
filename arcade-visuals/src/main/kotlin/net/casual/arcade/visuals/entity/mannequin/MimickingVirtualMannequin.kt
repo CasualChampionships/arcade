@@ -4,20 +4,24 @@
  */
 package net.casual.arcade.visuals.entity.mannequin
 
+import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.tracker.SimpleObserverTracker
+import net.casual.arcade.observer.utils.asPlayerOrNull
+import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.utils.player.StaticResolvableProfile
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.mannequin.SimpleVirtualMannequin
-import net.casual.arcade.virtual.entity.tracker.ObserverTracker
-import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
-import net.minecraft.network.protocol.Packet
-import net.minecraft.server.level.ServerPlayer
 
 public class MimickingVirtualMannequin(
     attachment: VirtualEntityAttachment,
     observers: ObserverTracker = SimpleObserverTracker()
 ): SimpleVirtualMannequin(attachment, observers) {
-    override fun sendSpawnPackets(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
-        this.setProfileFor(observer, StaticResolvableProfile(observer.gameProfile))
-        super.sendSpawnPackets(observer, consumer)
+    override fun sendSpawnPackets(observer: Observer, sender: PacketSender) {
+        val player = observer.asPlayerOrNull()
+        if (player != null) {
+            this.setProfileFor(player, StaticResolvableProfile(player.gameProfile))
+        }
+        super.sendSpawnPackets(observer, sender)
     }
 }

@@ -5,24 +5,25 @@
 package net.casual.arcade.virtual.entity.attachment
 
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
+import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.tracker.SimpleObserverTracker
+import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
-import net.casual.arcade.virtual.entity.tracker.ObserverTracker
-import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.attachAndUpdateTracking
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.detachAndUpdateTracking
-import net.minecraft.network.protocol.Packet
-import net.minecraft.server.level.ServerPlayer
+import net.casual.arcade.virtual.entity.utils.sendBundledSpawnPackets
 
 /**
  * Simple implementation of [VirtualEntityAttachment].
  */
 public open class SimpleVirtualEntityAttachment(
-    override val anchor: AttachmentAnchor
+    override val anchor: AttachmentAnchor,
+    override val observers: ObserverTracker = SimpleObserverTracker()
 ): RootVirtualEntityAttachment {
     private val attached = ObjectLinkedOpenHashSet<VirtualEntity>()
-    override val observers: ObserverTracker = SimpleObserverTracker()
 
     override var interactable: Boolean = super.interactable
 
@@ -44,10 +45,10 @@ public open class SimpleVirtualEntityAttachment(
         return this.attached
     }
 
-    override fun resendTo(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
+    override fun resendTo(observer: Observer, sender: PacketSender) {
         for (entity in this.attached()) {
             if (entity.observers.isObserving(observer)) {
-                entity.sendSpawnPackets(observer, consumer)
+                entity.sendBundledSpawnPackets(observer, sender)
             }
         }
     }

@@ -9,11 +9,11 @@ import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.boundary.renderer.options.ParticleRenderOptions
 import net.casual.arcade.boundary.shape.BoundaryShape
+import net.casual.arcade.observer.utils.getObservers
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.Util
 
 /**
@@ -27,14 +27,16 @@ import net.minecraft.util.Util
  * @see ParticleBoundaryRenderer
  */
 public class AsyncParticleBoundaryRenderer(
+    level: ServerLevel,
     shape: BoundaryShape,
     particles: ParticleRenderOptions = ParticleRenderOptions.DEFAULT,
     range: Double = 40.0,
     particlesPerBlock: Double = 0.25
-): ParticleBoundaryRenderer(shape, particles, range, particlesPerBlock) {
-    override fun render(level: ServerLevel, players: Collection<ServerPlayer>) {
-        if (players.isNotEmpty()) {
-            Util.ioPool().execute { super.render(level, players) }
+): ParticleBoundaryRenderer(level, shape, particles, range, particlesPerBlock) {
+    override fun render() {
+        val observers = this.level.getObservers().toList()
+        if (observers.isNotEmpty()) {
+            Util.ioPool().execute { this.render(observers) }
         }
     }
 
@@ -47,8 +49,8 @@ public class AsyncParticleBoundaryRenderer(
         private val range: Double,
         private val pointsPerBlock: Double
     ): BoundaryRenderer.Factory {
-        override fun create(shape: BoundaryShape): BoundaryRenderer {
-            return AsyncParticleBoundaryRenderer(shape, this.particles, this.range, this.pointsPerBlock)
+        override fun create(level: ServerLevel, shape: BoundaryShape): BoundaryRenderer {
+            return AsyncParticleBoundaryRenderer(level, shape, this.particles, this.range, this.pointsPerBlock)
         }
 
         override fun codec(): MapCodec<out BoundaryRenderer.Factory> {

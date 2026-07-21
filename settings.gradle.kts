@@ -16,6 +16,7 @@ include(
     ":arcade-minigames",
     ":arcade-nametags",
     ":arcade-npcs",
+    ":arcade-observers",
     ":arcade-replay",
     ":arcade-resource-pack",
     ":arcade-resource-pack-host",

@@ -11,7 +11,7 @@ import io.netty.buffer.Unpooled
 import net.casual.arcade.replay.io.FlashbackIO
 import net.casual.arcade.replay.io.reader.ReplayPacketData
 import net.casual.arcade.replay.io.reader.ReplayReader
-import net.casual.arcade.replay.io.writer.flashback.EntityMovement
+import net.casual.arcade.replay.io.writer.flashback.ExactEntityPosition
 import net.casual.arcade.replay.util.ReplayMarker
 import net.casual.arcade.replay.util.flashback.FlashbackAction
 import net.casual.arcade.replay.viewer.ReplayViewer
@@ -218,20 +218,21 @@ public class FlashbackReader(
             val dimension = buffer.readResourceKey(Registries.DIMENSION)
             val deltas = buffer.readVarInt()
             for (j in 0..<deltas) {
-                val movement = EntityMovement.read(buffer)
+                val id = buffer.readVarInt()
+                val exact = ExactEntityPosition.read(buffer)
                 val packet = ClientboundTeleportEntityPacket(
-                    movement.id,
-                    PositionMoveRotation(movement.position, Vec3.ZERO, movement.rotation.y, movement.rotation.x),
+                    id,
+                    PositionMoveRotation(exact.position, Vec3.ZERO, exact.rotation.y, exact.rotation.x),
                     setOf(),
-                    movement.onGround
+                    exact.onGround
                 )
                 consumer.invoke(ReplayPacketData(ConnectionProtocol.PLAY, packet, this.tickAsDuration))
-                if (movement.id != this.player) {
+                if (id != this.player) {
                     continue
                 }
                 val position = ClientboundPlayerPositionPacket(-1, packet.change, setOf())
                 consumer.invoke(ReplayPacketData(ConnectionProtocol.PLAY, position, this.tickAsDuration))
-                this.updateChunkCacheCenter(movement.position.x, movement.position.y, movement.position.z, consumer)
+                this.updateChunkCacheCenter(exact.position.x, exact.position.y, exact.position.z, consumer)
             }
         }
     }

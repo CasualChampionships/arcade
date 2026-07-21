@@ -7,34 +7,29 @@ package net.casual.arcade.nametags.virtual
 import com.google.common.collect.Iterables
 import com.google.common.collect.LinkedHashMultimap
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceLinkedOpenHashMap
-import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.nametagExtension
+import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.tracker.SimpleObserverTracker
+import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.RootVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.EntityAttachmentAnchor
-import net.casual.arcade.virtual.entity.tracker.ObserverTracker
-import net.casual.arcade.virtual.entity.utils.createParentObserverTracker
-import net.casual.arcade.virtual.entity.utils.startObservingAndSendPackets
-import net.casual.arcade.virtual.entity.utils.stopObservingAndSendPackets
-import net.minecraft.network.protocol.Packet
+import net.casual.arcade.virtual.entity.utils.*
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.world.entity.Entity
 import net.casual.arcade.utils.ClientboundSetPassengersPacket as createSetPassengersPacket
 
 public class NametagVirtualEntityAttachment(
     override val anchor: EntityAttachmentAnchor,
-): RootVirtualEntityAttachment, ObserverTracker {
+    override val observers: ObserverTracker = SimpleObserverTracker()
+): RootVirtualEntityAttachment {
     private val nametags = Reference2ReferenceLinkedOpenHashMap<Nametag, NametagVirtualEntity>()
-    private val tracked = LinkedHashMultimap.create<ServerGamePacketListenerImpl, NametagVirtualEntity>()
-    private val connections = ReferenceLinkedOpenHashSet<ServerGamePacketListenerImpl>()
-
-    override val observers: ObserverTracker get() = this
+    private val tracked = LinkedHashMultimap.create<Observer, NametagVirtualEntity>()
 
     private val root = NametagHeightVirtualEntity(
-        this, this.createParentObserverTracker(), NametagHeight.INITIAL, RetargetingInteractionHandler(this.entity)
+        this, this.asParentObserverTracker(), NametagHeight.INITIAL, RetargetingInteractionHandler(this.entity)
     )
 
     private val entity: Entity
@@ -49,20 +44,20 @@ public class NametagVirtualEntityAttachment(
 
     public fun detach(nametag: Nametag) {
         val entity = this.nametags.remove(nametag) ?: return
-        entity.observers.broadcast { observer, consumer ->
-            entity.stopObservingAndSendPackets(observer, consumer)
-            val tracked = this.tracked[observer.connection]
+        entity.observers.broadcast { observer ->
+            entity.stopObservingAndSendPackets(observer)
+            val tracked = this.tracked[observer]
             if (!tracked.isEmpty()) {
                 tracked.remove(entity)
-                this.resendNametagStackFor(observer, consumer, tracked, false)
+                this.resendNametagStackFor(observer, observer, tracked, false)
             }
         }
     }
 
     public fun detachAll() {
         for (entity in this.nametags.values) {
-            entity.observers.broadcast { observer, consumer ->
-                entity.stopObservingAndSendPackets(observer, consumer)
+            entity.observers.broadcast { observer ->
+                entity.stopObservingAndSendPackets(observer)
             }
         }
         this.tracked.clear()
@@ -110,44 +105,29 @@ public class NametagVirtualEntityAttachment(
         return Iterables.concat(this.nametags.values, listOf(this.root))
     }
 
-    override fun connections(): Collection<ServerGamePacketListenerImpl> {
-        return this.connections
+    override fun sendRootDespawnPackets(observer: Observer, sender: PacketSender) {
+        this.tracked.removeAll(observer)
     }
 
-    override fun startObserving(observer: ServerPlayer): Boolean {
-        return this.connections.add(observer.connection)
-    }
-
-    override fun stopObserving(observer: ServerPlayer) {
-        this.connections.remove(observer.connection)
-        this.tracked.removeAll(observer.connection)
-    }
-
-    override fun isObserving(observer: ServerPlayer): Boolean {
-        return this.connections.contains(observer.connection)
-    }
-
-    public fun isObservingEmpty(observer: ServerPlayer): Boolean {
-        return this.tracked[observer.connection].isEmpty()
+    public fun isObservingEmpty(observer: Observer): Boolean {
+        return this.tracked[observer].isEmpty()
     }
 
     override fun shouldDelayObserving(): Boolean {
         return true
     }
 
-    override fun resendTo(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
-        val connection = observer.connection
-        val tracked = this.tracked.get(connection)
+    override fun resendTo(observer: Observer, sender: PacketSender) {
+        val tracked = this.tracked.get(observer)
         for (entity in tracked) {
-            entity.sendSpawnPackets(observer, consumer)
+            entity.sendBundledSpawnPackets(observer, sender)
         }
 
-        this.resendNametagStackFor(observer, consumer, tracked, true)
+        this.resendNametagStackFor(observer, sender, tracked, true)
     }
 
-    private fun updateObserver(observer: ServerPlayer, consumer: (Packet<*>) -> Unit) {
-        val connection = observer.connection
-        val tracked = this.tracked.get(connection)
+    private fun updateObserver(observer: Observer) {
+        val tracked = this.tracked.get(observer)
         val wasStackEmpty = tracked.isEmpty()
         var dirty = false
         for (entity in this.nametags.values) {
@@ -156,50 +136,50 @@ public class NametagVirtualEntityAttachment(
             if (watching) {
                 if (!canWatch) {
                     tracked.remove(entity)
-                    entity.stopObservingAndSendPackets(observer, consumer)
+                    entity.stopObservingAndSendPackets(observer)
                     dirty = true
                 }
             } else if (canWatch) {
                 tracked.add(entity)
-                entity.startObservingAndSendPackets(observer, consumer)
+                entity.startObservingAndSendPackets(observer)
                 dirty = true
             }
         }
 
         if (dirty) {
-            this.resendNametagStackFor(observer, consumer, tracked, wasStackEmpty)
+            this.resendNametagStackFor(observer, observer, tracked, wasStackEmpty)
         }
     }
 
     private fun resendNametagStackFor(
-        observer: ServerPlayer,
-        consumer: (Packet<*>) -> Unit,
+        observer: Observer,
+        sender: PacketSender,
         stack: Collection<NametagVirtualEntity>,
         wasStackEmpty: Boolean
     ) {
         if (stack.isEmpty()) {
-            this.root.sendDespawnPackets(observer, consumer)
+            this.root.sendBundledDespawnPackets(observer, sender)
             return
         }
         if (wasStackEmpty) {
-            this.root.sendSpawnPackets(observer, consumer)
-            consumer.invoke(this.entity.nametagExtension.createUpdatePassengersPacket(observer))
+            this.root.sendBundledSpawnPackets(observer, sender)
+            sender.send(this.entity.nametagExtension.createUpdatePassengersPacket(observer))
         }
 
         val entities = this.nametags.values.filter(stack::contains).reversed()
         if (entities.size >= 2) {
             // If we're the second last nametag then we need to ensure
             // that the previous vehicle is spawned in (see below)
-            entities[entities.lastIndex - 1].getVehicle().sendSpawnPackets(observer, consumer)
+            entities[entities.lastIndex - 1].getVehicle().sendBundledSpawnPackets(observer, sender)
         }
 
         var previous = this.root
         for (entity in entities) {
-            consumer.invoke(createSetPassengersPacket(previous.id, entity.getPassengerIds()))
+            sender.send(createSetPassengersPacket(previous.id, entity.getPassengerIds()))
             previous = entity.getVehicle()
         }
 
         // We remove the topmost height entity, we don't need it (nothing is mounted on it)
-        consumer.invoke(ClientboundRemoveEntitiesPacket(previous.id))
+        sender.send(ClientboundRemoveEntitiesPacket(previous.id))
     }
 }

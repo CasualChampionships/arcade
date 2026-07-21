@@ -5,12 +5,12 @@
 package net.casual.arcade.virtual.entity
 
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
+import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
-import net.casual.arcade.virtual.entity.tracker.ObserverTracker
-import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.attachAndUpdateTracking
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils.detachAndUpdateTracking

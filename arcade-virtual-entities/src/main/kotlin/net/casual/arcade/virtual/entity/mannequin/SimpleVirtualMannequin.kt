@@ -4,10 +4,10 @@
  */
 package net.casual.arcade.virtual.entity.mannequin
 
+import net.casual.arcade.observer.tracker.ObserverTracker
+import net.casual.arcade.observer.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.SimpleVirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
-import net.casual.arcade.virtual.entity.tracker.ObserverTracker
-import net.casual.arcade.virtual.entity.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.utils.EntityDataAccessors
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer

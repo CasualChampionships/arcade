@@ -4,13 +4,10 @@
  */
 package net.casual.arcade.virtual.entity.attachment
 
+import net.casual.arcade.observer.tracker.ObserverTracker
 import net.casual.arcade.virtual.entity.ParentVirtualEntity
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
-import net.casual.arcade.virtual.entity.tracker.ObserverTracker
-import net.minecraft.network.protocol.Packet
-import net.minecraft.server.level.ServerPlayer
-import org.jetbrains.annotations.ApiStatus.Experimental
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
 /**

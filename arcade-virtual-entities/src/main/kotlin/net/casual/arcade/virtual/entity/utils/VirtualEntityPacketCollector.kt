@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectListIterator
 import net.casual.arcade.utils.asClientGamePacket
+import net.casual.arcade.utils.network.PacketSender
 import net.minecraft.network.protocol.BundlerInfo
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
@@ -72,9 +73,9 @@ public class VirtualEntityPacketCollector {
         return this
     }
 
-    public fun send(consumer: (Packet<*>) -> Unit) {
+    public fun send(consumer: PacketSender) {
         for (packet in this.collected) {
-            consumer.invoke(packet)
+            consumer.send(packet)
         }
     }
 

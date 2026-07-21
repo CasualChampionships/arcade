@@ -4,9 +4,9 @@
  */
 package net.casual.arcade.virtual.entity.utils
 
+import net.casual.arcade.observer.tracker.ObserverTracker
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
-import net.casual.arcade.virtual.entity.tracker.ObserverTracker
 
 public object VirtualEntityTrackingUtils {
     public fun VirtualEntityAttachment.attachAndUpdateTracking(
@@ -15,8 +15,8 @@ public object VirtualEntityTrackingUtils {
         tracked: MutableCollection<VirtualEntity>
     ): Boolean {
         if (entity.canAttachTo(this) && tracked.add(entity)) {
-            observers.broadcast { observer, consumer ->
-                entity.startObservingAndSendPackets(observer, consumer)
+            observers.broadcast { observer ->
+                entity.startObservingAndSendPackets(observer)
             }
             return true
         }
@@ -30,8 +30,8 @@ public object VirtualEntityTrackingUtils {
         tracked: MutableCollection<VirtualEntity>
     ): Boolean {
         if (tracked.remove(entity)) {
-            observers.broadcast { observer, consumer ->
-                entity.stopObservingAndSendPackets(observer, consumer)
+            observers.broadcast { observer ->
+                entity.stopObservingAndSendPackets(observer)
             }
             return true
         }
@@ -42,12 +42,12 @@ public object VirtualEntityTrackingUtils {
         observers: ObserverTracker,
         entities: Iterable<VirtualEntity>
     ) {
-        observers.broadcast { observer, consumer ->
+        observers.broadcast { observer ->
             for (entity in entities) {
                 if (!entity.observers.isObserving(observer)) {
-                    entity.startObservingAndSendPackets(observer, consumer)
+                    entity.startObservingAndSendPackets(observer)
                 } else if (!entity.canObserve(observer)) {
-                    entity.stopObservingAndSendPackets(observer, consumer)
+                    entity.stopObservingAndSendPackets(observer)
                 }
             }
         }
