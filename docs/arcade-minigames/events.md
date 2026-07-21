@@ -76,7 +76,7 @@ minigame.events.register<PlayerTickEvent>(flags = ListenerFlags.IS_PLAYING) {
 }
 
 // Now we will only accept events from players who are spectating
-minigame.events.register<PlayerTickEvent>(flags = ListenerFlags.IS_SPECTATING) {
+minigame.events.register<PlayerTickEvent>(flags = ListenerFlags.IS_SPECTATOR) {
     // ...
 }
 ```

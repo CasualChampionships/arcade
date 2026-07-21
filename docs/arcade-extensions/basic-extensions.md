@@ -1,6 +1,4 @@
-# Usage
-
-## Creating A Basic Extension
+# Basic Extensions
 
 To create a basic extension we just need to create a class that
 implements the `Extension` interface:
@@ -68,7 +66,7 @@ When registering your extension the event will provide access to the
 owner, you can pass this reference into your extension, except 
 extensions for entities and players which work slightly differently. 
 This will be covered in the 
-[Entities and Players Section](#entity-and-player-extensions).
+[Entities and Players Section](entity-player-extensions.md).
 
 We can also register other events to update our extension, lets for
 example say we wanted to keep track of the last modified block position
@@ -89,69 +87,6 @@ class MyLevelExtension: Extension {
                 level.myExtension.lastModifiedBlockPos = pos
             }
         }
-    }
-}
-```
-
-## Serializing Extensions
-
-If we want data in our extension to be serializable and to be able to be
-saved and reloaded then we need to implement the `SerializableExtension`
-which itself also extends `Extension`.
-
-Our extension now needs to override three methods, `serialize()`, `deserialize()`, and
-`id()`:
-
-```kotlin
-class MyLevelExtension: SerializableExtension {
-    var lastModifiedBlockPos: BlockPos? = null
-    
-    override fun serialize(output: ValueOutput) {
-        output.storeNullable("last_modified_pos", BlockPos.CODEC, this.lastModifiedBlockPos)
-    }
-    
-    override fun deserialize(input: ValueInput) {
-        this.lastModifiedBlockPos = input.read("last_modified_pos", BlockPos.CODEC).getOrNull()
-    }
-    
-    override fun id(): Identifier {
-        return Identifier("example", "my_level_extension")
-    }
-    
-    // ...
-}
-```
-
-Registering these extensions are exactly the same, any class that can be extended
-will automatically handle calling the methods for serializing and deserializing your data.
-
-## Entity and Player Extensions
-
-Entity and player extensions need additional behavior because they can be re-constructed
-when travelling between dimensions, respawning, or converting to other entity types.
-In these cases we need to effectively transfer our extension to the new entity.
-
-Both `EntityExtension` and `PlayerExtension` implement `TransferableEntityExtension`
-which defines a `transfer` method to override. `EntityExtension`s require you to
-override this method, `PlayerExtension`s however have a default implementation which
-is to transfer the extension as-is. This can be done because the `PlayerExtension`
-doesn't hold a reference to the `ServerPlayer` object itself but the 
-`ServerGamePacketListenerImpl` which holds a reference to the current player.
-
-Here's an example:
-```kotlin
-class MyEntityExtension(entity: Entity): EntityExtension(entity) {
-    var persistentData = 0
-    var transientData = 0
-
-    override fun transfer(
-        entity: Entity,
-        reason: EntityTransferReason,
-        delayed: DelayedActions
-    ): Extension {
-        val transferred = MyEntityExtension(entity)
-        transferred.persistentData = this.persistentData
-        return transferred
     }
 }
 ```

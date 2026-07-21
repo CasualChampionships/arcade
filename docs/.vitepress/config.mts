@@ -10,7 +10,18 @@ const pageOrders: Record<string, string[]> = {
     'getting-started', 'basic-usage', 'advancements', 'chat', 'commands',
     'effects', 'events', 'players', 'recipes', 'resource_packs', 'scheduling',
     'serialization', 'settings', 'stats', 'teams', 'visuals', 'worlds'
-  ]
+  ],
+  'arcade-boundaries': ['creating-boundaries', 'boundary-behaviour'],
+  'arcade-commands': ['command-trees', 'argument-types', 'command-managers'],
+  'arcade-extensions': ['basic-extensions', 'serializing', 'entity-player-extensions'],
+  'arcade-scheduler': ['scheduling-tasks', 'custom-schedulers'],
+  'arcade-virtual-entities': ['virtual-entities', 'display-entities', 'parent-entities', 'custom-attachments'],
+  'arcade-visuals': ['elements', 'interfaces', 'sidebar', 'bossbars', 'tab-display', 'transitions'],
+  'arcade-dimensions': ['creating-dimensions', 'using-dimensions', 'vanilla-like'],
+  'arcade-event-registry': ['listening', 'broadcasting'],
+  'arcade-events-server': ['registry-events', 'injected-providers'],
+  'arcade-nametags': ['creating-nametags', 'customizing-nametags'],
+  'arcade-guis': ['selection-screens']
 }
 
 function titleCase(value: string): string {

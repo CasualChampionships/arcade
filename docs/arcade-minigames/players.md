@@ -101,9 +101,9 @@ val playingPlayers: List<ServerPlayer> = minigame.players.playing
 // Gets only spectating players
 val spectatingPlayers: List<ServerPlayer> = minigame.players.spectating
 // Gets only admin players
-val adminPlayers: List<ServerPlayer> = minigame.players.admin
+val adminPlayers: List<ServerPlayer> = minigame.players.admins
 // Gets only non-admin players
-val nonAdminPlayers: List<ServerPlayer> = minigame.players.nonAdmin
+val nonAdminPlayers: List<ServerPlayer> = minigame.players.nonAdmins
 ```
 
 You may also query the player profiles if you need to access offline players.
@@ -111,9 +111,9 @@ You may also query the player profiles if you need to access offline players.
 val minigame: Minigame = // ...
 
 // Gets all player profiles, both online and offline
-val allProfiles: List<GameProfile> = minigame.players.allProfiles
+val allProfiles: List<NameAndId> = minigame.players.allProfiles
 // Gets all player profiles for those players who are offline
-val offlineProfiles: List<GameProfile> = minigame.players.offlineProfiles
+val offlineProfiles: List<NameAndId> = minigame.players.offlineProfiles
 ```
 
 You can also do checks on a player to check whether they are part of the minigame,

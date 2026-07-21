@@ -34,7 +34,7 @@ You can register as many commands as you wish to use the
 
 ## Unregistering
 
-We can unregister any commands that we've previously registered using the `MinigameCommandManager#unregister` method which takes in the literal of the command that you want to unregister. Alternatively we can unregister all command with `MinigameCommandManager#registerAll`:
+We can unregister any commands that we've previously registered using the `MinigameCommandManager#unregister` method which takes in the literal of the command that you want to unregister. Alternatively we can unregister all commands with `MinigameCommandManager#unregisterAll`:
 ```kotlin
 val minigame: Minigame = // ...
 minigame.commands.unregister("example")
