@@ -15,7 +15,6 @@ import net.casual.arcade.observer.Observer
 import net.casual.arcade.observer.events.ObserverStartObservingLevelEvent
 import net.casual.arcade.observer.events.ObserverStopObservingLevelEvent
 import net.casual.arcade.observer.tracker.ObserverTracker
-import net.casual.arcade.observer.tracker.ParentObserverTracker
 import net.casual.arcade.observer.tracker.SimpleObserverTracker
 import net.casual.arcade.observer.utils.asObserver
 import net.minecraft.server.level.ServerLevel
@@ -33,9 +32,9 @@ internal class LevelObserversExtension(private val level: ServerLevel): Extensio
 
     fun stopObserving(observer: Observer) {
         if (this.observers.isObserving(observer)) {
-            this.observers.stopObserving(observer)
             val event = ObserverStopObservingLevelEvent(observer, this.level)
             GlobalEventHandler.Server.broadcast(event)
+            this.observers.stopObserving(observer)
         }
     }
 

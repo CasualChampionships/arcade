@@ -31,9 +31,9 @@ internal class EntityObserversExtension(entity: Entity): EntityExtension(entity)
 
     fun stopObserving(observer: Observer) {
         if (this.observers.isObserving(observer)) {
-            this.observers.stopObserving(observer)
             val event = ObserverStopObservingEntityEvent(observer, this.entity)
             GlobalEventHandler.Server.broadcast(event)
+            this.observers.stopObserving(observer)
         }
     }
 
