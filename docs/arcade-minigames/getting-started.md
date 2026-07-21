@@ -11,11 +11,11 @@ lifting done for you!
 ## Adding to Dependencies
 
 If you are implementing minigames, you probably want to bundle the entirety of the arcade,
-read the [README](../../README.md) for more information.
+read the [README](https://github.com/CasualChampionships/arcade#readme) for more information.
 
 ```kts
 repositories {
-    maven("https://maven.supersanta.me/snapshots")
+    maven("https://maven.casualchampionships.net/snapshots")
 }
 
 dependencies {
