@@ -48,7 +48,7 @@ as the other things we can customize, in the
 If you just want a static nametag that displays the same component to everyone, 
 you don't need to implement the interface yourself, you can use `Nametag.simple`:
 ```kotlin
-val nametag = Nametag.simple(Component.literal("Electric Boogaloo"))
+val boogaloo = Nametag.simple(Component.literal("Electric Boogaloo"))
 ```
 
 ## Multiple Nametags
@@ -58,10 +58,12 @@ stacked above the entity. Here we give a player both the `[CNT]` name tag from
 before and the static "Electric Boogaloo" nametag:
 ```kotlin
 val server: MinecraftServer = // ...
-val player = server.player("SuperSanta") ?: return
 
-player.nametagExtension.add(CNTNametag())
-player.nametagExtension.add(Nametag.simple(Component.literal("Electric Boogaloo")))
+val nametag = CNTNametag()
+for (player in server.playerList.players) {
+    player.nametagExtension.add(nametag)
+    player.nametagExtension.add(boogaloo)
+}
 ```
 
 ![Multiple Nametag Example](images/multiple_nametag_example.png)

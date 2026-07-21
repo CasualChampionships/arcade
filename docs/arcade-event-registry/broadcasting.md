@@ -1,19 +1,26 @@
 # Broadcasting Events
 
 You may want to broadcast your own events, which Arcade makes simple. 
-To get started you need to implement your `Event` class, this is a class that 
-contains all the data for a given event. This class must implement the `Event` 
-interface:
+To get started you need to implement your event class, this is a class that 
+contains all the data for a given event.
+
+Events are split into two types, `ServerSideEvent` and `ClientSideEvent`, which 
+can only be broadcast from `GlobalEventHandler.Server` and 
+`GlobalEventHandler.Client` respectively. All the examples here are server-side, 
+but the exact same ideas apply to the client, you just implement `ClientSideEvent` 
+and broadcast from `GlobalEventHandler.Client` instead.
+
+Your event class must implement one of these interfaces:
 ```kotlin
 class MyEvent(
     val foo: String,
     val bar: Int
-): Event
+): ServerSideEvent
 ```
 
 If your event is player, level, or minigame related you should implement their 
-respective event interfaces, `PlayerEvent`, `LevelEvent`, `MinigameEvent`. 
-Your event can implement multiple of these.
+respective event interfaces, `PlayerEvent`, `LevelEvent`, `MinigameEvent`, all of 
+which are themselves `ServerSideEvent`s. Your event can implement multiple of these.
 ```kotlin
 class MyPlayerEvent(
     override val player: ServerPlayer
@@ -30,7 +37,7 @@ Then all you need to do to broadcast your event is pass the event instance into 
 class MyEvent(
     val foo: String,
     val bar: Int
-): Event
+): ServerSideEvent
 
 fun broadcastMyEvent() {
     val event = MyEvent("Foo", 10)
@@ -44,7 +51,7 @@ phases, we can specify the phase we want our event to broadcast with:
 class MyEvent(
     val foo: String,
     val bar: Int
-): Event
+): ServerSideEvent
 
 fun broadcastDoingSomething() {
     val event = MyEvent("Foo", 10)
@@ -64,15 +71,17 @@ always broadcast a "default" phase.
 
 ## Cancellable Events
 
-You may want to implement an event that is cancellable. To do this your `Event` 
-class must extend `CancellableEvent.Default` or `CancellableEvent.Typed<T>` 
+You may want to implement an event that is cancellable. To do this your event 
+class must extend `CancellableEvent.Simple` or `CancellableEvent.WithResult<T>` 
 depending on whether you want your cancellable event to have a return type, as 
 discussed in the [Cancelling Events Section](listening.md#cancelling-events).
+As `CancellableEvent` isn't itself an event, you still need to implement 
+`ServerSideEvent` (or `ClientSideEvent`) as well.
 
 The obvious use-case is for mixing into vanilla and adding events that allow 
 listeners to cancel said behaviour.
 ```kotlin
-class MyCancellableEvent: CancellableEvent.Default()
+class MyCancellableEvent: CancellableEvent.Simple(), ServerSideEvent
 ```
 
 ```java
