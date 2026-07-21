@@ -1,7 +1,5 @@
 # Players
 
-> Return to [table of contents](getting-started.md)
-
 Managing players is an extremely important task in minigames. Arcade's minigames make it extremely easy to do this.
 
 ## Adding Players
@@ -137,5 +135,3 @@ val isSpectating = minigame.players.isSpectating(player)
 // Checks whether the player is an admin in the minigame
 val isAdmin = minigame.players.isAdmin(player)
 ```
-
-> See the next section on [Worlds](worlds.md)

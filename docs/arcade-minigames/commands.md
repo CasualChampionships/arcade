@@ -1,7 +1,5 @@
 # Commands
 
-> Return to [table of contents](getting-started.md)
-
 Minigames provide a nice way of registering commands that are completely 
 sandboxed from the rest of the server commands. Arcade allows you to register 
 minigame-specific commands that work locally to each minigame, meaning that 
@@ -43,5 +41,3 @@ minigame.commands.unregister("example")
 
 minigame.commands.unregisterAll()
 ```
-
-> See the next section on [GUI](visuals.md)

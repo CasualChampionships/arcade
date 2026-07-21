@@ -1,7 +1,5 @@
 # Resource Packs
 
-> Return to [table of contents](getting-started.md)
-
 To read about how to generate and host resource packs read the section on 
 [Resources](../arcade-resource-pack/getting-started.md), it will be useful to 
 read that before continuing on with this section.
@@ -48,5 +46,3 @@ minigame.resources.add(MyResources)
 // We can also remove resources
 minigame.resources.remove(MyResources)
 ```
-
-> See the next section on [Chat](chat.md)

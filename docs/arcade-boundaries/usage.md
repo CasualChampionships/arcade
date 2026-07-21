@@ -1,7 +1,5 @@
 # Usage
 
-> Return to [table of contents](getting-started.md)
-
 ## Creating a Boundary
 
 Boundaries are formed from two components, a shape and a renderer which

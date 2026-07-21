@@ -1,7 +1,5 @@
 # Scheduling
 
-> Return to [table of contents](getting-started.md)
-
 Scheduling is key to implementing a minigame, there are lots of things that you
 will want to do in the future, and the scheduling API allows you to do this. If
 you have not already taken a look at the [Scheduling](../arcade-scheduler/getting-started.md) 
@@ -119,5 +117,3 @@ Coroutines launched from `launch` and `async` run on the minigame's default
 scheduler, and will be cancelled when the minigame is closed. Coroutines 
 launched from the phased variations will run on the minigame's phased
 scheduler, and will additionally be cancelled when the minigame changes phase.
-
-> See the next section on [Commands](commands.md)

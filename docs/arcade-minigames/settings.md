@@ -1,7 +1,5 @@
 # Settings
 
-> Return to [table of contents](getting-started.md)
-
 Minigame settings are super easy to configure and allow for quite a lot of control over the behaviour of your minigame.
 
 In addition to the built-in default settings, you are able to implement your 
@@ -278,5 +276,3 @@ returns the builder responsible for creating the gui listing all the options
 for a given minigame setting.
 
 The specifics on how to customize these are discussed in the [GUI Section](visuals.md).
-
-> See the next section on [Teams](teams.md)

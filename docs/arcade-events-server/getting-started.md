@@ -25,6 +25,3 @@ dependencies {
     include(implementation("net.casualchampionships:arcade-utils:0.11.0-beta.3+26.2")!!)
 }
 ```
-
-> ### [Basic Usage](./basic-usage.md)
-> ### [Advanced Usage](./advanced-usage.md)

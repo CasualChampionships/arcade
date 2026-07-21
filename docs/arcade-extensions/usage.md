@@ -1,7 +1,5 @@
 # Usage
 
-> Return to [table of contents](getting-started.md)
-
 ## Creating A Basic Extension
 
 To create a basic extension we just need to create a class that

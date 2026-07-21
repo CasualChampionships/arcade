@@ -1,7 +1,5 @@
 # Basic Usage
 
-> Return to [table of contents](getting-started.md)
-
 ## Creating a Custom Dimension
 
 Creating a custom level is super easy, we can do this using the `CustomLevelBuilder`:
@@ -391,5 +389,3 @@ val all: Collection<CustomLevel> = levels.all()
 val server: MinecraftServer = // ...
 all.forEach { server.addCustomLevel(it) }
 ```
-
-> See the next section on [Advanced Usage](advanced-usage.md)

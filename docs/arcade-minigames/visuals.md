@@ -1,7 +1,5 @@
 # Visuals
 
-> Return to [table of contents](getting-started.md)
-
 Arcade provides a wide array of visual components, read the [Visuals Section](../arcade-visuals/getting-started.md) 
 to see more information about those. 
 This section is dedicated to how those gui components can be integrated within 
@@ -174,5 +172,3 @@ scheduled it as phased cancellable that means we can wrap this task in a
 cancellable task which in the case the phase abruptly changes will notify the 
 task, calling `runIfCancelled` tells the task to run if it's been notified of 
 the cancellation and so the bossbar will be removed.
-
-> See the next section on [Resource Packs](resource_packs.md)

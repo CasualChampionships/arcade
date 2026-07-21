@@ -1,7 +1,5 @@
 # Usage
 
-> Return to [table of contents](getting-started.md)
-
 # Creating a Virtual Entity
 
 Let's start by creating a virtual entity for a given dimension.

@@ -1,7 +1,5 @@
 # Usage
 
-> Return to [table of contents](getting-started.md)
-
 ## Creating Commands
 
 The `CommandTree` type and utilities in `CommandUtils` allow for creating 
