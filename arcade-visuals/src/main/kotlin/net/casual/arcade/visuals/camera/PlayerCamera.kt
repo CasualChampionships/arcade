@@ -52,6 +52,8 @@ public class PlayerCamera(
     init {
         this.camera.setTeleportationInterpolation(3)
         this.camera.setStartInterpolation(0)
+
+        this.camera.syncExactLocation = true
     }
 
     public fun setPosition(position: Vec3) {
