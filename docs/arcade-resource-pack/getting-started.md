@@ -25,14 +25,14 @@ repositories {
 }
 
 dependencies {
-    include(implementation("net.casualchampionships:arcade-resource-pack:0.10.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-resource-pack:0.11.0-beta.3+26.2")!!)
 
     include(implementation("eu.pb4:polymer-core:0.17.0+26.2-rc-2")!!)
     include(implementation("eu.pb4:polymer-resource-pack:0.17.0+26.2-rc-2")!!)
-    include(implementation("net.casualchampionships:arcade-event-registry:0.10.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-events-server:0.10.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-extensions:0.10.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-resource-pack-host:0.10.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-utils:0.10.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-event-registry:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-events-server:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-extensions:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-resource-pack-host:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-utils:0.11.0-beta.3+26.2")!!)
 }
 ```

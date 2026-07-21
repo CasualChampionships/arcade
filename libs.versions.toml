@@ -1,5 +1,7 @@
 [versions]
 minecraft           = "26.2"
+java                = "25"
+kotlin              = "2.4.0"
 fabric-loader       = "0.19.3"
 fabric-api          = "0.154.2+26.2"
 fabric-kotlin       = "1.13.12+kotlin.2.4.0"
@@ -46,7 +48,9 @@ c2me          = { module = "maven.modrinth:c2me-fabric"          , version.ref =
 reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
 
 [plugins]
-fabric-loom = { id = "net.fabricmc.fabric-loom", version.ref = "fabric-loom" }
-spotless    = { id = "com.diffplug.spotless"   , version.ref = "spotless" }
-shadow      = { id = "com.gradleup.shadow"     , version.ref = "shadow" }
-explosion   = { id = "lol.bai.explosion"       , version.ref = "explosion"}
+kotlin-jvm           = { id = "org.jetbrains.kotlin.jvm"                 , version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+fabric-loom          = { id = "net.fabricmc.fabric-loom"                 , version.ref = "fabric-loom" }
+spotless             = { id = "com.diffplug.spotless"                    , version.ref = "spotless" }
+shadow               = { id = "com.gradleup.shadow"                      , version.ref = "shadow" }
+explosion            = { id = "lol.bai.explosion"                        , version.ref = "explosion"}

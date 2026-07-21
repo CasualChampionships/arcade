@@ -19,19 +19,19 @@ repositories {
 }
 
 dependencies {
-    include(implementation("net.casualchampionships:arcade-minigames:0.10.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-minigames:0.11.0-beta.3+26.2")!!)
 
-    include(implementation("net.casualchampionships:arcade-commands:0.10.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-dimensions:0.10.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-event-registry:0.10.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-events-server:0.10.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-extensions:0.10.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-guis:0.10.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-replay:0.10.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-resource-pack:0.10.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-scheduler:0.10.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-utils:0.10.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-visuals:0.10.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-commands:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-dimensions:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-event-registry:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-events-server:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-extensions:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-guis:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-replay:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-resource-pack:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-scheduler:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-utils:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-visuals:0.11.0-beta.3+26.2")!!)
 }
 ```
 

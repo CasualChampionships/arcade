@@ -1,5 +1,15 @@
-val moduleDependencies: (Project, List<String>) -> Unit by project
+plugins {
+    id("arcade.common-conventions")
+}
 
-moduleDependencies(project, listOf(
-    "utils", "event-registry", "events-server", "extensions", "scheduler", "resource-pack", "nametags", "virtual-entities", "commands"
-))
+dependencies {
+    api(projects.arcadeUtils)
+    api(projects.arcadeEventRegistry)
+    api(projects.arcadeEventsServer)
+    api(projects.arcadeExtensions)
+    api(projects.arcadeScheduler)
+    api(projects.arcadeResourcePack)
+    api(projects.arcadeNametags)
+    api(projects.arcadeVirtualEntities)
+    api(projects.arcadeCommands)
+}
