@@ -178,6 +178,7 @@ public class FlashbackWriter(
             ByteBufCodecs.GAME_PROFILE.encode(buf, profile)
             buf.writeVarInt(gamemode)
         }
+        this.writePosition(player.id, position, rotation, headRot, dirty = false)
         val filtered = packets.filter { it !is ClientboundAddEntityPacket }
         for (packet in filtered) {
             this.recorder.record(packet)
@@ -341,15 +342,13 @@ public class FlashbackWriter(
     }
 
     private fun initializePosition(packet: ClientboundAddEntityPacket): ClientboundAddEntityPacket {
-        this.executor.execute {
-            val position = ExactEntityPosition(
-                Vec3(packet.x, packet.y, packet.z),
-                Vec2(packet.xRot, packet.yRot),
-                packet.yHeadRot,
-                false
-            )
-            this.getPositions().put(packet.id, position)
-        }
+        this.writePosition(
+            packet.id,
+            Vec3(packet.x, packet.y, packet.z),
+            Vec2(packet.xRot, packet.yRot),
+            packet.yHeadRot,
+            dirty = false
+        )
         return packet
     }
 
@@ -363,17 +362,8 @@ public class FlashbackWriter(
     }
 
     private fun updatePosition(packet: ClientboundEntityPositionSyncPacket): CompletableFuture<Int?> {
-        this.executor.execute {
-            val id = packet.id
-            val position = ExactEntityPosition(
-                packet.values.position(),
-                Vec2(packet.values.xRot, packet.values.yRot),
-                packet.values.yRot,
-                false
-            )
-            this.getPositions().put(id, position)
-            this.getDirtyPositions().add(id)
-        }
+        val values = packet.values
+        this.writePosition(packet.id, values.position, Vec2(values.xRot, values.yRot), values.yRot)
         return CompletableFuture.completedFuture(ExactEntityPosition.size())
     }
 
@@ -386,6 +376,23 @@ public class FlashbackWriter(
             this.getDirtyPositions().add(id)
         }
         return CompletableFuture.completedFuture(ExactEntityPosition.size())
+    }
+
+    private fun writePosition(
+        id: Int,
+        position: Vec3,
+        rotation: Vec2,
+        headRot: Float,
+        onGround: Boolean = false,
+        dirty: Boolean = true
+    ) {
+        this.executor.execute {
+            val position = ExactEntityPosition(position, rotation, headRot, onGround,)
+            this.getPositions().put(id, position)
+            if (dirty) {
+                this.getDirtyPositions()
+            }
+        }
     }
 
     private fun getPositions(): Int2ObjectOpenHashMap<ExactEntityPosition> {

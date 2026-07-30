@@ -17,6 +17,7 @@ import net.casual.arcade.replay.util.ReplayPacketUtils
 import net.casual.arcade.utils.ClientboundAddEntityPacket
 import net.casual.arcade.utils.compat.PolymerCompatLayer
 import net.casual.arcade.utils.entity.WrappedTrackedEntity
+import net.casual.arcade.utils.entity.getServerEntity
 import net.minecraft.core.NonNullList
 import net.minecraft.core.component.DataComponents
 import net.minecraft.network.Connection
@@ -111,7 +112,7 @@ public class ReplayPlayerRecorder internal constructor(
     override fun initialize(): Boolean {
         val player = this.player ?: return false
         RejoinedReplayPlayer.rejoin(player, this)
-        this.spawnPlayer(player, listOf(ClientboundAddEntityPacket(player)))
+        this.spawnPlayer()
         this.sendMapData(player)
         this.sendChunksAndEntities()
         GlobalEventHandler.Server.broadcast(ReplayPlayerRecorderSnapshotEvent(this, true))
@@ -164,6 +165,7 @@ public class ReplayPlayerRecorder internal constructor(
     override fun takeSnapshot() {
         val player = this.getPlayerOrThrow()
         RejoinedReplayPlayer.rejoin(player, this)
+        this.spawnPlayer()
         this.sendMapData(player)
         this.sendChunksAndEntities { pos -> this.writer.writeCachedChunk(pos) }
         GlobalEventHandler.Server.broadcast(ReplayPlayerRecorderSnapshotEvent(this, false))
@@ -211,6 +213,10 @@ public class ReplayPlayerRecorder internal constructor(
      */
     override fun shouldTrackEntity(entity: Entity, range: Double): Boolean {
         val player = this.getPlayerOrThrow()
+        if (player == entity) {
+            return false
+        }
+
         val delta = player.position().subtract(entity.position())
         val deltaSqr = delta.x * delta.x + delta.z * delta.z
         val rangeSqr = range * range
@@ -258,6 +264,16 @@ public class ReplayPlayerRecorder internal constructor(
     @Internal
     public fun removePlayer(player: ServerPlayer) {
         this.record(ClientboundRemoveEntitiesPacket(player.id))
+    }
+
+    private fun spawnPlayer() {
+        val player = this.getPlayerOrThrow()
+        val entity = player.getServerEntity()
+        if (entity != null) {
+            this.spawnPlayer(entity)
+        } else {
+            this.spawnPlayer(player, listOf(ClientboundAddEntityPacket(player)))
+        }
     }
 
     private fun sendMapData(player: ServerPlayer) {
