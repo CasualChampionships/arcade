@@ -390,7 +390,7 @@ public class FlashbackWriter(
             val position = ExactEntityPosition(position, rotation, headRot, onGround,)
             this.getPositions().put(id, position)
             if (dirty) {
-                this.getDirtyPositions()
+                this.getDirtyPositions().add(id)
             }
         }
     }

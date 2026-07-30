@@ -286,7 +286,7 @@ public abstract class ReplayRecorder(
     }
 
     /**
-     * Adds a marker to the replay file which can be viewed in ReplayMod.
+     * Adds a marker to the replay file.
      *
      * @param name The name of the marker, null for unnamed.
      * @param position The marked position.
@@ -306,13 +306,13 @@ public abstract class ReplayRecorder(
     }
 
     /**
-     * Adds a marker to the replay file which can be viewed in ReplayMod.
+     * Adds a marker to the replay file.
      *
      * @param name The name of the marker, null for unnamed.
      * @param color The color of the marker.
      */
     public fun addMarker(name: String, color: Int) {
-        this.addMarker(name, color)
+        this.addMarker(name as String?, color = color)
     }
 
     /**

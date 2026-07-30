@@ -434,7 +434,7 @@ public class ReplayViewer internal constructor(
 
     private fun removeReplayState() {
         synchronized(this.players) {
-            this.send(ClientboundPlayerInfoRemovePacket(this.players))
+            this.send(ClientboundPlayerInfoRemovePacket(ArrayList(this.players)))
         }
         synchronized(this.entities) {
             this.send(ClientboundRemoveEntitiesPacket(IntArrayList(this.entities)))

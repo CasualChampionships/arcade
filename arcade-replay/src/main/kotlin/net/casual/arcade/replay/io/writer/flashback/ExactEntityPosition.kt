@@ -19,6 +19,7 @@ public data class ExactEntityPosition(
     public fun update(packet: ClientboundMoveEntityPacket): ExactEntityPosition {
         var (position, rotation, headRot, _) = this
         if (packet.hasPosition()) {
+            val delta = VecDeltaCodec()
             delta.base = this.position
             position = delta.decode(packet.xa.toLong(), packet.ya.toLong(), packet.za.toLong())
         }
@@ -38,10 +39,9 @@ public data class ExactEntityPosition(
     }
 
     public companion object {
-        private val delta = VecDeltaCodec()
-
         public fun size(): Int {
-            return 4 + 3 * 8 + 2 * 4 + 4 + 1
+            // The additional int accounts for the entity id
+            return Int.SIZE_BYTES + 3 * Double.SIZE_BYTES + 3 * Float.SIZE_BYTES + 1
         }
 
         public fun read(buffer: FriendlyByteBuf): ExactEntityPosition {

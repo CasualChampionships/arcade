@@ -42,7 +42,7 @@ public class FlashbackChunkedReader(
             this.chunks[ticks] = PlayableChunk(this.system.getPath(name), meta)
             ticks += meta.duration
         }
-        this.current = this.chunks.floorEntry(0)
+        this.current = this.chunks.floorEntry(0) ?: throw IllegalStateException("Replay had no chunks!")
         this.readHeader()
     }
 
