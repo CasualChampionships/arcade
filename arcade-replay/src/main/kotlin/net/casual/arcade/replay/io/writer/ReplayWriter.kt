@@ -84,6 +84,11 @@ public interface ReplayWriter {
         }
     }
 
+    /**
+     * Writes the chunk at [pos] to the replay using any existing cached data.
+     *
+     * @return Whether the chunk write was successful.
+     */
     public fun writeCachedChunk(pos: ChunkPos): Boolean {
         return false
     }

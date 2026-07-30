@@ -100,12 +100,13 @@ public interface ChunkSender {
 
     /**
      * This sends all chunk and entity packets.
+     *
+     * @param load If the chunk at [ChunkPos] is unloaded should be it be loaded to be (re)sent.
      */
-    public fun sendChunksAndEntities(unloaded: (ChunkPos) -> Boolean = { false }) {
-        val seen = SeenEntities.mutable()
+    public fun sendChunksAndEntities(load: (ChunkPos) -> Boolean = { true }) {
         this.sendChunkViewDistance()
-        this.sendChunks(seen, unloaded)
-        this.sendChunkEntities(seen)
+        this.sendChunks(load)
+        this.sendEntities(SeenEntities.mutable())
     }
 
     /**
@@ -120,21 +121,21 @@ public interface ChunkSender {
     }
 
     /**
-     * This sends all chunk packets.
+     * This sends all chunk packets. This doesn't send any entities.
      *
-     * @param seen The [IntSet] of entity ids that have already been seen.
+     * @param load If the chunk at [ChunkPos] is unloaded should be it be loaded to be (re)sent.
      */
     @Internal
-    public fun sendChunks(seen: SeenEntities, unloaded: (ChunkPos) -> Boolean = { false }) {
+    public fun sendChunks(load: (ChunkPos) -> Boolean = { true }) {
         val source = this.level.chunkSource
         this.forEachChunk { pos ->
             var chunk = source.getChunk(pos.x, pos.z, false)
             if (chunk != null) {
-                this.sendChunk(chunk, seen)
-            } else if (!unloaded.invoke(pos)) {
+                this.sendChunk(chunk, SeenEntities.all())
+            } else if (load.invoke(pos)) {
                 chunk = source.getChunk(pos.x, pos.z, true)
                 if (chunk != null) {
-                    this.sendChunk(chunk, seen)
+                    this.sendChunk(chunk, SeenEntities.all())
                 } else {
                     ArcadeUtils.logger.warn("Failed to get chunk at $pos, didn't send")
                 }
@@ -143,16 +144,16 @@ public interface ChunkSender {
     }
 
     /**
-     * This sends a specific chunk packet.
+     * This sends a given chunk.
+     * Specify [seen] as [SeenEntities.mutable] to also send
+     * any entities within the chunk, or [SeenEntities.all]
+     * to *not* send any of the entities.
      *
      * @param chunk The current chunk that is being sent.
-     * @param seen The [IntSet] of entity ids that have already been seen.
+     * @param seen The entities that have already been seen.
      */
     @Internal
-    public fun sendChunk(
-        chunk: LevelChunk,
-        seen: SeenEntities,
-    ) {
+    public fun sendChunk(chunk: LevelChunk, seen: SeenEntities) {
         PacketContext.runWithContext(this.getPacketContextProvider()) {
             // We don't need to use the chunkSender
             // We are only writing the packets to disk...
@@ -164,8 +165,19 @@ public interface ChunkSender {
             ))
         }
 
-        this.onChunkSent(chunk)
+        this.sendEntities(seen) { entity -> entity.chunkPosition() == chunk.pos }
 
+        this.onChunkSent(chunk)
+    }
+
+    /**
+     * This sends all the entities.
+     *
+     * @param seen The [SeenEntities] of entity ids that have already been seen.
+     * @param predicate An additional predicate to determine whether to track the entity.
+     */
+    @Internal
+    public fun sendEntities(seen: SeenEntities, predicate: (Entity) -> Boolean = { true }) {
         if (seen == SeenEntities.all()) {
             return
         }
@@ -176,7 +188,7 @@ public interface ChunkSender {
         val viewDistance = this.level.server().playerList.viewDistance
         for (tracked in this.level.getTrackedEntities()) {
             val entity = tracked.getEntity()
-            if (entity.chunkPosition() == chunk.pos) {
+            if (predicate.invoke(entity)) {
                 if (!seen.has(entity.id)) {
                     val range = min(tracked.getRange(), viewDistance * 16).toDouble()
                     if (this.shouldTrackEntity(entity, range)) {
@@ -199,28 +211,6 @@ public interface ChunkSender {
         }
         for (entity in ridden) {
             this.sendChunkPacket(ClientboundSetPassengersPacket(entity))
-        }
-    }
-
-    /**
-     * This sends all the entities.
-     *
-     * @param seen The [SeenEntities] of entity ids that have already been seen.
-     */
-    @Internal
-    public fun sendChunkEntities(seen: SeenEntities) {
-        // TODO: Why is this done twice??
-        if (seen == SeenEntities.all()) {
-            return
-        }
-
-        val viewDistance = this.level.server().playerList.viewDistance
-        for (tracked in this.level.getTrackedEntities()) {
-            val entity = tracked.getEntity()
-            val range = min(tracked.getRange(), viewDistance * 16).toDouble()
-            if (this.shouldTrackEntity(entity, range)) {
-                this.addTrackedEntity(tracked)
-            }
         }
     }
 

@@ -167,7 +167,7 @@ public class ReplayPlayerRecorder internal constructor(
         RejoinedReplayPlayer.rejoin(player, this)
         this.spawnPlayer()
         this.sendMapData(player)
-        this.sendChunksAndEntities { pos -> this.writer.writeCachedChunk(pos) }
+        this.sendChunksAndEntities { pos -> !this.writer.writeCachedChunk(pos) }
         GlobalEventHandler.Server.broadcast(ReplayPlayerRecorderSnapshotEvent(this, false))
     }
 
@@ -237,8 +237,8 @@ public class ReplayPlayerRecorder internal constructor(
     /**
      * This sends all chunk and entity packets.
      */
-    override fun sendChunksAndEntities(unloaded: (ChunkPos) -> Boolean) {
-        super.sendChunksAndEntities(unloaded)
+    override fun sendChunksAndEntities(load: (ChunkPos) -> Boolean) {
+        super.sendChunksAndEntities(load)
 
         ArcadeVirtualEntitiesCompatLayer.resendObservingAttachments(this)
     }

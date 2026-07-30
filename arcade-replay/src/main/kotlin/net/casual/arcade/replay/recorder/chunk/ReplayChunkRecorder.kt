@@ -338,7 +338,7 @@ public class ReplayChunkRecorder internal constructor(
         this.spawnPlayer()
         this.sendChunkViewDistance()
         this.sendItemFrameMapData { frame -> this.chunks.contains(frame.chunkPosition()) }
-        this.sendChunks(ChunkSender.SeenEntities.all()) { pos -> this.writer.writeCachedChunk(pos) }
+        this.sendChunks { pos -> !this.writer.writeCachedChunk(pos) }
         for (recordable in this.recordables) {
             recordable.resendPackets(this)
         }
