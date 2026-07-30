@@ -163,7 +163,7 @@ public class ReplayViewer internal constructor(
     }
 
     public fun jumpToMarker(name: String?, offset: Duration): Boolean {
-        val markers = this.markers[name]
+        val markers = this.markers[name].sortedBy { it.timestamp }
         if (markers.isEmpty()) {
             return false
         }

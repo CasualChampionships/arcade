@@ -320,23 +320,41 @@ public class FlashbackWriter(
 
     private fun writeEntityMovement() {
         this.executor.execute {
-            val dirty = this.dirty.entries.filter { (_, ids) -> ids.isNotEmpty() }
-            if (dirty.isNotEmpty()) {
+            val entries = this.dirty.entries.iterator()
+            while (entries.hasNext()) {
+                val (dimension, ids) = entries.next()
+                val positions = this.positions[dimension]
+                if (positions == null) {
+                    entries.remove()
+                    continue
+                }
+                val iter = ids.iterator()
+                while (iter.hasNext()) {
+                    if (positions.get(iter.nextInt()) == null) {
+                        iter.remove()
+                    }
+                }
+                if (ids.isEmpty()) {
+                    entries.remove()
+                }
+            }
+
+            if (this.dirty.isNotEmpty()) {
                 this.writer.writeAction(FlashbackAction.MoveEntities) { buf ->
-                    buf.writeVarInt(dirty.size)
-                    for ((dimension, ids) in dirty) {
-                        val positions = this.positions[dimension] ?: continue
+                    buf.writeVarInt(this.dirty.size)
+                    for ((dimension, ids) in this.dirty) {
+                        val positions = this.positions[dimension]!!
                         buf.writeResourceKey(dimension)
                         buf.writeVarInt(ids.size)
                         val iter = ids.iterator()
                         while (iter.hasNext()) {
                             val id = iter.nextInt()
                             buf.writeVarInt(id)
-                            positions[id]!!.write(buf)
+                            positions.get(id)!!.write(buf)
                         }
                     }
-                    this.dirty.clear()
                 }
+                this.dirty.clear()
             }
         }
     }

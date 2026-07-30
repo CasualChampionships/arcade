@@ -5,6 +5,7 @@
 package net.casual.arcade.replay.recorder.chunk
 
 import com.google.gson.JsonObject
+import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
@@ -59,7 +60,6 @@ import org.jetbrains.annotations.ApiStatus.Internal
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
-import java.util.stream.Collectors
 
 /**
  * An implementation of [ReplayRecorder] for recording chunk areas.
@@ -267,12 +267,15 @@ public class ReplayChunkRecorder internal constructor(
             return
         }
 
-        val copy = this.sentChunks.longStream().mapToObj { ChunkPos.unpack(it) }
-            .collect(Collectors.toCollection(::ArrayList))
+        val positions = LongLinkedOpenHashSet(this.sentChunks)
         ChunkPos.rangeClosed(this.chunks.center, radius + 1).filter {
             this.chunks.contains(this.level.dimension(), it)
-        }.collect(Collectors.toCollection { copy })
-        copy.forEach(consumer)
+        }.forEach { pos -> positions.add(pos.pack()) }
+
+        val iterator = positions.iterator()
+        while (iterator.hasNext()) {
+            consumer.accept(ChunkPos.unpack(iterator.nextLong()))
+        }
     }
 
     /**

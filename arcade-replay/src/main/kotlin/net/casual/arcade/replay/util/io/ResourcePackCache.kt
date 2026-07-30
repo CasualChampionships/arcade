@@ -21,37 +21,48 @@ internal object ResourcePackCache {
     private val caching = ConcurrentHashMap<String, CompletableFuture<ByteArray>>()
 
     fun get(url: String, hash: String): CompletableFuture<ByteArray> {
-        val caching = this.caching[hash]
-        if (caching != null) {
-            return caching
+        if (hash.isEmpty()) {
+            return this.download(url, hash)
         }
 
-        if (hash.isNotEmpty()) {
-            val cached = this.cached.resolve(hash)
-            if (cached.exists()) {
-                return CompletableFuture.completedFuture(cached.readBytes())
+        val cached = this.cached.resolve(hash)
+        if (cached.exists()) {
+            return CompletableFuture.completedFuture(cached.readBytes())
+        }
+
+        val pending = CompletableFuture<ByteArray>()
+        val downloading = this.caching.putIfAbsent(hash, pending)
+        if (downloading != null) {
+            return downloading
+        }
+
+        this.download(url, hash).whenComplete { bytes, throwable ->
+            this.caching.remove(hash, pending)
+            if (throwable != null) {
+                pending.completeExceptionally(throwable)
+            } else {
+                pending.complete(bytes)
             }
         }
+        return pending
+    }
 
+    private fun download(url: String, hash: String): CompletableFuture<ByteArray> {
         val future = CompletableFuture.supplyAsync {
             val bytes = URI(url).toURL().openStream().readAllBytes()
             if (hash.isNotEmpty() && hash == this.hash(bytes)) {
-                this.caching[hash] = CompletableFuture.completedFuture(bytes)
-                val cached = this.cached.resolve(hash)
-                cached.createParentDirectories().writeBytes(bytes)
+                this.cached.resolve(hash).createParentDirectories().writeBytes(bytes)
             }
             bytes
         }
-        future.whenComplete { _, throwable ->
-            this.caching.remove(hash)
+        return future.whenComplete { _, throwable ->
             if (throwable != null) {
                 ArcadeUtils.logger.error("Failed to download resource pack at $url", throwable)
             }
         }
-        return future
     }
 
-    fun hash(bytes: ByteArray): String {
+    private fun hash(bytes: ByteArray): String {
         return this.sha1().hashBytes(bytes).toString()
     }
 
