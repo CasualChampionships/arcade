@@ -47,6 +47,10 @@ internal object ResourcePackCache {
         return pending
     }
 
+    fun hash(bytes: ByteArray): String {
+        return this.sha1().hashBytes(bytes).toString()
+    }
+
     private fun download(url: String, hash: String): CompletableFuture<ByteArray> {
         val future = CompletableFuture.supplyAsync {
             val bytes = URI(url).toURL().openStream().readAllBytes()
@@ -60,10 +64,6 @@ internal object ResourcePackCache {
                 ArcadeUtils.logger.error("Failed to download resource pack at $url", throwable)
             }
         }
-    }
-
-    private fun hash(bytes: ByteArray): String {
-        return this.sha1().hashBytes(bytes).toString()
     }
 
     @Suppress("DEPRECATION")

@@ -8,7 +8,7 @@ fabric-kotlin       = "1.13.12+kotlin.2.4.0"
 polymer             = "0.17.0+26.2-rc-2"
 sgui                = "2.1.0+26.2"
 server-translations = "3.1.0+26.2"
-replay-studio       = "ca00f8101b"
+replay-studio       = "06978a304f"
 
 # Compatability
 carpet        = "26.2"
