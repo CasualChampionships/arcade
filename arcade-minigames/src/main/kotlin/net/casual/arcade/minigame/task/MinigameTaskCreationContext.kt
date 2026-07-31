@@ -19,4 +19,7 @@ public interface MinigameTaskCreationContext<M: Minigame>: TaskCreationContext {
      * The minigame instance constructing tasks.
      */
     public val minigame: M
+
+    override val owner: Any?
+        get() = this.minigame
 }

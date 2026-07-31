@@ -18,6 +18,15 @@ import net.casual.arcade.scheduler.task.Task
  */
 public interface TaskCreationContext {
     /**
+     * The owner that routines created by this context run against,
+     * for example the minigame currently being deserialized.
+     *
+     * @see net.casual.arcade.scheduler.task.routine.RoutineScope.owner
+     */
+    public val owner: Any?
+        get() = null
+
+    /**
      * This provides the ability to get a subtasks by passing
      * the that tasks given stored id.
      *

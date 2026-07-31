@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.impl.CancellableTask
+import net.casual.arcade.scheduler.task.routine.RoutineTask
 import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
 import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
 import net.casual.arcade.scheduler.utils.runSafely
@@ -95,6 +96,9 @@ public class SimpleTickedScheduler(
      * @param task The task to be scheduled.
      */
     override fun schedule(delay: MinecraftTimeDuration, task: Task) {
+        if (task is RoutineTask<*>) {
+            task.attach(this)
+        }
         this.tasks.computeIfAbsent(this.tickCount + delay.ticks, IntFunction { ArrayDeque() }).add(task)
     }
 

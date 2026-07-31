@@ -28,9 +28,11 @@ import net.casual.arcade.minigame.gamemode.ExtendedGameMode
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.task.impl.PhaseChangeTask
+import net.casual.arcade.minigame.task.routine.PhaseChangeRoutine
+import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.minigame.utils.MinigameUtils
-import net.casual.arcade.scheduler.task.utils.TaskRegistries
+import net.casual.arcade.scheduler.utils.TaskRegistries
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.serialization.json.JsonValueInput
@@ -179,6 +181,7 @@ public object Minigames: ModInitializer {
         }
 
         Registry.register(TaskRegistries.TASK_FACTORY, PhaseChangeTask.id, PhaseChangeTask)
+        PhaseChangeRoutine.register(TaskRegistries.ROUTINE)
     }
 
     internal fun allById(): Map<Identifier, Collection<Minigame>> {

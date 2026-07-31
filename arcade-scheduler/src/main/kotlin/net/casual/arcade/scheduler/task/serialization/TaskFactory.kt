@@ -7,6 +7,7 @@ package net.casual.arcade.scheduler.task.serialization
 import net.casual.arcade.scheduler.task.SavableTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.impl.CancellableTask
+import net.casual.arcade.scheduler.task.routine.RoutineTask
 import net.casual.arcade.utils.error.RichResult
 import net.minecraft.core.Registry
 import net.minecraft.resources.Identifier
@@ -37,6 +38,7 @@ public interface TaskFactory {
     public companion object {
         public fun bootstrap(registry: Registry<TaskFactory>) {
             Registry.register(registry, CancellableTask.Savable.id, CancellableTask.Savable)
+            Registry.register(registry, RoutineTask.id, RoutineTask)
         }
     }
 }
