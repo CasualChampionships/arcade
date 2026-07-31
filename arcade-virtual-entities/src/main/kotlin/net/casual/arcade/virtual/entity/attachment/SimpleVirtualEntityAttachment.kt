@@ -45,14 +45,6 @@ public open class SimpleVirtualEntityAttachment(
         return this.attached
     }
 
-    override fun resendTo(observer: Observer, sender: PacketSender) {
-        for (entity in this.attached()) {
-            if (entity.observers.isObserving(observer)) {
-                entity.sendBundledSpawnPackets(observer, sender)
-            }
-        }
-    }
-
     /**
      * This method should be overridden if you
      * want to update the [attached] elements

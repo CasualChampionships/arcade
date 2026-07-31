@@ -71,37 +71,25 @@ public fun VirtualEntity.canAttachTo(attachment: VirtualEntityAttachment): Boole
     return this.attachment === attachment
 }
 
-public fun VirtualEntity.sendBundledSpawnPackets(
-    observer: Observer,
-    sender: PacketSender = observer
-) {
+public fun VirtualEntity.sendBundledSpawnPackets(observer: Observer, sender: PacketSender = observer) {
     val collector = VirtualEntityPacketCollector()
     this.sendSpawnPackets(observer, collector::add)
     collector.bundle().send(sender)
 }
 
-public fun VirtualEntity.sendBundledDespawnPackets(
-    observer: Observer,
-    sender: PacketSender = observer
-) {
+public fun VirtualEntity.sendBundledDespawnPackets(observer: Observer, sender: PacketSender = observer) {
     val collector = VirtualEntityPacketCollector()
     this.sendDespawnPackets(observer, collector::add)
     collector.optimize().bundle().send(sender)
 }
 
-public fun VirtualEntity.startObservingAndSendPackets(
-    observer: Observer,
-    sender: PacketSender = observer
-) {
+public fun VirtualEntity.startObservingAndSendPackets(observer: Observer, sender: PacketSender = observer) {
     if (this.canObserve(observer) && this.observers.startObserving(observer)) {
         this.sendBundledSpawnPackets(observer, sender)
     }
 }
 
-public fun VirtualEntity.stopObservingAndSendPackets(
-    observer: Observer,
-    sender: PacketSender = observer
-) {
+public fun VirtualEntity.stopObservingAndSendPackets(observer: Observer, sender: PacketSender = observer) {
     if (this.observers.isObserving(observer)) {
         this.sendBundledDespawnPackets(observer, sender)
         this.observers.stopObserving(observer)
