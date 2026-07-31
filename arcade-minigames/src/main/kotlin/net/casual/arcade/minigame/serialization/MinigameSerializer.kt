@@ -210,7 +210,7 @@ public class MinigameSerializer(
         fun deserialize(list: ValueInput.ValueInputList) {
             for (input in list) {
                 val id = input.getInt("uid").getOrNull() ?: continue
-                val result = if (input.contains("raw")) this.deserializeRaw(input) else this.deserializeSavable(input)
+                val result = this.deserializeSavable(input)
                 result.dispatch(
                     success = { task -> this.generated.put(id, task) },
                     failure = { message ->
@@ -219,17 +219,6 @@ public class MinigameSerializer(
                         continue
                     }
                 )
-            }
-        }
-
-        private fun deserializeRaw(input: ValueInput): RichResult<Task> {
-            try {
-                val task = Base64.decode(input.getString("raw").get()).inputStream().use { bytes ->
-                    ObjectInputStream(bytes).use { it.readObject() as Task }
-                }
-                return RichResult.success(task)
-            } catch (e: ObjectStreamException) {
-                return RichResult.failure("Failed to stream object: ${e.message}")
             }
         }
 
@@ -264,16 +253,21 @@ public class MinigameSerializer(
         }
 
         fun serialize(output: ValueOutput.ValueOutputList) {
-            var coroutine = false
             while (this.pending.isNotEmpty()) {
                 val task = this.pending.removeFirst()
                 val id = this.ids.getInt(task)
+
+                if (task is CoroutineTask) {
+                    ArcadeUtils.logger.warn(
+                        "Cannot serialize coroutine task (uid: {}), it will not resume after reloading", id
+                    )
+                    continue
+                }
+
                 val child = output.addChild()
                 val result = when (task) {
-                    is CoroutineTask -> { coroutine = true; continue }
                     is SavableTask -> this.serializeSavable(child, id, task)
-                    is Serializable -> this.serializeRaw(child, id, task)
-                    else -> RichResult.failure("Task not serializable")
+                    else -> RichResult.failure("Task does not implement SavableTask")
                 }
                 result.dispatch(
                     success = { child.putString("meta", "${task.javaClass.simpleName}: $task") },
@@ -282,10 +276,6 @@ public class MinigameSerializer(
                         output.discardLast()
                     }
                 )
-            }
-
-            if (coroutine) {
-                ArcadeUtils.logger.warn("Failed to serialize coroutine task(s)")
             }
         }
 
@@ -300,19 +290,5 @@ public class MinigameSerializer(
             }
         }
 
-        private fun serializeRaw(output: ValueOutput, uid: Int, task: Serializable): RichResult<Unit> {
-            try {
-                ByteArrayOutputStream().use { bytes ->
-                    ObjectOutputStream(bytes).use { stream ->
-                        stream.writeObject(task)
-                    }
-                    output.putInt("uid", uid)
-                    output.putString("raw", Base64.encode(bytes.toByteArray()))
-                }
-                return RichResult.success(Unit)
-            } catch (e: ObjectStreamException) {
-                return RichResult.failure("Failed to stream object: ${e.message}")
-            }
-        }
     }
 }

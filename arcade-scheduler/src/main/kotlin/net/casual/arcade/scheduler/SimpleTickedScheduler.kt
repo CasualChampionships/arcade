@@ -10,7 +10,9 @@ import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.impl.CancellableTask
 import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
 import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
+import net.casual.arcade.scheduler.utils.runSafely
 import net.casual.arcade.utils.TimeUtils.Ticks
+import net.casual.arcade.utils.side.LogicalSide
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
@@ -18,18 +20,20 @@ import java.util.*
 import java.util.function.IntFunction
 import kotlin.jvm.optionals.getOrNull
 
-@Deprecated("Use TickedTaskScheduler instead")
-public typealias TickedScheduler = TickedTaskScheduler
-
 /**
- * This class is an implementation of [MinecraftTaskScheduler] which
+ * This class is an implementation of [TickedScheduler] which
  * allows you to schedule [Task]s for a later time on the
- * main server thread.
+ * main thread of the given [target] side.
  *
- * @see MinecraftTaskScheduler
+ * You are responsible for ticking this scheduler, and must do
+ * so from the same side as [target].
+ *
+ * @see TickedScheduler
  * @see GlobalTickedScheduler
  */
-public class TickedTaskScheduler: MinecraftTaskScheduler {
+public class SimpleTickedScheduler(
+    override val target: LogicalSide
+): TickedScheduler {
     private val tasks: Int2ObjectMap<Queue<Task>> = Int2ObjectOpenHashMap()
     private var tickCount = 0
 
@@ -42,7 +46,9 @@ public class TickedTaskScheduler: MinecraftTaskScheduler {
     public fun tick() {
         val queue = this.tasks.remove(this.tickCount++)
         if (queue != null) {
-            queue.forEach(Runnable::run)
+            for (task in queue) {
+                task.runSafely()
+            }
             queue.clear()
         }
     }
@@ -54,7 +60,7 @@ public class TickedTaskScheduler: MinecraftTaskScheduler {
      * @param delta The tick delta.
      */
     public fun cancel(delta: Int = 0) {
-        val queue = this.tasks.remove(this.tickCount + delta)
+        val queue = this.tasks.remove(this.tickCount + delta) ?: return
         for (task in queue) {
             if (task is CancellableTask) {
                 task.cancel()
@@ -112,6 +118,16 @@ public class TickedTaskScheduler: MinecraftTaskScheduler {
             if (task != null) {
                 this.schedule(ticks.Ticks, task)
             }
+        }
+    }
+
+    public companion object {
+        public fun server(): SimpleTickedScheduler {
+            return SimpleTickedScheduler(LogicalSide.Server)
+        }
+
+        public fun client(): SimpleTickedScheduler {
+            return SimpleTickedScheduler(LogicalSide.Client)
         }
     }
 }

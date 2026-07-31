@@ -5,16 +5,17 @@
 package net.casual.arcade.minigame.managers
 
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.scheduler.MinecraftTaskScheduler
-import net.casual.arcade.scheduler.TickedTaskScheduler
+import net.casual.arcade.scheduler.TickedScheduler
+import net.casual.arcade.scheduler.SimpleTickedScheduler
 import net.casual.arcade.scheduler.task.SavableTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.impl.CancellableTask
 import net.casual.arcade.utils.time.MinecraftTimeDuration
+import net.casual.arcade.utils.side.LogicalSide
 import net.casual.arcade.utils.time.MinecraftTimeUnit
 
 /**
- * This is an implementation of [MinigameTaskScheduler] that allows for
+ * This is an implementation of [MinigameTickedScheduler] that allows for
  * scheduling for a minigame as well as each phase of the minigame.
  *
  * If you schedule a task and the minigame ends, then the task will
@@ -25,19 +26,22 @@ import net.casual.arcade.utils.time.MinecraftTimeUnit
  * All [SavableTask]s that are scheduled, either to the minigame or
  * to a minigame phase, will be saved if your minigame is serializable.
  *
- * @see MinecraftTaskScheduler
+ * @see TickedScheduler
  * @see Minigame
  */
-public class MinigameTaskScheduler: MinecraftTaskScheduler {
-    internal val minigame = TickedTaskScheduler()
-    internal val phased = TickedTaskScheduler()
+public class MinigameTickedScheduler: TickedScheduler {
+    internal val minigame = SimpleTickedScheduler.server()
+    internal val phased = SimpleTickedScheduler.server()
+
+    override val target: LogicalSide
+        get() = LogicalSide.Server
 
     /**
      * This returns the phased scheduler.
      *
      * @return The phased scheduler.
      */
-    public fun asPhasedScheduler(): MinecraftTaskScheduler {
+    public fun asPhasedScheduler(): TickedScheduler {
         return this.phased
     }
 

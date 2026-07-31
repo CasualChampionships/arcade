@@ -103,9 +103,9 @@ public abstract class Minigame(
      * ticking rate, the scheduler will be paused if the minigame
      * is paused.
      *
-     * @see MinigameTaskScheduler
+     * @see MinigameTickedScheduler
      */
-    public val scheduler: MinigameTaskScheduler = MinigameTaskScheduler()
+    public val scheduler: MinigameTickedScheduler = MinigameTickedScheduler()
 
     /**
      * Manages the tick rate for this minigame.

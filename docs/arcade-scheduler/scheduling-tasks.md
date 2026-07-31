@@ -1,16 +1,18 @@
 # Scheduling Tasks
 
-We can schedule tasks using the `GlobalTickedScheduler`. To specify when we want the task to be executed, we use a `MinecraftTimeDuration`:
+We can schedule tasks using the `GlobalTickedScheduler`. This is sided, in the same way as the `GlobalEventHandler`: use `GlobalTickedScheduler.Server` for tasks that should run on the server thread, and `GlobalTickedScheduler.Client` for tasks that should run on the client thread. Tasks themselves are not sided; only the scheduler that runs them is.
+
+To specify when we want the task to be executed, we use a `MinecraftTimeDuration`:
 
 ```kotlin
-GlobalTickedScheduler.schedule(MinecraftTimeUnit.Ticks.duration(20)) {
+GlobalTickedScheduler.Server.schedule(MinecraftTimeUnit.Ticks.duration(20)) {
     println("Hello 20 ticks in the future!")
 }
 ```
 
 We also have a shorthand for creating `MinecraftTimeDuration`s:
 ```kotlin
-GlobalTickedScheduler.schedule(20.Ticks) {
+GlobalTickedScheduler.Server.schedule(20.Ticks) {
     println("Hello 20 ticks in the future!")
 }
 ```
@@ -20,7 +22,7 @@ GlobalTickedScheduler.schedule(20.Ticks) {
 
 If you simply just want to run something at the end of the current tick then we can call the `later` method, this is the same as scheduling a task for zero ticks in the future:
 ```kotlin
-GlobalTickedScheduler.later {
+GlobalTickedScheduler.Server.later {
     println("Hello later in the same tick!")
 }
 ```
@@ -31,7 +33,7 @@ We can schedule looping tasks using the `scheduleInLoop` method. This allows us 
 
 ```kotlin
 var i = 0
-GlobalTickedScheduler.scheduleInLoop(3.Ticks, 5.Ticks, 25.Ticks) {
+GlobalTickedScheduler.Server.scheduleInLoop(3.Ticks, 5.Ticks, 25.Ticks) {
     println("${3 + (5 * i++)} ticks have past")
 }
 ```
@@ -39,10 +41,10 @@ GlobalTickedScheduler.scheduleInLoop(3.Ticks, 5.Ticks, 25.Ticks) {
 ## Co-routines
 
 We can convert a scheduler into a coroutine dispatcher using the extension function
-`MinecraftTaskScheduler.asCoroutineDispatcher()`:
+`TickedScheduler.asCoroutineDispatcher()`:
 ```kotlin
 val server: MinecraftServer = // ...
-val dispatcher = GlobalTickedScheduler.get().asCoroutineDispatcher()
+val dispatcher = GlobalTickedScheduler.Server.get().asCoroutineDispatcher()
 server.launch {
     withContext(dispatcher) {
         // Do something suspending
@@ -51,7 +53,7 @@ server.launch {
 ```
 The coroutine will resume running on the scheduler, this allows us to cancel
 the coroutine by cancelling the scheduled task. This behavior is useful
-in `MinigameTaskScheduler` in the minigames module, see the 
+in `MinigameTickedScheduler` in the minigames module, see the 
 [Minigame Scheduling Section](../arcade-minigames/scheduling.md)
 which will go into further depth.
 

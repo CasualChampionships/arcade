@@ -6,9 +6,9 @@ you have not already taken a look at the [Scheduling](../arcade-scheduler/gettin
 Documentation, this part of the documentation will look specifically at 
 scheduling with minigames.
 
-Let's first take a look at the `MinigameTaskScheduler` which can be accessed 
+Let's first take a look at the `MinigameTickedScheduler` which can be accessed 
 through the `scheduler` field on a `Minigame` instance. This class, like a 
-regular `TickedTaskScheduler` allows you to schedule events in the future, however 
+regular `SimpleTickedScheduler` allows you to schedule events in the future, however 
 adds more functionality to give you control over whether tasks are scheduled 
 and serialized.
 

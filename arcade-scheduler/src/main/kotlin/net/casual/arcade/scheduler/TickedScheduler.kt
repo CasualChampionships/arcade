@@ -4,22 +4,28 @@
  */
 package net.casual.arcade.scheduler
 
-import net.casual.arcade.scheduler.MinecraftTaskScheduler.Companion.schedule
+import net.casual.arcade.scheduler.TickedScheduler.Companion.schedule
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.utils.TimeUtils.Ticks
+import net.casual.arcade.utils.side.LogicalSide
 import net.casual.arcade.utils.time.MinecraftTimeDuration
-
-@Deprecated("Use MinecraftTaskScheduler instead")
-public typealias MinecraftScheduler = MinecraftTaskScheduler
 
 /**
  * This interface provides methods for scheduling [Task]s
- * in the future on the main server thread.
+ * in the future on the main thread of a given [LogicalSide].
  *
- * @see TickedTaskScheduler
+ * @see SimpleTickedScheduler
  * @see GlobalTickedScheduler
  */
-public interface MinecraftTaskScheduler {
+public interface TickedScheduler {
+    /**
+     * The logical side this scheduler is ticked on.
+     *
+     * This must match the side you tick the scheduler from, otherwise
+     * any coroutines dispatched onto it will resume on the wrong thread.
+     */
+    public val target: LogicalSide
+
     /**
      * This method will schedule a [task] to be run
      * after a given [delay].
@@ -62,7 +68,7 @@ public interface MinecraftTaskScheduler {
          * @param task The task to schedule.
          */
         @JvmStatic
-        public fun MinecraftTaskScheduler.schedule(ticks: Int, task: Task) {
+        public fun TickedScheduler.schedule(ticks: Int, task: Task) {
             this.schedule(ticks.Ticks, task)
         }
     }

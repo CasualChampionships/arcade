@@ -4,32 +4,19 @@
  */
 package net.casual.arcade.scheduler.task.impl
 
+import net.casual.arcade.scheduler.task.SavableTask
 import net.casual.arcade.scheduler.task.Task
-import net.casual.arcade.scheduler.task.capture.CaptureConsumerTask
-import net.casual.arcade.scheduler.task.capture.CaptureSerializer
-import net.casual.arcade.scheduler.task.capture.CaptureTask
 import net.casual.arcade.utils.server.ServerSingleton
-import net.minecraft.core.registries.Registries
-import net.minecraft.resources.Identifier
-import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.world.level.Level
-
-private object LevelSerializer: CaptureSerializer<ResourceKey<Level>, String> {
-    override fun serialize(capture: ResourceKey<Level>): String {
-        return capture.identifier().toString()
-    }
-
-    override fun deserialize(serialized: String): ResourceKey<Level> {
-        return ResourceKey.create(Registries.DIMENSION, Identifier.parse(serialized))
-    }
-
-    private fun readResolve(): Any {
-        return LevelSerializer
-    }
-}
+import java.util.function.Consumer
 
 @Suppress("FunctionName")
-public fun LevelTask(level: ServerLevel, task: CaptureConsumerTask<ServerLevel>): Task {
-    return CaptureTask(level.dimension(), { ServerSingleton.getOrNull()?.getLevel(it) }, LevelSerializer, task)
+public fun LevelTask(level: ServerLevel, task: Consumer<ServerLevel>): Task {
+    val dimension = level.dimension()
+    return Task {
+        val resolved = ServerSingleton.getOrNull()?.getLevel(dimension)
+        if (resolved != null) {
+            task.accept(resolved)
+        }
+    }
 }

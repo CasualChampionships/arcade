@@ -5,12 +5,11 @@
 package net.casual.arcade.scheduler.utils
 
 import kotlinx.coroutines.*
-import net.casual.arcade.scheduler.MinecraftTaskScheduler
+import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.impl.CancellableTask
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.coroutine.MinecraftSchedulerDelay
-import net.casual.arcade.utils.server.ServerSingleton
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import org.jetbrains.annotations.ApiStatus.Internal
 import java.lang.Runnable
@@ -19,17 +18,17 @@ import kotlin.coroutines.CoroutineContext
 @Internal
 public fun interface CoroutineTask: Task
 
-public fun MinecraftTaskScheduler.asCoroutineDispatcher(): CoroutineDispatcher {
+public fun TickedScheduler.asCoroutineDispatcher(): CoroutineDispatcher {
     return MinecraftSchedulerDispatcher(this)
 }
 
 @OptIn(InternalCoroutinesApi::class)
 private class MinecraftSchedulerDispatcher(
-    val scheduler: MinecraftTaskScheduler
+    val scheduler: TickedScheduler
 ): CoroutineDispatcher(), Delay, MinecraftSchedulerDelay {
     override fun dispatch(context: CoroutineContext, block: Runnable) {
-        if (!ServerSingleton.isOnServerThread()) {
-            scheduler.schedule(MinecraftTimeDuration.ZERO, CoroutineTask { block.run() })
+        if (!this.scheduler.target.isOnThread()) {
+            this.scheduler.schedule(MinecraftTimeDuration.ZERO, CoroutineTask { block.run() })
         } else {
             block.run()
         }

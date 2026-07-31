@@ -24,7 +24,7 @@ object TransitionTestCommand: CommandTree<CommandSourceStack> {
 
     private fun run(context: CommandContext<CommandSourceStack>) {
         val server = context.source.server
-        val temporary = GlobalTickedScheduler.temporaryScheduler(5.Seconds)
+        val temporary = GlobalTickedScheduler.Server.temporaryScheduler(5.Seconds)
         val countdown = TitledCountdown.titled()
         server.launch {
             withContext(temporary.asCoroutineDispatcher()) {

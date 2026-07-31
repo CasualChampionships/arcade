@@ -810,7 +810,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
         val duration = unit.duration(time)
 
         // We must use the global scheduler, because the minigame scheduler is paused
-        val scheduler = GlobalTickedScheduler.temporaryScheduler(duration)
+        val scheduler = GlobalTickedScheduler.Server.temporaryScheduler(duration)
         context.source.server.launch {
             withContext(scheduler.asCoroutineDispatcher()) {
                 minigame.visuals.countdown.transition(duration, players = minigame.players::all)

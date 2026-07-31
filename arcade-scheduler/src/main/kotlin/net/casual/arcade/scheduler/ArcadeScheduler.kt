@@ -12,5 +12,6 @@ import org.jetbrains.annotations.ApiStatus.Internal
 public object ArcadeScheduler: ModInitializer {
     override fun onInitialize() {
         TaskRegistries.load()
+        GlobalTickedScheduler.loadServer()
     }
 }

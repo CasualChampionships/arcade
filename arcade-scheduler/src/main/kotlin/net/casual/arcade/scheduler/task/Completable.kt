@@ -5,6 +5,7 @@
 package net.casual.arcade.scheduler.task
 
 import net.casual.arcade.scheduler.task.Completable.Companion.thenOrNow
+import net.casual.arcade.scheduler.utils.runSafely
 import java.util.*
 
 /**
@@ -48,7 +49,7 @@ public interface Completable {
             if (!this.complete) {
                 this.complete = true
                 for (task in this.tasks) {
-                    task.run()
+                    task.runSafely()
                 }
             }
         }

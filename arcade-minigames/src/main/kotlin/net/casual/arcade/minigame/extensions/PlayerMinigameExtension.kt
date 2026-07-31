@@ -106,7 +106,7 @@ internal class PlayerMinigameExtension(
             GlobalEventHandler.Server.register<PlayerLeaveEvent> {
                 val extension = it.player.minigame
                 extension.save()
-                GlobalTickedScheduler.schedule(1.Ticks) {
+                GlobalTickedScheduler.Server.schedule(1.Ticks) {
                     // Prevent any memory leaks
                     extension.removeMinigame()
                 }
