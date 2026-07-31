@@ -14,8 +14,8 @@ import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.time.MinecraftTimeDuration
-import net.casual.arcade.visuals.shapes.ShapePoints
-import net.casual.arcade.visuals.shapes.impl.CuboidShape
+import net.casual.arcade.virtual.visuals.shapes.ShapePoints
+import net.casual.arcade.virtual.visuals.shapes.impl.CuboidShape
 import net.minecraft.core.Direction.Axis
 import net.minecraft.resources.Identifier
 import net.minecraft.util.ExtraCodecs

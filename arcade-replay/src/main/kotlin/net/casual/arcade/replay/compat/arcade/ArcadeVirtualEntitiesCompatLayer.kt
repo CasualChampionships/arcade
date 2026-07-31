@@ -21,7 +21,7 @@ internal object ArcadeVirtualEntitiesCompatLayer {
         if (this.loaded) {
             val player = recorder.server.player(recorder.recordingPlayerUUID) ?: return
             for (attachment in player.getObservingAttachments()) {
-                attachment.resendTo(player.asObserver(), recorder::record)
+                attachment.resendSpawnPackets(player.asObserver(), recorder::record)
             }
         }
     }
@@ -31,7 +31,7 @@ internal object ArcadeVirtualEntitiesCompatLayer {
         if (this.loaded) {
             val observer = ArcadeObserversCompatLayer.observerFor(recorder)
             for (attachment in recorder.level.getVirtualEntityAttachments()) {
-                attachment.resendTo(observer)
+                attachment.resendSpawnPackets(observer)
             }
         }
     }
@@ -41,7 +41,7 @@ internal object ArcadeVirtualEntitiesCompatLayer {
         if (this.loaded) {
             val observer = ArcadeObserversCompatLayer.observerFor(recorder)
             for (attachment in entity.getVirtualEntityAttachments()) {
-                attachment.resendTo(observer)
+                attachment.resendSpawnPackets(observer)
             }
         }
     }
