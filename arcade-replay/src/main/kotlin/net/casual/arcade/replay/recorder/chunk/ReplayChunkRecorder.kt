@@ -92,6 +92,8 @@ public class ReplayChunkRecorder internal constructor(
 
     private val recordables = HashSet<ReplayChunkRecordable>()
 
+    internal val observer: Any? = ArcadeObserversCompatLayer.createObserver(this)
+
     /**
      * The level that the chunk recording is currently in.
      */

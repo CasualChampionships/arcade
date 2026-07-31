@@ -35,7 +35,7 @@ internal object ArcadeObserversCompatLayer {
         require(this.loaded) {
             "Cannot create observer for recorder as ${ArcadeObservers.MOD_ID} is not loaded"
         }
-        return ChunkRecorderObserver(recorder)
+        return recorder.observer as Observer
     }
 
     @JvmStatic
@@ -70,22 +70,23 @@ internal object ArcadeObserversCompatLayer {
         }
     }
 
+    internal fun createObserver(recorder: ReplayChunkRecorder): Any? {
+        if (this.loaded) {
+            return ChunkRecorderObserver(recorder)
+        }
+        return null
+    }
+
     private class ChunkRecorderObserver(
         private val recorder: ReplayChunkRecorder
     ): Observer {
+        override val context = Observer.Context()
+
         override val location: LocationWithLevel<ServerLevel>
             get() = this.recorder.position.with(Vec2.ZERO).with(this.recorder.level)
 
         override fun send(packet: Packet<*>) {
             this.recorder.record(packet)
-        }
-
-        override fun hashCode(): Int {
-            return this.recorder.hashCode()
-        }
-
-        override fun equals(other: Any?): Boolean {
-            return this === other || (other is ChunkRecorderObserver && this.recorder == other.recorder)
         }
     }
 }
