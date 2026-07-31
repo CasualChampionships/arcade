@@ -117,7 +117,9 @@ public class NametagVirtualEntityAttachment(
         return true
     }
 
-    override fun resendTo(observer: Observer, sender: PacketSender) {
+    override fun resendSpawnPackets(observer: Observer, sender: PacketSender) {
+        this.sendRootSpawnPackets(observer, sender)
+
         val tracked = this.tracked.get(observer)
         for (entity in tracked) {
             entity.sendBundledSpawnPackets(observer, sender)

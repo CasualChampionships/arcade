@@ -24,7 +24,7 @@ public class NametagVirtualEntity(
     attachment: VirtualEntityAttachment,
     private val entity: Entity,
     public val nametag: Nametag
-): SimpleParentVirtualEntity(attachment, SimpleObserverTracker()) {
+): SimpleParentVirtualEntity(attachment) {
     private val foreground = this.attachWithParentObservers(::SimpleVirtualTextDisplay)
     private val background = this.attachWithParentObservers(::SimpleVirtualTextDisplay)
 

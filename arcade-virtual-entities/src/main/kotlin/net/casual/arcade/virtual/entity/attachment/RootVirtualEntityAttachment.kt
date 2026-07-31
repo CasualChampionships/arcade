@@ -108,6 +108,7 @@ public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
     }
 
     @OverrideOnly
+    @Experimental
     public fun shouldDelayObserving(): Boolean {
         return false
     }
@@ -131,5 +132,7 @@ public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
      * @param sender The packet sender.
      */
     @Experimental
-    public fun resendTo(observer: Observer, sender: PacketSender = observer)
+    public fun resendSpawnPackets(observer: Observer, sender: PacketSender = observer) {
+        this.sendObservingAttachedSpawnPackets(observer, sender)
+    }
 }
