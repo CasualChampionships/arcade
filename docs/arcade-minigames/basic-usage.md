@@ -156,7 +156,7 @@ enum class ExamplePhases(
             minigame.settings.canPvp.set(false)
 
             // In 10 minutes we will move to the next phase
-            minigame.scheduler.schedulePhased(10.Minutes, PhaseChangeTask(minigame, Active))
+            minigame.scheduler.schedulePhased(10.Minutes, PhaseChangeRoutine(Active.id))
         }
     },
     Active("active") {
@@ -164,7 +164,7 @@ enum class ExamplePhases(
             minigame.settings.canPvp.set(true)
 
             // In 30 minutes we will move to the next phase
-            minigame.scheduler.schedulePhased(30.Minutes, PhaseChangeTask(minigame, DeathMatch))
+            minigame.scheduler.schedulePhased(30.Minutes, PhaseChangeRoutine(DeathMatch.id))
         }
     },
     DeathMatch("death_match") {
@@ -217,7 +217,7 @@ enum class ExamplePhases(
             minigame.settings.canPvp.set(false)
 
             // In 10 minutes we will move to the next phase
-            minigame.scheduler.schedulePhased(10.Minutes, PhaseChangeTask(minigame, Active))
+            minigame.scheduler.schedulePhased(10.Minutes, PhaseChangeRoutine(Active.id))
         }
     },
     Active("active") {
@@ -225,7 +225,7 @@ enum class ExamplePhases(
             minigame.settings.canPvp.set(true)
 
             // In 30 minutes we will move to the next phase
-            minigame.scheduler.schedulePhased(30.Minutes, PhaseChangeTask(minigame, DeathMatch))
+            minigame.scheduler.schedulePhased(30.Minutes, PhaseChangeRoutine(DeathMatch.id))
         }
     },
     DeathMatch("death_match") {

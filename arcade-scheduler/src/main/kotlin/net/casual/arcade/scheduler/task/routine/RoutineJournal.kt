@@ -57,7 +57,7 @@ internal class RoutineJournal private constructor(
             val child = list.addChild()
             child.putInt("index", entry.intKey)
             val (kind, id, value) = entry.value
-            child.putString("kind", kind.name)
+            child.store("kind", Kind.CODEC, kind)
             if (id != null) {
                 child.putString("id", id)
             }

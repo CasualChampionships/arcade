@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.scheduler.task.impl
 
-import net.casual.arcade.scheduler.task.SavableTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.utils.server.ServerSingleton
 import net.minecraft.server.level.ServerLevel

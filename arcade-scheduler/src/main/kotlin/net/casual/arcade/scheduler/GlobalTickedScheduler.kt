@@ -86,9 +86,9 @@ public sealed class GlobalTickedScheduler(
     }
 
     protected fun stop() {
-        this.scheduler.cancelAll()
+        this.scheduler.clear()
         for (scheduler in this.schedulers) {
-            scheduler.cancelAll()
+            scheduler.clear()
         }
         this.schedulers.clear()
     }

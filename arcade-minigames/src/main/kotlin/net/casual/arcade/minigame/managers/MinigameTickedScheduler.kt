@@ -7,9 +7,11 @@ package net.casual.arcade.minigame.managers
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.scheduler.SimpleTickedScheduler
-import net.casual.arcade.scheduler.task.SavableTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.impl.CancellableTask
+import net.casual.arcade.scheduler.task.Cancellable
+import net.casual.arcade.scheduler.task.routine.Routine
+import net.casual.arcade.scheduler.utils.schedule
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.utils.side.LogicalSide
 import net.casual.arcade.utils.time.MinecraftTimeUnit
@@ -23,14 +25,17 @@ import net.casual.arcade.utils.time.MinecraftTimeUnit
  * Similarly, if you schedule a phased task and the minigame changes
  * phase, the task will no longer be run.
  *
- * All [SavableTask]s that are scheduled, either to the minigame or
- * to a minigame phase, will be saved if your minigame is serializable.
+ * All [net.casual.arcade.scheduler.task.routine.Routine]s that are scheduled,
+ * either to the minigame or to a minigame phase, will be saved if your
+ * minigame is serializable. Plain tasks are transient and are not saved.
  *
  * @see TickedScheduler
  * @see Minigame
  */
-public class MinigameTickedScheduler: TickedScheduler {
-    internal val minigame = SimpleTickedScheduler.server()
+public class MinigameTickedScheduler(
+    private val minigame: Minigame
+): TickedScheduler {
+    internal val standard = SimpleTickedScheduler.server()
     internal val phased = SimpleTickedScheduler.server()
 
     override val target: LogicalSide
@@ -46,7 +51,7 @@ public class MinigameTickedScheduler: TickedScheduler {
     }
 
     internal fun tick() {
-        this.minigame.tick()
+        this.standard.tick()
         this.phased.tick()
     }
 
@@ -58,7 +63,35 @@ public class MinigameTickedScheduler: TickedScheduler {
      * @param task The runnable to be scheduled.
      */
     override fun schedule(delay: MinecraftTimeDuration, task: Task) {
-        this.minigame.schedule(delay, task)
+        this.standard.schedule(delay, task)
+    }
+
+    /**
+     * This method will schedule a [routine] to be started after a given [delay],
+     * running against this scheduler's minigame.
+     *
+     * @param delay The duration to wait before starting the [routine].
+     * @param routine The routine to schedule, which must be registered.
+     * @return A handle which can be used to cancel the routine.
+     */
+    public fun <M: Minigame> schedule(delay: MinecraftTimeDuration, routine: Routine<M>): Cancellable {
+        @Suppress("UNCHECKED_CAST")
+        return this.standard.schedule(delay, routine, this.minigame as M)
+    }
+
+    /**
+     * This method will schedule a [routine] to be started after a given [delay].
+     *
+     * If the minigame's phase changes before the routine finishes, it will be
+     * cancelled, unwinding through any `finally` blocks it has.
+     *
+     * @param delay The duration to wait before starting the [routine].
+     * @param routine The routine to schedule, which must be registered.
+     * @return A handle which can be used to cancel the routine.
+     */
+    public fun <M: Minigame> schedulePhased(delay: MinecraftTimeDuration, routine: Routine<M>): Cancellable {
+        @Suppress("UNCHECKED_CAST")
+        return this.phased.schedule(delay, routine, this.minigame as M)
     }
 
     /**

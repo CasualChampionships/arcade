@@ -11,11 +11,11 @@ import net.casual.arcade.scheduler.task.impl.CancellableTask
  * This interface represents a [Task] used in the
  * [TickedScheduler] which can be run.
  *
- * Tasks can be serializable, see [SavableTask],
- * or cancellable see [CancellableTask].
+ * Tasks are transient; they are never serialized. Use a
+ * [net.casual.arcade.scheduler.task.routine.Routine] for work which must
+ * survive a restart. Tasks may be cancellable, see [CancellableTask].
  *
  * @see TickedScheduler
- * @see SavableTask
  * @see CancellableTask
  */
 public fun interface Task: Runnable {

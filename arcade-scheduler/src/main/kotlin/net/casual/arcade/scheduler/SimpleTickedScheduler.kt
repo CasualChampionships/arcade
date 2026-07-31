@@ -7,11 +7,11 @@ package net.casual.arcade.scheduler
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.casual.arcade.scheduler.task.Task
-import net.casual.arcade.scheduler.task.impl.CancellableTask
+import net.casual.arcade.scheduler.task.Cancellable
+import net.casual.arcade.scheduler.task.routine.Routine
 import net.casual.arcade.scheduler.task.routine.RoutineTask
-import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
-import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
 import net.casual.arcade.scheduler.utils.runSafely
+import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.side.LogicalSide
 import net.casual.arcade.utils.time.MinecraftTimeDuration
@@ -63,29 +63,50 @@ public class SimpleTickedScheduler(
     public fun cancel(delta: Int = 0) {
         val queue = this.tasks.remove(this.tickCount + delta) ?: return
         for (task in queue) {
-            if (task is CancellableTask) {
-                task.cancel()
-            }
+            this.cancel(task)
         }
     }
 
     /**
      * This cancels all the tasks that are currently
      * scheduled in the scheduler.
+     *
+     * Cancelling a [Routine] unwinds it, running any cleanup it has in
+     * `finally` blocks. If you instead want to discard the scheduler's
+     * state without running anything, use [clear].
      */
     public fun cancelAll(): Boolean {
         if (this.tasks.isEmpty()) {
             return false
         }
-        for (ticked in this.tasks.values) {
-            for (task in ticked) {
-                if (task is CancellableTask) {
-                    task.cancel()
-                }
+        val queues = ArrayList(this.tasks.values)
+        this.tasks.clear()
+        for (queue in queues) {
+            for (task in queue) {
+                this.cancel(task)
             }
+        }
+        return true
+    }
+
+    /**
+     * This discards all the tasks that are currently scheduled in the
+     * scheduler, *without* cancelling them.
+     *
+     * Unlike [cancelAll] this runs nothing.
+     */
+    public fun clear(): Boolean {
+        if (this.tasks.isEmpty()) {
+            return false
         }
         this.tasks.clear()
         return true
+    }
+
+    private fun cancel(task: Task) {
+        if (task is Cancellable) {
+            task.cancel()
+        }
     }
 
     /**
@@ -102,26 +123,27 @@ public class SimpleTickedScheduler(
         this.tasks.computeIfAbsent(this.tickCount + delay.ticks, IntFunction { ArrayDeque() }).add(task)
     }
 
-    public fun serialize(output: ValueOutput.ValueOutputList, context: TaskSerializationContext) {
+    public fun serialize(output: ValueOutput.ValueOutputList) {
         for ((tick, queue) in this.tasks) {
             val delay = tick - this.tickCount
             for (task in queue) {
-                val identity = context.storeTask(task)
+                if (task !is RoutineTask<*>) {
+                    continue
+                }
                 val data = output.addChild()
-                data.putInt("uid", identity)
                 data.putInt("delay", delay)
+                task.serialize(data)
             }
         }
     }
 
-    public fun deserialize(input: ValueInput.ValueInputList, context: TaskCreationContext) {
+    public fun deserialize(input: ValueInput.ValueInputList, owner: Any?) {
         for (data in input) {
             val ticks = data.getInt("delay").getOrNull() ?: continue
-            val identity = data.getInt("uid").getOrNull() ?: continue
-            val task = context.getTask(identity)
-            if (task != null) {
-                this.schedule(ticks.Ticks, task)
-            }
+            RoutineTask.create(data, owner).dispatch(
+                success = { task -> this.schedule(ticks.Ticks, task) },
+                failure = { message -> ArcadeUtils.logger.error("Failed to load routine: $message") }
+            )
         }
     }
 

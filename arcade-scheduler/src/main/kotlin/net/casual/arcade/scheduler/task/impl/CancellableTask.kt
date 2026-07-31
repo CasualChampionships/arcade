@@ -4,34 +4,26 @@
  */
 package net.casual.arcade.scheduler.task.impl
 
-import com.mojang.serialization.Codec
-import net.casual.arcade.scheduler.task.SavableTask
+import net.casual.arcade.scheduler.task.Cancellable
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.impl.CancellableTask.Companion.of
-import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
-import net.casual.arcade.scheduler.task.serialization.TaskFactory
-import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
-import net.casual.arcade.utils.arcade
-import net.casual.arcade.utils.error.RichResult
-import net.minecraft.resources.Identifier
-import net.minecraft.world.level.storage.ValueInput
-import net.minecraft.world.level.storage.ValueOutput
-import org.jetbrains.annotations.ApiStatus.Internal
-import kotlin.jvm.optionals.getOrNull
+import net.casual.arcade.scheduler.utils.runSafely
 
 /**
  * This extension of the [Task] interface allows
  * for cancelling of a task.
  *
- * If a task is cancelled, it will no longer run
- * or serialized.
+ * If a task is cancelled, it will no longer run.
+ *
+ * This is transient, it is not serialized. If you need something which can be
+ * cancelled *and* survives a restart use a [net.casual.arcade.scheduler.task.routine.Routine].
  *
  * @see Task
  */
-public sealed class CancellableTask(
-    protected val wrapped: Task
-): Task {
-    protected val cancelled: MutableList<Task> = ArrayList()
+public class CancellableTask(
+    private val wrapped: Task
+): Task, Cancellable {
+    private val cancelled: MutableList<Task> = ArrayList()
 
     /**
      * Whether the task is cancelled or not.
@@ -39,27 +31,38 @@ public sealed class CancellableTask(
     public var isCancelled: Boolean = false
         private set
 
+    override val isFinished: Boolean
+        get() = this.isCancelled
+
     /**
      * This cancels the task and prevents it from running.
      */
-    public fun cancel() {
+    override fun cancel() {
         if (this.isCancelled) {
             return
         }
         this.isCancelled = true
         for (cancel in this.cancelled) {
-            cancel.run()
+            cancel.runSafely()
         }
+        this.cancelled.clear()
     }
 
     /**
      * This adds a callback which will be called
      * when the task is cancelled.
      *
+     * If the task has *already* been cancelled then the callback runs
+     * immediately, as it would otherwise never run at all.
+     *
      * @param task The task to add.
      * @return The cancellable task.
      */
     public fun ifCancelled(task: Task): CancellableTask {
+        if (this.isCancelled) {
+            task.runSafely()
+            return this
+        }
         this.cancelled.add(task)
         return this
     }
@@ -87,60 +90,16 @@ public sealed class CancellableTask(
         }
     }
 
-    @Internal
-    public class Savable(wrapped: Task): CancellableTask(wrapped), SavableTask {
-        override val id: Identifier = Companion.id
-
-        override fun serialize(output: ValueOutput, context: TaskSerializationContext) {
-            val wrappedRef = context.storeTask(this.wrapped)
-            output.putInt("wrapped", wrappedRef)
-            val onCancel = output.list("on_cancel", Codec.INT)
-            for (cancel in this.cancelled) {
-                onCancel.add(context.storeTask(cancel))
-            }
-            output.putBoolean("is_cancelled", this.isCancelled)
-        }
-
-        @Internal
-        public companion object: TaskFactory {
-            override val id: Identifier = arcade("internal_savable_cancellable")
-
-            override fun create(input: ValueInput, context: TaskCreationContext): RichResult<Task> {
-                val wrappedRef = input.getInt("wrapped").getOrNull()
-                    ?: return RichResult.failure("No wrapped task found")
-                val wrapped = context.getTask(wrappedRef)
-                    ?: return RichResult.failure($$"Cancellable$Savable task failed to create wrapped task: $$wrappedRef")
-                val isCancelled = input.getBooleanOr("is_cancelled", false)
-
-                val savable = Savable(wrapped)
-                if (isCancelled) {
-                    savable.cancel()
-                }
-
-                val onCancel = input.listOrEmpty("on_cancel", Codec.INT)
-                for (onCancelRef in onCancel) {
-                    val task = context.getTask(onCancelRef)
-                        ?: return RichResult.failure($$"Cancellable$Savable task failed to create on_cancel task: $$onCancelRef")
-                    savable.ifCancelled(task)
-                }
-                return RichResult.success(savable)
-            }
-        }
-    }
-
     public companion object {
         /**
          * This method creates a cancellable task with a given runnable.
-         *
-         * If given a savable task this will save the savable task within
-         * the cancellable task which will also be savable.
          *
          * @param task The task to wrap in a cancellable task.
          * @return The cancellable task.
          */
         @JvmStatic
         public fun of(task: Task): CancellableTask {
-            return Savable(task)
+            return CancellableTask(task)
         }
 
         /**

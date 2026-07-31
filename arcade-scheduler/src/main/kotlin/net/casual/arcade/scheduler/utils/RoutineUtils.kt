@@ -5,6 +5,7 @@
 package net.casual.arcade.scheduler.utils
 
 import net.casual.arcade.scheduler.TickedScheduler
+import net.casual.arcade.scheduler.task.Cancellable
 import net.casual.arcade.scheduler.task.routine.Routine
 import net.casual.arcade.scheduler.task.routine.RoutineJournal
 import net.casual.arcade.scheduler.task.routine.RoutineScope
@@ -29,13 +30,20 @@ public suspend fun <O> RoutineScope<O>.call(routine: Routine<O>) {
  * @param delay The duration to wait before starting the [routine].
  * @param routine The routine to schedule, which must be registered.
  * @param owner The owner the routine runs against.
+ * @return A handle which can be used to cancel the routine.
  * @throws IllegalArgumentException If the routine's codec is not registered.
  */
-public fun <O> TickedScheduler.schedule(delay: MinecraftTimeDuration, routine: Routine<O>, owner: O) {
+public fun <O> TickedScheduler.schedule(
+    delay: MinecraftTimeDuration,
+    routine: Routine<O>,
+    owner: O
+): Cancellable {
     require(TaskRegistries.ROUTINE.getKey(routine.codec()) != null) {
         "Routine ${routine.javaClass.name} must be registered in TaskRegistries.ROUTINE before it can be scheduled"
     }
-    this.schedule(delay, RoutineTask(routine, owner, RoutineJournal.create()))
+    val task = RoutineTask(routine, owner, RoutineJournal.create())
+    this.schedule(delay, task)
+    return task
 }
 
 /**
@@ -43,8 +51,9 @@ public fun <O> TickedScheduler.schedule(delay: MinecraftTimeDuration, routine: R
  *
  * @param routine The routine to schedule, which must be registered.
  * @param owner The owner the routine runs against.
+ * @return A handle which can be used to cancel the routine.
  * @throws IllegalArgumentException If the routine's codec is not registered.
  */
-public fun <O> TickedScheduler.schedule(routine: Routine<O>, owner: O) {
-    this.schedule(MinecraftTimeDuration.ZERO, routine, owner)
+public fun <O> TickedScheduler.schedule(routine: Routine<O>, owner: O): Cancellable {
+    return this.schedule(MinecraftTimeDuration.ZERO, routine, owner)
 }

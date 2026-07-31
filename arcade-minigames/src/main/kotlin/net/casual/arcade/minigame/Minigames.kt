@@ -27,7 +27,6 @@ import net.casual.arcade.minigame.extensions.PlayerMovementRestrictionExtension
 import net.casual.arcade.minigame.gamemode.ExtendedGameMode
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
-import net.casual.arcade.minigame.task.impl.PhaseChangeTask
 import net.casual.arcade.minigame.task.routine.PhaseChangeRoutine
 import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.casual.arcade.minigame.utils.MinigameRegistries
@@ -38,7 +37,6 @@ import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.serialization.json.JsonValueInput
 import net.casual.arcade.utils.serialization.json.JsonValueOutput
 import net.fabricmc.api.ModInitializer
-import net.minecraft.core.Registry
 import net.minecraft.core.UUIDUtil
 import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
@@ -180,7 +178,6 @@ public object Minigames: ModInitializer {
             event.register(ExtendedGameModeCommand, MinigameCommand, PauseCommand, TeamCommandModifier)
         }
 
-        Registry.register(TaskRegistries.TASK_FACTORY, PhaseChangeTask.id, PhaseChangeTask)
         PhaseChangeRoutine.register(TaskRegistries.ROUTINE)
     }
 

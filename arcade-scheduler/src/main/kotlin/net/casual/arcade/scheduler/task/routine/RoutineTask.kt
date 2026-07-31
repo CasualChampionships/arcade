@@ -6,23 +6,20 @@ package net.casual.arcade.scheduler.task.routine
 
 import com.mojang.serialization.Codec
 import net.casual.arcade.scheduler.TickedScheduler
-import net.casual.arcade.scheduler.task.SavableTask
+import net.casual.arcade.scheduler.task.Cancellable
 import net.casual.arcade.scheduler.task.Task
-import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
-import net.casual.arcade.scheduler.task.serialization.TaskFactory
-import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.error.RichResult
 import net.casual.arcade.utils.time.MinecraftTimeDuration
-import net.minecraft.resources.Identifier
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED
 import kotlin.coroutines.intrinsics.suspendCoroutineUninterceptedOrReturn
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.startCoroutine
 import kotlin.jvm.optionals.getOrNull
 
@@ -33,15 +30,18 @@ internal class RoutineTask<O>(
     private val routine: Routine<O>,
     private val owner: O,
     private val journal: RoutineJournal
-): SavableTask {
+): Task, Cancellable {
     private var scheduler: TickedScheduler? = null
     private var continuation: Continuation<Unit>? = null
 
     private var index = 0
     private var replayTo = 0
     private var finished = false
+    private var cancelling = false
+    private var rehydrating = false
 
-    override val id: Identifier = Companion.id
+    override val isFinished: Boolean
+        get() = this.finished
 
     fun attach(scheduler: TickedScheduler) {
         this.scheduler = scheduler
@@ -57,18 +57,44 @@ internal class RoutineTask<O>(
             continuation.resume(Unit)
             return
         }
-        this.start()
+        this.start(this.journal.cursor + 1)
     }
 
-    override fun serialize(output: ValueOutput, context: TaskSerializationContext) {
+    override fun cancel() {
+        if (this.finished || this.cancelling) {
+            return
+        }
+        if (this.continuation == null) {
+            // If the task wasn't resumed after deserialization
+            // we still need to run up to the point of serialization
+            // so we can properly cancel the routine at the correct position
+            this.rehydrating = true
+            try {
+                this.start(this.journal.cursor)
+            } finally {
+                this.rehydrating = false
+            }
+        }
+
+        val continuation = this.continuation
+        if (continuation == null) {
+            this.finished = true
+            return
+        }
+        this.continuation = null
+        this.cancelling = true
+        continuation.resumeWithException(RoutineCancelledException())
+    }
+
+    fun serialize(output: ValueOutput) {
         output.putInt("version", this.routine.version)
         output.store("routine", Routine.CODEC, this.routine)
         this.journal.serialize(output.child("journal"))
     }
 
-    private fun start() {
+    private fun start(replayTo: Int) {
         this.index = 0
-        this.replayTo = this.journal.cursor + 1
+        this.replayTo = replayTo
 
         val routine = this.routine
         val block: suspend RoutineScope<O>.() -> Unit = { with(routine) { run() } }
@@ -86,6 +112,10 @@ internal class RoutineTask<O>(
             get() = this.task.owner
 
         override suspend fun delay(duration: MinecraftTimeDuration) {
+            if (this.task.cancelling) {
+                return
+            }
+
             val index = this.task.index++
             if (index < this.task.replayTo) {
                 val message = this.task.journal.verify(index, RoutineJournal.Kind.Delay, null)
@@ -97,6 +127,15 @@ internal class RoutineTask<O>(
 
             this.task.journal.record(index, RoutineJournal.Kind.Delay, null)
             this.task.journal.suspendedAt(index)
+
+            if (this.task.rehydrating) {
+                // We don't actually schedule the task,
+                // but we need this to allows us to cancel the coroutine
+                return suspendCoroutineUninterceptedOrReturn { continuation ->
+                    this.task.continuation = continuation
+                    COROUTINE_SUSPENDED
+                }
+            }
 
             val scheduler = this.task.scheduler
             if (scheduler == null) {
@@ -152,16 +191,17 @@ internal class RoutineTask<O>(
         override fun resumeWith(result: Result<Unit>) {
             this.task.finished = true
             this.task.continuation = null
-            result.exceptionOrNull()?.let { exception ->
+            val exception = result.exceptionOrNull()
+            if (exception != null && exception !is RoutineCancelledException) {
                 ArcadeUtils.logger.error("Exception while running routine ${this.task.routine.javaClass.name}", exception)
             }
         }
     }
 
-    companion object: TaskFactory {
-        override val id: Identifier = arcade("routine")
+    private class RoutineCancelledException: CancellationException("Routine was cancelled")
 
-        override fun create(input: ValueInput, context: TaskCreationContext): RichResult<Task> {
+    companion object {
+        fun create(input: ValueInput, owner: Any?): RichResult<Task> {
             val routine = input.read("routine", Routine.CODEC).getOrNull()
                 ?: return RichResult.failure("Failed to read routine")
 
@@ -175,7 +215,7 @@ internal class RoutineTask<O>(
 
             val journal = RoutineJournal.deserialize(input.childOrEmpty("journal"))
             @Suppress("UNCHECKED_CAST")
-            return RichResult.success(RoutineTask(routine as Routine<Any?>, context.owner, journal))
+            return RichResult.success(RoutineTask(routine as Routine<Any?>, owner, journal))
         }
     }
 }
