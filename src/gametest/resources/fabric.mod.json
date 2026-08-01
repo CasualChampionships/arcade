@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "arcade-tests",
+  "version": "1.0.0",
+  "name": "Arcade Tests",
+  "description": "Automated in-game tests for arcade.",
+  "authors": [
+    "Sensei"
+  ],
+  "contact": {
+
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.gametest.ServerBootTests"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.gametest.TestPlayerPacketTests"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.gametest.CoroutineTests"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.gametest.ContextAssertionTests"
+      }
+    ]
+  },
+  "depends": {
+    "fabric-language-kotlin": "*",
+    "arcade-gametest": "*"
+  }
+}
