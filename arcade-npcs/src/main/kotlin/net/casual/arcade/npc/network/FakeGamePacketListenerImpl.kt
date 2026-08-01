@@ -26,9 +26,16 @@ public open class FakeGamePacketListenerImpl(
         this.player.doTick()
     }
 
+    protected open fun receivesPackets(): Boolean {
+        return false
+    }
+
     override fun send(packet: Packet<*>, listener: ChannelFutureListener?) {
         if (packet is ClientboundPlayerPositionPacket) {
             this.handleAcceptTeleportPacket(ServerboundAcceptTeleportationPacket(packet.id))
+        }
+        if (this.receivesPackets()) {
+            super.send(packet, listener)
         }
     }
 }
