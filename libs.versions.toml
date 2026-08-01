@@ -19,6 +19,9 @@ c2me          = "0.4.1-alpha.0.3+26.2"
 
 # Testing
 reflections = "0.10.2"
+# Stays on the 5.x line: fabric-loader-junit registers a LauncherSessionListener built against
+# junit-platform 1.x, which JUnit 6 replaces
+junit       = "5.14.4"
 
 # Plugins
 fabric-loom = "1.17-SNAPSHOT"
@@ -45,7 +48,9 @@ vmp           = { module = "maven.modrinth:vmp-fabric"           , version.ref =
 c2me          = { module = "maven.modrinth:c2me-fabric"          , version.ref = "c2me" }
 
 # Testing
-reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
+reflections         = { module = "org.reflections:reflections"          , version.ref = "reflections" }
+junit-jupiter       = { module = "org.junit.jupiter:junit-jupiter"      , version.ref = "junit" }
+fabric-loader-junit = { module = "net.fabricmc:fabric-loader-junit"     , version.ref = "fabric-loader" }
 
 [plugins]
 kotlin-jvm           = { id = "org.jetbrains.kotlin.jvm"                 , version.ref = "kotlin" }
