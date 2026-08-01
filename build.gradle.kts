@@ -19,6 +19,30 @@ loom {
     }
 }
 
+fabricApi {
+    @Suppress("UnstableApiUsage")
+    configureTests {
+        createSourceSet.set(true)
+        modId.set("arcade-tests")
+
+        enableGameTests.set(true)
+        // TODO:
+        enableClientGameTests.set(false)
+        eula.set(true)
+    }
+}
+
+loom {
+    runs {
+        named("gameTest") {
+            systemProperties.put(
+                "fabric-api.gametest.report-file",
+                layout.buildDirectory.file("gametest-report.xml").get().asFile.absolutePath
+            )
+        }
+    }
+}
+
 dependencies {
     include(libs.polymer.core)
     include(libs.polymer.resource.pack)
@@ -30,8 +54,10 @@ dependencies {
         exclude(group = "org.slf4j")
     }
 
-    val ignore = setOf(projects.arcadeDatagen.path)
-    val hidden = setOf(projects.arcadeEventsClient.path)
+    "gametestImplementation"(projects.arcadeGametest)
+
+    val ignore = setOf(projects.arcadeDatagen, projects.arcadeGametest).map { it.path }
+    val hidden = setOf(projects.arcadeEventsClient).map { it.path }
     for (subproject in project.subprojects) {
         if (subproject.path in ignore) {
             continue

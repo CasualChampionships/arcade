@@ -39,6 +39,15 @@ dependencies {
     implementation(libs.fabric.loader)
     implementation(libs.fabric.kotlin)
     implementation(libs.fabric.api)
+
+    testImplementation(libs.fabric.loader.junit)
+    testImplementation(libs.junit.jupiter)
+}
+
+tasks.test {
+    useJUnitPlatform()
+
+    systemProperty("side", "SERVER")
 }
 
 java {
@@ -112,11 +121,11 @@ publishing {
 spotless {
     java {
         licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
-        targetExclude("src/testmod/**")
+        targetExclude("src/testmod/**", "src/test/**", "src/gametest/**")
     }
     kotlin {
         licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
-        targetExclude("src/testmod/**")
+        targetExclude("src/testmod/**", "src/test/**", "src/gametest/**")
     }
 }
 
