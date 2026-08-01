@@ -7,16 +7,22 @@ package net.casual.arcade.gametest
 import com.mojang.authlib.GameProfile
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.withContext
 import net.casual.arcade.gametest.utils.TestFakePlayer
 import net.casual.arcade.npc.FakePlayer
+import net.casual.arcade.scheduler.GlobalTickedScheduler
+import net.casual.arcade.scheduler.SimpleTickedScheduler
+import net.casual.arcade.scheduler.utils.asCoroutineDispatcher
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
+import net.casual.arcade.utils.coroutine.MinecraftSchedulerDelay
 import net.casual.arcade.utils.coroutine.delay
 import net.casual.arcade.utils.coroutine.launch
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.core.BlockPos
 import net.minecraft.core.UUIDUtil
 import net.minecraft.gametest.framework.GameTestHelper
+import net.minecraft.gametest.framework.UnknownGameTestException
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
@@ -45,29 +51,33 @@ public class ArcadeTestContext(public val helper: GameTestHelper) {
     public fun test(block: suspend ArcadeTestContext.() -> Unit) {
         val context = this
 
-        this.helper.tick
-
-        // TODO: Switch this to use a custom scheduler
+        val scheduler = SimpleTickedScheduler.server()
         this.helper.onEachTick {
+            scheduler.tick()
+
             val thrown = context.failure
             if (thrown != null) {
                 context.failure = null
-                throw thrown
+                throw thrown as? Exception ?: UnknownGameTestException(thrown)
             }
         }
 
-        this.server.launch {
-            try {
-                context.block()
-                context.helper.succeed()
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Throwable) {
-                context.failure = e
-            } finally {
-                context.cleanup()
+        val job = this.server.launch {
+            withContext(scheduler.asCoroutineDispatcher()) {
+                try {
+                    context.block()
+                    context.helper.succeed()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Throwable) {
+                    context.failure = e
+                } finally {
+                    context.cleanup()
+                }
             }
         }
+
+        this.helper.runBeforeTestEnd(job::cancel)
     }
 
     /**

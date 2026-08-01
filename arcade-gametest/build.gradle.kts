@@ -4,5 +4,6 @@ plugins {
 
 dependencies {
     api(projects.arcadeNpcs)
+    api(projects.arcadeScheduler)
     api(projects.arcadeUtils)
 }
