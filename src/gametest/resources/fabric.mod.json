@@ -16,7 +16,7 @@
     "main": [
       {
         "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.scheduler.TestRoutines"
+        "value": "net.casual.arcade.tests.server.ArcadeServerTests"
       }
     ],
     "fabric-gametest": [
@@ -62,7 +62,7 @@
       },
       {
         "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.scheduler.RoutineSerializationTests"
+        "value": "net.casual.arcade.tests.server.scheduler.SchedulerSerializationTests"
       }
     ]
   },

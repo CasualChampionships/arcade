@@ -12,8 +12,9 @@ import java.util.function.Consumer
 @Suppress("FunctionName")
 public fun LevelTask(level: ServerLevel, task: Consumer<ServerLevel>): Task {
     val dimension = level.dimension()
+    val server = level.server
     return Task {
-        val resolved = ServerSingleton.getOrNull()?.getLevel(dimension)
+        val resolved = server.getLevel(dimension)
         if (resolved != null) {
             task.accept(resolved)
         }
