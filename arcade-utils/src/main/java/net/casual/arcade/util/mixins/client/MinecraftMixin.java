@@ -17,12 +17,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MinecraftMixin {
     @Inject(
         method = "tick",
+        at = @At("HEAD")
+    )
+    private void startClientCoroutinesTick(CallbackInfo ci) {
+        ClientCoroutineUtils.INSTANCE.onTickStart((Minecraft) (Object) this);
+    }
+
+    @Inject(
+        method = "tick",
         at = @At("TAIL")
     )
     private void tickClientCoroutines(CallbackInfo ci) {
         ProfilerFiller filler = Profiler.get();
         filler.push("coroutine_tick_delayed_tasks");
-        ClientCoroutineUtils.INSTANCE.tickClient((Minecraft) (Object) this);
+        ClientCoroutineUtils.INSTANCE.onTick((Minecraft) (Object) this);
         filler.pop();
     }
 
@@ -31,6 +39,6 @@ public class MinecraftMixin {
         at = @At("HEAD")
     )
     private void shutdownClientCoroutines(CallbackInfo ci) {
-        ClientCoroutineUtils.INSTANCE.stopClient((Minecraft) (Object) this);
+        ClientCoroutineUtils.INSTANCE.onStop((Minecraft) (Object) this);
     }
 }

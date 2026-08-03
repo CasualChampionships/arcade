@@ -4,17 +4,16 @@
  */
 package net.casual.arcade.minigame.managers
 
+import kotlinx.coroutines.CoroutineScope
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.scheduler.SimpleTickedScheduler
 import net.casual.arcade.scheduler.task.Task
-import net.casual.arcade.scheduler.task.impl.CancellableTask
-import net.casual.arcade.scheduler.task.Cancellable
+import net.casual.arcade.scheduler.task.ScheduledTask
 import net.casual.arcade.scheduler.task.routine.Routine
 import net.casual.arcade.scheduler.utils.schedule
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.casual.arcade.utils.side.LogicalSide
-import net.casual.arcade.utils.time.MinecraftTimeUnit
 
 /**
  * This is an implementation of [MinigameTickedScheduler] that allows for
@@ -61,9 +60,14 @@ public class MinigameTickedScheduler(
      *
      * @param delay The duration to wait before running the [task].
      * @param task The runnable to be scheduled.
+     * @return A handle which can be used to cancel the task.
      */
-    override fun schedule(delay: MinecraftTimeDuration, task: Task) {
-        this.standard.schedule(delay, task)
+    override fun schedule(delay: MinecraftTimeDuration, task: Task): ScheduledTask {
+        return this.standard.schedule(delay, task)
+    }
+
+    override fun asCoroutineScope(): CoroutineScope {
+        return this.standard.asCoroutineScope()
     }
 
     /**
@@ -74,7 +78,7 @@ public class MinigameTickedScheduler(
      * @param routine The routine to schedule, which must be registered.
      * @return A handle which can be used to cancel the routine.
      */
-    public fun <M: Minigame> schedule(delay: MinecraftTimeDuration, routine: Routine<M>): Cancellable {
+    public fun <M: Minigame> schedule(delay: MinecraftTimeDuration, routine: Routine<M>): ScheduledTask {
         @Suppress("UNCHECKED_CAST")
         return this.standard.schedule(delay, routine, this.minigame as M)
     }
@@ -89,7 +93,7 @@ public class MinigameTickedScheduler(
      * @param routine The routine to schedule, which must be registered.
      * @return A handle which can be used to cancel the routine.
      */
-    public fun <M: Minigame> schedulePhased(delay: MinecraftTimeDuration, routine: Routine<M>): Cancellable {
+    public fun <M: Minigame> schedulePhased(delay: MinecraftTimeDuration, routine: Routine<M>): ScheduledTask {
         @Suppress("UNCHECKED_CAST")
         return this.phased.schedule(delay, routine, this.minigame as M)
     }
@@ -103,59 +107,9 @@ public class MinigameTickedScheduler(
      *
      * @param duration The duration to wait before running the [task].
      * @param task The runnable to be scheduled.
+     * @return A handle which can be used to cancel the task.
      */
-    public fun schedulePhased(duration: MinecraftTimeDuration, task: Task) {
-        this.phased.schedule(duration, task)
-    }
-
-    /**
-     * This method will schedule a task which will be made cancellable.
-     * The user can cancel the task, *or* the minigame may cancel the event
-     * in the case that the phase changes.
-     *
-     * @param duration The duration to wait before running the [task].
-     * @param task The runnable to be scheduled.
-     * @return The cancellable task.
-     */
-    public fun schedulePhasedCancellable(duration: MinecraftTimeDuration, task: Task): CancellableTask {
-        val cancellable = CancellableTask.of(task)
-        this.schedulePhased(duration, cancellable)
-        return cancellable
-    }
-
-    /**
-     * This method will schedule a task which will be made cancellable.
-     * The user can cancel the task, *or* the minigame may cancel the event
-     * in the case that the phase changes.
-     *
-     * @param time The amount of time to wait before running the [task].
-     * @param unit The units of time.
-     * @param task The runnable to be scheduled.
-     * @return The cancellable task.
-     */
-    public fun schedulePhasedCancellable(time: Int, unit: MinecraftTimeUnit, task: Task): CancellableTask {
-        return this.schedulePhasedCancellable(unit.duration(time), task)
-    }
-
-    /**
-     * This schedules a [task] in a loop with a given
-     * initial [delay] and with a given [interval] between
-     * each invocation of the [task] for a given [duration].
-     *
-     * If the minigame's phase changes, some of the scheduled
-     * tasks will not be run.
-     *
-     * @param delay The initial delay before the first [task] is scheduled.
-     * @param interval The amount of time between each [task].
-     * @param duration The total duration the loop should be running for.
-     * @param task The runnable to be scheduled.
-     */
-    public fun schedulePhasedInLoop(
-        delay: MinecraftTimeDuration,
-        interval: MinecraftTimeDuration,
-        duration: MinecraftTimeDuration,
-        task: Task
-    ) {
-        this.phased.scheduleInLoop(delay, interval, duration, task)
+    public fun schedulePhased(duration: MinecraftTimeDuration, task: Task): ScheduledTask {
+        return this.phased.schedule(duration, task)
     }
 }

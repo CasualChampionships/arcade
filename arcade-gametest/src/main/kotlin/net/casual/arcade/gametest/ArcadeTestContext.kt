@@ -7,17 +7,15 @@ package net.casual.arcade.gametest
 import com.mojang.authlib.GameProfile
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 import net.casual.arcade.gametest.utils.TestFakePlayer
 import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.SimpleTickedScheduler
-import net.casual.arcade.scheduler.utils.asCoroutineDispatcher
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.coroutine.MinecraftSchedulerDelay
 import net.casual.arcade.utils.coroutine.delay
-import net.casual.arcade.utils.coroutine.launch
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.core.BlockPos
 import net.minecraft.core.UUIDUtil
@@ -62,18 +60,16 @@ public class ArcadeTestContext(public val helper: GameTestHelper) {
             }
         }
 
-        val job = this.server.launch {
-            withContext(scheduler.asCoroutineDispatcher()) {
-                try {
-                    context.block()
-                    context.helper.succeed()
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Throwable) {
-                    context.failure = e
-                } finally {
-                    context.cleanup()
-                }
+        val job = scheduler.asCoroutineScope().launch {
+            try {
+                context.block()
+                context.helper.succeed()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                context.failure = e
+            } finally {
+                context.cleanup()
             }
         }
 

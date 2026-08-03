@@ -6,7 +6,7 @@ package net.casual.arcade.scheduler.task.routine
 
 import com.mojang.serialization.Codec
 import net.casual.arcade.scheduler.TickedScheduler
-import net.casual.arcade.scheduler.task.Cancellable
+import net.casual.arcade.scheduler.task.ScheduledTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.error.RichResult
@@ -30,7 +30,7 @@ internal class RoutineTask<O>(
     private val routine: Routine<O>,
     private val owner: O,
     private val journal: RoutineJournal
-): Task, Cancellable {
+): Task, ScheduledTask {
     private var scheduler: TickedScheduler? = null
     private var continuation: Continuation<Unit>? = null
 
@@ -65,6 +65,11 @@ internal class RoutineTask<O>(
             return
         }
         if (this.continuation == null) {
+            if (this.journal.cursor < 0) {
+                this.finished = true
+                return
+            }
+
             // If the task wasn't resumed after deserialization
             // we still need to run up to the point of serialization
             // so we can properly cancel the routine at the correct position

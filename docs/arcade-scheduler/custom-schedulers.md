@@ -44,11 +44,9 @@ You can create a temporary ticked scheduler with a pre-determined lifetime by ca
 val minigame: Minigame = // ...
 val duration = 10.Seconds
 val scheduler = GlobalTickedScheduler.Server.temporaryScheduler(duration)
-minigame.server.launch {
-    withContext(scheduler.asCoroutineDispatcher()) {
-        minigame.visuals.countdown.transition(duration = duration, players = minigame.players::all)
-        minigame.unpause()
-    }
+scheduler.asCoroutineScope().launch {
+    minigame.visuals.countdown.transition(duration = duration, players = minigame.players::all)
+    minigame.unpause()
 }
 ```
 

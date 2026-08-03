@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.scheduler
 
+import kotlinx.coroutines.CoroutineScope
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.client.ClientStoppingEvent
 import net.casual.arcade.events.client.ClientTickEvent
@@ -11,6 +12,7 @@ import net.casual.arcade.events.phase.BuiltInEventPhases.POST
 import net.casual.arcade.events.server.ServerStopEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.events.utils.register
+import net.casual.arcade.scheduler.task.ScheduledTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.side.LogicalSide
@@ -44,9 +46,10 @@ public sealed class GlobalTickedScheduler(
      * has been initialized.
      *
      * @param task The runnable to be scheduled.
+     * @return A handle which can be used to cancel the task.
      */
-    public fun later(task: Task) {
-        this.schedule(MinecraftTimeDuration.ZERO, task)
+    public fun later(task: Task): ScheduledTask {
+        return this.schedule(MinecraftTimeDuration.ZERO, task)
     }
 
     /**
@@ -55,9 +58,14 @@ public sealed class GlobalTickedScheduler(
      *
      * @param delay The duration to wait before running the [task].
      * @param task The runnable to be scheduled.
+     * @return A handle which can be used to cancel the task.
      */
-    override fun schedule(delay: MinecraftTimeDuration, task: Task) {
-        this.scheduler.schedule(delay, task)
+    override fun schedule(delay: MinecraftTimeDuration, task: Task): ScheduledTask {
+        return this.scheduler.schedule(delay, task)
+    }
+
+    override fun asCoroutineScope(): CoroutineScope {
+        return this.scheduler.asCoroutineScope()
     }
 
     /**

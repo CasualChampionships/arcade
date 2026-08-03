@@ -6,10 +6,17 @@ package net.casual.arcade.scheduler
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.job
 import net.casual.arcade.scheduler.task.Task
-import net.casual.arcade.scheduler.task.Cancellable
+import net.casual.arcade.scheduler.task.ScheduledTask
 import net.casual.arcade.scheduler.task.routine.Routine
 import net.casual.arcade.scheduler.task.routine.RoutineTask
+import net.casual.arcade.scheduler.utils.asCoroutineDispatcher
 import net.casual.arcade.scheduler.utils.runSafely
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -35,8 +42,21 @@ import kotlin.jvm.optionals.getOrNull
 public class SimpleTickedScheduler(
     override val target: LogicalSide
 ): TickedScheduler {
-    private val tasks: Int2ObjectMap<Queue<Task>> = Int2ObjectOpenHashMap()
+    private val tasks: Int2ObjectMap<Queue<ScheduledTaskImpl>> = Int2ObjectOpenHashMap()
     private var tickCount = 0
+    private var ticking = false
+
+    private val scope: Lazy<CoroutineScope> = lazy {
+        val handler = CoroutineExceptionHandler { _, throwable ->
+            ArcadeUtils.logger.error("Uncaught exception while running scheduler coroutine", throwable)
+        }
+        CoroutineScope(
+            this.asCoroutineDispatcher() +
+                SupervisorJob() +
+                CoroutineName("SimpleTickedScheduler") +
+                handler
+        )
+    }
 
     /**
      * This advances the scheduler by one tick.
@@ -47,8 +67,13 @@ public class SimpleTickedScheduler(
     public fun tick() {
         val queue = this.tasks.remove(this.tickCount++)
         if (queue != null) {
-            for (task in queue) {
-                task.runSafely()
+            this.ticking = true
+            try {
+                for (entry in queue) {
+                    entry.run()
+                }
+            } finally {
+                this.ticking = false
             }
             queue.clear()
         }
@@ -61,9 +86,9 @@ public class SimpleTickedScheduler(
      * @param delta The tick delta.
      */
     public fun cancel(delta: Int = 0) {
-        val queue = this.tasks.remove(this.tickCount + delta) ?: return
-        for (task in queue) {
-            this.cancel(task)
+        val queue = this.tasks.remove(this.bucket(delta)) ?: return
+        for (entry in queue) {
+            entry.cancel()
         }
     }
 
@@ -71,22 +96,31 @@ public class SimpleTickedScheduler(
      * This cancels all the tasks that are currently
      * scheduled in the scheduler.
      *
-     * Cancelling a [Routine] unwinds it, running any cleanup it has in
-     * `finally` blocks. If you instead want to discard the scheduler's
-     * state without running anything, use [clear].
+     * All [Task]s, [Routine]s, and coroutines launched via [asCoroutineScope]
+     * are all cancelled.
+     *
+     * The scheduler remains usable afterward; the scope is not permanently
+     * cancelled, only its children are.
+     *
+     * @return Whether any tasks/coroutines were successfully cancelled.
      */
     public fun cancelAll(): Boolean {
+        val cancelled = this.cancelCoroutines()
         if (this.tasks.isEmpty()) {
-            return false
+            return cancelled
         }
         val queues = ArrayList(this.tasks.values)
         this.tasks.clear()
         for (queue in queues) {
-            for (task in queue) {
-                this.cancel(task)
+            for (entry in queue) {
+                entry.cancel()
             }
         }
         return true
+    }
+
+    override fun asCoroutineScope(): CoroutineScope {
+        return this.scope.value
     }
 
     /**
@@ -103,30 +137,37 @@ public class SimpleTickedScheduler(
         return true
     }
 
-    private fun cancel(task: Task) {
-        if (task is Cancellable) {
-            task.cancel()
+    private fun cancelCoroutines(): Boolean {
+        if (!this.scope.isInitialized()) {
+            return false
         }
+        val job = this.scope.value.coroutineContext.job
+        val active = job.children.any()
+        job.cancelChildren()
+        return active
     }
 
-    /**
-     * This method will schedule a [task] to be run
-     * after a given [delay].
-     *
-     * @param delay The duration to wait before running the [task].
-     * @param task The task to be scheduled.
-     */
-    override fun schedule(delay: MinecraftTimeDuration, task: Task) {
+    override fun schedule(delay: MinecraftTimeDuration, task: Task): ScheduledTask {
         if (task is RoutineTask<*>) {
             task.attach(this)
         }
-        this.tasks.computeIfAbsent(this.tickCount + delay.ticks, IntFunction { ArrayDeque() }).add(task)
+        val entry = ScheduledTaskImpl(task)
+        this.tasks.computeIfAbsent(this.bucket(delay.ticks), IntFunction { ArrayDeque() }).add(entry)
+        return entry
+    }
+
+    private fun bucket(ticks: Int): Int {
+        if (this.ticking) {
+            return this.tickCount + (ticks - 1).coerceAtLeast(0)
+        }
+        return this.tickCount + ticks
     }
 
     public fun serialize(output: ValueOutput.ValueOutputList) {
         for ((tick, queue) in this.tasks) {
             val delay = tick - this.tickCount
-            for (task in queue) {
+            for (entry in queue) {
+                val task = entry.task
                 if (task !is RoutineTask<*>) {
                     continue
                 }
@@ -144,6 +185,39 @@ public class SimpleTickedScheduler(
                 success = { task -> this.schedule(ticks.Ticks, task) },
                 failure = { message -> ArcadeUtils.logger.error("Failed to load routine: $message") }
             )
+        }
+    }
+
+    private class ScheduledTaskImpl(val task: Task): ScheduledTask {
+        private var completed = false
+
+        override val isFinished: Boolean
+            get() {
+                val task = this.task
+                if (task is ScheduledTask) {
+                    return task.isFinished
+                }
+                return this.completed
+            }
+
+        override fun cancel() {
+            if (this.completed) {
+                return
+            }
+            this.completed = true
+
+            val task = this.task
+            if (task is ScheduledTask) {
+                task.cancel()
+            }
+        }
+
+        fun run() {
+            if (this.completed) {
+                return
+            }
+            this.completed = true
+            this.task.runSafely()
         }
     }
 

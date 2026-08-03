@@ -4,8 +4,11 @@
  */
 package net.casual.arcade.scheduler
 
+import kotlinx.coroutines.CoroutineScope
 import net.casual.arcade.scheduler.TickedScheduler.Companion.schedule
+import net.casual.arcade.scheduler.task.ScheduledTask
 import net.casual.arcade.scheduler.task.Task
+import net.casual.arcade.scheduler.task.routine.Routine
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.side.LogicalSide
 import net.casual.arcade.utils.time.MinecraftTimeDuration
@@ -30,34 +33,42 @@ public interface TickedScheduler {
      * This method will schedule a [task] to be run
      * after a given [delay].
      *
+     * [Task]s are one-shot and transient. If you need control flow, for
+     * example a loop or waiting on something, launch a coroutine with
+     * [asCoroutineScope] instead. If you need work which survives a restart
+     * use a [Routine].
+     *
      * @param delay The duration to wait before running the [task].
      * @param task The task to be scheduled.
+     * @return A handle which can be used to cancel the task.
      */
-    public fun schedule(delay: MinecraftTimeDuration, task: Task)
+    public fun schedule(delay: MinecraftTimeDuration, task: Task): ScheduledTask
 
     /**
-     * This schedules a [task] in a loop with a given
-     * initial [delay] and with a given [interval] between
-     * each invocation of the [task] for a given [duration].
+     * A [CoroutineScope] which dispatches onto this scheduler.
      *
-     * @param delay The initial delay before the first [task] is scheduled.
-     * @param interval The amount of time between each [task].
-     * @param duration The total duration the loop should be running for.
-     * @param task The task to be scheduled.
+     * Coroutines launched here resume on the main thread of [target], and
+     * [net.casual.arcade.utils.coroutine.delay] measures its duration in this
+     * scheduler's ticks. This is the preferred way to write anything which
+     * isn't a single one-shot [Task]:
+     * ```
+     * scheduler.asCoroutineScope().launch {
+     *     while (isActive) {
+     *         doSomething()
+     *         delay(5.Ticks)
+     *     }
+     * }
+     * ```
+     *
+     * The returned scope is the same for the lifetime of this scheduler, and its
+     * children are cancelled whenever the scheduler cancels everything. The scope
+     * itself stays usable afterwards, so a scheduler may be reused.
+     *
+     * Coroutines are transient; nothing launched here survives a restart.
+     *
+     * @return The scope which dispatches onto this scheduler.
      */
-    public fun scheduleInLoop(
-        delay: MinecraftTimeDuration,
-        interval: MinecraftTimeDuration,
-        duration: MinecraftTimeDuration,
-        task: Task
-    ) {
-        val total = duration + delay
-        var current = delay
-        while (current < total) {
-            this.schedule(current, task)
-            current += interval
-        }
-    }
+    public fun asCoroutineScope(): CoroutineScope
 
     public companion object {
         /**
@@ -66,10 +77,11 @@ public interface TickedScheduler {
          *
          * @param ticks The number of ticks to schedule the task for.
          * @param task The task to schedule.
+         * @return A handle which can be used to cancel the task.
          */
         @JvmStatic
-        public fun TickedScheduler.schedule(ticks: Int, task: Task) {
-            this.schedule(ticks.Ticks, task)
+        public fun TickedScheduler.schedule(ticks: Int, task: Task): ScheduledTask {
+            return this.schedule(ticks.Ticks, task)
         }
     }
 }

@@ -5,7 +5,7 @@
 package net.casual.arcade.scheduler.utils
 
 import net.casual.arcade.scheduler.TickedScheduler
-import net.casual.arcade.scheduler.task.Cancellable
+import net.casual.arcade.scheduler.task.ScheduledTask
 import net.casual.arcade.scheduler.task.routine.Routine
 import net.casual.arcade.scheduler.task.routine.RoutineJournal
 import net.casual.arcade.scheduler.task.routine.RoutineScope
@@ -37,7 +37,7 @@ public fun <O> TickedScheduler.schedule(
     delay: MinecraftTimeDuration,
     routine: Routine<O>,
     owner: O
-): Cancellable {
+): ScheduledTask {
     require(TaskRegistries.ROUTINE.getKey(routine.codec()) != null) {
         "Routine ${routine.javaClass.name} must be registered in TaskRegistries.ROUTINE before it can be scheduled"
     }
@@ -54,6 +54,6 @@ public fun <O> TickedScheduler.schedule(
  * @return A handle which can be used to cancel the routine.
  * @throws IllegalArgumentException If the routine's codec is not registered.
  */
-public fun <O> TickedScheduler.schedule(routine: Routine<O>, owner: O): Cancellable {
+public fun <O> TickedScheduler.schedule(routine: Routine<O>, owner: O): ScheduledTask {
     return this.schedule(MinecraftTimeDuration.ZERO, routine, owner)
 }

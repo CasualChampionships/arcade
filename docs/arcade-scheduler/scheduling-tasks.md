@@ -27,34 +27,46 @@ GlobalTickedScheduler.Server.later {
 }
 ```
 
+## Cancelling Tasks
+
+Every `schedule` method returns a `Scheduled` handle, which you can use to stop the task before it runs:
+```kotlin
+val handle = GlobalTickedScheduler.Server.schedule(20.Ticks) {
+    println("This never gets printed")
+}
+handle.cancel()
+```
+Scheduling the same task twice gives you two independent handles, so cancelling one does not affect the other.
+
+Handles are deliberately minimal; they only let you cancel something and ask whether it has finished. If you want to
+await something, or run a loop, use a coroutine instead.
+
 ## Scheduling Looping Tasks
 
-We can schedule looping tasks using the `scheduleInLoop` method. This allows us to specify an initial delay, then an interval between task executions then the total duration it should loop for.
-
+A `Task` is one-shot, so a loop is written as a coroutine on the scheduler's scope:
 ```kotlin
 var i = 0
-GlobalTickedScheduler.Server.scheduleInLoop(3.Ticks, 5.Ticks, 25.Ticks) {
-    println("${3 + (5 * i++)} ticks have past")
-}
-```
-
-## Co-routines
-
-We can convert a scheduler into a coroutine dispatcher using the extension function
-`TickedScheduler.asCoroutineDispatcher()`:
-```kotlin
-val server: MinecraftServer = // ...
-val dispatcher = GlobalTickedScheduler.Server.get().asCoroutineDispatcher()
-server.launch {
-    withContext(dispatcher) {
-        // Do something suspending
+GlobalTickedScheduler.Server.asCoroutineScope().launch {
+    delay(3.Ticks)
+    while (isActive) {
+        println("${3 + (5 * i++)} ticks have past")
+        delay(5.Ticks)
     }
 }
 ```
-The coroutine will resume running on the scheduler, this allows us to cancel
-the coroutine by cancelling the scheduled task. This behavior is useful
-in `MinigameTickedScheduler` in the minigames module, see the 
-[Minigame Scheduling Section](../arcade-minigames/scheduling.md)
+
+## Coroutines
+
+Every scheduler has a `CoroutineScope` which dispatches onto it, so launching a coroutine which runs
+on a scheduler is just:
+```kotlin
+GlobalTickedScheduler.Server.asCoroutineScope().launch {
+    // Do something suspending
+}
+```
+The coroutine resumes on the scheduler, which means cancelling the scheduler cancels the coroutine,
+unwinding it through any `finally` blocks it has. This behavior is useful in `MinigameTickedScheduler`
+in the minigames module, see the [Minigame Scheduling Section](../arcade-minigames/scheduling.md)
 which will go into further depth.
 
 We can also utilize the `delay` function declared in the utilities module to
