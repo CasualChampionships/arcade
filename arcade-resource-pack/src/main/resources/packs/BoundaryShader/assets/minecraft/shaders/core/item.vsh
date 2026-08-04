@@ -39,12 +39,6 @@ out vec3 position;
 
 
 // == Boundary Start ==
-const vec2 quadCorners[4] = vec2[4](
-    vec2(0.0, 0.0), 
-    vec2(1.0, 0.0), 
-    vec2(1.0, 1.0), 
-    vec2(0.0, 1.0)  
-);
 const vec2 uvCorners[4] = vec2[4](
     vec2(0.0, 0.0),
     vec2(0.0, 1.0),
@@ -52,16 +46,31 @@ const vec2 uvCorners[4] = vec2[4](
     vec2(1.0, 0.0)
 );
 
-vec4 getVertexCornerColor(sampler2D tex, vec2 uv, int vertexID) {
+const ivec2 cornerProbes[4] = ivec2[4](
+    ivec2(0, 0),
+    ivec2(0, -1),
+    ivec2(-1, -1),
+    ivec2(-1, 0)
+);
+
+// The corners of a boundary texture's border are keyed with r = 66, g = 70 and
+// b = 50 + the index of the quad corner they mark. This is what identifies a
+// boundary quad.
+// Returns -1 for any sprite that isn't a boundary.
+int findBoundaryCorner(sampler2D tex, vec2 coord, out vec4 marker) {
     ivec2 texSize = textureSize(tex, 0);
-    ivec2 texel = ivec2(floor(uv * vec2(texSize)));
+    ivec2 base = ivec2(floor(coord * vec2(texSize)));
 
-    int cornerIndex = ((vertexID % 4) & 1) == 0 ? (vertexID + 2) % 4 : vertexID % 4;
-    ivec2 offset = ivec2(quadCorners[cornerIndex]) - ivec2(1);
-    texel += offset;
-
-    texel = clamp(texel, ivec2(0), texSize - 1);
-    return texelFetch(tex, texel, 0);
+    marker = vec4(0.0);
+    for (int i = 0; i < 4; i++) {
+        vec4 texel = texelFetch(tex, clamp(base + cornerProbes[i], ivec2(0), texSize - 1), 0);
+        ivec3 key = ivec3(round(texel.rgb * 255.0));
+        if (key.r == 66 && key.g == 70 && key.b >= 50 && key.b <= 53) {
+            marker = texel;
+            return key.b - 50;
+        }
+    }
+    return -1;
 }
 
 float decode16BitFloat(int bits) {
@@ -94,19 +103,18 @@ void main() {
     gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
 
     // == Boundary Start ==
-    vec4 color = getVertexCornerColor(Sampler0, UV0, gl_VertexID);
-    vec3 key = vec3(66.0, 70.0, 50.0) / 255.0;
-    if (all(lessThan(abs(color.rgb - key), vec3(0.5 / 255.0)))) {
+    vec4 marker;
+    int corner = findBoundaryCorner(Sampler0, UV0, marker);
+    if (corner >= 0) {
         isBoundary = 1.0;
 
-        bool isCube = color.a < 0.9;
+        bool isCube = marker.a < 0.9;
 
         sphericalVertexDistance = fog_spherical_distance(Position);
         cylindricalVertexDistance = fog_cylindrical_distance(Position);
         texCoord0 = UV0;
 
-        int cornerIndex = gl_VertexID % 4;
-        uv = uvCorners[cornerIndex];
+        uv = uvCorners[corner];
 
         vec2 size = textureSize(Sampler0, 0);
         texCoord0 += 8 * (uv * -2 + 1) / size;

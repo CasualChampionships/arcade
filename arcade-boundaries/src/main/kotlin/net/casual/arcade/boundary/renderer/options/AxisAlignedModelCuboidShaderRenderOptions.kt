@@ -14,6 +14,7 @@ import net.minecraft.world.item.Items
 import net.minecraft.world.item.component.DyedItemColor
 import kotlin.math.floor
 import kotlin.math.log2
+import kotlin.math.pow
 
 public class AxisAlignedModelCuboidShaderRenderOptions: AxisAlignedModelRenderOptions {
     private val stationary = arcade("boundary/cuboid_stationary")
@@ -49,7 +50,7 @@ public class AxisAlignedModelCuboidShaderRenderOptions: AxisAlignedModelRenderOp
         val clamped = value.coerceIn(0.5, 32760.0)
 
         val exponent = (floor(log2(clamped)) + 1).toInt()
-        val scale = 1 shl (exponent - 1)
+        val scale = 2.0.pow(exponent - 1)
         val normalized = clamped / scale
 
         val mantissa = ((normalized - 1.0) * 4096.0).toInt().coerceIn(0, 0xFFF)
