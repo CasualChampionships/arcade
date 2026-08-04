@@ -5,31 +5,26 @@
 package net.casual.arcade.scheduler.utils
 
 import kotlinx.coroutines.*
-import net.casual.arcade.scheduler.MinecraftTaskScheduler
+import net.casual.arcade.scheduler.TickedScheduler
+import net.casual.arcade.scheduler.task.ScheduledTask
 import net.casual.arcade.scheduler.task.Task
-import net.casual.arcade.scheduler.task.impl.CancellableTask
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.coroutine.MinecraftSchedulerDelay
-import net.casual.arcade.utils.server.ServerSingleton
 import net.casual.arcade.utils.time.MinecraftTimeDuration
-import org.jetbrains.annotations.ApiStatus.Internal
 import java.lang.Runnable
 import kotlin.coroutines.CoroutineContext
 
-@Internal
-public fun interface CoroutineTask: Task
-
-public fun MinecraftTaskScheduler.asCoroutineDispatcher(): CoroutineDispatcher {
+public fun TickedScheduler.asCoroutineDispatcher(): CoroutineDispatcher {
     return MinecraftSchedulerDispatcher(this)
 }
 
 @OptIn(InternalCoroutinesApi::class)
 private class MinecraftSchedulerDispatcher(
-    val scheduler: MinecraftTaskScheduler
+    val scheduler: TickedScheduler
 ): CoroutineDispatcher(), Delay, MinecraftSchedulerDelay {
     override fun dispatch(context: CoroutineContext, block: Runnable) {
-        if (!ServerSingleton.isOnServerThread()) {
-            scheduler.schedule(MinecraftTimeDuration.ZERO, CoroutineTask { block.run() })
+        if (!this.scheduler.target.isOnThread()) {
+            this.scheduler.schedule(MinecraftTimeDuration.ZERO, block::run)
         } else {
             block.run()
         }
@@ -44,16 +39,25 @@ private class MinecraftSchedulerDispatcher(
         this.scheduleResumeAfterDelay(delay, continuation)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     override fun scheduleResumeAfterDelay(delay: MinecraftTimeDuration, continuation: CancellableContinuation<Unit>) {
-        val task = CancellableTask.of(CoroutineTask {
-            with(continuation) { resumeUndispatched(Unit) }
-        })
+        val handle = this.scheduler.schedule(delay, ResumeTask(continuation))
+        continuation.invokeOnCancellation { handle.cancel() }
+    }
 
-        this.scheduler.schedule(delay, task)
+    private inner class ResumeTask(
+        private val continuation: CancellableContinuation<Unit>
+    ): Task, ScheduledTask {
+        override val isFinished: Boolean
+            get() = !this.continuation.isActive
 
-        continuation.invokeOnCancellation { task.cancel() }
-        task.ifCancelled { continuation.cancel() }
+        override fun cancel() {
+            this.continuation.cancel()
+        }
+
+        @OptIn(ExperimentalCoroutinesApi::class)
+        override fun run() {
+            with(this.continuation) { resumeUndispatched(Unit) }
+        }
     }
 
     companion object {

@@ -9,7 +9,9 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import net.casual.arcade.commands.hasPermission
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.GlobalEventHandler
@@ -126,36 +128,20 @@ public object MinigameUtils {
         return false
     }
 
-    public inline fun Minigame.launch(crossinline block: suspend CoroutineScope.() -> Unit) {
-        this.server.launch {
-            withContext(scheduler.asCoroutineDispatcher()) {
-                block.invoke(this)
-            }
-        }
+    public inline fun Minigame.launch(crossinline block: suspend CoroutineScope.() -> Unit): Job {
+        return this.scheduler.asCoroutineScope().launch { block() }
     }
 
     public inline fun <T> Minigame.async(crossinline block: suspend CoroutineScope.() -> T): Deferred<T> {
-        return this.server.async {
-            withContext(scheduler.asCoroutineDispatcher()) {
-                block.invoke(this)
-            }
-        }
+        return this.scheduler.asCoroutineScope().async { block() }
     }
 
-    public inline fun Minigame.launchPhased(crossinline block: suspend CoroutineScope.() -> Unit) {
-        this.server.launch {
-            withContext(scheduler.asPhasedScheduler().asCoroutineDispatcher()) {
-                block.invoke(this)
-            }
-        }
+    public inline fun Minigame.launchPhased(crossinline block: suspend CoroutineScope.() -> Unit): Job {
+        return this.scheduler.asPhasedScheduler().asCoroutineScope().launch { block() }
     }
 
     public inline fun <T> Minigame.asyncPhased(crossinline block: suspend CoroutineScope.() -> T): Deferred<T> {
-        return this.server.async {
-            withContext(scheduler.asPhasedScheduler().asCoroutineDispatcher()) {
-                block.invoke(this)
-            }
-        }
+        return this.scheduler.asPhasedScheduler().asCoroutineScope().async { block() }
     }
 
     public fun Minigame.trackReadyPlayers(): ReadyTracker<ServerPlayer> {

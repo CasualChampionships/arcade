@@ -59,10 +59,10 @@ internal class ExtendedGameModePlayerExtension(
 
     override fun deserialize(input: ValueInput) {
         val gameMode = input.read("game_mode", ExtendedGameMode.CODEC)
-            .orElse(ExtendedGameMode.None)
+            .orElse(ExtendedGameMode.None)!!
 
         this.changedGameMode = false
-        GlobalTickedScheduler.later {
+        GlobalTickedScheduler.Server.later {
             if (!this.changedGameMode) {
                 this.setGameMode(gameMode)
             }

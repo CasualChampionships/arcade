@@ -13,6 +13,12 @@
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.ArcadeServerTests"
+      }
+    ],
     "fabric-gametest": [
       {
         "adapter": "kotlin",
@@ -29,11 +35,40 @@
       {
         "adapter": "kotlin",
         "value": "net.casual.arcade.tests.server.gametest.ContextAssertionTests"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.scheduler.SimpleTickedSchedulerTests"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.scheduler.ScheduledTests"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.scheduler.SchedulerCoroutineTests"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.scheduler.GlobalTickedSchedulerTests"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.scheduler.TaskTests"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.scheduler.RoutineTests"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.scheduler.SchedulerSerializationTests"
       }
     ]
   },
   "depends": {
     "fabric-language-kotlin": "*",
-    "arcade-gametest": "*"
+    "arcade-gametest": "*",
+    "arcade-scheduler": "*"
   }
 }

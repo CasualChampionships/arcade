@@ -4,11 +4,6 @@
  */
 package net.casual.arcade.visuals.bossbar
 
-import com.mojang.serialization.Codec
-import net.casual.arcade.scheduler.task.Completable
-import net.casual.arcade.scheduler.task.Task
-import net.casual.arcade.scheduler.task.serialization.TaskCreationContext
-import net.casual.arcade.scheduler.task.serialization.TaskSerializationContext
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.TimeUtils.formatHHMMSS
 import net.casual.arcade.utils.time.MinecraftTimeDuration
@@ -17,17 +12,13 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.BossEvent
-import net.minecraft.world.level.storage.ValueInput
-import net.minecraft.world.level.storage.ValueOutput
 
-public abstract class TimerBossbar: CustomBossbar(), TickableVisualElement, Completable {
-    private val completable = Completable.Impl()
-
+public abstract class TimerBossbar: CustomBossbar(), TickableVisualElement {
     private var ticks = -1
     private var tick = 0
 
-    override val complete: Boolean
-        get() = this.completable.complete
+    public var complete: Boolean = false
+        private set
 
     public val hasDuration: Boolean
         get() = this.ticks != -1
@@ -40,15 +31,11 @@ public abstract class TimerBossbar: CustomBossbar(), TickableVisualElement, Comp
             this.tick++
             return
         }
-        this.completable.complete()
-    }
-
-    override fun then(task: Task): Completable {
-        return this.completable.then(task)
+        this.complete = true
     }
 
     public fun setDuration(duration: MinecraftTimeDuration) {
-        this.completable.complete = false
+        this.complete = false
         this.tick = 0
         this.ticks = duration.ticks
     }
@@ -61,7 +48,7 @@ public abstract class TimerBossbar: CustomBossbar(), TickableVisualElement, Comp
     }
 
     public fun removeDuration() {
-        this.completable.complete = true
+        this.complete = true
         this.ticks = -1
     }
 
@@ -82,28 +69,6 @@ public abstract class TimerBossbar: CustomBossbar(), TickableVisualElement, Comp
      */
     override fun getProgress(player: ServerPlayer): Float {
         return this.getProgress()
-    }
-
-    public fun writeData(output: ValueOutput, context: TaskSerializationContext) {
-        output.putInt("tick", this.tick)
-        output.putInt("ticks", this.ticks)
-        output.putBoolean("complete", this.complete)
-
-        val tasks = output.list("tasks", Codec.INT)
-        for (task in this.completable.tasks()) {
-            tasks.add(context.storeTask(task))
-        }
-    }
-
-    public fun readData(input: ValueInput, context: TaskCreationContext) {
-        this.tick = input.getIntOr("tick", this.tick)
-        this.ticks = input.getIntOr("ticks", this.tick)
-        this.completable.complete = input.getBooleanOr("complete", this.complete)
-
-        for (taskRef in input.listOrEmpty("tasks", Codec.INT)) {
-            val task = context.getTask(taskRef) ?: continue
-            this.completable.then(task)
-        }
     }
 
     public companion object {

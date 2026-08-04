@@ -97,10 +97,8 @@ if (tracker.isReady()) {
 
 ## Phased Visual Components
 
-Previously in the [Scheduling Section](scheduling.md) we briefly talked about 
-the `BossbarTask`, the purpose of this task is to be able to display a bossbar 
-for a certain phase of our minigame and even if we backtrack to a previous 
-phase the bossbar will be removed appropriately.
+Often we want a gui component to be shown only for a certain phase of our 
+minigame, and removed appropriately even if we backtrack to a previous phase.
 
 Each gui component has a respective task that does this:
 - `BossbarTask`
@@ -147,8 +145,8 @@ But this feels very clunky, especially if you have multiple different gui
 components that you want to manage. Not to mention, this will also make 
 serialization more difficult if that's something you're also aiming for.
 
-Instead, what we can do is create an instance of `BossbarTask` and schedule it 
-as a cancellable task which will run if cancelled:
+Instead, what we can do is launch a coroutine on the phased scheduler's scope, 
+and remove the bossbar from a `finally` block:
 ```kotlin
 enum class ExamplePhases(
     override val id: String
@@ -159,33 +157,23 @@ enum class ExamplePhases(
             val bossbar = MyCustomTimerBossBar()
             bossbar.setDuration(duration)
 
-            val task = BossbarTask(minigame, bossbar)
-            minigame.scheduler.schedulePhasedCancellable(duration + 1.Ticks, task).runIfCancelled()
+            minigame.launchPhased {
+                minigame.visuals.addBossbar(bossbar)
+                try {
+                    delay(duration + 1.Ticks)
+                } finally {
+                    minigame.visuals.removeBossbar(bossbar)
+                }
+            }
         }
     }
     // ...
 }
 ```
 
-If we take a peek at how the `BossbarTask` is implemented we will see why this works:
-```kotlin
-open class BossbarTask<T: CustomBossbar>(
-    private val minigame: Minigame,
-    val bar: T
-): Task {
-    init {
-        this.minigame.visuals.addBossbar(this.bar)
-    }
-
-    final override fun run() {
-        this.minigame.visuals.removeBossbar(this.bar)
-    }
-}
-```
-It simply adds the bossbar when the task is created, then when the task is run 
-it will remove the bossbar. So when scheduling this as a task, we will 
-guarantee that it will be removed after the specified time. And because we 
-scheduled it as phased cancellable that means we can wrap this task in a 
-cancellable task which in the case the phase abruptly changes will notify the 
-task, calling `runIfCancelled` tells the task to run if it's been notified of 
-the cancellation and so the bossbar will be removed.
+The bossbar is added when the coroutine starts, and removed when it finishes,
+because the cleanup is in a `finally`. If the 
+full duration elapses, `delay` returns and the bossbar is removed. If the phase 
+changes first, the minigame cancels everything on the phased scheduler, which 
+unwinds the coroutine through the same `finally`, and the bossbar is removed 
+then instead.

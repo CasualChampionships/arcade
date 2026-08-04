@@ -118,7 +118,7 @@ public class MinigameChatManager(
             }
         }
         this.minigame.events.register<MinigameAddNewPlayerEvent> { (_, player) ->
-            GlobalTickedScheduler.later {
+            GlobalTickedScheduler.Server.later {
                 if (!this.modes.containsKey(player.uuid) && !this.minigame.settings.isChatGlobal) {
                     this.broadcastTo(MinigameChatMode.OwnTeam.switchedToMessage(player), player)
                 }

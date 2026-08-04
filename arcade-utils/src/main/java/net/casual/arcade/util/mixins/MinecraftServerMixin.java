@@ -58,6 +58,14 @@ public abstract class MinecraftServerMixin implements CustomMOTD {
 		return original;
 	}
 
+	@Inject(
+		method = "tickServer",
+		at = @At("HEAD")
+	)
+	private void startServerCoroutinesTick(BooleanSupplier haveTime, CallbackInfo ci) {
+		ServerCoroutineUtils.INSTANCE.onTickStart((MinecraftServer) (Object) this);
+	}
+
 	@Definition(id = "push", method = "Lnet/minecraft/util/profiling/ProfilerFiller;push(Ljava/lang/String;)V")
 	@Expression("?.push('tallying')")
 	@Inject(
@@ -67,7 +75,7 @@ public abstract class MinecraftServerMixin implements CustomMOTD {
 	private void onServerTick(BooleanSupplier haveTime, CallbackInfo ci) {
 		ProfilerFiller filler = Profiler.get();
 		filler.push("coroutine_tick_delayed_tasks");
-		ServerCoroutineUtils.INSTANCE.tickServer((MinecraftServer) (Object) this);
+		ServerCoroutineUtils.INSTANCE.onTick((MinecraftServer) (Object) this);
 		filler.pop();
 
 		CustomClickEventRegistry.onServerTick();
@@ -79,7 +87,7 @@ public abstract class MinecraftServerMixin implements CustomMOTD {
     )
     private void onStopServer(CallbackInfo ci) {
         ServerSingleton.setServer(null);
-        ServerCoroutineUtils.INSTANCE.stopServer((MinecraftServer) (Object) this);
+        ServerCoroutineUtils.INSTANCE.onStop((MinecraftServer) (Object) this);
     }
 
 	@Override

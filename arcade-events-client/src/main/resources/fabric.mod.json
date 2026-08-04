@@ -12,7 +12,7 @@
   },
   "license": "MIT",
   "icon": "assets/icon.png",
-  "environment": "*",
+  "environment": "client",
   "mixins": [
     "arcade-events-client.mixins.json"
   ],

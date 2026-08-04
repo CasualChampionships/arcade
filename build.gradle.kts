@@ -54,14 +54,20 @@ dependencies {
         exclude(group = "org.slf4j")
     }
 
-    "gametestImplementation"(project(":arcade-gametest"))
+    "gametestImplementation"(projects.arcadeGametest)
 
-    val ignore = setOf(":arcade-datagen", ":arcade-events-client", ":arcade-gametest")
+    val ignore = setOf(projects.arcadeDatagen, projects.arcadeGametest).map { it.path }
+    val hidden = setOf(projects.arcadeEventsClient).map { it.path }
     for (subproject in project.subprojects) {
-        if (subproject.path !in ignore) {
-            api(project(subproject.path))
-            include(subproject)
+        if (subproject.path in ignore) {
+            continue
         }
+        if (subproject.path in hidden) {
+            implementation(subproject)
+        } else {
+            api(subproject)
+        }
+        include(subproject)
     }
 }
 
