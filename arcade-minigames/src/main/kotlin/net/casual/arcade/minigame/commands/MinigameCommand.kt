@@ -10,7 +10,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.serialization.JsonOps
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 import net.casual.arcade.commands.*
 import net.casual.arcade.commands.arguments.EnumArgument
 import net.casual.arcade.minigame.Minigame
@@ -25,7 +25,6 @@ import net.casual.arcade.minigame.utils.MinigameUtils.trackReadyPlayers
 import net.casual.arcade.minigame.utils.MinigameUtils.trackReadyTeams
 import net.casual.arcade.minigame.utils.RecipeModifier
 import net.casual.arcade.scheduler.GlobalTickedScheduler
-import net.casual.arcade.scheduler.utils.asCoroutineDispatcher
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.chat.ChatFormatter
@@ -810,12 +809,10 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
         val duration = unit.duration(time)
 
         // We must use the global scheduler, because the minigame scheduler is paused
-        val scheduler = GlobalTickedScheduler.temporaryScheduler(duration)
-        context.source.server.launch {
-            withContext(scheduler.asCoroutineDispatcher()) {
-                minigame.visuals.countdown.transition(duration, players = minigame.players::all)
-                minigame.unpause()
-            }
+        val scheduler = GlobalTickedScheduler.Server.temporaryScheduler(duration)
+        scheduler.asCoroutineScope().launch {
+            minigame.visuals.countdown.transition(duration, players = minigame.players::all)
+            minigame.unpause()
         }
         context.source.success(Component.translatable("minigame.command.unpause.countdown.success"))
         return context.source.success {

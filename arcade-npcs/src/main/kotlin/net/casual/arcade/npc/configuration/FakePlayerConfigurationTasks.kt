@@ -38,15 +38,22 @@ internal object FakePlayerConfigurationTasks {
     }
 
     private fun onServerTick() {
+        val ready = ArrayList<TaskWithFuture<FakePlayerPrepareSpawnTask, FakePlayer>>()
         val iterator = this.spawnTasks.iterator()
-        for ((task, future) in iterator) {
-            if (task.tick()) {
-                try {
-                    future.complete(task.spawnPlayer())
-                } catch (e: Exception) {
-                    future.completeExceptionally(e)
-                }
+        while (iterator.hasNext()) {
+            val entry = iterator.next()
+            if (entry.task.tick()) {
                 iterator.remove()
+                ready.add(entry)
+            }
+        }
+
+        // This needs to be done *after* due to futures being able to modify spawnTasks on completion
+        for ((task, future) in ready) {
+            try {
+                future.complete(task.spawnPlayer())
+            } catch (e: Exception) {
+                future.completeExceptionally(e)
             }
         }
     }

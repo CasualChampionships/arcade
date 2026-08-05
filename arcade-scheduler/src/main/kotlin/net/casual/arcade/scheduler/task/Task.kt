@@ -4,23 +4,18 @@
  */
 package net.casual.arcade.scheduler.task
 
-import net.casual.arcade.scheduler.MinecraftTaskScheduler
-import net.casual.arcade.scheduler.task.impl.CancellableTask
+import net.casual.arcade.scheduler.TickedScheduler
 
 /**
  * This interface represents a [Task] used in the
- * [MinecraftTaskScheduler] which can be run.
+ * [TickedScheduler] which can be run.
  *
- * Tasks can be serializable, see [SavableTask],
- * or cancellable see [CancellableTask].
- *
- * @see MinecraftTaskScheduler
- * @see SavableTask
- * @see CancellableTask
+ * @see TickedScheduler
+ * @see ScheduledTask
  */
-public fun interface Task: Runnable {
+public fun interface Task {
     /**
      * This runs the task.
      */
-    override fun run()
+    public fun run()
 }

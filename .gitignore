@@ -5,6 +5,11 @@
 build/
 run/
 
+# Documentation
 docs/node_modules/
 docs/.vitepress/cache/
 docs/.vitepress/dist/
+
+# Testing
+.fabric/
+logs/

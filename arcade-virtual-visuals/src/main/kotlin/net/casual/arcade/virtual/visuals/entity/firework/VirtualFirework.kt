@@ -22,7 +22,7 @@ public class VirtualFirework internal constructor(
         if (changed != null) {
             player.connection.send(ClientboundSetEntityDataPacket(this.entity.id, changed))
         }
-        GlobalTickedScheduler.schedule(this.duration) {
+        GlobalTickedScheduler.Server.schedule(this.duration) {
             player.connection.send(ClientboundEntityEventPacket(this.entity, 17))
             player.connection.send(ClientboundRemoveEntitiesPacket(this.entity.id))
         }
@@ -42,7 +42,7 @@ public class VirtualFirework internal constructor(
                 player.connection.send(data)
             }
         }
-        GlobalTickedScheduler.schedule(this.duration) {
+        GlobalTickedScheduler.Server.schedule(this.duration) {
             val event = ClientboundEntityEventPacket(this.entity, 17)
             val remove = ClientboundRemoveEntitiesPacket(this.entity.id)
             for (player in players) {

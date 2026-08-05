@@ -15,10 +15,8 @@ import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.phase.EventPhases
 import net.casual.arcade.events.threading.ThreadingStrategy
 import net.casual.arcade.utils.collection.mergeSorted
-import net.casual.arcade.utils.server.ServerSingleton
-import net.minecraft.client.Minecraft
+import net.casual.arcade.utils.side.LogicalSide
 import net.minecraft.server.MinecraftServer
-import net.minecraft.util.thread.ReentrantBlockableEventLoop
 import org.slf4j.LoggerFactory
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executor
@@ -32,7 +30,7 @@ import java.util.concurrent.Executor
  * @see Event
  */
 public sealed class GlobalEventHandler<E: Event>(
-    private val name: String,
+    private val side: LogicalSide,
     private val type: Class<E>
 ): ListenerRegistry<E> by SimpleListenerRegistry(type) {
     private val stack = ThreadLocal.withInitial { Reference2IntOpenHashMap<Class<out Event>>() }
@@ -176,8 +174,6 @@ public sealed class GlobalEventHandler<E: Event>(
         ScopedValue.where(this.recursion, Unit).run(block)
     }
 
-    protected abstract fun getExecutor(): ReentrantBlockableEventLoop<*>?
-
     private fun checkRecursive(stack: Reference2IntMap<Class<out Event>>, type: Class<out Event>): Boolean {
         val count = stack.getInt(type)
         if (count >= MAX_RECURSIONS) {
@@ -192,13 +188,13 @@ public sealed class GlobalEventHandler<E: Event>(
     }
 
     private fun getMainThreadExecutor(event: Event, type: Class<out Event>): ThreadExecutor {
-        val executor = this.getExecutor()
+        val executor = this.side.executor()
         if (executor == null) {
             if (event !is MissingExecutorEvent) {
                 logger.warn(
                     "Detected broadcasted event (type: {}), before {} was created, may be unsafe...",
                     type.simpleName,
-                    this.name.lowercase()
+                    this.side.name.lowercase()
                 )
             }
             return ThreadExecutor.Current
@@ -214,7 +210,7 @@ public sealed class GlobalEventHandler<E: Event>(
                 logger.warn(
                     "Event broadcasted (type: {}) while {} is stopping, ignoring events...",
                     type.simpleName,
-                    this.name.lowercase()
+                    this.side.name.lowercase()
                 )
             }
         }
@@ -235,17 +231,13 @@ public sealed class GlobalEventHandler<E: Event>(
         }
     }
 
-    private object ServerHandler: GlobalEventHandler<ServerSideEvent>("Server", ServerSideEvent::class.java) {
-        override fun getExecutor(): ReentrantBlockableEventLoop<*>? {
-            return ServerSingleton.getOrNull()
-        }
-    }
+    private object ServerHandler: GlobalEventHandler<ServerSideEvent>(
+        LogicalSide.Server, ServerSideEvent::class.java
+    )
 
-    private object ClientHandler: GlobalEventHandler<ClientSideEvent>("Client", ClientSideEvent::class.java) {
-        override fun getExecutor(): ReentrantBlockableEventLoop<*> {
-            return Minecraft.getInstance()
-        }
-    }
+    private object ClientHandler: GlobalEventHandler<ClientSideEvent>(
+        LogicalSide.Client, ClientSideEvent::class.java
+    )
 
     public companion object {
         private const val MAX_RECURSIONS = 10

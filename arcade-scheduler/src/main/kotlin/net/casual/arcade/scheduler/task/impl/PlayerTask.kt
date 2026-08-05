@@ -5,14 +5,20 @@
 package net.casual.arcade.scheduler.task.impl
 
 import net.casual.arcade.scheduler.task.Task
-import net.casual.arcade.scheduler.task.capture.CaptureConsumerTask
-import net.casual.arcade.scheduler.task.capture.CaptureSerializer
-import net.casual.arcade.scheduler.task.capture.CaptureTask
+import net.casual.arcade.utils.player.server
 import net.casual.arcade.utils.server.ServerSingleton
 import net.casual.arcade.utils.server.player
 import net.minecraft.server.level.ServerPlayer
+import java.util.function.Consumer
 
 @Suppress("FunctionName")
-public fun PlayerTask(player: ServerPlayer, task: CaptureConsumerTask<ServerPlayer>): Task {
-    return CaptureTask(player.uuid, { ServerSingleton.getOrNull()?.player(it) }, CaptureSerializer.same(), task)
+public fun PlayerTask(player: ServerPlayer, task: Consumer<ServerPlayer>): Task {
+    val uuid = player.uuid
+    val server = player.server
+    return Task {
+        val resolved = server.player(uuid)
+        if (resolved != null) {
+            task.accept(resolved)
+        }
+    }
 }

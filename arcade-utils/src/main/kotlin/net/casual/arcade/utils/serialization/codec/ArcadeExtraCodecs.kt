@@ -137,6 +137,7 @@ public object ArcadeExtraCodecs {
         }
 
         val inverse = map.inverse()
+        // TODO: This should probably error when map.get returns null
         return ExtraCodecs.optionalEmptyMap(Codec.STRING).xmap(map::get, inverse::get)
     }
 

@@ -37,6 +37,7 @@ include(
     ":arcade-events-client",
     ":arcade-events-server",
     ":arcade-extensions",
+    ":arcade-gametest",
     ":arcade-guis",
     ":arcade-interceptor",
     ":arcade-items",

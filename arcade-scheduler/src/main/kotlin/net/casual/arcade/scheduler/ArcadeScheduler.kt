@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.scheduler
 
-import net.casual.arcade.scheduler.task.utils.TaskRegistries
+import net.casual.arcade.scheduler.utils.TaskRegistries
 import net.fabricmc.api.ModInitializer
 import org.jetbrains.annotations.ApiStatus.Internal
 
@@ -12,5 +12,6 @@ import org.jetbrains.annotations.ApiStatus.Internal
 public object ArcadeScheduler: ModInitializer {
     override fun onInitialize() {
         TaskRegistries.load()
+        GlobalTickedScheduler.loadServer()
     }
 }

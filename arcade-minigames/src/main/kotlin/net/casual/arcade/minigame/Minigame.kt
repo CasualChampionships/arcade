@@ -103,9 +103,9 @@ public abstract class Minigame(
      * ticking rate, the scheduler will be paused if the minigame
      * is paused.
      *
-     * @see MinigameTaskScheduler
+     * @see MinigameTickedScheduler
      */
-    public val scheduler: MinigameTaskScheduler = MinigameTaskScheduler()
+    public val scheduler: MinigameTickedScheduler = MinigameTickedScheduler(this)
 
     /**
      * Manages the tick rate for this minigame.
@@ -431,7 +431,7 @@ public abstract class Minigame(
         }
         this.closing = true
 
-        this.scheduler.minigame.cancelAll()
+        this.scheduler.standard.cancelAll()
         this.scheduler.phased.cancelAll()
 
         GlobalEventHandler.Server.broadcast(MinigameCloseEvent(this))

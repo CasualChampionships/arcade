@@ -19,6 +19,12 @@
         "adapter": "kotlin",
         "value": "net.casual.arcade.scheduler.ArcadeScheduler"
       }
+    ],
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.scheduler.ArcadeSchedulerClient"
+      }
     ]
   },
   "depends": {

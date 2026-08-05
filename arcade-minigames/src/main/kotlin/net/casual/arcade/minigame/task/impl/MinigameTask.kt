@@ -7,11 +7,15 @@ package net.casual.arcade.minigame.task.impl
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.scheduler.task.Task
-import net.casual.arcade.scheduler.task.capture.CaptureConsumerTask
-import net.casual.arcade.scheduler.task.capture.CaptureSerializer
-import net.casual.arcade.scheduler.task.capture.CaptureTask
+import java.util.function.Consumer
 
 @Suppress("FunctionName", "UNCHECKED_CAST")
-public fun <M: Minigame> MinigameTask(minigame: M, task: CaptureConsumerTask<M>): Task {
-    return CaptureTask(minigame.uuid, { Minigames.get(it) as M }, CaptureSerializer.same(), task)
+public fun <M: Minigame> MinigameTask(minigame: M, task: Consumer<M>): Task {
+    val uuid = minigame.uuid
+    return Task {
+        val resolved = Minigames.get(uuid) as M?
+        if (resolved != null) {
+            task.accept(resolved)
+        }
+    }
 }

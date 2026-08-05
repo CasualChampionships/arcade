@@ -8,7 +8,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
 import kotlinx.coroutines.*
-import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.client.Minecraft
 import net.minecraft.server.MinecraftServer
@@ -81,50 +80,71 @@ public suspend fun delay(duration: MinecraftTimeDuration): Unit = coroutineScope
     val interceptor = coroutineContext[ContinuationInterceptor]
     if (interceptor is MinecraftSchedulerDelay) {
         return@cs suspendCancellableCoroutine { cont ->
-            interceptor.scheduleResumeAfterDelay(duration - 1.Ticks, cont)
+            interceptor.scheduleResumeAfterDelay(duration, cont)
         }
     }
 
-    val context = coroutineContext[MinecraftContext]
-        ?: throw IllegalStateException("Cannot run delay(MinecraftTimeDuration) on non-minecraft coroutine")
-    val minecraft = context.minecraft
+    val minecraft = coroutineContext[MinecraftContext]?.minecraft
+    if (minecraft == null || interceptor !is ExecutorCoroutineDispatcher || interceptor.executor !== minecraft) {
+        throw IllegalStateException(
+            "delay(MinecraftTimeDuration) can only be called from a coroutine running on a " +
+                "TickedScheduler or on the main Minecraft thread"
+        )
+    }
+
     val delays = delays.getOrPut(minecraft, ::Int2ObjectOpenHashMap)
-    val global = ticks.getInt(minecraft) + duration.ticks - 1
+    val global = ticks.getInt(minecraft) + duration.ticks
     val queue = delays.getOrPut(global) { ArrayDeque(1) }
     val deferred = CompletableDeferred<Unit>()
     queue.add(deferred)
     deferred.await()
 }
 
+private fun startTick(minecraft: Any) {
+    ticks.addTo(minecraft, 1)
+}
+
+private fun tickDelays(minecraft: Any) {
+    val delays = delays[minecraft] ?: return
+    val queue = delays.remove(ticks.getInt(minecraft)) ?: return
+    for (deferred in queue) {
+        deferred.complete(Unit)
+    }
+}
+
+private fun stop(minecraft: Any) {
+    scopes.remove(minecraft)?.coroutineContext?.cancelChildren()
+    delays.remove(minecraft)
+    ticks.removeInt(minecraft)
+}
+
 @Internal
 public object ServerCoroutineUtils {
-    public fun tickServer(server: MinecraftServer) {
-        val delays = delays[server] ?: return
-        val tick = ticks.addTo(server, 1)
-        val queue = delays.remove(tick) ?: return
-        for (deferred in queue) {
-            deferred.complete(Unit)
-        }
+    public fun onTickStart(server: MinecraftServer) {
+        startTick(server)
     }
 
-    public fun stopServer(server: MinecraftServer) {
-        scopes.remove(server)?.coroutineContext?.cancelChildren()
+    public fun onTick(server: MinecraftServer) {
+        tickDelays(server)
+    }
+
+    public fun onStop(server: MinecraftServer) {
+        stop(server)
     }
 }
 
 @Internal
 public object ClientCoroutineUtils {
-    public fun tickClient(client: Minecraft) {
-        val delays = delays[client] ?: return
-        val tick = ticks.addTo(client, 1)
-        val queue = delays.remove(tick) ?: return
-        for (deferred in queue) {
-            deferred.complete(Unit)
-        }
+    public fun onTickStart(client: Minecraft) {
+        startTick(client)
     }
 
-    public fun stopClient(client: Minecraft) {
-        scopes.remove(client)?.coroutineContext?.cancelChildren()
+    public fun onTick(client: Minecraft) {
+        tickDelays(client)
+    }
+
+    public fun onStop(client: Minecraft) {
+        stop(client)
     }
 }
 
