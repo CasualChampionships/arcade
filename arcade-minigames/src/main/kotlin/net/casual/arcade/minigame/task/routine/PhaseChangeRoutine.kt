@@ -7,6 +7,7 @@ package net.casual.arcade.minigame.task.routine
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.scheduler.task.routine.Routine
 import net.casual.arcade.scheduler.task.routine.RoutineScope
 import net.casual.arcade.utils.arcade
@@ -21,6 +22,8 @@ import net.minecraft.resources.Identifier
 public class PhaseChangeRoutine(
     private val phase: String
 ): MinigameRoutine<Minigame> {
+    public constructor(phase: Phase<*>): this(phase.id)
+
     override fun codec(): MapCodec<out Routine<Minigame>> {
         return codec
     }
