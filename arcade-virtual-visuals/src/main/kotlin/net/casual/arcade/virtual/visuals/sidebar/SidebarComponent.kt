@@ -14,6 +14,18 @@ public data class SidebarComponent(
     val score: NumberFormat? = null
 ) {
     public companion object {
+        /**
+         * The absence of a row; a row set to this is not displayed,
+         * and does not contribute to the size of the sidebar.
+         *
+         * This is distinct from [EMPTY], which is a blank row that
+         * *is* displayed.
+         */
+        public val NONE: SidebarComponent = SidebarComponent()
+
+        /**
+         * A blank row.
+         */
         public val EMPTY: SidebarComponent = withNoScore(Component.empty())
 
         public fun withNoScore(component: Component): SidebarComponent {

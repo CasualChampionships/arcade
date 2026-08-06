@@ -197,10 +197,10 @@ public open class SimpleVirtualEntity(
     }
 
     protected open fun sendDirtyEntityData() {
-        val base = this.data.getDirtyBaseEntries()
+        val base = this.data.clean()
         this.observers.broadcast { observer ->
             val player = observer.asPlayerOrNull()
-            val overridden = if (player != null) this.data.getDirtyEntries(player.uuid, base) else base
+            val overridden = if (player != null) this.data.clean(player.uuid, base) else base
             if (overridden.isNotEmpty()) {
                 observer.send(ClientboundSetEntityDataPacket(this.id, overridden))
             }

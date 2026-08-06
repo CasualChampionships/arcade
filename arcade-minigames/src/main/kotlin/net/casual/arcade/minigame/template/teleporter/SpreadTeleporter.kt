@@ -10,8 +10,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.serialization.codec.CodecProvider
-import net.casual.arcade.visuals.shapes.ShapePoints.Companion.points
-import net.casual.arcade.visuals.shapes.impl.RegularPolygonShape
+import net.casual.arcade.virtual.visuals.shapes.ShapePoints.Companion.points
+import net.casual.arcade.virtual.visuals.shapes.impl.RegularPolygonShape
 import net.minecraft.commands.arguments.EntityAnchorArgument
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel

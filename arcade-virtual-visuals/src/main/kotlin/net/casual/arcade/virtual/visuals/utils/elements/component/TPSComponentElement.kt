@@ -7,7 +7,7 @@ package net.casual.arcade.virtual.visuals.utils.elements.component
 import net.casual.arcade.utils.ColorUtils
 import net.casual.arcade.utils.component.color
 import net.casual.arcade.utils.server.calculateTPS
-import net.casual.arcade.visuals.elements.UniversalElement
+import net.casual.arcade.virtual.visuals.elements.UniversalElement
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 

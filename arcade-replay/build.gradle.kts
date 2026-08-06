@@ -14,6 +14,7 @@ dependencies {
     api(projects.arcadeCommands)
 
     compileOnly(projects.arcadeVirtualEntities)
+    compileOnly(projects.arcadeVirtualVisuals)
 
     compileOnly(libs.carpet)
     compileOnly(libs.vmp)

@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.virtual.visuals.shapes
 
-import net.casual.arcade.visuals.shapes.faces.ShapeFace
+import net.casual.arcade.virtual.visuals.shapes.faces.ShapeFace
 
 // TODO:
 internal interface ShapeFaces: Iterable<ShapeFace>

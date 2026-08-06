@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.virtual.visuals.mixins;
 
-import net.casual.arcade.visuals.extensions.PlayerCameraExtension;
+import net.casual.arcade.virtual.visuals.camera.VirtualCamera;
 import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,8 +19,7 @@ public class ServerPlayerMixin {
         cancellable = true
     )
     private void onBroadcastToPlayer(ServerPlayer player, CallbackInfoReturnable<Boolean> cir) {
-        PlayerCameraExtension extension = PlayerCameraExtension.getCameraExtension(player);
-        if (extension.get() != null) {
+        if (VirtualCamera.getCurrentCamera(player) != null) {
             cir.setReturnValue(false);
         }
     }

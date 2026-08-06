@@ -8,7 +8,7 @@ import net.casual.arcade.observer.tracker.ObserverTracker
 import net.casual.arcade.observer.utils.asPlayerOrNull
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.display.SimpleVirtualTextDisplay
-import net.casual.arcade.visuals.elements.PlayerSpecificElement
+import net.casual.arcade.virtual.visuals.elements.PlayerSpecificElement
 import net.minecraft.network.chat.Component
 
 public class DynamicVirtualTextDisplay(

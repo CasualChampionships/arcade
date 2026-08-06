@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.virtual.visuals.utils.elements
 
-import net.casual.arcade.visuals.elements.PlayerSpecificElement
-import net.casual.arcade.visuals.elements.UniversalElement
+import net.casual.arcade.virtual.visuals.elements.PlayerSpecificElement
+import net.casual.arcade.virtual.visuals.elements.UniversalElement
 import net.minecraft.world.BossEvent.BossBarColor
 
 public object BossbarColorElements {

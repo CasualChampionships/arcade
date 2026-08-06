@@ -11,8 +11,8 @@ import net.casual.arcade.utils.component.red
 import net.casual.arcade.utils.player.broadcast
 import net.casual.arcade.utils.scoreboard.getOnlinePlayers
 import net.casual.arcade.utils.server.players
-import net.casual.arcade.visuals.ready.ReadyBroadcaster
-import net.casual.arcade.visuals.ready.ReadyParticipantState
+import net.casual.arcade.virtual.visuals.ready.ReadyBroadcaster
+import net.casual.arcade.virtual.visuals.ready.ReadyParticipantState
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.MinecraftServer

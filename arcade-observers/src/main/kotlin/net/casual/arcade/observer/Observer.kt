@@ -23,6 +23,10 @@ public interface Observer: PacketSender {
             this.map[key] = value
         }
 
+        public fun <T: Any> remove(key: Key<T>) {
+            this.map.remove(key)
+        }
+
         public fun <T: Any> get(key: Key<T>): T? {
             @Suppress("unchecked_cast")
             return this.map[key] as T?

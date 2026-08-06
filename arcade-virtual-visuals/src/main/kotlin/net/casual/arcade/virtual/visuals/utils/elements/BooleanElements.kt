@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.virtual.visuals.utils.elements
 
-import net.casual.arcade.visuals.elements.PlayerSpecificElement
-import net.casual.arcade.visuals.elements.UniversalElement
+import net.casual.arcade.virtual.visuals.elements.PlayerSpecificElement
+import net.casual.arcade.virtual.visuals.elements.UniversalElement
 
 public object BooleanElements {
     private val TRUE = UniversalElement.constant(true)

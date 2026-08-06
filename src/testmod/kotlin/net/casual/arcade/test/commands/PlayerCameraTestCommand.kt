@@ -11,23 +11,26 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.events.utils.register
 import net.casual.arcade.utils.TimeUtils.Ticks
-import net.casual.arcade.visuals.camera.CameraPath
-import net.casual.arcade.visuals.camera.CameraPathInterpolator
-import net.casual.arcade.visuals.camera.PlayerCamera
+import net.casual.arcade.observer.utils.asObserver
+import net.casual.arcade.virtual.visuals.camera.CameraPath
+import net.casual.arcade.virtual.visuals.utils.startObservingAndSendPackets
+import net.casual.arcade.virtual.visuals.utils.stopObservingAndSendPackets
+import net.casual.arcade.virtual.visuals.camera.CameraPathInterpolator
+import net.casual.arcade.virtual.visuals.camera.VirtualCamera
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.TimeArgument
 
 @Suppress("unused")
 object PlayerCameraTestCommand: CommandTree<CommandSourceStack> {
-    private lateinit var camera: PlayerCamera
+    private lateinit var camera: VirtualCamera
 
     private var path = CameraPath.Builder()
 
     fun registerEvents() {
         GlobalEventHandler.Server.register<ServerTickEvent> { (server) ->
             if (this::camera.isInitialized) {
-                this.camera.tick(server)
+                this.camera.tick()
             }
         }
     }
@@ -77,7 +80,7 @@ object PlayerCameraTestCommand: CommandTree<CommandSourceStack> {
         val player = context.source.playerOrException
         val loop = BoolArgumentType.getBool(context, "loop")
         val camera = this.getOrCreateCamera(context.source)
-        camera.addPlayer(player)
+        camera.startObservingAndSendPackets(player.asObserver())
         camera.setPath(this.path.build())
         camera.startPath(loop)
     }
@@ -106,12 +109,12 @@ object PlayerCameraTestCommand: CommandTree<CommandSourceStack> {
     private fun exit(context: CommandContext<CommandSourceStack>) {
         val player = context.source.playerOrException
         val camera = this.getOrCreateCamera(context.source)
-        camera.removePlayer(player)
+        camera.stopObservingAndSendPackets(player.asObserver())
     }
 
-    private fun getOrCreateCamera(source: CommandSourceStack): PlayerCamera {
+    private fun getOrCreateCamera(source: CommandSourceStack): VirtualCamera {
         if (!this::camera.isInitialized) {
-            this.camera = PlayerCamera(source.locationWithLevel)
+            this.camera = VirtualCamera(source.locationWithLevel)
         }
         return this.camera
     }

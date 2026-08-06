@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.virtual.visuals.utils
 
-import net.casual.arcade.visuals.extensions.PlayerCameraOverlayExtension.Companion.cameraOverlayExtension
+import net.casual.arcade.virtual.visuals.extensions.PlayerCameraOverlayExtension.Companion.cameraOverlayExtension
 import net.minecraft.core.component.DataComponents
 import net.minecraft.network.protocol.game.ClientboundBundlePacket
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket

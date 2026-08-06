@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.virtual.visuals.shapes.impl
 
-import net.casual.arcade.visuals.shapes.ShapePoints
+import net.casual.arcade.virtual.visuals.shapes.ShapePoints
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.levelgen.Heightmap

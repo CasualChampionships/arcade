@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "arcade-visuals",
+  "id": "arcade-virtual-visuals",
   "version": "${version}",
-  "name": "Arcade Gui",
+  "name": "Arcade Virtual Visuals",
   "description": "",
   "authors": [
     "Sensei"
@@ -22,7 +22,7 @@
     ]
   },
   "mixins": [
-    "arcade-visuals.mixins.json"
+    "arcade-virtual-visuals.mixins.json"
   ],
   "depends": {
     "minecraft": "${minecraft_dependency}",

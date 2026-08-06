@@ -6,8 +6,8 @@ package net.casual.arcade.virtual.visuals.utils.elements
 
 import net.casual.arcade.utils.component.Component
 import net.casual.arcade.utils.component.ComponentBuilderContext
-import net.casual.arcade.visuals.elements.PlayerSpecificElement
-import net.casual.arcade.visuals.elements.UniversalElement
+import net.casual.arcade.virtual.visuals.elements.PlayerSpecificElement
+import net.casual.arcade.virtual.visuals.elements.UniversalElement
 import net.minecraft.network.chat.Component
 
 public object ComponentElements {

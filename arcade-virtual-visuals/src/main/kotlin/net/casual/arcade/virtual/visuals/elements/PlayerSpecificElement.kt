@@ -19,7 +19,7 @@ import java.util.*
  *
  * @see UniversalElement
  */
-public fun interface PlayerSpecificElement<E: Any> {
+public fun interface PlayerSpecificElement<E: Any>: TickableElement {
     /**
      * This generates the element.
      *
@@ -34,7 +34,7 @@ public fun interface PlayerSpecificElement<E: Any> {
      *
      * @param server The [MinecraftServer] instance.
      */
-    public fun tick(server: MinecraftServer) {
+    override fun tick(server: MinecraftServer) {
 
     }
 

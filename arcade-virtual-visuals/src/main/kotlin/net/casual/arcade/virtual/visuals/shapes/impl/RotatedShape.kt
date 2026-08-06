@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.virtual.visuals.shapes.impl
 
-import net.casual.arcade.visuals.shapes.ShapePoints
+import net.casual.arcade.virtual.visuals.shapes.ShapePoints
 import net.minecraft.world.phys.Vec3
 import org.joml.Quaterniond
 import org.joml.Quaterniondc

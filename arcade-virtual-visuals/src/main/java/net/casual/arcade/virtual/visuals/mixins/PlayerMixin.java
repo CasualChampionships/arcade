@@ -5,7 +5,7 @@
 package net.casual.arcade.virtual.visuals.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import net.casual.arcade.visuals.extensions.PlayerCameraExtension;
+import net.casual.arcade.virtual.visuals.camera.VirtualCamera;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,8 +19,7 @@ public class PlayerMixin {
     )
     private boolean onIsSpectator(boolean original) {
         if ((Object) this instanceof ServerPlayer player) {
-            PlayerCameraExtension extension = PlayerCameraExtension.getCameraExtension(player);
-            if (extension.get() != null) {
+            if (VirtualCamera.getCurrentCamera(player) != null) {
                 return true;
             }
         }
