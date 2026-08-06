@@ -7,5 +7,7 @@ dependencies {
     api(projects.arcadeEventRegistry)
     api(projects.arcadeEventsServer)
     api(projects.arcadeExtensions)
-    api(projects.arcadeVirtualVisuals)
+    api(projects.arcadeObservers)
+    api(projects.arcadeResourcePack)
+    api(projects.arcadeVirtualEntities)
 }

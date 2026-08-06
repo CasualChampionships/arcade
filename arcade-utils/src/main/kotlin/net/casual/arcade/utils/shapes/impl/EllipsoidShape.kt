@@ -2,9 +2,9 @@
  * Copyright (c) 2025 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.virtual.visuals.shapes.impl
+package net.casual.arcade.utils.shapes.impl
 
-import net.casual.arcade.virtual.visuals.shapes.ShapePoints
+import net.casual.arcade.utils.shapes.ShapePoints
 import net.minecraft.world.phys.Vec3
 import kotlin.math.cos
 import kotlin.math.sin

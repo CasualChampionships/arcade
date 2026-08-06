@@ -20,7 +20,7 @@ import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
 import net.casual.arcade.virtual.entity.utils.createVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.utils.removeVirtualEntityAttachment
 import net.casual.arcade.virtual.visuals.entity.mannequin.MimickingVirtualMannequin
-import net.casual.arcade.virtual.visuals.shapes.impl.RegularPolygonShape
+import net.casual.arcade.utils.shapes.impl.RegularPolygonShape
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.world.entity.EntityTypes
