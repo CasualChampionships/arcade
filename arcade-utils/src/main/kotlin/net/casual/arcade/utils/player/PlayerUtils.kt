@@ -93,6 +93,10 @@ public fun Iterable<ServerPlayer>.broadcast(message: Component) {
     }
 }
 
+public fun ServerPlayer.kick(message: Component = Component.literal("You've been kicked")) {
+    this.connection.disconnect(message)
+}
+
 public fun Iterable<ServerPlayer>.ops(
     permission: Permission = HasCommandLevel(PermissionLevel.GAMEMASTERS)
 ): List<ServerPlayer> {
