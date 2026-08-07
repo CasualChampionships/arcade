@@ -18,11 +18,11 @@ repositories {
 }
 
 dependencies {
-    include(implementation("net.casualchampionships:arcade-scheduler:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-scheduler:0.13.0-beta.1+26.2")!!)
 
-    include(implementation("net.casualchampionships:arcade-event-registry:0.11.0-beta.3+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-events-server:0.11.0-beta.3+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-events-client:0.11.0-beta.3+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-utils:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-event-registry:0.13.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-events-client:0.13.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-events-server:0.13.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-utils:0.13.0-beta.1+26.2")!!)
 }
 ```

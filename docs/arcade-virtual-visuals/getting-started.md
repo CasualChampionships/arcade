@@ -20,17 +20,17 @@ repositories {
 }
 
 dependencies {
-    include(implementation("net.casualchampionships:arcade-virtual-visuals:0.12.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-virtual-visuals:0.13.0-beta.1+26.2")!!)
 
-    include(implementation("net.casualchampionships:arcade-commands:0.12.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-event-registry:0.12.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-events-server:0.12.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-extensions:0.12.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-nametags:0.12.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-resource-pack:0.12.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-scheduler:0.12.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-utils:0.12.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-virtual-entities:0.12.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-commands:0.13.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-event-registry:0.13.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-events-server:0.13.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-extensions:0.13.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-nametags:0.13.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-resource-pack:0.13.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-scheduler:0.13.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-utils:0.13.0-beta.1+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-virtual-entities:0.13.0-beta.1+26.2")!!)
 }
 ```
 

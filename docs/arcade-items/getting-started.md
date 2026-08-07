@@ -15,6 +15,6 @@ repositories {
 }
 
 dependencies {
-    include(implementation("net.casualchampionships:arcade-items:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-items:0.13.0-beta.1+26.2")!!)
 }
 ```
