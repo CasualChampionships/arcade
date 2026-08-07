@@ -6,7 +6,7 @@ In addition to the built-in default settings, you are able to implement your
 own settings using this system, all the settings are accessible and 
 configurable in-game through a gui.
 
-![Image of Settings gui](../arcade-visuals/images/settings_gui.png)
+![Image of Settings gui](../arcade-virtual-visuals/images/settings_gui.png)
 
 ## Built-In Settings
 
@@ -125,7 +125,7 @@ val setting: MenuGameSetting<Int> = MenuGameSettingBuilder.int32 {
 ```
 
 This will result in the following gui:
-![Image of the custom setting](../arcade-visuals/images/custom_setting.png)
+![Image of the custom setting](../arcade-virtual-visuals/images/custom_setting.png)
 
 We can also add listeners to our setting to get notified when the setting is changed:
 ```kotlin
@@ -221,7 +221,7 @@ class ExampleSettings(minigame: Minigame): MinigameSettings(minigame) {
 
 The default options for booleans are a green stained-glass pane and red stained-glass pane for enabling and disabling respectively:
 
-![Image of default options](../arcade-visuals/images/default_options.png)
+![Image of default options](../arcade-virtual-visuals/images/default_options.png)
 
 However, we can also customize the defaults by extending the `DisplayableSettingsDefaults` class and overriding the `options` method:
 
@@ -248,7 +248,7 @@ These defaults will then be applied to all settings that use the default options
 
 Here's an example of customized default options:
 
-![Image of custom default options](../arcade-visuals/images/custom_default_options.png)
+![Image of custom default options](../arcade-virtual-visuals/images/custom_default_options.png)
 
 ## Modifying The UI
 

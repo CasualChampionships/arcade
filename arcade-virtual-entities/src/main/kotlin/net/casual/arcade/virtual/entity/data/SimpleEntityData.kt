@@ -53,7 +53,7 @@ public class SimpleEntityData {
         return entry != null && entry.dirty
     }
 
-    public fun getDirtyEntries(): List<SynchedEntityData.DataValue<*>>? {
+    public fun clean(): List<SynchedEntityData.DataValue<*>>? {
         var dirty: MutableList<SynchedEntityData.DataValue<*>>? = null
         for (entry in this.entries) {
             if (entry.clean()) {

@@ -51,5 +51,5 @@ include(
     ":arcade-scheduler",
     ":arcade-utils",
     ":arcade-virtual-entities",
-    ":arcade-visuals",
+    ":arcade-virtual-visuals",
 )

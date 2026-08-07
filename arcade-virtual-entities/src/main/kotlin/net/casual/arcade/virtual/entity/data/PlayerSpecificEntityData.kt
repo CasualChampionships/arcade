@@ -96,7 +96,7 @@ public class PlayerSpecificEntityData(type: EntityType<*>) {
         return this.dirty
     }
 
-    public fun getDirtyEntries(observer: UUID, base: List<SynchedEntityData.DataValue<*>>): List<SynchedEntityData.DataValue<*>> {
+    public fun clean(observer: UUID, base: List<SynchedEntityData.DataValue<*>>): List<SynchedEntityData.DataValue<*>> {
         val overrides = this.overrides[observer] ?: return base
         if (!this.dirty.remove(observer)) {
             return base.filter { value -> !overrides.containsKey(value.id) }
@@ -157,8 +157,8 @@ public class PlayerSpecificEntityData(type: EntityType<*>) {
         return this.base.isDirty(accessor)
     }
 
-    public fun getDirtyBaseEntries(): List<SynchedEntityData.DataValue<*>> {
-        return this.base.getDirtyEntries() ?: listOf()
+    public fun clean(): List<SynchedEntityData.DataValue<*>> {
+        return this.base.clean() ?: listOf()
     }
 
     public fun getChangedBaseEntries(): List<SynchedEntityData.DataValue<*>> {

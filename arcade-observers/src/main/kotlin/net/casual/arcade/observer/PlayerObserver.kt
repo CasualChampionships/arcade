@@ -14,6 +14,8 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl
 public class PlayerObserver internal constructor(
     private val connection: ServerGamePacketListenerImpl
 ): Observer {
+    override val context: Observer.Context = Observer.Context()
+
     public val player: ServerPlayer
         get() = this.connection.player
 
@@ -22,13 +24,5 @@ public class PlayerObserver internal constructor(
 
     override fun send(packet: Packet<*>) {
         this.connection.send(packet)
-    }
-
-    override fun hashCode(): Int {
-        return this.connection.hashCode()
-    }
-
-    override fun equals(other: Any?): Boolean {
-        return this === other || (other is PlayerObserver && this.connection == other.connection)
     }
 }

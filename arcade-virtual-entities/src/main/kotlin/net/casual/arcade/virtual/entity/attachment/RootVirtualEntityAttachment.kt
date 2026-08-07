@@ -50,13 +50,11 @@ public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
             return
         }
 
-        val collector = VirtualEntityPacketCollector()
-        this.sendObservingAttachedSpawnPackets(observer, collector::add)
-        collector.optimize().bundle().send(sender)
+        this.sendObservingAttachedSpawnPackets(observer, sender)
     }
 
     @NonExtendable
-    public fun stopObservingAttached(observer: Observer) {
+    public fun stopObservingAttached(observer: Observer, quietly: Boolean = false) {
         if (!this.observers.isObserving(observer)) {
             return
         }
@@ -65,12 +63,9 @@ public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
             observer.player.observingAttachmentsExtension.stopObserving(this)
         }
 
-        val collector = VirtualEntityPacketCollector()
-        this.sendRootDespawnPackets(observer, collector::add)
-        for (entity in this.attached()) {
-            entity.stopObservingAndSendPackets(observer, collector::add)
+        if (!quietly) {
+            this.sendObservingAttachedDespawnPackets(observer, observer)
         }
-        collector.optimize().bundle().send(observer)
 
         this.observers.stopObserving(observer)
     }
@@ -88,13 +83,25 @@ public interface RootVirtualEntityAttachment: VirtualEntityAttachment {
             return
         }
 
-        this.sendRootSpawnPackets(observer, sender)
+        val collector = VirtualEntityPacketCollector()
+        this.sendRootSpawnPackets(observer, collector::add)
 
         for (entity in this.attached()) {
             if (entity.observers.isObserving(observer)) {
-                entity.sendBundledSpawnPackets(observer, sender)
+                entity.sendBundledSpawnPackets(observer, collector::add)
             }
         }
+        collector.optimize().bundle().send(sender)
+    }
+
+    @NonExtendable
+    public fun sendObservingAttachedDespawnPackets(observer: Observer, sender: PacketSender) {
+        val collector = VirtualEntityPacketCollector()
+        this.sendRootDespawnPackets(observer, collector::add)
+        for (entity in this.attached()) {
+            entity.stopObservingAndSendPackets(observer, collector::add)
+        }
+        collector.optimize().bundle().send(observer)
     }
 
     @OverrideOnly

@@ -16,7 +16,7 @@ const pageOrders: Record<string, string[]> = {
   'arcade-extensions': ['basic-extensions', 'serializing', 'entity-player-extensions'],
   'arcade-scheduler': ['scheduling-tasks', 'custom-schedulers'],
   'arcade-virtual-entities': ['virtual-entities', 'display-entities', 'parent-entities', 'custom-attachments'],
-  'arcade-visuals': ['elements', 'interfaces', 'sidebar', 'bossbars', 'tab-display', 'transitions'],
+  'arcade-virtual-visuals': ['values', 'observing', 'elements', 'bossbars', 'sidebar', 'tab-display', 'transitions'],
   'arcade-dimensions': ['creating-dimensions', 'using-dimensions', 'vanilla-like'],
   'arcade-event-registry': ['listening', 'broadcasting'],
   'arcade-events-server': ['registry-events', 'injected-providers'],

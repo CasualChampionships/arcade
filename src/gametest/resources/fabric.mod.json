@@ -63,12 +63,41 @@
       {
         "adapter": "kotlin",
         "value": "net.casual.arcade.tests.server.scheduler.SchedulerSerializationTests"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.visuals.PlayerSpecificVisualDataTests"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.visuals.VirtualBossbarTests"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.visuals.VirtualSidebarTests"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.visuals.VirtualPlayerListTests"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.visuals.VirtualVisualObservingTests"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.visuals.DynamicVisualValuesTests"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.server.visuals.TimerElementTests"
       }
     ]
   },
   "depends": {
     "fabric-language-kotlin": "*",
     "arcade-gametest": "*",
-    "arcade-scheduler": "*"
+    "arcade-scheduler": "*",
+    "arcade-virtual-visuals": "*"
   }
 }

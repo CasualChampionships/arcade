@@ -1,0 +1,35 @@
+/*
+ * Copyright (c) 2024 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
+package net.casual.arcade.virtual.visuals.utils.elements.component
+
+import it.unimi.dsi.fastutil.objects.Object2IntMaps
+import net.casual.arcade.utils.component.join
+import net.casual.arcade.virtual.visuals.elements.LevelSpecificElement
+import net.minecraft.ChatFormatting
+import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.entity.MobCategory
+
+public object MobcapComponentElement: LevelSpecificElement<Component> {
+    override fun get(level: ServerLevel): Component {
+        val counts = level.chunkSource.lastSpawnState?.mobCategoryCounts ?: Object2IntMaps.emptyMap()
+        return MobCategory.entries.map {
+            Component.literal("${counts.getInt(it)}").withStyle(getColorForCategory(it))
+        }.join(Component.literal(" | "))
+    }
+
+    private fun getColorForCategory(category: MobCategory): ChatFormatting {
+        return when (category) {
+            MobCategory.MONSTER -> ChatFormatting.DARK_RED
+            MobCategory.CREATURE -> ChatFormatting.DARK_GREEN
+            MobCategory.AMBIENT -> ChatFormatting.GREEN
+            MobCategory.AXOLOTLS -> ChatFormatting.LIGHT_PURPLE
+            MobCategory.UNDERGROUND_WATER_CREATURE -> ChatFormatting.AQUA
+            MobCategory.WATER_CREATURE -> ChatFormatting.DARK_BLUE
+            MobCategory.WATER_AMBIENT -> ChatFormatting.DARK_AQUA
+            MobCategory.MISC -> ChatFormatting.WHITE
+        }
+    }
+}

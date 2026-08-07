@@ -18,18 +18,21 @@ import net.casual.arcade.utils.entity.teleportTo
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.player.displayName
 import net.casual.arcade.utils.recipe.CraftingRecipeBuilder
-import net.casual.arcade.visuals.elements.UniversalElement
-import net.casual.arcade.visuals.nametag.PlayerNametag
-import net.casual.arcade.visuals.sidebar.FixedSidebar
-import net.casual.arcade.visuals.sidebar.SidebarComponent
-import net.casual.arcade.visuals.tab.PlayerListDisplay
-import net.casual.arcade.visuals.tab.VanillaPlayerListEntries
-import net.casual.arcade.visuals.utils.elements.ComponentElements
-import net.casual.arcade.visuals.utils.elements.SidebarElements
+import net.casual.arcade.nametags.Nametag
+import net.casual.arcade.observer.Observer
+import net.casual.arcade.virtual.visuals.elements.UniversalElement
+import net.casual.arcade.virtual.visuals.sidebar.DynamicVirtualSidebar
+import net.casual.arcade.virtual.visuals.sidebar.SidebarComponent
+import net.casual.arcade.virtual.visuals.tab.DynamicVirtualPlayerList
+import net.casual.arcade.virtual.visuals.tab.VanillaPlayerListEntries
+import net.casual.arcade.virtual.visuals.utils.elements.ComponentElements
+import net.casual.arcade.virtual.visuals.utils.elements.SidebarElements
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStackTemplate
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.levelgen.Heightmap
@@ -63,20 +66,22 @@ open class TestMinigame(
             result(ItemStackTemplate(Items.NETHERITE_BLOCK))
         })
 
-        val sidebar = FixedSidebar(ComponentElements.of(Component.literal("Example!")))
-        sidebar.addRow(SidebarElements.withNoScore(SpacingFontResources.spaced(120)))
-        sidebar.addRow(SidebarElements.withNoScore(Component {
-            literal("Hello World", 0x2739B8, 0x8D379E, 0xF13484, 0xFF605D)
-        }))
-        sidebar.addRow { player ->
+        val sidebar = DynamicVirtualSidebar(this.server)
+        sidebar.setTitle(ComponentElements.of(Component.literal("Example!")))
+        // Row 0 is the bottom row
+        sidebar.setRow(0) { player ->
             SidebarComponent.withCustomScore(
                 Component.literal("${player.level().overworldClockTime}"),
                 Component.literal("${player.level().defaultClockTime}")
             )
         }
+        sidebar.setRow(1, SidebarElements.withNoScore(Component {
+            literal("Hello World", 0x2739B8, 0x8D379E, 0xF13484, 0xFF605D)
+        }))
+        sidebar.setRow(2, SidebarElements.withNoScore(SpacingFontResources.spaced(120)))
         this.visuals.setSidebar(sidebar)
 
-        val display = PlayerListDisplay(VanillaPlayerListEntries())
+        val display = DynamicVirtualPlayerList(this.server, VanillaPlayerListEntries())
         val header = UniversalElement {
             Component {
                 literal("Testing Minigame").blue() + nl + wrap() + list(
@@ -86,12 +91,20 @@ open class TestMinigame(
                 ).join(spaced(10.0F), suffix = nl) + "123"
             }
         }
-        val footer = ComponentElements.empty()
-        display.setDisplay(header, footer)
+        display.setHeader(header)
+        display.setFooter(ComponentElements.empty())
         this.visuals.setPlayerListDisplay(display)
 
-        this.visuals.addNametag(PlayerNametag.simple({ player -> player.displayName() }))
-        this.visuals.addNametag(PlayerNametag.simple({ Component.literal("CustomNametags!") }))
+        this.visuals.addNametag(object: Nametag {
+            override fun getComponent(observee: Entity): Component {
+                return if (observee is ServerPlayer) observee.displayName() else observee.name
+            }
+
+            override fun isObservable(observee: Entity, observer: Observer): Boolean {
+                return true
+            }
+        })
+        this.visuals.addNametag(Nametag.simple(Component.literal("CustomNametags!")))
     }
 
     @Listener

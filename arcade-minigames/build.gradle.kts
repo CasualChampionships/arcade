@@ -10,7 +10,7 @@ dependencies {
     api(projects.arcadeGuis)
     api(projects.arcadeScheduler)
     api(projects.arcadeResourcePack)
-    api(projects.arcadeVisuals)
+    api(projects.arcadeVirtualVisuals)
     api(projects.arcadeCommands)
     api(projects.arcadeDimensions)
     api(projects.arcadeReplay)

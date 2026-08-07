@@ -6,8 +6,8 @@ import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.executes
 import net.casual.arcade.commands.literal
-import net.casual.arcade.visuals.utils.clearCameraOverlay
-import net.casual.arcade.visuals.utils.setCameraOverlay
+import net.casual.arcade.virtual.visuals.utils.clearCameraOverlay
+import net.casual.arcade.virtual.visuals.utils.setCameraOverlay
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.IdentifierArgument

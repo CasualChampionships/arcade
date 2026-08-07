@@ -1,6 +1,6 @@
 # Visuals
 
-Arcade provides a wide array of visual components, read the [Visuals Section](../arcade-visuals/getting-started.md) 
+Arcade provides a wide array of visual components, read the [Virtual Visuals Section](../arcade-virtual-visuals/getting-started.md) 
 to see more information about those. 
 This section is dedicated to how those gui components can be integrated within 
 minigames.
@@ -17,18 +17,21 @@ We simply construct our visual component then add it to the manager using one of
 ```kotlin
 val minigame: Minigame = // ...
 
-val bossbar: CustomBossbar = // ...
+val bossbar: VirtualBossbar = // ...
 minigame.visuals.addBossbar(bossbar)
 
-val nametag: PlayerNametag = // ...
+val nametag: Nametag = // ...
 minigame.visuals.addNametag(nametag)
 
-val sidebar: Sidebar = // ...
+val sidebar: VirtualSidebar = // ...
 minigame.visuals.setSidebar(sidebar)
 
-val display: PlayerListDisplay = // ...
-minigame.visuals.setPlayerListDisplay(display)
+val list: VirtualPlayerList = // ...
+minigame.visuals.setPlayerListDisplay(list)
 ```
+
+The manager will display the visual to every player in the minigame and tick it for us,
+so we don't need to do any of this ourselves.
 
 > [!NOTE]
 > You can add as many bossbars and nametags as you wish, however, there can 
@@ -38,11 +41,11 @@ We can also remove any elements with their respective methods:
 ```kotlin
 val minigame: Minigame = // ...
 
-val bossbar: CustomBossbar = // ...
+val bossbar: VirtualBossbar = // ...
 minigame.visuals.removeBossbar(bossbar)
 minigame.visuals.removeAllBossbars()
 
-val nametag: PlayerNametag = // ...
+val nametag: Nametag = // ...
 minigame.visuals.removeNametag(nametag)
 minigame.visuals.removeAllNametags()
 
@@ -120,7 +123,7 @@ class ExampleMinigame(
 ): Minigame(server, uuid) {
     // ...
 
-    var bossbar: MyCustomTimerBossBar = MyCustomTimerBossBar()
+    var bossbar: VirtualBossbar = // ...
 
     // ...
 }
@@ -154,8 +157,10 @@ enum class ExamplePhases(
     Grace("grace") {
         override fun initialize(minigame: ExampleMinigame) {
             val duration = 10.Minutes
-            val bossbar = MyCustomTimerBossBar()
-            bossbar.setDuration(duration)
+            val timer = TimerElement(duration)
+            val bossbar = DynamicVirtualBossbar(minigame.server)
+            bossbar.addTickable(timer)
+            bossbar.setProgress(timer.progress())
 
             minigame.launchPhased {
                 minigame.visuals.addBossbar(bossbar)

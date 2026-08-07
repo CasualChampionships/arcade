@@ -31,7 +31,7 @@ parent.position = VirtualPosition.Absolute(Vec3(0.0, 100.0, 300.0))
 In the above example we create a parent virtual entity, set its position to be `(300, 100, 0)`,
 then we create a polygon shape (essentially a circle) with a 3 block radius centered around 
 `(0, 0, 0)`, which when iterated gives points around the circle (the `RegularPolygonShape` class
-is part of the `arcade-visuals` module). For each of these points on the polygon we create a
+is part of the `arcade-utils` module). For each of these points on the polygon we create a
 virtual slime entity and set its position to be relative at the point and facing towards the
 center of the polygon.
 

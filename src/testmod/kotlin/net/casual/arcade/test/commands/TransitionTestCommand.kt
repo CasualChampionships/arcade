@@ -8,7 +8,7 @@ import net.casual.arcade.commands.executes
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.server.players
-import net.casual.arcade.visuals.transition.TitledCountdown
+import net.casual.arcade.virtual.visuals.transition.TitledCountdown
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 

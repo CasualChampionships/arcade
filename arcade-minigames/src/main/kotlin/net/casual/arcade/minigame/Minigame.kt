@@ -597,7 +597,7 @@ public abstract class Minigame(
 
     private fun onServerTick(event: ServerTickEvent) {
         this.tickrate.tick()
-        this.visuals.tick(event.server)
+        this.visuals.tick()
         if (this.ticking) {
             this.uptime++
             this.scheduler.tick()

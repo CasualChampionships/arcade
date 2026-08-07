@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.replay.compat.arcade.ArcadeObserversCompatLayer
 import net.casual.arcade.replay.compat.arcade.ArcadeVirtualEntitiesCompatLayer
+import net.casual.arcade.replay.compat.arcade.ArcadeVirtualVisualsCompatLayer
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderLoadedResumeEvent
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderSnapshotEvent
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderUnloadedPauseEvent
@@ -91,6 +92,8 @@ public class ReplayChunkRecorder internal constructor(
     private val sentChunks = LongOpenHashSet()
 
     private val recordables = HashSet<ReplayChunkRecordable>()
+
+    internal val observer: Any? = ArcadeObserversCompatLayer.createObserver(this)
 
     /**
      * The level that the chunk recording is currently in.
@@ -347,6 +350,7 @@ public class ReplayChunkRecorder internal constructor(
         }
 
         ArcadeVirtualEntitiesCompatLayer.resendObservingLevelAttachments(this)
+        ArcadeVirtualVisualsCompatLayer.resendObservingVisuals(this)
 
         GlobalEventHandler.Server.broadcast(ReplayChunkRecorderSnapshotEvent(this, true))
     }

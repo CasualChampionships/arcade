@@ -18,10 +18,10 @@ import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.virtual.entity.utils.EntityDataAccessors
 import net.casual.arcade.virtual.entity.utils.EntityDataSharedFlags
-import net.casual.arcade.visuals.predicate.EntityObserverPredicate
-import net.casual.arcade.visuals.predicate.PlayerObserverPredicate
-import net.casual.arcade.visuals.predicate.PlayerObserverPredicate.Companion.toPlayer
-import net.casual.arcade.visuals.utils.modifySharedFlags
+import net.casual.arcade.virtual.visuals.predicate.EntityObserverPredicate
+import net.casual.arcade.virtual.visuals.predicate.PlayerObserverPredicate
+import net.casual.arcade.virtual.visuals.predicate.PlayerObserverPredicate.Companion.toPlayer
+import net.casual.arcade.virtual.visuals.utils.modifySharedFlags
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.*
 import net.minecraft.network.syncher.SynchedEntityData.DataValue

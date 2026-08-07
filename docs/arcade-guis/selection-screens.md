@@ -64,7 +64,7 @@ We can customize and configure how elements are displayed in our menus. By defau
 this will be from left to right and top to bottom, until the page is full, then the 
 next page will continue displaying elements:
 
-![Default Selection Screen Layout](../arcade-visuals/images/selection_screen_default.png)
+![Default Selection Screen Layout](../arcade-virtual-visuals/images/selection_screen_default.png)
 
 We can customize this by specifying a style; this determines which slots in the gui 
 can be filled with our selectable elements.
@@ -80,7 +80,7 @@ provides a style that puts all the elements in the center of the page:
 builder.style = SelectionGuiStyle.centered(width = 5, height = 3)
 ```
 
-![Styled Selection Screen Layout](../arcade-visuals/images/selection_screen_styled.png)
+![Styled Selection Screen Layout](../arcade-virtual-visuals/images/selection_screen_styled.png)
 
 ## Components
 

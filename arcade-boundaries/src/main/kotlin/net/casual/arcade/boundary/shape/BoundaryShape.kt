@@ -12,7 +12,7 @@ import net.casual.arcade.utils.MathUtils.forEachCorner
 import net.casual.arcade.utils.MathUtils.toAABB
 import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.casual.arcade.utils.time.MinecraftTimeDuration
-import net.casual.arcade.visuals.shapes.ShapePoints
+import net.casual.arcade.utils.shapes.ShapePoints
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction.Axis
 import net.minecraft.core.Registry

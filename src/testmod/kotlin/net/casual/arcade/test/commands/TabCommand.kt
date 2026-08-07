@@ -6,29 +6,35 @@ import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.executes
 import net.casual.arcade.commands.literal
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.server.ServerStartEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.events.server.player.PlayerJoinEvent
 import net.casual.arcade.events.utils.register
+import net.casual.arcade.observer.utils.asObserver
 import net.casual.arcade.utils.component.Component
 import net.casual.arcade.utils.component.plus
-import net.casual.arcade.visuals.tab.PlayerListDisplay
-import net.casual.arcade.visuals.tab.VanillaPlayerListEntries
-import net.casual.arcade.visuals.utils.elements.ComponentElements
-import net.casual.arcade.visuals.utils.elements.component.MSPTComponentElement
-import net.casual.arcade.visuals.utils.elements.component.TPSComponentElement
+import net.casual.arcade.virtual.visuals.tab.DynamicVirtualPlayerList
+import net.casual.arcade.virtual.visuals.tab.VanillaPlayerListEntries
+import net.casual.arcade.virtual.visuals.utils.elements.ComponentElements
+import net.casual.arcade.virtual.visuals.utils.elements.component.MSPTComponentElement
+import net.casual.arcade.virtual.visuals.utils.elements.component.TPSComponentElement
+import net.casual.arcade.virtual.visuals.utils.startObservingAndSendPackets
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 
 @Suppress("unused")
 object TabCommand: CommandTree<CommandSourceStack> {
-    private val display = PlayerListDisplay(VanillaPlayerListEntries())
+    private lateinit var display: DynamicVirtualPlayerList
 
     fun registerEvents() {
-        GlobalEventHandler.Server.register<ServerTickEvent> { (server) ->
-            this.display.tick(server)
+        GlobalEventHandler.Server.register<ServerStartEvent> { (server) ->
+            this.display = DynamicVirtualPlayerList(server, VanillaPlayerListEntries())
+        }
+        GlobalEventHandler.Server.register<ServerTickEvent> {
+            this.display.tick()
         }
         GlobalEventHandler.Server.register<PlayerJoinEvent> { (player) ->
-            this.display.addPlayer(player)
+            this.display.startObservingAndSendPackets(player.asObserver())
         }
     }
 
@@ -41,11 +47,9 @@ object TabCommand: CommandTree<CommandSourceStack> {
     }
 
     private fun setDisplayToShowTps(context: CommandContext<CommandSourceStack>) {
-        this.display.setDisplay(
-            ComponentElements.of { literal("Displaying TPS") + nl },
-            TPSComponentElement.merge(MSPTComponentElement) { tps, mspt ->
-                Component { empty() + nl + tps + nl + mspt + nl }
-            }
-        )
+        this.display.setHeader(ComponentElements.of { literal("Displaying TPS") + nl })
+        this.display.setFooter(TPSComponentElement.merge(MSPTComponentElement) { tps, mspt ->
+            Component { empty() + nl + tps + nl + mspt + nl }
+        })
     }
 }
