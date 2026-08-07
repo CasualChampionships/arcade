@@ -6,7 +6,6 @@ package net.casual.arcade.minigame.managers
 
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
-import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
 import net.casual.arcade.events.utils.register
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
@@ -25,7 +24,6 @@ import net.casual.arcade.virtual.visuals.transition.TitledCountdown
 import net.casual.arcade.virtual.visuals.transition.Transition
 import net.casual.arcade.virtual.visuals.utils.startObservingAndSendPackets
 import net.casual.arcade.virtual.visuals.utils.stopObservingAndSendPackets
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.scores.PlayerTeam
 
@@ -72,12 +70,6 @@ public class MinigameVisualsManager(
             }
             for (nametag in this.nametags) {
                 player.nametagExtension.remove(nametag)
-            }
-        }
-        this.minigame.events.register<PlayerClientboundPacketEvent> { event ->
-            val packet = event.packet
-            if (packet is ClientboundPlayerInfoUpdatePacket) {
-                event.packet = this.display?.replacePlayerInfoUpdatePacket(event.player, packet) ?: event.packet
             }
         }
     }

@@ -7,6 +7,7 @@ package net.casual.arcade.virtual.visuals.tab
 import com.google.common.collect.ImmutableMultimap
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.PropertyMap
+import net.casual.arcade.events.server.player.PlayerClientboundPacketEvent
 import net.casual.arcade.observer.Observer
 import net.casual.arcade.observer.tracker.ObserverTracker
 import net.casual.arcade.observer.tracker.SimpleObserverTracker
@@ -152,6 +153,10 @@ public open class VirtualPlayerList(
      * Rewrites a [ClientboundPlayerInfoUpdatePacket] being sent to the
      * given [receiver] so that real players are never listed, leaving
      * only this list's [entries] visible.
+     *
+     * This is applied automatically to every observer of this list;
+     * you only need to call this yourself if you're rewriting packets
+     * outside of [PlayerClientboundPacketEvent].
      *
      * @param receiver The player being sent the packet.
      * @param packet The packet being sent.
@@ -307,7 +312,18 @@ public open class VirtualPlayerList(
         return GameProfile(this.createUUIDForIndex(index), char.toString(), properties)
     }
 
-    private companion object {
+    public companion object {
         private val CURRENT_PLAYER_LIST = Observer.Context.Key<VirtualPlayerList>(arcade("virtual_player_list"))
+
+        /**
+         * Gets the player list the given [player] is currently observing.
+         *
+         * @param player The player.
+         * @return The player list being observed, or `null` if they aren't observing one.
+         */
+        @JvmStatic
+        public fun getCurrentPlayerList(player: ServerPlayer): VirtualPlayerList? {
+            return player.asObserver().context.get(CURRENT_PLAYER_LIST)
+        }
     }
 }

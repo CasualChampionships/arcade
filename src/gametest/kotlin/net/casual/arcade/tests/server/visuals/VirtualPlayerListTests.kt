@@ -7,6 +7,7 @@ package net.casual.arcade.tests.server.visuals
 import net.casual.arcade.gametest.ArcadeTestContext
 import net.casual.arcade.gametest.ArcadeTestSuite
 import net.casual.arcade.observer.utils.asObserver
+import net.casual.arcade.utils.ClientboundPlayerInfoUpdatePacket
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.coroutine.delay
 import net.casual.arcade.utils.player.username
@@ -19,7 +20,12 @@ import net.casual.arcade.virtual.visuals.utils.startObservingAndSendPackets
 import net.casual.arcade.virtual.visuals.utils.stopObservingAndSendPackets
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 import net.minecraft.network.chat.Component
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket.Action
 import net.minecraft.network.protocol.game.ClientboundTabListPacket
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.GameType
+import java.util.*
 
 object VirtualPlayerListTests: ArcadeTestSuite() {
     @GameTest(maxTicks = 400)
@@ -115,6 +121,51 @@ object VirtualPlayerListTests: ArcadeTestSuite() {
         list.stopObservingAndSendPackets(player.asObserver())
 
         assertFalse(list.header.isOverridden(player), "Expected the generated override to be discarded")
+    }
+
+    @GameTest(maxTicks = 400)
+    fun realPlayersAreUnlistedForObservers(context: ArcadeTestContext) = context.test {
+        val player = createTestPlayer()
+
+        val list = VirtualPlayerList(server, FixedEntries)
+        list.startObservingAndSendPackets(player.asObserver())
+        delay(1.Ticks)
+        player.clearPackets()
+
+        player.connection.send(createListingPacket(player))
+        delay(1.Ticks)
+
+        val packet = player.assertSent<ClientboundPlayerInfoUpdatePacket>()
+        val entry = assertNotNull(
+            packet.entries().firstOrNull { it.profileId == player.uuid },
+            "Expected the real player to still be in the packet"
+        )
+        assertFalse(entry.listed, "Expected the real player to be unlisted")
+    }
+
+    @GameTest(maxTicks = 400)
+    fun realPlayersAreListedForNonObservers(context: ArcadeTestContext) = context.test {
+        val player = createTestPlayer()
+
+        VirtualPlayerList(server, FixedEntries)
+        player.clearPackets()
+
+        player.connection.send(createListingPacket(player))
+        delay(1.Ticks)
+
+        val packet = player.assertSent<ClientboundPlayerInfoUpdatePacket>()
+        val entry = assertNotNull(
+            packet.entries().firstOrNull { it.profileId == player.uuid },
+            "Expected the real player to be in the packet"
+        )
+        assertTrue(entry.listed, "Expected the real player to remain listed")
+    }
+
+    private fun createListingPacket(player: ServerPlayer): ClientboundPlayerInfoUpdatePacket {
+        val entry = ClientboundPlayerInfoUpdatePacket.Entry(
+            player.uuid, null, true, 0, GameType.SURVIVAL, null, true, 0, null
+        )
+        return ClientboundPlayerInfoUpdatePacket(EnumSet.of(Action.UPDATE_LISTED), listOf(entry))
     }
 
     private object FixedEntries: PlayerListEntries {
