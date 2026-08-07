@@ -24,6 +24,6 @@ dependencies {
     include(implementation("net.casualchampionships:arcade-events-server:0.11.0-beta.3+26.2")!!)
     include(implementation("net.casualchampionships:arcade-extensions:0.11.0-beta.3+26.2")!!)
     include(implementation("net.casualchampionships:arcade-utils:0.11.0-beta.3+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-visuals:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-virtual-visuals:0.11.0-beta.3+26.2")!!)
 }
 ```

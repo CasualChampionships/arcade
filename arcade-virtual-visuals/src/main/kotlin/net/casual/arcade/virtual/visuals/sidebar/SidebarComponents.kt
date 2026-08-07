@@ -9,8 +9,8 @@ import net.minecraft.network.chat.Component
 /**
  * A builder for the rows of a [VirtualSidebar].
  *
- * Rows are added bottom-first, so the first row added is displayed
- * at the top of the sidebar.
+ * Rows are added top-first; the first row added is displayed at the
+ * top of the sidebar.
  */
 public class SidebarComponents internal constructor(): Iterable<SidebarComponent> {
     private val rows by lazy { ArrayList<SidebarComponent>(VirtualSidebar.MAX_SIZE) }

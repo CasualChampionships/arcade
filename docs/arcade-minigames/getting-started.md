@@ -31,6 +31,6 @@ dependencies {
     include(implementation("net.casualchampionships:arcade-resource-pack:0.11.0-beta.3+26.2")!!)
     include(implementation("net.casualchampionships:arcade-scheduler:0.11.0-beta.3+26.2")!!)
     include(implementation("net.casualchampionships:arcade-utils:0.11.0-beta.3+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-visuals:0.11.0-beta.3+26.2")!!)
+    include(implementation("net.casualchampionships:arcade-virtual-visuals:0.11.0-beta.3+26.2")!!)
 }
 ```

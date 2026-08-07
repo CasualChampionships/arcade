@@ -146,6 +146,17 @@ public open class VirtualSidebar(
         }
     }
 
+    /**
+     * Removes the given [player]'s row overrides, so that they are
+     * shown the base rows again.
+     *
+     * @param player The player to remove the overrides for.
+     * @see setRowsToBase
+     */
+    public fun setRowsToBase(player: ServerPlayer) {
+        this.setRowsToBase(player.uuid)
+    }
+
     override fun tick() {
         val base = this.data.clean()
         this.observers.broadcast { observer ->
