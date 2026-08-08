@@ -182,7 +182,10 @@ public class SimpleTickedScheduler(
         for (data in input) {
             val ticks = data.getInt("delay").getOrNull() ?: continue
             RoutineTask.create(data, owner).dispatch(
-                success = { task -> this.schedule(ticks.Ticks, task) },
+                success = { task ->
+                    this.schedule(ticks.Ticks, task)
+                    task.rehydrate(ticks.Ticks)
+                },
                 failure = { message -> ArcadeUtils.logger.error("Failed to load routine: $message") }
             )
         }

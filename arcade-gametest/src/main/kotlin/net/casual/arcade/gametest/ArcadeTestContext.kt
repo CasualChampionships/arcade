@@ -10,11 +10,9 @@ import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import net.casual.arcade.gametest.utils.TestFakePlayer
 import net.casual.arcade.npc.FakePlayer
-import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.scheduler.SimpleTickedScheduler
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
-import net.casual.arcade.utils.coroutine.MinecraftSchedulerDelay
 import net.casual.arcade.utils.coroutine.delay
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.core.BlockPos

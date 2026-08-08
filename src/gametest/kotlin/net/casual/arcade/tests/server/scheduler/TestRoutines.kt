@@ -15,9 +15,7 @@ import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.serialization.codec.CodecProvider
 import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
-import net.fabricmc.api.ModInitializer
 import net.minecraft.resources.Identifier
-import java.util.function.Supplier
 
 class RoutineOwner(
     val next: Int = 0
@@ -26,6 +24,8 @@ class RoutineOwner(
 
     var count = 0
     var recorded = -1
+    var held = false
+    var remaining = -1
 
     fun log(entry: String) {
         this.log.add(entry)
@@ -174,6 +174,31 @@ class DivergingRoutine(
     }
 }
 
+class HoldingRoutine(
+    val duration: Int
+): Routine<RoutineOwner> {
+    override fun codec(): MapCodec<out Routine<RoutineOwner>> {
+        return codec
+    }
+
+    override suspend fun RoutineScope<RoutineOwner>.run() {
+        owner.held = true
+        owner.log("held")
+        try {
+            delay(duration.Ticks) { remaining -> owner.remaining = remaining.ticks }
+        } finally {
+            owner.held = false
+            owner.log("released")
+        }
+    }
+
+    companion object: CodecProvider<HoldingRoutine> {
+        override val id: Identifier = arcade("holding")
+        override val codec: MapCodec<HoldingRoutine> = Codec.INT.fieldOf("duration")
+            .xmap(::HoldingRoutine, HoldingRoutine::duration)
+    }
+}
+
 class UnregisteredRoutine: Routine<RoutineOwner> {
     override fun codec(): MapCodec<out Routine<RoutineOwner>> {
         return codec
@@ -196,5 +221,6 @@ object TestRoutines {
         NestedRoutine.register(TaskRegistries.ROUTINE)
         OutdatedRoutine.register(TaskRegistries.ROUTINE)
         DivergingRoutine.register(TaskRegistries.ROUTINE)
+        HoldingRoutine.register(TaskRegistries.ROUTINE)
     }
 }

@@ -39,12 +39,29 @@ internal class RoutineTask<O>(
     private var finished = false
     private var cancelling = false
     private var rehydrating = false
+    private var remaining: MinecraftTimeDuration? = null
 
     override val isFinished: Boolean
         get() = this.finished
 
     fun attach(scheduler: TickedScheduler) {
         this.scheduler = scheduler
+    }
+
+    /**
+     * Replays this routine's body up to the point it was serialized at,
+     * recreating any state it holds outside of its steps.
+     *
+     * The routine is left suspended at that point; it is not resumed
+     * until its [remaining] duration has elapsed.
+     *
+     * @param remaining The duration left before this routine resumes.
+     */
+    fun rehydrate(remaining: MinecraftTimeDuration) {
+        if (this.finished || this.cancelling || this.continuation != null || this.journal.cursor < 0) {
+            return
+        }
+        this.replay(remaining)
     }
 
     override fun run() {
@@ -73,12 +90,7 @@ internal class RoutineTask<O>(
             // If the task wasn't resumed after deserialization
             // we still need to run up to the point of serialization
             // so we can properly cancel the routine at the correct position
-            this.rehydrating = true
-            try {
-                this.start(this.journal.cursor)
-            } finally {
-                this.rehydrating = false
-            }
+            this.replay(null)
         }
 
         val continuation = this.continuation
@@ -97,6 +109,17 @@ internal class RoutineTask<O>(
         this.journal.serialize(output.child("journal"))
     }
 
+    private fun replay(remaining: MinecraftTimeDuration?) {
+        this.remaining = remaining
+        this.rehydrating = true
+        try {
+            this.start(this.journal.cursor)
+        } finally {
+            this.rehydrating = false
+            this.remaining = null
+        }
+    }
+
     private fun start(replayTo: Int) {
         this.index = 0
         this.replayTo = replayTo
@@ -106,17 +129,22 @@ internal class RoutineTask<O>(
         block.startCoroutine(Scope(this), Completion(this))
     }
 
-    private fun diverged(message: String) {
+    private fun diverged(message: String): Nothing {
         this.finished = true
+        this.cancelling = true
         this.continuation = null
         ArcadeUtils.logger.error("Routine ${this.routine.javaClass.name} diverged on replay, aborting: $message")
+        throw RoutineDivergedException()
     }
 
     private class Scope<O>(private val task: RoutineTask<O>): RoutineScope<O> {
         override val owner: O
             get() = this.task.owner
 
-        override suspend fun delay(duration: MinecraftTimeDuration) {
+        override suspend fun delay(
+            duration: MinecraftTimeDuration,
+            onDelay: (remaining: MinecraftTimeDuration) -> Unit
+        ) {
             if (this.task.cancelling) {
                 return
             }
@@ -134,6 +162,8 @@ internal class RoutineTask<O>(
             this.task.journal.suspendedAt(index)
 
             if (this.task.rehydrating) {
+                onDelay.invoke(this.task.remaining ?: duration)
+
                 // We don't actually schedule the task,
                 // but we need this to allows us to cancel the coroutine
                 return suspendCoroutineUninterceptedOrReturn { continuation ->
@@ -148,6 +178,8 @@ internal class RoutineTask<O>(
                 ArcadeUtils.logger.error("Routine ${this.task.routine.javaClass.name} has no scheduler, cannot delay")
                 return
             }
+
+            onDelay.invoke(duration)
 
             return suspendCoroutineUninterceptedOrReturn { continuation ->
                 this.task.continuation = continuation
@@ -175,7 +207,6 @@ internal class RoutineTask<O>(
                 val message = this.task.journal.verify(index, RoutineJournal.Kind.Step, id)
                 if (message != null) {
                     this.task.diverged(message)
-                    return block.invoke()
                 }
                 val decoded = this.task.journal.entry(index)?.value?.decode(codec)
                 if (decoded != null) {
@@ -197,7 +228,7 @@ internal class RoutineTask<O>(
             this.task.finished = true
             this.task.continuation = null
             val exception = result.exceptionOrNull()
-            if (exception != null && exception !is RoutineCancelledException) {
+            if (exception != null && exception !is CancellationException) {
                 ArcadeUtils.logger.error("Exception while running routine ${this.task.routine.javaClass.name}", exception)
             }
         }
@@ -205,8 +236,10 @@ internal class RoutineTask<O>(
 
     private class RoutineCancelledException: CancellationException("Routine was cancelled")
 
+    private class RoutineDivergedException: CancellationException("Routine diverged on replay")
+
     companion object {
-        fun create(input: ValueInput, owner: Any?): RichResult<Task> {
+        fun create(input: ValueInput, owner: Any?): RichResult<RoutineTask<*>> {
             val routine = input.read("routine", Routine.CODEC).getOrNull()
                 ?: return RichResult.failure("Failed to read routine")
 

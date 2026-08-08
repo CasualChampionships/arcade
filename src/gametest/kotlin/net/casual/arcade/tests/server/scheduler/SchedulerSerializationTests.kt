@@ -122,6 +122,46 @@ object SchedulerSerializationTests: ArcadeTestSuite() {
     }
 
     @GameTest
+    fun restoredRoutineRebuildsNonStepState(context: ArcadeTestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        scheduler.schedule(HoldingRoutine(duration = 40), owner)
+
+        scheduler.tick(5)
+        assertTrue(owner.held, "Routine did not take hold of its state")
+        assertEquals(40, owner.remaining, "Routine was not given its full duration when it first suspended")
+
+        val restored = RoutineOwner()
+        val loaded = SimpleTickedScheduler.server()
+        loaded.load(server, scheduler.save(server), restored)
+
+        assertTrue(restored.held, "Restored routine did not rebuild its state until it resumed")
+        assertEquals(35, restored.remaining, "Restored routine was not given its remaining duration")
+        assertEquals(listOf("held"), restored.log, "Restored routine ran past its suspension point")
+
+        loaded.tick(40)
+        assertFalse(restored.held, "Restored routine never released its state")
+        assertEquals(listOf("held", "released"), restored.log)
+    }
+
+    @GameTest
+    fun cancellingRestoredRoutineReleasesNonStepState(context: ArcadeTestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        scheduler.schedule(HoldingRoutine(duration = 40), owner)
+
+        scheduler.tick()
+
+        val restored = RoutineOwner()
+        val loaded = SimpleTickedScheduler.server()
+        loaded.load(server, scheduler.save(server), restored)
+
+        assertTrue(loaded.cancelAll())
+        assertFalse(restored.held, "Cancelling a restored routine did not release its state")
+        assertEquals(listOf("held", "released"), restored.log)
+    }
+
+    @GameTest
     fun plainTasksAreNotSerialized(context: ArcadeTestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
