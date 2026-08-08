@@ -35,6 +35,7 @@ public class ArcadeTestContext(public val helper: GameTestHelper) {
     private val players = ArrayList<TestFakePlayer>()
 
     private var failure: Throwable? = null
+    private var succeeded = false
 
     public val server: MinecraftServer
         get() = this.helper.level.server
@@ -58,12 +59,16 @@ public class ArcadeTestContext(public val helper: GameTestHelper) {
                 context.failure = null
                 throw thrown as? Exception ?: UnknownGameTestException(thrown)
             }
+            if (context.succeeded) {
+                context.succeeded = false
+                context.helper.succeed()
+            }
         }
 
         val job = scheduler.asCoroutineScope().launch {
             try {
                 context.block()
-                context.helper.succeed()
+                context.succeeded = true
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Throwable) {
