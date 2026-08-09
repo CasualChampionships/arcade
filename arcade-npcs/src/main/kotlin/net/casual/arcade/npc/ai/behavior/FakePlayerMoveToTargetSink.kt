@@ -55,7 +55,7 @@ public class FakePlayerMoveToTargetSink(
     override fun canStillUse(level: ServerLevel, player: FakePlayer, gameTime: Long): Boolean {
         if (this.path != null && this.lastTargetPos != null) {
             val optional = player.brain.getMemory(MemoryModuleType.WALK_TARGET)
-            val isTargetSpectator = optional.map(this::isWalkTargetSpectator).orElse(false)
+            val isTargetSpectator = optional.map(this::isWalkTargetSpectator).orElse(false)!!
             val navigation = player.navigation
             return !navigation.isDone() && optional.isPresent
                     && !this.hasReachedTarget(player, optional.get()) && !isTargetSpectator
@@ -68,7 +68,7 @@ public class FakePlayerMoveToTargetSink(
         player.navigation.moveTo(this.path, speedModifier.toDouble())
 
         if (this.sprint) {
-            player.moveControl.sprinting = true
+            player.input.sprint = true
         }
     }
 
@@ -112,7 +112,7 @@ public class FakePlayerMoveToTargetSink(
         this.path = null
 
         if (this.sprint) {
-            player.moveControl.sprinting = false
+            player.input.sprint = false
         }
     }
 

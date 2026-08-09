@@ -36,9 +36,6 @@ public open class NPCMoveControl(
     public var jump: Boolean = false
         private set
 
-    public var sprinting: Boolean = false
-    public var sneaking: Boolean = false
-
     public fun hasWanted(): Boolean {
         return this.operation == Operation.MOVE_TO
     }
@@ -85,9 +82,7 @@ public open class NPCMoveControl(
                     this.strafeForwards = 1.0f
                     this.strafeRight = 0.0f
                 }
-                this.player.speed = speed
-                this.player.zza = this.strafeForwards
-                this.player.xxa = this.strafeRight
+                this.player.input.setMoveVector(this.strafeRight, this.strafeForwards)
                 this.operation = Operation.WAIT
             }
             Operation.MOVE_TO -> {
@@ -95,14 +90,13 @@ public open class NPCMoveControl(
                 val delta = this.target.subtract(this.player.position())
                 val distanceSq = delta.lengthSqr()
                 if (distanceSq < MIN_SPEED_SQR) {
-                    this.player.zza = 0.0f
+                    this.player.input.setMoveVector(0.0f, 0.0f)
                     return
                 }
                 val (dx, dy, dz) = delta
                 val targetAngle = (atan2(dz, dx).toFloat() * 180.0f / Math.PI.toFloat()) - 90.0f
                 this.player.yRot = this.rotlerp(this.player.yRot, targetAngle, 90.0f)
-                val speed = (this.speedModifier * this.player.getAttributeValue(Attributes.MOVEMENT_SPEED)).toFloat() * 10
-                this.player.zza = speed
+                this.player.input.setMoveVector(0.0f, this.speedModifier.toFloat())
                 val blockPos = this.player.blockPosition()
                 val blockState = this.player.level().getBlockState(blockPos)
                 val voxelShape = blockState.getCollisionShape(this.player.level(), blockPos)
@@ -117,18 +111,17 @@ public open class NPCMoveControl(
                 }
             }
             Operation.JUMPING -> {
-                val speed = (this.speedModifier * this.player.getAttributeValue(Attributes.MOVEMENT_SPEED)).toFloat()
-                this.player.zza = speed
+                this.player.input.setMoveVector(0.0f, this.speedModifier.toFloat())
                 if (this.player.onGround() || this.player.isInWater) {
                     this.operation = Operation.WAIT
                 }
             }
             else -> {
-                this.player.zza = 0.0f
+                this.player.input.setMoveVector(0.0f, 0.0f)
             }
         }
 
-        this.player.isJumping = this.jump
+        this.player.input.jump = this.jump
         this.jump = false
     }
 
