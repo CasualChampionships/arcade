@@ -6,7 +6,9 @@ package net.casual.arcade.scheduler.task.routine
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
+import net.casual.arcade.scheduler.utils.EmptyRoutine
 import net.casual.arcade.scheduler.utils.TaskRegistries
+import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.minecraft.core.Registry
 import java.util.function.Function
 
@@ -74,7 +76,7 @@ public interface Routine<O> {
         }
 
         internal fun bootstrap(registry: Registry<MapCodec<out Routine<*>>>) {
-
+            EmptyRoutine.register(registry)
         }
     }
 }
