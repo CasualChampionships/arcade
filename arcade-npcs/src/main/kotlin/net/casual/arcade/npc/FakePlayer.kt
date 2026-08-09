@@ -407,7 +407,7 @@ public open class FakePlayer(
             Direction.WEST, Direction.EAST, Direction.NORTH, Direction.SOUTH
         )
 
-        private val joining = Object2ObjectOpenHashMap<String, CompletableFuture<FakePlayer>>()
+        private val joining = Object2ObjectOpenHashMap<String, CompletableFuture<out FakePlayer>>()
 
         private fun modifyInputSpeedForSquareMovement(input: Vec2): Vec2 {
             val length = input.length()
@@ -466,17 +466,22 @@ public open class FakePlayer(
             constructor: FakePlayerConstructor<T>
         ): CompletableFuture<T> {
             @Suppress("UNCHECKED_CAST")
-            return this.joining.getOrPut(username) {
+            val future = this.joining.getOrPut(username) {
                 val resolvable = DynamicResolvableProfile(username)
-                resolvable.resolveProfile(server.services().profileResolver).whenCompleteAsync({ _, throwable ->
-                    this.joining.remove(username)
-                    if (throwable != null) {
-                        ArcadeUtils.logger.error("Couldn't resolve FakePlayer username: $username", throwable)
-                    }
-                }, server).thenCompose { resolved ->
+                resolvable.resolveProfile(server.services().profileResolver).thenComposeAsync({ resolved ->
                     this.join(server, resolved, constructor)
-                } as CompletableFuture<FakePlayer>
-            } as CompletableFuture<T>
+                }, server)
+            }
+
+            future.whenCompleteAsync({ _, throwable ->
+                this.joining.remove(username, future)
+                if (throwable != null) {
+                    ArcadeUtils.logger.error("Couldn't resolve FakePlayer username: $username", throwable)
+                }
+            }, server)
+
+            @Suppress("UNCHECKED_CAST")
+            return future as CompletableFuture<T>
         }
 
         public fun <T: FakePlayer> join(
