@@ -11,28 +11,31 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.phase.BuiltInEventPhases.PRE
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.events.utils.register
-import net.casual.arcade.gametest.ArcadeTestContext
-import net.casual.arcade.gametest.ArcadeTestSuite
+import net.casual.arcade.gametest.TestContext
+import net.casual.arcade.tests.server.ArcadeTestSuite
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.coroutine.delay
 import net.casual.arcade.utils.coroutine.launch
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 
+@Suppress("FunctionName", "Unused")
 object CoroutineTests: ArcadeTestSuite() {
+    override val namespace: String = "arcade-gametest"
+
     @GameTest(maxTicks = 100)
-    fun delayResumes(context: ArcadeTestContext) = context.test {
+    fun `delay resumes`(context: TestContext) = context.test {
         delay(1.Ticks)
     }
 
     @GameTest(maxTicks = 100)
-    fun delayResumesLater(context: ArcadeTestContext) = context.test {
+    fun `delay resumes later`(context: TestContext) = context.test {
         val before = server.tickCount
         delay(5.Ticks)
         assertTrue(server.tickCount > before, "Server tickCount was same before and after delay!")
     }
 
     @GameTest(maxTicks = 200)
-    fun delayConsistencyAfterResuming(context: ArcadeTestContext) = context.test {
+    fun `delay after resume is consistent`(context: TestContext) = context.test {
         val first = CompletableDeferred<Int>()
         val second = CompletableDeferred<Int>()
 
@@ -53,7 +56,7 @@ object CoroutineTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 200)
-    fun delayConsistencyFromTickPre(context: ArcadeTestContext) = context.test {
+    fun `delay before tick is consistent`(context: TestContext) = context.test {
         val started = CompletableDeferred<Int>()
         val finished = CompletableDeferred<Int>()
 
@@ -73,7 +76,7 @@ object CoroutineTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 200)
-    fun delayOffThreadThrows(context: ArcadeTestContext) = context.test {
+    fun `delay off thread throws`(context: TestContext) = context.test {
         val result = CompletableDeferred<Throwable?>()
 
         server.launch {

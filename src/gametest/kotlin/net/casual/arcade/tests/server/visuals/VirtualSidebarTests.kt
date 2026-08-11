@@ -4,11 +4,12 @@
  */
 package net.casual.arcade.tests.server.visuals
 
-import net.casual.arcade.gametest.ArcadeTestContext
-import net.casual.arcade.gametest.ArcadeTestSuite
+import net.casual.arcade.gametest.TestContext
+import net.casual.arcade.tests.server.ArcadeTestSuite
 import net.casual.arcade.observer.utils.asObserver
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.coroutine.delay
+import net.casual.arcade.virtual.visuals.ArcadeVirtualVisuals
 import net.casual.arcade.virtual.visuals.sidebar.SidebarComponent
 import net.casual.arcade.virtual.visuals.sidebar.SidebarComponents
 import net.casual.arcade.virtual.visuals.sidebar.VirtualSidebar
@@ -18,9 +19,12 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundResetScorePacket
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket
 
+@Suppress("FunctionName", "Unused")
 object VirtualSidebarTests: ArcadeTestSuite() {
+    override val namespace: String = ArcadeVirtualVisuals.MOD_ID
+
     @GameTest(maxTicks = 400)
-    fun sidebarIsAsTallAsItsHighestSetRow(context: ArcadeTestContext) = context.test {
+    fun `sidebar height matches highest row`(context: TestContext) = context.test {
         val player = createTestPlayer()
 
         val sidebar = VirtualSidebar()
@@ -35,7 +39,7 @@ object VirtualSidebarTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun anUnsetRowBelowTheTopIsDisplayedBlank(context: ArcadeTestContext) = context.test {
+    fun `unset sidebar row is blank`(context: TestContext) = context.test {
         val player = createTestPlayer()
 
         val sidebar = VirtualSidebar()
@@ -50,7 +54,7 @@ object VirtualSidebarTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun anUnsetSidebarDisplaysNoRows(context: ArcadeTestContext) = context.test {
+    fun `unset sidebar has no rows`(context: TestContext) = context.test {
         val player = createTestPlayer()
 
         val sidebar = VirtualSidebar()
@@ -61,7 +65,7 @@ object VirtualSidebarTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun onlyChangedRowsAreResent(context: ArcadeTestContext) = context.test {
+    fun `only changed sidebar rows are sent`(context: TestContext) = context.test {
         val player = createTestPlayer()
 
         val sidebar = VirtualSidebar()
@@ -85,7 +89,7 @@ object VirtualSidebarTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun clearingTheTopRowResetsTheRemovedScores(context: ArcadeTestContext) = context.test {
+    fun `clearing top sidebar row resets scores`(context: TestContext) = context.test {
         val player = createTestPlayer()
 
         val sidebar = VirtualSidebar()
@@ -107,7 +111,7 @@ object VirtualSidebarTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun settingRowsClearsAnyRowBeyondThoseGiven(context: ArcadeTestContext) = context.test {
+    fun `setting sidebar rows clears extra rows`(context: TestContext) = context.test {
         val player = createTestPlayer()
 
         val sidebar = VirtualSidebar()
@@ -130,7 +134,7 @@ object VirtualSidebarTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun aPlayersRowOverrideIsOnlySentToThem(context: ArcadeTestContext) = context.test {
+    fun `sidebar row override is only sent to that player`(context: TestContext) = context.test {
         val overridden = createTestPlayer()
         val other = createTestPlayer()
 

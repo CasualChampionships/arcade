@@ -25,11 +25,11 @@ import net.minecraft.server.level.ServerLevel
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * The receiver passed to every [ArcadeTestSuite] test method.
+ * The receiver passed to every [TestSuite] test method.
  *
  * All state tracked here is per-test. Tests within a batch run *concurrently* in the same level.
  */
-public class ArcadeTestContext(public val helper: GameTestHelper) {
+public class TestContext(public val helper: GameTestHelper) {
     private val players = ArrayList<TestFakePlayer>()
 
     private var failure: Throwable? = null
@@ -45,7 +45,7 @@ public class ArcadeTestContext(public val helper: GameTestHelper) {
      * Runs [block] as a coroutine on the server thread, passing the test when it returns normally
      * and failing it if it throws.
      */
-    public fun test(block: suspend ArcadeTestContext.() -> Unit) {
+    public fun test(block: suspend TestContext.() -> Unit) {
         val context = this
 
         val scheduler = SimpleTickedScheduler.server()

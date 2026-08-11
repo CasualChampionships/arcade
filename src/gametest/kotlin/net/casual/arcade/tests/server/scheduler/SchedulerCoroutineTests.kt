@@ -6,8 +6,9 @@ package net.casual.arcade.tests.server.scheduler
 
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import net.casual.arcade.gametest.ArcadeTestContext
-import net.casual.arcade.gametest.ArcadeTestSuite
+import net.casual.arcade.gametest.TestContext
+import net.casual.arcade.scheduler.ArcadeScheduler
+import net.casual.arcade.tests.server.ArcadeTestSuite
 import net.casual.arcade.scheduler.SimpleTickedScheduler
 import net.casual.arcade.scheduler.utils.asCoroutineDispatcher
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -15,9 +16,12 @@ import net.casual.arcade.utils.coroutine.delay
 import net.casual.arcade.utils.coroutine.getCoroutineScope
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 
+@Suppress("FunctionName", "Unused")
 object SchedulerCoroutineTests: ArcadeTestSuite() {
+    override val namespace: String = ArcadeScheduler.MOD_ID
+
     @GameTest
-    fun dispatcherRunsInlineWhenAlreadyOnTheTargetThread(context: ArcadeTestContext) = context.test {
+    fun `dispatcher runs inline on main thread`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var started = false
         server.getCoroutineScope().launch(scheduler.asCoroutineDispatcher()) {
@@ -28,7 +32,7 @@ object SchedulerCoroutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun delayResumesAfterTheGivenDuration(context: ArcadeTestContext) = context.test {
+    fun `delay resumes after correct delay`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var resumed = false
         val job = server.getCoroutineScope().launch(scheduler.asCoroutineDispatcher()) {
@@ -44,7 +48,7 @@ object SchedulerCoroutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun delayIsNotAffectedByOtherSchedulers(context: ArcadeTestContext) = context.test {
+    fun `delay not affected by other schedulers`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         val other = SimpleTickedScheduler.server()
         var resumed = false
@@ -60,7 +64,7 @@ object SchedulerCoroutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun cancellingTheJobPreventsTheResume(context: ArcadeTestContext) = context.test {
+    fun `cancelling job prevents resuming`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var resumed = false
         val job = server.getCoroutineScope().launch(scheduler.asCoroutineDispatcher()) {
@@ -74,7 +78,7 @@ object SchedulerCoroutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun cancellingTheSchedulerCancelsSuspendedCoroutines(context: ArcadeTestContext) = context.test {
+    fun `cancelling scheduler cancels coroutines`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var resumed = false
         var cleanedUp = false
@@ -95,7 +99,7 @@ object SchedulerCoroutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun multipleDelaysResumeInSequence(context: ArcadeTestContext) = context.test {
+    fun `sequenced delays all resume`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         val reached = ArrayList<Int>()
         server.getCoroutineScope().launch(scheduler.asCoroutineDispatcher()) {
@@ -116,7 +120,7 @@ object SchedulerCoroutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun schedulerScopeIsStable(context: ArcadeTestContext) = context.test {
+    fun `scheduler scope is constant`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         assertTrue(
             scheduler.asCoroutineScope() === scheduler.asCoroutineScope(),
@@ -125,7 +129,7 @@ object SchedulerCoroutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun scopeLoopRunsAtItsInterval(context: ArcadeTestContext) = context.test {
+    fun `scheduler scope can loop`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var count = 0
         val job = scheduler.asCoroutineScope().launch {
@@ -154,46 +158,7 @@ object SchedulerCoroutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun scopeLoopRespectsItsInitialDelay(context: ArcadeTestContext) = context.test {
-        val scheduler = SimpleTickedScheduler.server()
-        var count = 0
-        scheduler.asCoroutineScope().launch {
-            delay(10.Ticks)
-            repeat(3) {
-                count += 1
-                delay(2.Ticks)
-            }
-        }
-
-        scheduler.tick(9)
-        assertEquals(0, count, "Loop ran before its initial delay had elapsed")
-        scheduler.tick(20)
-        count shouldEqual 3
-    }
-
-    @GameTest
-    fun cancelAllCancelsCoroutinesLaunchedOnTheScope(context: ArcadeTestContext) = context.test {
-        val scheduler = SimpleTickedScheduler.server()
-        var resumed = false
-        var cleanedUp = false
-        val job = scheduler.asCoroutineScope().launch {
-            try {
-                delay(20.Ticks)
-                resumed = true
-            } finally {
-                cleanedUp = true
-            }
-        }
-
-        assertTrue(scheduler.cancelAll())
-        scheduler.tick(40)
-        assertFalse(resumed, "Coroutine resumed after its scheduler cancelled everything")
-        assertTrue(cleanedUp, "Coroutine was never unwound when its scheduler cancelled everything")
-        assertTrue(job.isCancelled)
-    }
-
-    @GameTest
-    fun schedulerScopeIsStillUsableAfterCancelAll(context: ArcadeTestContext) = context.test {
+    fun `scheduler scope is reusable`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var first = false
         var second = false

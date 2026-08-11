@@ -4,8 +4,9 @@
  */
 package net.casual.arcade.tests.server.gametest
 
-import net.casual.arcade.gametest.ArcadeTestContext
-import net.casual.arcade.gametest.ArcadeTestSuite
+import net.casual.arcade.gametest.TestContext
+import net.casual.arcade.scheduler.ArcadeScheduler
+import net.casual.arcade.tests.server.ArcadeTestSuite
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.player.username
@@ -15,9 +16,12 @@ import net.minecraft.gametest.framework.GameTestAssertException
 /**
  * Tests for the assertion helpers themselves.
  */
+@Suppress("FunctionName", "Unused")
 object ContextAssertionTests: ArcadeTestSuite() {
+    override val namespace: String = "arcade-gametest"
+
     @GameTest
-    fun assertionsPassWhenSatisfied(context: ArcadeTestContext) = context.test {
+    fun `true assertions pass`(context: TestContext) = context.test {
         assertTrue(true)
         assertFalse(false)
         assertEquals(1, 1)
@@ -27,7 +31,7 @@ object ContextAssertionTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun assertionsThrowWhenViolated(context: ArcadeTestContext) = context.test {
+    fun `false assertions throw`(context: TestContext) = context.test {
         assertThrows<GameTestAssertException> { assertTrue(false) }
         assertThrows<GameTestAssertException> { assertFalse(true) }
         assertThrows<GameTestAssertException> { assertEquals(1, 2) }
@@ -37,7 +41,7 @@ object ContextAssertionTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun infixAssertionsPassWhenSatisfied(context: ArcadeTestContext) = context.test {
+    fun `true infix assertions pass`(context: TestContext) = context.test {
         1 shouldEqual 1
         "value" shouldEqual "value"
         1 shouldNotEqual 2
@@ -45,26 +49,26 @@ object ContextAssertionTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun infixAssertionsThrowWhenViolated(context: ArcadeTestContext) = context.test {
+    fun `false infix assertions throw`(context: TestContext) = context.test {
         assertThrows<GameTestAssertException> { 1 shouldEqual 2 }
         assertThrows<GameTestAssertException> { 1 shouldNotEqual 1 }
     }
 
     @GameTest(maxTicks = 200)
-    fun assertEventuallyPassesOnceConditionHolds(context: ArcadeTestContext) = context.test {
+    fun `true eventually assertions passes`(context: TestContext) = context.test {
         val target = server.tickCount + 3
         assertEventually(2.Seconds) { server.tickCount >= target }
     }
 
     @GameTest(maxTicks = 200)
-    fun assertEventuallyFailsAfterTimeout(context: ArcadeTestContext) = context.test {
+    fun `false eventually assertions throw`(context: TestContext) = context.test {
         assertThrows<GameTestAssertException> {
             assertEventually(5.Ticks) { false }
         }
     }
 
     @GameTest(maxTicks = 400)
-    fun generatedPlayerNamesAreUnique(context: ArcadeTestContext) = context.test {
+    fun `test players are unique`(context: TestContext) = context.test {
         val first = createTestPlayer()
         val second = createTestPlayer()
 

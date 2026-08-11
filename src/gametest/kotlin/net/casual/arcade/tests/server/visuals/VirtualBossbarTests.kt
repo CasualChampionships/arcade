@@ -4,12 +4,13 @@
  */
 package net.casual.arcade.tests.server.visuals
 
-import net.casual.arcade.gametest.ArcadeTestContext
-import net.casual.arcade.gametest.ArcadeTestSuite
+import net.casual.arcade.gametest.TestContext
+import net.casual.arcade.tests.server.ArcadeTestSuite
 import net.casual.arcade.gametest.utils.TestFakePlayer
 import net.casual.arcade.observer.utils.asObserver
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.coroutine.delay
+import net.casual.arcade.virtual.visuals.ArcadeVirtualVisuals
 import net.casual.arcade.virtual.visuals.bossbar.VirtualBossbar
 import net.casual.arcade.virtual.visuals.utils.startObservingAndSendPackets
 import net.casual.arcade.virtual.visuals.utils.stopObservingAndSendPackets
@@ -20,9 +21,12 @@ import net.minecraft.world.BossEvent.BossBarColor
 import net.minecraft.world.BossEvent.BossBarOverlay
 import java.util.*
 
+@Suppress("FunctionName", "Unused")
 object VirtualBossbarTests: ArcadeTestSuite() {
+    override val namespace: String = ArcadeVirtualVisuals.MOD_ID
+
     @GameTest(maxTicks = 400)
-    fun observerIsSentTheBossbarWhenTheyStartObserving(context: ArcadeTestContext) = context.test {
+    fun `bossbar is sent when observing`(context: TestContext) = context.test {
         val player = createTestPlayer()
 
         val bossbar = VirtualBossbar()
@@ -35,7 +39,7 @@ object VirtualBossbarTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun observerIsSentARemoveWhenTheyStopObserving(context: ArcadeTestContext) = context.test {
+    fun `bossbar is removed when not observing`(context: TestContext) = context.test {
         val player = createTestPlayer()
 
         val bossbar = VirtualBossbar()
@@ -49,7 +53,7 @@ object VirtualBossbarTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun changingTheBaseSendsAnUpdateToEveryObserver(context: ArcadeTestContext) = context.test {
+    fun `changing bossbar base updates all observers`(context: TestContext) = context.test {
         val first = createTestPlayer()
         val second = createTestPlayer()
 
@@ -70,7 +74,7 @@ object VirtualBossbarTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun anOverrideIsOnlySentToThatPlayer(context: ArcadeTestContext) = context.test {
+    fun `bossbar override is only sent to that player`(context: TestContext) = context.test {
         val overridden = createTestPlayer()
         val other = createTestPlayer()
 
@@ -91,7 +95,7 @@ object VirtualBossbarTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun changingTheBaseDoesNotClobberAnOverride(context: ArcadeTestContext) = context.test {
+    fun `changing bossbar base doesnt clobber override`(context: TestContext) = context.test {
         val overridden = createTestPlayer()
         val other = createTestPlayer()
 
@@ -113,7 +117,7 @@ object VirtualBossbarTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun settingAnUnchangedValueSendsNothing(context: ArcadeTestContext) = context.test {
+    fun `unchanged bossbar sends nothing`(context: TestContext) = context.test {
         val player = createTestPlayer()
 
         val bossbar = VirtualBossbar()
@@ -131,7 +135,7 @@ object VirtualBossbarTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun overridesArePreservedWhenObservingAgain(context: ArcadeTestContext) = context.test {
+    fun `bossbar overrides persist when observing again`(context: TestContext) = context.test {
         val player = createTestPlayer()
 
         val bossbar = VirtualBossbar()
@@ -149,7 +153,7 @@ object VirtualBossbarTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun styleChangesAreSentAsASinglePacket(context: ArcadeTestContext) = context.test {
+    fun `bossbar style changes send single packet`(context: TestContext) = context.test {
         val player = createTestPlayer()
 
         val bossbar = VirtualBossbar()

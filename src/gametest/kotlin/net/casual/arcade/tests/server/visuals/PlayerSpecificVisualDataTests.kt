@@ -4,15 +4,19 @@
  */
 package net.casual.arcade.tests.server.visuals
 
-import net.casual.arcade.gametest.ArcadeTestContext
-import net.casual.arcade.gametest.ArcadeTestSuite
+import net.casual.arcade.gametest.TestContext
+import net.casual.arcade.tests.server.ArcadeTestSuite
+import net.casual.arcade.virtual.visuals.ArcadeVirtualVisuals
 import net.casual.arcade.virtual.visuals.data.PlayerSpecificVisualData
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 import java.util.*
 
+@Suppress("FunctionName", "Unused")
 object PlayerSpecificVisualDataTests: ArcadeTestSuite() {
+    override val namespace: String = ArcadeVirtualVisuals.MOD_ID
+
     @GameTest
-    fun observersWithoutOverridesAreShownTheBase(context: ArcadeTestContext) = context.test {
+    fun `players without override see base value`(context: TestContext) = context.test {
         val data = PlayerSpecificVisualData()
         val value = data.register("base")
 
@@ -23,7 +27,7 @@ object PlayerSpecificVisualDataTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun overrideIsOnlyShownToThatPlayer(context: ArcadeTestContext) = context.test {
+    fun `override is only seen by that player`(context: TestContext) = context.test {
         val data = PlayerSpecificVisualData()
         val value = data.register("base")
 
@@ -40,7 +44,7 @@ object PlayerSpecificVisualDataTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun changingTheBaseDoesNotClobberAnOverride(context: ArcadeTestContext) = context.test {
+    fun `changing base doesnt clobber override`(context: TestContext) = context.test {
         val data = PlayerSpecificVisualData()
         val value = data.register("base")
 
@@ -53,7 +57,7 @@ object PlayerSpecificVisualDataTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun settingToBaseFollowsTheBaseAgain(context: ArcadeTestContext) = context.test {
+    fun `setting to base follows base again`(context: TestContext) = context.test {
         val data = PlayerSpecificVisualData()
         val value = data.register("base")
 
@@ -70,7 +74,7 @@ object PlayerSpecificVisualDataTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun baseIsOnlyReportedDirtyOnce(context: ArcadeTestContext) = context.test {
+    fun `base value is only dirty once`(context: TestContext) = context.test {
         val data = PlayerSpecificVisualData()
         val value = data.register("base")
 
@@ -81,7 +85,7 @@ object PlayerSpecificVisualDataTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun settingAnUnchangedValueIsNotDirty(context: ArcadeTestContext) = context.test {
+    fun `unchanged value is not dirty`(context: TestContext) = context.test {
         val data = PlayerSpecificVisualData()
         val value = data.register("base")
         data.clean()
@@ -91,7 +95,7 @@ object PlayerSpecificVisualDataTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun dirtyBaseIsMaskedFromPlayersWhoOverrideIt(context: ArcadeTestContext) = context.test {
+    fun `dirty base is masked from overriding players`(context: TestContext) = context.test {
         val data = PlayerSpecificVisualData()
         val value = data.register("base")
 
@@ -108,7 +112,7 @@ object PlayerSpecificVisualDataTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun overrideIsReportedDirtyForThatPlayerOnly(context: ArcadeTestContext) = context.test {
+    fun `override is only dirty for that player`(context: TestContext) = context.test {
         val data = PlayerSpecificVisualData()
         val value = data.register("base")
 
@@ -127,7 +131,7 @@ object PlayerSpecificVisualDataTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun settingToBaseIsDirtySoTheBaseIsResent(context: ArcadeTestContext) = context.test {
+    fun `setting to base is dirty`(context: TestContext) = context.test {
         val data = PlayerSpecificVisualData()
         val value = data.register("base")
 
@@ -141,7 +145,7 @@ object PlayerSpecificVisualDataTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun eachValueHasItsOwnBit(context: ArcadeTestContext) = context.test {
+    fun `each value has unique bit`(context: TestContext) = context.test {
         val data = PlayerSpecificVisualData()
         val first = data.register("first")
         val second = data.register("second")
@@ -156,7 +160,7 @@ object PlayerSpecificVisualDataTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun removingAPlayerDiscardsTheirOverrides(context: ArcadeTestContext) = context.test {
+    fun `removing player discards their overrides`(context: TestContext) = context.test {
         val data = PlayerSpecificVisualData()
         val value = data.register("base")
 

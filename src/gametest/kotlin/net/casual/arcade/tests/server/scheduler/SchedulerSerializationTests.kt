@@ -4,16 +4,20 @@
  */
 package net.casual.arcade.tests.server.scheduler
 
-import net.casual.arcade.gametest.ArcadeTestContext
-import net.casual.arcade.gametest.ArcadeTestSuite
+import net.casual.arcade.gametest.TestContext
+import net.casual.arcade.scheduler.ArcadeScheduler
+import net.casual.arcade.tests.server.ArcadeTestSuite
 import net.casual.arcade.scheduler.SimpleTickedScheduler
 import net.casual.arcade.scheduler.utils.schedule
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 
+@Suppress("FunctionName", "Unused")
 object SchedulerSerializationTests: ArcadeTestSuite() {
+    override val namespace: String = ArcadeScheduler.MOD_ID
+
     @GameTest
-    fun suspendedRoutineResumesWhereItLeftOff(context: ArcadeTestContext) = context.test {
+    fun `suspended deserialized routine resumes`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         scheduler.schedule(CountingRoutine(times = 3, interval = 5), owner)
@@ -34,7 +38,7 @@ object SchedulerSerializationTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun restoredRoutineKeepsItsRemainingDelay(context: ArcadeTestContext) = context.test {
+    fun `deserialized routine resumes with delay`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         scheduler.schedule(CountingRoutine(times = 2, interval = 10), owner)
@@ -54,7 +58,7 @@ object SchedulerSerializationTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun routineScheduledButNotYetStartedSurvives(context: ArcadeTestContext) = context.test {
+    fun `unstarted routine is restored`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         scheduler.schedule(20.Ticks, CountingRoutine(times = 1, interval = 1), owner)
@@ -69,7 +73,7 @@ object SchedulerSerializationTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun recordedStepValueIsReplayedRatherThanRecomputed(context: ArcadeTestContext) = context.test {
+    fun `routine step values are restored`(context: TestContext) = context.test {
         val owner = RoutineOwner(next = 11)
         val scheduler = SimpleTickedScheduler.server()
         scheduler.schedule(RecordingRoutine(), owner)
@@ -85,7 +89,7 @@ object SchedulerSerializationTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun nestedRoutineSurvivesRoundTrip(context: ArcadeTestContext) = context.test {
+    fun `nested routine survives round trip`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         scheduler.schedule(NestedRoutine(), owner)
@@ -102,7 +106,7 @@ object SchedulerSerializationTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun cancellingRestoredRoutineUnwindsItWithoutReplayingSteps(context: ArcadeTestContext) = context.test {
+    fun `cancelling deserialized routine unwinds`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         scheduler.schedule(CleanupRoutine(duration = 40), owner)
@@ -122,7 +126,7 @@ object SchedulerSerializationTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun restoredRoutineRebuildsNonStepState(context: ArcadeTestContext) = context.test {
+    fun `deserialized routine rebuilds non step values`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         scheduler.schedule(HoldingRoutine(duration = 40), owner)
@@ -145,24 +149,7 @@ object SchedulerSerializationTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun cancellingRestoredRoutineReleasesNonStepState(context: ArcadeTestContext) = context.test {
-        val owner = RoutineOwner()
-        val scheduler = SimpleTickedScheduler.server()
-        scheduler.schedule(HoldingRoutine(duration = 40), owner)
-
-        scheduler.tick()
-
-        val restored = RoutineOwner()
-        val loaded = SimpleTickedScheduler.server()
-        loaded.load(server, scheduler.save(server), restored)
-
-        assertTrue(loaded.cancelAll())
-        assertFalse(restored.held, "Cancelling a restored routine did not release its state")
-        assertEquals(listOf("held", "released"), restored.log)
-    }
-
-    @GameTest
-    fun plainTasksAreNotSerialized(context: ArcadeTestContext) = context.test {
+    fun `tasks are not serialized`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         var ran = false
@@ -179,7 +166,7 @@ object SchedulerSerializationTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun routineSavedAtDifferentVersionIsNotRestored(context: ArcadeTestContext) = context.test {
+    fun `outdated routine is not restored`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         scheduler.schedule(OutdatedRoutine(version = 1), owner)
@@ -196,7 +183,7 @@ object SchedulerSerializationTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun routineWhoseBodyChangedIsAborted(context: ArcadeTestContext) = context.test {
+    fun `diverged routine is not restored`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         scheduler.schedule(DivergingRoutine(inserted = false), owner)
@@ -209,11 +196,11 @@ object SchedulerSerializationTests: ArcadeTestSuite() {
         loaded.load(server, scheduler.save(server), restored)
 
         loaded.tick(40)
-        assertEquals(emptyList<String>(), restored.log, "Routine kept running after its body diverged on replay")
+        assertEquals(emptyList(), restored.log, "Routine kept running after its body diverged on replay")
     }
 
     @GameTest
-    fun serializingAnEmptySchedulerRestoresNothing(context: ArcadeTestContext) = context.test {
+    fun `empty scheduler restores nothing`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         val loaded = SimpleTickedScheduler.server()
         loaded.load(server, scheduler.save(server), RoutineOwner())

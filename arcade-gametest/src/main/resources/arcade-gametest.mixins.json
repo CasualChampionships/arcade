@@ -8,7 +8,9 @@
   },
   "mixins": [
     "PlayerListMixin",
-    "ServerGamePacketListenerImplMixin"
+    "ServerGamePacketListenerImplMixin",
+    "fabric.TestAnnotationLocatorMixin",
+    "fabric.TestMethodMixin"
   ],
   "injectors": {
     "defaultRequire": 1

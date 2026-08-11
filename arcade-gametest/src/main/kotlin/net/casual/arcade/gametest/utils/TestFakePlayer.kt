@@ -6,7 +6,7 @@ package net.casual.arcade.gametest.utils
 
 import com.mojang.authlib.GameProfile
 import io.netty.channel.embedded.EmbeddedChannel
-import net.casual.arcade.gametest.ArcadeTestContext
+import net.casual.arcade.gametest.TestContext
 import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.npc.network.FakeConnection
 import net.casual.arcade.npc.network.FakeGamePacketListenerImpl
@@ -39,9 +39,9 @@ public class TestFakePlayer(
 
     /**
      * The context that created this player, used to report assertion failures against the running
-     * test. Set by [ArcadeTestContext.createTestPlayer].
+     * test. Set by [TestContext.createTestPlayer].
      */
-    public var context: ArcadeTestContext? = null
+    public var context: TestContext? = null
 
     private lateinit var channel: EmbeddedChannel
 

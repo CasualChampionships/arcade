@@ -4,11 +4,12 @@
  */
 package net.casual.arcade.tests.server.visuals
 
-import net.casual.arcade.gametest.ArcadeTestContext
-import net.casual.arcade.gametest.ArcadeTestSuite
+import net.casual.arcade.gametest.TestContext
+import net.casual.arcade.tests.server.ArcadeTestSuite
 import net.casual.arcade.observer.tracker.SimpleObserverTracker
 import net.casual.arcade.observer.utils.asObserver
 import net.casual.arcade.utils.player.username
+import net.casual.arcade.virtual.visuals.ArcadeVirtualVisuals
 import net.casual.arcade.virtual.visuals.data.DynamicVisualValues
 import net.casual.arcade.virtual.visuals.data.PlayerSpecificVisualData
 import net.casual.arcade.virtual.visuals.elements.PlayerSpecificElement
@@ -16,9 +17,12 @@ import net.casual.arcade.virtual.visuals.elements.TickableElement
 import net.casual.arcade.virtual.visuals.elements.UniversalElement
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 
+@Suppress("FunctionName", "Unused")
 object DynamicVisualValuesTests: ArcadeTestSuite() {
+    override val namespace: String = ArcadeVirtualVisuals.MOD_ID
+
     @GameTest
-    fun universalElementsGenerateDefault(context: ArcadeTestContext) = context.test {
+    fun `universal element generates base value`(context: TestContext) = context.test {
         val data = PlayerSpecificVisualData()
         val value = data.register("base")
 
@@ -32,7 +36,7 @@ object DynamicVisualValuesTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun playerSpecificElementsGenerateOverrides(context: ArcadeTestContext) = context.test {
+    fun `player specific element generates override`(context: TestContext) = context.test {
         val player = createTestPlayer()
         val observers = SimpleObserverTracker()
         observers.startObserving(player.asObserver())
@@ -52,7 +56,7 @@ object DynamicVisualValuesTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun dynamicValuesCanHaveDefaultAndOverrides(context: ArcadeTestContext) = context.test {
+    fun `dynamic value can have base and override`(context: TestContext) = context.test {
         val overridden = createTestPlayer()
         val observers = SimpleObserverTracker()
         observers.startObserving(overridden.asObserver())
@@ -72,7 +76,7 @@ object DynamicVisualValuesTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun bindingReplacesOnlyThePreviousElementOfThatKind(context: ArcadeTestContext) = context.test {
+    fun `binding element replaces previous of same kind`(context: TestContext) = context.test {
         val data = PlayerSpecificVisualData()
         val value = data.register("initial")
 
@@ -87,7 +91,7 @@ object DynamicVisualValuesTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun unbindingStopsGeneratingTheValue(context: ArcadeTestContext) = context.test {
+    fun `unbinding element stops generating value`(context: TestContext) = context.test {
         val data = PlayerSpecificVisualData()
         val value = data.register("base")
 
@@ -106,7 +110,7 @@ object DynamicVisualValuesTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun tickablesAreTickedExactlyOncePerTick(context: ArcadeTestContext) = context.test {
+    fun `tickable elements tick once per tick`(context: TestContext) = context.test {
         val dynamic = DynamicVisualValues()
 
         var ticks = 0
@@ -123,7 +127,7 @@ object DynamicVisualValuesTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun tickablesAreTickedBeforeElementsArePulled(context: ArcadeTestContext) = context.test {
+    fun `tickable elements tick before values generate`(context: TestContext) = context.test {
         val data = PlayerSpecificVisualData()
         val value = data.register(0)
 
@@ -140,7 +144,7 @@ object DynamicVisualValuesTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun removedTickablesAreNoLongerTicked(context: ArcadeTestContext) = context.test {
+    fun `removed tickable elements dont tick`(context: TestContext) = context.test {
         val dynamic = DynamicVisualValues()
 
         var ticks = 0

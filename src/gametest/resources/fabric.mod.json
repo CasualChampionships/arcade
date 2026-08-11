@@ -19,78 +19,10 @@
         "value": "net.casual.arcade.tests.server.ArcadeServerTests"
       }
     ],
-    "fabric-gametest": [
+    "arcade-gametest": [
       {
         "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.gametest.ServerBootTests"
-      },
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.gametest.TestPlayerPacketTests"
-      },
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.gametest.CoroutineTests"
-      },
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.gametest.ContextAssertionTests"
-      },
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.scheduler.SimpleTickedSchedulerTests"
-      },
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.scheduler.ScheduledTests"
-      },
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.scheduler.SchedulerCoroutineTests"
-      },
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.scheduler.GlobalTickedSchedulerTests"
-      },
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.scheduler.TaskTests"
-      },
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.scheduler.RoutineTests"
-      },
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.scheduler.SchedulerSerializationTests"
-      },
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.visuals.PlayerSpecificVisualDataTests"
-      },
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.visuals.VirtualBossbarTests"
-      },
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.visuals.VirtualSidebarTests"
-      },
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.visuals.VirtualPlayerListTests"
-      },
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.visuals.VirtualVisualObservingTests"
-      },
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.visuals.DynamicVisualValuesTests"
-      },
-      {
-        "adapter": "kotlin",
-        "value": "net.casual.arcade.tests.server.visuals.TimerElementTests"
+        "value": "net.casual.arcade.tests.server.ArcadeServerTests"
       }
     ]
   },

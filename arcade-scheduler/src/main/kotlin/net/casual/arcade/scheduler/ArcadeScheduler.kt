@@ -10,6 +10,8 @@ import org.jetbrains.annotations.ApiStatus.Internal
 
 @Internal
 public object ArcadeScheduler: ModInitializer {
+    public const val MOD_ID: String = "arcade-scheduler"
+
     override fun onInitialize() {
         TaskRegistries.load()
         GlobalTickedScheduler.loadServer()

@@ -4,12 +4,13 @@
  */
 package net.casual.arcade.tests.server.visuals
 
-import net.casual.arcade.gametest.ArcadeTestContext
-import net.casual.arcade.gametest.ArcadeTestSuite
+import net.casual.arcade.gametest.TestContext
+import net.casual.arcade.tests.server.ArcadeTestSuite
 import net.casual.arcade.observer.utils.asObserver
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.coroutine.delay
 import net.casual.arcade.utils.player.kick
+import net.casual.arcade.virtual.visuals.ArcadeVirtualVisuals
 import net.casual.arcade.virtual.visuals.bossbar.VirtualBossbar
 import net.casual.arcade.virtual.visuals.sidebar.SidebarComponent
 import net.casual.arcade.virtual.visuals.sidebar.VirtualSidebar
@@ -21,9 +22,12 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket
 import net.minecraft.network.protocol.game.ClientboundSetScorePacket
 
+@Suppress("FunctionName", "Unused")
 object VirtualVisualObservingTests: ArcadeTestSuite() {
+    override val namespace: String = ArcadeVirtualVisuals.MOD_ID
+
     @GameTest(maxTicks = 400)
-    fun observingTracksEveryVisualAnObserverIsShown(context: ArcadeTestContext) = context.test {
+    fun `observer tracks every observed visual`(context: TestContext) = context.test {
         val player = createTestPlayer()
         val observer = player.asObserver()
 
@@ -41,7 +45,7 @@ object VirtualVisualObservingTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun observingASecondSidebarReplacesTheFirst(context: ArcadeTestContext) = context.test {
+    fun `observing second sidebar replaces first`(context: TestContext) = context.test {
         val player = createTestPlayer()
         val observer = player.asObserver()
 
@@ -65,7 +69,7 @@ object VirtualVisualObservingTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun leavingStopsObservingEveryVisual(context: ArcadeTestContext) = context.test {
+    fun `leaving stops observing every visual`(context: TestContext) = context.test {
         val player = createTestPlayer()
         val observer = player.asObserver()
 
@@ -83,7 +87,7 @@ object VirtualVisualObservingTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun visualsNoLongerTicksPacketsToAnObserverWhoLeft(context: ArcadeTestContext) = context.test {
+    fun `visuals dont send packets to left observer`(context: TestContext) = context.test {
         val player = createTestPlayer()
         val observer = player.asObserver()
 
@@ -102,7 +106,7 @@ object VirtualVisualObservingTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun observingTheSameVisualTwiceIsANoop(context: ArcadeTestContext) = context.test {
+    fun `observing same visual twice is noop`(context: TestContext) = context.test {
         val player = createTestPlayer()
         val observer = player.asObserver()
 

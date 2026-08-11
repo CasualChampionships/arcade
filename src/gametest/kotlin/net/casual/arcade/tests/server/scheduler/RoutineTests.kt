@@ -4,16 +4,20 @@
  */
 package net.casual.arcade.tests.server.scheduler
 
-import net.casual.arcade.gametest.ArcadeTestContext
-import net.casual.arcade.gametest.ArcadeTestSuite
+import net.casual.arcade.gametest.TestContext
+import net.casual.arcade.scheduler.ArcadeScheduler
+import net.casual.arcade.tests.server.ArcadeTestSuite
 import net.casual.arcade.scheduler.SimpleTickedScheduler
 import net.casual.arcade.scheduler.utils.schedule
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 
+@Suppress("FunctionName", "Unused")
 object RoutineTests: ArcadeTestSuite() {
+    override val namespace: String = ArcadeScheduler.MOD_ID
+
     @GameTest
-    fun routineDoesNotStartUntilTheSchedulerIsTicked(context: ArcadeTestContext) = context.test {
+    fun `routine starts after scheduler tick`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         scheduler.schedule(CountingRoutine(times = 1, interval = 1), owner)
@@ -24,7 +28,7 @@ object RoutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun routineStartsAfterInitialDelay(context: ArcadeTestContext) = context.test {
+    fun `routine starts after delay`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         scheduler.schedule(5.Ticks, CountingRoutine(times = 1, interval = 1), owner)
@@ -36,7 +40,7 @@ object RoutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun routineRunsEveryStep(context: ArcadeTestContext) = context.test {
+    fun `routine runs every step`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         scheduler.schedule(CountingRoutine(times = 3, interval = 2), owner)
@@ -47,7 +51,7 @@ object RoutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun routineSuspendsBetweenItsSteps(context: ArcadeTestContext) = context.test {
+    fun `routine suspends between steps`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         scheduler.schedule(CountingRoutine(times = 3, interval = 5), owner)
@@ -59,7 +63,7 @@ object RoutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun routineHandleReportsWhenItHasFinished(context: ArcadeTestContext) = context.test {
+    fun `routine reports when finished`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         val handle = scheduler.schedule(CountingRoutine(times = 2, interval = 2), owner)
@@ -72,7 +76,7 @@ object RoutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun stepReturnsTheValueItsBlockProduced(context: ArcadeTestContext) = context.test {
+    fun `routine step returns block return value`(context: TestContext) = context.test {
         val owner = RoutineOwner(next = 7)
         val scheduler = SimpleTickedScheduler.server()
         scheduler.schedule(RecordingRoutine(), owner)
@@ -82,7 +86,7 @@ object RoutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun nestedRoutineSharesTheOuterRoutinesSuspensionPoints(context: ArcadeTestContext) = context.test {
+    fun `nested routine suspends correctly`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         scheduler.schedule(NestedRoutine(), owner)
@@ -94,7 +98,7 @@ object RoutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun cancellingRunningRoutineUnwindsIt(context: ArcadeTestContext) = context.test {
+    fun `routine unwinds when cancelled`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         val handle = scheduler.schedule(CleanupRoutine(duration = 40), owner)
@@ -111,7 +115,7 @@ object RoutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun cancellingRoutineTwiceOnlyUnwindsItOnce(context: ArcadeTestContext) = context.test {
+    fun `routine only unwinds once`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         val handle = scheduler.schedule(CleanupRoutine(duration = 40), owner)
@@ -123,7 +127,7 @@ object RoutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun cancellingRoutineBeforeItStartsRunsNothing(context: ArcadeTestContext) = context.test {
+    fun `cancelled routine doesnt run`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         val handle = scheduler.schedule(20.Ticks, CleanupRoutine(duration = 40), owner)
@@ -137,7 +141,7 @@ object RoutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun cancelAllUnwindsRoutines(context: ArcadeTestContext) = context.test {
+    fun `routines unwind when scheduler cancelled`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         scheduler.schedule(CleanupRoutine(duration = 40), owner)
@@ -148,7 +152,7 @@ object RoutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun clearDiscardsRoutinesWithoutUnwindingThem(context: ArcadeTestContext) = context.test {
+    fun `routines dont unwind when scheduler cleared`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()
         scheduler.schedule(CleanupRoutine(duration = 40), owner)
@@ -160,7 +164,7 @@ object RoutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun unregisteredRoutineCannotBeScheduled(context: ArcadeTestContext) = context.test {
+    fun `unregistered routine is not scheduled`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         assertThrows<IllegalArgumentException> {
             scheduler.schedule(UnregisteredRoutine(), RoutineOwner())
@@ -168,7 +172,7 @@ object RoutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun routineOwnerIsTheOneItWasScheduledWith(context: ArcadeTestContext) = context.test {
+    fun `routine owner is persistent`(context: TestContext) = context.test {
         val first = RoutineOwner()
         val second = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()

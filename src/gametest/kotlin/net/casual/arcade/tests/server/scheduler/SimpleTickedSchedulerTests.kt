@@ -4,8 +4,9 @@
  */
 package net.casual.arcade.tests.server.scheduler
 
-import net.casual.arcade.gametest.ArcadeTestContext
-import net.casual.arcade.gametest.ArcadeTestSuite
+import net.casual.arcade.gametest.TestContext
+import net.casual.arcade.scheduler.ArcadeScheduler
+import net.casual.arcade.tests.server.ArcadeTestSuite
 import net.casual.arcade.scheduler.SimpleTickedScheduler
 import net.casual.arcade.scheduler.TickedScheduler.Companion.schedule
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -13,15 +14,18 @@ import net.casual.arcade.utils.side.LogicalSide
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 
+@Suppress("FunctionName", "Unused")
 object SimpleTickedSchedulerTests: ArcadeTestSuite() {
+    override val namespace: String = ArcadeScheduler.MOD_ID
+
     @GameTest
-    fun schedulerReportsItsSide(context: ArcadeTestContext) = context.test {
+    fun `simple scheduler reports side correctly`(context: TestContext) = context.test {
         SimpleTickedScheduler.server().target shouldEqual LogicalSide.Server
         SimpleTickedScheduler.client().target shouldEqual LogicalSide.Client
     }
 
     @GameTest
-    fun taskDoesNotRunUntilScheduledIsTicked(context: ArcadeTestContext) = context.test {
+    fun `task is not ran until scheduler is ticked`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var ran = false
         scheduler.schedule(MinecraftTimeDuration.ZERO) { ran = true }
@@ -32,7 +36,7 @@ object SimpleTickedSchedulerTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun taskRunsOnlyOnce(context: ArcadeTestContext) = context.test {
+    fun `scheduler runs task only once`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var count = 0
         scheduler.schedule(MinecraftTimeDuration.ZERO) { count += 1 }
@@ -42,7 +46,7 @@ object SimpleTickedSchedulerTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun taskRunsAfterItsDelay(context: ArcadeTestContext) = context.test {
+    fun `task runs after delay`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var ran = false
         scheduler.schedule(3.Ticks) { ran = true }
@@ -54,7 +58,7 @@ object SimpleTickedSchedulerTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun tasksRunInTheOrderTheyWereScheduled(context: ArcadeTestContext) = context.test {
+    fun `tasks run in scheduled order`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         val order = ArrayList<Int>()
         scheduler.schedule(1.Ticks) { order.add(1) }
@@ -66,7 +70,7 @@ object SimpleTickedSchedulerTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun taskScheduledDuringTickRunsOnLaterTick(context: ArcadeTestContext) = context.test {
+    fun `task scheduled during tick runs later`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var nested = false
         scheduler.schedule(MinecraftTimeDuration.ZERO) {
@@ -80,7 +84,7 @@ object SimpleTickedSchedulerTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun delayMeansTheSameFromInsideATickAsFromOutside(context: ArcadeTestContext) = context.test {
+    fun `delay is consistent inside and outside tick`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var outer = 0
         var inner = 0
@@ -103,7 +107,7 @@ object SimpleTickedSchedulerTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun zeroDelayFromInsideATickRunsOnTheNextTick(context: ArcadeTestContext) = context.test {
+    fun `zero delay inside tick runs next tick`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var ran = false
         scheduler.schedule(MinecraftTimeDuration.ZERO) {
@@ -117,11 +121,11 @@ object SimpleTickedSchedulerTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun throwingTaskDoesNotPreventOtherTasks(context: ArcadeTestContext) = context.test {
+    fun `throwing task doesnt affect other tasks`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var ran = false
         scheduler.schedule(MinecraftTimeDuration.ZERO) {
-            throw IllegalStateException("Intentionally thrown by throwingTaskDoesNotPreventOtherTasks")
+            throw IllegalStateException("Intentionally thrown")
         }
         scheduler.schedule(MinecraftTimeDuration.ZERO) { ran = true }
 
@@ -135,7 +139,7 @@ object SimpleTickedSchedulerTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun intOverloadSchedulesInTicks(context: ArcadeTestContext) = context.test {
+    fun `int delay schedules in ticks`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var ran = false
         scheduler.schedule(2) { ran = true }
@@ -147,7 +151,7 @@ object SimpleTickedSchedulerTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun cancelRemovesTasksAtTheGivenDelta(context: ArcadeTestContext) = context.test {
+    fun `cancelling delta removes its tasks`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var cancelled = false
         var kept = false
@@ -161,7 +165,7 @@ object SimpleTickedSchedulerTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun cancelAllRemovesEveryTask(context: ArcadeTestContext) = context.test {
+    fun `cancelling all removes every task`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var count = 0
         scheduler.schedule(MinecraftTimeDuration.ZERO) { count += 1 }
@@ -175,7 +179,7 @@ object SimpleTickedSchedulerTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun cancelAllFinishesEveryHandle(context: ArcadeTestContext) = context.test {
+    fun `cancelling all finishes every handle`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         val handle = scheduler.schedule(20.Ticks) { }
 
@@ -184,7 +188,7 @@ object SimpleTickedSchedulerTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun clearRemovesEveryTaskWithoutCancellingIt(context: ArcadeTestContext) = context.test {
+    fun `clearing removes tasks without cancelling`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var ran = false
         val handle = scheduler.schedule(5.Ticks) { ran = true }

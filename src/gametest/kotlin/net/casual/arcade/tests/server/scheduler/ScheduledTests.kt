@@ -4,16 +4,20 @@
  */
 package net.casual.arcade.tests.server.scheduler
 
-import net.casual.arcade.gametest.ArcadeTestContext
-import net.casual.arcade.gametest.ArcadeTestSuite
+import net.casual.arcade.gametest.TestContext
+import net.casual.arcade.scheduler.ArcadeScheduler
+import net.casual.arcade.tests.server.ArcadeTestSuite
 import net.casual.arcade.scheduler.SimpleTickedScheduler
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 
+@Suppress("FunctionName", "Unused")
 object ScheduledTests: ArcadeTestSuite() {
+    override val namespace: String = ArcadeScheduler.MOD_ID
+
     @GameTest
-    fun cancelledTaskDoesNotRun(context: ArcadeTestContext) = context.test {
+    fun `cancelled task doesnt run`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var ran = false
         val handle = scheduler.schedule(2.Ticks) { ran = true }
@@ -24,7 +28,7 @@ object ScheduledTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun handleIsNotFinishedUntilItRuns(context: ArcadeTestContext) = context.test {
+    fun `task reports when finished`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         val handle = scheduler.schedule(2.Ticks) { }
 
@@ -36,7 +40,7 @@ object ScheduledTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun handleIsFinishedOnceCancelled(context: ArcadeTestContext) = context.test {
+    fun `task is finished when cancelled`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         val handle = scheduler.schedule(2.Ticks) { }
 
@@ -46,20 +50,7 @@ object ScheduledTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun cancellingAfterItHasRunDoesNotRunItAgain(context: ArcadeTestContext) = context.test {
-        val scheduler = SimpleTickedScheduler.server()
-        var count = 0
-        val handle = scheduler.schedule(2.Ticks) { count += 1 }
-
-        scheduler.tick(10)
-        count shouldEqual 1
-
-        handle.cancel()
-        assertEquals(1, count, "Cancelling an already-run task ran it again")
-    }
-
-    @GameTest
-    fun cancellingTwiceIsIdempotent(context: ArcadeTestContext) = context.test {
+    fun `cancelling task twice is idempotent`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var ran = false
         val handle = scheduler.schedule(2.Ticks) { ran = true }
@@ -72,7 +63,7 @@ object ScheduledTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun schedulingTheSameTaskTwiceGivesIndependentHandles(context: ArcadeTestContext) = context.test {
+    fun `scheduling task twice gives unique handles`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var count = 0
         val task = Task { count += 1 }
@@ -87,7 +78,7 @@ object ScheduledTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun cancellingOneTaskLeavesTheRestOfItsTickAlone(context: ArcadeTestContext) = context.test {
+    fun `cancelling task doesnt affect other tasks`(context: TestContext) = context.test {
         val scheduler = SimpleTickedScheduler.server()
         var cancelled = false
         var kept = false

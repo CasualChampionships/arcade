@@ -4,13 +4,14 @@
  */
 package net.casual.arcade.tests.server.visuals
 
-import net.casual.arcade.gametest.ArcadeTestContext
-import net.casual.arcade.gametest.ArcadeTestSuite
+import net.casual.arcade.gametest.TestContext
+import net.casual.arcade.tests.server.ArcadeTestSuite
 import net.casual.arcade.observer.utils.asObserver
 import net.casual.arcade.utils.ClientboundPlayerInfoUpdatePacket
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.coroutine.delay
 import net.casual.arcade.utils.player.username
+import net.casual.arcade.virtual.visuals.ArcadeVirtualVisuals
 import net.casual.arcade.virtual.visuals.tab.DynamicVirtualPlayerList
 import net.casual.arcade.virtual.visuals.tab.PlayerListEntries
 import net.casual.arcade.virtual.visuals.tab.VirtualPlayerList
@@ -27,9 +28,12 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.GameType
 import java.util.*
 
+@Suppress("FunctionName", "Unused")
 object VirtualPlayerListTests: ArcadeTestSuite() {
+    override val namespace: String = ArcadeVirtualVisuals.MOD_ID
+
     @GameTest(maxTicks = 400)
-    fun observerIsSentTheHeaderAndFooter(context: ArcadeTestContext) = context.test {
+    fun `header and footer are sent when observing`(context: TestContext) = context.test {
         val player = createTestPlayer()
 
         val list = VirtualPlayerList(server, FixedEntries)
@@ -44,7 +48,7 @@ object VirtualPlayerListTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun aHeaderOverrideIsOnlySentToThatPlayer(context: ArcadeTestContext) = context.test {
+    fun `header override is only sent to that player`(context: TestContext) = context.test {
         val overridden = createTestPlayer()
         val other = createTestPlayer()
 
@@ -68,7 +72,7 @@ object VirtualPlayerListTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun anUnchangedHeaderSendsNothing(context: ArcadeTestContext) = context.test {
+    fun `unchanged header sends nothing`(context: TestContext) = context.test {
         val player = createTestPlayer()
 
         val list = VirtualPlayerList(server, FixedEntries)
@@ -86,7 +90,7 @@ object VirtualPlayerListTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun elementsGenerateTheHeaderAndFooter(context: ArcadeTestContext) = context.test {
+    fun `elements generate header and footer`(context: TestContext) = context.test {
         val player = createTestPlayer()
 
         val list = DynamicVirtualPlayerList(server, FixedEntries)
@@ -105,8 +109,8 @@ object VirtualPlayerListTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun generatedOverridesAreDiscardedWhenAnObserverStopsObserving(
-        context: ArcadeTestContext
+    fun `generated overrides are discarded when not observing`(
+        context: TestContext
     ) = context.test {
         val player = createTestPlayer()
 
@@ -124,7 +128,7 @@ object VirtualPlayerListTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun realPlayersAreUnlistedForObservers(context: ArcadeTestContext) = context.test {
+    fun `real players are unlisted for observers`(context: TestContext) = context.test {
         val player = createTestPlayer()
 
         val list = VirtualPlayerList(server, FixedEntries)
@@ -144,7 +148,7 @@ object VirtualPlayerListTests: ArcadeTestSuite() {
     }
 
     @GameTest(maxTicks = 400)
-    fun realPlayersAreListedForNonObservers(context: ArcadeTestContext) = context.test {
+    fun `real players are listed for non observers`(context: TestContext) = context.test {
         val player = createTestPlayer()
 
         VirtualPlayerList(server, FixedEntries)

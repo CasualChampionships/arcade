@@ -4,16 +4,20 @@
  */
 package net.casual.arcade.tests.server.visuals
 
-import net.casual.arcade.gametest.ArcadeTestContext
-import net.casual.arcade.gametest.ArcadeTestSuite
+import net.casual.arcade.gametest.TestContext
+import net.casual.arcade.tests.server.ArcadeTestSuite
 import net.casual.arcade.utils.TimeUtils.Ticks
+import net.casual.arcade.virtual.visuals.ArcadeVirtualVisuals
 import net.casual.arcade.virtual.visuals.utils.elements.timer.TimerElement
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 import net.minecraft.network.chat.Component
 
+@Suppress("FunctionName", "Unused")
 object TimerElementTests: ArcadeTestSuite() {
+    override val namespace: String = ArcadeVirtualVisuals.MOD_ID
+
     @GameTest
-    fun timerCountsDownAsItIsTicked(context: ArcadeTestContext) = context.test {
+    fun `timer counts down when ticked`(context: TestContext) = context.test {
         val timer = TimerElement(10.Ticks)
 
         timer.getRemainingDuration() shouldEqual 10.Ticks
@@ -25,7 +29,7 @@ object TimerElementTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun progressRunsFromZeroToOne(context: ArcadeTestContext) = context.test {
+    fun `timer progress runs from zero to one`(context: TestContext) = context.test {
         val timer = TimerElement(4.Ticks)
 
         timer.getProgress() shouldEqual 0.0F
@@ -38,7 +42,7 @@ object TimerElementTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun timerCompletesOnceTheDurationHasElapsed(context: ArcadeTestContext) = context.test {
+    fun `timer completes after duration`(context: TestContext) = context.test {
         val timer = TimerElement(2.Ticks)
 
         assertFalse(timer.complete, "Expected a fresh timer to not be complete")
@@ -51,7 +55,7 @@ object TimerElementTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun settingTheRemainingDurationKeepsTheTotal(context: ArcadeTestContext) = context.test {
+    fun `setting remaining duration keeps total`(context: TestContext) = context.test {
         val timer = TimerElement(20.Ticks)
         timer.setRemainingDuration(5.Ticks)
 
@@ -60,7 +64,7 @@ object TimerElementTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun aTimerWithoutADurationNeverAdvances(context: ArcadeTestContext) = context.test {
+    fun `timer without duration never advances`(context: TestContext) = context.test {
         val timer = TimerElement()
 
         assertFalse(timer.hasDuration, "Expected the timer to have no duration")
@@ -72,7 +76,7 @@ object TimerElementTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun removingTheDurationStopsTheCountdown(context: ArcadeTestContext) = context.test {
+    fun `removing duration stops timer`(context: TestContext) = context.test {
         val timer = TimerElement(10.Ticks)
         timer.tick(server)
         timer.removeDuration()
@@ -85,7 +89,7 @@ object TimerElementTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun settingTheDurationRestartsTheTimer(context: ArcadeTestContext) = context.test {
+    fun `setting duration restarts timer`(context: TestContext) = context.test {
         val timer = TimerElement(2.Ticks)
         repeat(3) { timer.tick(server) }
         assertTrue(timer.complete, "Expected the timer to have completed")
@@ -97,7 +101,7 @@ object TimerElementTests: ArcadeTestSuite() {
     }
 
     @GameTest
-    fun elementsReadTheTimerWithoutAdvancingIt(context: ArcadeTestContext) = context.test {
+    fun `timer elements dont advance timer`(context: TestContext) = context.test {
         val timer = TimerElement(10.Ticks)
         val progress = timer.progress()
         val remaining = timer.remaining { duration -> Component.literal("${duration.ticks}") }
