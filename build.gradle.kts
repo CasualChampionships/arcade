@@ -40,6 +40,12 @@ loom {
                 layout.buildDirectory.file("gametest-report.xml").get().asFile.absolutePath
             )
         }
+
+        create("gameTestServer") {
+            server()
+            sourceSet.set("gametest")
+            runDirectory.set(layout.projectDirectory.dir("run/gametest/${libs.versions.minecraft.get()}"))
+        }
     }
 }
 
