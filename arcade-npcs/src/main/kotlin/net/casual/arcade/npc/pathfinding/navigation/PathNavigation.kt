@@ -307,7 +307,7 @@ public open class PathNavigation(public val player: FakePlayer) {
         internal fun registerEvents() {
             GlobalEventHandler.Server.register<LevelBlockChangedEvent> { (level, pos, old, new) ->
                 val extension = level.navigatingPlayersExtension
-                val shouldUpdateNavigating = extension.empty()
+                val shouldUpdateNavigating = !extension.empty()
                     && Shapes.joinIsNotEmpty(old.getCollisionShape(level, pos), new.getCollisionShape(level, pos), BooleanOp.NOT_SAME)
                 if (shouldUpdateNavigating) {
                     extension.forEachPlayer { player ->
