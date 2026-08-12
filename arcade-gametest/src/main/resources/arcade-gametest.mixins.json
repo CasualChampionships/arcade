@@ -9,6 +9,7 @@
   "mixins": [
     "PlayerListMixin",
     "ServerGamePacketListenerImplMixin",
+    "StructureTemplateManagerMixin",
     "fabric.TestAnnotationLocatorMixin",
     "fabric.TestMethodMixin"
   ],

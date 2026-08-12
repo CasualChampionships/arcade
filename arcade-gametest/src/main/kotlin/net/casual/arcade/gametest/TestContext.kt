@@ -22,6 +22,7 @@ import net.minecraft.gametest.framework.UnknownGameTestException
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.GameType
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -104,6 +105,7 @@ public class TestContext(public val helper: GameTestHelper) {
         val profile = GameProfile(UUIDUtil.createOfflinePlayerUUID(name), name)
         val player = FakePlayer.join(this.server, profile, ::TestFakePlayer).await()
         player.context = this
+        player.setGameMode(GameType.SURVIVAL)
         this.players.add(player)
 
         if (!recordLoginPackets) {
@@ -273,6 +275,29 @@ public class TestContext(public val helper: GameTestHelper) {
         condition: () -> Boolean
     ) {
         this.assertEventually(timeout, Component.literal(message), condition)
+    }
+
+    public suspend fun assertNever(
+        duration: MinecraftTimeDuration = 5.Seconds,
+        message: Component? = null,
+        condition: () -> Boolean
+    ) {
+        var remaining = duration.ticks
+        while (remaining > 0) {
+            if (condition.invoke()) {
+                this.fail(message ?: Component.literal("Condition was met within $duration"))
+            }
+            delay(1.Ticks)
+            remaining -= 1
+        }
+    }
+
+    public suspend fun assertNever(
+        duration: MinecraftTimeDuration = 5.Seconds,
+        message: String,
+        condition: () -> Boolean
+    ) {
+        this.assertNever(duration, Component.literal(message), condition)
     }
 
     private fun cleanup() {

@@ -16,8 +16,8 @@ import net.casual.arcade.npc.mixins.LivingEntityAccessor
 import net.casual.arcade.npc.network.FakeConnection
 import net.casual.arcade.npc.network.FakeGamePacketListenerImpl
 import net.casual.arcade.npc.network.FakeLoginPacketListenerImpl
-import net.casual.arcade.npc.pathfinding.navigation.NPCAmphibiousPathNavigation
-import net.casual.arcade.npc.pathfinding.navigation.NPCPathNavigation
+import net.casual.arcade.npc.pathfinding.execution.MovementControls
+import net.casual.arcade.npc.pathfinding.navigation.PathNavigation
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.player.DynamicResolvableProfile
 import net.casual.arcade.utils.player.server
@@ -68,7 +68,7 @@ public open class FakePlayer(
 
     public val moveControl: NPCMoveControl = NPCMoveControl(this)
     public val lookControl: NPCLookControl = NPCLookControl(this)
-    public val navigation: NPCPathNavigation = this.createNavigation()
+    public val navigation: PathNavigation = this.createNavigation()
 
     public val input: NPCInput = NPCInput()
 
@@ -97,8 +97,8 @@ public open class FakePlayer(
         return DefaultAttributes.getSupplier(EntityTypes.PLAYER)
     }
 
-    public open fun createNavigation(): NPCPathNavigation {
-        return NPCAmphibiousPathNavigation(this)
+    public open fun createNavigation(): PathNavigation {
+        return PathNavigation(this)
     }
 
     public open fun setPathfindingMalus(type: PathType, float: Float) {
@@ -142,14 +142,14 @@ public open class FakePlayer(
     override fun aiStep() {
         val wasJumping = this.input.jump
 
-        if (this.isImmobile) {
-            this.input.reset()
-        } else {
-            this.navigation.tick()
+        this.input.reset()
 
+        if (!this.isImmobile) {
             this.customServerAiStep(this.level())
 
-            this.moveControl.tick()
+            if (!this.navigation.tick(this.input)) {
+                this.moveControl.tick()
+            }
             this.lookControl.tick()
         }
 
@@ -209,6 +209,13 @@ public open class FakePlayer(
     }
 
     override fun applyInput() {
+        val direction = this.input.moveDirection
+        if (direction != null) {
+            MovementControls.resolveMoveDirection(
+                this, this.input, direction.x, direction.z, this.input.moveSpeed
+            )
+        }
+
         val modified = this.modifyInput(this.input.moveVector)
         this.xxa = modified.x
         this.zza = modified.y
@@ -243,10 +250,12 @@ public open class FakePlayer(
 
     override fun registerDebugValues(level: ServerLevel, registration: DebugValueSource.Registration) {
         registration.register(DebugSubscriptions.ENTITY_PATHS) {
-            val path = this.navigation.path
-            when {
-                path == null || path.debugData() == null -> null
-                else -> DebugPathInfo(path.copy(), this.navigation.maxDistanceToWaypoint.toFloat())
+            when (val path = this.navigation.path) {
+                null -> null
+                else -> DebugPathInfo(
+                    path.asVanillaPath().copy(),
+                    this.navigation.maxDistanceToWaypoint.toFloat()
+                )
             }
         }
         if (!this.brain.isBrainDead) {

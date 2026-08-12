@@ -4,13 +4,26 @@
  */
 package net.casual.arcade.npc.ai
 
+import net.casual.arcade.npc.pathfinding.execution.MovementControls
 import net.minecraft.world.entity.player.Input
 import net.minecraft.world.phys.Vec2
+import net.minecraft.world.phys.Vec3
 
 public class NPCInput {
     public var keyPresses: Input = Input.EMPTY
 
     public var moveVector: Vec2 = Vec2.ZERO
+
+    public var moveDirection: Vec3? = null
+        private set
+
+    public var moveSpeed: Float = 1.0F
+        private set
+
+    public fun setMoveDirection(direction: Vec3, speed: Float) {
+        this.moveDirection = direction
+        this.moveSpeed = speed
+    }
 
     public var forward: Boolean
         get() = this.keyPresses.forward()
@@ -41,6 +54,7 @@ public class NPCInput {
         set(value) { this.keyPresses = this.keyPresses.withSprint(value) }
 
     public fun setMoveVector(left: Float, forward: Float) {
+        this.moveDirection = null
         this.moveVector = Vec2(left, forward)
         this.keyPresses = Input(
             forward > 0.0F,
@@ -57,9 +71,23 @@ public class NPCInput {
         return this.moveVector.y > 1.0E-5F
     }
 
+    public fun scaleMoveVector(factor: Float) {
+        if (factor == 1.0F) {
+            return
+        }
+        val direction = this.moveDirection
+        val speed = this.moveSpeed
+        this.setMoveVector(this.moveVector.x * factor, this.moveVector.y * factor)
+        if (direction != null) {
+            this.setMoveDirection(direction, speed * factor)
+        }
+    }
+
     public fun reset() {
         this.keyPresses = Input.EMPTY
         this.moveVector = Vec2.ZERO
+        this.moveDirection = null
+        this.moveSpeed = 1.0F
     }
 
     private fun Input.withForward(value: Boolean): Input {

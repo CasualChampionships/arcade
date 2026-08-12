@@ -19,8 +19,7 @@
     "bugfixes.TrackedEntityMixin",
     "compat.fabric_api.ServerPlayNetworkingMixin",
     "configuration.PrepareSpawnTaskAccessor",
-    "configuration.PrepareSpawnTaskReadyMixin",
-    "pathfinding.PathfindingContextAccessor"
+    "configuration.PrepareSpawnTaskReadyMixin"
   ],
   "injectors": {
     "defaultRequire": 1

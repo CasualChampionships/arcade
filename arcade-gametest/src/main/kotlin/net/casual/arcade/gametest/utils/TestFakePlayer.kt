@@ -37,10 +37,6 @@ public class TestFakePlayer(
 ): FakePlayer(server, level, profile, info) {
     private val recorded = ArrayList<Packet<*>>()
 
-    /**
-     * The context that created this player, used to report assertion failures against the running
-     * test. Set by [TestContext.createTestPlayer].
-     */
     public var context: TestContext? = null
 
     private lateinit var channel: EmbeddedChannel
@@ -58,14 +54,9 @@ public class TestFakePlayer(
         }
     }
 
-    /**
-     * Fails the running test with [message].
-     */
     public fun fail(message: Component): Nothing {
         val context = this.context
-        if (context != null) {
-            context.fail(message)
-        }
+        context?.fail(message)
         throw GameTestAssertException(message, 0)
     }
 
