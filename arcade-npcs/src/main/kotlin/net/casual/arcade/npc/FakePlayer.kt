@@ -64,8 +64,6 @@ public open class FakePlayer(
     profile: GameProfile,
     info: ClientInformation
 ): ServerPlayer(server, level, profile, info) {
-    private val pathfindingMalus = Object2FloatOpenHashMap<PathType>()
-
     public val moveControl: NPCMoveControl = NPCMoveControl(this)
     public val lookControl: NPCLookControl = NPCLookControl(this)
     public val navigation: PathNavigation = this.createNavigation()
@@ -99,18 +97,6 @@ public open class FakePlayer(
 
     public open fun createNavigation(): PathNavigation {
         return PathNavigation(this)
-    }
-
-    public open fun setPathfindingMalus(type: PathType, float: Float) {
-        if (type.malus == float) {
-            this.pathfindingMalus.removeFloat(type)
-        } else {
-            this.pathfindingMalus.put(type, float)
-        }
-    }
-
-    public open fun getPathfindingMalus(type: PathType): Float {
-        return this.pathfindingMalus.getOrDefault(type as Any, type.malus)
     }
 
     public open fun canFireProjectileWeapon(weapon: ProjectileWeaponItem): Boolean {
