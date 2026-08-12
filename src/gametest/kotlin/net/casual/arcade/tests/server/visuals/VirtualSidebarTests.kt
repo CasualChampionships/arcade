@@ -25,7 +25,7 @@ object VirtualSidebarTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `sidebar height matches highest row`(context: TestContext) = context.test {
-        val player = createTestPlayer()
+        val player = this.createTestPlayer()
 
         val sidebar = VirtualSidebar()
         sidebar.row(0).set(SidebarComponent.withNoScore(Component.literal("bottom")))
@@ -40,7 +40,7 @@ object VirtualSidebarTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `unset sidebar row is blank`(context: TestContext) = context.test {
-        val player = createTestPlayer()
+        val player = this.createTestPlayer()
 
         val sidebar = VirtualSidebar()
         sidebar.row(1).set(SidebarComponent.withNoScore(Component.literal("top")))
@@ -55,7 +55,7 @@ object VirtualSidebarTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `unset sidebar has no rows`(context: TestContext) = context.test {
-        val player = createTestPlayer()
+        val player = this.createTestPlayer()
 
         val sidebar = VirtualSidebar()
         sidebar.startObservingAndSendPackets(player.asObserver())
@@ -66,7 +66,7 @@ object VirtualSidebarTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `only changed sidebar rows are sent`(context: TestContext) = context.test {
-        val player = createTestPlayer()
+        val player = this.createTestPlayer()
 
         val sidebar = VirtualSidebar()
         sidebar.setRows(SidebarComponents.of(
@@ -90,7 +90,7 @@ object VirtualSidebarTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `clearing top sidebar row resets scores`(context: TestContext) = context.test {
-        val player = createTestPlayer()
+        val player = this.createTestPlayer()
 
         val sidebar = VirtualSidebar()
         sidebar.row(0).set(SidebarComponent.withNoScore(Component.literal("bottom")))
@@ -112,7 +112,7 @@ object VirtualSidebarTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `setting sidebar rows clears extra rows`(context: TestContext) = context.test {
-        val player = createTestPlayer()
+        val player = this.createTestPlayer()
 
         val sidebar = VirtualSidebar()
         sidebar.setRows(SidebarComponents.of(
@@ -135,8 +135,8 @@ object VirtualSidebarTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `sidebar row override is only sent to that player`(context: TestContext) = context.test {
-        val overridden = createTestPlayer()
-        val other = createTestPlayer()
+        val overridden = this.createTestPlayer()
+        val other = this.createTestPlayer()
 
         val sidebar = VirtualSidebar()
         sidebar.row(0).set(SidebarComponent.withNoScore(Component.literal("shared")))

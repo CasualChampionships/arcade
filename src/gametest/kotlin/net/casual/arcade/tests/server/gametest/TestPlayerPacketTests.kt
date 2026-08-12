@@ -5,7 +5,6 @@
 package net.casual.arcade.tests.server.gametest
 
 import net.casual.arcade.gametest.TestContext
-import net.casual.arcade.scheduler.ArcadeScheduler
 import net.casual.arcade.tests.server.ArcadeTestSuite
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.coroutine.delay
@@ -19,7 +18,7 @@ object TestPlayerPacketTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 200)
     fun `test player records packets`(context: TestContext) = context.test {
-        val player = createTestPlayer()
+        val player = this.createTestPlayer()
 
         val message = Component.literal("You've been poked!")
         val packet = ClientboundSystemChatPacket(message, false)

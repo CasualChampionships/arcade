@@ -32,7 +32,7 @@ object TaskTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `player task resolves player`(context: TestContext) = context.test {
-        val player = createTestPlayer()
+        val player = this.createTestPlayer()
         val scheduler = SimpleTickedScheduler.server()
         var resolved: ServerPlayer? = null
         scheduler.schedule(MinecraftTimeDuration.ZERO, PlayerTask(player) { resolved = it })
@@ -43,7 +43,7 @@ object TaskTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `player task skipped when player leaves`(context: TestContext) = context.test {
-        val player = createTestPlayer()
+        val player = this.createTestPlayer()
         val scheduler = SimpleTickedScheduler.server()
         var ran = false
         scheduler.schedule(MinecraftTimeDuration.ZERO, PlayerTask(player) { ran = true })

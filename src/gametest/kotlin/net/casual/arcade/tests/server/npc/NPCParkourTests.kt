@@ -7,12 +7,10 @@ package net.casual.arcade.tests.server.npc
 import net.casual.arcade.gametest.TestContext
 import net.casual.arcade.gametest.utils.TestFakePlayer
 import net.casual.arcade.gametest.utils.absolute
+import net.casual.arcade.gametest.utils.createTestPlayer
 import net.casual.arcade.npc.ArcadeNPCs
 import net.casual.arcade.npc.pathfinding.movement.types.ParkourMovementType
 import net.casual.arcade.tests.server.ArcadeTestSuite
-import net.casual.arcade.tests.server.npc.NPCCourse.assertArrives
-import net.casual.arcade.tests.server.npc.NPCCourse.route
-import net.casual.arcade.tests.server.npc.NPCCourse.spawn
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 import net.minecraft.core.BlockPos
@@ -23,19 +21,19 @@ object NPCParkourTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:walkway", maxTicks = 400)
     fun `sprints along straight path`(context: TestContext) = context.test {
-        val player = spawn(context, 0, 1, 0)
+        val player = createTestPlayer(0, 1, 0)
         val goal = absolute(9, 1, 0)
         player.navigation.moveTo(goal, accuracy = 0)
 
         context.assertEventually(5.Seconds, "Never started sprinting down a straight corridor") {
             player.isSprinting
         }
-        assertArrives(context, player, goal)
+        assertArrives(player, goal)
     }
 
     @GameTest(structure = "arcade:walkway", maxTicks = 300)
     fun `doesnt sprint when sprint disabled`(context: TestContext) = context.test {
-        val player = spawn(context, 0, 1, 0)
+        val player = createTestPlayer(0, 1, 0)
         val goal = absolute(9, 1, 0)
         player.navigation.settings.canSprint = false
         player.navigation.moveTo(goal, accuracy = 0)
@@ -47,7 +45,7 @@ object NPCParkourTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:parkour_gap_2", maxTicks = 400)
     fun `jumps 2 block gap`(context: TestContext) = context.test {
-        val player = spawn(context, 0, 2, 0)
+        val player = createTestPlayer(0, 2, 0)
         val goal = absolute(14, 2, 0)
         player.navigation.settings.canSprint = false
 
@@ -56,7 +54,7 @@ object NPCParkourTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:parkour_gap_3", maxTicks = 400)
     fun `jumps 3 block gap`(context: TestContext) = context.test {
-        val player = spawn(context, 0, 2, 0)
+        val player = createTestPlayer(0, 2, 0)
         val goal = absolute(14, 2, 0)
 
         assertCrossesGap(context, player, goal)
@@ -64,7 +62,7 @@ object NPCParkourTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:parkour_gap_3", maxTicks = 200)
     fun `doesnt jump 3 block gap when walking`(context: TestContext) = context.test {
-        val player = spawn(context, 0, 2, 0)
+        val player = createTestPlayer(0, 2, 0)
         val goal = absolute(14, 2, 0)
         player.navigation.settings.canSprint = false
 
@@ -73,7 +71,7 @@ object NPCParkourTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:parkour_gap_4", maxTicks = 200)
     fun `doesnt jump 4 block gap`(context: TestContext) = context.test {
-        val player = spawn(context, 0, 2, 0)
+        val player = createTestPlayer(0, 2, 0)
         val goal = absolute(14, 2, 0)
 
         assertCannotCrossGap(context, player, goal, "a 4 block jump")
@@ -81,7 +79,7 @@ object NPCParkourTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:parkour_gap_up", maxTicks = 400)
     fun `jumps a gap onto a ledge`(context: TestContext) = context.test {
-        val player = spawn(context, 0, 2, 0)
+        val player = createTestPlayer(0, 2, 0)
         val goal = absolute(14, 3, 0)
 
         assertCrossesGap(context, player, goal)
@@ -89,7 +87,7 @@ object NPCParkourTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:parkour_gap_up", maxTicks = 200)
     fun `doesnt jump onto a ledge when walking`(context: TestContext) = context.test {
-        val player = spawn(context, 0, 2, 0)
+        val player = createTestPlayer(0, 2, 0)
         val goal = absolute(14, 3, 0)
         player.navigation.settings.canSprint = false
 
@@ -98,7 +96,7 @@ object NPCParkourTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:parkour_gap_down", maxTicks = 400)
     fun `jumps a gap off a ledge`(context: TestContext) = context.test {
-        val player = spawn(context, 0, 3, 0)
+        val player = createTestPlayer(0, 3, 0)
         val goal = absolute(14, 2, 0)
 
         assertCrossesGap(context, player, goal)
@@ -106,7 +104,7 @@ object NPCParkourTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:parkour_gap_2", maxTicks = 200)
     fun `doesnt jump when parkour disabled`(context: TestContext) = context.test {
-        val player = spawn(context, 0, 2, 0)
+        val player = createTestPlayer(0, 2, 0)
         val goal = absolute(14, 2, 0)
         player.navigation.settings.canParkour = false
 
@@ -125,7 +123,7 @@ object NPCParkourTests: ArcadeTestSuite() {
         )
 
         player.navigation.moveTo(path)
-        assertArrives(context, player, goal)
+        context.assertArrives(player, goal)
     }
 
     private fun assertCannotCrossGap(context: TestContext, player: TestFakePlayer, goal: BlockPos, what: String) {

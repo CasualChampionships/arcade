@@ -34,7 +34,7 @@ object VirtualPlayerListTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `header and footer are sent when observing`(context: TestContext) = context.test {
-        val player = createTestPlayer()
+        val player = this.createTestPlayer()
 
         val list = VirtualPlayerList(server, FixedEntries)
         list.header.set(Component.literal("Header"))
@@ -49,8 +49,8 @@ object VirtualPlayerListTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `header override is only sent to that player`(context: TestContext) = context.test {
-        val overridden = createTestPlayer()
-        val other = createTestPlayer()
+        val overridden = this.createTestPlayer()
+        val other = this.createTestPlayer()
 
         val list = VirtualPlayerList(server, FixedEntries)
         list.header.set(Component.literal("Shared"))
@@ -73,7 +73,7 @@ object VirtualPlayerListTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `unchanged header sends nothing`(context: TestContext) = context.test {
-        val player = createTestPlayer()
+        val player = this.createTestPlayer()
 
         val list = VirtualPlayerList(server, FixedEntries)
         list.header.set(Component.literal("Header"))
@@ -91,7 +91,7 @@ object VirtualPlayerListTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `elements generate header and footer`(context: TestContext) = context.test {
-        val player = createTestPlayer()
+        val player = this.createTestPlayer()
 
         val list = DynamicVirtualPlayerList(server, FixedEntries)
         list.setHeader(UniversalElement { Component.literal("Shared") })
@@ -112,7 +112,7 @@ object VirtualPlayerListTests: ArcadeTestSuite() {
     fun `generated overrides are discarded when not observing`(
         context: TestContext
     ) = context.test {
-        val player = createTestPlayer()
+        val player = this.createTestPlayer()
 
         val list = DynamicVirtualPlayerList(server, FixedEntries)
         list.setHeader(PlayerSpecificElement { Component.literal("Generated") })
@@ -129,7 +129,7 @@ object VirtualPlayerListTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `real players are unlisted for observers`(context: TestContext) = context.test {
-        val player = createTestPlayer()
+        val player = this.createTestPlayer()
 
         val list = VirtualPlayerList(server, FixedEntries)
         list.startObservingAndSendPackets(player.asObserver())
@@ -149,7 +149,7 @@ object VirtualPlayerListTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `real players are listed for non observers`(context: TestContext) = context.test {
-        val player = createTestPlayer()
+        val player = this.createTestPlayer()
 
         VirtualPlayerList(server, FixedEntries)
         player.clearPackets()

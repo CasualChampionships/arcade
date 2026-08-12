@@ -7,12 +7,10 @@ package net.casual.arcade.tests.server.npc
 import net.casual.arcade.gametest.TestContext
 import net.casual.arcade.gametest.utils.TestFakePlayer
 import net.casual.arcade.gametest.utils.absolute
+import net.casual.arcade.gametest.utils.createTestPlayer
 import net.casual.arcade.gametest.utils.fill
 import net.casual.arcade.npc.ArcadeNPCs
 import net.casual.arcade.tests.server.ArcadeTestSuite
-import net.casual.arcade.tests.server.npc.NPCCourse.assertArrives
-import net.casual.arcade.tests.server.npc.NPCCourse.path
-import net.casual.arcade.tests.server.npc.NPCCourse.spawn
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.coroutine.delay
@@ -27,9 +25,9 @@ object NPCRecoveryTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:room", maxTicks = 400)
     fun `repaths when the way ahead is blocked`(context: TestContext) = context.test {
-        val player = spawn(context, 0, 1, 2)
+        val player = createTestPlayer(0, 1, 2)
         val goal = absolute(10, 1, 2)
-        player.navigation.moveTo(path(context, player, goal, "across the room"))
+        player.navigation.moveTo(path(player, goal, "across the room"))
 
         delay(10.Ticks)
         val original = player.navigation.path
@@ -39,28 +37,28 @@ object NPCRecoveryTests: ArcadeTestSuite() {
             player.navigation.path != original
         }
 
-        assertArrives(context, player, goal)
+        assertArrives(player, goal)
         context.assertFalse(player.navigation.isStuck, "Gave up despite a way round being open")
     }
 
     @GameTest(structure = "arcade:room", maxTicks = 400)
     fun `keeps going after being knocked off its path`(context: TestContext) = context.test {
-        val player = spawn(context, 0, 1, 2)
+        val player = createTestPlayer(0, 1, 2)
         val goal = absolute(10, 1, 2)
-        player.navigation.moveTo(path(context, player, goal, "across the room"))
+        player.navigation.moveTo(path(player, goal, "across the room"))
 
         delay(10.Ticks)
         player.teleportTo(context.absolute(2.5, 1.0, 4.5).with(player.rotationVector))
 
-        assertArrives(context, player, goal)
+        assertArrives(player, goal)
         context.assertFalse(player.navigation.isStuck, "Gave up after being moved off its path")
     }
 
     @GameTest(structure = "arcade:room", maxTicks = 400)
     fun `gives up once the room is walled off`(context: TestContext) = context.test {
-        val player = spawn(context, 0, 1, 2)
+        val player = createTestPlayer(0, 1, 2)
         val goal = absolute(10, 1, 2)
-        player.navigation.moveTo(path(context, player, goal, "across the room"))
+        player.navigation.moveTo(path(player, goal, "across the room"))
 
         delay(10.Ticks)
         context.fill(5, 1, 0, 5, 3, 4, Blocks.OAK_PLANKS)
@@ -73,9 +71,9 @@ object NPCRecoveryTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:twin_ladders", maxTicks = 600)
     fun `finds the other ladder when one is broken under it`(context: TestContext) = context.test {
-        val player = spawn(context, 0, 1, 2)
+        val player = createTestPlayer(0, 1, 2)
         val goal = absolute(10, 4, 2)
-        player.navigation.moveTo(path(context, player, goal, "up a ladder"))
+        player.navigation.moveTo(path(player, goal, "up a ladder"))
 
         context.assertEventually(10.Seconds, "Never started climbing either ladder") {
             player.onClimbable() && player.blockPosition().y >= context.absolute(0, 2, 0).y
@@ -91,6 +89,6 @@ object NPCRecoveryTests: ArcadeTestSuite() {
             player.onClimbable() && player.blockPosition().z - context.absolute(0, 0, 0).z == other
         }
 
-        assertArrives(context, player, goal)
+        assertArrives(player, goal)
     }
 }

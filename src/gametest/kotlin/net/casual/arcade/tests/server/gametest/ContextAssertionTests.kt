@@ -5,7 +5,6 @@
 package net.casual.arcade.tests.server.gametest
 
 import net.casual.arcade.gametest.TestContext
-import net.casual.arcade.scheduler.ArcadeScheduler
 import net.casual.arcade.tests.server.ArcadeTestSuite
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -69,8 +68,8 @@ object ContextAssertionTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `test players are unique`(context: TestContext) = context.test {
-        val first = createTestPlayer()
-        val second = createTestPlayer()
+        val first = this.createTestPlayer()
+        val second = this.createTestPlayer()
 
         assertNotEquals(first.username, second.username)
         assertNotEquals(first.uuid, second.uuid)

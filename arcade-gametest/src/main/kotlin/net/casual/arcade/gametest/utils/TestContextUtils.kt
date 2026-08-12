@@ -5,10 +5,22 @@
 package net.casual.arcade.gametest.utils
 
 import net.casual.arcade.gametest.TestContext
+import net.casual.arcade.utils.entity.teleportTo
+import net.casual.arcade.utils.math.location.Location
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.Vec3
+
+public suspend fun TestContext.createTestPlayer(x: Int, y: Int, z: Int, yaw: Float = 0.0F, pitch: Float = 0.0F): TestFakePlayer {
+    return this.createTestPlayer(x + 0.5, y.toDouble(), z + 0.5, yaw, pitch)
+}
+
+public suspend fun TestContext.createTestPlayer(x: Double, y: Double, z: Double, yaw: Float = 0.0F, pitch: Float = 0.0F): TestFakePlayer {
+    val player = this.createTestPlayer()
+    player.teleportTo(Location(x, y, z, yaw, pitch))
+    return player
+}
 
 public fun TestContext.absolute(x: Int, y: Int, z: Int): BlockPos {
     return this.absolute(BlockPos(x, y, z))

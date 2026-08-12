@@ -14,6 +14,7 @@ import net.casual.arcade.scheduler.SimpleTickedScheduler
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.coroutine.delay
+import net.casual.arcade.utils.player.kick
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.core.BlockPos
 import net.minecraft.core.UUIDUtil
@@ -302,9 +303,7 @@ public class TestContext(public val helper: GameTestHelper) {
 
     private fun cleanup() {
         for (player in this.players) {
-            if (this.server.playerList.getPlayer(player.uuid) != null) {
-                this.server.playerList.remove(player)
-            }
+            player.kick()
         }
         this.players.clear()
     }
