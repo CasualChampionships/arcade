@@ -600,7 +600,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
 
     private fun infoPathMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val path = MinigameInfoPathArgument.getpath("path")
+        val path = MinigameInfoPathArgument.getPath(context, "path")
         val info = JsonUtils.GSON.toJson(minigame.property(path))
         return context.source.success(info)
     }

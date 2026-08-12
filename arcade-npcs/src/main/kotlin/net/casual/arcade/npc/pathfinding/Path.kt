@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.npc.pathfinding
 
+import net.casual.arcade.npc.mixins.PathAccessor
 import net.casual.arcade.npc.pathfinding.movement.Movement
 import net.minecraft.core.BlockPos
 import net.minecraft.util.Mth
@@ -84,7 +85,8 @@ public class Path(
             nodes.add(toVanillaNode(movement.to, movement.pathType))
         }
         val path = VanillaPath(nodes, this.target, this.reachesTarget)
-//        path.setDebug(NO_NODES, NO_NODES, setOf(Target(this.target.x, this.target.y, this.target.z)))
+        @Suppress("CAST_NEVER_SUCCEEDS")
+        (path as PathAccessor).arcade_setDebug(NO_NODES, NO_NODES, setOf(Target(this.target.x, this.target.y, this.target.z)))
         return path
     }
 

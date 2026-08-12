@@ -10,6 +10,7 @@ import net.casual.arcade.utils.math.location.Location
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 
 public suspend fun TestContext.createTestPlayer(x: Int, y: Int, z: Int, yaw: Float = 0.0F, pitch: Float = 0.0F): TestFakePlayer {
@@ -18,7 +19,7 @@ public suspend fun TestContext.createTestPlayer(x: Int, y: Int, z: Int, yaw: Flo
 
 public suspend fun TestContext.createTestPlayer(x: Double, y: Double, z: Double, yaw: Float = 0.0F, pitch: Float = 0.0F): TestFakePlayer {
     val player = this.createTestPlayer()
-    player.teleportTo(Location(x, y, z, yaw, pitch))
+    player.teleportTo(Location(this.absolute(x, y, z), Vec2(pitch, yaw)))
     return player
 }
 
