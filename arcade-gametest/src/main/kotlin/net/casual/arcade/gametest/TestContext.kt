@@ -12,7 +12,9 @@ import net.casual.arcade.scheduler.SimpleTickedScheduler
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.coroutine.delay
+import net.casual.arcade.utils.getDebugName
 import net.casual.arcade.utils.player.kick
+import net.casual.arcade.utils.player.username
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.core.BlockPos
 import net.minecraft.gametest.framework.GameTestEntityBuilder
@@ -20,12 +22,12 @@ import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.gametest.framework.GameTestMobBuilder
 import net.minecraft.gametest.framework.UnknownGameTestException
 import net.minecraft.network.chat.Component
+import net.minecraft.network.protocol.Packet
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.Mob
-import java.util.Random
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -300,6 +302,30 @@ public class TestContext(public val helper: GameTestHelper) {
         condition: () -> Boolean
     ) {
         this.assertNever(duration, Component.literal(message), condition)
+    }
+
+    public inline fun <reified T: Packet<*>> TestFakePlayer.assertSent(predicate: (T) -> Boolean = { true }): T {
+        return this.sent(predicate).firstOrNull()
+            ?: fail("Expected ${T::class.java.simpleName} sent to ${this.username}, saw: ${this.packetsAsString()}")
+    }
+
+    public fun TestFakePlayer.assertSent(packet: Packet<*>) {
+        if (!this.packets().contains(packet)) {
+            fail("Expected ${packet.getDebugName()} sent to ${this.username}, saw: ${this.packetsAsString()}")
+        }
+    }
+
+    public inline fun <reified T: Packet<*>> TestFakePlayer.assertNotSent(predicate: (T) -> Boolean = { true }) {
+        val found = this.sent(predicate)
+        if (found.isNotEmpty()) {
+            fail("Expected no ${T::class.java.simpleName} sent to ${this.username}, saw ${this.packetsAsString()}")
+        }
+    }
+
+    public fun TestFakePlayer.assertNotSent(packet: Packet<*>) {
+        if (this.packets().contains(packet)) {
+            fail("Expected no ${packet.getDebugName()} sent to ${this.username}, saw: ${this.packetsAsString()}")
+        }
     }
 
     internal fun track(player: TestFakePlayer) {

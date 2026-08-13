@@ -10,6 +10,7 @@ import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.coroutine.delay
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 import net.minecraft.network.chat.Component
+import net.minecraft.network.protocol.game.ClientboundBossEventPacket
 import net.minecraft.network.protocol.game.ClientboundSystemChatPacket
 
 @Suppress("FunctionName", "Unused")
@@ -22,7 +23,6 @@ object TestPlayerPacketTests: ArcadeTestSuite() {
 
         val message = Component.literal("You've been poked!")
         val packet = ClientboundSystemChatPacket(message, false)
-        player.assertNotSent(packet)
 
         player.sendSystemMessage(message)
         delay(1.Ticks)

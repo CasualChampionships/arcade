@@ -83,7 +83,6 @@ public class TestPlayerBuilder<T: TestFakePlayer> internal constructor(
         val name = this.name ?: TestContext.nextTestPlayerName()
         val profile = GameProfile(UUIDUtil.createOfflinePlayerUUID(name), name)
         val player = FakePlayer.join(this.context.server, profile, this.constructor).await()
-        player.context = this.context
         player.setGameMode(this.gameMode)
         this.context.track(player)
 

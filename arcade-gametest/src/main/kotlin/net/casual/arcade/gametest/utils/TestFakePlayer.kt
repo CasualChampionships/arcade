@@ -39,8 +39,6 @@ public open class TestFakePlayer(
 ): FakePlayer(server, level, profile, info) {
     private val recorded = ArrayList<Packet<*>>()
 
-    public var context: TestContext? = null
-
     private lateinit var channel: EmbeddedChannel
 
     override fun createConnection(
@@ -64,12 +62,6 @@ public open class TestFakePlayer(
 
     }
 
-    public fun fail(message: Component): Nothing {
-        val context = this.context
-        context?.fail(message)
-        throw GameTestAssertException(message, 0)
-    }
-
     public fun packets(): List<Packet<*>> {
         this.drain()
         return this.recorded
@@ -89,37 +81,6 @@ public open class TestFakePlayer(
 
     public inline fun <reified T: Packet<*>> sent(predicate: (T) -> Boolean = { true }): List<T> {
         return this.packets().filterIsInstance<T>().filter(predicate)
-    }
-
-    public inline fun <reified T: Packet<*>> assertSent(predicate: (T) -> Boolean = { true }): T {
-        return this.sent(predicate).firstOrNull() ?: this.fail(Component.literal(
-            "Expected ${T::class.java.simpleName} sent to ${this.username}, saw: ${this.packetsAsString()}"
-        ))
-    }
-
-    public fun assertSent(packet: Packet<*>) {
-        if (!this.packets().contains(packet)) {
-            this.fail(Component.literal(
-                "Expected ${packet.getDebugName()} sent to ${this.username}, saw: ${this.packetsAsString()}"
-            ))
-        }
-    }
-
-    public inline fun <reified T: Packet<*>> assertNotSent(predicate: (T) -> Boolean = { true }) {
-        val found = this.sent(predicate)
-        if (found.isNotEmpty()) {
-            this.fail(Component.literal(
-                "Expected no ${T::class.java.simpleName} sent to ${this.username}, saw ${this.packetsAsString()}"
-            ))
-        }
-    }
-
-    public fun assertNotSent(packet: Packet<*>) {
-        if (this.packets().contains(packet)) {
-            this.fail(Component.literal(
-                "Expected no ${packet.getDebugName()} sent to ${this.username}, saw: ${this.packetsAsString()}"
-            ))
-        }
     }
 
     private fun drain() {
