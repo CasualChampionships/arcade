@@ -4,24 +4,30 @@
  */
 package net.casual.arcade.gametest
 
-import com.mojang.authlib.GameProfile
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import net.casual.arcade.gametest.utils.TestFakePlayer
-import net.casual.arcade.npc.FakePlayer
+import net.casual.arcade.gametest.utils.TestPlayerBuilder
 import net.casual.arcade.scheduler.SimpleTickedScheduler
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.coroutine.delay
+import net.casual.arcade.utils.getDebugName
+import net.casual.arcade.utils.player.kick
+import net.casual.arcade.utils.player.username
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.core.BlockPos
-import net.minecraft.core.UUIDUtil
+import net.minecraft.gametest.framework.GameTestEntityBuilder
 import net.minecraft.gametest.framework.GameTestHelper
+import net.minecraft.gametest.framework.GameTestMobBuilder
 import net.minecraft.gametest.framework.UnknownGameTestException
 import net.minecraft.network.chat.Component
+import net.minecraft.network.protocol.Packet
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.Mob
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -80,36 +86,36 @@ public class TestContext(public val helper: GameTestHelper) {
     }
 
     /**
-     * Creates a [TestFakePlayer] with a generated name, unique for the lifetime of the server.
+     * Creates a builder for a [TestFakePlayer] with an offline profile who acts like a real player.
      *
-     * @param recordLoginPackets Whether to record the login packets.
-     * @return The created [TestFakePlayer]
+     * The player is not created until [TestPlayerBuilder.spawn] is called.
+     *
+     * ```kotlin
+     * val player = this.player(0, 1, 0).rotation(90.0F).spawn()
+     * ```
+     *
+     * @return The [TestPlayerBuilder].
      */
-    public suspend fun createTestPlayer(recordLoginPackets: Boolean = false): TestFakePlayer {
-        return this.createTestPlayer("TestPlayer${TEST_PLAYER_COUNTER.incrementAndGet()}", recordLoginPackets)
+    public fun player(): TestPlayerBuilder<TestFakePlayer> {
+        return TestPlayerBuilder(this, ::TestFakePlayer)
     }
 
     /**
-     * Creates a [TestFakePlayer] with an offline profile who acts like a real player,
-     * suspending until it has spawned.
+     * Creates a builder for a [TestFakePlayer] at the centre of the given
+     * position, relative to the test structure.
      *
-     * The [name] must be unique across concurrently running tests.
-     * Use the no-argument overload to have a unique name generated.
-     *
-     * @param name The name of the [TestFakePlayer].
-     * @param recordLoginPackets Whether to record the login packets.
-     * @return The created [TestFakePlayer]
+     * @return The [TestPlayerBuilder].
      */
-    public suspend fun createTestPlayer(name: String, recordLoginPackets: Boolean = false): TestFakePlayer {
-        val profile = GameProfile(UUIDUtil.createOfflinePlayerUUID(name), name)
-        val player = FakePlayer.join(this.server, profile, ::TestFakePlayer).await()
-        player.context = this
-        this.players.add(player)
+    public fun player(x: Int, y: Int, z: Int): TestPlayerBuilder<TestFakePlayer> {
+        return this.player().position(x, y, z)
+    }
 
-        if (!recordLoginPackets) {
-            player.clearPackets()
-        }
-        return player
+    public fun <E: Entity> entity(type: EntityType<E>, x: Int, y: Int, z: Int): GameTestEntityBuilder<E> {
+        return this.helper.spawnEntity(type, x, y, z)
+    }
+
+    public fun <E: Mob> mob(type: EntityType<E>, x: Int, y: Int, z: Int): GameTestMobBuilder<E> {
+        return this.helper.spawnMob(type, x, y, z)
     }
 
     /**
@@ -275,16 +281,69 @@ public class TestContext(public val helper: GameTestHelper) {
         this.assertEventually(timeout, Component.literal(message), condition)
     }
 
+    public suspend fun assertNever(
+        duration: MinecraftTimeDuration = 5.Seconds,
+        message: Component? = null,
+        condition: () -> Boolean
+    ) {
+        var remaining = duration.ticks
+        while (remaining > 0) {
+            if (condition.invoke()) {
+                this.fail(message ?: Component.literal("Condition was met within $duration"))
+            }
+            delay(1.Ticks)
+            remaining -= 1
+        }
+    }
+
+    public suspend fun assertNever(
+        duration: MinecraftTimeDuration = 5.Seconds,
+        message: String,
+        condition: () -> Boolean
+    ) {
+        this.assertNever(duration, Component.literal(message), condition)
+    }
+
+    public inline fun <reified T: Packet<*>> TestFakePlayer.assertSent(predicate: (T) -> Boolean = { true }): T {
+        return this.sent(predicate).firstOrNull()
+            ?: fail("Expected ${T::class.java.simpleName} sent to ${this.username}, saw: ${this.packetsAsString()}")
+    }
+
+    public fun TestFakePlayer.assertSent(packet: Packet<*>) {
+        if (!this.packets().contains(packet)) {
+            fail("Expected ${packet.getDebugName()} sent to ${this.username}, saw: ${this.packetsAsString()}")
+        }
+    }
+
+    public inline fun <reified T: Packet<*>> TestFakePlayer.assertNotSent(predicate: (T) -> Boolean = { true }) {
+        val found = this.sent(predicate)
+        if (found.isNotEmpty()) {
+            fail("Expected no ${T::class.java.simpleName} sent to ${this.username}, saw ${this.packetsAsString()}")
+        }
+    }
+
+    public fun TestFakePlayer.assertNotSent(packet: Packet<*>) {
+        if (this.packets().contains(packet)) {
+            fail("Expected no ${packet.getDebugName()} sent to ${this.username}, saw: ${this.packetsAsString()}")
+        }
+    }
+
+    internal fun track(player: TestFakePlayer) {
+        this.players.add(player)
+    }
+
     private fun cleanup() {
         for (player in this.players) {
-            if (this.server.playerList.getPlayer(player.uuid) != null) {
-                this.server.playerList.remove(player)
-            }
+            player.kick()
         }
         this.players.clear()
     }
 
-    private companion object {
+    public companion object {
+        public fun nextTestPlayerName(): String {
+            return "TestPlayer${TEST_PLAYER_COUNTER.incrementAndGet()}"
+        }
+
         private val TEST_PLAYER_COUNTER = AtomicInteger()
     }
 }

@@ -29,6 +29,7 @@
   "depends": {
     "fabric-language-kotlin": "*",
     "arcade-gametest": "*",
+    "arcade-npcs": "*",
     "arcade-scheduler": "*",
     "arcade-virtual-visuals": "*"
   }

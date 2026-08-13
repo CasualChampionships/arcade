@@ -7,8 +7,10 @@
     "minVersion": "0.5.0"
   },
   "mixins": [
+    "ConnectionMixin",
     "PlayerListMixin",
     "ServerGamePacketListenerImplMixin",
+    "StructureTemplateManagerMixin",
     "fabric.TestAnnotationLocatorMixin",
     "fabric.TestMethodMixin"
   ],

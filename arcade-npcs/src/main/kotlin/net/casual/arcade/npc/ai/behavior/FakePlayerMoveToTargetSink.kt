@@ -5,7 +5,8 @@
 package net.casual.arcade.npc.ai.behavior
 
 import net.casual.arcade.npc.FakePlayer
-import net.casual.arcade.utils.MathUtils.horizontalDistanceTo
+import net.casual.arcade.npc.pathfinding.Path
+import net.casual.arcade.npc.pathfinding.navigation.PathNavigation
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.ai.behavior.Behavior
@@ -14,21 +15,18 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType
 import net.minecraft.world.entity.ai.memory.MemoryStatus
 import net.minecraft.world.entity.ai.memory.WalkTarget
 import net.minecraft.world.entity.ai.util.RandomPos
-import net.minecraft.world.level.pathfinder.Path
 import net.minecraft.world.phys.Vec3
+import kotlin.jvm.optionals.getOrNull
 
 public class FakePlayerMoveToTargetSink(
     minDuration: Int = 150,
-    maxDuration: Int = 250,
-    private val sprint: Boolean = true,
-    private val jump: Boolean = true
+    maxDuration: Int = 250
 ): Behavior<FakePlayer>(CONDITIONS, minDuration, maxDuration) {
     private var remainingCooldown = 0
-    private var speedModifier: Float = 0.0F
+    private var speedModifier: Float = 1.0F
 
     private var path: Path? = null
     private var lastTargetPos: BlockPos? = null
-    private var lastPlayerPos: Vec3 = Vec3.ZERO
 
     override fun checkExtraStartConditions(level: ServerLevel, player: FakePlayer): Boolean {
         if (this.remainingCooldown > 0) {
@@ -53,82 +51,71 @@ public class FakePlayerMoveToTargetSink(
     }
 
     override fun canStillUse(level: ServerLevel, player: FakePlayer, gameTime: Long): Boolean {
-        if (this.path != null && this.lastTargetPos != null) {
-            val optional = player.brain.getMemory(MemoryModuleType.WALK_TARGET)
-            val isTargetSpectator = optional.map(this::isWalkTargetSpectator).orElse(false)!!
-            val navigation = player.navigation
-            return !navigation.isDone() && optional.isPresent
-                    && !this.hasReachedTarget(player, optional.get()) && !isTargetSpectator
+        if (this.path == null || this.lastTargetPos == null) {
+            return false
         }
-        return false
+        val target = player.brain.getMemory(MemoryModuleType.WALK_TARGET).getOrNull() ?: return false
+        if (this.isWalkTargetSpectator(target) || this.hasReachedTarget(player, target)) {
+            return false
+        }
+        return !player.navigation.isDone()
     }
 
     override fun start(level: ServerLevel, player: FakePlayer, gameTime: Long) {
-        player.brain.setMemory(MemoryModuleType.PATH, this.path)
-        player.navigation.moveTo(this.path, speedModifier.toDouble())
-
-        if (this.sprint) {
-            player.input.sprint = true
-        }
+        val path = this.path ?: return
+        // TODO: Should we create a new memory module for our custom path type?
+        player.brain.setMemory(MemoryModuleType.PATH, path.asVanillaPath())
+        player.navigation.moveTo(path, this.speedModifier.toDouble())
     }
 
     override fun tick(level: ServerLevel, player: FakePlayer, gameTime: Long) {
         val path = player.navigation.path
         val brain = player.brain
-        if (this.path != path) {
+        if (this.path !== path) {
             this.path = path
-            brain.setMemory(MemoryModuleType.PATH, path)
+            brain.setMemory(MemoryModuleType.PATH, path?.asVanillaPath())
         }
 
-        val lastTarget = this.lastTargetPos
-        if (path != null && lastTarget != null) {
-            val walkTarget = brain.getMemory(MemoryModuleType.WALK_TARGET).get()
-            val progress = walkTarget.target.currentBlockPosition().distSqr(lastTarget)
+        val lastTarget = this.lastTargetPos ?: return
+        if (path == null) {
+            return
+        }
 
-            if (this.jump) {
-                val distance = player.position().horizontalDistanceTo(this.lastPlayerPos)
-                if (distance > 0.25) {
-                    player.moveControl.jump()
-                }
-                this.lastPlayerPos = player.position()
-            }
-            if (progress > 4.0 && this.tryComputePath(player, walkTarget, level.gameTime)) {
-                this.lastTargetPos = walkTarget.target.currentBlockPosition()
-                this.start(level, player, gameTime)
-            }
+        val walkTarget = brain.getMemory(MemoryModuleType.WALK_TARGET).orElse(null) ?: return
+        val moved = walkTarget.target.currentBlockPosition().distSqr(lastTarget)
+        if (moved > REPATH_DISTANCE_SQR && this.tryComputePath(player, walkTarget, level.gameTime)) {
+            this.lastTargetPos = walkTarget.target.currentBlockPosition()
+            this.start(level, player, gameTime)
         }
     }
 
     override fun stop(level: ServerLevel, player: FakePlayer, gameTime: Long) {
-        if (player.brain.hasMemoryValue(MemoryModuleType.WALK_TARGET) && player.navigation.isStuck) {
-            if (!this.hasReachedTarget(player, player.brain.getMemory(MemoryModuleType.WALK_TARGET).get())) {
-                this.remainingCooldown = level.getRandom().nextInt(40)
+        val brain = player.brain
+        if (brain.hasMemoryValue(MemoryModuleType.WALK_TARGET) && player.navigation.isStuck) {
+            if (!this.hasReachedTarget(player, brain.getMemory(MemoryModuleType.WALK_TARGET).get())) {
+                this.remainingCooldown = level.random.nextInt(40)
             }
         }
 
         player.navigation.stop()
-        player.brain.eraseMemory(MemoryModuleType.WALK_TARGET)
-        player.brain.eraseMemory(MemoryModuleType.PATH)
+        brain.eraseMemory(MemoryModuleType.WALK_TARGET)
+        brain.eraseMemory(MemoryModuleType.PATH)
         this.path = null
-
-        if (this.sprint) {
-            player.input.sprint = false
-        }
     }
 
     private fun tryComputePath(player: FakePlayer, target: WalkTarget, time: Long): Boolean {
         val blockPos = target.target.currentBlockPosition()
-        val path = player.navigation.createPath(blockPos, 0)
-        this.path = path
+        this.path = player.navigation.createPath(blockPos, 0)
         this.speedModifier = target.speedModifier
+
         val brain = player.brain
         if (this.hasReachedTarget(player, target)) {
             brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE)
             return false
         }
 
-        val canReach = path != null && path.canReach()
-        if (canReach) {
+        val path = this.path
+        if (path != null && path.reachesTarget) {
             brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE)
         } else if (!brain.hasMemoryValue(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE)) {
             brain.setMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, time)
@@ -138,19 +125,20 @@ public class FakePlayerMoveToTargetSink(
             return true
         }
 
-        val vec3 = this.getPosTowards(
-            player, 10.0, 7, Vec3.atBottomCenterOf(blockPos), Math.PI / 2
-        )
-        if (vec3 != null) {
-            this.path = player.navigation.createPath(vec3.x, vec3.y, vec3.z, 0)
-            return this.path != null
-        }
-
-        return false
+        val towards = this.getPosTowards(player, 10.0, 7, Vec3.atBottomCenterOf(blockPos), Math.PI / 2)
+            ?: return false
+        this.path = player.navigation.createPath(towards.x, towards.y, towards.z, 0)
+        return this.path != null
     }
 
     @Suppress("SameParameterValue")
-    private fun getPosTowards(player: FakePlayer, radius: Double, yRange: Int, position: Vec3, amplifier: Double): Vec3? {
+    private fun getPosTowards(
+        player: FakePlayer,
+        radius: Double,
+        yRange: Int,
+        position: Vec3,
+        amplifier: Double
+    ): Vec3? {
         val delta = position.subtract(player.x, player.y, player.z)
         return RandomPos.generateRandomPos({
             val pos = RandomPos.generateRandomDirectionWithinRadians(
@@ -166,10 +154,12 @@ public class FakePlayerMoveToTargetSink(
 
     private fun isWalkTargetSpectator(walkTarget: WalkTarget): Boolean {
         val target = walkTarget.target
-        return if (target is EntityTracker) target.entity.isSpectator else false
+        return target is EntityTracker && target.entity.isSpectator
     }
 
     public companion object {
+        private const val REPATH_DISTANCE_SQR = 4.0
+
         private val CONDITIONS = mapOf(
             MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE to MemoryStatus.REGISTERED,
             MemoryModuleType.PATH to MemoryStatus.VALUE_ABSENT,

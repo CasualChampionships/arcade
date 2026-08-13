@@ -5,6 +5,7 @@
 package net.casual.arcade.npc.ai.behavior
 
 import net.casual.arcade.npc.FakePlayer
+import net.casual.arcade.npc.utils.isFacing
 import net.casual.arcade.npc.utils.isWithinAttackRange
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.server.level.ServerLevel
@@ -42,7 +43,7 @@ public class FakePlayerBowAttack<T: FakePlayer>(
         val item = player.getItemInHand(hand)
         if (player.isUsingItem) {
             val using = player.ticksUsingItem
-            if (using >= BowItem.MAX_DRAW_DURATION) {
+            if (using >= BowItem.MAX_DRAW_DURATION && player.isFacing(target)) {
                 player.releaseUsingItem()
             }
         } else {

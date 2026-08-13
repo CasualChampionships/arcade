@@ -20,6 +20,8 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ClientInformation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.network.CommonListenerCookie
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 
 /**
  * A [net.casual.arcade.npc.FakePlayer] that records the clientbound packets sent to it.
@@ -29,19 +31,13 @@ import net.minecraft.server.network.CommonListenerCookie
  * channel, so any mixins into [net.minecraft.server.network.ServerCommonPacketListenerImpl.send]
  * are accounted for.
  */
-public class TestFakePlayer(
+public open class TestFakePlayer(
     server: MinecraftServer,
     level: ServerLevel,
     profile: GameProfile,
     info: ClientInformation
 ): FakePlayer(server, level, profile, info) {
     private val recorded = ArrayList<Packet<*>>()
-
-    /**
-     * The context that created this player, used to report assertion failures against the running
-     * test. Set by [TestContext.createTestPlayer].
-     */
-    public var context: TestContext? = null
 
     private lateinit var channel: EmbeddedChannel
 
@@ -58,15 +54,12 @@ public class TestFakePlayer(
         }
     }
 
-    /**
-     * Fails the running test with [message].
-     */
-    public fun fail(message: Component): Nothing {
-        val context = this.context
-        if (context != null) {
-            context.fail(message)
-        }
-        throw GameTestAssertException(message, 0)
+    override fun load(input: ValueInput) {
+
+    }
+
+    override fun saveWithoutId(output: ValueOutput) {
+
     }
 
     public fun packets(): List<Packet<*>> {
@@ -88,37 +81,6 @@ public class TestFakePlayer(
 
     public inline fun <reified T: Packet<*>> sent(predicate: (T) -> Boolean = { true }): List<T> {
         return this.packets().filterIsInstance<T>().filter(predicate)
-    }
-
-    public inline fun <reified T: Packet<*>> assertSent(predicate: (T) -> Boolean = { true }): T {
-        return this.sent(predicate).firstOrNull() ?: this.fail(Component.literal(
-            "Expected ${T::class.java.simpleName} sent to ${this.username}, saw: ${this.packetsAsString()}"
-        ))
-    }
-
-    public fun assertSent(packet: Packet<*>) {
-        if (!this.packets().contains(packet)) {
-            this.fail(Component.literal(
-                "Expected ${packet.getDebugName()} sent to ${this.username}, saw: ${this.packetsAsString()}"
-            ))
-        }
-    }
-
-    public inline fun <reified T: Packet<*>> assertNotSent(predicate: (T) -> Boolean = { true }) {
-        val found = this.sent(predicate)
-        if (found.isNotEmpty()) {
-            this.fail(Component.literal(
-                "Expected no ${T::class.java.simpleName} sent to ${this.username}, saw ${this.packetsAsString()}"
-            ))
-        }
-    }
-
-    public fun assertNotSent(packet: Packet<*>) {
-        if (this.packets().contains(packet)) {
-            this.fail(Component.literal(
-                "Expected no ${packet.getDebugName()} sent to ${this.username}, saw: ${this.packetsAsString()}"
-            ))
-        }
     }
 
     private fun drain() {

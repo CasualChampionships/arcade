@@ -5,6 +5,7 @@
 package net.casual.arcade.npc.ai.behavior
 
 import net.casual.arcade.npc.FakePlayer
+import net.casual.arcade.npc.utils.isFacing
 import net.casual.arcade.utils.player.getAttackCooldown
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.world.InteractionHand
@@ -35,6 +36,9 @@ public object FakePlayerMeleeAttack {
                         val entities = instance.get(nearestEntitiesAccessor)
                         if (entities.contains(target)) {
                             lookTargetAccessor.set(EntityTracker(target, true))
+                            if (!player.isFacing(target)) {
+                                return false
+                            }
                             if (!willMissAttack.invoke(player, target)) {
                                 player.attack(target)
                             }
