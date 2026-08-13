@@ -13,6 +13,8 @@ import net.minecraft.server.players.PlayerList;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerList.class)
 public class PlayerListMixin {
@@ -46,5 +48,16 @@ public class PlayerListMixin {
         @Local(argsOnly = true, name = "player") ServerPlayer player
     ) {
         return !(player instanceof TestFakePlayer);
+    }
+
+    @Inject(
+        method = "save",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void dontSaveTestPlayerData(ServerPlayer player, CallbackInfo ci) {
+        if (player instanceof TestFakePlayer) {
+            ci.cancel();
+        }
     }
 }

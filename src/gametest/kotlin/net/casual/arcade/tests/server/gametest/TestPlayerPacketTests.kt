@@ -18,7 +18,7 @@ object TestPlayerPacketTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 200)
     fun `test player records packets`(context: TestContext) = context.test {
-        val player = this.createTestPlayer()
+        val player = player().spawn()
 
         val message = Component.literal("You've been poked!")
         val packet = ClientboundSystemChatPacket(message, false)

@@ -28,7 +28,7 @@ object VirtualVisualObservingTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `observer tracks every observed visual`(context: TestContext) = context.test {
-        val player = this.createTestPlayer()
+        val player = player().spawn()
         val observer = player.asObserver()
 
         val bossbar = VirtualBossbar()
@@ -46,7 +46,7 @@ object VirtualVisualObservingTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `observing second sidebar replaces first`(context: TestContext) = context.test {
-        val player = this.createTestPlayer()
+        val player = player().spawn()
         val observer = player.asObserver()
 
         val first = VirtualSidebar()
@@ -70,7 +70,7 @@ object VirtualVisualObservingTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `leaving stops observing every visual`(context: TestContext) = context.test {
-        val player = this.createTestPlayer()
+        val player = player().spawn()
         val observer = player.asObserver()
 
         val bossbar = VirtualBossbar()
@@ -88,7 +88,7 @@ object VirtualVisualObservingTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `visuals dont send packets to left observer`(context: TestContext) = context.test {
-        val player = this.createTestPlayer()
+        val player = player().spawn()
         val observer = player.asObserver()
 
         val bossbar = VirtualBossbar()
@@ -107,7 +107,7 @@ object VirtualVisualObservingTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `observing same visual twice is noop`(context: TestContext) = context.test {
-        val player = this.createTestPlayer()
+        val player = player().spawn()
         val observer = player.asObserver()
 
         val bossbar = VirtualBossbar()

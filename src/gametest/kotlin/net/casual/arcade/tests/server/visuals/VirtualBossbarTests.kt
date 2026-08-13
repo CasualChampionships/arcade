@@ -27,7 +27,7 @@ object VirtualBossbarTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `bossbar is sent when observing`(context: TestContext) = context.test {
-        val player = this.createTestPlayer()
+        val player = player().spawn()
 
         val bossbar = VirtualBossbar()
         bossbar.title.set(Component.literal("Hello!"))
@@ -40,7 +40,7 @@ object VirtualBossbarTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `bossbar is removed when not observing`(context: TestContext) = context.test {
-        val player = this.createTestPlayer()
+        val player = player().spawn()
 
         val bossbar = VirtualBossbar()
         bossbar.startObservingAndSendPackets(player.asObserver())
@@ -54,8 +54,8 @@ object VirtualBossbarTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `changing bossbar base updates all observers`(context: TestContext) = context.test {
-        val first = this.createTestPlayer()
-        val second = this.createTestPlayer()
+        val first = player().spawn()
+        val second = player().spawn()
 
         val bossbar = VirtualBossbar()
         bossbar.startObservingAndSendPackets(first.asObserver())
@@ -75,8 +75,8 @@ object VirtualBossbarTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `bossbar override is only sent to that player`(context: TestContext) = context.test {
-        val overridden = this.createTestPlayer()
-        val other = this.createTestPlayer()
+        val overridden = player().spawn()
+        val other = player().spawn()
 
         val bossbar = VirtualBossbar()
         bossbar.startObservingAndSendPackets(overridden.asObserver())
@@ -96,8 +96,8 @@ object VirtualBossbarTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `changing bossbar base doesnt clobber override`(context: TestContext) = context.test {
-        val overridden = this.createTestPlayer()
-        val other = this.createTestPlayer()
+        val overridden = player().spawn()
+        val other = player().spawn()
 
         val bossbar = VirtualBossbar()
         bossbar.startObservingAndSendPackets(overridden.asObserver())
@@ -118,7 +118,7 @@ object VirtualBossbarTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `unchanged bossbar sends nothing`(context: TestContext) = context.test {
-        val player = this.createTestPlayer()
+        val player = player().spawn()
 
         val bossbar = VirtualBossbar()
         bossbar.color.set(BossBarColor.RED)
@@ -136,7 +136,7 @@ object VirtualBossbarTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `bossbar overrides persist when observing again`(context: TestContext) = context.test {
-        val player = this.createTestPlayer()
+        val player = player().spawn()
 
         val bossbar = VirtualBossbar()
         bossbar.title.set(Component.literal("Base"))
@@ -154,7 +154,7 @@ object VirtualBossbarTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `bossbar style changes send single packet`(context: TestContext) = context.test {
-        val player = this.createTestPlayer()
+        val player = player().spawn()
 
         val bossbar = VirtualBossbar()
         bossbar.startObservingAndSendPackets(player.asObserver())

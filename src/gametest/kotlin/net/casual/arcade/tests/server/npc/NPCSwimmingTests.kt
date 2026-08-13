@@ -6,7 +6,6 @@ package net.casual.arcade.tests.server.npc
 
 import net.casual.arcade.gametest.TestContext
 import net.casual.arcade.gametest.utils.absolute
-import net.casual.arcade.gametest.utils.createTestPlayer
 import net.casual.arcade.npc.ArcadeNPCs
 import net.casual.arcade.npc.pathfinding.movement.types.ClimbMovementType
 import net.casual.arcade.npc.pathfinding.movement.types.SwimMovementType
@@ -20,7 +19,7 @@ object NPCSwimmingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:pool", maxTicks = 600)
     fun `swims across pool`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 4, 1)
+        val player = player(0, 4, 1).spawn()
         val goal = absolute(10, 4, 1)
         player.navigation.settings.canSwim = true
 
@@ -36,7 +35,7 @@ object NPCSwimmingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:pool_ladder", maxTicks = 600)
     fun `climbs out of pool up ladder`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 4, 1)
+        val player = player(0, 4, 1).spawn()
         val goal = absolute(10, 6, 1)
         player.navigation.settings.canSwim = true
 
@@ -53,7 +52,7 @@ object NPCSwimmingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:pool_long", maxTicks = 800)
     fun `sinks to sprint swim`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 4, 1)
+        val player = player(0, 4, 1).spawn()
         val goal = absolute(23, 4, 1)
         player.navigation.settings.canSwim = true
 
@@ -75,7 +74,7 @@ object NPCSwimmingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:pool_long", maxTicks = 400)
     fun `doesnt sprint swim when sprinting is disabled`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 4, 1)
+        val player = player(0, 4, 1).spawn()
         val goal = absolute(23, 4, 1)
         player.navigation.settings.canSwim = true
         player.navigation.settings.canSprint = false
@@ -88,7 +87,7 @@ object NPCSwimmingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:pool", maxTicks = 200)
     fun `doesnt swim when swimming is disabled`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 4, 1)
+        val player = player(0, 4, 1).spawn()
 
         val path = player.navigation.createPath(absolute(10, 4, 1), accuracy = 0)
         if (path != null) {

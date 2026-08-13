@@ -4,12 +4,10 @@
  */
 package net.casual.arcade.gametest
 
-import com.mojang.authlib.GameProfile
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import net.casual.arcade.gametest.utils.TestFakePlayer
-import net.casual.arcade.npc.FakePlayer
+import net.casual.arcade.gametest.utils.TestPlayerBuilder
 import net.casual.arcade.scheduler.SimpleTickedScheduler
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -17,13 +15,17 @@ import net.casual.arcade.utils.coroutine.delay
 import net.casual.arcade.utils.player.kick
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.core.BlockPos
-import net.minecraft.core.UUIDUtil
+import net.minecraft.gametest.framework.GameTestEntityBuilder
 import net.minecraft.gametest.framework.GameTestHelper
+import net.minecraft.gametest.framework.GameTestMobBuilder
 import net.minecraft.gametest.framework.UnknownGameTestException
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.world.level.GameType
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.Mob
+import java.util.Random
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -82,37 +84,36 @@ public class TestContext(public val helper: GameTestHelper) {
     }
 
     /**
-     * Creates a [TestFakePlayer] with a generated name, unique for the lifetime of the server.
+     * Creates a builder for a [TestFakePlayer] with an offline profile who acts like a real player.
      *
-     * @param recordLoginPackets Whether to record the login packets.
-     * @return The created [TestFakePlayer]
+     * The player is not created until [TestPlayerBuilder.spawn] is called.
+     *
+     * ```kotlin
+     * val player = this.player(0, 1, 0).rotation(90.0F).spawn()
+     * ```
+     *
+     * @return The [TestPlayerBuilder].
      */
-    public suspend fun createTestPlayer(recordLoginPackets: Boolean = false): TestFakePlayer {
-        return this.createTestPlayer("TestPlayer${TEST_PLAYER_COUNTER.incrementAndGet()}", recordLoginPackets)
+    public fun player(): TestPlayerBuilder<TestFakePlayer> {
+        return TestPlayerBuilder(this, ::TestFakePlayer)
     }
 
     /**
-     * Creates a [TestFakePlayer] with an offline profile who acts like a real player,
-     * suspending until it has spawned.
+     * Creates a builder for a [TestFakePlayer] at the centre of the given
+     * position, relative to the test structure.
      *
-     * The [name] must be unique across concurrently running tests.
-     * Use the no-argument overload to have a unique name generated.
-     *
-     * @param name The name of the [TestFakePlayer].
-     * @param recordLoginPackets Whether to record the login packets.
-     * @return The created [TestFakePlayer]
+     * @return The [TestPlayerBuilder].
      */
-    public suspend fun createTestPlayer(name: String, recordLoginPackets: Boolean = false): TestFakePlayer {
-        val profile = GameProfile(UUIDUtil.createOfflinePlayerUUID(name), name)
-        val player = FakePlayer.join(this.server, profile, ::TestFakePlayer).await()
-        player.context = this
-        player.setGameMode(GameType.SURVIVAL)
-        this.players.add(player)
+    public fun player(x: Int, y: Int, z: Int): TestPlayerBuilder<TestFakePlayer> {
+        return this.player().position(x, y, z)
+    }
 
-        if (!recordLoginPackets) {
-            player.clearPackets()
-        }
-        return player
+    public fun <E: Entity> entity(type: EntityType<E>, x: Int, y: Int, z: Int): GameTestEntityBuilder<E> {
+        return this.helper.spawnEntity(type, x, y, z)
+    }
+
+    public fun <E: Mob> mob(type: EntityType<E>, x: Int, y: Int, z: Int): GameTestMobBuilder<E> {
+        return this.helper.spawnMob(type, x, y, z)
     }
 
     /**
@@ -301,6 +302,10 @@ public class TestContext(public val helper: GameTestHelper) {
         this.assertNever(duration, Component.literal(message), condition)
     }
 
+    internal fun track(player: TestFakePlayer) {
+        this.players.add(player)
+    }
+
     private fun cleanup() {
         for (player in this.players) {
             player.kick()
@@ -308,7 +313,11 @@ public class TestContext(public val helper: GameTestHelper) {
         this.players.clear()
     }
 
-    private companion object {
+    public companion object {
+        public fun nextTestPlayerName(): String {
+            return "TestPlayer${TEST_PLAYER_COUNTER.incrementAndGet()}"
+        }
+
         private val TEST_PLAYER_COUNTER = AtomicInteger()
     }
 }

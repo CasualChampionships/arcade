@@ -7,7 +7,6 @@ package net.casual.arcade.tests.server.npc
 import net.casual.arcade.gametest.TestContext
 import net.casual.arcade.gametest.utils.TestFakePlayer
 import net.casual.arcade.gametest.utils.absolute
-import net.casual.arcade.gametest.utils.createTestPlayer
 import net.casual.arcade.npc.ArcadeNPCs
 import net.casual.arcade.npc.pathfinding.movement.types.ClimbMovementType
 import net.casual.arcade.tests.server.ArcadeTestSuite
@@ -24,7 +23,7 @@ object NPCClimbingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:ladder_up", maxTicks = 400)
     fun `climbs up ladder`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 1)
+        val player = player(0, 1, 1).spawn()
         val goal = absolute(8, 4, 1)
 
         val path = path(player, goal, "up the ladder")
@@ -39,7 +38,7 @@ object NPCClimbingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:ladder_down", maxTicks = 400)
     fun `climbs down ladder`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 5, 1)
+        val player = player(0, 5, 1).spawn()
         val goal = absolute(8, 1, 1)
 
         val path = path(player, goal, "down the ladder")
@@ -54,7 +53,7 @@ object NPCClimbingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:ladder_high_exit", maxTicks = 400)
     fun `climbs off top of ladder`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 1)
+        val player = player(0, 1, 1).spawn()
         val goal = absolute(8, 4, 1)
 
         player.navigation.moveTo(path(player, goal, "over the top of the ladder"))
@@ -63,7 +62,7 @@ object NPCClimbingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:ladder_face_on", maxTicks = 400)
     fun `climbs up ladder face on`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 0)
+        val player = player(0, 1, 0).spawn()
         val goal = absolute(8, 4, 0)
 
         player.navigation.moveTo(path(player, goal, "over the top of the ladder"))
@@ -72,7 +71,7 @@ object NPCClimbingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:scaffolding_tower", maxTicks = 400)
     fun `climbs scaffolding`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 0)
+        val player = player(0, 1, 0).spawn()
         val goal = absolute(8, 4, 0)
 
         player.navigation.moveTo(path(player, goal, "up the scaffolding"))
@@ -81,12 +80,12 @@ object NPCClimbingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:ladder_up", maxTicks = 400)
     fun `doesnt turn while climbing`(context: TestContext) = context.test {
-        assertClimbsWithoutTurning(context, createTestPlayer(0, 1, 1), absolute(8, 4, 1))
+        assertClimbsWithoutTurning(context, player(0, 1, 1).spawn(), absolute(8, 4, 1))
     }
 
     @GameTest(structure = "arcade:ladder_face_on", maxTicks = 400)
     fun `doesnt turn while climbing face on`(context: TestContext) = context.test {
-        assertClimbsWithoutTurning(context, createTestPlayer(0, 1, 0), absolute(8, 4, 0))
+        assertClimbsWithoutTurning(context, player(0, 1, 0).spawn(), absolute(8, 4, 0))
     }
 
     private suspend fun assertClimbsWithoutTurning(
@@ -108,7 +107,7 @@ object NPCClimbingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:ladder_up", maxTicks = 200)
     fun `doesnt climb when disabled`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 1)
+        val player = player(0, 1, 1).spawn()
         val goal = absolute(8, 4, 1)
         player.navigation.settings.canClimb = false
 

@@ -2,6 +2,7 @@ package net.casual.arcade.tests.server.npc
 
 import net.casual.arcade.gametest.TestContext
 import net.casual.arcade.gametest.utils.TestFakePlayer
+import net.casual.arcade.gametest.utils.TestPlayerBuilder
 import net.casual.arcade.npc.pathfinding.Path
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.time.MinecraftTimeDuration
@@ -9,6 +10,10 @@ import net.minecraft.core.BlockPos
 
 fun route(path: Path): String {
     return path.movements.joinToString(prefix = "[", postfix = "]") { it.type.id.path }
+}
+
+fun TestPlayerBuilder<*>.brained(): TestPlayerBuilder<BrainTestPlayer> {
+    return this.constructor(::BrainTestPlayer)
 }
 
 fun TestContext.path(player: TestFakePlayer, goal: BlockPos, what: String): Path {

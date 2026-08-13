@@ -20,6 +20,8 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ClientInformation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.network.CommonListenerCookie
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 
 /**
  * A [net.casual.arcade.npc.FakePlayer] that records the clientbound packets sent to it.
@@ -29,7 +31,7 @@ import net.minecraft.server.network.CommonListenerCookie
  * channel, so any mixins into [net.minecraft.server.network.ServerCommonPacketListenerImpl.send]
  * are accounted for.
  */
-public class TestFakePlayer(
+public open class TestFakePlayer(
     server: MinecraftServer,
     level: ServerLevel,
     profile: GameProfile,
@@ -52,6 +54,14 @@ public class TestFakePlayer(
                 return true
             }
         }
+    }
+
+    override fun load(input: ValueInput) {
+
+    }
+
+    override fun saveWithoutId(output: ValueOutput) {
+
     }
 
     public fun fail(message: Component): Nothing {

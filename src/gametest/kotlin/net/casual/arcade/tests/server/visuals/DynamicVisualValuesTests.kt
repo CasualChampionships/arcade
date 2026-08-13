@@ -37,7 +37,7 @@ object DynamicVisualValuesTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `player specific element generates override`(context: TestContext) = context.test {
-        val player = this.createTestPlayer()
+        val player = player().spawn()
         val observers = SimpleObserverTracker()
         observers.startObserving(player.asObserver())
 
@@ -57,7 +57,7 @@ object DynamicVisualValuesTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `dynamic value can have base and override`(context: TestContext) = context.test {
-        val overridden = this.createTestPlayer()
+        val overridden = player().spawn()
         val observers = SimpleObserverTracker()
         observers.startObserving(overridden.asObserver())
 

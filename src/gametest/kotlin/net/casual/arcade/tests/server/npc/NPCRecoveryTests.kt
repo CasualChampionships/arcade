@@ -7,7 +7,6 @@ package net.casual.arcade.tests.server.npc
 import net.casual.arcade.gametest.TestContext
 import net.casual.arcade.gametest.utils.TestFakePlayer
 import net.casual.arcade.gametest.utils.absolute
-import net.casual.arcade.gametest.utils.createTestPlayer
 import net.casual.arcade.gametest.utils.fill
 import net.casual.arcade.npc.ArcadeNPCs
 import net.casual.arcade.tests.server.ArcadeTestSuite
@@ -25,7 +24,7 @@ object NPCRecoveryTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:room", maxTicks = 400)
     fun `repaths when the way ahead is blocked`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 2)
+        val player = player(0, 1, 2).spawn()
         val goal = absolute(10, 1, 2)
         player.navigation.moveTo(path(player, goal, "across the room"))
 
@@ -43,7 +42,7 @@ object NPCRecoveryTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:room", maxTicks = 400)
     fun `keeps going after being knocked off its path`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 2)
+        val player = player(0, 1, 2).spawn()
         val goal = absolute(10, 1, 2)
         player.navigation.moveTo(path(player, goal, "across the room"))
 
@@ -56,7 +55,7 @@ object NPCRecoveryTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:room", maxTicks = 400)
     fun `gives up once the room is walled off`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 2)
+        val player = player(0, 1, 2).spawn()
         val goal = absolute(10, 1, 2)
         player.navigation.moveTo(path(player, goal, "across the room"))
 
@@ -71,7 +70,7 @@ object NPCRecoveryTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:twin_ladders", maxTicks = 600)
     fun `finds the other ladder when one is broken under it`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 2)
+        val player = player(0, 1, 2).spawn()
         val goal = absolute(10, 4, 2)
         player.navigation.moveTo(path(player, goal, "up a ladder"))
 

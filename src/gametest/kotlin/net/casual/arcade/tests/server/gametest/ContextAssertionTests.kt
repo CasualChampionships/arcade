@@ -68,8 +68,8 @@ object ContextAssertionTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 400)
     fun `test players are unique`(context: TestContext) = context.test {
-        val first = this.createTestPlayer()
-        val second = this.createTestPlayer()
+        val first = player().spawn()
+        val second = player().spawn()
 
         assertNotEquals(first.username, second.username)
         assertNotEquals(first.uuid, second.uuid)

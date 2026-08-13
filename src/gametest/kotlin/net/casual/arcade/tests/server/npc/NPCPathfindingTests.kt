@@ -6,7 +6,6 @@ package net.casual.arcade.tests.server.npc
 
 import net.casual.arcade.gametest.TestContext
 import net.casual.arcade.gametest.utils.absolute
-import net.casual.arcade.gametest.utils.createTestPlayer
 import net.casual.arcade.npc.ArcadeNPCs
 import net.casual.arcade.npc.pathfinding.movement.types.AscendMovementType
 import net.casual.arcade.npc.pathfinding.movement.types.DiagonalMovementType
@@ -26,7 +25,7 @@ object NPCPathfindingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:walkway", maxTicks = 400)
     fun `faces the direction it is walking`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 0)
+        val player = player(0, 1, 0).spawn()
         val goal = absolute(9, 1, 0)
         player.navigation.moveTo(path(player, goal, "along the walkway"))
 
@@ -40,7 +39,7 @@ object NPCPathfindingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:slab_staircase", maxTicks = 400)
     fun `walks up slab staircase without jumping`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 0)
+        val player = player(0, 1, 0).spawn()
         val goal = absolute(9, 3, 0)
 
         val path = path(player, goal, "up the slab staircase")
@@ -55,7 +54,7 @@ object NPCPathfindingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:trapdoor", maxTicks = 400)
     fun `walks over closed trapdoor without jumping`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 0)
+        val player = player(0, 1, 0).spawn()
         val goal = absolute(9, 1, 0)
 
         val path = path(player, goal, "over the trapdoor")
@@ -70,7 +69,7 @@ object NPCPathfindingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:stairs_low_side", maxTicks = 400)
     fun `walks up stairs without jumping`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 0)
+        val player = player(0, 1, 0).spawn()
         val goal = absolute(9, 3, 0)
 
         val path = path(player, goal, "up the stairs")
@@ -85,7 +84,7 @@ object NPCPathfindingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:stairs_high_side", maxTicks = 400)
     fun `jumps up stair approached from its high side`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 0)
+        val player = player(0, 1, 0).spawn()
         val goal = absolute(9, 1, 0)
 
         val path = path(player, goal, "up the stairs")
@@ -100,7 +99,7 @@ object NPCPathfindingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:step_up", maxTicks = 400)
     fun `jumps up full block`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 0)
+        val player = player(0, 1, 0).spawn()
         val goal = absolute(9, 1, 0)
 
         val path = path(player, goal, "up the step")
@@ -115,7 +114,7 @@ object NPCPathfindingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:ledge", maxTicks = 400)
     fun `drops down ledge`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 3, 0)
+        val player = player(0, 3, 0).spawn()
         val goal = absolute(9, 1, 0)
 
         val path = path(player, goal, "down the ledge")
@@ -130,7 +129,7 @@ object NPCPathfindingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:ledge", maxTicks = 400)
     fun `doesnt turn while falling off ledge`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 3, 0)
+        val player = player(0, 3, 0).spawn()
         val goal = absolute(9, 1, 0)
         context.assertEventually(5.Seconds, "Never landed on the ledge") { player.onGround() }
 
@@ -144,7 +143,7 @@ object NPCPathfindingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:sealed", maxTicks = 200)
     fun `reports unreachable target`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 0)
+        val player = player(0, 1, 0).spawn()
         val goal = absolute(8, 1, 0)
 
         val path = player.navigation.createPath(goal, accuracy = 0)
@@ -158,7 +157,7 @@ object NPCPathfindingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:zigzag", maxTicks = 200)
     fun `pathfinds around walls`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 0)
+        val player = player(0, 1, 0).spawn()
         val goal = absolute(4, 1, 4)
 
         player.navigation.moveTo(path(player, goal, "along the zigzag"))
@@ -167,7 +166,7 @@ object NPCPathfindingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:ascend", maxTicks = 200)
     fun `pathfinds upwards`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 0)
+        val player = player(0, 1, 0).spawn()
         val goal = absolute(4, 9, 4)
 
         player.navigation.moveTo(path(player, goal, "up the structure"))
@@ -176,7 +175,7 @@ object NPCPathfindingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:soulsand", maxTicks = 200)
     fun `pathfinding avoids soulsand`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 2, 1)
+        val player = player(0, 2, 1).spawn()
         val goal = absolute(6, 2, 2)
 
         val path = path(player, goal, "avoiding the soulsand")
@@ -188,7 +187,7 @@ object NPCPathfindingTests: ArcadeTestSuite() {
 
     @GameTest(structure = "arcade:platform", maxTicks = 200)
     fun `pathfinding walks diagonally`(context: TestContext) = context.test {
-        val player = createTestPlayer(0, 1, 0)
+        val player = player(0, 1, 0).spawn()
         val goal = absolute(4, 1, 4)
 
         val path = path(player, goal, "along platform")
