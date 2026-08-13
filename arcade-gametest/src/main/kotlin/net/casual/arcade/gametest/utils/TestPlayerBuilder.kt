@@ -7,12 +7,16 @@ package net.casual.arcade.gametest.utils
 import com.mojang.authlib.GameProfile
 import kotlinx.coroutines.future.await
 import net.casual.arcade.gametest.TestContext
-import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.npc.configuration.FakePlayerConstructor
+import net.casual.arcade.npc.network.FakeConnection
+import net.casual.arcade.npc.network.FakeLoginPacketListenerImpl
 import net.casual.arcade.utils.entity.teleportTo
 import net.casual.arcade.utils.math.location.Location
 import net.minecraft.core.BlockPos
 import net.minecraft.core.UUIDUtil
+import net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket
+import net.minecraft.network.protocol.login.LoginProtocols
+import net.minecraft.server.network.CommonListenerCookie
 import net.minecraft.world.level.GameType
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
@@ -80,12 +84,7 @@ public class TestPlayerBuilder<T: TestFakePlayer> internal constructor(
 
 
     public suspend fun spawn(): T {
-        // Speed up player spawning, since it is technically non-deterministic and can cause timeouts
-        TestPlayerSpawnPreloader.prepare(this.context.server)
-
-        val name = this.name ?: TestContext.nextTestPlayerName()
-        val profile = GameProfile(UUIDUtil.createOfflinePlayerUUID(name), name)
-        val player = FakePlayer.join(this.context.server, profile, this.constructor).await()
+        val player = this.join()
         player.setGameMode(this.gameMode)
         this.context.track(player)
 
@@ -93,6 +92,28 @@ public class TestPlayerBuilder<T: TestFakePlayer> internal constructor(
             player.clearPackets()
         }
         player.teleportTo(Location(this.context.absolute(this.position), Vec2(this.pitch, this.yaw)))
+        return player
+    }
+
+    // This essentially mirrors FakePlayer#join but without the PrepareSpawnTask stuff
+    // This is technically still suspending because of handleQueries, but without luckperms
+    // it should just be a noop, and this should join the player without suspending
+    private suspend fun join(): T {
+        val name = this.name ?: TestContext.nextTestPlayerName()
+        val profile = GameProfile(UUIDUtil.createOfflinePlayerUUID(name), name)
+        val server = this.context.server
+
+        val connection = FakeConnection()
+        val login = FakeLoginPacketListenerImpl(server, connection, profile)
+        connection.setupInboundProtocol(LoginProtocols.SERVERBOUND, login)
+        login.handleQueries().await()
+
+        val cookies = CommonListenerCookie.createInitial(profile, false)
+        val player = this.constructor.construct(server, this.context.level, cookies.gameProfile, cookies.clientInformation)
+        server.playerList.placeNewPlayer(connection, player, cookies)
+
+        server.connection.connections.add(connection)
+        player.connection.handleAcceptPlayerLoad(ServerboundPlayerLoadedPacket())
         return player
     }
 }
