@@ -15,6 +15,18 @@ jobs:
         with:
           distribution: temurin
           java-version: 25
+      - name: setup gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-home-cache-excludes: |
+            caches/fabric-loom/assets
+      - name: cache loom project files
+        uses: actions/cache@v4
+        with:
+          path: .gradle/loom-cache
+          key: loom-cache-${{ runner.os }}-${{ hashFiles('libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            loom-cache-${{ runner.os }}-
       - name: make gradle wrapper executable
         run: chmod +x ./gradlew
       - name: build

@@ -80,6 +80,9 @@ public class TestPlayerBuilder<T: TestFakePlayer> internal constructor(
 
 
     public suspend fun spawn(): T {
+        // Speed up player spawning, since it is technically non-deterministic and can cause timeouts
+        TestPlayerSpawnPreloader.prepare(this.context.server)
+
         val name = this.name ?: TestContext.nextTestPlayerName()
         val profile = GameProfile(UUIDUtil.createOfflinePlayerUUID(name), name)
         val player = FakePlayer.join(this.context.server, profile, this.constructor).await()
