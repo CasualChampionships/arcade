@@ -23,7 +23,7 @@ import net.minecraft.world.phys.Vec3
 
 public class TestPlayerBuilder<T: TestFakePlayer> internal constructor(
     private val context: TestContext,
-    private val constructor: FakePlayerConstructor<T>
+    private var constructor: FakePlayerConstructor<T>
 ) {
     private var name: String? = null
     private var position: Vec3 = Vec3(0.5, 0.0, 0.5)
@@ -33,14 +33,10 @@ public class TestPlayerBuilder<T: TestFakePlayer> internal constructor(
     private var recordLoginPackets: Boolean = false
 
     public fun <U: TestFakePlayer> constructor(constructor: FakePlayerConstructor<U>): TestPlayerBuilder<U> {
-        val builder = TestPlayerBuilder(this.context, constructor)
-        builder.name = this.name
-        builder.position = this.position
-        builder.yaw = this.yaw
-        builder.pitch = this.pitch
-        builder.gameMode = this.gameMode
-        builder.recordLoginPackets = this.recordLoginPackets
-        return builder
+        @Suppress("UNCHECKED_CAST")
+        val casted = this as TestPlayerBuilder<U>
+        casted.constructor = constructor
+        return casted
     }
 
     public fun name(name: String): TestPlayerBuilder<T> {
