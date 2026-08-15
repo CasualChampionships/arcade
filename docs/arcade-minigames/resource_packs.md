@@ -1,8 +1,9 @@
 # Resource Packs
 
-To read about how to generate and host resource packs read the section on 
-[Resources](../arcade-resource-pack/getting-started.md), it will be useful to 
-read that before continuing on with this section.
+To read about how to generate and host resource packs read the sections on 
+[Resource Packs](../arcade-resource-pack/getting-started.md) and 
+[Resource Pack Generation](../arcade-resource-pack-generation/getting-started.md), it 
+will be useful to read those before continuing on with this section.
 
 Minigame's can handle resource packs for us, they will ensure that new incoming
 players will be prompted to download the correct packs, and when they leave the
