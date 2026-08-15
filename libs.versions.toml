@@ -19,8 +19,6 @@ c2me          = "0.4.1-alpha.0.3+26.2"
 
 # Testing
 reflections = "0.10.2"
-# Stays on the 5.x line: fabric-loader-junit registers a LauncherSessionListener built against
-# junit-platform 1.x, which JUnit 6 replaces
 junit       = "5.14.4"
 
 # Plugins

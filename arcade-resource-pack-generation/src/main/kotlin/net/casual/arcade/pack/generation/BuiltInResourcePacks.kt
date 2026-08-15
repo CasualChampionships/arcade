@@ -69,7 +69,7 @@ public object BuiltInResourcePacks {
     public val MINI_MINECRAFT_FONT_PACK: PackDefinition = PackDefinition("mini_minecraft") {
         description = Component.literal("Mini Minecraft style font")
         include(path("packs/MiniMinecraftFont"))
-        addFont(BuiltInFonts.MINI_FONT, BuiltInFontDefinitions::createMiniFont)
+        addFont(BuiltInFonts.MINI_FONT, BuiltInFontDefinitions.createMiniFont())
     }
 
     public val BOUNDARY_SHADER_PACK: PackDefinition = PackDefinition("boundary_shader") {
