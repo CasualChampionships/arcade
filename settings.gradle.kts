@@ -47,6 +47,7 @@ include(
     ":arcade-observers",
     ":arcade-replay",
     ":arcade-resource-pack",
+    ":arcade-resource-pack-generation",
     ":arcade-resource-pack-host",
     ":arcade-scheduler",
     ":arcade-utils",

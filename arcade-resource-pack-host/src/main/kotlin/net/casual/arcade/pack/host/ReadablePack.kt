@@ -45,6 +45,16 @@ public interface ReadablePack {
         return 0
     }
 
+    /**
+     * This gets the SHA-1 hash of the [ReadablePack], if it is already known.
+     * If this returns `null` the host will calculate the hash itself.
+     *
+     * @return The hash of the pack, or `null` if it is not known.
+     */
+    public fun hash(): String? {
+        return null
+    }
+
     public companion object {
         /**
          * Creates a single use [ReadablePack] with a given [name] and [stream].

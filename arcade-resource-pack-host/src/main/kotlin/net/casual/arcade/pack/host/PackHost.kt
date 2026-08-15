@@ -94,7 +94,8 @@ public abstract class PackHost {
     private fun hostPack(pack: ReadablePack): CompletableFuture<HostedPack> {
         return this.async {
             @Suppress("DEPRECATION")
-            val hash = Hashing.sha1().hashBytes(pack.stream().use(InputStream::readBytes)).toString()
+            val hash = pack.hash()
+                ?: Hashing.sha1().hashBytes(pack.stream().use(InputStream::readBytes)).toString()
 
             val hosted = HostedPack(pack, this.createUrl(pack.name), hash)
             this.hosted[pack.name] = hosted
