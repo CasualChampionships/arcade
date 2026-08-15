@@ -37,7 +37,7 @@ tasks {
 
         from("LICENSE")
 
-        // For compatability with viaversion
+        // For compatibility with viaversion
         relocate("assets/viaversion", "assets/replay-viaversion")
 
         relocate("com.github.steveice10.netty", "io.netty")

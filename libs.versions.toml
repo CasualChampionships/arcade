@@ -9,7 +9,7 @@ sgui                = "2.1.0+26.2"
 server-translations = "3.1.0+26.2"
 replay-studio       = "06978a304f"
 
-# Compatability
+# Compatibility
 carpet        = "26.2"
 c2me          = "0.4.1-alpha.0.3+26.2"
 polymer       = "0.17.0+26.2-rc-2"
@@ -36,7 +36,7 @@ sgui                   = { module = "eu.pb4:sgui"                          , ver
 server-translations    = { module = "xyz.nucleoid:server-translations-api" , version.ref = "server-translations" }
 replay-studio          = { module = "com.github.ReplayMod:ReplayStudio"    , version.ref = "replay-studio" }
 
-# Compatability
+# Compatibility
 carpet        = { module = "com.github.gnembon:fabric-carpet"    , version.ref = "carpet" }
 c2me          = { module = "maven.modrinth:c2me-fabric"          , version.ref = "c2me" }
 polymer-core  = { module = "eu.pb4:polymer-core"                 , version.ref = "polymer" }

@@ -27,7 +27,7 @@ class MyPlayerEvent(
 ): PlayerEvent
 ```
 
-This is for compatability with the minigames-event system, so it can tell whether a 
+This is for compatibility with the minigames-event system, so it can tell whether a 
 given event is relevant to the minigame, more information about this in the 
 [Minigame Event's Section](../arcade-minigames/events.md).
 
