@@ -5,17 +5,17 @@ kotlin              = "2.4.0"
 fabric-loader       = "0.19.3"
 fabric-api          = "0.154.2+26.2"
 fabric-kotlin       = "1.13.12+kotlin.2.4.0"
-polymer             = "0.17.0+26.2-rc-2"
 sgui                = "2.1.0+26.2"
 server-translations = "3.1.0+26.2"
 replay-studio       = "06978a304f"
 
 # Compatability
 carpet        = "26.2"
+c2me          = "0.4.1-alpha.0.3+26.2"
+polymer       = "0.17.0+26.2-rc-2"
 voicechat     = "fabric-2.6.18+26.2"
 voicechat-api = "2.6.13"
 vmp           = "0.2.0+beta.7.235+26.2-rc-2"
-c2me          = "0.4.1-alpha.0.3+26.2"
 
 # Testing
 reflections = "0.10.2"
@@ -32,22 +32,22 @@ minecraft              = { module = "com.mojang:minecraft"                 , ver
 fabric-loader          = { module = "net.fabricmc:fabric-loader"           , version.ref = "fabric-loader" }
 fabric-api             = { module = "net.fabricmc.fabric-api:fabric-api"   , version.ref = "fabric-api" }
 fabric-kotlin          = { module = "net.fabricmc:fabric-language-kotlin"  , version.ref = "fabric-kotlin" }
-polymer-core           = { module = "eu.pb4:polymer-core"                  , version.ref = "polymer" }
 sgui                   = { module = "eu.pb4:sgui"                          , version.ref = "sgui" }
 server-translations    = { module = "xyz.nucleoid:server-translations-api" , version.ref = "server-translations" }
 replay-studio          = { module = "com.github.ReplayMod:ReplayStudio"    , version.ref = "replay-studio" }
 
 # Compatability
 carpet        = { module = "com.github.gnembon:fabric-carpet"    , version.ref = "carpet" }
+c2me          = { module = "maven.modrinth:c2me-fabric"          , version.ref = "c2me" }
+polymer-core  = { module = "eu.pb4:polymer-core"                 , version.ref = "polymer" }
 voicechat     = { module = "maven.modrinth:simple-voice-chat"    , version.ref = "voicechat" }
 voicechat-api = { module = "de.maxhenkel.voicechat:voicechat-api", version.ref = "voicechat-api" }
 vmp           = { module = "maven.modrinth:vmp-fabric"           , version.ref = "vmp" }
-c2me          = { module = "maven.modrinth:c2me-fabric"          , version.ref = "c2me" }
 
 # Testing
-reflections         = { module = "org.reflections:reflections"          , version.ref = "reflections" }
-junit-jupiter       = { module = "org.junit.jupiter:junit-jupiter"      , version.ref = "junit" }
-fabric-loader-junit = { module = "net.fabricmc:fabric-loader-junit"     , version.ref = "fabric-loader" }
+reflections         = { module = "org.reflections:reflections"     , version.ref = "reflections" }
+junit-jupiter       = { module = "org.junit.jupiter:junit-jupiter" , version.ref = "junit" }
+fabric-loader-junit = { module = "net.fabricmc:fabric-loader-junit", version.ref = "fabric-loader" }
 
 [plugins]
 kotlin-jvm           = { id = "org.jetbrains.kotlin.jvm"                 , version.ref = "kotlin" }
