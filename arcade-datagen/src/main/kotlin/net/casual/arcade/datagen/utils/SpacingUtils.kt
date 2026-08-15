@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.datagen.utils
 
-import net.casual.arcade.resources.font.spacing.SpacingFontResources
-import net.casual.arcade.resources.lang.LanguageEntry
+import net.casual.arcade.pack.font.spacing.SpacingFontResources
+import net.casual.arcade.pack.lang.LanguageEntry
 import net.casual.arcade.utils.component.getTranslationKey
 import net.minecraft.client.gui.Font
 import net.minecraft.network.chat.Component

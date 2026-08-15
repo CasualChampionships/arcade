@@ -8,7 +8,7 @@ import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.utils.register
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigames
 import net.casual.arcade.replay.events.chunk.ReplayChunkRecorderSnapshotEvent
-import net.casual.arcade.resources.utils.ResourcePackUtils.toPushPacket
+import net.casual.arcade.pack.utils.ResourcePackUtils.toPushPacket
 
 internal object MinigamesReplayCompat {
     internal fun registerEvents() {

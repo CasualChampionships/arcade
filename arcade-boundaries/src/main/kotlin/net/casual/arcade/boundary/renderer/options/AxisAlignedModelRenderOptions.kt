@@ -10,7 +10,7 @@ import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
 import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions.Companion.CUBOID_SHADER
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.boundary.utils.BoundaryRegistries
-import net.casual.arcade.resources.ArcadeResourcePacks
+import net.casual.arcade.pack.ArcadeResourcePacks
 import net.casual.arcade.utils.arcade
 import net.minecraft.core.Direction
 import net.minecraft.core.Registry

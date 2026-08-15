@@ -8,7 +8,7 @@ import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.literal
 import net.casual.arcade.commands.success
-import net.casual.arcade.resources.font.heads.PixelGridHeadComponents
+import net.casual.arcade.pack.font.heads.PixelGridHeadComponents
 import net.casual.arcade.utils.player.StaticResolvableProfile
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack

@@ -13,7 +13,7 @@ import kotlinx.coroutines.*
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.player.PlayerServerboundPacketEvent
 import net.casual.arcade.events.utils.register
-import net.casual.arcade.host.GlobalPackHost
+import net.casual.arcade.pack.host.GlobalPackHost
 import net.casual.arcade.replay.ducks.ResourcePackTracker
 import net.casual.arcade.replay.io.reader.ReplayReader
 import net.casual.arcade.replay.mixins.viewer.EntityInvoker

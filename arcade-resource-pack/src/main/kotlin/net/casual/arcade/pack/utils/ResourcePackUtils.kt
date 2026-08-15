@@ -1,0 +1,452 @@
+/*
+ * Copyright (c) 2024 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
+package net.casual.arcade.pack.utils
+
+import com.google.gson.JsonObject
+import eu.pb4.polymer.resourcepack.api.ResourcePackBuilder
+import eu.pb4.polymer.resourcepack.api.ResourcePackCreator
+import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.server.network.ClientboundPacketEvent
+import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
+import net.casual.arcade.events.server.player.PlayerDisconnectEvent
+import net.casual.arcade.events.utils.register
+import net.casual.arcade.pack.host.PackHost
+import net.casual.arcade.pack.host.PathPack
+import net.casual.arcade.pack.host.HostedPack
+import net.casual.arcade.pack.creator.NamedResourcePackCreator
+import net.casual.arcade.pack.event.PackStatusEvent
+import net.casual.arcade.pack.extensions.PlayerPackExtension
+import net.casual.arcade.pack.font.FontResources
+import net.casual.arcade.pack.PackInfo
+import net.casual.arcade.pack.PackState
+import net.casual.arcade.pack.PackStatus
+import net.casual.arcade.pack.sound.SoundResources
+import net.casual.arcade.pack.utils.ShaderUtils.ColorReplacer
+import net.casual.arcade.utils.Identifier
+import net.casual.arcade.utils.JsonUtils
+import net.fabricmc.loader.api.FabricLoader
+import net.fabricmc.loader.api.ModContainer
+import net.minecraft.network.chat.Component
+import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
+import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
+import net.minecraft.resources.Identifier
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.network.ServerCommonPacketListenerImpl
+import java.awt.image.BufferedImage
+import java.io.ByteArrayOutputStream
+import java.io.FileNotFoundException
+import java.io.IOException
+import java.nio.file.FileVisitResult
+import java.nio.file.Path
+import java.util.*
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
+import javax.imageio.ImageIO
+import kotlin.io.path.*
+import kotlin.reflect.KProperty
+
+public object ResourcePackUtils {
+    // May be accessed off the main thread.
+    // This is implemented like this since we cannot use PlayerExtensions.
+    // Packs may be sent before the player has spawned in the world.
+    private val universe = ConcurrentHashMap<UUID, PlayerPackExtension>()
+
+    private val ServerPlayer.resourcePacks
+        get() = getExtension(this.uuid)
+
+    @JvmStatic
+    public fun PackInfo.toPushPacket(connection: ServerCommonPacketListenerImpl): ClientboundResourcePackPushPacket {
+        return ClientboundResourcePackPushPacket(
+            this.uuid, this.url.resolve(connection), this.hash, this.required, Optional.ofNullable(this.prompt)
+        )
+    }
+
+    @JvmStatic
+    public fun PackInfo.toPushPacket(): ClientboundResourcePackPushPacket {
+        return ClientboundResourcePackPushPacket(
+            this.uuid, this.url.resolve(), this.hash, this.required, Optional.ofNullable(this.prompt)
+        )
+    }
+
+    @JvmStatic
+    public fun PackInfo.toPopPacket(): ClientboundResourcePackPopPacket {
+        return ClientboundResourcePackPopPacket(Optional.of(this.uuid))
+    }
+
+    @JvmStatic
+    public fun getPlayerPackState(playerUUID: UUID, packUUID: UUID): PackState? {
+        return this.getExtension(playerUUID).getPackState(packUUID)
+    }
+
+    @JvmStatic
+    public fun getPlayerAllPackStates(playerUUID: UUID): Collection<PackState> {
+        return this.getExtension(playerUUID).getAllPacks()
+    }
+
+    @JvmStatic
+    public fun getPlayerPackLoadingFuture(playerUUID: UUID): CompletableFuture<Void> {
+        return this.getExtension(playerUUID).allLoadedFuture
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.getPackState(uuid: UUID): PackState? {
+        return getPlayerPackState(this.uuid, uuid)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.getPackState(pack: PackInfo): PackState? {
+        return this.getPackState(pack.uuid)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.hasBeenSentPack(pack: PackInfo): Boolean {
+        return this.getPackState(pack) != null
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.getAllPackStates(): Collection<PackState> {
+        return getPlayerAllPackStates(this.uuid)
+    }
+
+    @JvmStatic
+    public fun afterPacksLoad(players: Iterable<ServerPlayer>, block: () -> Unit) {
+        getPackLoadingFuture(players).thenRun(block)
+    }
+
+    @JvmStatic
+    public fun getPackLoadingFuture(players: Iterable<ServerPlayer>): CompletableFuture<Void> {
+        return CompletableFuture.allOf(*players.map { it.getPackLoadingFuture() }.toTypedArray())
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.afterPacksLoad(block: () -> Unit) {
+        this.getPackLoadingFuture().thenRun(block)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.getPackLoadingFuture(): CompletableFuture<Void> {
+        return getPlayerPackLoadingFuture(this.uuid)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.sendResourcePack(pack: PackInfo, replace: Boolean = true): CompletableFuture<PackStatus> {
+        val current = this.getPackState(pack)
+        if (!replace && current != null) {
+            if (current.isLoadingPack()) {
+                return this.resourcePacks.addFuture(pack.uuid)
+            }
+            if (current.hasLoadedPack()) {
+                return CompletableFuture.completedFuture(PackStatus.SUCCESS)
+            }
+        }
+
+        this.connection.send(pack.toPushPacket(this.connection))
+        return this.resourcePacks.addFuture(pack.uuid)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.removeResourcePack(pack: PackInfo): CompletableFuture<PackStatus> {
+        this.connection.send(pack.toPopPacket())
+        return this.resourcePacks.addFuture(pack.uuid)
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.removeAllResourcePacks() {
+        this.connection.send(ClientboundResourcePackPopPacket(Optional.empty()))
+    }
+
+    /**
+     * This converts the [HostedPack] to [PackInfo] to be able
+     * to be sent to players on the server.
+     *
+     * @param required Whether the pack should be required for the player.
+     * @param prompt The prompt given to the player.
+     * @return The pack info.
+     * @see PackInfo
+     */
+    public fun HostedPack.toPackInfo(required: Boolean = false, prompt: Component? = null): PackInfo {
+        return PackInfo(this.url, this.hash, required, prompt)
+    }
+
+    public fun PackHost.HostedPackRef.toPackInfo(required: Boolean = false, prompt: Component? = null): PackInfoRef {
+        return PackInfoRef(this, required, prompt)
+    }
+
+    public fun PackHost.addPack(path: Path, creator: NamedResourcePackCreator): PackHost.HostedPackRef {
+        creator.buildTo(path)
+        return this.add(PathPack(path.resolve(creator.zippedName())))
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addAssetsFrom(modid: String) {
+        val container = FabricLoader.getInstance().getModContainer(modid).orElseThrow(::IllegalArgumentException)
+        this.addAssetsFrom(container)
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addAssetsFrom(container: ModContainer) {
+        this.addAssetsFrom(container.findPath("assets").orElseThrow(::FileNotFoundException))
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addAssetsFrom(assets: Path) {
+        this.creationEvent.register { builder ->
+            builder.copyFromPath(assets, "assets/")
+        }
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addToAssets(destination: String, path: Path, renamed: String? = null) {
+        this.creationEvent.register { builder ->
+            if (path.notExists()) {
+                throw IOException("No such file exists: $path")
+            }
+
+            val normalized = buildString {
+                append("assets")
+                val trimmed = destination.trim('/')
+                if (trimmed.isNotEmpty()) {
+                    append('/').append(trimmed)
+                }
+                append('/').append(renamed ?: path.name)
+            }
+            if (path.isDirectory()) {
+                builder.copyFromPath(path, "$normalized/")
+            } else {
+                builder.addData(normalized, path.readBytes())
+            }
+        }
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addLangsFromData(modid: String) {
+        val container = FabricLoader.getInstance().getModContainer(modid).orElseThrow(::IllegalArgumentException)
+        this.addLangsFromData(modid, container)
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addLangsFromData(namespace: String, container: ModContainer) {
+        val data = container.findPath("data").orElseThrow(::FileNotFoundException)
+        val langs = data.listDirectoryEntries()
+            .filter { it.isDirectory() && it.resolve("lang").isDirectory() }
+            .map { it.resolve("lang") }
+        for (lang in langs) {
+            this.addLangsFrom(namespace, lang)
+        }
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addLangsFrom(namespace: String, langs: Path) {
+        this.creationEvent.register { builder ->
+            for (lang in langs.listDirectoryEntries()) {
+                val translations = JsonUtils.decodeRaw<JsonObject>(lang.reader())
+                mergeJsons(builder, "assets/${namespace}/lang/${lang.name}", translations)
+            }
+        }
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addFont(id: Identifier, generator: () -> String) {
+        this.creationEvent.register { builder ->
+            val fontDefinition = generator.invoke().encodeToByteArray()
+            builder.addData("assets/${id.namespace}/font/${id.path}.json", fontDefinition)
+        }
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addFont(font: FontResources) {
+        this.creationEvent.register { builder ->
+            val providers = font.getProvidersJson()
+            val encoded = JsonUtils.MIN_GSON.toJson(providers).encodeToByteArray()
+            builder.addData("assets/${font.id.namespace}/font/${font.id.path}.json", encoded)
+            for ((lang, translations) in font.getLangJsons()) {
+                mergeJsons(builder, "assets/${font.id.namespace}/lang/${lang}.json", translations)
+            }
+            for ((id, bitmap) in font.getGeneratedBitmaps()) {
+                builder.addData("assets/${id.namespace}/textures/${id.path}.png", bitmap.encodeToByteArray())
+            }
+        }
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addSounds(sounds: SoundResources) {
+        this.afterInitialCreationEvent.register { builder ->
+            // We can only have 1 sounds.json
+            val additional = JsonUtils.decodeRaw<JsonObject>(sounds.toJson().reader())
+            mergeJsons(builder, "assets/${sounds.namespace}/sounds.json", additional)
+        }
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addCustomOutlineColors(block: ColorReplacer.() -> Unit) {
+        this.creationEvent.register { builder ->
+            val replacer = ColorReplacer()
+            replacer.block()
+            val shader = ShaderUtils.getOutlineVertexShader(replacer.getMap(), replacer.getRainbow())
+            builder.addData("assets/minecraft/shaders/core/rendertype_outline.vsh", shader.encodeToByteArray())
+        }
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addMissingItemModels(namespace: String) {
+        val container = FabricLoader.getInstance().getModContainer(namespace).orElseThrow(::IllegalArgumentException)
+        this.addMissingItemModels(namespace, container)
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addMissingItemModels(namespace: String, container: ModContainer) {
+        this.addMissingItemModels(namespace, container.findPath("assets").orElseThrow(::FileNotFoundException))
+    }
+
+    @JvmStatic
+    public fun ResourcePackCreator.addMissingItemModels(namespace: String, assets: Path) {
+        this.addMissingItemModelsInternal(namespace, assets)
+    }
+
+    @JvmStatic
+    private fun ResourcePackCreator.addMissingItemModelsInternal(namespace: String, assets: Path) {
+        val itemTextures = assets.resolve(namespace).resolve("textures").resolve("item")
+        val itemModels = assets.resolve(namespace).resolve("models").resolve("item")
+        val items = assets.resolve(namespace).resolve("items")
+        val itemTexturesDirectory = "$itemTextures/"
+        val itemModelsDirectory = "$itemModels/"
+        this.creationEvent.register { builder ->
+            if (itemTextures.isDirectory()) {
+                itemTextures.visitFileTree {
+                    onVisitFile { path, _ ->
+                        tryAddMissingItemModel(namespace, path, itemTexturesDirectory, itemModels, builder)
+                        FileVisitResult.CONTINUE
+                    }
+                }
+            }
+            if (itemModels.isDirectory()) {
+                itemModels.visitFileTree {
+                    onVisitFile { path, _ ->
+                        tryAddMissingItemModelDefinitions(namespace, path, itemModelsDirectory, items, builder)
+                        FileVisitResult.CONTINUE
+                    }
+                }
+            }
+            val modelsPath = "assets/$namespace/models/item/"
+            builder.forEachResource { path, _ ->
+                if (path.startsWith(modelsPath)) {
+                    val definition = path.removePrefix(modelsPath)
+                    val name = definition.substringAfterLast('/')
+                    val relative = if (definition.contains('/')) definition.substringBeforeLast('/') + "/" else ""
+                    if (builder.getData("assets/$namespace/items/$relative$name") == null) {
+                        tryAddMissingItemModelDefinitionRaw(namespace, relative, name.removeSuffix(".json"), builder)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun mergeJsons(builder: ResourcePackBuilder, path: String, additional: JsonObject) {
+        val existing = builder.getData(path)
+        val json = if (existing != null) {
+            JsonUtils.decodeRaw(existing.decodeToString().reader())
+        } else {
+            JsonObject()
+        }
+
+        for ((string, element) in additional.entrySet()) {
+            json.add(string, element)
+        }
+
+        builder.addData(path, JsonUtils.GSON.toJson(json).encodeToByteArray())
+    }
+
+    private fun tryAddMissingItemModelDefinitions(namespace: String, path: Path, dir: String, items: Path, builder: ResourcePackBuilder) {
+        val name = path.nameWithoutExtension
+        val relative = (path.parent.toString() + "/").removePrefix(dir)
+        if (items.resolve("$relative$name.json").notExists()) {
+            this.tryAddMissingItemModelDefinitionRaw(namespace, relative, name, builder)
+        }
+    }
+
+    private fun tryAddMissingItemModelDefinitionRaw(namespace: String, relative: String, name: String, builder: ResourcePackBuilder) {
+        val location = Identifier(namespace, "item/$relative$name")
+        builder.addData("assets/$namespace/items/$relative$name.json", getDefaultItemModelDefinition(location))
+    }
+
+    private fun tryAddMissingItemModel(namespace: String, path: Path, dir: String, models: Path, builder: ResourcePackBuilder) {
+        val name = path.nameWithoutExtension
+        val relative = (path.parent.toString() + "/").removePrefix(dir)
+        val model = "$relative$name.json"
+        if (models.resolve(model).notExists()) {
+            val location = Identifier(namespace, "item/$relative$name")
+            builder.addData("assets/$namespace/models/item/$model", getDefaultItemModel(location))
+        }
+    }
+
+    private fun getDefaultItemModelDefinition(location: Identifier): ByteArray {
+        return """
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "$location"
+          }
+        }
+        """.trimIndent().encodeToByteArray()
+    }
+
+    private fun getDefaultItemModel(location: Identifier): ByteArray {
+        return """
+        {
+          "parent": "minecraft:item/generated",
+          "textures": {
+            "layer0": "$location"
+          }
+        }
+        """.trimIndent().encodeToByteArray()
+    }
+
+    private fun getExtension(uuid: UUID): PlayerPackExtension {
+        return universe.getOrPut(uuid) { PlayerPackExtension(uuid) }
+    }
+
+    private fun BufferedImage.encodeToByteArray(): ByteArray {
+        return ByteArrayOutputStream().use { stream ->
+            ImageIO.write(this, "png", stream)
+            stream.toByteArray()
+        }
+    }
+
+    public class PackInfoRef(
+        ref: PackHost.HostedPackRef,
+        private val required: Boolean,
+        private val prompt: Component?
+    ) {
+        private val hosted by ref
+
+        public operator fun getValue(any: Any?, property: KProperty<*>): PackInfo {
+            return this.hosted.toPackInfo(this.required, this.prompt)
+        }
+    }
+
+    internal fun registerEvents() {
+        GlobalEventHandler.Server.register<PlayerDisconnectEvent> { (_, profile) ->
+            universe.remove(profile.id)
+        }
+        GlobalEventHandler.Server.register<ClientboundPacketEvent> { (_, profile, packet) ->
+            // This may be off thread
+            if (packet is ClientboundResourcePackPushPacket) {
+                getExtension(profile.id).onPushPack(packet)
+            } else if (packet is ClientboundResourcePackPopPacket) {
+                getExtension(profile.id).onPopPack(packet)
+            }
+        }
+        GlobalEventHandler.Server.register<PackStatusEvent> { (server, profile, uuid, status) ->
+            getExtension(profile.id).onPackStatus(server, uuid, status)
+        }
+        GlobalEventHandler.Server.register<PlayerDimensionChangeEvent> { (player) ->
+            for (pack in getExtension(player.uuid).getAllPacks()) {
+                if (pack.isWaitingForResponse()) {
+                    player.sendResourcePack(pack.info, true)
+                }
+            }
+        }
+    }
+}

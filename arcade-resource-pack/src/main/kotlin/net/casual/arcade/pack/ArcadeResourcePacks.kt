@@ -1,0 +1,131 @@
+/*
+ * Copyright (c) 2024 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
+package net.casual.arcade.pack
+
+import net.casual.arcade.pack.creator.NamedResourcePackCreator
+import net.casual.arcade.pack.font.padding.PaddingNoSplitFontResources
+import net.casual.arcade.pack.font.padding.PaddingSplitFontResources
+import net.casual.arcade.pack.font.pixel.PixelFontResources
+import net.casual.arcade.pack.font.spacing.SpacingFontResources
+import net.casual.arcade.pack.utils.FontUtils
+import net.casual.arcade.pack.utils.ResourcePackUtils
+import net.casual.arcade.pack.utils.ResourcePackUtils.addCustomOutlineColors
+import net.casual.arcade.pack.utils.ResourcePackUtils.addFont
+import net.casual.arcade.pack.utils.ResourcePackUtils.addLangsFromData
+import net.casual.arcade.pack.utils.ShaderUtils
+import net.fabricmc.api.ModInitializer
+import net.fabricmc.loader.api.FabricLoader
+import net.minecraft.network.chat.Component
+import java.nio.file.Path
+import kotlin.io.path.readBytes
+
+/**
+ * Contains some commonly used resource packs.
+ */
+public object ArcadeResourcePacks: ModInitializer {
+    private val container = FabricLoader.getInstance().getModContainer("arcade-resource-pack").get()
+
+    public val ACTION_BAR_FONT_PACK: NamedResourcePackCreator by lazy {
+        NamedResourcePackCreator.named("action_bar_font") {
+            addAssetSource(path("packs/ActionBarFont"))
+            for (i in 1..128) {
+                addFont(FontUtils.shiftedDownFont(i)) { FontUtils.createDefaultFont(i) }
+            }
+            packDescription = Component.literal("Shifts text on the action bar")
+        }
+    }
+
+    public val MINI_ACTION_BAR_FONT_PACK: NamedResourcePackCreator by lazy {
+        NamedResourcePackCreator.named("mini_action_bar_font") {
+            addAssetSource(path("packs/MiniActionBarFont"))
+            for (i in 1..128) {
+                addFont(FontUtils.miniShiftedDownFont(i)) { FontUtils.createMiniFont(i) }
+            }
+            packDescription = Component.literal("Shifts mini text on the action bar")
+        }
+    }
+
+    public val SPACING_FONT_PACK: NamedResourcePackCreator by lazy {
+        NamedResourcePackCreator.named("spacing_font") {
+            addFont(SpacingFontResources)
+            addAssetSource(path("packs/SpacingFont"))
+            packDescription = Component.literal("Provides spacing utilities for text")
+        }
+    }
+
+    public val PADDING_FONT_PACK: NamedResourcePackCreator by lazy {
+        NamedResourcePackCreator.named("padding_font") {
+            addAssetSource(path("packs/PaddingFont"))
+            addFont(PaddingSplitFontResources)
+            addFont(PaddingNoSplitFontResources)
+            packDescription = Component.literal("Provides padding utilities for text")
+        }
+    }
+
+    public val PIXEL_FONT_PACK: NamedResourcePackCreator by lazy {
+        NamedResourcePackCreator.named("pixel_font") {
+            addAssetSource(path("packs/PixelFont"))
+            addFont(PixelFontResources)
+            packDescription = Component.literal("Utilities for rendering pixel art")
+        }
+    }
+
+    public val HIDE_PLAYER_LIST_HEADS_PACK: NamedResourcePackCreator by lazy {
+        NamedResourcePackCreator.named("hide_player_list_heads") {
+            addAssetSource(path("packs/HidePlayerListHeads"))
+            packDescription = Component.literal("Utilities for hiding player list heads")
+        }
+    }
+
+    public val HIDE_PLAYER_LIST_PING_PACK: NamedResourcePackCreator by lazy {
+        NamedResourcePackCreator.named("hide_player_list_ping") {
+            addAssetSource(path("packs/HidePlayerListPing"))
+            packDescription = Component.literal("Utilities for hiding player list ping")
+        }
+    }
+
+    public val MINI_MINECRAFT_FONT_PACK: NamedResourcePackCreator by lazy {
+        NamedResourcePackCreator.named("mini_minecraft") {
+            addAssetSource(path("packs/MiniMinecraftFont"))
+            addFont(FontUtils.MINI_FONT, FontUtils::createMiniFont)
+            packDescription = Component.literal("Mini Minecraft style font")
+        }
+    }
+
+    public val BOUNDARY_SHADER_PACK: NamedResourcePackCreator by lazy {
+        NamedResourcePackCreator.named("boundary_shader") {
+            addAssetSource(path("packs/BoundaryShader"))
+            packDescription = Component.literal("Shaders for rendering custom boundaries")
+        }
+    }
+
+    /**
+     * All the langs bundled in a resource pack.
+     */
+    public val ARCADE_LANG_PACK: NamedResourcePackCreator by lazy {
+        NamedResourcePackCreator.named("arcade_lang_pack") {
+            addLangsFromData("arcade-commands")
+            addLangsFromData("arcade-minigames")
+            addLangsFromData("arcade-virtual-visuals")
+            packIcon = path("assets/icon.png").readBytes()
+            packDescription = Component.literal("Translations for arcade")
+        }
+    }
+
+    override fun onInitialize() {
+        ResourcePackUtils.registerEvents()
+    }
+
+    public fun createCustomGlowColorPack(replacer: ShaderUtils.ColorReplacer.() -> Unit): NamedResourcePackCreator {
+        return NamedResourcePackCreator.named("custom_glow_colors") {
+            addCustomOutlineColors(replacer)
+            packDescription = Component.literal("Custom team glowing colors")
+        }
+    }
+
+    public fun path(file: String): Path {
+        return this.container.findPath(file).get()
+    }
+}

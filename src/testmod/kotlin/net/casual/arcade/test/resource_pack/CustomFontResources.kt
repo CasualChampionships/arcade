@@ -1,7 +1,7 @@
 package net.casual.arcade.test.resource_pack
 
 import net.casual.arcade.Arcade
-import net.casual.arcade.resources.font.IndexedFontResources
+import net.casual.arcade.pack.font.IndexedFontResources
 import net.casual.arcade.utils.arcade
 import javax.imageio.ImageIO
 import kotlin.io.path.inputStream

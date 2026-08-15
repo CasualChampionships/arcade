@@ -1,7 +1,7 @@
 package net.casual.arcade.test.resource_pack
 
-import net.casual.arcade.resources.creator.NamedResourcePackCreator
-import net.casual.arcade.resources.utils.ResourcePackUtils.addFont
+import net.casual.arcade.pack.creator.NamedResourcePackCreator
+import net.casual.arcade.pack.utils.ResourcePackUtils.addFont
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.network.chat.Component
 import kotlin.io.path.createParentDirectories

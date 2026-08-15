@@ -7,9 +7,9 @@ package net.casual.arcade.minigame.utils
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.utils.MinigameResources.Companion.sendTo
-import net.casual.arcade.resources.pack.PackInfo
-import net.casual.arcade.resources.utils.ResourcePackUtils.removeResourcePack
-import net.casual.arcade.resources.utils.ResourcePackUtils.sendResourcePack
+import net.casual.arcade.pack.PackInfo
+import net.casual.arcade.pack.utils.ResourcePackUtils.removeResourcePack
+import net.casual.arcade.pack.utils.ResourcePackUtils.sendResourcePack
 import net.minecraft.server.level.ServerPlayer
 
 /**

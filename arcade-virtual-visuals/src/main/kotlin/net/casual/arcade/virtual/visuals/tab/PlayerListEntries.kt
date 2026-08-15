@@ -6,8 +6,8 @@ package net.casual.arcade.virtual.visuals.tab
 
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.Property
-import net.casual.arcade.resources.ArcadeResourcePacks
-import net.casual.arcade.resources.font.padding.PaddingNoSplitFontResources
+import net.casual.arcade.pack.ArcadeResourcePacks
+import net.casual.arcade.pack.font.padding.PaddingNoSplitFontResources
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer

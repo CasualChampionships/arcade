@@ -6,7 +6,7 @@ package net.casual.arcade.datagen.language
 
 import net.casual.arcade.datagen.utils.LOGGER
 import net.casual.arcade.datagen.utils.LanguageUtils
-import net.casual.arcade.resources.lang.LanguageEntry
+import net.casual.arcade.pack.lang.LanguageEntry
 import net.minecraft.client.Minecraft
 import java.nio.file.Path
 import kotlin.io.path.readText

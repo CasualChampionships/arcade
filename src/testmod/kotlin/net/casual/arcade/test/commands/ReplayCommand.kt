@@ -16,8 +16,8 @@ import net.casual.arcade.replay.io.ReplayFormat
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorders
 import net.casual.arcade.replay.recorder.settings.SimpleRecorderSettings
-import net.casual.arcade.resources.pack.PackInfo
-import net.casual.arcade.resources.utils.ResourcePackUtils.sendResourcePack
+import net.casual.arcade.pack.PackInfo
+import net.casual.arcade.pack.utils.ResourcePackUtils.sendResourcePack
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.network.ResolvableURL
 import net.minecraft.commands.CommandBuildContext
