@@ -10,9 +10,9 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import net.casual.arcade.pack.sound.SoundProvider.Type.Event
 import net.casual.arcade.pack.sound.SoundProvider.Type.Sound
 import net.casual.arcade.utils.Identifier
-import net.casual.arcade.utils.JsonUtils
 import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvent
+import org.jetbrains.annotations.ApiStatus.Internal
 
 public abstract class SoundResources(
     public val namespace: String
@@ -65,7 +65,8 @@ public abstract class SoundResources(
         return Identifier(this.namespace, path)
     }
 
-    internal fun toJson(): String {
+    @Internal
+    public fun toJson(): JsonObject {
         val code = SoundProvider.CODEC.listOf()
         val json = JsonObject()
         for ((key, providers) in this.providers) {
@@ -74,7 +75,7 @@ public abstract class SoundResources(
             group.add("sounds", result)
             json.add(key, group)
         }
-        return JsonUtils.MIN_GSON.toJson(json)
+        return json
     }
 
     private fun register(id: Identifier, distance: Int, dynamicRange: Boolean): SoundEvent {

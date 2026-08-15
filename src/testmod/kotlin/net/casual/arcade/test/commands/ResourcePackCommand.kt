@@ -11,12 +11,11 @@ import net.casual.arcade.events.server.player.PlayerJoinEvent
 import net.casual.arcade.events.utils.register
 import net.casual.arcade.pack.host.GlobalPackHost
 import net.casual.arcade.pack.host.PackHost
-import net.casual.arcade.pack.ArcadeResourcePacks
-import net.casual.arcade.pack.creator.NamedResourcePackCreator
-import net.casual.arcade.pack.utils.ResourcePackUtils.addPack
+import net.casual.arcade.pack.generation.BuiltInResourcePacks
+import net.casual.arcade.pack.generation.PackDefinition
+import net.casual.arcade.pack.generation.utils.add
 import net.casual.arcade.pack.utils.ResourcePackUtils.sendResourcePack
 import net.casual.arcade.pack.utils.ResourcePackUtils.toPackInfo
-import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.coroutine.launch
 import net.casual.arcade.utils.server.players
 import net.minecraft.commands.CommandBuildContext
@@ -24,11 +23,11 @@ import net.minecraft.commands.CommandSourceStack
 
 @Suppress("Unused")
 object ResourcePackCommand: CommandTree<CommandSourceStack> {
-    private val registered = HashMultimap.create<String, NamedResourcePackCreator>()
+    private val registered = HashMultimap.create<String, PackDefinition>()
 
     init {
-        this.register("player_heads", ArcadeResourcePacks.PIXEL_FONT_PACK, ArcadeResourcePacks.SPACING_FONT_PACK)
-        this.register("boundary", ArcadeResourcePacks.BOUNDARY_SHADER_PACK)
+        this.register("player_heads", BuiltInResourcePacks.PIXEL_FONT_PACK, BuiltInResourcePacks.SPACING_FONT_PACK)
+        this.register("boundary", BuiltInResourcePacks.BOUNDARY_SHADER_PACK)
     }
 
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
@@ -66,11 +65,11 @@ object ResourcePackCommand: CommandTree<CommandSourceStack> {
         return context.source.success("Successfully hosting pack $name")
     }
 
-    private fun register(name: String, vararg packs: NamedResourcePackCreator) {
+    private fun register(name: String, vararg packs: PackDefinition) {
         this.registered.putAll(name, packs.toList())
     }
 
-    private fun host(pack: NamedResourcePackCreator): PackHost.HostedPackRef {
-        return GlobalPackHost.addPack(ArcadeUtils.path.resolve("testing-packs"), pack)
+    private fun host(pack: PackDefinition): PackHost.HostedPackRef {
+        return GlobalPackHost.add(pack)
     }
 }

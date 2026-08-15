@@ -17,7 +17,7 @@
     "main": [
       {
         "adapter": "kotlin",
-        "value": "net.casual.arcade.pack.ArcadeResourcePacks"
+        "value": "net.casual.arcade.pack.ArcadeResourcePack"
       }
     ]
   },
@@ -27,8 +27,7 @@
   "depends": {
     "minecraft": "${minecraft_dependency}",
     "fabricloader": ">=${fabric_loader_dependency}",
-    "fabric-language-kotlin": ">=${fabric_kotlin_dependency}",
-    "polymer-core": ">=${polymer_dependency}"
+    "fabric-language-kotlin": ">=${fabric_kotlin_dependency}"
   },
   "custom": {
     "modmenu": {

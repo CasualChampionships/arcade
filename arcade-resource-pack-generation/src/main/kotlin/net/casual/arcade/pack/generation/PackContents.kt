@@ -9,11 +9,16 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.mojang.serialization.JsonOps
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
+import net.casual.arcade.pack.font.FontResources
+import net.casual.arcade.pack.generation.utils.ItemModelGenerator
+import net.casual.arcade.pack.generation.utils.ShaderUtils
+import net.casual.arcade.pack.sound.SoundResources
 import net.casual.arcade.utils.JsonUtils
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
 import net.minecraft.SharedConstants
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.PackType
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection
 import java.awt.image.BufferedImage
@@ -25,7 +30,11 @@ import java.nio.file.Path
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.isSymbolicLink
+import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.name
+import kotlin.io.path.readBytes
 import kotlin.io.path.readSymbolicLink
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * @see PackDefinition
@@ -39,15 +48,15 @@ public class PackContents internal constructor() {
 
     public var icon: PackFile? = null
 
-    public fun icon(path: Path) {
+    public fun setIcon(path: Path) {
         this.icon = PackFile.of(path)
     }
 
-    public fun icon(image: BufferedImage) {
+    public fun setIcon(image: BufferedImage) {
         this.icon = PackFile.of(image)
     }
 
-    public fun file(path: String, file: PackFile) {
+    public fun addFile(path: String, file: PackFile) {
         val normalized = path.trim('/')
         if (normalized == PACK_METADATA) {
             this.mcmeta(this.decode(file))
@@ -71,20 +80,20 @@ public class PackContents internal constructor() {
         }
     }
 
-    public fun file(path: String, bytes: ByteArray) {
-        this.file(path, PackFile.of(bytes))
+    public fun addFile(path: String, bytes: ByteArray) {
+        this.addFile(path, PackFile.of(bytes))
     }
 
-    public fun file(path: String, contents: String) {
-        this.file(path, PackFile.of(contents))
+    public fun addFile(path: String, contents: String) {
+        this.addFile(path, PackFile.of(contents))
     }
 
-    public fun file(path: String, json: JsonElement) {
-        this.file(path, PackFile.of(json))
+    public fun addFile(path: String, json: JsonElement) {
+        this.addFile(path, PackFile.of(json))
     }
 
-    public fun file(path: String, image: BufferedImage) {
-        this.file(path, PackFile.of(image))
+    public fun addFile(path: String, image: BufferedImage) {
+        this.addFile(path, PackFile.of(image))
     }
 
     public fun get(path: String): PackFile? {
@@ -152,6 +161,85 @@ public class PackContents internal constructor() {
         this.copyDirectory(resolved, prefix)
     }
 
+    public fun addLangs(modid: String, throwIfMissing: Boolean = true) {
+        val container = FabricLoader.getInstance().getModContainer(modid).getOrNull()
+        if (container != null) {
+            this.addLangs(modid, container)
+            return
+        }
+        if (throwIfMissing) {
+            throw IllegalArgumentException("Cannot include langs of mod '$modid', it is not loaded")
+        }
+    }
+
+    public fun addLangs(namespace: String, container: ModContainer) {
+        for (root in container.rootPaths) {
+            val data = root.resolve("data")
+            if (!data.isDirectory()) {
+                continue
+            }
+            for (entry in data.listDirectoryEntries()) {
+                val langs = entry.resolve("lang")
+                if (entry.isDirectory() && langs.isDirectory()) {
+                    this.addLangs(namespace, langs)
+                }
+            }
+        }
+    }
+
+    public fun addLangs(namespace: String, directory: Path) {
+        for (lang in directory.listDirectoryEntries()) {
+            this.addFile("$ASSETS/$namespace/lang/${lang.name}", PackFile.of(lang.readBytes()))
+        }
+    }
+
+    public fun addFont(font: FontResources) {
+        this.addFile("$ASSETS/${font.id.namespace}/font/${font.id.path}.json", font.getProvidersJson())
+        for ((lang, translations) in font.getLangJsons()) {
+            this.addFile("$ASSETS/${font.id.namespace}/lang/$lang.json", translations)
+        }
+        for ((id, bitmap) in font.getGeneratedBitmaps()) {
+            this.addFile("$ASSETS/${id.namespace}/textures/${id.path}.png", bitmap)
+        }
+    }
+
+    public fun addFont(id: Identifier, definition: String) {
+        this.addFile("$ASSETS/${id.namespace}/font/${id.path}.json", definition)
+    }
+
+    public fun addSounds(sounds: SoundResources) {
+        this.addFile("$ASSETS/${sounds.namespace}/sounds.json", sounds.toJson())
+    }
+
+    public fun generateMissingItemModels(namespace: String) {
+        val container = FabricLoader.getInstance().getModContainer(namespace).orElseThrow {
+            IllegalArgumentException("Cannot generate item models for '$namespace', it is not loaded")
+        }
+        this.generateMissingItemModels(namespace, container)
+    }
+
+    public fun generateMissingItemModels(namespace: String, container: ModContainer) {
+        for (root in container.rootPaths) {
+            val assets = root.resolve(ASSETS)
+            if (assets.isDirectory()) {
+                this.generateMissingItemModels(namespace, assets)
+            }
+        }
+    }
+
+    public fun generateMissingItemModels(namespace: String, assets: Path) {
+        this.onFinish {
+            ItemModelGenerator.generateMissing(this, namespace, assets)
+        }
+    }
+
+    public fun addOutlineColors(block: ShaderUtils.ColorReplacer.() -> Unit) {
+        val replacer = ShaderUtils.ColorReplacer()
+        replacer.block()
+        val shader = ShaderUtils.getOutlineVertexShader(replacer.getMap(), replacer.getRainbow())
+        this.addFile("$ASSETS/minecraft/shaders/core/rendertype_outline.vsh", shader)
+    }
+
     public fun onFinish(callback: PackContents.() -> Unit) {
         this.finishers.add(callback)
     }
@@ -179,7 +267,7 @@ public class PackContents internal constructor() {
                 if (path.isRegularFile()) {
                     val relative = directory.relativize(path).toString().replace('\\', '/')
                     val destination = if (prefix.isEmpty()) relative else "$prefix/$relative"
-                    this.file(destination, PackFile.of(Files.readAllBytes(path)))
+                    this.addFile(destination, PackFile.of(Files.readAllBytes(path)))
                 }
             }
         }

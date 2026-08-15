@@ -10,7 +10,6 @@ import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
 import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions.Companion.CUBOID_SHADER
 import net.casual.arcade.boundary.shape.BoundaryShape
 import net.casual.arcade.boundary.utils.BoundaryRegistries
-import net.casual.arcade.pack.ArcadeResourcePacks
 import net.casual.arcade.utils.arcade
 import net.minecraft.core.Direction
 import net.minecraft.core.Registry
@@ -70,7 +69,7 @@ public interface AxisAlignedModelRenderOptions {
         )
 
         /**
-         * This requires the resource pack [ArcadeResourcePacks.BOUNDARY_SHADER_PACK],
+         * This requires the `boundary_shader` resource pack,
          * it uses custom item models and a custom shader to try and simulate
          * the vanilla world border.
          *
@@ -84,7 +83,7 @@ public interface AxisAlignedModelRenderOptions {
         )
 
         /**
-         * This requires the resource pack [ArcadeResourcePacks.BOUNDARY_SHADER_PACK],
+         * This requires the `boundary_shader` resource pack,
          * it uses custom item models and a custom shader to try and simulate
          * the vanilla world border.
          *

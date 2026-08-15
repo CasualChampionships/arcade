@@ -17,7 +17,7 @@ import kotlin.io.path.inputStream
 /**
  * A single file within a resource pack.
  *
- * @see PackContents.file
+ * @see PackContents.addFile
  */
 public interface PackFile {
     public fun stream(): InputStream
@@ -33,7 +33,6 @@ public interface PackFile {
     }
 
     private class RawBytes(private val bytes: ByteArray): PackFile {
-
         override fun stream(): InputStream {
             return ByteArrayInputStream(this.bytes)
         }

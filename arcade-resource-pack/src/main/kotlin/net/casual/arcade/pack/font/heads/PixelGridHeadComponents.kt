@@ -8,7 +8,7 @@ import com.google.common.cache.CacheBuilder
 import com.mojang.authlib.minecraft.MinecraftSessionService
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.await
-import net.casual.arcade.pack.ArcadeResourcePacks
+import net.casual.arcade.pack.ArcadeResourcePack
 import net.casual.arcade.pack.font.pixel.PixelFontResources
 import net.casual.arcade.pack.font.spacing.SpacingFontResources
 import net.casual.arcade.utils.ArcadeUtils
@@ -29,10 +29,11 @@ import java.awt.Color
 import java.io.IOException
 import java.net.URI
 import java.util.*
-import java.util.concurrent.TimeUnit
 import javax.imageio.ImageIO
 import kotlin.io.path.inputStream
 import kotlin.jvm.optionals.getOrNull
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.toJavaDuration
 
 public class PixelGridHeadComponents private constructor(
     private val shift: Int,
@@ -42,11 +43,11 @@ public class PixelGridHeadComponents private constructor(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val uuidCache = CacheBuilder.newBuilder()
-        .expireAfterAccess(1, TimeUnit.MINUTES)
+        .expireAfterAccess(1.minutes.toJavaDuration())
         .build<UUID, Deferred<Result>>()
 
     private val nameCache = CacheBuilder.newBuilder()
-        .expireAfterAccess(1, TimeUnit.MINUTES)
+        .expireAfterAccess(1.minutes.toJavaDuration())
         .build<String, Deferred<Result>>()
 
     private val steve by lazy(this::createSteveHead)
@@ -169,7 +170,7 @@ public class PixelGridHeadComponents private constructor(
 
     private fun createSteveHead(): Component {
         try {
-            val path = ArcadeResourcePacks.path("packs/PlayerHeads/steve.png")
+            val path = ArcadeResourcePack.path("packs/PlayerHeads/steve.png")
             val image = path.inputStream().use(ImageIO::read)
             val transparent = Color(0, true)
             return this.convertImageToComponent(
@@ -250,7 +251,7 @@ public class PixelGridHeadComponents private constructor(
 
     public companion object {
         private val components = CacheBuilder.newBuilder()
-            .expireAfterAccess(1, TimeUnit.MINUTES)
+            .expireAfterAccess(1.minutes.toJavaDuration())
             .removalListener<Int, PixelGridHeadComponents> { notification -> notification.value?.shutdown() }
             .build<Int, PixelGridHeadComponents>()
 

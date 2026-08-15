@@ -18,6 +18,7 @@ import net.casual.arcade.utils.component.font
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import org.apache.commons.lang3.mutable.MutableInt
+import org.jetbrains.annotations.ApiStatus.Internal
 import java.awt.image.BufferedImage
 
 public abstract class FontResources(
@@ -63,14 +64,16 @@ public abstract class FontResources(
         return Identifier(this.id.namespace, "font/$path")
     }
 
-    internal fun getProvidersJson(): JsonObject {
+    @Internal
+    public fun getProvidersJson(): JsonObject {
         val json = JsonObject()
         val result = FontProvider.CODEC.listOf().encodeStart(JsonOps.INSTANCE, this.providers).orThrow
         json.add("providers", result)
         return json
     }
 
-    internal fun getLangJsons(): Map<String, JsonObject> {
+    @Internal
+    public fun getLangJsons(): Map<String, JsonObject> {
         val langs = Object2ObjectOpenHashMap<String, JsonObject>()
         for (lang in this.languages.keySet()) {
             val translations = JsonObject()
@@ -82,7 +85,8 @@ public abstract class FontResources(
         return langs
     }
 
-    internal fun getGeneratedBitmaps(): Map<Identifier, BufferedImage> {
+    @Internal
+    public fun getGeneratedBitmaps(): Map<Identifier, BufferedImage> {
         val bitmaps = Object2ObjectOpenHashMap<Identifier, BufferedImage>()
         for ((id, generator) in this.bitmaps) {
             bitmaps[id] = generator.generate(id)

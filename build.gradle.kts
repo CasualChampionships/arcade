@@ -50,8 +50,7 @@ loom {
 }
 
 dependencies {
-    include(libs.polymer.core)
-    include(libs.polymer.resource.pack)
+    include(implementation(libs.polymer.core.get())!!)
 
     include(implementation(libs.server.translations.get())!!)
 
