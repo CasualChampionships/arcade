@@ -27,7 +27,6 @@
     "fabricloader": ">=${fabric_loader_dependency}",
     "fabric-api": ">=${fabric_api_dependency}",
     "fabric-language-kotlin": ">=${fabric_kotlin_dependency}",
-    "polymer-core": ">=${polymer_dependency}",
     "sgui": ">=${sgui_dependency}"
   },
   "custom": {
