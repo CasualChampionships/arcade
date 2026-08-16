@@ -16,6 +16,8 @@ import net.casual.arcade.guis.dialog.body.ItemBodyBuilder
 import net.casual.arcade.guis.dialog.button.ActionButtonBuilder
 import net.casual.arcade.guis.dialog.input.BooleanInputBuilder
 import net.casual.arcade.guis.dialog.input.NumberRangeInputBuilder
+import net.casual.arcade.guis.dialog.input.SingleOptionInputBuilder
+import net.casual.arcade.guis.dialog.input.TextInputBuilder
 import net.minecraft.server.dialog.ActionButton
 import net.minecraft.server.dialog.ConfirmationDialog
 import net.minecraft.server.dialog.DialogListDialog
@@ -28,6 +30,8 @@ import net.minecraft.server.dialog.action.StaticAction
 import net.minecraft.server.dialog.body.ItemBody
 import net.minecraft.server.dialog.input.BooleanInput
 import net.minecraft.server.dialog.input.NumberRangeInput
+import net.minecraft.server.dialog.input.SingleOptionInput
+import net.minecraft.server.dialog.input.TextInput
 
 public typealias CommandTemplate = CommandTemplate
 
@@ -69,6 +73,18 @@ public typealias NumberRangeInput = NumberRangeInput
 
 public fun NumberRangeInput(block: NumberRangeInputBuilder.() -> Unit): NumberRangeInput {
     return NumberRangeInputBuilder().also(block).build()
+}
+
+public typealias SingleOptionInput = SingleOptionInput
+
+public fun SingleOptionInput(block: SingleOptionInputBuilder.() -> Unit): SingleOptionInput {
+    return SingleOptionInputBuilder().also(block).build()
+}
+
+public typealias TextInput = TextInput
+
+public fun TextInput(block: TextInputBuilder.() -> Unit): TextInput {
+    return TextInputBuilder().also(block).build()
 }
 
 public typealias ConfirmationDialog = ConfirmationDialog
