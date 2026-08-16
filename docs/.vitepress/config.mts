@@ -20,8 +20,7 @@ const pageOrders: Record<string, string[]> = {
   'arcade-dimensions': ['creating-dimensions', 'using-dimensions', 'vanilla-like'],
   'arcade-event-registry': ['listening', 'broadcasting'],
   'arcade-events-server': ['registry-events', 'injected-providers'],
-  'arcade-nametags': ['creating-nametags', 'customizing-nametags'],
-  'arcade-guis': ['selection-screens']
+  'arcade-nametags': ['creating-nametags', 'customizing-nametags']
 }
 
 function titleCase(value: string): string {

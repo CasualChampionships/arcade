@@ -7,8 +7,9 @@ package net.casual.arcade.minigame.settings
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.managers.MinigameChatManager
 import net.casual.arcade.minigame.settings.display.DisplayableSettings
-import net.casual.arcade.minigame.settings.display.DisplayableSettingsDefaults
 import net.casual.arcade.minigame.settings.display.MenuGameSettingBuilder.Companion.bool
+import net.casual.arcade.minigame.utils.defaultOptions
+import net.casual.arcade.minigame.utils.item
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.utils.ItemUtils.styledLore
 import net.minecraft.network.chat.Component
@@ -34,18 +35,18 @@ import net.minecraft.world.item.Items
  */
 public open class MinigameSettings(
     internal val minigame: Minigame,
-    defaults: DisplayableSettingsDefaults = DisplayableSettingsDefaults()
-): DisplayableSettings(defaults) {
+    title: Component = Component.translatable("minigame.gui.settings")
+): DisplayableSettings(title) {
     /**
      * Whether pvp is enabled for this minigame.
      */
     @JvmField
     public val canPvp: GameSetting<Boolean> = this.register(bool {
         name = "pvp"
-        display = Items.IRON_SWORD.named(Component.translatable("minigame.settings.canPvp.name"))
+        display = item(Items.IRON_SWORD, Component.translatable("minigame.settings.canPvp.name"))
             .styledLore(Component.translatable("minigame.settings.canPvp.desc.1"))
         value = true
-        defaults.options(this)
+        defaultOptions()
     })
 
     /**
@@ -54,10 +55,10 @@ public open class MinigameSettings(
     @JvmField
     public val canGetHungry: GameSetting<Boolean> = this.register(bool {
         name = "hunger"
-        display = Items.COOKED_BEEF.named(Component.translatable("minigame.settings.canGetHungry.name"))
+        display = item(Items.COOKED_BEEF, Component.translatable("minigame.settings.canGetHungry.name"))
             .styledLore(Component.translatable("minigame.settings.canGetHungry.desc.1"))
         value = true
-        defaults.options(this)
+        defaultOptions()
     })
 
     /**
@@ -66,10 +67,10 @@ public open class MinigameSettings(
     @JvmField
     public val canTakeDamage: GameSetting<Boolean> = this.register(bool {
         name = "can_take_damage"
-        display = Items.SHIELD.named(Component.translatable("minigame.settings.canTakeDamage.name"))
+        display = item(Items.SHIELD, Component.translatable("minigame.settings.canTakeDamage.name"))
             .styledLore(Component.translatable("minigame.settings.canTakeDamage.desc.1"))
         value = true
-        defaults.options(this)
+        defaultOptions()
     })
 
     /**
@@ -78,11 +79,11 @@ public open class MinigameSettings(
     @JvmField
     public val canBreakBlocks: GameSetting<Boolean> = this.register(bool {
         name = "can_break_blocks"
-        display = Items.DIAMOND_PICKAXE.named(Component.translatable("minigame.settings.canBreakBlocks.name"))
+        display = item(Items.DIAMOND_PICKAXE, Component.translatable("minigame.settings.canBreakBlocks.name"))
             .styledLore(Component.translatable("minigame.settings.canBreakBlocks.desc.1"))
         value = true
         override = isAdminOverride(true)
-        defaults.options(this)
+        defaultOptions()
     })
 
     /**
@@ -91,11 +92,11 @@ public open class MinigameSettings(
     @JvmField
     public val canPlaceBlocks: GameSetting<Boolean> = this.register(bool {
         name = "can_place_blocks"
-        display = Items.DIRT.named(Component.translatable("minigame.settings.canPlaceBlocks.name"))
+        display = item(Items.DIRT, Component.translatable("minigame.settings.canPlaceBlocks.name"))
             .styledLore(Component.translatable("minigame.settings.canPlaceBlocks.desc.1"))
         value = true
         override = isAdminOverride(true)
-        defaults.options(this)
+        defaultOptions()
     })
 
     /**
@@ -104,11 +105,11 @@ public open class MinigameSettings(
     @JvmField
     public val canDropItems: GameSetting<Boolean> = this.register(bool {
         name = "can_drop_items"
-        display = Items.DIORITE.named(Component.translatable("minigame.settings.canDropItems.name"))
+        display = item(Items.DIORITE, Component.translatable("minigame.settings.canDropItems.name"))
             .styledLore(Component.translatable("minigame.settings.canDropItems.desc.1"))
         value = true
         override = isAdminOverride(true)
-        defaults.options(this)
+        defaultOptions()
     })
 
     /**
@@ -117,11 +118,11 @@ public open class MinigameSettings(
     @JvmField
     public val canPickupItems: GameSetting<Boolean> = this.register(bool {
         name = "can_pickup_items"
-        display = Items.COBBLESTONE.named(Component.translatable("minigame.settings.canPickupItems.name"))
+        display = item(Items.COBBLESTONE, Component.translatable("minigame.settings.canPickupItems.name"))
             .styledLore(Component.translatable("minigame.settings.canPickupItems.desc.1"))
         value = true
         override = isAdminOverride(true)
-        defaults.options(this)
+        defaultOptions()
     })
 
     /**
@@ -130,11 +131,11 @@ public open class MinigameSettings(
     @JvmField
     public val canAttackEntities: GameSetting<Boolean> = this.register(bool {
         name = "can_attack_entities"
-        display = Items.DIAMOND_AXE.named(Component.translatable("minigame.settings.canAttackEntities.name"))
+        display = item(Items.DIAMOND_AXE, Component.translatable("minigame.settings.canAttackEntities.name"))
             .styledLore(Component.translatable("minigame.settings.canAttackEntities.desc.1"))
         value = true
         override = isAdminOverride(true)
-        defaults.options(this)
+        defaultOptions()
     })
 
     /**
@@ -143,11 +144,11 @@ public open class MinigameSettings(
     @JvmField
     public val canInteractEntities: GameSetting<Boolean> = this.register(bool {
         name = "can_interact_entities"
-        display = Items.VILLAGER_SPAWN_EGG.named(Component.translatable("minigame.settings.canInteractEntities.name"))
+        display = item(Items.VILLAGER_SPAWN_EGG, Component.translatable("minigame.settings.canInteractEntities.name"))
             .styledLore(Component.translatable("minigame.settings.canInteractEntities.desc.1"))
         value = true
         override = isAdminOverride(true)
-        defaults.options(this)
+        defaultOptions()
         listener { _, _, value ->
             canInteractAllSetting.setQuietly(value && canInteractItems.get() && canInteractBlocks.get())
         }
@@ -159,11 +160,11 @@ public open class MinigameSettings(
     @JvmField
     public val canInteractBlocks: GameSetting<Boolean> = this.register(bool {
         name = "can_interact_blocks"
-        display = Items.FURNACE.named(Component.translatable("minigame.settings.canInteractBlocks.name"))
+        display = item(Items.FURNACE, Component.translatable("minigame.settings.canInteractBlocks.name"))
             .styledLore(Component.translatable("minigame.settings.canInteractBlocks.desc.1"))
         value = true
         override = isAdminOverride(true)
-        defaults.options(this)
+        defaultOptions()
         listener { _, _, value ->
             canInteractAllSetting.setQuietly(value && canInteractItems.get() && canInteractEntities.get())
         }
@@ -175,11 +176,11 @@ public open class MinigameSettings(
     @JvmField
     public val canInteractItems: GameSetting<Boolean> = this.register(bool {
         name = "can_interact_items"
-        display = Items.WRITTEN_BOOK.named(Component.translatable("minigame.settings.canInteractItems.name"))
+        display = item(Items.WRITTEN_BOOK, Component.translatable("minigame.settings.canInteractItems.name"))
             .styledLore(Component.translatable("minigame.settings.canInteractItems.desc.1"))
         value = true
         override = isAdminOverride(true)
-        defaults.options(this)
+        defaultOptions()
         listener { _, _, value ->
             canInteractAllSetting.setQuietly(value && canInteractBlocks.get() && canInteractEntities.get())
         }
@@ -187,10 +188,10 @@ public open class MinigameSettings(
 
     private val canInteractAllSetting = this.register(bool {
         name = "can_interact_all"
-        display = Items.OBSERVER.named(Component.translatable("minigame.settings.canInteractAll.name"))
+        display = item(Items.OBSERVER, Component.translatable("minigame.settings.canInteractAll.name"))
             .styledLore(Component.translatable("minigame.settings.canInteractAll.desc.1"), Component.translatable("minigame.settings.canInteractAll.desc.2"))
         value = true
-        defaults.options(this)
+        defaultOptions()
         listener { _, _, value ->
             canInteractBlocks.set(value)
             canInteractEntities.set(value)
@@ -208,47 +209,47 @@ public open class MinigameSettings(
         display = Items.CONCRETE.white.named(Component.translatable("minigame.settings.useVanillaChat.name"))
             .styledLore(Component.translatable("minigame.settings.useVanillaChat.desc.1"), Component.translatable("minigame.settings.useVanillaChat.desc.2"))
         value = false
-        defaults.options(this)
+        defaultOptions()
     })
 
     public var canCrossChat: Boolean by this.register(bool {
         name = "can_cross_chat"
-        display = Items.PAPER.named(Component.translatable("minigame.settings.canCrossChat.name"))
+        display = item(Items.PAPER, Component.translatable("minigame.settings.canCrossChat.name"))
             .styledLore(Component.translatable("minigame.settings.canCrossChat.desc.1"), Component.translatable("minigame.settings.canCrossChat.desc.2"))
         value = false
-        defaults.options(this)
+        defaultOptions()
     })
 
     public var isChatGlobal: Boolean by this.register(bool {
         name = "is_chat_global"
-        display = Items.ACACIA_SIGN.named(Component.translatable("minigame.settings.isChatGlobal.name"))
+        display = item(Items.ACACIA_SIGN, Component.translatable("minigame.settings.isChatGlobal.name"))
             .styledLore(Component.translatable("minigame.settings.isChatGlobal.desc.1"), Component.translatable("minigame.settings.isChatGlobal.desc.2"))
         value = true
         listener { setting, _, value ->
             setting.setQuietly(value)
             minigame.chat.onGlobalChatToggle()
         }
-        defaults.options(this)
+        defaultOptions()
     })
 
     @JvmField
     public var enableChatCommand: GameSetting<Boolean> = this.register(bool {
         name = "enable_chat_command"
-        display = Items.COMMAND_BLOCK.named(Component.translatable("minigame.settings.enableChatCommand.name"))
+        display = item(Items.COMMAND_BLOCK, Component.translatable("minigame.settings.enableChatCommand.name"))
             .styledLore(Component.translatable("minigame.settings.isChatGlobal.desc.1"))
         value = false
         override = isAdminOverride(true)
-        defaults.options(this)
+        defaultOptions()
     })
 
     @JvmField
     public val isChatMuted: GameSetting<Boolean> = this.register(bool {
         name = "is_chat_muted"
-        display = Items.BARRIER.named(Component.translatable("minigame.settings.isChatMuted.name"))
+        display = item(Items.BARRIER, Component.translatable("minigame.settings.isChatMuted.name"))
             .styledLore(Component.translatable("minigame.settings.isChatMuted.desc.1"))
         value = false
         override = ::muteOverride
-        defaults.options(this)
+        defaultOptions()
     })
 
     public var formatGlobalSystemChat: Boolean by this.register(bool {
@@ -256,49 +257,49 @@ public open class MinigameSettings(
         display = Items.DYE.yellow.named(Component.translatable("minigame.settings.formatGlobalSystemChat.name"))
             .styledLore(Component.translatable("minigame.settings.formatGlobalSystemChat.desc.1"))
         value = true
-        defaults.options(this)
+        defaultOptions()
     })
 
     public var mobsWithNoAIAreFlammable: Boolean by this.register(bool {
         name = "mobs_with_no_ai_are_flammable"
-        display = Items.FLINT_AND_STEEL.named(Component.translatable("minigame.settings.mobsWithNoAIAreFlammable.name"))
+        display = item(Items.FLINT_AND_STEEL, Component.translatable("minigame.settings.mobsWithNoAIAreFlammable.name"))
             .styledLore(Component.translatable("minigame.settings.mobsWithNoAIAreFlammable.desc.1"))
         value = false
-        defaults.options(this)
+        defaultOptions()
     })
 
     public val tickFreezeOnPause: GameSetting<Boolean> = this.register(bool {
         name = "tick_freeze_on_pause"
-        display = Items.BLUE_ICE.named(Component.translatable("minigame.settings.tickFreezeOnPause.name"))
+        display = item(Items.BLUE_ICE, Component.translatable("minigame.settings.tickFreezeOnPause.name"))
             .styledLore(Component.translatable("minigame.settings.tickFreezeOnPause.desc.1"))
         value = false
         override = isAdminOverride(false)
-        defaults.options(this)
+        defaultOptions()
     })
 
     public val tickFreezeEntities: GameSetting<Boolean> = this.register(bool {
         name = "freeze_entities"
-        display = Items.PACKED_ICE.named(Component.translatable("minigame.settings.freezeEntities.name"))
+        display = item(Items.PACKED_ICE, Component.translatable("minigame.settings.freezeEntities.name"))
             .styledLore(Component.translatable("minigame.settings.freezeEntities.desc.1"))
         value = false
         override = isAdminOverride(false)
-        defaults.options(this)
+        defaultOptions()
     })
 
     public var pauseOnServerStop: Boolean by this.register(bool {
         name = "pause_on_server_stop"
-        display = Items.ICE.named(Component.translatable("minigame.settings.pauseOnServerStop.name"))
+        display = item(Items.ICE, Component.translatable("minigame.settings.pauseOnServerStop.name"))
             .styledLore(Component.translatable("minigame.settings.pauseOnServerStop.desc.1"))
         value = true
-        defaults.options(this)
+        defaultOptions()
     })
 
     public var canLookAroundWhenFrozen: Boolean by this.register(bool {
         name = "can_look_around_when_frozen"
-        display = Items.PLAYER_HEAD.named(Component.translatable("minigame.settings.canLookAroundWhenFrozen.name"))
+        display = item(Items.PLAYER_HEAD, Component.translatable("minigame.settings.canLookAroundWhenFrozen.name"))
             .styledLore(Component.translatable("minigame.settings.canLookAroundWhenFrozen.desc.1"))
         value = true
-        defaults.options(this)
+        defaultOptions()
     })
 
     protected fun <T: Any> isAdminOverride(value: T): (ServerPlayer) -> T? {

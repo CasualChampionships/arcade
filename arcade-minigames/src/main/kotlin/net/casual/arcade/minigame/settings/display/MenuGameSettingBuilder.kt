@@ -5,15 +5,11 @@
 package net.casual.arcade.minigame.settings.display
 
 import com.mojang.serialization.Codec
-import eu.pb4.sgui.api.elements.GuiElement
-import eu.pb4.sgui.api.gui.GuiLike
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.settings.SettingListener
-import net.casual.arcade.utils.ItemUtils.disableGlint
-import net.casual.arcade.utils.ItemUtils.enableGlint
-import net.casual.arcade.utils.ItemUtils.hasGlint
 import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
 import net.casual.arcade.utils.time.MinecraftTimeDuration
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
@@ -22,7 +18,7 @@ import java.util.*
 public class MenuGameSettingBuilder<T: Any>(
     private val constructor: (String, T, Map<String, T>) -> GameSetting<T>
 ) {
-    private val options = LinkedHashMap<String, OptionData<T>>()
+    private val options = LinkedHashMap<String, MenuGameSetting.Option<T>>()
 
     private val listeners = ArrayList<SettingListener<T>>()
 
@@ -46,13 +42,8 @@ public class MenuGameSettingBuilder<T: Any>(
         return this
     }
 
-    public fun option(
-        name: String,
-        stack: ItemStack,
-        value: T,
-        updater: (GameSetting<T>, ItemStack, ServerPlayer) -> ItemStack = enchantWhenSetTo(value)
-    ): MenuGameSettingBuilder<T> {
-        this.options[name] = OptionData(stack, value, updater)
+    public fun option(id: String, name: Component, value: T): MenuGameSettingBuilder<T> {
+        this.options[id] = MenuGameSetting.Option(id, name, value)
         return this
     }
 
@@ -71,52 +62,17 @@ public class MenuGameSettingBuilder<T: Any>(
         val display = this.value ?: throw IllegalStateException("No value to build GameSetting")
 
         val options = LinkedHashMap<String, T>()
-
-        val selectables = ArrayList<GuiElement>()
-        for ((id, data) in this.options) {
-            options[id] = data.value
+        for ((id, option) in this.options) {
+            options[id] = option.value
         }
 
-        val setting = this.constructor(this.name, display, options)
-        for (data in this.options.values) {
-            selectables.add(SettingGuiElement(setting, data))
-        }
-
+        val setting = this.constructor.invoke(this.name, display, options)
         setting.override = this.override
         for (listener in this.listeners) {
             setting.addListener(listener)
         }
-        return MenuGameSetting(this.display, setting, selectables)
+        return MenuGameSetting(this.display, setting, this.options.values.toList())
     }
-
-    private class SettingGuiElement<T: Any>(
-        private val setting: GameSetting<T>,
-        private val data: OptionData<T>
-    ): GuiElement {
-        private var previous: ItemStack = this.data.default
-
-        override fun getItemStack(): ItemStack {
-            return this.previous
-        }
-
-        override fun getItemStackForDisplay(gui: GuiLike): ItemStack {
-            val next = this.data.updater(this.setting, this.previous, gui.player)
-            this.previous = next
-            return next
-        }
-
-        override fun getGuiCallback(): GuiElement.ClickCallback {
-            return GuiElement.ClickCallback { _, _, _, _ ->
-                this.setting.set(this.data.value)
-            }
-        }
-    }
-
-    private data class OptionData<T: Any>(
-        val default: ItemStack,
-        val value: T,
-        val updater: (GameSetting<T>, ItemStack, ServerPlayer) -> ItemStack
-    )
 
     public companion object {
         private val boolean = GameSetting.generator(Codec.BOOL)
@@ -216,19 +172,6 @@ public class MenuGameSettingBuilder<T: Any>(
             block: MenuGameSettingBuilder<Optional<E>>.() -> Unit
         ): MenuGameSetting<Optional<E>> {
             return optionalEnumeration<E>().apply(block).build()
-        }
-
-        public fun <T: Any> enchantWhenSetTo(value: T): (GameSetting<T>, ItemStack, ServerPlayer) -> ItemStack {
-            return { setting, stack, _ ->
-                if (stack.hasGlint()) {
-                    if (setting.get() != value) {
-                        stack.disableGlint()
-                    }
-                } else if (setting.get() == value) {
-                    stack.enableGlint()
-                }
-                stack
-            }
         }
     }
 }
