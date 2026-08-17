@@ -2,23 +2,6 @@ plugins {
     id("arcade.common-conventions")
 }
 
-val testmod: SourceSet by sourceSets.creating {
-    compileClasspath += sourceSets.main.get().compileClasspath
-    compileClasspath += sourceSets.main.get().output
-    runtimeClasspath += sourceSets.main.get().runtimeClasspath
-}
-
-loom {
-    runs {
-        create("testmodServer") {
-            server()
-            sourceSet.set(testmod.name)
-            jvmArguments.add("-Dmixin.debug.export=true")
-            runDirectory.set(file("run/${libs.versions.minecraft.get()}"))
-        }
-    }
-}
-
 fabricApi {
     @Suppress("UnstableApiUsage")
     configureTests {
@@ -44,6 +27,8 @@ loom {
         create("gameTestServer") {
             server()
             sourceSet.set("gametest")
+            jvmArguments.add("-Dmixin.debug.export=true")
+            systemProperties.put("arcade.manual-tests", "true")
             runDirectory.set(layout.projectDirectory.dir("run/gametest/${libs.versions.minecraft.get()}"))
         }
     }
@@ -52,8 +37,8 @@ loom {
 dependencies {
     include(implementation(libs.server.translations.get())!!)
 
-//    "testmodRuntimeOnly"(libs.voicechat)
-    "testmodImplementation"(libs.reflections) {
+//    "gametestRuntimeOnly"(libs.voicechat)
+    "gametestImplementation"(libs.reflections) {
         exclude(group = "org.slf4j")
     }
 

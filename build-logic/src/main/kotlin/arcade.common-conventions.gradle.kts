@@ -120,11 +120,11 @@ publishing {
 spotless {
     java {
         licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
-        targetExclude("src/testmod/**", "src/test/**", "src/gametest/**")
+        targetExclude("src/test/**", "src/gametest/**")
     }
     kotlin {
         licenseHeaderFile(rootProject.file("HEADER")).yearSeparator("-")
-        targetExclude("src/testmod/**", "src/test/**", "src/gametest/**")
+        targetExclude("src/test/**", "src/gametest/**")
     }
 }
 

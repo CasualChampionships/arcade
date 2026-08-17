@@ -1,0 +1,35 @@
+package net.casual.arcade.tests.manual
+
+import net.casual.arcade.commands.register
+import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.server.ServerRegisterCommandEvent
+import net.casual.arcade.events.utils.register
+import net.casual.arcade.minigame.utils.MinigameRegistries
+import net.casual.arcade.tests.manual.minigame.TestMinigame
+import net.casual.arcade.tests.manual.resource_pack.ResourcePackTests
+import net.fabricmc.api.ModInitializer
+import net.minecraft.core.Registry
+
+object ArcadeTest: ModInitializer {
+    private const val ENABLED_PROPERTY = "arcade.manual-tests"
+
+    override fun onInitialize() {
+        if (!System.getProperty(ENABLED_PROPERTY).toBoolean()) {
+            return
+        }
+
+        ArcadeTestCommand.registerEvents()
+
+        GlobalEventHandler.Server.register<ServerRegisterCommandEvent> {
+            it.register(ArcadeTestCommand)
+        }
+
+        Registry.register(
+            MinigameRegistries.MINIGAME_FACTORY,
+            TestMinigame.ID,
+            TestMinigame.codec()
+        )
+
+        ResourcePackTests.run()
+    }
+}

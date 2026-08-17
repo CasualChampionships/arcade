@@ -17,6 +17,10 @@
       {
         "adapter": "kotlin",
         "value": "net.casual.arcade.tests.server.ArcadeServerTests"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "net.casual.arcade.tests.manual.ArcadeTest"
       }
     ],
     "arcade-gametest": [
@@ -28,9 +32,24 @@
   },
   "depends": {
     "fabric-language-kotlin": "*",
+    "arcade-boundaries": "*",
+    "arcade-commands": "*",
+    "arcade-dimensions": "*",
+    "arcade-events-server": "*",
+    "arcade-extensions": "*",
     "arcade-gametest": "*",
+    "arcade-guis": "*",
+    "arcade-minigames": "*",
+    "arcade-nametags": "*",
     "arcade-npcs": "*",
+    "arcade-observers": "*",
+    "arcade-replay": "*",
+    "arcade-resource-pack": "*",
+    "arcade-resource-pack-generation": "*",
+    "arcade-resource-pack-host": "*",
     "arcade-scheduler": "*",
+    "arcade-utils": "*",
+    "arcade-virtual-entities": "*",
     "arcade-virtual-visuals": "*"
   }
 }
