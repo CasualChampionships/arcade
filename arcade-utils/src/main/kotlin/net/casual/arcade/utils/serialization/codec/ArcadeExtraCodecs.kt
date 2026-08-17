@@ -113,8 +113,7 @@ public object ArcadeExtraCodecs {
 
     public fun <E: Enum<E>> enum(constants: Map<String, E>): Codec<E> {
         val map = HashBiMap.create(constants)
-        val inverse = map.inverse()
-        return Codec.STRING.xmap(map::get, inverse::get)
+        return Codec.STRING.map(map)
     }
 
     public inline fun <reified E: Enum<E>> optionalEnum(
@@ -136,9 +135,7 @@ public object ArcadeExtraCodecs {
             map[Optional.empty()] = Optional.empty()
         }
 
-        val inverse = map.inverse()
-        // TODO: This should probably error when map.get returns null
-        return ExtraCodecs.optionalEmptyMap(Codec.STRING).xmap(map::get, inverse::get)
+        return ExtraCodecs.optionalEmptyMap(Codec.STRING).map(map)
     }
 
     @Deprecated(

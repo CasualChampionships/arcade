@@ -4,7 +4,9 @@
  */
 package net.casual.arcade.utils.serialization.codec
 
+import com.google.common.collect.HashBiMap
 import com.mojang.serialization.Codec
+import com.mojang.serialization.DataResult
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.FieldEncoder
 import java.util.*
@@ -46,4 +48,18 @@ public fun <A> Codec<A>.collectionOf(): Codec<Collection<A>> {
 
 public fun <A, K> Codec<List<A>>.associateBy(key: (A) -> K): Codec<Map<K, A>> {
     return this.xmap({ it.associateByTo(LinkedHashMap(), key) }, { it.values.toList() })
+}
+
+public fun <K, V> Codec<K>.map(map: HashBiMap<K, V>): Codec<V> {
+    val inverse = map.inverse()
+    return this.flatXmap(
+        { key ->
+            val value = map[key]
+            if (value != null) DataResult.success(value) else DataResult.error { "Key '${key}' has no mapping" }
+        },
+        { value ->
+            val key = inverse[value]
+            if (key != null) DataResult.success(key) else DataResult.error { "Value '${value}' has no mapping" }
+        }
+    )
 }
