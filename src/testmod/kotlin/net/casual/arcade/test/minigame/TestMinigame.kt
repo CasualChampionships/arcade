@@ -14,8 +14,8 @@ import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.settings.MinigameSettings
 import net.casual.arcade.minigame.settings.display.MenuGameSettingBuilder
 import net.casual.arcade.utils.ItemUtils.named
-import net.casual.arcade.resources.font.spacing.SpacingFontResources
-import net.casual.arcade.resources.utils.spaced
+import net.casual.arcade.pack.font.spacing.SpacingFontResources
+import net.casual.arcade.pack.utils.spaced
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.component.*
 import net.casual.arcade.utils.entity.teleportTo

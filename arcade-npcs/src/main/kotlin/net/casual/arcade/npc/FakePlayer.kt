@@ -432,7 +432,7 @@ public open class FakePlayer(
             constructor: FakePlayerConstructor<T>
         ): CompletableFuture<T> {
             val connection = FakeConnection()
-            // We simulate the fake login packet listener for luckperms compatability
+            // We simulate the fake login packet listener for luckperms compatibility
             val login = FakeLoginPacketListenerImpl(server, connection, profile)
             connection.setupInboundProtocol(LoginProtocols.SERVERBOUND, login)
             return login.handleQueries().thenComposeAsync({

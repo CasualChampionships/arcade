@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.datagen.resource
 
-import eu.pb4.polymer.resourcepack.api.ResourcePackCreator
+import net.casual.arcade.pack.generation.PackDefinition
 import net.minecraft.client.Minecraft
 import org.jetbrains.annotations.ApiStatus.NonExtendable
 import java.nio.file.Path
@@ -15,7 +15,7 @@ public interface ArcadeResourceGenerator {
 
     public fun run(client: Minecraft)
 
-    public fun resources(): Collection<ResourcePackCreator> {
+    public fun resources(): Collection<PackDefinition> {
         return listOf()
     }
 

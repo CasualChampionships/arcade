@@ -50,9 +50,6 @@ loom {
 }
 
 dependencies {
-    include(libs.polymer.core)
-    include(libs.polymer.resource.pack)
-
     include(implementation(libs.server.translations.get())!!)
 
 //    "testmodRuntimeOnly"(libs.voicechat)

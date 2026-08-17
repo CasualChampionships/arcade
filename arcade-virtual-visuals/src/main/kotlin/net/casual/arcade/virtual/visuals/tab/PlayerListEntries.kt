@@ -6,8 +6,7 @@ package net.casual.arcade.virtual.visuals.tab
 
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.Property
-import net.casual.arcade.resources.ArcadeResourcePacks
-import net.casual.arcade.resources.font.padding.PaddingNoSplitFontResources
+import net.casual.arcade.pack.font.padding.PaddingNoSplitFontResources
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
@@ -39,8 +38,8 @@ public interface PlayerListEntries {
 
             /**
              * Using this entry requires the use of the resource packs
-             * [ArcadeResourcePacks.HIDE_PLAYER_LIST_PING_PACK] and
-             * [ArcadeResourcePacks.HIDE_PLAYER_LIST_HEADS_PACK].
+             * `hide_player_list_ping` and
+             * `hide_player_list_heads`.
              */
             public val HIDDEN: Entry = Entry(Component.empty(), Texture.HIDDEN, -1)
 
@@ -60,8 +59,8 @@ public interface PlayerListEntries {
              * start of the player list box allowing for a clean display.
              *
              * Using this entry requires the use of the resource packs
-             * [ArcadeResourcePacks.HIDE_PLAYER_LIST_PING_PACK], [ArcadeResourcePacks.HIDE_PLAYER_LIST_HEADS_PACK],
-             * and [ArcadeResourcePacks.PADDING_FONT_PACK].
+             * `hide_player_list_ping`, `hide_player_list_heads`,
+             * and `padding_font`.
              *
              * @param component The component to use in the entry.
              * @return The Entry.
@@ -110,7 +109,7 @@ public interface PlayerListEntries {
 
             /**
              * Using this texture requires the use of the resource packs
-             * [ArcadeResourcePacks.HIDE_PLAYER_LIST_HEADS_PACK].
+             * `hide_player_list_heads`.
              */
             public val HIDDEN: Texture = Texture(
                 "ewogICJ0aW1lc3RhbXAiIDogMTY1MTA2OTY1OTc4MCwKICAicHJvZmlsZUlkIiA6ICJjNTZlMjI0MmNiZWY0MWE2ODdlMzI2MGRjMGNmOTM2MSIsCiAgInByb2ZpbGVOYW1lIiA6ICJMSlI3MzEwMCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8xY2MwZDhlNDFhNjIzNTYyYmEyOTgxMGI2MjQyOWQ0NDZmYjZkNDkwMzFhZGY1ZDMwYjYzMDFhMDQwOTdmNDI3IiwKICAgICAgIm1ldGFkYXRhIiA6IHsKICAgICAgICAibW9kZWwiIDogInNsaW0iCiAgICAgIH0KICAgIH0KICB9Cn0=",

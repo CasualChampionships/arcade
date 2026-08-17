@@ -27,7 +27,7 @@ public class ServerEntityMixin {
     private List<SynchedEntityData.DataValue<?>> onGetTrackedDataValues(
         @Nullable List<SynchedEntityData.DataValue<?>> original
     ) {
-        // Sending an empty packet is suboptimal but fixes compatability
+        // Sending an empty packet is suboptimal but fixes compatibility
         // with mods that modify entity data on a packet level
         return original == null ? List.of() : original;
     }
