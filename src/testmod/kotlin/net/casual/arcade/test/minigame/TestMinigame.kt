@@ -10,6 +10,10 @@ import net.casual.arcade.minigame.events.MinigameInitializeEvent
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
+import net.casual.arcade.minigame.settings.GameSetting
+import net.casual.arcade.minigame.settings.MinigameSettings
+import net.casual.arcade.minigame.settings.display.MenuGameSettingBuilder
+import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.pack.font.spacing.SpacingFontResources
 import net.casual.arcade.pack.utils.spaced
 import net.casual.arcade.utils.arcade
@@ -43,12 +47,47 @@ enum class TestPhase(override val id: String): Phase<TestMinigame> {
     Second("second")
 }
 
+class TestSettings(minigame: Minigame) : MinigameSettings(minigame) {
+//    val testEnum: GameSetting<TestPhase> = this.register(MenuGameSettingBuilder.enumeration {
+//        name = "test_enum"
+//        display = Items.COMPASS.named("Test Enum")
+//        value = TestPhase.First
+//        defaults.options(this, TestPhase::class.java)
+//    })
+
+    val testString: GameSetting<String> = this.register(MenuGameSettingBuilder.string {
+        name = "test_string"
+        display = Items.NAME_TAG.named("Test String")
+        value = "test"
+        option("test", Component.literal("Test"), "test")
+        option("other", Component.literal("Other"), "other")
+        option("third", Component.literal("Third"), "third")
+    })
+
+    val testFloat: GameSetting<Float> = this.register(MenuGameSettingBuilder.float32 {
+        name = "test_float"
+        display = Items.CLOCK.named("Test Float")
+        value = 64.0F
+    })
+
+    val testInt: GameSetting<Int> = this.register(MenuGameSettingBuilder.int32 {
+        name = "test_int"
+        display = Items.REPEATER.named("Test Int")
+        value = 64
+        option("low", Component.literal("Low"), 8)
+        option("medium", Component.literal("Medium"), 64)
+        option("high", Component.literal("High"), 256)
+    })
+}
+
 open class TestMinigame(
     server: MinecraftServer,
     uuid: UUID,
     private val level: ServerLevel
 ): Minigame(server, uuid) {
     override val id: Identifier get() = ID
+
+    override val settings: MinigameSettings = TestSettings(this)
 
     override fun phases(): Collection<Phase<out Minigame>> {
         return TestPhase.entries

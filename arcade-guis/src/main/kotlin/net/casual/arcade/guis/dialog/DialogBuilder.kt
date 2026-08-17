@@ -7,9 +7,13 @@ package net.casual.arcade.guis.dialog
 import net.casual.arcade.guis.dialog.body.ItemBodyBuilder
 import net.casual.arcade.guis.dialog.input.BooleanInputBuilder
 import net.casual.arcade.guis.dialog.input.NumberRangeInputBuilder
+import net.casual.arcade.guis.dialog.input.SingleOptionInputBuilder
+import net.casual.arcade.guis.dialog.input.TextInputBuilder
 import net.casual.arcade.guis.utils.dialog.BooleanInput
 import net.casual.arcade.guis.utils.dialog.ItemBody
 import net.casual.arcade.guis.utils.dialog.NumberRangeInput
+import net.casual.arcade.guis.utils.dialog.SingleOptionInput
+import net.casual.arcade.guis.utils.dialog.TextInput
 import net.minecraft.network.chat.CommonComponents
 import net.minecraft.network.chat.Component
 import net.minecraft.server.dialog.CommonDialogData
@@ -85,6 +89,14 @@ public abstract class DialogBuilder {
 
     public fun addNumberRangeInput(key: String, block: NumberRangeInputBuilder.() -> Unit): DialogBuilder {
         return this.addInput(key, NumberRangeInput(block))
+    }
+
+    public fun addSingleOptionInput(key: String, block: SingleOptionInputBuilder.() -> Unit): DialogBuilder {
+        return this.addInput(key, SingleOptionInput(block))
+    }
+
+    public fun addTextInput(key: String, block: TextInputBuilder.() -> Unit): DialogBuilder {
+        return this.addInput(key, TextInput(block))
     }
 
     public abstract fun build(): Dialog

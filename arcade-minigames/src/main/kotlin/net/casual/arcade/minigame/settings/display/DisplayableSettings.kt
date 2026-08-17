@@ -4,18 +4,15 @@
  */
 package net.casual.arcade.minigame.settings.display
 
-import eu.pb4.sgui.api.gui.GuiLike
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import net.casual.arcade.minigame.settings.GameSetting
-import net.casual.arcade.minigame.utils.SettingsGuiUtils.addSettings
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 import kotlin.jvm.optionals.getOrNull
 
-public open class DisplayableSettings(
-    protected val defaults: DisplayableSettingsDefaults
-) {
+public open class DisplayableSettings(public val title: Component) {
     private val displays = Object2ObjectLinkedOpenHashMap<String, MenuGameSetting<*>>()
 
     /**
@@ -76,25 +73,9 @@ public open class DisplayableSettings(
      * player to directly interact with the settings.
      *
      * @param player The player being displayed to gui.
-     * @return The gui interface.
      */
-    public fun gui(player: ServerPlayer): GuiLike {
-        val builder = this.defaults.createSettingsGuiBuilder(player)
-        builder.addSettings(this, this.defaults::createOptionsGuiBuilder)
-        return builder.build()
-    }
-
-    /**
-     * This creates a menu which can be displayed to a
-     * player to directly interact with the settings.
-     *
-     * @param parent The parent ui.
-     * @return The gui interface.
-     */
-    public fun gui(parent: GuiLike): GuiLike {
-        val builder = this.defaults.createSettingsGuiBuilder(parent.player)
-        builder.addSettings(this, this.defaults::createOptionsGuiBuilder)
-        return builder.parent(parent).build()
+    public fun open(player: ServerPlayer) {
+        SettingsGui(player, this).open()
     }
 
     public fun serialize(list: ValueOutput.ValueOutputList) {
@@ -117,6 +98,10 @@ public open class DisplayableSettings(
 
     internal fun displays(): Collection<MenuGameSetting<*>> {
         return this.displays.values
+    }
+
+    internal fun display(name: String): MenuGameSetting<*>? {
+        return this.displays[name]
     }
 
     private fun <T: Any> ValueOutput.store(key: String, setting: GameSetting<T>) {

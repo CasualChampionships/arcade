@@ -8,7 +8,6 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.*
 import net.casual.arcade.npc.FakePlayer
 import net.casual.arcade.npc.pathfinding.Path
-import net.casual.arcade.test.npc.NPCPathDebugRenderer
 import net.casual.arcade.utils.player.username
 import net.casual.arcade.utils.server.player
 import net.minecraft.commands.CommandBuildContext

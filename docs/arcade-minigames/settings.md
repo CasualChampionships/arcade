@@ -81,6 +81,8 @@ MenuGameSettingBuilder.int32()
 MenuGameSettingBuilder.int64()
 MenuGameSettingBuilder.float32()
 MenuGameSettingBuilder.float64()
+MenuGameSettingBuilder.string()
+MenuGameSettingBuilder.id()
 MenuGameSettingBuilder.time()
 MenuGameSettingBuilder.enumeration()
 ```
@@ -114,13 +116,15 @@ val setting: MenuGameSetting<Int> = MenuGameSettingBuilder.int32 {
 }
 ```
 
-And that's the minimum you need to create a `MenuGameSetting`, however it's likely you want to add some options - these will be displayed in-game and allow an admin to set the setting to one of the options.
+And that's the minimum you need to create a `MenuGameSetting`, however it's
+likely you want to add some options - these are the values that an admin can
+pick between, and each one has its own item whose name labels the value:
 ```kotlin
 val setting: MenuGameSetting<Int> = MenuGameSettingBuilder.int32 {
     // ...
-    option("first_option", Items.OAK_PLANKS.named("First Option"), 0)
-    option("second_option", Items.BIRCH_PLANKS.named("Second Option"), 50)
-    option("third_option", Items.SPRUCE_PLANKS.named("Third Option"), 100)
+    option("first_option", Component.literal("First Option"), 0)
+    option("second_option", Component.literal("Second Option"), 50)
+    option("third_option", Component.literal("Third Option"), 100)
 }
 ```
 
@@ -250,29 +254,3 @@ Here's an example of customized default options:
 
 ![Image of custom default options](../arcade-virtual-visuals/images/custom_default_options.png)
 
-## Modifying The UI
-
-The settings gui's are build using the Arcade's `SelectionGuiBuilder` which is intended to build gui's for collections of selectable objects. 
-
-This is a super powerful gui tool and is highly configurable, it lets you determine where elements are displayed, and lets you completely customize the menu bar you see at the bottom. 
-
-To customize the builder used when creating these setting guis you can override the `createSettingsGuiBuilder` and `createOptionsGuiBuilder` methods in `DisplayableSettingsDefaults`:
-
-```kotlin
-class CustomSettingsDefaults: DisplayableSettingsDefaults() {
-    override fun createSettingsGuiBuilder(player: ServerPlayer): SelectionGuiBuilder {
-        return super.createSettingsGuiBuilder(player)
-    }
-
-    override fun createOptionsGuiBuilder(parent: GuiLike, setting: MenuGameSetting<*>): SelectionGuiBuilder {
-        return super.createOptionsGuiBuilder(parent, setting)
-    }
-}
-```
-
-The `createSettingsGuiBuilder` returns the builder responsible for creating the
-gui listing all the minigame settings, and the `createOptionsGuiBuilder` 
-returns the builder responsible for creating the gui listing all the options 
-for a given minigame setting.
-
-The specifics on how to customize these are discussed in the [Selection Screens Section](../arcade-guis/selection-screens.md).
