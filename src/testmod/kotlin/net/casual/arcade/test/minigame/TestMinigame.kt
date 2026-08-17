@@ -10,8 +10,8 @@ import net.casual.arcade.minigame.events.MinigameInitializeEvent
 import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
-import net.casual.arcade.resources.font.spacing.SpacingFontResources
-import net.casual.arcade.resources.utils.spaced
+import net.casual.arcade.pack.font.spacing.SpacingFontResources
+import net.casual.arcade.pack.utils.spaced
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.component.*
 import net.casual.arcade.utils.entity.teleportTo

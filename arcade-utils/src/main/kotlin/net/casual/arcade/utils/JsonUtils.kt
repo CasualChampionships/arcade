@@ -36,6 +36,10 @@ public object JsonUtils {
         return path.reader().use(this::decodeRaw)
     }
 
+    public inline fun <reified T: Any> decodeRaw(bytes: ByteArray): T {
+        return bytes.decodeToString().reader().use(this::decodeRaw)
+    }
+
     public fun <T: Any> decodeWith(
         decoder: Decoder<T>,
         reader: Reader,

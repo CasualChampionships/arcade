@@ -37,7 +37,7 @@ vanilla behaviour
 The `TeamListEntries` however requires some resource packs which are provided by Arcade,
 namely a resource pack to player heads, hide player heads, player ping, and a negative
 padding resource pack. More information about these packs in the
-[Resources Section](../arcade-resource-pack/getting-started.md)
+[Resource Pack Generation Section](../arcade-resource-pack-generation/getting-started.md)
 
 Here's an example of what `TeamListEntries` look like:
 

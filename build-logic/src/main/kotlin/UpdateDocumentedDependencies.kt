@@ -9,24 +9,17 @@ import org.gradle.api.tasks.TaskAction
 /**
  * Rewrites the `dependencies { }` snippet inside a documentation file so the
  * documented coordinates always match the module's current version.
- *
- * All inputs are captured as serializable values at configuration time, so the
- * task is compatible with the configuration cache.
  */
 abstract class UpdateDocumentedDependencies: DefaultTask() {
-    /** The module's own `group:name:version` coordinate. */
     @get:Input
     abstract val coordinate: Property<String>
 
-    /** Whether the documented snippet should also list transitive `api` dependencies. */
     @get:Input
     abstract val includeTransitiveDependencies: Property<Boolean>
 
-    /** Sorted `group:name:version` coordinates of the transitive `api` dependencies. */
     @get:Input
     abstract val transitiveDependencies: ListProperty<String>
 
-    /** The markdown file whose `dependencies { }` block is rewritten in place. */
     @get:OutputFile
     abstract val documentationFile: RegularFileProperty
 
@@ -51,7 +44,7 @@ abstract class UpdateDocumentedDependencies: DefaultTask() {
         builder.append("\n}")
 
         val file = documentationFile.get().asFile
-        val regex = Regex("""(\ndependencies \{[\s\S]+})""")
+        val regex = Regex("""(\ndependencies \{[\s\S]+?\n})""")
         file.writeText(file.readText().replaceFirst(regex, builder.toString()))
     }
 }

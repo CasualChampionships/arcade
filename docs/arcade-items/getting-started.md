@@ -1,8 +1,9 @@
 # Items
 
-The items module is a small module which uses [Polymer](https://github.com/Patbox/polymer) 
-to help create custom-modelled items. 
-This is intended to be used alongside the [resource pack module](../arcade-resource-pack/getting-started.md).
+The items module is a small module which helps create custom-modelled items. 
+This is intended to be used alongside the 
+[resource pack generation module](../arcade-resource-pack-generation/getting-started.md), 
+which can generate the models and model definitions our items point at.
 
 ## Adding to Dependencies
 

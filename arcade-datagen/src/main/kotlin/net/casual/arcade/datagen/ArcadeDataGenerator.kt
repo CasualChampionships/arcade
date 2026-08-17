@@ -62,21 +62,19 @@ public class ArcadeDataGenerator: ClientModInitializer {
     }
 
     private fun loadPacksFor(client: Minecraft, generator: ArcadeResourceGenerator): CompletableFuture<Void> {
-        val packs = generator.resources().associateBy { "${it.hashCode().toString(16)}.zip" }
+        val packs = generator.resources().map { definition -> definition.build() }
 
         for (selected in client.resourcePackRepository.selectedIds) {
             client.resourcePackRepository.removePack(selected)
         }
 
-        for ((hash, pack) in packs) {
-            val path = client.resourcePackDirectory.resolve(hash)
-            pack.build(path)
-            path.toFile().deleteOnExit()
+        for (pack in packs) {
+            pack.writeTo(client.resourcePackDirectory).toFile().deleteOnExit()
         }
 
         client.resourcePackRepository.reload()
-        for (hash in packs.keys) {
-            client.resourcePackRepository.addPack("file/${hash}")
+        for (pack in packs) {
+            client.resourcePackRepository.addPack("file/${pack.zipped}")
         }
         return client.reloadResourcePacks()
     }

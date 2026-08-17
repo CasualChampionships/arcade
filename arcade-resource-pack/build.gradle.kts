@@ -8,7 +8,4 @@ dependencies {
     api(projects.arcadeEventsServer)
     api(projects.arcadeExtensions)
     api(projects.arcadeResourcePackHost)
-
-    api(libs.polymer.core)
-    api(libs.polymer.resource.pack)
 }

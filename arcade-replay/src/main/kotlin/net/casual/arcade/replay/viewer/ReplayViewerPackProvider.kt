@@ -4,9 +4,9 @@
  */
 package net.casual.arcade.replay.viewer
 
-import net.casual.arcade.host.GlobalPackHost
-import net.casual.arcade.host.pack.ReadablePack
-import net.casual.arcade.host.pack.provider.PackProvider
+import net.casual.arcade.pack.host.GlobalPackHost
+import net.casual.arcade.pack.host.ReadablePack
+import net.casual.arcade.pack.host.provider.PackProvider
 
 public class ReplayViewerPackProvider(
     private val viewer: ReplayViewer
