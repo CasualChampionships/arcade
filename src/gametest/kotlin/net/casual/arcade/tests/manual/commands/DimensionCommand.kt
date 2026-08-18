@@ -33,7 +33,7 @@ object DimensionCommand: CommandTree<CommandSourceStack> {
             randomDimensionKey()
             dimensionType(BuiltinDimensionTypes.OVERWORLD)
             chunkGenerator(VoidChunkGenerator(context.source.server))
-            persistence(LevelPersistence.Temporary)
+            persistence(LevelPersistence.Transient)
         }
 
         val player = context.source.player

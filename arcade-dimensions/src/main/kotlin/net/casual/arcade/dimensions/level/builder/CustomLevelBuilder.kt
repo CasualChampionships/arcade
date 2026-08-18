@@ -115,7 +115,7 @@ public class CustomLevelBuilder {
      *
      * @see LevelPersistence
      */
-    public var persistence: LevelPersistence = LevelPersistence.Temporary
+    public var persistence: LevelPersistence = LevelPersistence.Transient
 
     /**
      * Sets the dimension key.

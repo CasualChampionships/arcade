@@ -70,7 +70,7 @@ public open class CustomLevel(
     key: ResourceKey<Level>,
     public val properties: LevelProperties,
     public val options: LevelGenerationOptions,
-    public val persistence: LevelPersistence = LevelPersistence.Temporary,
+    public val persistence: LevelPersistence = LevelPersistence.Transient,
     private val factory: CustomLevelFactory = SimpleCustomLevelFactory(properties, options, persistence),
     dispatcher: Executor = (server as MinecraftServerAccessor).arcade_getExecutor(),
 ): ServerLevel(

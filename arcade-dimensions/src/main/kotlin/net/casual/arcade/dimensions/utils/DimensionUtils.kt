@@ -226,9 +226,9 @@ public fun MinecraftServer.hasCustomLevel(level: CustomLevel): Boolean {
  * This will remove the level from the server and
  * will fire the [ServerLevelEvents.UNLOAD] fabric event.
  *
- * If the [CustomLevel.persistence] is [LevelPersistence.Temporary]
- * then the level will be deleted instead, equivalent of calling
- * [deleteCustomLevel].
+ * If the [CustomLevel.persistence] is [LevelPersistence.Transient]
+ * or [LevelPersistence.Temporary] then the level will be deleted
+ * instead, equivalent of calling [deleteCustomLevel].
  *
  * Players should be removed from the level before calling.
  * Any remaining players in the level will be removed and
@@ -239,10 +239,10 @@ public fun MinecraftServer.hasCustomLevel(level: CustomLevel): Boolean {
  * @return `true` if the level was removed, `false` otherwise.
  */
 public fun MinecraftServer.removeCustomLevel(level: CustomLevel): Boolean {
-    return if (level.persistence.shouldSave()) {
-        this.unloadCustomLevel(level, true)
-    } else {
+    return if (level.persistence.shouldDeleteOnRemove()) {
         this.deleteCustomLevel(level)
+    } else {
+        this.unloadCustomLevel(level, true)
     }
 }
 

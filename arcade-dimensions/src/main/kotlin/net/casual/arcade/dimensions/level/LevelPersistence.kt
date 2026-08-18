@@ -10,8 +10,17 @@ import net.minecraft.util.StringRepresentable
 
 public enum class LevelPersistence: StringRepresentable {
     /**
-     * The level will be deleted after use.
+     * The level is never serialized and will be deleted after use.
      */
+    Transient,
+
+    /**
+     * The level is serialized but will not be automatically
+     * loaded when the server starts.
+     * It will be deleted when manually removed
+     * from the server via [removeCustomLevel].
+     */
+    @Deprecated("Temporary was renamed to 'Transient', double check if you meant to use Temporary", ReplaceWith("LevelPersistence.Transient"))
     Temporary,
 
     /**
@@ -34,7 +43,15 @@ public enum class LevelPersistence: StringRepresentable {
      * Whether this allows the level to be saved.
      */
     public fun shouldSave(): Boolean {
-        return this != Temporary
+        return this != Transient
+    }
+
+    /**
+     * Whether the level should be deleted when it is
+     * removed with [removeCustomLevel].
+     */
+    public fun shouldDeleteOnRemove(): Boolean {
+        return this == Transient || this == Temporary
     }
 
     override fun getSerializedName(): String {

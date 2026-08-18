@@ -217,9 +217,9 @@ public object ArcadeDimensions: ModInitializer {
      * This will remove the level from the server and
      * will fire the [ServerLevelEvents.UNLOAD] fabric event.
      *
-     * If the [CustomLevel.persistence] is [LevelPersistence.Temporary]
-     * then the level will be deleted instead, equivalent of calling
-     * [deleteCustomLevel].
+     * If the [CustomLevel.persistence] is [LevelPersistence.Transient]
+     * or [LevelPersistence.Temporary] then the level will be deleted
+     * instead, equivalent of calling [deleteCustomLevel].
      *
      * Players should be removed from the level before calling.
      * Any remaining players in the level will be removed and
