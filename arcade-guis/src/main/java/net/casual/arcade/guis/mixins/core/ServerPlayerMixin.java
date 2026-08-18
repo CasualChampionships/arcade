@@ -4,8 +4,6 @@
  */
 package net.casual.arcade.guis.mixins.core;
 
-import com.llamalad7.mixinextras.expression.Definition;
-import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -13,7 +11,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.casual.arcade.guis.core.Gui;
 import net.casual.arcade.guis.menu.GuiMenu;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.MenuProvider;
@@ -27,12 +24,12 @@ import java.util.OptionalInt;
 
 @Mixin(ServerPlayer.class)
 public class ServerPlayerMixin {
-    @Definition(id = "send", method = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V")
-    @Definition(id = "ClientboundOpenScreenPacket", type = ClientboundOpenScreenPacket.class)
-    @Expression("?.send(new ClientboundOpenScreenPacket(?, ?, ?))")
     @Inject(
         method = "openMenu",
-        at = @At("MIXINEXTRAS:EXPRESSION")
+        at = @At(
+            value = "NEW",
+            target = "(ILnet/minecraft/world/inventory/MenuType;Lnet/minecraft/network/chat/Component;)Lnet/minecraft/network/protocol/game/ClientboundOpenScreenPacket;"
+        )
     )
     private void onOpenContainerMenu(
         MenuProvider provider,
