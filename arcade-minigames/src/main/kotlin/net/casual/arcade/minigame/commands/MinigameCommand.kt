@@ -607,7 +607,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
 
     private fun openMinigameSettings(context: CommandContext<CommandSourceStack>) {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        minigame.settings.open(context.source.playerOrException)
+        minigame.settings.gui(context.source.playerOrException).open()
     }
 
     private fun getMinigameSetting(context: CommandContext<CommandSourceStack>): Int {

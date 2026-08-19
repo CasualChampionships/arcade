@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.jvm.optionals.getOrNull
 
 // This tracks the packs which the player has been sent and the state of each pack
-// it also buffers packs so they are batched to reduce the number of reloads on the client
+// it also buffers packs so they are batched to reduce the number of reloads on the client.
 internal class PlayerPackExtension(private val uuid: UUID): Extension {
     private val packs = Object2ObjectLinkedOpenHashMap<UUID, PackState>()
     private var queued: Object2ObjectLinkedOpenHashMap<UUID, PackInfo>? = null

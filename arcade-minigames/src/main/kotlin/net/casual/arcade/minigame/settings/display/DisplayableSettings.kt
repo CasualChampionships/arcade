@@ -5,6 +5,7 @@
 package net.casual.arcade.minigame.settings.display
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
+import net.casual.arcade.guis.core.container.ContainerGui
 import net.casual.arcade.minigame.settings.GameSetting
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
@@ -73,9 +74,10 @@ public open class DisplayableSettings(public val title: Component) {
      * player to directly interact with the settings.
      *
      * @param player The player being displayed to gui.
+     * @return The settings gui.
      */
-    public fun open(player: ServerPlayer) {
-        SettingsGui(player, this).open()
+    public fun gui(player: ServerPlayer): ContainerGui {
+        return SettingsGui(player, this)
     }
 
     public fun serialize(list: ValueOutput.ValueOutputList) {
