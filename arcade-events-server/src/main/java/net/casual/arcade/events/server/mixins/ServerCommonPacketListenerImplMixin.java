@@ -45,7 +45,7 @@ public abstract class ServerCommonPacketListenerImplMixin {
 	)
 	private Packet<?> onSendPacket(Packet<?> packet, @Cancellable CallbackInfo ci) {
 		ServerCommonPacketListenerImpl self = (ServerCommonPacketListenerImpl) (Object) this;
-		ClientboundPacketEvent event = new ClientboundPacketEvent(this.server, this.playerProfile(), packet);
+		ClientboundPacketEvent event = new ClientboundPacketEvent(this.server, self, this.playerProfile(), packet);
 		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.PRE_PHASES_RAW);
 		if (event.isCancelled()) {
 			ci.cancel();
@@ -78,7 +78,8 @@ public abstract class ServerCommonPacketListenerImplMixin {
 		Operation<Void> original
 	) {
 		original.call(instance, packet, listener, flush);
-		ClientboundPacketEvent event = new ClientboundPacketEvent(this.server, this.playerProfile(), packet);
+		ServerCommonPacketListenerImpl self = (ServerCommonPacketListenerImpl) (Object) this;
+		ClientboundPacketEvent event = new ClientboundPacketEvent(this.server, self, this.playerProfile(), packet);
 		GlobalEventHandler.Server.broadcast(event, BuiltInEventPhases.POST_PHASES_RAW);
 
 		if ((Object) this instanceof ServerGamePacketListenerImpl connection) {

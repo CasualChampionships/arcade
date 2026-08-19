@@ -4,6 +4,9 @@
  */
 package net.casual.arcade.pack
 
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
+
 /**
  * This class contains the information for the player's
  * current resource pack state.
@@ -24,6 +27,14 @@ public class PackState(
      */
     private var status: PackStatus
 ) {
+    private val settled = CompletableDeferred<PackStatus>()
+
+    init {
+        if (!this.status.isLoadingPack()) {
+            this.settled.complete(status)
+        }
+    }
+
     /**
      * Checks whether the server is still waiting for the client
      * to respond to the pack status request.
@@ -80,7 +91,14 @@ public class PackState(
         return this.status.hasFailedToLoadPack()
     }
 
+    public suspend fun await(): PackStatus {
+        return this.settled.await()
+    }
+
     internal fun setStatus(status: PackStatus) {
         this.status = status
+        if (!status.isLoadingPack()) {
+            this.settled.complete(status)
+        }
     }
 }

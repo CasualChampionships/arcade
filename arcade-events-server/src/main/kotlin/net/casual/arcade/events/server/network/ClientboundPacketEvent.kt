@@ -11,9 +11,11 @@ import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.threading.AsyncEvent
 import net.minecraft.network.protocol.Packet
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.network.ServerCommonPacketListenerImpl
 
 public data class ClientboundPacketEvent(
     val server: MinecraftServer,
+    val connection: ServerCommonPacketListenerImpl,
     val owner: GameProfile,
     var packet: Packet<*>
 ): CancellableEvent.Simple(), ServerSideEvent, AsyncEvent {

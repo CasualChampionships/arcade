@@ -4,6 +4,8 @@
  */
 package net.casual.arcade.pack.utils
 
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 import net.casual.arcade.pack.PackInfo
 import net.casual.arcade.pack.PackState
 import net.casual.arcade.pack.PackStatus
@@ -11,13 +13,14 @@ import net.casual.arcade.pack.extensions.PlayerPackExtension
 import net.casual.arcade.pack.extensions.PlayerPackExtension.Companion.packExtension
 import net.casual.arcade.pack.host.HostedPack
 import net.casual.arcade.pack.host.PackHost
+import net.casual.arcade.utils.coroutine.launch
+import net.casual.arcade.utils.player.server
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerCommonPacketListenerImpl
 import java.util.*
-import java.util.concurrent.CompletableFuture
 import kotlin.reflect.KProperty
 
 public object ResourcePackUtils {
@@ -51,8 +54,8 @@ public object ResourcePackUtils {
     }
 
     @JvmStatic
-    public fun getPlayerPackLoadingFuture(playerUUID: UUID): CompletableFuture<Void> {
-        return PlayerPackExtension.getExtension(playerUUID).allLoadedFuture
+    public suspend fun awaitPlayerPacks(playerUUID: UUID) {
+        PlayerPackExtension.getExtension(playerUUID).awaitPacks()
     }
 
     @JvmStatic
@@ -76,50 +79,51 @@ public object ResourcePackUtils {
     }
 
     @JvmStatic
-    public fun afterPacksLoad(players: Iterable<ServerPlayer>, block: () -> Unit) {
-        getPackLoadingFuture(players).thenRun(block)
+    public suspend fun awaitPacks(players: Iterable<ServerPlayer>) {
+        for (player in players) {
+            player.awaitPacks()
+        }
     }
 
     @JvmStatic
-    public fun getPackLoadingFuture(players: Iterable<ServerPlayer>): CompletableFuture<Void> {
-        return CompletableFuture.allOf(*players.map { it.getPackLoadingFuture() }.toTypedArray())
+    public suspend fun ServerPlayer.awaitPacks() {
+        awaitPlayerPacks(this.uuid)
     }
 
     @JvmStatic
-    public fun ServerPlayer.afterPacksLoad(block: () -> Unit) {
-        this.getPackLoadingFuture().thenRun(block)
+    public fun ServerPlayer.sendResourcePack(pack: PackInfo, replace: Boolean = true) {
+        this.server.launch { awaitResourcePack(pack, replace) }
     }
 
     @JvmStatic
-    public fun ServerPlayer.getPackLoadingFuture(): CompletableFuture<Void> {
-        return getPlayerPackLoadingFuture(this.uuid)
-    }
-
-    @JvmStatic
-    public fun ServerPlayer.sendResourcePack(pack: PackInfo, replace: Boolean = true): CompletableFuture<PackStatus> {
+    public suspend fun ServerPlayer.awaitResourcePack(pack: PackInfo, replace: Boolean = true): PackStatus {
         val current = this.getPackState(pack)
         if (!replace && current != null) {
             if (current.isLoadingPack()) {
-                return this.packExtension.addFuture(pack.uuid)
+                return current.await()
             }
             if (current.hasLoadedPack()) {
-                return CompletableFuture.completedFuture(PackStatus.SUCCESS)
+                return PackStatus.SUCCESS
             }
         }
 
         this.connection.send(pack.toPushPacket(this.connection))
-        return this.packExtension.addFuture(pack.uuid)
+        return this.packExtension.awaitPack(pack.uuid)
     }
 
     @JvmStatic
-    public fun ServerPlayer.removeResourcePack(pack: PackInfo): CompletableFuture<PackStatus> {
+    public fun ServerPlayer.removeResourcePack(pack: PackInfo) {
         this.connection.send(pack.toPopPacket())
-        return this.packExtension.addFuture(pack.uuid)
     }
 
     @JvmStatic
     public fun ServerPlayer.removeAllResourcePacks() {
         this.connection.send(ClientboundResourcePackPopPacket(Optional.empty()))
+    }
+
+    @JvmStatic
+    public fun ServerPlayer.flushResourcePacks() {
+        this.packExtension.flush(this.connection, this.server)
     }
 
     /**
