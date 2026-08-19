@@ -6,20 +6,28 @@ package net.casual.arcade.pack.extensions
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.server.network.ClientboundPacketEvent
+import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
+import net.casual.arcade.events.server.player.PlayerDisconnectEvent
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.extensions.Extension
 import net.casual.arcade.pack.event.ClientPacksSuccessEvent
 import net.casual.arcade.pack.event.PlayerPacksSuccessEvent
 import net.casual.arcade.pack.PackInfo
 import net.casual.arcade.pack.PackState
 import net.casual.arcade.pack.PackStatus
+import net.casual.arcade.pack.event.PackStatusEvent
+import net.casual.arcade.pack.utils.ResourcePackUtils.sendResourcePack
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.network.ResolvableURL
 import net.casual.arcade.utils.server.player
 import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket
 import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.level.ServerPlayer
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.jvm.optionals.getOrNull
 
 internal class PlayerPackExtension(private val uuid: UUID): Extension {
@@ -94,6 +102,44 @@ internal class PlayerPackExtension(private val uuid: UUID): Extension {
         val player = server.player(this.uuid)
         if (player != null) {
             GlobalEventHandler.Server.broadcast(PlayerPacksSuccessEvent(player, this.getAllPacks()))
+        }
+    }
+
+    companion object {
+        // May be accessed off the main thread.
+        // This is implemented like this since we cannot use PlayerExtensions.
+        // Packs may be sent before the player has spawned in the world.
+        private val universe = ConcurrentHashMap<UUID, PlayerPackExtension>()
+
+        val ServerPlayer.packExtension: PlayerPackExtension
+            get() = getExtension(this.uuid)
+
+        fun getExtension(uuid: UUID): PlayerPackExtension {
+            return this.universe.getOrPut(uuid) { PlayerPackExtension(uuid) }
+        }
+
+        internal fun registerEvents() {
+            GlobalEventHandler.Server.register<PlayerDisconnectEvent> { (_, profile) ->
+                this.universe.remove(profile.id)
+            }
+            GlobalEventHandler.Server.register<ClientboundPacketEvent> { (_, profile, packet) ->
+                // This may be off thread
+                if (packet is ClientboundResourcePackPushPacket) {
+                    this.getExtension(profile.id).onPushPack(packet)
+                } else if (packet is ClientboundResourcePackPopPacket) {
+                    this.getExtension(profile.id).onPopPack(packet)
+                }
+            }
+            GlobalEventHandler.Server.register<PackStatusEvent> { (server, profile, uuid, status) ->
+                this.getExtension(profile.id).onPackStatus(server, uuid, status)
+            }
+            GlobalEventHandler.Server.register<PlayerDimensionChangeEvent> { (player) ->
+                for (pack in player.packExtension.getAllPacks()) {
+                    if (pack.isWaitingForResponse()) {
+                        player.sendResourcePack(pack.info, true)
+                    }
+                }
+            }
         }
     }
 }

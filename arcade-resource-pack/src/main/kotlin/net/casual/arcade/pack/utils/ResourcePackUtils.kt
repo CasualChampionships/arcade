@@ -4,16 +4,11 @@
  */
 package net.casual.arcade.pack.utils
 
-import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.server.network.ClientboundPacketEvent
-import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
-import net.casual.arcade.events.server.player.PlayerDisconnectEvent
-import net.casual.arcade.events.utils.register
 import net.casual.arcade.pack.PackInfo
 import net.casual.arcade.pack.PackState
 import net.casual.arcade.pack.PackStatus
-import net.casual.arcade.pack.event.PackStatusEvent
 import net.casual.arcade.pack.extensions.PlayerPackExtension
+import net.casual.arcade.pack.extensions.PlayerPackExtension.Companion.packExtension
 import net.casual.arcade.pack.host.HostedPack
 import net.casual.arcade.pack.host.PackHost
 import net.minecraft.network.chat.Component
@@ -23,18 +18,9 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerCommonPacketListenerImpl
 import java.util.*
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KProperty
 
 public object ResourcePackUtils {
-    // May be accessed off the main thread.
-    // This is implemented like this since we cannot use PlayerExtensions.
-    // Packs may be sent before the player has spawned in the world.
-    private val universe = ConcurrentHashMap<UUID, PlayerPackExtension>()
-
-    private val ServerPlayer.resourcePacks
-        get() = getExtension(this.uuid)
-
     @JvmStatic
     public fun PackInfo.toPushPacket(connection: ServerCommonPacketListenerImpl): ClientboundResourcePackPushPacket {
         return ClientboundResourcePackPushPacket(
@@ -56,17 +42,17 @@ public object ResourcePackUtils {
 
     @JvmStatic
     public fun getPlayerPackState(playerUUID: UUID, packUUID: UUID): PackState? {
-        return this.getExtension(playerUUID).getPackState(packUUID)
+        return PlayerPackExtension.getExtension(playerUUID).getPackState(packUUID)
     }
 
     @JvmStatic
     public fun getPlayerAllPackStates(playerUUID: UUID): Collection<PackState> {
-        return this.getExtension(playerUUID).getAllPacks()
+        return PlayerPackExtension.getExtension(playerUUID).getAllPacks()
     }
 
     @JvmStatic
     public fun getPlayerPackLoadingFuture(playerUUID: UUID): CompletableFuture<Void> {
-        return this.getExtension(playerUUID).allLoadedFuture
+        return PlayerPackExtension.getExtension(playerUUID).allLoadedFuture
     }
 
     @JvmStatic
@@ -114,7 +100,7 @@ public object ResourcePackUtils {
         val current = this.getPackState(pack)
         if (!replace && current != null) {
             if (current.isLoadingPack()) {
-                return this.resourcePacks.addFuture(pack.uuid)
+                return this.packExtension.addFuture(pack.uuid)
             }
             if (current.hasLoadedPack()) {
                 return CompletableFuture.completedFuture(PackStatus.SUCCESS)
@@ -122,13 +108,13 @@ public object ResourcePackUtils {
         }
 
         this.connection.send(pack.toPushPacket(this.connection))
-        return this.resourcePacks.addFuture(pack.uuid)
+        return this.packExtension.addFuture(pack.uuid)
     }
 
     @JvmStatic
     public fun ServerPlayer.removeResourcePack(pack: PackInfo): CompletableFuture<PackStatus> {
         this.connection.send(pack.toPopPacket())
-        return this.resourcePacks.addFuture(pack.uuid)
+        return this.packExtension.addFuture(pack.uuid)
     }
 
     @JvmStatic
@@ -153,10 +139,6 @@ public object ResourcePackUtils {
         return PackInfoRef(this, required, prompt)
     }
 
-    private fun getExtension(uuid: UUID): PlayerPackExtension {
-        return universe.getOrPut(uuid) { PlayerPackExtension(uuid) }
-    }
-
     public class PackInfoRef(
         ref: PackHost.HostedPackRef,
         private val required: Boolean,
@@ -166,30 +148,6 @@ public object ResourcePackUtils {
 
         public operator fun getValue(any: Any?, property: KProperty<*>): PackInfo {
             return this.hosted.toPackInfo(this.required, this.prompt)
-        }
-    }
-
-    internal fun registerEvents() {
-        GlobalEventHandler.Server.register<PlayerDisconnectEvent> { (_, profile) ->
-            universe.remove(profile.id)
-        }
-        GlobalEventHandler.Server.register<ClientboundPacketEvent> { (_, profile, packet) ->
-            // This may be off thread
-            if (packet is ClientboundResourcePackPushPacket) {
-                getExtension(profile.id).onPushPack(packet)
-            } else if (packet is ClientboundResourcePackPopPacket) {
-                getExtension(profile.id).onPopPack(packet)
-            }
-        }
-        GlobalEventHandler.Server.register<PackStatusEvent> { (server, profile, uuid, status) ->
-            getExtension(profile.id).onPackStatus(server, uuid, status)
-        }
-        GlobalEventHandler.Server.register<PlayerDimensionChangeEvent> { (player) ->
-            for (pack in getExtension(player.uuid).getAllPacks()) {
-                if (pack.isWaitingForResponse()) {
-                    player.sendResourcePack(pack.info, true)
-                }
-            }
         }
     }
 }
