@@ -4,7 +4,7 @@
  */
 package net.casual.arcade.guis.core.container
 
-public enum class ContainerGuiClickPath {
+public enum class ContainerGuiClickBehavior {
     /**
      * This completely swallows the click.
      */

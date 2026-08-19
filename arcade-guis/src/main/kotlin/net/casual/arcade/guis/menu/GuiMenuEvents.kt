@@ -11,7 +11,7 @@ import net.casual.arcade.events.server.player.PlayerMenuButtonClickEvent
 import net.casual.arcade.events.server.player.PlayerSlotClickEvent
 import net.casual.arcade.events.server.player.PlayerTickEvent
 import net.casual.arcade.events.utils.register
-import net.casual.arcade.guis.core.container.ContainerGuiClickPath
+import net.casual.arcade.guis.core.container.ContainerGuiClickBehavior
 import net.casual.arcade.guis.menu.book.BookGuiMenu
 import net.casual.arcade.guis.menu.container.ContainerGuiMenu
 import net.casual.arcade.guis.utils.BookClickAction
@@ -47,13 +47,13 @@ internal object GuiMenuEvents {
                 return
             }
             val action = SlotClickAction.from(input, button, index)
-            val path = gui.resolveClickPath(index, action)
-            if (path == ContainerGuiClickPath.Vanilla) {
+            val behavior = gui.resolveClickBehavior(index, action)
+            if (behavior == ContainerGuiClickBehavior.Vanilla) {
                 return
             }
 
             event.cancel()
-            if (path == ContainerGuiClickPath.None) {
+            if (behavior == ContainerGuiClickBehavior.None) {
                 menu.sendAllDataToRemote()
                 return
             }

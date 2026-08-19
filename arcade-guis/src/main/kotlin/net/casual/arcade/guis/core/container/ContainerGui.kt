@@ -63,8 +63,8 @@ public open class ContainerGui(
         this.handlers[slot] = null
     }
 
-    public open fun resolveClickPath(slot: Int, action: SlotClickAction): ContainerGuiClickPath {
-        return ContainerGuiClickPath.Gui
+    public open fun resolveClickBehavior(slot: Int, action: SlotClickAction): ContainerGuiClickBehavior {
+        return ContainerGuiClickBehavior.Gui
     }
 
     public open fun click(slot: Int, action: SlotClickAction) {
