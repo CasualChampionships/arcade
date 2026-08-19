@@ -63,8 +63,10 @@ internal class SettingsGui(
         for (slot in PAGE_SIZE..<this.getContainerSize()) {
             this.setSlot(slot, filler())
         }
-        this.setSlot(CLOSE_SLOT, Items.BARRIER.named(Component.translatable("minigame.gui.settings.close"))) {
-            this.close()
+
+        val key = if (this.getParent() == null) "minigame.gui.settings.close" else "minigame.gui.settings.back"
+        this.setSlot(CLOSE_SLOT, Items.BARRIER.named(Component.translatable(key))) {
+            this.openParentOrClose()
         }
     }
 

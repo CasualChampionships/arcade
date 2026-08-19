@@ -21,6 +21,7 @@
   "minigame.lobby.command.noNextMinigame": "Lobby has no next minigame",
 
   "minigame.gui.settings": "Minigame Settings Screen",
+  "minigame.gui.settings.back": "Back",
   "minigame.gui.settings.close": "Close",
   "minigame.gui.settings.previous": "Previous Page (%s/%s)",
   "minigame.gui.settings.next": "Next Page (%s/%s)",
