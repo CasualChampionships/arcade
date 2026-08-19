@@ -34,7 +34,9 @@ object GuiCommand: CommandTree<CommandSourceStack> {
     private fun viewInventory(context: CommandContext<CommandSourceStack>) {
         val player = context.source.playerOrException
         val target = EntityArgument.getPlayer(context, "target")
-        PlayerInventoryViewGui(player, target).open()
+        val gui = PlayerInventoryViewGui(player, target)
+        gui.areBoundSlotsInteractable = false
+        gui.open()
     }
 
     private fun openTestContainerGui(context: CommandContext<CommandSourceStack>) {

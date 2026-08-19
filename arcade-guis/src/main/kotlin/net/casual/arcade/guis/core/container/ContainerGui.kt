@@ -63,8 +63,8 @@ public open class ContainerGui(
         this.handlers[slot] = null
     }
 
-    public open fun shouldIgnoreClick(slot: Int, action: SlotClickAction): Boolean {
-        return false
+    public open fun resolveClickPath(slot: Int, action: SlotClickAction): ContainerGuiClickPath {
+        return ContainerGuiClickPath.Gui
     }
 
     public open fun click(slot: Int, action: SlotClickAction) {

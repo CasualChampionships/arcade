@@ -56,17 +56,17 @@ public open class BindableContainerGui(
         this.dirtySlots.add(slot)
     }
 
-    override fun shouldIgnoreClick(slot: Int, action: SlotClickAction): Boolean {
-        if (action.isDrop) {
-            return this.isDroppingAllowed
+    override fun resolveClickPath(slot: Int, action: SlotClickAction): ContainerGuiClickPath {
+        if (action.isDrop && !this.isDroppingAllowed) {
+            return ContainerGuiClickPath.None
         }
         if (this.bound.getOrNull(slot) != null) {
-            return this.areBoundSlotsInteractable
+            return if (this.areBoundSlotsInteractable) ContainerGuiClickPath.Vanilla else ContainerGuiClickPath.None
         }
         if (!this.isInventoryOverridden() && (slot - this.slots) in 0..<Inventory.INVENTORY_SIZE) {
-            return this.areInventorySlotsInteractable
+            return if (this.areInventorySlotsInteractable) ContainerGuiClickPath.Gui else ContainerGuiClickPath.None
         }
-        return false
+        return super.resolveClickPath(slot, action)
     }
 
     override fun createMenuProvider(): MenuProvider {
