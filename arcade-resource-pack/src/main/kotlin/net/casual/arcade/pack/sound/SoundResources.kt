@@ -5,6 +5,7 @@
 package net.casual.arcade.pack.sound
 
 import com.google.gson.JsonObject
+import com.google.gson.JsonPrimitive
 import com.mojang.serialization.JsonOps
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import net.casual.arcade.pack.sound.SoundProvider.Type.Event
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.ApiStatus.Internal
 public abstract class SoundResources(
     public val namespace: String
 ) {
-    private val providers = Object2ObjectLinkedOpenHashMap<String, List<SoundProvider>>()
+    private val providers = Object2ObjectLinkedOpenHashMap<String, SubtitledProviders>()
 
     protected fun sound(
         location: Identifier,
@@ -27,10 +28,11 @@ public abstract class SoundResources(
         attenuationDistance: Int = 16,
         dynamicRange: Boolean = false,
         preload: Boolean = false,
+        subtitle: String? = null,
         id: String = location.path
     ): SoundEvent {
         val provider = SoundProvider(location, volume, pitch, 1, stream, attenuationDistance, preload, Sound)
-        this.providers[id] = listOf(provider)
+        this.providers[id] = SubtitledProviders(subtitle, listOf(provider))
         return this.register(Identifier(this.namespace, id), attenuationDistance, dynamicRange)
     }
 
@@ -42,10 +44,11 @@ public abstract class SoundResources(
         attenuationDistance: Int = 16,
         dynamicRange: Boolean = false,
         preload: Boolean = false,
+        subtitle: String? = null,
         id: String = location.path
     ): SoundEvent {
         val provider = SoundProvider(location, volume, pitch, 1, stream, attenuationDistance, preload, Event)
-        this.providers[id] = listOf(provider)
+        this.providers[id] = SubtitledProviders(subtitle, listOf(provider))
         return this.register(Identifier(this.namespace, id), attenuationDistance, dynamicRange)
     }
 
@@ -53,11 +56,12 @@ public abstract class SoundResources(
         id: String,
         attenuationDistance: Int = 16,
         dynamicRange: Boolean = false,
+        subtitle: String? = null,
         builder: GroupedSoundProvider.() -> Unit
     ): SoundEvent {
-        val grouped = GroupedSoundProvider()
+        val grouped = GroupedSoundProvider(attenuationDistance)
         grouped.builder()
-        this.providers[id] = grouped.getProviders()
+        this.providers[id] = SubtitledProviders(subtitle, grouped.getProviders())
         return this.register(Identifier(this.namespace, id), attenuationDistance, dynamicRange)
     }
 
@@ -69,9 +73,13 @@ public abstract class SoundResources(
     public fun toJson(): JsonObject {
         val code = SoundProvider.CODEC.listOf()
         val json = JsonObject()
-        for ((key, providers) in this.providers) {
+        for ((key, subtitled) in this.providers) {
+            val (subtitle, providers) = subtitled
             val group = JsonObject()
             val result = code.encodeStart(JsonOps.INSTANCE, providers).orThrow
+            if (subtitle != null) {
+                group.add("subtitle", JsonPrimitive(subtitle))
+            }
             group.add("sounds", result)
             json.add(key, group)
         }
@@ -86,4 +94,6 @@ public abstract class SoundResources(
         }
         return sound
     }
+
+    private data class SubtitledProviders(val subtitle: String?, val providers: List<SoundProvider>)
 }

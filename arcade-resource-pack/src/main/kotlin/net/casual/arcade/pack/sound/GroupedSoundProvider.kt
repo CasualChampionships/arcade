@@ -8,7 +8,7 @@ import net.casual.arcade.pack.sound.SoundProvider.Type.Event
 import net.casual.arcade.pack.sound.SoundProvider.Type.Sound
 import net.minecraft.resources.Identifier
 
-public class GroupedSoundProvider {
+public class GroupedSoundProvider(private val attenuationDistance: Int) {
     private val providers = ArrayList<SoundProvider>()
 
     public fun sound(
@@ -17,7 +17,7 @@ public class GroupedSoundProvider {
         pitch: Float = 1.0F,
         weight: Int = 1,
         stream: Boolean = false,
-        attenuationDistance: Int = 16,
+        attenuationDistance: Int = this.attenuationDistance,
         preload: Boolean = false
     ): GroupedSoundProvider {
         val provider = SoundProvider(location, volume, pitch, weight, stream, attenuationDistance, preload, Sound)
@@ -31,7 +31,7 @@ public class GroupedSoundProvider {
         pitch: Float = 1.0F,
         weight: Int = 1,
         stream: Boolean = false,
-        attenuationDistance: Int = 16,
+        attenuationDistance: Int = this.attenuationDistance,
         preload: Boolean = false
     ): GroupedSoundProvider {
         val provider = SoundProvider(location, volume, pitch, weight, stream, attenuationDistance, preload, Event)

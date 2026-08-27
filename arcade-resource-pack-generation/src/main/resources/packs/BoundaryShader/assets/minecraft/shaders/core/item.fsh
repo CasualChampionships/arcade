@@ -31,7 +31,7 @@ void main() {
     // == Boundary Start ==
     if (isBoundary > 0.5) {
         vec2 localUV = uv;
-        vec2 repeat = vec2(width, height);
+        vec2 repeat = vec2(floor(width), floor(height));
         localUV -= (GameTime * 256.0) / repeat;
         vec2 tiledUV = fract(localUV * repeat);
         vec2 atlasUV = minTexCoord + tiledUV / scale;
@@ -41,8 +41,8 @@ void main() {
             discard;
         }
 
-        float fogStart = 150;
-        float fogEnd = 200;
+        float fogStart = 272; // 16 (blocks per chunk) * 17 (view distance)
+        float fogEnd = fogStart + 48;
 
         bool insideBox = all(lessThanEqual(abs(position), vec3(fogEnd)));
         if (!insideBox) {

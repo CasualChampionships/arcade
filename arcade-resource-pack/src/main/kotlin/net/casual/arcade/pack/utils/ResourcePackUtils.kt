@@ -4,8 +4,6 @@
  */
 package net.casual.arcade.pack.utils
 
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
 import net.casual.arcade.pack.PackInfo
 import net.casual.arcade.pack.PackState
 import net.casual.arcade.pack.PackStatus
