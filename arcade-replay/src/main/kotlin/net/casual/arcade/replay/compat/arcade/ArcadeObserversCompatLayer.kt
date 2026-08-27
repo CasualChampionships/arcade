@@ -11,6 +11,7 @@ import net.casual.arcade.observer.Observer
 import net.casual.arcade.observer.utils.startObserving
 import net.casual.arcade.observer.utils.stopObserving
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder
+import net.casual.arcade.replay.util.asObserver
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.math.location.with
 import net.fabricmc.loader.api.FabricLoader
@@ -24,49 +25,38 @@ internal object ArcadeObserversCompatLayer {
 
     fun modifyPacketForObserver(recorder: ReplayChunkRecorder, packet: Packet<*>): Packet<*> {
         if (this.loaded) {
-            val event = ObserverClientboundPacketEvent(this.observerFor(recorder), packet)
+            val event = ObserverClientboundPacketEvent(recorder.asObserver(), packet)
             GlobalEventHandler.Server.broadcast(event)
             return event.packet
         }
         return packet
     }
 
-    fun observerFor(recorder: ReplayChunkRecorder): Observer {
-        require(this.loaded) {
-            "Cannot create observer for recorder as ${ArcadeObservers.MOD_ID} is not loaded"
-        }
-        return recorder.observer as Observer
-    }
-
     @JvmStatic
     fun startObservingLevel(recorder: ReplayChunkRecorder) {
         if (this.loaded) {
-            val observer = this.observerFor(recorder)
-            observer.startObserving(recorder.level)
+            recorder.asObserver().startObserving(recorder.level)
         }
     }
 
     @JvmStatic
     fun stopObservingLevel(recorder: ReplayChunkRecorder) {
         if (this.loaded) {
-            val observer = this.observerFor(recorder)
-            observer.stopObserving(recorder.level)
+            recorder.asObserver().stopObserving(recorder.level)
         }
     }
 
     @JvmStatic
     fun startObservingEntity(recorder: ReplayChunkRecorder, entity: Entity) {
         if (this.loaded) {
-            val observer = this.observerFor(recorder)
-            observer.startObserving(entity)
+            recorder.asObserver().startObserving(entity)
         }
     }
 
     @JvmStatic
     fun stopObservingEntity(recorder: ReplayChunkRecorder, entity: Entity) {
         if (this.loaded) {
-            val observer = this.observerFor(recorder)
-            observer.stopObserving(entity)
+            recorder.asObserver().stopObserving(entity)
         }
     }
 

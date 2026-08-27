@@ -7,6 +7,7 @@ package net.casual.arcade.replay.compat.arcade
 import net.casual.arcade.observer.utils.asObserver
 import net.casual.arcade.replay.recorder.chunk.ReplayChunkRecorder
 import net.casual.arcade.replay.recorder.player.ReplayPlayerRecorder
+import net.casual.arcade.replay.util.asObserver
 import net.casual.arcade.utils.server.player
 import net.casual.arcade.virtual.visuals.ArcadeVirtualVisuals
 import net.casual.arcade.virtual.visuals.utils.observingVisuals
@@ -28,7 +29,7 @@ internal object ArcadeVirtualVisualsCompatLayer {
     @JvmStatic
     fun resendObservingVisuals(recorder: ReplayChunkRecorder) {
         if (this.loaded) {
-            val observer = ArcadeObserversCompatLayer.observerFor(recorder)
+            val observer = recorder.asObserver()
             for (visual in observer.observingVisuals().toList()) {
                 visual.sendSpawnPackets(observer, observer)
             }
