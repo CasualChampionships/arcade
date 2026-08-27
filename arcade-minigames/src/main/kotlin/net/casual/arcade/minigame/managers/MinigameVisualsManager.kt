@@ -12,6 +12,8 @@ import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
 import net.casual.arcade.nametags.Nametag
 import net.casual.arcade.nametags.extensions.EntityNametagExtension.Companion.nametagExtension
+import net.casual.arcade.observer.Observer
+import net.casual.arcade.observer.tracker.SimpleObserverTracker
 import net.casual.arcade.observer.utils.asObserver
 import net.casual.arcade.virtual.visuals.VirtualVisual
 import net.casual.arcade.virtual.visuals.bossbar.VirtualBossbar
@@ -43,6 +45,8 @@ public class MinigameVisualsManager(
     private val nametags = ReferenceArrayList<Nametag>()
     private val visuals = ReferenceLinkedOpenHashSet<VirtualVisual>()
 
+    private val observers = SimpleObserverTracker()
+
     private var sidebar: VirtualSidebar? = null
     private var display: VirtualPlayerList? = null
 
@@ -54,22 +58,33 @@ public class MinigameVisualsManager(
     init {
         this.minigame.events.register<MinigameAddPlayerEvent> { event ->
             val player = event.player
-            val observer = player.asObserver()
-            for (visual in this.visuals) {
-                visual.startObservingAndSendPackets(observer)
-            }
+            this.addObserver(player.asObserver())
             for (nametag in this.nametags) {
                 player.nametagExtension.add(nametag)
             }
         }
         this.minigame.events.register<MinigameRemovePlayerEvent> { event ->
             val player = event.player
-            val observer = player.asObserver()
-            for (visual in this.visuals.toList()) {
-                visual.stopObservingAndSendPackets(observer)
-            }
+            this.removeObserver(player.asObserver())
             for (nametag in this.nametags) {
                 player.nametagExtension.remove(nametag)
+            }
+        }
+    }
+
+    public fun addObserver(observer: Observer) {
+        if (this.observers.startObserving(observer)) {
+            for (visual in this.visuals) {
+                visual.startObservingAndSendPackets(observer)
+            }
+        }
+    }
+
+    private fun removeObserver(observer: Observer) {
+        if (this.observers.isObserving(observer)) {
+            this.observers.stopObserving(observer)
+            for (visual in this.visuals.toList()) {
+                visual.stopObservingAndSendPackets(observer)
             }
         }
     }
@@ -215,8 +230,8 @@ public class MinigameVisualsManager(
 
     private fun loadVisual(visual: VirtualVisual) {
         this.visuals.add(visual)
-        for (player in this.minigame.players) {
-            visual.startObservingAndSendPackets(player.asObserver())
+        for (observer in this.observers) {
+            visual.startObservingAndSendPackets(observer)
         }
     }
 
