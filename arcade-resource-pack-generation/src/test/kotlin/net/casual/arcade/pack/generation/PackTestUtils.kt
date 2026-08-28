@@ -19,7 +19,7 @@ internal object PackTestUtils {
     }
 
     fun pack(contents: PackContents.() -> Unit): PackDefinition {
-        return PackDefinition("test", contents)
+        return PackDefinition("test", contents = contents)
     }
 
     fun entries(contents: PackContents.() -> Unit): Map<String, ByteArray> {

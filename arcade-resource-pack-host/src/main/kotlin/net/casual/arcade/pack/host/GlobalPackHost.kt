@@ -26,8 +26,8 @@ public object GlobalPackHost: PackHost() {
 
     }
 
-    override fun createUrl(name: String): ResolvableURL {
-        val encoded = URLEncoder.encode(name, Charsets.UTF_8)
+    override fun createUrl(path: String): ResolvableURL {
+        val encoded = URLEncoder.encode(path, Charsets.UTF_8)
         return ResolvableURL.local("http", null, null, "arcade/packs/${encoded}")
     }
 

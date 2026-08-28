@@ -4,13 +4,12 @@ import com.google.common.collect.HashMultimap
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
-import kotlinx.coroutines.future.await
 import net.casual.arcade.commands.*
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.player.PlayerJoinEvent
 import net.casual.arcade.events.utils.register
 import net.casual.arcade.pack.host.GlobalPackHost
-import net.casual.arcade.pack.host.PackHost
+import net.casual.arcade.pack.host.HostedPackRef
 import net.casual.arcade.pack.generation.BuiltInResourcePacks
 import net.casual.arcade.pack.generation.PackDefinition
 import net.casual.arcade.pack.generation.utils.add
@@ -47,15 +46,17 @@ object ResourcePackCommand: CommandTree<CommandSourceStack> {
         if (hosted.isEmpty()) {
             return context.source.fail("Failed to host pack $name, there were no resource packs under that name")
         }
+        val server = context.source.server
         GlobalEventHandler.Server.register<PlayerJoinEvent> { (player) ->
             for (pack in hosted) {
-                player.sendResourcePack(pack.value.toPackInfo())
+                server.launch {
+                    player.sendResourcePack(pack.await().toPackInfo())
+                }
             }
         }
 
-        val server = context.source.server
         server.launch {
-            val packs = hosted.map { pack -> pack.future.await().toPackInfo() }
+            val packs = hosted.map { pack -> pack.await().toPackInfo() }
             for (player in server.players) {
                 for (pack in packs) {
                     player.sendResourcePack(pack)
@@ -69,7 +70,7 @@ object ResourcePackCommand: CommandTree<CommandSourceStack> {
         this.registered.putAll(name, packs.toList())
     }
 
-    private fun host(pack: PackDefinition): PackHost.HostedPackRef {
+    private fun host(pack: PackDefinition): HostedPackRef {
         return GlobalPackHost.add(pack)
     }
 }

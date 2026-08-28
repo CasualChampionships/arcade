@@ -6,6 +6,7 @@ package net.casual.arcade.pack.generation
 
 import net.casual.arcade.pack.generation.utils.ZipPackWriter
 import java.nio.file.Path
+import java.util.UUID
 
 /**
  * This class defines a resource pack which can be generated at
@@ -20,10 +21,15 @@ import java.nio.file.Path
  *     file("assets/mymod/font/default.json", json)
  * }
  * ```
+ *
+ * @param name The name of the pack.
+ * @param uuid The unique id of the pack, used to identify it when hosting.
+ * @param contents The contents of the pack.
  * @see PackContents
  */
 public class PackDefinition(
     public val name: String,
+    public val uuid: UUID = UUID.randomUUID(),
     private val contents: PackContents.() -> Unit
 ) {
     public fun build(): ResourcePack {

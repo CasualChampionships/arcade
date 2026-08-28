@@ -10,7 +10,6 @@ import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
 import com.sun.net.httpserver.HttpsConfigurator
 import com.sun.net.httpserver.HttpsServer
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.pack.host.provider.PackProvider
 import net.casual.arcade.utils.network.ResolvableURL
 import org.apache.logging.log4j.LogManager
@@ -18,12 +17,12 @@ import java.io.InputStream
 import java.net.InetSocketAddress
 import java.net.URLDecoder
 import java.net.URLEncoder
+import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import javax.net.ssl.SSLContext
-import kotlin.reflect.KProperty
 
 /**
  * Class that represents a pack hosting server.
@@ -31,8 +30,7 @@ import kotlin.reflect.KProperty
  * @see PackHost.create
  */
 public abstract class PackHost {
-    private val packs = Object2ObjectOpenHashMap<String, ReadablePack>()
-    private val hosted = ConcurrentHashMap<String, HostedPack>()
+    private val hosted = ConcurrentHashMap<UUID, HostedPackRef>()
 
     private val providers = LinkedHashSet<PackProvider>()
 
@@ -40,36 +38,109 @@ public abstract class PackHost {
         ThreadFactoryBuilder().setNameFormat("resource-pack-host-%d").setDaemon(true).build()
     )
 
+    /**
+     * Hosts a given [pack] under a randomly generated id.
+     *
+     * @param pack The pack to host.
+     * @return A reference to the pack being hosted.
+     */
     public fun add(pack: ReadablePack): HostedPackRef {
-        this.packs[pack.name] = pack
-        val future = this.hostPack(pack)
-        return HostedPackRef(future) { this.get(pack.name) }
+        return this.add(UUID.randomUUID()) { pack }
     }
 
+    /**
+     * Hosts the pack provided by [pack] under a given [uuid].
+     *
+     * [pack] is lazily invoked only if no pack under the same
+     * [uuid] is already being hosted.
+     *
+     * @param uuid The unique id to host the pack under.
+     * @param pack The pack to host.
+     * @return A reference to the pack being hosted.
+     */
+    public fun add(uuid: UUID, pack: () -> ReadablePack): HostedPackRef {
+        val ref = HostedPackRef(uuid)
+        val previous = this.hosted.putIfAbsent(uuid, ref)
+        if (previous != null) {
+            return previous
+        }
+        val future = this.async { this.hostPack(uuid, pack.invoke()) }
+        future.whenComplete { hosted, exception ->
+            if (exception != null) {
+                this.hosted.remove(uuid, ref)
+                ref.completeExceptionally(exception)
+            } else {
+                ref.complete(hosted)
+            }
+        }
+        return ref
+    }
+
+    /**
+     * Adds a [provider] which can lazily provide packs by name.
+     *
+     * @param provider The provider to add.
+     */
     public fun add(provider: PackProvider) {
         this.providers.add(provider)
     }
 
-    public fun remove(name: String) {
-        this.packs.remove(name)
-        this.hosted.remove(name)
+    /**
+     * Stops hosting the pack with a given [uuid].
+     *
+     * @param uuid The unique id of the pack.
+     * @return Whether a pack was removed.
+     */
+    public fun remove(uuid: UUID): Boolean {
+        return this.hosted.remove(uuid) != null
     }
 
+    /**
+     * Stops hosting the pack referenced by [ref].
+     *
+     * @param ref The reference to the hosted pack.
+     * @return Whether the pack was removed.
+     */
+    public fun remove(ref: HostedPackRef): Boolean {
+        return this.hosted.remove(ref.uuid, ref)
+    }
+
+    /**
+     * Removes a given [provider].
+     *
+     * @param provider The provider to remove.
+     */
     public fun remove(provider: PackProvider) {
         this.providers.remove(provider)
     }
 
-    public fun get(name: String): HostedPack? {
-        return this.hosted[name]
+    /**
+     * Gets the reference to the pack hosted under a given [uuid].
+     *
+     * @param uuid The unique id of the pack.
+     * @return The reference to the hosted pack, or `null` if none is hosted.
+     */
+    public fun get(uuid: UUID): HostedPackRef? {
+        return this.hosted[uuid]
     }
 
-    public fun resolve(name: String): ReadablePack? {
-        val readable = this.packs[name]
-        if (readable != null) {
-            return readable
+    /**
+     * Resolves the pack that is being served at a given [path].
+     *
+     * @param path The path of the pack, either the id of a hosted
+     *   pack or the name of a pack given by a [PackProvider].
+     * @return The readable pack, or `null` if nothing is served there.
+     */
+    public fun resolve(path: String): ReadablePack? {
+        val uuid = this.tryParseUUID(path)
+        if (uuid != null) {
+            val hosted = this.hosted[uuid]?.getNow()
+            if (hosted != null) {
+                return hosted.pack
+            }
         }
         for (provider in this.providers) {
-            return provider.get(name) ?: continue
+            return provider.get(path) ?: continue
         }
         return null
     }
@@ -78,7 +149,7 @@ public abstract class PackHost {
 
     public abstract fun stop()
 
-    public abstract fun createUrl(name: String): ResolvableURL
+    public abstract fun createUrl(path: String): ResolvableURL
 
     protected fun <T> async(block: () -> T): CompletableFuture<T> {
         return CompletableFuture.supplyAsync(block, this.executor).exceptionally { exception ->
@@ -91,28 +162,10 @@ public abstract class PackHost {
         logger.error("Exception occurred during pack hosting", throwable)
     }
 
-    private fun hostPack(pack: ReadablePack): CompletableFuture<HostedPack> {
-        return this.async {
-            @Suppress("DEPRECATION")
-            val hash = pack.hash()
-                ?: Hashing.sha1().hashBytes(pack.stream().use(InputStream::readBytes)).toString()
-
-            val hosted = HostedPack(pack, this.createUrl(pack.name), hash)
-            this.hosted[pack.name] = hosted
-            hosted
-        }
-    }
-
-    public class HostedPackRef internal constructor(
-        public val future: CompletableFuture<HostedPack>,
-        private val getter: () -> HostedPack?,
-    ) {
-        public val value: HostedPack
-            get() = this.getter.invoke() ?: this.future.join()
-
-        public operator fun getValue(any: Any?, property: KProperty<*>): HostedPack {
-            return this.value
-        }
+    private fun hostPack(uuid: UUID, pack: ReadablePack): HostedPack {
+        @Suppress("DEPRECATION")
+        val hash = pack.hash() ?: Hashing.sha1().hashBytes(pack.stream().use(InputStream::readBytes)).toString()
+        return HostedPack(uuid, pack, this.createUrl(uuid.toString()), hash)
     }
 
     private class Impl(
@@ -148,20 +201,20 @@ public abstract class PackHost {
             this.server.stop(0)
         }
 
-        override fun createUrl(name: String): ResolvableURL {
+        override fun createUrl(path: String): ResolvableURL {
             val protocol = if (this.isSecure) "https" else "http"
-            val encoded = URLEncoder.encode(name, Charsets.UTF_8)
+            val encoded = URLEncoder.encode(path, Charsets.UTF_8)
             return ResolvableURL.local(protocol, null, this.port, encoded)
         }
 
         private fun handleRequest(exchange: HttpExchange) {
-            val name = exchange.requestURI.path.substring(1)
+            val path = exchange.requestURI.path.substring(1)
             if ("GET" != exchange.requestMethod) {
                 exchange.sendResponseHeaders(400, -1)
                 return
             }
 
-            val pack = this.resolve(URLDecoder.decode(name, Charsets.UTF_8))
+            val pack = this.resolve(URLDecoder.decode(path, Charsets.UTF_8))
             if (pack == null || !pack.readable()) {
                 exchange.sendResponseHeaders(400, -1)
                 return
@@ -174,6 +227,14 @@ public abstract class PackHost {
                     stream.transferTo(response)
                 }
             }
+        }
+    }
+
+    private fun tryParseUUID(string: String): UUID? {
+        return try {
+            UUID.fromString(string)
+        } catch (_: IllegalArgumentException) {
+            null
         }
     }
 
