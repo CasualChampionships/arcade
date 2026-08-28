@@ -139,30 +139,4 @@ public object ResourcePackUtils {
     public fun HostedPackRef.toPackInfo(required: Boolean = false, prompt: Component? = null): PackInfoRef {
         return PackInfoRef(this, required, prompt)
     }
-
-    public class PackInfoRef internal constructor(
-        private val ref: HostedPackRef,
-        private val required: Boolean,
-        private val prompt: Component?
-    ) {
-        public fun isHosted(): Boolean {
-            return this.ref.isHosted()
-        }
-
-        public fun getNow(): PackInfo? {
-            return this.ref.getNow()?.toInfo()
-        }
-
-        public suspend fun await(): PackInfo {
-            return this.ref.await().toInfo()
-        }
-
-        public fun join(): PackInfo {
-            return this.ref.join().toInfo()
-        }
-
-        private fun HostedPack.toInfo(): PackInfo {
-            return this.toPackInfo(required, prompt)
-        }
-    }
 }
