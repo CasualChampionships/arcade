@@ -60,7 +60,7 @@ public open class VirtualBossbar(
     /**
      * The progress of the bossbar, between `0.0` and `1.0`.
      */
-    public val progress: PlayerSpecificValue<Float> = this.data.register(1.0F)
+    public val progress: PlayerSpecificValue<Float> = this.data.register(0.0F)
 
     /**
      * The color of the bossbar.
