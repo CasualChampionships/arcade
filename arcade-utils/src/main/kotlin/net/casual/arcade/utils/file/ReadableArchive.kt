@@ -11,6 +11,7 @@ import kotlinx.io.files.FileNotFoundException
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.serialization.createSerializationContext
 import net.minecraft.core.HolderLookup
+import net.minecraft.resources.RegistryOps
 import net.minecraft.server.MinecraftServer
 import java.io.InputStream
 import java.nio.file.FileSystems
@@ -32,14 +33,11 @@ public interface ReadableArchive: AutoCloseable {
             throw FileNotFoundException("No zip at $path")
         }
 
-        public fun from(path: Path, zipped: Boolean = false): ReadableArchive {
-            if (zipped || path.extension == "zip") {
-                return this.zip(path)
-            }
+        public fun from(path: Path): ReadableArchive {
             if (path.isDirectory()) {
                 return ReadablePathArchive(path.nameWithoutExtension, path)
             }
-            throw FileNotFoundException("No archive at $path")
+            return this.zip(path)
         }
 
         public fun from(path: Path, name: String): ReadableArchive {
@@ -68,6 +66,12 @@ public interface ReadableArchive: AutoCloseable {
         }
 
         public fun <A> ReadableArchive.parseJson(path: String, decoder: Decoder<A>, lookup: HolderLookup.Provider? = null): Result<A> {
+            return this.parse(path, decoder) {
+                Dynamic(lookup.createSerializationContext(JsonOps.INSTANCE), JsonUtils.decodeRaw(it.reader()))
+            }
+        }
+
+        public fun <A> ReadableArchive.parseJson(path: String, decoder: Decoder<A>, lookup: RegistryOps.RegistryInfoLookup): Result<A> {
             return this.parse(path, decoder) {
                 Dynamic(lookup.createSerializationContext(JsonOps.INSTANCE), JsonUtils.decodeRaw(it.reader()))
             }
