@@ -16,6 +16,7 @@
     "ServerEntityMixin",
     "ServerPlayerMixin",
     "TrackedEntityAccessor",
+    "bugfixes.BlockableEventLoopMixin",
     "bugfixes.EntityTickListMixin",
     "codec.FeatureFlagRegistryAccessor",
     "codec.FeatureFlagSetAccessor",
