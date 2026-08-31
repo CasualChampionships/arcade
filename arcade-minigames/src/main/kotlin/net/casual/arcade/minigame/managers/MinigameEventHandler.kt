@@ -5,6 +5,7 @@
 package net.casual.arcade.minigame.managers
 
 import net.casual.arcade.events.EventListener
+import net.casual.arcade.events.EventListenerHandle
 import net.casual.arcade.events.ListenerProvider
 import net.casual.arcade.events.ListenerRegistry
 import net.casual.arcade.events.SimpleListenerRegistry
@@ -95,8 +96,8 @@ public class MinigameEventHandler(
         flags: Int = DEFAULT,
         strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
-    ) {
-        this.register(T::class.java, priority, phase, flags, strategy, listener)
+    ): EventListenerHandle {
+        return this.register(T::class.java, priority, phase, flags, strategy, listener)
     }
 
     /**
@@ -113,8 +114,8 @@ public class MinigameEventHandler(
      * @param type The class of the event that you want to listen to.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    override fun <T: ServerSideEvent> register(type: Class<T>, listener: EventListener<T>) {
-        this.registerFiltered(type, listener)
+    override fun <T: ServerSideEvent> register(type: Class<T>, listener: EventListener<T>): EventListenerHandle {
+        return this.registerFiltered(type, listener)
     }
 
     /**
@@ -142,8 +143,8 @@ public class MinigameEventHandler(
         flags: Int = DEFAULT,
         strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
-    ) {
-        this.register(type, flags, EventListener.of(priority, phase, strategy, listener))
+    ): EventListenerHandle {
+        return this.register(type, flags, EventListener.of(priority, phase, strategy, listener))
     }
 
     /**
@@ -160,8 +161,12 @@ public class MinigameEventHandler(
      * @param type The class of the event that you want to listen to.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    public fun <T: ServerSideEvent> register(type: Class<T>, flags: Int = DEFAULT, listener: EventListener<T>) {
-        this.registerFiltered(type, listener, flags)
+    public fun <T: ServerSideEvent> register(
+        type: Class<T>,
+        flags: Int = DEFAULT,
+        listener: EventListener<T>
+    ): EventListenerHandle {
+        return this.registerFiltered(type, listener, flags)
     }
 
 
@@ -178,7 +183,7 @@ public class MinigameEventHandler(
         type: Class<T>,
         listener: EventListener<T>,
         flags: Int = DEFAULT
-    ) {
+    ): EventListenerHandle {
         val predicates = LinkedList<(T) -> Boolean>()
         var registry = this.global
         if (PlayerEvent::class.java.isAssignableFrom(type)) {
@@ -221,10 +226,9 @@ public class MinigameEventHandler(
             }
         }
         if (predicates.isEmpty()) {
-            registry.register(type, listener)
-            return
+            return registry.register(type, listener)
         }
-        registry.register(type, EventListener.of(listener.priority, listener.phase) { event ->
+        return registry.register(type, EventListener.of(listener.priority, listener.phase) { event ->
             if (predicates.all { it(event) }) {
                 listener.invoke(event)
             }

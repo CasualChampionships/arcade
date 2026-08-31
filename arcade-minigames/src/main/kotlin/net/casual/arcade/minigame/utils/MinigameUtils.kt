@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import kotlinx.coroutines.*
 import net.casual.arcade.commands.hasPermission
 import net.casual.arcade.events.EventListener
+import net.casual.arcade.events.EventListenerHandle
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.common.ServerSideEvent
 import net.casual.arcade.events.server.level.LevelEvent
@@ -27,7 +28,6 @@ import net.casual.arcade.minigame.extensions.LevelMinigameExtension
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.settings.MinigameSettings
-import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.component.gold
 import net.casual.arcade.utils.component.lime
 import net.casual.arcade.utils.component.red
@@ -42,12 +42,16 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.permissions.PermissionLevel
 import net.minecraft.world.scores.PlayerTeam
 import org.jetbrains.annotations.ApiStatus.Internal
+import java.lang.invoke.MethodHandle
 import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Predicate
 
 public object MinigameUtils {
+    private val PARSED = ConcurrentHashMap<Class<*>, List<ParsedListener>>()
+
     public val NO_MINIGAME_IN_CONTEXT: DynamicCommandExceptionType = DynamicCommandExceptionType {
         Component.translatable("minigame.command.context.noMinigameOfType", it)
     }
@@ -181,11 +185,11 @@ public object MinigameUtils {
         return this.hasPermission(level)
     }
 
-    public fun Minigame.addEventListener(listener: MinigameEventListener) {
+    public fun Minigame.addEventListener(listener: MinigameEventListener): EventListenerHandle {
         if (listener is Minigame) {
             throw IllegalArgumentException("Cannot parse Minigame as ${listener::class.java}")
         }
-        parseMinigameEvents(this, listener)
+        return parseMinigameEvents(this, listener)
     }
 
     public fun Minigame.transferAdminAndSpectatorTeamsTo(next: Minigame) {
@@ -214,14 +218,13 @@ public object MinigameUtils {
         }
     }
 
-    internal fun parseMinigameEvents(minigame: Minigame, declarer: Any = minigame) {
-        var type: Class<*> = declarer::class.java
-        while (type != Any::class.java) {
-            for (method in type.declaredMethods) {
-                parseMinigameEventMethod(minigame, declarer, method)
-            }
-            type = type.superclass
+    internal fun parseMinigameEvents(minigame: Minigame, declarer: Any = minigame): EventListenerHandle {
+        val parsed = PARSED.computeIfAbsent(declarer::class.java, ::parseListeners)
+        val handles = ArrayList<EventListenerHandle>(parsed.size)
+        for (listener in parsed) {
+            handles.add(minigame.events.register(listener.type, listener.flags, listener.bind(declarer)))
         }
+        return EventListenerHandle.of(handles)
     }
 
     internal fun registerEvents() {
@@ -255,24 +258,23 @@ public object MinigameUtils {
         }
     }
 
-    private fun parseMinigameEventMethod(
-        minigame: Minigame,
-        declarer: Any,
-        method: Method
-    ) {
-        val event = method.getAnnotation(Listener::class.java) ?: return
-        if (!Modifier.isPrivate(method.modifiers)) {
-            ArcadeUtils.logger.warn("MinigameEventListener was declared non-private, it should be private!")
+    private fun parseListeners(clazz: Class<*>): List<ParsedListener> {
+        val parsed = ArrayList<ParsedListener>()
+        var type: Class<*> = clazz
+        while (type != Any::class.java) {
+            for (method in type.declaredMethods) {
+                parsed.add(parseMinigameEventMethod(method) ?: continue)
+            }
+            type = type.superclass
         }
-        val (type, listener) = createEventListener(declarer, method, event)
-        minigame.events.register(type = type, flags = event.flags, listener = listener)
+        return parsed
     }
 
-    private fun createEventListener(
-        declarer: Any,
-        method: Method,
-        event: Listener
-    ): Pair<Class<ServerSideEvent>, EventListener<ServerSideEvent>> {
+    private fun parseMinigameEventMethod(method: Method): ParsedListener? {
+        val event = method.getAnnotation(Listener::class.java) ?: return null
+        if (!Modifier.isPrivate(method.modifiers)) {
+            throw IllegalArgumentException("Minigame Listener ($method) must be declared private")
+        }
         if (method.parameterCount != 1) {
             throw IllegalArgumentException("Minigame Listener ($method) has unexpected parameter count, should be 1")
         }
@@ -285,10 +287,22 @@ public object MinigameUtils {
         @Suppress("UNCHECKED_CAST")
         type as Class<ServerSideEvent>
 
-        val priority = event.priority
-
         method.isAccessible = true
-        val handle = MethodHandles.lookup().unreflect(method)
-        return type to EventListener.of(priority, event.phase, event.strategy) { handle.invoke(declarer, it) }
+        return ParsedListener(type, event, MethodHandles.lookup().unreflect(method))
+    }
+
+    private class ParsedListener(
+        val type: Class<ServerSideEvent>,
+        private val event: Listener,
+        private val handle: MethodHandle
+    ) {
+        val flags: Int
+            get() = this.event.flags
+
+        fun bind(declarer: Any): EventListener<ServerSideEvent> {
+            return EventListener.of(this.event.priority, this.event.phase, this.event.strategy) {
+                this.handle.invoke(declarer, it)
+            }
+        }
     }
 }
