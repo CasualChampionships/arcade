@@ -5,6 +5,10 @@
 package net.casual.arcade.minigame.phase
 
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.utils.string.PascalCase
+import net.casual.arcade.utils.string.ScreamingSnakeCase
+import net.casual.arcade.utils.string.SnakeCase
+import net.casual.arcade.utils.string.convertCasing
 import org.jetbrains.annotations.ApiStatus.NonExtendable
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
@@ -56,9 +60,13 @@ public interface Phase<M> {
      * The identifier for the phase, this should be unique
      * to avoid overlapping phase names.
      *
-     * Generally the id should follow `snake_case`.
+     * This should be the enum constant's name in `snake_case`.
      */
     public val id: String
+        get() {
+            check(this is Enum<*>) { "Phase ${this.javaClass.name} must be an enum constant" }
+            return this.name.toPhaseId()
+        }
 
     /**
      * The ordinal of the phase.
@@ -151,5 +159,10 @@ public interface Phase<M> {
     @NonExtendable
     public operator fun compareTo(other: Phase<*>): Int {
         return this.ordinal.compareTo(other.ordinal)
+    }
+
+    private fun String.toPhaseId(): String {
+        val from = if (this.none { it.isLowerCase() }) ScreamingSnakeCase else PascalCase
+        return this.convertCasing(from, SnakeCase)
     }
 }

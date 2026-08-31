@@ -99,9 +99,8 @@ public class MinigameSerializer(
             this.minigame.tryInitialize()
         }
         if (state == PLAYING) {
-            val phaseId = input.getString("phase").orElseThrow()
-            val phase = requireNotNull(this.minigame.getPhase(phaseId)) {
-                "Minigame phase $phaseId is invalid, unable to deserialize minigame"
+            val phase = input.read("phase", this.minigame.phaseCodec).orElseThrow {
+                IllegalStateException("Minigame phase is invalid, unable to deserialize minigame")
             }
             this.minigame.restorePhase(phase)
         }
@@ -158,7 +157,7 @@ public class MinigameSerializer(
             MinigameState.Ready -> output.putString("state", READY)
             is MinigameState.Playing -> {
                 output.putString("state", PLAYING)
-                output.putString("phase", state.phase.id)
+                output.store("phase", this.minigame.phaseCodec, state.phase)
             }
             is MinigameState.Closed -> output.putString("state", CREATED)
         }

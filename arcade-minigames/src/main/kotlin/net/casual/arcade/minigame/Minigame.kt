@@ -5,6 +5,7 @@
 package net.casual.arcade.minigame
 
 import com.google.gson.JsonElement
+import com.mojang.serialization.Codec
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
@@ -40,6 +41,7 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
 import java.lang.reflect.ParameterizedType
 import java.nio.file.Path
 import java.util.*
+import kotlin.enums.EnumEntries
 
 /**
  * This class represents a [Minigame] which players can play.
@@ -77,6 +79,12 @@ public abstract class Minigame(
     private var completing: Boolean = false
 
     internal val phases: List<Phase<Minigame>>
+
+    /**
+     * The [Codec] for this minigame's [Phase]s, derived from [phases].
+     */
+    public val phaseCodec: Codec<Phase<Minigame>> =
+        Codec.stringResolver({ phase -> phase.id }, { id -> this.getPhase(id) })
 
     internal val serialization = MinigameSerializer(this)
 
@@ -566,17 +574,33 @@ public abstract class Minigame(
      * @return A collection of all the valid phases the minigame can be in.
      */
     @OverrideOnly
-    protected abstract fun phases(): Collection<Phase<out Minigame>>
+    protected abstract fun phases(): EnumEntries<*>
 
     private fun getAllPhases(): List<Phase<Minigame>> {
-        val phases = HashSet<Phase<Minigame>>()
-        for (phase in this.phases()) {
-            phases.add(this.validatePhase(phase))
-        }
-        if (phases.isEmpty()) {
+        val declared = this.phases()
+        if (declared.isEmpty()) {
             throw IllegalStateException("Minigame ${this.javaClass.simpleName} must declare at least one phase")
         }
-        return phases.sortedWith { a, b -> a.compareTo(b) }
+        // EnumEntries is always one enum's constants, in ordinal order
+        this.validatePhases(declared.first().declaringJavaClass)
+
+        val ids = HashSet<String>()
+        val phases = ArrayList<Phase<Minigame>>(declared.size)
+        for (constant in declared) {
+            @Suppress("UNCHECKED_CAST")
+            val phase = constant as? Phase<Minigame>
+                ?: throw IllegalStateException(
+                    "Phase ${constant.declaringJavaClass.simpleName}.${constant.name} of minigame " +
+                        "${this.javaClass.simpleName} does not implement Phase"
+                )
+            if (!ids.add(phase.id)) {
+                throw IllegalStateException(
+                    "Minigame ${this.javaClass.simpleName} has multiple phases with the id '${phase.id}'"
+                )
+            }
+            phases.add(phase)
+        }
+        return phases
     }
 
     private fun registerEvents() {
@@ -696,18 +720,14 @@ public abstract class Minigame(
         this.property("commands") { this.commands.getAllRootCommands().map { it } }
     }
 
-    private fun validatePhase(phase: Phase<out Minigame>): Phase<Minigame> {
-        val clazz = phase.javaClass.genericInterfaces.find {
+    private fun validatePhases(type: Class<*>) {
+        val parameterized = type.genericInterfaces.find {
             it is ParameterizedType && (it.rawType as? Class<*>) == Phase::class.java
         } as? ParameterizedType
 
-        val typeArgument = clazz?.actualTypeArguments?.firstOrNull()
-        if (typeArgument is Class<*>) {
-            if (!typeArgument.isAssignableFrom(this::class.java)) {
-                throw IllegalStateException("Phase ${phase.id} is not valid for minigame ${this.id}")
-            }
+        val typeArgument = parameterized?.actualTypeArguments?.firstOrNull()
+        if (typeArgument is Class<*> && !typeArgument.isAssignableFrom(this.javaClass)) {
+            throw IllegalStateException("Phase ${type.simpleName} is not valid for minigame ${this.id}")
         }
-        @Suppress("UNCHECKED_CAST")
-        return phase as Phase<Minigame>
     }
 }
