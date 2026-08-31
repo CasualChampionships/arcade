@@ -39,51 +39,9 @@ public annotation class Listener(
     val phase: Int = BuiltInEventPhases.DEFAULT,
 
     /**
-     * This specified during when this listener will be invoked.
-     *
-     * @see During
-     */
-    val during: During = During(),
-
-    /**
      * The target threading target for the listener to run on.
      */
     val strategy: ThreadingTarget = ThreadingTarget.Default
-)
-
-/**
- * This annotation is used to specify the minigame-phases that
- * the event handler will be invoked in.
- */
-public annotation class During(
-    /**
-     * These will be the phases of the minigame that
-     * this event handler will be invoked in.
-     *
-     * If this array is empty, the event handler will
-     * either use the [after] and [before] to determine
-     * the events that it will be invoked in, or it will
-     * be invoked in all phases.
-     */
-    val phases: Array<String> = [],
-
-    /**
-     * This is the id of the start phase that this
-     * handler should be invoked in, this is inclusive.
-     *
-     * By default, if not specified will default to
-     * [Phase.none].
-     */
-    val after: String = "",
-
-    /**
-     * This is the id of the end phase that this
-     * handler should be invoked in, this is exclusive.
-     *
-     * By default, if not specified will default to
-     * [Phase.end].
-     */
-    val before: String = ""
 )
 
 public object ListenerFlags {

@@ -265,41 +265,6 @@ public object MinigameUtils {
             ArcadeUtils.logger.warn("MinigameEventListener was declared non-private, it should be private!")
         }
         val (type, listener) = createEventListener(declarer, method, event)
-
-        val during = event.during
-        if (during.phases.isNotEmpty()) {
-            val phases = during.phases.map { id ->
-                val phase = minigame.getPhase(id)
-                phase ?: throw IllegalArgumentException("Phase with id $id does not exist")
-            }
-            minigame.events.registerInPhases(
-                type = type,
-                phases = phases.toTypedArray(),
-                flags = event.flags,
-                listener = listener
-            )
-            return
-        }
-        if (during.after != "" || during.before != "") {
-            val start = if (during.after != "") {
-                minigame.getPhase(during.after) ?: throw IllegalArgumentException("Start phase does not exist")
-            } else {
-                null
-            }
-            val end = if (during.before != "") {
-                minigame.getPhase(during.before) ?: throw IllegalArgumentException("End phase does not exist")
-            } else {
-                null
-            }
-            minigame.events.registerBetweenPhases(
-                type = type,
-                after = start,
-                before = end,
-                flags = event.flags,
-                listener = listener
-            )
-            return
-        }
         minigame.events.register(type = type, flags = event.flags, listener = listener)
     }
 
