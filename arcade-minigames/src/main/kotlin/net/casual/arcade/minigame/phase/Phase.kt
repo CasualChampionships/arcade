@@ -5,7 +5,6 @@
 package net.casual.arcade.minigame.phase
 
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.phase.Phase.Companion.end
 import org.jetbrains.annotations.ApiStatus.NonExtendable
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
@@ -88,7 +87,7 @@ public interface Phase<M> {
      * @see initialize
      */
     @OverrideOnly
-    public fun start(minigame: M, previous: Phase<M>) {
+    public fun start(minigame: M, previous: Phase<M>?) {
 
     }
 
@@ -136,7 +135,7 @@ public interface Phase<M> {
      * This method is called when the [minigame] is changing phase
      * from the current one to the [next] phase.
      * This is called before the minigame has changed phase,
-     * so [Minigame.phase] will still reference `this`.
+     * so [Minigame.phaseOrNull] will still reference `this`.
      *
      * @param minigame The minigame that is changing phase.
      * @param next The next phase.
@@ -152,51 +151,5 @@ public interface Phase<M> {
     @NonExtendable
     public operator fun compareTo(other: Phase<*>): Int {
         return this.ordinal.compareTo(other.ordinal)
-    }
-
-    private class None<P>: Phase<P> {
-        override val id: String = "core_none"
-        override val ordinal: Int = Int.MIN_VALUE
-
-        override fun compareTo(other: Phase<*>): Int {
-            return Int.MIN_VALUE
-        }
-    }
-
-    private class End<P>: Phase<P> {
-        override val id: String = "core_end"
-        override val ordinal: Int = Int.MAX_VALUE
-
-        override fun compareTo(other: Phase<*>): Int {
-            return Int.MAX_VALUE
-        }
-    }
-
-    public companion object {
-        private val NONE: Phase<*> = None<Any>()
-        private val END: Phase<*> = End<Any>()
-
-        /**
-         * This gets the none minigame phase.
-         * This is the default phase before a minigame starts.
-         *
-         * @return The none minigame phase instance.
-         */
-        public fun <M> none(): Phase<M> {
-            @Suppress("UNCHECKED_CAST")
-            return NONE as Phase<M>
-        }
-
-        /**
-         * This gets the end minigame phase.
-         * Any minigame can be set to this phase,
-         * usually denoting the minigame is over.
-         *
-         * @return The end minigame phase instance.
-         */
-        public fun <M> end(): Phase<M> {
-            @Suppress("UNCHECKED_CAST")
-            return END as Phase<M>
-        }
     }
 }

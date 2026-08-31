@@ -8,6 +8,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.MinigameState
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.serialization.codec.setOf
@@ -83,13 +84,8 @@ public class MinigameSerializer(
     }
 
     private fun readMinigame(input: ValueInput) {
-        val initialized = input.getBooleanOr("initialized", false)
-        this.minigame.started = input.getBooleanOr("started", false)
-
-        val phaseId = input.getString("phase").orElseThrow()
-        this.minigame.phase = requireNotNull(this.minigame.getPhase(phaseId)) {
-            "Minigame phase $phaseId is invalid, unable to deserialize minigame"
-        }
+        // FIXME: Update this when we migrate phase serialization stuff
+        val state = input.getStringOr("state", CREATED)
 
         this.minigame.uptime = input.getIntOr("uptime", 0)
         this.minigame.paused = input.getBooleanOr("paused", false)
@@ -99,13 +95,15 @@ public class MinigameSerializer(
         tickrate.isFrozen = input.getBooleanOr("frozen", false)
         tickrate.setTickRate(input.getFloatOr("tickrate", tickrate.tickrate()))
 
-        if (initialized) {
+        if (state == READY || state == PLAYING) {
             this.minigame.tryInitialize()
         }
-        for (phase in this.minigame.phases) {
-            if (phase <= this.minigame.phase) {
-                phase.initialize(this.minigame)
+        if (state == PLAYING) {
+            val phaseId = input.getString("phase").orElseThrow()
+            val phase = requireNotNull(this.minigame.getPhase(phaseId)) {
+                "Minigame phase $phaseId is invalid, unable to deserialize minigame"
             }
+            this.minigame.restorePhase(phase)
         }
     }
 
@@ -155,9 +153,15 @@ public class MinigameSerializer(
     }
 
     private fun writeMinigame(output: ValueOutput) {
-        output.putBoolean("initialized", this.minigame.initialized)
-        output.putBoolean("started", this.minigame.started)
-        output.putString("phase", this.minigame.phase.id)
+        when (val state = this.minigame.state) {
+            MinigameState.Created -> output.putString("state", CREATED)
+            MinigameState.Ready -> output.putString("state", READY)
+            is MinigameState.Playing -> {
+                output.putString("state", PLAYING)
+                output.putString("phase", state.phase.id)
+            }
+            is MinigameState.Closed -> output.putString("state", CREATED)
+        }
         output.putInt("uptime", this.minigame.uptime)
         output.putBoolean("paused", this.minigame.paused)
 
@@ -165,6 +169,12 @@ public class MinigameSerializer(
         output.putBoolean("use_global_tickrate", tickrate.useGlobalManager)
         output.putBoolean("frozen", tickrate.isFrozen)
         output.putFloat("tickrate", tickrate.tickrate())
+    }
+
+    private companion object {
+        private const val CREATED = "created"
+        private const val READY = "ready"
+        private const val PLAYING = "playing"
     }
 
     private fun writeTasksJson(output: ValueOutput) {

@@ -17,6 +17,7 @@ import net.casual.arcade.events.server.player.PlayerEvent
 import net.casual.arcade.events.threading.ThreadingStrategy
 import net.casual.arcade.events.threading.ThreadingTarget
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.MinigameState
 import net.casual.arcade.minigame.annotation.ListenerFlags.DEFAULT
 import net.casual.arcade.minigame.annotation.ListenerFlags.HAS_LEVEL
 import net.casual.arcade.minigame.annotation.ListenerFlags.HAS_PLAYER
@@ -232,15 +233,15 @@ public class MinigameEventHandler(
         listener: EventListener<T>
     ) {
         if (phases.isEmpty()) {
-            this.register(type, listener)
+            return this.register(type, listener)
         }
         val predicates = LinkedList<(T) -> Boolean>()
         if (phases.size == 1) {
-            predicates.add { this.minigame.phase == phases[0] }
-            return this.registerFiltered(type, listener, predicates)
+            predicates.add { this.minigame.state.isAt(phases[0]) }
+            return this.registerFiltered(type, listener, predicates, flags)
         }
         predicates.add {
-            phases.any { this.minigame.phase == it }
+            phases.any { this.minigame.state.isAt(it) }
         }
 
         return this.registerFiltered(type, listener, predicates, flags)
@@ -256,8 +257,8 @@ public class MinigameEventHandler(
      * @param listener The callback which will be invoked when the event is fired.
      */
     public inline fun <reified T: ServerSideEvent> registerBetweenPhases(
-        after: Phase<*>,
-        before: Phase<*>,
+        after: Phase<*>?,
+        before: Phase<*>?,
         phase: Int = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         strategy: ThreadingStrategy = ThreadingTarget.Default,
@@ -278,8 +279,8 @@ public class MinigameEventHandler(
      */
     public inline fun <reified T: ServerSideEvent> registerBetweenPhases(
         priority: Int,
-        after: Phase<*>,
-        before: Phase<*>,
+        after: Phase<*>?,
+        before: Phase<*>?,
         phase: Int = BuiltInEventPhases.DEFAULT,
         flags: Int = DEFAULT,
         strategy: ThreadingStrategy = ThreadingTarget.Default,
@@ -302,14 +303,17 @@ public class MinigameEventHandler(
      */
     public fun <T: ServerSideEvent> registerBetweenPhases(
         type: Class<T>,
-        after: Phase<*>,
-        before: Phase<*>,
+        after: Phase<*>?,
+        before: Phase<*>?,
         flags: Int = DEFAULT,
         listener: EventListener<T>
     ) {
         val predicates = ArrayList<(T) -> Boolean>()
         predicates.add {
-            this.minigame.phase >= after && this.minigame.phase < before
+            val state = this.minigame.state
+            state is MinigameState.Playing &&
+                (after == null || state >= after) &&
+                (before == null || state < before)
         }
         return this.registerFiltered(type, listener, predicates, flags)
     }

@@ -30,7 +30,9 @@ public class PhaseChangeRoutine(
 
     override suspend fun RoutineScope<Minigame>.run() {
         val found = minigame.getPhase(phase) ?: return
-        minigame.setPhase(found)
+        if (minigame.started) {
+            minigame.setPhase(found)
+        }
     }
 
     public companion object: CodecProvider<PhaseChangeRoutine> {

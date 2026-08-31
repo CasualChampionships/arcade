@@ -720,14 +720,22 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
 
     private fun getMinigamePhase(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val phase = minigame.phaseOrNull ?: return context.source.fail(
+            Component.translatable("minigame.command.phase.notPlaying", minigame.id.toString())
+        )
         return context.source.success(
-            Component.translatable("minigame.command.phase.get", minigame.id.toString(), minigame.phase.id)
+            Component.translatable("minigame.command.phase.get", minigame.id.toString(), phase.id)
         )
     }
 
     private fun setMinigamePhase(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val phase = MinigamePhaseArgument.getPhase(context, "phase", minigame)
+        if (!minigame.started) {
+            return context.source.fail(
+                Component.translatable("minigame.command.phase.notPlaying", minigame.id.toString())
+            )
+        }
         minigame.setPhase(phase)
         return context.source.success(
             Component.translatable("minigame.command.phase.set", minigame.id.toString(), phase.id)

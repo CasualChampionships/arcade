@@ -25,7 +25,6 @@ import net.casual.arcade.minigame.annotation.MinigameEventListener
 import net.casual.arcade.minigame.events.MinigameEvent
 import net.casual.arcade.minigame.extensions.LevelMinigameExtension
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
-import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.settings.MinigameSettings
 import net.casual.arcade.utils.ArcadeUtils
@@ -285,12 +284,12 @@ public object MinigameUtils {
             val start = if (during.after != "") {
                 minigame.getPhase(during.after) ?: throw IllegalArgumentException("Start phase does not exist")
             } else {
-                Phase.none()
+                null
             }
             val end = if (during.before != "") {
                 minigame.getPhase(during.before) ?: throw IllegalArgumentException("End phase does not exist")
             } else {
-                Phase.end()
+                null
             }
             minigame.events.registerBetweenPhases(
                 type = type,

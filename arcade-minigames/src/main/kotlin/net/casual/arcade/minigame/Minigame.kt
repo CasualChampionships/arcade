@@ -74,6 +74,7 @@ public abstract class Minigame(
     private val properties = Object2ObjectLinkedOpenHashMap<String, () -> JsonElement>()
 
     private var closing: Boolean = false
+    private var completing: Boolean = false
 
     internal val phases: List<Phase<Minigame>>
 
@@ -197,21 +198,14 @@ public abstract class Minigame(
      */
     public open val settings: MinigameSettings = MinigameSettings(this)
 
-    /**
-     * What phase the minigame is currently in.
-     * This, for example, may differ from whether there is a
-     * grace period, death match, etc.
-     *
-     * @see setPhase
-     */
-    public var phase: Phase<Minigame>
-        internal set
+    public var state: MinigameState = MinigameState.Created
+        private set
 
     /**
      * How long the minigame has been up for.
      * This does not include time that the minigame was paused for.
      */
-    public var uptime: Int
+    public var uptime: Int = 0
         internal set
 
     /**
@@ -221,32 +215,37 @@ public abstract class Minigame(
      * @see pause
      * @see unpause
      */
-    public var paused: Boolean
+    public var paused: Boolean = false
         internal set
 
-    /**
-     * Whether the minigame has started.
-     */
-    public var started: Boolean
-        internal set
+    public val phaseOrNull: Phase<Minigame>?
+        get() = (this.state as? MinigameState.Playing)?.phase
+
+    // TODO: Should we move these to extension functions?
 
     /**
      * Whether the minigame has initialized.
      */
-    public var initialized: Boolean
-        internal set
+    public val initialized: Boolean
+        get() = this.state is MinigameState.Ready || this.state is MinigameState.Playing
+
+    /**
+     * Whether the minigame has started.
+     */
+    public val started: Boolean
+        get() = this.state is MinigameState.Playing
 
     /**
      * Whether the minigame is closed.
      */
-    public var closed: Boolean
-        private set
+    public val closed: Boolean
+        get() = this.state is MinigameState.Closed
 
     /**
      * Whether the minigame has completed.
      */
-    public var completed: Boolean = false
-        private set
+    public val completed: Boolean
+        get() = this.completing
 
     /**
      * Whether the minigame is ticking.
@@ -266,16 +265,7 @@ public abstract class Minigame(
     public abstract val id: Identifier
 
     init {
-        this.initialized = false
-        this.started = false
-        this.closed = false
-
         this.phases = this.getAllPhases()
-
-        this.phase = Phase.none()
-        this.uptime = 0
-
-        this.paused = false
 
         this.addDefaultProperties()
     }
@@ -284,18 +274,21 @@ public abstract class Minigame(
      * Starts the minigame.
      */
     public fun start() {
-        if (this.started) {
+        val state = this.state
+        if (state !is MinigameState.Created && state !is MinigameState.Ready) {
             return
         }
-        this.started = true
-
         this.tryInitialize()
+
+        val first = this.phases.first()
+        this.state = MinigameState.Playing(first)
 
         GlobalEventHandler.Server.broadcast(MinigameStartEvent(this))
 
-        // The first phase is MinigamePhase.none()
-        // This will never IOOB because we always have at least 2 phases
-        this.setPhase(this.phases[1])
+        first.start(this, null)
+        first.initialize(this)
+
+        GlobalEventHandler.Server.broadcast(MinigameSetPhaseEvent(this, first, null))
     }
 
     /**
@@ -303,10 +296,10 @@ public abstract class Minigame(
      * if it's not already initialized.
      */
     public fun tryInitialize() {
-        if (this.closed) {
+        if (this.state is MinigameState.Closed) {
             throw IllegalStateException("Cannot initialize closed minigame ${this.id}")
         }
-        if (!this.initialized) {
+        if (this.state is MinigameState.Created) {
             this.initialize()
         }
     }
@@ -316,11 +309,6 @@ public abstract class Minigame(
      * It will only be set if the given phase is
      * **different** to the current phase and in
      * the [phases] set.
-     *
-     * All minigames will be able to be set to either
-     * [Phase.none] or [Phase.end].
-     * You can set the minigame's phase to [Phase.end]
-     * to end the final implemented minigame phase.
      *
      * When a phase is set, all previously scheduled
      * phase tasks will be cleared and will no longer run.
@@ -334,7 +322,11 @@ public abstract class Minigame(
      * @throws IllegalArgumentException If the [phase] is not in the [phases] set.
      */
     public fun setPhase(phase: Phase<out Minigame>, force: Boolean = false) {
-        if (this.phase == phase && !force) {
+        val state = this.state
+        if (state !is MinigameState.Playing) {
+            throw IllegalStateException("Cannot set phase of minigame '${this.id}', it is not playing")
+        }
+        if (state.phase == phase && !force) {
             return
         }
         if (!this.phases.contains(phase)) {
@@ -347,11 +339,11 @@ public abstract class Minigame(
         @Suppress("UNCHECKED_CAST")
         phase as Phase<Minigame>
 
-        this.phase.end(this, phase)
-        val previous = this.phase
-        this.phase = phase
-        this.phase.start(this, previous)
-        this.phase.initialize(this)
+        val previous = state.phase
+        previous.end(this, phase)
+        this.state = MinigameState.Playing(phase)
+        phase.start(this, previous)
+        phase.initialize(this)
 
         GlobalEventHandler.Server.broadcast(MinigameSetPhaseEvent(this, phase, previous))
     }
@@ -405,11 +397,7 @@ public abstract class Minigame(
      * @see close
      */
     public fun complete() {
-        GlobalEventHandler.Server.broadcast(MinigameCompleteEvent(this))
-
-        this.completed = true
-
-        this.close()
+        this.close(completed = true)
     }
 
     /**
@@ -425,11 +413,17 @@ public abstract class Minigame(
      *
      * @see complete
      */
-    public fun close() {
-        if (this.closing || this.closed) {
+    @JvmOverloads
+    public fun close(completed: Boolean = false) {
+        if (this.closing || this.state is MinigameState.Closed) {
             return
         }
         this.closing = true
+        this.completing = completed
+
+        if (completed) {
+            GlobalEventHandler.Server.broadcast(MinigameCompleteEvent(this))
+        }
 
         this.scheduler.standard.cancelAll()
         this.scheduler.phased.cancelAll()
@@ -438,14 +432,11 @@ public abstract class Minigame(
         this.players.close()
         this.levels.close()
 
-        // Closed = true after players are removed
-        this.closed = true
+        // Closed only after the players have been removed
+        this.state = MinigameState.Closed(completed)
 
         GlobalEventHandler.Server.removeProvider(this.events)
         this.events.clear()
-
-        this.initialized = false
-        this.phase = Phase.none()
 
         Minigames.unregister(this)
     }
@@ -534,6 +525,15 @@ public abstract class Minigame(
         return this.factory()
     }
 
+    internal fun restorePhase(phase: Phase<Minigame>) {
+        this.state = MinigameState.Playing(phase)
+        for (previous in this.phases) {
+            if (previous <= phase) {
+                previous.initialize(this)
+            }
+        }
+    }
+
     /**
      * This method initializes the core functionality of the
      * minigame, such as registering events.
@@ -547,7 +547,7 @@ public abstract class Minigame(
 
         Minigames.register(this)
 
-        this.initialized = true
+        this.state = MinigameState.Ready
 
         GlobalEventHandler.Server.broadcast(MinigameInitializeEvent(this))
     }
@@ -558,9 +558,6 @@ public abstract class Minigame(
      *
      * The phases **do not** have to be in order, any duplicates
      * will also be removed.
-     * Further you do not need to include the default phases
-     * ([Phase.none] and [Phase.end]), they'll
-     * be included automatically.
      *
      * This method will only be invoked **once**; when the
      * minigame is initialized, the phases are then stored in
@@ -576,8 +573,9 @@ public abstract class Minigame(
         for (phase in this.phases()) {
             phases.add(this.validatePhase(phase))
         }
-        phases.add(Phase.none())
-        phases.add(Phase.end())
+        if (phases.isEmpty()) {
+            throw IllegalStateException("Minigame ${this.javaClass.simpleName} must declare at least one phase")
+        }
         return phases.sortedWith { a, b -> a.compareTo(b) }
     }
 
@@ -688,7 +686,8 @@ public abstract class Minigame(
         this.property("eliminated_teams") { this.teams.getEliminatedTeams().map { it.name } }
         this.property("levels") { this.levels.all().map { it.dimension().identifier().toString() } }
         this.property("phases") { this.phases.map { it.id } }
-        this.property("phase") { this.phase.id }
+        this.property("phase") { this.phaseOrNull?.id }
+        this.property("state") { this.state.toString() }
         this.property("ticking") { this.ticking }
         this.property("paused") { this.paused }
         this.property("settings") { this.settings.all().associate { it.name to it.get().toString() } }

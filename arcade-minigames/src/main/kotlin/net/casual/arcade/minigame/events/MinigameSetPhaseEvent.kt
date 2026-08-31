@@ -10,5 +10,5 @@ import net.casual.arcade.minigame.phase.Phase
 public data class MinigameSetPhaseEvent(
     override val minigame: Minigame,
     public val phase: Phase<Minigame>,
-    public val previous: Phase<Minigame>
+    public val previous: Phase<Minigame>?
 ): MinigameEvent
