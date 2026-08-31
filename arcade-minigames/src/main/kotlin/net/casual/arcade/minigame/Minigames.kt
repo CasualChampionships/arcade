@@ -102,15 +102,9 @@ public object Minigames: ModInitializer {
         }
     }
 
-    @OptIn(ExperimentalPathApi::class)
     public fun read(path: Path, server: MinecraftServer): Minigame {
         val factoryPath = path.resolve("factory.json")
         if (!factoryPath.isRegularFile()) {
-            try {
-                path.deleteRecursively()
-            } catch (_: IOException) {
-
-            }
             throw MinigameCreationException("Cannot create Minigame, no such file $factoryPath")
         }
 
@@ -226,8 +220,26 @@ public object Minigames: ModInitializer {
                     this.read(minigame, server)
                 } catch (e: MinigameCreationException) {
                     ArcadeUtils.logger.error("Failed to create minigame", e)
+                    this.quarantine(server, types.fileName.toString(), minigame)
                 }
             }
+        }
+    }
+
+    private fun quarantine(server: MinecraftServer, type: String, path: Path) {
+        val directory = this.getPath(server).resolve("quarantined").resolve(type)
+        try {
+            directory.createDirectories()
+
+            var destination = directory.resolve(path.fileName.toString())
+            var index = 1
+            while (destination.exists()) {
+                destination = directory.resolve("${path.fileName}-${index++}")
+            }
+            path.moveTo(destination)
+            ArcadeUtils.logger.error("Moved unloadable minigame data from $path to $destination")
+        } catch (e: IOException) {
+            ArcadeUtils.logger.error("Failed to quarantine unloadable minigame data at $path", e)
         }
     }
 

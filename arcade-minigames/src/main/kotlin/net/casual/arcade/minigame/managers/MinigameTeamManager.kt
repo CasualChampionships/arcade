@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.minigame.managers
 
+import com.mojang.serialization.Codec
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet
 import net.casual.arcade.events.server.player.PlayerTeamJoinEvent
 import net.casual.arcade.events.utils.register
@@ -215,6 +216,12 @@ public class MinigameTeamManager(
         if (spectators != null) {
             output.putString("spectators", spectators)
         }
+        if (this.eliminated.isNotEmpty()) {
+            val eliminated = output.list("eliminated", Codec.STRING)
+            for (team in this.eliminated) {
+                eliminated.add(team.name)
+            }
+        }
     }
 
     internal fun deserialize(input: ValueInput, scoreboard: Scoreboard) {
@@ -225,6 +232,14 @@ public class MinigameTeamManager(
         val spectators = input.getString("spectators").getOrNull()
         if (spectators != null) {
             this.spectators = scoreboard.getPlayerTeam(spectators)
+        }
+        for (name in input.listOrEmpty("eliminated", Codec.STRING)) {
+            val team = scoreboard.getPlayerTeam(name)
+            if (team == null) {
+                ArcadeUtils.logger.warn("Eliminated team $name no longer exists, ignoring")
+                continue
+            }
+            this.eliminated.add(team)
         }
     }
 }

@@ -93,7 +93,11 @@ public class MinigameSerializer(
 
         this.minigame.uptime = input.getIntOr("uptime", 0)
         this.minigame.paused = input.getBooleanOr("paused", false)
-        this.minigame.tickrate.isFrozen = input.getBooleanOr("frozen", false)
+
+        val tickrate = this.minigame.tickrate
+        tickrate.useGlobalManager = input.getBooleanOr("use_global_tickrate", tickrate.useGlobalManager)
+        tickrate.isFrozen = input.getBooleanOr("frozen", false)
+        tickrate.setTickRate(input.getFloatOr("tickrate", tickrate.tickrate()))
 
         if (initialized) {
             this.minigame.tryInitialize()
@@ -156,7 +160,11 @@ public class MinigameSerializer(
         output.putString("phase", this.minigame.phase.id)
         output.putInt("uptime", this.minigame.uptime)
         output.putBoolean("paused", this.minigame.paused)
-        output.putBoolean("frozen", this.minigame.tickrate.isFrozen)
+
+        val tickrate = this.minigame.tickrate
+        output.putBoolean("use_global_tickrate", tickrate.useGlobalManager)
+        output.putBoolean("frozen", tickrate.isFrozen)
+        output.putFloat("tickrate", tickrate.tickrate())
     }
 
     private fun writeTasksJson(output: ValueOutput) {

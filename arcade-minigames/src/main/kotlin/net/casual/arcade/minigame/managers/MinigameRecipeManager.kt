@@ -273,8 +273,7 @@ public class MinigameRecipeManager(
     internal fun deserialize(list: ValueInput.ValueInputList) {
         for (child in list) {
             val uuid = child.read("uuid", UUIDUtil.STRING_CODEC).getOrNull() ?: continue
-            val recipes = child.read("recipes", ResourceKey.codec(Registries.RECIPE).listOf()).getOrNull() ?: continue
-            this.players.putAll(uuid, recipes)
+            this.players.putAll(uuid, child.listOrEmpty("recipes", ResourceKey.codec(Registries.RECIPE)))
         }
     }
 

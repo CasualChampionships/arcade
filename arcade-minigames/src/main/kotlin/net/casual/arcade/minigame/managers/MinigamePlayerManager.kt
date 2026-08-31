@@ -406,7 +406,9 @@ public class MinigamePlayerManager(
         if (this.connections.remove(player.connection)) {
             this.offlineGameProfiles.add(player.nameAndId())
 
-            this.data.save(player)
+            if (!this.keepPlayerData) {
+                this.data.save(player)
+            }
         }
     }
 
@@ -424,8 +426,9 @@ public class MinigamePlayerManager(
         (playerList as PlayerListAccessor).arcade_getPlayerIo().save(existing)
 
         val copy = this.createNewPlayer(existing)
-        val input = this.data.load(copy)
-        this.updatePlayerLocation(copy, input)
+        ArcadeUtils.scopedProblemReporter { reporter ->
+            this.updatePlayerLocation(copy, this.data.load(reporter, copy))
+        }
         return copy
     }
 
@@ -437,10 +440,12 @@ public class MinigamePlayerManager(
 
         val playerList = this.minigame.server.playerList
         val copy = this.createNewPlayer(existing)
-        val data = (playerList as PlayerListAccessor).arcade_getPlayerIo().load(copy.nameAndId())
-            .map { TagValueInput.create(ProblemReporter.DISCARDING, copy.registryAccess(), it) }
-        data.ifPresent(copy::load)
-        this.updatePlayerLocation(copy, data.getOrNull())
+        ArcadeUtils.scopedProblemReporter { reporter ->
+            val data = (playerList as PlayerListAccessor).arcade_getPlayerIo().load(copy.nameAndId())
+                .map { TagValueInput.create(reporter, copy.registryAccess(), it) }
+            data.ifPresent(copy::load)
+            this.updatePlayerLocation(copy, data.getOrNull())
+        }
         return copy
     }
 
@@ -476,10 +481,13 @@ public class MinigamePlayerManager(
 
         fun save(player: ServerPlayer) {
             try {
-                val output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, player.registryAccess())
-                player.saveWithoutId(output)
+                val tag = ArcadeUtils.scopedProblemReporter { reporter ->
+                    val output = TagValueOutput.createWithContext(reporter, player.registryAccess())
+                    player.saveWithoutId(output)
+                    output.buildResult()
+                }
                 val temp = Files.createTempFile(this.path, player.stringUUID + "-", ".dat")
-                NbtIo.writeCompressed(output.buildResult(), temp)
+                NbtIo.writeCompressed(tag, temp)
                 val current = this.path.resolve(player.stringUUID + ".dat")
                 val old = this.path.resolve(player.stringUUID + ".dat_old")
                 Util.safeReplaceFile(current, temp, old)
@@ -488,10 +496,10 @@ public class MinigamePlayerManager(
             }
         }
 
-        fun load(player: ServerPlayer): ValueInput? {
+        fun load(reporter: ProblemReporter, player: ServerPlayer): ValueInput? {
             val optional = this.load(player, ".dat")
             val tag = optional ?: this.load(player, ".dat_old") ?: return null
-            val input = TagValueInput.create(ProblemReporter.DISCARDING, player.registryAccess(), tag)
+            val input = TagValueInput.create(reporter, player.registryAccess(), tag)
             player.load(input)
             return input
         }

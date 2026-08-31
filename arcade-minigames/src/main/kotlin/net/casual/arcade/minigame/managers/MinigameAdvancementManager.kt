@@ -187,8 +187,7 @@ public class MinigameAdvancementManager(
     internal fun deserialize(list: ValueInput.ValueInputList) {
         for (input in list) {
             val uuid = input.read("uuid", UUIDUtil.STRING_CODEC).getOrNull() ?: continue
-            val advancements = input.read("advancements", Identifier.CODEC.listOf()).getOrNull() ?: continue
-            this.players.putAll(uuid, advancements)
+            this.players.putAll(uuid, input.listOrEmpty("advancements", Identifier.CODEC))
         }
     }
 }
