@@ -5,7 +5,6 @@
 package net.casual.arcade.minigame.scope
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.job
 import net.casual.arcade.events.EventListener
@@ -27,7 +26,6 @@ import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.side.LogicalSide
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import java.util.function.Consumer
-
 
 public class MinigameScope internal constructor(
     public val minigame: Minigame,

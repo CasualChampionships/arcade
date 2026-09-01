@@ -41,6 +41,7 @@ public class MinigameSerializer(
         this.readAsListFrom(path.resolve("tags.json"), this.minigame.tags::deserialize)
         this.readAsListFrom(path.resolve("recipes.json"), this.minigame.recipes::deserialize)
         this.readAsListFrom(path.resolve("advancements.json"), this.minigame.advancements::deserialize)
+        this.readAsObjectFrom(path.resolve("components.json"), this.minigame.components::deserialize)
         this.readAsObjectFrom(path.resolve("custom.json"), this.minigame::internalLoad)
         this.readAsObjectFrom(path.resolve("minigame.json"), this::readMinigame)
     }
@@ -54,6 +55,7 @@ public class MinigameSerializer(
         this.writeAsyncAsListInto(path.resolve("tags.json"), this.minigame.tags::serialize)
         this.writeAsyncAsListInto(path.resolve("recipes.json"), this.minigame.recipes::serialize)
         this.writeAsyncAsListInto(path.resolve("advancements.json"), this.minigame.advancements::serialize)
+        this.writeAsyncAsObjectInto(path.resolve("components.json"), this.minigame.components::serialize)
         this.writeAsyncAsObjectInto(path.resolve("custom.json"), this.minigame::internalSave)
 
         this.writeAsyncAsObjectInto(path.resolve("minigame.json"), this::writeMinigame)

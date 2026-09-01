@@ -69,6 +69,10 @@ public class MinigameScopes internal constructor(
         }
     }
 
+    internal fun cancelAll() {
+        this.scheduler.cancelAll()
+    }
+
     internal fun close() {
         for (scope in ArrayList(this.scopes)) {
             scope.close()

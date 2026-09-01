@@ -9,11 +9,11 @@ import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.server.ServerStopEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.events.server.player.*
 import net.casual.arcade.events.utils.register
+import net.casual.arcade.minigame.component.MinigameComponents
 import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.managers.*
 import net.casual.arcade.minigame.phase.Phase
@@ -21,20 +21,14 @@ import net.casual.arcade.minigame.scope.MinigameScopes
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.serialization.MinigameSerializer
 import net.casual.arcade.minigame.settings.MinigameSettings
-import net.casual.arcade.minigame.stats.ArcadeStats
-import net.casual.arcade.minigame.stats.Stat.Companion.increment
 import net.casual.arcade.minigame.utils.MinigameResources
 import net.casual.arcade.minigame.utils.MinigameResources.Companion.removeFrom
 import net.casual.arcade.minigame.utils.MinigameResources.Companion.sendTo
-import net.casual.arcade.minigame.utils.MinigameResources.MultiMinigameResources
 import net.casual.arcade.minigame.utils.MinigameUtils
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.utils.JsonUtils
-import net.casual.arcade.utils.player.getKillCreditWith
-import net.casual.arcade.utils.player.revokeAdvancement
 import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
@@ -91,6 +85,13 @@ public abstract class Minigame(
     public val events: MinigameEventHandler = MinigameEventHandler(this)
 
     /**
+     * This handles all custom minigame components.
+     *
+     * @sample MinigameComponents
+     */
+    public val components: MinigameComponents = MinigameComponents(this)
+
+    /**
      * This handles all the players for this minigame.
      */
     public val players: MinigamePlayerManager = MinigamePlayerManager(this)
@@ -134,7 +135,7 @@ public abstract class Minigame(
      *
      * @see MinigameResources
      */
-    public val resources: MultiMinigameResources = MultiMinigameResources()
+    public val resources: MinigameResourceManager = MinigameResourceManager()
 
     /**
      * This manager is for registering any minigame
@@ -435,7 +436,7 @@ public abstract class Minigame(
             GlobalEventHandler.Server.broadcast(MinigameCompleteEvent(this))
         }
 
-        this.scopes.close()
+        this.scopes.cancelAll()
 
         GlobalEventHandler.Server.broadcast(MinigameCloseEvent(this))
         this.players.close()
@@ -443,6 +444,9 @@ public abstract class Minigame(
 
         // Closed only after the players have been removed
         this.state = MinigameState.Closed(completed)
+
+        this.components.close()
+        this.scopes.close()
 
         GlobalEventHandler.Server.removeProvider(this.events)
         this.events.clear()
@@ -554,6 +558,8 @@ public abstract class Minigame(
         this.levels.initialize()
         MinigameUtils.parseMinigameEvents(this)
 
+        this.components.initialize()
+
         Minigames.register(this)
 
         this.state = MinigameState.Ready
@@ -606,13 +612,8 @@ public abstract class Minigame(
 
     private fun registerEvents() {
         this.events.register<ServerTickEvent> { this.onServerTick(it) }
-        this.events.register<PlayerTickEvent> { this.onPlayerTick(it) }
-        this.events.register<PlayerJoinEvent> { this.onPlayerJoin(it) }
-        this.events.register<PlayerDeathEvent> { this.onPlayerDeath(it) }
-        this.events.register<PlayerDamageEvent>(1_000, BuiltInEventPhases.POST) { this.onPlayerDamage(it) }
         this.events.register<PlayerAttackEvent> { this.onPlayerAttack(it) }
         this.events.register<PlayerEntityInteractionEvent> { this.onPlayerEntityInteraction(it) }
-        this.events.register<PlayerHealEvent>(1_000, BuiltInEventPhases.POST) { this.onPlayerHeal(it) }
         this.events.register<MinigameAddPlayerEvent>(Int.MAX_VALUE) { this.onPlayerAdd(it) }
         this.events.register<MinigameRemovePlayerEvent>(2000) { this.onPlayerRemove(it) }
         this.events.register<ServerStopEvent> { this.onServerStopping() }
@@ -627,42 +628,6 @@ public abstract class Minigame(
         }
     }
 
-    private fun onPlayerTick(event: PlayerTickEvent) {
-        val (player) = event
-        this.stats.getOrCreateStat(player, ArcadeStats.PLAY_TIME).increment()
-    }
-
-    private fun onPlayerJoin(event: PlayerJoinEvent) {
-        val (player) = event
-        this.stats.getOrCreateStat(player, ArcadeStats.RELOGS).increment()
-    }
-
-    private fun onPlayerDeath(event: PlayerDeathEvent) {
-        this.stats.getOrCreateStat(event.player, ArcadeStats.DEATHS).increment()
-
-        val killer = event.player.getKillCreditWith(event.source)
-        if (killer is ServerPlayer && this.players.has(killer)) {
-            this.stats.getOrCreateStat(killer, ArcadeStats.KILLS).increment()
-        }
-    }
-
-    private fun onPlayerDamage(event: PlayerDamageEvent) {
-        val (player, source, amount) = event
-        if (amount > 0 && amount < 3.4028235E37F) {
-            this.stats.getOrCreateStat(player, ArcadeStats.DAMAGE_TAKEN).increment(amount)
-
-            val attacker = source.entity
-            if (attacker is ServerPlayer && this.players.has(attacker)) {
-                this.stats.getOrCreateStat(attacker, ArcadeStats.DAMAGE_DEALT).increment(amount)
-            }
-        }
-    }
-
-    private fun onPlayerHeal(event: PlayerHealEvent) {
-        val (player, healAmount) = event
-        this.stats.getOrCreateStat(player, ArcadeStats.DAMAGE_HEALED).increment(healAmount)
-    }
-
     private fun onPlayerAdd(event: MinigameAddPlayerEvent) {
         this.resources.sendTo(event.player)
         this.tickrate.updateJoiningPlayer(event.player)
@@ -670,10 +635,6 @@ public abstract class Minigame(
 
     private fun onPlayerRemove(event: MinigameRemovePlayerEvent) {
         this.resources.removeFrom(event.player)
-
-        for (advancement in this.advancements.all()) {
-            event.player.revokeAdvancement(advancement)
-        }
     }
 
     private fun onPlayerAttack(event: PlayerAttackEvent) {
