@@ -7,8 +7,10 @@ package net.casual.arcade.minigame.serialization
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import com.mojang.serialization.Codec
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigameState
+import net.casual.arcade.minigame.phase.Phase
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.serialization.codec.setOf
@@ -28,6 +30,8 @@ import kotlin.io.path.isRegularFile
 public class MinigameSerializer(
     private val minigame: Minigame
 ) {
+    public val phaseCodec: Codec<Phase<Minigame>> = Codec.stringResolver(Phase<*>::id, this.minigame::getPhase)
+
     internal fun loadFrom(path: Path) {
         this.readAsObjectFrom(path.resolve("tasks.json"), this::readTasksJson)
         this.readAsObjectFrom(path.resolve("players.json"), this::readPlayersJson)
@@ -99,7 +103,7 @@ public class MinigameSerializer(
             this.minigame.tryInitialize()
         }
         if (state == PLAYING) {
-            val phase = input.read("phase", this.minigame.phaseCodec).orElseThrow {
+            val phase = input.read("phase", this.phaseCodec).orElseThrow {
                 IllegalStateException("Minigame phase is invalid, unable to deserialize minigame")
             }
             this.minigame.restorePhase(phase)
@@ -107,9 +111,7 @@ public class MinigameSerializer(
     }
 
     private fun readTasksJson(input: ValueInput) {
-        val minigame = this.minigame
-        minigame.scheduler.standard.deserialize(input.childrenListOrEmpty("scheduled_tasks"), minigame)
-        minigame.scheduler.phased.deserialize(input.childrenListOrEmpty("scheduled_phase_tasks"), minigame)
+        this.minigame.scopes.deserialize(input.childrenListOrEmpty("scheduled_tasks"))
     }
 
     private fun readPlayersJson(input: ValueInput) {
@@ -157,7 +159,7 @@ public class MinigameSerializer(
             MinigameState.Ready -> output.putString("state", READY)
             is MinigameState.Playing -> {
                 output.putString("state", PLAYING)
-                output.store("phase", this.minigame.phaseCodec, state.phase)
+                output.store("phase", this.phaseCodec, state.phase)
             }
             is MinigameState.Closed -> output.putString("state", CREATED)
         }
@@ -177,8 +179,7 @@ public class MinigameSerializer(
     }
 
     private fun writeTasksJson(output: ValueOutput) {
-        this.minigame.scheduler.standard.serialize(output.childrenList("scheduled_tasks"))
-        this.minigame.scheduler.phased.serialize(output.childrenList("scheduled_phase_tasks"))
+        this.minigame.scopes.serialize(output.childrenList("scheduled_tasks"))
     }
 
     private fun writePlayerJson(output: ValueOutput) {

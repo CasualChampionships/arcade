@@ -132,14 +132,6 @@ public object MinigameUtils {
         return this.scheduler.asCoroutineScope().async { block() }
     }
 
-    public inline fun Minigame.launchPhased(crossinline block: suspend CoroutineScope.() -> Unit): Job {
-        return this.scheduler.asPhasedScheduler().asCoroutineScope().launch { block() }
-    }
-
-    public inline fun <T> Minigame.asyncPhased(crossinline block: suspend CoroutineScope.() -> T): Deferred<T> {
-        return this.scheduler.asPhasedScheduler().asCoroutineScope().async { block() }
-    }
-
     public fun Minigame.trackReadyPlayers(): ReadyTracker<ServerPlayer> {
         return ReadyChecker.track(this.visuals.playerReadyBroadcaster, this.players.playing)
     }

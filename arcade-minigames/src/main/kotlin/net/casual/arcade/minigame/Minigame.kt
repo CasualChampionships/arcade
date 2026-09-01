@@ -5,7 +5,6 @@
 package net.casual.arcade.minigame
 
 import com.google.gson.JsonElement
-import com.mojang.serialization.Codec
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
@@ -18,6 +17,7 @@ import net.casual.arcade.events.utils.register
 import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.managers.*
 import net.casual.arcade.minigame.phase.Phase
+import net.casual.arcade.minigame.scope.MinigameScopes
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.serialization.MinigameSerializer
 import net.casual.arcade.minigame.settings.MinigameSettings
@@ -28,6 +28,7 @@ import net.casual.arcade.minigame.utils.MinigameResources.Companion.removeFrom
 import net.casual.arcade.minigame.utils.MinigameResources.Companion.sendTo
 import net.casual.arcade.minigame.utils.MinigameResources.MultiMinigameResources
 import net.casual.arcade.minigame.utils.MinigameUtils
+import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.player.getKillCreditWith
 import net.casual.arcade.utils.player.revokeAdvancement
@@ -80,12 +81,6 @@ public abstract class Minigame(
 
     internal val phases: List<Phase<Minigame>>
 
-    /**
-     * The [Codec] for this minigame's [Phase]s, derived from [phases].
-     */
-    public val phaseCodec: Codec<Phase<Minigame>> =
-        Codec.stringResolver({ phase -> phase.id }, { id -> this.getPhase(id) })
-
     internal val serialization = MinigameSerializer(this)
 
     /**
@@ -108,13 +103,19 @@ public abstract class Minigame(
     public val levels: MinigameLevelManager = MinigameLevelManager(this)
 
     /**
+     * The scopes which own this minigame's tasks, routines,
+     * coroutines and listeners.
+     *
+     * @see MinigameScopes
+     */
+    public val scopes: MinigameScopes = MinigameScopes(this)
+
+    /**
      * The scheduler for scheduling tasks based on the minigames
      * ticking rate, the scheduler will be paused if the minigame
      * is paused.
-     *
-     * @see MinigameTickedScheduler
      */
-    public val scheduler: MinigameTickedScheduler = MinigameTickedScheduler(this)
+    public val scheduler: TickedScheduler get() = this.scopes.root
 
     /**
      * Manages the tick rate for this minigame.
@@ -226,10 +227,12 @@ public abstract class Minigame(
     public var paused: Boolean = false
         internal set
 
+    /**
+     * The current phase of the Minigame, `null`
+     * if the minigame isn't in the [MinigameState.Playing] state.
+     */
     public val phaseOrNull: Phase<Minigame>?
         get() = (this.state as? MinigameState.Playing)?.phase
-
-    // TODO: Should we move these to extension functions?
 
     /**
      * Whether the minigame has initialized.
@@ -340,14 +343,13 @@ public abstract class Minigame(
         if (!this.phases.contains(phase)) {
             throw IllegalArgumentException("Cannot set minigame '${this.id}' phase to ${phase.id}")
         }
-        this.scheduler.phased.cancelAll()
-
         // We already validated phases when we created them
         // if this.phases contains phase it must be valid...
         @Suppress("UNCHECKED_CAST")
         phase as Phase<Minigame>
 
         val previous = state.phase
+        this.scopes.setPhase(previous, phase)
         previous.end(this, phase)
         this.state = MinigameState.Playing(phase)
         phase.start(this, previous)
@@ -433,8 +435,7 @@ public abstract class Minigame(
             GlobalEventHandler.Server.broadcast(MinigameCompleteEvent(this))
         }
 
-        this.scheduler.standard.cancelAll()
-        this.scheduler.phased.cancelAll()
+        this.scopes.close()
 
         GlobalEventHandler.Server.broadcast(MinigameCloseEvent(this))
         this.players.close()
@@ -622,7 +623,7 @@ public abstract class Minigame(
         this.visuals.tick()
         if (this.ticking) {
             this.uptime++
-            this.scheduler.tick()
+            this.scopes.tick()
         }
     }
 
