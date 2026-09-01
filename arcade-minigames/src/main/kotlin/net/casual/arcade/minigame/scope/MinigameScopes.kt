@@ -8,8 +8,8 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import kotlinx.coroutines.CoroutineScope
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.phase.Phase
-import net.casual.arcade.minigame.phase.PhaseLifetime
+import net.casual.arcade.minigame.phase.MinigamePhase
+import net.casual.arcade.minigame.phase.MinigamePhaseLifetime
 import net.casual.arcade.scheduler.SimpleTickedScheduler
 import net.casual.arcade.scheduler.task.ScheduledTask
 import net.casual.arcade.scheduler.task.Task
@@ -25,9 +25,9 @@ public class MinigameScopes internal constructor(
     private val scheduler = SimpleTickedScheduler.server()
     private val scopes = ReferenceLinkedOpenHashSet<MinigameScope>()
 
-    public val root: MinigameScope = this.create(PhaseLifetime.Forever)
+    public val root: MinigameScope = this.create(MinigamePhaseLifetime.Forever)
 
-    public fun create(lifetime: PhaseLifetime): MinigameScope {
+    public fun create(lifetime: MinigamePhaseLifetime): MinigameScope {
         val scope = MinigameScope(this.minigame, lifetime, this)
         this.scopes.add(scope)
         return scope
@@ -61,7 +61,7 @@ public class MinigameScopes internal constructor(
         }
     }
 
-    internal fun setPhase(previous: Phase<Minigame>, next: Phase<Minigame>) {
+    internal fun setPhase(previous: MinigamePhase, next: MinigamePhase) {
         for (scope in ArrayList(this.scopes)) {
             if (!scope.lifetime.survives(previous, next)) {
                 scope.close()
@@ -81,9 +81,9 @@ public class MinigameScopes internal constructor(
     }
 
     internal fun serialize(output: ValueOutput.ValueOutputList) {
-        val lifetimes = Reference2ObjectOpenHashMap<ScheduledTask, PhaseLifetime>()
+        val lifetimes = Reference2ObjectOpenHashMap<ScheduledTask, MinigamePhaseLifetime>()
         for (scope in this.scopes) {
-            if (scope.lifetime == PhaseLifetime.Forever) {
+            if (scope.lifetime == MinigamePhaseLifetime.Forever) {
                 continue
             }
             for (task in scope.scheduled()) {
@@ -91,7 +91,7 @@ public class MinigameScopes internal constructor(
             }
         }
 
-        val codec = PhaseLifetime.codec(this.minigame.serialization.phaseCodec)
+        val codec = MinigamePhaseLifetime.codec(this.minigame.phases.codec)
         this.scheduler.serialize(output) { scheduled, data ->
             val lifetime = lifetimes[scheduled]
             if (lifetime != null) {
@@ -101,11 +101,11 @@ public class MinigameScopes internal constructor(
     }
 
     internal fun deserialize(input: ValueInput.ValueInputList) {
-        val codec = PhaseLifetime.codec(this.minigame.serialization.phaseCodec)
-        val restored = HashMap<PhaseLifetime, MinigameScope>()
+        val codec = MinigamePhaseLifetime.codec(this.minigame.phases.codec)
+        val restored = HashMap<MinigamePhaseLifetime, MinigameScope>()
         this.scheduler.deserialize(input, this.minigame) { scheduled, data ->
-            val scope = when (val lifetime = data.read("lifetime", codec).orElse(PhaseLifetime.Forever)!!) {
-                PhaseLifetime.Forever -> this.root
+            val scope = when (val lifetime = data.read("lifetime", codec).orElse(MinigamePhaseLifetime.Forever)!!) {
+                MinigamePhaseLifetime.Forever -> this.root
                 else -> restored.getOrPut(lifetime) { this.create(lifetime) }
             }
             scope.track(scheduled)

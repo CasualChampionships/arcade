@@ -6,7 +6,6 @@ package net.casual.arcade.minigame.phase
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
-import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.utils.serialization.codec.setOf
 import net.minecraft.util.ExtraCodecs
 
@@ -15,7 +14,7 @@ import net.minecraft.util.ExtraCodecs
  *
  * @see net.casual.arcade.minigame.scope.MinigameScope
  */
-public sealed interface PhaseLifetime {
+public sealed interface MinigamePhaseLifetime {
     /**
      * Whether a scope with this lifetime survives a transition
      * from [previous] to [next].
@@ -24,15 +23,15 @@ public sealed interface PhaseLifetime {
      * @param next The phase being entered.
      * @return Whether the scope survives.
      */
-    public fun survives(previous: Phase<Minigame>, next: Phase<Minigame>): Boolean
+    public fun survives(previous: MinigamePhase, next: MinigamePhase): Boolean
 
     public fun type(): Type
 
     /**
      * Survives every transition; only the minigame closing ends it.
      */
-    public data object Forever: PhaseLifetime {
-        override fun survives(previous: Phase<Minigame>, next: Phase<Minigame>): Boolean {
+    public data object Forever: MinigamePhaseLifetime {
+        override fun survives(previous: MinigamePhase, next: MinigamePhase): Boolean {
             return true
         }
 
@@ -41,8 +40,8 @@ public sealed interface PhaseLifetime {
         }
     }
 
-    public data object Current: PhaseLifetime {
-        override fun survives(previous: Phase<Minigame>, next: Phase<Minigame>): Boolean {
+    public data object Current: MinigamePhaseLifetime {
+        override fun survives(previous: MinigamePhase, next: MinigamePhase): Boolean {
             return false
         }
 
@@ -51,8 +50,8 @@ public sealed interface PhaseLifetime {
         }
     }
 
-    public data object Forward: PhaseLifetime {
-        override fun survives(previous: Phase<Minigame>, next: Phase<Minigame>): Boolean {
+    public data object Forward: MinigamePhaseLifetime {
+        override fun survives(previous: MinigamePhase, next: MinigamePhase): Boolean {
             return next > previous
         }
 
@@ -61,8 +60,8 @@ public sealed interface PhaseLifetime {
         }
     }
 
-    public data class Until(public val bound: Phase<Minigame>): PhaseLifetime {
-        override fun survives(previous: Phase<Minigame>, next: Phase<Minigame>): Boolean {
+    public data class Until(public val bound: MinigamePhase): MinigamePhaseLifetime {
+        override fun survives(previous: MinigamePhase, next: MinigamePhase): Boolean {
             return next < this.bound
         }
 
@@ -71,8 +70,8 @@ public sealed interface PhaseLifetime {
         }
     }
 
-    public data class During(public val phases: Set<Phase<Minigame>>): PhaseLifetime {
-        override fun survives(previous: Phase<Minigame>, next: Phase<Minigame>): Boolean {
+    public data class During(public val phases: Set<MinigamePhase>): MinigamePhaseLifetime {
+        override fun survives(previous: MinigamePhase, next: MinigamePhase): Boolean {
             return this.phases.contains(next)
         }
 
@@ -82,7 +81,7 @@ public sealed interface PhaseLifetime {
     }
 
     public fun interface Type {
-        public fun codec(phase: Codec<Phase<Minigame>>): MapCodec<out PhaseLifetime>
+        public fun codec(phase: Codec<MinigamePhase>): MapCodec<out MinigamePhaseLifetime>
     }
 
     public companion object {
@@ -106,8 +105,8 @@ public sealed interface PhaseLifetime {
             TYPES.put("during", DURING)
         }
 
-        public fun codec(phase: Codec<Phase<Minigame>>): Codec<PhaseLifetime> {
-            return TYPES.codec(Codec.STRING).dispatch("type", PhaseLifetime::type) { type -> type.codec(phase) }
+        public fun codec(phase: Codec<MinigamePhase>): Codec<MinigamePhaseLifetime> {
+            return TYPES.codec(Codec.STRING).dispatch("type", MinigamePhaseLifetime::type) { type -> type.codec(phase) }
         }
     }
 }

@@ -6,7 +6,7 @@ package net.casual.arcade.minigame.component
 
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.MinigameEventListener
-import net.casual.arcade.minigame.phase.PhaseLifetime
+import net.casual.arcade.minigame.phase.MinigamePhaseLifetime
 import net.casual.arcade.minigame.scope.MinigameScope
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
@@ -105,7 +105,7 @@ public class MinigameComponents(private val minigame: Minigame) {
             if (this.scope != null) {
                 return
             }
-            val scope = minigame.scopes.create(PhaseLifetime.Forever)
+            val scope = minigame.scopes.create(MinigamePhaseLifetime.Forever)
             this.scope = scope
             val component = this.component
             if (component is MinigameEventListener) {

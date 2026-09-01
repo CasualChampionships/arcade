@@ -7,7 +7,7 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameInitializeEvent
-import net.casual.arcade.minigame.phase.Phase
+import net.casual.arcade.minigame.phase.MinigamePhase
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.settings.GameSetting
@@ -42,7 +42,7 @@ import net.minecraft.world.item.Items
 import net.minecraft.world.level.levelgen.Heightmap
 import java.util.*
 
-enum class TestPhase(override val id: String): Phase<TestMinigame> {
+enum class TestPhase(override val id: String): MinigamePhase {
     First("first"),
     Second("second")
 }
@@ -84,14 +84,10 @@ open class TestMinigame(
     server: MinecraftServer,
     uuid: UUID,
     private val level: ServerLevel
-): Minigame(server, uuid) {
+): Minigame(server, uuid, TestPhase.entries) {
     override val id: Identifier get() = ID
 
     override val settings: MinigameSettings = TestSettings(this)
-
-    override fun phases(): Collection<Phase<out Minigame>> {
-        return TestPhase.entries
-    }
 
     @Listener
     private fun onInitialize(event: MinigameInitializeEvent) {

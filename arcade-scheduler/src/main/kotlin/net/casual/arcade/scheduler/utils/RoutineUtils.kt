@@ -11,6 +11,7 @@ import net.casual.arcade.scheduler.task.routine.RoutineJournal
 import net.casual.arcade.scheduler.task.routine.RoutineScope
 import net.casual.arcade.scheduler.task.routine.RoutineTask
 import net.casual.arcade.utils.time.MinecraftTimeDuration
+import org.jetbrains.annotations.ApiStatus.Internal
 
 /**
  * Runs another [routine] as part of this one.
@@ -38,9 +39,7 @@ public fun <O> TickedScheduler.schedule(
     routine: Routine<O>,
     owner: O
 ): ScheduledTask {
-    require(TaskRegistries.ROUTINE.getKey(routine.codec()) != null) {
-        "Routine ${routine.javaClass.name} must be registered in TaskRegistries.ROUTINE before it can be scheduled"
-    }
+    routine.throwIfNotRegistered()
     val task = RoutineTask(routine, owner, RoutineJournal.create())
     this.schedule(delay, task)
     return task
@@ -56,4 +55,11 @@ public fun <O> TickedScheduler.schedule(
  */
 public fun <O> TickedScheduler.schedule(routine: Routine<O>, owner: O): ScheduledTask {
     return this.schedule(MinecraftTimeDuration.ZERO, routine, owner)
+}
+
+@Internal
+public fun Routine<*>.throwIfNotRegistered() {
+    require(TaskRegistries.ROUTINE.getKey(this.codec()) != null) {
+        "Routine ${this.javaClass.name} must be registered in the routine registry"
+    }
 }

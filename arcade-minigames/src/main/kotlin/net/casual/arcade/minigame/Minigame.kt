@@ -16,7 +16,8 @@ import net.casual.arcade.events.utils.register
 import net.casual.arcade.minigame.component.MinigameComponents
 import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.managers.*
-import net.casual.arcade.minigame.phase.Phase
+import net.casual.arcade.minigame.phase.MinigamePhase
+import net.casual.arcade.minigame.managers.MinigamePhaseManager
 import net.casual.arcade.minigame.scope.MinigameScopes
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.serialization.MinigameSerializer
@@ -32,8 +33,6 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
-import org.jetbrains.annotations.ApiStatus.OverrideOnly
-import java.lang.reflect.ParameterizedType
 import java.nio.file.Path
 import java.util.*
 import kotlin.enums.EnumEntries
@@ -49,15 +48,15 @@ import kotlin.enums.EnumEntries
  * all the core functionality of the minigame, see the fields
  * of this class for more information.
  *
- * As well as the minigames own state, see: [setPhase], [paused].
- * See more info about phases here: [Phase].
+ * As well as the minigames own state, see: [phases], [paused].
+ * See more info about phases here: [MinigamePhase].
  *
  * You can implement your own minigame by extending this class.
  *
  * @param server The [MinecraftServer] that created the [Minigame].
- * @see Phase
+ * @param phases The complete set of phases this minigame may be in, in order.
+ * @see MinigamePhase
  */
-@Suppress("LeakingThis")
 public abstract class Minigame(
     /**
      * The [MinecraftServer] that created the [Minigame].
@@ -66,14 +65,16 @@ public abstract class Minigame(
     /**
      * The unique id for this minigame.
      */
-    public val uuid: UUID
+    public val uuid: UUID,
+    /**
+     * The phases for this minigame.
+     */
+    phases: EnumEntries<*>
 ) {
     private val properties = Object2ObjectLinkedOpenHashMap<String, () -> JsonElement>()
 
     private var closing: Boolean = false
     private var completing: Boolean = false
-
-    internal val phases: List<Phase<Minigame>>
 
     internal val serialization = MinigameSerializer(this)
 
@@ -92,7 +93,16 @@ public abstract class Minigame(
     public val components: MinigameComponents = MinigameComponents(this)
 
     /**
+     * Manages the phases for this minigame.
+     *
+     * @see MinigamePhaseManager
+     */
+    public val phases: MinigamePhaseManager = MinigamePhaseManager(this, phases)
+
+    /**
      * This handles all the players for this minigame.
+     *
+     * @see MinigamePlayerManager
      */
     public val players: MinigamePlayerManager = MinigamePlayerManager(this)
 
@@ -202,14 +212,13 @@ public abstract class Minigame(
      */
     public val chat: MinigameChatManager = MinigameChatManager(this)
 
-
     /**
      * This handles all the settings for a minigame.
      */
     public open val settings: MinigameSettings = MinigameSettings(this)
 
     public var state: MinigameState = MinigameState.Created
-        private set
+        internal set
 
     /**
      * How long the minigame has been up for.
@@ -232,7 +241,7 @@ public abstract class Minigame(
      * The current phase of the Minigame, `null`
      * if the minigame isn't in the [MinigameState.Playing] state.
      */
-    public val phaseOrNull: Phase<Minigame>?
+    public val phaseOrNull: MinigamePhase?
         get() = (this.state as? MinigameState.Playing)?.phase
 
     /**
@@ -277,8 +286,6 @@ public abstract class Minigame(
     public abstract val id: Identifier
 
     init {
-        this.phases = this.getAllPhases()
-
         this.addDefaultProperties()
     }
 
@@ -297,10 +304,7 @@ public abstract class Minigame(
 
         GlobalEventHandler.Server.broadcast(MinigameStartEvent(this))
 
-        first.start(this, null)
-        first.initialize(this)
-
-        GlobalEventHandler.Server.broadcast(MinigameSetPhaseEvent(this, first, null))
+        this.phases.enter(first, null)
     }
 
     /**
@@ -314,59 +318,6 @@ public abstract class Minigame(
         if (this.state is MinigameState.Created) {
             this.initialize()
         }
-    }
-
-    /**
-     * This sets the phase of the minigame.
-     * It will only be set if the given phase is
-     * **different** to the current phase and in
-     * the [phases] set.
-     *
-     * When a phase is set, all previously scheduled
-     * phase tasks will be cleared and will no longer run.
-     * Further, all the registered phase events will be
-     * cleared and will no longer be invoked.
-     *
-     * After this the [MinigameSetPhaseEvent] is
-     * broadcasted for listeners.
-     *
-     * @param phase The phase to set the minigame to.
-     * @throws IllegalArgumentException If the [phase] is not in the [phases] set.
-     */
-    public fun setPhase(phase: Phase<out Minigame>, force: Boolean = false) {
-        val state = this.state
-        if (state !is MinigameState.Playing) {
-            throw IllegalStateException("Cannot set phase of minigame '${this.id}', it is not playing")
-        }
-        if (state.phase == phase && !force) {
-            return
-        }
-        if (!this.phases.contains(phase)) {
-            throw IllegalArgumentException("Cannot set minigame '${this.id}' phase to ${phase.id}")
-        }
-        // We already validated phases when we created them
-        // if this.phases contains phase it must be valid...
-        @Suppress("UNCHECKED_CAST")
-        phase as Phase<Minigame>
-
-        val previous = state.phase
-        this.scopes.setPhase(previous, phase)
-        previous.end(this, phase)
-        this.state = MinigameState.Playing(phase)
-        phase.start(this, previous)
-        phase.initialize(this)
-
-        GlobalEventHandler.Server.broadcast(MinigameSetPhaseEvent(this, phase, previous))
-    }
-
-    /**
-     * Gets the phase for a given phase [id] if it exists.
-     *
-     * @param id The phase id of the desired phase.
-     * @return The phase, null if not found.
-     */
-    public fun getPhase(id: String): Phase<Minigame>? {
-        return this.phases.find { it.id == id }
     }
 
     /**
@@ -538,15 +489,6 @@ public abstract class Minigame(
         return this.factory()
     }
 
-    internal fun restorePhase(phase: Phase<Minigame>) {
-        this.state = MinigameState.Playing(phase)
-        for (previous in this.phases) {
-            if (previous <= phase) {
-                previous.initialize(this)
-            }
-        }
-    }
-
     /**
      * This method initializes the core functionality of the
      * minigame, such as registering events.
@@ -567,49 +509,6 @@ public abstract class Minigame(
         GlobalEventHandler.Server.broadcast(MinigameInitializeEvent(this))
     }
 
-    /**
-     * This gets all the [Phase]s that this [Minigame]
-     * allows.
-     *
-     * The phases **do not** have to be in order, any duplicates
-     * will also be removed.
-     *
-     * This method will only be invoked **once**; when the
-     * minigame is initialized, the phases are then stored in
-     * a collection for the rest of the minigames lifetime.
-     *
-     * @return A collection of all the valid phases the minigame can be in.
-     */
-    @OverrideOnly
-    protected abstract fun phases(): EnumEntries<*>
-
-    private fun getAllPhases(): List<Phase<Minigame>> {
-        val declared = this.phases()
-        if (declared.isEmpty()) {
-            throw IllegalStateException("Minigame ${this.javaClass.simpleName} must declare at least one phase")
-        }
-        // EnumEntries is always one enum's constants, in ordinal order
-        this.validatePhases(declared.first().declaringJavaClass)
-
-        val ids = HashSet<String>()
-        val phases = ArrayList<Phase<Minigame>>(declared.size)
-        for (constant in declared) {
-            @Suppress("UNCHECKED_CAST")
-            val phase = constant as? Phase<Minigame>
-                ?: throw IllegalStateException(
-                    "Phase ${constant.declaringJavaClass.simpleName}.${constant.name} of minigame " +
-                        "${this.javaClass.simpleName} does not implement Phase"
-                )
-            if (!ids.add(phase.id)) {
-                throw IllegalStateException(
-                    "Minigame ${this.javaClass.simpleName} has multiple phases with the id '${phase.id}'"
-                )
-            }
-            phases.add(phase)
-        }
-        return phases
-    }
-
     private fun registerEvents() {
         this.events.register<ServerTickEvent> { this.onServerTick(it) }
         this.events.register<PlayerAttackEvent> { this.onPlayerAttack(it) }
@@ -625,6 +524,7 @@ public abstract class Minigame(
         if (this.ticking) {
             this.uptime++
             this.scopes.tick()
+            this.phases.tick()
         }
     }
 
@@ -671,7 +571,7 @@ public abstract class Minigame(
         this.property("playing_teams") { this.teams.getPlayingTeams().map { it.name } }
         this.property("eliminated_teams") { this.teams.getEliminatedTeams().map { it.name } }
         this.property("levels") { this.levels.all().map { it.dimension().identifier().toString() } }
-        this.property("phases") { this.phases.map { it.id } }
+        this.property("phases") { this.phases.all().map { it.id } }
         this.property("phase") { this.phaseOrNull?.id }
         this.property("state") { this.state.toString() }
         this.property("ticking") { this.ticking }
@@ -680,16 +580,5 @@ public abstract class Minigame(
         this.property("advancements") { this.advancements.all().map { it.id.toString() } }
         this.property("recipes") { this.recipes.all().map { it.id.toString() } }
         this.property("commands") { this.commands.getAllRootCommands().map { it } }
-    }
-
-    private fun validatePhases(type: Class<*>) {
-        val parameterized = type.genericInterfaces.find {
-            it is ParameterizedType && (it.rawType as? Class<*>) == Phase::class.java
-        } as? ParameterizedType
-
-        val typeArgument = parameterized?.actualTypeArguments?.firstOrNull()
-        if (typeArgument is Class<*> && !typeArgument.isAssignableFrom(this.javaClass)) {
-            throw IllegalStateException("Phase ${type.simpleName} is not valid for minigame ${this.id}")
-        }
     }
 }

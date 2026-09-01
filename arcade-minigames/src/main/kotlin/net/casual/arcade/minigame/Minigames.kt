@@ -27,7 +27,7 @@ import net.casual.arcade.minigame.extensions.PlayerMovementRestrictionExtension
 import net.casual.arcade.minigame.gamemode.ExtendedGameMode
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
-import net.casual.arcade.minigame.task.routine.PhaseChangeRoutine
+import net.casual.arcade.minigame.managers.phase.AdvancingPhaseRoutine
 import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.minigame.utils.MinigameUtils
@@ -172,7 +172,7 @@ public object Minigames: ModInitializer {
             event.register(ExtendedGameModeCommand, MinigameCommand, PauseCommand, TeamCommandModifier)
         }
 
-        PhaseChangeRoutine.register(TaskRegistries.ROUTINE)
+        AdvancingPhaseRoutine.register(TaskRegistries.ROUTINE)
     }
 
     internal fun allById(): Map<Identifier, Collection<Minigame>> {

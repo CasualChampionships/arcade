@@ -736,7 +736,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
                 Component.translatable("minigame.command.phase.notPlaying", minigame.id.toString())
             )
         }
-        minigame.setPhase(phase)
+        minigame.phases.set(phase)
         return context.source.success(
             Component.translatable("minigame.command.phase.set", minigame.id.toString(), phase.id)
         )

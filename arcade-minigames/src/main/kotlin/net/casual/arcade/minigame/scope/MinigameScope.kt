@@ -16,7 +16,7 @@ import net.casual.arcade.events.threading.ThreadingTarget
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.ListenerFlags.DEFAULT
 import net.casual.arcade.minigame.annotation.MinigameEventListener
-import net.casual.arcade.minigame.phase.PhaseLifetime
+import net.casual.arcade.minigame.phase.MinigamePhaseLifetime
 import net.casual.arcade.minigame.utils.MinigameUtils.addEventListener
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.scheduler.task.ScheduledTask
@@ -29,7 +29,7 @@ import java.util.function.Consumer
 
 public class MinigameScope internal constructor(
     public val minigame: Minigame,
-    public val lifetime: PhaseLifetime,
+    public val lifetime: MinigamePhaseLifetime,
     private val scopes: MinigameScopes
 ): TickedScheduler, AutoCloseable {
     private val handles = ArrayList<EventListenerHandle>()

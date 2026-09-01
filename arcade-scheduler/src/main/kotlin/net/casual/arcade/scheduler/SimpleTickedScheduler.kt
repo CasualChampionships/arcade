@@ -177,7 +177,7 @@ public class SimpleTickedScheduler(
                 val data = output.addChild()
                 data.putInt("delay", delay)
                 task.serialize(data)
-                extra.invoke(entry, data)
+                extra.invoke(task, data)
             }
         }
     }
@@ -191,7 +191,8 @@ public class SimpleTickedScheduler(
             val ticks = data.getInt("delay").getOrNull() ?: continue
             RoutineTask.create(data, owner).dispatch(
                 success = { task ->
-                    extra.invoke(this.schedule(ticks.Ticks, task), data)
+                    this.schedule(ticks.Ticks, task)
+                    extra.invoke(task, data)
                     task.rehydrate(ticks.Ticks)
                 },
                 failure = { message -> ArcadeUtils.logger.error("Failed to load routine: $message") }
