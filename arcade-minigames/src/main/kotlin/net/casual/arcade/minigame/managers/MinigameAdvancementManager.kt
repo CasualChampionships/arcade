@@ -14,6 +14,7 @@ import net.casual.arcade.minigame.events.MinigameCloseEvent
 import net.casual.arcade.minigame.events.MinigameCompleteEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
 import net.casual.arcade.utils.AdvancementUtils.copyWithoutToast
+import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.player.grantAdvancementSilently
 import net.casual.arcade.utils.player.revokeAdvancement
 import net.minecraft.advancements.AdvancementHolder
@@ -187,7 +188,13 @@ public class MinigameAdvancementManager(
     internal fun deserialize(list: ValueInput.ValueInputList) {
         for (input in list) {
             val uuid = input.read("uuid", UUIDUtil.STRING_CODEC).getOrNull() ?: continue
-            this.players.putAll(uuid, input.listOrEmpty("advancements", Identifier.CODEC))
+            for (id in input.listOrEmpty("advancements", Identifier.CODEC)) {
+                if (this.get(id) == null) {
+                    ArcadeUtils.logger.warn("Minigame ${this.minigame.id} is missing advancement $id, dropping for $uuid")
+                    continue
+                }
+                this.players.put(uuid, id)
+            }
         }
     }
 }

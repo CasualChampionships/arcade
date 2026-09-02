@@ -21,7 +21,7 @@ public class MinigamePhaseManager internal constructor(
     declared: EnumEntries<*>
 ): Iterable<MinigamePhase> {
     private val phases: List<MinigamePhase> = this.validate(declared)
-    private var pending: MinigamePhase? = null
+    internal var pending: MinigamePhase? = null
 
     public val routines: MinigamePhaseRoutines = MinigamePhaseRoutines(this, this.minigame)
 

@@ -48,16 +48,23 @@ public class MinigameStatManager {
         }
     }
 
-    internal fun serialize(output: ValueOutput.ValueOutputList) {
+    internal fun serialize(output: ValueOutput) {
+        output.putBoolean("frozen", this.frozen)
+
+        val list = output.childrenList("stats")
         for ((uuid, tracker) in this.stats) {
-            val child = output.addChild()
+            val child = list.addChild()
             child.store("uuid", UUIDUtil.STRING_CODEC, uuid)
             tracker.serialize(child.childrenList("stats"))
         }
     }
 
-    internal fun deserialize(input: ValueInput.ValueInputList) {
-        for (child in input) {
+    internal fun deserialize(input: ValueInput) {
+        if (input.getBooleanOr("frozen", false)) {
+            this.freeze()
+        }
+
+        for (child in input.childrenListOrEmpty("stats")) {
             val uuid = child.read("uuid", UUIDUtil.STRING_CODEC).getOrNull() ?: continue
             this.getOrCreateTracker(uuid).deserialize(child.childrenListOrEmpty("stats"))
         }

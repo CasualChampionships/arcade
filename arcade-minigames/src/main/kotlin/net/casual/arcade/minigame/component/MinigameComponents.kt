@@ -15,12 +15,9 @@ public class MinigameComponents(private val minigame: Minigame) {
 
     public fun add(component: MinigameComponent) {
         val type = component.type()
-        if (this.minigame.closed) {
-            throw IllegalStateException("Cannot add component $type to closed minigame ${this.minigame.id}")
-        }
-        if (this.components.containsKey(type)) {
-            throw IllegalArgumentException("Minigame ${this.minigame.id} already has component $type")
-        }
+        check(!this.minigame.closed) { "Cannot add component to closed minigame ${this.minigame.id}" }
+        check(!this.minigame.serializer.loading) { "Cannot add component to minigame ${this.minigame} while it's deserializing" }
+        require(!this.components.containsKey(type)) { "Minigame ${this.minigame.id} already has component $type" }
 
         val attached = Attached(component)
         this.components[type] = attached

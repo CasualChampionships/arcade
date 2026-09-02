@@ -50,6 +50,9 @@ internal class MinigameSerializer(
 
     private val dispatcher = Dispatchers.IO.limitedParallelism(1, "MinigameSerializer")
 
+    internal var loading: Boolean = false
+        private set
+
     internal fun loadFrom(minigame: SerializableMinigame, path: Path) {
         val directory = directory(path)
         this.restoreComponents(directory)
@@ -58,16 +61,23 @@ internal class MinigameSerializer(
             val files = this.dataFiles(minigame)
             val contents = this.read(directory, files, reporter)
 
-            this.load(files, contents, Stage.BeforeInitialize)
+            this.loading = true
+            try {
+                this.load(files, contents, Stage.BeforeInitialize)
 
-            this.restore(contents)
+                this.restore(contents)
 
-            this.load(files, contents, Stage.AfterInitialize)
+                this.load(files, contents, Stage.AfterInitialize)
+
+                if (this.minigame.initialized) {
+                    this.minigame.broadcastLoadEvent()
+                }
+
+                this.load(files, contents, Stage.AfterLoad)
+            } finally {
+                this.loading = false
+            }
             this.warnOrphanedComponents(directory, files)
-        }
-
-        if (this.minigame.initialized) {
-            this.minigame.broadcastLoadEvent()
         }
     }
 
@@ -130,11 +140,11 @@ internal class MinigameSerializer(
         files.add(this.dataFile("tickrate", this::writeTickrate, this::readTickrate))
         files.add(this.dataFile("players", this::writePlayers, this::readPlayers))
         files.add(this.dataFile("chat", this.minigame.chat::serialize, this.minigame.chat::deserialize))
+        files.add(this.dataFile("stats", this.minigame.stats::serialize, this.minigame.stats::deserialize))
         files.add(this.listedDataFile("settings", this.minigame.settings::serialize, this.minigame.settings::deserialize))
-        files.add(this.listedDataFile("stats", this.minigame.stats::serialize, this.minigame.stats::deserialize))
         files.add(this.listedDataFile("tags", this.minigame.tags::serialize, this.minigame.tags::deserialize))
-        files.add(this.listedDataFile("recipes", this.minigame.recipes::serialize, this.minigame.recipes::deserialize))
-        files.add(this.listedDataFile("advancements", this.minigame.advancements::serialize, this.minigame.advancements::deserialize))
+        files.add(this.listedDataFile("recipes", this.minigame.recipes::serialize, this.minigame.recipes::deserialize, Stage.AfterLoad))
+        files.add(this.listedDataFile("advancements", this.minigame.advancements::serialize, this.minigame.advancements::deserialize, Stage.AfterLoad))
 
         files.addAll(this.componentDataFiles())
 
@@ -189,12 +199,14 @@ internal class MinigameSerializer(
     private fun listedDataFile(
         name: String,
         save: (ValueOutput.ValueOutputList) -> Unit,
-        load: (ValueInput.ValueInputList) -> Unit
+        load: (ValueInput.ValueInputList) -> Unit,
+        stage: Stage = Stage.BeforeInitialize
     ): DataFile {
         return this.dataFile(
             name,
             { output -> save.invoke(output.childrenList(name)) },
-            { input -> load.invoke(input.childrenListOrEmpty(name)) }
+            { input -> load.invoke(input.childrenListOrEmpty(name)) },
+            stage
         )
     }
 
@@ -252,11 +264,13 @@ internal class MinigameSerializer(
 
     private fun writeMinigame(output: ValueOutput) {
         output.store(STATE, this.stateCodec(), this.minigame.state)
+        output.storeNullable("pending_phase", this.minigame.phases.codec, this.minigame.phases.pending)
         output.putInt("uptime", this.minigame.uptime)
         output.putBoolean("paused", this.minigame.paused)
     }
 
     private fun readMinigame(input: ValueInput) {
+        this.minigame.phases.pending = input.read("pending_phase", this.minigame.phases.codec).getOrNull()
         this.minigame.uptime = input.getIntOr("uptime", 0)
         this.minigame.paused = input.getBooleanOr("paused", false)
     }
@@ -364,7 +378,8 @@ internal class MinigameSerializer(
 
     private enum class Stage {
         BeforeInitialize,
-        AfterInitialize
+        AfterInitialize,
+        AfterLoad
     }
 
     internal companion object {
