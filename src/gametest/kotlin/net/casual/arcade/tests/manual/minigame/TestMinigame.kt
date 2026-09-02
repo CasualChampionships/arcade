@@ -1,12 +1,14 @@
 package net.casual.arcade.tests.manual.minigame
 
 import com.mojang.serialization.MapCodec
+import net.casual.arcade.dimensions.level.LevelPersistence
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameInitializeEvent
+import net.casual.arcade.minigame.managers.MinigameLevelManager.LevelOwnership
 import net.casual.arcade.minigame.phase.MinigamePhase
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
@@ -83,18 +85,26 @@ class TestSettings(minigame: Minigame) : MinigameSettings(minigame) {
 
 open class TestMinigame(
     server: MinecraftServer,
-    uuid: UUID,
-    private val level: ServerLevel
+    uuid: UUID
 ): Minigame(server, uuid, TestPhase.entries), SerializableMinigame {
     override val id: Identifier get() = ID
 
     override val settings: MinigameSettings = TestSettings(this)
 
+    private val level: ServerLevel
+        get() = this.levels.require(LEVEL)
+
     @Listener
     private fun onInitialize(event: MinigameInitializeEvent) {
         this.players.keepPlayerData = false
 
-        this.levels.add(this.level)
+        val level = CustomLevelBuilder.build(this.server) {
+            randomDimensionKey()
+            vanillaDefaults(VanillaDimension.Overworld)
+            clockState(rate = 5.0F)
+            persistence(LevelPersistence.Permanent)
+        }
+        this.levels.add(LEVEL, level, LevelOwnership.Exclusive)
 
         this.recipes.add(CraftingRecipeBuilder.shapeless(this.server.registryAccess()) {
             key(arcade("example"))
@@ -157,14 +167,10 @@ open class TestMinigame(
     companion object: MinigameFactory {
         private val CODEC = MapCodec.unit(this)
         val ID = arcade("test_minigame")
+        val LEVEL = arcade("level")
 
         override fun create(context: MinigameCreationContext): Minigame {
-            val level = CustomLevelBuilder.build(context.server) {
-                randomDimensionKey()
-                vanillaDefaults(VanillaDimension.Overworld)
-                clockState(rate = 5.0F)
-            }
-            return TestMinigame(context.server, context.uuid, level)
+            return TestMinigame(context.server, context.uuid)
         }
 
         override fun codec(): MapCodec<out MinigameFactory> {

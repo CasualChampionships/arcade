@@ -137,6 +137,7 @@ internal class MinigameSerializer(
     private fun dataFiles(minigame: SerializableMinigame): List<DataFile> {
         val files = ArrayList<DataFile>()
         files.add(this.dataFile(MINIGAME, this::writeMinigame, this::readMinigame))
+        files.add(this.dataFile("levels", this.minigame.levels::serialize, this.minigame.levels::deserialize))
         files.add(this.dataFile("tickrate", this::writeTickrate, this::readTickrate))
         files.add(this.dataFile("players", this::writePlayers, this::readPlayers))
         files.add(this.dataFile("chat", this.minigame.chat::serialize, this.minigame.chat::deserialize))
