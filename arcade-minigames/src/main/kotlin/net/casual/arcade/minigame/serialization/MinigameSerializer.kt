@@ -61,7 +61,6 @@ internal class MinigameSerializer(
             this.load(files, contents, Stage.BeforeInitialize)
 
             this.restore(contents)
-            this.loadPostInitializationComponents(reporter, directory, files)
 
             this.load(files, contents, Stage.AfterInitialize)
             this.warnOrphanedComponents(directory, files)
@@ -125,7 +124,7 @@ internal class MinigameSerializer(
         }
     }
 
-    private fun dataFiles(minigame: SerializableMinigame): MutableList<DataFile> {
+    private fun dataFiles(minigame: SerializableMinigame): List<DataFile> {
         val files = ArrayList<DataFile>()
         files.add(this.dataFile(MINIGAME, this::writeMinigame, this::readMinigame))
         files.add(this.dataFile("tickrate", this::writeTickrate, this::readTickrate))
@@ -164,19 +163,6 @@ internal class MinigameSerializer(
             }
             check(component.type().id == id) { "MinigameComponentFactory $id created component ${component.type().id}!?" }
             this.minigame.components.add(component)
-        }
-    }
-
-    private fun loadPostInitializationComponents(
-        reporter: ProblemReporter,
-        directory: Path,
-        files: MutableList<DataFile>
-    ) {
-        val attached = files.mapTo(HashSet(), DataFile::name)
-        val late = this.componentDataFiles().filterNot { attached.contains(it.name) }
-        if (late.isNotEmpty()) {
-            this.load(late, this.read(directory, late, reporter), Stage.BeforeInitialize)
-            files.addAll(late)
         }
     }
 
