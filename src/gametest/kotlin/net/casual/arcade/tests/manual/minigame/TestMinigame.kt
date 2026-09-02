@@ -10,6 +10,7 @@ import net.casual.arcade.minigame.events.MinigameInitializeEvent
 import net.casual.arcade.minigame.phase.MinigamePhase
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
+import net.casual.arcade.minigame.serialization.SerializableMinigame
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.settings.MinigameSettings
 import net.casual.arcade.minigame.settings.display.MenuGameSettingBuilder
@@ -84,7 +85,7 @@ open class TestMinigame(
     server: MinecraftServer,
     uuid: UUID,
     private val level: ServerLevel
-): Minigame(server, uuid, TestPhase.entries) {
+): Minigame(server, uuid, TestPhase.entries), SerializableMinigame {
     override val id: Identifier get() = ID
 
     override val settings: MinigameSettings = TestSettings(this)

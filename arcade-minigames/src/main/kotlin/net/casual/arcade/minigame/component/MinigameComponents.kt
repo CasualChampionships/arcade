@@ -8,9 +8,7 @@ import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.MinigameEventListener
 import net.casual.arcade.minigame.phase.MinigamePhaseLifetime
 import net.casual.arcade.minigame.scope.MinigameScope
-import net.minecraft.world.level.storage.ValueInput
-import net.minecraft.world.level.storage.ValueOutput
-import kotlin.jvm.optionals.getOrNull
+import net.minecraft.resources.Identifier
 
 public class MinigameComponents(private val minigame: Minigame) {
     private val components = LinkedHashMap<MinigameComponentType<*>, Attached>()
@@ -66,6 +64,10 @@ public class MinigameComponents(private val minigame: Minigame) {
         return this.components.values.map(Attached::component)
     }
 
+    internal fun has(id: Identifier): Boolean {
+        return this.components.keys.any { it.id == id }
+    }
+
     internal fun initialize() {
         for (attached in ArrayList(this.components.values)) {
             attached.initialize(this.minigame)
@@ -77,25 +79,6 @@ public class MinigameComponents(private val minigame: Minigame) {
             attached.close()
         }
         this.components.clear()
-    }
-
-    internal fun serialize(output: ValueOutput) {
-        for ((type, attached) in this.components) {
-            val component = attached.component
-            if (component is SerializableComponent) {
-                component.save(output.child(type.id.toString()))
-            }
-        }
-    }
-
-    internal fun deserialize(input: ValueInput) {
-        for ((type, attached) in this.components) {
-            val component = attached.component
-            if (component is SerializableComponent) {
-                val child = input.child(type.id.toString()).getOrNull() ?: continue
-                component.load(child)
-            }
-        }
     }
 
     private class Attached(val component: MinigameComponent) {

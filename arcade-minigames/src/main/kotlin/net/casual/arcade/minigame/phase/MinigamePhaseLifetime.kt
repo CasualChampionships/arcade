@@ -85,17 +85,13 @@ public sealed interface MinigamePhaseLifetime {
     }
 
     public companion object {
-        private val FOREVER: Type = Type { MapCodec.unit(Forever) }
-        private val CURRENT: Type = Type { MapCodec.unit(Current) }
-        private val FORWARD: Type = Type { MapCodec.unit(Forward) }
-        private val UNTIL: Type = Type { phase ->
-            phase.fieldOf("phase").xmap(::Until, Until::bound)
-        }
-        private val DURING: Type = Type { phase ->
-            phase.setOf().fieldOf("phases").xmap(::During, During::phases)
-        }
+        private val FOREVER = Type { MapCodec.unit(Forever) }
+        private val CURRENT = Type { MapCodec.unit(Current) }
+        private val FORWARD = Type { MapCodec.unit(Forward) }
+        private val UNTIL = Type { phase -> phase.fieldOf("phase").xmap(::Until, Until::bound) }
+        private val DURING = Type { phase -> phase.setOf().fieldOf("phases").xmap(::During, During::phases) }
 
-        private val TYPES: ExtraCodecs.LateBoundIdMapper<String, Type> = ExtraCodecs.LateBoundIdMapper()
+        private val TYPES = ExtraCodecs.LateBoundIdMapper<String, Type>()
 
         init {
             TYPES.put("forever", FOREVER)

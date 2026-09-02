@@ -7,8 +7,11 @@ package net.casual.arcade.minigame.component
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 
-public interface SerializableComponent: MinigameComponent {
-    public fun save(output: ValueOutput)
+public interface SerializableMinigameComponent: MinigameComponent {
+    public val serializationVersion: Int
+        get() = 0
 
-    public fun load(input: ValueInput)
+    public fun serialize(output: ValueOutput)
+
+    public fun deserialize(input: ValueInput, version: Int)
 }

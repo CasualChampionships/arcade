@@ -19,8 +19,8 @@ import net.casual.arcade.minigame.managers.*
 import net.casual.arcade.minigame.phase.MinigamePhase
 import net.casual.arcade.minigame.managers.MinigamePhaseManager
 import net.casual.arcade.minigame.scope.MinigameScopes
-import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.serialization.MinigameSerializer
+import net.casual.arcade.minigame.serialization.SerializableMinigame
 import net.casual.arcade.minigame.settings.MinigameSettings
 import net.casual.arcade.minigame.utils.MinigameResources
 import net.casual.arcade.minigame.utils.MinigameResources.Companion.removeFrom
@@ -31,8 +31,6 @@ import net.casual.arcade.utils.JsonUtils
 import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.InteractionResult
-import net.minecraft.world.level.storage.ValueInput
-import net.minecraft.world.level.storage.ValueOutput
 import java.nio.file.Path
 import java.util.*
 import kotlin.enums.EnumEntries
@@ -76,7 +74,7 @@ public abstract class Minigame(
     private var closing: Boolean = false
     private var completing: Boolean = false
 
-    internal val serialization = MinigameSerializer(this)
+    internal val serializer = MinigameSerializer(this)
 
     /**
      * This handles registering and invoking events.
@@ -88,7 +86,7 @@ public abstract class Minigame(
     /**
      * This handles all custom minigame components.
      *
-     * @sample MinigameComponents
+     * @see MinigameComponents
      */
     public val components: MinigameComponents = MinigameComponents(this)
 
@@ -275,12 +273,6 @@ public abstract class Minigame(
         get() = !this.paused && this.started
 
     /**
-     * Whether the minigame is serializable.
-     */
-    public val serializable: Boolean
-        get() = this.factory() != null
-
-    /**
      * The [Identifier] of the [Minigame].
      */
     public abstract val id: Identifier
@@ -316,7 +308,7 @@ public abstract class Minigame(
             throw IllegalStateException("Cannot initialize closed minigame ${this.id}")
         }
         if (this.state is MinigameState.Created) {
-            this.initialize()
+            this.initialize(resuming = false)
         }
     }
 
@@ -405,17 +397,8 @@ public abstract class Minigame(
         Minigames.unregister(this)
     }
 
-    /**
-     * Gets the minigame's debug information as a string.
-     *
-     * @return The minigames debug information.
-     */
     override fun toString(): String {
-        val json = JsonObject()
-        for ((name, property) in this.properties) {
-            json.add(name, property.invoke())
-        }
-        return JsonUtils.GSON.toJson(json)
+        return "${this::class.java.simpleName}[id=${this.id}, uuid=${this.uuid}]"
     }
 
     /**
@@ -427,34 +410,6 @@ public abstract class Minigame(
         return Minigames.getInstancesSavePath(this.server)
             .resolve("${this.id.namespace}.${this.id.path}")
             .resolve(this.uuid.toString())
-    }
-
-    /**
-     * The [MinigameFactory] instance which is able to create
-     * instances of `this` minigame.
-     *
-     * @return The minigame factory, which may be null.
-     */
-    protected open fun factory(): MinigameFactory? {
-        return null
-    }
-
-    /**
-     * Loads custom data for this minigame.
-     *
-     * @param input Any serialized [input] which was written in [save].
-     */
-    protected open fun load(input: ValueInput) {
-
-    }
-
-    /**
-     * Saves custom data for this minigame.
-     *
-     * @param output The [ValueOutput] to write to.
-     */
-    protected open fun save(output: ValueOutput) {
-
     }
 
     /**
@@ -473,27 +428,32 @@ public abstract class Minigame(
         return this.properties.keys
     }
 
+    internal fun debug(): String {
+        val json = JsonObject()
+        for ((name, property) in this.properties) {
+            json.add(name, property.invoke())
+        }
+        return JsonUtils.GSON.toJson(json)
+    }
+
     internal fun property(name: String): JsonElement {
         return this.properties[name]?.invoke() ?: JsonNull.INSTANCE
     }
 
-    internal fun internalSave(output: ValueOutput) {
-        this.save(output)
-    }
-
-    internal fun internalLoad(input: ValueInput) {
-        this.load(input)
-    }
-
-    internal fun internalFactory(): MinigameFactory? {
-        return this.factory()
+    internal fun tryRestore() {
+        if (this.state is MinigameState.Closed) {
+            throw IllegalStateException("Cannot initialize closed minigame ${this.id}")
+        }
+        if (this.state is MinigameState.Created) {
+            this.initialize(resuming = true)
+        }
     }
 
     /**
      * This method initializes the core functionality of the
      * minigame, such as registering events.
      */
-    private fun initialize() {
+    private fun initialize(resuming: Boolean) {
         this.registerEvents()
         GlobalEventHandler.Server.addProvider(this.events)
         this.tickrate.initialize()
@@ -506,7 +466,18 @@ public abstract class Minigame(
 
         this.state = MinigameState.Ready
 
+        if (!resuming) {
+            this.broadcastInitializeEvent()
+            this.broadcastLoadEvent()
+        }
+    }
+
+    private fun broadcastInitializeEvent() {
         GlobalEventHandler.Server.broadcast(MinigameInitializeEvent(this))
+    }
+
+    internal fun broadcastLoadEvent() {
+        GlobalEventHandler.Server.broadcast(MinigameLoadEvent(this))
     }
 
     private fun registerEvents() {
@@ -558,7 +529,7 @@ public abstract class Minigame(
     private fun addDefaultProperties() {
         this.property("minigame") { this::class.java.simpleName }
         this.property("initialized") { this.initialized }
-        this.property("serializable") { this.serializable }
+        this.property("serializable") { this is SerializableMinigame }
         this.property("uuid") { this.uuid.toString() }
         this.property("id") { this.id.toString() }
         this.property("uptime") { this.uptime }

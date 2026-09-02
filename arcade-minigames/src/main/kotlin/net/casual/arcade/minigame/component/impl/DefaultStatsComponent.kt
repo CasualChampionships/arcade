@@ -10,18 +10,21 @@ import net.casual.arcade.events.server.player.PlayerDeathEvent
 import net.casual.arcade.events.server.player.PlayerHealEvent
 import net.casual.arcade.events.server.player.PlayerJoinEvent
 import net.casual.arcade.events.server.player.PlayerTickEvent
+import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.component.MinigameComponent
+import net.casual.arcade.minigame.component.MinigameComponentFactory
 import net.casual.arcade.minigame.component.MinigameComponentType
+import net.casual.arcade.minigame.component.SerializableMinigameComponent
 import net.casual.arcade.minigame.scope.MinigameScope
 import net.casual.arcade.minigame.stats.ArcadeStats
 import net.casual.arcade.minigame.stats.Stat.Companion.increment
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.player.getKillCreditWith
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 
-public object DefaultStatsComponent: MinigameComponent {
-    public val TYPE: MinigameComponentType<DefaultStatsComponent> = MinigameComponentType(arcade("default_stats"))
-
+public class DefaultStatsComponent: SerializableMinigameComponent {
     override fun initialize(scope: MinigameScope) {
         val minigame = scope.minigame
 
@@ -56,7 +59,23 @@ public object DefaultStatsComponent: MinigameComponent {
         }
     }
 
+    override fun serialize(output: ValueOutput) {
+
+    }
+
+    override fun deserialize(input: ValueInput, version: Int) {
+
+    }
+
     override fun type(): MinigameComponentType<*> {
         return TYPE
+    }
+
+    public companion object: MinigameComponentFactory {
+        public val TYPE: MinigameComponentType<DefaultStatsComponent> = MinigameComponentType(arcade("default_stats"))
+
+        override fun create(minigame: Minigame): MinigameComponent {
+            return DefaultStatsComponent()
+        }
     }
 }

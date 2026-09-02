@@ -595,7 +595,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
 
     private fun infoMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        return context.source.success(minigame.toString())
+        return context.source.success(minigame.debug())
     }
 
     private fun infoPathMinigame(context: CommandContext<CommandSourceStack>): Int {
@@ -848,7 +848,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
                 Component.translatable("minigame.command.create.fail")
             )
         }
-        val minigame = result.get().create(MinigameCreationContext.initial(context.source.server))
+        val minigame = result.get().create(MinigameCreationContext(context.source.server))
         minigame.tryInitialize()
         return context.source.success(
             Component.translatable("minigame.command.create.success", minigame.id.toString(), minigame.uuid.toString())
