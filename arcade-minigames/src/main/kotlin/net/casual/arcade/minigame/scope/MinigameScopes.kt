@@ -25,6 +25,9 @@ public class MinigameScopes internal constructor(
     private val scheduler = SimpleTickedScheduler.server()
     private val scopes = ReferenceLinkedOpenHashSet<MinigameScope>()
 
+    internal val executing: Boolean
+        get() = this.scheduler.ticking
+
     public val root: MinigameScope = this.create(MinigamePhaseLifetime.Forever)
 
     public fun create(lifetime: MinigamePhaseLifetime): MinigameScope {

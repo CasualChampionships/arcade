@@ -5,6 +5,7 @@
 package net.casual.arcade.minigame.task.routine
 
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.phase.MinigamePhase
 import net.casual.arcade.scheduler.task.routine.Routine
 import net.casual.arcade.scheduler.task.routine.RoutineScope
 
@@ -23,3 +24,7 @@ public interface MinigameRoutine<M: Minigame>: Routine<M>
  */
 public val <M: Minigame> RoutineScope<M>.minigame: M
     get() = this.owner
+
+public suspend fun RoutineScope<Minigame>.requestPhase(phase: MinigamePhase) {
+    this.step("request_phase") { this.minigame.phases.request(phase) }
+}

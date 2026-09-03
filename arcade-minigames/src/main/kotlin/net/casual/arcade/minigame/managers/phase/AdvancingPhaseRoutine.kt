@@ -27,7 +27,7 @@ internal class AdvancingPhaseRoutine(
 
     override suspend fun RoutineScope<Minigame>.run() {
         call(routine)
-        step("advance_phase") { minigame.phases.requestAdvance() }
+        step("advance_phase") { minigame.phases.tryRequestAdvance() }
     }
 
     companion object: CodecProvider<AdvancingPhaseRoutine> {

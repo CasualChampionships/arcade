@@ -18,5 +18,7 @@ object TestMinigames {
 
         TestGraceRoutine.register(TaskRegistries.ROUTINE)
         TestActiveRoutine.register(TaskRegistries.ROUTINE)
+        TestRoundRoutine.register(TaskRegistries.ROUTINE)
+        TestSettingRoutine.register(TaskRegistries.ROUTINE)
     }
 }

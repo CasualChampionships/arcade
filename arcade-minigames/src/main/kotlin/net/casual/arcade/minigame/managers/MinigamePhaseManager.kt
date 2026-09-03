@@ -13,6 +13,7 @@ import net.casual.arcade.minigame.managers.phase.AdvancingPhaseRoutine
 import net.casual.arcade.minigame.phase.MinigamePhase
 import net.casual.arcade.minigame.phase.MinigamePhaseLifetime
 import net.casual.arcade.minigame.managers.phase.MinigamePhaseRoutines
+import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import kotlin.enums.EnumEntries
 
@@ -45,6 +46,14 @@ public class MinigamePhaseManager internal constructor(
         }
         if (!this.contains(phase)) {
             throw IllegalArgumentException("Cannot set minigame '${this.minigame.id}' phase to ${phase.id}")
+        }
+
+        if (this.minigame.scopes.executing) {
+            ArcadeUtils.logger.warn(
+                "Minigame phase for '${this.minigame.id}' set to ${phase.id} from inside scope, you should use MinigameRoutine#requestPhase instead"
+            )
+            this.request(phase)
+            return
         }
 
         val previous = state.phase
@@ -80,15 +89,22 @@ public class MinigamePhaseManager internal constructor(
         this.minigame.state = MinigameState.Playing(phase)
     }
 
-    internal fun requestAdvance() {
-        val current = this.minigame.phaseOrNull ?: return
-        this.pending = this.phases.getOrNull(current.ordinal + 1)
+    internal fun request(phase: MinigamePhase) {
+        require(this.contains(phase)) { "Cannot request minigame '${this.minigame.id}' phase ${phase.id}" }
+        this.pending = phase
+    }
+
+    internal fun tryRequestAdvance() {
+        if (this.pending == null) {
+            val current = this.minigame.phaseOrNull ?: return
+            this.pending = this.phases.getOrNull(current.ordinal + 1)
+        }
     }
 
     internal fun tick() {
         val pending = this.pending ?: return
         this.pending = null
-        this.set(pending)
+        this.set(pending, force = true)
     }
 
     private fun validate(declared: EnumEntries<*>): List<MinigamePhase> {

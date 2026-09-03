@@ -7,6 +7,7 @@ package net.casual.arcade.tests.server.scheduler
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import net.casual.arcade.scheduler.task.ScheduledTask
 import net.casual.arcade.scheduler.task.routine.Routine
 import net.casual.arcade.scheduler.task.routine.RoutineScope
 import net.casual.arcade.scheduler.utils.TaskRegistries
@@ -26,6 +27,7 @@ class RoutineOwner(
     var recorded = -1
     var held = false
     var remaining = -1
+    var handle: ScheduledTask? = null
 
     fun log(entry: String) {
         this.log.add(entry)
@@ -199,6 +201,38 @@ class HoldingRoutine(
     }
 }
 
+class SelfCancellingRoutine(
+    val delay: Int
+): Routine<RoutineOwner> {
+    override fun codec(): MapCodec<out Routine<RoutineOwner>> {
+        return codec
+    }
+
+    override suspend fun RoutineScope<RoutineOwner>.run() {
+        try {
+            step("start") { owner.log("start") }
+            if (delay > 0) {
+                delay(delay.Ticks)
+            }
+            step("cancel") {
+                owner.log("cancel")
+                owner.handle?.cancel()
+            }
+            step("after") { owner.log("after") }
+            delay(5.Ticks)
+            step("resumed") { owner.log("resumed") }
+        } finally {
+            owner.log("cleanup")
+        }
+    }
+
+    companion object: CodecProvider<SelfCancellingRoutine> {
+        override val id: Identifier = arcade("self_cancelling")
+        override val codec: MapCodec<SelfCancellingRoutine> = Codec.INT.fieldOf("delay")
+            .xmap(::SelfCancellingRoutine, SelfCancellingRoutine::delay)
+    }
+}
+
 class UnregisteredRoutine: Routine<RoutineOwner> {
     override fun codec(): MapCodec<out Routine<RoutineOwner>> {
         return codec
@@ -222,5 +256,6 @@ object TestRoutines {
         OutdatedRoutine.register(TaskRegistries.ROUTINE)
         DivergingRoutine.register(TaskRegistries.ROUTINE)
         HoldingRoutine.register(TaskRegistries.ROUTINE)
+        SelfCancellingRoutine.register(TaskRegistries.ROUTINE)
     }
 }

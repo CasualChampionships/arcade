@@ -9,6 +9,7 @@ import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.minigame.task.routine.MinigameRoutine
 import net.casual.arcade.minigame.task.routine.minigame
+import net.casual.arcade.minigame.task.routine.requestPhase
 import net.casual.arcade.scheduler.task.routine.Routine
 import net.casual.arcade.scheduler.task.routine.RoutineScope
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -60,5 +61,61 @@ class TestActiveRoutine: MinigameRoutine<TestMinigame> {
     companion object: CodecProvider<TestActiveRoutine> {
         override val id: Identifier = arcade("test_active")
         override val codec: MapCodec<TestActiveRoutine> = MapCodec.unit(::TestActiveRoutine)
+    }
+}
+
+class TestRoundRoutine(
+    private val rounds: Int,
+    private val phase: TestMinigamePhase
+): MinigameRoutine<TestMinigame> {
+    override fun codec(): MapCodec<out Routine<TestMinigame>> {
+        return codec
+    }
+
+    override suspend fun RoutineScope<TestMinigame>.run() {
+        step("round") {
+            minigame.score += 1
+            minigame.record(TestMinigameStage.RoundPlayed)
+        }
+        if (minigame.score < rounds) {
+            requestPhase(phase)
+        }
+    }
+
+    companion object: CodecProvider<TestRoundRoutine> {
+        override val id: Identifier = arcade("test_round")
+        override val codec: MapCodec<TestRoundRoutine> = RecordCodecBuilder.mapCodec { instance ->
+            instance.group(
+                Codec.INT.fieldOf("rounds").forGetter(TestRoundRoutine::rounds),
+                TestMinigamePhase.CODEC.fieldOf("phase").forGetter(TestRoundRoutine::phase)
+            ).apply(instance, ::TestRoundRoutine)
+        }
+    }
+}
+
+class TestSettingRoutine(
+    private val phase: TestMinigamePhase
+): MinigameRoutine<TestMinigame> {
+    override fun codec(): MapCodec<out Routine<TestMinigame>> {
+        return codec
+    }
+
+    override suspend fun RoutineScope<TestMinigame>.run() {
+        try {
+            step(TestMinigameStage.PhaseSet.name) {
+                minigame.phases.set(phase)
+                minigame.observedPhase = minigame.phaseOrNull
+                minigame.record(TestMinigameStage.PhaseSet)
+            }
+            step(TestMinigameStage.AfterPhaseSet.name) { minigame.record(TestMinigameStage.AfterPhaseSet) }
+        } finally {
+            minigame.record(TestMinigameStage.PhaseSetReleased)
+        }
+    }
+
+    companion object: CodecProvider<TestSettingRoutine> {
+        override val id: Identifier = arcade("test_setting")
+        override val codec: MapCodec<TestSettingRoutine> = TestMinigamePhase.CODEC.fieldOf("phase")
+            .xmap(::TestSettingRoutine, TestSettingRoutine::phase)
     }
 }

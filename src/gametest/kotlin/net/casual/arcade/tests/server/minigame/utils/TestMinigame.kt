@@ -11,6 +11,7 @@ import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.managers.MinigameLevelManager.LevelOwnership
+import net.casual.arcade.minigame.phase.MinigamePhase
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.serialization.SerializableMinigame
@@ -31,6 +32,7 @@ class TestMinigame(
     val recordedStages: MutableList<TestMinigameStage> = ArrayList()
     val playersAtStage: MutableMap<TestMinigameStage, Int> = EnumMap(TestMinigameStage::class.java)
 
+    var observedPhase: MinigamePhase? = null
     var score: Int = 0
 
     init {

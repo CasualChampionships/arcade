@@ -44,7 +44,9 @@ public class SimpleTickedScheduler(
 ): TickedScheduler {
     private val tasks: Int2ObjectMap<Queue<ScheduledTaskImpl>> = Int2ObjectOpenHashMap()
     private var tickCount = 0
-    private var ticking = false
+
+    public var ticking: Boolean = false
+        private set
 
     private val scope: Lazy<CoroutineScope> = lazy {
         val handler = CoroutineExceptionHandler { _, throwable ->

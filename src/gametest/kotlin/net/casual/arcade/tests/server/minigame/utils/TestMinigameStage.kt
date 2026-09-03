@@ -9,5 +9,9 @@ enum class TestMinigameStage {
     GraceStarted,
     GraceEnded,
     GraceReleased,
-    ActiveStarted
+    ActiveStarted,
+    RoundPlayed,
+    PhaseSet,
+    AfterPhaseSet,
+    PhaseSetReleased
 }
