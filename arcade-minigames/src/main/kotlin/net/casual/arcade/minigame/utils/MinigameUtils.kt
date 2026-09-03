@@ -22,6 +22,7 @@ import net.casual.arcade.extensions.event.LevelExtensionEvent
 import net.casual.arcade.extensions.utils.getExtension
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.Listener
+import net.casual.arcade.minigame.annotation.ListenerFilter
 import net.casual.arcade.minigame.annotation.MinigameEventListener
 import net.casual.arcade.minigame.events.MinigameEvent
 import net.casual.arcade.minigame.extensions.LevelMinigameExtension
@@ -214,7 +215,7 @@ public object MinigameUtils {
         val parsed = PARSED.computeIfAbsent(declarer::class.java, ::parseListeners)
         val handles = ArrayList<EventListenerHandle>(parsed.size)
         for (listener in parsed) {
-            handles.add(minigame.events.register(listener.type, listener.flags, listener.bind(declarer)))
+            handles.add(minigame.events.register(listener.type, listener.filters, listener.bind(declarer)))
         }
         return EventListenerHandle.of(handles)
     }
@@ -288,8 +289,7 @@ public object MinigameUtils {
         private val event: Listener,
         private val handle: MethodHandle
     ) {
-        val flags: Int
-            get() = this.event.flags
+        val filters: Set<ListenerFilter> = ListenerFilter.of(*this.event.filters)
 
         fun bind(declarer: Any): EventListener<ServerSideEvent> {
             return EventListener.of(this.event.priority, this.event.phase, this.event.strategy) {

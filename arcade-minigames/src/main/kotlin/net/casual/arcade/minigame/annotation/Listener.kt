@@ -4,8 +4,8 @@
  */
 package net.casual.arcade.minigame.annotation
 
-import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.threading.ThreadingTarget
 import kotlin.reflect.KClass
 
@@ -30,7 +30,12 @@ public annotation class Listener(
     /**
      * The flags for setting the minigame event.
      */
-    val flags: Int = ListenerFlags.DEFAULT,
+    val filters: Array<ListenerFilter> = [
+        ListenerFilter.HasPlayer,
+        ListenerFilter.HasLevel,
+        ListenerFilter.InLevelBounds,
+        ListenerFilter.IsMinigame
+    ],
 
     /**
      * This is the phase of the event that this handler
@@ -43,15 +48,3 @@ public annotation class Listener(
      */
     val strategy: ThreadingTarget = ThreadingTarget.Default
 )
-
-public object ListenerFlags {
-    public const val NONE: Int = 0
-    public const val HAS_PLAYER: Int = 1 shl 1
-    public const val IS_PLAYING: Int = 1 shl 2
-    public const val IS_SPECTATOR: Int = 1 shl 3
-    public const val IS_ADMIN: Int = 1 shl 4
-    public const val HAS_LEVEL: Int = 1 shl 5
-    public const val IN_LEVEL_BOUNDS: Int = 1 shl 6
-    public const val IS_MINIGAME: Int = 1 shl 7
-    public const val DEFAULT: Int = HAS_PLAYER or IN_LEVEL_BOUNDS or HAS_LEVEL or IS_MINIGAME
-}

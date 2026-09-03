@@ -14,7 +14,7 @@ import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.threading.ThreadingStrategy
 import net.casual.arcade.events.threading.ThreadingTarget
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.annotation.ListenerFlags.DEFAULT
+import net.casual.arcade.minigame.annotation.ListenerFilter
 import net.casual.arcade.minigame.annotation.MinigameEventListener
 import net.casual.arcade.minigame.phase.MinigamePhaseLifetime
 import net.casual.arcade.minigame.utils.MinigameUtils.addEventListener
@@ -68,13 +68,13 @@ public class MinigameScope internal constructor(
 
     public fun <T: ServerSideEvent> register(
         type: Class<T>,
-        flags: Int = DEFAULT,
+        filters: Set<ListenerFilter> = ListenerFilter.default(),
         listener: EventListener<T>
     ): EventListenerHandle {
         if (this.closed) {
             return this.reject(type.simpleName, EventListenerHandle.EMPTY)
         }
-        val handle = this.minigame.events.register(type, flags, listener)
+        val handle = this.minigame.events.register(type, filters, listener)
         this.handles.add(handle)
         return handle
     }
@@ -82,11 +82,11 @@ public class MinigameScope internal constructor(
     public inline fun <reified T: ServerSideEvent> register(
         priority: Int = 1_000,
         phase: Int = BuiltInEventPhases.DEFAULT,
-        flags: Int = DEFAULT,
+        filters: Set<ListenerFilter> = ListenerFilter.default(),
         strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
     ): EventListenerHandle {
-        return this.register(T::class.java, flags, EventListener.of(priority, phase, strategy, listener))
+        return this.register(T::class.java, filters, EventListener.of(priority, phase, strategy, listener))
     }
 
     public fun addEventListener(listener: MinigameEventListener): EventListenerHandle {

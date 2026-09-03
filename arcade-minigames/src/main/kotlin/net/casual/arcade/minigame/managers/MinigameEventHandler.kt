@@ -18,14 +18,7 @@ import net.casual.arcade.events.server.player.PlayerEvent
 import net.casual.arcade.events.threading.ThreadingStrategy
 import net.casual.arcade.events.threading.ThreadingTarget
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.annotation.ListenerFlags.DEFAULT
-import net.casual.arcade.minigame.annotation.ListenerFlags.HAS_LEVEL
-import net.casual.arcade.minigame.annotation.ListenerFlags.HAS_PLAYER
-import net.casual.arcade.minigame.annotation.ListenerFlags.IN_LEVEL_BOUNDS
-import net.casual.arcade.minigame.annotation.ListenerFlags.IS_ADMIN
-import net.casual.arcade.minigame.annotation.ListenerFlags.IS_MINIGAME
-import net.casual.arcade.minigame.annotation.ListenerFlags.IS_PLAYING
-import net.casual.arcade.minigame.annotation.ListenerFlags.IS_SPECTATOR
+import net.casual.arcade.minigame.annotation.ListenerFilter
 import net.casual.arcade.minigame.events.MinigameEvent
 import java.util.*
 import java.util.function.Consumer
@@ -91,13 +84,13 @@ public class MinigameEventHandler(
      * @param listener The callback which will be invoked when the event is fired.
      */
     public inline fun <reified T: ServerSideEvent> register(
-        priority: Int,
+        priority: Int = 1_000,
         phase: Int = BuiltInEventPhases.DEFAULT,
-        flags: Int = DEFAULT,
+        filters: Set<ListenerFilter> = ListenerFilter.default(),
         strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
     ): EventListenerHandle {
-        return this.register(T::class.java, priority, phase, flags, strategy, listener)
+        return this.register(T::class.java, filters, EventListener.of(priority, phase, strategy, listener))
     }
 
     /**
@@ -115,36 +108,7 @@ public class MinigameEventHandler(
      * @param listener The callback which will be invoked when the event is fired.
      */
     override fun <T: ServerSideEvent> register(type: Class<T>, listener: EventListener<T>): EventListenerHandle {
-        return this.registerFiltered(type, listener)
-    }
-
-    /**
-     * Registers an event listener with a given priority.
-     *
-     * This allows you to register a callback to a specific event type.
-     * This callback will **only** fire when instances of the given type
-     * are fired.
-     *
-     * The priority that you register the event with determines
-     * in what order the listener will be invoked. Lower values
-     * of [priority] will result in being invoked earlier.
-     *
-     * This will filter events for the given minigame, see
-     * [MinigameEventHandler] documentation for more details.
-     *
-     * @param T The type of event.
-     * @param priority The priority of your event listener.
-     * @param listener The callback which will be invoked when the event is fired.
-     */
-    public fun <T: ServerSideEvent> register(
-        type: Class<T>,
-        priority: Int = 1_000,
-        phase: Int = BuiltInEventPhases.DEFAULT,
-        flags: Int = DEFAULT,
-        strategy: ThreadingStrategy = ThreadingTarget.Default,
-        listener: Consumer<T>
-    ): EventListenerHandle {
-        return this.register(type, flags, EventListener.of(priority, phase, strategy, listener))
+        return this.register(type, ListenerFilter.default(), listener)
     }
 
     /**
@@ -163,49 +127,31 @@ public class MinigameEventHandler(
      */
     public fun <T: ServerSideEvent> register(
         type: Class<T>,
-        flags: Int = DEFAULT,
+        filters: Set<ListenerFilter>,
         listener: EventListener<T>
-    ): EventListenerHandle {
-        return this.registerFiltered(type, listener, flags)
-    }
-
-
-    internal fun getInjectedProvider(): ListenerProvider {
-        return this.injected
-    }
-
-    internal fun clear() {
-        this.global.clear()
-        this.injected.clear()
-    }
-
-    private fun <T: ServerSideEvent> registerFiltered(
-        type: Class<T>,
-        listener: EventListener<T>,
-        flags: Int = DEFAULT
     ): EventListenerHandle {
         val predicates = LinkedList<(T) -> Boolean>()
         var registry = this.global
         if (PlayerEvent::class.java.isAssignableFrom(type)) {
-            if (this.hasFlag(flags, HAS_PLAYER)) {
+            if (filters.contains(ListenerFilter.HasPlayer)) {
                 registry = this.injected
                 predicates.add { this.minigame.players.has((it as PlayerEvent).player) }
             }
-            if (this.hasFlag(flags, IS_PLAYING)) {
+            if (filters.contains(ListenerFilter.IsPlaying)) {
                 registry = this.injected
                 predicates.add { this.minigame.players.isPlaying((it as PlayerEvent).player) }
             }
-            if (this.hasFlag(flags, IS_SPECTATOR)) {
+            if (filters.contains(ListenerFilter.IsSpectator)) {
                 registry = this.injected
                 predicates.add { this.minigame.players.isSpectating((it as PlayerEvent).player) }
             }
-            if (this.hasFlag(flags, IS_ADMIN)) {
+            if (filters.contains(ListenerFilter.IsAdmin)) {
                 registry = this.injected
                 predicates.add { this.minigame.players.isAdmin((it as PlayerEvent).player) }
             }
         }
         if (LocatedLevelEvent::class.java.isAssignableFrom(type)) {
-            if (this.hasFlag(flags, IN_LEVEL_BOUNDS)) {
+            if (filters.contains(ListenerFilter.InLevelBounds)) {
                 registry = this.injected
                 predicates.add {
                     val casted = it as LocatedLevelEvent
@@ -214,13 +160,13 @@ public class MinigameEventHandler(
             }
         }
         if (LevelEvent::class.java.isAssignableFrom(type)) {
-            if (this.hasFlag(flags, HAS_LEVEL)) {
+            if (filters.contains(ListenerFilter.HasLevel)) {
                 registry = this.injected
                 predicates.add { this.minigame.levels.has((it as LevelEvent).level) }
             }
         }
         if (MinigameEvent::class.java.isAssignableFrom(type)) {
-            if (this.hasFlag(flags, IS_MINIGAME)) {
+            if (filters.contains(ListenerFilter.IsMinigame)) {
                 registry = this.injected
                 predicates.add { this.minigame === (it as MinigameEvent).minigame }
             }
@@ -235,7 +181,12 @@ public class MinigameEventHandler(
         })
     }
 
-    private fun hasFlag(flags: Int, flag: Int): Boolean {
-        return (flags and flag) == flag
+    internal fun getInjectedProvider(): ListenerProvider {
+        return this.injected
+    }
+
+    internal fun clear() {
+        this.global.clear()
+        this.injected.clear()
     }
 }
