@@ -622,7 +622,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val setting = MinigameSettingArgument.getSetting(context, "setting", minigame)
         val option = MinigameSettingsOptionArgument.getSettingsOption(context, "option")
-        val value = setting.getOption(option) ?: throw INVALID_SETTING_OPTION.create()
+        val value = setting.option(option)?.value ?: throw INVALID_SETTING_OPTION.create()
         setting.setFromOption(option)
         return context.source.success(
             Component.translatable("minigame.command.setting.set.option", setting.name, option, value.toString())
@@ -635,7 +635,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
         val value = MinigameSettingValueArgument.getSettingsValue(context, "value")
 
         fun <T: Any> parseAndSet(setting: GameSetting<T>, encoded: JsonElement) {
-            val result = setting.codec().parse(JsonOps.INSTANCE, encoded).result().getOrNull() ?: return
+            val result = setting.type.codec.parse(JsonOps.INSTANCE, encoded).result().getOrNull() ?: return
             setting.set(result)
         }
 

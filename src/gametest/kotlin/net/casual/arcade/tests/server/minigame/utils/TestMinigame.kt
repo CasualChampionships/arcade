@@ -32,6 +32,8 @@ class TestMinigame(
     val recordedStages: MutableList<TestMinigameStage> = ArrayList()
     val playersAtStage: MutableMap<TestMinigameStage, Int> = EnumMap(TestMinigameStage::class.java)
 
+    override val settings: TestMinigameSettings = TestMinigameSettings(this)
+
     var observedPhase: MinigamePhase? = null
     var score: Int = 0
 

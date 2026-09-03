@@ -2,11 +2,11 @@
  * Copyright (c) 2026 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.minigame.settings.display
+package net.casual.arcade.minigame.settings
 
 import net.casual.arcade.guis.core.container.ContainerGui
 import net.casual.arcade.guis.utils.ContainerType
-import net.casual.arcade.guis.utils.SlotClickAction
+import net.casual.arcade.minigame.utils.addSettingDisplay
 import net.casual.arcade.utils.ItemUtils.named
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
@@ -15,9 +15,9 @@ import net.minecraft.world.item.Items
 
 internal class SettingsGui(
     player: ServerPlayer,
-    private val settings: DisplayableSettings
+    private val settings: GameSettings
 ): ContainerGui(player, ContainerType.Generic9x6, false) {
-    private val displays = this.settings.displays().toList()
+    private val displays = this.settings.displayable()
 
     private var page = 0
 
@@ -42,12 +42,7 @@ internal class SettingsGui(
                 this.clearSlot(slot)
                 continue
             }
-            this.setSlot(slot, setting.displayWithLore()) { action ->
-                if (action.isMouse && action != SlotClickAction.MouseDoubleClick) {
-                    setting.cycle(if (action.isRight) -1 else 1)
-                    this.loadPage()
-                }
-            }
+            this.addSettingDisplay(slot, setting)
         }
         this.loadPageControls()
     }

@@ -15,7 +15,7 @@ import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.serialization.SerializableMinigame
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.settings.MinigameSettings
-import net.casual.arcade.minigame.settings.display.MenuGameSettingBuilder
+import net.casual.arcade.minigame.settings.GameSettingBuilder
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.pack.font.spacing.SpacingFontResources
 import net.casual.arcade.pack.utils.spaced
@@ -58,7 +58,7 @@ class TestSettings(minigame: Minigame) : MinigameSettings(minigame) {
 //        defaults.options(this, TestPhase::class.java)
 //    })
 
-    val testString: GameSetting<String> = this.register(MenuGameSettingBuilder.string {
+    val testString: GameSetting<String> = this.register(GameSettingBuilder.string {
         name = "test_string"
         display = Items.NAME_TAG.named("Test String")
         value = "test"
@@ -67,13 +67,13 @@ class TestSettings(minigame: Minigame) : MinigameSettings(minigame) {
         option("third", Component.literal("Third"), "third")
     })
 
-    val testFloat: GameSetting<Float> = this.register(MenuGameSettingBuilder.float32 {
+    val testFloat: GameSetting<Float> = this.register(GameSettingBuilder.float32 {
         name = "test_float"
         display = Items.CLOCK.named("Test Float")
         value = 64.0F
     })
 
-    val testInt: GameSetting<Int> = this.register(MenuGameSettingBuilder.int32 {
+    val testInt: GameSetting<Int> = this.register(GameSettingBuilder.int32 {
         name = "test_int"
         display = Items.REPEATER.named("Test Int")
         value = 64

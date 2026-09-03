@@ -458,6 +458,7 @@ public abstract class Minigame(
         GlobalEventHandler.Server.addProvider(this.events)
         this.tickrate.initialize()
         this.levels.initialize()
+        this.settings.initialize()
         MinigameUtils.parseMinigameEvents(this)
 
         this.components.initialize()

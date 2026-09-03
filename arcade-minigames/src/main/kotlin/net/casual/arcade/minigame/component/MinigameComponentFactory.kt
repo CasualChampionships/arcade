@@ -5,6 +5,7 @@
 package net.casual.arcade.minigame.component
 
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.component.impl.DefaultStatsComponent
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.minecraft.core.Registry
 
@@ -20,7 +21,7 @@ public fun interface MinigameComponentFactory {
         }
 
         internal fun bootstrap(registry: Registry<MinigameComponentFactory>) {
-
+            Registry.register(registry, DefaultStatsComponent.TYPE.id, DefaultStatsComponent)
         }
     }
 }

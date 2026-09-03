@@ -28,7 +28,7 @@ public class MinigameSettingsOptionArgument(
     ): CompletableFuture<Suggestions> {
         val minigame = MinigameArgument.getMinigame(context, this.minigameKey)
         val setting = MinigameSettingArgument.getSetting(context, this.settingsNameKey, minigame)
-        return SharedSuggestionProvider.suggest(setting.getOptions().keys, builder)
+        return SharedSuggestionProvider.suggest(setting.options.map { it.id }, builder)
     }
 
     public companion object {
