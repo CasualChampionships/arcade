@@ -1,0 +1,13 @@
+/*
+ * Copyright (c) 2026 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
+package net.casual.arcade.tests.server.minigame.utils
+
+enum class TestMinigameStage {
+    GraceHeld,
+    GraceStarted,
+    GraceEnded,
+    GraceReleased,
+    ActiveStarted
+}

@@ -6,6 +6,7 @@ package net.casual.arcade.minigame.phase
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
+import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.utils.serialization.codec.setOf
 import net.minecraft.util.ExtraCodecs
 
@@ -74,9 +75,19 @@ public sealed interface MinigamePhaseLifetime {
         override fun survives(previous: MinigamePhase, next: MinigamePhase): Boolean {
             return this.phases.contains(next)
         }
-
         override fun type(): Type {
             return DURING
+        }
+
+    }
+
+    public data class Between(public val lower: MinigamePhase, public val upper: MinigamePhase): MinigamePhaseLifetime {
+        override fun survives(previous: MinigamePhase, next: MinigamePhase): Boolean {
+            return this.lower < next && next < this.upper
+        }
+
+        override fun type(): Type {
+            return BETWEEN
         }
     }
 
@@ -90,6 +101,14 @@ public sealed interface MinigamePhaseLifetime {
         private val FORWARD = Type { MapCodec.unit(Forward) }
         private val UNTIL = Type { phase -> phase.fieldOf("phase").xmap(::Until, Until::bound) }
         private val DURING = Type { phase -> phase.setOf().fieldOf("phases").xmap(::During, During::phases) }
+        private val BETWEEN = Type { phase ->
+            RecordCodecBuilder.mapCodec<Between> { instance ->
+                instance.group(
+                    phase.fieldOf("lower").forGetter(Between::lower),
+                    phase.fieldOf("upper").forGetter(Between::upper)
+                ).apply(instance, ::Between)
+            }
+        }
 
         private val TYPES = ExtraCodecs.LateBoundIdMapper<String, Type>()
 
@@ -99,6 +118,7 @@ public sealed interface MinigamePhaseLifetime {
             TYPES.put("forward", FORWARD)
             TYPES.put("until", UNTIL)
             TYPES.put("during", DURING)
+            TYPES.put("between", BETWEEN)
         }
 
         public fun codec(phase: Codec<MinigamePhase>): Codec<MinigamePhaseLifetime> {

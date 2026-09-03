@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.minigame.serialization
 
+import kotlinx.coroutines.Job
 import net.casual.arcade.minigame.Minigame
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
@@ -25,6 +26,6 @@ public interface SerializableMinigame {
     }
 }
 
-public fun <M> M.save() where M: Minigame, M: SerializableMinigame {
-    this.serializer.saveTo(this, this.getSavePath())
+public fun <M> M.save(): Job where M: Minigame, M: SerializableMinigame {
+    return this.serializer.saveTo(this, this.getSavePath())
 }

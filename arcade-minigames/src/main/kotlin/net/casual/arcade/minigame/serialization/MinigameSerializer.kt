@@ -10,6 +10,7 @@ import com.mojang.serialization.Codec
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.job
 import kotlinx.coroutines.joinAll
@@ -33,7 +34,6 @@ import net.minecraft.server.players.NameAndId
 import net.minecraft.util.ProblemReporter
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
-import org.jetbrains.annotations.ApiStatus.Internal
 import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
@@ -81,7 +81,7 @@ internal class MinigameSerializer(
         }
     }
 
-    internal fun saveTo(minigame: SerializableMinigame, path: Path) {
+    internal fun saveTo(minigame: SerializableMinigame, path: Path): Job {
         if (this.minigame.closed) {
             throw MinigameSerializationException("Cannot save minigame ${this.minigame.id}, it is closed")
         }
@@ -105,7 +105,7 @@ internal class MinigameSerializer(
         }
 
         val directory = directory(path)
-        this.submit {
+        return this.submit {
             try {
                 this.write(directory, encoded)
             } catch (e: Exception) {
@@ -114,8 +114,8 @@ internal class MinigameSerializer(
         }
     }
 
-    internal fun submit(action: () -> Unit) {
-        scope.launch(this.dispatcher + this.handler) {
+    internal fun submit(action: () -> Unit): Job {
+        return scope.launch(this.dispatcher + this.handler) {
             action.invoke()
         }
     }
