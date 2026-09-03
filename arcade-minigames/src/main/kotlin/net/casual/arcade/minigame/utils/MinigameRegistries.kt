@@ -6,7 +6,7 @@ package net.casual.arcade.minigame.utils
 
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.minigame.component.MinigameComponentFactory
-import net.casual.arcade.minigame.data.MinigameDataModule
+import net.casual.arcade.minigame.data.MinigameData
 import net.casual.arcade.minigame.managers.chat.MinigameChatMode
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.stats.ArcadeStats
@@ -25,7 +25,7 @@ public object MinigameRegistryKeys: RegistryKeySupplier(ArcadeUtils.MOD_ID) {
     public val MINIGAME_CHAT_MODE: ResourceKey<Registry<MapCodec<out MinigameChatMode>>> = create("minigame_chat_mode")
     public val MINIGAME_FACTORY: ResourceKey<Registry<MapCodec<out MinigameFactory>>> = create("minigame_factory")
     public val MINIGAME_COMPONENT_FACTORY: ResourceKey<Registry<MinigameComponentFactory>> = create("minigame_component")
-    public val MINIGAME_DATA_MODULE_PROVIDER: ResourceKey<Registry<MinigameDataModule.Provider>> = create("minigame_data_module_provider")
+    public val MINIGAME_DATA_PROVIDER: ResourceKey<Registry<MinigameData.Provider<*>>> = create("minigame_data_provider")
     public val STAT_TYPES: ResourceKey<Registry<StatType<*>>> = create("stat_types")
 }
 
@@ -35,6 +35,6 @@ public object MinigameRegistries: RegistrySupplier() {
     public val MINIGAME_CHAT_MODES: Registry<MapCodec<out MinigameChatMode>> = create(MinigameRegistryKeys.MINIGAME_CHAT_MODE, MinigameChatMode::bootstrap)
     public val MINIGAME_FACTORY: Registry<MapCodec<out MinigameFactory>> = create(MinigameRegistryKeys.MINIGAME_FACTORY, MinigameFactory::bootstrap)
     public val MINIGAME_COMPONENT_FACTORY: Registry<MinigameComponentFactory> = create(MinigameRegistryKeys.MINIGAME_COMPONENT_FACTORY, MinigameComponentFactory::bootstrap)
-    public val MINIGAME_DATA_MODULE_PROVIDER: Registry<MinigameDataModule.Provider> = create(MinigameRegistryKeys.MINIGAME_DATA_MODULE_PROVIDER, MinigameDataModule.Provider::bootstrap)
+    public val MINIGAME_DATA_PROVIDER: Registry<MinigameData.Provider<*>> = create(MinigameRegistryKeys.MINIGAME_DATA_PROVIDER, MinigameData.Provider.Companion::bootstrap)
     public val STAT_TYPES: Registry<StatType<*>> = create(MinigameRegistryKeys.STAT_TYPES) { ArcadeStats.load() }
 }
