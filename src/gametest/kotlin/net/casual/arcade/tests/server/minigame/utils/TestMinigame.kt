@@ -68,7 +68,7 @@ class TestMinigame(
     }
 
     companion object: MinigameFactory {
-        val ID: Identifier = arcade("test_minigame")
+        val ID: Identifier = arcade("auto_test_minigame")
         val LEVEL: Identifier = arcade("test_level")
 
         private val CODEC = MapCodec.unit(this)
