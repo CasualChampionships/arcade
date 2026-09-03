@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.minigame.managers
 
+import net.minecraft.world.level.storage.ValueOutput
 import com.mojang.serialization.Codec
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.minigame.Minigame
@@ -69,6 +70,11 @@ public class MinigamePhaseManager internal constructor(
 
     override fun iterator(): Iterator<MinigamePhase> {
         return this.all().iterator()
+    }
+
+    internal fun debug(output: ValueOutput) {
+        output.store("all", this.codec.listOf(), this.all())
+        output.storeNullable("current", this.codec, this.minigame.phaseOrNull)
     }
 
     internal fun first(): MinigamePhase {

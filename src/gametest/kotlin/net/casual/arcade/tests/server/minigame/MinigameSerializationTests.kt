@@ -7,6 +7,8 @@ package net.casual.arcade.tests.server.minigame
 import net.casual.arcade.dimensions.level.CustomLevel
 import net.casual.arcade.dimensions.utils.deleteCustomLevel
 import net.casual.arcade.gametest.TestContext
+import net.casual.arcade.gametest.minigame.copySave
+import net.casual.arcade.gametest.minigame.track
 import net.casual.arcade.gametest.minigame.reload
 import net.casual.arcade.minigame.MinigameState
 import net.casual.arcade.minigame.Minigames
@@ -147,7 +149,7 @@ object MinigameSerializationTests: ArcadeTestSuite() {
 
     @GameTest
     fun `minigame saves happen in order`(context: TestContext) = context.test {
-        val minigame = minigame().score(1).start()
+        val minigame = minigame().withoutPhaseRoutines().score(1).start()
 
         val first = minigame.save()
         minigame.score = 2
@@ -155,7 +157,11 @@ object MinigameSerializationTests: ArcadeTestSuite() {
         first.join()
         second.join()
 
-        val restored = reload(minigame)
+        val copy = copySave(minigame)
+        minigame.close()
+
+        val restored = Minigames.read(copy, server) as TestMinigame
+        track(restored)
         assertEquals(2, restored.score, "An earlier write overwrote a later one")
     }
 }

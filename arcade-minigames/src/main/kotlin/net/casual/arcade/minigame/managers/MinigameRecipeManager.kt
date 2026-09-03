@@ -19,6 +19,7 @@ import net.minecraft.core.UUIDUtil
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.protocol.game.ClientboundRecipeBookAddPacket
 import net.minecraft.network.protocol.game.ClientboundRecipeBookRemovePacket
+import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
@@ -261,6 +262,10 @@ public class MinigameRecipeManager(
         return this.all(type).stream()
             .filter { holder -> holder.value.matches(input, level) }
             .findFirst()
+    }
+
+    internal fun debug(output: ValueOutput) {
+        output.store("all", Identifier.CODEC.listOf(), this.all().map { it.id.identifier() })
     }
 
     internal fun serialize(list: ValueOutput.ValueOutputList) {

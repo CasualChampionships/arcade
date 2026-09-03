@@ -4,15 +4,10 @@
  */
 package net.casual.arcade.minigame
 
-import com.google.gson.JsonElement
-import com.google.gson.JsonNull
-import com.google.gson.JsonObject
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerStopEvent
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.events.server.player.*
-import net.casual.arcade.events.utils.register
 import net.casual.arcade.minigame.component.MinigameComponents
 import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.managers.*
@@ -27,10 +22,10 @@ import net.casual.arcade.minigame.utils.MinigameResources.Companion.removeFrom
 import net.casual.arcade.minigame.utils.MinigameResources.Companion.sendTo
 import net.casual.arcade.minigame.utils.MinigameUtils
 import net.casual.arcade.scheduler.TickedScheduler
-import net.casual.arcade.utils.JsonUtils
 import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.InteractionResult
+import net.minecraft.world.level.storage.ValueOutput
 import java.nio.file.Path
 import java.util.*
 import kotlin.enums.EnumEntries
@@ -73,8 +68,6 @@ public abstract class Minigame(
      */
     phases: EnumEntries<*>
 ) {
-    private val properties = Object2ObjectLinkedOpenHashMap<String, () -> JsonElement>()
-
     private var closing: Boolean = false
     private var completing: Boolean = false
 
@@ -276,10 +269,6 @@ public abstract class Minigame(
     public val ticking: Boolean
         get() = !this.paused && this.started
 
-    init {
-        this.addDefaultProperties()
-    }
-
     /**
      * Starts the minigame.
      */
@@ -411,32 +400,26 @@ public abstract class Minigame(
             .resolve(this.uuid.toString())
     }
 
-    /**
-     * Sets a property for this minigame with a given [name].
-     *
-     * Used for debugging and inspecting this minigame.
-     *
-     * @param name The name of the property.
-     * @param getter The property getter.
-     */
-    protected fun property(name: String, getter: () -> Any?) {
-        this.properties[name] = { JsonUtils.encodeRaw(getter.invoke()) }
-    }
+    public open fun debug(output: ValueOutput) {
+        output.putString("type", this::class.java.simpleName)
+        output.putString("id", this.id.toString())
+        output.putString("uuid", this.uuid.toString())
+        output.putInt("uptime", this.uptime)
+        output.putBoolean("initialized", this.initialized)
+        output.putBoolean("serializable", this is SerializableMinigame)
+        output.putBoolean("ticking", this.ticking)
+        output.putBoolean("paused", this.paused)
+        output.putString("state", this.state.toString())
 
-    internal fun properties(): Collection<String> {
-        return this.properties.keys
-    }
-
-    internal fun debug(): String {
-        val json = JsonObject()
-        for ((name, property) in this.properties) {
-            json.add(name, property.invoke())
-        }
-        return JsonUtils.GSON.toJson(json)
-    }
-
-    internal fun property(name: String): JsonElement {
-        return this.properties[name]?.invoke() ?: JsonNull.INSTANCE
+        this.players.debug(output.child("players"))
+        this.teams.debug(output.child("teams"))
+        this.chat.debug(output.child("chat"))
+        this.phases.debug(output.child("phases"))
+        this.levels.debug(output.child("levels"))
+        this.settings.debug(output.child("settings"))
+        this.advancements.debug(output.child("advancements"))
+        this.recipes.debug(output.child("recipes"))
+        this.commands.debug(output.child("commands"))
     }
 
     internal fun tryRestore() {
@@ -524,32 +507,5 @@ public abstract class Minigame(
         if (this.settings.pauseOnServerStop && !this.paused && this.started) {
             this.pause()
         }
-    }
-
-    private fun addDefaultProperties() {
-        this.property("minigame") { this::class.java.simpleName }
-        this.property("initialized") { this.initialized }
-        this.property("serializable") { this is SerializableMinigame }
-        this.property("uuid") { this.uuid.toString() }
-        this.property("id") { this.id.toString() }
-        this.property("uptime") { this.uptime }
-        this.property("players") { this.players.all.map { it.scoreboardName } }
-        this.property("offline_players") { this.players.offlineProfiles.associate { it.name to it.id.toString() } }
-        this.property("admins") { this.players.admins.map { it.scoreboardName } }
-        this.property("spectating") { this.players.spectating.map { it.scoreboardName } }
-        this.property("teams") { this.teams.getAllTeams().map { it.name } }
-        this.property("spies") { this.chat.spies.map { it.toString() } }
-        this.property("playing_teams") { this.teams.getPlayingTeams().map { it.name } }
-        this.property("eliminated_teams") { this.teams.getEliminatedTeams().map { it.name } }
-        this.property("levels") { this.levels.all().map { it.dimension().identifier().toString() } }
-        this.property("phases") { this.phases.all().map { it.id } }
-        this.property("phase") { this.phaseOrNull?.id }
-        this.property("state") { this.state.toString() }
-        this.property("ticking") { this.ticking }
-        this.property("paused") { this.paused }
-        this.property("settings") { this.settings.all().associate { it.name to it.get().toString() } }
-        this.property("advancements") { this.advancements.all().map { it.id.toString() } }
-        this.property("recipes") { this.recipes.all().map { it.id.toString() } }
-        this.property("commands") { this.commands.getAllRootCommands().map { it } }
     }
 }

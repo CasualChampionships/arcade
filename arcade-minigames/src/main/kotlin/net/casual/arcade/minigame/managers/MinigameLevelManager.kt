@@ -224,6 +224,10 @@ public class MinigameLevelManager(
         this.entries.clear()
     }
 
+    internal fun debug(output: ValueOutput) {
+        output.store("all", Identifier.CODEC.listOf(), this.all().map { it.dimension().identifier() })
+    }
+
     internal fun serialize(output: ValueOutput) {
         val list = output.childrenList("levels")
         for (entry in this.levels.values) {

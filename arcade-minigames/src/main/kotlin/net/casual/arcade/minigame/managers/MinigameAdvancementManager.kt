@@ -177,6 +177,10 @@ public class MinigameAdvancementManager(
         )
     }
 
+    internal fun debug(output: ValueOutput) {
+        output.store("all", Identifier.CODEC.listOf(), this.all().map(AdvancementHolder::id))
+    }
+
     internal fun serialize(list: ValueOutput.ValueOutputList) {
         for ((player, advancements) in this.players.asMap()) {
             val output = list.addChild()

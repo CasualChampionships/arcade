@@ -60,6 +60,12 @@ public open class GameSettings(public val title: Component) {
         }
     }
 
+    internal fun debug(output: ValueOutput) {
+        for (setting in this.all()) {
+            output.putString(setting.name, setting.get().toString())
+        }
+    }
+
     internal fun initialize() {
         for (setting in this.all()) {
             setting.apply()

@@ -426,6 +426,10 @@ public class MinigameChatManager(
         return this.globalChatFormatter.format(player, message)
     }
 
+    internal fun debug(output: ValueOutput) {
+        output.store("spies", UUIDUtil.STRING_CODEC.setOf(), this.spies)
+    }
+
     internal fun serialize(output: ValueOutput) {
         output.store("spies", UUIDUtil.STRING_CODEC.setOf(), this.spies)
 

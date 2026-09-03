@@ -207,6 +207,12 @@ public class MinigameTeamManager(
         }
     }
 
+    internal fun debug(output: ValueOutput) {
+        output.store("all", Codec.STRING.listOf(), this.getAllTeams().map { it.name })
+        output.store("playing", Codec.STRING.listOf(), this.getPlayingTeams().map { it.name })
+        output.store("eliminated", Codec.STRING.listOf(), this.eliminated.map { it.name })
+    }
+
     internal fun serialize(output: ValueOutput) {
         val admins = this.admins?.name
         if (admins != null) {

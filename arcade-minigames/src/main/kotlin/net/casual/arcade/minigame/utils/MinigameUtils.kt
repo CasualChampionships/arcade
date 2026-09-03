@@ -4,6 +4,9 @@
  */
 package net.casual.arcade.minigame.utils
 
+import net.casual.arcade.utils.ArcadeUtils
+import net.minecraft.world.level.storage.TagValueOutput
+import net.minecraft.nbt.CompoundTag
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
@@ -208,6 +211,14 @@ public object MinigameUtils {
                     this.minigame.players.admins
                 )
             }
+        }
+    }
+
+    internal fun Minigame.getDebugTag(): CompoundTag {
+        return ArcadeUtils.scopedProblemReporter { reporter ->
+            val output = TagValueOutput.createWithContext(reporter, this.server.registryAccess())
+            this.debug(output)
+            output.buildResult()
         }
     }
 

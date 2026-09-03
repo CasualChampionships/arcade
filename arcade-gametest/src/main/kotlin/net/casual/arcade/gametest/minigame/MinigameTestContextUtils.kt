@@ -41,17 +41,19 @@ public suspend fun <M> TestContext.reload(minigame: M): M where M: Minigame, M: 
 }
 
 @OptIn(ExperimentalPathApi::class)
-private suspend fun <M> TestContext.saveCopy(minigame: M): Path where M: Minigame, M: SerializableMinigame {
-    val path = minigame.getSavePath()
-    minigame.save().join()
-
+public fun TestContext.copySave(minigame: Minigame): Path {
     val copy = this.server.getWorldPath(LevelResource.ROOT)
         .resolve("gametest-minigames")
         .resolve("instances")
         .resolve(UUID.randomUUID().toString())
     copy.createParentDirectories()
-    path.copyToRecursively(copy, followLinks = false)
+    minigame.getSavePath().copyToRecursively(copy, followLinks = false)
 
     this.track(AutoCloseable(copy::deleteRecursively))
     return copy
+}
+
+private suspend fun <M> TestContext.saveCopy(minigame: M): Path where M: Minigame, M: SerializableMinigame {
+    minigame.save().join()
+    return this.copySave(minigame)
 }
