@@ -17,6 +17,7 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.MinigameState
 import net.casual.arcade.minigame.component.SerializableMinigameComponent
 import net.casual.arcade.minigame.exception.MinigameCreationException
@@ -114,6 +115,9 @@ internal class MinigameSerializer(
         }
     }
 
+    // We need to guarantee that writes happen in order
+    // the [action] must not be suspending otherwise another
+    // write could start before the previous one finishes
     internal fun submit(action: () -> Unit): Job {
         return scope.launch(this.dispatcher + this.handler) {
             action.invoke()
@@ -427,6 +431,12 @@ internal class MinigameSerializer(
                         MinigameCreationException("Failed to decode minigame factory")
                     }
                     val uuid = input.read("uuid", UUIDUtil.STRING_CODEC).orElseThrow()
+                    val existing = Minigames.get(uuid)
+                    if (existing != null) {
+                        throw MinigameCreationException(
+                            "Cannot create minigame for $path, $existing is already loaded with the same uuid"
+                        )
+                    }
                     val minigame = factory.create(MinigameCreationContext(server, uuid))
                     if (minigame !is SerializableMinigame) {
                         throw MinigameCreationException(

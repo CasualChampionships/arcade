@@ -74,7 +74,7 @@ public class TestMinigameBuilder<M: Minigame> internal constructor(
         for (configuration in this.configurations) {
             configuration.invoke(minigame)
         }
-        this.context.track(AutoCloseable(minigame::close))
+        this.context.track(minigame)
         return minigame
     }
 

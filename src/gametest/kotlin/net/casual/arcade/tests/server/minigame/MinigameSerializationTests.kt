@@ -7,20 +7,15 @@ package net.casual.arcade.tests.server.minigame
 import net.casual.arcade.dimensions.level.CustomLevel
 import net.casual.arcade.dimensions.utils.deleteCustomLevel
 import net.casual.arcade.gametest.TestContext
-import net.casual.arcade.minigame.MinigameState
-import net.casual.arcade.minigame.managers.MinigameLevelManager.LevelOwnership
-import net.casual.arcade.tests.server.ArcadeTestSuite
-import net.casual.arcade.tests.server.minigame.utils.TestMinigame
-import net.casual.arcade.tests.server.minigame.utils.TestMinigamePhase
-import net.casual.arcade.tests.server.minigame.utils.TestMinigameStage
-import net.casual.arcade.tests.server.minigame.utils.TestMinigameStage.GraceEnded
-import net.casual.arcade.tests.server.minigame.utils.TestMinigameStage.GraceHeld
-import net.casual.arcade.tests.server.minigame.utils.TestMinigameStage.GraceStarted
-import net.casual.arcade.tests.server.minigame.utils.TestScoreComponent
-import net.casual.arcade.tests.server.minigame.utils.withLevel
-import net.casual.arcade.tests.server.minigame.utils.minigame
-import net.casual.arcade.tests.server.minigame.utils.score
 import net.casual.arcade.gametest.minigame.reload
+import net.casual.arcade.minigame.MinigameState
+import net.casual.arcade.minigame.Minigames
+import net.casual.arcade.minigame.exception.MinigameCreationException
+import net.casual.arcade.minigame.managers.MinigameLevelManager.LevelOwnership
+import net.casual.arcade.minigame.serialization.save
+import net.casual.arcade.tests.server.ArcadeTestSuite
+import net.casual.arcade.tests.server.minigame.utils.*
+import net.casual.arcade.tests.server.minigame.utils.TestMinigameStage.*
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
@@ -137,5 +132,30 @@ object MinigameSerializationTests: ArcadeTestSuite() {
 
         restored.close()
         server.deleteCustomLevel(level as CustomLevel)
+    }
+
+    @GameTest
+    fun `minigame cannot be loaded twice`(context: TestContext) = context.test {
+        val minigame = minigame().start()
+        minigame.save().join()
+
+        assertThrows<MinigameCreationException>("Reading a live minigame's save worked") {
+            Minigames.read(minigame.getSavePath(), server)
+        }
+        assertEquals(minigame, Minigames.get(minigame.uuid), "The live minigame was displaced by the read")
+    }
+
+    @GameTest
+    fun `minigame saves happen in order`(context: TestContext) = context.test {
+        val minigame = minigame().score(1).start()
+
+        val first = minigame.save()
+        minigame.score = 2
+        val second = minigame.save()
+        first.join()
+        second.join()
+
+        val restored = reload(minigame)
+        assertEquals(2, restored.score, "An earlier write overwrote a later one")
     }
 }
