@@ -86,9 +86,7 @@ class TestSettings(minigame: Minigame) : MinigameSettings(minigame) {
 open class TestMinigame(
     server: MinecraftServer,
     uuid: UUID
-): Minigame(server, uuid, TestPhase.entries), SerializableMinigame {
-    override val id: Identifier get() = ID
-
+): Minigame(server, uuid, ID, TestPhase.entries), SerializableMinigame {
     override val settings: MinigameSettings = TestSettings(this)
 
     private val level: ServerLevel

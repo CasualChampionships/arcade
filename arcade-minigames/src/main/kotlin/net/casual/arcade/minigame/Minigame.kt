@@ -65,6 +65,10 @@ public abstract class Minigame(
      */
     public val uuid: UUID,
     /**
+     * The [Identifier] of the [Minigame].
+     */
+    public val id: Identifier,
+    /**
      * The phases for this minigame.
      */
     phases: EnumEntries<*>
@@ -271,11 +275,6 @@ public abstract class Minigame(
      */
     public val ticking: Boolean
         get() = !this.paused && this.started
-
-    /**
-     * The [Identifier] of the [Minigame].
-     */
-    public abstract val id: Identifier
 
     init {
         this.addDefaultProperties()

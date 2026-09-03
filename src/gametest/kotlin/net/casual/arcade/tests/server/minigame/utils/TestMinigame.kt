@@ -26,9 +26,7 @@ import java.util.*
 class TestMinigame(
     server: MinecraftServer,
     uuid: UUID
-): Minigame(server, uuid, TestMinigamePhase.entries), SerializableMinigame {
-    override val id: Identifier get() = ID
-
+): Minigame(server, uuid, ID, TestMinigamePhase.entries), SerializableMinigame {
     val recordedStages: MutableList<TestMinigameStage> = ArrayList()
     val playersAtStage: MutableMap<TestMinigameStage, Int> = EnumMap(TestMinigameStage::class.java)
 
