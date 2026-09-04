@@ -14,10 +14,16 @@ import net.casual.arcade.minigame.managers.phase.AdvancingPhaseRoutine
 import net.casual.arcade.minigame.phase.MinigamePhase
 import net.casual.arcade.minigame.phase.MinigamePhaseLifetime
 import net.casual.arcade.minigame.managers.phase.MinigamePhaseRoutines
+import net.casual.arcade.minigame.routine.requestPhase
+import net.casual.arcade.scheduler.task.routine.Routine
+import net.casual.arcade.scheduler.task.routine.RoutineScope
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import kotlin.enums.EnumEntries
 
+/**
+ * This class manages phases for the given [minigame].
+ */
 public class MinigamePhaseManager internal constructor(
     private val minigame: Minigame,
     declared: EnumEntries<*>
@@ -25,18 +31,57 @@ public class MinigamePhaseManager internal constructor(
     private val phases: List<MinigamePhase> = this.validate(declared)
     internal var pending: MinigamePhase? = null
 
+    /**
+     * Stores the [Routine]s associated to each phase.
+     *
+     * @see MinigamePhaseRoutines
+     */
     public val routines: MinigamePhaseRoutines = MinigamePhaseRoutines(this, this.minigame)
 
+    /**
+     * The codec for the [minigame]'s phases.
+     */
     public val codec: Codec<MinigamePhase> = Codec.stringResolver(MinigamePhase::id, this::get)
 
+    /**
+     * Gets one of the [minigame]'s phases by [id].
+     *
+     * @param id The id of the phase to get.
+     * @return The [MinigamePhase] with that id, `null` if none exist.
+     */
     public fun get(id: String): MinigamePhase? {
         return this.phases.find { it.id == id }
     }
 
+    /**
+     * Whether the given [phase] is part of the [minigame].
+     *
+     * @param phase The phase to check.
+     * @return Whether the phase exists.
+     */
     public operator fun contains(phase: MinigamePhase): Boolean {
         return this.phases.contains(phase)
     }
 
+    /**
+     * Sets the [MinigamePhase] for the [minigame] to [phase].
+     *
+     * The [minigame] must be in the [MinigameState.Playing] state,
+     * otherwise an exception will be thrown. Additionally the [phase]
+     * provided must be one of the phases that the minigame was constructed
+     * with.
+     *
+     * The phase will be changed if [phase] differs from the current
+     * phase *or* if [force] is set to `true`. The phase change may be
+     * delegated to later in the tick if this is called from
+     * within a minigame task/routine - in this context you should
+     * be calling [RoutineScope.requestPhase] instead.
+     *
+     * @param phase The minigame phase to set to.
+     * @param force Whether to force (re)set the phase.
+     * @throws IllegalStateException If the [minigame] isn't in the playing state.
+     * @throws IllegalArgumentException If the specified [phase] isn't valid.
+     */
     public fun set(phase: MinigamePhase, force: Boolean = false) {
         val state = this.minigame.state
         if (state !is MinigameState.Playing) {
@@ -51,7 +96,7 @@ public class MinigamePhaseManager internal constructor(
 
         if (this.minigame.scopes.executing) {
             ArcadeUtils.logger.warn(
-                "Minigame phase for '${this.minigame.id}' set to ${phase.id} from inside scope, you should use MinigameRoutine#requestPhase instead"
+                "Minigame phase for '${this.minigame.id}' set to ${phase.id} from inside scope, you should use RoutineScope#requestPhase instead"
             )
             this.request(phase)
             return
@@ -64,6 +109,11 @@ public class MinigamePhaseManager internal constructor(
         this.enter(phase, previous)
     }
 
+    /**
+     * Gets all the phases for the [minigame].
+     *
+     * @return A list of all phases.
+     */
     public fun all(): List<MinigamePhase> {
         return this.phases
     }
