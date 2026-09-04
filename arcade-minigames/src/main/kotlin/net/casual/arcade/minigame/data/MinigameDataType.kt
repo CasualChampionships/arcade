@@ -6,7 +6,16 @@ package net.casual.arcade.minigame.data
 
 import net.minecraft.resources.Identifier
 
+/**
+ * Represents a type for a specific [MinigameData]
+ * implementation.
+ *
+ * @see MinigameData
+ */
 public class MinigameDataType<D: MinigameData>(
+    /**
+     * The [id] of the data type.
+     */
     public val id: Identifier
 ) {
     override fun toString(): String {
