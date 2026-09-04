@@ -101,6 +101,25 @@ object MinigameSerializationTests: ArcadeTestSuite() {
         }
     }
 
+    @GameTest(maxTicks = 200)
+    fun `phase routines survive round trip`(context: TestContext) = context.test {
+        val minigame = minigame().configure { game ->
+            game.phases.routines.remove(TestMinigamePhase.Grace)
+            game.phases.routines[TestMinigamePhase.Active] = TestRoundRoutine(
+                rounds = 1,
+                phase = TestMinigamePhase.Active
+            )
+        }.start()
+
+        val restored = reload(minigame)
+
+        restored.phases.set(TestMinigamePhase.Active)
+        assertEventually(5.Seconds, "Restored minigame did not run the routine its phase was assigned") {
+            restored.phaseOrNull == TestMinigamePhase.Over
+        }
+        assertEquals(1, restored.score, "Restored minigame ran the constructor's routine instead of the assigned one")
+    }
+
     @GameTest
     fun `component state and initialization survive a round trip`(context: TestContext) = context.test {
         val component = TestScoreComponent()

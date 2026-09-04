@@ -11,7 +11,10 @@ import net.casual.arcade.minigame.managers.MinigamePhaseManager
 import net.casual.arcade.minigame.phase.MinigamePhase
 import net.casual.arcade.scheduler.task.routine.Routine
 import net.casual.arcade.scheduler.utils.throwIfNotRegistered
-import java.util.function.Consumer
+import net.casual.arcade.utils.ArcadeUtils
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * This class is responsible for registering [Routine]s
@@ -72,14 +75,41 @@ public class MinigamePhaseRoutines internal constructor(
         return this.routines.remove(phase)
     }
 
+    internal fun serialize(output: ValueOutput.ValueOutputList) {
+        for (phase in this.phases) {
+            val routine = this.routines[phase] ?: continue
+            val data = output.addChild()
+            data.store("phase", this.phases.codec, phase)
+            data.store("routine", Routine.CODEC, routine)
+        }
+    }
+
+    internal fun deserialize(input: ValueInput.ValueInputList) {
+        this.routines.clear()
+        for (data in input) {
+            val phase = data.read("phase", this.phases.codec).getOrNull() ?: continue
+            val routine = data.read("routine", Routine.CODEC).getOrNull() ?: continue
+            if (!this.isValidFor(routine)) {
+                ArcadeUtils.logger.error("Routine ${routine.javaClass.name} for phase ${phase.id} became invalid after reload!?")
+                continue
+            }
+            @Suppress("UNCHECKED_CAST")
+            this.routines[phase] = routine as Routine<Minigame>
+        }
+    }
+
     private fun validate(routine: Routine<out Minigame>): Routine<Minigame> {
         routine.throwIfNotRegistered()
 
-        val type = TypeToken.of(routine.javaClass).resolveType(Routine::class.java.typeParameters[0]).rawType
-        require(type.isInstance(this.minigame)) {
-            "Routine ${this.javaClass.name} is not valid for minigame ${this.minigame.id}"
+        require(this.isValidFor(routine)) {
+            "Routine ${routine.javaClass.name} is not valid for minigame ${this.minigame.id}"
         }
         @Suppress("UNCHECKED_CAST")
         return routine as Routine<Minigame>
+    }
+
+    private fun isValidFor(routine: Routine<*>): Boolean {
+        val type = TypeToken.of(routine.javaClass).resolveType(Routine::class.java.typeParameters[0]).rawType
+        return type.isInstance(this.minigame)
     }
 }

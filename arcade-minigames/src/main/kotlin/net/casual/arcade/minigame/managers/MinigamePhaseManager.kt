@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.minigame.managers
 
+import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 import com.mojang.serialization.Codec
 import net.casual.arcade.events.GlobalEventHandler
@@ -120,6 +121,14 @@ public class MinigamePhaseManager internal constructor(
 
     override fun iterator(): Iterator<MinigamePhase> {
         return this.all().iterator()
+    }
+
+    internal fun serialize(output: ValueOutput) {
+        this.routines.serialize(output.childrenList("routines"))
+    }
+
+    internal fun deserialize(input: ValueInput) {
+        this.routines.deserialize(input.childrenListOrEmpty("routines"))
     }
 
     internal fun debug(output: ValueOutput) {
