@@ -10,9 +10,29 @@ import net.casual.arcade.minigame.phase.MinigamePhaseLifetime
 import net.casual.arcade.minigame.scope.MinigameScope
 import net.minecraft.resources.Identifier
 
+/**
+ * The manager for [MinigameComponent]s.
+ *
+ * This handles adding, initializing, and removing components
+ * for a specific [minigame] instance.
+ *
+ * @see Minigame.components
+ */
 public class MinigameComponents(private val minigame: Minigame) {
     private val components = LinkedHashMap<MinigameComponentType<*>, Attached>()
 
+    /**
+     * Adds the specified [component].
+     *
+     * The component will be initialized if the owning minigame
+     * has been initialized, otherwise it will delegate this
+     * until the minigame has been initialized.
+     *
+     * @throws IllegalStateException If the minigame is closed or if the
+     *   minigame is in the process of deserializing.
+     * @throws IllegalArgumentException If the specified [component] type
+     *   already exists.
+     */
     public fun add(component: MinigameComponent) {
         val type = component.type()
         check(!this.minigame.closed) { "Cannot add component to closed minigame ${this.minigame.id}" }
@@ -27,6 +47,17 @@ public class MinigameComponents(private val minigame: Minigame) {
         }
     }
 
+    /**
+     * Removes the specified [component].
+     *
+     * The component will only be removed if the exact
+     * component is currently added.
+     * To remove a component by type call [remove]
+     * by [MinigameComponentType] instead.
+     *
+     * @param component The component to remove.
+     * @return Whether the component was successfully removed.
+     */
     public fun remove(component: MinigameComponent): Boolean {
         val type = component.type()
         val attached = this.components[type]
@@ -38,25 +69,57 @@ public class MinigameComponents(private val minigame: Minigame) {
         return true
     }
 
+    /**
+     * Removes a component tied to the specified [type].
+     *
+     * @param type The type of the component to remove.
+     * @return Whether the remove was successful.
+     */
     public fun remove(type: MinigameComponentType<*>): Boolean {
         val attached = this.components.remove(type) ?: return false
         attached.close()
         return true
     }
 
+    /**
+     * This gets a [MinigameComponent] by providing its [MinigameComponentType].
+     * Will return `null` if the component doesn't exist.
+     *
+     * @param type The type of the component to get.
+     * @return The stored component, may be `null` if not added.
+     */
     @Suppress("UNCHECKED_CAST")
     public fun <C: MinigameComponent> get(type: MinigameComponentType<C>): C? {
         return this.components[type]?.component as C?
     }
 
+    /**
+     * This gets a [MinigameComponent] by providing its [MinigameComponentType].
+     * Will throw if the component doesn't exist.
+     *
+     * @param type The type of the component to get.
+     * @return The stored component.
+     * @throws IllegalArgumentException If the component is missing.
+     */
     public fun <C: MinigameComponent> require(type: MinigameComponentType<C>): C {
         return requireNotNull(this.get(type)) { "Minigame ${this.minigame.id} does not have component $type" }
     }
 
+    /**
+     * Checks whether a component with the given [type] exists.
+     *
+     * @param type The type to check.
+     * @return Whether a component with that type exists.
+     */
     public fun has(type: MinigameComponentType<*>): Boolean {
         return this.components.containsKey(type)
     }
 
+    /**
+     * Gets all the components that have been added.
+     *
+     * @return All the [MinigameComponent]s.
+     */
     public fun all(): Collection<MinigameComponent> {
         return this.components.values.map(Attached::component)
     }

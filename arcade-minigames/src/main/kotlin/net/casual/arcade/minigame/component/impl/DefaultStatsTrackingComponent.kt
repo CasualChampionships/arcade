@@ -24,7 +24,16 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 
-public class DefaultStatsComponent: SerializableMinigameComponent {
+/**
+ * This component adds some default stat tracking to a [Minigame].
+ *
+ * It tracks the following stats: [ArcadeStats.PLAY_TIME], [ArcadeStats.RELOGS],
+ * [ArcadeStats.DEATHS], [ArcadeStats.KILLS], [ArcadeStats.DAMAGE_TAKEN],
+ * [ArcadeStats.DAMAGE_DEALT], and [ArcadeStats.DAMAGE_HEALED].
+ *
+ * @see MinigameComponent
+ */
+public class DefaultStatsTrackingComponent: SerializableMinigameComponent {
     override fun initialize(scope: MinigameScope) {
         val minigame = scope.minigame
 
@@ -72,10 +81,10 @@ public class DefaultStatsComponent: SerializableMinigameComponent {
     }
 
     public companion object: MinigameComponentFactory {
-        public val TYPE: MinigameComponentType<DefaultStatsComponent> = MinigameComponentType(arcade("default_stats"))
+        public val TYPE: MinigameComponentType<DefaultStatsTrackingComponent> = MinigameComponentType(arcade("default_stats"))
 
         override fun create(minigame: Minigame): MinigameComponent {
-            return DefaultStatsComponent()
+            return DefaultStatsTrackingComponent()
         }
     }
 }

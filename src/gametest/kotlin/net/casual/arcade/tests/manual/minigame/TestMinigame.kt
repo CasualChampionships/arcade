@@ -35,7 +35,6 @@ import net.casual.arcade.virtual.visuals.tab.VanillaPlayerListEntries
 import net.casual.arcade.virtual.visuals.utils.elements.ComponentElements
 import net.casual.arcade.virtual.visuals.utils.elements.SidebarElements
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer

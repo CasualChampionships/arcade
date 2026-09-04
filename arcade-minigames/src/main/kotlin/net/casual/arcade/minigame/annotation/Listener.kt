@@ -28,7 +28,9 @@ public annotation class Listener(
     val priority: Int = 1_000,
 
     /**
-     * The flags for setting the minigame event.
+     * The filters for the event.
+     *
+     * @see ListenerFilter
      */
     val filters: Array<ListenerFilter> = [
         ListenerFilter.HasPlayer,
@@ -40,11 +42,16 @@ public annotation class Listener(
     /**
      * This is the phase of the event that this handler
      * will be invoked in.
+     *
+     * You should read the targeted event's documentation
+     * to determine what phase is appropriate.
      */
     val phase: Int = BuiltInEventPhases.DEFAULT,
 
     /**
      * The target threading target for the listener to run on.
+     *
+     * @see ThreadingTarget
      */
     val strategy: ThreadingTarget = ThreadingTarget.Default
 )
