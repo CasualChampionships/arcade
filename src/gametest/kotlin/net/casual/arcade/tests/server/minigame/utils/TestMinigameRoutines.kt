@@ -7,9 +7,9 @@ package net.casual.arcade.tests.server.minigame.utils
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.casual.arcade.minigame.task.routine.MinigameRoutine
-import net.casual.arcade.minigame.task.routine.minigame
-import net.casual.arcade.minigame.task.routine.requestPhase
+import net.casual.arcade.minigame.routine.MinigameRoutine
+import net.casual.arcade.minigame.routine.minigame
+import net.casual.arcade.minigame.routine.requestPhase
 import net.casual.arcade.scheduler.task.routine.Routine
 import net.casual.arcade.scheduler.task.routine.RoutineScope
 import net.casual.arcade.utils.TimeUtils.Ticks

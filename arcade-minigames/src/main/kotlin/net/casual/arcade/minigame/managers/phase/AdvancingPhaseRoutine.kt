@@ -6,8 +6,8 @@ package net.casual.arcade.minigame.managers.phase
 
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.task.routine.MinigameRoutine
-import net.casual.arcade.minigame.task.routine.minigame
+import net.casual.arcade.minigame.routine.MinigameRoutine
+import net.casual.arcade.minigame.routine.minigame
 import net.casual.arcade.scheduler.task.routine.Routine
 import net.casual.arcade.scheduler.task.routine.RoutineScope
 import net.casual.arcade.scheduler.utils.call

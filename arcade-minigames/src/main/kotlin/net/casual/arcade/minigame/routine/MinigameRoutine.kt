@@ -2,7 +2,7 @@
  * Copyright (c) 2026 senseiwells
  * Licensed under the MIT License. See LICENSE file in the project root for details.
  */
-package net.casual.arcade.minigame.task.routine
+package net.casual.arcade.minigame.routine
 
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.phase.MinigamePhase
