@@ -4,11 +4,16 @@
  */
 package net.casual.arcade.minigame.commands
 
+import net.casual.arcade.minigame.utils.MinigameUtils.getDebugTag
+import net.minecraft.nbt.NbtUtils
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
+import com.mojang.brigadier.suggestion.Suggestions
+import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import com.mojang.serialization.JsonOps
 import kotlinx.coroutines.launch
 import net.casual.arcade.commands.*
@@ -25,7 +30,6 @@ import net.casual.arcade.minigame.utils.MinigameUtils.trackReadyPlayers
 import net.casual.arcade.minigame.utils.MinigameUtils.trackReadyTeams
 import net.casual.arcade.minigame.utils.RecipeModifier
 import net.casual.arcade.scheduler.GlobalTickedScheduler
-import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.chat.ChatFormatter
 import net.casual.arcade.utils.collection.concat
@@ -33,6 +37,7 @@ import net.casual.arcade.utils.component.event.ClickEventCallback
 import net.casual.arcade.utils.component.function
 import net.casual.arcade.utils.component.green
 import net.casual.arcade.utils.component.join
+import net.casual.arcade.utils.component.joinToComponent
 import net.casual.arcade.utils.component.suggestCommand
 import net.casual.arcade.utils.coroutine.launch
 import net.casual.arcade.utils.time.MinecraftTimeUnit
@@ -41,11 +46,13 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.*
 import net.minecraft.core.registries.Registries
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.permissions.PermissionLevel
+import java.util.concurrent.CompletableFuture
 import kotlin.jvm.optionals.getOrNull
 
 internal object MinigameCommand: CommandTree<CommandSourceStack> {
@@ -91,7 +98,8 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
             literal("info") {
                 argument("minigame", MinigameArgument.minigame()) {
                     executes(::infoMinigame)
-                    argument("path", MinigameInfoPathArgument.path("minigame")) {
+                    argument("path", NbtPathArgument.nbtPath()) {
+                        suggests(::suggestDebugTagPaths)
                         executes(::infoPathMinigame)
                     }
                 }
@@ -595,14 +603,15 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
 
     private fun infoMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        return context.source.success(minigame.toString())
+        return context.source.success(NbtUtils.toPrettyComponent(minigame.getDebugTag()))
     }
 
     private fun infoPathMinigame(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
-        val path = MinigameInfoPathArgument.getPath(context, "path")
-        val info = JsonUtils.GSON.toJson(minigame.property(path))
-        return context.source.success(info)
+        val path = NbtPathArgument.getPath(context, "path")
+        val tags = path.get(minigame.getDebugTag())
+        val component = tags.joinToComponent { tag -> NbtUtils.toPrettyComponent(tag) }
+        return context.source.success(component)
     }
 
     private fun openMinigameSettings(context: CommandContext<CommandSourceStack>) {
@@ -622,7 +631,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val setting = MinigameSettingArgument.getSetting(context, "setting", minigame)
         val option = MinigameSettingsOptionArgument.getSettingsOption(context, "option")
-        val value = setting.getOption(option) ?: throw INVALID_SETTING_OPTION.create()
+        val value = setting.option(option)?.value ?: throw INVALID_SETTING_OPTION.create()
         setting.setFromOption(option)
         return context.source.success(
             Component.translatable("minigame.command.setting.set.option", setting.name, option, value.toString())
@@ -635,7 +644,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
         val value = MinigameSettingValueArgument.getSettingsValue(context, "value")
 
         fun <T: Any> parseAndSet(setting: GameSetting<T>, encoded: JsonElement) {
-            val result = setting.codec().parse(JsonOps.INSTANCE, encoded).result().getOrNull() ?: return
+            val result = setting.type.codec.parse(JsonOps.INSTANCE, encoded).result().getOrNull() ?: return
             setting.set(result)
         }
 
@@ -720,15 +729,23 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
 
     private fun getMinigamePhase(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val phase = minigame.phaseOrNull ?: return context.source.fail(
+            Component.translatable("minigame.command.phase.notPlaying", minigame.id.toString())
+        )
         return context.source.success(
-            Component.translatable("minigame.command.phase.get", minigame.id.toString(), minigame.phase.id)
+            Component.translatable("minigame.command.phase.get", minigame.id.toString(), phase.id)
         )
     }
 
     private fun setMinigamePhase(context: CommandContext<CommandSourceStack>): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         val phase = MinigamePhaseArgument.getPhase(context, "phase", minigame)
-        minigame.setPhase(phase)
+        if (!minigame.started) {
+            return context.source.fail(
+                Component.translatable("minigame.command.phase.notPlaying", minigame.id.toString())
+            )
+        }
+        minigame.phases.set(phase)
         return context.source.success(
             Component.translatable("minigame.command.phase.set", minigame.id.toString(), phase.id)
         )
@@ -840,7 +857,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
                 Component.translatable("minigame.command.create.fail")
             )
         }
-        val minigame = result.get().create(MinigameCreationContext.initial(context.source.server))
+        val minigame = result.get().create(MinigameCreationContext(context.source.server))
         minigame.tryInitialize()
         return context.source.success(
             Component.translatable("minigame.command.create.success", minigame.id.toString(), minigame.uuid.toString())
@@ -892,5 +909,31 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
         return context.source.success(
             Component.translatable("minigame.command.step.failure", minigame.uuid.toString())
         )
+    }
+
+    private fun suggestDebugTagPaths(
+        context: CommandContext<CommandSourceStack>,
+        builder: SuggestionsBuilder
+    ): CompletableFuture<Suggestions> {
+        val minigame = MinigameArgument.getMinigame(context, "minigame")
+        val remaining = builder.remaining
+        val separator = remaining.lastIndexOf('.')
+        val prefix = if (separator == -1) "" else remaining.substring(0, separator)
+        val tag = this.resolve(minigame.getDebugTag(), prefix) ?: return Suggestions.empty()
+
+        val offset = builder.start + separator + 1
+        return SharedSuggestionProvider.suggest(tag.keySet(), builder.createOffset(offset))
+    }
+
+    private fun resolve(root: CompoundTag, prefix: String): CompoundTag? {
+        if (prefix.isEmpty()) {
+            return root
+        }
+        val resolved = try {
+            NbtPathArgument.nbtPath().parse(StringReader(prefix)).get(root)
+        } catch (_: Exception) {
+            return null
+        }
+        return resolved.singleOrNull() as? CompoundTag
     }
 }

@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.events.utils
 
+import net.casual.arcade.events.EventListenerHandle
 import net.casual.arcade.events.ListenerRegistry
 import net.casual.arcade.events.common.ClientSideEvent
 import net.casual.arcade.events.common.Event
@@ -38,8 +39,8 @@ public inline fun <reified T: E, reified E: Event> ListenerRegistry<E>.register(
     phase: Int = DEFAULT,
     strategy: ThreadingStrategy = ThreadingTarget.Default,
     listener: Consumer<T>
-) {
-    this.register(T::class.java, priority, phase, strategy, listener)
+): EventListenerHandle {
+    return this.register(T::class.java, priority, phase, strategy, listener)
 }
 
 @JvmName("registerServer")
@@ -48,8 +49,8 @@ public inline fun <reified T: ServerSideEvent> ListenerRegistry<ServerSideEvent>
     phase: Int = DEFAULT,
     strategy: ThreadingStrategy = ThreadingTarget.Default,
     listener: Consumer<T>
-) {
-    this.register<T, ServerSideEvent>(priority, phase, strategy, listener)
+): EventListenerHandle {
+    return this.register<T, ServerSideEvent>(priority, phase, strategy, listener)
 }
 
 @JvmName("registerClient")
@@ -58,8 +59,8 @@ public inline fun <reified T: ClientSideEvent> ListenerRegistry<ClientSideEvent>
     phase: Int = DEFAULT,
     strategy: ThreadingStrategy = ThreadingTarget.Default,
     listener: Consumer<T>
-) {
-    this.register<T, ClientSideEvent>(priority, phase, strategy, listener)
+): EventListenerHandle {
+    return this.register<T, ClientSideEvent>(priority, phase, strategy, listener)
 }
 
 /**
@@ -72,16 +73,16 @@ public inline fun <reified T: ClientSideEvent> ListenerRegistry<ClientSideEvent>
  * @param T The type of event.
  * @param listener The callback which will be invoked when the event is fired.
  */
-public inline fun <reified T: E, reified E: Event> ListenerRegistry<E>.register(listener: Consumer<T>) {
-    this.register(T::class.java, 1_000, DEFAULT, ThreadingTarget.Default, listener)
+public inline fun <reified T: E, reified E: Event> ListenerRegistry<E>.register(listener: Consumer<T>): EventListenerHandle {
+    return this.register(T::class.java, 1_000, DEFAULT, ThreadingTarget.Default, listener)
 }
 
 @JvmName("registerServer")
-public inline fun <reified T: ServerSideEvent> ListenerRegistry<ServerSideEvent>.register(listener: Consumer<T>) {
-    this.register<T, ServerSideEvent>(listener)
+public inline fun <reified T: ServerSideEvent> ListenerRegistry<ServerSideEvent>.register(listener: Consumer<T>): EventListenerHandle {
+    return this.register<T, ServerSideEvent>(listener)
 }
 
 @JvmName("registerClient")
-public inline fun <reified T: ClientSideEvent> ListenerRegistry<ClientSideEvent>.register(listener: Consumer<T>) {
-    this.register<T, ClientSideEvent>(listener)
+public inline fun <reified T: ClientSideEvent> ListenerRegistry<ClientSideEvent>.register(listener: Consumer<T>): EventListenerHandle {
+    return this.register<T, ClientSideEvent>(listener)
 }

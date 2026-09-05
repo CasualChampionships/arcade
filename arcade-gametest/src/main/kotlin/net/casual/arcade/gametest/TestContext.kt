@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import net.casual.arcade.gametest.utils.TestFakePlayer
 import net.casual.arcade.gametest.utils.TestPlayerBuilder
 import net.casual.arcade.scheduler.SimpleTickedScheduler
+import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.coroutine.delay
@@ -36,7 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * All state tracked here is per-test. Tests within a batch run *concurrently* in the same level.
  */
 public class TestContext(public val helper: GameTestHelper) {
-    private val players = ArrayList<TestFakePlayer>()
+    private val closeables = ArrayList<AutoCloseable>()
 
     private var failure: Throwable? = null
     private var succeeded = false
@@ -328,15 +329,23 @@ public class TestContext(public val helper: GameTestHelper) {
         }
     }
 
+    public fun track(closeable: AutoCloseable) {
+        this.closeables.add(closeable)
+    }
+
     internal fun track(player: TestFakePlayer) {
-        this.players.add(player)
+        this.track(AutoCloseable(player::kick))
     }
 
     private fun cleanup() {
-        for (player in this.players) {
-            player.kick()
+        for (closeable in this.closeables.asReversed()) {
+            try {
+                closeable.close()
+            } catch (e: Exception) {
+                ArcadeUtils.logger.error("Failed to close a resource tracked by a test", e)
+            }
         }
-        this.players.clear()
+        this.closeables.clear()
     }
 
     public companion object {

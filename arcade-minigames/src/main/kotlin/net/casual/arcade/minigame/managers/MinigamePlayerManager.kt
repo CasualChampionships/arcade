@@ -4,12 +4,12 @@
  */
 package net.casual.arcade.minigame.managers
 
+import com.mojang.serialization.Codec
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.events.server.player.PlayerLeaveEvent
-import net.casual.arcade.events.utils.register
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.mixins.PlayerListAccessor
@@ -22,6 +22,7 @@ import net.casual.arcade.utils.math.location.asTeleportTransition
 import net.casual.arcade.utils.math.location.location
 import net.casual.arcade.utils.math.location.locationWithLevel
 import net.casual.arcade.utils.player.server
+import net.casual.arcade.utils.player.username
 import net.casual.arcade.utils.server.player
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtAccounter
@@ -38,6 +39,7 @@ import net.minecraft.world.level.portal.TeleportTransition
 import net.minecraft.world.level.storage.TagValueInput
 import net.minecraft.world.level.storage.TagValueOutput
 import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import org.jetbrains.annotations.ApiStatus.Experimental
 import org.jetbrains.annotations.ApiStatus.Internal
 import java.nio.file.Files
@@ -385,6 +387,17 @@ public class MinigamePlayerManager(
         }
     }
 
+    override fun iterator(): Iterator<ServerPlayer> {
+        return this.all.iterator()
+    }
+
+    internal fun debug(output: ValueOutput) {
+        output.store("all", Codec.STRING.listOf(), this.all.map { it.username })
+        output.store("offline", Codec.STRING.listOf(), this.offlineProfiles.map { it.name })
+        output.store("admins", Codec.STRING.listOf(), this.admins.map { it.username })
+        output.store("spectating", Codec.STRING.listOf(), this.spectating.map { it.username })
+    }
+
     internal fun close() {
         // We copy the players to avoid CME
         for (player in this.all) {
@@ -394,10 +407,6 @@ public class MinigamePlayerManager(
 
     private fun streamPlayers(): Stream<ServerPlayer> {
         return this.connections.stream().map { it.player }
-    }
-
-    override fun iterator(): Iterator<ServerPlayer> {
-        return this.all.iterator()
     }
 
     private fun onPlayerLeave(event: PlayerLeaveEvent) {

@@ -172,6 +172,52 @@ object RoutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
+    fun `routine cancelling itself unwinds at its next step`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        owner.handle = scheduler.schedule(SelfCancellingRoutine(delay = 0), owner)
+
+        scheduler.tick()
+
+        assertEquals(listOf("start", "cancel", "cleanup"), owner.log, "Routine did not unwind after cancelling itself")
+    }
+
+    @GameTest
+    fun `routine cancelling itself after a delay unwinds`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        owner.handle = scheduler.schedule(SelfCancellingRoutine(delay = 3), owner)
+
+        scheduler.tick(10)
+
+        assertEquals(listOf("start", "cancel", "cleanup"), owner.log, "Routine did not unwind after cancelling itself")
+    }
+
+    @GameTest
+    fun `routine cancelling itself does not replay its earlier steps`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        owner.handle = scheduler.schedule(SelfCancellingRoutine(delay = 3), owner)
+
+        scheduler.tick(40)
+
+        assertEquals(1, owner.log.count { it == "start" }, "Routine replayed its body when it cancelled itself")
+        assertFalse(owner.log.contains("resumed"), "Routine resumed after cancelling itself")
+    }
+
+    @GameTest
+    fun `routine cancelling itself reports finished`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        val handle = scheduler.schedule(SelfCancellingRoutine(delay = 0), owner)
+        owner.handle = handle
+
+        scheduler.tick()
+
+        assertTrue(handle.isFinished, "Routine did not report finished after cancelling itself")
+    }
+
+    @GameTest
     fun `routine owner is persistent`(context: TestContext) = context.test {
         val first = RoutineOwner()
         val second = RoutineOwner()

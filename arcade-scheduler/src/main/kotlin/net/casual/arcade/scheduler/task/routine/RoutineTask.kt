@@ -39,6 +39,8 @@ internal class RoutineTask<O>(
     private var finished = false
     private var cancelling = false
     private var rehydrating = false
+    private var running = false
+    private var cancelRequested = false
     private var remaining: MinecraftTimeDuration? = null
 
     override val isFinished: Boolean
@@ -71,7 +73,7 @@ internal class RoutineTask<O>(
         val continuation = this.continuation
         if (continuation != null) {
             this.continuation = null
-            continuation.resume(Unit)
+            this.running { continuation.resume(Unit) }
             return
         }
         this.start(this.journal.cursor + 1)
@@ -79,6 +81,10 @@ internal class RoutineTask<O>(
 
     override fun cancel() {
         if (this.finished || this.cancelling) {
+            return
+        }
+        if (this.running) {
+            this.cancelRequested = true
             return
         }
         if (this.continuation == null) {
@@ -126,7 +132,25 @@ internal class RoutineTask<O>(
 
         val routine = this.routine
         val block: suspend RoutineScope<O>.() -> Unit = { with(routine) { run() } }
-        block.startCoroutine(Scope(this), Completion(this))
+        this.running { block.startCoroutine(Scope(this), Completion(this)) }
+    }
+
+    private inline fun running(block: () -> Unit) {
+        val previous = this.running
+        this.running = true
+        try {
+            block.invoke()
+        } finally {
+            this.running = previous
+        }
+    }
+
+    private fun throwIfCancelled() {
+        if (this.cancelRequested && !this.cancelling) {
+            this.cancelRequested = false
+            this.cancelling = true
+            throw RoutineCancelledException()
+        }
     }
 
     private fun diverged(message: String): Nothing {
@@ -148,6 +172,7 @@ internal class RoutineTask<O>(
             if (this.task.cancelling) {
                 return
             }
+            this.task.throwIfCancelled()
 
             val index = this.task.index++
             if (index < this.task.replayTo) {
@@ -189,6 +214,8 @@ internal class RoutineTask<O>(
         }
 
         override suspend fun step(id: String?, block: () -> Unit) {
+            this.task.throwIfCancelled()
+
             val index = this.task.index++
             if (index < this.task.replayTo) {
                 val message = this.task.journal.verify(index, RoutineJournal.Kind.Step, id)
@@ -202,6 +229,8 @@ internal class RoutineTask<O>(
         }
 
         override suspend fun <T> step(codec: Codec<T>, id: String?, block: () -> T): T {
+            this.task.throwIfCancelled()
+
             val index = this.task.index++
             if (index < this.task.replayTo) {
                 val message = this.task.journal.verify(index, RoutineJournal.Kind.Step, id)

@@ -12,12 +12,14 @@ import net.casual.arcade.events.utils.register
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
+import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.collection.concat
 import net.casual.arcade.utils.server.player
 import net.minecraft.core.UUIDUtil
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.protocol.game.ClientboundRecipeBookAddPacket
 import net.minecraft.network.protocol.game.ClientboundRecipeBookRemovePacket
+import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
@@ -262,6 +264,10 @@ public class MinigameRecipeManager(
             .findFirst()
     }
 
+    internal fun debug(output: ValueOutput) {
+        output.store("all", Identifier.CODEC.listOf(), this.all().map { it.id.identifier() })
+    }
+
     internal fun serialize(list: ValueOutput.ValueOutputList) {
         for ((player, recipes) in this.players.asMap()) {
             val child = list.addChild()
@@ -273,7 +279,13 @@ public class MinigameRecipeManager(
     internal fun deserialize(list: ValueInput.ValueInputList) {
         for (child in list) {
             val uuid = child.read("uuid", UUIDUtil.STRING_CODEC).getOrNull() ?: continue
-            this.players.putAll(uuid, child.listOrEmpty("recipes", ResourceKey.codec(Registries.RECIPE)))
+            for (key in child.listOrEmpty("recipes", ResourceKey.codec(Registries.RECIPE))) {
+                if (!this.recipesById.containsKey(key)) {
+                    ArcadeUtils.logger.warn("Minigame ${this.minigame.id} is missing recipe ${key.identifier()}, dropping for $uuid")
+                    continue
+                }
+                this.players.put(uuid, key)
+            }
         }
     }
 

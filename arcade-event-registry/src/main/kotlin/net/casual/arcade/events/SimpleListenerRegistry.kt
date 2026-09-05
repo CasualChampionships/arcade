@@ -52,8 +52,9 @@ public class SimpleListenerRegistry<E: Event>(
      * @param E The type of event.
      * @param type The class of the event that you want to listen to.
      * @param listener The callback which will be invoked when the event is fired.
+     * @return A handle which can unregister the listener.
      */
-    override fun <T: E> register(type: Class<T>, listener: EventListener<T>) {
+    override fun <T: E> register(type: Class<T>, listener: EventListener<T>): EventListenerHandle {
         require(this.type.isAssignableFrom(type)) {
             "Tried registering invalid event '${type.simpleName}' to registry which requires '${this.type.simpleName}'"
         }
@@ -61,6 +62,7 @@ public class SimpleListenerRegistry<E: Event>(
         @Suppress("UNCHECKED_CAST")
         val listeners = this.events.getOrPut(type) { ArrayList() } as MutableList<EventListener<T>>
         listeners.add(this.findIndexForPriority(listeners, listener), listener)
+        return EventListenerHandle { this.events[type]?.remove(listener) }
     }
 
     /**

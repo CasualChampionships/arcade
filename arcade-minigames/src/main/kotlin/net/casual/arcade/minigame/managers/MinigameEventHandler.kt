@@ -5,6 +5,7 @@
 package net.casual.arcade.minigame.managers
 
 import net.casual.arcade.events.EventListener
+import net.casual.arcade.events.EventListenerHandle
 import net.casual.arcade.events.ListenerProvider
 import net.casual.arcade.events.ListenerRegistry
 import net.casual.arcade.events.SimpleListenerRegistry
@@ -17,28 +18,14 @@ import net.casual.arcade.events.server.player.PlayerEvent
 import net.casual.arcade.events.threading.ThreadingStrategy
 import net.casual.arcade.events.threading.ThreadingTarget
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.annotation.ListenerFlags.DEFAULT
-import net.casual.arcade.minigame.annotation.ListenerFlags.HAS_LEVEL
-import net.casual.arcade.minigame.annotation.ListenerFlags.HAS_PLAYER
-import net.casual.arcade.minigame.annotation.ListenerFlags.IN_LEVEL_BOUNDS
-import net.casual.arcade.minigame.annotation.ListenerFlags.IS_ADMIN
-import net.casual.arcade.minigame.annotation.ListenerFlags.IS_MINIGAME
-import net.casual.arcade.minigame.annotation.ListenerFlags.IS_PLAYING
-import net.casual.arcade.minigame.annotation.ListenerFlags.IS_SPECTATOR
+import net.casual.arcade.minigame.annotation.ListenerFilter
 import net.casual.arcade.minigame.events.MinigameEvent
-import net.casual.arcade.minigame.phase.Phase
 import java.util.*
 import java.util.function.Consumer
 
 /**
  * This class is an implementation of [ListenerRegistry]
  * which handles [EventListener]s for a minigames.
- *
- * This event handler splits events up, minigame events,
- * and minigame phased events.
- * This separation is done so each minigame phase can
- * register its own logic, and once that phase is
- * over, the events can be cleared - removing the logic.
  *
  * All events that are registered are **filtered** for
  * the given minigame. This means that only certain events
@@ -97,13 +84,13 @@ public class MinigameEventHandler(
      * @param listener The callback which will be invoked when the event is fired.
      */
     public inline fun <reified T: ServerSideEvent> register(
-        priority: Int,
+        priority: Int = 1_000,
         phase: Int = BuiltInEventPhases.DEFAULT,
-        flags: Int = DEFAULT,
+        filters: Set<ListenerFilter> = ListenerFilter.default(),
         strategy: ThreadingStrategy = ThreadingTarget.Default,
         listener: Consumer<T>
-    ) {
-        this.register(T::class.java, priority, phase, flags, strategy, listener)
+    ): EventListenerHandle {
+        return this.register(T::class.java, filters, EventListener.of(priority, phase, strategy, listener))
     }
 
     /**
@@ -120,198 +107,78 @@ public class MinigameEventHandler(
      * @param type The class of the event that you want to listen to.
      * @param listener The callback which will be invoked when the event is fired.
      */
-    override fun <T: ServerSideEvent> register(type: Class<T>, listener: EventListener<T>) {
-        this.registerFiltered(type, listener)
+    override fun <T: ServerSideEvent> register(type: Class<T>, listener: EventListener<T>): EventListenerHandle {
+        return this.register(type, ListenerFilter.default(), listener)
     }
 
     /**
-     * Registers an event listener with a given priority.
+     * Registers an event listener.
      *
      * This allows you to register a callback to a specific event type.
      * This callback will **only** fire when instances of the given type
      * are fired.
      *
-     * The priority that you register the event with determines
-     * in what order the listener will be invoked. Lower values
-     * of [priority] will result in being invoked earlier.
-     *
      * This will filter events for the given minigame, see
      * [MinigameEventHandler] documentation for more details.
      *
      * @param T The type of event.
-     * @param priority The priority of your event listener.
+     * @param type The class of the event that you want to listen to.
      * @param listener The callback which will be invoked when the event is fired.
      */
     public fun <T: ServerSideEvent> register(
         type: Class<T>,
-        priority: Int = 1_000,
-        phase: Int = BuiltInEventPhases.DEFAULT,
-        flags: Int = DEFAULT,
-        strategy: ThreadingStrategy = ThreadingTarget.Default,
-        listener: Consumer<T>
-    ) {
-        this.register(type, flags, EventListener.of(priority, phase, strategy, listener))
-    }
-
-    /**
-     * Registers an event listener.
-     *
-     * This allows you to register a callback to a specific event type.
-     * This callback will **only** fire when instances of the given type
-     * are fired.
-     *
-     * This will filter events for the given minigame, see
-     * [MinigameEventHandler] documentation for more details.
-     *
-     * @param T The type of event.
-     * @param type The class of the event that you want to listen to.
-     * @param listener The callback which will be invoked when the event is fired.
-     */
-    public fun <T: ServerSideEvent> register(type: Class<T>, flags: Int = DEFAULT, listener: EventListener<T>) {
-        this.registerFiltered(type, listener, flags = flags)
-    }
-
-
-    /**
-     * Registers an event listener for phased events.
-     *
-     * This implementation, however, allows you to specify the phases and the
-     * event listener will **NOT** be removed if the phase changes, meaning
-     * if the phase returns to a previous phase, the events will still be triggered.
-     *
-     * @param T The type of event.
-     * @param phases The phases that you want this listener to trigger in.
-     * @param listener The callback which will be invoked when the event is fired.
-     */
-    public inline fun <reified T: ServerSideEvent> registerInPhases(vararg phases: Phase<*>, listener: Consumer<T>) {
-        this.registerInPhases(1_000, phases = phases, listener = listener)
-    }
-
-    /**
-     * Registers an event listener for phased events.
-     *
-     * This implementation, however, allows you to specify the phases and the
-     * event listener will **NOT** be removed if the phase changes, meaning
-     * if the phase returns to a previous phase, the events will still be triggered.
-     *
-     * @param T The type of event.
-     * @param priority The priority of your event listener.
-     * @param phases The phases that you want this listener to trigger in.
-     * @param listener The callback which will be invoked when the event is fired.
-     */
-    public inline fun <reified T: ServerSideEvent> registerInPhases(
-        priority: Int,
-        phase: Int = BuiltInEventPhases.DEFAULT,
-        flags: Int = DEFAULT,
-        strategy: ThreadingStrategy = ThreadingTarget.Default,
-        vararg phases: Phase<*>,
-        listener: Consumer<T>
-    ) {
-        this.registerInPhases(
-            T::class.java, flags, phases = phases,
-            listener = EventListener.of(priority, phase, strategy, listener)
-        )
-    }
-
-    /**
-     * Registers an event listener for phased events.
-     *
-     * This implementation, however, allows you to specify the phases and the
-     * event listener will **NOT** be removed if the phase changes, meaning
-     * if the phase returns to a previous phase, the events will still be triggered.
-     *
-     * @param T The type of event.
-     * @param type The class of the event that you want to listen to.
-     * @param phases The phases that you want this listener to trigger in.
-     * @param listener The callback which will be invoked when the event is fired.
-     */
-    public fun <T: ServerSideEvent> registerInPhases(
-        type: Class<T>,
-        flags: Int = DEFAULT,
-        vararg phases: Phase<*>,
+        filters: Set<ListenerFilter>,
         listener: EventListener<T>
-    ) {
-        if (phases.isEmpty()) {
-            this.register(type, listener)
-        }
+    ): EventListenerHandle {
         val predicates = LinkedList<(T) -> Boolean>()
-        if (phases.size == 1) {
-            predicates.add { this.minigame.phase == phases[0] }
-            return this.registerFiltered(type, listener, predicates)
+        var registry = this.global
+        if (PlayerEvent::class.java.isAssignableFrom(type)) {
+            if (filters.contains(ListenerFilter.HasPlayer)) {
+                registry = this.injected
+                predicates.add { this.minigame.players.has((it as PlayerEvent).player) }
+            }
+            if (filters.contains(ListenerFilter.IsPlaying)) {
+                registry = this.injected
+                predicates.add { this.minigame.players.isPlaying((it as PlayerEvent).player) }
+            }
+            if (filters.contains(ListenerFilter.IsSpectator)) {
+                registry = this.injected
+                predicates.add { this.minigame.players.isSpectating((it as PlayerEvent).player) }
+            }
+            if (filters.contains(ListenerFilter.IsAdmin)) {
+                registry = this.injected
+                predicates.add { this.minigame.players.isAdmin((it as PlayerEvent).player) }
+            }
         }
-        predicates.add {
-            phases.any { this.minigame.phase == it }
+        if (LocatedLevelEvent::class.java.isAssignableFrom(type)) {
+            if (filters.contains(ListenerFilter.InLevelBounds)) {
+                registry = this.injected
+                predicates.add {
+                    val casted = it as LocatedLevelEvent
+                    this.minigame.levels.has(casted.level, casted.pos)
+                }
+            }
         }
-
-        return this.registerFiltered(type, listener, predicates, flags)
-    }
-
-    /**
-     * Registers an event listener for phased events, this allows you
-     * to specify phase ranges in which to trigger your listener.
-     *
-     * @param T The type of event.
-     * @param after The start phase of the range, inclusive.
-     * @param before The end phase of the range, exclusive.
-     * @param listener The callback which will be invoked when the event is fired.
-     */
-    public inline fun <reified T: ServerSideEvent> registerBetweenPhases(
-        after: Phase<*>,
-        before: Phase<*>,
-        phase: Int = BuiltInEventPhases.DEFAULT,
-        flags: Int = DEFAULT,
-        strategy: ThreadingStrategy = ThreadingTarget.Default,
-        listener: Consumer<T>
-    ) {
-        this.registerBetweenPhases(1_000, after, before, phase, flags, strategy, listener)
-    }
-
-    /**
-     * Registers an event listener for phased events, this allows you
-     * to specify phase ranges in which to trigger your listener.
-     *
-     * @param T The type of event.
-     * @param priority The priority of your event listener.
-     * @param after The start phase of the range, inclusive.
-     * @param before The end phase of the range, exclusive.
-     * @param listener The callback which will be invoked when the event is fired.
-     */
-    public inline fun <reified T: ServerSideEvent> registerBetweenPhases(
-        priority: Int,
-        after: Phase<*>,
-        before: Phase<*>,
-        phase: Int = BuiltInEventPhases.DEFAULT,
-        flags: Int = DEFAULT,
-        strategy: ThreadingStrategy = ThreadingTarget.Default,
-        listener: Consumer<T>
-    ) {
-        this.registerBetweenPhases(
-            T::class.java, after, before, flags, EventListener.of(priority, phase, strategy, listener)
-        )
-    }
-
-    /**
-     * Registers an event listener for phased events, this allows you
-     * to specify phase ranges in which to trigger your listener.
-     *
-     * @param T The type of event.
-     * @param type The class of the event that you want to listen to.
-     * @param after The start phase of the range, inclusive.
-     * @param before The end phase of the range, exclusive.
-     * @param listener The callback which will be invoked when the event is fired.
-     */
-    public fun <T: ServerSideEvent> registerBetweenPhases(
-        type: Class<T>,
-        after: Phase<*>,
-        before: Phase<*>,
-        flags: Int = DEFAULT,
-        listener: EventListener<T>
-    ) {
-        val predicates = ArrayList<(T) -> Boolean>()
-        predicates.add {
-            this.minigame.phase >= after && this.minigame.phase < before
+        if (LevelEvent::class.java.isAssignableFrom(type)) {
+            if (filters.contains(ListenerFilter.HasLevel)) {
+                registry = this.injected
+                predicates.add { this.minigame.levels.has((it as LevelEvent).level) }
+            }
         }
-        return this.registerFiltered(type, listener, predicates, flags)
+        if (MinigameEvent::class.java.isAssignableFrom(type)) {
+            if (filters.contains(ListenerFilter.IsMinigame)) {
+                registry = this.injected
+                predicates.add { this.minigame === (it as MinigameEvent).minigame }
+            }
+        }
+        if (predicates.isEmpty()) {
+            return registry.register(type, listener)
+        }
+        return registry.register(type, EventListener.of(listener.priority, listener.phase) { event ->
+            if (predicates.all { it(event) }) {
+                listener.invoke(event)
+            }
+        })
     }
 
     internal fun getInjectedProvider(): ListenerProvider {
@@ -321,66 +188,5 @@ public class MinigameEventHandler(
     internal fun clear() {
         this.global.clear()
         this.injected.clear()
-    }
-
-    private fun <T: ServerSideEvent> registerFiltered(
-        type: Class<T>,
-        listener: EventListener<T>,
-        predicates: MutableList<(T) -> Boolean> = LinkedList(),
-        flags: Int = DEFAULT
-    ) {
-        var registry = this.global
-        if (PlayerEvent::class.java.isAssignableFrom(type)) {
-            if (this.hasFlag(flags, HAS_PLAYER)) {
-                registry = this.injected
-                predicates.add { this.minigame.players.has((it as PlayerEvent).player) }
-            }
-            if (this.hasFlag(flags, IS_PLAYING)) {
-                registry = this.injected
-                predicates.add { this.minigame.players.isPlaying((it as PlayerEvent).player) }
-            }
-            if (this.hasFlag(flags, IS_SPECTATOR)) {
-                registry = this.injected
-                predicates.add { this.minigame.players.isSpectating((it as PlayerEvent).player) }
-            }
-            if (this.hasFlag(flags, IS_ADMIN)) {
-                registry = this.injected
-                predicates.add { this.minigame.players.isAdmin((it as PlayerEvent).player) }
-            }
-        }
-        if (LocatedLevelEvent::class.java.isAssignableFrom(type)) {
-            if (this.hasFlag(flags, IN_LEVEL_BOUNDS)) {
-                registry = this.injected
-                predicates.add {
-                    val casted = it as LocatedLevelEvent
-                    this.minigame.levels.has(casted.level, casted.pos)
-                }
-            }
-        }
-        if (LevelEvent::class.java.isAssignableFrom(type)) {
-            if (this.hasFlag(flags, HAS_LEVEL)) {
-                registry = this.injected
-                predicates.add { this.minigame.levels.has((it as LevelEvent).level) }
-            }
-        }
-        if (MinigameEvent::class.java.isAssignableFrom(type)) {
-            if (this.hasFlag(flags, IS_MINIGAME)) {
-                registry = this.injected
-                predicates.add { this.minigame === (it as MinigameEvent).minigame }
-            }
-        }
-        if (predicates.isEmpty()) {
-            registry.register(type, listener)
-            return
-        }
-        registry.register(type, EventListener.of(listener.priority, listener.phase) { event ->
-            if (predicates.all { it(event) }) {
-                listener.invoke(event)
-            }
-        })
-    }
-
-    private fun hasFlag(flags: Int, flag: Int): Boolean {
-        return (flags and flag) == flag
     }
 }

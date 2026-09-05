@@ -8,7 +8,6 @@
   },
   "mixins": [
     "AbstractContainerMenuMixin",
-    "BaseFireBlockMixin",
     "EntityAccessor",
     "FarmBlockMixin",
     "FoodDataMixin",

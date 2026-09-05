@@ -4,6 +4,8 @@
  */
 package net.casual.arcade.minigame.managers
 
+import net.minecraft.world.level.storage.ValueOutput
+import com.mojang.serialization.Codec
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.tree.CommandNode
@@ -104,6 +106,10 @@ public class MinigameCommandManager(
             (command as DeletableCommand).arcade_deleteCommand(name)
             this.resendGlobalCommands()
         }
+    }
+
+    internal fun debug(output: ValueOutput) {
+        output.store("all", Codec.STRING.listOf(), this.getAllRootCommands().toList())
     }
 
     /**

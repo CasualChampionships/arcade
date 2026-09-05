@@ -44,7 +44,9 @@ public class SimpleTickedScheduler(
 ): TickedScheduler {
     private val tasks: Int2ObjectMap<Queue<ScheduledTaskImpl>> = Int2ObjectOpenHashMap()
     private var tickCount = 0
-    private var ticking = false
+
+    public var ticking: Boolean = false
+        private set
 
     private val scope: Lazy<CoroutineScope> = lazy {
         val handler = CoroutineExceptionHandler { _, throwable ->
@@ -163,7 +165,10 @@ public class SimpleTickedScheduler(
         return this.tickCount + ticks
     }
 
-    public fun serialize(output: ValueOutput.ValueOutputList) {
+    public fun serialize(
+        output: ValueOutput.ValueOutputList,
+        extra: (ScheduledTask, ValueOutput) -> Unit = { _, _ -> }
+    ) {
         for ((tick, queue) in this.tasks) {
             val delay = tick - this.tickCount
             for (entry in queue) {
@@ -174,16 +179,22 @@ public class SimpleTickedScheduler(
                 val data = output.addChild()
                 data.putInt("delay", delay)
                 task.serialize(data)
+                extra.invoke(task, data)
             }
         }
     }
 
-    public fun deserialize(input: ValueInput.ValueInputList, owner: Any?) {
+    public fun deserialize(
+        input: ValueInput.ValueInputList,
+        owner: Any?,
+        extra: (ScheduledTask, ValueInput) -> Unit = { _, _ -> }
+    ) {
         for (data in input) {
             val ticks = data.getInt("delay").getOrNull() ?: continue
             RoutineTask.create(data, owner).dispatch(
                 success = { task ->
                     this.schedule(ticks.Ticks, task)
+                    extra.invoke(task, data)
                     task.rehydrate(ticks.Ticks)
                 },
                 failure = { message -> ArcadeUtils.logger.error("Failed to load routine: $message") }

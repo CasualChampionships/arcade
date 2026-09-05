@@ -4,19 +4,23 @@
  */
 package net.casual.arcade.minigame.settings
 
-import com.mojang.serialization.Codec
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
-import java.util.*
+import net.minecraft.world.item.ItemStack
 import kotlin.reflect.KProperty
 
-public class GameSetting<T: Any>(
+public class GameSetting<T: Any> internal constructor(
     public val name: String,
-    private var value: T,
-    private val options: Map<String, T>,
-    private val codec: Codec<T>
+    public val type: GameSettingType<T>,
+    public val options: List<Option<T>>,
+    private val display: ItemStack?,
+    private val overrides: List<(ServerPlayer) -> T?>,
+    listeners: List<SettingListener<T>>,
+    appliers: List<SettingApplier<T>>,
+    private var value: T
 ) {
-    private val listeners by lazy { ArrayList<SettingListener<T>>() }
-    public var override: (ServerPlayer) -> T? = { null }
+    private val listeners = ArrayList(listeners)
+    private val appliers = ArrayList(appliers)
 
     public fun get(): T {
         return this.value
@@ -24,46 +28,76 @@ public class GameSetting<T: Any>(
 
     public fun get(player: ServerPlayer?): T {
         if (player == null) {
-            return this.get()
+            return this.value
         }
-        return this.override.invoke(player) ?: this.get()
+        for (override in this.overrides) {
+            val overridden = override.invoke(player)
+            if (overridden != null) {
+                return overridden
+            }
+        }
+        return this.value
     }
 
     public fun set(value: T) {
-        val previous = this.get()
-        for (listener in this.listeners) {
-            listener.onSet(this, previous, value)
+        val previous = this.value
+        if (previous == value) {
+            return
         }
-        this.setQuietly(value)
+        this.value = value
+        for (listener in this.listeners) {
+            listener.onChange(this, previous, value)
+        }
+        this.apply()
     }
 
     public fun setQuietly(value: T) {
         this.value = value
     }
 
-    public fun getOptions(): Map<String, T> {
-        return Collections.unmodifiableMap(this.options)
-    }
-
-    public fun getOption(option: String): T? {
-        return this.options[option]
-    }
-
-    public fun setFromOption(option: String): Boolean {
-        val value = this.getOption(option)
-        if (value != null) {
-            this.set(value)
-            return true
+    public fun apply() {
+        for (applier in this.appliers) {
+            applier.onApply(this, this.value)
         }
-        return false
+    }
+
+    public fun option(id: String): Option<T>? {
+        return this.options.firstOrNull { it.id == id }
+    }
+
+    public fun selected(): Option<T>? {
+        return this.options.firstOrNull { it.value == this.value }
+    }
+
+    public fun setFromOption(id: String): Boolean {
+        val option = this.option(id) ?: return false
+        this.set(option.value)
+        return true
+    }
+
+    public fun cycle(offset: Int) {
+        if (this.options.isEmpty()) {
+            return
+        }
+        val index = this.options.indexOfFirst { it.value == this.value }
+        val next = if (index == -1) 0 else (index + offset).mod(this.options.size)
+        this.set(this.options[next].value)
+    }
+
+    public fun hasDisplay(): Boolean {
+        return this.display != null
+    }
+
+    public fun display(): ItemStack? {
+        return this.display?.copy()
     }
 
     public fun addListener(listener: SettingListener<T>) {
         this.listeners.add(listener)
     }
 
-    public fun codec(): Codec<T> {
-        return this.codec
+    public fun addApplier(applier: SettingApplier<T>) {
+        this.appliers.add(applier)
     }
 
     public operator fun getValue(any: Any, property: KProperty<*>): T {
@@ -74,9 +108,13 @@ public class GameSetting<T: Any>(
         this.set(value)
     }
 
-    public companion object {
-        public fun <T: Any> generator(serializer: Codec<T>): (String, T, Map<String, T>) -> GameSetting<T> {
-            return { id, value, options -> GameSetting(id, value, options, serializer) }
-        }
+    override fun toString(): String {
+        return "GameSetting[name=${this.name}, value=${this.value}]"
     }
+
+    public data class Option<T: Any>(
+        public val id: String,
+        public val name: Component,
+        public val value: T
+    )
 }
