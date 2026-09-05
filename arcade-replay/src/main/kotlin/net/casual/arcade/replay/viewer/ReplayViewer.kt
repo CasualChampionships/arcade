@@ -13,8 +13,11 @@ import kotlinx.coroutines.*
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.player.PlayerServerboundPacketEvent
 import net.casual.arcade.events.utils.register
+import net.casual.arcade.pack.PackInfo
+import net.casual.arcade.pack.PackState
 import net.casual.arcade.pack.host.GlobalPackHost
-import net.casual.arcade.replay.ducks.ResourcePackTracker
+import net.casual.arcade.pack.utils.ResourcePackUtils
+import net.casual.arcade.pack.utils.ResourcePackUtils.toPushPacket
 import net.casual.arcade.replay.io.reader.ReplayReader
 import net.casual.arcade.replay.mixins.viewer.EntityInvoker
 import net.casual.arcade.replay.recorder.rejoin.RejoinedReplayPlayer
@@ -61,6 +64,7 @@ import java.util.function.Supplier
 import kotlin.io.path.nameWithoutExtension
 import kotlin.math.abs
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 public class ReplayViewer internal constructor(
     supplier: (ReplayViewer) -> ReplayReader,
@@ -88,7 +92,7 @@ public class ReplayViewer internal constructor(
 
     private val bossbar = ServerBossEvent(UUID.randomUUID(), Component.empty(), BossBarColor.BLUE, BossBarOverlay.PROGRESS)
 
-    private val previousPacks = ArrayList<ClientboundResourcePackPushPacket>()
+    private val previousPacks = ArrayList<PackInfo>()
 
     private var lastSentProgress = Duration.INFINITE
     private var progress = Duration.ZERO
@@ -285,7 +289,7 @@ public class ReplayViewer internal constructor(
                 }
 
                 while (this.shouldPauseStreaming()) {
-                    delay(50)
+                    delay(50.milliseconds)
                 }
 
                 this.playbackPacket(protocol, packet, time, active)
@@ -385,7 +389,7 @@ public class ReplayViewer internal constructor(
         level.addNewPlayer(player)
 
         for (pack in this.previousPacks) {
-            this.connection.send(pack)
+            this.connection.send(pack.toPushPacket(this.connection))
         }
 
         player.inventoryMenu.sendAllDataToRemote()
@@ -428,7 +432,7 @@ public class ReplayViewer internal constructor(
             }
         }
 
-        this.previousPacks.addAll((this.connection as ResourcePackTracker).arcade_getPacks())
+        this.previousPacks.addAll(ResourcePackUtils.getPlayerAllPackStates(this.player.uuid).map(PackState::info))
         this.send(ClientboundResourcePackPopPacket(Optional.empty()))
     }
 

@@ -4,7 +4,8 @@
  */
 package net.casual.arcade.replay.recorder.rejoin
 
-import net.casual.arcade.replay.ducks.ResourcePackTracker
+import net.casual.arcade.pack.utils.ResourcePackUtils
+import net.casual.arcade.pack.utils.ResourcePackUtils.toPushPacket
 import net.casual.arcade.replay.recorder.ReplayRecorder
 import net.casual.arcade.replay.viewer.ReplayViewerUtils
 import net.casual.arcade.utils.player.server
@@ -32,11 +33,13 @@ public class RejoinedReplayPlayer private constructor(
         // We pop all packs (in case it's a flashback snapshot)
         this.recorder.record(ClientboundResourcePackPopPacket(Optional.empty()))
 
-        val connection = this.original.connection
         // Our connection may be null if we're using a fake player
-        if (connection is ResourcePackTracker) {
-            for (packet in connection.arcade_getPacks()) {
-                this.recorder.record(packet)
+        val connection = this.original.connection
+        @Suppress("SENSELESS_COMPARISON")
+        if (connection != null) {
+            val states = ResourcePackUtils.getPlayerAllPackStates(this.uuid)
+            for (state in states) {
+                this.recorder.record(state.info.toPushPacket(connection))
             }
         }
     }
