@@ -56,6 +56,7 @@ public interface MinigameChatMode {
         }
 
         public fun bootstrap(registry: Registry<MapCodec<out MinigameChatMode>>) {
+            Global.register(registry)
             Spectator.register(registry)
             Admin.register(registry)
             OwnTeam.register(registry)
@@ -64,7 +65,7 @@ public interface MinigameChatMode {
     }
 
     public data object Global: MinigameChatMode, CodecProvider<Global> {
-        override val id: Identifier = arcade("spectator")
+        override val id: Identifier = arcade("global")
         override val codec: MapCodec<Global> = MapCodec.unit(Global)
 
         override val name: Component = Component.translatable("minigame.chat.mode.global")
