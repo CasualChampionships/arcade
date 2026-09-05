@@ -9,7 +9,35 @@ import com.mojang.serialization.MapCodec
 import net.casual.arcade.minigame.phase.MinigamePhase
 import net.minecraft.util.ExtraCodecs
 
+/**
+ * This represents a [Minigame]'s state.
+ *
+ * A minigame's lifecycle is as follows:
+ * [Created] -> [Ready] -> [Playing] -> [Closed].
+ * The state transitions are strictly forward moving
+ * and states should never be able to transition
+ * backwards.
+ *
+ * The minigame state is how you should be checking
+ * what part of the minigame lifecycle your minigame
+ * is in. An example can of how to do this can be
+ * seen below:
+ * ```
+ * val minigame: Minigame = // ...
+ * minigame.state.isAt(MyMinigamePhase.Foo)
+ * minigame.state >= MyMinigamePhase.Bar
+ * ```
+ *
+ * @see Minigame.state
+ */
 public sealed interface MinigameState {
+    /**
+     * This checks whether the state is [Playing]
+     * and is at the given [phase].
+     *
+     * @param phase The phase to check against.
+     * @return Whether the phase matches the state.
+     */
     public fun isAt(phase: MinigamePhase): Boolean {
         return (this as? Playing)?.phase == phase
     }
