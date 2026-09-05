@@ -29,7 +29,7 @@ public sealed interface MinigamePhaseLifetime {
     public fun type(): Type
 
     /**
-     * Survives every transition; only the minigame closing ends it.
+     * Survives every transition, only the minigame closing ends it.
      */
     public data object Forever: MinigamePhaseLifetime {
         override fun survives(previous: MinigamePhase, next: MinigamePhase): Boolean {
@@ -41,6 +41,10 @@ public sealed interface MinigamePhaseLifetime {
         }
     }
 
+    /**
+     * Doesn't survive any phase transition, essentially closes
+     * after any phase change.
+     */
     public data object Current: MinigamePhaseLifetime {
         override fun survives(previous: MinigamePhase, next: MinigamePhase): Boolean {
             return false
@@ -51,6 +55,9 @@ public sealed interface MinigamePhaseLifetime {
         }
     }
 
+    /**
+     * Survives only if the next phase comes *strictly after* the current one.
+     */
     public data object Forward: MinigamePhaseLifetime {
         override fun survives(previous: MinigamePhase, next: MinigamePhase): Boolean {
             return next > previous
@@ -61,6 +68,9 @@ public sealed interface MinigamePhaseLifetime {
         }
     }
 
+    /**
+     * Survives if the next phase is *strictly before* [bound].
+     */
     public data class Until(public val bound: MinigamePhase): MinigamePhaseLifetime {
         override fun survives(previous: MinigamePhase, next: MinigamePhase): Boolean {
             return next < this.bound
@@ -71,6 +81,9 @@ public sealed interface MinigamePhaseLifetime {
         }
     }
 
+    /**
+     * Survives if the next phase is in the [phases] set.
+     */
     public data class During(public val phases: Set<MinigamePhase>): MinigamePhaseLifetime {
         override fun survives(previous: MinigamePhase, next: MinigamePhase): Boolean {
             return this.phases.contains(next)
@@ -81,6 +94,9 @@ public sealed interface MinigamePhaseLifetime {
 
     }
 
+    /**
+     * Survives if the next phase is *strictly between* [lower] and [upper].
+     */
     public data class Between(public val lower: MinigamePhase, public val upper: MinigamePhase): MinigamePhaseLifetime {
         override fun survives(previous: MinigamePhase, next: MinigamePhase): Boolean {
             return this.lower < next && next < this.upper
