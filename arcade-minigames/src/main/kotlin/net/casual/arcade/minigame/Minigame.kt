@@ -12,8 +12,10 @@ import net.casual.arcade.minigame.component.MinigameComponents
 import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.managers.*
 import net.casual.arcade.minigame.phase.MinigamePhase
+import net.casual.arcade.minigame.routine.MinigameRoutine
 import net.casual.arcade.minigame.managers.MinigamePhaseManager
 import net.casual.arcade.minigame.scope.MinigameScopes
+import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.serialization.MinigameSerializer
 import net.casual.arcade.minigame.serialization.SerializableMinigame
 import net.casual.arcade.minigame.settings.MinigameSettings
@@ -22,6 +24,7 @@ import net.casual.arcade.minigame.utils.MinigameResources.Companion.removeFrom
 import net.casual.arcade.minigame.utils.MinigameResources.Companion.sendTo
 import net.casual.arcade.minigame.utils.MinigameUtils
 import net.casual.arcade.scheduler.TickedScheduler
+import net.casual.arcade.scheduler.task.routine.Routine
 import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.InteractionResult
@@ -34,21 +37,98 @@ import kotlin.enums.EnumEntries
  * This class represents a [Minigame] which players can play.
  * This is the superclass of all minigames.
  *
- * This implements the bare-bones logic for a minigame and
- * has common utilities used in minigames.
+ * Minigames are designed around phases. Every minigame requires a
+ * list of phases which is implemented as an enum of [MinigamePhase].
+ * This describes *what* the minigame is doing, and in what order
+ * it does them in. Logic is then tied to the phases via [Minigame.phases],
+ * this can either be done via coroutines OR [Routine]s depending on
+ * whether your minigame also implements [SerializableMinigame].
+ * See [MinigamePhaseManager] for details.
  *
- * Each minigame has its own set of managers which manage
- * all the core functionality of the minigame, see the fields
- * of this class for more information.
+ * Minigames also provide a set of built-in manager to handle a lot
+ * of what a minigame may need. From managing [players], [levels],
+ * [teams], displaying [visuals], having configurable [settings],
+ * and registering minigame-specific [commands], [recipes], and [advancements].
+ * See the documentation for each of the managers for more info.
  *
- * As well as the minigames own state, see: [phases], [paused].
- * See more info about phases here: [MinigamePhase].
+ * As previously mentioned minigames can implement [SerializableMinigame]
+ * which provides additional methods for allowing them to be saved and
+ * reloaded over a server restart. See the [SerializableMinigame] for
+ * further details on how to implement it.
  *
- * You can implement your own minigame by extending this class.
+ * Below is a basic example of how to implement your own minigame:
+ * ```
+ * enum class ExamplePhase: MinigamePhase {
+ *     Grace,
+ *     Active,
+ *     GameOver
+ * }
+ *
+ * class ExampleMinigame(
+ *     server: MinecraftServer,
+ *     uuid: UUID
+ * ): Minigame(server, uuid, ID, ExamplePhase.entries) {
+ *     val level: ServerLevel get() = this.levels.require(LEVEL)
+ *
+ *     @Listener
+ *     private fun onInitialize(event: MinigameInitializeEvent) {
+ *         this.levels.create(LEVEL) {
+ *             randomDimensionKey()
+ *             vanillaDefaults(VanillaDimension.Overworld)
+ *         }
+ *
+ *         this.phases.coroutines[ExamplePhase.Grace] = this::runGraceLogic
+ *         this.phases.coroutines[ExamplePhase.Active] = this::runActiveLogic
+ *     }
+ *
+ *     @Listener
+ *     private fun onMinigameAddPlayer(event: MinigameAddPlayerEvent) {
+ *         event.player.teleportTo(Location.DEFAULT.with(this.level))
+ *     }
+ *
+ *     private suspend fun runGraceLogic() {
+ *         try {
+ *             this.settings.canPvp.set(false)
+ *             delay(5.Minutes)
+ *             this.chat.broadcast(Component.literal("The grace period is over!"))
+ *         } finally {
+ *             this.settings.canPvp.set(true)
+ *         }
+ *     }
+ *
+ *     private suspend fun runActiveLogic() {
+ *         val scope = this.scopes.create(MinigamePhaseLifetime.Current)
+ *         scope.register<PlayerDeathEvent> { (player) ->
+ *             player.sendSystemMessage(Component.literal("You died!"))
+ *         }
+ *         awaitCancellation()
+ *     }
+ *
+ *     companion object {
+ *         val ID: Identifier = Identifier("modid", "example")
+ *         val LEVEL: Identifier = Identifier("modid", "example_level")
+ *     }
+ * }
+ * ```
+ *
+ * To use your created minigame, you can either register a [MinigameFactory]
+ * and use `/minigame` in-game. Or you can programatically create your
+ * minigame:
+ * ```
+ * val server: MinecraftServer = // ...
+ * val minigame = ExampleMinigame(server, UUID.randomUUID())
+ * for (player in server.players) {
+ *     minigame.players.add(player)
+ * }
+ * minigame.start()
+ * ```
  *
  * @param server The [MinecraftServer] that created the [Minigame].
+ * @param uuid The unique id for this minigame.
+ * @param id The [Identifier] of the [Minigame].
  * @param phases The complete set of phases this minigame may be in, in order.
  * @see MinigamePhase
+ * @see SerializableMinigame
  */
 public abstract class Minigame(
     /**
@@ -212,6 +292,11 @@ public abstract class Minigame(
      */
     public open val settings: MinigameSettings = MinigameSettings(this)
 
+    /**
+     * The current state of the minigame.
+     *
+     * @see MinigameState
+     */
     public var state: MinigameState = MinigameState.Created
         internal set
 
@@ -400,6 +485,11 @@ public abstract class Minigame(
             .resolve(this.uuid.toString())
     }
 
+    /**
+     * Writes any useful debug data to the given [output].
+     *
+     * @param output The output to write debug data.
+     */
     public open fun debug(output: ValueOutput) {
         output.putString("type", this::class.java.simpleName)
         output.putString("id", this.id.toString())
