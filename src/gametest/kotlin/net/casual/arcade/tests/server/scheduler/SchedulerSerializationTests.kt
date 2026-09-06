@@ -150,6 +150,30 @@ object SchedulerSerializationTests: ArcadeTestSuite() {
     }
 
     @GameTest
+    fun `deserialized routine keeps awaiting cancellation`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        scheduler.schedule(HeldRoutine(), owner)
+
+        scheduler.tick()
+        assertTrue(owner.held, "Routine did not take hold of its state")
+
+        val restored = RoutineOwner()
+        val loaded = SimpleTickedScheduler.server()
+        loaded.load(server, scheduler.save(server), restored)
+
+        assertTrue(restored.held, "Restored routine did not rebuild its state")
+        assertEquals(listOf("held"), restored.log, "Restored routine ran past its suspension point")
+
+        loaded.tick(80)
+        assertEquals(listOf("held"), restored.log, "Restored routine resumed without being cancelled")
+
+        assertTrue(loaded.cancelAll())
+        assertFalse(restored.held, "Restored routine never released its state")
+        assertEquals(listOf("held", "released"), restored.log)
+    }
+
+    @GameTest
     fun `tasks are not serialized`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()

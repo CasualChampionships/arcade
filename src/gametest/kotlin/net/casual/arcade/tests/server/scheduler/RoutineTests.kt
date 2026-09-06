@@ -221,6 +221,34 @@ object RoutineTests: ArcadeTestSuite() {
     }
 
     @GameTest
+    fun `routine awaiting cancellation suspends indefinitely`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        val handle = scheduler.schedule(HeldRoutine(), owner)
+
+        scheduler.tick(100)
+        assertTrue(owner.held, "Routine did not take hold of its state")
+        assertEquals(listOf("held"), owner.log, "Routine resumed without being cancelled")
+        assertFalse(handle.isFinished, "Routine reported finished while awaiting cancellation")
+
+        handle.cancel()
+        assertFalse(owner.held, "Routine never released its state")
+        assertEquals(listOf("held", "released"), owner.log)
+        assertTrue(handle.isFinished, "Routine did not report finished once it was cancelled")
+    }
+
+    @GameTest
+    fun `routine awaiting cancellation is cancelled with the scheduler`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        scheduler.schedule(HeldRoutine(), owner)
+
+        scheduler.tick()
+        assertTrue(scheduler.cancelAll(), "Scheduler did not report cancelling the routine")
+        assertEquals(listOf("held", "released"), owner.log, "Routine was not cancelled with its scheduler")
+    }
+
+    @GameTest
     fun `routine suspends until awaited event`(context: TestContext) = context.test {
         val owner = RoutineOwner()
         val scheduler = SimpleTickedScheduler.server()

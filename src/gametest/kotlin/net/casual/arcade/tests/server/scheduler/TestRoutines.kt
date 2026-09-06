@@ -205,6 +205,28 @@ class HoldingRoutine(
     }
 }
 
+class HeldRoutine: Routine<RoutineOwner> {
+    override fun codec(): MapCodec<out Routine<RoutineOwner>> {
+        return codec
+    }
+
+    override suspend fun RoutineScope<RoutineOwner>.run() {
+        owner.held = true
+        owner.log("held")
+        try {
+            awaitCancellation()
+        } finally {
+            owner.held = false
+            owner.log("released")
+        }
+    }
+
+    companion object: CodecProvider<HeldRoutine> {
+        override val id: Identifier = arcade("held")
+        override val codec: MapCodec<HeldRoutine> = MapCodec.unit(::HeldRoutine)
+    }
+}
+
 class SelfCancellingRoutine(
     val delay: Int
 ): Routine<RoutineOwner> {
@@ -321,6 +343,7 @@ object TestRoutines {
         OutdatedRoutine.register(TaskRegistries.ROUTINE)
         DivergingRoutine.register(TaskRegistries.ROUTINE)
         HoldingRoutine.register(TaskRegistries.ROUTINE)
+        HeldRoutine.register(TaskRegistries.ROUTINE)
         SelfCancellingRoutine.register(TaskRegistries.ROUTINE)
         AwaitingRoutine.register(TaskRegistries.ROUTINE)
         RecordingAwaitRoutine.register(TaskRegistries.ROUTINE)

@@ -262,6 +262,33 @@ internal class RoutineTask<O>(
             }
         }
 
+        override suspend fun awaitCancellation(): Nothing {
+            if (this.task.cancelling) {
+                throw RoutineCancelledException()
+            }
+            this.task.throwIfCancelled()
+
+            val index = this.task.index++
+            if (index < this.task.replayTo) {
+                val message = this.task.journal.verify(index, RoutineJournal.Kind.AwaitCancellation, null)
+                this.task.diverged(message ?: "routine resumed past awaitCancellation at index $index")
+            }
+
+            this.task.journal.record(index, RoutineJournal.Kind.AwaitCancellation, null)
+            this.task.journal.suspendedAt(index)
+
+            try {
+                suspendCoroutineUninterceptedOrReturn<Any?> { continuation ->
+                    this.task.suspendAt(continuation)
+                    this.task.scheduler?.startAwaiting(this.task)
+                    COROUTINE_SUSPENDED
+                }
+            } finally {
+                this.task.stopAwaiting()
+            }
+            throw RoutineCancelledException()
+        }
+
         override suspend fun <E: Event, T: E> await(
             type: Class<T>,
             registry: ListenerRegistry<E>,
@@ -293,7 +320,7 @@ internal class RoutineTask<O>(
 
             val index = this.task.index++
             if (index < this.task.replayTo) {
-                val message = this.task.journal.verify(index, RoutineJournal.Kind.Await, id)
+                val message = this.task.journal.verify(index, RoutineJournal.Kind.AwaitEvent, id)
                 if (message != null) {
                     this.task.diverged(message)
                 }
@@ -301,7 +328,7 @@ internal class RoutineTask<O>(
                     ?: this.task.diverged("await at index $index has no recorded value")
             }
 
-            this.task.journal.record(index, RoutineJournal.Kind.Await, id)
+            this.task.journal.record(index, RoutineJournal.Kind.AwaitEvent, id)
             this.task.journal.suspendedAt(index)
 
             val event = try {
@@ -314,7 +341,7 @@ internal class RoutineTask<O>(
             }
 
             val value = block.invoke(event)
-            this.task.journal.record(index, RoutineJournal.Kind.Await, id, RoutineJournal.Value.of(codec, value))
+            this.task.journal.record(index, RoutineJournal.Kind.AwaitEvent, id, RoutineJournal.Value.of(codec, value))
             return value
         }
 

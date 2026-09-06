@@ -5,6 +5,7 @@
 package net.casual.arcade.scheduler.task.routine
 
 import com.mojang.serialization.Codec
+import kotlinx.coroutines.CancellationException
 import net.casual.arcade.events.ListenerRegistry
 import net.casual.arcade.events.common.Event
 import net.casual.arcade.events.phase.BuiltInEventPhases
@@ -161,4 +162,11 @@ public interface RoutineScope<out O> {
         predicate: (T) -> Boolean = { true },
         block: (T) -> R
     ): R
+
+    /**
+     * Suspends until cancellation, in which case it will throw a [CancellationException].
+     *
+     * @see kotlinx.coroutines.awaitCancellation
+     */
+    public suspend fun awaitCancellation(): Nothing
 }
