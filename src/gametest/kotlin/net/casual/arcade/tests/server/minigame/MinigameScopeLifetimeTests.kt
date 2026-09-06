@@ -24,7 +24,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest
     fun `forever scope survives all phase changes`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.Forever)
 
         minigame.phases.set(Active)
@@ -39,7 +39,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest
     fun `current scope closes on phase change`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val forward = minigame.scopes.create(MinigamePhaseLifetime.Current)
 
         minigame.phases.set(Active)
@@ -52,7 +52,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest
     fun `current scope closes on a forced phase change`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.Current)
 
         minigame.phases.set(Grace, force = true)
@@ -62,7 +62,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest
     fun `forward scope survives a forward phase change`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.Forward)
 
         minigame.phases.set(Active)
@@ -72,7 +72,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest
     fun `forward scope closes on a rewind`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Active).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Active).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.Forward)
 
         minigame.phases.set(Grace)
@@ -82,7 +82,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest
     fun `forward scope closes on a forced phase change`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.Forward)
 
         minigame.phases.set(Grace, force = true)
@@ -92,7 +92,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest
     fun `until scope survives before its bound phase`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.Until(Over))
 
         minigame.phases.set(Active)
@@ -102,7 +102,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest
     fun `until scope closes at its bound phase`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.Until(Active))
 
         minigame.phases.set(Active)
@@ -112,7 +112,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest
     fun `until scope survives a forced phase change`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.Until(Over))
 
         minigame.phases.set(Grace, force = true)
@@ -122,7 +122,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest
     fun `during scope survives a listed phase`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.During(setOf(Grace, Active)))
 
         minigame.phases.set(Active)
@@ -132,7 +132,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest
     fun `during scope closes on an unlisted phase`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.During(setOf(Grace, Active)))
 
         minigame.phases.set(Over)
@@ -142,7 +142,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest
     fun `during scope survives a forced phase change`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.During(setOf(Grace)))
 
         minigame.phases.set(Grace, force = true)
@@ -152,7 +152,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest
     fun `between scope survives inside its bounds`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.Between(Grace, Over))
 
         minigame.phases.set(Active)
@@ -162,7 +162,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest
     fun `between scope closes at its upper bound`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.Between(Grace, Over))
 
         minigame.phases.set(Over)
@@ -172,7 +172,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest
     fun `between scope closes at its lower bound`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Active).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Active).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.Between(Grace, Over))
 
         minigame.phases.set(Grace)
@@ -182,7 +182,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest
     fun `between scope survives a forced phase change`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Active).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Active).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.Between(Grace, Over))
 
         minigame.phases.set(Active, force = true)
@@ -192,7 +192,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 60)
     fun `closing a scope cancels its tasks`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.Current)
 
         var ran = false
@@ -207,7 +207,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest
     fun `closing a scope unregisters its listeners`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.Current)
 
         var received = 0
@@ -224,7 +224,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 60)
     fun `scheduling into a closed scope is rejected`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.Current)
 
         minigame.phases.set(Active)
@@ -239,7 +239,7 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
 
     @GameTest
     fun `closing the minigame closes every scope`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val scopes = listOf(
             minigame.scopes.create(MinigamePhaseLifetime.Forever),
             minigame.scopes.create(MinigamePhaseLifetime.Current),

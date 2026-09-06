@@ -12,6 +12,10 @@ fun TestContext.minigame(): TestMinigameBuilder<TestMinigame> {
     return this.minigame(::TestMinigame)
 }
 
+fun TestMinigameBuilder<TestMinigame>.transient(): TestMinigameBuilder<TransientTestMinigame> {
+    return this.constructor(::TransientTestMinigame)
+}
+
 fun TestMinigameBuilder<TestMinigame>.score(score: Int): TestMinigameBuilder<TestMinigame> {
     return this.configure { it.score = score }
 }

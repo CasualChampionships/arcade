@@ -21,5 +21,6 @@ object TestMinigames {
         TestRoundRoutine.register(TaskRegistries.ROUTINE)
         TestSettingRoutine.register(TaskRegistries.ROUTINE)
         TestAwaitingRoutine.register(TaskRegistries.ROUTINE)
+        TestAnyRoutine.register(TaskRegistries.ROUTINE)
     }
 }

@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.tests.server.minigame
 
+import kotlinx.coroutines.awaitCancellation
 import net.casual.arcade.gametest.TestContext
 import net.casual.arcade.tests.server.ArcadeTestSuite
 import net.casual.arcade.tests.server.minigame.utils.TestMinigamePhase.Active
@@ -15,9 +16,13 @@ import net.casual.arcade.tests.server.minigame.utils.TestMinigameStage.PhaseSetR
 import net.casual.arcade.tests.server.minigame.utils.TestMinigameStage.RoundPlayed
 import net.casual.arcade.tests.server.minigame.utils.TestRoundRoutine
 import net.casual.arcade.tests.server.minigame.utils.TestSettingRoutine
+import net.casual.arcade.tests.server.minigame.utils.TestAnyRoutine
 import net.casual.arcade.tests.server.minigame.utils.minigame
+import net.casual.arcade.tests.server.minigame.utils.transient
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.TimeUtils.Seconds
+import net.casual.arcade.utils.TimeUtils.Ticks
+import net.casual.arcade.utils.coroutine.delay
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 
 @Suppress("FunctionName", "Unused")
@@ -122,5 +127,62 @@ object MinigamePhaseTransitionTests: ArcadeTestSuite() {
         assertEventually(5.Seconds, "Phase set inside a routine was never applied") {
             minigame.phaseOrNull == Grace
         }
+    }
+
+    @GameTest(maxTicks = 200)
+    fun `phase coroutine advances to the next phase when it returns`(context: TestContext) = context.test {
+        val minigame = minigame().transient().configure { game ->
+            game.phases.coroutines[Active] = { delay(5.Ticks) }
+        }.phase(Active).start()
+
+        assertEventually(5.Seconds, "Phase coroutine did not advance to the next phase") {
+            minigame.phaseOrNull == Over
+        }
+    }
+
+    @GameTest(maxTicks = 200)
+    fun `phase coroutine is cancelled when its phase ends`(context: TestContext) = context.test {
+        var cancelled = false
+        val minigame = minigame().transient().configure { game ->
+            game.phases.coroutines[Active] = {
+                try {
+                    awaitCancellation()
+                } finally {
+                    cancelled = true
+                }
+            }
+        }.phase(Active).start()
+
+        assertNever(1.Seconds, "Phase coroutine was cancelled while its phase was current") { cancelled }
+
+        minigame.phases.set(Over)
+        assertEventually(1.Seconds, "Phase coroutine was not cancelled when its phase ended") { cancelled }
+    }
+
+    @GameTest
+    fun `serializable minigame cannot set a phase coroutine`(context: TestContext) = context.test {
+        val minigame = minigame().withoutPhaseLogic().start()
+
+        assertThrows<IllegalArgumentException> {
+            minigame.phases.coroutines[Active] = { }
+        }
+    }
+
+    @GameTest
+    fun `minigame cannot mix routines and coroutines`(context: TestContext) = context.test {
+        val first = minigame().transient().start()
+        first.phases.coroutines[Active] = { }
+        assertThrows<IllegalArgumentException> {
+            first.phases.routines[Grace] = TestAnyRoutine()
+        }
+
+        val second = minigame().transient().start()
+        second.phases.routines[Active] = TestAnyRoutine()
+        assertThrows<IllegalArgumentException> {
+            second.phases.coroutines[Grace] = { }
+        }
+
+        second.phases.routines.remove(Active)
+        second.phases.coroutines[Grace] = { }
     }
 }

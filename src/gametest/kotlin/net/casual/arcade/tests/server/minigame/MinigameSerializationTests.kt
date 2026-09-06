@@ -169,7 +169,7 @@ object MinigameSerializationTests: ArcadeTestSuite() {
 
     @GameTest
     fun `minigame saves happen in order`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().score(1).start()
+        val minigame = minigame().withoutPhaseLogic().score(1).start()
 
         val first = minigame.save()
         minigame.score = 2
@@ -187,7 +187,7 @@ object MinigameSerializationTests: ArcadeTestSuite() {
 
     @GameTest(maxTicks = 100)
     fun `awaiting phase routine is restored`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(TestMinigamePhase.Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(TestMinigamePhase.Grace).start()
         minigame.phases.routines[TestMinigamePhase.Active] = TestAwaitingRoutine()
         minigame.phases.set(TestMinigamePhase.Active)
 

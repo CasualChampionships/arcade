@@ -13,14 +13,22 @@ import java.util.UUID
 
 public class TestMinigameBuilder<M: Minigame> internal constructor(
     private val context: TestContext,
-    private val constructor: (MinecraftServer, UUID) -> M
+    private var constructor: (MinecraftServer, UUID) -> M
 ) {
     private val components = ArrayList<MinigameComponent>()
     private val configurations = ArrayList<(M) -> Unit>()
 
     private var uuid: UUID = UUID.randomUUID()
     private var phase: MinigamePhase? = null
-    private var removePhaseRoutines: Boolean = false
+    private var removePhaseLogic: Boolean = false
+
+    public fun <T: Minigame> constructor(constructor: (MinecraftServer, UUID) -> T): TestMinigameBuilder<T> {
+        @Suppress("UNCHECKED_CAST")
+        val builder = this as TestMinigameBuilder<T>
+        builder.constructor = constructor
+        builder.configurations.clear()
+        return builder
+    }
 
     public fun uuid(uuid: UUID): TestMinigameBuilder<M> {
         this.uuid = uuid
@@ -37,8 +45,8 @@ public class TestMinigameBuilder<M: Minigame> internal constructor(
         return this
     }
 
-    public fun withoutPhaseRoutines(): TestMinigameBuilder<M> {
-        this.removePhaseRoutines = true
+    public fun withoutPhaseLogic(): TestMinigameBuilder<M> {
+        this.removePhaseLogic = true
         return this
     }
 
@@ -50,14 +58,14 @@ public class TestMinigameBuilder<M: Minigame> internal constructor(
     public fun create(): M {
         val minigame = this.build()
         minigame.tryInitialize()
-        this.tryRemovePhaseRoutines(minigame)
+        this.tryRemovePhaseLogic(minigame)
         return minigame
     }
 
     public fun start(): M {
         val minigame = this.build()
         minigame.start()
-        this.tryRemovePhaseRoutines(minigame)
+        this.tryRemovePhaseLogic(minigame)
 
         val phase = this.phase
         if (phase != null) {
@@ -78,10 +86,11 @@ public class TestMinigameBuilder<M: Minigame> internal constructor(
         return minigame
     }
 
-    private fun tryRemovePhaseRoutines(minigame: Minigame) {
-        if (this.removePhaseRoutines) {
+    private fun tryRemovePhaseLogic(minigame: Minigame) {
+        if (this.removePhaseLogic) {
             for (phase in minigame.phases) {
                 minigame.phases.routines.remove(phase)
+                minigame.phases.coroutines.remove(phase)
             }
         }
     }

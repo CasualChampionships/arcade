@@ -29,7 +29,7 @@ object MinigameTeardownTests: ArcadeTestSuite() {
 
     @GameTest
     fun `scope registered close listener fires`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val scope = minigame.scopes.create(MinigamePhaseLifetime.Forever)
 
         var closed = false
@@ -42,7 +42,7 @@ object MinigameTeardownTests: ArcadeTestSuite() {
 
     @GameTest
     fun `close listener still sees the minigame playing`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
 
         var state: MinigameState? = null
         var started = false
@@ -59,7 +59,7 @@ object MinigameTeardownTests: ArcadeTestSuite() {
 
     @GameTest
     fun `close listener still sees the players`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         minigame.players.add(player().spawn())
 
         var players = -1
@@ -91,7 +91,7 @@ object MinigameTeardownTests: ArcadeTestSuite() {
     @GameTest
     fun `closing closes every component`(context: TestContext) = context.test {
         val component = TestScoreComponent()
-        val minigame = minigame().withoutPhaseRoutines().component(component).start()
+        val minigame = minigame().withoutPhaseLogic().component(component).start()
 
         minigame.close()
 
@@ -100,7 +100,7 @@ object MinigameTeardownTests: ArcadeTestSuite() {
 
     @GameTest
     fun `close is idempotent`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
 
         var closes = 0
         val handle = GlobalEventHandler.Server.register<MinigameCloseEvent> {
@@ -121,7 +121,7 @@ object MinigameTeardownTests: ArcadeTestSuite() {
 
     @GameTest
     fun `complete is terminal and broadcasts once`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
 
         var completions = 0
         val handle = GlobalEventHandler.Server.register<MinigameCompleteEvent> {
@@ -143,7 +143,7 @@ object MinigameTeardownTests: ArcadeTestSuite() {
 
     @GameTest
     fun `closing without completing is not completed`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
 
         minigame.close()
 
@@ -153,7 +153,7 @@ object MinigameTeardownTests: ArcadeTestSuite() {
 
     @GameTest
     fun `closed minigame is unregistered`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         assertNotNull(Minigames.get(minigame.uuid), "Minigame was not registered while it was playing")
 
         minigame.close()
@@ -163,7 +163,7 @@ object MinigameTeardownTests: ArcadeTestSuite() {
 
     @GameTest
     fun `closed minigame cannot change phase`(context: TestContext) = context.test {
-        val minigame = minigame().withoutPhaseRoutines().phase(Grace).start()
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         minigame.close()
 
         assertThrows<IllegalStateException> {

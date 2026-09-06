@@ -19,6 +19,8 @@ import kotlin.jvm.optionals.getOrNull
 /**
  * This class is responsible for registering [Routine]s
  * tied to [MinigamePhase]s.
+ *
+ * This is the serializable counterpart to [MinigamePhaseCoroutines].
  */
 public class MinigamePhaseRoutines internal constructor(
     private val phases: MinigamePhaseManager,
@@ -45,11 +47,15 @@ public class MinigamePhaseRoutines internal constructor(
      * @param phase The phase to set the routine for.
      * @param routine The routine.
      * @throws IllegalArgumentException If [phase] is not a valid phase for the minigame,
-     *   if the [routine] isn't registered, or if the [routine] isn't valid for this minigame.
+     *   if the [routine] isn't registered, if the [routine] isn't valid for this minigame,
+     *   or if the minigame already uses coroutines for its phases.
      */
     public operator fun set(phase: MinigamePhase, routine: Routine<out Minigame>) {
         require(this.phases.contains(phase)) {
             "Phase ${phase.id} is not a phase of minigame ${this.minigame.id}"
+        }
+        require(this.phases.coroutines.isEmpty()) {
+            "Minigame ${this.minigame.id} already uses coroutines for its phases, you cannot mix the two"
         }
         this.routines[phase] = this.validate(routine)
     }
@@ -73,6 +79,10 @@ public class MinigamePhaseRoutines internal constructor(
      */
     public fun remove(phase: MinigamePhase): Routine<Minigame>? {
         return this.routines.remove(phase)
+    }
+
+    internal fun isEmpty(): Boolean {
+        return this.routines.isEmpty()
     }
 
     internal fun serialize(output: ValueOutput.ValueOutputList) {

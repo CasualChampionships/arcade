@@ -7,6 +7,7 @@ package net.casual.arcade.minigame.managers
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 import com.mojang.serialization.Codec
+import kotlinx.coroutines.launch
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.MinigameState
@@ -14,6 +15,7 @@ import net.casual.arcade.minigame.events.MinigameSetPhaseEvent
 import net.casual.arcade.minigame.managers.phase.AdvancingPhaseRoutine
 import net.casual.arcade.minigame.phase.MinigamePhase
 import net.casual.arcade.minigame.phase.MinigamePhaseLifetime
+import net.casual.arcade.minigame.managers.phase.MinigamePhaseCoroutines
 import net.casual.arcade.minigame.managers.phase.MinigamePhaseRoutines
 import net.casual.arcade.minigame.routine.requestPhase
 import net.casual.arcade.scheduler.task.routine.Routine
@@ -35,9 +37,20 @@ public class MinigamePhaseManager internal constructor(
     /**
      * Stores the [Routine]s associated to each phase.
      *
+     * This should be used if your minigame is serializable.
+     *
      * @see MinigamePhaseRoutines
      */
     public val routines: MinigamePhaseRoutines = MinigamePhaseRoutines(this, this.minigame)
+
+    /**
+     * Stores the coroutines associated to each phase.
+     *
+     * This should be used if your minigame is non-serializable.
+     *
+     * @see MinigamePhaseCoroutines
+     */
+    public val coroutines: MinigamePhaseCoroutines = MinigamePhaseCoroutines(this, this.minigame)
 
     /**
      * The codec for the [minigame]'s phases.
@@ -142,9 +155,18 @@ public class MinigamePhaseManager internal constructor(
 
     internal fun enter(phase: MinigamePhase, previous: MinigamePhase?) {
         val routine = this.routines[phase]
-        if (routine != null) {
+        val coroutine = this.coroutines[phase]
+        if (routine != null || coroutine != null) {
             val scope = this.minigame.scopes.create(MinigamePhaseLifetime.Current)
-            scope.schedule(MinecraftTimeDuration.ZERO, AdvancingPhaseRoutine(routine))
+            if (routine != null) {
+                scope.schedule(MinecraftTimeDuration.ZERO, AdvancingPhaseRoutine(routine))
+            }
+            if (coroutine != null) {
+                scope.asCoroutineScope().launch {
+                    coroutine.invoke()
+                    tryRequestAdvance()
+                }
+            }
         }
 
         GlobalEventHandler.Server.broadcast(MinigameSetPhaseEvent(this.minigame, phase, previous))
