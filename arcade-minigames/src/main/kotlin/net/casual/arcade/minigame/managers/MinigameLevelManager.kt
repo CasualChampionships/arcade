@@ -10,14 +10,11 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap
 import net.casual.arcade.dimensions.level.CustomLevel
 import net.casual.arcade.dimensions.level.LevelPersistence
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
-import net.casual.arcade.dimensions.utils.addCustomLevel
-import net.casual.arcade.dimensions.utils.deleteCustomLevel
-import net.casual.arcade.dimensions.utils.hasCustomLevel
-import net.casual.arcade.dimensions.utils.loadCustomLevel
-import net.casual.arcade.dimensions.utils.removeCustomLevel
+import net.casual.arcade.dimensions.utils.*
+import net.casual.arcade.events.server.level.LevelEvent
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.events.MinigameInitializeEvent
 import net.casual.arcade.minigame.exception.MinigameSerializationException
+import net.casual.arcade.minigame.serialization.SerializableMinigame
 import net.casual.arcade.minigame.utils.MinigameUtils.minigame
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.math.location.LocationWithLevel
@@ -25,6 +22,7 @@ import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
 import net.minecraft.core.Vec3i
 import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.StringRepresentable
@@ -39,8 +37,29 @@ import kotlin.jvm.optionals.getOrNull
 /**
  * This class manages the levels of a minigame.
  *
- * It has full support for managing [CustomLevel] instances
- * if you are using the dimensions api.
+ * Any levels that are part of your minigame should be
+ * added via [add], as this allows the minigame's event
+ * manager to filter out [LevelEvent]s that are not
+ * relevant to your minigame.
+ *
+ * Levels can be added with different ownership rules which
+ * determine how a minigame handles the level when closing.
+ * Ownership is determined by [LevelOwnership]:
+ * - [LevelOwnership.Borrowed] means that the minigame takes
+ * no responsibility in removing or deleting the level after
+ * the minigame is closed. This should typically only be used
+ * if you are either using a vanilla dimension *or* have
+ * some other manual management for your levels.
+ * - [LevelOwnership.Owned] means that the minigame owns
+ * responsibility for removing the level after the minigame
+ * is closed, but it *doesn't* delete the level.
+ * - [LevelOwnership.Exclusive] means that the minigame owns
+ * *full* responsibility for removing *and* deleting the level
+ * after the minigame is closed.
+ *
+ * Ideally minigames should have *exclusive ownership* of their
+ * levels which only exist exclusively during a minigame's lifetime,
+ * which allows the minigame to completely manage the level itself.
  *
  * @see Minigame.levels
  */
@@ -54,25 +73,44 @@ public class MinigameLevelManager(
      * The default spawn location for the minigame.
      *
      * If this is not set and a player dies without a respawn
-     * point, then the player will respawn in the overworld
+     * point, then the player will respawn in `minecraft:overworld`
      * at the default world spawn.
      */
     public var spawn: SpawnLocation = SpawnLocation.global()
 
     /**
-     * This adds a level to the minigame.
+     * This adds a level to the minigame under a specified [id].
      *
-     * If you are using instances of [CustomLevel] you can
-     * allow the minigame to handle the loading/unloading of
-     * the level over the minigame's lifetime.
+     * The [level] provided can then later be queried via [get]
+     * providing the same [id]. The [id] *does not* need to match
+     * [Level.dimension]'s id, but must be unique to other levels
+     * added via this method. This allows for the level handler
+     * to handle level serialization and re-linking after a reload.
      *
-     * If you add an instance of [CustomLevel] which **has not**
-     * been added to the server then the minigame will handle
-     * adding and removing the level, if you previously added
-     * the level to the server, then you will also need
-     * to handle removing the level.
+     * The [ownership] of the level determines how the minigame
+     * handles the level when the minigame closes, see [LevelOwnership]
+     * for specifics. The [ownership] provided must be compatible
+     * with the [level] provided - for example, [LevelOwnership.Borrowed]
+     * works with any [ServerLevel], whereas the other ownership types
+     * require [CustomLevel]. If your minigame is serializable then the
+     * level's persistence must not be [LevelPersistence.Transient].
      *
+     * The provided [level] doesn't need to be already added to the
+     * server via [MinecraftServer.addCustomLevel], the minigame will
+     * do this automatically (if not already added) when it initializes.
+     *
+     * Typically [create] is preferred over [add] as it allows the
+     * minigame to deal with the level creation/initialization, but
+     * this method allows for more control if you need it.
+     *
+     * @param id The id given to the [level].
      * @param level The level to add.
+     * @param ownership The minigame's ownership of the level.
+     * @param bounds The bounds of the minigame in the level,
+     *   leave as `null` if the minigame uses the whole level.
+     * @throws IllegalArgumentException If a level under [id] already
+     *   exists or if [level] has already been added (under a different id).
+     * @see create
      */
     @JvmOverloads
     public fun add(
@@ -97,6 +135,31 @@ public class MinigameLevelManager(
         }
     }
 
+    /**
+     * This creates a [CustomLevel] to add to this manager.
+     *
+     * The created level can then later be queried via [get]
+     * providing the same [id]. The [id] *does not* need to match
+     * [Level.dimension]'s id, but must be unique to other levels
+     * added via this method. This allows for the level handler
+     * to handle level serialization and re-linking after a reload.
+     *
+     * The [ownership] of the level determines how the minigame
+     * handles the level when the minigame closes, see [LevelOwnership]
+     * for specifics. Unlike [add], this function enforces that
+     * the created level has proper ownership.
+     *
+     * The returned [CustomLevel] *is not* added to the server if the
+     * minigame hasn't initialized yet.
+     *
+     * @param id The id given to the created level.
+     * @param ownership The minigame's ownership of the level.
+     * @param bounds The bounds of the minigame in the level,
+     *   leave as `null` if the minigame uses the whole level.
+     * @param block The builder for the level.
+     * @throws IllegalArgumentException If a level under [id] already.
+     * @see add
+     */
     @JvmOverloads
     public fun create(
         id: Identifier,
@@ -114,18 +177,45 @@ public class MinigameLevelManager(
         return level
     }
 
+    /**
+     * This gets a [ServerLevel] from the given [id].
+     *
+     * @param id The id of the added level.
+     * @return The level, `null` if none exists.
+     */
     public fun get(id: Identifier): ServerLevel? {
         return this.levels[id]?.level
     }
 
+    /**
+     * This gets a [ServerLevel] from the given [id],
+     * throwing if it was never added.
+     *
+     * @param id The id of the added level.
+     * @return The level.
+     */
     public fun require(id: Identifier): ServerLevel {
         return requireNotNull(this.get(id)) { "Minigame ${this.minigame.id} does not have level $id" }
     }
 
+    /**
+     * Gets the minigame's ownership of the provided [level].
+     *
+     * @param level The level to check.
+     * @return The minigame's ownership, `null` if the [level]
+     *   is not added to this manager.
+     */
     public fun ownership(level: ServerLevel): LevelOwnership? {
         return this.entries[level]?.ownership
     }
 
+    /**
+     * Gets the bounds of the minigame of the [level].
+     *
+     * @param level The level to check.
+     * @return The bounds, `null` if the level has no bounds
+     *   or if the level is not added to this manager.
+     */
     public fun bounds(level: ServerLevel): BoundingBox? {
         return this.entries[level]?.bounds
     }
@@ -133,23 +223,47 @@ public class MinigameLevelManager(
     /**
      * This checks whether a given level is part of this minigame.
      *
-     * @param level The level to check whether is part of the minigame.
+     * @param level The level to check.
      * @return Whether the level is part of the minigame.
      */
     public fun has(level: ServerLevel): Boolean {
         return this.entries.containsKey(level)
     }
 
+    /**
+     * This checks whether a given level and position are within the minigame.
+     *
+     * @param level The level to check.
+     * @param pos The position to check.
+     * @return Whether it's within the minigame's bounds.
+     */
     public fun has(level: ServerLevel, pos: Vec3i): Boolean {
         val entry = this.entries[level] ?: return false
         val bounds = entry.bounds ?: return true
         return bounds.isInside(pos)
     }
 
+    /**
+     * This checks whether a level is registered with a given [id].
+     *
+     * This is the [Identifier] that is provided to either [add] or
+     * [create] and ***not*** [Level.dimension]'s id.
+     *
+     * @param id The id to check.
+     * @return Whether a level with [id] exists.
+     */
     public fun has(id: Identifier): Boolean {
         return this.levels.containsKey(id)
     }
 
+    /**
+     * Gets all of the [Identifier]s for added levels.
+     *
+     * These are the [Identifier]s that were provided to either [add] or
+     * [create] and ***not*** [Level.dimension]'s id.
+     *
+     * @return The collection of ids.
+     */
     public fun ids(): Collection<Identifier> {
         return this.levels.keys
     }
@@ -281,6 +395,10 @@ public class MinigameLevelManager(
         }
         if (level !is CustomLevel) {
             ArcadeUtils.logger.warn("Minigame ${this.minigame.id} added non-custom level $id as $ownership")
+            return
+        }
+
+        if (this.minigame !is SerializableMinigame) {
             return
         }
 
