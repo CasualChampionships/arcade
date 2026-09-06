@@ -49,7 +49,7 @@ public class SimpleListenerRegistry<E: Event>(
      * This callback will **only** fire when instances of the given type
      * are fired.
      *
-     * @param E The type of event.
+     * @param T The type of event.
      * @param type The class of the event that you want to listen to.
      * @param listener The callback which will be invoked when the event is fired.
      * @return A handle which can unregister the listener.

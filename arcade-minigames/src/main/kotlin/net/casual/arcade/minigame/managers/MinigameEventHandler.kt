@@ -36,14 +36,17 @@ import java.util.function.Consumer
  * listeners if the player that caused the event isn't
  * playing in that minigame, this also goes for [LevelEvent]s
  * and [MinigameEvent]s:
- * - The [PlayerEvent]s check using [MinigamePlayerManager.has]
- * - The [LevelEvent]s check using [MinigameLevelManager.has]
- * - The [MinigameEvent]s check simply check whether the
- * current minigame is the one that fired the event.
+ * - [PlayerEvent]s are checked using [MinigamePlayerManager.has]
+ * - [LevelEvent]s are checked using [MinigameLevelManager.has]
+ * - [MinigameEvent]s are checked on whether the current minigame
+ *   is the one that fired the event.
  *
  * If the event that you are registering doesn't implement
  * one of these interfaces, then it will register normally
  * and won't be filtered.
+ *
+ * Additionally, the filters can be configured by providing
+ * a custom set of [ListenerFilter].
  *
  * @see Minigame
  * @see Minigame.events
@@ -76,12 +79,21 @@ public class MinigameEventHandler(
      * in what order the listener will be invoked. Lower values
      * of [priority] will result in being invoked earlier.
      *
+     * The phase depends on the event, and can be used to determine
+     * when the listener is invoked, see the event implementation
+     * you are listening to for more information.
+     *
      * This will filter events for the given minigame, see
      * [MinigameEventHandler] documentation for more details.
      *
      * @param T The type of event.
      * @param priority The priority of your event listener.
+     * @param phase The phase of the event, [BuiltInEventPhases.DEFAULT] by default.
+     * @param filters The set of filters to configure the listener on whether to
+     *   listen to events that are only applicable to the minigame.
+     * @param strategy The [ThreadingStrategy] that the listener will use.
      * @param listener The callback which will be invoked when the event is fired.
+     * @return A handle which can unregister the listener.
      */
     public inline fun <reified T: ServerSideEvent> register(
         priority: Int = 1_000,
@@ -106,6 +118,7 @@ public class MinigameEventHandler(
      * @param T The type of event.
      * @param type The class of the event that you want to listen to.
      * @param listener The callback which will be invoked when the event is fired.
+     * @return A handle which can unregister the listener.
      */
     override fun <T: ServerSideEvent> register(type: Class<T>, listener: EventListener<T>): EventListenerHandle {
         return this.register(type, ListenerFilter.default(), listener)
@@ -124,6 +137,7 @@ public class MinigameEventHandler(
      * @param T The type of event.
      * @param type The class of the event that you want to listen to.
      * @param listener The callback which will be invoked when the event is fired.
+     * @return A handle which can unregister the listener.
      */
     public fun <T: ServerSideEvent> register(
         type: Class<T>,
