@@ -5,6 +5,7 @@
 package net.casual.arcade.tests.server.minigame
 
 import net.casual.arcade.dimensions.level.CustomLevel
+import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.dimensions.utils.deleteCustomLevel
 import net.casual.arcade.gametest.TestContext
 import net.casual.arcade.gametest.minigame.copySave
@@ -182,5 +183,34 @@ object MinigameSerializationTests: ArcadeTestSuite() {
         val restored = Minigames.read(copy, server) as TestMinigame
         track(restored)
         assertEquals(2, restored.score, "An earlier write overwrote a later one")
+    }
+
+    @GameTest(maxTicks = 100)
+    fun `awaiting phase routine is restored`(context: TestContext) = context.test {
+        val minigame = minigame().withoutPhaseRoutines().phase(TestMinigamePhase.Grace).start()
+        minigame.phases.routines[TestMinigamePhase.Active] = TestAwaitingRoutine()
+        minigame.phases.set(TestMinigamePhase.Active)
+
+        delay(2.Ticks)
+        minigame.recordedStages shouldEqual listOf(AwaitStarted)
+
+        val restored = reload(minigame)
+
+        assertEquals(
+            emptyList(),
+            restored.recordedStages,
+            "Restored routine replayed its steps instead of waiting for its event"
+        )
+
+        GlobalEventHandler.Server.broadcast(TestMinigameEvent())
+        assertEquals(
+            listOf(AwaitReceived),
+            restored.recordedStages,
+            "Restored routine did not resume when its event was broadcast"
+        )
+
+        assertEventually(2.Seconds, "Active phase never advanced once its routine completed") {
+            restored.state == MinigameState.Playing(TestMinigamePhase.Over)
+        }
     }
 }

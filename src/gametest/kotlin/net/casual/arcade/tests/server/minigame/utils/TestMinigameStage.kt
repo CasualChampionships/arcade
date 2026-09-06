@@ -13,5 +13,7 @@ enum class TestMinigameStage {
     RoundPlayed,
     PhaseSet,
     AfterPhaseSet,
-    PhaseSetReleased
+    PhaseSetReleased,
+    AwaitStarted,
+    AwaitReceived
 }

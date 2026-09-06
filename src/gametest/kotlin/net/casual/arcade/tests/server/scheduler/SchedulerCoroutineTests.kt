@@ -6,6 +6,8 @@ package net.casual.arcade.tests.server.scheduler
 
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.utils.await
 import net.casual.arcade.gametest.TestContext
 import net.casual.arcade.scheduler.ArcadeScheduler
 import net.casual.arcade.tests.server.ArcadeTestSuite
@@ -177,5 +179,38 @@ object SchedulerCoroutineTests: ArcadeTestSuite() {
 
         assertFalse(first, "Coroutine survived cancelAll")
         assertTrue(second, "cancelAll permanently cancelled the scheduler's scope")
+    }
+
+    @GameTest
+    fun `awaiting an event resumes the coroutine`(context: TestContext) = context.test {
+        val scheduler = SimpleTickedScheduler.server()
+        var received = -1
+        server.getCoroutineScope().launch(scheduler.asCoroutineDispatcher()) {
+            val event = GlobalEventHandler.Server.await<TestRoutineEvent> { it.value > 0 }
+            received = event.value
+        }
+
+        GlobalEventHandler.Server.broadcast(TestRoutineEvent(0))
+        assertEquals(-1, received, "Coroutine resumed on an event which did not match its predicate")
+
+        GlobalEventHandler.Server.broadcast(TestRoutineEvent(6))
+        assertEquals(6, received, "Coroutine did not resume when its event was broadcast")
+
+        GlobalEventHandler.Server.broadcast(TestRoutineEvent(8))
+        assertEquals(6, received, "Coroutine was resumed by a second event")
+    }
+
+    @GameTest
+    fun `cancelling job stops awaiting an event`(context: TestContext) = context.test {
+        val scheduler = SimpleTickedScheduler.server()
+        var received = false
+        val job = server.getCoroutineScope().launch(scheduler.asCoroutineDispatcher()) {
+            GlobalEventHandler.Server.await<TestRoutineEvent>()
+            received = true
+        }
+
+        job.cancel()
+        GlobalEventHandler.Server.broadcast(TestRoutineEvent(1))
+        assertFalse(received, "Cancelled coroutine was still listening for its event")
     }
 }

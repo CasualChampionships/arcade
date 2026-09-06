@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.tests.server.scheduler
 
+import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.gametest.TestContext
 import net.casual.arcade.scheduler.ArcadeScheduler
 import net.casual.arcade.tests.server.ArcadeTestSuite
@@ -206,5 +207,79 @@ object SchedulerSerializationTests: ArcadeTestSuite() {
         loaded.load(server, scheduler.save(server), RoutineOwner())
 
         assertFalse(loaded.cancelAll(), "Restoring an empty scheduler scheduled something")
+    }
+
+    @GameTest
+    fun `awaiting routine is restored`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        scheduler.schedule(AwaitingRoutine(), owner)
+
+        scheduler.tick()
+        assertEquals(listOf("start"), owner.log)
+
+        val saved = scheduler.save(server)
+        scheduler.cancelAll()
+
+        val restored = RoutineOwner()
+        val loaded = SimpleTickedScheduler.server()
+        loaded.load(server, saved, restored)
+
+        assertEquals(emptyList(), restored.log, "Restored routine re-ran the steps it had already run")
+
+        GlobalEventHandler.Server.broadcast(TestRoutineEvent(4))
+        assertEquals(listOf("received"), restored.log, "Restored routine did not resume when its event was broadcast")
+        restored.recorded shouldEqual 4
+
+        loaded.tick(10)
+        assertEquals(listOf("received", "end", "cleanup"), restored.log)
+        assertEquals(listOf("start", "cleanup"), owner.log, "Restored routine kept using the owner it was saved with")
+    }
+
+    @GameTest
+    fun `restored routine replays a completed await`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        scheduler.schedule(AwaitingRoutine(), owner)
+
+        scheduler.tick()
+        GlobalEventHandler.Server.broadcast(TestRoutineEvent(2))
+        // Partway through the delay which follows the await
+        scheduler.tick(2)
+
+        val saved = scheduler.save(server)
+        scheduler.cancelAll()
+
+        val restored = RoutineOwner()
+        val loaded = SimpleTickedScheduler.server()
+        loaded.load(server, saved, restored)
+
+        assertEquals(-1, restored.recorded, "Restored routine re-ran a step which had already run")
+
+        loaded.tick(10)
+        assertEquals(listOf("end", "cleanup"), restored.log, "Restored routine did not resume after a completed await")
+    }
+
+    @GameTest
+    fun `awaited value is restored`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        scheduler.schedule(RecordingAwaitRoutine(), owner)
+
+        scheduler.tick()
+        GlobalEventHandler.Server.broadcast(TestRoutineEvent(6))
+        scheduler.tick(2)
+
+        val saved = scheduler.save(server)
+        scheduler.cancelAll()
+
+        val restored = RoutineOwner()
+        val loaded = SimpleTickedScheduler.server()
+        loaded.load(server, saved, restored)
+
+        assertEquals(emptyList(), restored.log, "Restored routine awaited its event again")
+
+        loaded.tick(10)
+        assertEquals(6, restored.recorded, "Restored routine did not replay the value recorded from its event")
     }
 }

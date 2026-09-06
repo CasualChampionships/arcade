@@ -6,6 +6,7 @@ package net.casual.arcade.scheduler
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -43,6 +44,7 @@ public class SimpleTickedScheduler(
     override val target: LogicalSide
 ): TickedScheduler {
     private val tasks: Int2ObjectMap<Queue<ScheduledTaskImpl>> = Int2ObjectOpenHashMap()
+    private val awaiting = ReferenceLinkedOpenHashSet<RoutineTask<*>>()
     private var tickCount = 0
 
     public var ticking: Boolean = false
@@ -107,7 +109,14 @@ public class SimpleTickedScheduler(
      * @return Whether any tasks/coroutines were successfully cancelled.
      */
     public fun cancelAll(): Boolean {
-        val cancelled = this.cancelCoroutines()
+        var cancelled = this.cancelCoroutines()
+        if (this.awaiting.isNotEmpty()) {
+            for (task in ArrayList(this.awaiting)) {
+                task.cancel()
+            }
+            this.awaiting.clear()
+            cancelled = true
+        }
         if (this.tasks.isEmpty()) {
             return cancelled
         }
@@ -132,10 +141,14 @@ public class SimpleTickedScheduler(
      * Unlike [cancelAll] this runs nothing.
      */
     public fun clear(): Boolean {
-        if (this.tasks.isEmpty()) {
+        if (this.tasks.isEmpty() && this.awaiting.isEmpty()) {
             return false
         }
         this.tasks.clear()
+        for (task in this.awaiting) {
+            task.stopListening()
+        }
+        this.awaiting.clear()
         return true
     }
 
@@ -156,6 +169,14 @@ public class SimpleTickedScheduler(
         val entry = ScheduledTaskImpl(task)
         this.tasks.computeIfAbsent(this.bucket(delay.ticks), IntFunction { ArrayDeque() }).add(entry)
         return entry
+    }
+
+    internal fun startAwaiting(task: RoutineTask<*>) {
+        this.awaiting.add(task)
+    }
+
+    internal fun stopAwaiting(task: RoutineTask<*>) {
+        this.awaiting.remove(task)
     }
 
     private fun bucket(ticks: Int): Int {
@@ -182,6 +203,12 @@ public class SimpleTickedScheduler(
                 extra.invoke(task, data)
             }
         }
+        for (task in this.awaiting) {
+            val data = output.addChild()
+            data.putBoolean("awaiting", true)
+            task.serialize(data)
+            extra.invoke(task, data)
+        }
     }
 
     public fun deserialize(
@@ -190,12 +217,17 @@ public class SimpleTickedScheduler(
         extra: (ScheduledTask, ValueInput) -> Unit = { _, _ -> }
     ) {
         for (data in input) {
-            val ticks = data.getInt("delay").getOrNull() ?: continue
+            val awaiting = data.getBooleanOr("awaiting", false)
+            val delay = if (awaiting) null else (data.getInt("delay").getOrNull() ?: continue).Ticks
             RoutineTask.create(data, owner).dispatch(
                 success = { task ->
-                    this.schedule(ticks.Ticks, task)
+                    if (delay == null) {
+                        task.attach(this)
+                    } else {
+                        this.schedule(delay, task)
+                    }
                     extra.invoke(task, data)
-                    task.rehydrate(ticks.Ticks)
+                    task.rehydrate(delay)
                 },
                 failure = { message -> ArcadeUtils.logger.error("Failed to load routine: $message") }
             )

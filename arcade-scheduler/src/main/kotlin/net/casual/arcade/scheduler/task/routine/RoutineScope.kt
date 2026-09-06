@@ -5,6 +5,9 @@
 package net.casual.arcade.scheduler.task.routine
 
 import com.mojang.serialization.Codec
+import net.casual.arcade.events.ListenerRegistry
+import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import kotlin.coroutines.RestrictsSuspension
 
@@ -27,9 +30,9 @@ public interface RoutineScope<out O> {
     /**
      * Suspends the routine for a given [duration].
      *
-     * The routine is persisted while suspended here; if the game stops
-     * and starts again, the routine resumes from this point with only
-     * the *remaining* duration.
+     * A routine can be serialized while suspended here, when deserialized
+     * the routine will resume from this point with only the remaining
+     * delay duration.
      *
      * [onDelay] is invoked every time the routine enters this suspension
      * point, with the duration remaining before it resumes; the full
@@ -80,4 +83,82 @@ public interface RoutineScope<out O> {
      * @return The result of [block], or the previously recorded result.
      */
     public suspend fun <T> step(codec: Codec<T>, id: String? = null, block: () -> T): T
+
+    /**
+     * Suspends the routine until an event of the given [type] is
+     * broadcast to [registry] which matches the [predicate], then runs
+     * [block] with that event.
+     *
+     * A routine can be serialized while suspended here, when deserialized
+     * the routine will continue to suspend until the event is received,
+     * or until cancellation.
+     *
+     * Similarly to [step] the [block] is run only once, when the event
+     * is received (and matches the [predicate]). When the routine is
+     * replayed after deserialization this will be skipped.
+     * ```kotlin
+     * await(PlayerDeathEvent::class.java, GlobalEventHandler.Global) { (player) ->
+     *     player.sendSystemMessage(...)
+     * }
+     * ```
+     *
+     * The [id] is optional, and is only used to detect that the routine's
+     * body has changed since it was saved.
+     *
+     * @param T The type of event to await.
+     * @param type The class of the event to await.
+     * @param registry The registry to listen for the event on.
+     * @param id An optional identifier for this suspension point.
+     * @param priority The priority of the listener.
+     * @param phase The phase of the event, [BuiltInEventPhases.DEFAULT] by default.
+     * @param predicate The predicate which determines whether an event resumes the routine.
+     * @param block The action to run with the event which resumed the routine.
+     */
+    public suspend fun <E: Event, T: E> await(
+        type: Class<T>,
+        registry: ListenerRegistry<E>,
+        id: String? = null,
+        priority: Int = 1_000,
+        phase: Int = BuiltInEventPhases.DEFAULT,
+        predicate: (T) -> Boolean = { true },
+        block: (T) -> Unit = { }
+    )
+
+    /**
+     * Suspends the routine until an event of the given [type] is
+     * broadcast to [registry] which matches the [predicate], then runs
+     * [block] with that event, recording its result using [codec].
+     *
+     * A routine can be serialized while suspended here, when deserialized
+     * the routine will continue to suspend until the event is received,
+     * or until cancellation. When replaying the routine if the event had
+     * already been triggered then the serialized value will be returned.
+     * ```kotlin
+     * val victim = await(PlayerDeathEvent::class.java, GlobalEventHandler.Server, UUIDUtil.CODEC) { (player) ->
+     *     player.uuid
+     * }
+     * ```
+     *
+     * @param T The type of event to await.
+     * @param R The type of the recorded result.
+     * @param type The class of the event to await.
+     * @param registry The registry to listen for the event on.
+     * @param codec The codec used to record the result.
+     * @param id An optional identifier for this suspension point.
+     * @param priority The priority of the listener.
+     * @param phase The phase of the event, [BuiltInEventPhases.DEFAULT] by default.
+     * @param predicate The predicate which determines whether an event resumes the routine.
+     * @param block The action to run with the event which resumed the routine.
+     * @return The result of [block], or the previously recorded result.
+     */
+    public suspend fun <E: Event, T: E, R: Any> await(
+        type: Class<T>,
+        registry: ListenerRegistry<E>,
+        codec: Codec<R>,
+        id: String? = null,
+        priority: Int = 1_000,
+        phase: Int = BuiltInEventPhases.DEFAULT,
+        predicate: (T) -> Boolean = { true },
+        block: (T) -> R
+    ): R
 }

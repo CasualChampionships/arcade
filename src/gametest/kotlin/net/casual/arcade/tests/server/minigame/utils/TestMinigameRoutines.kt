@@ -8,6 +8,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.casual.arcade.minigame.routine.MinigameRoutine
+import net.casual.arcade.minigame.routine.await
 import net.casual.arcade.minigame.routine.minigame
 import net.casual.arcade.minigame.routine.requestPhase
 import net.casual.arcade.scheduler.task.routine.Routine
@@ -61,6 +62,24 @@ class TestActiveRoutine: MinigameRoutine<TestMinigame> {
     companion object: CodecProvider<TestActiveRoutine> {
         override val id: Identifier = arcade("test_active")
         override val codec: MapCodec<TestActiveRoutine> = MapCodec.unit(::TestActiveRoutine)
+    }
+}
+
+class TestAwaitingRoutine: MinigameRoutine<TestMinigame> {
+    override fun codec(): MapCodec<out Routine<TestMinigame>> {
+        return codec
+    }
+
+    override suspend fun RoutineScope<TestMinigame>.run() {
+        step(TestMinigameStage.AwaitStarted.name) { minigame.record(TestMinigameStage.AwaitStarted) }
+        await<TestMinigameEvent>(id = TestMinigameStage.AwaitReceived.name) {
+            minigame.record(TestMinigameStage.AwaitReceived)
+        }
+    }
+
+    companion object: CodecProvider<TestAwaitingRoutine> {
+        override val id: Identifier = arcade("test_awaiting")
+        override val codec: MapCodec<TestAwaitingRoutine> = MapCodec.unit(::TestAwaitingRoutine)
     }
 }
 
