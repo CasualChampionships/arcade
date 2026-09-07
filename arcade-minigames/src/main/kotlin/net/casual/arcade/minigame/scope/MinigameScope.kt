@@ -14,8 +14,10 @@ import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.threading.ThreadingStrategy
 import net.casual.arcade.events.threading.ThreadingTarget
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.annotation.ListenerFilter
 import net.casual.arcade.minigame.annotation.MinigameEventListener
+import net.casual.arcade.minigame.managers.MinigameEventHandler
 import net.casual.arcade.minigame.phase.MinigamePhaseLifetime
 import net.casual.arcade.minigame.utils.MinigameUtils.addEventListener
 import net.casual.arcade.scheduler.TickedScheduler
@@ -26,7 +28,34 @@ import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.side.LogicalSide
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import java.util.function.Consumer
+import net.casual.arcade.scheduler.utils.schedule as scheduleRoutine
 
+/**
+ * A scope owns tasks and event listeners that are scheduled
+ * or registered through it. Whenever the scope is closed then
+ * everything is cancelled or unregistered.
+ *
+ * A scope is closed whenever its specified [lifetime] doesn't
+ * survive across a phase transition, when the owning [minigame]
+ * is closed, or when [close] is called.
+ *
+ * Scopes are created with [MinigameScopes.create]:
+ * ```
+ * val minigame: Minigame = // ...
+ * val scope = minigame.scopes.create(MinigamePhaseLifetime.Current)
+ * // This remains registered until the phase changes
+ * scope.register<PlayerDeathEvent> { (player) ->
+ *     player.sendSystemMessage(Component.literal("You died!"))
+ * }
+ * // This will be cancelled if the phase changes before its executed
+ * scope.schedule(30.Seconds) {
+ *     minigame.chat.broadcast(Component.literal("30 seconds have passed!"))
+ * }
+ * ```
+ *
+ * @see MinigameScopes
+ * @see MinigamePhaseLifetime
+ */
 public class MinigameScope internal constructor(
     public val minigame: Minigame,
     public val lifetime: MinigamePhaseLifetime,
@@ -42,12 +71,18 @@ public class MinigameScope internal constructor(
         CoroutineScope(this.scopes.coroutineScope().coroutineContext + this.job)
     }
 
+    /**
+     * Whether this scope has closed.
+     */
     public var closed: Boolean = false
         private set
 
     override val target: LogicalSide
         get() = LogicalSide.Server
 
+    /**
+     * @see TickedScheduler.schedule
+     */
     override fun schedule(delay: MinecraftTimeDuration, task: Task): ScheduledTask {
         if (this.closed) {
             return this.reject("task")
@@ -55,6 +90,9 @@ public class MinigameScope internal constructor(
         return this.track(this.scopes.schedule(delay, task))
     }
 
+    /**
+     * @see [TickedScheduler.scheduleRoutine]
+     */
     public fun <M: Minigame> schedule(delay: MinecraftTimeDuration, routine: Routine<M>): ScheduledTask {
         if (this.closed) {
             return this.reject(routine.javaClass.simpleName)
@@ -66,6 +104,9 @@ public class MinigameScope internal constructor(
         return this.coroutineScope
     }
 
+    /**
+     * @see [MinigameEventHandler.register]
+     */
     public fun <T: ServerSideEvent> register(
         type: Class<T>,
         filters: Set<ListenerFilter> = ListenerFilter.default(),
@@ -79,6 +120,9 @@ public class MinigameScope internal constructor(
         return handle
     }
 
+    /**
+     * @see [MinigameEventHandler.register]
+     */
     public inline fun <reified T: ServerSideEvent> register(
         priority: Int = 1_000,
         phase: Int = BuiltInEventPhases.DEFAULT,
@@ -98,6 +142,13 @@ public class MinigameScope internal constructor(
         return handle
     }
 
+    /**
+     * This closes the minigame scope and cancels and
+     * unregisters all tasks and event listeners.
+     *
+     * This is idempotent, and won't have any effect
+     * when after the first time.
+     */
     override fun close() {
         if (this.closed) {
             return

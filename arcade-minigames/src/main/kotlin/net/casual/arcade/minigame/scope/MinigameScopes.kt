@@ -19,6 +19,12 @@ import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 
+/**
+ * The manager for a [Minigame]'s [MinigameScope]s.
+ *
+ * @see MinigameScope
+ * @see Minigame.scopes
+ */
 public class MinigameScopes internal constructor(
     private val minigame: Minigame
 ) {
@@ -28,14 +34,30 @@ public class MinigameScopes internal constructor(
     internal val executing: Boolean
         get() = this.scheduler.ticking
 
+    /**
+     * The default "root" scope which lives for the
+     * minigame's entire lifetime.
+     */
     public val root: MinigameScope = this.create(MinigamePhaseLifetime.Forever)
 
+    /**
+     * Creates a new scope with a given [lifetime].
+     *
+     * @param lifetime The lifetime determining when the scope closes.
+     * @return The created scope.
+     * @see MinigamePhaseLifetime
+     */
     public fun create(lifetime: MinigamePhaseLifetime): MinigameScope {
         val scope = MinigameScope(this.minigame, lifetime, this)
         this.scopes.add(scope)
         return scope
     }
 
+    /**
+     * Gets all the scopes which are currently open.
+     *
+     * @return All the open scopes.
+     */
     public fun all(): Collection<MinigameScope> {
         return this.scopes
     }
