@@ -6,6 +6,7 @@ package net.casual.arcade.minigame.serialization
 
 import kotlinx.coroutines.Job
 import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.scheduler.task.routine.Routine
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
@@ -16,6 +17,97 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  *
  * This then provides additional methods to describe how
  * your minigame should be serialized/deserialized.
+ *
+ * Below is the same minigame example as in the documentation for
+ * [Minigame], except rewritten to support serialization.
+ * Notably the phases are no longer raw coroutines, and instead
+ * are standalone [Routine]s. Additionally a [MinigameFactory]
+ * is needed to create instances of the minigame:
+ * ```
+ * class GraceRoutine: MinigameRoutine<ExampleMinigame> {
+ *     override fun codec(): MapCodec<out Routine<ExampleMinigame>> {
+ *         return codec
+ *     }
+ *
+ *     override suspend fun RoutineScope<ExampleMinigame>.run() {
+ *         try {
+ *             // Any methods that should "run once", i.e. not run if
+ *             // the Routine is reloaded should be wrapped in a step
+ *             step { minigame.settings.canPvp.set(false) }
+ *             delay(5.Minutes)
+ *             step { minigame.chat.broadcast(Component.literal("The grace period is over!")) }
+ *         } finally {
+ *             step { minigame.settings.canPvp.set(true) }
+ *         }
+ *     }
+ *
+ *     companion object: CodecProvider<GraceRoutine> {
+ *         override val id: Identifier = Identifier("modid", "grace")
+ *         override val codec: MapCodec<out GraceRoutine> = MapCodec.unit(::GraceRoutine)
+ *     }
+ * }
+ *
+ * class ActiveRoutine: MinigameRoutine<ExampleMinigame> {
+ *     override fun codec(): MapCodec<out Routine<ExampleMinigame>> {
+ *         return codec
+ *     }
+ *
+ *     override suspend fun RoutineScope<ExampleMinigame>.run() {
+ *         val scope = minigame.scopes.create(MinigamePhaseLifetime.Current)
+ *         scope.register<PlayerDeathEvent> { (player) ->
+ *             player.sendSystemMessage(Component.literal("You died!"))
+ *         }
+ *         awaitCancellation()
+ *     }
+ *
+ *     companion object: CodecProvider<ActiveRoutine> {
+ *         override val id: Identifier = Identifier("modid", "active")
+ *         override val codec: MapCodec<out ActiveRoutine> = MapCodec.unit(::ActiveRoutine)
+ *     }
+ * }
+ *
+ * object ExampleMinigameFactory: MinigameFactory {
+ *     private val CODEC = MapCodec.unit(this)
+ *
+ *     override fun create(context: MinigameCreationContext): Minigame {
+ *         return ExampleMinigame(context.server, context.uuid)
+ *     }
+ *
+ *     override fun codec(): MapCodec<out MinigameFactory> {
+ *         return CODEC
+ *     }
+ * }
+ *
+ * class ExampleMinigame(
+ *     server: MinecraftServer,
+ *     uuid: UUID
+ * ): Minigame(server, uuid, ID, ExamplePhase.entries), SerializableMinigame {
+ *     // ...
+ *
+ *     @Listener
+ *     private fun onInitialize(event: MinigameInitializeEvent) {
+ *         // ...
+ *
+ *         this.phases.routines[ExamplePhase.Grace] = GraceRoutine()
+ *         this.phases.routines[ExamplePhase.Active] = ActiveRoutine()
+ *     }
+ *
+ *     override fun factory(): MinigameFactory {
+ *         return ExampleMinigameFactory
+ *     }
+ *
+ *     // ...
+ * }
+ * ```
+ *
+ * All [MinigameFactory]s and [Routine]s are required to be registered
+ * in their respective registries:
+ * ```
+ * GraceRoutine.register(TaskRegistries.ROUTINE)
+ * ActiveRoutine.register(TaskRegistries.ROUTINE)
+ *
+ * Registry.register(MinigameRegistries.MINIGAME_FACTORY, ExampleMinigame.ID, ExampleMinigameFactory)
+ * ```
  *
  * @see Minigame
  */

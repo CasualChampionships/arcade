@@ -18,6 +18,7 @@ import net.casual.arcade.minigame.phase.MinigamePhaseLifetime
 import net.casual.arcade.minigame.managers.phase.MinigamePhaseCoroutines
 import net.casual.arcade.minigame.managers.phase.MinigamePhaseRoutines
 import net.casual.arcade.minigame.routine.requestPhase
+import net.casual.arcade.minigame.serialization.SerializableMinigame
 import net.casual.arcade.scheduler.task.routine.Routine
 import net.casual.arcade.scheduler.task.routine.RoutineScope
 import net.casual.arcade.utils.ArcadeUtils
@@ -38,6 +39,8 @@ public class MinigamePhaseManager internal constructor(
      * Stores the [Routine]s associated to each phase.
      *
      * This should be used if your minigame is serializable.
+     * An example of how to use this can be found in the class
+     * doc of [SerializableMinigame].
      *
      * @see MinigamePhaseRoutines
      */
@@ -47,6 +50,8 @@ public class MinigamePhaseManager internal constructor(
      * Stores the coroutines associated to each phase.
      *
      * This should be used if your minigame is non-serializable.
+     * An example of how to use this can be found in the class
+     * doc of [Minigame].
      *
      * @see MinigamePhaseCoroutines
      */
