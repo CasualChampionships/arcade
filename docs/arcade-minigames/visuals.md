@@ -103,44 +103,30 @@ if (tracker.isReady()) {
 Often we want a gui component to be shown only for a certain phase of our 
 minigame, and removed appropriately even if we backtrack to a previous phase.
 
-Each gui component has a respective task that does this:
-- `BossbarTask`
-- `NametagTask`
-- `PlayerListTask`
-- `SidebarTask`
-
 Let's take a look at a more concrete example. Let's say we've got a timer 
 bossbar that lasts 10 minutes denoting a minigame phase change. There are a 
 couple issues with this; what if we want to step into the next phase before the
 10 minutes is up, the bossbar would not automatically disappear. Okay well we 
-could solve this by simply storing a bossbar as a field as always removing it 
-in the `end` method of our phase:
+could solve this by simply storing a bossbar as a field and always removing it 
+when the phase ends:
 
 ```kotlin
 class ExampleMinigame(
     server: MinecraftServer,
     uuid: UUID
-): Minigame(server, uuid) {
+): Minigame(server, uuid, ID, ExamplePhase.entries) {
     // ...
 
     var bossbar: VirtualBossbar = // ...
 
-    // ...
-}
-
-enum class ExamplePhases(
-    override val id: String
-): Phase<ExampleMinigame> {
-    Grace("grace") {
-        override fun initialize(minigame: ExampleMinigame) {
-            minigame.visuals.addBossbar(minigame.bossbar)
-        }
-        
-        override fun end(minigame: ExampleMinigame, next: Phase<ExampleMinigame>) {
-            minigame.visuals.removeBossbar(minigame.bossbar)
+    @Listener
+    private fun onSetPhase(event: MinigameSetPhaseEvent) {
+        if (event.phase == ExamplePhase.Grace) {
+            this.visuals.addBossbar(this.bossbar)
+        } else {
+            this.visuals.removeBossbar(this.bossbar)
         }
     }
-    // ...
 }
 ```
 
@@ -148,37 +134,41 @@ But this feels very clunky, especially if you have multiple different gui
 components that you want to manage. Not to mention, this will also make 
 serialization more difficult if that's something you're also aiming for.
 
-Instead, what we can do is launch a coroutine on the phased scheduler's scope, 
-and remove the bossbar from a `finally` block:
+Instead, what we can do is launch a coroutine in a scope which closes when the 
+phase ends, and remove the bossbar from a `finally` block:
 ```kotlin
-enum class ExamplePhases(
-    override val id: String
-): Phase<ExampleMinigame> {
-    Grace("grace") {
-        override fun initialize(minigame: ExampleMinigame) {
-            val duration = 10.Minutes
-            val timer = TimerElement(duration)
-            val bossbar = DynamicVirtualBossbar(minigame.server)
-            bossbar.addTickable(timer)
-            bossbar.setProgress(timer.progress())
+class ExampleMinigame(
+    server: MinecraftServer,
+    uuid: UUID
+): Minigame(server, uuid, ID, ExamplePhase.entries) {
+    // ...
 
-            minigame.launchPhased {
-                minigame.visuals.addBossbar(bossbar)
-                try {
-                    delay(duration + 1.Ticks)
-                } finally {
-                    minigame.visuals.removeBossbar(bossbar)
-                }
-            }
+    private suspend fun runGraceLogic() {
+        val duration = 10.Minutes
+        val timer = TimerElement(duration)
+        val bossbar = DynamicVirtualBossbar(this.server)
+        bossbar.addTickable(timer)
+        bossbar.setProgress(timer.progress())
+
+        this.visuals.addBossbar(bossbar)
+        try {
+            delay(duration + 1.Ticks)
+        } finally {
+            this.visuals.removeBossbar(bossbar)
         }
     }
-    // ...
 }
 ```
 
 The bossbar is added when the coroutine starts, and removed when it finishes,
 because the cleanup is in a `finally`. If the 
 full duration elapses, `delay` returns and the bossbar is removed. If the phase 
-changes first, the minigame cancels everything on the phased scheduler, which 
+changes first, the minigame cancels everything in the phase's scope, which 
 unwinds the coroutine through the same `finally`, and the bossbar is removed 
 then instead.
+
+This works for anything with a lifetime, not just a phase; create a scope with 
+the lifetime you want and launch the coroutine there instead, see the 
+[Scheduling Section](./scheduling.md). And if your minigame is serializable, the 
+same `try`/`finally` pattern works inside a `Routine`, see the 
+[Serialization Section](./serialization.md).

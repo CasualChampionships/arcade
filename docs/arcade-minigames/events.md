@@ -54,62 +54,88 @@ As previously mentioned in the [Motivation Section](#motivation) minigames will 
 
 This means that you require fewer checks in your event listeners to get the behaviour you desire. However, these filters are configurable to allow for more flexibility.
 
-Some flags determine the filters when registering your event:
+Each of these is a `ListenerFilter`, and you can pass your own set of filters
+when registering your event:
 ```kotlin
 val minigame: Minigame = // ...
-    
-// Setting flags to NONE will result in no filter at all
+
+// The default filters, which is what you get if you don't specify any
+minigame.events.register<PlayerTickEvent>(filters = ListenerFilter.default()) {
+    // ...
+}
+
+// Registering with no filters at all
 // This will fire for **ALL** players on the server
-minigame.events.register<PlayerTickEvent>(flags = ListenerFlags.NONE) {
+minigame.events.register<PlayerTickEvent>(filters = ListenerFilter.unfiltered()) {
     // ...
 }
 ```
 
-There are also additional flags that we can use:
+There are also additional filters that we can use:
 ```kotlin
 val minigame: Minigame = // ...
-    
-// Setting flags to IS_PLAYING will result in only accepting events
-// from players who are playing in this minigame
-minigame.events.register<PlayerTickEvent>(flags = ListenerFlags.IS_PLAYING) {
+
+// Only accepting events from players who are playing in this minigame
+minigame.events.register<PlayerTickEvent>(filters = ListenerFilter.of(ListenerFilter.IsPlaying)) {
     // ...
 }
 
 // Now we will only accept events from players who are spectating
-minigame.events.register<PlayerTickEvent>(flags = ListenerFlags.IS_SPECTATOR) {
+minigame.events.register<PlayerTickEvent>(filters = ListenerFilter.of(ListenerFilter.IsSpectator)) {
     // ...
 }
 ```
+
+Filters only apply to the events they are relevant to; registering with
+`IsPlaying` for an event which isn't a `PlayerEvent` simply does nothing.
 
 ### During Minigame Phases
 
 We can have even more control over when our listeners are invoked, specifically
 what minigame phases we want our listeners to be invoked in. It's likely that 
 there are some behaviours that you only wish to have during certain minigame 
-phases, we can do this by using the `registerInPhases` method, this takes a 
-variable about of phases in as a parameter:
+phases, we can do this by registering our listener against a scope with a given
+`MinigamePhaseLifetime`:
 ```kotlin
 val minigame: ExampleMinigame = // ...
-val grace = ExamplePhases.Grace
-val active = ExamplePhases.Active
-minigame.events.registerInPhases<ServerTickEvent>(grace, active) {
+val scope = minigame.scopes.create(
+    MinigamePhaseLifetime.During(ExamplePhase.Grace, ExamplePhase.Active)
+)
+scope.register<ServerTickEvent> {
     // ...
 }
 ```
 In this case, our listener will only be invoked during the `Grace` and `Active`
 phases of our minigame.
 
-If you want it to be between a large section of your minigame, you can use the `registerBetweenPhases` method to register an after phase (inclusive) and before phase (exclusive):
+If you want it to be between a large section of your minigame, you can use the
+`Between` lifetime instead, which survives while the minigame is *strictly
+between* the two given phases:
 ```kotlin
 val minigame: ExampleMinigame = // ...
-val grace = ExamplePhases.Grace
-val deathMatch = ExamplePhases.DeathMatch
-minigame.events.registerBetweenPhases<ServerTickEvent>(grace, deathMatch) {
+val scope = minigame.scopes.create(
+    MinigamePhaseLifetime.Between(ExamplePhase.Grace, ExamplePhase.DeathMatch)
+)
+scope.register<ServerTickEvent> {
     // ...
 }
 ```
-In this case, our listener will be invoked in all phases after (and including) 
-the `Grace` phase and before the `DeathMatch` phase.
+
+When a scope closes, everything registered through it is unregistered for you,
+so you never have to remove these listeners yourself. Scopes own more than just
+listeners, and the other lifetimes are covered in the
+[Scheduling Section](./scheduling.md).
+
+Any listener you register can also be unregistered manually; every `register`
+method returns a handle:
+```kotlin
+val minigame: Minigame = // ...
+val handle = minigame.events.register<ServerTickEvent> {
+    // ...
+}
+
+handle.remove()
+```
 
 ### Listener Annotation
 
@@ -122,7 +148,7 @@ behaviour. So let's have a look at the alternative way of declaring a listener:
 class ExampleMinigame(
     server: MinecraftServer,
     uuid: UUID
-): Minigame(server, uuid) {
+): Minigame(server, uuid, ID, ExamplePhase.entries) {
     // ...
     
     @Listener
@@ -139,8 +165,9 @@ class ExampleMinigame(
 
 We can instead use the `@Listener` annotation which allows us to declare
 a method with the parameter defining which event that it will be listening to;
-there are no restrictions to what you name your method. By default, this will 
-be permanent for the lifetime of the minigame.
+there are no restrictions to what you name your method, however, the method 
+**must** be declared private. By default, this will be permanent for the 
+lifetime of the minigame.
 
 If you are using IntelliJ you can add `net.casual.arcade.minigame.annotation.Listener`
 in `Settings > Editor > Inspections > Java > Declaration redudancy > Unused declaration > Entry points > Annotations...`
@@ -150,30 +177,34 @@ Similarly to the control we have with the `register` methods we can do the same
 with the annotation:
 ```kotlin
 @Listener(
-    priority = 2_000, 
-    during = During(phases = ["grace", "death_match"])
+    priority = 2_000,
+    filters = [ListenerFilter.IsPlaying]
 )
 private fun onMinigameAddPlayer(event: MinigameAddPlayerEvent) {
     // ...
 }
 ```
-We can specify the priority of our event, and this works the same as before. We
-can also specify all the phases that we want this listened to be called during.
-This uses the `id`s of the minigame phases (as we cannot pass enums into 
-annotations), so you may also want to create constant variables with the ids to
-make this easier.
+We can specify the priority of our event, and this works the same as before, as
+well as the filters that will be applied to the listener.
 
-And further, we can define bounds so that our listener is only called when our 
-minigame is between the given phases, after (inclusive) and before (exclusive):
+### Listeners Outside Your Minigame
+
+The `@Listener` annotation isn't limited to your minigame class. Any class can
+declare annotated listeners by implementing `MinigameEventListener` and being
+added to a scope:
+
 ```kotlin
-@Listener(
-    priority = 2_000, 
-    during = During(
-        after = "grace", 
-        before = "death_match"
-    )
-)
-private fun onMinigameAddPlayer(event: MinigameAddPlayerEvent) {
-    // ...
+class ExampleListeners: MinigameEventListener {
+    @Listener
+    private fun onServerTick(event: ServerTickEvent) {
+        // ...
+    }
 }
+
+val minigame: Minigame = // ...
+minigame.scopes.root.addEventListener(ExampleListeners())
 ```
+
+All the listeners declared in that class are registered against the scope, and
+are unregistered when the scope closes. This is how [Components](./components.md) 
+declare their listeners.

@@ -8,8 +8,9 @@ const docsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const pageOrders: Record<string, string[]> = {
   'arcade-minigames': [
     'getting-started', 'basic-usage', 'advancements', 'chat', 'commands',
-    'effects', 'events', 'players', 'recipes', 'resource_packs', 'scheduling',
-    'serialization', 'settings', 'stats', 'teams', 'visuals', 'worlds'
+    'components', 'data', 'effects', 'events', 'players', 'recipes',
+    'resource_packs', 'scheduling', 'serialization', 'settings', 'stats',
+    'teams', 'visuals', 'worlds'
   ],
   'arcade-boundaries': ['creating-boundaries', 'boundary-behaviour'],
   'arcade-commands': ['command-trees', 'argument-types', 'command-managers'],

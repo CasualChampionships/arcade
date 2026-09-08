@@ -65,8 +65,8 @@ GlobalTickedScheduler.Server.asCoroutineScope().launch {
 }
 ```
 The coroutine resumes on the scheduler, which means cancelling the scheduler cancels the coroutine,
-unwinding it through any `finally` blocks it has. This behavior is useful in `MinigameTickedScheduler`
-in the minigames module, see the [Minigame Scheduling Section](../arcade-minigames/scheduling.md)
+unwinding it through any `finally` blocks it has. This behavior is useful for the scopes in the
+minigames module, see the [Minigame Scheduling Section](../arcade-minigames/scheduling.md)
 which will go into further depth.
 
 We can also utilize the `delay` function declared in the utilities module to

@@ -6,46 +6,70 @@ you have not already taken a look at the [Scheduling](../arcade-scheduler/gettin
 Documentation, this part of the documentation will look specifically at 
 scheduling with minigames.
 
-Let's first take a look at the `MinigameTickedScheduler` which can be accessed 
-through the `scheduler` field on a `Minigame` instance. This class, like a 
-regular `SimpleTickedScheduler` allows you to schedule events in the future, however 
-adds more functionality to give you control over whether tasks are scheduled 
-and serialized.
+Minigames schedule everything through *scopes*. A `MinigameScope` owns the
+tasks, coroutines, and event listeners that are scheduled or registered through
+it. Whenever the scope is closed then everything it owns is cancelled or
+unregistered. This means that you rarely have to clean anything up yourself, you
+just pick the scope with the right lifetime and let it do that for you.
 
-The main additional method that this implementation provides is `schedulePhased`.
+Every minigame has a root scope which lives for the minigame's entire lifetime,
+and this is what the `scheduler` field on a `Minigame` refers to:
 
-The `schedulePhased` method adds a task which will be scheduled for future 
-execution, much like `schedule`, however the task will only execute if the 
-minigame is still in the *same* phase as it was initially scheduled in. For 
-example:
 ```kotlin
-class ExampleMinigame(
-    server: MinecraftServer,
-    uuid: UUID
-): Minigame(server, uuid) {
-    // ...
-    
-    fun foobar() {
-        this.setPhase(ExamplePhases.Grace)
-        this.scheduler.schedulePhased(1.Ticks) {
-            println("Hello from the past")
-        }
-        this.setPhase(ExamplePhases.Active)
-    }
+val minigame: Minigame = // ...
+
+minigame.scheduler.schedule(10.Seconds) {
+    println("Hello from 10 seconds in the future!")
 }
 ```
-If we call `foobar` and wait one tick nothing will happen, this is because we 
-scheduled a task in the `Grace` phase, scheduled the task (to only run in the 
-`Grace` phase), and then changed the phase to `Active` clearing any tasks that 
-were going to be run.
+
+Nothing scheduled on a minigame runs while the minigame is paused, and the
+minigame only starts ticking its scopes once it has started.
+
+## Scope Lifetimes
+
+We create scopes through the minigame's `scopes` manager, providing the
+`MinigamePhaseLifetime` which determines when the scope closes:
+
+```kotlin
+val minigame: Minigame = // ...
+val scope = minigame.scopes.create(MinigamePhaseLifetime.Current)
+
+// This will be cancelled if the phase changes before it's executed
+scope.schedule(30.Seconds) {
+    minigame.chat.broadcast(Component.literal("30 seconds have passed!"))
+}
+```
+
+The available lifetimes are:
+- `Forever` - Survives every transition, only the minigame closing ends it.
+- `Current` - Doesn't survive any phase transition, essentially closes after any
+  phase change.
+- `Forward` - Survives only if the next phase comes *strictly after* the current
+  one, so it ends if you backtrack to an earlier phase.
+- `Until(bound)` - Survives if the next phase is *strictly before* `bound`.
+- `During(phases)` - Survives if the next phase is in the given set of phases.
+- `Between(lower, upper)` - Survives if the next phase is *strictly between*
+  `lower` and `upper`.
+
+You can also close a scope yourself at any point, which is useful for behaviour
+that isn't tied to a phase at all:
+```kotlin
+val scope: MinigameScope = // ...
+
+scope.close()
+```
+Closing a scope is idempotent, and once closed it will reject anything else you
+try to schedule or register on it.
 
 ## Cancelling Tasks
 
 Every `schedule` method returns a `ScheduledTask` handle, which you can use to
 stop the task before it runs:
 ```kotlin
-val task = this.scheduler.schedulePhased(3.Ticks) {
-    println("This is a phased task!")
+val scope: MinigameScope = // ...
+val task = scope.schedule(3.Ticks) {
+    println("This is a scoped task!")
 }
 
 // This cancels the task, and it will no longer be run
@@ -56,25 +80,27 @@ task.cancel()
 println(task.isFinished)
 ```
 
-There are many custom implementations of tasks; however, we will discuss them 
-later in the documentation when their purpose becomes clear.
-
 ## Coroutines
 
-Minigame schedulers have coroutine support, and we can easily launch
-coroutines with the utility extension functions:
+Minigame scopes have coroutine support, and we can easily launch coroutines with
+the utility extension functions:
 ```kotlin
 val minigame: Minigame = // ...
     
 minigame.launch {  }
 minigame.async {  }
-minigame.launchPhased { }
-minigame.asyncPhased {  }
 ```
-Coroutines launched from `launch` and `async` run on the minigame's default
-scheduler, and will be cancelled when the minigame is closed. Coroutines 
-launched from the phased variations will run on the minigame's phased
-scheduler, and will additionally be cancelled when the minigame changes phase.
+Coroutines launched from `launch` and `async` run on the minigame's root scope,
+and will be cancelled when the minigame is closed. To tie a coroutine to a
+shorter lifetime, launch it on the scope you want instead:
+```kotlin
+val minigame: Minigame = // ...
+val scope = minigame.scopes.create(MinigamePhaseLifetime.Current)
+
+scope.launch {
+    // Cancelled when the phase changes
+}
+```
 
 ## Cleaning Up When A Phase Ends
 
@@ -83,32 +109,40 @@ A common thing to want is work which must happen *either* when the time is up
 is a good example.
 
 A task can't express this, since it only runs once and only at its scheduled 
-time. A phased coroutine can, because cancelling it unwinds it; put the cleanup 
-in a `finally` block and it runs either way:
+time. A coroutine in a scope can, because cancelling it unwinds it; put the
+cleanup in a `finally` block, and it runs either way:
 ```kotlin
-enum class ExamplePhases(
-    override val id: String
-): Phase<ExampleMinigame> {
-    // ...
-    Active("active") {
-        override fun start(minigame: ExampleMinigame) {
-            val bossbar: VirtualBossbar = // ...
-            minigame.visuals.addBossbar(bossbar)
+val minigame: Minigame = // ...
+val bossbar: VirtualBossbar = // ...
 
-            minigame.launchPhased {
-                try {
-                    delay(10.Minutes)
-                } finally {
-                    minigame.visuals.removeBossbar(bossbar)
-                }
-            }
-        }
+val scope = minigame.scopes.create(MinigamePhaseLifetime.Current)
+scope.launch {
+    minigame.visuals.addBossbar(bossbar)
+    try {
+        delay(10.Minutes)
+    } finally {
+        minigame.visuals.removeBossbar(bossbar)
     }
 }
 ```
 The bossbar is removed after 10 minutes, and it is *also* removed if we change 
 phase before those 10 minutes are up.
 
+The coroutine which runs a phase is itself launched in a `Current` scope, so the
+same pattern works directly inside your phase logic without creating a scope at
+all:
+```kotlin
+private suspend fun runGraceLogic() {
+    try {
+        this.settings.canPvp.set(false)
+        delay(10.Minutes)
+    } finally {
+        this.settings.canPvp.set(true)
+    }
+}
+```
+
 Note that coroutines are transient; nothing you launch this way survives a 
 restart. If you need that, use a `Routine`, which supports the same `try`/
-`finally` pattern and is serialized with the minigame.
+`finally` pattern and is serialized with the minigame, see the
+[Serialization Section](./serialization.md).
