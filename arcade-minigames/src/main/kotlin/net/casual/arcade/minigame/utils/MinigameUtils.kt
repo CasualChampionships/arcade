@@ -32,6 +32,8 @@ import net.casual.arcade.minigame.extensions.LevelMinigameExtension
 import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.settings.MinigameSettings
+import net.casual.arcade.scheduler.utils.async
+import net.casual.arcade.scheduler.utils.launch
 import net.casual.arcade.utils.component.gold
 import net.casual.arcade.utils.component.lime
 import net.casual.arcade.utils.component.red
@@ -129,11 +131,11 @@ public object MinigameUtils {
     }
 
     public inline fun Minigame.launch(crossinline block: suspend CoroutineScope.() -> Unit): Job {
-        return this.scopes.root.asCoroutineScope().launch { block() }
+        return this.scopes.root.launch { block() }
     }
 
     public inline fun <T> Minigame.async(crossinline block: suspend CoroutineScope.() -> T): Deferred<T> {
-        return this.scopes.root.asCoroutineScope().async { block() }
+        return this.scopes.root.async { block() }
     }
 
     public fun Minigame.trackReadyPlayers(): ReadyTracker<ServerPlayer> {

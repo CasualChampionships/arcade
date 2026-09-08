@@ -9,7 +9,10 @@ import net.casual.arcade.scheduler.TickedScheduler.Companion.schedule
 import net.casual.arcade.scheduler.task.ScheduledTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.scheduler.task.routine.Routine
+import net.casual.arcade.scheduler.utils.async
+import net.casual.arcade.scheduler.utils.launch
 import net.casual.arcade.utils.TimeUtils.Ticks
+import net.casual.arcade.utils.coroutine.delay
 import net.casual.arcade.utils.side.LogicalSide
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 
@@ -48,9 +51,9 @@ public interface TickedScheduler {
      * A [CoroutineScope] which dispatches onto this scheduler.
      *
      * Coroutines launched here resume on the main thread of [target], and
-     * [net.casual.arcade.utils.coroutine.delay] measures its duration in this
-     * scheduler's ticks. This is the preferred way to write anything which
-     * isn't a single one-shot [Task]:
+     * [delay] measures its duration in this scheduler's ticks.
+     * This is the preferred way to write anything which isn't a
+     * single one-shot [Task]:
      * ```
      * scheduler.asCoroutineScope().launch {
      *     while (isActive) {
@@ -59,6 +62,8 @@ public interface TickedScheduler {
      *     }
      * }
      * ```
+     * Alternatively you can also just call the extension functions
+     * [launch] and [async] directly.
      *
      * The returned scope is the same for the lifetime of this scheduler, and its
      * children are cancelled whenever the scheduler cancels everything. The scope

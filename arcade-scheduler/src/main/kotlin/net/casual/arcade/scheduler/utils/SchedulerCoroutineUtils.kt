@@ -5,6 +5,8 @@
 package net.casual.arcade.scheduler.utils
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import net.casual.arcade.scheduler.TickedScheduler
 import net.casual.arcade.scheduler.task.ScheduledTask
 import net.casual.arcade.scheduler.task.Task
@@ -16,6 +18,14 @@ import kotlin.coroutines.CoroutineContext
 
 public fun TickedScheduler.asCoroutineDispatcher(): CoroutineDispatcher {
     return MinecraftSchedulerDispatcher(this)
+}
+
+public inline fun TickedScheduler.launch(crossinline block: suspend CoroutineScope.() -> Unit): Job {
+    return this.asCoroutineScope().launch { block() }
+}
+
+public inline fun <T> TickedScheduler.async(crossinline block: suspend CoroutineScope.() -> T): Deferred<T> {
+    return this.asCoroutineScope().async { block() }
 }
 
 @OptIn(InternalCoroutinesApi::class)
