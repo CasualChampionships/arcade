@@ -85,13 +85,15 @@ public sealed interface MinigamePhaseLifetime {
      * Survives if the next phase is in the [phases] set.
      */
     public data class During(public val phases: Set<MinigamePhase>): MinigamePhaseLifetime {
+        public constructor(vararg phases: MinigamePhase): this(phases.toSet())
+
         override fun survives(previous: MinigamePhase, next: MinigamePhase): Boolean {
             return this.phases.contains(next)
         }
+
         override fun type(): Type {
             return DURING
         }
-
     }
 
     /**
