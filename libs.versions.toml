@@ -1,9 +1,9 @@
 [versions]
-minecraft           = "26.2"
+minecraft           = "26.3-pre-3"
 java                = "25"
 kotlin              = "2.4.0"
-fabric-loader       = "0.19.3"
-fabric-api          = "0.154.2+26.2"
+fabric-loader       = "0.19.5"
+fabric-api          = "0.160.2+26.3"
 fabric-kotlin       = "1.13.12+kotlin.2.4.0"
 sgui                = "2.1.0+26.2"
 server-translations = "3.1.0+26.2"
