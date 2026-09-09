@@ -14,7 +14,6 @@ import net.casual.arcade.minigame.MinigameState
 import net.casual.arcade.minigame.events.MinigameSetPhaseEvent
 import net.casual.arcade.minigame.managers.phase.AdvancingPhaseRoutine
 import net.casual.arcade.minigame.phase.MinigamePhase
-import net.casual.arcade.minigame.phase.MinigamePhaseLifetime
 import net.casual.arcade.minigame.managers.phase.MinigamePhaseCoroutines
 import net.casual.arcade.minigame.managers.phase.MinigamePhaseRoutines
 import net.casual.arcade.minigame.routine.requestPhase
@@ -162,7 +161,7 @@ public class MinigamePhaseManager internal constructor(
         val routine = this.routines[phase]
         val coroutine = this.coroutines[phase]
         if (routine != null || coroutine != null) {
-            val scope = this.minigame.scopes.create(MinigamePhaseLifetime.Current)
+            val scope = this.minigame.scopes.current
             if (routine != null) {
                 scope.schedule(MinecraftTimeDuration.ZERO, AdvancingPhaseRoutine(routine))
             }
