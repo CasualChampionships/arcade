@@ -10,6 +10,7 @@ import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket
 import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.TickTask
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.CommonListenerCookie
 import net.minecraft.server.network.ServerGamePacketListenerImpl
@@ -32,9 +33,13 @@ public open class FakeGamePacketListenerImpl(
 
     override fun send(packet: Packet<*>, listener: ChannelFutureListener?) {
         if (packet is ClientboundPlayerPositionPacket) {
-            this.handleAcceptTeleportPacket(
-                ServerboundAcceptTeleportationPacket(packet.id, this.player.x, this.player.y, this.player.z, this.player.yRot, this.player.xRot)
-            )
+            val position = this.player.position()
+            val rotation = this.player.rotationVector
+            this.server.schedule(TickTask(this.server.tickCount) {
+                this.handleAcceptTeleportPacket(
+                    ServerboundAcceptTeleportationPacket(packet.id, position.x, position.y, position.z, rotation.y, rotation.x)
+                )
+            })
         }
         if (this.receivesPackets()) {
             super.send(packet, listener)
