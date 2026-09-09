@@ -128,6 +128,20 @@ public class MinigamePhaseManager internal constructor(
     }
 
     /**
+     * Requests setting the [MinigamePhase] for the [minigame] to [phase].
+     *
+     * This should typically only be called in a coroutine context otherwise
+     * [set] can be directly called.
+     *
+     * @param phase The phase to set to.
+     * @see set
+     */
+    public fun request(phase: MinigamePhase) {
+        require(this.contains(phase)) { "Cannot request minigame '${this.minigame.id}' phase ${phase.id}" }
+        this.pending = phase
+    }
+
+    /**
      * Gets all the phases for the [minigame].
      *
      * @return A list of all phases.
@@ -178,11 +192,6 @@ public class MinigamePhaseManager internal constructor(
 
     internal fun restore(phase: MinigamePhase) {
         this.minigame.state = MinigameState.Playing(phase)
-    }
-
-    internal fun request(phase: MinigamePhase) {
-        require(this.contains(phase)) { "Cannot request minigame '${this.minigame.id}' phase ${phase.id}" }
-        this.pending = phase
     }
 
     internal fun tryRequestAdvance() {
