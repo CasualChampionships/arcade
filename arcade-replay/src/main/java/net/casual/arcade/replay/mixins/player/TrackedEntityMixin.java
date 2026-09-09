@@ -13,6 +13,7 @@ import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.UpdateInterval;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -34,7 +35,7 @@ public class TrackedEntityMixin {
         ChunkMap chunkMap,
         Entity entity,
         int range,
-        int updateInterval,
+        UpdateInterval updateInterval,
         boolean trackDelta,
         CallbackInfo ci
     ) {

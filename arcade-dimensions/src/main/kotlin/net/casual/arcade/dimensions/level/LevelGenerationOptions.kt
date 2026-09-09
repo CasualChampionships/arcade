@@ -10,7 +10,7 @@ import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.level.spawner.CustomSpawnerFactory
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.Registries
-import net.minecraft.resources.RegistryFileCodec
+import net.minecraft.core.registries.codec.RegistryCodecs
 import net.minecraft.world.clock.ClockState
 import net.minecraft.world.level.dimension.LevelStem
 import java.util.*
@@ -41,7 +41,7 @@ public class LevelGenerationOptions(
         @JvmField
         public val CODEC: Codec<LevelGenerationOptions> = RecordCodecBuilder.create { instance ->
             instance.group(
-                RegistryFileCodec.create(Registries.LEVEL_STEM, LevelStem.CODEC).fieldOf("stem").forGetter(LevelGenerationOptions::stem),
+                RegistryCodecs.holder(Registries.LEVEL_STEM, LevelStem.CODEC).fieldOf("stem").forGetter(LevelGenerationOptions::stem),
                 Codec.LONG.fieldOf("seed").forGetter(LevelGenerationOptions::seed),
                 Codec.BOOL.fieldOf("flat").forGetter(LevelGenerationOptions::flat),
                 ClockState.CODEC.optionalFieldOf("clock").forGetter(LevelGenerationOptions::clock),

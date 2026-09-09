@@ -380,8 +380,8 @@ public class FlashbackWriter(
     }
 
     private fun updatePosition(packet: ClientboundEntityPositionSyncPacket): CompletableFuture<Int?> {
-        val values = packet.values
-        this.writePosition(packet.id, values.position, Vec2(values.xRot, values.yRot), values.yRot)
+        val position = packet.position.endPosition()
+        this.writePosition(packet.id, position, Vec2(packet.xRot, packet.yRot), packet.yRot)
         return CompletableFuture.completedFuture(ExactEntityPosition.size())
     }
 

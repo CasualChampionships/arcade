@@ -7,6 +7,7 @@ package net.casual.arcade.dimensions.level.clock
 import net.minecraft.util.Mth
 import net.minecraft.world.clock.ClockNetworkState
 import net.minecraft.world.clock.ClockState
+import net.minecraft.world.clock.ServerClockManager
 import net.minecraft.world.level.gamerules.GameRules
 
 public class LevelClockInstance(
@@ -31,6 +32,12 @@ public class LevelClockInstance(
     public fun packNetworkState(gamerules: GameRules): ClockNetworkState {
         val effectivelyPaused = this.paused || !gamerules.get(GameRules.ADVANCE_TIME)
         return ClockNetworkState(this.totalTicks, this.partialTick, if (effectivelyPaused) 0.0F else this.rate)
+    }
+
+    internal fun asServer(): ServerClockManager.ServerClockInstance {
+        val instance = ServerClockManager.ServerClockInstance()
+        instance.loadFrom(this.packState())
+        return instance
     }
 
     public companion object {

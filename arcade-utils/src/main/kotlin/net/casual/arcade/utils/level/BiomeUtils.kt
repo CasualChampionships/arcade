@@ -18,10 +18,10 @@ public fun Holder<Biome>.isOceanOrRiver(): Boolean {
     return this.isOcean() || this.isOf(BiomeTags.IS_RIVER)
 }
 
-public fun Biome.hasFeature(feature: Feature<*>): Boolean {
+public fun Biome.hasFeature(feature: Feature): Boolean {
     val placedFeatures = this.generationSettings.features().stream().flatMap { it.stream() }
     for (placedFeature in placedFeatures) {
-        if (placedFeature.value().features.anyMatch { it.value().feature() == feature }) {
+        if (placedFeature.value().features.anyMatch { it.value() == feature }) {
             return true
         }
     }

@@ -36,6 +36,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Optional;
 
@@ -62,7 +63,7 @@ public abstract class ServerLevelMixin extends Level {
         method = "destroyBlockProgress",
         at = @At("TAIL")
     )
-    private void onDestroyBlockProgress(int id, BlockPos blockPos, int progress, CallbackInfo ci) {
+    private void broadcastBlockDestroyProgressToRecorders(int id, BlockPos blockPos, int progress, CallbackInfo ci) {
         Entity breaker = this.getEntity(id);
         if (breaker instanceof ServerPlayer player) {
 			ReplayPlayerRecorders.record(player, new ClientboundBlockDestructionPacket(id, blockPos, progress));
@@ -76,9 +77,14 @@ public abstract class ServerLevelMixin extends Level {
 
     @Inject(
         method = "explode",
-        at = @At("TAIL")
+        at = @At(
+            value = "INVOKE",
+            target = "Ljava/util/List;iterator()Ljava/util/Iterator;"
+        )
+//        at = @At("TAIL"),
+//        locals = LocalCapture.PRINT
     )
-    private void onExplode(
+    private void broadcastExplosionsToChunkRecorders(
         @Nullable Entity source,
         @Nullable DamageSource damageSource,
         @Nullable ExplosionDamageCalculator damageCalculator,
@@ -99,15 +105,15 @@ public abstract class ServerLevelMixin extends Level {
     ) {
         ChunkPos chunkPos = ChunkPos.containing(BlockPos.containing(x, y, z));
         for (ReplayChunkRecorder recorder : ReplayChunkRecorders.containing(this.dimension(), chunkPos)) {
-            recorder.record(new ClientboundExplodePacket(center, r, blockCount, Optional.empty(), explosionParticle, explosionSound, blockParticles));
+            recorder.record(new ClientboundExplodePacket(center, r, blockCount, Optional.empty(), explosionParticle, explosionSound, blockParticles, source == null || !source.isSilent()));
         }
     }
 
     @Inject(
-        method = "sendParticles(Lnet/minecraft/core/particles/ParticleOptions;ZZDDDIDDDD)I",
+        method = "sendParticles(Lnet/minecraft/core/particles/ParticleOptions;ZZDDDIDDDDDDLnet/minecraft/network/protocol/game/ClientboundLevelParticlesPacket$RandomizationType;)I",
         at = @At("TAIL")
     )
-    private <T extends ParticleOptions> void onSendParticles(
+    private <T extends ParticleOptions> void broadcastParticlesToChunkRecorders(
         T particle,
         boolean overrideLimiter,
         boolean alwaysShow,
@@ -118,7 +124,10 @@ public abstract class ServerLevelMixin extends Level {
         double xDist,
         double yDist,
         double zDist,
-        double speed,
+        double xSpeed,
+        double ySpeed,
+        double zSpeed,
+        ClientboundLevelParticlesPacket.RandomizationType randomizationType,
         CallbackInfoReturnable<Integer> cir,
         @Local(name = "packet") ClientboundLevelParticlesPacket packet
     ) {

@@ -23,7 +23,7 @@ public object AdvancementUtils {
             return this
         }
         val display = advancement.display.get()
-        if (!display.shouldShowToast()) {
+        if (!display.showToast()) {
             return this
         }
 
@@ -34,10 +34,9 @@ public object AdvancementUtils {
             display.background,
             display.type,
             false,
-            display.shouldAnnounceChat(),
-            display.isHidden
+            display.announceToChat(),
+            display.hidden()
         )
-        withoutToast.setLocation(display.x, display.y)
         val copy = Advancement(
             advancement.parent,
             Optional.of(withoutToast),

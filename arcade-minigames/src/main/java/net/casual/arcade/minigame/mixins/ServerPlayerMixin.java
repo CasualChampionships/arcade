@@ -20,6 +20,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -74,6 +75,21 @@ public abstract class ServerPlayerMixin {
 			ci.cancel();
 		}
 	}
+
+
+
+    @Inject(
+        method = "drop(Lnet/minecraft/world/item/ItemStack;ZLnet/minecraft/util/Prediction;)Lnet/minecraft/world/entity/item/ItemEntity;",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void mayDropItems(CallbackInfoReturnable<ItemEntity> cir) {
+        ServerPlayer player = (ServerPlayer) (Object) this;
+        Minigame minigame = MinigameUtils.getMinigame(player);
+        if (minigame != null && !minigame.getSettings().canDropItems.get(player)) {
+            cir.setReturnValue(null);
+        }
+    }
 
     @Inject(
         method = "findRespawnPositionAndUseSpawnBlock",

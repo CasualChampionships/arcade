@@ -11,6 +11,7 @@ import net.casual.arcade.guis.utils.SlotClickHandler
 import net.casual.arcade.guis.utils.SlotInteractAction
 import net.casual.arcade.guis.utils.SlotInteractHandler
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.util.Prediction
 import net.minecraft.world.entity.player.PlayerEquipment
 import net.minecraft.world.item.ItemStack
 
@@ -93,7 +94,11 @@ public open class VirtualInventory(
         return false
     }
 
-    final override fun placeItemBackInInventory(stack: ItemStack, sendPacket: Boolean) {
+    final override fun placeItemBackInInventory(
+        itemStack: ItemStack,
+        shouldSendSetSlotPacket: Boolean,
+        prediction: Prediction
+    ) {
 
     }
 

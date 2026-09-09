@@ -42,7 +42,8 @@ public object FakePlayerMeleeAttack {
                             if (!willMissAttack.invoke(player, target)) {
                                 player.attack(target)
                             }
-                            player.swing(InteractionHand.MAIN_HAND)
+                            val animation = player.mainHandItem.attackAnimation
+                            player.swing(InteractionHand.MAIN_HAND, animation, false)
                             val cooldown = attackCooldown.invoke(player).ticks.toLong()
                             cooldownAccessor.setWithExpiry(true, cooldown)
                             return true

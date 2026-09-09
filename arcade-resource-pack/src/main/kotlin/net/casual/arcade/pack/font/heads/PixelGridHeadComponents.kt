@@ -5,7 +5,7 @@
 package net.casual.arcade.pack.font.heads
 
 import com.google.common.cache.CacheBuilder
-import com.mojang.authlib.minecraft.MinecraftSessionService
+import com.mojang.authlib.minecraft.SessionService
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.await
 import net.casual.arcade.pack.ArcadeResourcePack
@@ -38,7 +38,7 @@ import kotlin.time.toJavaDuration
 public class PixelGridHeadComponents private constructor(
     private val shift: Int,
     private val resolver: ProfileResolver,
-    private val session: MinecraftSessionService
+    private val session: SessionService
 ): TexturedHeadComponents {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -62,14 +62,14 @@ public class PixelGridHeadComponents private constructor(
         if (username != null) {
             val result = this.nameCache.getIfPresent(username)
             if (result != null) {
-                return result.getNowOrNull()?.getOrNull() ?: return this.getDefault()
+                return result.getNowOrNull()?.getOrNull() ?: this.getDefault()
             }
         }
 
         if (uuid != null) {
             val result = this.uuidCache.getIfPresent(uuid)
             if (result != null) {
-                return result.getNowOrNull()?.getOrNull() ?: return this.getDefault()
+                return result.getNowOrNull()?.getOrNull() ?: this.getDefault()
             }
         }
 
@@ -262,7 +262,7 @@ public class PixelGridHeadComponents private constructor(
         public fun get(
             shift: Int = 0,
             resolver: ProfileResolver,
-            session: MinecraftSessionService
+            session: SessionService
         ): PixelGridHeadComponents {
             return this.components.get(shift) {
                 PixelGridHeadComponents(shift, resolver, session)

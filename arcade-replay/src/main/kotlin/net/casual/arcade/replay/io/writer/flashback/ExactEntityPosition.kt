@@ -21,7 +21,8 @@ public data class ExactEntityPosition(
         if (packet.hasPosition()) {
             val delta = VecDeltaCodec()
             delta.base = this.position
-            position = delta.decode(packet.xa.toLong(), packet.ya.toLong(), packet.za.toLong())
+            val decoded = packet.positionDelta.decode(delta)
+            position = decoded.endPosition()
         }
         if (packet.hasRotation()) {
             rotation = Vec2(packet.xRot, packet.yRot)

@@ -162,9 +162,10 @@ public class FlashbackReader(
             this.respawned = true
         }
         if (packet is ClientboundEntityPositionSyncPacket && packet.id == this.player) {
-            val position = packet.values.position
+            val position = packet.position.endPosition()
             this.updateChunkCacheCenter(position.x, position.y, position.z, consumer)
-            val teleport = ClientboundPlayerPositionPacket(-1, packet.values, setOf())
+            val change = PositionMoveRotation(position, Vec3.ZERO, packet.yRot, packet.xRot)
+            val teleport = ClientboundPlayerPositionPacket(-1, change, setOf())
             consumer.invoke(ReplayPacketData(ConnectionProtocol.PLAY, teleport, this.tickAsDuration))
             if (this.respawned) {
                 this.respawned = false

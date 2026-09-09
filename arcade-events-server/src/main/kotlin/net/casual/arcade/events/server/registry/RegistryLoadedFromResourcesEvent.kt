@@ -22,7 +22,7 @@ public data class RegistryLoadedFromResourcesEvent<T: Any>(
     val context: RegistryInfoLookup
 ): ServerSideEvent, MissingExecutorEvent {
     public fun <T: Any> lookup(registry: ResourceKey<Registry<T>>): Optional<HolderGetter<T>> {
-        return this.context.lookup(registry).map { it.getter }
+        return this.context.lookup(registry)
     }
 
     public fun <T: Any> lookupOrThrow(registry: ResourceKey<Registry<T>>): HolderGetter<T> {
@@ -38,7 +38,6 @@ public data class RegistryLoadedFromResourcesEvent<T: Any>(
 
     @Suppress("UNCHECKED_CAST")
     public fun register(key: ResourceKey<T>, value: T, info: RegistrationInfo = RegistrationInfo.BUILT_IN) {
-        this.task.createRegistryInfo()
         this.task as RegistryLoadTaskAccessor<T>
         synchronized(this.task.arcade_getRegistryWriteLock()) {
             val registry = this.task.arcade_getRegistry()

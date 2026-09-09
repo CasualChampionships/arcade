@@ -34,6 +34,7 @@ import net.minecraft.server.players.PlayerList;
 import net.minecraft.util.Util;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -303,17 +304,26 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
         }
     }
 
-    @WrapWithCondition(
-        method = "handleAnimate",
+    @WrapOperation(
+        method = "handlePunch",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/server/level/ServerPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"
+            target = "Lnet/minecraft/server/level/ServerPlayer;swing(Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/component/SwingAnimation;Z)Z"
         )
     )
-    private boolean onSwingHand(ServerPlayer instance, InteractionHand hand) {
-        PlayerClientSwingHandEvent event = new PlayerClientSwingHandEvent(instance, hand);
+    private boolean onSwingHand(
+		ServerPlayer instance,
+		InteractionHand interactionHand,
+		SwingAnimation swingAnimation,
+		boolean sendToSwingingEntity,
+		Operation<Boolean> original
+	) {
+        PlayerClientSwingHandEvent event = new PlayerClientSwingHandEvent(instance, interactionHand, swingAnimation);
         GlobalEventHandler.Server.broadcast(event);
-        return !event.isCancelled();
+        if (!event.isCancelled()) {
+			return original.call(instance, interactionHand, swingAnimation, sendToSwingingEntity);
+		}
+		return false;
     }
 
 	@Inject(
@@ -367,14 +377,14 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		Consumer<? super Suggestions> action,
 		ServerboundCommandSuggestionPacket packet
 	) {
-		PlayerCommandSuggestionsEvent event = new PlayerCommandSuggestionsEvent(this.player, packet.getCommand());
+		PlayerCommandSuggestionsEvent event = new PlayerCommandSuggestionsEvent(this.player, packet.command());
 		event.addSuggestions(vanillaSuggestions);
 		GlobalEventHandler.Server.broadcast(event);
 
 		List<CompletableFuture<Suggestions>> all = event.getAllSuggestions();
 		return Util.sequenceFailFast(all).thenAccept(suggestions -> {
-			Suggestions merged = Suggestions.merge(packet.getCommand(), suggestions);
-			this.connection.send(new ClientboundCommandSuggestionsPacket(packet.getId(), merged));
+			Suggestions merged = Suggestions.merge(packet.command(), suggestions);
+			this.connection.send(new ClientboundCommandSuggestionsPacket(packet.id(), merged));
 		});
 	}
 

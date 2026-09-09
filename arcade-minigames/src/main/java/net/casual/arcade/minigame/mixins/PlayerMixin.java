@@ -34,20 +34,6 @@ public class PlayerMixin {
 	}
 
 	@Inject(
-		method = "drop(Lnet/minecraft/world/item/ItemStack;Z)Lnet/minecraft/world/entity/item/ItemEntity;",
-		at = @At("HEAD"),
-		cancellable = true
-	)
-	private void mayDropItems(CallbackInfoReturnable<ItemEntity> cir) {
-		if ((Object) this instanceof ServerPlayer player) {
-			Minigame minigame = MinigameUtils.getMinigame(player);
-			if (minigame != null && !minigame.getSettings().canDropItems.get(player)) {
-				cir.setReturnValue(null);
-			}
-		}
-	}
-
-	@Inject(
 		method = "isSpectator",
 		at = @At("HEAD"),
 		cancellable = true

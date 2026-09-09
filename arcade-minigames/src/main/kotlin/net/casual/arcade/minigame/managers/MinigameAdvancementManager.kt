@@ -164,16 +164,19 @@ public class MinigameAdvancementManager(
             return
         }
 
-        val copy = ArrayList<AdvancementHolder>()
+        val copy = ArrayList<ClientboundUpdateAdvancementsPacket.PositionedAdvancement>()
         for (added in packet.added) {
-            if (!reloaded.contains(added.id)) {
+            val holder = added.advancement
+            if (!reloaded.contains(holder.id)) {
                 copy.add(added)
                 continue
             }
-            copy.add(added.copyWithoutToast())
+            copy.add(
+                ClientboundUpdateAdvancementsPacket.PositionedAdvancement(holder.copyWithoutToast(), added.x, added.y)
+            )
         }
         event.packet = ClientboundUpdateAdvancementsPacket(
-            false, copy, packet.removed, packet.progress, packet.shouldShowAdvancements()
+            false, copy, packet.removed, packet.progress, packet.showAdvancements()
         )
     }
 

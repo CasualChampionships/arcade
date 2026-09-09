@@ -25,7 +25,6 @@
     "compat.carpet.ChunkMapMixin",
     "compat.carpet.EntityPlayerMPFakeMixin",
     "compat.vmp.NearbyEntityTrackingMixin",
-    "flashback.BlockEntityInfoAccessor",
     "flashback.ClientboundLevelChunkPacketDataAccessor",
     "flashback.ClientboundMoveEntityPacketAccessor",
     "network.IdDispatchCodecAccessor",

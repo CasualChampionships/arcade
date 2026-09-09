@@ -59,6 +59,7 @@ import java.io.InputStream
 import java.util.*
 import java.util.function.Supplier
 import kotlin.io.path.nameWithoutExtension
+import kotlin.jvm.optionals.getOrElse
 import kotlin.math.abs
 import kotlin.time.Duration
 
@@ -615,7 +616,7 @@ public class ReplayViewer internal constructor(
         }
         if (packet is ClientboundPlayerChatPacket) {
             // We don't want to deal with chat validation...
-            val message = packet.unsignedContent ?: Component.literal(packet.body.content)
+            val message = packet.unsignedContent.getOrElse { Component.literal(packet.body.content) }
             val decorated = packet.chatType.decorate(message)
             return ClientboundSystemChatPacket(decorated, false)
         }

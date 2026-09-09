@@ -8,7 +8,6 @@ import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.block.BrewingStandBrewEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,7 +26,7 @@ public class BrewingStandBlockEntityMixin {
 	)
 	private static boolean onBrew(
 		boolean brewable,
-		Level level,
+		ServerLevel level,
 		BlockPos pos,
 		BlockState selfState,
 		BrewingStandBlockEntity entity
@@ -38,7 +37,7 @@ public class BrewingStandBlockEntityMixin {
 		if (((BrewingStandBlockEntityAccessor) entity).arcade_getFuel() <= 0) {
 			return false;
 		}
-		BrewingStandBrewEvent event = new BrewingStandBrewEvent((ServerLevel) level, pos, selfState, entity);
+		BrewingStandBrewEvent event = new BrewingStandBrewEvent(level, pos, selfState, entity);
 		GlobalEventHandler.Server.broadcast(event);
 		return !event.isCancelled();
 	}

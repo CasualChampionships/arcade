@@ -39,19 +39,20 @@ public class DelegatedLevelClockManager(
         }
     }
 
-    override fun moveToTimeMarker(clock: Holder<WorldClock>, timeMarkerId: ResourceKey<ClockTimeMarker>): Boolean {
+    override fun moveToTimeMarker(clock: Holder<WorldClock>, timeMarkerId: ResourceKey<ClockTimeMarker>): MoveResult {
         if (this.isOverriddenWorldClock(clock)) {
-            var success = false
+            var result = MoveResult.NOT_MOVED
             this.extension.modify { state ->
                 val marker = this.extension.getMarker(timeMarkerId)
                 if (marker != null) {
-                    success = true
+                    result = MoveResult.MOVED
                     ClockState(marker.resolveTimeToMoveTo(state.totalTicks), 0.0F, state.rate, state.paused)
                 } else {
+                    result = MoveResult.NO_TIME_MARKER_FOUND
                     state
                 }
             }
-            return success
+            return result
         } else {
             return this.wrapped.moveToTimeMarker(clock, timeMarkerId)
         }
@@ -87,11 +88,11 @@ public class DelegatedLevelClockManager(
         }
     }
 
-    override fun getTotalTicks(definition: Holder<WorldClock>): Long {
+    override fun getInstance(definition: Holder<WorldClock>): ServerClockInstance {
         if (this.isOverriddenWorldClock(definition)) {
-            return this.extension.ticks()
+            return this.extension.instance().asServer()
         }
-        return this.wrapped.getTotalTicks(definition)
+        return super.getInstance(definition)
     }
 
     override fun createFullSyncPacket(): ClientboundSetTimePacket {

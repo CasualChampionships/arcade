@@ -16,6 +16,7 @@ import net.minecraft.world.clock.ClockNetworkState
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.item.PrimedTnt
 import net.minecraft.world.entity.projectile.Projectile
+import kotlin.jvm.optionals.getOrElse
 import kotlin.jvm.optionals.getOrNull
 
 public object ReplayOptimizerUtils {
@@ -157,7 +158,7 @@ public object ReplayOptimizerUtils {
             }
         }
         if (packet is ClientboundPlayerChatPacket) {
-            val content = packet.unsignedContent ?: Component.literal(packet.body.content)
+            val content = packet.unsignedContent.getOrElse { Component.literal(packet.body.content) }
             val replacement = ClientboundSystemChatPacket(packet.chatType.decorate(content), false)
             recorder.record(replacement)
             return true

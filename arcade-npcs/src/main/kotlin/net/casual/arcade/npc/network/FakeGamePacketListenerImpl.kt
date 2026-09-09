@@ -32,7 +32,9 @@ public open class FakeGamePacketListenerImpl(
 
     override fun send(packet: Packet<*>, listener: ChannelFutureListener?) {
         if (packet is ClientboundPlayerPositionPacket) {
-            this.handleAcceptTeleportPacket(ServerboundAcceptTeleportationPacket(packet.id))
+            this.handleAcceptTeleportPacket(
+                ServerboundAcceptTeleportationPacket(packet.id, this.player.x, this.player.y, this.player.z, this.player.yRot, this.player.xRot)
+            )
         }
         if (this.receivesPackets()) {
             super.send(packet, listener)

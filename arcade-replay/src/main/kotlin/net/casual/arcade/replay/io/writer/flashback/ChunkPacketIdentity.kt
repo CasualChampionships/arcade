@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.replay.io.writer.flashback
 
-import net.casual.arcade.replay.mixins.flashback.BlockEntityInfoAccessor
 import net.casual.arcade.replay.mixins.flashback.ClientboundLevelChunkPacketDataAccessor
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket
@@ -41,16 +40,14 @@ public class ChunkPacketIdentity private constructor(
             hashes[3] = packet.chunkData.heightmaps.hashCode()
             val blockEntityHashes = IntArray(chunkData.arcade_getBlockEntitiesData().size)
             val sortedBlockEntityData = chunkData.arcade_getBlockEntitiesData().sortedBy { data ->
-                data as BlockEntityInfoAccessor
-                (data.arcade_getY() shl 8) or (data.arcade_getPackedXZ())
+                (data.y.toInt() shl 8) or (data.packedXZ.toInt())
             }
             for ((i, data) in sortedBlockEntityData.withIndex()) {
-                data as BlockEntityInfoAccessor
                 val intermediary = intArrayOf(
-                    data.arcade_getPackedXZ(),
-                    data.arcade_getY(),
-                    BuiltInRegistries.BLOCK_ENTITY_TYPE.getId(data.arcade_getType()),
-                    data.arcade_getTag()?.hashCode() ?: 0
+                    data.packedXZ.toInt(),
+                    data.y.toInt(),
+                    BuiltInRegistries.BLOCK_ENTITY_TYPE.getId(data.type),
+                    data.tag.hashCode()
                 )
                 blockEntityHashes[i] = intermediary.contentHashCode()
             }

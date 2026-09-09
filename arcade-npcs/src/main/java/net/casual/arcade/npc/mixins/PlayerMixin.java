@@ -18,11 +18,11 @@ public class PlayerMixin {
         method = "causeExtraKnockback",
         at = @At(
             value = "FIELD",
-            target = "Lnet/minecraft/world/entity/Entity;hurtMarked:Z",
+            target = "Lnet/minecraft/world/entity/Entity;syncVelocity:Z",
             opcode = Opcodes.GETFIELD
         )
     )
     private boolean onResetDeltaMovement(boolean original, Entity entity) {
-        return entity.hurtMarked && !(entity instanceof FakePlayer);
+        return entity.syncVelocity && !(entity instanceof FakePlayer);
     }
 }

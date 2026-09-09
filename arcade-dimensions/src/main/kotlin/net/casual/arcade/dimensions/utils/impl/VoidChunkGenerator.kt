@@ -18,6 +18,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.WorldGenRegion
 import net.minecraft.util.random.WeightedList
 import net.minecraft.world.entity.MobCategory
+import net.minecraft.world.level.Level
 import net.minecraft.world.level.LevelHeightAccessor
 import net.minecraft.world.level.NoiseColumn
 import net.minecraft.world.level.StructureManager
@@ -29,6 +30,7 @@ import net.minecraft.world.level.chunk.ChunkGeneratorStructureState
 import net.minecraft.world.level.levelgen.Heightmap
 import net.minecraft.world.level.levelgen.RandomState
 import net.minecraft.world.level.levelgen.blending.Blender
+import net.minecraft.world.level.levelgen.densityfunction.SamplerContext
 import net.minecraft.world.level.levelgen.structure.Structure
 import net.minecraft.world.level.levelgen.structure.StructureSet
 import java.util.concurrent.CompletableFuture
@@ -64,11 +66,7 @@ public class VoidChunkGenerator(biome: BiomeSource): ChunkGenerator(biome) {
     }
 
     override fun createState(lookup: HolderLookup<StructureSet>, randomState: RandomState, seed: Long): ChunkGeneratorStructureState {
-        return ChunkGeneratorStructureState.createForFlat(randomState, seed, this.biomeSource, Stream.empty())
-    }
-
-    override fun applyCarvers(worldGenRegion: WorldGenRegion, l: Long, randomState: RandomState, biomeManager: BiomeManager, structureManager: StructureManager, chunkAccess: ChunkAccess) {
-
+        return ChunkGeneratorStructureState.createForFlat(randomState, seed, this.getOrigin(randomState), this.biomeSource, Stream.empty())
     }
 
     override fun findNearestMapStructure(level: ServerLevel, structure: HolderSet<Structure>, pos: BlockPos, searchRadius: Int, skipKnownStructures: Boolean): Pair<BlockPos, Holder<Structure>>? {
@@ -76,10 +74,6 @@ public class VoidChunkGenerator(biome: BiomeSource): ChunkGenerator(biome) {
     }
 
     override fun applyBiomeDecoration(level: WorldGenLevel, chunk: ChunkAccess, structureManager: StructureManager) {
-
-    }
-
-    override fun buildSurface(level: WorldGenRegion, manager: StructureManager, random: RandomState, chunk: ChunkAccess) {
 
     }
 
@@ -91,7 +85,12 @@ public class VoidChunkGenerator(biome: BiomeSource): ChunkGenerator(biome) {
         return 0
     }
 
-    override fun getMobsAt(biome: Holder<Biome>, structureManager: StructureManager, category: MobCategory, pos: BlockPos): WeightedList<MobSpawnSettings.SpawnerData> {
+    override fun getMobsAt(
+        level: Level,
+        structureManager: StructureManager,
+        mobCategory: MobCategory,
+        pos: BlockPos
+    ): WeightedList<MobSpawnSettings.SpawnerData> {
         return WeightedList.of()
     }
 
@@ -99,7 +98,15 @@ public class VoidChunkGenerator(biome: BiomeSource): ChunkGenerator(biome) {
 
     }
 
-    override fun fillFromNoise(blender: Blender, randomState: RandomState, manager: StructureManager, chunk: ChunkAccess): CompletableFuture<ChunkAccess> {
+    override fun buildTerrain(
+        chunk: ChunkAccess,
+        blender: Blender,
+        randomState: RandomState,
+        structureManager: StructureManager,
+        biomeManager: BiomeManager,
+        carverBiomeRegion: WorldGenRegion?,
+        possibleBiomes: Set<Holder<Biome>>
+    ): CompletableFuture<ChunkAccess> {
         return CompletableFuture.completedFuture(chunk)
     }
 
@@ -119,7 +126,12 @@ public class VoidChunkGenerator(biome: BiomeSource): ChunkGenerator(biome) {
         return NoiseColumn(0, emptyArray())
     }
 
-    override fun addDebugScreenInfo(info: MutableList<String>, random: RandomState, pos: BlockPos) {
+    override fun addDebugScreenInfo(
+        result: List<String>,
+        randomState: RandomState,
+        feetPos: BlockPos,
+        samplerContext: SamplerContext
+    ) {
 
     }
 

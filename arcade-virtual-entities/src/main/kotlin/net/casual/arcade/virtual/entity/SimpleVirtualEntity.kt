@@ -27,6 +27,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.Pose
 import net.minecraft.world.entity.PositionMoveRotation
+import net.minecraft.world.entity.PositionPath
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import java.util.*
@@ -161,8 +162,9 @@ public open class SimpleVirtualEntity(
         }
 
         if (this.syncExactLocation) {
-            val values = PositionMoveRotation(current.position, Vec3.ZERO, current.yRot, current.xRot)
-            this.observers.broadcast(ClientboundEntityPositionSyncPacket(this.id, values, false))
+            this.observers.broadcast(
+                ClientboundEntityPositionSyncPacket(this.id, PositionPath.of(current.position), current.yRot, current.xRot, false)
+            )
             this.lastSyncedPos = current.position
             this.lastSyncedRot = current.rotation
             this.sendDirtyHeadRotation(current.yRot)

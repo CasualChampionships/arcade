@@ -9,6 +9,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.minigame.utils.MinigameUtils;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -22,16 +23,22 @@ public class AbstractContainerMenuMixin {
 		method = "doClick",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/entity/player/Player;drop(Lnet/minecraft/world/item/ItemStack;Z)Lnet/minecraft/world/entity/item/ItemEntity;"
+			target = "Lnet/minecraft/world/entity/player/Player;drop(Lnet/minecraft/world/item/ItemStack;ZLnet/minecraft/util/Prediction;)Lnet/minecraft/world/entity/item/ItemEntity;"
 		)
 	)
-	private ItemEntity canDropItem(Player instance, ItemStack itemStack, boolean thrownFromHand, Operation<ItemEntity> original) {
+	private ItemEntity canDropItem(
+		Player instance,
+		ItemStack itemStack,
+		boolean thrownFromHand,
+		Prediction prediction,
+		Operation<ItemEntity> original
+	) {
 		if (instance instanceof ServerPlayer player) {
 			Minigame minigame = MinigameUtils.getMinigame(player);
 			if (minigame != null && !minigame.getSettings().canDropItems.get(player)) {
                 return null;
             }
 		}
-		return original.call(instance, itemStack, thrownFromHand);
+		return original.call(instance, itemStack, thrownFromHand, prediction);
 	}
 }

@@ -7,9 +7,9 @@ package net.casual.arcade.utils.entity
 import net.casual.arcade.util.mixins.ChunkMapAccessor
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
+import net.casual.arcade.utils.registries.isOf
 import net.minecraft.core.BlockPos
 import net.minecraft.core.particles.ParticleTypes
-import net.minecraft.core.registries.Registries
 import net.minecraft.network.protocol.game.ClientboundExplodePacket
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.SynchedEntityData
@@ -23,6 +23,7 @@ import net.minecraft.util.Mth
 import net.minecraft.util.random.WeightedList
 import net.minecraft.world.entity.*
 import net.minecraft.world.entity.ai.attributes.AttributeInstance
+import net.minecraft.world.level.levelgen.structure.BuiltinStructures
 import net.minecraft.world.level.levelgen.structure.Structure
 import net.minecraft.world.phys.Vec3
 import java.util.*
@@ -39,12 +40,10 @@ public fun <T: Any> EntityDataAccessor<T>.createValue(value: T): SynchedEntityDa
 
 public fun Entity.addVelocityAndMark(deltaX: Double, deltaY: Double, deltaZ: Double) {
     this.push(deltaX, deltaY, deltaZ)
-    this.hurtMarked = true
 }
 
 public fun Entity.setVelocityAndMark(deltaX: Double, deltaY: Double, deltaZ: Double) {
     this.setDeltaMovement(deltaX, deltaY, deltaZ)
-    this.hurtMarked = true
 }
 
 public fun Entity.addVelocitySmooth(deltaX: Double, deltaY: Double, deltaZ: Double) {
@@ -78,7 +77,8 @@ public fun ServerPlayer.addVelocitySmooth(deltas: Vec3) {
         0.0F, 0, Optional.of(deltas),
         ParticleTypes.CRIT,
         SoundEvents.NOTE_BLOCK_BASEDRUM,
-        WeightedList.of()
+        WeightedList.of(),
+        false
     ))
 }
 
@@ -128,18 +128,11 @@ public fun Entity.getTrackedEntity(): WrappedTrackedEntity? {
     return WrappedTrackedEntity(tracked)
 }
 
-public fun Entity.isInStructure(key: ResourceKey<Structure>): Boolean {
-    val access = this.level().registryAccess()
-    val structure = access.lookup(Registries.STRUCTURE).getOrNull()?.getOptional(key)?.getOrNull() ?: return false
-    return this.isInStructure(structure)
-}
-
-public fun Entity.isInStructure(structure: Structure): Boolean {
+public fun Entity.isInStructure(structure: ResourceKey<Structure>): Boolean {
     val level = this.level()
-    if (level !is ServerLevel) {
-        return false
-    }
-    return level.structureManager().getStructureWithPieceAt(this.blockPosition(), structure).isValid
+    return level is ServerLevel && level.structureManager().getStructureWithPieceAt(this.blockPosition()) { holder ->
+        holder.isOf(structure)
+    }.isValid
 }
 
 public fun <T: Entity> EntityType<T>.spawn(

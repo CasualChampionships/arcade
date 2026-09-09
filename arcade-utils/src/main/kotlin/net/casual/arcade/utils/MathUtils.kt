@@ -4,14 +4,10 @@
  */
 package net.casual.arcade.utils
 
-import net.casual.arcade.utils.MathUtils.component1
-import net.casual.arcade.utils.MathUtils.component2
-import net.casual.arcade.utils.MathUtils.component3
-import net.casual.arcade.utils.MathUtils.distanceToSegment
 import net.minecraft.core.BlockPos
+import net.minecraft.core.CompositeDirection.Direction8
 import net.minecraft.core.Direction
 import net.minecraft.core.Direction.Axis
-import net.minecraft.core.Direction8
 import net.minecraft.core.Vec3i
 import net.minecraft.util.Mth
 import net.minecraft.world.level.levelgen.structure.BoundingBox

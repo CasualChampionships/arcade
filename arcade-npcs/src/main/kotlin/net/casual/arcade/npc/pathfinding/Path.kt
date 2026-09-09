@@ -91,7 +91,7 @@ public class Path(
     }
 
     private companion object {
-        private val NO_NODES = arrayOf<Node>()
+        private val NO_NODES = listOf<Node>()
 
         private fun toVanillaNode(node: PathNode, type: PathType): Node {
             val vanilla = Node(node.x, Mth.floor(node.surface), node.z)

@@ -12,7 +12,6 @@
     "LivingEntityAccessor",
     "LivingEntityMixin",
     "PathAccessor",
-    "PistonMovingBlockEntityMixin",
     "PlayerListMixin",
     "PlayerMixin",
     "ServerEntityMixin",

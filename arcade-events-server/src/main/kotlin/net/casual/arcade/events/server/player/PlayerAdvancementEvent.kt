@@ -12,6 +12,6 @@ public data class PlayerAdvancementEvent(
     override val player: ServerPlayer,
     val advancement: AdvancementHolder
 ): PlayerEvent {
-    var announce: Boolean = this.advancement.value.display.getOrNull()?.shouldAnnounceChat() ?: false
+    var announce: Boolean = this.advancement.value.display.getOrNull()?.announceToChat() ?: false
     var reward: Boolean = true
 }

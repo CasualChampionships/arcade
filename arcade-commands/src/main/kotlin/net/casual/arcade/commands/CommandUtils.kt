@@ -19,7 +19,7 @@ import net.casual.arcade.utils.TimeUtils.Minutes
 import net.casual.arcade.utils.component.click
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
-import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
+import net.casual.arcade.utils.math.location.asLocation
 import net.casual.arcade.utils.minecraft
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.fabricmc.fabric.api.permission.v1.PermissionPredicates
@@ -164,7 +164,6 @@ public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSo
     return this.requiresPermission(minecraft(permission))
 }
 
-@Suppress("UnstableApiUsage")
 public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
     permission: Identifier
 ): T {
@@ -179,7 +178,6 @@ public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSo
     return this.requiresPermission(minecraft(permission), fallback)
 }
 
-@Suppress("UnstableApiUsage")
 public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
     permission: Identifier,
     fallback: PermissionLevel
@@ -187,7 +185,6 @@ public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSo
     return this.requires(PermissionPredicates.require(permission, fallback))
 }
 
-@Suppress("UnstableApiUsage")
 public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
     permission: Identifier,
     fallback: Boolean

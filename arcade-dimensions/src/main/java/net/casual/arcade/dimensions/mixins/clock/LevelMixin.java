@@ -32,7 +32,7 @@ public abstract class LevelMixin {
         MinecraftServer server = this.getServer();
         if (server != null) {
             Long time = this.registryAccess().get(WorldClocks.OVERWORLD).map(holder -> {
-                return server.clockManager().getTotalTicks(holder);
+                return server.clockManager().getInstance(holder).totalTicks();
             }).orElse(0L);
             cir.setReturnValue(time);
         }

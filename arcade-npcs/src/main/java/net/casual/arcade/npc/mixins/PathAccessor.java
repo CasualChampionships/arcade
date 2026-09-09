@@ -10,10 +10,11 @@ import net.minecraft.world.level.pathfinder.Target;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
+import java.util.List;
 import java.util.Set;
 
 @Mixin(Path.class)
 public interface PathAccessor {
     @Invoker("setDebug")
-    void arcade_setDebug(Node[] openSet, Node[] closedSet, Set<Target> targets);
+    void arcade_setDebug(List<Node> openSet, List<Node> closedSet, Set<Target> targets);
 }

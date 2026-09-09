@@ -85,6 +85,11 @@ public class LevelClockExtension(
     }
 
     @Internal
+    public fun instance(): LevelClockInstance {
+        return this.instance!!
+    }
+
+    @Internal
     public fun ticks(): Long {
         return this.instance?.totalTicks ?: -1
     }

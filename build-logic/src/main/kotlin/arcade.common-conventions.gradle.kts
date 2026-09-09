@@ -173,6 +173,14 @@ if (docFile.exists()) {
     }
 }
 
+private val minecraftVersionRegex = Regex("""^(\d+\.\d+)(\.\d+)?(?:-(pre|rc)-?(\d+))?$""")
+
 fun replaceVersion(version: String, patch: String): String {
-    return version.replace(Regex("""^(\d+\.\d+)(\.\d+)?$"""), "$1.$patch")
+    val match = minecraftVersionRegex.matchEntire(version)
+        ?: throw IllegalArgumentException("Unrecognised Minecraft version: $version")
+    val (minor, patchVersion, type, number) = match.destructured
+    if (type.isEmpty()) {
+        return "$minor.$patch"
+    }
+    return "$minor$patchVersion-$type.$number"
 }
