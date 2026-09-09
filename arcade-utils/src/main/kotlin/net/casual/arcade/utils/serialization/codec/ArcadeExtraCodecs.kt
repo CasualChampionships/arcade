@@ -139,18 +139,6 @@ public object ArcadeExtraCodecs {
         return ExtraCodecs.optionalEmptyMap(Codec.STRING).map(map)
     }
 
-    @Deprecated(
-        "Use keyedUnboundedMergedMap instead",
-        ReplaceWith("this.keyedUnboundedMergedMap(keyCodec, valueMapCodec, keyName)")
-    )
-    public fun <K, V> keyedUnboundedMapCodec(
-        keyCodec: Codec<K>,
-        valueMapCodec: MapCodec<V>,
-        keyName: String = "id"
-    ): Codec<Map<K, V>> {
-        return keyedUnboundedMergedMap(keyCodec, valueMapCodec, keyName)
-    }
-
     public fun <K, V> keyedUnboundedMergedMap(
         keyCodec: Codec<K>,
         valueMapCodec: MapCodec<V>,

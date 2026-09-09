@@ -9,9 +9,6 @@ import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 import org.jetbrains.annotations.ApiStatus.OverrideOnly
 
-@Deprecated("Use SerializableExtension instead")
-public typealias DataExtension = SerializableExtension
-
 /**
  * This interface is an extension of [Extension] that allows
  * you to further serialize any data in your [Extension].

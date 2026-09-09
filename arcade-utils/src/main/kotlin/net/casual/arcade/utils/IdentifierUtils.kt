@@ -20,11 +20,6 @@ public fun Identifier(namespace: String, path: String): Identifier {
 }
 
 public object IdentifierUtils {
-    @Deprecated("use arcade() instead", ReplaceWith("arcade(path)", "net.casual.arcade.utils.arcade"))
-    public fun arcade(path: String): Identifier {
-        return net.casual.arcade.utils.arcade(path)
-    }
-
     public fun random(namespace: String = ArcadeUtils.MOD_ID): Identifier {
         val key = UUID.randomUUID().toString()
         return Identifier.fromNamespaceAndPath(namespace, key)

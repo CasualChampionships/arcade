@@ -11,7 +11,7 @@ import net.minecraft.world.level.biome.Biome
 import net.minecraft.world.level.levelgen.feature.Feature
 
 public fun Holder<Biome>.isOcean(): Boolean {
-    return this.isOf(BiomeTags.IS_OCEAN) || this.isOf(BiomeTags.IS_DEEP_OCEAN)
+    return this.isOf(BiomeTags.IS_OCEAN)
 }
 
 public fun Holder<Biome>.isOceanOrRiver(): Boolean {

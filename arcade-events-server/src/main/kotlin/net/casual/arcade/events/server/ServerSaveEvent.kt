@@ -12,10 +12,6 @@ public data class ServerSaveEvent(
     val server: MinecraftServer,
     val reason: Reason
 ): ServerSideEvent {
-    @Deprecated("Manually check reason instead")
-    val stopping: Boolean
-        get() = this.reason == Reason.Shutdown
-
     val isRoutine: Boolean
         get() = this.reason != Reason.Initial && this.reason != Reason.Shutdown
 

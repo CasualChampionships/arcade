@@ -145,33 +145,6 @@ public class EntityNametagExtension(entity: Entity): EntityExtension(entity) {
         public val Entity.nametagExtension: EntityNametagExtension
             get() = this.getExtension()
 
-        @Deprecated("Use nametagExtension instead")
-        public fun Entity.addNametag(nametag: Nametag): Boolean {
-            this.nametagExtension.add(nametag)
-            return true
-        }
-
-        @Deprecated("Use nametagExtension instead")
-        public fun Entity.removeNametag(nametag: Nametag): Boolean {
-            this.nametagExtension.remove(nametag)
-            return true
-        }
-
-        @Deprecated("Use nametagExtension instead")
-        public fun Entity.getNametags(): Collection<Nametag> {
-            return this.nametagExtension.all()
-        }
-
-        @Deprecated("For removal")
-        public fun Entity.getNametagsElements(): Collection<NametagVirtualEntity> {
-            return this.nametagExtension.getAttachment().getNametagEntities()
-        }
-
-        @Deprecated("Use nametagExtension instead")
-        public fun Entity.removeNametags() {
-            this.nametagExtension.removeAll()
-        }
-
         internal fun registerEvents() {
             GlobalEventHandler.Server.register<EntityExtensionEvent> { event ->
                 event.addExtension(::EntityNametagExtension)

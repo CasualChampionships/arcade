@@ -91,7 +91,7 @@ public open class CustomLevel(
     init {
         // In case of server crash, we should still delete temporary levels
         if (!this.persistence.shouldSave()) {
-            LevelPersistenceTracker.markAsTemporary(this.server(), this.dimension())
+            LevelPersistenceTracker.markAsTemporary(this.server, this.dimension())
         }
     }
 
@@ -167,7 +167,7 @@ public open class CustomLevel(
                 val output = TagValueOutput.createWithContext(reporter, this.registryAccess())
                 output.store("factory", CustomLevelFactory.CODEC, this.factory)
                 NbtUtils.addCurrentDataVersion(output)
-                val path = getDimensionDataPath(this.server(), this.dimension())
+                val path = getDimensionDataPath(this.server, this.dimension())
                 path.createParentDirectories()
                 NbtIo.write(output.buildResult(), path)
             }

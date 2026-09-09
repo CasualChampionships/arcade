@@ -24,9 +24,6 @@ public data class PlayerSlotClickEvent(
     public val changedSlots: Int2ObjectMap<HashedStack>,
     public val carriedItem: HashedStack
 ): CancellableEvent.Simple(), PlayerEvent {
-    @Deprecated("Use this.input instead", ReplaceWith("this.input"))
-    public val action: ContainerInput by this::input
-
     public companion object {
         public const val PHASE_PRE_CLICK: Int = BuiltInEventPhases.PRE
 

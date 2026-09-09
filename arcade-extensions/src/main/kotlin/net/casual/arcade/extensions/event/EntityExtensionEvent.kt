@@ -22,45 +22,4 @@ public class EntityExtensionEvent(
     public fun addExtension(provider: (Entity) -> Extension) {
         this.addExtension(provider.invoke(this.entity))
     }
-
-    public companion object {
-        @Deprecated(
-            "Moved",
-            ReplaceWith(
-                "this.addExtension(extension)",
-                "net.casual.arcade.extensions.event.EntityExtensionEvent.Companion.addExtension",
-                "net.casual.arcade.extensions.utils.addExtension"
-            ),
-            level = DeprecationLevel.ERROR
-        )
-        public fun Entity.addExtension(extension: Extension) {
-            this.addExtensionNew(extension)
-        }
-
-        @Deprecated(
-            "Moved",
-            ReplaceWith(
-                "this.getExtension(type)",
-                "net.casual.arcade.extensions.event.EntityExtensionEvent.Companion.getExtension",
-                "net.casual.arcade.extensions.utils.getExtension"
-            ),
-            level = DeprecationLevel.ERROR
-        )
-        public fun <T: Extension> Entity.getExtension(type: Class<T>): T {
-            return this.getExtensionNew(type)
-        }
-
-        @Deprecated(
-            "Moved",
-            ReplaceWith(
-                "this.getExtension<T>()",
-                "net.casual.arcade.extensions.event.EntityExtensionEvent.Companion.getExtension",
-                "net.casual.arcade.extensions.utils.getExtension"
-            ),
-            level = DeprecationLevel.ERROR
-        )
-        public inline fun <reified T: Extension> Entity.getExtension(): T {
-            return this.getExtensionNew<T>()
-        }
-    }
 }

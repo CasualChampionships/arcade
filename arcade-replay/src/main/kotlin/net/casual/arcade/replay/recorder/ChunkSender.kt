@@ -85,7 +85,7 @@ public interface ChunkSender {
      * @return The view distance of the server.
      */
     public fun getViewDistance(): Int {
-        return this.level.server().playerList.viewDistance
+        return this.level.server.playerList.viewDistance
     }
 
     /**
@@ -185,7 +185,7 @@ public interface ChunkSender {
         val leashed = ArrayList<Mob>()
         val ridden = ArrayList<Entity>()
 
-        val viewDistance = this.level.server().playerList.viewDistance
+        val viewDistance = this.level.server.playerList.viewDistance
         for (tracked in this.level.getTrackedEntities()) {
             val entity = tracked.getEntity()
             if (predicate.invoke(entity)) {

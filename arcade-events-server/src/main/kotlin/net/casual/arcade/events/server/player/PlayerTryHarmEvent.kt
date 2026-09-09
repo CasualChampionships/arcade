@@ -10,7 +10,4 @@ public data class PlayerTryHarmEvent(
     override val player: ServerPlayer,
     val otherPlayer: ServerPlayer,
     var canHarmOtherPlayer: Boolean
-): PlayerEvent {
-    @Deprecated("Use canHarmOtherPlayer instead")
-    var canHarmOtherBoolean: Boolean by this::canHarmOtherPlayer
-}
+): PlayerEvent

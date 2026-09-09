@@ -28,7 +28,7 @@ public interface ParentVirtualEntity: VirtualEntity, VirtualEntityAttachment {
      */
     public fun children(): Iterable<VirtualEntity>
 
-    @Deprecated("Call ParentVirtualEntity.children() instead")
+    @Deprecated("Call ParentVirtualEntity.children() instead", ReplaceWith("this.children()"))
     override fun attached(): Iterable<VirtualEntity> {
         return this.children()
     }

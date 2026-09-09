@@ -12,21 +12,15 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.tree.LiteralCommandNode
-import net.casual.arcade.commands.hidden.HiddenCommand
-import net.casual.arcade.commands.hidden.HiddenCommandManager
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
-import net.casual.arcade.utils.TimeUtils.Minutes
-import net.casual.arcade.utils.component.click
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.math.location.asLocation
 import net.casual.arcade.utils.minecraft
-import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.fabricmc.fabric.api.permission.v1.PermissionPredicates
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.MutableComponent
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.permissions.Permission
@@ -39,19 +33,6 @@ public val CommandSourceStack.location: Location
 
 public val CommandSourceStack.locationWithLevel: LocationWithLevel<ServerLevel>
     get() = this.level.asLocation(this.position, this.rotation)
-
-@Deprecated("Use MutableComponent.function declared in ComponentStylingUtils.kt")
-public fun MutableComponent.singleUseFunction(command: HiddenCommand): MutableComponent {
-    return this.function { context ->
-        command.run(context)
-        context.remove()
-    }
-}
-
-@Deprecated("Use MutableComponent.function declared in ComponentStylingUtils.kt")
-public fun MutableComponent.function(timeout: MinecraftTimeDuration = 10.Minutes, command: HiddenCommand): MutableComponent {
-    return this.click(HiddenCommandManager.register(timeout, command))
-}
 
 public fun CommandSourceStack.success(literal: String, log: Boolean = false): Int {
     return this.success(Component.literal(literal), log)

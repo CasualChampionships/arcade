@@ -7,7 +7,6 @@ package net.casual.arcade.utils.registries
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder
 import net.minecraft.core.Registry
 import net.minecraft.core.WritableRegistry
-import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
 
@@ -31,18 +30,6 @@ public abstract class RegistrySupplier {
 
     protected fun <T: Any, R: WritableRegistry<T>> register(builder: FabricRegistryBuilder<T, R>, bootstrap: (Registry<T>) -> Unit): R {
         val registry = builder.buildAndRegister()
-        this.loaders.add { bootstrap.invoke(registry) }
-        return registry
-    }
-
-    @Deprecated("Use fabric's registry builder instead")
-    protected fun <T: Any> registerRegistry(registry: Registry<T>, bootstrap: (Registry<T>) -> Unit): Registry<T> {
-        @Suppress("UNCHECKED_CAST")
-        Registry.register(
-            BuiltInRegistries.REGISTRY as Registry<Registry<*>>,
-            registry.key() as ResourceKey<Registry<*>>,
-            registry
-        )
         this.loaders.add { bootstrap.invoke(registry) }
         return registry
     }

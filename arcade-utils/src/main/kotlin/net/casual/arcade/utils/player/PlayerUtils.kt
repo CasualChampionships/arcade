@@ -56,7 +56,7 @@ import net.minecraft.world.scores.PlayerTeam
 import java.util.function.Predicate
 
 public val ServerPlayer.server: MinecraftServer
-    get() = this.level().server()
+    get() = this.level().server
 
 public val ServerPlayer.isSurvival: Boolean
     get() = this.isGameMode(GameType.SURVIVAL)

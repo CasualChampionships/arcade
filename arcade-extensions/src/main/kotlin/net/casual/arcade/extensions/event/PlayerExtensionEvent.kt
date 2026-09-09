@@ -35,45 +35,4 @@ public data class PlayerExtensionEvent(
     public fun addExtension(provider: (ServerPlayer) -> Extension) {
         this.addExtension(provider.invoke(this.player))
     }
-
-    public companion object {
-        @Deprecated(
-            "Moved",
-            ReplaceWith(
-                "this.addExtension(extension)",
-                "net.casual.arcade.extensions.event.PlayerExtensionEvent.Companion.addExtension",
-                "net.casual.arcade.extensions.utils.addExtension"
-            ),
-            level = DeprecationLevel.ERROR
-        )
-        public fun ServerPlayer.addExtension(extension: Extension) {
-            this.addExtensionNew(extension)
-        }
-
-        @Deprecated(
-            "Moved",
-            ReplaceWith(
-                "this.getExtension(type)",
-                "net.casual.arcade.extensions.event.PlayerExtensionEvent.Companion.getExtension",
-                "net.casual.arcade.extensions.utils.getExtension"
-            ),
-            level = DeprecationLevel.ERROR
-        )
-        public fun <T: Extension> ServerPlayer.getExtension(type: Class<T>): T {
-            return this.getExtensionNew(type)
-        }
-
-        @Deprecated(
-            "Moved",
-            ReplaceWith(
-                "this.getExtension<T>()",
-                "net.casual.arcade.extensions.event.PlayerExtensionEvent.Companion.getExtension",
-                "net.casual.arcade.extensions.utils.getExtension"
-            ),
-            level = DeprecationLevel.ERROR
-        )
-        public inline fun <reified T: Extension> ServerPlayer.getExtension(): T {
-            return this.getExtensionNew<T>()
-        }
-    }
 }

@@ -76,7 +76,7 @@ public class AxisAlignedDisplayBoundaryRenderer(
     }
 
     override fun render() {
-        val shouldUpdateCenter = this.level.server().tickCount % 2 == 0
+        val shouldUpdateCenter = this.level.server.tickCount % 2 == 0
         if (shouldUpdateCenter) {
             val center = this.shape.center()
             val chunkX = SectionPos.blockToSectionCoord(center.x())

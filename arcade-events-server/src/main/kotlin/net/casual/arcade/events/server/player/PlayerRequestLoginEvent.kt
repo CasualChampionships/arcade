@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.events.server.player
 
-import com.mojang.authlib.GameProfile
 import net.casual.arcade.events.common.ServerSideEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
@@ -18,11 +17,6 @@ public data class PlayerRequestLoginEvent(
 ): ServerSideEvent {
     val isAccepted: Boolean
         get() = this.reason == null
-
-    @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated("Use identification instead")
-    val profile: GameProfile
-        get() = GameProfile(this.identification.id, this.identification.name)
 
     var reason: Component? = null
         private set

@@ -17,45 +17,4 @@ public data class TeamExtensionEvent(
     override fun addExtension(extension: Extension) {
         this.team.addExtensionNew(extension)
     }
-
-    public companion object {
-        @Deprecated(
-            "Moved",
-            ReplaceWith(
-                "this.addExtension(extension)",
-                "net.casual.arcade.extensions.event.TeamExtensionEvent.Companion.addExtension",
-                "net.casual.arcade.extensions.utils.addExtension"
-            ),
-            level = DeprecationLevel.ERROR
-        )
-        public fun PlayerTeam.addExtension(extension: Extension) {
-            this.addExtensionNew(extension)
-        }
-
-        @Deprecated(
-            "Moved",
-            ReplaceWith(
-                "this.getExtension(type)",
-                "net.casual.arcade.extensions.event.TeamExtensionEvent.Companion.getExtension",
-                "net.casual.arcade.extensions.utils.getExtension"
-            ),
-            level = DeprecationLevel.ERROR
-        )
-        public fun <T: Extension> PlayerTeam.getExtension(type: Class<T>): T {
-            return this.getExtensionNew(type)
-        }
-
-        @Deprecated(
-            "Moved",
-            ReplaceWith(
-                "this.getExtension<T>()",
-                "net.casual.arcade.extensions.event.TeamExtensionEvent.Companion.getExtension",
-                "net.casual.arcade.extensions.utils.getExtension"
-            ),
-            level = DeprecationLevel.ERROR
-        )
-        public inline fun <reified T: Extension> PlayerTeam.getExtension(): T {
-            return this.getExtensionNew<T>()
-        }
-    }
 }

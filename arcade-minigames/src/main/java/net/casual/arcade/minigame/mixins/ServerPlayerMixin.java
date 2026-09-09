@@ -14,6 +14,7 @@ import net.casual.arcade.minigame.Minigame;
 import net.casual.arcade.minigame.managers.MinigameLevelManager;
 import net.casual.arcade.minigame.managers.MinigamePlayerManager;
 import net.casual.arcade.minigame.utils.MinigameUtils;
+import net.casual.arcade.utils.math.location.LocationUtilsKt;
 import net.casual.arcade.utils.math.location.LocationWithLevel;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -189,7 +190,7 @@ public abstract class ServerPlayerMixin {
 
         LocationWithLevel<ServerLevel> location = minigame.getLevels().getSpawn().get(player);
         if (location != null) {
-            return LocationWithLevel.asTeleportTransition(
+            return LocationUtilsKt.asTeleportTransition(
                 location, Vec3.ZERO, missingRespawnBlock, false, Set.of(), post
             );
         }

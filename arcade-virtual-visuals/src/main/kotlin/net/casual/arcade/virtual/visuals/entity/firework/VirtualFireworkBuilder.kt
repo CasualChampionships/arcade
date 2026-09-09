@@ -6,7 +6,7 @@ package net.casual.arcade.virtual.visuals.entity.firework
 
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.math.location.LocationWithLevel
-import net.casual.arcade.utils.math.location.LocationWithLevel.Companion.asLocation
+import net.casual.arcade.utils.math.location.asLocation
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.core.component.DataComponents
 import net.minecraft.server.level.ServerLevel

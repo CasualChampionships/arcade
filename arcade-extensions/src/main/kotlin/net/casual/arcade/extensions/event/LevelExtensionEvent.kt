@@ -20,47 +20,4 @@ public data class LevelExtensionEvent(
     public fun addExtension(provider: (ServerLevel) -> Extension) {
         this.addExtension(provider.invoke(this.level))
     }
-
-    public companion object {
-        @Deprecated(
-            "Moved",
-            ReplaceWith(
-                "this.addExtension(extension)",
-                "net.casual.arcade.extensions.event.LevelExtensionEvent.Companion.addExtension",
-                "net.casual.arcade.extensions.utils.addExtension"
-            ),
-            level = DeprecationLevel.ERROR
-        )
-        @JvmStatic
-        public fun ServerLevel.addExtension(extension: Extension) {
-            this.addExtensionNew(extension)
-        }
-
-        @Deprecated(
-            "Moved",
-            ReplaceWith(
-                "this.getExtension(type)",
-                "net.casual.arcade.extensions.event.LevelExtensionEvent.Companion.getExtension",
-                "net.casual.arcade.extensions.utils.getExtension"
-            ),
-            level = DeprecationLevel.ERROR
-        )
-        @JvmStatic
-        public fun <T: Extension> ServerLevel.getExtension(type: Class<T>): T {
-            return this.getExtensionNew(type)
-        }
-
-        @Deprecated(
-            "Moved",
-            ReplaceWith(
-                "this.getExtension<T>()",
-                "net.casual.arcade.extensions.event.LevelExtensionEvent.Companion.getExtension",
-                "net.casual.arcade.extensions.utils.getExtension"
-            ),
-            level = DeprecationLevel.ERROR
-        )
-        public inline fun <reified T: Extension> ServerLevel.getExtension(): T {
-            return this.getExtensionNew<T>()
-        }
-    }
 }
