@@ -92,7 +92,7 @@ public class DelegatedLevelClockManager(
         if (this.isOverriddenWorldClock(definition)) {
             return this.extension.instance().asServer()
         }
-        return super.getInstance(definition)
+        return this.wrapped.getInstance(definition)
     }
 
     override fun createFullSyncPacket(): ClientboundSetTimePacket {
