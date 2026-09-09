@@ -36,7 +36,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Optional;
 
@@ -81,8 +80,6 @@ public abstract class ServerLevelMixin extends Level {
             value = "INVOKE",
             target = "Ljava/util/List;iterator()Ljava/util/Iterator;"
         )
-//        at = @At("TAIL"),
-//        locals = LocalCapture.PRINT
     )
     private void broadcastExplosionsToChunkRecorders(
         @Nullable Entity source,
