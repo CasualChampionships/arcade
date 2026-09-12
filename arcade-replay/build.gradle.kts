@@ -10,6 +10,7 @@ dependencies {
     api(projects.arcadeUtils)
     api(projects.arcadeEventRegistry)
     api(projects.arcadeEventsServer)
+    api(projects.arcadeResourcePack)
     api(projects.arcadeResourcePackHost)
     api(projects.arcadeCommands)
 
