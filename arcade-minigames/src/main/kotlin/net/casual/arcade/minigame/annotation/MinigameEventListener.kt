@@ -4,4 +4,9 @@
  */
 package net.casual.arcade.minigame.annotation
 
+import net.casual.arcade.minigame.scope.MinigameScope
+
+/**
+ * @see [MinigameScope.addEventListener]
+ */
 public interface MinigameEventListener

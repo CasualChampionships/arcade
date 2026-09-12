@@ -5,11 +5,17 @@
 package net.casual.arcade.scheduler.task.routine
 
 import com.mojang.serialization.Codec
-import net.casual.arcade.scheduler.TickedScheduler
+import net.casual.arcade.events.EventListener
+import net.casual.arcade.events.EventListenerHandle
+import net.casual.arcade.events.ListenerRegistry
+import net.casual.arcade.events.common.Event
+import net.casual.arcade.events.threading.ThreadingTarget
+import net.casual.arcade.scheduler.SimpleTickedScheduler
 import net.casual.arcade.scheduler.task.ScheduledTask
 import net.casual.arcade.scheduler.task.Task
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.error.RichResult
+import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
@@ -31,20 +37,23 @@ internal class RoutineTask<O>(
     private val owner: O,
     private val journal: RoutineJournal
 ): Task, ScheduledTask {
-    private var scheduler: TickedScheduler? = null
-    private var continuation: Continuation<Unit>? = null
+    private var scheduler: SimpleTickedScheduler? = null
+    private var continuation: Continuation<Any?>? = null
+    private var listener: EventListenerHandle? = null
 
     private var index = 0
     private var replayTo = 0
     private var finished = false
     private var cancelling = false
     private var rehydrating = false
+    private var running = false
+    private var cancelRequested = false
     private var remaining: MinecraftTimeDuration? = null
 
     override val isFinished: Boolean
         get() = this.finished
 
-    fun attach(scheduler: TickedScheduler) {
+    fun attach(scheduler: SimpleTickedScheduler) {
         this.scheduler = scheduler
     }
 
@@ -55,9 +64,10 @@ internal class RoutineTask<O>(
      * The routine is left suspended at that point; it is not resumed
      * until its [remaining] duration has elapsed.
      *
-     * @param remaining The duration left before this routine resumes.
+     * @param remaining The duration left before this routine resumes,
+     *   `null` if the routine was awaiting an event.
      */
-    fun rehydrate(remaining: MinecraftTimeDuration) {
+    fun rehydrate(remaining: MinecraftTimeDuration?) {
         if (this.finished || this.cancelling || this.continuation != null || this.journal.cursor < 0) {
             return
         }
@@ -71,7 +81,7 @@ internal class RoutineTask<O>(
         val continuation = this.continuation
         if (continuation != null) {
             this.continuation = null
-            continuation.resume(Unit)
+            this.running { continuation.resume(Unit) }
             return
         }
         this.start(this.journal.cursor + 1)
@@ -79,6 +89,10 @@ internal class RoutineTask<O>(
 
     override fun cancel() {
         if (this.finished || this.cancelling) {
+            return
+        }
+        if (this.running) {
+            this.cancelRequested = true
             return
         }
         if (this.continuation == null) {
@@ -126,7 +140,66 @@ internal class RoutineTask<O>(
 
         val routine = this.routine
         val block: suspend RoutineScope<O>.() -> Unit = { with(routine) { run() } }
-        block.startCoroutine(Scope(this), Completion(this))
+        this.running { block.startCoroutine(Scope(this), Completion(this)) }
+    }
+
+    private fun <E: Event, T: E> listen(
+        type: Class<T>,
+        registry: ListenerRegistry<E>,
+        priority: Int,
+        phase: Int,
+        predicate: (T) -> Boolean,
+        continuation: Continuation<T>
+    ) {
+        this.suspendAt(continuation)
+        this.scheduler?.startAwaiting(this)
+
+        val listener = EventListener.of<T>(priority, phase, ThreadingTarget.ForceMainThread) { event ->
+            this.received(event, predicate)
+        }
+        this.listener = registry.register(type, listener)
+    }
+
+    private fun <T: Event> received(event: T, predicate: (T) -> Boolean) {
+        if (this.finished || this.cancelling || !predicate.invoke(event)) {
+            return
+        }
+        val continuation = this.continuation ?: return
+        this.continuation = null
+        this.running { continuation.resume(event) }
+    }
+
+    private fun suspendAt(continuation: Continuation<*>) {
+        @Suppress("UNCHECKED_CAST")
+        this.continuation = continuation as Continuation<Any?>
+    }
+
+    fun stopListening() {
+        this.listener?.remove()
+        this.listener = null
+    }
+
+    private fun stopAwaiting() {
+        this.stopListening()
+        this.scheduler?.stopAwaiting(this)
+    }
+
+    private inline fun running(block: () -> Unit) {
+        val previous = this.running
+        this.running = true
+        try {
+            block.invoke()
+        } finally {
+            this.running = previous
+        }
+    }
+
+    private fun throwIfCancelled() {
+        if (this.cancelRequested && !this.cancelling) {
+            this.cancelRequested = false
+            this.cancelling = true
+            throw RoutineCancelledException()
+        }
     }
 
     private fun diverged(message: String): Nothing {
@@ -148,6 +221,7 @@ internal class RoutineTask<O>(
             if (this.task.cancelling) {
                 return
             }
+            this.task.throwIfCancelled()
 
             val index = this.task.index++
             if (index < this.task.replayTo) {
@@ -167,7 +241,7 @@ internal class RoutineTask<O>(
                 // We don't actually schedule the task,
                 // but we need this to allows us to cancel the coroutine
                 return suspendCoroutineUninterceptedOrReturn { continuation ->
-                    this.task.continuation = continuation
+                    this.task.suspendAt(continuation)
                     COROUTINE_SUSPENDED
                 }
             }
@@ -182,26 +256,102 @@ internal class RoutineTask<O>(
             onDelay.invoke(duration)
 
             return suspendCoroutineUninterceptedOrReturn { continuation ->
-                this.task.continuation = continuation
+                this.task.suspendAt(continuation)
                 scheduler.schedule(duration, this.task)
                 COROUTINE_SUSPENDED
             }
         }
 
-        override suspend fun step(id: String?, block: () -> Unit) {
+        override suspend fun awaitCancellation(): Nothing {
+            if (this.task.cancelling) {
+                throw RoutineCancelledException()
+            }
+            this.task.throwIfCancelled()
+
             val index = this.task.index++
             if (index < this.task.replayTo) {
-                val message = this.task.journal.verify(index, RoutineJournal.Kind.Step, id)
+                val message = this.task.journal.verify(index, RoutineJournal.Kind.AwaitCancellation, null)
+                this.task.diverged(message ?: "routine resumed past awaitCancellation at index $index")
+            }
+
+            this.task.journal.record(index, RoutineJournal.Kind.AwaitCancellation, null)
+            this.task.journal.suspendedAt(index)
+
+            try {
+                suspendCoroutineUninterceptedOrReturn<Any?> { continuation ->
+                    this.task.suspendAt(continuation)
+                    this.task.scheduler?.startAwaiting(this.task)
+                    COROUTINE_SUSPENDED
+                }
+            } finally {
+                this.task.stopAwaiting()
+            }
+            throw RoutineCancelledException()
+        }
+
+        override suspend fun <E: Event, T: E> await(
+            type: Class<T>,
+            registry: ListenerRegistry<E>,
+            id: String?,
+            priority: Int,
+            phase: Int,
+            predicate: (T) -> Boolean,
+            block: (T) -> Unit
+        ) {
+            if (!this.task.cancelling) {
+                this.await(type, registry, ArcadeExtraCodecs.UNIT, id, priority, phase, predicate, block)
+            }
+        }
+
+        override suspend fun <E: Event, T: E, R: Any> await(
+            type: Class<T>,
+            registry: ListenerRegistry<E>,
+            codec: Codec<R>,
+            id: String?,
+            priority: Int,
+            phase: Int,
+            predicate: (T) -> Boolean,
+            block: (T) -> R
+        ): R {
+            if (this.task.cancelling) {
+                throw RoutineCancelledException()
+            }
+            this.task.throwIfCancelled()
+
+            val index = this.task.index++
+            if (index < this.task.replayTo) {
+                val message = this.task.journal.verify(index, RoutineJournal.Kind.AwaitEvent, id)
                 if (message != null) {
                     this.task.diverged(message)
                 }
-                return
+                return this.task.journal.entry(index)?.value?.decode(codec)
+                    ?: this.task.diverged("await at index $index has no recorded value")
             }
-            this.task.journal.record(index, RoutineJournal.Kind.Step, id)
-            block.invoke()
+
+            this.task.journal.record(index, RoutineJournal.Kind.AwaitEvent, id)
+            this.task.journal.suspendedAt(index)
+
+            val event = try {
+                suspendCoroutineUninterceptedOrReturn { continuation ->
+                    this.task.listen(type, registry, priority, phase, predicate, continuation)
+                    COROUTINE_SUSPENDED
+                }
+            } finally {
+                this.task.stopAwaiting()
+            }
+
+            val value = block.invoke(event)
+            this.task.journal.record(index, RoutineJournal.Kind.AwaitEvent, id, RoutineJournal.Value.of(codec, value))
+            return value
+        }
+
+        override suspend fun step(id: String?, block: () -> Unit) {
+            this.step(ArcadeExtraCodecs.UNIT, id) { block.invoke() }
         }
 
         override suspend fun <T> step(codec: Codec<T>, id: String?, block: () -> T): T {
+            this.task.throwIfCancelled()
+
             val index = this.task.index++
             if (index < this.task.replayTo) {
                 val message = this.task.journal.verify(index, RoutineJournal.Kind.Step, id)

@@ -6,10 +6,15 @@ package net.casual.arcade.tests.server.scheduler
 
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
+import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.common.ServerSideEvent
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import net.casual.arcade.scheduler.task.ScheduledTask
 import net.casual.arcade.scheduler.task.routine.Routine
 import net.casual.arcade.scheduler.task.routine.RoutineScope
 import net.casual.arcade.scheduler.utils.TaskRegistries
+import net.casual.arcade.scheduler.utils.await
 import net.casual.arcade.scheduler.utils.call
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.arcade
@@ -26,6 +31,7 @@ class RoutineOwner(
     var recorded = -1
     var held = false
     var remaining = -1
+    var handle: ScheduledTask? = null
 
     fun log(entry: String) {
         this.log.add(entry)
@@ -199,6 +205,121 @@ class HoldingRoutine(
     }
 }
 
+class HeldRoutine: Routine<RoutineOwner> {
+    override fun codec(): MapCodec<out Routine<RoutineOwner>> {
+        return codec
+    }
+
+    override suspend fun RoutineScope<RoutineOwner>.run() {
+        owner.held = true
+        owner.log("held")
+        try {
+            awaitCancellation()
+        } finally {
+            owner.held = false
+            owner.log("released")
+        }
+    }
+
+    companion object: CodecProvider<HeldRoutine> {
+        override val id: Identifier = arcade("held")
+        override val codec: MapCodec<HeldRoutine> = MapCodec.unit(::HeldRoutine)
+    }
+}
+
+class SelfCancellingRoutine(
+    val delay: Int
+): Routine<RoutineOwner> {
+    override fun codec(): MapCodec<out Routine<RoutineOwner>> {
+        return codec
+    }
+
+    override suspend fun RoutineScope<RoutineOwner>.run() {
+        try {
+            step("start") { owner.log("start") }
+            if (delay > 0) {
+                delay(delay.Ticks)
+            }
+            step("cancel") {
+                owner.log("cancel")
+                owner.handle?.cancel()
+            }
+            step("after") { owner.log("after") }
+            delay(5.Ticks)
+            step("resumed") { owner.log("resumed") }
+        } finally {
+            owner.log("cleanup")
+        }
+    }
+
+    companion object: CodecProvider<SelfCancellingRoutine> {
+        override val id: Identifier = arcade("self_cancelling")
+        override val codec: MapCodec<SelfCancellingRoutine> = Codec.INT.fieldOf("delay")
+            .xmap(::SelfCancellingRoutine, SelfCancellingRoutine::delay)
+    }
+}
+
+class TestRoutineEvent(val value: Int): ServerSideEvent
+
+class AwaitingRoutine(
+    val phase: Int = BuiltInEventPhases.DEFAULT,
+    val priority: Int = 1_000
+): Routine<RoutineOwner> {
+    override fun codec(): MapCodec<out Routine<RoutineOwner>> {
+        return codec
+    }
+
+    override suspend fun RoutineScope<RoutineOwner>.run() {
+        try {
+            step("start") { owner.log("start") }
+            await<TestRoutineEvent>(
+                GlobalEventHandler.Server,
+                id = "received",
+                priority = priority,
+                phase = phase,
+                predicate = { it.value > 0 }
+            ) { event ->
+                owner.log("received")
+                owner.recorded = event.value
+            }
+            delay(5.Ticks)
+            step("end") { owner.log("end") }
+        } finally {
+            owner.log("cleanup")
+        }
+    }
+
+    companion object: CodecProvider<AwaitingRoutine> {
+        override val id: Identifier = arcade("awaiting")
+        override val codec: MapCodec<AwaitingRoutine> = RecordCodecBuilder.mapCodec { instance ->
+            instance.group(
+                Codec.INT.optionalFieldOf("phase", BuiltInEventPhases.DEFAULT).forGetter(AwaitingRoutine::phase),
+                Codec.INT.optionalFieldOf("priority", 1_000).forGetter(AwaitingRoutine::priority)
+            ).apply(instance, ::AwaitingRoutine)
+        }
+    }
+}
+
+class RecordingAwaitRoutine: Routine<RoutineOwner> {
+    override fun codec(): MapCodec<out Routine<RoutineOwner>> {
+        return codec
+    }
+
+    override suspend fun RoutineScope<RoutineOwner>.run() {
+        val value = await<TestRoutineEvent, Int>(GlobalEventHandler.Server, Codec.INT, "await") { event ->
+            owner.log("received")
+            event.value
+        }
+        delay(5.Ticks)
+        step("record") { owner.recorded = value }
+    }
+
+    companion object: CodecProvider<RecordingAwaitRoutine> {
+        override val id: Identifier = arcade("recording_await")
+        override val codec: MapCodec<RecordingAwaitRoutine> = MapCodec.unit(::RecordingAwaitRoutine)
+    }
+}
+
 class UnregisteredRoutine: Routine<RoutineOwner> {
     override fun codec(): MapCodec<out Routine<RoutineOwner>> {
         return codec
@@ -222,5 +343,9 @@ object TestRoutines {
         OutdatedRoutine.register(TaskRegistries.ROUTINE)
         DivergingRoutine.register(TaskRegistries.ROUTINE)
         HoldingRoutine.register(TaskRegistries.ROUTINE)
+        HeldRoutine.register(TaskRegistries.ROUTINE)
+        SelfCancellingRoutine.register(TaskRegistries.ROUTINE)
+        AwaitingRoutine.register(TaskRegistries.ROUTINE)
+        RecordingAwaitRoutine.register(TaskRegistries.ROUTINE)
     }
 }

@@ -4,6 +4,9 @@
  */
 package net.casual.arcade.tests.server.scheduler
 
+import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.phase.BuiltInEventPhases
+import net.casual.arcade.events.utils.register
 import net.casual.arcade.gametest.TestContext
 import net.casual.arcade.scheduler.ArcadeScheduler
 import net.casual.arcade.tests.server.ArcadeTestSuite
@@ -169,6 +172,216 @@ object RoutineTests: ArcadeTestSuite() {
         assertThrows<IllegalArgumentException> {
             scheduler.schedule(UnregisteredRoutine(), RoutineOwner())
         }
+    }
+
+    @GameTest
+    fun `routine cancelling itself unwinds at its next step`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        owner.handle = scheduler.schedule(SelfCancellingRoutine(delay = 0), owner)
+
+        scheduler.tick()
+
+        assertEquals(listOf("start", "cancel", "cleanup"), owner.log, "Routine did not unwind after cancelling itself")
+    }
+
+    @GameTest
+    fun `routine cancelling itself after a delay unwinds`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        owner.handle = scheduler.schedule(SelfCancellingRoutine(delay = 3), owner)
+
+        scheduler.tick(10)
+
+        assertEquals(listOf("start", "cancel", "cleanup"), owner.log, "Routine did not unwind after cancelling itself")
+    }
+
+    @GameTest
+    fun `routine cancelling itself does not replay its earlier steps`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        owner.handle = scheduler.schedule(SelfCancellingRoutine(delay = 3), owner)
+
+        scheduler.tick(40)
+
+        assertEquals(1, owner.log.count { it == "start" }, "Routine replayed its body when it cancelled itself")
+        assertFalse(owner.log.contains("resumed"), "Routine resumed after cancelling itself")
+    }
+
+    @GameTest
+    fun `routine cancelling itself reports finished`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        val handle = scheduler.schedule(SelfCancellingRoutine(delay = 0), owner)
+        owner.handle = handle
+
+        scheduler.tick()
+
+        assertTrue(handle.isFinished, "Routine did not report finished after cancelling itself")
+    }
+
+    @GameTest
+    fun `routine awaiting cancellation suspends indefinitely`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        val handle = scheduler.schedule(HeldRoutine(), owner)
+
+        scheduler.tick(100)
+        assertTrue(owner.held, "Routine did not take hold of its state")
+        assertEquals(listOf("held"), owner.log, "Routine resumed without being cancelled")
+        assertFalse(handle.isFinished, "Routine reported finished while awaiting cancellation")
+
+        handle.cancel()
+        assertFalse(owner.held, "Routine never released its state")
+        assertEquals(listOf("held", "released"), owner.log)
+        assertTrue(handle.isFinished, "Routine did not report finished once it was cancelled")
+    }
+
+    @GameTest
+    fun `routine awaiting cancellation is cancelled with the scheduler`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        scheduler.schedule(HeldRoutine(), owner)
+
+        scheduler.tick()
+        assertTrue(scheduler.cancelAll(), "Scheduler did not report cancelling the routine")
+        assertEquals(listOf("held", "released"), owner.log, "Routine was not cancelled with its scheduler")
+    }
+
+    @GameTest
+    fun `routine suspends until awaited event`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        scheduler.schedule(AwaitingRoutine(), owner)
+
+        scheduler.tick(20)
+        assertEquals(listOf("start"), owner.log, "Awaiting routine resumed without its event")
+
+        GlobalEventHandler.Server.broadcast(TestRoutineEvent(7))
+        assertEquals(listOf("start", "received"), owner.log, "Routine did not resume when its event was broadcast")
+        owner.recorded shouldEqual 7
+
+        scheduler.tick(10)
+        assertEquals(listOf("start", "received", "end", "cleanup"), owner.log)
+    }
+
+    @GameTest
+    fun `awaiting routine ignores events which dont match`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        scheduler.schedule(AwaitingRoutine(), owner)
+
+        scheduler.tick()
+        GlobalEventHandler.Server.broadcast(TestRoutineEvent(0))
+        assertEquals(listOf("start"), owner.log, "Routine resumed on an event which did not match its predicate")
+
+        GlobalEventHandler.Server.broadcast(TestRoutineEvent(3))
+        owner.recorded shouldEqual 3
+    }
+
+    @GameTest
+    fun `awaiting routine listens on the given event phase`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        scheduler.schedule(AwaitingRoutine(BuiltInEventPhases.POST), owner)
+
+        scheduler.tick()
+        GlobalEventHandler.Server.broadcast(TestRoutineEvent(7))
+        assertEquals(listOf("start"), owner.log, "Routine resumed on an event phase it was not listening to")
+
+        GlobalEventHandler.Server.broadcast(TestRoutineEvent(7), BuiltInEventPhases.POST_PHASES)
+        assertEquals(listOf("start", "received"), owner.log, "Routine did not resume on its event phase")
+    }
+
+    @GameTest
+    fun `awaiting routine listens at the given priority`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        scheduler.schedule(AwaitingRoutine(priority = 500), owner)
+
+        scheduler.tick()
+        val handle = GlobalEventHandler.Server.register<TestRoutineEvent> { owner.log("listener") }
+        try {
+            GlobalEventHandler.Server.broadcast(TestRoutineEvent(7))
+        } finally {
+            handle.remove()
+        }
+
+        assertEquals(
+            listOf("start", "received", "listener"),
+            owner.log,
+            "Routine did not resume before a listener registered at a lower priority"
+        )
+    }
+
+    @GameTest
+    fun `awaiting routine only resumes once`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        scheduler.schedule(AwaitingRoutine(), owner)
+
+        scheduler.tick()
+        GlobalEventHandler.Server.broadcast(TestRoutineEvent(7))
+        GlobalEventHandler.Server.broadcast(TestRoutineEvent(9))
+
+        assertEquals(1, owner.log.count { it == "received" }, "Routine was resumed by a second event")
+        owner.recorded shouldEqual 7
+    }
+
+    @GameTest
+    fun `awaiting routine unwinds when cancelled`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        val handle = scheduler.schedule(AwaitingRoutine(), owner)
+
+        scheduler.tick()
+        handle.cancel()
+        assertEquals(listOf("start", "cleanup"), owner.log, "Awaiting routine did not unwind when cancelled")
+        assertTrue(handle.isFinished)
+
+        GlobalEventHandler.Server.broadcast(TestRoutineEvent(7))
+        assertEquals(listOf("start", "cleanup"), owner.log, "Cancelled routine was still listening for its event")
+    }
+
+    @GameTest
+    fun `awaiting routines unwind when scheduler cancelled`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        scheduler.schedule(AwaitingRoutine(), owner)
+
+        scheduler.tick()
+        assertTrue(scheduler.cancelAll(), "Scheduler reported no awaiting routines to cancel")
+        assertEquals(listOf("start", "cleanup"), owner.log)
+
+        GlobalEventHandler.Server.broadcast(TestRoutineEvent(7))
+        assertEquals(listOf("start", "cleanup"), owner.log, "Cancelled routine was still listening for its event")
+    }
+
+    @GameTest
+    fun `awaiting routines dont unwind when scheduler cleared`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        scheduler.schedule(AwaitingRoutine(), owner)
+
+        scheduler.tick()
+        assertTrue(scheduler.clear(), "Scheduler reported no awaiting routines to clear")
+
+        GlobalEventHandler.Server.broadcast(TestRoutineEvent(7))
+        assertEquals(listOf("start"), owner.log, "clear left the routine listening for its event")
+    }
+
+    @GameTest
+    fun `awaiting routine returns its recorded value`(context: TestContext) = context.test {
+        val owner = RoutineOwner()
+        val scheduler = SimpleTickedScheduler.server()
+        scheduler.schedule(RecordingAwaitRoutine(), owner)
+
+        scheduler.tick()
+        GlobalEventHandler.Server.broadcast(TestRoutineEvent(6))
+        assertEquals(listOf("received"), owner.log, "Routine did not run its block with the event")
+
+        scheduler.tick(10)
+        owner.recorded shouldEqual 6
     }
 
     @GameTest

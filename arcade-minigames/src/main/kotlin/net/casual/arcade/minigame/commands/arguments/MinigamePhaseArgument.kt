@@ -11,7 +11,7 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.phase.Phase
+import net.casual.arcade.minigame.phase.MinigamePhase
 import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.network.chat.Component
 import java.util.concurrent.CompletableFuture
@@ -42,9 +42,9 @@ public class MinigamePhaseArgument(private val minigameKey: String): CustomArgum
             context: CommandContext<*>,
             string: String,
             minigame: Minigame
-        ): Phase<Minigame> {
+        ): MinigamePhase {
             val phaseName = context.getArgument(string, String::class.java)
-            return minigame.getPhase(phaseName) ?: throw INVALID_PHASE_NAME.create()
+            return minigame.phases.get(phaseName) ?: throw INVALID_PHASE_NAME.create()
         }
     }
 }

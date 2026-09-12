@@ -38,6 +38,7 @@ import kotlin.io.path.pathString
 import kotlin.time.Duration
 
 public object ArcadeExtraCodecs {
+    public val UNIT: Codec<Unit> = MapCodec.unitCodec(Unit)
     public val MUTABLE_INT: Codec<MutableInt> = Codec.INT.xmap(::MutableInt, MutableInt::toInt)
     public val MUTABLE_LONG: Codec<MutableLong> = Codec.LONG.xmap(::MutableLong, MutableLong::toLong)
     public val INT_RANGE: Codec<IntRange> = Codec.INT.listOf().comapFlatMap(

@@ -1,18 +1,21 @@
 package net.casual.arcade.tests.manual.minigame
 
 import com.mojang.serialization.MapCodec
+import net.casual.arcade.dimensions.level.LevelPersistence
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameInitializeEvent
-import net.casual.arcade.minigame.phase.Phase
+import net.casual.arcade.minigame.managers.MinigameLevelManager.LevelOwnership
+import net.casual.arcade.minigame.phase.MinigamePhase
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
+import net.casual.arcade.minigame.serialization.SerializableMinigame
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.settings.MinigameSettings
-import net.casual.arcade.minigame.settings.display.MenuGameSettingBuilder
+import net.casual.arcade.minigame.settings.GameSettingBuilder
 import net.casual.arcade.utils.ItemUtils.named
 import net.casual.arcade.pack.font.spacing.SpacingFontResources
 import net.casual.arcade.pack.utils.spaced
@@ -32,7 +35,6 @@ import net.casual.arcade.virtual.visuals.tab.VanillaPlayerListEntries
 import net.casual.arcade.virtual.visuals.utils.elements.ComponentElements
 import net.casual.arcade.virtual.visuals.utils.elements.SidebarElements
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
@@ -42,7 +44,7 @@ import net.minecraft.world.item.Items
 import net.minecraft.world.level.levelgen.Heightmap
 import java.util.*
 
-enum class TestPhase(override val id: String): Phase<TestMinigame> {
+enum class TestPhase(override val id: String): MinigamePhase {
     First("first"),
     Second("second")
 }
@@ -55,7 +57,7 @@ class TestSettings(minigame: Minigame) : MinigameSettings(minigame) {
 //        defaults.options(this, TestPhase::class.java)
 //    })
 
-    val testString: GameSetting<String> = this.register(MenuGameSettingBuilder.string {
+    val testString: GameSetting<String> = this.register(GameSettingBuilder.string {
         name = "test_string"
         display = Items.NAME_TAG.named("Test String")
         value = "test"
@@ -64,13 +66,13 @@ class TestSettings(minigame: Minigame) : MinigameSettings(minigame) {
         option("third", Component.literal("Third"), "third")
     })
 
-    val testFloat: GameSetting<Float> = this.register(MenuGameSettingBuilder.float32 {
+    val testFloat: GameSetting<Float> = this.register(GameSettingBuilder.float32 {
         name = "test_float"
         display = Items.CLOCK.named("Test Float")
         value = 64.0F
     })
 
-    val testInt: GameSetting<Int> = this.register(MenuGameSettingBuilder.int32 {
+    val testInt: GameSetting<Int> = this.register(GameSettingBuilder.int32 {
         name = "test_int"
         display = Items.REPEATER.named("Test Int")
         value = 64
@@ -82,22 +84,24 @@ class TestSettings(minigame: Minigame) : MinigameSettings(minigame) {
 
 open class TestMinigame(
     server: MinecraftServer,
-    uuid: UUID,
-    private val level: ServerLevel
-): Minigame(server, uuid) {
-    override val id: Identifier get() = ID
-
+    uuid: UUID
+): Minigame(server, uuid, ID, TestPhase.entries), SerializableMinigame {
     override val settings: MinigameSettings = TestSettings(this)
 
-    override fun phases(): Collection<Phase<out Minigame>> {
-        return TestPhase.entries
-    }
+    private val level: ServerLevel
+        get() = this.levels.require(LEVEL)
 
     @Listener
     private fun onInitialize(event: MinigameInitializeEvent) {
         this.players.keepPlayerData = false
 
-        this.levels.add(this.level)
+        val level = CustomLevelBuilder.build(this.server) {
+            randomDimensionKey()
+            vanillaDefaults(VanillaDimension.Overworld)
+            clockState(rate = 5.0F)
+            persistence(LevelPersistence.Permanent)
+        }
+        this.levels.add(LEVEL, level, LevelOwnership.Exclusive)
 
         this.recipes.add(CraftingRecipeBuilder.shapeless(this.server.registryAccess()) {
             key(arcade("example"))
@@ -160,14 +164,10 @@ open class TestMinigame(
     companion object: MinigameFactory {
         private val CODEC = MapCodec.unit(this)
         val ID = arcade("test_minigame")
+        val LEVEL = arcade("level")
 
         override fun create(context: MinigameCreationContext): Minigame {
-            val level = CustomLevelBuilder.build(context.server) {
-                randomDimensionKey()
-                vanillaDefaults(VanillaDimension.Overworld)
-                clockState(rate = 5.0F)
-            }
-            return TestMinigame(context.server, context.uuid, level)
+            return TestMinigame(context.server, context.uuid)
         }
 
         override fun codec(): MapCodec<out MinigameFactory> {

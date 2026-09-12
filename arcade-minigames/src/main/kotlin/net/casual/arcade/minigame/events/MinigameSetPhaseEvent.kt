@@ -5,10 +5,10 @@
 package net.casual.arcade.minigame.events
 
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.phase.Phase
+import net.casual.arcade.minigame.phase.MinigamePhase
 
 public data class MinigameSetPhaseEvent(
     override val minigame: Minigame,
-    public val phase: Phase<Minigame>,
-    public val previous: Phase<Minigame>
+    public val phase: MinigamePhase,
+    public val previous: MinigamePhase?
 ): MinigameEvent

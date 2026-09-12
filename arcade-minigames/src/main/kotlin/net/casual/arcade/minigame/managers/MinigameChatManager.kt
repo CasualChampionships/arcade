@@ -12,13 +12,12 @@ import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.literal
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.events.phase.BuiltInEventPhases.DEFAULT
 import net.casual.arcade.events.server.player.PlayerChatEvent
 import net.casual.arcade.events.server.player.PlayerSystemMessageEvent
 import net.casual.arcade.events.server.player.PlayerTeamChatEvent
 import net.casual.arcade.events.utils.register
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.annotation.ListenerFlags
+import net.casual.arcade.minigame.annotation.ListenerFilter
 import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.managers.chat.MinigameChatMode
 import net.casual.arcade.minigame.settings.MinigameSettings
@@ -98,7 +97,7 @@ public class MinigameChatManager(
     internal val spies = ObjectOpenHashSet<UUID>()
 
     init {
-        this.minigame.events.register<PlayerChatEvent>(1_000, DEFAULT, ListenerFlags.NONE, listener = this::onGlobalPlayerChat)
+        this.minigame.events.register<PlayerChatEvent>(filters = ListenerFilter.unfiltered(), listener = this::onGlobalPlayerChat)
         this.minigame.events.register<PlayerSystemMessageEvent>(this::onGlobalSystemChat)
         this.minigame.events.register<PlayerChatEvent>(this::onPlayerChat)
         this.minigame.events.register<PlayerTeamChatEvent>(this::onPlayerTeamChat)
@@ -425,6 +424,10 @@ public class MinigameChatManager(
             return this.globalChatFormatter.format(player, this.spectatorChatFormatter.format(player, message))
         }
         return this.globalChatFormatter.format(player, message)
+    }
+
+    internal fun debug(output: ValueOutput) {
+        output.store("spies", UUIDUtil.STRING_CODEC.setOf(), this.spies)
     }
 
     internal fun serialize(output: ValueOutput) {

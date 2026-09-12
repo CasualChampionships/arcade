@@ -1,0 +1,229 @@
+/*
+ * Copyright (c) 2026 senseiwells
+ * Licensed under the MIT License. See LICENSE file in the project root for details.
+ */
+package net.casual.arcade.minigame.managers
+
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
+import com.mojang.serialization.Codec
+import kotlinx.coroutines.launch
+import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.minigame.Minigame
+import net.casual.arcade.minigame.MinigameState
+import net.casual.arcade.minigame.events.MinigameSetPhaseEvent
+import net.casual.arcade.minigame.managers.phase.AdvancingPhaseRoutine
+import net.casual.arcade.minigame.phase.MinigamePhase
+import net.casual.arcade.minigame.managers.phase.MinigamePhaseCoroutines
+import net.casual.arcade.minigame.managers.phase.MinigamePhaseRoutines
+import net.casual.arcade.minigame.routine.requestPhase
+import net.casual.arcade.minigame.serialization.SerializableMinigame
+import net.casual.arcade.scheduler.task.routine.Routine
+import net.casual.arcade.scheduler.task.routine.RoutineScope
+import net.casual.arcade.utils.ArcadeUtils
+import net.casual.arcade.utils.time.MinecraftTimeDuration
+import kotlin.enums.EnumEntries
+
+/**
+ * This class manages phases for the given [minigame].
+ */
+public class MinigamePhaseManager internal constructor(
+    private val minigame: Minigame,
+    declared: EnumEntries<*>
+): Iterable<MinigamePhase> {
+    private val phases: List<MinigamePhase> = this.validate(declared)
+    internal var pending: MinigamePhase? = null
+
+    /**
+     * Stores the [Routine]s associated to each phase.
+     *
+     * This should be used if your minigame is serializable.
+     * An example of how to use this can be found in the class
+     * doc of [SerializableMinigame].
+     *
+     * @see MinigamePhaseRoutines
+     */
+    public val routines: MinigamePhaseRoutines = MinigamePhaseRoutines(this, this.minigame)
+
+    /**
+     * Stores the coroutines associated to each phase.
+     *
+     * This should be used if your minigame is non-serializable.
+     * An example of how to use this can be found in the class
+     * doc of [Minigame].
+     *
+     * @see MinigamePhaseCoroutines
+     */
+    public val coroutines: MinigamePhaseCoroutines = MinigamePhaseCoroutines(this, this.minigame)
+
+    /**
+     * The codec for the [minigame]'s phases.
+     */
+    public val codec: Codec<MinigamePhase> = Codec.stringResolver(MinigamePhase::id, this::get)
+
+    /**
+     * Gets one of the [minigame]'s phases by [id].
+     *
+     * @param id The id of the phase to get.
+     * @return The [MinigamePhase] with that id, `null` if none exist.
+     */
+    public fun get(id: String): MinigamePhase? {
+        return this.phases.find { it.id == id }
+    }
+
+    /**
+     * Whether the given [phase] is part of the [minigame].
+     *
+     * @param phase The phase to check.
+     * @return Whether the phase exists.
+     */
+    public operator fun contains(phase: MinigamePhase): Boolean {
+        return this.phases.contains(phase)
+    }
+
+    /**
+     * Sets the [MinigamePhase] for the [minigame] to [phase].
+     *
+     * The [minigame] must be in the [MinigameState.Playing] state,
+     * otherwise an exception will be thrown. Additionally the [phase]
+     * provided must be one of the phases that the minigame was constructed
+     * with.
+     *
+     * The phase will be changed if [phase] differs from the current
+     * phase *or* if [force] is set to `true`. The phase change may be
+     * delegated to later in the tick if this is called from
+     * within a minigame task/routine - in this context you should
+     * be calling [RoutineScope.requestPhase] instead.
+     *
+     * @param phase The minigame phase to set to.
+     * @param force Whether to force (re)set the phase.
+     * @throws IllegalStateException If the [minigame] isn't in the playing state.
+     * @throws IllegalArgumentException If the specified [phase] isn't valid.
+     */
+    public fun set(phase: MinigamePhase, force: Boolean = false) {
+        val state = this.minigame.state
+        if (state !is MinigameState.Playing) {
+            throw IllegalStateException("Cannot set phase of minigame '${this.minigame.id}', it is not playing")
+        }
+        if (state.phase == phase && !force) {
+            return
+        }
+        if (!this.contains(phase)) {
+            throw IllegalArgumentException("Cannot set minigame '${this.minigame.id}' phase to ${phase.id}")
+        }
+
+        if (this.minigame.scopes.executing) {
+            ArcadeUtils.logger.warn(
+                "Minigame phase for '${this.minigame.id}' set to ${phase.id} from inside scope, you should use RoutineScope#requestPhase instead"
+            )
+            this.request(phase)
+            return
+        }
+
+        val previous = state.phase
+        this.pending = null
+        this.minigame.scopes.setPhase(previous, phase)
+        this.minigame.state = MinigameState.Playing(phase)
+        this.enter(phase, previous)
+    }
+
+    /**
+     * Requests setting the [MinigamePhase] for the [minigame] to [phase].
+     *
+     * This should typically only be called in a coroutine context otherwise
+     * [set] can be directly called.
+     *
+     * @param phase The phase to set to.
+     * @see set
+     */
+    public fun request(phase: MinigamePhase) {
+        require(this.contains(phase)) { "Cannot request minigame '${this.minigame.id}' phase ${phase.id}" }
+        this.pending = phase
+    }
+
+    /**
+     * Gets all the phases for the [minigame].
+     *
+     * @return A list of all phases.
+     */
+    public fun all(): List<MinigamePhase> {
+        return this.phases
+    }
+
+    override fun iterator(): Iterator<MinigamePhase> {
+        return this.all().iterator()
+    }
+
+    internal fun serialize(output: ValueOutput) {
+        this.routines.serialize(output.childrenList("routines"))
+    }
+
+    internal fun deserialize(input: ValueInput) {
+        this.routines.deserialize(input.childrenListOrEmpty("routines"))
+    }
+
+    internal fun debug(output: ValueOutput) {
+        output.store("all", this.codec.listOf(), this.all())
+        output.storeNullable("current", this.codec, this.minigame.phaseOrNull)
+    }
+
+    internal fun first(): MinigamePhase {
+        return this.phases.first()
+    }
+
+    internal fun enter(phase: MinigamePhase, previous: MinigamePhase?) {
+        val routine = this.routines[phase]
+        val coroutine = this.coroutines[phase]
+        if (routine != null || coroutine != null) {
+            val scope = this.minigame.scopes.current
+            if (routine != null) {
+                scope.schedule(MinecraftTimeDuration.ZERO, AdvancingPhaseRoutine(routine))
+            }
+            if (coroutine != null) {
+                scope.asCoroutineScope().launch {
+                    coroutine.invoke()
+                    tryRequestAdvance()
+                }
+            }
+        }
+
+        GlobalEventHandler.Server.broadcast(MinigameSetPhaseEvent(this.minigame, phase, previous))
+    }
+
+    internal fun restore(phase: MinigamePhase) {
+        this.minigame.state = MinigameState.Playing(phase)
+    }
+
+    internal fun tryRequestAdvance() {
+        if (this.pending == null) {
+            val current = this.minigame.phaseOrNull ?: return
+            this.pending = this.phases.getOrNull(current.ordinal + 1)
+        }
+    }
+
+    internal fun tick() {
+        val pending = this.pending ?: return
+        this.pending = null
+        this.set(pending, force = true)
+    }
+
+    private fun validate(declared: EnumEntries<*>): List<MinigamePhase> {
+        val id = this.minigame.id
+        if (declared.isEmpty()) {
+            throw IllegalStateException("Minigame $id must declare at least one phase")
+        }
+
+        val ids = HashSet<String>()
+        val phases = ArrayList<MinigamePhase>(declared.size)
+        for (constant in declared) {
+            check(constant is MinigamePhase) {
+                "Phases ${constant.declaringJavaClass.simpleName} does not implement MinigamePhase"
+            }
+            if (!ids.add(constant.id)) {
+                throw IllegalStateException("Minigame $id has multiple phases with the id '${constant.id}'")
+            }
+            phases.add(constant)
+        }
+        return phases
+    }
+}

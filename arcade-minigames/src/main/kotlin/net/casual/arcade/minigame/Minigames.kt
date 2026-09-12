@@ -5,11 +5,11 @@
 package net.casual.arcade.minigame
 
 import com.google.common.collect.LinkedHashMultimap
-import com.google.gson.JsonObject
 import com.mojang.serialization.Dynamic
 import com.mojang.serialization.JsonOps
 import net.casual.arcade.commands.register
 import net.casual.arcade.events.GlobalEventHandler
+import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.events.server.ServerSaveEvent
 import net.casual.arcade.events.server.ServerStartEvent
@@ -26,21 +26,18 @@ import net.casual.arcade.minigame.extensions.PlayerMinigameExtension
 import net.casual.arcade.minigame.extensions.PlayerMovementRestrictionExtension
 import net.casual.arcade.minigame.gamemode.ExtendedGameMode
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
-import net.casual.arcade.minigame.serialization.MinigameFactory
-import net.casual.arcade.minigame.task.routine.PhaseChangeRoutine
+import net.casual.arcade.minigame.serialization.MinigameSerializer
+import net.casual.arcade.minigame.serialization.SerializableMinigame
+import net.casual.arcade.minigame.serialization.save
+import net.casual.arcade.minigame.managers.phase.AdvancingPhaseRoutine
 import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.minigame.utils.MinigameUtils
 import net.casual.arcade.scheduler.utils.TaskRegistries
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.JsonUtils
-import net.casual.arcade.utils.serialization.json.JsonValueInput
-import net.casual.arcade.utils.serialization.json.JsonValueOutput
 import net.fabricmc.api.ModInitializer
-import net.minecraft.core.UUIDUtil
 import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
-import net.minecraft.util.Util
 import net.minecraft.world.level.storage.LevelResource
 import java.io.IOException
 import java.nio.file.Path
@@ -53,8 +50,8 @@ import kotlin.jvm.optionals.getOrNull
  * all the current minigames that are running.
  */
 public object Minigames: ModInitializer {
-    private val ALL = LinkedHashMap<UUID, Minigame>()
-    private val BY_ID = LinkedHashMultimap.create<Identifier, Minigame>()
+    private val minigamesByUUID = LinkedHashMap<UUID, Minigame>()
+    private val minigamesById = LinkedHashMultimap.create<Identifier, Minigame>()
 
     /**
      * This method gets all the current running minigames.
@@ -62,7 +59,7 @@ public object Minigames: ModInitializer {
      * @return All the current running minigames.
      */
     public fun all(): Collection<Minigame> {
-        return Collections.unmodifiableCollection(ALL.values)
+        return Collections.unmodifiableCollection(this.minigamesByUUID.values)
     }
 
     /**
@@ -72,7 +69,7 @@ public object Minigames: ModInitializer {
      * @return The minigame with the given uuid.
      */
     public fun get(uuid: UUID): Minigame? {
-        return this.ALL[uuid]
+        return this.minigamesByUUID[uuid]
     }
 
     /**
@@ -82,7 +79,7 @@ public object Minigames: ModInitializer {
      * @return All the minigames with the given id.
      */
     public fun get(id: Identifier): List<Minigame> {
-        return this.BY_ID.get(id).toList()
+        return this.minigamesById.get(id).toList()
     }
 
     public fun create(
@@ -96,59 +93,14 @@ public object Minigames: ModInitializer {
             MinigameCreationException("Failed to create Minigame $id with default factory parameters")
         }
         try {
-            return factory.create(MinigameCreationContext.initial(server))
+            return factory.create(MinigameCreationContext(server))
         } catch (e: Exception) {
             throw MinigameCreationException("Failed to create Minigame $id", e)
         }
     }
 
     public fun read(path: Path, server: MinecraftServer): Minigame {
-        val factoryPath = path.resolve("factory.json")
-        if (!factoryPath.isRegularFile()) {
-            throw MinigameCreationException("Cannot create Minigame, no such file $factoryPath")
-        }
-
-        val data = try {
-            JsonUtils.decodeRaw<JsonObject>(factoryPath)
-        } catch (_: IOException) {
-            throw MinigameCreationException("Cannot create Minigame, failed to read $path")
-        }
-        ArcadeUtils.scopedProblemReporter { reporter ->
-            val input = JsonValueInput.create(reporter, server.registryAccess(), data)
-            try {
-                val factory = input.read("factory", MinigameFactory.CODEC).orElseThrow {
-                    MinigameCreationException("Failed to decode minigame factory")
-                }
-                val uuid = input.read("uuid", UUIDUtil.STRING_CODEC).orElseThrow()
-                val minigame = factory.create(MinigameCreationContext.reloaded(server, uuid))
-                minigame.serialization.loadFrom(path)
-                return minigame
-            } catch (exception: MinigameCreationException) {
-              throw exception
-            } catch (exception: Exception) {
-                throw MinigameCreationException("Failed to create Minigame for $path", exception)
-            }
-        }
-    }
-
-    public fun write(path: Path, minigame: Minigame) {
-        val factory = minigame.internalFactory()
-            ?: throw MinigameSerializationException("Minigame ${minigame.id} is not serializable")
-
-        val json = ArcadeUtils.scopedProblemReporter { reporter ->
-            val output = JsonValueOutput.create(reporter, minigame.server.registryAccess())
-            output.store("factory", MinigameFactory.CODEC, factory)
-            output.store("uuid", UUIDUtil.STRING_CODEC, minigame.uuid)
-            output.buildResult()
-        }
-        try {
-            path.createDirectories()
-
-            JsonUtils.encodeRaw(json, path.resolve("factory.json"))
-            minigame.serialization.saveTo(path)
-        } catch (e: IOException) {
-            throw MinigameSerializationException("Failed to write Minigame ${minigame.id} to $path", e)
-        }
+        return MinigameSerializer.createFrom(path, server)
     }
 
     override fun onInitialize() {
@@ -168,27 +120,30 @@ public object Minigames: ModInitializer {
         GlobalEventHandler.Server.register<ServerStopEvent> {
             this.closeMinigames()
         }
+        GlobalEventHandler.Server.register<ServerStopEvent>(phase = BuiltInEventPhases.POST) {
+            this.awaitMinigames()
+        }
         GlobalEventHandler.Server.register<ServerRegisterCommandEvent> { event ->
             event.register(ExtendedGameModeCommand, MinigameCommand, PauseCommand, TeamCommandModifier)
         }
 
-        PhaseChangeRoutine.register(TaskRegistries.ROUTINE)
+        AdvancingPhaseRoutine.register(TaskRegistries.ROUTINE)
     }
 
     internal fun allById(): Map<Identifier, Collection<Minigame>> {
-        return this.BY_ID.asMap()
+        return this.minigamesById.asMap()
     }
 
     internal fun register(minigame: Minigame) {
-        this.ALL[minigame.uuid] = minigame
-        this.BY_ID.put(minigame.id, minigame)
+        this.minigamesByUUID[minigame.uuid] = minigame
+        this.minigamesById.put(minigame.id, minigame)
     }
 
     internal fun unregister(minigame: Minigame) {
-        this.ALL.remove(minigame.uuid)
-        this.BY_ID[minigame.id].remove(minigame)
+        this.minigamesByUUID.remove(minigame.uuid)
+        this.minigamesById[minigame.id].remove(minigame)
 
-        Util.ioPool().execute {
+        minigame.serializer.submit {
             val path = minigame.getSavePath()
             if (path.exists()) {
                 @OptIn(ExperimentalPathApi::class)
@@ -244,10 +199,10 @@ public object Minigames: ModInitializer {
     }
 
     private fun saveMinigames() {
-        for (minigame in ALL.values) {
-            if (minigame.serializable) {
+        for (minigame in this.minigamesByUUID.values) {
+            if (minigame is SerializableMinigame) {
                 try {
-                    this.write(minigame.getSavePath(), minigame)
+                    minigame.save()
                 } catch (e: MinigameSerializationException) {
                     ArcadeUtils.logger.error("Failed to write minigame", e)
                 }
@@ -256,10 +211,14 @@ public object Minigames: ModInitializer {
     }
 
     private fun closeMinigames() {
-        for (minigame in ArrayList(ALL.values)) {
-            if (!minigame.serializable) {
+        for (minigame in ArrayList(this.minigamesByUUID.values)) {
+            if (minigame !is SerializableMinigame) {
                 minigame.close()
             }
         }
+    }
+
+    private fun awaitMinigames() {
+        MinigameSerializer.awaitPending()
     }
 }

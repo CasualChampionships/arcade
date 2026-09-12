@@ -6,8 +6,7 @@ package net.casual.arcade.minigame.settings
 
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.managers.MinigameChatManager
-import net.casual.arcade.minigame.settings.display.DisplayableSettings
-import net.casual.arcade.minigame.settings.display.MenuGameSettingBuilder.Companion.bool
+import net.casual.arcade.minigame.settings.GameSettingBuilder.Companion.bool
 import net.casual.arcade.minigame.utils.defaultOptions
 import net.casual.arcade.minigame.utils.item
 import net.casual.arcade.utils.ItemUtils.named
@@ -34,9 +33,9 @@ import net.minecraft.world.item.Items
  *
  */
 public open class MinigameSettings(
-    internal val minigame: Minigame,
+    public val minigame: Minigame,
     title: Component = Component.translatable("minigame.gui.settings")
-): DisplayableSettings(title) {
+): GameSettings(title) {
     /**
      * Whether pvp is enabled for this minigame.
      */
@@ -82,7 +81,7 @@ public open class MinigameSettings(
         display = item(Items.DIAMOND_PICKAXE, Component.translatable("minigame.settings.canBreakBlocks.name"))
             .styledLore(Component.translatable("minigame.settings.canBreakBlocks.desc.1"))
         value = true
-        override = isAdminOverride(true)
+        override(isAdminOverride(true))
         defaultOptions()
     })
 
@@ -95,7 +94,7 @@ public open class MinigameSettings(
         display = item(Items.DIRT, Component.translatable("minigame.settings.canPlaceBlocks.name"))
             .styledLore(Component.translatable("minigame.settings.canPlaceBlocks.desc.1"))
         value = true
-        override = isAdminOverride(true)
+        override(isAdminOverride(true))
         defaultOptions()
     })
 
@@ -108,7 +107,7 @@ public open class MinigameSettings(
         display = item(Items.DIORITE, Component.translatable("minigame.settings.canDropItems.name"))
             .styledLore(Component.translatable("minigame.settings.canDropItems.desc.1"))
         value = true
-        override = isAdminOverride(true)
+        override(isAdminOverride(true))
         defaultOptions()
     })
 
@@ -121,7 +120,7 @@ public open class MinigameSettings(
         display = item(Items.COBBLESTONE, Component.translatable("minigame.settings.canPickupItems.name"))
             .styledLore(Component.translatable("minigame.settings.canPickupItems.desc.1"))
         value = true
-        override = isAdminOverride(true)
+        override(isAdminOverride(true))
         defaultOptions()
     })
 
@@ -134,7 +133,7 @@ public open class MinigameSettings(
         display = item(Items.DIAMOND_AXE, Component.translatable("minigame.settings.canAttackEntities.name"))
             .styledLore(Component.translatable("minigame.settings.canAttackEntities.desc.1"))
         value = true
-        override = isAdminOverride(true)
+        override(isAdminOverride(true))
         defaultOptions()
     })
 
@@ -147,11 +146,8 @@ public open class MinigameSettings(
         display = item(Items.VILLAGER_SPAWN_EGG, Component.translatable("minigame.settings.canInteractEntities.name"))
             .styledLore(Component.translatable("minigame.settings.canInteractEntities.desc.1"))
         value = true
-        override = isAdminOverride(true)
+        override(isAdminOverride(true))
         defaultOptions()
-        listener { _, _, value ->
-            canInteractAllSetting.setQuietly(value && canInteractItems.get() && canInteractBlocks.get())
-        }
     })
 
     /**
@@ -163,11 +159,8 @@ public open class MinigameSettings(
         display = item(Items.FURNACE, Component.translatable("minigame.settings.canInteractBlocks.name"))
             .styledLore(Component.translatable("minigame.settings.canInteractBlocks.desc.1"))
         value = true
-        override = isAdminOverride(true)
+        override(isAdminOverride(true))
         defaultOptions()
-        listener { _, _, value ->
-            canInteractAllSetting.setQuietly(value && canInteractItems.get() && canInteractEntities.get())
-        }
     })
 
     /**
@@ -179,30 +172,20 @@ public open class MinigameSettings(
         display = item(Items.WRITTEN_BOOK, Component.translatable("minigame.settings.canInteractItems.name"))
             .styledLore(Component.translatable("minigame.settings.canInteractItems.desc.1"))
         value = true
-        override = isAdminOverride(true)
+        override(isAdminOverride(true))
         defaultOptions()
-        listener { _, _, value ->
-            canInteractAllSetting.setQuietly(value && canInteractBlocks.get() && canInteractEntities.get())
-        }
-    })
-
-    private val canInteractAllSetting = this.register(bool {
-        name = "can_interact_all"
-        display = item(Items.OBSERVER, Component.translatable("minigame.settings.canInteractAll.name"))
-            .styledLore(Component.translatable("minigame.settings.canInteractAll.desc.1"), Component.translatable("minigame.settings.canInteractAll.desc.2"))
-        value = true
-        defaultOptions()
-        listener { _, _, value ->
-            canInteractBlocks.set(value)
-            canInteractEntities.set(value)
-            canInteractItems.set(value)
-        }
     })
 
     /**
-     * Whether players can interact with anything.
+     * Whether players can interact with blocks, entities, and items.
      */
-    public var canInteractAll: Boolean by this.canInteractAllSetting
+    public var canInteractAll: Boolean
+        get() = this.canInteractBlocks.get() && this.canInteractEntities.get() && this.canInteractItems.get()
+        set(value) {
+            this.canInteractBlocks.set(value)
+            this.canInteractEntities.set(value)
+            this.canInteractItems.set(value)
+        }
 
     public var useVanillaChat: Boolean by this.register(bool {
         name = "use_vanilla_chat"
@@ -225,8 +208,7 @@ public open class MinigameSettings(
         display = item(Items.ACACIA_SIGN, Component.translatable("minigame.settings.isChatGlobal.name"))
             .styledLore(Component.translatable("minigame.settings.isChatGlobal.desc.1"), Component.translatable("minigame.settings.isChatGlobal.desc.2"))
         value = true
-        listener { setting, _, value ->
-            setting.setQuietly(value)
+        onApply { _, _ ->
             minigame.chat.onGlobalChatToggle()
         }
         defaultOptions()
@@ -238,7 +220,7 @@ public open class MinigameSettings(
         display = item(Items.COMMAND_BLOCK, Component.translatable("minigame.settings.enableChatCommand.name"))
             .styledLore(Component.translatable("minigame.settings.isChatGlobal.desc.1"))
         value = false
-        override = isAdminOverride(true)
+        override(isAdminOverride(true))
         defaultOptions()
     })
 
@@ -248,7 +230,7 @@ public open class MinigameSettings(
         display = item(Items.BARRIER, Component.translatable("minigame.settings.isChatMuted.name"))
             .styledLore(Component.translatable("minigame.settings.isChatMuted.desc.1"))
         value = false
-        override = ::muteOverride
+        override(::muteOverride)
         defaultOptions()
     })
 
@@ -260,20 +242,12 @@ public open class MinigameSettings(
         defaultOptions()
     })
 
-    public var mobsWithNoAIAreFlammable: Boolean by this.register(bool {
-        name = "mobs_with_no_ai_are_flammable"
-        display = item(Items.FLINT_AND_STEEL, Component.translatable("minigame.settings.mobsWithNoAIAreFlammable.name"))
-            .styledLore(Component.translatable("minigame.settings.mobsWithNoAIAreFlammable.desc.1"))
-        value = false
-        defaultOptions()
-    })
-
     public val tickFreezeOnPause: GameSetting<Boolean> = this.register(bool {
         name = "tick_freeze_on_pause"
         display = item(Items.BLUE_ICE, Component.translatable("minigame.settings.tickFreezeOnPause.name"))
             .styledLore(Component.translatable("minigame.settings.tickFreezeOnPause.desc.1"))
         value = false
-        override = isAdminOverride(false)
+        override(isAdminOverride(false))
         defaultOptions()
     })
 
@@ -282,7 +256,7 @@ public open class MinigameSettings(
         display = item(Items.PACKED_ICE, Component.translatable("minigame.settings.freezeEntities.name"))
             .styledLore(Component.translatable("minigame.settings.freezeEntities.desc.1"))
         value = false
-        override = isAdminOverride(false)
+        override(isAdminOverride(false))
         defaultOptions()
     })
 

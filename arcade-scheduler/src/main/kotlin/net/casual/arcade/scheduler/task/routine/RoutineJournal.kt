@@ -103,6 +103,8 @@ internal class RoutineJournal private constructor(
 
     enum class Kind {
         Delay,
+        AwaitEvent,
+        AwaitCancellation,
         Step;
 
         companion object {

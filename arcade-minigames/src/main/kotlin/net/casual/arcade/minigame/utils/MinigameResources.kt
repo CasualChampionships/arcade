@@ -42,26 +42,6 @@ public interface MinigameResources {
         return this.getPacks()
     }
 
-    public class MultiMinigameResources: MinigameResources {
-        private val resources = ObjectLinkedOpenHashSet<MinigameResources>()
-
-        public fun add(resources: MinigameResources): Boolean {
-            return this.resources.add(resources)
-        }
-
-        public fun remove(resources: MinigameResources): Boolean {
-            return this.resources.remove(resources)
-        }
-
-        override fun getPacks(): Collection<PackInfo> {
-            return this.resources.flatMap { it.getPacks() }
-        }
-
-        override fun getPacks(player: ServerPlayer): Collection<PackInfo> {
-            return this.resources.flatMap { it.getPacks(player) }
-        }
-    }
-
     public companion object {
         /**
          * This object is the default [MinigameResources].

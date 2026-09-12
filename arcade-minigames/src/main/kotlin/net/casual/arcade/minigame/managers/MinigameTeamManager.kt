@@ -207,6 +207,12 @@ public class MinigameTeamManager(
         }
     }
 
+    internal fun debug(output: ValueOutput) {
+        output.store("all", Codec.STRING.listOf(), this.getAllTeams().map { it.name })
+        output.store("playing", Codec.STRING.listOf(), this.getPlayingTeams().map { it.name })
+        output.store("eliminated", Codec.STRING.listOf(), this.eliminated.map { it.name })
+    }
+
     internal fun serialize(output: ValueOutput) {
         val admins = this.admins?.name
         if (admins != null) {
@@ -225,21 +231,21 @@ public class MinigameTeamManager(
     }
 
     internal fun deserialize(input: ValueInput, scoreboard: Scoreboard) {
-        val admins = input.getString("admins").getOrNull()
-        if (admins != null) {
-            this.admins = scoreboard.getPlayerTeam(admins)
-        }
-        val spectators = input.getString("spectators").getOrNull()
-        if (spectators != null) {
-            this.spectators = scoreboard.getPlayerTeam(spectators)
-        }
+        this.admins = this.resolve(scoreboard, input.getString("admins").getOrNull(), "Admin")
+        this.spectators = this.resolve(scoreboard, input.getString("spectators").getOrNull(), "Spectator")
         for (name in input.listOrEmpty("eliminated", Codec.STRING)) {
+            this.eliminated.add(this.resolve(scoreboard, name, "Eliminated") ?: continue)
+        }
+    }
+
+    private fun resolve(scoreboard: Scoreboard, name: String?, what: String): PlayerTeam? {
+        if (name != null) {
             val team = scoreboard.getPlayerTeam(name)
             if (team == null) {
-                ArcadeUtils.logger.warn("Eliminated team $name no longer exists, ignoring")
-                continue
+                ArcadeUtils.logger.warn("$what team '$name' of minigame ${this.minigame.id} no longer exists")
             }
-            this.eliminated.add(team)
+            return team
         }
+        return null
     }
 }
