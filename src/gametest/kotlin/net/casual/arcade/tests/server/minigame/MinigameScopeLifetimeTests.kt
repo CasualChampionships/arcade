@@ -237,6 +237,43 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
         assertFalse(ran, "Task scheduled into a closed scope ran anyway")
     }
 
+    @GameTest(maxTicks = 60)
+    fun `current scope is reset on phase change`(context: TestContext) = context.test {
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
+        val current = minigame.scopes.current
+
+        var ran = false
+        var received = 0
+        current.schedule(5.Ticks) { ran = true }
+        current.register<TestMinigameEvent> { received += 1 }
+
+        minigame.phases.set(Active)
+
+        assertFalse(current.closed, "The current scope closed on a phase transition")
+        assertTrue(current === minigame.scopes.current, "The current scope was replaced on a phase transition")
+
+        GlobalEventHandler.Server.broadcast(TestMinigameEvent())
+        delay(20.Ticks)
+        assertFalse(ran, "Task in the current scope ran after the phase changed")
+        assertEquals(0, received, "Listener in the current scope fired after the phase changed")
+
+        var reran = false
+        current.schedule(5.Ticks) { reran = true }
+        delay(20.Ticks)
+        assertTrue(reran, "Task scheduled into the current scope after a phase change did not run")
+    }
+
+    @GameTest
+    fun `root and current scopes cannot be closed manually`(context: TestContext) = context.test {
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
+
+        minigame.scopes.root.close()
+        minigame.scopes.current.close()
+
+        assertFalse(minigame.scopes.root.closed, "The root scope was closed manually")
+        assertFalse(minigame.scopes.current.closed, "The current scope was closed manually")
+    }
+
     @GameTest
     fun `closing the minigame closes every scope`(context: TestContext) = context.test {
         val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
@@ -252,5 +289,6 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
             assertTrue(scope.closed, "${scope.lifetime} scope outlived its minigame")
         }
         assertTrue(minigame.scopes.root.closed, "The root scope outlived its minigame")
+        assertTrue(minigame.scopes.current.closed, "The current scope outlived its minigame")
     }
 }

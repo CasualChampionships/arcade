@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.minigame.scope
 
+import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.job
@@ -14,7 +15,6 @@ import net.casual.arcade.events.phase.BuiltInEventPhases
 import net.casual.arcade.events.threading.ThreadingStrategy
 import net.casual.arcade.events.threading.ThreadingTarget
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.annotation.Listener
 import net.casual.arcade.minigame.annotation.ListenerFilter
 import net.casual.arcade.minigame.annotation.MinigameEventListener
 import net.casual.arcade.minigame.managers.MinigameEventHandler
@@ -39,6 +39,9 @@ import net.casual.arcade.scheduler.utils.schedule as scheduleRoutine
  * survive across a phase transition, when the owning [minigame]
  * is closed, or when [close] is called.
  *
+ * The [MinigameScopes.root] and [MinigameScopes.current] scopes are
+ * managed by the minigame; they cannot be closed with [close].
+ *
  * Scopes are created with [MinigameScopes.create]:
  * ```
  * val minigame: Minigame = // ...
@@ -59,17 +62,14 @@ import net.casual.arcade.scheduler.utils.schedule as scheduleRoutine
 public class MinigameScope internal constructor(
     public val minigame: Minigame,
     public val lifetime: MinigamePhaseLifetime,
-    private val scopes: MinigameScopes
+    private val scopes: MinigameScopes,
+    private val closeable: Boolean
 ): TickedScheduler, AutoCloseable {
     private val handles = ArrayList<EventListenerHandle>()
     private val tasks = ArrayList<ScheduledTask>()
 
-    private val job by lazy {
-        SupervisorJob(this.scopes.coroutineScope().coroutineContext.job)
-    }
-    private val coroutineScope by lazy {
-        CoroutineScope(this.scopes.coroutineScope().coroutineContext + this.job)
-    }
+    private var job: CompletableJob? = null
+    private var coroutines: CoroutineScope? = null
 
     /**
      * Whether this scope has closed.
@@ -101,7 +101,19 @@ public class MinigameScope internal constructor(
     }
 
     override fun asCoroutineScope(): CoroutineScope {
-        return this.coroutineScope
+        val existing = this.coroutines
+        if (existing != null) {
+            return existing
+        }
+        val parent = this.scopes.coroutineScope().coroutineContext
+        val job = SupervisorJob(parent.job)
+        if (this.closed) {
+            job.cancel()
+        }
+        val coroutines = CoroutineScope(parent + job)
+        this.job = job
+        this.coroutines = coroutines
+        return coroutines
     }
 
     /**
@@ -148,25 +160,33 @@ public class MinigameScope internal constructor(
      *
      * This is idempotent, and won't have any effect
      * when after the first time.
+     *
+     * The [MinigameScopes.root] and [MinigameScopes.current]
+     * scopes cannot be closed this way.
      */
     override fun close() {
+        if (!this.closeable) {
+            ArcadeUtils.logger.warn("Tried closing minigame managed ${this.lifetime} scope for ${this.minigame.id}")
+            return
+        }
+        this.destroy()
+    }
+
+    internal fun expire() {
+        if (this.closeable) {
+            this.destroy()
+        } else {
+            this.cancel()
+        }
+    }
+
+    internal fun destroy() {
         if (this.closed) {
             return
         }
         this.closed = true
-
-        for (handle in this.handles) {
-            handle.remove()
-        }
-        this.handles.clear()
-
-        for (task in this.tasks) {
-            task.cancel()
-        }
-        this.tasks.clear()
-
+        this.cancel()
         this.scopes.remove(this)
-        this.job.cancel()
     }
 
     internal fun scheduled(): Collection<ScheduledTask> {
@@ -180,6 +200,22 @@ public class MinigameScope internal constructor(
     internal fun track(task: ScheduledTask): ScheduledTask {
         this.tasks.add(task)
         return task
+    }
+
+    private fun cancel() {
+        for (handle in this.handles) {
+            handle.remove()
+        }
+        this.handles.clear()
+
+        for (task in this.tasks) {
+            task.cancel()
+        }
+        this.tasks.clear()
+
+        this.job?.cancel()
+        this.job = null
+        this.coroutines = null
     }
 
     private fun reject(what: String): ScheduledTask {

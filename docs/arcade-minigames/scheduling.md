@@ -12,14 +12,28 @@ it. Whenever the scope is closed then everything it owns is cancelled or
 unregistered. This means that you rarely have to clean anything up yourself, you
 just pick the scope with the right lifetime and let it do that for you.
 
-Every minigame has a root scope which lives for the minigame's entire lifetime,
-and this is what the `scheduler` field on a `Minigame` refers to:
+Every minigame has two scopes which always exist. The root scope lives for the
+minigame's entire lifetime, and this is what the `scheduler` field on a
+`Minigame` refers to:
 
 ```kotlin
 val minigame: Minigame = // ...
 
 minigame.scheduler.schedule(10.Seconds) {
     println("Hello from 10 seconds in the future!")
+}
+```
+
+The current scope always belongs to the phase the minigame is in; everything it
+owns is cancelled or unregistered whenever the phase changes, and the scope is
+then ready to be used again by the next phase:
+
+```kotlin
+val minigame: Minigame = // ...
+
+// This is cancelled if the phase changes in the next 30 seconds
+minigame.scopes.current.schedule(30.Seconds) {
+    minigame.chat.broadcast(Component.literal("30 seconds have passed!"))
 }
 ```
 
@@ -33,9 +47,9 @@ We create scopes through the minigame's `scopes` manager, providing the
 
 ```kotlin
 val minigame: Minigame = // ...
-val scope = minigame.scopes.create(MinigamePhaseLifetime.Current)
+val scope = minigame.scopes.create(MinigamePhaseLifetime.Forward)
 
-// This will be cancelled if the phase changes before it's executed
+// This will be cancelled if the minigame goes back to an earlier phase
 scope.schedule(30.Seconds) {
     minigame.chat.broadcast(Component.literal("30 seconds have passed!"))
 }
@@ -61,6 +75,10 @@ scope.close()
 ```
 Closing a scope is idempotent, and once closed it will reject anything else you
 try to schedule or register on it.
+
+> [!NOTE]
+> The root and current scopes are managed by the minigame, so they cannot be
+> closed this way; they only close when the minigame does.
 
 ## Cancelling Tasks
 
@@ -95,9 +113,8 @@ and will be cancelled when the minigame is closed. To tie a coroutine to a
 shorter lifetime, launch it on the scope you want instead:
 ```kotlin
 val minigame: Minigame = // ...
-val scope = minigame.scopes.create(MinigamePhaseLifetime.Current)
 
-scope.launch {
+minigame.scopes.current.launch {
     // Cancelled when the phase changes
 }
 ```
@@ -115,8 +132,7 @@ cleanup in a `finally` block, and it runs either way:
 val minigame: Minigame = // ...
 val bossbar: VirtualBossbar = // ...
 
-val scope = minigame.scopes.create(MinigamePhaseLifetime.Current)
-scope.launch {
+minigame.scopes.current.launch {
     minigame.visuals.addBossbar(bossbar)
     try {
         delay(10.Minutes)
@@ -128,9 +144,8 @@ scope.launch {
 The bossbar is removed after 10 minutes, and it is *also* removed if we change 
 phase before those 10 minutes are up.
 
-The coroutine which runs a phase is itself launched in a `Current` scope, so the
-same pattern works directly inside your phase logic without creating a scope at
-all:
+The coroutine which runs a phase is itself launched in the current scope, so the
+same pattern works directly inside your phase logic:
 ```kotlin
 private suspend fun runGraceLogic() {
     try {

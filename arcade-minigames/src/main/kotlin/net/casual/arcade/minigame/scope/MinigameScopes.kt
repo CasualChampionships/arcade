@@ -18,6 +18,7 @@ import net.casual.arcade.scheduler.utils.schedule
 import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
+import kotlin.jvm.optionals.getOrDefault
 
 /**
  * The manager for a [Minigame]'s [MinigameScope]s.
@@ -37,8 +38,19 @@ public class MinigameScopes internal constructor(
     /**
      * The default "root" scope which lives for the
      * minigame's entire lifetime.
+     *
+     * This scope cannot be closed manually.
      */
-    public val root: MinigameScope = this.create(MinigamePhaseLifetime.Forever)
+    public val root: MinigameScope = this.create(MinigamePhaseLifetime.Forever, closeable = false)
+
+    /**
+     * The "current" scope which always belongs to the minigame's
+     * current phase; everything owned by it is cancelled or
+     * unregistered whenever the phase changes.
+     *
+     * This scope cannot be closed manually.
+     */
+    public val current: MinigameScope = this.create(MinigamePhaseLifetime.Current, closeable = false)
 
     /**
      * Creates a new scope with a given [lifetime].
@@ -48,9 +60,7 @@ public class MinigameScopes internal constructor(
      * @see MinigamePhaseLifetime
      */
     public fun create(lifetime: MinigamePhaseLifetime): MinigameScope {
-        val scope = MinigameScope(this.minigame, lifetime, this)
-        this.scopes.add(scope)
-        return scope
+        return this.create(lifetime, closeable = true)
     }
 
     /**
@@ -75,6 +85,12 @@ public class MinigameScopes internal constructor(
         return this.scheduler.schedule(delay, routine, this.minigame as M)
     }
 
+    private fun create(lifetime: MinigamePhaseLifetime, closeable: Boolean): MinigameScope {
+        val scope = MinigameScope(this.minigame, lifetime, this, closeable)
+        this.scopes.add(scope)
+        return scope
+    }
+
     internal fun remove(scope: MinigameScope) {
         this.scopes.remove(scope)
     }
@@ -89,7 +105,7 @@ public class MinigameScopes internal constructor(
     internal fun setPhase(previous: MinigamePhase, next: MinigamePhase) {
         for (scope in ArrayList(this.scopes)) {
             if (!scope.lifetime.survives(previous, next)) {
-                scope.close()
+                scope.expire()
             }
         }
     }
@@ -100,7 +116,7 @@ public class MinigameScopes internal constructor(
 
     internal fun close() {
         for (scope in ArrayList(this.scopes)) {
-            scope.close()
+            scope.destroy()
         }
         this.scheduler.cancelAll()
     }
@@ -129,8 +145,9 @@ public class MinigameScopes internal constructor(
         val codec = MinigamePhaseLifetime.codec(this.minigame.phases.codec)
         val restored = HashMap<MinigamePhaseLifetime, MinigameScope>()
         this.scheduler.deserialize(input, this.minigame) { scheduled, data ->
-            val scope = when (val lifetime = data.read("lifetime", codec).orElse(MinigamePhaseLifetime.Forever)!!) {
+            val scope = when (val lifetime = data.read("lifetime", codec).getOrDefault(MinigamePhaseLifetime.Forever)) {
                 MinigamePhaseLifetime.Forever -> this.root
+                MinigamePhaseLifetime.Current -> this.current
                 else -> restored.getOrPut(lifetime) { this.create(lifetime) }
             }
             scope.track(scheduled)

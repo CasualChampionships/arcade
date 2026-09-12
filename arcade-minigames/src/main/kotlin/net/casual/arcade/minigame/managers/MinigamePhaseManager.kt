@@ -14,7 +14,6 @@ import net.casual.arcade.minigame.MinigameState
 import net.casual.arcade.minigame.events.MinigameSetPhaseEvent
 import net.casual.arcade.minigame.managers.phase.AdvancingPhaseRoutine
 import net.casual.arcade.minigame.phase.MinigamePhase
-import net.casual.arcade.minigame.phase.MinigamePhaseLifetime
 import net.casual.arcade.minigame.managers.phase.MinigamePhaseCoroutines
 import net.casual.arcade.minigame.managers.phase.MinigamePhaseRoutines
 import net.casual.arcade.minigame.routine.requestPhase
@@ -129,6 +128,20 @@ public class MinigamePhaseManager internal constructor(
     }
 
     /**
+     * Requests setting the [MinigamePhase] for the [minigame] to [phase].
+     *
+     * This should typically only be called in a coroutine context otherwise
+     * [set] can be directly called.
+     *
+     * @param phase The phase to set to.
+     * @see set
+     */
+    public fun request(phase: MinigamePhase) {
+        require(this.contains(phase)) { "Cannot request minigame '${this.minigame.id}' phase ${phase.id}" }
+        this.pending = phase
+    }
+
+    /**
      * Gets all the phases for the [minigame].
      *
      * @return A list of all phases.
@@ -162,7 +175,7 @@ public class MinigamePhaseManager internal constructor(
         val routine = this.routines[phase]
         val coroutine = this.coroutines[phase]
         if (routine != null || coroutine != null) {
-            val scope = this.minigame.scopes.create(MinigamePhaseLifetime.Current)
+            val scope = this.minigame.scopes.current
             if (routine != null) {
                 scope.schedule(MinecraftTimeDuration.ZERO, AdvancingPhaseRoutine(routine))
             }
@@ -179,11 +192,6 @@ public class MinigamePhaseManager internal constructor(
 
     internal fun restore(phase: MinigamePhase) {
         this.minigame.state = MinigameState.Playing(phase)
-    }
-
-    internal fun request(phase: MinigamePhase) {
-        require(this.contains(phase)) { "Cannot request minigame '${this.minigame.id}' phase ${phase.id}" }
-        this.pending = phase
     }
 
     internal fun tryRequestAdvance() {

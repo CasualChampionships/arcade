@@ -93,8 +93,7 @@ class ExampleMinigame(
     }
 
     private suspend fun runActiveLogic() {
-        val scope = this.scopes.create(MinigamePhaseLifetime.Current)
-        scope.register<PlayerDeathEvent> { (player) ->
+        this.scopes.current.register<PlayerDeathEvent> { (player) ->
             player.sendSystemMessage(Component.literal("You died!"))
         }
         awaitCancellation()

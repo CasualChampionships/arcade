@@ -53,8 +53,7 @@ import org.jetbrains.annotations.ApiStatus.OverrideOnly
  *     }
  *
  *     override suspend fun RoutineScope<ExampleMinigame>.run() {
- *         val scope = minigame.scopes.create(MinigamePhaseLifetime.Current)
- *         scope.register<PlayerDeathEvent> { (player) ->
+ *         minigame.scopes.current.register<PlayerDeathEvent> { (player) ->
  *             player.sendSystemMessage(Component.literal("You died!"))
  *         }
  *         awaitCancellation()

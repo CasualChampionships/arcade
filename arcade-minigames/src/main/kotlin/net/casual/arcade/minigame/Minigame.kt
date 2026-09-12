@@ -12,7 +12,6 @@ import net.casual.arcade.minigame.component.MinigameComponents
 import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.managers.*
 import net.casual.arcade.minigame.phase.MinigamePhase
-import net.casual.arcade.minigame.routine.MinigameRoutine
 import net.casual.arcade.minigame.managers.MinigamePhaseManager
 import net.casual.arcade.minigame.scope.MinigameScopes
 import net.casual.arcade.minigame.serialization.MinigameFactory
@@ -97,8 +96,7 @@ import kotlin.enums.EnumEntries
  *     }
  *
  *     private suspend fun runActiveLogic() {
- *         val scope = this.scopes.create(MinigamePhaseLifetime.Current)
- *         scope.register<PlayerDeathEvent> { (player) ->
+ *         this.scopes.current.register<PlayerDeathEvent> { (player) ->
  *             player.sendSystemMessage(Component.literal("You died!"))
  *         }
  *         awaitCancellation()
