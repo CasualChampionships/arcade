@@ -66,9 +66,9 @@ class PackGenerationTests {
         assertTrue(metadata.compatibility().isCompatible)
         assertEquals("My pack", metadata.description().string)
 
-        supplier.openPrimary(location).use { resources ->
+        supplier.openMetadata(location).use { resources ->
+            resources as FilePackResources
             assertEquals(setOf("test"), resources.getNamespaces(PackType.CLIENT_RESOURCES))
-
             val font = Identifier.parse("test:font/example.json")
             val resource = resources.getResource(PackType.CLIENT_RESOURCES, font)
             assertNotNull(resource, "The generated pack is missing the font we added")
