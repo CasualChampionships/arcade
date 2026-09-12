@@ -1,20 +1,20 @@
 [versions]
-minecraft           = "26.3-pre-3"
+minecraft           = "26.3-rc-2"
 java                = "25"
 kotlin              = "2.4.0"
 fabric-loader       = "0.19.5"
 fabric-api          = "0.160.2+26.3"
 fabric-kotlin       = "1.13.12+kotlin.2.4.0"
-sgui                = "2.1.0+26.2"
 server-translations = "3.2.0+26.3"
 replay-studio       = "06978a304f"
 
 # Compatibility
-carpet        = "26.2"
-c2me          = "0.4.1-alpha.0.3+26.2"
-polymer       = "0.17.0+26.2-rc-2"
-voicechat     = "fabric-2.6.18+26.2"
-voicechat-api = "2.6.13"
+carpet        = "26.3-beta-3"
+c2me          = "0.4.2-alpha.0.81+26.3-rc-2"
+polymer       = "0.18.0+26.3-rc-1"
+sgui          = "2.1.0+26.2"
+voicechat     = "fabric-2.6.23+26.3-rc-2"
+voicechat-api = "2.6.20"
 vmp           = "0.2.0+beta.7.235+26.2-rc-2"
 
 # Testing
@@ -32,7 +32,6 @@ minecraft              = { module = "com.mojang:minecraft"                 , ver
 fabric-loader          = { module = "net.fabricmc:fabric-loader"           , version.ref = "fabric-loader" }
 fabric-api             = { module = "net.fabricmc.fabric-api:fabric-api"   , version.ref = "fabric-api" }
 fabric-kotlin          = { module = "net.fabricmc:fabric-language-kotlin"  , version.ref = "fabric-kotlin" }
-sgui                   = { module = "eu.pb4:sgui"                          , version.ref = "sgui" }
 server-translations    = { module = "xyz.nucleoid:server-translations-api" , version.ref = "server-translations" }
 replay-studio          = { module = "com.github.ReplayMod:ReplayStudio"    , version.ref = "replay-studio" }
 
@@ -40,6 +39,7 @@ replay-studio          = { module = "com.github.ReplayMod:ReplayStudio"    , ver
 carpet        = { module = "com.github.gnembon:fabric-carpet"    , version.ref = "carpet" }
 c2me          = { module = "maven.modrinth:c2me-fabric"          , version.ref = "c2me" }
 polymer-core  = { module = "eu.pb4:polymer-core"                 , version.ref = "polymer" }
+sgui          = { module = "eu.pb4:sgui"                         , version.ref = "sgui" }
 voicechat     = { module = "maven.modrinth:simple-voice-chat"    , version.ref = "voicechat" }
 voicechat-api = { module = "de.maxhenkel.voicechat:voicechat-api", version.ref = "voicechat-api" }
 vmp           = { module = "maven.modrinth:vmp-fabric"           , version.ref = "vmp" }
