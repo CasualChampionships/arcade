@@ -33,7 +33,6 @@
     "player.ServerConfigurationPacketListenerImplMixin",
     "player.TrackedEntityMixin",
     "rejoin.ChunkMapAccessor",
-    "rejoin.ServerCommonPacketListenerImplMixin",
     "rejoin.ServerConfigurationPacketListenerImplAccessor",
     "rejoin.ServerConfigurationPacketListenerImplMixin",
     "rejoin.ServerPlayerMixin",
