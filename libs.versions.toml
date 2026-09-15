@@ -9,7 +9,7 @@ server-translations = "3.2.0+26.3"
 replay-studio       = "06978a304f"
 
 # Compatibility
-carpet        = "26.3-beta-3"
+carpet        = "c6d48ab485" # No 26.3 tag yet
 c2me          = "0.4.2-alpha.0.81+26.3-rc-2"
 polymer       = "0.18.0+26.3-rc-1"
 sgui          = "2.1.0+26.2"
