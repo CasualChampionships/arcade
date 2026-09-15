@@ -24,6 +24,7 @@ public open class FakeGamePacketListenerImpl(
     override fun tick() {
         // We do this here to keep the player tick
         // phase consistent with vanilla players
+        this.resetPosition()
         this.player.doTick()
     }
 
