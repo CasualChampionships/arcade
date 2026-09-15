@@ -14,7 +14,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import com.mojang.brigadier.suggestion.Suggestions;
 import net.casual.arcade.events.phase.BuiltInEventPhases;
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.phase.EventPhases;
@@ -31,7 +30,6 @@ import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.players.PlayerList;
-import net.minecraft.util.Util;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.component.SwingAnimation;
@@ -41,13 +39,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPacketListenerImpl {
@@ -362,30 +356,6 @@ public abstract class ServerGamePacketListenerImplMixin extends ServerCommonPack
 		if (event.isCancelled()) {
 			ci.cancel();
 		}
-	}
-
-	@Redirect(
-		method = "handleCustomCommandSuggestions",
-		at = @At(
-			value = "INVOKE",
-			target = "Ljava/util/concurrent/CompletableFuture;thenAccept(Ljava/util/function/Consumer;)Ljava/util/concurrent/CompletableFuture;",
-			remap = false
-		)
-	)
-	private CompletableFuture<?> onCustomCommandSuggestions(
-		CompletableFuture<Suggestions> vanillaSuggestions,
-		Consumer<? super Suggestions> action,
-		ServerboundCommandSuggestionPacket packet
-	) {
-		PlayerCommandSuggestionsEvent event = new PlayerCommandSuggestionsEvent(this.player, packet.command());
-		event.addSuggestions(vanillaSuggestions);
-		GlobalEventHandler.Server.broadcast(event);
-
-		List<CompletableFuture<Suggestions>> all = event.getAllSuggestions();
-		return Util.sequenceFailFast(all).thenAccept(suggestions -> {
-			Suggestions merged = Suggestions.merge(packet.command(), suggestions);
-			this.connection.send(new ClientboundCommandSuggestionsPacket(packet.id(), merged));
-		});
 	}
 
 	@Inject(

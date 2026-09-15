@@ -28,6 +28,7 @@
     "RandomizableContainerMixin",
     "ScoreboardMixin",
     "ServerboundTeleportToEntityPacketAccessor",
+    "ServerCommandSuggestionProviderMixin",
     "ServerCommonPacketListenerImplMixin",
     "ServerGamePacketListenerImplMixin",
     "ServerLevelMixin",
