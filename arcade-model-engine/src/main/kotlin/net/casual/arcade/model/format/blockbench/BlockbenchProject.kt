@@ -43,7 +43,7 @@ internal sealed class BlockbenchProject {
             val origin: Vector3fc,
             val rotation: Vector3fc,
             val export: Boolean,
-            val children: List<Outliner>
+            val children: Collection<Outliner>
         ): Outliner
     }
 
@@ -96,7 +96,6 @@ internal sealed class BlockbenchProject {
     @Serializable
     class Texture(
         val name: String = "",
-        val id: String? = null,
         val uuid: String? = null,
         val width: Int = 0,
         val height: Int = 0,

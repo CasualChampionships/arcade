@@ -4,5 +4,15 @@
  */
 package net.casual.arcade.model.definition
 
-public class ModelTexture {
+import java.awt.image.BufferedImage
+
+public class ModelTexture(
+    public val name: String,
+    public val image: BufferedImage,
+    public val width: Int,
+    public val height: Int,
+    public val frameTime: Int = 1
+) {
+    public val animated: Boolean
+        get() = this.width > 0 && this.height > this.width && this.height % this.width == 0
 }
