@@ -4,5 +4,5 @@
  */
 package net.casual.arcade.model.definition
 
-public class ModelAnimation {
-}
+// TODO:
+public class ModelAnimation

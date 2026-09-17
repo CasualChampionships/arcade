@@ -4,12 +4,10 @@
  */
 package net.casual.arcade.model.definition
 
+import net.casual.arcade.model.geometry.BoneGeometry
 import org.joml.Vector3f
 import org.joml.Vector3fc
 import java.util.UUID
-
-public typealias BoneTag = String
-public typealias BoneGeometry = Any
 
 public sealed class ModelNode(
     public val name: String,

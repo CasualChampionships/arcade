@@ -7,16 +7,17 @@ package net.casual.arcade.model.format.blockbench
 import it.unimi.dsi.fastutil.floats.FloatFloatPair
 import it.unimi.dsi.fastutil.ints.IntIntPair
 import net.casual.arcade.model.ArcadeModelEngine
-import net.casual.arcade.model.definition.BoneGeometry
 import net.casual.arcade.model.definition.BoneTag
 import net.casual.arcade.model.definition.ModelDefinition
 import net.casual.arcade.model.definition.ModelNode
 import net.casual.arcade.model.definition.ModelTexture
 import net.casual.arcade.model.format.ModelFormatException
 import net.casual.arcade.model.format.blockbench.BlockbenchProject.Outliner
+import net.casual.arcade.model.geometry.BoneGeometry
 import net.casual.arcade.model.geometry.Cube
 import net.casual.arcade.model.geometry.CubeFace
 import net.casual.arcade.utils.EnumUtils
+import net.casual.arcade.utils.Identifier
 import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.collection.component1
 import net.casual.arcade.utils.collection.component2
@@ -28,7 +29,11 @@ import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.util.*
 import javax.imageio.ImageIO
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
+// TODO: Animations
 internal class BlockbenchProjectConverter(
     private val id: Identifier,
     private val project: BlockbenchProject,
@@ -58,8 +63,8 @@ internal class BlockbenchProjectConverter(
             this.convertGroupToBone(group, Vector3f(), setOf())
         }
 
-        // TODO: Animations, width/height
-        return ModelDefinition.create(this.id, roots, mapOf(), this.textures, 0.0F, 0.0F)
+        val (width, height) = this.bounds()
+        return ModelDefinition.create(this.id, roots, mapOf(), this.textures, width, height)
     }
 
     private fun convertGroupToBone(
@@ -82,12 +87,29 @@ internal class BlockbenchProjectConverter(
         }
 
         val pivot = origin.sub(parentOrigin, Vector3f()).div(16.0F)
-        val geometry = this.createGeometry(name, cubes, pivot)
+        val geometry = when {
+            cubes.isEmpty() || !group.export || tags.contains(BoneTag.HITBOX) -> null
+            else -> this.createGeometry(name, cubes, pivot)
+        }
         return ModelNode.Bone(name, UUID.fromString(group.uuid), pivot, rotation, tags, children, geometry)
     }
 
     private fun createGeometry(name: String, cubes: List<Cube>, pivot: Vector3fc): BoneGeometry {
-        TODO()
+        val shift = Vector3f(pivot).mul(16.0F)
+        val own = extent(cubes)
+        val shifted = cubes.map { it.translate(shift) }
+        val parented = extent(shifted)
+        val useParent = parented <= max(own, BoneGeometry.HALF_EXTENT)
+        val chosen = if (useParent) shifted else cubes
+        val extent = if (useParent) parented else own
+        val offset = if (useParent) pivot.negate(Vector3f()) else Vector3f()
+
+        val scale = min(1.0F, BoneGeometry.HALF_EXTENT / extent)
+        val fitted = chosen.map { cube ->
+            cube.scale(scale).translate(BoneGeometry.CENTER)
+        }
+        val itemModel = Identifier(this.id.namespace, "model/${this.id.path}/${this.sanitize(name)}")
+        return BoneGeometry.create(fitted, itemModel, 1.0F / scale, offset)
     }
 
     private fun addElementToBone(
@@ -134,7 +156,7 @@ internal class BlockbenchProjectConverter(
             faces[direction] = CubeFace(uv[0] * scaleU, uv[1] * scaleV, uv[2] * scaleU, uv[3] * scaleV, texture, face.rotation)
         }
 
-        cubes.add(Cube(from, to, cubeOrigin, rotation, faces, element.shade, element.lightEmission))
+        cubes.add(Cube.create(from, to, cubeOrigin, rotation, faces, element.shade, element.lightEmission))
 
         // TODO: Add backfaces?
     }
@@ -154,6 +176,25 @@ internal class BlockbenchProjectConverter(
     private fun computeBoneTags(name: String, parentTags: Set<BoneTag>): Set<BoneTag> {
         // TODO: Compute tags from name
         return parentTags
+    }
+
+    private fun extent(cubes: List<Cube>): Float {
+        var extent = 0.0F
+        for (cube in cubes) {
+            for (i in 0..2) {
+                extent = max(extent, max(abs(cube.from[i]), abs(cube.to[i])))
+            }
+        }
+        return extent
+    }
+
+    private fun bounds(): FloatFloatPair {
+        if (this.min.x > this.max.x) {
+            return FloatFloatPair.of(1.0F, 1.0F)
+        }
+        val width = max(this.max.x - this.min.x, this.max.z - this.min.z) / 16.0F
+        val height = (this.max.y - this.min.y) / 16.0F
+        return FloatFloatPair.of(width, height)
     }
 
     private fun validate() {
