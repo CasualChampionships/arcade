@@ -4,13 +4,24 @@
  */
 package net.casual.arcade.model.format.blockbench
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonContentPolymorphicSerializer
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonObject
 import net.casual.arcade.model.format.blockbench.serializer.LenientFloat
 import net.casual.arcade.model.format.blockbench.serializer.LenientTextureId
 import net.casual.arcade.model.format.blockbench.serializer.RawMolangExpression
+import net.casual.arcade.model.format.blockbench.serializer.SerializableVector3fc
+import net.fabricmc.loader.api.SemanticVersion
+import net.fabricmc.loader.impl.util.version.VersionParser
+import org.joml.Vector3f
+import org.joml.Vector3fc
 
-@Serializable
+@Serializable(with = BlockbenchProject.Serializer::class)
 internal sealed class BlockbenchProject {
     abstract val meta: Metadata
     abstract val name: String?
@@ -21,7 +32,7 @@ internal sealed class BlockbenchProject {
 
     abstract val flipAnimationAxes: Boolean
 
-    abstract fun outliner(): List<Any>
+    abstract fun outliner(): List<Outliner>
 
     sealed interface Outliner {
         class Element(val uuid: String): Outliner
@@ -29,8 +40,8 @@ internal sealed class BlockbenchProject {
         class Group(
             val name: String,
             val uuid: String,
-            val origin: FloatArray,
-            val rotation: FloatArray,
+            val origin: Vector3fc,
+            val rotation: Vector3fc,
             val export: Boolean,
             val children: List<Outliner>
         ): Outliner
@@ -57,11 +68,11 @@ internal sealed class BlockbenchProject {
         val name: String = "",
         val type: String = "cube",
         val uuid: String,
-        val from: FloatArray? = null,
-        val to: FloatArray? = null,
-        val origin: FloatArray? = null,
-        val rotation: FloatArray? = null,
-        val position: FloatArray? = null,
+        val from: SerializableVector3fc = Vector3f(),
+        val to: SerializableVector3fc = Vector3f(),
+        val origin: SerializableVector3fc = Vector3f(),
+        val rotation: SerializableVector3fc = Vector3f(),
+        val position: SerializableVector3fc = Vector3f(),
         val inflate: Float = 0.0F,
         val shade: Boolean = true,
         @SerialName("light_emission")
@@ -131,13 +142,13 @@ internal sealed class BlockbenchProject {
         val easing: String? = null,
         val easingArgs: DoubleArray? = null,
         @SerialName("bezier_left_time")
-        val bezierLeftTime: FloatArray? = null,
+        val bezierLeftTime: SerializableVector3fc? = null,
         @SerialName("bezier_left_value")
-        val bezierLeftValue: FloatArray? = null,
+        val bezierLeftValue: SerializableVector3fc = Vector3f(),
         @SerialName("bezier_right_time")
-        val bezierRightTime: FloatArray? = null,
+        val bezierRightTime: SerializableVector3fc? = null,
         @SerialName("bezier_right_value")
-        val bezierRightValue: FloatArray? = null
+        val bezierRightValue: SerializableVector3fc = Vector3f()
     )
 
     @Serializable
@@ -150,5 +161,15 @@ internal sealed class BlockbenchProject {
         val script: String? = null
     )
 
+    object Serializer: JsonContentPolymorphicSerializer<BlockbenchProject>(BlockbenchProject::class) {
+        private val V5: SemanticVersion = VersionParser.parseSemantic("5.0")
+
+        override fun selectDeserializer(element: JsonElement): KSerializer<out BlockbenchProject> {
+            val version = (element.jsonObject["meta"]?.jsonObject?.get("format_version") as? JsonPrimitive)?.contentOrNull
+                ?: return BlockbenchProjectV4.serializer()
+            val parsed = VersionParser.parse(version, false)
+            return if (parsed >= V5) BlockbenchProjectV5.serializer() else BlockbenchProjectV4.serializer()
+        }
+    }
 }
 
