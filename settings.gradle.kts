@@ -42,6 +42,7 @@ include(
     ":arcade-interceptor",
     ":arcade-items",
     ":arcade-minigames",
+    ":arcade-model-engine",
     ":arcade-nametags",
     ":arcade-npcs",
     ":arcade-observers",
