@@ -20,6 +20,10 @@ public fun Identifier(namespace: String, path: String): Identifier {
 }
 
 public object IdentifierUtils {
+    public fun isValidNamespaceChar(c: Char): Boolean {
+        return c == '_' || c == '-' || c in 'a'..'z' || c in '0'..'9' || c == '.'
+    }
+
     public fun random(namespace: String = ArcadeUtils.MOD_ID): Identifier {
         val key = UUID.randomUUID().toString()
         return Identifier.fromNamespaceAndPath(namespace, key)
