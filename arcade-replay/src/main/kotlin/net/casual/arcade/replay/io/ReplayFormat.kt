@@ -23,7 +23,7 @@ public enum class ReplayFormat(
     public val supported: Boolean,
     public val stable: Boolean,
 ): StringRepresentable {
-    ReplayMod(true, true),
+    ReplayMod(false, false),
     Flashback(true, true);
 
     public fun writer(recordings: Path): (ReplayRecorder) -> ReplayWriter {
