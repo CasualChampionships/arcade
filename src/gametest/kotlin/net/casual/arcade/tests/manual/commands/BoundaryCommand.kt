@@ -9,6 +9,8 @@ import net.casual.arcade.boundary.renderer.options.AxisAlignedModelRenderOptions
 import net.casual.arcade.boundary.shape.AxisAlignedBoundaryShape
 import net.casual.arcade.boundary.utils.levelBoundary
 import net.casual.arcade.commands.*
+import net.casual.arcade.pack.generation.BuiltInResourcePacks
+import net.casual.arcade.tests.manual.resource_pack.TestResourcePacks
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
@@ -19,6 +21,10 @@ import net.minecraft.world.phys.Vec3
 
 @Suppress("unused")
 object BoundaryCommand: CommandTree<CommandSourceStack> {
+    init {
+        TestResourcePacks.register("boundary", BuiltInResourcePacks.BOUNDARY_SHADER_PACK)
+    }
+
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("boundary") {
             literal("create") {
