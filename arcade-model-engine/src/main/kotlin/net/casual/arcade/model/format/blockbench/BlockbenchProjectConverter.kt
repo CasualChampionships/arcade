@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.floats.FloatFloatPair
 import it.unimi.dsi.fastutil.ints.IntIntPair
 import net.casual.arcade.model.ArcadeModelEngine
 import net.casual.arcade.model.definition.BoneTag
+import net.casual.arcade.model.definition.ModelAnimation
 import net.casual.arcade.model.definition.ModelDefinition
 import net.casual.arcade.model.definition.ModelNode
 import net.casual.arcade.model.definition.ModelTexture
@@ -62,9 +63,14 @@ internal class BlockbenchProjectConverter(
         val roots = outliner.filterIsInstance<Outliner.Group>().map { group ->
             this.convertGroupToBone(group, Vector3f(), setOf())
         }
+        val nodesByUUID = roots.flatMap { node -> node.descendents() + node }
+            .associateBy { node -> node.uuid }
+        val animations = this.project.animations.associate { animation ->
+            animation.name to this.convertAnimation(animation, nodesByUUID)
+        }
 
         val (width, height) = this.bounds()
-        return ModelDefinition.create(this.id, roots, mapOf(), this.textures, width, height)
+        return ModelDefinition.create(this.id, roots, animations, this.textures, width, height)
     }
 
     private fun convertGroupToBone(
@@ -176,6 +182,11 @@ internal class BlockbenchProjectConverter(
     private fun computeBoneTags(name: String, parentTags: Set<BoneTag>): Set<BoneTag> {
         // TODO: Compute tags from name
         return parentTags
+    }
+
+    private fun convertAnimation(animation: BlockbenchProject.Animation, nodes: Map<UUID, ModelNode>): ModelAnimation {
+        // TODO:
+        return ModelAnimation()
     }
 
     private fun extent(cubes: List<Cube>): Float {

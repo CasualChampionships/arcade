@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.virtual.visuals.camera
 
+import net.casual.arcade.utils.MathUtils
 import net.casual.arcade.utils.math.location.Location
 import net.minecraft.util.Mth
 import net.minecraft.world.phys.Vec2
@@ -51,13 +52,12 @@ public interface CameraPathInterpolator {
         }
 
         private fun spline(p0: Vec3, p1: Vec3, p2: Vec3, p3: Vec3, t: Float): Vec3 {
-            val tt = t * t
-            val ttt = tt * t
-            val c0 = p1.scale(2.0)
-            val c1 = p2.subtract(p0).scale(t.toDouble())
-            val c2 = p0.scale(2.0).subtract(p1.scale(5.0)).add(p2.scale(4.0)).subtract(p3).scale(tt.toDouble())
-            val c3 = p0.scale(-1.0).add(p1.scale(3.0)).subtract(p2.scale(3.0)).add(p3).scale(ttt.toDouble())
-            return c0.add(c1).add(c2).add(c3).scale(0.5)
+            val td = t.toDouble()
+            return Vec3(
+                MathUtils.catmullRom(p0.x, p1.x, p2.x, p3.x, td),
+                MathUtils.catmullRom(p0.y, p1.y, p2.y, p3.y, td),
+                MathUtils.catmullRom(p0.z, p1.z, p2.z, p3.z, td)
+            )
         }
     }
 
