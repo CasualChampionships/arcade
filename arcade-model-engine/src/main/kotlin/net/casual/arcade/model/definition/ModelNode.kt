@@ -27,6 +27,10 @@ public sealed class ModelNode(
         return this.tags.contains(tag)
     }
 
+    public fun children(): Collection<ModelNode> {
+        return this.children
+    }
+
     public fun ancestors(): Sequence<ModelNode> {
         return generateSequence(this.parent, ModelNode::parent)
     }

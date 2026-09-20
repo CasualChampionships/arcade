@@ -3,5 +3,7 @@ plugins {
 }
 
 dependencies {
+    implementation(projects.arcadeObservers)
     implementation(projects.arcadeUtils)
+    implementation(projects.arcadeVirtualEntities)
 }

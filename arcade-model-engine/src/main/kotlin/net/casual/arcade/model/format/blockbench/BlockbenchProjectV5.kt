@@ -51,7 +51,7 @@ internal class BlockbenchProjectV5(
         )
     }
 
-    @Serializable
+    @Serializable(with = OutlinerV5.Serializer::class)
     sealed interface OutlinerV5 {
         @Serializable(with = Element.Serializer::class)
         class Element(val uuid: String): OutlinerV5 {
