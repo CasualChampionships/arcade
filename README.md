@@ -24,7 +24,7 @@ server-side modules, you can do this by adding the following to your
 
 ```kts
 plugins {
-    id("net.casualchampionships.joystick") version "1.0.0"
+    id("net.casualchampionships.joystick") version "1.0.1"
 }
 
 arcade {

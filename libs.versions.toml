@@ -22,7 +22,7 @@ reflections = "0.10.2"
 junit       = "5.14.4"
 
 # Documentation
-joystick = "1.0.0"
+joystick = "1.0.1"
 
 # Plugins
 fabric-loom = "1.17-SNAPSHOT"
