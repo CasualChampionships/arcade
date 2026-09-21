@@ -4,9 +4,10 @@ plugins {
 
 dependencies {
     api(projects.arcadeUtils)
-    api(projects.arcadeEventRegistry)
-    api(projects.arcadeEventsServer)
     api(projects.arcadeExtensions)
+
+    implementation(projects.arcadeEventRegistry)
+    implementation(projects.arcadeEventsServer)
 }
 
 loom {

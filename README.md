@@ -15,23 +15,31 @@ all the modules available can be found in the [documentation](https://arcade.cas
 
 ## Adding to your Project
 
-If you are developing minigames using arcade, you will want to include
-all the server-side modules, you can do this by adding the following to your
+It's recommended that you manage your arcade dependency via the
+[Joystick](https://github.com/CasualChampionships/joystick) Gradle plugin.
+
+If you are developing minigames using arcade, you will want all the 
+server-side modules, you can do this by adding the following to your
 `build.gradle.kts`.
 
 ```kts
-repositories {
-    maven("https://maven.casualchampionships.net/snapshots")
+plugins {
+    id("net.casualchampionships.joystick") version "1.0.0"
 }
 
-dependencies {
-    include(implementation("net.casualchampionships:arcade:0.14.0-beta.5+26.3")!!)
+arcade {
+    version = "0.14.0-beta.5+26.3"
+    modules("arcade")
 }
 ```
 
-Alternatively, if you do not want to bundle the whole of arcade, each of the
-modules are published separately. You can see the [documentation](https://arcade.casualchampionships.net)
-for more information.
+If you do not want to bundle the whole of arcade, declare only the modules you
+need. Each module's page in the [documentation](https://arcade.casualchampionships.net) 
+shows its snippet.
+
+Every module is also published as a plain maven artifact under
+`net.casualchampionships` on `https://maven.casualchampionships.net/snapshots`
+if you would rather manage the dependencies yourself.
 <!-- #endregion about -->
 
 ## Documentation

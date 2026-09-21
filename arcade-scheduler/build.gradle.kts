@@ -5,6 +5,7 @@ plugins {
 dependencies {
     api(projects.arcadeUtils)
     api(projects.arcadeEventRegistry)
-    api(projects.arcadeEventsServer)
-    api(projects.arcadeEventsClient)
+
+    implementation(projects.arcadeEventsServer)
+    implementation(projects.arcadeEventsClient)
 }
