@@ -4,8 +4,9 @@ plugins {
 
 dependencies {
     api(projects.arcadeNpcs)
-    api(projects.arcadeScheduler)
     api(projects.arcadeUtils)
+
+    implementation(projects.arcadeScheduler)
 
     compileOnly(projects.arcadeMinigames)
 

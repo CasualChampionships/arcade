@@ -4,6 +4,41 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const docsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const rootDir = path.resolve(docsDir, '..')
+
+// Versions come from the build files so a bump never touches the docs. Pages use
+// __ARCADE_VERSION__, __JOYSTICK_VERSION__ and __MODULE__ (the arcade-* folder the
+// page lives in) inside code blocks and inline code.
+function property(file: string, key: string): string {
+  const match = fs.readFileSync(path.join(rootDir, file), 'utf-8').match(new RegExp(`^${key}\\s*=\\s*"?([^"\\n]+)"?`, 'm'))
+  if (!match) throw new Error(`${key} not found in ${file}`)
+  return match[1].trim()
+}
+
+const versions = {
+  arcade: `${property('gradle.properties', 'mod_version')}+${property('libs.versions.toml', 'minecraft')}`,
+  joystick: property('libs.versions.toml', 'joystick')
+}
+
+function substituteVersions(md: any) {
+  md.core.ruler.push('arcade-versions', (state: any) => {
+    const folder = (state.env.relativePath ?? '').split('/')[0]
+    const module = folder.startsWith('arcade-') ? folder.slice('arcade-'.length) : 'nametags", "commands'
+    const replace = (text: string) => text
+      .replace(/__ARCADE_VERSION__/g, versions.arcade)
+      .replace(/__JOYSTICK_VERSION__/g, versions.joystick)
+      .replace(/__MODULE__/g, module)
+    const visit = (tokens: any[]) => {
+      for (const token of tokens) {
+        if (token.type === 'fence' || token.type === 'code_inline' || token.type === 'text') {
+          token.content = replace(token.content)
+        }
+        if (token.children) visit(token.children)
+      }
+    }
+    visit(state.tokens)
+  })
+}
 
 const pageOrders: Record<string, string[]> = {
   'arcade-minigames': [
@@ -82,6 +117,9 @@ export default defineConfig({
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: '/logo.png' }]
   ],
+  markdown: {
+    config: substituteVersions
+  },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
 
@@ -89,7 +127,8 @@ export default defineConfig({
 
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'About', link: '/about' }
+      { text: 'About', link: '/about' },
+      { text: 'Joystick', link: '/joystick' }
     ],
 
     sidebar,

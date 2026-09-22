@@ -10,27 +10,9 @@ lifting done for you!
 
 ## Adding to Dependencies
 
-If you are implementing minigames, you probably want to bundle the entirety of the arcade,
-read the [README](https://github.com/CasualChampionships/arcade#readme) for more information.
+If you are implementing minigames, you probably want to bundle the entirety of arcade
+by declaring `modules("arcade")` instead of just this module.
 
-```kts
-repositories {
-    maven("https://maven.casualchampionships.net/snapshots")
-}
+<!--@include: ../joystick.md#usage-->
 
-dependencies {
-    include(implementation("net.casualchampionships:arcade-minigames:0.13.0-beta.1+26.2")!!)
-
-    include(implementation("net.casualchampionships:arcade-commands:0.13.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-dimensions:0.13.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-event-registry:0.13.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-events-server:0.13.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-extensions:0.13.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-guis:0.13.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-replay:0.13.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-resource-pack:0.13.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-scheduler:0.13.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-utils:0.13.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-virtual-visuals:0.13.0-beta.1+26.2")!!)
-}
-```
+See [Joystick](../joystick.md) for what the plugin does and its options.

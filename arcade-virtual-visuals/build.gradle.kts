@@ -4,12 +4,12 @@ plugins {
 
 dependencies {
     api(projects.arcadeUtils)
-    api(projects.arcadeEventRegistry)
-    api(projects.arcadeEventsServer)
-    api(projects.arcadeExtensions)
-    api(projects.arcadeScheduler)
-    api(projects.arcadeResourcePack)
-    api(projects.arcadeNametags)
     api(projects.arcadeVirtualEntities)
-    api(projects.arcadeCommands)
+    api(projects.arcadeObservers)
+
+    implementation(projects.arcadeEventRegistry)
+    implementation(projects.arcadeEventsServer)
+    implementation(projects.arcadeExtensions)
+    implementation(projects.arcadeScheduler)
+    implementation(projects.arcadeResourcePack)
 }

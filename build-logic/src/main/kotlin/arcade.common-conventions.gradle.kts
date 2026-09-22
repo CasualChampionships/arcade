@@ -135,41 +135,17 @@ tasks.register("release") {
     dependsOn(tasks.named("publishToMavenLocal"))
 }
 
-val docFile = if (project == rootProject) {
-    rootProject.file("README.md")
-} else {
-    rootProject.file("docs/${project.name}/getting-started.md")
-}
-
-if (docFile.exists()) {
-    val transitive = project != rootProject
+if (project == rootProject) {
     val updateDocumentation = tasks.register<UpdateDocumentedDependencies>("updateDocumentedDependencies") {
-        description = "Updates the arcade version in documentation"
-        documentationFile.set(docFile)
-        coordinate.set(provider { "${project.group}:${project.name}:${project.version}" })
-        includeTransitiveDependencies.set(transitive)
-        transitiveDependencies.set(provider {
-            if (!transitive) {
-                return@provider emptyList()
-            }
-
-            val dependencies = configurations.getByName("api").dependencies.toMutableSet()
-            dependencies.removeAll(configurations.getByName("include").dependencies)
-            configurations.findByName("shade")?.let { dependencies.removeAll(it.dependencies) }
-            dependencies.removeAll { it.group?.startsWith("org.jetbrains.kotlin") == true }
-            dependencies.sortedBy { "${it.group}:${it.name}" }
-                .map { "${it.group}:${it.name}:${it.version}" }
-        })
+        description = "Updates the arcade version in the README"
+        documentationFile.set(rootProject.file("README.md"))
+        module.set("arcade")
+        arcadeVersion.set(provider { project.version.toString() })
+        pluginVersion.set(libs.versions.joystick)
     }
 
-    val autoUpdate = project == rootProject || providers.gradleProperty("updateModuleDocs")
-        .map { it.isEmpty() || it.toBoolean() }
-        .getOrElse(false)
-
-    if (autoUpdate) {
-        tasks.withType<AbstractPublishToMaven>().configureEach {
-            dependsOn(updateDocumentation)
-        }
+    tasks.withType<AbstractPublishToMaven>().configureEach {
+        dependsOn(updateDocumentation)
     }
 }
 

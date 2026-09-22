@@ -8,12 +8,6 @@ to connected clients.
 
 ## Adding to Dependencies
 
-```kts
-repositories {
-    maven("https://maven.casualchampionships.net/snapshots")
-}
+<!--@include: ../joystick.md#usage-->
 
-dependencies {
-    include(implementation("net.casualchampionships:arcade-debug:0.13.0-beta.1+26.2")!!)
-}
-```
+See [Joystick](../joystick.md) for what the plugin does and its options.
