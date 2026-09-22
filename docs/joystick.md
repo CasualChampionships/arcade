@@ -19,18 +19,7 @@ your mod actually needs to bundle.
 
 ## Usage
 
-The plugin is published to the arcade maven. To resolve it from the arcade maven instead 
-add it under `pluginManagement` in `settings.gradle.kts`:
-
-```kts
-pluginManagement {
-    repositories {
-        maven("https://maven.casualchampionships.net/snapshots")
-        gradlePluginPortal()
-    }
-}
-```
-Then in your `build.gradle.kts`:
+The plugin is published to the Gradle plugin portal so you can simply write in your `build.gradle.kts`:
 
 <!-- #region usage -->
 ```kts
