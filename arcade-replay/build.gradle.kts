@@ -11,9 +11,9 @@ dependencies {
     api(projects.arcadeEventRegistry)
     api(projects.arcadeResourcePackHost)
     api(projects.arcadeCommands)
-    api(projects.arcadeObservers)
 
     implementation(projects.arcadeEventsServer)
+    implementation(projects.arcadeObservers)
     implementation(projects.arcadeResourcePack)
 
     compileOnly(projects.arcadeVirtualEntities)
