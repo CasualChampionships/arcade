@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.explosion)
 }
 
-val shade: Configuration by configurations.creating
+val shade: Configuration = configurations.create("shade")
 
 dependencies {
     api(projects.arcadeUtils)

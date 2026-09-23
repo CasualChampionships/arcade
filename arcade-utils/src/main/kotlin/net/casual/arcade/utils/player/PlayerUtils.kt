@@ -199,6 +199,11 @@ public fun ServerPlayer.isChunkInViewDistance(chunkX: Int, chunkY: Int, offset: 
     return ChunkTrackingView.isInViewDistance(pos.x, pos.z, this.getViewDistance() + offset, chunkX, chunkY)
 }
 
+public fun ServerPlayer.dropRandomly(stack: ItemStack, thrown: Boolean = false) {
+    val entity = this.createItemStackToDrop(stack, true, thrown) ?: return
+    this.level().addFreshEntity(entity)
+}
+
 public fun ServerPlayer.dropItemStackIntoInventory(
     stack: ItemStack,
     remaining: (ItemStack) -> Unit
