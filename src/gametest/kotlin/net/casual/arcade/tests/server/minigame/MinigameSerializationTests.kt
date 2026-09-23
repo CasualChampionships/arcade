@@ -13,6 +13,7 @@ import net.casual.arcade.gametest.minigame.track
 import net.casual.arcade.gametest.minigame.reload
 import net.casual.arcade.minigame.MinigameState
 import net.casual.arcade.minigame.Minigames
+import net.casual.arcade.minigame.phase.MinigamePhaseLifetime
 import net.casual.arcade.minigame.exception.MinigameCreationException
 import net.casual.arcade.minigame.managers.MinigameLevelManager.LevelOwnership
 import net.casual.arcade.minigame.serialization.save
@@ -22,7 +23,9 @@ import net.casual.arcade.tests.server.minigame.utils.TestMinigameStage.*
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.TimeUtils.Ticks
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.coroutine.delay
+import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 
 @Suppress("FunctionName", "Unused")
@@ -119,6 +122,26 @@ object MinigameSerializationTests: ArcadeTestSuite() {
             restored.phaseOrNull == TestMinigamePhase.Over
         }
         assertEquals(1, restored.score, "Restored minigame ran the constructor's routine instead of the assigned one")
+    }
+
+    @GameTest(maxTicks = 100)
+    fun `named scope routine is restored into its named scope`(context: TestContext) = context.test {
+        val id = arcade("test_named")
+        val lifetime = MinigamePhaseLifetime.Forward
+        val minigame = minigame().withoutPhaseLogic().phase(TestMinigamePhase.Active).start()
+        minigame.scopes.named(id, lifetime).schedule(MinecraftTimeDuration.ZERO, TestGraceRoutine(40.Ticks))
+        delay(5.Ticks)
+
+        val restored = reload(minigame)
+
+        assertEquals(1, restored.scopes.all().count { it.id == id }, "Restored minigame did not have exactly one named scope")
+        restored.scopes.named(id, lifetime).cancel()
+        assertTrue(
+            restored.recordedStages.contains(GraceReleased),
+            "Cancelling the named scope did not cancel the routine restored into it"
+        )
+        delay(60.Ticks)
+        assertFalse(restored.recordedStages.contains(GraceEnded), "Routine restored into a named scope outlived its scope")
     }
 
     @GameTest
