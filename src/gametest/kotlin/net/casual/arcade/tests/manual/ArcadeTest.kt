@@ -6,12 +6,15 @@ import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.events.utils.register
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.casual.arcade.tests.manual.minigame.TestMinigame
-import net.casual.arcade.tests.manual.resource_pack.ResourcePackTests
+import net.casual.arcade.tests.manual.resource_pack.TestResourcePacks
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.core.Registry
 
 object ArcadeTest: ModInitializer {
     private const val ENABLED_PROPERTY = "arcade.manual-tests"
+
+    val container = FabricLoader.getInstance().getModContainer("arcade-tests").get()
 
     override fun onInitialize() {
         if (!System.getProperty(ENABLED_PROPERTY).toBoolean()) {
@@ -29,7 +32,5 @@ object ArcadeTest: ModInitializer {
             TestMinigame.ID,
             TestMinigame.codec()
         )
-
-        ResourcePackTests.run()
     }
 }
