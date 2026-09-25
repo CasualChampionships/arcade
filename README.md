@@ -28,7 +28,7 @@ plugins {
 }
 
 arcade {
-    version = "0.14.0-beta.12+26.3"
+    version = "0.14.0-beta.13+26.3"
     modules("arcade")
 }
 ```

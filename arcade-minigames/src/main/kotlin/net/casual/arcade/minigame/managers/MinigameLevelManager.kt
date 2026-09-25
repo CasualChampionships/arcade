@@ -321,21 +321,11 @@ public class MinigameLevelManager(
     }
 
     internal fun close() {
-        for (entry in this.levels.values) {
-            entry.level.minigame.removeMinigame(this.minigame)
-        }
-        for (entry in this.levels.values) {
-            val level = entry.level
-            if (level !is CustomLevel) {
-                continue
-            }
-            when {
-                entry.ownership.shouldDeleteOnClose() -> this.minigame.server.deleteCustomLevel(level)
-                entry.ownership.shouldUnloadOnClose() -> this.minigame.server.removeCustomLevel(level)
-            }
-        }
-        this.levels.clear()
-        this.entries.clear()
+        this.release(delete = true)
+    }
+
+    internal fun unload() {
+        this.release(delete = false)
     }
 
     internal fun debug(output: ValueOutput) {
@@ -373,6 +363,24 @@ public class MinigameLevelManager(
         return this.minigame.server.loadCustomLevel(dimension) ?: throw MinigameSerializationException(
             "Minigame ${this.minigame.id} cannot restore level $id, dimension ${dimension.identifier()} doesn't exist"
         )
+    }
+
+    private fun release(delete: Boolean) {
+        for (entry in this.levels.values) {
+            entry.level.minigame.removeMinigame(this.minigame)
+        }
+        for (entry in this.levels.values) {
+            val level = entry.level
+            if (level !is CustomLevel) {
+                continue
+            }
+            when {
+                delete && entry.ownership.shouldDeleteOnClose() -> this.minigame.server.deleteCustomLevel(level)
+                entry.ownership.shouldUnloadOnClose() -> this.minigame.server.removeCustomLevel(level)
+            }
+        }
+        this.levels.clear()
+        this.entries.clear()
     }
 
     private fun demote(entry: Entry) {

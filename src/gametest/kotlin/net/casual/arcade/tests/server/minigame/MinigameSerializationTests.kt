@@ -4,15 +4,14 @@
  */
 package net.casual.arcade.tests.server.minigame
 
-import net.casual.arcade.dimensions.level.CustomLevel
 import net.casual.arcade.events.GlobalEventHandler
-import net.casual.arcade.dimensions.utils.deleteCustomLevel
 import net.casual.arcade.gametest.TestContext
 import net.casual.arcade.gametest.minigame.copySave
 import net.casual.arcade.gametest.minigame.track
 import net.casual.arcade.gametest.minigame.reload
 import net.casual.arcade.minigame.MinigameState
 import net.casual.arcade.minigame.Minigames
+import net.casual.arcade.minigame.events.MinigameCloseEvent
 import net.casual.arcade.minigame.phase.MinigamePhaseLifetime
 import net.casual.arcade.minigame.exception.MinigameCreationException
 import net.casual.arcade.minigame.managers.MinigameLevelManager.LevelOwnership
@@ -170,13 +169,22 @@ object MinigameSerializationTests: ArcadeTestSuite() {
         val level = assertNotNull(restored.levels.get(TestMinigame.LEVEL), "Level was not restored")
         assertEquals(dimension, level.dimension(), "Restored level resolved to a different dimension")
         assertEquals(
-            LevelOwnership.Owned,
+            LevelOwnership.Exclusive,
             restored.levels.ownership(level),
             "Restored level did not keep the ownership it was saved with"
         )
+    }
 
-        restored.close()
-        server.deleteCustomLevel(level as CustomLevel)
+    @GameTest
+    fun `reloading does not close the minigame`(context: TestContext) = context.test {
+        val minigame = minigame().withLevel().start()
+
+        var closed = false
+        minigame.scopes.root.register<MinigameCloseEvent> { closed = true }
+
+        reload(minigame)
+
+        assertFalse(closed, "Reloading broadcast MinigameCloseEvent")
     }
 
     @GameTest

@@ -6,11 +6,8 @@ package net.casual.arcade.tests.server.minigame.utils
 
 import com.mojang.serialization.MapCodec
 import net.casual.arcade.dimensions.level.CustomLevel
-import net.casual.arcade.dimensions.level.LevelPersistence
-import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
 import net.casual.arcade.minigame.Minigame
-import net.casual.arcade.minigame.managers.MinigameLevelManager.LevelOwnership
 import net.casual.arcade.minigame.phase.MinigamePhase
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameFactory
@@ -46,13 +43,9 @@ class TestMinigame(
     }
 
     fun addLevel(): CustomLevel {
-        val level = CustomLevelBuilder.build(this.server) {
-            randomDimensionKey()
+        return this.levels.create(LEVEL) {
             vanillaDefaults(VanillaDimension.Overworld)
-            persistence(LevelPersistence.Permanent)
         }
-        this.levels.add(LEVEL, level, LevelOwnership.Owned)
-        return level
     }
 
     override fun serialize(output: ValueOutput) {

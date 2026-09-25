@@ -139,15 +139,17 @@ public object Minigames: ModInitializer {
         this.minigamesById.put(minigame.id, minigame)
     }
 
-    internal fun unregister(minigame: Minigame) {
+    internal fun unregister(minigame: Minigame, delete: Boolean = true) {
         this.minigamesByUUID.remove(minigame.uuid)
         this.minigamesById[minigame.id].remove(minigame)
 
-        minigame.serializer.submit {
-            val path = minigame.getSavePath()
-            if (path.exists()) {
-                @OptIn(ExperimentalPathApi::class)
-                path.deleteRecursively()
+        if (delete) {
+            minigame.serializer.submit {
+                val path = minigame.getSavePath()
+                if (path.exists()) {
+                    @OptIn(ExperimentalPathApi::class)
+                    path.deleteRecursively()
+                }
             }
         }
     }
