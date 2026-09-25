@@ -71,6 +71,14 @@ public fun VirtualEntity.canAttachTo(attachment: VirtualEntityAttachment): Boole
     return this.attachment === attachment
 }
 
+public fun VirtualEntity.isAttached(): Boolean {
+    val attachment = this.attachment
+    if (!attachment.attached().contains(this)) {
+        return false
+    }
+    return attachment !is VirtualEntity || attachment.isAttached()
+}
+
 public fun VirtualEntity.sendBundledSpawnPackets(observer: Observer, sender: PacketSender = observer) {
     val collector = VirtualEntityPacketCollector()
     this.sendSpawnPackets(observer, collector::add)

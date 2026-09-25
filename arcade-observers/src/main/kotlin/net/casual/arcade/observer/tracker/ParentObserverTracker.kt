@@ -10,7 +10,7 @@ public class ParentObserverTracker(
     private val parent: ObserverTracker
 ): ObserverTracker {
     override fun startObserving(observer: Observer): Boolean {
-        return false
+        return this.parent.isObserving(observer)
     }
 
     override fun stopObserving(observer: Observer) {
