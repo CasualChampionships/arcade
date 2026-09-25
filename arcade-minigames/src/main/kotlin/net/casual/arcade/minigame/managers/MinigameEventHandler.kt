@@ -185,11 +185,8 @@ public class MinigameEventHandler(
                 predicates.add { this.minigame === (it as MinigameEvent).minigame }
             }
         }
-        if (predicates.isEmpty()) {
-            return registry.register(type, listener)
-        }
-        return registry.register(type, EventListener.of(listener.priority, listener.phase) { event ->
-            if (predicates.all { it(event) }) {
+        return registry.register(type, EventListener.of(listener.priority, listener.phase, listener.strategy) { event ->
+            if (!this.minigame.closed && predicates.all { it(event) }) {
                 listener.invoke(event)
             }
         })

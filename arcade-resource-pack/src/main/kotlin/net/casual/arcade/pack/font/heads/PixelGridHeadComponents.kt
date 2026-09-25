@@ -38,7 +38,7 @@ import kotlin.time.toJavaDuration
 public class PixelGridHeadComponents private constructor(
     private val shift: Int,
     private val resolver: ProfileResolver,
-    private val session: SessionService
+    private val session: SessionService?
 ): TexturedHeadComponents {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -141,6 +141,7 @@ public class PixelGridHeadComponents private constructor(
 
     @Suppress("DeferredResultUnused")
     private fun loadHead(resolvable: ResolvableProfile): CompletableDeferred<Result> {
+        val session = this.session ?: return CompletableDeferred(Invalid)
         val task = CompletableDeferred<Result>()
         this.scope.launch {
             try {
@@ -262,7 +263,7 @@ public class PixelGridHeadComponents private constructor(
         public fun get(
             shift: Int = 0,
             resolver: ProfileResolver,
-            session: SessionService
+            session: SessionService?
         ): PixelGridHeadComponents {
             return this.components.get(shift) {
                 PixelGridHeadComponents(shift, resolver, session)
