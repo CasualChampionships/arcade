@@ -22,6 +22,7 @@
     "ServerLevelMixin",
     "ServerPlayerGameModeMixin",
     "ServerPlayerMixin",
+    "advancement.AdvancementTreeMixin",
     "advancement.PlayerAdvancementMixin",
     "bugfixes.LeashableMixin",
     "bugfixes.LeashDataInvoker",

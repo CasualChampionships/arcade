@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.gametest.fabric
 
+import net.casual.arcade.gametest.ArcadeGametest
 import net.casual.arcade.gametest.TestSuite
 import net.casual.arcade.gametest.TestSuiteProvider
 import net.fabricmc.loader.api.FabricLoader
@@ -12,11 +13,8 @@ import net.fabricmc.loader.api.entrypoint.EntrypointContainer
 import java.util.stream.Stream
 
 public object InjectedTestSuites {
-    private const val ENTRYPOINT_KEY = "arcade-gametest"
-
     public fun getEntrypoints(): Stream<EntrypointContainer<TestSuite>> {
-        val providers = FabricLoader.getInstance().getEntrypointContainers(ENTRYPOINT_KEY, TestSuiteProvider::class.java)
-        return providers.stream().flatMap { provider ->
+        return ArcadeGametest.getEntrypoints().stream().flatMap { provider ->
             provider.entrypoint.getTestSuites().stream().map { suite -> SuiteEntrypoint(suite, provider.provider) }
         }
     }

@@ -8,6 +8,7 @@
   },
   "mixins": [
     "ConnectionMixin",
+    "MinecraftServerMixin",
     "PlayerListMixin",
     "ServerGamePacketListenerImplMixin",
     "StructureTemplateManagerMixin",

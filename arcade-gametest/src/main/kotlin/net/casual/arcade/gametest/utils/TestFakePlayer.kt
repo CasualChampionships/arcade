@@ -41,6 +41,15 @@ public open class TestFakePlayer(
 
     private lateinit var channel: EmbeddedChannel
 
+    override fun createRespawned(
+        server: MinecraftServer,
+        level: ServerLevel,
+        profile: GameProfile,
+        info: ClientInformation
+    ): FakePlayer {
+        return TestFakePlayer(server, level, profile, info)
+    }
+
     override fun createConnection(
         server: MinecraftServer,
         connection: Connection,
