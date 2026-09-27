@@ -305,6 +305,28 @@ public class TestContext(public val helper: GameTestHelper) {
         this.assertNever(duration, Component.literal(message), condition)
     }
 
+    public suspend fun assertAt(
+        expected: MinecraftTimeDuration,
+        earlyMessage: Component? = null,
+        lateMessage: Component? = null,
+        tolerance: MinecraftTimeDuration = 0.Ticks,
+        condition: () -> Boolean
+    ) {
+        this.assertNever(expected - tolerance, earlyMessage, condition)
+        this.assertEventually(tolerance * 2, lateMessage, condition)
+    }
+
+    public suspend fun assertAt(
+        expected: MinecraftTimeDuration,
+        earlyMessage: String,
+        lateMessage: String,
+        tolerance: MinecraftTimeDuration = 0.Ticks,
+        condition: () -> Boolean
+    ) {
+        this.assertNever(expected - tolerance, earlyMessage, condition)
+        this.assertEventually(tolerance * 2, lateMessage, condition)
+    }
+
     public inline fun <reified T: Packet<*>> TestFakePlayer.assertSent(predicate: (T) -> Boolean = { true }): T {
         return this.sent(predicate).firstOrNull()
             ?: fail("Expected ${T::class.java.simpleName} sent to ${this.username}, saw: ${this.packetsAsString()}")

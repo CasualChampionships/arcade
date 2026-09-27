@@ -6,4 +6,8 @@ package net.casual.arcade.gametest
 
 public interface TestSuiteProvider {
     public fun getTestSuites(): Set<TestSuite>
+
+    public fun suppressSystemChat(): Boolean {
+        return false
+    }
 }

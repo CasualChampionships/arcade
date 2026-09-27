@@ -8,6 +8,7 @@ dependencies {
 
     implementation(projects.arcadeScheduler)
 
+    compileOnly(projects.arcadeBoundaries)
     compileOnly(projects.arcadeMinigames)
 
     implementation(libs.reflections) {

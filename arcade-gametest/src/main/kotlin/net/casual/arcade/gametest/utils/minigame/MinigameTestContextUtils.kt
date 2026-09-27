@@ -7,9 +7,12 @@ package net.casual.arcade.gametest.minigame
 import net.casual.arcade.gametest.TestContext
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
+import net.casual.arcade.minigame.phase.MinigamePhase
 import net.casual.arcade.minigame.serialization.SerializableMinigame
 import net.casual.arcade.minigame.serialization.save
+import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.coroutine.joinBlocking
+import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.level.storage.LevelResource
 import java.nio.file.Path
@@ -53,4 +56,11 @@ public fun TestContext.copySave(minigame: Minigame): Path {
 
     this.track(AutoCloseable(copy::deleteRecursively))
     return copy
+}
+
+public suspend fun TestContext.awaitPhase(minigame: Minigame, phase: MinigamePhase, timeout: MinecraftTimeDuration = 5.Seconds) {
+    this.assertTrue(minigame.phases.contains(phase), "Invalid phase '${phase}' provided to assertPhase for minigame ${minigame.id}")
+    this.assertEventually(timeout, "Timed out before minigame ${minigame.id} was at phase '${phase}'") {
+        minigame.state.isAt(phase)
+    }
 }

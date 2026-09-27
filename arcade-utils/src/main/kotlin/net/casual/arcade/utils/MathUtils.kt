@@ -74,6 +74,10 @@ public object MathUtils {
         return Vec3(min(a.x, value), min(a.y, value), min(a.z, value))
     }
 
+    public fun Vec3.closeTo(other: Vec3, epsilon: Double = 1.0E-6): Boolean {
+        return abs(this.x - other.x) <= epsilon && abs(this.y - other.y) <= epsilon && abs(this.z - other.z) <= epsilon
+    }
+
     public fun Vec2.asDirection(): Vec3 {
         val realXRot = this.x * Mth.DEG_TO_RAD
         val realYRot = -this.y * Mth.DEG_TO_RAD
