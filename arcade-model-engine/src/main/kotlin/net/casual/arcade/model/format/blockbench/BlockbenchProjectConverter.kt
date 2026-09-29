@@ -8,6 +8,10 @@ import it.unimi.dsi.fastutil.floats.FloatFloatPair
 import it.unimi.dsi.fastutil.ints.IntIntPair
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.model.ArcadeModelEngine
+import net.casual.arcade.model.animation.molang.MolangVec3
+import net.casual.arcade.model.animation.timeline.BoneTimeline
+import net.casual.arcade.model.animation.timeline.Keyframe
+import net.casual.arcade.model.animation.timeline.KeyframeChannel
 import net.casual.arcade.model.definition.BoneTag
 import net.casual.arcade.model.definition.ModelAnimation
 import net.casual.arcade.model.definition.ModelDefinition
@@ -23,6 +27,8 @@ import net.casual.arcade.utils.Identifier
 import net.casual.arcade.utils.IdentifierUtils
 import net.casual.arcade.utils.collection.component1
 import net.casual.arcade.utils.collection.component2
+import net.casual.arcade.utils.math.Easing
+import net.casual.arcade.utils.string.isUUID
 import net.minecraft.core.Direction
 import net.minecraft.resources.Identifier
 import org.joml.Vector3f
@@ -35,7 +41,6 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
-// TODO: Animations
 internal class BlockbenchProjectConverter(
     private val id: Identifier,
     private val project: BlockbenchProject,
@@ -186,9 +191,101 @@ internal class BlockbenchProjectConverter(
     }
 
     private fun convertAnimation(animation: BlockbenchProject.Animation, nodes: Map<UUID, ModelNode>): ModelAnimation {
-        val timelines = Object2ObjectOpenHashMap<UUID, >
-        // TODO:
-        return ModelAnimation()
+        val timelines = Object2ObjectOpenHashMap<UUID, BoneTimeline>()
+        for ((key, animator) in animation.animators) {
+            if (animator.type == "effect") {
+                TODO()
+            }
+            if (animator.type == "bone" && key.isUUID()) {
+                val uuid = UUID.fromString(key)
+                if (nodes.containsKey(uuid)) {
+                    timelines[uuid] = this.convertTimeline(animator)
+                }
+            }
+        }
+        return ModelAnimation.create(
+            animation.name,
+            animation.length,
+            animation.loop,
+            animation.override,
+            animation.startDelay,
+            animation.loopDelay,
+            timelines
+        )
+    }
+
+    private fun convertTimeline(animator: BlockbenchProject.Animator): BoneTimeline {
+        val channels = animator.keyframes.groupBy { keyframe -> keyframe.channel }
+        val position = this.convertKeyframeChannel(channels["position"], KeyframeChannel.Type.Position)
+        val rotation = this.convertKeyframeChannel(channels["rotation"], KeyframeChannel.Type.Rotation)
+        val scale = this.convertKeyframeChannel(channels["scale"], KeyframeChannel.Type.Scale)
+        return BoneTimeline(position, rotation, scale)
+    }
+
+    private fun convertKeyframeChannel(
+        keyframes: List<BlockbenchProject.Keyframe>?,
+        type: KeyframeChannel.Type
+    ): KeyframeChannel? {
+        if (keyframes != null) {
+            return KeyframeChannel.create(keyframes.map { keyframe -> this.convertKeyframe(keyframe, type) })
+        }
+        return null
+    }
+
+    private fun convertKeyframe(keyframe: BlockbenchProject.Keyframe, type: KeyframeChannel.Type): Keyframe {
+        val pre = this.convertVector(keyframe.dataPoints.getOrNull(0), type)
+        val post = this.convertVector(keyframe.dataPoints.getOrNull(0), type) { pre }
+        val bezier: Keyframe.BezierHandles? = null
+        if (keyframe.bezierLeftTime != null || keyframe.bezierRightTime != null) {
+            Keyframe.BezierHandles(
+                keyframe.bezierLeftTime ?: DEFAULT_LEFT_TIME,
+                this.flipVectorForKeyframeChannel(Vector3f(keyframe.bezierLeftValue), type),
+                keyframe.bezierRightTime ?: DEFAULT_RIGHT_TIME,
+                this.flipVectorForKeyframeChannel(Vector3f(keyframe.bezierRightValue), type)
+            )
+        }
+        val easing = BlockbenchEasing.from(keyframe.easing, keyframe.easingArgs ?: doubleArrayOf()) ?: Easing.LINEAR
+        return Keyframe(keyframe.time, pre, post, keyframe.interpolation, easing, bezier)
+    }
+
+    private fun convertVector(
+        point: BlockbenchProject.DataPoint?,
+        type: KeyframeChannel.Type,
+        fallback: () -> MolangVec3 = { this.fallbackVectorForKeyframeChannel(type) }
+    ): MolangVec3 {
+        if (point == null) {
+            return fallback.invoke()
+        }
+        val x = point.x
+        val y = point.y
+        val z = point.z
+        if (this.project.flipAnimationAxes) {
+            return when (type) {
+                KeyframeChannel.Type.Position -> MolangVec3(x.negate(), y, z)
+                KeyframeChannel.Type.Rotation -> MolangVec3(x.negate(), y.negate(), z)
+                KeyframeChannel.Type.Scale -> MolangVec3(x, y, z)
+            }
+        }
+        return MolangVec3(x, y, z)
+    }
+
+    private fun flipVectorForKeyframeChannel(vector: Vector3f, type: KeyframeChannel.Type): Vector3f {
+        if (this.project.flipAnimationAxes) {
+            return when (type) {
+                KeyframeChannel.Type.Position -> vector.mul(-1.0F, 1.0F, 1.0F)
+                KeyframeChannel.Type.Rotation -> vector.mul(-1.0F, -1.0F, 1.0F)
+                KeyframeChannel.Type.Scale -> vector
+            }
+        }
+        return vector
+    }
+
+    private fun fallbackVectorForKeyframeChannel(type: KeyframeChannel.Type): MolangVec3 {
+        return when (type) {
+            KeyframeChannel.Type.Position -> MolangVec3.ZERO
+            KeyframeChannel.Type.Rotation -> MolangVec3.ZERO
+            KeyframeChannel.Type.Scale -> MolangVec3.ONE
+        }
     }
 
     private fun extent(cubes: List<Cube>): Float {
@@ -294,5 +391,8 @@ internal class BlockbenchProjectConverter(
         const val BASE64_PREFIX = "base64,"
 
         val ROOT_UUID: UUID = UUID.nameUUIDFromBytes("${ArcadeModelEngine.MOD_ID}:root".toByteArray())
+
+        val DEFAULT_LEFT_TIME: Vector3fc = Vector3f(-0.1F)
+        val DEFAULT_RIGHT_TIME: Vector3fc = Vector3f(0.1F)
     }
 }

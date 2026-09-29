@@ -16,7 +16,6 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.serializer
 
 internal typealias LenientTextureId = @Serializable(with = JsonPrimitiveContentSerializer::class) String?
-internal typealias RawMolangExpression = @Serializable(with = JsonPrimitiveContentSerializer::class) String?
 
 @OptIn(ExperimentalSerializationApi::class)
 internal object JsonPrimitiveContentSerializer: KSerializer<String?> {

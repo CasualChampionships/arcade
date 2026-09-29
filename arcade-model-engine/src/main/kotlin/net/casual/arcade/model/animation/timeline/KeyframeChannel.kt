@@ -47,6 +47,10 @@ public class KeyframeChannel private constructor(
         }
     }
 
+    public enum class Type {
+        Position, Rotation, Scale;
+    }
+
     public companion object {
         public fun create(keyframes: List<Keyframe>): KeyframeChannel {
             return KeyframeChannel(keyframes.sortedBy { keyframe -> keyframe.time })

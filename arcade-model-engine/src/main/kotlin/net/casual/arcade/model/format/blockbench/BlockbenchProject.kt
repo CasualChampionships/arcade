@@ -12,10 +12,15 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
+import net.casual.arcade.model.animation.AnimationLoop
+import net.casual.arcade.model.animation.timeline.KeyframeInterpolation
+import net.casual.arcade.model.format.blockbench.serializer.KeyframeInterpolationSerializer
 import net.casual.arcade.model.format.blockbench.serializer.LenientFloat
 import net.casual.arcade.model.format.blockbench.serializer.LenientTextureId
-import net.casual.arcade.model.format.blockbench.serializer.RawMolangExpression
+import net.casual.arcade.model.format.blockbench.serializer.LoopAnimationSerializer
+import net.casual.arcade.model.format.blockbench.serializer.SerializableMolangExpression
 import net.casual.arcade.model.format.blockbench.serializer.SerializableVector3fc
+import net.casual.arcade.utils.math.Easing
 import net.fabricmc.loader.api.SemanticVersion
 import net.fabricmc.loader.impl.util.version.VersionParser
 import org.joml.Vector3f
@@ -114,7 +119,8 @@ internal sealed class BlockbenchProject {
     class Animation(
         val uuid: String? = null,
         val name: String,
-        val loop: String = "once",
+        @Serializable(with = LoopAnimationSerializer::class)
+        val loop: AnimationLoop = AnimationLoop.Once,
         val override: Boolean = false,
         val length: Float = 0.0F,
         @SerialName("start_delay")
@@ -137,7 +143,8 @@ internal sealed class BlockbenchProject {
         @SerialName("data_points")
         val dataPoints: List<DataPoint> = listOf(),
         val time: Float = 0.0F,
-        val interpolation: String = "linear",
+        @Serializable(with = KeyframeInterpolationSerializer::class)
+        val interpolation: KeyframeInterpolation = KeyframeInterpolation.Linear,
         val easing: String? = null,
         val easingArgs: DoubleArray? = null,
         @SerialName("bezier_left_time")
@@ -152,9 +159,9 @@ internal sealed class BlockbenchProject {
 
     @Serializable
     class DataPoint(
-        val x: RawMolangExpression = null,
-        val y: RawMolangExpression = null,
-        val z: RawMolangExpression = null,
+        val x: SerializableMolangExpression,
+        val y: SerializableMolangExpression,
+        val z: SerializableMolangExpression,
         val effect: String? = null,
         val file: String? = null,
         val script: String? = null
