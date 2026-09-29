@@ -9,4 +9,6 @@ dependencies {
 
 //    api(projects.arcadeResourcePack)
     compileOnly(projects.arcadeResourcePackGeneration)
+
+    include(implementation(libs.molang.compiler.get())!!)
 }

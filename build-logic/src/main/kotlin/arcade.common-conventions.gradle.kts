@@ -30,6 +30,7 @@ repositories {
     maven("https://maven.nucleoid.xyz")
     maven("https://maven.maxhenkel.de/repository/public")
     maven("https://maven4.bai.lol")
+    maven("https://maven.blamejared.com")
     mavenCentral()
 }
 

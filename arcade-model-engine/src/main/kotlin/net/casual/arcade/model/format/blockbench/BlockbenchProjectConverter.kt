@@ -6,6 +6,7 @@ package net.casual.arcade.model.format.blockbench
 
 import it.unimi.dsi.fastutil.floats.FloatFloatPair
 import it.unimi.dsi.fastutil.ints.IntIntPair
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.model.ArcadeModelEngine
 import net.casual.arcade.model.definition.BoneTag
 import net.casual.arcade.model.definition.ModelAnimation
@@ -185,6 +186,7 @@ internal class BlockbenchProjectConverter(
     }
 
     private fun convertAnimation(animation: BlockbenchProject.Animation, nodes: Map<UUID, ModelNode>): ModelAnimation {
+        val timelines = Object2ObjectOpenHashMap<UUID, >
         // TODO:
         return ModelAnimation()
     }

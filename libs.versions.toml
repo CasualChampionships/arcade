@@ -7,6 +7,7 @@ fabric-api          = "0.161.0+26.3"
 fabric-kotlin       = "1.14.1+kotlin.2.4.20"
 server-translations = "3.2.0+26.3"
 replay-studio       = "06978a304f"
+molang-compiler     = "3.1.1.19"
 
 # Compatibility
 carpet        = "26.3"
@@ -37,6 +38,7 @@ fabric-api             = { module = "net.fabricmc.fabric-api:fabric-api"   , ver
 fabric-kotlin          = { module = "net.fabricmc:fabric-language-kotlin"  , version.ref = "fabric-kotlin" }
 server-translations    = { module = "xyz.nucleoid:server-translations-api" , version.ref = "server-translations" }
 replay-studio          = { module = "com.github.ReplayMod:ReplayStudio"    , version.ref = "replay-studio" }
+molang-compiler        = { module = "gg.moonflower:molang-compiler"        , version.ref = "molang-compiler" }
 
 # Compatibility
 carpet        = { module = "com.github.gnembon:fabric-carpet"    , version.ref = "carpet" }
