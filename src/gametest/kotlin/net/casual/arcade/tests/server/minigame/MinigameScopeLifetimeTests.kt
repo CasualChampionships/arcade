@@ -15,6 +15,7 @@ import net.casual.arcade.tests.server.minigame.utils.TestMinigamePhase.Over
 import net.casual.arcade.tests.server.minigame.utils.minigame
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.TimeUtils.Ticks
+import net.casual.arcade.utils.arcade
 import net.casual.arcade.utils.coroutine.delay
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 
@@ -275,12 +276,88 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
     }
 
     @GameTest
+    fun `named scope is shared by id`(context: TestContext) = context.test {
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
+
+        val first = minigame.scopes.named(NAMED, MinigamePhaseLifetime.Forward)
+        val second = minigame.scopes.named(NAMED, MinigamePhaseLifetime.Forward)
+
+        assertTrue(first === second, "Getting a named scope twice created two scopes")
+        assertEquals(NAMED, first.id)
+    }
+
+    @GameTest
+    fun `named scope rejects a different lifetime`(context: TestContext) = context.test {
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
+        minigame.scopes.named(NAMED, MinigamePhaseLifetime.Forward)
+
+        assertThrows<IllegalArgumentException>("Named scope was fetched with a conflicting lifetime") {
+            minigame.scopes.named(NAMED, MinigamePhaseLifetime.Current)
+        }
+    }
+
+    @GameTest(maxTicks = 60)
+    fun `named scope is cancelled instead of closed`(context: TestContext) = context.test {
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
+        val scope = minigame.scopes.named(NAMED, MinigamePhaseLifetime.Current)
+
+        var ran = false
+        scope.schedule(5.Ticks) { ran = true }
+
+        minigame.phases.set(Active)
+
+        assertFalse(scope.closed, "Named scope closed when its lifetime ended")
+        delay(20.Ticks)
+        assertFalse(ran, "Task in a named scope ran after its lifetime ended")
+
+        var reran = false
+        scope.schedule(5.Ticks) { reran = true }
+        delay(20.Ticks)
+        assertTrue(reran, "Task scheduled into a named scope after its lifetime ended did not run")
+    }
+
+    @GameTest
+    fun `named scope cannot be closed manually`(context: TestContext) = context.test {
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
+        val scope = minigame.scopes.named(NAMED, MinigamePhaseLifetime.Forever)
+
+        scope.close()
+
+        assertFalse(scope.closed, "Named scope was closed manually")
+    }
+
+    @GameTest(maxTicks = 60)
+    fun `cancelling a scope keeps it open`(context: TestContext) = context.test {
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
+        val scope = minigame.scopes.create(MinigamePhaseLifetime.Forever)
+
+        var ran = false
+        var received = 0
+        scope.schedule(5.Ticks) { ran = true }
+        scope.register<TestMinigameEvent> { received += 1 }
+
+        scope.cancel()
+
+        assertFalse(scope.closed, "Cancelling a scope closed it")
+        GlobalEventHandler.Server.broadcast(TestMinigameEvent())
+        delay(20.Ticks)
+        assertFalse(ran, "Task ran after its scope was cancelled")
+        assertEquals(0, received, "Listener fired after its scope was cancelled")
+
+        var reran = false
+        scope.schedule(5.Ticks) { reran = true }
+        delay(20.Ticks)
+        assertTrue(reran, "Task scheduled into a cancelled scope did not run")
+    }
+
+    @GameTest
     fun `closing the minigame closes every scope`(context: TestContext) = context.test {
         val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
         val scopes = listOf(
             minigame.scopes.create(MinigamePhaseLifetime.Forever),
             minigame.scopes.create(MinigamePhaseLifetime.Current),
-            minigame.scopes.create(MinigamePhaseLifetime.Forward)
+            minigame.scopes.create(MinigamePhaseLifetime.Forward),
+            minigame.scopes.named(NAMED, MinigamePhaseLifetime.Forever)
         )
 
         minigame.close()
@@ -291,4 +368,6 @@ object MinigameScopeLifetimeTests: ArcadeTestSuite() {
         assertTrue(minigame.scopes.root.closed, "The root scope outlived its minigame")
         assertTrue(minigame.scopes.current.closed, "The current scope outlived its minigame")
     }
+
+    private val NAMED = arcade("test_named")
 }

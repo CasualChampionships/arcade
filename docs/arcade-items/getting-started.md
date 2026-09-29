@@ -7,15 +7,6 @@ which can generate the models and model definitions our items point at.
 
 ## Adding to Dependencies
 
-The extensions module depends on some other arcade modules; it's recommended that you
-include all of these.
+<!--@include: ../joystick.md#usage-->
 
-```kts
-repositories {
-    maven("https://maven.casualchampionships.net/snapshots")
-}
-
-dependencies {
-    include(implementation("net.casualchampionships:arcade-items:0.13.0-beta.1+26.2")!!)
-}
-```
+See [Joystick](../joystick.md) for what the plugin does and its options.

@@ -11,6 +11,7 @@ import de.maxhenkel.voicechat.api.VoicechatPlugin
 import de.maxhenkel.voicechat.api.events.*
 import de.maxhenkel.voicechat.api.packets.SoundPacket
 import de.maxhenkel.voicechat.net.*
+import de.maxhenkel.voicechat.plugins.PluginManager
 import de.maxhenkel.voicechat.plugins.impl.VolumeCategoryImpl
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.ServerTickEvent
@@ -211,7 +212,7 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
             val player = recorder.getPlayerOrThrow()
             if (server != null && server.hasSecret(player.uuid)) {
                 val secret = server.getSecret(player.uuid)
-                val packet = SecretPacket(player, secret, server.port, Voicechat.SERVER_CONFIG)
+                val packet = SecretPacket(player, secret, server.port, Voicechat.SERVER_CONFIG, "")
                 recorder.record(packet.toClientboundPacket())
             }
         }
@@ -229,7 +230,7 @@ public object ReplayVoicechatPlugin: VoicechatPlugin {
             if (server != null) {
                 @Suppress("Deprecation")
                 val player = recorder.getDummyPlayer()
-                val packet = SecretPacket(player, server.generateNewSecret(Util.NIL_UUID), server.port, Voicechat.SERVER_CONFIG)
+                val packet = SecretPacket(player, server.generateNewSecret(Util.NIL_UUID), server.port, Voicechat.SERVER_CONFIG, "")
                 recorder.record(packet.toClientboundPacket())
             }
         }

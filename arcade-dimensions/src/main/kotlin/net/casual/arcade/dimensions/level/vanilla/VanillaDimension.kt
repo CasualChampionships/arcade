@@ -84,6 +84,10 @@ public enum class VanillaDimension: StringRepresentable {
         return this == Overworld
     }
 
+    public fun getIdentifierPath(): String {
+        return this.getDimensionKey().identifier().path
+    }
+
     override fun getSerializedName(): String {
         return this.getDimensionKey().toIdString()
     }

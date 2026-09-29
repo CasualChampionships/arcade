@@ -5,8 +5,7 @@
 package net.casual.arcade.replay.io.writer.flashback
 
 import net.minecraft.network.FriendlyByteBuf
-import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket
-import net.minecraft.network.protocol.game.VecDeltaCodec
+import net.minecraft.util.Mth
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 
@@ -16,19 +15,20 @@ public data class ExactEntityPosition(
     val headRot: Float,
     val onGround: Boolean
 ) {
-    public fun update(packet: ClientboundMoveEntityPacket): ExactEntityPosition {
-        var (position, rotation, headRot, _) = this
-        if (packet.hasPosition()) {
-            val delta = VecDeltaCodec()
-            delta.base = this.position
-            val decoded = packet.positionDelta.decode(delta)
-            position = decoded.endPosition()
-        }
-        if (packet.hasRotation()) {
-            rotation = Vec2(packet.xRot, packet.yRot)
-            headRot = packet.yRot
-        }
-        return ExactEntityPosition(position, rotation, headRot, packet.isOnGround)
+    public fun lerp(other: ExactEntityPosition, delta: Float): ExactEntityPosition {
+        return ExactEntityPosition(
+            this.position.lerp(other.position, delta.toDouble()),
+            Vec2(
+                Mth.lerp(delta, this.rotation.x, other.rotation.x),
+                Mth.rotLerp(delta, this.rotation.y, other.rotation.y)
+            ),
+            Mth.rotLerp(delta, this.headRot, other.headRot),
+            other.onGround
+        )
+    }
+
+    public fun isSamePositionAndRotation(other: ExactEntityPosition): Boolean {
+        return this.position == other.position && this.rotation == other.rotation
     }
 
     public fun write(buf: FriendlyByteBuf) {

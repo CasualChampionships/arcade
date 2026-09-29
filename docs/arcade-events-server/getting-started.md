@@ -10,18 +10,6 @@ alongside the built-in events' system.
 
 ## Adding to Dependencies
 
-The events api depends on the arcade utilities module; it's recommended that you
-include both of these.
+<!--@include: ../joystick.md#usage-->
 
-```kts
-repositories {
-    maven("https://maven.casualchampionships.net/snapshots")
-}
-
-dependencies {
-    include(implementation("net.casualchampionships:arcade-events-server:0.13.0-beta.1+26.2")!!)
-
-    include(implementation("net.casualchampionships:arcade-event-registry:0.13.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-utils:0.13.0-beta.1+26.2")!!)
-}
-```
+See [Joystick](../joystick.md) for what the plugin does and its options.

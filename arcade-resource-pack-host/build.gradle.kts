@@ -4,5 +4,6 @@ plugins {
 
 dependencies {
     api(projects.arcadeUtils)
-    api(projects.arcadeInterceptor)
+
+    implementation(projects.arcadeInterceptor)
 }

@@ -8,6 +8,7 @@ import com.google.gson.JsonObject
 import io.netty.handler.codec.EncoderException
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.ints.IntArraySet
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
@@ -40,6 +41,9 @@ import net.minecraft.network.protocol.configuration.ClientboundFinishConfigurati
 import net.minecraft.network.protocol.game.*
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
+import net.minecraft.world.entity.MobCategory
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec2
@@ -58,7 +62,9 @@ public class FlashbackWriter(
 
     private val writer = FlashbackChunkedWriter(this.path, this.recorder.server.registryAccess(), this.recorder.settings)
 
-    private val positions = Object2ObjectOpenHashMap<ResourceKey<Level>, Int2ObjectOpenHashMap<ExactEntityPosition>>()
+    private val types = Int2ObjectOpenHashMap<EntityType<*>>()
+    private val positions = Object2ObjectOpenHashMap<ResourceKey<Level>, Int2ObjectOpenHashMap<InterpolatedEntityPosition>>()
+    private val interpolating = Object2ObjectOpenHashMap<ResourceKey<Level>, IntOpenHashSet>()
     private val dirty = Object2ObjectOpenHashMap<ResourceKey<Level>, IntArraySet>()
     private val chunks = Object2IntOpenHashMap<ChunkPacketIdentity>()
     private val recent = Object2ObjectOpenHashMap<ResourceKey<Level>, Long2IntOpenHashMap>()
@@ -178,7 +184,7 @@ public class FlashbackWriter(
             ByteBufCodecs.GAME_PROFILE.encode(buf, profile)
             buf.writeVarInt(gamemode)
         }
-        this.writePosition(player.id, position, rotation, headRot, dirty = false)
+        this.writePosition(player.id, position, rotation, headRot, EntityTypes.PLAYER, dirty = false)
         val filtered = packets.filter { it !is ClientboundAddEntityPacket }
         for (packet in filtered) {
             this.recorder.record(packet)
@@ -320,6 +326,8 @@ public class FlashbackWriter(
 
     private fun writeEntityMovement() {
         this.executor.execute {
+            this.tickInterpolations()
+
             val entries = this.dirty.entries.iterator()
             while (entries.hasNext()) {
                 val (dimension, ids) = entries.next()
@@ -350,11 +358,42 @@ public class FlashbackWriter(
                         while (iter.hasNext()) {
                             val id = iter.nextInt()
                             buf.writeVarInt(id)
-                            positions.get(id)!!.write(buf)
+                            positions.get(id)!!.position.write(buf)
                         }
                     }
                 }
                 this.dirty.clear()
+            }
+        }
+    }
+
+    private fun tickInterpolations() {
+        val entries = this.interpolating.entries.iterator()
+        while (entries.hasNext()) {
+            val (dimension, ids) = entries.next()
+            val positions = this.positions[dimension]
+            if (positions == null) {
+                entries.remove()
+                continue
+            }
+            val dirty = this.dirty.getOrPut(dimension, ::IntArraySet)
+            val iter = ids.iterator()
+            while (iter.hasNext()) {
+                val id = iter.nextInt()
+                val position = positions.get(id)
+                if (position == null) {
+                    iter.remove()
+                    continue
+                }
+                if (position.tick()) {
+                    dirty.add(id)
+                }
+                if (!position.interpolating) {
+                    iter.remove()
+                }
+            }
+            if (ids.isEmpty()) {
+                entries.remove()
             }
         }
     }
@@ -365,35 +404,74 @@ public class FlashbackWriter(
             Vec3(packet.x, packet.y, packet.z),
             Vec2(packet.xRot, packet.yRot),
             packet.yHeadRot,
+            packet.type,
             dirty = false
         )
         return packet
     }
 
+    private fun getInterpolationSteps(type: EntityType<*>?): Int {
+        if (type == null || type == EntityTypes.SHULKER) {
+            return 0
+        }
+        if (type.category != MobCategory.MISC || STEPPED_MISC_ENTITY_TYPES.contains(type)) {
+            return type.updateInterval()
+        }
+        return 0
+    }
+
     private fun removePositions(packet: ClientboundRemoveEntitiesPacket): ClientboundRemoveEntitiesPacket {
         this.executor.execute {
             val ids = packet.entityIds
-            this.dirty[this.currentClientDimension()]?.removeAll(ids)
+            val dimension = this.currentClientDimension()
+            this.dirty[dimension]?.removeAll(ids)
+            this.interpolating[dimension]?.removeAll(ids)
             this.getPositions().keys.removeAll(ids)
+            this.types.keys.removeAll(ids)
         }
         return packet
     }
 
     private fun updatePosition(packet: ClientboundEntityPositionSyncPacket): CompletableFuture<Int?> {
-        val position = packet.position.endPosition()
-        this.writePosition(packet.id, position, Vec2(packet.xRot, packet.yRot), packet.yRot)
+        this.executor.execute {
+            val rotation = Vec2(packet.xRot, packet.yRot)
+            val positions = this.getPositions()
+            val position = positions.getOrPut(packet.id) {
+                InterpolatedEntityPosition(
+                    ExactEntityPosition(packet.position.endPosition(), rotation, packet.yRot, packet.onGround),
+                    this.getInterpolationSteps(this.types.get(packet.id))
+                )
+            }
+            position.move(packet.position, rotation, packet.yRot, packet.onGround)
+            this.markMoving(packet.id)
+        }
         return CompletableFuture.completedFuture(ExactEntityPosition.size())
     }
 
     private fun updatePosition(packet: ClientboundMoveEntityPacket): CompletableFuture<Int?> {
         this.executor.execute {
             val id = (packet as ClientboundMoveEntityPacketAccessor).arcade_getEntityId()
-            val positions = this.getPositions()
-            val position = positions.get(id) ?: return@execute
-            positions.put(id, position.update(packet))
-            this.getDirtyPositions().add(id)
+            val position = this.getPositions().get(id) ?: return@execute
+            val rotation = if (packet.hasRotation()) Vec2(packet.xRot, packet.yRot) else null
+            if (packet.hasPosition()) {
+                val codec = VecDeltaCodec()
+                codec.base = position.base
+                position.move(packet.positionDelta.decode(codec), rotation, rotation?.y, packet.isOnGround)
+            } else if (rotation != null) {
+                position.rotate(rotation, rotation.y, packet.isOnGround)
+            }
+            this.markMoving(id)
         }
         return CompletableFuture.completedFuture(ExactEntityPosition.size())
+    }
+
+    private fun markMoving(id: Int) {
+        val dimension = this.currentClientDimension()
+        this.dirty.getOrPut(dimension, ::IntArraySet).add(id)
+        val position = this.positions[dimension]?.get(id) ?: return
+        if (position.interpolating) {
+            this.interpolating.getOrPut(dimension, ::IntOpenHashSet).add(id)
+        }
     }
 
     private fun writePosition(
@@ -401,19 +479,27 @@ public class FlashbackWriter(
         position: Vec3,
         rotation: Vec2,
         headRot: Float,
+        type: EntityType<*>,
         onGround: Boolean = false,
         dirty: Boolean = true
     ) {
         this.executor.execute {
-            val position = ExactEntityPosition(position, rotation, headRot, onGround,)
-            this.getPositions().put(id, position)
+            this.types.put(id, type)
+            val exact = ExactEntityPosition(position, rotation, headRot, onGround)
+            val positions = this.getPositions()
+            val existing = positions.get(id)
+            if (existing != null) {
+                existing.snap(exact)
+            } else {
+                positions.put(id, InterpolatedEntityPosition(exact, this.getInterpolationSteps(type)))
+            }
             if (dirty) {
                 this.getDirtyPositions().add(id)
             }
         }
     }
 
-    private fun getPositions(): Int2ObjectOpenHashMap<ExactEntityPosition> {
+    private fun getPositions(): Int2ObjectOpenHashMap<InterpolatedEntityPosition> {
         return this.positions.getOrPut(this.currentClientDimension(), ::Int2ObjectOpenHashMap)
     }
 
@@ -484,6 +570,16 @@ public class FlashbackWriter(
 
     public companion object {
         private val LOGGER = LoggerFactory.getLogger("flashback-writer")
+
+        private val STEPPED_MISC_ENTITY_TYPES = setOf(
+            EntityTypes.PLAYER,
+            EntityTypes.ARMOR_STAND,
+            EntityTypes.MANNEQUIN,
+            EntityTypes.VILLAGER,
+            EntityTypes.IRON_GOLEM,
+            EntityTypes.SNOW_GOLEM,
+            EntityTypes.COPPER_GOLEM
+        )
 
         private val IGNORED_PACKETS = setOf(
             ClientboundStartConfigurationPacket::class.java,

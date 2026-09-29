@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    api(projects.arcadeUtils)
+    implementation(projects.arcadeUtils)
 }

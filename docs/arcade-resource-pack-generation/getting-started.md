@@ -14,16 +14,6 @@ and the [resource pack host module](../arcade-resource-pack-host/getting-started
 
 ## Adding to Dependencies
 
-```kts
-repositories {
-    maven("https://maven.casualchampionships.net/snapshots")
-}
+<!--@include: ../joystick.md#usage-->
 
-dependencies {
-    include(implementation("net.casualchampionships:arcade-resource-pack-generation:0.13.0-beta.7+26.2")!!)
-
-    include(implementation("net.casualchampionships:arcade-resource-pack:0.13.0-beta.7+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-resource-pack-host:0.13.0-beta.7+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-utils:0.13.0-beta.7+26.2")!!)
-}
-```
+See [Joystick](../joystick.md) for what the plugin does and its options.

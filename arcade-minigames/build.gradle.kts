@@ -13,5 +13,9 @@ dependencies {
     api(projects.arcadeVirtualVisuals)
     api(projects.arcadeCommands)
     api(projects.arcadeDimensions)
-    api(projects.arcadeReplay)
+    api(projects.arcadeNametags)
+    api(projects.arcadeObservers)
+
+    implementation(projects.arcadeReplay)
+    implementation(projects.arcadeVirtualEntities)
 }

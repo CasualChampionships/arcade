@@ -7,12 +7,13 @@ package net.casual.arcade.gametest.utils
 import net.casual.arcade.gametest.TestContext
 import net.minecraft.core.BlockPos
 import net.minecraft.gametest.framework.GameTestMobBuilder
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.EntityTypes
-import net.minecraft.world.entity.Mob
-import net.minecraft.world.entity.monster.zombie.Zombie
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.Vec3
+import net.minecraft.world.scores.PlayerTeam
+import java.util.UUID
 
 public fun TestContext.targetMob(x: Int, y: Int, z: Int): GameTestMobBuilder<*> {
     return this.mob(EntityTypes.VINDICATOR, x, y, z).withNoFreeWill()
@@ -50,4 +51,14 @@ public fun TestContext.fill(from: BlockPos, to: BlockPos, block: Block) {
     for (pos in BlockPos.betweenClosed(from, to)) {
         this.helper.setBlock(pos, block)
     }
+}
+
+public fun TestContext.team(vararg players: ServerPlayer): PlayerTeam {
+    val scoreboard = this.server.scoreboard
+    val team = scoreboard.addPlayerTeam(UUID.randomUUID().toString())
+    this.track { scoreboard.removePlayerTeam(team) }
+    for (player in players) {
+        scoreboard.addPlayerToTeam(player.scoreboardName, team)
+    }
+    return team
 }

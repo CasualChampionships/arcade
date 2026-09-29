@@ -27,6 +27,7 @@ import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
+import org.jetbrains.annotations.ApiStatus.Internal
 import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
@@ -75,7 +76,9 @@ public class MinigameAdvancementManager(
      * @param advancement The advancement to add.
      */
     public fun add(advancement: AdvancementHolder) {
-        this.tree.addAll(listOf(advancement))
+        ScopedValue.where(SUPPRESS_LOGGING, true).run {
+            this.tree.addAll(listOf(advancement))
+        }
         val node = this.tree.get(advancement) ?: return
         TreeNodePosition.run(node.root())
     }
@@ -86,7 +89,9 @@ public class MinigameAdvancementManager(
      * @param advancements The advancements to add.
      */
     public fun addAll(advancements: Collection<AdvancementHolder>) {
-        this.tree.addAll(advancements)
+        ScopedValue.where(SUPPRESS_LOGGING, true).run {
+            this.tree.addAll(advancements)
+        }
 
         for (node in this.tree.roots()) {
             if (node.holder().value().display().isPresent) {
@@ -203,5 +208,11 @@ public class MinigameAdvancementManager(
                 this.players.put(uuid, id)
             }
         }
+    }
+
+    public companion object {
+        @Internal
+        @JvmField
+        public val SUPPRESS_LOGGING: ScopedValue<Boolean> = ScopedValue.newInstance()
     }
 }

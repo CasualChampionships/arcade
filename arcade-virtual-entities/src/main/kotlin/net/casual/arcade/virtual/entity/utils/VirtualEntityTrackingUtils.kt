@@ -15,8 +15,10 @@ public object VirtualEntityTrackingUtils {
         tracked: MutableCollection<VirtualEntity>
     ): Boolean {
         if (entity.canAttachTo(this) && tracked.add(entity)) {
-            observers.broadcast { observer ->
-                entity.startObservingAndSendPackets(observer)
+            if (this !is VirtualEntity || this.isAttached()) {
+                observers.broadcast { observer ->
+                    entity.startObservingAndSendPackets(observer)
+                }
             }
             return true
         }

@@ -7,9 +7,12 @@ package net.casual.arcade.gametest.minigame
 import net.casual.arcade.gametest.TestContext
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
+import net.casual.arcade.minigame.phase.MinigamePhase
 import net.casual.arcade.minigame.serialization.SerializableMinigame
 import net.casual.arcade.minigame.serialization.save
+import net.casual.arcade.utils.TimeUtils.Seconds
 import net.casual.arcade.utils.coroutine.joinBlocking
+import net.casual.arcade.utils.time.MinecraftTimeDuration
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.level.storage.LevelResource
 import java.nio.file.Path
@@ -31,10 +34,10 @@ public fun TestContext.track(minigame: Minigame) {
 }
 
 public fun <M> TestContext.reload(minigame: M): M where M: Minigame, M: SerializableMinigame {
-    val copy = saveCopy(minigame)
-    minigame.close()
+    minigame.save().joinBlocking(1.seconds)
+    minigame.unload()
 
-    val restored = Minigames.read(copy, this.server)
+    val restored = Minigames.read(minigame.getSavePath(), this.server)
     this.track(restored)
 
     val type = minigame.javaClass
@@ -55,7 +58,9 @@ public fun TestContext.copySave(minigame: Minigame): Path {
     return copy
 }
 
-private fun <M> TestContext.saveCopy(minigame: M): Path where M: Minigame, M: SerializableMinigame {
-    minigame.save().joinBlocking(1.seconds)
-    return this.copySave(minigame)
+public suspend fun TestContext.awaitPhase(minigame: Minigame, phase: MinigamePhase, timeout: MinecraftTimeDuration = 5.Seconds) {
+    this.assertTrue(minigame.phases.contains(phase), "Invalid phase '${phase}' provided to assertPhase for minigame ${minigame.id}")
+    this.assertEventually(timeout, "Timed out before minigame ${minigame.id} was at phase '${phase}'") {
+        minigame.state.isAt(phase)
+    }
 }

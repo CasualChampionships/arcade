@@ -9,20 +9,6 @@ as well as changing the structure in which the user handles custom worlds.
 
 ## Adding to Dependencies
 
-The dimensions module depends on some other arcade modules; it's recommended that you
-include all of these.
+<!--@include: ../joystick.md#usage-->
 
-```kts
-repositories {
-    maven("https://maven.casualchampionships.net/snapshots")
-}
-
-dependencies {
-    include(implementation("net.casualchampionships:arcade-dimensions:0.13.0-beta.1+26.2")!!)
-
-    include(implementation("net.casualchampionships:arcade-event-registry:0.13.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-events-server:0.13.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-extensions:0.13.0-beta.1+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-utils:0.13.0-beta.1+26.2")!!)
-}
-```
+See [Joystick](../joystick.md) for what the plugin does and its options.

@@ -6,22 +6,9 @@ translations.
 
 ## Adding to Dependencies
 
-The datagen module depends on some other arcade modules; it's recommended that you
-include all of these.
+<!--@include: ../joystick.md#usage-->
+
+See [Joystick](../joystick.md) for what the plugin does and its options.
 
 You probably do not want to depend on this in your main server project but instead
 have a separate project dedicated to data generation as this api contains client code.
-
-```kts
-repositories {
-    maven("https://maven.casualchampionships.net/snapshots")
-}
-
-dependencies {
-    include(implementation("net.casualchampionships:arcade-datagen:0.13.0-beta.7+26.2")!!)
-
-    include(implementation("net.casualchampionships:arcade-resource-pack:0.13.0-beta.7+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-resource-pack-generation:0.13.0-beta.7+26.2")!!)
-    include(implementation("net.casualchampionships:arcade-utils:0.13.0-beta.7+26.2")!!)
-}
-```

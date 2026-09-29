@@ -3,7 +3,8 @@ plugins {
 }
 
 dependencies {
-    api(projects.arcadeUtils)
     api(projects.arcadeResourcePack)
     api(projects.arcadeResourcePackHost)
+
+    implementation(projects.arcadeUtils)
 }

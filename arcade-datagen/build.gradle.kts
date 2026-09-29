@@ -5,7 +5,8 @@ plugins {
 dependencies {
     api(projects.arcadeResourcePack)
     api(projects.arcadeResourcePackGeneration)
-    api(projects.arcadeUtils)
+
+    implementation(projects.arcadeUtils)
 
     include(implementation("org.apache.commons:commons-text:1.11.0")!!)
 }

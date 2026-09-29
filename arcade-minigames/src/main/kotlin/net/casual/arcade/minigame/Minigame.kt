@@ -28,6 +28,7 @@ import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.level.storage.ValueOutput
+import org.jetbrains.annotations.ApiStatus.Internal
 import java.nio.file.Path
 import java.util.*
 import kotlin.enums.EnumEntries
@@ -466,6 +467,24 @@ public abstract class Minigame(
         this.events.clear()
 
         Minigames.unregister(this)
+    }
+
+    @Internal
+    public fun unload() {
+        if (this.closing || this.state is MinigameState.Closed) {
+            return
+        }
+        this.closing = true
+
+        GlobalEventHandler.Server.removeProvider(this.events)
+        this.events.clear()
+
+        this.players.unload()
+        this.levels.unload()
+
+        this.state = MinigameState.Closed(completed = false)
+
+        Minigames.unregister(this, delete = false)
     }
 
     override fun toString(): String {

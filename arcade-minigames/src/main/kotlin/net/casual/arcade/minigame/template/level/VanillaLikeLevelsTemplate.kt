@@ -111,7 +111,7 @@ public data class VanillaLikeLevelsTemplate(
         }
 
         private fun VanillaDimension.arcadeId(): Identifier {
-            return arcade(this.serializedName)
+            return arcade(this.getIdentifierPath())
         }
     }
 }

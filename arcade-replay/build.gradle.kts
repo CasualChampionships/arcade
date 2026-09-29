@@ -4,15 +4,17 @@ plugins {
     alias(libs.plugins.explosion)
 }
 
-val shade: Configuration by configurations.creating
+val shade: Configuration = configurations.create("shade")
 
 dependencies {
     api(projects.arcadeUtils)
     api(projects.arcadeEventRegistry)
-    api(projects.arcadeEventsServer)
-    api(projects.arcadeResourcePack)
     api(projects.arcadeResourcePackHost)
     api(projects.arcadeCommands)
+
+    implementation(projects.arcadeEventsServer)
+    implementation(projects.arcadeObservers)
+    implementation(projects.arcadeResourcePack)
 
     compileOnly(projects.arcadeVirtualEntities)
     compileOnly(projects.arcadeVirtualVisuals)
@@ -23,7 +25,12 @@ dependencies {
     compileOnly(libs.voicechat)
     compileOnly(libs.voicechat.api)
 
-    shade(api(libs.replay.studio.get())!!)
+    @Suppress("AvoidDuplicateDependencies")
+    run {
+        compileOnly(libs.replay.studio)
+        localRuntime(libs.replay.studio)
+        shade(libs.replay.studio)
+    }
 }
 
 loom {

@@ -13,6 +13,7 @@ import net.casual.arcade.minigame.events.MinigameCloseEvent
 import net.casual.arcade.minigame.events.MinigameCompleteEvent
 import net.casual.arcade.minigame.phase.MinigamePhaseLifetime
 import net.casual.arcade.tests.server.ArcadeTestSuite
+import net.casual.arcade.tests.server.minigame.utils.TestMinigameEvent
 import net.casual.arcade.tests.server.minigame.utils.TestMinigamePhase.Active
 import net.casual.arcade.tests.server.minigame.utils.TestMinigamePhase.Grace
 import net.casual.arcade.tests.server.minigame.utils.TestMinigameStage.GraceReleased
@@ -169,5 +170,18 @@ object MinigameTeardownTests: ArcadeTestSuite() {
         assertThrows<IllegalStateException> {
             minigame.phases.set(Active)
         }
+    }
+
+    @GameTest
+    fun `closing mid broadcast skips remaining listeners`(context: TestContext) = context.test {
+        val minigame = minigame().withoutPhaseLogic().phase(Grace).start()
+
+        var invoked = false
+        minigame.scopes.root.register<TestMinigameEvent>(priority = 0) { minigame.close() }
+        minigame.scopes.root.register<TestMinigameEvent>(priority = 1) { invoked = true }
+
+        GlobalEventHandler.Server.broadcast(TestMinigameEvent())
+
+        assertFalse(invoked, "Listener was invoked after its minigame closed")
     }
 }
