@@ -22,14 +22,19 @@ import net.casual.arcade.virtual.entity.SimpleParentVirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.display.SimpleVirtualItemDisplay
+import net.casual.arcade.virtual.entity.location.VirtualPosition
+import net.casual.arcade.virtual.entity.location.VirtualRotation
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
 import net.casual.arcade.virtual.entity.utils.location
 import net.minecraft.core.Holder
 import net.minecraft.network.protocol.game.ClientboundSoundPacket
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
+import net.minecraft.util.Mth
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
+import org.joml.Quaternionf
+import org.joml.Vector3f
 import java.util.UUID
 import kotlin.random.Random
 
@@ -100,8 +105,9 @@ public class ModelVirtualEntity(
             bone.startInterpolationIfBaseDirty()
         }
 
+        val rotation = this.rotation.get(this.anchor.location().rotation)
         for ((uuid, locator) in this.locators) {
-            locator.update(this.poses.getValue(uuid))
+            locator.update(this.poses.getValue(uuid), rotation)
         }
     }
 
@@ -133,7 +139,7 @@ public class ModelVirtualEntity(
     }
 
     private fun addLocatorNode(locator: ModelNode.Locator) {
-        this.locators[locator.uuid] = Locator(this.attachment.anchor)
+        this.locators[locator.uuid] = Locator()
     }
 
     private fun getPassengerIds(): IntArray {
@@ -152,14 +158,21 @@ public class ModelVirtualEntity(
         }
     }
 
-    public class Locator(
-        private val attachment: AttachmentAnchor
-    ) {
-        public val position: Vec3 = Vec3.ZERO
-        public val rotation: Vec2 = Vec2.ZERO
+    public class Locator {
+        private val orientation = Quaternionf()
+        private val offset = Vector3f()
 
-        internal fun update(pose: BonePose) {
-            // TODO
+        public var position: Vec3 = Vec3.ZERO
+        public var rotation: Vec2 = Vec2.ZERO
+
+        internal fun update(pose: BonePose, parentRot: Vec2) {
+            this.orientation.rotationYXZ(-Mth.DEG_TO_RAD * parentRot.y, Mth.DEG_TO_RAD * parentRot.x, 0.0F)
+            pose.position(this.offset).rotate(this.orientation)
+            this.position = Vec3(this.offset)
+
+            val rotation = pose.rotation()
+            val euler = rotation.getEulerAnglesYXZ(Vector3f())
+            this.rotation = Vec2(Mth.RAD_TO_DEG * euler.x, -Mth.RAD_TO_DEG * euler.y)
         }
     }
 
