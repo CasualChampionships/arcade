@@ -11,8 +11,7 @@ public class ModelDefinition private constructor(
     public val id: Identifier,
     public val roots: List<ModelNode>,
     public val textures: List<ModelTexture>,
-    public val width: Float,
-    public val height: Float,
+    public val bounds: ModelBounds,
     private val animations: Map<String, ModelAnimation>,
     private val nodesByName: Map<String, ModelNode>
 ) {
@@ -54,8 +53,7 @@ public class ModelDefinition private constructor(
             roots: List<ModelNode>,
             animations: Map<String, ModelAnimation>,
             textures: List<ModelTexture>,
-            width: Float,
-            height: Float
+            bounds: ModelBounds
         ): ModelDefinition {
             val byName = Object2ObjectLinkedOpenHashMap<String, ModelNode>()
             // val byUUID = Object2ObjectLinkedOpenHashMap<UUID, ModelNode>()
@@ -66,7 +64,7 @@ public class ModelDefinition private constructor(
                 }
             }
 
-            return ModelDefinition(id, roots.toList(), textures.toList(), width, height, animations.toMap(), byName)
+            return ModelDefinition(id, roots.toList(), textures.toList(), bounds, animations.toMap(), byName)
         }
     }
 }

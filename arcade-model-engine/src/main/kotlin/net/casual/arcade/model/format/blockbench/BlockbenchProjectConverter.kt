@@ -15,10 +15,12 @@ import net.casual.arcade.model.animation.timeline.Keyframe
 import net.casual.arcade.model.animation.timeline.KeyframeChannel
 import net.casual.arcade.model.definition.BoneTag
 import net.casual.arcade.model.definition.ModelAnimation
+import net.casual.arcade.model.definition.ModelBounds
 import net.casual.arcade.model.definition.ModelDefinition
 import net.casual.arcade.model.definition.ModelNode
 import net.casual.arcade.model.definition.ModelTexture
 import net.casual.arcade.model.format.ModelFormatException
+import net.casual.arcade.model.format.ModelLoadOptions
 import net.casual.arcade.model.format.blockbench.BlockbenchProject.Outliner
 import net.casual.arcade.model.geometry.BoneGeometry
 import net.casual.arcade.model.geometry.Cube
@@ -46,6 +48,7 @@ import kotlin.math.min
 internal class BlockbenchProjectConverter(
     private val id: Identifier,
     private val project: BlockbenchProject,
+    private val options: ModelLoadOptions
 ) {
     private val elementsByUUID = this.project.elements.associateBy { element -> element.uuid }
 
@@ -77,8 +80,7 @@ internal class BlockbenchProjectConverter(
             animation.name to this.convertAnimation(animation, nodesByUUID)
         }
 
-        val (width, height) = this.bounds()
-        return ModelDefinition.create(this.id, roots, animations, this.textures, width, height)
+        return ModelDefinition.create(this.id, roots, animations, this.textures, this.bounds())
     }
 
     private fun convertGroupToBone(
@@ -172,7 +174,9 @@ internal class BlockbenchProjectConverter(
 
         cubes.add(Cube.create(from, to, cubeOrigin, rotation, faces, element.shade, element.lightEmission))
 
-        // TODO: Add backfaces?
+        if (this.options.addBackfaces) {
+            TODO("Not implemented yet")
+        }
     }
 
     private fun convertElementToLocator(
@@ -188,8 +192,7 @@ internal class BlockbenchProjectConverter(
     }
 
     private fun computeBoneTags(name: String, parentTags: Set<BoneTag>): Set<BoneTag> {
-        // TODO: Compute tags from name
-        return parentTags
+        return this.options.boneTagResolver.resolve(name, parentTags)
     }
 
     private fun convertAnimation(animation: BlockbenchProject.Animation, nodes: Map<UUID, ModelNode>): ModelAnimation {
@@ -322,13 +325,17 @@ internal class BlockbenchProjectConverter(
         return extent
     }
 
-    private fun bounds(): FloatFloatPair {
+    private fun bounds(): ModelBounds {
+        if (this.options.boundsOverride != null) {
+            return this.options.boundsOverride
+        }
+
         if (this.min.x > this.max.x) {
-            return FloatFloatPair.of(1.0F, 1.0F)
+            return ModelBounds(1.0F, 1.0F)
         }
         val width = max(this.max.x - this.min.x, this.max.z - this.min.z) / 16.0F
         val height = (this.max.y - this.min.y) / 16.0F
-        return FloatFloatPair.of(width, height)
+        return ModelBounds(width, height)
     }
 
     private fun validate() {

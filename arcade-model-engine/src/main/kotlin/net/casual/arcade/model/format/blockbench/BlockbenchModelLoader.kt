@@ -9,6 +9,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import net.casual.arcade.model.definition.ModelDefinition
 import net.casual.arcade.model.format.ModelFormatException
+import net.casual.arcade.model.format.ModelLoadOptions
 import net.casual.arcade.model.format.ModelLoader
 import net.minecraft.resources.Identifier
 import java.io.InputStream
@@ -21,12 +22,12 @@ public object BlockbenchModelLoader: ModelLoader {
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    public override fun load(id: Identifier, stream: InputStream): ModelDefinition {
+    public override fun load(id: Identifier, stream: InputStream, options: ModelLoadOptions): ModelDefinition {
         val project = try {
             this.json.decodeFromStream<BlockbenchProject>(stream)
         } catch (e: Exception) {
             throw ModelFormatException("Failed to load blockbench model $id", e)
         }
-        return BlockbenchProjectConverter(id, project).convert()
+        return BlockbenchProjectConverter(id, project, options).convert()
     }
 }

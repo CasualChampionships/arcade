@@ -11,9 +11,13 @@ import java.nio.file.Path
 import kotlin.io.path.inputStream
 
 public interface ModelLoader {
-    public fun load(id: Identifier, stream: InputStream): ModelDefinition
+    public fun load(
+        id: Identifier,
+        stream: InputStream,
+        options: ModelLoadOptions = ModelLoadOptions.DEFAULT
+    ): ModelDefinition
 
-    public fun load(id: Identifier, path: Path): ModelDefinition {
-        return path.inputStream().use { stream -> this.load(id, stream) }
+    public fun load(id: Identifier, path: Path, options: ModelLoadOptions = ModelLoadOptions.DEFAULT): ModelDefinition {
+        return path.inputStream().use { stream -> this.load(id, stream, options) }
     }
 }
