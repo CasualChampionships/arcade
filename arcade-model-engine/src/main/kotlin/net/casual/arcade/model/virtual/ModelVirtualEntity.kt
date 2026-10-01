@@ -6,10 +6,12 @@ package net.casual.arcade.model.virtual
 
 import it.unimi.dsi.fastutil.ints.IntArrayList
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
+import net.casual.arcade.model.animation.ModelAnimationInstance
 import net.casual.arcade.model.animation.ModelAnimator
 import net.casual.arcade.model.animation.molang.MolangScope
 import net.casual.arcade.model.animation.pose.BonePose
 import net.casual.arcade.model.animation.pose.ModelPoser
+import net.casual.arcade.model.animation.timeline.EffectKeyframe
 import net.casual.arcade.model.definition.ModelDefinition
 import net.casual.arcade.model.definition.ModelNode
 import net.casual.arcade.observer.Observer
@@ -21,9 +23,15 @@ import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.display.SimpleVirtualItemDisplay
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
+import net.casual.arcade.virtual.entity.utils.location
+import net.minecraft.core.Holder
+import net.minecraft.network.protocol.game.ClientboundSoundPacket
+import net.minecraft.sounds.SoundEvent
+import net.minecraft.sounds.SoundSource
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import java.util.UUID
+import kotlin.random.Random
 
 public class ModelVirtualEntity(
     private val definition: ModelDefinition,
@@ -45,6 +53,9 @@ public class ModelVirtualEntity(
     private var teleportInterpolation = DEFAULT_INTERPOLATION
 
     private var age = 0
+
+    public var soundHandler: SoundEffectHandler = SoundEffectHandler(this)
+    public var commandHandler: CommandEffectHandler = CommandEffectHandler.Noop
 
     init {
         this.initialize()
@@ -77,7 +88,7 @@ public class ModelVirtualEntity(
         this.age++
         this.scope.lifetime = this.age / 20.0F
 
-        this.animator.tick()
+        this.animator.tick(this::handleEffectKeyframe)
         this.updatePoses()
     }
 
@@ -134,6 +145,13 @@ public class ModelVirtualEntity(
         return ids.toIntArray()
     }
 
+    private fun handleEffectKeyframe(animation: ModelAnimationInstance, effect: EffectKeyframe) {
+        when (effect) {
+            is EffectKeyframe.Sound -> this.soundHandler.handle(effect)
+            is EffectKeyframe.Command -> this.commandHandler.handle(animation, effect)
+        }
+    }
+
     public class Locator(
         private val attachment: AttachmentAnchor
     ) {
@@ -142,6 +160,31 @@ public class ModelVirtualEntity(
 
         internal fun update(pose: BonePose) {
             // TODO
+        }
+    }
+
+    public class SoundEffectHandler(
+        private val model: ModelVirtualEntity,
+        public var source: SoundSource = SoundSource.MASTER,
+        public var volume: Float = 1.0F,
+        public var pitch: Float = 1.0F
+    ) {
+        public fun handle(effect: EffectKeyframe.Sound) {
+            val sound = Holder.direct(SoundEvent.createVariableRangeEvent(effect.sound))
+            val position = this.model.location().position
+            this.model.observers.broadcast(
+                ClientboundSoundPacket(sound, this.source, position.x, position.y, position.z, this.volume, this.pitch, Random.nextLong())
+            )
+        }
+    }
+
+    public interface CommandEffectHandler {
+        public fun handle(animation: ModelAnimationInstance, effect: EffectKeyframe.Command)
+
+        public object Noop: CommandEffectHandler {
+            override fun handle(animation: ModelAnimationInstance, effect: EffectKeyframe.Command) {
+
+            }
         }
     }
 

@@ -6,6 +6,7 @@ package net.casual.arcade.model.animation
 
 import net.casual.arcade.model.animation.molang.MolangScope
 import net.casual.arcade.model.animation.pose.BoneTransform
+import net.casual.arcade.model.animation.timeline.EffectKeyframe
 import net.casual.arcade.model.definition.ModelDefinition
 import net.casual.arcade.model.definition.ModelNode
 import net.casual.arcade.utils.error.RichResult
@@ -99,11 +100,11 @@ public class ModelAnimator(
         }
     }
 
-    internal fun tick() {
+    internal fun tick(effects: EffectKeyframe.Handler) {
         val iterator = this.instances.iterator()
         while (iterator.hasNext()) {
             val instance = iterator.next()
-            instance.tick()
+            instance.tick(effects)
             if (instance.finished) {
                 iterator.remove()
             }

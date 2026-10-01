@@ -17,8 +17,13 @@ public sealed class ModelNode(
     private val tags: Set<BoneTag>,
     private val children: List<ModelNode>
 ) {
-    // TODO:
     private var parent: ModelNode? = null
+
+    init {
+        for (node in this.children) {
+            node.parent = this
+        }
+    }
 
     public val isRoot: Boolean
         get() = this.parent == null

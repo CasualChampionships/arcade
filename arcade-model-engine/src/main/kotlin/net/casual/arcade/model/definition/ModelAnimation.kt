@@ -6,6 +6,7 @@ package net.casual.arcade.model.definition
 
 import net.casual.arcade.model.animation.AnimationLoop
 import net.casual.arcade.model.animation.timeline.BoneTimeline
+import net.casual.arcade.model.animation.timeline.EffectKeyframe
 import java.util.UUID
 
 public class ModelAnimation private constructor(
@@ -15,6 +16,7 @@ public class ModelAnimation private constructor(
     public val override: Boolean,
     public val startDelay: Float,
     public val loopDelay: Float,
+    public val effects: List<EffectKeyframe>,
     private val timelines: Map<UUID, BoneTimeline>
 ) {
     public fun affects(node: UUID): Boolean {
@@ -33,9 +35,11 @@ public class ModelAnimation private constructor(
             override: Boolean,
             startDelay: Float,
             loopDelay: Float,
+            effects: List<EffectKeyframe>,
             timelines: Map<UUID, BoneTimeline>
         ): ModelAnimation {
-            return ModelAnimation(name, length, loop, override, startDelay, loopDelay, timelines.toMap())
+            val sortedEffects = effects.sortedBy { it.time }
+            return ModelAnimation(name, length, loop, override, startDelay, loopDelay, sortedEffects, timelines.toMap())
         }
     }
 }

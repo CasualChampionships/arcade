@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import net.casual.arcade.model.ArcadeModelEngine
 import net.casual.arcade.model.animation.molang.MolangVec3
 import net.casual.arcade.model.animation.timeline.BoneTimeline
+import net.casual.arcade.model.animation.timeline.EffectKeyframe
 import net.casual.arcade.model.animation.timeline.Keyframe
 import net.casual.arcade.model.animation.timeline.KeyframeChannel
 import net.casual.arcade.model.definition.BoneTag
@@ -37,6 +38,7 @@ import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.util.*
 import javax.imageio.ImageIO
+import kotlin.collections.iterator
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -192,9 +194,11 @@ internal class BlockbenchProjectConverter(
 
     private fun convertAnimation(animation: BlockbenchProject.Animation, nodes: Map<UUID, ModelNode>): ModelAnimation {
         val timelines = Object2ObjectOpenHashMap<UUID, BoneTimeline>()
+        val effects = ArrayList<EffectKeyframe>()
         for ((key, animator) in animation.animators) {
             if (animator.type == "effect") {
-                TODO()
+                effects.addAll(this.convertEffects(animator))
+                continue
             }
             if (animator.type == "bone" && key.isUUID()) {
                 val uuid = UUID.fromString(key)
@@ -210,8 +214,28 @@ internal class BlockbenchProjectConverter(
             animation.override,
             animation.startDelay,
             animation.loopDelay,
+            effects,
             timelines
         )
+    }
+
+    private fun convertEffects(animator: BlockbenchProject.Animator): List<EffectKeyframe> {
+        val effects = ArrayList<EffectKeyframe>()
+        for (keyframe in animator.keyframes) {
+            for (point in keyframe.dataPoints) {
+                when (keyframe.channel) {
+                    "sound" -> {
+                        val sound = Identifier.tryParse(point.effect ?: continue) ?: continue
+                        effects.add(EffectKeyframe.Sound(keyframe.time, sound))
+                    }
+                    "timeline" -> {
+                        val script = point.script ?: continue
+                        effects.add(EffectKeyframe.Command(keyframe.time, script))
+                    }
+                }
+            }
+        }
+        return effects
     }
 
     private fun convertTimeline(animator: BlockbenchProject.Animator): BoneTimeline {

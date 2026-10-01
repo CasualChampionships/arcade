@@ -7,12 +7,12 @@ package net.casual.arcade.model.animation
 import kotlinx.coroutines.Job
 import net.casual.arcade.model.animation.molang.MolangScope
 import net.casual.arcade.model.animation.pose.BoneTransform
+import net.casual.arcade.model.animation.timeline.EffectKeyframe
 import net.casual.arcade.model.definition.ModelAnimation
 import net.casual.arcade.model.definition.ModelNode
 import net.minecraft.util.Mth
 import kotlin.math.max
 
-// TODO: Effect keyframes
 public class ModelAnimationInstance(
     private val animation: ModelAnimation
 ) {
@@ -96,12 +96,12 @@ public class ModelAnimationInstance(
         this.completion.join()
     }
 
-    internal fun tick() {
+    internal fun tick(effects: EffectKeyframe.Handler) {
         this.age++
         when (this.state) {
             State.Paused, State.Finished, State.Held -> {}
             State.Fading -> {
-                this.advance()
+                this.advance(effects)
                 if (--this.fadeOutRemaining <= 0) {
                     this.finish()
                 }
@@ -113,7 +113,7 @@ public class ModelAnimationInstance(
                     this.state = State.Playing
                 }
             }
-            State.Playing -> this.advance()
+            State.Playing -> this.advance(effects)
         }
     }
 
@@ -127,15 +127,17 @@ public class ModelAnimationInstance(
         return timeline.sample(this.time, scope, dest)
     }
 
-    private fun advance() {
+    private fun advance(effects: EffectKeyframe.Handler) {
         val length = this.animation.length
         val previous = this.time
         var current = previous + this.speed / 20.0F
         if (current < length || length <= 0.0F) {
             this.time = current
+            this.handleEffects(effects, previous, current)
             return
         }
 
+        this.handleEffects(effects, previous, length)
         when (this.loop) {
             AnimationLoop.Once -> {
                 this.time = length
@@ -153,10 +155,21 @@ public class ModelAnimationInstance(
                 this.loops++
                 current -= length
                 this.time = current
+                this.handleEffects(effects, -1.0F, current)
                 if (this.animation.loopDelay > 0.0F && this.state != State.Fading) {
                     this.delayRemaining = this.animation.loopDelay
                     this.state = State.Delayed
                 }
+            }
+        }
+    }
+
+    private fun handleEffects(handler: EffectKeyframe.Handler, from: Float, to: Float) {
+        for (effect in this.animation.effects) {
+            if (effect.time > from && effect.time <= to) {
+                handler.handle(this, effect)
+            } else if (from < 0.0F && effect.time == 0.0F) {
+                handler.handle(this, effect)
             }
         }
     }
