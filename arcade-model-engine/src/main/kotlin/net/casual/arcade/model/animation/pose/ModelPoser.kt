@@ -5,6 +5,7 @@
 package net.casual.arcade.model.animation.pose
 
 import net.casual.arcade.model.animation.ModelAnimator
+import net.casual.arcade.model.animation.molang.MolangScope
 import net.casual.arcade.model.definition.ModelDefinition
 import net.casual.arcade.model.definition.ModelNode
 import net.minecraft.util.Mth
@@ -22,10 +23,10 @@ internal class ModelPoser(
     private val rotation = Quaternionf()
     private val offset = Vector3f()
 
-    fun pose(animator: ModelAnimator, scale: Float, poses: Map<UUID, BonePose>) {
+    fun pose(animator: ModelAnimator, scope: MolangScope, scale: Float, poses: Map<UUID, BonePose>) {
         this.root.rotationY(Mth.PI).scale(scale)
         for (node in this.definition.roots) {
-            this.pose(node, this.root, animator, poses)
+            this.pose(node, this.root, animator, scope, poses)
         }
     }
 
@@ -33,10 +34,11 @@ internal class ModelPoser(
         node: ModelNode,
         parent: Matrix4fc,
         animator: ModelAnimator,
+        scope: MolangScope,
         poses: Map<UUID, BonePose>
     ) {
         val transform = this.transform.identity()
-        animator.animate(node, transform)
+        animator.animate(node, scope, transform)
 
         val pose = poses.getValue(node.uuid).raw().set(parent)
         val rotation = transform.rotation
@@ -51,7 +53,7 @@ internal class ModelPoser(
         pose.scale(transform.scale)
 
         for (child in node.children()) {
-            this.pose(child, pose, animator, poses)
+            this.pose(child, pose, animator, scope, poses)
         }
     }
 }

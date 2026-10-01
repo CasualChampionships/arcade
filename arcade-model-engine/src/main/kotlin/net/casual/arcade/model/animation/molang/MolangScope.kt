@@ -16,8 +16,8 @@ public class MolangScope {
         .setQuery("life_time", CompiledMolangExpression.of(this.lifeTimeVar))
         .create()
 
-    public var animTime: Float by this.animTimeVar
-    public var lifeTime: Float by this.lifeTimeVar
+    public var animtime: Float by this.animTimeVar
+    public var lifetime: Float by this.lifeTimeVar
 
     internal fun eval(expression: CompiledMolangExpression): Float {
         return this.runtime.resolve(expression)

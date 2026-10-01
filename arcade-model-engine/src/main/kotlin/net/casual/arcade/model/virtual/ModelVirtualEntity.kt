@@ -7,6 +7,7 @@ package net.casual.arcade.model.virtual
 import it.unimi.dsi.fastutil.ints.IntArrayList
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import net.casual.arcade.model.animation.ModelAnimator
+import net.casual.arcade.model.animation.molang.MolangScope
 import net.casual.arcade.model.animation.pose.BonePose
 import net.casual.arcade.model.animation.pose.ModelPoser
 import net.casual.arcade.model.definition.ModelDefinition
@@ -35,11 +36,15 @@ public class ModelVirtualEntity(
     private val locators = Object2ObjectLinkedOpenHashMap<UUID, Locator>()
     private val poses = Object2ObjectLinkedOpenHashMap<UUID, BonePose>()
 
+    private val scope = MolangScope()
+
     private val animator = ModelAnimator(this.definition)
     private val poser = ModelPoser(this.definition)
 
     private var transformInterpolation = DEFAULT_INTERPOLATION
     private var teleportInterpolation = DEFAULT_INTERPOLATION
+
+    private var age = 0
 
     init {
         this.initialize()
@@ -69,11 +74,15 @@ public class ModelVirtualEntity(
     }
 
     override fun updateChildren() {
+        this.age++
+        this.scope.lifetime = this.age / 20.0F
+
+        this.animator.tick()
         this.updatePoses()
     }
 
     private fun updatePoses() {
-        this.poser.pose(this.animator, 1.0F, this.poses)
+        this.poser.pose(this.animator, this.scope, 1.0F, this.poses)
 
         for ((uuid, bone) in this.bones) {
             bone.pose(this.poses.getValue(uuid))

@@ -15,8 +15,16 @@ public class ModelAnimation private constructor(
     public val override: Boolean,
     public val startDelay: Float,
     public val loopDelay: Float,
-    public val timelines: Map<UUID, BoneTimeline>
+    private val timelines: Map<UUID, BoneTimeline>
 ) {
+    public fun affects(node: UUID): Boolean {
+        return this.timelines.containsKey(node)
+    }
+
+    public fun timeline(node: UUID): BoneTimeline? {
+        return this.timelines[node]
+    }
+
     public companion object {
         public fun create(
             name: String,
