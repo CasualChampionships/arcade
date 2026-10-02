@@ -9,33 +9,33 @@ import net.casual.arcade.model.animation.pose.BoneTransform
 import net.casual.arcade.model.animation.timeline.EffectKeyframe
 import net.casual.arcade.model.definition.ModelDefinition
 import net.casual.arcade.model.definition.ModelNode
-import net.casual.arcade.utils.error.RichResult
 import org.joml.Vector3f
-import java.util.PriorityQueue
-import java.util.TreeSet
+import java.util.*
 
 public class ModelAnimator(
     private val definition: ModelDefinition
 ) {
-    private val instances = ArrayList<ModelAnimationInstance>()
+    private val instances = TreeSet(COMPARATOR)
+    private var counter = 0
+
     private val sample = BoneTransform()
 
     public val idle: Boolean
         get() = this.instances.isEmpty()
 
-    public fun play(name: String): ModelAnimationInstance? {
+    public fun play(name: String, options: ModelAnimationOptions = ModelAnimationOptions.DEFAULT): ModelAnimationInstance? {
         val existing = this.get(name)
         if (existing != null) {
             existing.resume()
             return existing
         }
-        return this.replay(name)
+        return this.replay(name, options)
     }
 
-    public fun replay(name: String): ModelAnimationInstance? {
+    public fun replay(name: String, options: ModelAnimationOptions = ModelAnimationOptions.DEFAULT): ModelAnimationInstance? {
         val animation = this.definition.animation(name) ?: return null
         this.stop(name)
-        val instance = ModelAnimationInstance(animation)
+        val instance = ModelAnimationInstance(animation, options, this.counter++)
         this.instances.add(instance)
         return instance
     }
@@ -109,5 +109,10 @@ public class ModelAnimator(
                 iterator.remove()
             }
         }
+    }
+
+    private companion object {
+        val COMPARATOR = Comparator.comparing<ModelAnimationInstance, _> { instance -> instance.priority }
+            .thenBy { instance -> instance.order }
     }
 }

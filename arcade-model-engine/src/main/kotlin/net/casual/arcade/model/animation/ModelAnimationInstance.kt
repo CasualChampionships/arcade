@@ -13,29 +13,35 @@ import net.casual.arcade.model.definition.ModelNode
 import net.minecraft.util.Mth
 import kotlin.math.max
 
-public class ModelAnimationInstance(
-    private val animation: ModelAnimation
+public class ModelAnimationInstance internal constructor(
+    private val animation: ModelAnimation,
+    private val options: ModelAnimationOptions,
+    internal val order: Int
 ) {
-    private var age = 0
+    private val speed: Float = this.options.speed
+    private val weight: Float = this.options.weight
+
+    private val completion = Job()
+
     private var delayRemaining = this.animation.startDelay
 
-    private var fadeInTotal = 0
+    private val fadeInTotal = this.options.fadeIn
     private var fadeOutTotal = 0
     private var fadeOutRemaining = 0
 
-    private var speed: Float = 1.0F
-    private var weight: Float = 1.0F
+    private var age = 0
 
-    private val completion = Job()
+    internal val priority: Int
+        get() = this.options.priority
 
     public val name: String
         get() = this.animation.name
 
     public val loop: AnimationLoop
-        get() = this.animation.loop
+        get() = this.options.loop ?: this.animation.loop
 
     public val override: Boolean
-        get() = this.animation.override
+        get() = this.options.override ?: this.animation.override
 
     public val stopped: Boolean
         get() = this.state == State.Fading || this.state == State.Finished
@@ -64,7 +70,7 @@ public class ModelAnimationInstance(
         }
     }
 
-    public fun stop(fade: Int = 0) {
+    public fun stop(fade: Int = this.options.fadeOut) {
         if (this.state == State.Finished || this.state == State.Fading) {
             return
         }
