@@ -101,7 +101,7 @@ public class ModelVirtualEntity(
         val hitbox = this.hitbox ?: this.attachWithParentObservers(::SimpleVirtualInteractionEntity)
         hitbox.isPassenger = true
         hitbox.setWidth(bounds.width)
-        hitbox.setWidth(bounds.height)
+        hitbox.setHeight(bounds.height)
         hitbox.setInteractionHandlerProvider { interaction }
 
         this.hitbox = hitbox

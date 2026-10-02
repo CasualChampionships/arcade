@@ -13,7 +13,7 @@ public class BoneTimeline(
     public val scale: KeyframeChannel?
 ) {
     public val isConstant: Boolean
-        get() = this.position.isConstantOrNull || this.rotation.isConstantOrNull || this.scale.isConstantOrNull
+        get() = this.position.isConstantOrNull && this.rotation.isConstantOrNull && this.scale.isConstantOrNull
 
     public val length: Float
         get() = maxOf(this.position?.length ?: 0.0F, this.rotation?.length ?: 0.0F, this.scale?.length ?: 0.0F)

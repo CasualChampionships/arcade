@@ -58,7 +58,7 @@ public class MolangExpression private constructor(
             if (constant != null) {
                 return constant(constant)
             }
-            return CACHE.computeIfAbsent(source, ::compile)
+            return CACHE.computeIfAbsent(trimmed, ::compile)
         }
 
         private fun compile(source: String): MolangExpression {

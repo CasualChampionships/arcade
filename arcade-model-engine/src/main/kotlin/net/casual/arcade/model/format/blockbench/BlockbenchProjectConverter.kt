@@ -179,11 +179,13 @@ internal class BlockbenchProjectConverter(
             }
         }
 
-        cubes.add(Cube.create(from, to, cubeOrigin, rotation, faces, element.shade, element.lightEmission))
-
+        val backfaces = ArrayList<Cube>()
         if (this.options.addBackfaces) {
-            this.addCubeBackfacesToBone(element, cubeOrigin, rotation, from, to, faces, coverage, cubes)
+            this.addCubeBackfacesToBone(element, cubeOrigin, rotation, from, to, faces, coverage, backfaces)
         }
+
+        cubes.add(Cube.create(from, to, cubeOrigin, rotation, faces, element.shade, element.lightEmission))
+        cubes.addAll(backfaces)
     }
 
     private fun addCubeBackfacesToBone(
