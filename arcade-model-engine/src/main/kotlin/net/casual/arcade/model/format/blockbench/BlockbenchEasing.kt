@@ -25,9 +25,9 @@ internal object BlockbenchEasing {
             return Easing.LINEAR
         }
         val (type, base) = when {
+            name.startsWith("easeInOut") -> EaseType.InOut to name.removePrefix("easeInOut")
             name.startsWith("easeIn") -> EaseType.In to name.removePrefix("easeIn")
             name.startsWith("easeOut") -> EaseType.Out to name.removePrefix("easeOut")
-            name.startsWith("easeInOut") -> EaseType.InOut to name.removePrefix("easeInOut")
             else -> return this.fromLegacy(name, args)
         }
         val easing = BASES[base]?.invoke(args) ?: return null
