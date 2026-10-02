@@ -305,10 +305,10 @@ internal class BlockbenchProjectConverter(
 
     private fun convertKeyframe(keyframe: BlockbenchProject.Keyframe, type: KeyframeChannel.Type): Keyframe {
         val pre = this.convertVector(keyframe.dataPoints.getOrNull(0), type)
-        val post = this.convertVector(keyframe.dataPoints.getOrNull(0), type) { pre }
-        val bezier: Keyframe.BezierHandles? = null
+        val post = this.convertVector(keyframe.dataPoints.getOrNull(1), type) { pre }
+        var bezier: Keyframe.BezierHandles? = null
         if (keyframe.bezierLeftTime != null || keyframe.bezierRightTime != null) {
-            Keyframe.BezierHandles(
+            bezier = Keyframe.BezierHandles(
                 keyframe.bezierLeftTime ?: DEFAULT_LEFT_TIME,
                 this.flipVectorForKeyframeChannel(Vector3f(keyframe.bezierLeftValue), type),
                 keyframe.bezierRightTime ?: DEFAULT_RIGHT_TIME,
@@ -442,7 +442,9 @@ internal class BlockbenchProjectConverter(
                 ImageIO.read(ByteArrayInputStream(bytes))
             } catch (e: IOException) {
                 throw ModelFormatException("Texture '${texture.name}' couldn't be read!", e)
-            }
+            } catch (e: IllegalArgumentException) {
+                throw ModelFormatException("Texture '${texture.name}' couldn't be read!", e)
+            } ?: throw ModelFormatException("Texture '${texture.name}' isn't in a supported image format!")
             val name = this.uniqueTextureName(texture.name)
             this.textures.add(ModelTexture(name, image, texture.width, texture.height, texture.frameTime))
             if (texture.uuid != null) {
