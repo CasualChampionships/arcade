@@ -15,14 +15,14 @@ import org.joml.Vector3f
 
 @Serializable
 internal class BlockbenchProjectV5(
-    override val meta: Metadata,
-    override val name: String?,
-    override val resolution: Resolution?,
-    override val elements: List<Element>,
-    override val textures: List<Texture>,
-    override val animations: List<Animation>,
-    private val outliner: List<OutlinerV5>,
-    private val groups: List<Group>
+    override val meta: Metadata = Metadata(),
+    override val name: String? = null,
+    override val resolution: Resolution? = null,
+    override val elements: List<Element> = listOf(),
+    override val textures: List<Texture> = listOf(),
+    override val animations: List<Animation> = listOf(),
+    private val outliner: List<OutlinerV5> = listOf(),
+    private val groups: List<Group> = listOf()
 ): BlockbenchProject() {
     override val flipAnimationAxes: Boolean
         get() = false

@@ -13,6 +13,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import net.casual.arcade.model.animation.AnimationLoop
+import net.casual.arcade.model.animation.molang.MolangExpression
 import net.casual.arcade.model.animation.timeline.KeyframeInterpolation
 import net.casual.arcade.model.format.blockbench.serializer.KeyframeInterpolationSerializer
 import net.casual.arcade.model.format.blockbench.serializer.LenientFloat
@@ -20,7 +21,6 @@ import net.casual.arcade.model.format.blockbench.serializer.LenientTextureId
 import net.casual.arcade.model.format.blockbench.serializer.LoopAnimationSerializer
 import net.casual.arcade.model.format.blockbench.serializer.SerializableMolangExpression
 import net.casual.arcade.model.format.blockbench.serializer.SerializableVector3fc
-import net.casual.arcade.utils.math.Easing
 import net.fabricmc.loader.api.SemanticVersion
 import net.fabricmc.loader.impl.util.version.VersionParser
 import org.joml.Vector3f
@@ -159,9 +159,9 @@ internal sealed class BlockbenchProject {
 
     @Serializable
     class DataPoint(
-        val x: SerializableMolangExpression,
-        val y: SerializableMolangExpression,
-        val z: SerializableMolangExpression,
+        val x: SerializableMolangExpression = MolangExpression.ZERO,
+        val y: SerializableMolangExpression = MolangExpression.ZERO,
+        val z: SerializableMolangExpression = MolangExpression.ZERO,
         val effect: String? = null,
         val file: String? = null,
         val script: String? = null
