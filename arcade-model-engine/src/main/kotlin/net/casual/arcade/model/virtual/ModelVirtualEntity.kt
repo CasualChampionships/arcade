@@ -12,6 +12,7 @@ import net.casual.arcade.model.animation.molang.MolangScope
 import net.casual.arcade.model.animation.pose.BonePose
 import net.casual.arcade.model.animation.pose.ModelPoser
 import net.casual.arcade.model.animation.timeline.EffectKeyframe
+import net.casual.arcade.model.definition.ModelBounds
 import net.casual.arcade.model.definition.ModelDefinition
 import net.casual.arcade.model.definition.ModelNode
 import net.casual.arcade.observer.Observer
@@ -19,9 +20,11 @@ import net.casual.arcade.observer.tracker.ObserverTracker
 import net.casual.arcade.utils.ClientboundSetPassengersPacket
 import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.virtual.entity.SimpleParentVirtualEntity
+import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.display.SimpleVirtualItemDisplay
+import net.casual.arcade.virtual.entity.interaction.SimpleVirtualInteractionEntity
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
@@ -59,6 +62,9 @@ public class ModelVirtualEntity(
 
     private var age = 0
 
+    public var hitbox: SimpleVirtualInteractionEntity? = null
+        private set
+
     public var soundHandler: SoundEffectHandler = SoundEffectHandler(this)
     public var commandHandler: CommandEffectHandler = CommandEffectHandler.Noop
 
@@ -82,6 +88,30 @@ public class ModelVirtualEntity(
 
     public fun locators(): Collection<Locator> {
         return this.locators.values
+    }
+
+    public fun animator(): ModelAnimator {
+        return this.animator
+    }
+
+    public fun setHitbox(
+        bounds: ModelBounds = this.definition.bounds,
+        interaction: VirtualEntity.InteractionHandler? = null
+    ): SimpleVirtualInteractionEntity {
+        val hitbox = this.hitbox ?: this.attachWithParentObservers(::SimpleVirtualInteractionEntity)
+        hitbox.isPassenger = true
+        hitbox.setWidth(bounds.width)
+        hitbox.setWidth(bounds.height)
+        hitbox.setInteractionHandlerProvider { interaction }
+
+        this.hitbox = hitbox
+        return hitbox
+    }
+
+    public fun removeHitbox() {
+        val hitbox = this.hitbox ?: return
+        this.detach(hitbox)
+        this.hitbox = null
     }
 
     override fun sendSpawnPackets(observer: Observer, sender: PacketSender) {
@@ -147,7 +177,10 @@ public class ModelVirtualEntity(
         for (bone in this.bones()) {
             ids.add(bone.id)
         }
-        // TODO: Hitbox
+        val hitbox = this.hitbox
+        if (hitbox != null) {
+            ids.add(hitbox.id)
+        }
         return ids.toIntArray()
     }
 

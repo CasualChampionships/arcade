@@ -21,6 +21,7 @@ import net.casual.arcade.tests.manual.resource_pack.TestResourcePacks
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
+import net.casual.arcade.virtual.entity.interaction.EntityInteraction
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
 import net.casual.arcade.virtual.entity.utils.attach
@@ -67,12 +68,24 @@ object ModelCommand: CommandTree<CommandSourceStack> {
         val location = context.source.location
 
         val model = IdentifierArgument.getId(context, "id")
-        val definition =this.definitions[model] ?: return context.source.fail("No such model with id '$model'")
+        val definition = this.definitions[model] ?: return context.source.fail("No such model with id '$model'")
 
         val attachment = level.createVirtualEntityAttachment(::SimpleVirtualEntityAttachment)
         val entity = attachment.attach { ModelVirtualEntity(definition, it, SimpleObserverTracker()) }
         entity.position = VirtualPosition.Absolute(location.position)
         entity.rotation = VirtualRotation.Absolute(location.rotation)
+
+        entity.setHitbox { player, interaction ->
+            if (interaction is EntityInteraction.Use) {
+                entity.animator().stop()
+            } else if (interaction == EntityInteraction.Attack) {
+                val anim = definition.animations().randomOrNull()
+                if (anim != null) {
+                    entity.animator().play(anim.name)
+                }
+            }
+        }
+
         return context.source.success("Successfully spawned model '$model'")
     }
 }
