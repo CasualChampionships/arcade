@@ -42,6 +42,8 @@ import java.util.*
 import javax.imageio.ImageIO
 import kotlin.collections.iterator
 import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
@@ -105,6 +107,7 @@ internal class BlockbenchProjectConverter(
         val pivot = origin.sub(parentOrigin, Vector3f()).div(16.0F)
         val geometry = when {
             cubes.isEmpty() || !group.export || tags.contains(BoneTag.HITBOX) -> null
+            this.rotates(group.uuid) -> this.createGeometry(name, cubes, Vector3f())
             else -> this.createGeometry(name, cubes, pivot)
         }
         return ModelNode.Bone(name, UUID.fromString(group.uuid), pivot, rotation, tags, children, geometry)
@@ -160,6 +163,7 @@ internal class BlockbenchProjectConverter(
         val rotation = element.rotation
 
         val faces = EnumUtils.mapOf<Direction, CubeFace>()
+        val coverage = EnumUtils.mapOf<Direction, Coverage>()
         for ((key, face) in element.faces) {
             val direction = Direction.byName(key) ?: continue
             val texture = this.getTextureIndex(face.texture) ?: continue
@@ -170,12 +174,50 @@ internal class BlockbenchProjectConverter(
 
             val (scaleU, scaleV) = this.uvScale(texture)
             faces[direction] = CubeFace(uv[0] * scaleU, uv[1] * scaleV, uv[2] * scaleU, uv[3] * scaleV, texture, face.rotation)
+            if (this.options.addBackfaces) {
+                coverage[direction] = this.coverage(texture, uv)
+            }
         }
 
         cubes.add(Cube.create(from, to, cubeOrigin, rotation, faces, element.shade, element.lightEmission))
 
         if (this.options.addBackfaces) {
-            TODO("Not implemented yet")
+            this.addCubeBackfacesToBone(element, cubeOrigin, rotation, from, to, faces, coverage, cubes)
+        }
+    }
+
+    private fun addCubeBackfacesToBone(
+        element: BlockbenchProject.Element,
+        cubeOrigin: Vector3fc,
+        rotation: Vector3fc,
+        from: Vector3fc,
+        to: Vector3fc,
+        faces: MutableMap<Direction, CubeFace>,
+        coverage: Map<Direction, Coverage>,
+        cubes: MutableList<Cube>
+    ) {
+        if (Direction.entries.all { dir -> coverage[dir] == Coverage.Full }) {
+            return
+        }
+        for ((direction, face) in faces.entries.toList()) {
+            if (coverage[direction] == Coverage.None || this.project.textures[face.texture].renderSides == "front") {
+                continue
+            }
+            val axis = direction.axis
+            val opposite = direction.opposite
+            val back = this.mirror(face, axis)
+            if (from[axis.ordinal] == to[axis.ordinal]) {
+                if (coverage[opposite] == null || coverage[opposite] == Coverage.None) {
+                    faces[opposite] = back
+                }
+                continue
+            }
+            val plane = (if (direction.axisDirection == Direction.AxisDirection.POSITIVE) to else from)[axis.ordinal]
+            val backFrom = Vector3f(from).setComponent(axis.ordinal, plane)
+            val backTo = Vector3f(to).setComponent(axis.ordinal, plane)
+            val backFaces = EnumUtils.mapOf<Direction, CubeFace>()
+            backFaces[opposite] = back
+            cubes.add(Cube.create(backFrom, backTo, cubeOrigin, rotation, backFaces, element.shade, element.lightEmission))
         }
     }
 
@@ -315,6 +357,37 @@ internal class BlockbenchProjectConverter(
         }
     }
 
+    private fun mirror(face: CubeFace, axis: Direction.Axis): CubeFace {
+        val rotation = (360 - face.rotation) % 360
+        return if (axis == Direction.Axis.Y) {
+            CubeFace(face.u0, face.v1, face.u1, face.v0, face.texture, rotation)
+        } else {
+            CubeFace(face.u1, face.v0, face.u0, face.v1, face.texture, rotation)
+        }
+    }
+
+    private fun coverage(texture: Int, uv: FloatArray): Coverage {
+        val image = this.textures[texture].image
+        val scale = image.width.toFloat() / this.uvSize(texture).firstInt()
+        val x0 = floor(min(uv[0], uv[2]) * scale).toInt().coerceIn(0, image.width)
+        val x1 = ceil(max(uv[0], uv[2]) * scale).toInt().coerceIn(0, image.width)
+        val y0 = floor(min(uv[1], uv[3]) * scale).toInt().coerceIn(0, image.height)
+        val y1 = ceil(max(uv[1], uv[3]) * scale).toInt().coerceIn(0, image.height)
+        if (x0 >= x1 || y0 >= y1) {
+            return Coverage.None
+        }
+        var painted = false
+        var opaque = true
+        for (y in y0 until y1) {
+            for (x in x0 until x1) {
+                val alpha = image.getRGB(x, y) ushr 24
+                painted = painted || alpha != 0
+                opaque = opaque && alpha == 0xFF
+            }
+        }
+        return if (!painted) Coverage.None else if (opaque) Coverage.Full else Coverage.Partial
+    }
+
     private fun extent(cubes: List<Cube>): Float {
         var extent = 0.0F
         for (cube in cubes) {
@@ -336,6 +409,12 @@ internal class BlockbenchProjectConverter(
         val width = max(this.max.x - this.min.x, this.max.z - this.min.z) / 16.0F
         val height = (this.max.y - this.min.y) / 16.0F
         return ModelBounds(width, height)
+    }
+
+    private fun rotates(uuid: String): Boolean {
+        return this.project.animations.any { animation ->
+            animation.animators[uuid]?.keyframes?.any { it.channel == "rotation" } == true
+        }
     }
 
     private fun validate() {
@@ -416,6 +495,10 @@ internal class BlockbenchProjectConverter(
         return name.lowercase().map {
             if (IdentifierUtils.isValidNamespaceChar(it)) it else '_'
         }.joinToString("")
+    }
+
+    private enum class Coverage {
+        None, Partial, Full
     }
 
     private companion object {

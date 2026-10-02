@@ -2,15 +2,9 @@ package net.casual.arcade.tests.manual.commands
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
-import net.casual.arcade.commands.CommandTree
-import net.casual.arcade.commands.argument
-import net.casual.arcade.commands.executes
-import net.casual.arcade.commands.fail
-import net.casual.arcade.commands.literal
-import net.casual.arcade.commands.location
-import net.casual.arcade.commands.success
-import net.casual.arcade.commands.suggests
+import net.casual.arcade.commands.*
 import net.casual.arcade.model.definition.ModelDefinition
+import net.casual.arcade.model.format.ModelLoadOptions
 import net.casual.arcade.model.format.blockbench.BlockbenchModelLoader
 import net.casual.arcade.model.pack.addModel
 import net.casual.arcade.model.virtual.ModelVirtualEntity
@@ -18,7 +12,6 @@ import net.casual.arcade.observer.tracker.SimpleObserverTracker
 import net.casual.arcade.pack.generation.PackDefinition
 import net.casual.arcade.tests.manual.ArcadeTest
 import net.casual.arcade.tests.manual.resource_pack.TestResourcePacks
-import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.arcade
 import net.casual.arcade.virtual.entity.attachment.SimpleVirtualEntityAttachment
 import net.casual.arcade.virtual.entity.interaction.EntityInteraction
@@ -46,7 +39,7 @@ object ModelCommand: CommandTree<CommandSourceStack> {
         val models = ArcadeTest.container.findPath("models").get()
         for (model in models.listDirectoryEntries("*.bbmodel")) {
             val id = arcade(model.nameWithoutExtension)
-            this.definitions[id] = BlockbenchModelLoader.load(id, model)
+            this.definitions[id] = BlockbenchModelLoader.load(id, model, ModelLoadOptions(addBackfaces = true))
         }
 
         TestResourcePacks.register("model-engine", this.pack)
