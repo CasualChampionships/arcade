@@ -13,7 +13,7 @@ import org.joml.Vector3f
 import kotlin.math.abs
 
 public class KeyframeChannel private constructor(
-    private val keyframes: List<Keyframe>
+    public val keyframes: List<Keyframe>
 ) {
     public val isConstant: Boolean = this.keyframes.all { keyframe -> keyframe.isConstant }
 

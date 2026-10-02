@@ -103,10 +103,11 @@ public class ModelAnimationInstance internal constructor(
     }
 
     internal fun tick(effects: EffectKeyframe.Handler) {
-        this.age++
         when (this.state) {
-            State.Paused, State.Finished, State.Held -> {}
+            State.Paused, State.Finished -> {}
+            State.Held -> this.age++
             State.Fading -> {
+                this.age++
                 this.advance(effects)
                 if (--this.fadeOutRemaining <= 0) {
                     this.finish()
@@ -119,7 +120,10 @@ public class ModelAnimationInstance internal constructor(
                     this.state = State.Playing
                 }
             }
-            State.Playing -> this.advance(effects)
+            State.Playing -> {
+                this.age++
+                this.advance(effects)
+            }
         }
     }
 

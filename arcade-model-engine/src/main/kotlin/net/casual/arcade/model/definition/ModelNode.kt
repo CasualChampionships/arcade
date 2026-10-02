@@ -17,7 +17,8 @@ public sealed class ModelNode(
     private val tags: Set<BoneTag>,
     private val children: List<ModelNode>
 ) {
-    private var parent: ModelNode? = null
+    public var parent: ModelNode? = null
+        private set
 
     init {
         for (node in this.children) {

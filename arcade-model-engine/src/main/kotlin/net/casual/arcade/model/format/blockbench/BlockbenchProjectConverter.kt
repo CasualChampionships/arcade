@@ -110,6 +110,9 @@ internal class BlockbenchProjectConverter(
             this.rotates(group.uuid) -> this.createGeometry(name, cubes, Vector3f())
             else -> this.createGeometry(name, cubes, pivot)
         }
+        if (geometry != null) {
+            this.expandBounds(cubes, origin)
+        }
         return ModelNode.Bone(name, UUID.fromString(group.uuid), pivot, rotation, tags, children, geometry)
     }
 
@@ -152,8 +155,6 @@ internal class BlockbenchProjectConverter(
     ) {
         val from = Vector3f(element.from)
         val to = Vector3f(element.to)
-        this.min.min(from)
-        this.max.max(to)
 
         val inflate = element.inflate
         from.sub(inflate, inflate, inflate).sub(origin)
@@ -177,6 +178,10 @@ internal class BlockbenchProjectConverter(
             if (this.options.addBackfaces) {
                 coverage[direction] = this.coverage(texture, uv)
             }
+        }
+
+        if (faces.isEmpty()) {
+            return
         }
 
         val backfaces = ArrayList<Cube>()
@@ -398,6 +403,13 @@ internal class BlockbenchProjectConverter(
             }
         }
         return extent
+    }
+
+    private fun expandBounds(cubes: List<Cube>, origin: Vector3fc) {
+        for (cube in cubes) {
+            this.min.min(cube.from.add(origin, Vector3f()))
+            this.max.max(cube.to.add(origin, Vector3f()))
+        }
     }
 
     private fun bounds(): ModelBounds {

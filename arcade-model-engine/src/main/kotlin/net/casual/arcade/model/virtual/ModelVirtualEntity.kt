@@ -22,11 +22,8 @@ import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.virtual.entity.SimpleParentVirtualEntity
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
-import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
 import net.casual.arcade.virtual.entity.display.SimpleVirtualItemDisplay
 import net.casual.arcade.virtual.entity.interaction.SimpleVirtualInteractionEntity
-import net.casual.arcade.virtual.entity.location.VirtualPosition
-import net.casual.arcade.virtual.entity.location.VirtualRotation
 import net.casual.arcade.virtual.entity.utils.attachWithParentObservers
 import net.casual.arcade.virtual.entity.utils.location
 import net.minecraft.core.Holder
@@ -38,7 +35,7 @@ import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.joml.Quaternionf
 import org.joml.Vector3f
-import java.util.UUID
+import java.util.*
 import kotlin.random.Random
 
 public class ModelVirtualEntity(
@@ -98,13 +95,17 @@ public class ModelVirtualEntity(
         bounds: ModelBounds = this.definition.bounds,
         interaction: VirtualEntity.InteractionHandler? = null
     ): SimpleVirtualInteractionEntity {
-        val hitbox = this.hitbox ?: this.attachWithParentObservers(::SimpleVirtualInteractionEntity)
+        val existing = this.hitbox
+        val hitbox = existing ?: this.attachWithParentObservers(::SimpleVirtualInteractionEntity)
         hitbox.isPassenger = true
         hitbox.setWidth(bounds.width)
         hitbox.setHeight(bounds.height)
         hitbox.setInteractionHandlerProvider { interaction }
 
         this.hitbox = hitbox
+        if (existing == null) {
+            this.broadcastPassengers()
+        }
         return hitbox
     }
 
@@ -112,6 +113,7 @@ public class ModelVirtualEntity(
         val hitbox = this.hitbox ?: return
         this.detach(hitbox)
         this.hitbox = null
+        this.broadcastPassengers()
     }
 
     override fun sendSpawnPackets(observer: Observer, sender: PacketSender) {
@@ -172,6 +174,10 @@ public class ModelVirtualEntity(
         this.locators[locator.uuid] = Locator()
     }
 
+    private fun broadcastPassengers() {
+        this.observers.broadcast(ClientboundSetPassengersPacket(this.root.id, this.getPassengerIds()))
+    }
+
     private fun getPassengerIds(): IntArray {
         val ids = IntArrayList(this.bones.size + 1)
         for (bone in this.bones()) {
@@ -203,7 +209,7 @@ public class ModelVirtualEntity(
             pose.position(this.offset).rotate(this.orientation)
             this.position = Vec3(this.offset)
 
-            val rotation = pose.rotation()
+            val rotation = this.orientation.mul(pose.rotation())
             val euler = rotation.getEulerAnglesYXZ(Vector3f())
             this.rotation = Vec2(Mth.RAD_TO_DEG * euler.x, -Mth.RAD_TO_DEG * euler.y)
         }

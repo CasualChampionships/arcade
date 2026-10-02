@@ -48,7 +48,13 @@ public class ModelAnimator(
         this.get(name)?.resume()
     }
 
-    public fun stop(name: String, fade: Int = 0): Boolean {
+    public fun stop(name: String): Boolean {
+        val instance = this.get(name) ?: return false
+        instance.stop()
+        return true
+    }
+
+    public fun stop(name: String, fade: Int): Boolean {
         val instance = this.get(name) ?: return false
         instance.stop(fade)
         return true
@@ -57,6 +63,12 @@ public class ModelAnimator(
     public fun stop() {
         for (instance in this.instances) {
             instance.stop()
+        }
+    }
+
+    public fun stop(fade: Int) {
+        for (instance in this.instances) {
+            instance.stop(fade)
         }
     }
 
@@ -101,13 +113,11 @@ public class ModelAnimator(
     }
 
     internal fun tick(effects: EffectKeyframe.Handler) {
-        val iterator = this.instances.iterator()
-        while (iterator.hasNext()) {
-            val instance = iterator.next()
-            instance.tick(effects)
-            if (instance.finished) {
-                iterator.remove()
+        if (this.instances.isNotEmpty()) {
+            for (instance in this.instances.toTypedArray()) {
+                instance.tick(effects)
             }
+            this.instances.removeIf(ModelAnimationInstance::finished)
         }
     }
 
