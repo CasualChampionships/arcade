@@ -12,9 +12,9 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.serializer
 import net.casual.arcade.model.animation.molang.MolangExpression
 
-public typealias SerializableMolangExpression = @Serializable(with = MolangExpressionSerializer::class) MolangExpression
+internal typealias SerializableMolangExpression = @Serializable(with = MolangExpressionSerializer::class) MolangExpression
 
-public object MolangExpressionSerializer: KSerializer<MolangExpression> {
+internal object MolangExpressionSerializer: KSerializer<MolangExpression> {
     override val descriptor: SerialDescriptor = serializer<String>().descriptor
 
     override fun serialize(encoder: Encoder, value: MolangExpression) {

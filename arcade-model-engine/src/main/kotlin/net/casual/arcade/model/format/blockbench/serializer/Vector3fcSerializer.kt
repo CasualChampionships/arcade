@@ -13,7 +13,7 @@ import kotlinx.serialization.encoding.Encoder
 import org.joml.Vector3f
 import org.joml.Vector3fc
 
-public typealias SerializableVector3fc = @Serializable(with = Vector3fcSerializer::class) Vector3fc
+internal typealias SerializableVector3fc = @Serializable(with = Vector3fcSerializer::class) Vector3fc
 
 internal object Vector3fcSerializer: KSerializer<Vector3fc> {
     private val delegate = FloatArraySerializer()

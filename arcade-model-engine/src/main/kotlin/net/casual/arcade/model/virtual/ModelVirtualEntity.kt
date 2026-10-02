@@ -135,7 +135,7 @@ public class ModelVirtualEntity(
             bone.startInterpolationIfBaseDirty()
         }
 
-        val rotation = this.rotation.get(this.anchor.location().rotation)
+        val rotation = this.location().rotation
         for ((uuid, locator) in this.locators) {
             locator.update(this.poses.getValue(uuid), rotation)
         }

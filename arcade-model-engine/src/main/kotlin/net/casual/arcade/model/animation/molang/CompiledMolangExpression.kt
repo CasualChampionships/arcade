@@ -6,4 +6,4 @@ package net.casual.arcade.model.animation.molang
 
 import gg.moonflower.molangcompiler.api.MolangExpression
 
-public typealias CompiledMolangExpression = MolangExpression
+internal typealias CompiledMolangExpression = MolangExpression
