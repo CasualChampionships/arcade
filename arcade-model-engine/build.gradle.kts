@@ -3,12 +3,12 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.arcadeObservers)
-    implementation(projects.arcadeUtils)
-    implementation(projects.arcadeVirtualEntities)
-
-//    api(projects.arcadeResourcePack)
-    compileOnly(projects.arcadeResourcePackGeneration)
+    api(projects.arcadeObservers)
+    api(projects.arcadeUtils)
+    api(projects.arcadeVirtualEntities)
 
     include(implementation(libs.molang.compiler.get())!!)
+
+    compileOnly(projects.arcadeResourcePackGeneration)
+    testImplementation(projects.arcadeResourcePackGeneration)
 }
