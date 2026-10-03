@@ -15,6 +15,7 @@ import net.casual.arcade.pack.generation.PackDefinition
 import net.casual.arcade.pack.generation.utils.add
 import net.casual.arcade.pack.utils.ResourcePackUtils.sendResourcePack
 import net.casual.arcade.pack.utils.ResourcePackUtils.toPackInfo
+import net.casual.arcade.tests.manual.resource_pack.TestResourcePacks
 import net.casual.arcade.utils.coroutine.launch
 import net.casual.arcade.utils.server.players
 import net.minecraft.commands.CommandBuildContext
@@ -22,18 +23,11 @@ import net.minecraft.commands.CommandSourceStack
 
 @Suppress("Unused")
 object ResourcePackCommand: CommandTree<CommandSourceStack> {
-    private val registered = HashMultimap.create<String, PackDefinition>()
-
-    init {
-        this.register("player_heads", BuiltInResourcePacks.PIXEL_FONT_PACK, BuiltInResourcePacks.SPACING_FONT_PACK)
-        this.register("boundary", BuiltInResourcePacks.BOUNDARY_SHADER_PACK)
-    }
-
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("resource-pack") {
             literal("host") {
                 argument("name", StringArgumentType.greedyString()) {
-                    suggests { registered.keys() }
+                    suggests { TestResourcePacks.names() }
                     executes(::hostPack)
                 }
             }
@@ -42,7 +36,7 @@ object ResourcePackCommand: CommandTree<CommandSourceStack> {
 
     private fun hostPack(context: CommandContext<CommandSourceStack>): Int {
         val name = StringArgumentType.getString(context, "name")
-        val hosted = this.registered.removeAll(name).map(this::host)
+        val hosted = TestResourcePacks.pop(name).map(this::host)
         if (hosted.isEmpty()) {
             return context.source.fail("Failed to host pack $name, there were no resource packs under that name")
         }
@@ -64,10 +58,6 @@ object ResourcePackCommand: CommandTree<CommandSourceStack> {
             }
         }
         return context.source.success("Successfully hosting pack $name")
-    }
-
-    private fun register(name: String, vararg packs: PackDefinition) {
-        this.registered.putAll(name, packs.toList())
     }
 
     private fun host(pack: PackDefinition): HostedPackRef {

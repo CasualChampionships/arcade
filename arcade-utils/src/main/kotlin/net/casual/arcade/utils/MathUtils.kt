@@ -364,4 +364,24 @@ public object MathUtils {
             center.x + absRange, center.y + absRange, center.z + absRange
         )
     }
+
+    public fun catmullRom(p0: Float, p1: Float, p2: Float, p3: Float, t: Float): Float {
+        val t2 = t * t
+        val t3 = t2 * t
+        val c0 = (2.0F * p1)
+        val c1 = (-p0 + p2) * t
+        val c2 = (2.0F * p0 - 5.0F * p1 + 4.0F * p2 - p3) * t2
+        val c3 = (-p0 + 3.0F * p1 - 3.0F * p2 + p3) * t3
+        return 0.5F * (c0 + c1 + c2 + c3)
+    }
+
+    public fun catmullRom(p0: Double, p1: Double, p2: Double, p3: Double, t: Double): Double {
+        val t2 = t * t
+        val t3 = t2 * t
+        val c0 = (2.0 * p1)
+        val c1 = (-p0 + p2) * t
+        val c2 = (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * t2
+        val c3 = (-p0 + 3.0 * p1 - 3.0 * p2 + p3) * t3
+        return 0.5 * (c0 + c1 + c2 + c3)
+    }
 }

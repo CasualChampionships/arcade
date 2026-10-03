@@ -9,6 +9,8 @@ import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.literal
 import net.casual.arcade.commands.success
 import net.casual.arcade.pack.font.heads.PixelGridHeadComponents
+import net.casual.arcade.pack.generation.BuiltInResourcePacks
+import net.casual.arcade.tests.manual.resource_pack.TestResourcePacks
 import net.casual.arcade.utils.player.StaticResolvableProfile
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
@@ -16,6 +18,10 @@ import net.minecraft.network.chat.Component
 
 @Suppress("unused")
 object PlayerHeadCommand: CommandTree<CommandSourceStack> {
+    init {
+        TestResourcePacks.register("player_heads", BuiltInResourcePacks.PIXEL_FONT_PACK, BuiltInResourcePacks.SPACING_FONT_PACK)
+    }
+
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("player-head") {
             literal("display") {
