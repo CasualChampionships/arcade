@@ -1,15 +1,11 @@
 # Model Engine
 
-<!-- TODO: Describe what the model-engine module provides. -->
+Arcade's model engine allows you to load blockbench models completely server-side
+using [Virtual Entities](../arcade-virtual-entities) as well as 
+[Dynamic Resource Pack Generation](../arcade-resource-pack-generation).
 
 ## Adding to Dependencies
 
-```kts
-repositories {
-    maven("https://maven.casualchampionships.net/snapshots")
-}
+<!--@include: ../joystick.md#usage-->
 
-dependencies {
-    include(implementation("net.casualchampionships:arcade-model-engine:0.14.0-beta.3+26.3")!!)
-}
-```
+See [Joystick](../joystick.md) for what the plugin does and its options.
