@@ -31,7 +31,7 @@ import kotlin.io.path.isDirectory
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.isSymbolicLink
 import kotlin.io.path.listDirectoryEntries
-import kotlin.io.path.name
+import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.readBytes
 import kotlin.io.path.readSymbolicLink
 import kotlin.jvm.optionals.getOrNull
@@ -189,26 +189,26 @@ public class PackContents internal constructor() {
 
     public fun addLangs(namespace: String, directory: Path) {
         for (lang in directory.listDirectoryEntries()) {
-            this.addFile("$ASSETS/$namespace/lang/${lang.name}", PackFile.of(lang.readBytes()))
+            this.addFile(langFilePath(namespace, lang.nameWithoutExtension), PackFile.of(lang.readBytes()))
         }
     }
 
     public fun addFont(font: FontResources) {
-        this.addFile("$ASSETS/${font.id.namespace}/font/${font.id.path}.json", font.getProvidersJson())
+        this.addFile(fontFilePath(font.id), font.getProvidersJson())
         for ((lang, translations) in font.getLangJsons()) {
-            this.addFile("$ASSETS/${font.id.namespace}/lang/$lang.json", translations)
+            this.addFile(langFilePath(font.id.namespace, lang), translations)
         }
         for ((id, bitmap) in font.getGeneratedBitmaps()) {
-            this.addFile("$ASSETS/${id.namespace}/textures/${id.path}.png", bitmap)
+            this.addFile(textureFilePath(id), bitmap)
         }
     }
 
     public fun addFont(id: Identifier, definition: String) {
-        this.addFile("$ASSETS/${id.namespace}/font/${id.path}.json", definition)
+        this.addFile(fontFilePath(id), definition)
     }
 
     public fun addSounds(sounds: SoundResources) {
-        this.addFile("$ASSETS/${sounds.namespace}/sounds.json", sounds.toJson())
+        this.addFile(soundsFilePath(sounds.namespace), sounds.toJson())
     }
 
     public fun generateMissingItemModels(namespace: String) {
@@ -220,16 +220,15 @@ public class PackContents internal constructor() {
 
     public fun generateMissingItemModels(namespace: String, container: ModContainer) {
         for (root in container.rootPaths) {
-            val assets = root.resolve(ASSETS)
-            if (assets.isDirectory()) {
-                this.generateMissingItemModels(namespace, assets)
+            if (root.resolve(ASSETS).isDirectory()) {
+                this.generateMissingItemModels(namespace, root)
             }
         }
     }
 
-    public fun generateMissingItemModels(namespace: String, assets: Path) {
+    public fun generateMissingItemModels(namespace: String, root: Path) {
         this.onFinish {
-            ItemModelGenerator.generateMissing(this, namespace, assets)
+            ItemModelGenerator.generateMissing(this, namespace, root)
         }
     }
 
@@ -237,7 +236,7 @@ public class PackContents internal constructor() {
         val replacer = ShaderUtils.ColorReplacer()
         replacer.block()
         val shader = ShaderUtils.getOutlineVertexShader(replacer.getMap(), replacer.getRainbow())
-        this.addFile("$ASSETS/minecraft/shaders/core/rendertype_outline.vsh", shader)
+        this.addFile(shaderFilePath(Identifier.withDefaultNamespace("core/rendertype_outline.vsh")), shader)
     }
 
     public fun onFinish(callback: PackContents.() -> Unit) {
@@ -364,12 +363,72 @@ public class PackContents internal constructor() {
         }
     }
 
-    internal companion object {
-        const val PACK_METADATA: String = "pack.mcmeta"
-        const val PACK_ICON: String = "pack.png"
-        const val ASSETS: String = "assets"
+    public companion object {
+        public const val PACK_METADATA: String = "pack.mcmeta"
+        public const val PACK_ICON: String = "pack.png"
+        public const val ASSETS: String = "assets"
 
-        val DEFAULT_DESCRIPTION: Component = Component.literal("Server Resource Pack")
+        private val DEFAULT_DESCRIPTION: Component = Component.literal("Server Resource Pack")
+
+        public fun namespacePath(namespace: String): String {
+            return "$ASSETS/$namespace"
+        }
+
+        public fun fontPath(namespace: String): String {
+            return "${namespacePath(namespace)}/font"
+        }
+
+        public fun fontFilePath(id: Identifier): String {
+            return "${fontPath(id.namespace)}/${id.path}.json"
+        }
+
+        public fun langPath(namespace: String): String {
+            return "${namespacePath(namespace)}/lang"
+        }
+
+        public fun langFilePath(namespace: String, lang: String): String {
+            return "${langPath(namespace)}/$lang.json"
+        }
+
+        public fun texturesPath(namespace: String): String {
+            return "${namespacePath(namespace)}/textures"
+        }
+
+        public fun textureFilePath(id: Identifier): String {
+            return "${texturesPath(id.namespace)}/${id.path}.png"
+        }
+
+        public fun texturesMetadataFilePath(id: Identifier): String {
+            return "${textureFilePath(id)}.mcmeta"
+        }
+
+        public fun modelsPath(namespace: String): String {
+            return "${namespacePath(namespace)}/models"
+        }
+
+        public fun modelsFilePath(id: Identifier): String {
+            return "${modelsPath(id.namespace)}/${id.path}.json"
+        }
+
+        public fun itemsPath(namespace: String): String {
+            return "${namespacePath(namespace)}/items"
+        }
+
+        public fun itemFilePath(id: Identifier): String {
+            return "${itemsPath(id.namespace)}/${id.path}.json"
+        }
+
+        public fun soundsFilePath(namespace: String): String {
+            return "${namespacePath(namespace)}/sounds.json"
+        }
+
+        public fun shadersPath(namespace: String): String {
+            return "${namespacePath(namespace)}/shaders"
+        }
+
+        public fun shaderFilePath(id: Identifier): String {
+            return "${shadersPath(id.namespace)}/${id.path}"
+        }
 
         private fun JsonObject.replaces(): Boolean {
             return this.get("replace")?.asBoolean == true

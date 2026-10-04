@@ -178,7 +178,7 @@ class PackContentsTests {
         assets.resolve("test/textures/item/nested").createDirectories()
         assets.resolve("test/textures/item/nested/example.png").writeText("png")
 
-        val entries = entries { generateMissingItemModels("test", assets) }
+        val entries = entries { generateMissingItemModels("test", directory) }
 
         val model = entries.json("assets/test/models/item/nested/example.json")
         assertEquals("test:item/nested/example", model.getAsJsonObject("textures").get("layer0").asString)
@@ -197,7 +197,7 @@ class PackContentsTests {
 
         val entries = entries {
             include(directory)
-            generateMissingItemModels("test", assets)
+            generateMissingItemModels("test", directory)
         }
 
         assertEquals("""{"custom": true}""", entries.text("assets/test/models/item/example.json"))

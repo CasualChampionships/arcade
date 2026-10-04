@@ -202,14 +202,9 @@ tasks.register("newModule") {
 
             ## Adding to Dependencies
 
-            ```kts
-            repositories {
-                maven("https://maven.casualchampionships.net/snapshots")
-            }
+            <!--@include: ../joystick.md#usage-->
 
-            dependencies {
-                include(implementation("$coordinate")!!)
-            }
+            See [Joystick](../joystick.md) for what the plugin does and its options.
             ```
         """.trimIndent() + "\n")
 
