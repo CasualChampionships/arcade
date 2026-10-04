@@ -20,6 +20,7 @@ import net.minecraft.server.Bootstrap
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertInstanceOf
 import java.awt.image.BufferedImage
 
 class VanillaModelFormatTests {
@@ -40,7 +41,7 @@ class VanillaModelFormatTests {
             val resources = ModelResources(model)
             for ((id, json) in resources.getModelJsons()) {
                 val model = CuboidModel.fromStream(json.toString().reader())
-                val geometry = assertInstanceOf(UnbakedCuboidGeometry::class.java, model.geometry(), id.toString())
+                val geometry = assertInstanceOf<UnbakedCuboidGeometry>(model.geometry(), id.toString())
                 assertFalse(geometry.elements().isEmpty(), id.toString())
                 val slots = model.textureSlots().values()
                 assertTrue(slots.containsKey("particle"), id.toString())
@@ -59,9 +60,9 @@ class VanillaModelFormatTests {
         val resources = ModelResources(TestModels.load("robot"))
         for ((id, json) in resources.getItemJsons()) {
             val item = ClientItem.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow { AssertionError("$id: $it") }
-            val wrapper = assertInstanceOf(CuboidItemModelWrapper.Unbaked::class.java, item.model(), id.toString())
+            val wrapper = assertInstanceOf<CuboidItemModelWrapper.Unbaked>(item.model(), id.toString())
             assertEquals(id, wrapper.model())
-            assertInstanceOf(Dye::class.java, wrapper.tints().single())
+            assertInstanceOf<Dye>(wrapper.tints().single())
         }
     }
 
