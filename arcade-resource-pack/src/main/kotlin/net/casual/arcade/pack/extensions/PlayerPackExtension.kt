@@ -31,20 +31,21 @@ import net.minecraft.network.protocol.game.ClientboundBundlePacket
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.network.ServerCommonPacketListenerImpl
+import net.minecraft.server.network.ServerConfigurationPacketListenerImpl
 import net.minecraft.server.network.ServerGamePacketListenerImpl
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.jvm.optionals.getOrNull
 
 // This tracks the packs which the player has been sent and the state of each pack
-// it also buffers packs so they are batched to reduce the number of reloads on the client.
+// it can also buffer packs so they are batched to reduce the number of reloads on the client.
 internal class PlayerPackExtension(private val uuid: UUID): Extension {
     private val packs = Object2ObjectLinkedOpenHashMap<UUID, PackState>()
     private var queued: Object2ObjectLinkedOpenHashMap<UUID, PackInfo>? = null
     private var modified = false
     private var buffered = 0
 
-    private val sending = ScopedValue.newInstance<Boolean>()
+    private val flushing = ScopedValue.newInstance<Boolean>()
 
     private var flushed = CompletableDeferred<Unit>()
     private var settled = CompletableDeferred(Unit)
@@ -62,34 +63,61 @@ internal class PlayerPackExtension(private val uuid: UUID): Extension {
     }
 
     internal suspend fun awaitPack(uuid: UUID): PackStatus {
-        this.flushed.await()
+        if (this.queued != null) {
+            this.flushed.await()
+        }
         return this.packs[uuid]?.await() ?: PackStatus.REMOVED
     }
 
-    internal fun onPushPack(packet: ClientboundResourcePackPushPacket): Boolean {
-        if (this.sending.orElse(false)) {
-            return false
-        }
-        val url = ResolvableURL.from(packet.url)
-        val info = PackInfo(url, packet.hash, packet.required, packet.prompt.getOrNull(), packet.id)
+    internal fun bufferPush(info: PackInfo) {
         this.queue().putAndMoveToLast(info.uuid, info)
         this.modified = true
         this.unsettle()
-        return true
     }
 
-    internal fun onPopPack(packet: ClientboundResourcePackPopPacket): Boolean {
-        if (this.sending.orElse(false)) {
-            return false
-        }
-        val uuid = packet.id.getOrNull()
+    internal fun bufferPop(uuid: UUID?) {
         if (uuid == null) {
             this.queue().clear()
         } else {
             this.queue().remove(uuid)
         }
         this.modified = true
-        return true
+    }
+
+    private fun onPushPack(
+        connection: ServerCommonPacketListenerImpl,
+        server: MinecraftServer,
+        packet: ClientboundResourcePackPushPacket
+    ) {
+        if (this.flushing.orElse(false)) {
+            return
+        }
+        this.flush(connection, server)
+        val url = ResolvableURL.from(packet.url)
+        val info = PackInfo(url, packet.hash, packet.required, packet.prompt.getOrNull(), packet.id)
+        this.packs.putAndMoveToLast(info.uuid, PackState(info, PackStatus.WAITING))?.setStatus(PackStatus.REMOVED)
+        this.unsettle()
+    }
+
+    private fun onPopPack(
+        connection: ServerCommonPacketListenerImpl,
+        server: MinecraftServer,
+        packet: ClientboundResourcePackPopPacket
+    ) {
+        if (this.flushing.orElse(false)) {
+            return
+        }
+        this.flush(connection, server)
+        val uuid = packet.id.getOrNull()
+        if (uuid == null) {
+            for (state in this.packs.values) {
+                state.setStatus(PackStatus.REMOVED)
+            }
+            this.packs.clear()
+        } else {
+            this.packs.remove(uuid)?.setStatus(PackStatus.REMOVED)
+        }
+        this.checkSettled(server)
     }
 
     internal fun tick(connection: ServerCommonPacketListenerImpl, server: MinecraftServer) {
@@ -122,7 +150,7 @@ internal class PlayerPackExtension(private val uuid: UUID): Extension {
         for (pack in pushed) {
             this.packs.putAndMoveToLast(pack.uuid, PackState(pack, PackStatus.WAITING))?.setStatus(PackStatus.REMOVED)
         }
-        this.send(connection, packets)
+        this.flush(connection, packets)
 
         val flushed = this.flushed
         this.flushed = CompletableDeferred()
@@ -135,7 +163,7 @@ internal class PlayerPackExtension(private val uuid: UUID): Extension {
         val packets = this.packs.values
             .filter(PackState::isWaitingForResponse)
             .map { it.info.toPushPacket(player.connection) }
-        this.send(player.connection, packets)
+        this.flush(player.connection, packets)
     }
 
     internal fun onPackStatus(server: MinecraftServer, uuid: UUID, status: PackStatus) {
@@ -222,11 +250,11 @@ internal class PlayerPackExtension(private val uuid: UUID): Extension {
         return packets
     }
 
-    private fun send(connection: ServerCommonPacketListenerImpl, packets: List<Packet<in ClientGamePacketListener>>) {
+    private fun flush(connection: ServerCommonPacketListenerImpl, packets: List<Packet<in ClientGamePacketListener>>) {
         if (packets.isEmpty()) {
             return
         }
-        ScopedValue.where(this.sending, true).run {
+        ScopedValue.where(this.flushing, true).run {
             if (packets.size > 1 && connection is ServerGamePacketListenerImpl) {
                 connection.send(ClientboundBundlePacket(packets))
                 return@run
@@ -280,14 +308,10 @@ internal class PlayerPackExtension(private val uuid: UUID): Extension {
             GlobalEventHandler.Server.register<PlayerDisconnectEvent> { (_, profile) ->
                 this.universe.remove(profile.id)?.onDisconnect()
             }
-            GlobalEventHandler.Server.register<ClientboundPacketEvent> { event ->
-                val buffered = when (val packet = event.packet) {
-                    is ClientboundResourcePackPushPacket -> this.getExtension(event.owner.id).onPushPack(packet)
-                    is ClientboundResourcePackPopPacket -> this.getExtension(event.owner.id).onPopPack(packet)
-                    else -> false
-                }
-                if (buffered) {
-                    event.cancel()
+            GlobalEventHandler.Server.register<ClientboundPacketEvent> { (server, connection, owner, packet) ->
+                when (packet) {
+                    is ClientboundResourcePackPushPacket -> this.getExtension(owner.id).onPushPack(connection, server, packet)
+                    is ClientboundResourcePackPopPacket -> this.getExtension(owner.id).onPopPack(connection, server, packet)
                 }
             }
             GlobalEventHandler.Server.register<PackStatusEvent> { (server, profile, uuid, status) ->

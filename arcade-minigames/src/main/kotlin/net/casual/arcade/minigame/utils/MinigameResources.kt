@@ -74,7 +74,7 @@ public interface MinigameResources {
         public fun MinigameResources.sendTo(player: ServerPlayer) {
             val packs = this.getPacks(player)
             for (pack in packs) {
-                player.sendResourcePack(pack)
+                player.sendResourcePack(pack, buffer = true)
             }
         }
 
@@ -87,7 +87,7 @@ public interface MinigameResources {
         public fun MinigameResources.removeFrom(player: ServerPlayer) {
             val packs = this.getPacks(player)
             for (pack in packs) {
-                player.removeResourcePack(pack)
+                player.removeResourcePack(pack, buffer = true)
             }
         }
 

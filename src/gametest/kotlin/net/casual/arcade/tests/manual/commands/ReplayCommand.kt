@@ -54,7 +54,7 @@ object ReplayCommand: BasicReplayCommand(ArcadeUtils.path.resolve("replays").cre
     private fun pushResourcePack(context: CommandContext<CommandSourceStack>): Int {
         val url = StringArgumentType.getString(context, "url")
         val player = context.source.playerOrException
-        player.sendResourcePack(PackInfo(ResolvableURL.from(url), "", false, null))
+        player.sendResourcePack(PackInfo(ResolvableURL.from(url), "", false, null), buffer = true)
         return context.source.success("Successfully sent resource pack")
     }
 

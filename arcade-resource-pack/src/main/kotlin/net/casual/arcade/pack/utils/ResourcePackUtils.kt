@@ -88,12 +88,18 @@ public object ResourcePackUtils {
     }
 
     @JvmStatic
-    public fun ServerPlayer.sendResourcePack(pack: PackInfo, replace: Boolean = true) {
-        this.server.launch { awaitResourcePack(pack, replace) }
+    @JvmOverloads
+    public fun ServerPlayer.sendResourcePack(pack: PackInfo, replace: Boolean = true, buffer: Boolean = false) {
+        this.server.launch { awaitResourcePack(pack, replace, buffer) }
     }
 
     @JvmStatic
-    public suspend fun ServerPlayer.awaitResourcePack(pack: PackInfo, replace: Boolean = true): PackStatus {
+    @JvmOverloads
+    public suspend fun ServerPlayer.awaitResourcePack(
+        pack: PackInfo,
+        replace: Boolean = true,
+        buffer: Boolean = false
+    ): PackStatus {
         val current = this.getPackState(pack)
         if (!replace && current != null) {
             if (current.isLoadingPack()) {
@@ -104,18 +110,32 @@ public object ResourcePackUtils {
             }
         }
 
-        this.connection.send(pack.toPushPacket(this.connection))
+        if (buffer) {
+            this.packExtension.bufferPush(pack)
+        } else {
+            this.connection.send(pack.toPushPacket(this.connection))
+        }
         return this.packExtension.awaitPack(pack.uuid)
     }
 
     @JvmStatic
-    public fun ServerPlayer.removeResourcePack(pack: PackInfo) {
-        this.connection.send(pack.toPopPacket())
+    @JvmOverloads
+    public fun ServerPlayer.removeResourcePack(pack: PackInfo, buffer: Boolean = false) {
+        if (buffer) {
+            this.packExtension.bufferPop(pack.uuid)
+        } else {
+            this.connection.send(pack.toPopPacket())
+        }
     }
 
     @JvmStatic
-    public fun ServerPlayer.removeAllResourcePacks() {
-        this.connection.send(ClientboundResourcePackPopPacket(Optional.empty()))
+    @JvmOverloads
+    public fun ServerPlayer.removeAllResourcePacks(buffer: Boolean = false) {
+        if (buffer) {
+            this.packExtension.bufferPop(null)
+        } else {
+            this.connection.send(ClientboundResourcePackPopPacket(Optional.empty()))
+        }
     }
 
     @JvmStatic

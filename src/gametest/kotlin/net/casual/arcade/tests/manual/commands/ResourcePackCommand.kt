@@ -44,7 +44,7 @@ object ResourcePackCommand: CommandTree<CommandSourceStack> {
         GlobalEventHandler.Server.register<PlayerJoinEvent> { (player) ->
             for (pack in hosted) {
                 server.launch {
-                    player.sendResourcePack(pack.await().toPackInfo())
+                    player.sendResourcePack(pack.await().toPackInfo(), buffer = true)
                 }
             }
         }
@@ -53,7 +53,7 @@ object ResourcePackCommand: CommandTree<CommandSourceStack> {
             val packs = hosted.map { pack -> pack.await().toPackInfo() }
             for (player in server.players) {
                 for (pack in packs) {
-                    player.sendResourcePack(pack)
+                    player.sendResourcePack(pack, buffer = true)
                 }
             }
         }

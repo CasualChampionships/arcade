@@ -30,6 +30,7 @@ loom {
             jvmArguments.add("-Dmixin.debug.export=true")
             systemProperties.put("arcade.manual-tests", "true")
             runDirectory.set(layout.projectDirectory.dir("run/gametest/${libs.versions.minecraft.get()}"))
+            generateRunConfig.set(true)
         }
     }
 }
@@ -138,7 +139,6 @@ tasks.register("newModule") {
         val packageName = "net.casual.arcade.${suffix.replace("-", ".")}"
         val packagePath = packageName.replace(".", "/")
         val className = "Arcade" + words.joinToString("") { it.replaceFirstChar(Char::uppercase) }
-        val coordinate = "net.casualchampionships:$module:${project.version}"
 
         fun write(relative: String, contents: String) {
             rootProject.file(relative).apply {
