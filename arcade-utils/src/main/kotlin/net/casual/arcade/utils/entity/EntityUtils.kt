@@ -40,10 +40,12 @@ public fun <T: Any> EntityDataAccessor<T>.createValue(value: T): SynchedEntityDa
 
 public fun Entity.addVelocityAndMark(deltaX: Double, deltaY: Double, deltaZ: Double) {
     this.push(deltaX, deltaY, deltaZ)
+    this.syncVelocity = true
 }
 
 public fun Entity.setVelocityAndMark(deltaX: Double, deltaY: Double, deltaZ: Double) {
     this.setDeltaMovement(deltaX, deltaY, deltaZ)
+    this.syncVelocity = true
 }
 
 public fun Entity.addVelocitySmooth(deltaX: Double, deltaY: Double, deltaZ: Double) {
