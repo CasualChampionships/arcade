@@ -62,6 +62,7 @@ public fun MinecraftServer.addCustomLevel(level: CustomLevel): CustomLevel {
 
     level.onLoad()
     ServerLevelEvents.LOAD.invoker().onLevelLoad(this, level)
+    this.playerList.addWorldborderListener(level)
 
     if (level.persistence == LevelPersistence.Persistent) {
         LevelPersistenceTracker.markAsPersistent(dimension)
