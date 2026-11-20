@@ -1,11 +1,12 @@
 [versions]
-minecraft           = "26.3"
+minecraft           = "26.4-snapshot-10"
 java                = "25"
 kotlin              = "2.4.20"
-fabric-loader       = "0.19.5"
-fabric-api          = "0.161.0+26.3"
-fabric-kotlin       = "1.14.1+kotlin.2.4.20"
+fabric-loader       = "0.20.1"
+fabric-api          = "0.166.3+26.4"
 server-translations = "3.2.0+26.3"
+
+fabric-kotlin       = "1.14.1+kotlin.2.4.20"
 replay-studio       = "a2e312635c"
 molang-compiler     = "3.1.1.19"
 
@@ -26,7 +27,7 @@ junit       = "5.14.4"
 joystick = "1.0.5"
 
 # Plugins
-fabric-loom = "1.18-SNAPSHOT"
+fabric-loom = "1.19-SNAPSHOT"
 spotless    = "8.10.2"
 shadow      = "9.6.1"
 explosion   = "0.3.2"
