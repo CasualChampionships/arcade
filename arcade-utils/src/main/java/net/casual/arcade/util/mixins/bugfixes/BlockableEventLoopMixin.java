@@ -9,7 +9,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.jtracy.TracyClient;
 import com.mojang.jtracy.Zone;
 import com.mojang.logging.LogUtils;
-import net.minecraft.SharedConstants;
+import net.minecraft.util.DevUtil;
 import net.minecraft.util.thread.BlockableEventLoop;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -50,7 +50,7 @@ public class BlockableEventLoopMixin {
 
     @Unique
     private static <R extends Runnable> void doRunTaskSafely(BlockableEventLoop<R> loop, R task) {
-        try (Zone ignored = TracyClient.beginZone("Task", SharedConstants.IS_RUNNING_IN_IDE)) {
+        try (Zone ignored = TracyClient.beginZone("Task", DevUtil.IS_RUNNING_IN_IDE)) {
             task.run();
         } catch (Exception e) {
             LOGGER.error(LogUtils.FATAL_MARKER, "Error executing task on {}", loop.name(), e);

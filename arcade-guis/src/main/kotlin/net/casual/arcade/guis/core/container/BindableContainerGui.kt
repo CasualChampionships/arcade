@@ -29,7 +29,7 @@ public open class BindableContainerGui(
     public var isDroppingAllowed: Boolean = true
 
     public fun setSlot(slot: Int, container: Container, index: Int) {
-        this.setSlot(slot, Slot(container, index, 0, 0))
+        this.setSlot(slot, Slot(container, index, 0, 0, Slot.Section.CONTAINER))
     }
 
     public open fun setSlot(slot: Int, bound: Slot) {

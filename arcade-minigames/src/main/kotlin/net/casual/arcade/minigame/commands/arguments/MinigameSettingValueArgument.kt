@@ -9,7 +9,6 @@ import com.google.gson.JsonParseException
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
-import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.utils.JsonUtils
 import net.minecraft.core.RegistryAccess
 import net.minecraft.network.chat.Component

@@ -92,7 +92,7 @@ public class JumpPhysicsSimulation(player: FakePlayer) {
      * @return The jump's arc.
      */
     public fun arc(sprinting: Boolean, room: Int): SimulatedJumpArc {
-        val step = Mth.clamp(room, 0, ROOM_STEPS)
+        val step = room.coerceIn(0, ROOM_STEPS)
         val index = if (sprinting) step + ROOM_STEPS + 1 else step
         return this.arcs[index] ?: this.simulate(sprinting, this.roomAt(step)).also { this.arcs[index] = it }
     }
@@ -210,7 +210,7 @@ public class JumpPhysicsSimulation(player: FakePlayer) {
          * @see LivingEntity.computeModifiedFriction
          */
         private fun modified(friction: Double, modifier: Double): Double {
-            return Mth.clamp(1.0 - (1.0 - friction) * modifier, 0.0, 1.0)
+            return Math.clamp(1.0 - (1.0 - friction) * modifier, 0.0, 1.0)
         }
     }
 }

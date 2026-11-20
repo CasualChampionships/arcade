@@ -54,16 +54,16 @@ public object KJsonOps: DynamicOps<JsonElement> {
         if (input !is JsonArray) {
             return DataResult.error { "Not a json array: $input" }
         }
-        return DataResult.success(input.stream().map { element -> if (element == JsonNull) null else element })
+        return DataResult.success(input.stream())
     }
 
-    override fun getList(input: JsonElement): DataResult<Consumer<Consumer<JsonElement?>>> {
+    override fun getList(input: JsonElement): DataResult<Consumer<Consumer<JsonElement>>> {
         if (input !is JsonArray) {
             return DataResult.error { "Not a json array: $input" }
         }
         return DataResult.success(Consumer { consumer ->
             for (element in input) {
-                consumer.accept(if (element == JsonNull) null else element)
+                consumer.accept(element)
             }
         })
     }
@@ -76,12 +76,12 @@ public object KJsonOps: DynamicOps<JsonElement> {
         return JsonObject(result)
     }
 
-    override fun getMapValues(input: JsonElement): DataResult<Stream<Pair<JsonElement, JsonElement?>>> {
+    override fun getMapValues(input: JsonElement): DataResult<Stream<Pair<JsonElement, JsonElement>>> {
         if (input !is JsonObject) {
             return DataResult.error { "Not a JSON object: $input" }
         }
-        val stream = input.entries.stream().map<Pair<JsonElement, JsonElement?>> { entry ->
-            Pair.of(JsonPrimitive(entry.key), if (entry.value == JsonNull) null else entry.value)
+        val stream = input.entries.stream().map<Pair<JsonElement, JsonElement>> { entry ->
+            Pair.of(JsonPrimitive(entry.key), entry.value)
         }
         return DataResult.success(stream)
     }
@@ -238,7 +238,7 @@ public object KJsonOps: DynamicOps<JsonElement> {
                 return outOps.createInt(l.toInt())
             }
             return outOps.createLong(l)
-        } catch (e: ArithmeticException) {
+        } catch (_: ArithmeticException) {
             val d = value.toDouble()
             if (d.toFloat().toDouble() == d) {
                 return outOps.createFloat(d.toFloat())

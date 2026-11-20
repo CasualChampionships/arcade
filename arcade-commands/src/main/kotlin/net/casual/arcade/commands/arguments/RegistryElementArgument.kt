@@ -9,87 +9,76 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import net.casual.arcade.commands.type.CustomArgumentType
-import net.casual.arcade.commands.type.CustomArgumentTypeInfo
+import net.casual.arcade.commands.type.ServerSideArgument
+import net.casual.arcade.utils.registries.id
 import net.casual.arcade.utils.registries.toIdString
-import net.minecraft.commands.SharedSuggestionProvider
+import net.casual.arcade.utils.registries.toKey
+import net.minecraft.commands.ParseContext
+import net.minecraft.commands.ServerPlayerSuggestionContext
 import net.minecraft.commands.arguments.IdentifierArgument
+import net.minecraft.commands.arguments.ResourceArgument
+import net.minecraft.commands.arguments.SerializableArgument
+import net.minecraft.commands.suggestions.SuggestionContext
 import net.minecraft.core.Holder
 import net.minecraft.core.Registry
-import net.minecraft.core.RegistryAccess
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
 import java.util.concurrent.CompletableFuture
+import kotlin.jvm.optionals.getOrElse
 import kotlin.jvm.optionals.getOrNull
 
 /**
  * Argument type that allows specifying any registry
  * element for the given registries.
  *
- * This argument type works very much like [IdentifierArgument],
- * but only allows specifying valid [Identifier]s for the
- * registries. It resolves the [Identifier] to either
- * a [Holder.Reference] or the direct value.
+ * You may want to opt for vanilla's [ResourceArgument],
+ * this argument type works similar, but allows for specifying
+ * multiple registry keys as well as an optional filter
+ * to filter results by.
  *
  * @param T The type of the registry.
- * @param keys The set of registry keys to allow.
+ * @param registryKeys The set of registry keys to allow.
  * @param filter A filter for selectable registry elements.
  */
 public class RegistryElementArgument<T: Any>(
-    private val keys: Set<ResourceKey<Registry<T>>>,
+    private val registryKeys: Set<ResourceKey<Registry<T>>>,
     private val filter: (ResourceKey<T>, T) -> Boolean
-): CustomArgumentType<RegistryElementArgument.FilterableResourceKey<T>>() {
-    override fun parse(reader: StringReader): FilterableResourceKey<T> {
-        return FilterableResourceKey(
-            this.keys, Identifier.read(reader), this.filter
-        )
+): ServerSideArgument<Holder.Reference<T>> {
+    override fun parse(reader: StringReader, context: ParseContext): Holder.Reference<T> {
+        val id = Identifier.read(reader)
+        val access = context.holderGetters()
+        for (registryKey in this.registryKeys) {
+            val resourceKey = id.toKey(registryKey)
+            val holder = access.get(resourceKey).getOrNull() ?: continue
+            if (this.filter.invoke(holder.key(), holder.value())) {
+                return holder
+            }
+        }
+
+        throw INVALID_ELEMENT.create(id.toString(), this.registryKeys.joinToString(" | ") { key -> key.toIdString() })
     }
 
-    override fun <S> listSuggestions(
-        context: CommandContext<S>,
+    override fun listServerSuggestions(
+        context: CommandContext<out ServerPlayerSuggestionContext>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
-        val source = context.source
-        if (source is SharedSuggestionProvider) {
-            val suggestions = this.keys.flatMap { key ->
-                source.registryAccess().lookup(key).map { registry ->
-                    registry.entrySet().filter { (key, value) ->
-                        this.filter.invoke(key, value)
-                    }.map { entry -> entry.key.identifier() }
-                }.orElseGet(::listOf)
-            }
-            if (suggestions.isNotEmpty()) {
-                return SharedSuggestionProvider.suggestResource(suggestions, builder)
-            }
+        val lookup = context.source.holderLookups()
+        val suggestions = this.registryKeys.flatMap { key ->
+            lookup.lookup(key).map { lookup ->
+                lookup.listElements().filter { holder ->
+                    this.filter.invoke(holder.key(), holder.value())
+                }.map { entry -> entry.id() }.toList()
+            }.getOrElse { emptyList() }
+        }
+        if (suggestions.isNotEmpty()) {
+            return SuggestionContext.suggestResource(suggestions, builder)
         }
         return super.listSuggestions(context, builder)
     }
 
-    override fun getArgumentInfo(): CustomArgumentTypeInfo<*> {
-        return CustomArgumentTypeInfo.of(IdentifierArgument::class.java)
-    }
-
-    public data class FilterableResourceKey<T: Any>(
-        private val keys: Set<ResourceKey<Registry<T>>>,
-        private val id: Identifier,
-        private val filter: (ResourceKey<T>, T) -> Boolean
-    ) {
-        public fun getElement(access: RegistryAccess): T {
-            return this.getHolder(access).value()
-        }
-
-        public fun getHolder(access: RegistryAccess): Holder.Reference<T> {
-            for (key in this.keys) {
-                val registry = access.lookup(key).getOrNull() ?: continue
-                val holder = registry.get(this.id).getOrNull() ?: continue
-                if (this.filter.invoke(holder.key(), holder.value())) {
-                    return holder
-                }
-            }
-
-            throw INVALID_ELEMENT.create(this.id.toString(), this.keys.joinToString(" | ") { key -> key.toIdString() })
-        }
+    override fun asSerializableArgument(): SerializableArgument<*> {
+        return IdentifierArgument.INSTANCE
     }
 
     public companion object {
@@ -121,15 +110,14 @@ public class RegistryElementArgument<T: Any>(
         }
 
         @JvmStatic
-        public fun <T: Any> getElement(context: CommandContext<out SharedSuggestionProvider>, string: String): T {
+        public fun <T: Any> getElement(context: CommandContext<*>, string: String): T {
             return this.getHolder<T>(context, string).value()
         }
 
         @JvmStatic
-        public fun <T: Any> getHolder(context: CommandContext<out SharedSuggestionProvider>, string: String): Holder.Reference<T> {
+        public fun <T: Any> getHolder(context: CommandContext<*>, string: String): Holder.Reference<T> {
             @Suppress("UNCHECKED_CAST")
-            val filterable = context.getArgument(string, FilterableResourceKey::class.java) as FilterableResourceKey<T>
-            return filterable.getHolder(context.source.registryAccess())
+            return context.getArgument(string, Holder.Reference::class.java) as Holder.Reference<T>
         }
     }
 }

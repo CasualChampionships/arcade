@@ -10,8 +10,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import net.casual.arcade.commands.type.CustomArgumentType
-import net.casual.arcade.commands.type.CustomArgumentTypeInfo
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame

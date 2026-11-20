@@ -10,11 +10,11 @@ import com.mojang.serialization.RecordBuilder
 import com.mojang.serialization.codecs.OptionalFieldCodec
 import java.util.*
 
-public class EncodedOptionalFieldCodec<A>(
+public class EncodedOptionalFieldCodec<A: Any>(
     private val name: String,
     private val elementCodec: Codec<A>
 ): OptionalFieldCodec<A>(name, elementCodec, true) {
-    override fun <T> encode(
+    override fun <T: Any> encode(
         input: Optional<A>,
         ops: DynamicOps<T>,
         prefix: RecordBuilder<T>

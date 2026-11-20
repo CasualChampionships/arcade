@@ -7,6 +7,8 @@ package net.casual.arcade.commands.manager
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.casual.arcade.commands.CommandTree
+import net.casual.arcade.commands.dispatcher
+import net.casual.arcade.commands.parseResults
 import net.casual.arcade.events.ListenerRegistry
 import net.casual.arcade.events.common.ServerSideEvent
 import net.casual.arcade.events.server.block.CommandBlockExecuteEvent
@@ -14,8 +16,7 @@ import net.casual.arcade.events.server.player.PlayerCommandEvent
 import net.casual.arcade.events.server.player.PlayerCommandSuggestionsEvent
 import net.casual.arcade.events.server.player.PlayerSendCommandsEvent
 import net.casual.arcade.events.utils.register
-import net.minecraft.commands.CommandBuildContext
-import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.*
 import net.minecraft.server.MinecraftServer
 
 public typealias CommandManager = ServerCommandManager
@@ -24,16 +25,24 @@ public open class ServerCommandManager(
     protected val server: MinecraftServer
 ): CommandRegistry<CommandSourceStack> {
     protected val dispatcher: CommandDispatcher<CommandSourceStack> = CommandDispatcher()
+    protected var parseBox: ParseBox = ParseBox.fromFullTree(this.dispatcher)
+    protected var suggestionBox: SuggestionBox = SuggestionBox.fromFullTree(this.dispatcher)
 
     override fun register(literal: LiteralArgumentBuilder<CommandSourceStack>) {
         this.dispatcher.register(literal)
         this.resendCommands()
+
+        this.parseBox = ParseBox.fromFullTree(this.dispatcher)
+        this.suggestionBox = SuggestionBox.fromFullTree(this.dispatcher)
     }
 
     override fun register(tree: CommandTree<CommandSourceStack>) {
-        val context = CommandBuildContext.simple(this.server.registryAccess(), this.server.worldData.enabledFeatures())
+        val context = CommandBuildContext.simple(this.server.worldData.enabledFeatures())
         tree.register(this.dispatcher, context)
         this.resendCommands()
+
+        this.parseBox = ParseBox.fromFullTree(this.dispatcher)
+        this.suggestionBox = SuggestionBox.fromFullTree(this.dispatcher)
     }
 
     internal fun initialize(registry: ListenerRegistry<ServerSideEvent>) {
@@ -54,28 +63,27 @@ public open class ServerCommandManager(
     }
 
     private fun onPlayerSendCommands(event: PlayerSendCommandsEvent) {
-        event.addCustomCommandNode(this.dispatcher.root)
+        event.addCustomCommandNode(this.suggestionBox.dispatcher.root)
     }
 
     private fun onPlayerCommand(event: PlayerCommandEvent) {
         val source = event.player.createCommandSourceStack()
-        val result = this.dispatcher.parse(event.command, source)
-        if (!result.reader.canRead()) {
-            source.server.commands.performCommand(result, event.command)
+        val result = this.parseBox.parse(event.command, ParseContext.of(source))
+        if (!result.parseResults.reader.canRead()) {
+            Commands.performCommand(source, result, event.command)
             event.cancel()
         }
     }
 
     private fun onCommandBlockExecute(event: CommandBlockExecuteEvent) {
-        val result = this.dispatcher.parse(event.command, event.source)
-        if (!result.reader.canRead()) {
-            event.source.server.commands.performCommand(result, event.command)
+        val result = this.parseBox.parse(event.command, ParseContext.of(event.source))
+        if (!result.parseResults.reader.canRead()) {
+            Commands.performCommand(event.source, result, event.command)
             event.cancel()
         }
     }
 
     private fun onPlayerCommandSuggestions(event: PlayerCommandSuggestionsEvent) {
-        val result = this.dispatcher.parse(event.createCommandReader(), event.player.createCommandSourceStack())
-        event.addSuggestions(this.dispatcher.getCompletionSuggestions(result))
+        event.addSuggestions(this.suggestionBox)
     }
 }

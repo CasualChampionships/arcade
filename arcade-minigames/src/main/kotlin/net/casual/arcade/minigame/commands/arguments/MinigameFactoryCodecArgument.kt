@@ -10,8 +10,6 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import com.mojang.serialization.MapCodec
-import net.casual.arcade.commands.type.CustomArgumentType
-import net.casual.arcade.commands.type.CustomArgumentTypeInfo
 import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.utils.MinigameRegistries
 import net.minecraft.commands.SharedSuggestionProvider

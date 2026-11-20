@@ -10,6 +10,7 @@ import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.registries.isOf
 import net.minecraft.core.BlockPos
 import net.minecraft.core.particles.ParticleTypes
+import net.minecraft.network.protocol.game.ClientboundAddEntityMotionPacket
 import net.minecraft.network.protocol.game.ClientboundExplodePacket
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.SynchedEntityData
@@ -62,26 +63,12 @@ public fun Entity.addVelocitySmooth(deltas: Vec3) {
     this.addVelocitySmooth(deltas)
 }
 
-/**
- * This adds velocity to the player on the client-side,
- * the calculation is also applied server-side for anti-cheat reasons.
- *
- * The benefit of this is that since the calculation is done
- * client-side the velocity will appear smoother, especially
- * on clients which have a laggier connection.
- *
- * @param deltas The velocity deltas to add.
- */
+// TODO: In ServerExplosion#hurtEntities we don't sync it
+//   server-side before we sent the packet, but that should
+//   trigger the server's anticheat?
 public fun ServerPlayer.addVelocitySmooth(deltas: Vec3) {
     this.addDeltaMovement(deltas)
-    this.connection.send(ClientboundExplodePacket(
-        Vec3(0.0, Int.MAX_VALUE.toDouble(), 0.0),
-        0.0F, 0, Optional.of(deltas),
-        ParticleTypes.CRIT,
-        SoundEvents.NOTE_BLOCK_BASEDRUM,
-        WeightedList.of(),
-        false
-    ))
+    this.connection.send(ClientboundAddEntityMotionPacket(this.id, deltas))
 }
 
 public fun Entity.teleportTo(location: LocationWithLevel<out ServerLevel>, resetCamera: Boolean = true) {
@@ -134,7 +121,7 @@ public fun Entity.isInStructure(structure: ResourceKey<Structure>): Boolean {
     val level = this.level()
     return level is ServerLevel && level.structureManager().getStructureWithPieceAt(this.blockPosition()) { holder ->
         holder.isOf(structure)
-    }.isValid
+    } != null
 }
 
 public fun <T: Entity> EntityType<T>.spawn(

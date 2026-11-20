@@ -9,10 +9,14 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import net.casual.arcade.commands.type.CustomArgumentType
-import net.casual.arcade.commands.type.CustomStringArgumentInfo
-import net.minecraft.commands.SharedSuggestionProvider
+import net.casual.arcade.commands.type.ServerSideArgument
+import net.minecraft.commands.arguments.PatternStringArgument
+import net.minecraft.commands.arguments.SerializableArgument
+import net.minecraft.commands.arguments.StringArgument
+import net.minecraft.commands.suggestions.SuggestionContext
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component
+import java.util.Optional
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -25,19 +29,27 @@ import java.util.concurrent.CompletableFuture
  * @param T The type of the argument value.
  * @param options The valid argument options.
  */
-public open class MappedArgument<T>(
+public open class MappedArgument<T: Any>(
     private val options: Map<String, T>
-): CustomArgumentType<T>() {
+): SerializableArgument.ContextFree<T>, ServerSideArgument<T> {
+    private val client: SerializableArgument.ContextFree<*>
+    private val quoted: Boolean
+
     init {
-        for (name in this.options.keys) {
-            if (!CustomStringArgumentInfo.isAllowedWord(name)) {
-                throw IllegalArgumentException("Mapped key $name has invalid characters")
-            }
+        val regex = this.options.keys.joinToString("|") { key -> Regex.escape(key) }
+        if (regex.length >= FriendlyByteBuf.MAX_STRING_LENGTH) {
+            this.client = StringArgument.Quoted.INSTANCE
+            this.quoted = true
+        } else {
+            this.client = PatternStringArgument(
+                regex.toPattern(), Optional.of(Component.translatable("commands.arguments.mapped.invalid"))
+            )
+            this.quoted = false
         }
     }
 
     override fun parse(reader: StringReader): T {
-        val name = reader.readUnquotedString()
+        val name = this.client.parse(reader)
         val enumeration = this.options[name]
         if (enumeration != null) {
             return enumeration
@@ -45,15 +57,25 @@ public open class MappedArgument<T>(
         throw INVALID_ELEMENT.create(name)
     }
 
-    override fun <S> listSuggestions(context: CommandContext<S>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
-        return SharedSuggestionProvider.suggest(this.options.keys, builder)
+    override fun listSuggestions(
+        context: CommandContext<out SuggestionContext>,
+        builder: SuggestionsBuilder
+    ): CompletableFuture<Suggestions> {
+        if (this.quoted) {
+            SuggestionContext.suggest(this.options.keys.map { key -> "\"$key\"" }, builder)
+        }
+        return SuggestionContext.suggest(this.options.keys, builder)
+    }
+
+    override fun asSerializableArgument(): SerializableArgument<*> {
+        return this.client
     }
 
     public companion object {
         private val INVALID_ELEMENT = DynamicCommandExceptionType { Component.translatable("commands.arguments.mapped.invalid", it) }
 
         @JvmStatic
-        public fun <T> mapped(map: Map<String, T>): MappedArgument<T> {
+        public fun <T: Any> mapped(map: Map<String, T>): MappedArgument<T> {
             return MappedArgument(map)
         }
 

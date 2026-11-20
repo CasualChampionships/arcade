@@ -135,7 +135,7 @@ public object JsonUtils {
         return JsonReaderFields.pos.getInt(this) - JsonReaderFields.lineStart.getInt(this)
     }
 
-    public fun <T> parseJson(registries: HolderLookup.Provider, reader: StringReader, codec: Codec<T>): T {
+    public fun <T: Any> parseJson(registries: HolderLookup.Provider, reader: StringReader, codec: Codec<T>): T {
         val jsonReader = JsonReader(java.io.StringReader(reader.remaining))
         jsonReader.strictness = Strictness.STRICT
 

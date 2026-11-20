@@ -15,7 +15,6 @@ import net.casual.arcade.dimensions.utils.LevelPersistenceTracker
 import net.casual.arcade.dimensions.utils.getDimensionDataPath
 import net.casual.arcade.dimensions.utils.impl.DerivedLevelData
 import net.casual.arcade.utils.ArcadeUtils
-import net.casual.arcade.utils.level.server
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtIo
 import net.minecraft.nbt.NbtUtils
@@ -27,7 +26,6 @@ import net.minecraft.util.datafix.DataFixTypes
 import net.minecraft.world.Difficulty
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.TicketStorage
-import net.minecraft.world.level.biome.BiomeManager
 import net.minecraft.world.level.gamerules.GameRules
 import net.minecraft.world.level.saveddata.WeatherData
 import net.minecraft.world.level.storage.LevelData
@@ -80,8 +78,6 @@ public open class CustomLevel(
     DerivedLevelData(properties, options, server.worldData, server.worldData.overworldData()),
     key,
     options.stem.value(),
-    options.debug,
-    BiomeManager.obfuscateSeed(options.seed),
     ArrayList(),
     false
 ) {

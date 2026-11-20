@@ -9,7 +9,7 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.serialization.Codec;
 import net.casual.arcade.extensions.ducks.ArcadeTeamDataHolder;
-import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs;
+import net.casual.arcade.utils.serialization.codec.CodecUtilsKt;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.scores.PlayerTeam;
 import org.jetbrains.annotations.Nullable;
@@ -34,7 +34,7 @@ public class PlayerTeamPackedMixin implements ArcadeTeamDataHolder {
         )
     )
     private static Codec<PlayerTeam.Packed> extendCodecForArcade(Codec<PlayerTeam.Packed> original) {
-        return ArcadeExtraCodecs.extend(
+        return CodecUtilsKt.extend(
             original,
             CompoundTag.CODEC.optionalFieldOf("arcade").forGetter(packet -> {
                 return Optional.<@NonNull CompoundTag>ofNullable(((ArcadeTeamDataHolder) (Object) packet).arcade_getData());

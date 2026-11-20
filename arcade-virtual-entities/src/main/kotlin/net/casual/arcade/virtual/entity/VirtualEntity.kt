@@ -62,6 +62,7 @@ public interface VirtualEntity {
      */
     public var position: VirtualPosition
 
+    // TODO: Split this into a head rotation too
     /**
      * The virtual entity's rotation.
      */

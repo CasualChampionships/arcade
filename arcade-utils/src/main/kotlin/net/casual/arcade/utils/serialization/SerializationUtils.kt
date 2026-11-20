@@ -17,7 +17,3 @@ public typealias TypedValueInputProvider<T> = (Codec<T>) -> Optional<T>
 public fun <T: Any> HolderLookup.Provider?.createSerializationContext(ops: DynamicOps<T>): DynamicOps<T> {
     return this?.createSerializationContext(ops) ?: ops
 }
-
-public fun <T: Any> RegistryOps.RegistryInfoLookup?.createSerializationContext(ops: DynamicOps<T>): DynamicOps<T> {
-    return if (this == null) ops else RegistryOps.create(ops, this)
-}

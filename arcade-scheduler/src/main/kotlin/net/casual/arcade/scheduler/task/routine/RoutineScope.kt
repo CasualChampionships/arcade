@@ -83,7 +83,7 @@ public interface RoutineScope<out O> {
      * @param block The action to run.
      * @return The result of [block], or the previously recorded result.
      */
-    public suspend fun <T> step(codec: Codec<T>, id: String? = null, block: () -> T): T
+    public suspend fun <T: Any> step(codec: Codec<T>, id: String? = null, block: () -> T): T
 
     /**
      * Suspends the routine until an event of the given [type] is

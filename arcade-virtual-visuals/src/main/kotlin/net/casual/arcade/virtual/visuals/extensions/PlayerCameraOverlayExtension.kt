@@ -49,7 +49,7 @@ internal class PlayerCameraOverlayExtension(player: ServerPlayer): PlayerExtensi
         val overlay = this.overlay ?: return stack
         val overlaid = if (stack.isEmpty) this.createDummyStack(access) else stack.copy()
         val equippable = Equippable.builder(EquipmentSlot.HEAD)
-            .setEquipSound(Holder.direct(SoundEvents.EMPTY))
+            .noEquidSound()
             .setCameraOverlay(overlay)
         val existing = overlaid.get(DataComponents.EQUIPPABLE)
         if (existing != null) {

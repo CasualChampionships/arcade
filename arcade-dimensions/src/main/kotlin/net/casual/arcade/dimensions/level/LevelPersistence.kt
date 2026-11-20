@@ -51,6 +51,7 @@ public enum class LevelPersistence: StringRepresentable {
      * removed with [removeCustomLevel].
      */
     public fun shouldDeleteOnRemove(): Boolean {
+        @Suppress("DEPRECATION")
         return this == Transient || this == Temporary
     }
 

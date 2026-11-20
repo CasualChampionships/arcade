@@ -69,21 +69,18 @@ public object LevelPersistenceTracker {
         this.writeLevelKeysTo(this.getTemporaryDataPath(server), this.temporary.toList())
     }
 
-    private fun readLevelKeysFrom(path: Path): ArrayList<ResourceKey<Level>> {
-        val keys = ArrayList<ResourceKey<Level>>()
+    private fun readLevelKeysFrom(path: Path): List<ResourceKey<Level>> {
         if (path.isRegularFile()) {
             try {
-                val tag = NbtIo.read(path)?.get("level_keys")
-                for (key in CODEC.parse(NbtOps.INSTANCE, tag).orThrow) {
-                    keys.add(key)
-                }
+                val tag = NbtIo.read(path)?.get("level_keys") ?: return emptyList()
+                return CODEC.parse(NbtOps.INSTANCE, tag).orThrow
             } catch (e: IllegalStateException) {
                 ArcadeUtils.logger.error("Failed to parse level keys", e)
             } catch (e: IOException) {
                 ArcadeUtils.logger.error("Failed to parser level keys", e)
             }
         }
-        return keys
+        return emptyList()
     }
 
     private fun writeLevelKeysTo(

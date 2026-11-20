@@ -94,8 +94,8 @@ public class PathfindingContext(
     }
 
     public fun findSupport(x: Int, z: Int, maxHeight: Double, minHeight: Double): Int {
-        val top = Mth.clamp(Mth.floor(maxHeight), this.minY, this.maxY)
-        val bottom = Mth.clamp(Mth.floor(minHeight) - 1, this.minY, this.maxY)
+        val top = Mth.floor(maxHeight).coerceIn(this.minY, this.maxY)
+        val bottom = (Mth.floor(minHeight) - 1).coerceIn(this.minY, this.maxY)
         for (y in top downTo bottom) {
             if (this.getBlock(x, y, z).isCollisionEmpty) {
                 continue
@@ -178,9 +178,9 @@ public class PathfindingContext(
         }
         var top = NO_SUPPORT
         for (i in 0..SAMPLES) {
-            val sampleX = Mth.clamp(Mth.lerp(i / SAMPLES.toDouble(), minX, maxX), 0.0, 1.0)
+            val sampleX = Math.clamp(Mth.lerp(i / SAMPLES.toDouble(), minX, maxX), 0.0, 1.0)
             for (j in 0..SAMPLES) {
-                val sampleZ = Mth.clamp(Mth.lerp(j / SAMPLES.toDouble(), minZ, maxZ), 0.0, 1.0)
+                val sampleZ = Math.clamp(Mth.lerp(j / SAMPLES.toDouble(), minZ, maxZ), 0.0, 1.0)
                 // VoxelShape#max takes the remaining axes in cycle order, which for Y is (z, x)
                 val sampled = shape.max(Direction.Axis.Y, sampleZ, sampleX)
                 if (sampled > top) {

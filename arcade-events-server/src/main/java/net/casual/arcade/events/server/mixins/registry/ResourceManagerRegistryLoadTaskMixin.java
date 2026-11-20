@@ -6,6 +6,7 @@ package net.casual.arcade.events.server.mixins.registry;
 
 import net.casual.arcade.events.GlobalEventHandler;
 import net.casual.arcade.events.server.registry.RegistryLoadedFromResourcesEvent;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceManagerRegistryLoadTask;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,13 +22,13 @@ import java.util.concurrent.Executor;
 @Mixin(ResourceManagerRegistryLoadTask.class)
 public class ResourceManagerRegistryLoadTaskMixin<T> {
     // Not ideal, but we can't use scoped values since it's accessed from a different thread...
-    @Unique private RegistryOps.RegistryInfoLookup context;
+    @Unique private HolderGetter.Provider context;
 
     @Inject(
         method = "load",
         at = @At("HEAD")
     )
-    private void storeRegistryInfoLookup(RegistryOps.RegistryInfoLookup context, Executor executor, CallbackInfoReturnable<CompletableFuture<?>> cir) {
+    private void storeRegistryInfoLookup(HolderGetter.Provider context, Executor executor, CallbackInfoReturnable<CompletableFuture<?>> cir) {
         this.context = context;
     }
 
@@ -40,5 +41,7 @@ public class ResourceManagerRegistryLoadTaskMixin<T> {
         ResourceManagerRegistryLoadTask<T> self = (ResourceManagerRegistryLoadTask<T>) (Object) this;
         RegistryLoadedFromResourcesEvent<T> event = new RegistryLoadedFromResourcesEvent<>(self, this.context);
         GlobalEventHandler.Server.broadcast(event);
+
+        this.context = null;
     }
 }

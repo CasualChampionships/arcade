@@ -8,13 +8,13 @@ import com.mojang.serialization.MapCodec
 import net.minecraft.core.Registry
 import net.minecraft.resources.Identifier
 
-public interface CodecProvider<T> {
+public interface CodecProvider<T: Any> {
     public val id: Identifier
 
     public val codec: MapCodec<out T>
 
     public companion object {
-        public fun <T> CodecProvider<out T>.register(registry: Registry<MapCodec<out T>>) {
+        public fun <T: Any> CodecProvider<out T>.register(registry: Registry<MapCodec<out T>>) {
             Registry.register(registry, this.id, this.codec)
         }
     }

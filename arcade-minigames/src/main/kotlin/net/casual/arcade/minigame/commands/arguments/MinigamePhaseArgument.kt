@@ -9,7 +9,6 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import net.casual.arcade.commands.type.CustomArgumentType
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.phase.MinigamePhase
 import net.minecraft.commands.SharedSuggestionProvider

@@ -78,7 +78,7 @@ public object ArcadeExtraCodecs {
     public val DIMENSION: Codec<ResourceKey<Level>> = ResourceKey.codec(Registries.DIMENSION)
     public val DURATION: Codec<Duration> = Codec.STRING.comapFlatMap(TimeUtils::parseToDuration, Duration::toString)
 
-    public fun <T> mapWithAlternative(primary: MapCodec<T>, alternative: MapCodec<T>): MapCodec<T> {
+    public fun <T: Any> mapWithAlternative(primary: MapCodec<T>, alternative: MapCodec<T>): MapCodec<T> {
         return Codec.mapEither(primary, alternative).xmap(
             { either -> Either.unwrap(either) },
             { value -> Either.left(value) }
@@ -86,7 +86,8 @@ public object ArcadeExtraCodecs {
     }
 
     @JvmStatic
-    public fun <T, S> Codec<T>.extend(
+    @Deprecated("Use CodecUtils.extend instead")
+    public fun <T: Any, S: Any> Codec<T>.extend(
         builder: RecordCodecBuilder<T, S>,
         applier: (T, S) -> T
     ): Codec<T> {
@@ -95,7 +96,8 @@ public object ArcadeExtraCodecs {
     }
 
     @JvmStatic
-    public fun <T, S> MapCodec<T>.extend(
+    @Deprecated("Use CodecUtils.extend instead")
+    public fun <T: Any, S: Any> MapCodec<T>.extend(
         builder: RecordCodecBuilder<T, S>,
         applier: (T, S) -> T
     ): MapCodec<T> {
@@ -139,7 +141,7 @@ public object ArcadeExtraCodecs {
         return ExtraCodecs.optionalEmptyMap(Codec.STRING).map(map)
     }
 
-    public fun <K, V> keyedUnboundedMergedMap(
+    public fun <K: Any, V: Any> keyedUnboundedMergedMap(
         keyCodec: Codec<K>,
         valueMapCodec: MapCodec<V>,
         keyName: String = "id"
@@ -147,7 +149,7 @@ public object ArcadeExtraCodecs {
         return unboundedMergedMap(keyCodec.fieldOf(keyName), valueMapCodec)
     }
 
-    public fun <K, V> unboundedMergedMap(
+    public fun <K: Any, V: Any> unboundedMergedMap(
         keyCodec: MapCodec<K>,
         valueMapCodec: MapCodec<V>
     ): Codec<Map<K, V>> {

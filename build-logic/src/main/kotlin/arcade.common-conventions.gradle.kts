@@ -150,7 +150,7 @@ if (project == rootProject) {
     }
 }
 
-private val minecraftVersionRegex = Regex("""^(\d+\.\d+)(\.\d+)?(?:-(pre|rc)-?(\d+))?$""")
+private val minecraftVersionRegex = Regex("""^(\d+\.\d+)(\.\d+)?(?:-(pre|rc|snapshot)-?(\d+))?$""")
 
 fun replaceVersion(version: String, patch: String): String {
     val match = minecraftVersionRegex.matchEntire(version)

@@ -6,6 +6,8 @@ package net.casual.arcade.events.server.player
 
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.suggestion.Suggestions
+import net.minecraft.commands.ServerPlayerSuggestionContext
+import net.minecraft.commands.SuggestionBox
 import net.minecraft.server.level.ServerPlayer
 import java.util.concurrent.CompletableFuture
 
@@ -14,6 +16,8 @@ public data class PlayerCommandSuggestionsEvent(
     val command: String
 ): PlayerEvent {
     private val suggestions = ArrayList<CompletableFuture<Suggestions>>()
+
+    public val context: ServerPlayerSuggestionContext = ServerPlayerSuggestionContext(this.player)
 
     public fun createCommandReader(): StringReader {
         val reader = StringReader(this.command)
@@ -25,6 +29,10 @@ public data class PlayerCommandSuggestionsEvent(
 
     public fun addSuggestions(suggestions: CompletableFuture<Suggestions>) {
         this.suggestions.add(suggestions)
+    }
+
+    public fun addSuggestions(suggestions: SuggestionBox) {
+        this.addSuggestions(suggestions.parse(this.createCommandReader(), this.context).computeSuggestions())
     }
 
     public fun getAllSuggestions(): List<CompletableFuture<Suggestions>> {

@@ -191,7 +191,7 @@ public class JsonValueInput private constructor(
         val name: String,
         val element: JsonElement,
         val error: DataResult.Error<*>
-    ): ProblemReporter.Problem {
+    ): ProblemReporter.Warning {
         override fun description(): String {
             return "Failed to decode value '${this.element}' from field '${this.name}': ${this.error.message()}"
         }
@@ -202,13 +202,13 @@ public class JsonValueInput private constructor(
         val index: Int,
         val element: JsonElement,
         val error: DataResult.Error<*>
-    ): ProblemReporter.Problem {
+    ): ProblemReporter.Warning {
         override fun description(): String {
             return "Failed to decode value '${this.element}' from field '${this.name}' at index '${this.index}': ${this.error.message()}"
         }
     }
 
-    public data class DecodeFromMapFailedProblem(val error: DataResult.Error<*>): ProblemReporter.Problem {
+    public data class DecodeFromMapFailedProblem(val error: DataResult.Error<*>): ProblemReporter.Warning {
         override fun description(): String {
             return "Failed to decode from map: ${this.error.message()}"
         }
@@ -218,7 +218,7 @@ public class JsonValueInput private constructor(
         val name: String,
         val expected: Class<*>,
         val actual: Class<*>
-    ): ProblemReporter.Problem {
+    ): ProblemReporter.Warning {
         override fun description(): String {
             return "Expected field '${this.name}' to contain value of type ${this.expected.simpleName}, but got ${this.actual.simpleName}"
         }
@@ -229,7 +229,7 @@ public class JsonValueInput private constructor(
         val index: Int,
         val expected: Class<*>,
         val actual: Class<*>
-    ): ProblemReporter.Problem {
+    ): ProblemReporter.Warning {
         override fun description(): String {
             return "Expected list '${this.name}' to contain at index ${this.index} value of type ${this.expected.simpleName}, but got ${this.actual.simpleName}"
         }

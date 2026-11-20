@@ -34,7 +34,7 @@ public object MiniLiteralWidthResolver: WidthResolver {
 
     public fun width(component: Component): Int {
         var width = 0
-        component.visit({ style, content ->
+        component.visitUnbounded({ style, content ->
             width += this.width(content)
             if (style.isBold) {
                 width += content.length

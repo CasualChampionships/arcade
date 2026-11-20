@@ -6,20 +6,26 @@ package net.casual.arcade.commands
 
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
+import com.mojang.brigadier.ParseResults
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.tree.LiteralCommandNode
+import net.casual.arcade.commands.mixins.CommandBoxAccessor
+import net.casual.arcade.commands.mixins.ParseBoxResultAccessor
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.math.location.asLocation
 import net.casual.arcade.utils.minecraft
 import net.fabricmc.fabric.api.permission.v1.PermissionPredicates
+import net.minecraft.commands.CommandBox
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.commands.SharedSuggestionProvider
+import net.minecraft.commands.ParseBox
+import net.minecraft.commands.ParseContext
+import net.minecraft.commands.suggestions.SuggestionContext
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
@@ -177,7 +183,7 @@ public fun <S, T> RequiredArgumentBuilder<S, T>.suggests(
     suggestions: Iterable<String>
 ): RequiredArgumentBuilder<S, T> {
     return this.suggests { _, builder ->
-        SharedSuggestionProvider.suggest(suggestions, builder)
+        SuggestionContext.suggest(suggestions, builder)
     }
 }
 
@@ -185,7 +191,7 @@ public fun <S, T> RequiredArgumentBuilder<S, T>.suggests(
     supplier: (CommandContext<S>) -> Iterable<String>
 ): RequiredArgumentBuilder<S, T> {
     return this.suggests { context, builder ->
-        SharedSuggestionProvider.suggest(supplier(context), builder)
+        SuggestionContext.suggest(supplier(context), builder)
     }
 }
 
@@ -226,3 +232,11 @@ public fun ServerRegisterCommandEvent.register(vararg commands: CommandTree<Comm
         command.register(this.dispatcher, this.context)
     }
 }
+
+
+internal val ParseBox.Result.parseResults: ParseResults<ParseContext>
+    get() = (this as ParseBoxResultAccessor).arcade_getParseResults()
+
+@Suppress("UNCHECKED_CAST")
+internal val <C: ParseContext> CommandBox<C>.dispatcher: CommandDispatcher<C>
+    get() = (this as CommandBoxAccessor<C>).arcade_getDispatcher()

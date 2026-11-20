@@ -16,9 +16,6 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import com.mojang.serialization.JsonOps
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
-import net.casual.arcade.commands.type.CustomArgumentType
-import net.casual.arcade.commands.type.CustomArgumentTypeInfo
-import net.casual.arcade.commands.type.CustomStringArgumentInfo
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.getPos
 import net.minecraft.commands.SharedSuggestionProvider

@@ -64,7 +64,7 @@ public value class ColorARGB(private val data: Int) {
     }
 
     public companion object {
-        public val HEX_CODEC: Codec<ColorARGB> = Codec.STRING.comapFlatMap(Companion::parse, ColorARGB::format)!!
+        public val HEX_CODEC: Codec<ColorARGB> = Codec.STRING.comapFlatMap(Companion::parse, ColorARGB::format)
         public val ARRAY_CODEC: Codec<ColorARGB> = Codec.INT_STREAM.comapFlatMap(
             { stream -> Util.fixedSize(stream, 4).map { arr -> from(arr[0], arr[1], arr[2], arr[3]) } },
             { color -> IntStream.of(color.alpha(), color.red(), color.green(), color.blue()) }

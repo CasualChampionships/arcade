@@ -349,7 +349,7 @@ internal class RoutineTask<O>(
             this.step(ArcadeExtraCodecs.UNIT, id) { block.invoke() }
         }
 
-        override suspend fun <T> step(codec: Codec<T>, id: String?, block: () -> T): T {
+        override suspend fun <T: Any> step(codec: Codec<T>, id: String?, block: () -> T): T {
             this.task.throwIfCancelled()
 
             val index = this.task.index++

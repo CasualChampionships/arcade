@@ -5,7 +5,6 @@
 package net.casual.arcade.commands.arguments
 
 import com.mojang.brigadier.context.CommandContext
-import net.casual.arcade.commands.type.CustomStringArgumentInfo
 import net.casual.arcade.utils.EnumUtils
 
 /**
@@ -21,7 +20,7 @@ import net.casual.arcade.utils.EnumUtils
 public class EnumArgument<E: Enum<E>> @JvmOverloads constructor(
     clazz: Class<E>,
     mapper: (E) -> String = Enum<E>::name
-): MappedArgument<E>(EnumUtils.enumToMap(clazz) { e -> checkEnumName(e, mapper) }) {
+): MappedArgument<E>(EnumUtils.enumToMap(clazz, mapper)) {
     public companion object {
         public inline fun <reified E: Enum<E>> enumeration(
             noinline mapper: (E) -> String = Enum<E>::name
@@ -45,14 +44,6 @@ public class EnumArgument<E: Enum<E>> @JvmOverloads constructor(
         @JvmStatic
         public fun <E: Enum<E>> getEnumeration(context: CommandContext<*>, string: String, clazz: Class<E>): E {
             return context.getArgument(string, clazz)
-        }
-
-        private fun <E> checkEnumName(enum: E, mapper: (E) -> String): String {
-            val name = mapper.invoke(enum)
-            if (!CustomStringArgumentInfo.isAllowedWord(name)) {
-                throw IllegalArgumentException("Enumeration name $name has invalid characters")
-            }
-            return name
         }
     }
 }

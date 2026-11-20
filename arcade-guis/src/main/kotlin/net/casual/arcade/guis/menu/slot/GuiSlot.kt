@@ -13,7 +13,7 @@ import java.util.*
 public abstract class GuiSlot<G: Gui>(
     protected val gui: G,
     slot: Int
-): Slot(EmptyContainer, slot, 0, 0) {
+): Slot(EmptyContainer, slot, 0, 0, Section.CONTAINER) {
     abstract override fun getItem(): ItemStack
 
     final override fun allowModification(player: Player): Boolean {

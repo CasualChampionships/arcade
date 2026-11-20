@@ -163,7 +163,7 @@ public open class SimpleVirtualEntity(
 
         if (this.syncExactLocation) {
             this.observers.broadcast(
-                ClientboundEntityPositionSyncPacket(this.id, PositionPath.of(current.position), current.yRot, current.xRot, false)
+                ClientboundEntityPositionSyncPacket(this.id, PositionPath.of(current.position), current.yRot, current.xRot, current.yRot, false)
             )
             this.lastSyncedPos = current.position
             this.lastSyncedRot = current.rotation

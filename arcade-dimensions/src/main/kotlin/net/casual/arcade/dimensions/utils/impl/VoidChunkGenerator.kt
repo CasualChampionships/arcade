@@ -20,7 +20,6 @@ import net.minecraft.util.random.WeightedList
 import net.minecraft.world.entity.MobCategory
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.LevelHeightAccessor
-import net.minecraft.world.level.NoiseColumn
 import net.minecraft.world.level.StructureManager
 import net.minecraft.world.level.WorldGenLevel
 import net.minecraft.world.level.biome.*
@@ -28,12 +27,14 @@ import net.minecraft.world.level.chunk.ChunkAccess
 import net.minecraft.world.level.chunk.ChunkGenerator
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState
 import net.minecraft.world.level.levelgen.Heightmap
+import net.minecraft.world.level.levelgen.NoiseColumn
 import net.minecraft.world.level.levelgen.RandomState
 import net.minecraft.world.level.levelgen.blending.Blender
 import net.minecraft.world.level.levelgen.densityfunction.SamplerContext
 import net.minecraft.world.level.levelgen.structure.Structure
 import net.minecraft.world.level.levelgen.structure.StructureSet
 import java.util.concurrent.CompletableFuture
+import java.util.function.BiConsumer
 import java.util.stream.Stream
 
 /**
@@ -103,7 +104,6 @@ public class VoidChunkGenerator(biome: BiomeSource): ChunkGenerator(biome) {
         blender: Blender,
         randomState: RandomState,
         structureManager: StructureManager,
-        biomeManager: BiomeManager,
         carverBiomeRegion: WorldGenRegion?,
         possibleBiomes: Set<Holder<Biome>>
     ): CompletableFuture<ChunkAccess> {
@@ -118,16 +118,12 @@ public class VoidChunkGenerator(biome: BiomeSource): ChunkGenerator(biome) {
         return 0
     }
 
-    override fun getBaseHeight(x: Int, z: Int, type: Heightmap.Types, level: LevelHeightAccessor, random: RandomState): Int {
-        return 0
-    }
-
-    override fun getBaseColumn(x: Int, z: Int, height: LevelHeightAccessor, random: RandomState): NoiseColumn {
-        return NoiseColumn(0, emptyArray())
+    override fun getBaseColumn(x: Int, z: Int, heightAccessor: LevelHeightAccessor, randomState: RandomState): NoiseColumn {
+        return NoiseColumn(0, 0)
     }
 
     override fun addDebugScreenInfo(
-        result: List<String>,
+        addFact: BiConsumer<String, String>,
         randomState: RandomState,
         feetPos: BlockPos,
         samplerContext: SamplerContext

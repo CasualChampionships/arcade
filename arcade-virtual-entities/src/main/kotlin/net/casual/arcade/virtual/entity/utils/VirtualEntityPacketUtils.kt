@@ -31,7 +31,7 @@ public object VirtualEntityPacketUtils {
         codec.base = oldPos
 
         val delta = codec.tryEncode(newPos)
-            ?: return ClientboundEntityPositionSyncPacket(id, PositionPath.of(newPos), newRot.y, newRot.x, false)
+            ?: return ClientboundEntityPositionSyncPacket(id, PositionPath.of(newPos), newRot.y, newRot.x, newRot.y, false)
 
         val oldXRot = Mth.packDegrees(oldRot.x)
         val oldYRot = Mth.packDegrees(oldRot.y)

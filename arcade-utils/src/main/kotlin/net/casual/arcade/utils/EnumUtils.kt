@@ -6,6 +6,11 @@ package net.casual.arcade.utils
 
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
+import net.casual.arcade.utils.string.PascalCase
+import net.casual.arcade.utils.string.SnakeCase
+import net.casual.arcade.utils.string.StringCasingDecoder
+import net.casual.arcade.utils.string.StringCasingEncoder
+import net.casual.arcade.utils.string.convertCasing
 import java.util.*
 
 public object EnumUtils {
@@ -36,5 +41,9 @@ public object EnumUtils {
             map[key] = value
         }
         return map
+    }
+
+    public fun <E: Enum<E>> nameAsCase(from: StringCasingDecoder = PascalCase, to: StringCasingEncoder): (E) -> String {
+        return { enum: E -> enum.name.convertCasing(from, to) }
     }
 }

@@ -31,7 +31,7 @@ public class ComponentSplitter(
         splitifier: (FormattedText, Boolean) -> Unit
     ) {
         val lines = ArrayList<LineComponent>()
-        content.visit({ contentStyle, contentString ->
+        content.visitUnbounded({ contentStyle, contentString ->
             if (contentString.isNotEmpty()) {
                 lines.add(LineComponent(contentString, contentStyle))
             }
@@ -206,12 +206,12 @@ public class ComponentSplitter(
         val contents: String,
         val style: Style
     ): FormattedText {
-        override fun <T: Any> visit(acceptor: FormattedText.ContentConsumer<T>): Optional<T> {
-            return acceptor.accept(this.contents)
+        override fun <T : Any> visitUnbounded(output: FormattedText.ContentConsumer<T>): Optional<T> {
+            return output.accept(this.contents)
         }
 
-        override fun <T: Any> visit(acceptor: FormattedText.StyledContentConsumer<T>, style: Style): Optional<T> {
-            return acceptor.accept(this.style, this.contents)
+        override fun <T : Any> visitUnbounded(output: FormattedText.StyledContentConsumer<T>, parentStyle: Style): Optional<T> {
+            return output.accept(this.style, this.contents)
         }
     }
 

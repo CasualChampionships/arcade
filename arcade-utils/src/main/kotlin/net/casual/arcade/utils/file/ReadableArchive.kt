@@ -11,7 +11,6 @@ import kotlinx.io.files.FileNotFoundException
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.serialization.createSerializationContext
 import net.minecraft.core.HolderLookup
-import net.minecraft.resources.RegistryOps
 import net.minecraft.server.MinecraftServer
 import java.io.InputStream
 import java.nio.file.FileSystems
@@ -54,7 +53,7 @@ public interface ReadableArchive: AutoCloseable {
             return from(this.resolve("."), path)
         }
 
-        public fun <A> ReadableArchive.parse(
+        public fun <A: Any> ReadableArchive.parse(
             path: String,
             decoder: Decoder<A>,
             converter: (InputStream) -> Dynamic<*>
@@ -65,19 +64,13 @@ public interface ReadableArchive: AutoCloseable {
             }
         }
 
-        public fun <A> ReadableArchive.parseJson(path: String, decoder: Decoder<A>, lookup: HolderLookup.Provider? = null): Result<A> {
+        public fun <A: Any> ReadableArchive.parseJson(path: String, decoder: Decoder<A>, lookup: HolderLookup.Provider? = null): Result<A> {
             return this.parse(path, decoder) {
                 Dynamic(lookup.createSerializationContext(JsonOps.INSTANCE), JsonUtils.decodeRaw(it.reader()))
             }
         }
 
-        public fun <A> ReadableArchive.parseJson(path: String, decoder: Decoder<A>, lookup: RegistryOps.RegistryInfoLookup): Result<A> {
-            return this.parse(path, decoder) {
-                Dynamic(lookup.createSerializationContext(JsonOps.INSTANCE), JsonUtils.decodeRaw(it.reader()))
-            }
-        }
-
-        public fun <A> ReadableArchive.parseJson(path: String, decoder: Decoder<A>, server: MinecraftServer): Result<A> {
+        public fun <A: Any> ReadableArchive.parseJson(path: String, decoder: Decoder<A>, server: MinecraftServer): Result<A> {
             return this.parseJson(path, decoder, server.registryAccess())
         }
     }

@@ -240,7 +240,8 @@ public open class FakePlayer(
                 null -> null
                 else -> DebugPathInfo(
                     path.asVanillaPath().copy(),
-                    this.navigation.maxDistanceToWaypoint.toFloat()
+                    this.navigation.maxDistanceToWaypoint.toFloat(),
+                    0
                 )
             }
         }

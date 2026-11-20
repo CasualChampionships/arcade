@@ -6,7 +6,7 @@ fabric-loader       = "0.20.1"
 fabric-api          = "0.166.3+26.4"
 server-translations = "3.2.0+26.3"
 
-fabric-kotlin       = "1.14.1+kotlin.2.4.20"
+fabric-kotlin       = "1.14.2+kotlin.2.4.21"
 replay-studio       = "a2e312635c"
 molang-compiler     = "3.1.1.19"
 

@@ -7,7 +7,7 @@ package net.casual.arcade.utils.serialization.codec
 import com.mojang.serialization.*
 import java.util.stream.Stream
 
-public class FieldDecoderOfAny<A>(
+public class FieldDecoderOfAny<A: Any>(
     primary: String,
     secondaries: Array<out String>,
     private val codec: Decoder<A>

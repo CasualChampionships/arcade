@@ -15,7 +15,7 @@ import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonEncoder
 
-public class KJsonCodecSerializer<T>(
+public class KJsonCodecSerializer<T: Any>(
     private val codec: Codec<T>,
     private val ops: DynamicOps<JsonElement>
 ): KSerializer<T> {

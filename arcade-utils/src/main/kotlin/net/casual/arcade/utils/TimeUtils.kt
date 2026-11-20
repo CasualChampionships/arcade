@@ -73,7 +73,7 @@ public object TimeUtils {
         return try {
             DataResult.success(Duration.parse(string))
         } catch (e: IllegalArgumentException) {
-            DataResult.error { e.message }
+            DataResult.error { e.message ?: "Invalid duration" }
         }
     }
 }

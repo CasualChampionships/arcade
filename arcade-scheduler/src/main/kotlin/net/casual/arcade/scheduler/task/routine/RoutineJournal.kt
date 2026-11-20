@@ -70,12 +70,12 @@ internal class RoutineJournal private constructor(
     sealed interface Value {
         fun write(output: ValueOutput)
 
-        fun <T> decode(codec: Codec<T>): T?
+        fun <T: Any> decode(codec: Codec<T>): T?
 
         companion object {
-            fun <T> of(codec: Codec<T>, value: T): Value? {
+            fun <T: Any> of(codec: Codec<T>, value: T): Value {
                 @Suppress("UNCHECKED_CAST")
-                return Recorded(codec as Codec<Any>, value ?: return null)
+                return Recorded(codec as Codec<Any>, value)
             }
         }
     }
@@ -86,7 +86,7 @@ internal class RoutineJournal private constructor(
         }
 
         @Suppress("UNCHECKED_CAST")
-        override fun <T> decode(codec: Codec<T>): T {
+        override fun <T: Any> decode(codec: Codec<T>): T {
             return this.value as T
         }
     }
@@ -96,7 +96,7 @@ internal class RoutineJournal private constructor(
             output.store("value", Codec.PASSTHROUGH, this.dynamic)
         }
 
-        override fun <T> decode(codec: Codec<T>): T? {
+        override fun <T: Any> decode(codec: Codec<T>): T? {
             return codec.parse(this.dynamic).result().orElse(null)
         }
     }

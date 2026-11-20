@@ -214,7 +214,7 @@ public fun FormattedText.toComponent(): MutableComponent {
         return this.copy()
     }
     val component = Component.empty()
-    this.visit<Unit>({ style, content ->
+    this.visitUnbounded<Unit>({ style, content ->
         component.append(Component.literal(content).withStyle(style))
         Optional.empty()
     }, Style.EMPTY)

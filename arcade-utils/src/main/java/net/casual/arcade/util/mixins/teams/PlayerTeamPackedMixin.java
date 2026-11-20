@@ -9,7 +9,7 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.serialization.Codec;
 import net.casual.arcade.util.ducks.OverridableColor;
-import net.casual.arcade.utils.serialization.codec.ArcadeExtraCodecs;
+import net.casual.arcade.utils.serialization.codec.CodecUtilsKt;
 import net.minecraft.world.scores.PlayerTeam;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -43,7 +43,7 @@ public class PlayerTeamPackedMixin implements OverridableColor {
         )
     )
     private static Codec<PlayerTeam.Packed> extendWithOverridableColor(Codec<PlayerTeam.Packed> original) {
-        return ArcadeExtraCodecs.extend(
+        return CodecUtilsKt.extend(
             original,
             Codec.INT.optionalFieldOf("RawHexColor").forGetter(packed -> {
                 return Optional.ofNullable(((OverridableColor) (Object) packed).arcade_getColor());

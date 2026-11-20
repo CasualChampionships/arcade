@@ -12,16 +12,15 @@ import net.minecraft.core.HolderGetter
 import net.minecraft.core.RegistrationInfo
 import net.minecraft.core.Registry
 import net.minecraft.resources.Identifier
-import net.minecraft.resources.RegistryOps.RegistryInfoLookup
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceManagerRegistryLoadTask
 import java.util.*
 
 public data class RegistryLoadedFromResourcesEvent<T: Any>(
     val task: ResourceManagerRegistryLoadTask<T>,
-    val context: RegistryInfoLookup
+    val context: HolderGetter.Provider
 ): ServerSideEvent, MissingExecutorEvent {
-    public fun <T: Any> lookup(registry: ResourceKey<Registry<T>>): Optional<HolderGetter<T>> {
+    public fun <T: Any> lookup(registry: ResourceKey<Registry<T>>): Optional<out HolderGetter<T>> {
         return this.context.lookup(registry)
     }
 

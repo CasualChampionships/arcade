@@ -28,13 +28,11 @@ public object StructureUtils {
     }
 
     public fun read(tag: CompoundTag, getter: HolderGetter<Block> = BuiltInRegistries.BLOCK, fixer: DataFixer? = null): StructureTemplate {
-        val template = StructureTemplate()
         var fixed = tag
         if (fixer != null) {
             val version = NbtUtils.getDataVersion(tag, 500)
             fixed = DataFixTypes.STRUCTURE.updateToCurrentVersion(fixer, tag, version)
         }
-        template.load(getter, fixed)
-        return template
+        return StructureTemplate.load(getter, fixed)
     }
 }

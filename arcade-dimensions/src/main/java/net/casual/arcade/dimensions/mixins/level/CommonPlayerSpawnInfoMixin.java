@@ -5,10 +5,7 @@
 package net.casual.arcade.dimensions.mixins.level;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.game.CommonPlayerSpawnInfo;
@@ -44,7 +41,7 @@ public class CommonPlayerSpawnInfoMixin {
 					return;
 				}
 
-				Holder.Reference<DimensionType> replacement = output.registryAccess()
+				Holder.Reference<DimensionType> replacement = output.registries()
 					.getOrThrow(BuiltinDimensionTypes.OVERWORLD);
 				original.encode(output, replacement);
             }
