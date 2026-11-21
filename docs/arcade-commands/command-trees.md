@@ -21,13 +21,13 @@ We can add suggestions, requirements, literal subcommands and add arguments:
 fun createExampleCommand(): LiteralArgumentBuilder<CommandSourceStack> {
     return CommandTree.buildLiteral("example") {
         requiresPermission(PermissionLevel.GAMEMASTERS)
-        argument("argument", StringArgumentType.string()) {
+        argument("argument", StringArgument.string()) {
             requires { it.level.dimension() == Level.OVERWORLD }
             executes { /* Command logic */ }
         }
         
         literal("subcommand") {
-            argument("subcommand-argument", StringArgumentType.string()) {
+            argument("subcommand-argument", StringArgument.string()) {
                 suggests { _, b -> SharedSuggestionProvider.suggest(listOf("a", "b", "c"), b) }
                 executes { /* Command logic */ }
             }

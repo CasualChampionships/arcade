@@ -7,7 +7,6 @@ package net.casual.arcade.replay.viewer
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.FloatArgumentType
-import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.tree.CommandNode
@@ -17,6 +16,7 @@ import net.casual.arcade.utils.DateTimeUtils.formatHHMMSS
 import net.minecraft.ChatFormatting
 import net.minecraft.commands.*
 import net.minecraft.commands.arguments.IntegerArgument
+import net.minecraft.commands.arguments.StringArgument
 import net.minecraft.commands.arguments.TimeArgument
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
@@ -93,7 +93,7 @@ public object ReplayViewerCommands {
                                 executes { jumpToMarker(it, null, 0) }
                             }
                             literal("named") {
-                                argument("name", StringArgumentType.string()) {
+                                argument("name", StringArgument.string()) {
                                     argument("offset", TimeArgument.time(Int.MIN_VALUE)) {
                                         executes(::jumpToMarker)
                                     }
@@ -168,7 +168,7 @@ public object ReplayViewerCommands {
 
     private fun jumpToMarker(
         context: CommandContext<CommandSourceStack>,
-        name: String? = StringArgumentType.getString(context, "name"),
+        name: String? = StringArgument.getString(context, "name"),
         offset: Int = IntegerArgument.getInteger(context, "offset")
     ): Int {
         val viewer = context.source.getReplayViewer()

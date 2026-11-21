@@ -1,6 +1,5 @@
 package net.casual.arcade.tests.manual.commands
 
-import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
@@ -13,16 +12,19 @@ import net.casual.arcade.utils.server.player
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument
+import net.minecraft.commands.arguments.StringArgument
 import net.minecraft.commands.arguments.coordinates.Vec3Argument
 import net.minecraft.commands.suggestions.SuggestionContext
+import net.minecraft.commands.suggestions.SuggestionProviders
+import net.minecraft.server.MinecraftServer
 import java.util.concurrent.CompletableFuture
 
 @Suppress("unused")
 object FakePlayerCommand: CommandTree<CommandSourceStack> {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("fake-player") {
-            argument("username", StringArgumentType.word()) {
-                suggests(::suggestFakePlayerNames)
+            argument("username", StringArgument.word()) {
+                suggests(SuggestionProviders.serverOnly(::suggestFakePlayerNames))
                 literal("join") {
                     executes(::fakePlayerJoin)
                 }
@@ -51,7 +53,7 @@ object FakePlayerCommand: CommandTree<CommandSourceStack> {
     }
 
     private fun fakePlayerJoin(context: CommandContext<CommandSourceStack>): Int {
-        val username = StringArgumentType.getString(context, "username")
+        val username = StringArgument.getString(context, "username")
         FakePlayer.join(context.source.server, username)
         return context.source.success("Joining $username")
     }
@@ -104,15 +106,16 @@ object FakePlayerCommand: CommandTree<CommandSourceStack> {
     }
 
     private fun CommandContext<CommandSourceStack>.fakePlayer(): FakePlayer? {
-        val username = StringArgumentType.getString(this, "username")
+        val username = StringArgument.getString(this, "username")
         return this.source.server.player(username) as? FakePlayer
     }
 
     private fun suggestFakePlayerNames(
-        context: CommandContext<CommandSourceStack>,
+        server: MinecraftServer,
+        context: CommandContext<out SuggestionContext>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
-        val names = context.source.server.playerList.players
+        val names = server.playerList.players
             .filterIsInstance<FakePlayer>()
             .map { it.username }
         return SuggestionContext.suggest(names, builder)

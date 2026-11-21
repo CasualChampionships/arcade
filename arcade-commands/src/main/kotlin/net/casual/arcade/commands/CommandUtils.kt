@@ -22,7 +22,6 @@ import net.casual.arcade.utils.math.location.asLocation
 import net.casual.arcade.utils.minecraft
 import net.fabricmc.fabric.api.permission.v1.PermissionPredicates
 import net.minecraft.commands.CommandBox
-import net.minecraft.commands.CommandPermissionLevels
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.commands.ParseBox

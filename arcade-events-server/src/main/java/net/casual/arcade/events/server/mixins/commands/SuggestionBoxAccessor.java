@@ -21,6 +21,7 @@ public interface SuggestionBoxAccessor {
     static ClientboundCommandsPacket.NodeInspector<PermissionSetSupplier> arcade_getCommandNodeInspector() {
         throw new AssertionError();
     }
+
     @Accessor("COMMAND_NODE_BUILDER")
     static ClientboundCommandsPacket.NodeBuilder<SuggestionContext> arcade_getCommandNodeBuilder() {
         throw new AssertionError();

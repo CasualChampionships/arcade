@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.events.server.mixins.commands;
 
+import com.google.common.collect.Iterables;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.brigadier.CommandDispatcher;
@@ -16,6 +17,7 @@ import net.minecraft.commands.*;
 import net.minecraft.commands.suggestions.SuggestionContext;
 import net.minecraft.network.protocol.game.ClientboundCommandsPacket;
 import net.minecraft.server.level.ServerPlayer;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,11 +25,16 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Mixin(Commands.class)
 public abstract class CommandsMixin {
-    @Inject(
+	@Shadow
+	@Final
+	private SuggestionBox suggestionBox;
+
+	@Inject(
 		method = "registerVanillaCommands",
 		at = @At("TAIL")
 	)
@@ -61,13 +68,14 @@ public abstract class CommandsMixin {
 		// Mirroring SuggestionBox#toPacket
 		ServerPlayerSuggestionContext context = new ServerPlayerSuggestionContext(player);
 		Map<CommandNode<SuggestionContext>, CommandNode<SuggestionContext>> converted = new HashMap<>();
-		RootCommandNode<SuggestionContext> original = packet.getRoot(SuggestionBoxAccessor.arcade_getCommandNodeBuilder());
 		RootCommandNode<SuggestionContext> root = new RootCommandNode<>();
-		converted.put(original, root);
-		SuggestionBoxAccessor.arcade_fillUsableCommands(original, root, context, converted);
 
-		// Then tack on our custom nodes
-		for (RootCommandNode<SuggestionContext> node : event.getCustomCommandNodes()) {
+        //noinspection unchecked
+        Iterable<RootCommandNode<SuggestionContext>> nodes = Iterables.concat(
+			List.of(((CommandBoxAccessor<SuggestionContext>) this.suggestionBox).arcade_getDispatcher().getRoot()),
+			event.getCustomCommandNodes()
+		);
+		for (RootCommandNode<SuggestionContext> node : nodes) {
 			converted.put(node, root);
 			SuggestionBoxAccessor.arcade_fillUsableCommands(node, root, context, converted);
 		}

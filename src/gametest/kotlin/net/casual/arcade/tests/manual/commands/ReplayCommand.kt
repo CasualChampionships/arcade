@@ -1,6 +1,5 @@
 package net.casual.arcade.tests.manual.commands
 
-import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import kotlinx.atomicfu.atomic
@@ -22,6 +21,7 @@ import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.network.ResolvableURL
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.arguments.StringArgument
 import net.minecraft.server.level.ServerPlayer
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
@@ -34,7 +34,7 @@ object ReplayCommand: BasicReplayCommand(ArcadeUtils.path.resolve("replays").cre
         return super.create(buildContext).apply {
             literal("resource-pack") {
                 literal("push") {
-                    argument("url", StringArgumentType.string()) {
+                    argument("url", StringArgument.string()) {
                         executes(::pushResourcePack)
                     }
                 }
@@ -52,7 +52,7 @@ object ReplayCommand: BasicReplayCommand(ArcadeUtils.path.resolve("replays").cre
     }
 
     private fun pushResourcePack(context: CommandContext<CommandSourceStack>): Int {
-        val url = StringArgumentType.getString(context, "url")
+        val url = StringArgument.getString(context, "url")
         val player = context.source.playerOrException
         player.sendResourcePack(PackInfo(ResolvableURL.from(url), "", false, null), buffer = true)
         return context.source.success("Successfully sent resource pack")

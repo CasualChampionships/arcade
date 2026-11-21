@@ -1,6 +1,5 @@
 package net.casual.arcade.tests.manual.commands
 
-import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.commands.CommandTree
@@ -14,6 +13,7 @@ import net.casual.arcade.utils.player.StaticResolvableProfile
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.IntegerArgument
+import net.minecraft.commands.arguments.StringArgument
 import net.minecraft.network.chat.Component
 
 @Suppress("unused")
@@ -26,7 +26,7 @@ object PlayerHeadCommand: CommandTree<CommandSourceStack> {
         return CommandTree.buildLiteral("player-head") {
             literal("display") {
                 literal("username") {
-                    argument("username", StringArgumentType.word()) {
+                    argument("username", StringArgument.word()) {
                         argument("shift", IntegerArgument.integer(-256, 256)) {
                             executes(::displayPlayerHead)
                         }
@@ -47,7 +47,7 @@ object PlayerHeadCommand: CommandTree<CommandSourceStack> {
         context: CommandContext<CommandSourceStack>,
         shift: Int = IntegerArgument.getInteger(context, "shift")
     ): Int {
-        val username = StringArgumentType.getString(context, "username")
+        val username = StringArgument.getString(context, "username")
         val component = PixelGridHeadComponents.getHeadOrDefaultFor(StaticResolvableProfile(username), context.source.server, shift)
         return context.source.success(Component.literal("${username}'s head: ").append(component))
     }

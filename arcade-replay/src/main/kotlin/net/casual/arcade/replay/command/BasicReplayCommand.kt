@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.replay.command
 
-import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
@@ -26,7 +25,10 @@ import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.IntegerArgument
+import net.minecraft.commands.arguments.StringArgument
 import net.minecraft.commands.suggestions.SuggestionContext
+import net.minecraft.commands.suggestions.SuggestionProviders
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
@@ -78,8 +80,8 @@ public open class BasicReplayCommand(
                 }
             }
             literal("view") {
-                argument("name", StringArgumentType.string()) {
-                    suggests(::suggestViewableReplays)
+                argument("name", StringArgument.string()) {
+                    suggests(SuggestionProviders.serverOnly(::suggestViewableReplays))
                     executes(::viewReplay)
                 }
             }
@@ -89,7 +91,7 @@ public open class BasicReplayCommand(
             literal("marker") {
                 literal("players") {
                     argument("players", EntityArgument.players()) {
-                        argument("name", StringArgumentType.string()) {
+                        argument("name", StringArgument.string()) {
                             executes(::addMarkersToPlayerRecorders)
                         }
                     }
@@ -161,7 +163,7 @@ public open class BasicReplayCommand(
     }
 
     private fun viewReplay(context: CommandContext<CommandSourceStack>) {
-        val name = StringArgumentType.getString(context, "name")
+        val name = StringArgument.getString(context, "name")
         val path = this.path.resolve(name)
         try {
             val viewer = ReplayViewers.create(path, context.source.playerOrException)
@@ -196,7 +198,7 @@ public open class BasicReplayCommand(
 
     private fun addMarkersToPlayerRecorders(context: CommandContext<CommandSourceStack>) {
         val players = EntityArgument.getPlayers(context, "players")
-        val name = StringArgumentType.getString(context, "name")
+        val name = StringArgument.getString(context, "name")
         for (player in players) {
             ReplayPlayerRecorders.get(player).forEach { recorder ->
                 recorder.addMarker(name)
@@ -216,8 +218,10 @@ public open class BasicReplayCommand(
         return listOf("Not Currently Recording $type")
     }
 
+    @Suppress("UnusedParameter")
     private fun suggestViewableReplays(
-        @Suppress("UnusedParameter") context: CommandContext<CommandSourceStack>,
+        server: MinecraftServer,
+        context: CommandContext<out SuggestionContext>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
         val suggestions = this.path.streamDirectoryEntriesOrEmpty()
