@@ -45,7 +45,7 @@ public open class ServerCommandManager(
         this.suggestionBox = SuggestionBox.fromFullTree(this.dispatcher)
     }
 
-    internal fun initialize(registry: ListenerRegistry<ServerSideEvent>) {
+    public fun initialize(registry: ListenerRegistry<ServerSideEvent>) {
         registry.register<PlayerSendCommandsEvent>(this::onPlayerSendCommands)
         registry.register<PlayerCommandEvent>(this::onPlayerCommand)
         registry.register<CommandBlockExecuteEvent>(this::onCommandBlockExecute)
@@ -56,7 +56,7 @@ public open class ServerCommandManager(
         this.resendCommands()
     }
 
-    protected fun resendCommands() {
+    protected open fun resendCommands() {
         for (player in this.server.playerList.players) {
             this.server.commands.sendCommands(player)
         }

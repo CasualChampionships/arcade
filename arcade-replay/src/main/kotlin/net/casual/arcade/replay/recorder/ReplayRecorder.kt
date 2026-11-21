@@ -596,7 +596,7 @@ public abstract class ReplayRecorder(
 
         this.protocol = LoginProtocols.CLIENTBOUND
         // We will not have recorded this, so we need to do it manually.
-        this.record(ClientboundLoginFinishedPacket(this.profile, this.server.connection.sessionId))
+        this.record(ClientboundLoginFinishedPacket(this.profile, this.server.connection.sessionId, 0))
 
         this.protocol = ConfigurationProtocols.CLIENTBOUND
     }

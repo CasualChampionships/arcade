@@ -19,27 +19,30 @@ import net.casual.arcade.utils.DateTimeUtils.formatHHMMSS
 import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSource
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.Commands
+import net.minecraft.commands.ParseBox
+import net.minecraft.commands.ParseContext
 import net.minecraft.commands.arguments.TimeArgument
-import net.minecraft.commands.synchronization.SuggestionProviders
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundCommandsPacket
 import net.minecraft.network.protocol.game.ClientboundCommandsPacket.NodeInspector
 import net.minecraft.network.protocol.game.ClientboundSystemChatPacket
-import net.minecraft.resources.Identifier
 import java.util.function.Consumer
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
 public object ReplayViewerCommands {
     private val dispatcher = CommandDispatcher<CommandSourceStack>()
+    private val parseBox: ParseBox
 
     init {
         this.dispatcher.register(this.createReplayViewCommand())
+        this.parseBox = ParseBox.fromFullTree(this.dispatcher)
     }
 
-    public fun sendCommandPacket(consumer: Consumer<Packet<ClientGamePacketListener>>) {
+    public fun sendCommandPacket(consumer: Consumer<Packet<in ClientGamePacketListener>>) {
         // TODO: Add some way to add configurable permissions to commands
         consumer.accept(ClientboundCommandsPacket(this.dispatcher.root, ReplayViewerNodeInspector))
     }
@@ -47,8 +50,8 @@ public object ReplayViewerCommands {
     public fun handleCommand(command: String, viewer: ReplayViewer) {
         viewer.server.execute {
             val source = viewer.player.createCommandSourceStack().withSource(ReplayViewerCommandSource(viewer))
-            val result = this.dispatcher.parse(command, source)
-            viewer.server.commands.performCommand(result, command)
+            val result = this.parseBox.parse(command, ParseContext.of(source))
+            Commands.performCommand(source, result, command)
         }
     }
 
@@ -104,7 +107,7 @@ public object ReplayViewerCommands {
                             }
                         }
                         literal("timestamp") {
-                            argument("timestamp", TimeArgument.time()) {
+                            argument("timestamp", TimeArgument.unboundedTime()) {
                                 executes(::jumpTo)
                             }
                         }
@@ -234,16 +237,11 @@ public object ReplayViewerCommands {
     }
 
     private object ReplayViewerNodeInspector: NodeInspector<CommandSourceStack> {
-        override fun suggestionId(node: ArgumentCommandNode<CommandSourceStack, *>): Identifier? {
-            val suggestions = node.customSuggestions
-            return if (suggestions != null) SuggestionProviders.getName(suggestions) else null
-        }
-
-        override fun isExecutable(node: CommandNode<CommandSourceStack>): Boolean {
+        override fun isExecutable(node: CommandNode<out CommandSourceStack>): Boolean {
             return node.command != null
         }
 
-        override fun isRestricted(node: CommandNode<CommandSourceStack>): Boolean {
+        override fun isRestricted(node: CommandNode<out CommandSourceStack>): Boolean {
             return false
         }
     }

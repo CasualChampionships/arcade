@@ -138,17 +138,17 @@ public class MinigameMusicManager(
         player: ServerPlayer,
         cached: MutableMap<ServerLevel, List<ClientboundStopSoundPacket>>
     ) {
-        if (player.level().dimension() == Level.END) {
-            player.stopMusic(SoundEvents.MUSIC_END)
-            player.stopMusic(SoundEvents.MUSIC_DRAGON)
-            return
-        }
-        if (player.level().dimension() != Level.NETHER && player.abilities.mayBuild && player.abilities.mayfly) {
-            player.stopMusic(SoundEvents.MUSIC_CREATIVE)
-            return
-        }
-        player.stopMusic(SoundEvents.MUSIC_GAME)
-        player.stopMusic(SoundEvents.MUSIC_UNDER_WATER)
+//        if (player.level().dimension() == Level.END) {
+//            player.stopMusic(SoundEvents.MUSIC_END)
+//            player.stopMusic(SoundEvents.MUSIC_DRAGON)
+//            return
+//        }
+//        if (player.level().dimension() != Level.NETHER && player.abilities.mayBuild && player.abilities.mayfly) {
+//            player.stopMusic(SoundEvents.MUSIC_CREATIVE)
+//            return
+//        }
+//        player.stopMusic(SoundEvents.MUSIC_GAME)
+//        player.stopMusic(SoundEvents.MUSIC_UNDER_WATER)
 
         // TODO: All the biome music
         // val packets = cached.computeIfAbsent(player.level()) { level ->

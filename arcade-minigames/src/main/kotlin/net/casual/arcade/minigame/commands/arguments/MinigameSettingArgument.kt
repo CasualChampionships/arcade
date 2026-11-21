@@ -5,35 +5,46 @@
 package net.casual.arcade.minigame.commands.arguments
 
 import com.mojang.brigadier.StringReader
+import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
+import net.casual.arcade.commands.type.ServerSideArgument
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.settings.GameSetting
-import net.minecraft.commands.SharedSuggestionProvider
+import net.minecraft.commands.ServerPlayerSuggestionContext
+import net.minecraft.commands.arguments.SerializableArgument
+import net.minecraft.commands.arguments.StringArgument
+import net.minecraft.commands.suggestions.SuggestionContext
 import net.minecraft.network.chat.Component
 import java.util.concurrent.CompletableFuture
 
-public class MinigameSettingArgument(private val minigameKey: String): CustomArgumentType<String>() {
+public class MinigameSettingArgument(
+    private val minigameKey: String
+): SerializableArgument.ContextFree<String>, ServerSideArgument<String> {
     override fun parse(reader: StringReader): String {
         return reader.readUnquotedString()
     }
 
-    override fun <S> listSuggestions(
-        context: CommandContext<S>,
+    override fun listServerSuggestions(
+        context: CommandContext<out ServerPlayerSuggestionContext>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
         val minigame = MinigameArgument.getMinigame(context, this.minigameKey)
-        return SharedSuggestionProvider.suggest(minigame.settings.all().map { it.name }, builder)
+        return SuggestionContext.suggest(minigame.settings.all().map { it.name }, builder)
+    }
+
+    override fun asSerializableArgument(): SerializableArgument<*> {
+        return StringArgument.Word.INSTANCE
     }
 
     public companion object {
         public val INVALID_SETTING_NAME: SimpleCommandExceptionType = SimpleCommandExceptionType(Component.translatable("minigame.command.argument.settingName.invalid"))
 
         @JvmStatic
-        public fun setting(minigameKey: String): MinigameSettingArgument {
-            return MinigameSettingArgument(minigameKey)
+        public fun setting(minigameKey: String): ArgumentType<String> {
+            return MinigameSettingArgument(minigameKey).toBrigadier()
         }
 
         @JvmStatic

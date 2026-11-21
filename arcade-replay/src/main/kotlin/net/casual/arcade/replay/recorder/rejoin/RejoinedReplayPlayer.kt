@@ -50,7 +50,9 @@ public class RejoinedReplayPlayer private constructor(
 
             val rejoined = RejoinedReplayPlayer(player, recorder)
             val connection = RejoinConnection()
-            val cookies = CommonListenerCookie(player.gameProfile, 0, player.clientInformation(), false)
+            val cookies = CommonListenerCookie(
+                player.gameProfile, 0, player.clientInformation(), false, player.connection.debugInfo()
+            )
 
             val config = RejoinConfigurationPacketListener(rejoined, connection, cookies)
             config.startConfiguration()

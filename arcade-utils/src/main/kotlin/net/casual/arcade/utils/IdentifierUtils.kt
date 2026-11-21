@@ -20,8 +20,17 @@ public fun Identifier(namespace: String, path: String): Identifier {
 }
 
 public object IdentifierUtils {
+    public const val VALID_NAMESPACE_CHARS: String = Identifier.ALLOWED_NAMESPACE_CHARACTERS
+    public const val VALID_PATH_CHARS: String = "[a-z0-9_./-]"
+
+    public val REGEX: Regex = Regex("^$VALID_PATH_CHARS+:$VALID_PATH_CHARS+$")
+
     public fun isValidNamespaceChar(c: Char): Boolean {
         return c == '_' || c == '-' || c in 'a'..'z' || c in '0'..'9' || c == '.'
+    }
+
+    public fun isValidPathChar(c: Char): Boolean {
+        return Identifier.validPathChar(c)
     }
 
     public fun random(namespace: String = ArcadeUtils.MOD_ID): Identifier {

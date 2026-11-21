@@ -63,20 +63,24 @@ kotlin {
     jvmToolchain {
         languageVersion.set(javaVersion)
     }
+    compilerOptions {
+//        freeCompilerArgs.add("-Xjspecify-annotations=warn")
+    }
 }
 
 tasks {
     processResources {
-        inputs.property("version", modVersion)
+        val properties = mapOf(
+            "version" to modVersion,
+            "minecraft_dependency" to replaceVersion(libs.versions.minecraft.get(), "x"),
+            "fabric_loader_dependency" to libs.versions.fabric.loader.get(),
+            "fabric_api_dependency" to libs.versions.fabric.api.get(),
+            "fabric_kotlin_dependency" to libs.versions.fabric.kotlin.get(),
+            "polymer_dependency" to libs.versions.polymer.get(),
+        )
+        inputs.properties(properties)
         filesMatching("fabric.mod.json") {
-            expand(mapOf(
-                "version" to modVersion,
-                "minecraft_dependency" to replaceVersion(libs.versions.minecraft.get(), "x"),
-                "fabric_loader_dependency" to libs.versions.fabric.loader.get(),
-                "fabric_api_dependency" to libs.versions.fabric.api.get(),
-                "fabric_kotlin_dependency" to libs.versions.fabric.kotlin.get(),
-                "polymer_dependency" to libs.versions.polymer.get(),
-            ))
+            expand(properties)
         }
     }
 
@@ -159,5 +163,6 @@ fun replaceVersion(version: String, patch: String): String {
     if (type.isEmpty()) {
         return "$minor.$patch"
     }
-    return "$minor$patchVersion-$type.$number"
+    val normalizedType = if (type == "snapshot") "alpha" else type
+    return "$minor$patchVersion-$normalizedType.$number"
 }

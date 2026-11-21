@@ -9,16 +9,22 @@ import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
 import com.google.gson.stream.MalformedJsonException
 import com.mojang.brigadier.StringReader
-import com.mojang.brigadier.arguments.StringArgumentType.StringType.GREEDY_PHRASE
+import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import com.mojang.serialization.JsonOps
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
+import net.casual.arcade.commands.type.ServerSideArgument
+import net.casual.arcade.minigame.utils.MinigameRegistryKeys
 import net.casual.arcade.utils.JsonUtils
 import net.casual.arcade.utils.JsonUtils.getPos
-import net.minecraft.commands.SharedSuggestionProvider
+import net.minecraft.commands.ServerPlayerSuggestionContext
+import net.minecraft.commands.arguments.ResourceArgument
+import net.minecraft.commands.arguments.SerializableArgument
+import net.minecraft.commands.arguments.StringArgument
+import net.minecraft.commands.suggestions.SuggestionContext
 import net.minecraft.core.RegistryAccess
 import net.minecraft.network.chat.Component
 import net.minecraft.util.ExtraCodecs
@@ -27,7 +33,7 @@ import java.util.concurrent.CompletableFuture
 
 public class MinigameFactoryDataArgument(
     private val factoryCodecKey: String
-): CustomArgumentType<JsonObject>() {
+): SerializableArgument.ContextFree<JsonObject>, ServerSideArgument<JsonObject> {
     override fun parse(reader: StringReader): JsonObject {
         val json = JsonUtils.parseJson(RegistryAccess.EMPTY, reader, ExtraCodecs.JSON)
         if (json !is JsonObject) {
@@ -36,16 +42,16 @@ public class MinigameFactoryDataArgument(
         return json
     }
 
-    override fun <S> listSuggestions(
-        context: CommandContext<S>,
+    override fun listServerSuggestions(
+        context: CommandContext<out ServerPlayerSuggestionContext>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
-        val codec = MinigameFactoryCodecArgument.getCodec(context, this.factoryCodecKey)
+        val codec = ResourceArgument.getResource(context, this.factoryCodecKey, MinigameRegistryKeys.MINIGAME_FACTORY).value()
         val keys = codec.keys(JsonOps.INSTANCE).map { it.asString }.toList().toMutableSet()
         val existing = ObjectOpenHashSet<String>()
         val typing = try {
             this.completions(builder, existing)
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             return Suggestions.empty()
         }
         keys.removeAll(existing)
@@ -53,11 +59,11 @@ public class MinigameFactoryDataArgument(
             return Suggestions.empty()
         }
         val start = builder.remaining.removeSuffix(typing)
-        return SharedSuggestionProvider.suggest(keys.filter { it.startsWith(typing) }.map { start + it }, builder)
+        return SuggestionContext.suggest(keys.filter { it.startsWith(typing) }.map { start + it }, builder)
     }
 
-    public override fun getArgumentInfo(): CustomArgumentTypeInfo<*> {
-        return CustomStringArgumentInfo(GREEDY_PHRASE)
+    override fun asSerializableArgument(): SerializableArgument<*> {
+        return StringArgument.Greedy.INSTANCE
     }
 
     private fun completions(
@@ -104,8 +110,8 @@ public class MinigameFactoryDataArgument(
         )
 
         @JvmStatic
-        public fun data(factoryCodecKey: String): MinigameFactoryDataArgument {
-            return MinigameFactoryDataArgument(factoryCodecKey)
+        public fun data(factoryCodecKey: String): ArgumentType<JsonObject> {
+            return MinigameFactoryDataArgument(factoryCodecKey).toBrigadier()
         }
 
         @JvmStatic

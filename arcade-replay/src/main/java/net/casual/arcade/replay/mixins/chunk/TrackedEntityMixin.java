@@ -110,7 +110,7 @@ public class TrackedEntityMixin implements ReplayChunkRecordable {
     @Unique
     private void recordCreationPackets(ReplayChunkRecorder recorder) {
         List<Packet<? super ClientGamePacketListener>> list = new ArrayList<>();
-        //noinspection deprecation
+        // noinspection deprecation
         this.serverEntity.sendPairingData(recorder.getDummyPlayer(), list::add);
         recorder.record(new ClientboundBundlePacket(list));
     }

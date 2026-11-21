@@ -10,7 +10,6 @@ import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.common.*
 import net.minecraft.network.protocol.cookie.ClientboundCookieRequestPacket
 import net.minecraft.network.protocol.game.*
-import net.minecraft.network.protocol.login.ClientboundLoginCompressionPacket
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.clock.ClockNetworkState
 import net.minecraft.world.entity.Entity
@@ -37,7 +36,6 @@ public object ReplayOptimizerUtils {
         ClientboundAwardStatsPacket::class.java,
         ClientboundSetExperiencePacket::class.java,
         ClientboundPlayerAbilitiesPacket::class.java,
-        ClientboundLoginCompressionPacket::class.java,
         ClientboundCommandSuggestionsPacket::class.java,
         ClientboundCustomChatCompletionsPacket::class.java,
         ClientboundCommandsPacket::class.java,

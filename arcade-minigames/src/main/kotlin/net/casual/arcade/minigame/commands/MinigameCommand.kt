@@ -25,6 +25,7 @@ import net.casual.arcade.minigame.commands.arguments.MinigameSettingsOptionArgum
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.utils.AdvancementModifier
+import net.casual.arcade.minigame.utils.MinigameRegistryKeys
 import net.casual.arcade.minigame.utils.MinigameUtils.getMinigame
 import net.casual.arcade.minigame.utils.MinigameUtils.trackReadyPlayers
 import net.casual.arcade.minigame.utils.MinigameUtils.trackReadyTeams
@@ -43,8 +44,8 @@ import net.casual.arcade.utils.coroutine.launch
 import net.casual.arcade.utils.time.MinecraftTimeUnit
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.*
+import net.minecraft.commands.suggestions.SuggestionContext
 import net.minecraft.core.registries.Registries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
@@ -64,7 +65,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
                 executes(::listMinigames)
             }
             literal("create") {
-                argument("factory", MinigameFactoryCodecArgument.codec()) {
+                argument("factory", ResourceArgument.resource(MinigameRegistryKeys.MINIGAME_FACTORY)) {
                     executes { createMinigame(it, JsonObject()) }
                     argument("data", MinigameFactoryDataArgument.data("factory")) {
                         executes(::createMinigame)
@@ -161,8 +162,8 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
                         }
                     }
                     literal("announce") {
-                        argument("announcement", ComponentArgument.textComponent(buildContext)) {
-                            argument("title", ComponentArgument.textComponent(buildContext)) {
+                        argument("announcement", ComponentArgument.textComponent()) {
+                            argument("title", ComponentArgument.textComponent()) {
                                 executes(::announce)
                             }
                             executes { announce(it, null) }
@@ -231,7 +232,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
                             argument("advancement", IdentifierArgument.id()) {
                                 suggests { context, builder ->
                                     val minigame = MinigameArgument.getMinigame(context, "minigame")
-                                    SharedSuggestionProvider.suggestResource(minigame.advancements.all().map { it.id }, builder)
+                                    SuggestionContext.suggestResource(minigame.advancements.all().map { it.id }, builder)
                                 }
                                 argument("player", EntityArgument.players()) {
                                     executes(::modifyMinigameAdvancement)
@@ -253,7 +254,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
                             argument("recipe", IdentifierArgument.id()) {
                                 suggests { context, builder ->
                                     val minigame = MinigameArgument.getMinigame(context, "minigame")
-                                    SharedSuggestionProvider.suggestResource(minigame.recipes.all().map { it.id.identifier() }, builder)
+                                    SuggestionContext.suggestResource(minigame.recipes.all().map { it.id.identifier() }, builder)
                                 }
                                 argument("player", EntityArgument.players()) {
                                     executes(::modifyMinigameRecipe)
@@ -338,7 +339,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
                     }
                     literal("step") {
                         executes { tickStep(it, 1) }
-                        argument("ticks", TimeArgument.time()) {
+                        argument("ticks", TimeArgument.time(1)) {
                             executes(::tickStep)
                         }
                     }
@@ -849,7 +850,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
         context: CommandContext<CommandSourceStack>,
         data: JsonObject = MinigameFactoryDataArgument.getData(context, "data")
     ): Int {
-        val factory = MinigameFactoryCodecArgument.getCodec(context, "factory")
+        val factory = ResourceArgument.getResource(context, "factory", MinigameRegistryKeys.MINIGAME_FACTORY).value()
 
         val result = factory.codec().parse(JsonOps.INSTANCE, data).result()
         if (result.isEmpty) {
@@ -922,7 +923,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
         val tag = this.resolve(minigame.getDebugTag(), prefix) ?: return Suggestions.empty()
 
         val offset = builder.start + separator + 1
-        return SharedSuggestionProvider.suggest(tag.keySet(), builder.createOffset(offset))
+        return SuggestionContext.suggest(tag.keySet(), builder.createOffset(offset))
     }
 
     private fun resolve(root: CompoundTag, prefix: String): CompoundTag? {

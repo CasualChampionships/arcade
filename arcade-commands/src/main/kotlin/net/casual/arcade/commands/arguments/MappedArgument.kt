@@ -5,6 +5,7 @@
 package net.casual.arcade.commands.arguments
 
 import com.mojang.brigadier.StringReader
+import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
@@ -75,8 +76,8 @@ public open class MappedArgument<T: Any>(
         private val INVALID_ELEMENT = DynamicCommandExceptionType { Component.translatable("commands.arguments.mapped.invalid", it) }
 
         @JvmStatic
-        public fun <T: Any> mapped(map: Map<String, T>): MappedArgument<T> {
-            return MappedArgument(map)
+        public fun <T: Any> mapped(map: Map<String, T>): ArgumentType<T> {
+            return MappedArgument(map).toBrigadier()
         }
 
         public inline fun <reified T> getMapped(context: CommandContext<*>, string: String): T {

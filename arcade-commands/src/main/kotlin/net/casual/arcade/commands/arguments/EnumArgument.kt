@@ -4,6 +4,7 @@
  */
 package net.casual.arcade.commands.arguments
 
+import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.utils.EnumUtils
 
@@ -24,8 +25,8 @@ public class EnumArgument<E: Enum<E>> @JvmOverloads constructor(
     public companion object {
         public inline fun <reified E: Enum<E>> enumeration(
             noinline mapper: (E) -> String = Enum<E>::name
-        ): EnumArgument<E> {
-            return EnumArgument(E::class.java, mapper)
+        ): ArgumentType<E> {
+            return EnumArgument(E::class.java, mapper).toBrigadier()
         }
 
         @JvmStatic

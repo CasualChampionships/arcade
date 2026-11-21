@@ -28,11 +28,9 @@ public abstract class ServerLevelMixin extends Level {
 		RegistryAccess registryAccess,
 		Holder<DimensionType> dimensionTypeRegistration,
 		boolean isClientSide,
-		boolean isDebug,
-		long biomeZoomSeed,
 		int maxChainedNeighborUpdates
 	) {
-		super(levelData, dimension, registryAccess, dimensionTypeRegistration, isClientSide, isDebug, biomeZoomSeed, maxChainedNeighborUpdates);
+		super(levelData, dimension, registryAccess, dimensionTypeRegistration, isClientSide, maxChainedNeighborUpdates);
 	}
 
 	@ModifyReturnValue(

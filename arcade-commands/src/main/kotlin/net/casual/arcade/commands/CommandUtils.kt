@@ -25,10 +25,12 @@ import net.minecraft.commands.CommandBox
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.ParseBox
 import net.minecraft.commands.ParseContext
+import net.minecraft.commands.ServerPlayerSuggestionContext
 import net.minecraft.commands.suggestions.SuggestionContext
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.permissions.Permission
 import net.minecraft.server.permissions.Permission.HasCommandLevel
 import net.minecraft.server.permissions.PermissionLevel
@@ -39,6 +41,9 @@ public val CommandSourceStack.location: Location
 
 public val CommandSourceStack.locationWithLevel: LocationWithLevel<ServerLevel>
     get() = this.level.asLocation(this.position, this.rotation)
+
+public val ServerPlayerSuggestionContext.player: ServerPlayer
+    get() = this.entity() as ServerPlayer
 
 public fun CommandSourceStack.success(literal: String, log: Boolean = false): Int {
     return this.success(Component.literal(literal), log)

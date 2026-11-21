@@ -22,6 +22,7 @@ import net.casual.arcade.scheduler.task.routine.Routine
 import net.casual.arcade.scheduler.task.routine.RoutineScope
 import net.casual.arcade.utils.ArcadeUtils
 import net.casual.arcade.utils.time.MinecraftTimeDuration
+import java.util.function.Function
 import kotlin.enums.EnumEntries
 
 /**
@@ -59,7 +60,8 @@ public class MinigamePhaseManager internal constructor(
     /**
      * The codec for the [minigame]'s phases.
      */
-    public val codec: Codec<MinigamePhase> = Codec.stringResolver(MinigamePhase::id, this::get)
+    @Suppress("UNCHECKED_CAST") // Silly Mojank not marking their nullable types
+    public val codec: Codec<MinigamePhase> = Codec.stringResolver(MinigamePhase::id, this::get as Function<String, MinigamePhase>)
 
     /**
      * Gets one of the [minigame]'s phases by [id].
@@ -164,7 +166,7 @@ public class MinigamePhaseManager internal constructor(
 
     internal fun debug(output: ValueOutput) {
         output.store("all", this.codec.listOf(), this.all())
-        output.storeNullable("current", this.codec, this.minigame.phaseOrNull)
+        output.storeNullable<MinigamePhase>("current", this.codec, this.minigame.phaseOrNull)
     }
 
     internal fun first(): MinigamePhase {

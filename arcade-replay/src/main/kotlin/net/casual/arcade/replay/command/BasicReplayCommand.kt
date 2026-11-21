@@ -11,6 +11,7 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.casual.arcade.commands.*
+import net.casual.arcade.commands.arguments.ChunkPosArgument
 import net.casual.arcade.commands.arguments.EnumArgument
 import net.casual.arcade.replay.io.ReplayFormat
 import net.casual.arcade.replay.recorder.ReplayRecorder
@@ -24,8 +25,8 @@ import net.casual.arcade.replay.viewer.ReplayViewers
 import net.casual.arcade.utils.ArcadeUtils
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.EntityArgument
+import net.minecraft.commands.suggestions.SuggestionContext
 import net.minecraft.server.level.ServerPlayer
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
@@ -46,14 +47,10 @@ public open class BasicReplayCommand(
                 }
                 literal("chunks") {
                     literal("around") {
-                        argument("x", IntegerArgumentType.integer()) {
-                            suggests(::suggestChunkX)
-                            argument("z", IntegerArgumentType.integer()) {
-                                suggests(::suggestChunkZ)
-                                argument("radius", IntegerArgumentType.integer()) {
-                                    argument("format", EnumArgument.enumeration<ReplayFormat> { it.id() }) {
-                                        executes(::startChunksAround)
-                                    }
+                        argument("chunk", ChunkPosArgument.position()) {
+                            argument("radius", IntegerArgumentType.integer()) {
+                                argument("format", EnumArgument.enumeration<ReplayFormat> { it.id() }) {
+                                    executes(::startChunksAround)
                                 }
                             }
                         }
@@ -124,12 +121,11 @@ public open class BasicReplayCommand(
 
     private fun startChunksAround(context: CommandContext<CommandSourceStack>): Int {
         val level = context.source.level
-        val chunkX = IntegerArgumentType.getInteger(context, "x")
-        val chunkZ = IntegerArgumentType.getInteger(context, "z")
+        val chunk = ChunkPosArgument.getPosition(context, "chunk")
         val radius = IntegerArgumentType.getInteger(context, "radius")
         val format = EnumArgument.getEnumeration<ReplayFormat>(context, "format")
 
-        val area = ChunkArea.of(level, chunkX, chunkZ, radius)
+        val area = ChunkArea.of(level, chunk.x, chunk.z, radius)
         val recorder = this.createChunkRecorder(area, this.path, format)
         try {
             recorder.start()
@@ -227,22 +223,6 @@ public open class BasicReplayCommand(
         val suggestions = this.path.streamDirectoryEntriesOrEmpty()
             .filter { path -> ReplayFormat.formatOf(path) != null }
             .map { "\"${it.name}\"" }
-        return SharedSuggestionProvider.suggest(suggestions, builder)
-    }
-
-    private fun suggestChunkX(
-        context: CommandContext<CommandSourceStack>,
-        builder: SuggestionsBuilder
-    ): CompletableFuture<Suggestions> {
-        val x = context.source.playerOrException.chunkPosition().x
-        return SharedSuggestionProvider.suggest(listOf(x.toString()), builder)
-    }
-
-    private fun suggestChunkZ(
-        context: CommandContext<CommandSourceStack>,
-        builder: SuggestionsBuilder
-    ): CompletableFuture<Suggestions> {
-        val z = context.source.playerOrException.chunkPosition().z
-        return SharedSuggestionProvider.suggest(listOf(z.toString()), builder)
+        return SuggestionContext.suggest(suggestions, builder)
     }
 }

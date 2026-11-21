@@ -47,11 +47,9 @@ public abstract class ServerLevelMixin extends Level {
         RegistryAccess registryAccess,
         Holder<DimensionType> dimensionTypeRegistration,
         boolean isClientSide,
-        boolean isDebug,
-        long biomeZoomSeed,
         int maxChainedNeighborUpdates
     ) {
-        super(levelData, dimension, registryAccess, dimensionTypeRegistration, isClientSide, isDebug, biomeZoomSeed, maxChainedNeighborUpdates);
+        super(levelData, dimension, registryAccess, dimensionTypeRegistration, isClientSide, maxChainedNeighborUpdates);
     }
 
     @Shadow
@@ -81,6 +79,7 @@ public abstract class ServerLevelMixin extends Level {
             target = "Ljava/util/List;iterator()Ljava/util/Iterator;"
         )
     )
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private void broadcastExplosionsToChunkRecorders(
         @Nullable Entity source,
         @Nullable DamageSource damageSource,
@@ -97,12 +96,13 @@ public abstract class ServerLevelMixin extends Level {
         Holder<SoundEvent> explosionSound,
         CallbackInfo ci,
         @Local(name = "center") Vec3 center,
-        @Local(name = "explosionParticle") ParticleOptions explosionParticle,
+        @Local(name = "explosionParticle") Optional<ParticleOptions> explosionParticle,
+        @Local(name = "effectiveExplosionSound") Optional<Holder<SoundEvent>> effectiveExplosionSound,
         @Local(name = "blockCount") int blockCount
     ) {
         ChunkPos chunkPos = ChunkPos.containing(BlockPos.containing(x, y, z));
         for (ReplayChunkRecorder recorder : ReplayChunkRecorders.containing(this.dimension(), chunkPos)) {
-            recorder.record(new ClientboundExplodePacket(center, r, blockCount, Optional.empty(), explosionParticle, explosionSound, blockParticles, source == null || !source.isSilent()));
+            recorder.record(new ClientboundExplodePacket(center, r, blockCount, explosionParticle, effectiveExplosionSound, blockParticles));
         }
     }
 

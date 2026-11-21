@@ -46,7 +46,7 @@ object PlayerCameraTestCommand: CommandTree<CommandSourceStack> {
                 executes(::setStart)
             }
             literal("add-pos") {
-                argument("duration", TimeArgument.time()) {
+                argument("duration", TimeArgument.time(1)) {
                     executes { context -> addPos(context) }
                 }
             }

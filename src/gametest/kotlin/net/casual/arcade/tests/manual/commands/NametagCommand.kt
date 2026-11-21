@@ -23,7 +23,7 @@ object NametagCommand: CommandTree<CommandSourceStack> {
             literal("add") {
                 literal("simple") {
                     argument("targets", EntityArgument.entities()) {
-                        argument("text", ComponentArgument.textComponent(buildContext)) {
+                        argument("text", ComponentArgument.textComponent()) {
                             executes(::addNametag)
                         }
                     }

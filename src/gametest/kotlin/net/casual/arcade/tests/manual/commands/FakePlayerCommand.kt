@@ -12,9 +12,9 @@ import net.casual.arcade.utils.player.username
 import net.casual.arcade.utils.server.player
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
-import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.coordinates.Vec3Argument
+import net.minecraft.commands.suggestions.SuggestionContext
 import java.util.concurrent.CompletableFuture
 
 @Suppress("unused")
@@ -115,6 +115,6 @@ object FakePlayerCommand: CommandTree<CommandSourceStack> {
         val names = context.source.server.playerList.players
             .filterIsInstance<FakePlayer>()
             .map { it.username }
-        return SharedSuggestionProvider.suggest(names, builder)
+        return SuggestionContext.suggest(names, builder)
     }
 }

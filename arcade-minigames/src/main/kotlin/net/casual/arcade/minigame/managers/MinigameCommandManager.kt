@@ -13,6 +13,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode
 import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.ducks.DeletableCommand
 import net.casual.arcade.commands.literal
+import net.casual.arcade.commands.manager.ServerCommandManager
 import net.casual.arcade.events.server.block.CommandBlockExecuteEvent
 import net.casual.arcade.events.server.player.PlayerCommandEvent
 import net.casual.arcade.events.server.player.PlayerCommandSuggestionsEvent
@@ -35,16 +36,10 @@ import net.minecraft.server.level.ServerPlayer
  */
 public class MinigameCommandManager(
     private val minigame: Minigame,
-) {
-    private val dispatcher = CommandDispatcher<CommandSourceStack>()
-
+): ServerCommandManager(minigame.server) {
     init {
-        this.minigame.events.register<PlayerSendCommandsEvent> {
-            it.addCustomCommandNode(this.dispatcher.root)
-        }
-        this.minigame.events.register<PlayerCommandEvent>(this::onPlayerCommand)
-        this.minigame.events.register<CommandBlockExecuteEvent>(this::onBlockCommand)
-        this.minigame.events.register<PlayerCommandSuggestionsEvent>(this::onCommandSuggestions)
+        this.initialize(this.minigame.events)
+
         this.minigame.events.register<MinigameCloseEvent> {
             this.unregisterAll()
         }
@@ -65,51 +60,13 @@ public class MinigameCommandManager(
     }
 
     /**
-     * This method registers a command to the minigame.
-     *
-     * @param literal The command builder to register.
-     */
-    public fun register(literal: LiteralArgumentBuilder<CommandSourceStack>) {
-        this.dispatcher.register(literal)
-        this.registerLiterals(listOf(literal.literal))
-    }
-
-    /**
-     * This method registers a command tree to the minigame.
-     *
-     * @param tree The command tree to register.
-     *
-     * @see CommandTree
-     */
-    public fun register(tree: CommandTree<CommandSourceStack>) {
-        val before = this.getAllRootCommands().toSet()
-
-        val server = this.minigame.server
-        val context = CommandBuildContext.simple(server.registryAccess(), server.worldData.enabledFeatures())
-        tree.register(this.dispatcher, context)
-
-        val after = this.getAllRootCommands().toMutableSet()
-        after.removeAll(before)
-        if (after.isNotEmpty()) {
-            this.registerLiterals(after)
-        }
-    }
-
-    /**
      * This method unregisters a command from the minigame.
      *
      * @param name The name of the command to unregister.
      */
     public fun unregister(name: String) {
-        if ((this.dispatcher as DeletableCommand).arcade_deleteCommand(name)) {
-            val command = this.getGlobalMinigameCommand()?.getChild(this.minigame.uuid.toString()) ?: return
-            (command as DeletableCommand).arcade_deleteCommand(name)
-            this.resendGlobalCommands()
-        }
-    }
-
-    internal fun debug(output: ValueOutput) {
-        output.store("all", Codec.STRING.listOf(), this.getAllRootCommands().toList())
+        (this.dispatcher as DeletableCommand).arcade_deleteCommand(name)
+        this.resendCommands()
     }
 
     /**
@@ -122,13 +79,11 @@ public class MinigameCommandManager(
         }
 
         val dispatcher = this.dispatcher as DeletableCommand
-        val global = this.getGlobalMinigameCommand()?.getChild(this.minigame.uuid.toString()) as? DeletableCommand
         for (name in roots) {
             dispatcher.arcade_deleteCommand(name)
-            global?.arcade_deleteCommand(name)
         }
 
-        this.resendGlobalCommands()
+        this.resendCommands()
     }
 
     /**
@@ -142,57 +97,17 @@ public class MinigameCommandManager(
             .map { it.literal }
     }
 
-    public fun resendCommands() {
+    public override fun resendCommands() {
         for (player in this.minigame.players) {
             this.resendCommandsTo(player)
         }
     }
 
-    private fun registerLiterals(literals: Collection<String>) {
-        val global = this.getGlobalMinigameCommand() ?: return
-
-        val node = CommandTree.createLiteral<CommandSourceStack>(this.minigame.uuid.toString()) {
-            for (literal in literals) {
-                literal(literal)
-            }
-        }
-        global.addChild(node)
-        this.resendGlobalCommands()
-    }
-
-    private fun resendGlobalCommands() {
-        for (player in this.minigame.server.playerList.players) {
-            this.resendCommandsTo(player)
-        }
+    internal fun debug(output: ValueOutput) {
+        output.store("all", Codec.STRING.listOf(), this.getAllRootCommands().toList())
     }
 
     private fun resendCommandsTo(player: ServerPlayer) {
         this.minigame.server.commands.sendCommands(player)
-    }
-
-    private fun getGlobalMinigameCommand(): CommandNode<CommandSourceStack>? {
-        return null
-    }
-
-    private fun onPlayerCommand(event: PlayerCommandEvent) {
-        val source = event.player.createCommandSourceStack()
-        val result = this.dispatcher.parse(event.command, source)
-        if (!result.reader.canRead()) {
-            source.server.commands.performCommand(result, event.command)
-            event.cancel()
-        }
-    }
-
-    private fun onBlockCommand(event: CommandBlockExecuteEvent) {
-        val result = this.dispatcher.parse(event.command, event.source)
-        if (!result.reader.canRead()) {
-            event.source.server.commands.performCommand(result, event.command)
-            event.cancel()
-        }
-    }
-
-    private fun onCommandSuggestions(event: PlayerCommandSuggestionsEvent) {
-        val result = this.dispatcher.parse(event.createCommandReader(), event.player.createCommandSourceStack())
-        event.addSuggestions(this.dispatcher.getCompletionSuggestions(result))
     }
 }

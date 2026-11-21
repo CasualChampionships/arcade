@@ -36,7 +36,7 @@ object BoundaryCommand: CommandTree<CommandSourceStack> {
             literal("resize") {
                 argument("size", Vec3Argument.vec3(false)) {
                     executes { resizeBoundary(it, 0) }
-                    argument("duration", TimeArgument.time()) {
+                    argument("duration", TimeArgument.time(0)) {
                         executes(::resizeBoundary)
                     }
                 }
@@ -44,7 +44,7 @@ object BoundaryCommand: CommandTree<CommandSourceStack> {
             literal("recenter") {
                 argument("center", Vec3Argument.vec3()) {
                     executes { recenterBoundary(it, 0) }
-                    argument("duration", TimeArgument.time()) {
+                    argument("duration", TimeArgument.time(0)) {
                         executes(::recenterBoundary)
                     }
                 }
