@@ -60,8 +60,7 @@ public class MinigamePhaseManager internal constructor(
     /**
      * The codec for the [minigame]'s phases.
      */
-    @Suppress("UNCHECKED_CAST") // Silly Mojank not marking their nullable types
-    public val codec: Codec<MinigamePhase> = Codec.stringResolver(MinigamePhase::id, this::get as Function<String, MinigamePhase>)
+    public val codec: Codec<MinigamePhase> = Codec.stringResolver(MinigamePhase::id, Function<String, MinigamePhase>(this::get))
 
     /**
      * Gets one of the [minigame]'s phases by [id].

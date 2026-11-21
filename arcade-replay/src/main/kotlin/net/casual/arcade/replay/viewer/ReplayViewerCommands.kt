@@ -7,21 +7,16 @@ package net.casual.arcade.replay.viewer
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.FloatArgumentType
-import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
-import com.mojang.brigadier.tree.ArgumentCommandNode
 import com.mojang.brigadier.tree.CommandNode
 import net.casual.arcade.commands.*
 import net.casual.arcade.replay.viewer.ReplayViewerUtils.getViewingReplay
 import net.casual.arcade.utils.DateTimeUtils.formatHHMMSS
 import net.minecraft.ChatFormatting
-import net.minecraft.commands.CommandSource
-import net.minecraft.commands.CommandSourceStack
-import net.minecraft.commands.Commands
-import net.minecraft.commands.ParseBox
-import net.minecraft.commands.ParseContext
+import net.minecraft.commands.*
+import net.minecraft.commands.arguments.IntegerArgument
 import net.minecraft.commands.arguments.TimeArgument
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
@@ -174,7 +169,7 @@ public object ReplayViewerCommands {
     private fun jumpToMarker(
         context: CommandContext<CommandSourceStack>,
         name: String? = StringArgumentType.getString(context, "name"),
-        offset: Int = IntegerArgumentType.getInteger(context, "offset")
+        offset: Int = IntegerArgument.getInteger(context, "offset")
     ): Int {
         val viewer = context.source.getReplayViewer()
         if (viewer.jumpToMarker(name, (offset * 50).milliseconds)) {
@@ -185,7 +180,7 @@ public object ReplayViewerCommands {
 
     private fun jumpTo(context: CommandContext<CommandSourceStack>): Int {
         val viewer = context.source.getReplayViewer()
-        val time = IntegerArgumentType.getInteger(context, "timestamp")
+        val time = IntegerArgument.getInteger(context, "timestamp")
         if (viewer.jumpTo((time * 50).milliseconds)) {
             return context.source.success("Successfully jumped to timestamp")
         }

@@ -9,7 +9,6 @@ import net.minecraft.nbt.NbtUtils
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.mojang.brigadier.StringReader
-import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
@@ -46,11 +45,13 @@ import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.*
 import net.minecraft.commands.suggestions.SuggestionContext
+import net.minecraft.commands.suggestions.SuggestionProviders
 import net.minecraft.core.registries.Registries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.permissions.PermissionLevel
 import java.util.concurrent.CompletableFuture
@@ -100,7 +101,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
                 argument("minigame", MinigameArgument.minigame()) {
                     executes(::infoMinigame)
                     argument("path", NbtPathArgument.nbtPath()) {
-                        suggests(::suggestDebugTagPaths)
+                        suggests(SuggestionProviders.serverOnly(::suggestDebugTagPaths))
                         executes(::infoPathMinigame)
                     }
                 }
@@ -230,10 +231,10 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
                     argument("modifier", EnumArgument.enumeration<AdvancementModifier>()) {
                         literal("only") {
                             argument("advancement", IdentifierArgument.id()) {
-                                suggests { context, builder ->
+                                suggests(SuggestionProviders.serverOnly { _, context, builder ->
                                     val minigame = MinigameArgument.getMinigame(context, "minigame")
                                     SuggestionContext.suggestResource(minigame.advancements.all().map { it.id }, builder)
-                                }
+                                })
                                 argument("player", EntityArgument.players()) {
                                     executes(::modifyMinigameAdvancement)
                                 }
@@ -252,10 +253,10 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
                     argument("modifier", EnumArgument.enumeration<RecipeModifier>()) {
                         literal("only") {
                             argument("recipe", IdentifierArgument.id()) {
-                                suggests { context, builder ->
+                                suggests(SuggestionProviders.serverOnly { _, context, builder ->
                                     val minigame = MinigameArgument.getMinigame(context, "minigame")
                                     SuggestionContext.suggestResource(minigame.recipes.all().map { it.id.identifier() }, builder)
-                                }
+                                })
                                 argument("player", EntityArgument.players()) {
                                     executes(::modifyMinigameRecipe)
                                 }
@@ -279,11 +280,11 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
                         }
                         literal("remove") {
                             argument("tag", IdentifierArgument.id()) {
-                                suggests { context ->
-                                    val minigame = MinigameArgument.getMinigame(context, "minigame")
-                                    val player = EntityArgument.getPlayer(context, "player")
-                                    minigame.tags.get(player).map(Identifier::toString)
-                                }
+                                // suggests { context ->
+                                //     val minigame = MinigameArgument.getMinigame(context, "minigame")
+                                //     val player = EntityArgument.getPlayer(context, "player")
+                                //     minigame.tags.get(player).map(Identifier::toString)
+                                // }
                                 executes(::removePlayerTag)
                             }
                         }
@@ -313,7 +314,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
                     executes(::unpauseMinigame)
                     literal("countdown") {
                         executes { unpauseWithCountdown(it, 10, MinecraftTimeUnit.Seconds) }
-                        argument("time", IntegerArgumentType.integer(1)) {
+                        argument("time", IntegerArgument.integer(1)) {
                             argument("unit", EnumArgument.enumeration<MinecraftTimeUnit>()) {
                                 executes(::unpauseWithCountdown)
                             }
@@ -815,7 +816,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
 
     private fun unpauseWithCountdown(
         context: CommandContext<CommandSourceStack>,
-        time: Int = IntegerArgumentType.getInteger(context, "time"),
+        time: Int = IntegerArgument.getInteger(context, "time"),
         unit: MinecraftTimeUnit = EnumArgument.getEnumeration(context, "unit", MinecraftTimeUnit::class.java)
     ): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
@@ -899,7 +900,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
 
     private fun tickStep(
         context: CommandContext<CommandSourceStack>,
-        ticks: Int = IntegerArgumentType.getInteger(context, "ticks")
+        ticks: Int = IntegerArgument.getInteger(context, "ticks")
     ): Int {
         val minigame = MinigameArgument.getMinigame(context, "minigame")
         if (minigame.tickrate.stepGameIfPaused(ticks)) {
@@ -913,7 +914,8 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
     }
 
     private fun suggestDebugTagPaths(
-        context: CommandContext<CommandSourceStack>,
+        @Suppress("UNUSED_PARAMETER") server: MinecraftServer,
+        context: CommandContext<out SuggestionContext>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
         val minigame = MinigameArgument.getMinigame(context, "minigame")

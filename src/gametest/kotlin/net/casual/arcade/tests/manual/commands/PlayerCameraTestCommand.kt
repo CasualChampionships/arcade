@@ -1,9 +1,6 @@
 package net.casual.arcade.tests.manual.commands
 
 import com.mojang.brigadier.Command
-import com.mojang.brigadier.arguments.BoolArgumentType
-import com.mojang.brigadier.arguments.DoubleArgumentType
-import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.commands.*
@@ -19,6 +16,9 @@ import net.casual.arcade.virtual.visuals.camera.CameraPathInterpolator
 import net.casual.arcade.virtual.visuals.camera.VirtualCamera
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.arguments.BooleanArgument
+import net.minecraft.commands.arguments.DoubleArgument
+import net.minecraft.commands.arguments.IntegerArgument
 import net.minecraft.commands.arguments.TimeArgument
 
 @Suppress("unused")
@@ -38,7 +38,7 @@ object PlayerCameraTestCommand: CommandTree<CommandSourceStack> {
     override fun create(buildContext: CommandBuildContext): LiteralArgumentBuilder<CommandSourceStack> {
         return CommandTree.buildLiteral("player-camera-test") {
             literal("start") {
-                argument("loop", BoolArgumentType.bool()) {
+                argument("loop", BooleanArgument.bool()) {
                     executes(::start)
                 }
             }
@@ -59,9 +59,9 @@ object PlayerCameraTestCommand: CommandTree<CommandSourceStack> {
                 }
                 literal("gaussian") {
                     executes { context -> setInterpolator(context, CameraPathInterpolator.Gaussian()) }
-                    argument("variance", DoubleArgumentType.doubleArg(0.0, 1.0)) {
+                    argument("variance", DoubleArgument.doubleArg(0.0, 1.0)) {
                         executes { context ->
-                            val variance = DoubleArgumentType.getDouble(context, "variance")
+                            val variance = DoubleArgument.getDouble(context, "variance")
                             setInterpolator(context, CameraPathInterpolator.Gaussian(variance))
                         }
                     }
@@ -78,7 +78,7 @@ object PlayerCameraTestCommand: CommandTree<CommandSourceStack> {
 
     private fun start(context: CommandContext<CommandSourceStack>) {
         val player = context.source.playerOrException
-        val loop = BoolArgumentType.getBool(context, "loop")
+        val loop = BooleanArgument.getBool(context, "loop")
         val camera = this.getOrCreateCamera(context.source)
         camera.startObservingAndSendPackets(player.asObserver())
         camera.setPath(this.path.build())
@@ -90,7 +90,7 @@ object PlayerCameraTestCommand: CommandTree<CommandSourceStack> {
     }
 
     private fun addPos(context: CommandContext<CommandSourceStack>): Int {
-        val duration = IntegerArgumentType.getInteger(context, "duration").Ticks
+        val duration = IntegerArgument.getInteger(context, "duration").Ticks
         this.path.addPoint(context.source.location, duration)
         return Command.SINGLE_SUCCESS
     }

@@ -462,7 +462,8 @@ public class MinigameChatManager(
 
     private fun registerCommand() {
         this.minigame.commands.register(CommandTree.buildLiteral("chat") {
-            requires { !minigame.settings.isChatGlobal && minigame.settings.enableChatCommand.get(it.player) }
+            // FIXME:
+            // requires { !minigame.settings.isChatGlobal && minigame.settings.enableChatCommand.get(it.player) }
             literal("team") {
                 argument("team", TeamArgument.team()) {
                     requiresAdminOrPermission()
@@ -474,9 +475,10 @@ public class MinigameChatManager(
                 executes { selectChat(it, MinigameChatMode.Global) }
             }
             literal("spectator") {
-                requires { source ->
-                    source.isMinigameAdminOrHasPermission() || source.isPlayerAnd(minigame.players::isSpectating)
-                }
+                // FIXME:
+                // requires { source ->
+                //     source.isMinigameAdminOrHasPermission() || source.isPlayerAnd(minigame.players::isSpectating)
+                // }
                 executes { selectChat(it, MinigameChatMode.Spectator) }
             }
             literal("admin") {

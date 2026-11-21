@@ -4,7 +4,6 @@
  */
 package net.casual.arcade.replay.command
 
-import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
@@ -26,6 +25,7 @@ import net.casual.arcade.utils.ArcadeUtils
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.arguments.EntityArgument
+import net.minecraft.commands.arguments.IntegerArgument
 import net.minecraft.commands.suggestions.SuggestionContext
 import net.minecraft.server.level.ServerPlayer
 import java.nio.file.Path
@@ -48,7 +48,7 @@ public open class BasicReplayCommand(
                 literal("chunks") {
                     literal("around") {
                         argument("chunk", ChunkPosArgument.position()) {
-                            argument("radius", IntegerArgumentType.integer()) {
+                            argument("radius", IntegerArgument.integer()) {
                                 argument("format", EnumArgument.enumeration<ReplayFormat> { it.id() }) {
                                     executes(::startChunksAround)
                                 }
@@ -122,7 +122,7 @@ public open class BasicReplayCommand(
     private fun startChunksAround(context: CommandContext<CommandSourceStack>): Int {
         val level = context.source.level
         val chunk = ChunkPosArgument.getPosition(context, "chunk")
-        val radius = IntegerArgumentType.getInteger(context, "radius")
+        val radius = IntegerArgument.getInteger(context, "radius")
         val format = EnumArgument.getEnumeration<ReplayFormat>(context, "format")
 
         val area = ChunkArea.of(level, chunk.x, chunk.z, radius)

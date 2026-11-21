@@ -4,8 +4,6 @@
  */
 package net.casual.arcade.minigame.commands
 
-import com.mojang.brigadier.arguments.BoolArgumentType
-import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.commands.*
@@ -13,7 +11,9 @@ import net.casual.arcade.utils.component.joinToComponent
 import net.casual.arcade.utils.scoreboard.RandomizedTeams
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.arguments.BooleanArgument
 import net.minecraft.commands.arguments.EntityArgument
+import net.minecraft.commands.arguments.IntegerArgument
 import net.minecraft.network.chat.Component
 import net.minecraft.world.scores.Team.CollisionRule.ALWAYS
 
@@ -23,8 +23,8 @@ internal object TeamCommandModifier: CommandTree<CommandSourceStack> {
             literal("randomize") {
                 literal("with") {
                     argument("players", EntityArgument.entities()) {
-                        argument("size", IntegerArgumentType.integer(1)) {
-                            argument("friendly-fire", BoolArgumentType.bool()) {
+                        argument("size", IntegerArgument.integer(1)) {
+                            argument("friendly-fire", BooleanArgument.bool()) {
                                 executes(::createRandomTeams)
                             }
                             executes { createRandomTeams(it, false) }
@@ -40,10 +40,10 @@ internal object TeamCommandModifier: CommandTree<CommandSourceStack> {
 
     private fun createRandomTeams(
         context: CommandContext<CommandSourceStack>,
-        friendlyFire: Boolean = BoolArgumentType.getBool(context, "friendly-fire"),
+        friendlyFire: Boolean = BooleanArgument.getBool(context, "friendly-fire"),
     ): Int {
         val players = EntityArgument.getPlayers(context, "players")
-        val size = IntegerArgumentType.getInteger(context, "size")
+        val size = IntegerArgument.getInteger(context, "size")
         val teams = RandomizedTeams.createRandomTeams(context.source.server.scoreboard, players, size, friendlyFire, ALWAYS)
             ?: return context.source.fail(Component.translatable("minigame.command.team.randomizer.fail"))
 

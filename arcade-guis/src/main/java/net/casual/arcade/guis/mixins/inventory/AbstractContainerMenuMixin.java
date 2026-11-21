@@ -25,14 +25,14 @@ public class AbstractContainerMenuMixin {
         method = {"addInventoryHotbarSlots", "addInventoryExtendedSlots"},
         at = @At(
             value = "NEW",
-            target = "(Lnet/minecraft/world/Container;III)Lnet/minecraft/world/inventory/Slot;"
+            target = "(Lnet/minecraft/world/Container;IIILnet/minecraft/world/inventory/Slot$Section;)Lnet/minecraft/world/inventory/Slot;"
         )
     )
-    private Slot onCreateInventorySlot(Container container, int slot, int x, int y, Operation<Slot> original) {
+    private Slot onCreateInventorySlot(Container container, int slot, int x, int y, Slot.Section section, Operation<Slot> original) {
         if (container instanceof VirtualInventory) {
             return new NonInteractiveResultSlot(container, slot, x, y);
         }
-        return original.call(container, slot, x, y);
+        return original.call(container, slot, x, y, section);
     }
 
     @Inject(

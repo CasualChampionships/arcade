@@ -31,6 +31,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.function.BooleanSupplier;
+
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player {
 	@Shadow public abstract Entity getCamera();
@@ -61,7 +63,7 @@ public abstract class ServerPlayerMixin extends Player {
 		method = "onInsideBlock",
 		at = @At("HEAD")
 	)
-	private void onBlockCollision(BlockState state, CallbackInfo ci) {
+	private void onBlockCollision(BlockState state, BooleanSupplier centerInsideBlock, CallbackInfo ci) {
 		PlayerBlockCollisionEvent event = new PlayerBlockCollisionEvent((ServerPlayer) (Object) this, state);
 		GlobalEventHandler.Server.broadcast(event);
 	}
@@ -105,11 +107,11 @@ public abstract class ServerPlayerMixin extends Player {
 		method = "checkFallDamage",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/entity/player/Player;checkFallDamage(DZLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V"
+			target = "Lnet/minecraft/world/entity/player/Player;checkFallDamage(ZLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V"
 		)
 	)
-	private void onFall(double ya, boolean onGround, BlockState onState, BlockPos pos, CallbackInfo ci) {
-		PlayerFallEvent event = new PlayerFallEvent((ServerPlayer) (Object) this, ya, onGround);
+	private void onFall(boolean onGround, BlockState onState, BlockPos pos, CallbackInfo ci) {
+		PlayerFallEvent event = new PlayerFallEvent((ServerPlayer) (Object) this, onGround);
 		GlobalEventHandler.Server.broadcast(event);
 	}
 

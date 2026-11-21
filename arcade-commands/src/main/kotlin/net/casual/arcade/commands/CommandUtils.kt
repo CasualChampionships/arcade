@@ -22,17 +22,21 @@ import net.casual.arcade.utils.math.location.asLocation
 import net.casual.arcade.utils.minecraft
 import net.fabricmc.fabric.api.permission.v1.PermissionPredicates
 import net.minecraft.commands.CommandBox
+import net.minecraft.commands.CommandPermissionLevels
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.Commands
 import net.minecraft.commands.ParseBox
 import net.minecraft.commands.ParseContext
 import net.minecraft.commands.ServerPlayerSuggestionContext
 import net.minecraft.commands.suggestions.SuggestionContext
+import net.minecraft.commands.suggestions.SuggestionProviders
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.permissions.Permission
 import net.minecraft.server.permissions.Permission.HasCommandLevel
+import net.minecraft.server.permissions.PermissionCheck
 import net.minecraft.server.permissions.PermissionLevel
 import java.util.function.Supplier
 
@@ -140,13 +144,13 @@ public inline fun <reified E: Enum<E>, S, T: ArgumentBuilder<S, T>> ArgumentBuil
 public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
     permission: PermissionLevel
 ): T {
-    return this.requires { it.hasPermission(HasCommandLevel(permission)) }
+    return this.requires(Commands.hasPermission(PermissionCheck.Require(HasCommandLevel(permission))))
 }
 
 public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
     permission: Permission
 ): T {
-    return this.requires { it.hasPermission(permission) }
+    return this.requires(Commands.hasPermission(PermissionCheck.Require(permission)))
 }
 
 @Deprecated("Permission should be passed as a namespaced string instead")
@@ -184,20 +188,20 @@ public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSo
     return this.requires(PermissionPredicates.require(permission, fallback))
 }
 
-public fun <S, T> RequiredArgumentBuilder<S, T>.suggests(
+public fun <T> RequiredArgumentBuilder<CommandSourceStack, T>.suggests(
     suggestions: Iterable<String>
-): RequiredArgumentBuilder<S, T> {
-    return this.suggests { _, builder ->
+): RequiredArgumentBuilder<CommandSourceStack, T> {
+    return this.suggests(SuggestionProviders.serverOnly { _, _, builder ->
         SuggestionContext.suggest(suggestions, builder)
-    }
+    })
 }
 
-public fun <S, T> RequiredArgumentBuilder<S, T>.suggests(
-    supplier: (CommandContext<S>) -> Iterable<String>
-): RequiredArgumentBuilder<S, T> {
-    return this.suggests { context, builder ->
-        SuggestionContext.suggest(supplier(context), builder)
-    }
+public fun <T> RequiredArgumentBuilder<CommandSourceStack, T>.suggests(
+    supplier: (CommandContext<out SuggestionContext>) -> Iterable<String>
+): RequiredArgumentBuilder<CommandSourceStack, T> {
+    return this.suggests(SuggestionProviders.serverOnly { _, context, builder ->
+        SuggestionContext.suggest(supplier.invoke(context), builder)
+    })
 }
 
 public fun CommandContext<*>.hasArgument(argument: String): Boolean {

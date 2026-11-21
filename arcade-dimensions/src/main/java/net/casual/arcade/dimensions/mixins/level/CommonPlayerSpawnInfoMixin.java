@@ -12,6 +12,7 @@ import net.minecraft.network.protocol.game.CommonPlayerSpawnInfo;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import org.jspecify.annotations.NonNull;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -21,7 +22,8 @@ public class CommonPlayerSpawnInfoMixin {
 		method = "<clinit>",
 		at = @At(
 			value = "FIELD",
-			target = "Lnet/minecraft/world/level/dimension/DimensionType;STREAM_CODEC:Lnet/minecraft/network/codec/StreamCodec;"
+			target = "Lnet/minecraft/world/level/dimension/DimensionType;STREAM_CODEC:Lnet/minecraft/network/codec/StreamCodec;",
+			opcode = Opcodes.GETSTATIC
 		)
 	)
 	private static StreamCodec<RegistryFriendlyByteBuf, Holder<DimensionType>> supportUnknownDimensionTypes(

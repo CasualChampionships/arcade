@@ -1,6 +1,5 @@
 package net.casual.arcade.tests.manual.commands
 
-import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import net.casual.arcade.boundary.LevelBoundary
@@ -14,6 +13,7 @@ import net.casual.arcade.tests.manual.resource_pack.TestResourcePacks
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.arguments.IntegerArgument
 import net.minecraft.commands.arguments.TimeArgument
 import net.minecraft.commands.arguments.coordinates.Vec3Argument
 import net.minecraft.world.phys.AABB
@@ -75,7 +75,7 @@ object BoundaryCommand: CommandTree<CommandSourceStack> {
 
     private fun resizeBoundary(
         context: CommandContext<CommandSourceStack>,
-        durationTicks: Int = IntegerArgumentType.getInteger(context, "duration")
+        durationTicks: Int = IntegerArgument.getInteger(context, "duration")
     ): Int {
         val level = context.source.level
         val size = Vec3Argument.getVec3(context, "size")
@@ -89,7 +89,7 @@ object BoundaryCommand: CommandTree<CommandSourceStack> {
 
     private fun recenterBoundary(
         context: CommandContext<CommandSourceStack>,
-        durationTicks: Int = IntegerArgumentType.getInteger(context, "duration")
+        durationTicks: Int = IntegerArgument.getInteger(context, "duration")
     ): Int {
         val level = context.source.level
         val center = Vec3Argument.getVec3(context, "center")

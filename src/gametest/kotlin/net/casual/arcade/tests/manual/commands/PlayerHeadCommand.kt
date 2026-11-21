@@ -1,6 +1,5 @@
 package net.casual.arcade.tests.manual.commands
 
-import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
@@ -14,6 +13,7 @@ import net.casual.arcade.tests.manual.resource_pack.TestResourcePacks
 import net.casual.arcade.utils.player.StaticResolvableProfile
 import net.minecraft.commands.CommandBuildContext
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.arguments.IntegerArgument
 import net.minecraft.network.chat.Component
 
 @Suppress("unused")
@@ -27,14 +27,14 @@ object PlayerHeadCommand: CommandTree<CommandSourceStack> {
             literal("display") {
                 literal("username") {
                     argument("username", StringArgumentType.word()) {
-                        argument("shift", IntegerArgumentType.integer(-256, 256)) {
+                        argument("shift", IntegerArgument.integer(-256, 256)) {
                             executes(::displayPlayerHead)
                         }
                         executes { displayPlayerHead(it, 0) }
                     }
                 }
                 literal("default") {
-                    argument("shift", IntegerArgumentType.integer(-256, 256)) {
+                    argument("shift", IntegerArgument.integer(-256, 256)) {
                         executes(::displayDefaultHead)
                     }
                     executes { displayDefaultHead(it, 0) }
@@ -45,7 +45,7 @@ object PlayerHeadCommand: CommandTree<CommandSourceStack> {
 
     private fun displayPlayerHead(
         context: CommandContext<CommandSourceStack>,
-        shift: Int = IntegerArgumentType.getInteger(context, "shift")
+        shift: Int = IntegerArgument.getInteger(context, "shift")
     ): Int {
         val username = StringArgumentType.getString(context, "username")
         val component = PixelGridHeadComponents.getHeadOrDefaultFor(StaticResolvableProfile(username), context.source.server, shift)
@@ -54,7 +54,7 @@ object PlayerHeadCommand: CommandTree<CommandSourceStack> {
 
     private fun displayDefaultHead(
         context: CommandContext<CommandSourceStack>,
-        shift: Int = IntegerArgumentType.getInteger(context, "shift")
+        shift: Int = IntegerArgument.getInteger(context, "shift")
     ): Int {
         val component = PixelGridHeadComponents.get(shift, context.source.server.services()).getDefault()
         return context.source.success(Component.literal("Default head: ").append(component))

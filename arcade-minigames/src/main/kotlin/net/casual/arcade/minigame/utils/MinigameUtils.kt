@@ -12,6 +12,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import kotlinx.coroutines.*
 import net.casual.arcade.commands.hasPermission
+import net.casual.arcade.commands.requiresPermission
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.EventListenerHandle
 import net.casual.arcade.events.GlobalEventHandler
@@ -157,7 +158,9 @@ public object MinigameUtils {
     public fun <T: ArgumentBuilder<CommandSourceStack, T>> T.requiresAdminOrPermission(
         level: PermissionLevel = PermissionLevel.GAMEMASTERS
     ): T {
-        return this.requires { source -> source.isMinigameAdminOrHasPermission(level) }
+        // FIXME: Need to implement a custom permission checker and add it to the registry... :<
+        return this.requiresPermission(level)
+        // return this.requires { source -> source.isMinigameAdminOrHasPermission(level) }
     }
 
     public fun CommandSourceStack.isMinigameAdminOrHasPermission(

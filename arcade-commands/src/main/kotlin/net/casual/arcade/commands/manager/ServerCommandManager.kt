@@ -63,7 +63,8 @@ public open class ServerCommandManager(
     }
 
     private fun onPlayerSendCommands(event: PlayerSendCommandsEvent) {
-        event.addCustomCommandNode(this.suggestionBox.dispatcher.root)
+        // FIXME: This is causing an issue with requirement predicates for some reason
+        // event.addCustomCommandNode(this.suggestionBox.dispatcher.root)
     }
 
     private fun onPlayerCommand(event: PlayerCommandEvent) {

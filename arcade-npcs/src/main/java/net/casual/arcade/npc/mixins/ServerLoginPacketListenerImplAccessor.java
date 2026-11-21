@@ -11,6 +11,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ServerLoginPacketListenerImpl.class)
 public interface ServerLoginPacketListenerImplAccessor {
-    @Accessor("authenticatedProfile")
+    @Accessor("resolvedUserProfile")
     void arcade_setProfile(GameProfile profile);
 }

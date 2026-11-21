@@ -11,7 +11,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.login.ServerboundLoginAcknowledgedPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,11 +21,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerLoginPacketListenerImpl.class)
 public class ServerLoginPacketListenerImplMixin {
-	@Shadow @Nullable private GameProfile authenticatedProfile;
-
 	@Shadow @Final private MinecraftServer server;
 
 	@Shadow @Final private Connection connection;
+
+	@Shadow
+	private @Nullable GameProfile resolvedUserProfile;
 
 	@Inject(
 		method = "handleLoginAcknowledgement",
@@ -37,8 +38,8 @@ public class ServerLoginPacketListenerImplMixin {
 		)
 	)
 	private void onPlayerLogin(ServerboundLoginAcknowledgedPacket packet, CallbackInfo ci) {
-		if (this.authenticatedProfile != null) {
-			PlayerLoginEvent event = new PlayerLoginEvent(this.server, this.authenticatedProfile, this.connection);
+		if (this.resolvedUserProfile != null) {
+			PlayerLoginEvent event = new PlayerLoginEvent(this.server, this.resolvedUserProfile, this.connection);
 			GlobalEventHandler.Server.broadcast(event);
 		}
 	}
