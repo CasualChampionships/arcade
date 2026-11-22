@@ -7,15 +7,13 @@ import net.casual.arcade.model.definition.ModelDefinition
 import net.casual.arcade.model.definition.ModelTexture
 import net.casual.arcade.utils.Identifier
 import net.minecraft.SharedConstants
+import net.minecraft.client.ClientBootstrap
 import net.minecraft.client.color.item.Dye
-import net.minecraft.client.color.item.ItemTintSources
 import net.minecraft.client.renderer.item.ClientItem
 import net.minecraft.client.renderer.item.CuboidItemModelWrapper
-import net.minecraft.client.renderer.item.ItemModels
 import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection
 import net.minecraft.client.resources.model.cuboid.CuboidModel
 import net.minecraft.client.resources.model.cuboid.UnbakedCuboidGeometry
-import net.minecraft.resources.Identifier
 import net.minecraft.server.Bootstrap
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
@@ -30,8 +28,7 @@ class VanillaModelFormatTests {
         fun bootstrap() {
             SharedConstants.tryDetectVersion()
             Bootstrap.bootStrap()
-            ItemModels.bootstrap()
-            ItemTintSources.bootstrap()
+            ClientBootstrap.bootstrap()
         }
     }
 
