@@ -6,6 +6,10 @@ pluginManagement {
             name = "Fabric"
         }
         maven("https://maven4.bai.lol")
+        maven("https://maven.casualchampionships.net/snapshots") {
+            name = "CasualChampionships"
+            content { includeGroupAndSubgroups("net.casualchampionships") }
+        }
         mavenCentral()
         gradlePluginPortal()
     }

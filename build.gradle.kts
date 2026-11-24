@@ -1,5 +1,6 @@
 plugins {
     id("arcade.common-conventions")
+    alias(libs.plugins.lens)
 }
 
 fabricApi {

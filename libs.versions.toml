@@ -31,6 +31,7 @@ fabric-loom = "1.19-SNAPSHOT"
 spotless    = "8.10.2"
 shadow      = "9.6.1"
 explosion   = "0.3.2"
+lens        = "1.0.1"
 
 [libraries]
 minecraft              = { module = "com.mojang:minecraft"                 , version.ref = "minecraft" }
@@ -62,3 +63,4 @@ fabric-loom          = { id = "net.fabricmc.fabric-loom"                 , versi
 spotless             = { id = "com.diffplug.spotless"                    , version.ref = "spotless" }
 shadow               = { id = "com.gradleup.shadow"                      , version.ref = "shadow" }
 explosion            = { id = "lol.bai.explosion"                        , version.ref = "explosion"}
+lens                 = { id = "net.casualchampionships.lens"             , version.ref = "lens" }
