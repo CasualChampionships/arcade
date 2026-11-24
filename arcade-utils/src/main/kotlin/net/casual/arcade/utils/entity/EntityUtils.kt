@@ -41,34 +41,32 @@ public fun <T: Any> EntityDataAccessor<T>.createValue(value: T): SynchedEntityDa
 
 public fun Entity.addVelocityAndMark(deltaX: Double, deltaY: Double, deltaZ: Double) {
     this.push(deltaX, deltaY, deltaZ)
-    this.syncVelocity = true
 }
 
 public fun Entity.setVelocityAndMark(deltaX: Double, deltaY: Double, deltaZ: Double) {
     this.setDeltaMovement(deltaX, deltaY, deltaZ)
-    this.syncVelocity = true
+    this.needsSync = true
 }
 
 public fun Entity.addVelocitySmooth(deltaX: Double, deltaY: Double, deltaZ: Double) {
-    if (this !is ServerPlayer) {
-        return this.addVelocityAndMark(deltaX, deltaY, deltaZ)
+    if (this is ServerPlayer) {
+        this.addVelocitySmooth(Vec3(deltaX, deltaY, deltaZ))
+    } else {
+        this.addVelocityAndMark(deltaX, deltaY, deltaZ)
     }
-    this.addVelocitySmooth(Vec3(deltaX, deltaY, deltaZ))
 }
 
 public fun Entity.addVelocitySmooth(deltas: Vec3) {
-    if (this !is ServerPlayer) {
-        return this.addVelocityAndMark(deltas.x, deltas.y, deltas.z)
+    if (this is ServerPlayer) {
+        this.addVelocitySmooth(deltas)
+    } else {
+        this.addVelocityAndMark(deltas.x, deltas.y, deltas.z)
     }
-    this.addVelocitySmooth(deltas)
 }
 
-// TODO: In ServerExplosion#hurtEntities we don't sync it
-//   server-side before we sent the packet, but that should
-//   trigger the server's anticheat?
 public fun ServerPlayer.addVelocitySmooth(deltas: Vec3) {
-    this.addDeltaMovement(deltas)
     this.connection.send(ClientboundAddEntityMotionPacket(this.id, deltas))
+    this.push(deltas)
 }
 
 public fun Entity.teleportTo(location: LocationWithLevel<out ServerLevel>, resetCamera: Boolean = true) {
