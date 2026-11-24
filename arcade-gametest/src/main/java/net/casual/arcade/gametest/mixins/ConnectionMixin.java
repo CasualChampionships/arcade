@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(Connection.class)
 public class ConnectionMixin {
     @WrapWithCondition(
-        method = "handleDisconnection",
+        method = "handleDisconnection(Z)V",
         at = @At(
             value = "INVOKE",
             target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;)V"

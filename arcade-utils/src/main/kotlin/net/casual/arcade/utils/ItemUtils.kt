@@ -125,13 +125,13 @@ public object ItemUtils {
 
     @JvmStatic
     public fun ItemStack.hideTooltip(): ItemStack {
-        this.set(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay(true, ReferenceSortedSets.emptySet()))
+        this.set(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay(true, true, ReferenceSortedSets.emptySet()))
         return this
     }
 
     @JvmStatic
     public fun ItemStack.hideTooltip(component: DataComponentType<*>): ItemStack {
-        val display = this.get(DataComponents.TOOLTIP_DISPLAY) ?: TooltipDisplay(false, ReferenceSortedSets.emptySet())
+        val display = this.get(DataComponents.TOOLTIP_DISPLAY) ?: TooltipDisplay(true, false, ReferenceSortedSets.emptySet())
         this.set(DataComponents.TOOLTIP_DISPLAY, display.withHidden(component, true))
         return this
     }
