@@ -5,28 +5,21 @@
 package net.casual.arcade.minigame.managers
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
-import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
 import net.casual.arcade.events.server.ServerTickEvent
 import net.casual.arcade.events.server.player.PlayerDimensionChangeEvent
 import net.casual.arcade.events.server.player.PlayerLeaveEvent
 import net.casual.arcade.events.server.player.PlayerRespawnEvent
-import net.casual.arcade.events.utils.register
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.events.MinigameAddPlayerEvent
 import net.casual.arcade.minigame.events.MinigameRemovePlayerEvent
+import net.casual.arcade.minigame.utils.GameMusicSuppression
 import net.casual.arcade.minigame.utils.MinigameMusicProvider
 import net.casual.arcade.pack.event.PlayerPacksSuccessEvent
 import net.casual.arcade.utils.TimeUtils.Ticks
 import net.casual.arcade.utils.impl.TimedSound
 import net.casual.arcade.utils.player.sendSound
-import net.minecraft.core.Holder
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket
-import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.sounds.SoundEvent
-import net.minecraft.sounds.SoundEvents
-import net.minecraft.sounds.SoundSource
-import net.minecraft.world.level.Level
 import java.util.*
 import kotlin.math.min
 
@@ -43,11 +36,20 @@ public class MinigameMusicManager(
 
     init {
         this.minigame.events.register<ServerTickEvent> { this.tick() }
-        this.minigame.events.register<MinigameAddPlayerEvent> { (_, player) -> this.suppressGameMusic(player) }
+        this.minigame.events.register<MinigameAddPlayerEvent> { (_, player) ->
+            if (this.suppressGameMusic) {
+                GameMusicSuppression.send(player, true)
+            }
+        }
         this.minigame.events.register<PlayerDimensionChangeEvent> { (player) -> this.interrupt(player) }
         this.minigame.events.register<PlayerRespawnEvent> { (player) -> this.interrupt(player) }
         this.minigame.events.register<PlayerPacksSuccessEvent> { (player) -> this.interrupt(player) }
-        this.minigame.events.register<MinigameRemovePlayerEvent> { (_, player) -> this.stop(player) }
+        this.minigame.events.register<MinigameRemovePlayerEvent> { (_, player) ->
+            this.stop(player)
+            if (this.suppressGameMusic) {
+                GameMusicSuppression.send(player, false)
+            }
+        }
         this.minigame.events.register<PlayerLeaveEvent> { (player) -> this.cancel(player) }
     }
 
@@ -61,18 +63,21 @@ public class MinigameMusicManager(
         this.current.clear()
     }
 
+    internal fun isSuppressingGameMusic(): Boolean {
+        return this.suppressGameMusic
+    }
+
     public fun suppressGameMusic(suppress: Boolean) {
-        if (suppress && !this.suppressGameMusic) {
-            this.suppressGameMusic()
+        if (this.suppressGameMusic == suppress) {
+            return
         }
         this.suppressGameMusic = suppress
+        for (player in this.minigame.players) {
+            GameMusicSuppression.send(player, suppress)
+        }
     }
 
     private fun tick() {
-        if (this.suppressGameMusic && this.minigame.server.tickCount % 200 == 0) {
-            this.suppressGameMusic()
-        }
-
         if (!this.running || this.provider === MinigameMusicProvider.EMPTY) {
             return
         }
@@ -132,65 +137,6 @@ public class MinigameMusicManager(
     private fun cancel(player: ServerPlayer): PlayingSound? {
         this.interrupted.remove(player.uuid)
         return this.current.remove(player.uuid)
-    }
-
-    private fun suppressGameMusic(
-        player: ServerPlayer,
-        cached: MutableMap<ServerLevel, List<ClientboundStopSoundPacket>>
-    ) {
-//        if (player.level().dimension() == Level.END) {
-//            player.stopMusic(SoundEvents.MUSIC_END)
-//            player.stopMusic(SoundEvents.MUSIC_DRAGON)
-//            return
-//        }
-//        if (player.level().dimension() != Level.NETHER && player.abilities.mayBuild && player.abilities.mayfly) {
-//            player.stopMusic(SoundEvents.MUSIC_CREATIVE)
-//            return
-//        }
-//        player.stopMusic(SoundEvents.MUSIC_GAME)
-//        player.stopMusic(SoundEvents.MUSIC_UNDER_WATER)
-
-        // TODO: All the biome music
-        // val packets = cached.computeIfAbsent(player.level()) { level ->
-        //     val biomes = level.chunkSource.generator.biomeSource.possibleBiomes()
-        //     val packets = ArrayList<ClientboundStopSoundPacket>()
-        //     for (biome in biomes) {
-        //         val music = biome.value().attributes.get(EnvironmentAttributes.BACKGROUND_MUSIC)
-        //         val entries = music?.unwrap()
-        //         if (entries.isNullOrEmpty()) {
-        //             continue
-        //         }
-        //         for (entry in entries) {
-        //             val music = entry.value()
-        //             val key = music.event.unwrapKey()
-        //             if (key.isEmpty) {
-        //                 continue
-        //             }
-        //             packets.add(ClientboundStopSoundPacket(key.get().location(), SoundSource.MUSIC))
-        //         }
-        //     }
-        //     packets
-        // }
-        // for (packet in packets) {
-        //     player.connection.send(packet)
-        // }
-    }
-
-    private fun suppressGameMusic(player: ServerPlayer) {
-        if (this.suppressGameMusic) {
-            this.suppressGameMusic(player, HashMap(1))
-        }
-    }
-
-    private fun suppressGameMusic() {
-        val cached = Reference2ObjectOpenHashMap<ServerLevel, List<ClientboundStopSoundPacket>>()
-        for (player in this.minigame.players) {
-            this.suppressGameMusic(player, cached)
-        }
-    }
-
-    private fun ServerPlayer.stopMusic(holder: Holder.Reference<SoundEvent>) {
-        this.connection.send(ClientboundStopSoundPacket(holder.key().identifier(), SoundSource.MUSIC))
     }
 
     private class PlayingSound(val timed: TimedSound, val end: Long)

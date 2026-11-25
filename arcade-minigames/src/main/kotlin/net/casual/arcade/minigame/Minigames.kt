@@ -29,6 +29,7 @@ import net.casual.arcade.minigame.serialization.MinigameCreationContext
 import net.casual.arcade.minigame.serialization.MinigameSerializer
 import net.casual.arcade.minigame.serialization.SerializableMinigame
 import net.casual.arcade.minigame.serialization.save
+import net.casual.arcade.minigame.utils.GameMusicSuppression
 import net.casual.arcade.minigame.managers.phase.AdvancingPhaseRoutine
 import net.casual.arcade.utils.serialization.codec.CodecProvider.Companion.register
 import net.casual.arcade.minigame.utils.MinigameRegistries
@@ -110,6 +111,7 @@ public object Minigames: ModInitializer {
         ExtendedGameMode.registerEvents()
         PlayerMovementRestrictionExtension.registerEvents()
         PlayerMinigameExtension.registerEvents()
+        GameMusicSuppression.registerEvents()
 
         GlobalEventHandler.Server.register<ServerStartEvent> { (server) ->
             this.loadMinigames(server)

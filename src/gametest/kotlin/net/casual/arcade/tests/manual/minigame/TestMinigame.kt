@@ -1,6 +1,10 @@
 package net.casual.arcade.tests.manual.minigame
 
 import com.mojang.serialization.MapCodec
+import net.casual.arcade.commands.CommandTree
+import net.casual.arcade.commands.argument
+import net.casual.arcade.commands.executes
+import net.casual.arcade.commands.literal
 import net.casual.arcade.dimensions.level.LevelPersistence
 import net.casual.arcade.dimensions.level.builder.CustomLevelBuilder
 import net.casual.arcade.dimensions.level.vanilla.VanillaDimension
@@ -34,6 +38,7 @@ import net.casual.arcade.virtual.visuals.tab.DynamicVirtualPlayerList
 import net.casual.arcade.virtual.visuals.tab.VanillaPlayerListEntries
 import net.casual.arcade.virtual.visuals.utils.elements.ComponentElements
 import net.casual.arcade.virtual.visuals.utils.elements.SidebarElements
+import net.minecraft.commands.arguments.BooleanArgument
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
@@ -148,6 +153,14 @@ open class TestMinigame(
             }
         })
         this.visuals.addNametag(Nametag.simple(Component.literal("CustomNametags!")))
+
+        this.commands.register(CommandTree.buildLiteral("test-minigame") {
+            literal("suppress-game-music") {
+                argument("bool", BooleanArgument.bool()) {
+                    executes { music.suppressGameMusic(BooleanArgument.getBool(it, "bool")); 0 }
+                }
+            }
+        })
     }
 
     @Listener
