@@ -8,7 +8,8 @@ import java.util.*
 
 private val SMALL_CAPS_ALPHABET = "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘqʀꜱᴛᴜᴠᴡxyᴢ".toCharArray()
 
-public val UUID_REGEX: Regex = Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+public val UUID_REGEX: Regex = Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
+private val STRICT_UUID_REGEX: Regex = Regex("^$UUID_REGEX$")
 
 public fun String.capitalize(): String {
     return this.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
@@ -53,7 +54,7 @@ public fun String.decodeHexToBytes(): ByteArray {
 }
 
 public fun String.isUUID(): Boolean {
-    return this.matches(UUID_REGEX)
+    return this.matches(STRICT_UUID_REGEX)
 }
 
 public fun ByteArray.encodeToHexString(): String {

@@ -27,6 +27,7 @@ import net.minecraft.commands.arguments.UuidArgument
 import net.minecraft.commands.suggestions.SuggestionContext
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
+import net.minecraft.server.level.ServerPlayer
 import java.util.Optional
 import java.util.concurrent.CompletableFuture
 
@@ -86,7 +87,7 @@ public object MinigameArgument: SerializableArgument.ContextFree<MinigameArgumen
 
     override fun asSerializableArgument(): SerializableArgument<*> {
         return PatternStringArgument(
-            "${IdentifierUtils.REGEX}|^-$|$UUID_REGEX".toPattern(),
+            "^(?:${IdentifierUtils.REGEX}|-|$UUID_REGEX)".toPattern(),
             Optional.of(Component.translatable("minigame.command.argument.minigame.invalidUUID"))
         )
     }
@@ -122,6 +123,12 @@ public object MinigameArgument: SerializableArgument.ContextFree<MinigameArgumen
                     val minigames = source.level.getMinigames()
                     if (minigames.size == 1) {
                         return minigames.first()
+                    }
+                }
+                if (source is SuggestionContext) {
+                    val entity = source.entity()
+                    if (entity is ServerPlayer) {
+                        return entity.getMinigame() ?: throw NOT_PARTICIPATING.create()
                     }
                 }
                 throw NOT_PARTICIPATING.create()
