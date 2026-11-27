@@ -14,6 +14,7 @@ import net.casual.arcade.utils.MathUtils.component3
 import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.data.PlayerSpecificEntityData
+import net.casual.arcade.virtual.entity.location.VirtualHeadRotation
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
 import net.casual.arcade.virtual.entity.utils.*
@@ -50,6 +51,7 @@ public open class SimpleVirtualEntity(
     override val uuid: UUID = UUID.randomUUID()
     override var position: VirtualPosition = VirtualPosition.DEFAULT
     override var rotation: VirtualRotation = VirtualRotation.DEFAULT
+    override var headRotation: VirtualHeadRotation = VirtualHeadRotation.DEFAULT
 
     private var interaction: (ServerPlayer) -> VirtualEntity.InteractionHandler? = { null }
     private var range = this.type.clientTrackingRange() * 16.0
@@ -148,6 +150,7 @@ public open class SimpleVirtualEntity(
 
     protected open fun sendDirtyLocation() {
         val current = this.location()
+        val currentHeadRot = this.headRotation()
 
         if (this.isPassenger) {
             val currentRot = current.rotation
@@ -157,17 +160,17 @@ public open class SimpleVirtualEntity(
                 this.observers.broadcast(packet)
                 this.lastSyncedRot = currentRot
             }
-            this.sendDirtyHeadRotation(currentRot.y)
+            this.sendDirtyHeadRotation(currentHeadRot)
             return
         }
 
         if (this.syncExactLocation) {
             this.observers.broadcast(
-                ClientboundEntityPositionSyncPacket(this.id, PositionPath.of(current.position), current.yRot, current.xRot, current.yRot, false)
+                ClientboundEntityPositionSyncPacket(this.id, PositionPath.of(current.position), current.yRot, current.xRot, currentHeadRot, false)
             )
             this.lastSyncedPos = current.position
             this.lastSyncedRot = current.rotation
-            this.sendDirtyHeadRotation(current.yRot)
+            this.lastSyncedHeadRot = currentHeadRot
             return
         }
 
@@ -176,7 +179,7 @@ public open class SimpleVirtualEntity(
         val currentRot = current.rotation
         val previousRot = this.getLastSyncedRotation(currentRot)
         val packet = VirtualEntityPacketUtils.createMovePacket(
-            this.id, previousPos, currentPos, previousRot, currentRot
+            this.id, previousPos, currentPos, previousRot, currentRot, currentHeadRot
         )
         if (packet != null) {
             this.observers.broadcast(packet)
@@ -186,8 +189,11 @@ public open class SimpleVirtualEntity(
             if (VirtualEntityPacketUtils.isEntityRotationPacket(packet)) {
                 this.lastSyncedRot = currentRot
             }
+            if (packet is ClientboundEntityPositionSyncPacket) {
+                this.lastSyncedHeadRot = currentHeadRot
+            }
         }
-        this.sendDirtyHeadRotation(currentRot.y)
+        this.sendDirtyHeadRotation(currentHeadRot)
     }
 
     protected fun sendDirtyHeadRotation(yHeadRot: Float) {

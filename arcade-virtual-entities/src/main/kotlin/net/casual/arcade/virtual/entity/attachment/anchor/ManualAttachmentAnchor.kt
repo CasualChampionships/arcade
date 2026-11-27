@@ -6,16 +6,25 @@ package net.casual.arcade.virtual.entity.attachment.anchor
 
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
+import net.casual.arcade.virtual.entity.location.VirtualHeadRotation
 import net.minecraft.server.level.ServerLevel
 
 public class ManualAttachmentAnchor(
     public var location: Location,
+    public var headRotation: Float,
     public val level: ServerLevel
 ): AttachmentAnchor {
-    public constructor(location: LocationWithLevel<ServerLevel>): this(location.location, location.level)
+    public constructor(
+        location: LocationWithLevel<ServerLevel>,
+        headRotation: Float = location.yRot,
+    ): this(location.location, headRotation, location.level)
 
     override fun location(): Location {
         return this.location
+    }
+
+    override fun headRotation(): Float {
+        return this.headRotation
     }
 
     override fun level(): ServerLevel {

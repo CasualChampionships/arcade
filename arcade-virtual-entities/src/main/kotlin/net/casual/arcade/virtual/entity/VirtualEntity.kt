@@ -11,6 +11,7 @@ import net.casual.arcade.utils.math.location.closerThan
 import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.interaction.EntityInteraction
+import net.casual.arcade.virtual.entity.location.VirtualHeadRotation
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
 import net.casual.arcade.virtual.entity.mixins.ServerLevelAccessor
@@ -62,11 +63,15 @@ public interface VirtualEntity {
      */
     public var position: VirtualPosition
 
-    // TODO: Split this into a head rotation too
     /**
      * The virtual entity's rotation.
      */
     public var rotation: VirtualRotation
+
+    /**
+     * The virtual entity's head rotation
+     */
+    public var headRotation: VirtualHeadRotation
 
     /**
      * The virtual entity's tick function,

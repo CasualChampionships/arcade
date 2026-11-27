@@ -67,6 +67,11 @@ public fun VirtualEntity.location(): Location {
     return Location(this.position.get(origin.position), this.rotation.get(origin.rotation))
 }
 
+public fun VirtualEntity.headRotation(): Float {
+    val origin = this.attachment.anchor.headRotation()
+    return this.headRotation.get(origin)
+}
+
 public fun VirtualEntity.canAttachTo(attachment: VirtualEntityAttachment): Boolean {
     return this.attachment === attachment
 }

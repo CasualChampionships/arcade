@@ -26,12 +26,19 @@ public object VirtualEntityPacketUtils {
     // TODO: This doesn't match up with ServerEntity's logic anymore.
     //   They have additional logic for ItemEntity's as well as for
     //   position stepping which we don't yet support.
-    public fun createMovePacket(id: Int, oldPos: Vec3, newPos: Vec3, oldRot: Vec2, newRot: Vec2): Packet<*>? {
+    public fun createMovePacket(
+        id: Int,
+        oldPos: Vec3,
+        newPos: Vec3,
+        oldRot: Vec2,
+        newRot: Vec2,
+        newHeadRot: Float
+    ): Packet<*>? {
         val codec = VecDeltaCodec()
         codec.base = oldPos
 
         val delta = codec.tryEncode(newPos)
-            ?: return ClientboundEntityPositionSyncPacket(id, PositionPath.of(newPos), newRot.y, newRot.x, newRot.y, false)
+            ?: return ClientboundEntityPositionSyncPacket(id, PositionPath.of(newPos), newRot.y, newRot.x, newHeadRot, false)
 
         val oldXRot = Mth.packDegrees(oldRot.x)
         val oldYRot = Mth.packDegrees(oldRot.y)

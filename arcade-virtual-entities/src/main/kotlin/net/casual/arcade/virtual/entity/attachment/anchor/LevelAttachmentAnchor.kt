@@ -14,6 +14,10 @@ public class LevelAttachmentAnchor(
         return Location.DEFAULT
     }
 
+    override fun headRotation(): Float {
+        return 0.0F
+    }
+
     override fun level(): ServerLevel {
         return this.level
     }

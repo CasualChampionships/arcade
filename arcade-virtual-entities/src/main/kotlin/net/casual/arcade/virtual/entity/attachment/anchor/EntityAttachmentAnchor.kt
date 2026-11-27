@@ -16,6 +16,10 @@ public class EntityAttachmentAnchor(
         return this.entity.location
     }
 
+    override fun headRotation(): Float {
+        return this.entity.yHeadRot
+    }
+
     override fun level(): ServerLevel? {
         return this.entity.level() as? ServerLevel
     }

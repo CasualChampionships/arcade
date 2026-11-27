@@ -13,6 +13,7 @@ import net.casual.arcade.utils.network.PacketSender
 import net.casual.arcade.virtual.entity.VirtualEntity
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.data.SimpleEntityData
+import net.casual.arcade.virtual.entity.location.VirtualHeadRotation
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
 import net.casual.arcade.virtual.entity.utils.EntityDataAccessors
@@ -37,6 +38,7 @@ public class NametagHeightVirtualEntity(
     override val uuid: UUID = UUID.randomUUID()
     override var position: VirtualPosition = VirtualPosition.DEFAULT
     override var rotation: VirtualRotation = VirtualRotation.DEFAULT
+    override var headRotation: VirtualHeadRotation = VirtualHeadRotation.DEFAULT
 
     override fun tick() {
 

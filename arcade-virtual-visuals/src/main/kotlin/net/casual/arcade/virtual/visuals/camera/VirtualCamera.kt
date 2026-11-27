@@ -86,6 +86,10 @@ public class VirtualCamera(
         return this.location
     }
 
+    override fun headRotation(): Float {
+        return this.location.rotation.y
+    }
+
     override fun level(): ServerLevel {
         return this.level
     }

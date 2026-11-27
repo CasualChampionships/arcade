@@ -16,7 +16,6 @@ import net.minecraft.resources.Identifier
 
 // TODO:
 //  - Add some sort of plugin system to allow compile only dependency
-//  - Add nametag support for replays
 public object ArcadeReplay: ModInitializer {
     public const val MOD_ID: String = "arcade-replay"
 

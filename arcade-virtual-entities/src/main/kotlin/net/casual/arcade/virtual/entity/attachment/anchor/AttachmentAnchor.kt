@@ -11,6 +11,8 @@ import org.jetbrains.annotations.ApiStatus.Experimental
 public interface AttachmentAnchor {
     public fun location(): Location
 
+    public fun headRotation(): Float
+
     @Experimental
     public fun level(): ServerLevel? {
         return null

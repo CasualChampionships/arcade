@@ -9,6 +9,7 @@ import net.casual.arcade.observer.tracker.ObserverTracker
 import net.casual.arcade.observer.tracker.SimpleObserverTracker
 import net.casual.arcade.virtual.entity.attachment.VirtualEntityAttachment
 import net.casual.arcade.virtual.entity.attachment.anchor.AttachmentAnchor
+import net.casual.arcade.virtual.entity.location.VirtualHeadRotation
 import net.casual.arcade.virtual.entity.location.VirtualPosition
 import net.casual.arcade.virtual.entity.location.VirtualRotation
 import net.casual.arcade.virtual.entity.utils.VirtualEntityTrackingUtils
@@ -27,6 +28,7 @@ public open class SimpleParentVirtualEntity(
     override val uuid: UUID = UUID.randomUUID()
     override var position: VirtualPosition = VirtualPosition.DEFAULT
     override var rotation: VirtualRotation = VirtualRotation.DEFAULT
+    override var headRotation: VirtualHeadRotation = VirtualHeadRotation.DEFAULT
 
     protected val children: MutableSet<VirtualEntity> = ObjectLinkedOpenHashSet()
 
