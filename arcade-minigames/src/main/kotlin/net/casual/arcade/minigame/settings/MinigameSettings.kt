@@ -43,7 +43,7 @@ public open class MinigameSettings(
     public val canPvp: GameSetting<Boolean> = this.register(bool {
         name = "pvp"
         display = item(Items.IRON_SWORD, Component.translatable("minigame.settings.canPvp.name"))
-            .styledLore(Component.translatable("minigame.settings.canPvp.desc.1"))
+            .styledLore(Component.translatable("minigame.settings.canPvp.desc"))
         value = true
         defaultOptions()
     })
@@ -55,7 +55,7 @@ public open class MinigameSettings(
     public val canGetHungry: GameSetting<Boolean> = this.register(bool {
         name = "hunger"
         display = item(Items.COOKED_BEEF, Component.translatable("minigame.settings.canGetHungry.name"))
-            .styledLore(Component.translatable("minigame.settings.canGetHungry.desc.1"))
+            .styledLore(Component.translatable("minigame.settings.canGetHungry.desc"))
         value = true
         defaultOptions()
     })
@@ -67,7 +67,7 @@ public open class MinigameSettings(
     public val canTakeDamage: GameSetting<Boolean> = this.register(bool {
         name = "can_take_damage"
         display = item(Items.SHIELD, Component.translatable("minigame.settings.canTakeDamage.name"))
-            .styledLore(Component.translatable("minigame.settings.canTakeDamage.desc.1"))
+            .styledLore(Component.translatable("minigame.settings.canTakeDamage.desc"))
         value = true
         defaultOptions()
     })
@@ -79,7 +79,7 @@ public open class MinigameSettings(
     public val canBreakBlocks: GameSetting<Boolean> = this.register(bool {
         name = "can_break_blocks"
         display = item(Items.DIAMOND_PICKAXE, Component.translatable("minigame.settings.canBreakBlocks.name"))
-            .styledLore(Component.translatable("minigame.settings.canBreakBlocks.desc.1"))
+            .styledLore(Component.translatable("minigame.settings.canBreakBlocks.desc"))
         value = true
         override(isAdminOverride(true))
         defaultOptions()
@@ -92,7 +92,7 @@ public open class MinigameSettings(
     public val canPlaceBlocks: GameSetting<Boolean> = this.register(bool {
         name = "can_place_blocks"
         display = item(Items.DIRT, Component.translatable("minigame.settings.canPlaceBlocks.name"))
-            .styledLore(Component.translatable("minigame.settings.canPlaceBlocks.desc.1"))
+            .styledLore(Component.translatable("minigame.settings.canPlaceBlocks.desc"))
         value = true
         override(isAdminOverride(true))
         defaultOptions()
@@ -105,7 +105,7 @@ public open class MinigameSettings(
     public val canDropItems: GameSetting<Boolean> = this.register(bool {
         name = "can_drop_items"
         display = item(Items.DIORITE, Component.translatable("minigame.settings.canDropItems.name"))
-            .styledLore(Component.translatable("minigame.settings.canDropItems.desc.1"))
+            .styledLore(Component.translatable("minigame.settings.canDropItems.desc"))
         value = true
         override(isAdminOverride(true))
         defaultOptions()
@@ -118,7 +118,7 @@ public open class MinigameSettings(
     public val canPickupItems: GameSetting<Boolean> = this.register(bool {
         name = "can_pickup_items"
         display = item(Items.COBBLESTONE, Component.translatable("minigame.settings.canPickupItems.name"))
-            .styledLore(Component.translatable("minigame.settings.canPickupItems.desc.1"))
+            .styledLore(Component.translatable("minigame.settings.canPickupItems.desc"))
         value = true
         override(isAdminOverride(true))
         defaultOptions()
@@ -131,7 +131,7 @@ public open class MinigameSettings(
     public val canAttackEntities: GameSetting<Boolean> = this.register(bool {
         name = "can_attack_entities"
         display = item(Items.DIAMOND_AXE, Component.translatable("minigame.settings.canAttackEntities.name"))
-            .styledLore(Component.translatable("minigame.settings.canAttackEntities.desc.1"))
+            .styledLore(Component.translatable("minigame.settings.canAttackEntities.desc"))
         value = true
         override(isAdminOverride(true))
         defaultOptions()
@@ -144,7 +144,7 @@ public open class MinigameSettings(
     public val canInteractEntities: GameSetting<Boolean> = this.register(bool {
         name = "can_interact_entities"
         display = item(Items.VILLAGER_SPAWN_EGG, Component.translatable("minigame.settings.canInteractEntities.name"))
-            .styledLore(Component.translatable("minigame.settings.canInteractEntities.desc.1"))
+            .styledLore(Component.translatable("minigame.settings.canInteractEntities.desc"))
         value = true
         override(isAdminOverride(true))
         defaultOptions()
@@ -157,7 +157,7 @@ public open class MinigameSettings(
     public val canInteractBlocks: GameSetting<Boolean> = this.register(bool {
         name = "can_interact_blocks"
         display = item(Items.FURNACE, Component.translatable("minigame.settings.canInteractBlocks.name"))
-            .styledLore(Component.translatable("minigame.settings.canInteractBlocks.desc.1"))
+            .styledLore(Component.translatable("minigame.settings.canInteractBlocks.desc"))
         value = true
         override(isAdminOverride(true))
         defaultOptions()
@@ -170,7 +170,7 @@ public open class MinigameSettings(
     public val canInteractItems: GameSetting<Boolean> = this.register(bool {
         name = "can_interact_items"
         display = item(Items.WRITTEN_BOOK, Component.translatable("minigame.settings.canInteractItems.name"))
-            .styledLore(Component.translatable("minigame.settings.canInteractItems.desc.1"))
+            .styledLore(Component.translatable("minigame.settings.canInteractItems.desc"))
         value = true
         override(isAdminOverride(true))
         defaultOptions()
@@ -190,7 +190,7 @@ public open class MinigameSettings(
     public var useVanillaChat: Boolean by this.register(bool {
         name = "use_vanilla_chat"
         display = Items.CONCRETE.white.named(Component.translatable("minigame.settings.useVanillaChat.name"))
-            .styledLore(Component.translatable("minigame.settings.useVanillaChat.desc.1"), Component.translatable("minigame.settings.useVanillaChat.desc.2"))
+            .styledLore(Component.translatable("minigame.settings.useVanillaChat.desc"))
         value = false
         defaultOptions()
     })
@@ -198,7 +198,7 @@ public open class MinigameSettings(
     public var canCrossChat: Boolean by this.register(bool {
         name = "can_cross_chat"
         display = item(Items.PAPER, Component.translatable("minigame.settings.canCrossChat.name"))
-            .styledLore(Component.translatable("minigame.settings.canCrossChat.desc.1"), Component.translatable("minigame.settings.canCrossChat.desc.2"))
+            .styledLore(Component.translatable("minigame.settings.canCrossChat.desc"))
         value = false
         defaultOptions()
     })
@@ -206,7 +206,7 @@ public open class MinigameSettings(
     public var isChatGlobal: Boolean by this.register(bool {
         name = "is_chat_global"
         display = item(Items.ACACIA_SIGN, Component.translatable("minigame.settings.isChatGlobal.name"))
-            .styledLore(Component.translatable("minigame.settings.isChatGlobal.desc.1"), Component.translatable("minigame.settings.isChatGlobal.desc.2"))
+            .styledLore(Component.translatable("minigame.settings.isChatGlobal.desc"))
         value = true
         onApply { _, _ ->
             minigame.chat.onGlobalChatToggle()
@@ -218,7 +218,7 @@ public open class MinigameSettings(
     public var enableChatCommand: GameSetting<Boolean> = this.register(bool {
         name = "enable_chat_command"
         display = item(Items.COMMAND_BLOCK, Component.translatable("minigame.settings.enableChatCommand.name"))
-            .styledLore(Component.translatable("minigame.settings.isChatGlobal.desc.1"))
+            .styledLore(Component.translatable("minigame.settings.isChatGlobal.desc"))
         value = false
         override(isAdminOverride(true))
         defaultOptions()
@@ -228,7 +228,7 @@ public open class MinigameSettings(
     public val isChatMuted: GameSetting<Boolean> = this.register(bool {
         name = "is_chat_muted"
         display = item(Items.BARRIER, Component.translatable("minigame.settings.isChatMuted.name"))
-            .styledLore(Component.translatable("minigame.settings.isChatMuted.desc.1"))
+            .styledLore(Component.translatable("minigame.settings.isChatMuted.desc"))
         value = false
         override(::muteOverride)
         defaultOptions()
@@ -237,7 +237,7 @@ public open class MinigameSettings(
     public var formatGlobalSystemChat: Boolean by this.register(bool {
         name = "format_global_system_chat"
         display = Items.DYE.yellow.named(Component.translatable("minigame.settings.formatGlobalSystemChat.name"))
-            .styledLore(Component.translatable("minigame.settings.formatGlobalSystemChat.desc.1"))
+            .styledLore(Component.translatable("minigame.settings.formatGlobalSystemChat.desc"))
         value = true
         defaultOptions()
     })
@@ -245,7 +245,7 @@ public open class MinigameSettings(
     public val tickFreezeOnPause: GameSetting<Boolean> = this.register(bool {
         name = "tick_freeze_on_pause"
         display = item(Items.BLUE_ICE, Component.translatable("minigame.settings.tickFreezeOnPause.name"))
-            .styledLore(Component.translatable("minigame.settings.tickFreezeOnPause.desc.1"))
+            .styledLore(Component.translatable("minigame.settings.tickFreezeOnPause.desc"))
         value = false
         override(isAdminOverride(false))
         defaultOptions()
@@ -254,7 +254,7 @@ public open class MinigameSettings(
     public val tickFreezeEntities: GameSetting<Boolean> = this.register(bool {
         name = "freeze_entities"
         display = item(Items.PACKED_ICE, Component.translatable("minigame.settings.freezeEntities.name"))
-            .styledLore(Component.translatable("minigame.settings.freezeEntities.desc.1"))
+            .styledLore(Component.translatable("minigame.settings.freezeEntities.desc"))
         value = false
         override(isAdminOverride(false))
         defaultOptions()
@@ -263,7 +263,7 @@ public open class MinigameSettings(
     public var pauseOnServerStop: Boolean by this.register(bool {
         name = "pause_on_server_stop"
         display = item(Items.ICE, Component.translatable("minigame.settings.pauseOnServerStop.name"))
-            .styledLore(Component.translatable("minigame.settings.pauseOnServerStop.desc.1"))
+            .styledLore(Component.translatable("minigame.settings.pauseOnServerStop.desc"))
         value = true
         defaultOptions()
     })
@@ -271,7 +271,7 @@ public open class MinigameSettings(
     public var canLookAroundWhenFrozen: Boolean by this.register(bool {
         name = "can_look_around_when_frozen"
         display = item(Items.PLAYER_HEAD, Component.translatable("minigame.settings.canLookAroundWhenFrozen.name"))
-            .styledLore(Component.translatable("minigame.settings.canLookAroundWhenFrozen.desc.1"))
+            .styledLore(Component.translatable("minigame.settings.canLookAroundWhenFrozen.desc"))
         value = true
         defaultOptions()
     })
