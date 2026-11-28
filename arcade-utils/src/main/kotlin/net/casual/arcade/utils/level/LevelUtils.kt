@@ -19,11 +19,6 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.chunk.LevelChunk
 import net.minecraft.world.level.chunk.status.ChunkStatus
 
-@Deprecated("Use this.server instead", ReplaceWith("this.server"))
-public fun ServerLevel.server(): MinecraftServer {
-    return this.server
-}
-
 public fun ServerLevel.getTrackedEntities(): List<WrappedTrackedEntity> {
     val map = this.chunkSource.chunkMap as ChunkMapAccessor
     return map.arcade_getEntityMap().values.map { WrappedTrackedEntity(it) }
