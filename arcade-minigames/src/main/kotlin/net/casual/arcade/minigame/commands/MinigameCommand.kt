@@ -14,14 +14,17 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import com.mojang.serialization.JsonOps
+import com.mojang.serialization.MapCodec
 import kotlinx.coroutines.launch
 import net.casual.arcade.commands.*
 import net.casual.arcade.commands.arguments.EnumArgument
+import net.casual.arcade.commands.arguments.RegistryElementArgument
 import net.casual.arcade.minigame.Minigame
 import net.casual.arcade.minigame.Minigames
 import net.casual.arcade.minigame.commands.arguments.*
 import net.casual.arcade.minigame.commands.arguments.MinigameSettingsOptionArgument.Companion.INVALID_SETTING_OPTION
 import net.casual.arcade.minigame.serialization.MinigameCreationContext
+import net.casual.arcade.minigame.serialization.MinigameFactory
 import net.casual.arcade.minigame.settings.GameSetting
 import net.casual.arcade.minigame.utils.AdvancementModifier
 import net.casual.arcade.minigame.utils.MinigameRegistryKeys
@@ -66,7 +69,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
                 executes(::listMinigames)
             }
             literal("create") {
-                argument("factory", ResourceArgument.resource(MinigameRegistryKeys.MINIGAME_FACTORY)) {
+                argument("factory", RegistryElementArgument.element(MinigameRegistryKeys.MINIGAME_FACTORY)) {
                     executes { createMinigame(it, JsonObject()) }
                     argument("data", MinigameFactoryDataArgument.data("factory")) {
                         executes(::createMinigame)
@@ -851,7 +854,7 @@ internal object MinigameCommand: CommandTree<CommandSourceStack> {
         context: CommandContext<CommandSourceStack>,
         data: JsonObject = MinigameFactoryDataArgument.getData(context, "data")
     ): Int {
-        val factory = ResourceArgument.getResource(context, "factory", MinigameRegistryKeys.MINIGAME_FACTORY).value()
+        val factory = RegistryElementArgument.getElement<MapCodec<out MinigameFactory>>(context, "factory")
 
         val result = factory.codec().parse(JsonOps.INSTANCE, data).result()
         if (result.isEmpty) {

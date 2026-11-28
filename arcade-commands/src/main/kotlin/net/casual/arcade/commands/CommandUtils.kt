@@ -15,11 +15,11 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.tree.LiteralCommandNode
 import net.casual.arcade.commands.mixins.CommandBoxAccessor
 import net.casual.arcade.commands.mixins.ParseBoxResultAccessor
+import net.casual.arcade.commands.requirements.PlayerCommandRequirement
 import net.casual.arcade.events.server.ServerRegisterCommandEvent
 import net.casual.arcade.utils.math.location.Location
 import net.casual.arcade.utils.math.location.LocationWithLevel
 import net.casual.arcade.utils.math.location.asLocation
-import net.casual.arcade.utils.minecraft
 import net.fabricmc.fabric.api.permission.v1.PermissionPredicates
 import net.minecraft.commands.CommandBox
 import net.minecraft.commands.CommandSourceStack
@@ -37,6 +37,7 @@ import net.minecraft.server.permissions.Permission
 import net.minecraft.server.permissions.Permission.HasCommandLevel
 import net.minecraft.server.permissions.PermissionCheck
 import net.minecraft.server.permissions.PermissionLevel
+import net.minecraft.server.permissions.PermissionSetSupplier
 import java.util.function.Supplier
 
 public val CommandSourceStack.location: Location
@@ -152,25 +153,10 @@ public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSo
     return this.requires(Commands.hasPermission(PermissionCheck.Require(permission)))
 }
 
-@Deprecated("Permission should be passed as a namespaced string instead")
-public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
-    permission: String
-): T {
-    return this.requiresPermission(minecraft(permission))
-}
-
 public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
     permission: Identifier
 ): T {
     return this.requires(PermissionPredicates.require(permission))
-}
-
-@Deprecated("Permission should be passed as a namespaced string instead")
-public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
-    permission: String,
-    fallback: PermissionLevel
-): T {
-    return this.requiresPermission(minecraft(permission), fallback)
 }
 
 public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPermission(
@@ -185,6 +171,20 @@ public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSo
     fallback: Boolean
 ): T {
     return this.requires(PermissionPredicates.require(permission, fallback))
+}
+
+public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPlayer(
+    fallback: Boolean = false,
+    predicate: (ServerPlayer) -> Boolean,
+): T {
+    return this.requiresPlayerOr(predicate) { fallback }
+}
+
+public fun <T: ArgumentBuilder<CommandSourceStack, T>> ArgumentBuilder<CommandSourceStack, T>.requiresPlayerOr(
+    predicate: (ServerPlayer) -> Boolean,
+    fallback: (PermissionSetSupplier) -> Boolean
+): T {
+    return this.requires(PlayerCommandRequirement(predicate, fallback))
 }
 
 public fun <T> RequiredArgumentBuilder<CommandSourceStack, T>.suggests(
@@ -241,6 +241,14 @@ public fun ServerRegisterCommandEvent.register(vararg commands: CommandTree<Comm
     }
 }
 
+public fun ParseBox.parseWithPlayer(
+    player: ServerPlayer,
+    command: String,
+    context: ParseContext = ParseContext.of(player)
+): ParseBox.Result {
+    return ScopedValue.where(PlayerCommandRequirement.PLAYER_CONTEXT, player)
+        .call<_, Throwable> { this.parse(command, context) }
+}
 
 internal val ParseBox.Result.parseResults: ParseResults<ParseContext>
     get() = (this as ParseBoxResultAccessor).arcade_getParseResults()

@@ -203,7 +203,8 @@ public open class MinigameSettings(
         defaultOptions()
     })
 
-    public var isChatGlobal: Boolean by this.register(bool {
+    @JvmField
+    public var isChatGlobal: GameSetting<Boolean> = this.register(bool {
         name = "is_chat_global"
         display = item(Items.ACACIA_SIGN, Component.translatable("minigame.settings.isChatGlobal.name"))
             .styledLore(Component.translatable("minigame.settings.isChatGlobal.desc"))

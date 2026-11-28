@@ -9,6 +9,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.dispatcher
 import net.casual.arcade.commands.parseResults
+import net.casual.arcade.commands.parseWithPlayer
 import net.casual.arcade.events.ListenerRegistry
 import net.casual.arcade.events.common.ServerSideEvent
 import net.casual.arcade.events.server.block.CommandBlockExecuteEvent
@@ -68,7 +69,7 @@ public open class ServerCommandManager(
 
     private fun onPlayerCommand(event: PlayerCommandEvent) {
         val source = event.player.createCommandSourceStack()
-        val result = this.parseBox.parse(event.command, ParseContext.of(source))
+        val result = this.parseBox.parseWithPlayer(event.player, event.command, ParseContext.of(source))
         if (!result.parseResults.reader.canRead()) {
             Commands.performCommand(source, result, event.command)
             event.cancel()

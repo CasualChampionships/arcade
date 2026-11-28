@@ -45,7 +45,7 @@ public object ReplayViewerCommands {
     public fun handleCommand(command: String, viewer: ReplayViewer) {
         viewer.server.execute {
             val source = viewer.player.createCommandSourceStack().withSource(ReplayViewerCommandSource(viewer))
-            val result = this.parseBox.parse(command, ParseContext.of(source))
+            val result = this.parseBox.parseWithPlayer(viewer.player, command, ParseContext.of(source))
             Commands.performCommand(source, result, command)
         }
     }

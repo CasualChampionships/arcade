@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import net.casual.arcade.commands.CommandTree
 import net.casual.arcade.commands.argument
 import net.casual.arcade.commands.literal
+import net.casual.arcade.commands.requiresPlayer
 import net.casual.arcade.events.GlobalEventHandler
 import net.casual.arcade.events.server.player.PlayerChatEvent
 import net.casual.arcade.events.server.player.PlayerSystemMessageEvent
@@ -22,7 +23,6 @@ import net.casual.arcade.minigame.events.*
 import net.casual.arcade.minigame.managers.chat.MinigameChatMode
 import net.casual.arcade.minigame.settings.MinigameSettings
 import net.casual.arcade.minigame.utils.MinigameUtils.isMinigameAdminOrHasPermission
-import net.casual.arcade.minigame.utils.MinigameUtils.isPlayerAnd
 import net.casual.arcade.minigame.utils.MinigameUtils.requiresAdminOrPermission
 import net.casual.arcade.scheduler.GlobalTickedScheduler
 import net.casual.arcade.utils.arcade
@@ -118,9 +118,17 @@ public class MinigameChatManager(
         }
         this.minigame.events.register<MinigameAddNewPlayerEvent> { (_, player) ->
             GlobalTickedScheduler.Server.later {
-                if (!this.modes.containsKey(player.uuid) && !this.minigame.settings.isChatGlobal) {
+                if (!this.modes.containsKey(player.uuid) && !this.minigame.settings.isChatGlobal.get()) {
                     this.broadcastTo(MinigameChatMode.OwnTeam.switchedToMessage(player), player)
                 }
+            }
+        }
+        this.minigame.events.register<MinigameInitializeEvent> {
+            this.minigame.settings.isChatGlobal.addListener { _, _, _ ->
+                this.minigame.commands.resendCommands()
+            }
+            this.minigame.settings.enableChatCommand.addListener { _, _, _ ->
+                this.minigame.commands.resendCommands()
             }
         }
 
@@ -314,10 +322,10 @@ public class MinigameChatManager(
         }
 
         if (this.modes.put(player.uuid, mode) != mode) {
-            if (!this.minigame.settings.isChatGlobal && feedback) {
+            if (!this.minigame.settings.isChatGlobal.get() && feedback) {
                 this.broadcastTo(mode.switchedToMessage(player), player)
             }
-        } else if (!this.minigame.settings.isChatGlobal && feedback) {
+        } else if (!this.minigame.settings.isChatGlobal.get() && feedback) {
             this.broadcastTo(Component.translatable("minigame.chat.mode.switch.alreadySelected"), player)
         }
     }
@@ -373,7 +381,7 @@ public class MinigameChatManager(
             return
         }
 
-        if (this.minigame.settings.isChatGlobal) {
+        if (this.minigame.settings.isChatGlobal.get()) {
             if (!this.minigame.settings.useVanillaChat) {
                 event.format { this.formatGlobalChatFor(player, it) }
             }
@@ -451,7 +459,7 @@ public class MinigameChatManager(
         for (player in this.minigame.players) {
             val mode = this.modes[player.uuid]
             if (mode != null && mode != MinigameChatMode.Global) {
-                if (this.minigame.settings.isChatGlobal) {
+                if (this.minigame.settings.isChatGlobal.get()) {
                     this.broadcastTo(MinigameChatMode.Global.switchedToMessage(player), player)
                 } else {
                     this.broadcastTo(mode.switchedToMessage(player), player)
@@ -462,8 +470,9 @@ public class MinigameChatManager(
 
     private fun registerCommand() {
         this.minigame.commands.register(CommandTree.buildLiteral("chat") {
-            // FIXME:
-            // requires { !minigame.settings.isChatGlobal && minigame.settings.enableChatCommand.get(it.player) }
+            requiresPlayer { player ->
+                !minigame.settings.isChatGlobal.get() && minigame.settings.enableChatCommand.get(player)
+            }
             literal("team") {
                 argument("team", TeamArgument.team()) {
                     requiresAdminOrPermission()
@@ -475,10 +484,9 @@ public class MinigameChatManager(
                 executes { selectChat(it, MinigameChatMode.Global) }
             }
             literal("spectator") {
-                // FIXME:
-                // requires { source ->
-                //     source.isMinigameAdminOrHasPermission() || source.isPlayerAnd(minigame.players::isSpectating)
-                // }
+                requiresPlayer { player ->
+                    player.isMinigameAdminOrHasPermission() && minigame.players.isSpectating(player)
+                }
                 executes { selectChat(it, MinigameChatMode.Spectator) }
             }
             literal("admin") {

@@ -5,6 +5,7 @@
 package net.casual.arcade.commands.arguments
 
 import com.mojang.brigadier.StringReader
+import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType
 import com.mojang.brigadier.suggestion.Suggestions
@@ -89,8 +90,8 @@ public class RegistryElementArgument<T: Any>(
         public fun <T: Any> element(
             key: ResourceKey<Registry<T>>,
             filter: (ResourceKey<T>, T) -> Boolean = { _, _ -> true }
-        ): RegistryElementArgument<T> {
-            return RegistryElementArgument(setOf(key), filter)
+        ): ArgumentType<Holder.Reference<T>> {
+            return RegistryElementArgument(setOf(key), filter).toBrigadier()
         }
 
         @JvmStatic
@@ -98,15 +99,15 @@ public class RegistryElementArgument<T: Any>(
         public fun <T: Any> element(
             keys: Set<ResourceKey<Registry<T>>>,
             filter: (ResourceKey<T>, T) -> Boolean = { _, _ -> true }
-        ): RegistryElementArgument<T> {
-            return RegistryElementArgument(keys, filter)
+        ): ArgumentType<Holder.Reference<T>> {
+            return RegistryElementArgument(keys, filter).toBrigadier()
         }
 
         public fun <T: Any> element(
             vararg keys: ResourceKey<Registry<T>>,
             filter: (ResourceKey<T>, T) -> Boolean = { _, _ -> true }
-        ): RegistryElementArgument<T> {
-            return RegistryElementArgument(keys.toSet(), filter)
+        ): ArgumentType<Holder.Reference<T>> {
+            return RegistryElementArgument(keys.toSet(), filter).toBrigadier()
         }
 
         @JvmStatic

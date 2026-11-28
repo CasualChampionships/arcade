@@ -9,11 +9,13 @@
   "mixins": [
     "ClientboundCommandsPacketMixin",
     "CommandBoxAccessor",
+    "CommandBoxMixin",
     "CommandDispatcherMixin",
     "CommandNodeMixin",
     "ParseBoxResultAccessor",
     "PlayerListMixin",
-    "SerializableArgumentMixin"
+    "SerializableArgumentMixin",
+    "ServerGamePacketListenerImplMixin"
   ],
   "injectors": {
     "defaultRequire": 1

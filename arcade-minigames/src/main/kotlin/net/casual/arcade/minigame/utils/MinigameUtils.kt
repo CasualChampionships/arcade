@@ -13,6 +13,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import kotlinx.coroutines.*
 import net.casual.arcade.commands.hasPermission
 import net.casual.arcade.commands.requiresPermission
+import net.casual.arcade.commands.requiresPlayerOr
 import net.casual.arcade.events.EventListener
 import net.casual.arcade.events.EventListenerHandle
 import net.casual.arcade.events.GlobalEventHandler
@@ -46,6 +47,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.permissions.Permission
 import net.minecraft.server.permissions.PermissionLevel
 import net.minecraft.world.scores.PlayerTeam
 import org.jetbrains.annotations.ApiStatus.Internal
@@ -158,9 +160,10 @@ public object MinigameUtils {
     public fun <T: ArgumentBuilder<CommandSourceStack, T>> T.requiresAdminOrPermission(
         level: PermissionLevel = PermissionLevel.GAMEMASTERS
     ): T {
-        // FIXME: Need to implement a custom permission checker and add it to the registry... :<
-        return this.requiresPermission(level)
-        // return this.requires { source -> source.isMinigameAdminOrHasPermission(level) }
+        return this.requiresPlayerOr(
+            { player -> player.isMinigameAdminOrHasPermission(level) },
+            { supplier -> supplier.permissions().hasPermission(Permission.HasCommandLevel(level)) }
+        )
     }
 
     public fun CommandSourceStack.isMinigameAdminOrHasPermission(
@@ -170,10 +173,6 @@ public object MinigameUtils {
             return this.hasPermission(level)
         }
         return this.playerOrException.isMinigameAdminOrHasPermission(level)
-    }
-
-    public fun CommandSourceStack.isPlayerAnd(predicate: Predicate<ServerPlayer>): Boolean {
-        return this.isPlayer && predicate.test(this.playerOrException)
     }
 
     public fun ServerPlayer.isMinigameAdminOrHasPermission(
