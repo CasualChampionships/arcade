@@ -40,6 +40,6 @@ public sealed interface VirtualHeadRotation {
     }
 
     public companion object {
-        public val DEFAULT: Absolute = Absolute(0.0F)
+        public val DEFAULT: VirtualHeadRotation = Relative(0.0F)
     }
 }
